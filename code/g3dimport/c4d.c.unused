@@ -1,0 +1,1278 @@
+/******************************************************************************/
+/*  GLOSS3D is free software: you can redistribute it and/or modify           */
+/*  it under the terms of the GNU General Public License as published by      */
+/*  the Free Software Foundation, either version 3 of the License, or         */
+/*  (at your option) any later version.                                       */
+/*                                                                            */
+/*  GLOSS3D is distributed in the hope that it will be useful,                */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with GLOSS3D.  If not, see http://www.gnu.org/licenses/.            */
+/******************************************************************************/
+
+/******************************************************************************/
+/*                                                                            */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*                                                                            */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/*                                                                            */
+/* Please avoid using global variables at all costs in this file, and never   */
+/* forget this :                                                              */
+/*                         Keep It Simple Stupid !                            */
+/*                                                                            */
+/******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+#include <endian.h>
+
+/******************************************************************************/
+#include <string.h>
+#include <math.h>
+
+/******************************************************************************/
+#include <X11/X.h>
+
+/******************************************************************************/
+#include <GL/gl.h>
+#include <GL/glu.h>
+
+/******************************************************************************/
+#include <config.h>
+
+/******************************************************************************/
+/***************************** SAX XML Library ********************************/
+#ifdef HAVE_EXPAT_H
+#include <expat.h>
+#endif
+
+/******************************************************************************/
+#include <list.h>
+#include <g3d.h>
+
+/******************************************************************************/
+/*** From Cinema4D Melange SDK    -   Enough to understand C4D file format. ***/
+#include <c4dmelange.h>
+
+/******************************************************************************/
+#include <g3dimport.h>
+
+#define DOUBLEVERSION 11000
+
+/******************************************************************************/
+/***** I NEVER use global variables. I use structs that are passed as args. ***/
+C4DDATA *c4ddata_new ( G3DSCENE *sce ) {
+    C4DDATA *c4d = ( C4DDATA * ) calloc ( 0x01, sizeof ( C4DDATA ) );
+
+    if ( c4d == NULL ) {
+        fprintf ( stderr, "c4ddata_new: calloc failed\n" );
+
+        return NULL;
+    }
+
+    c4d->sce = sce;
+
+
+    return c4d;
+}
+
+/******************************************************************************/
+void objectReadObjectList ( G3DOBJECT *, C4DDATA *, FILE * );
+void fileReadMaterialList ( C4DDATA *, FILE * );
+void fileReadVersion      ( C4DDATA *, FILE * );
+void fileRead             ( C4DDATA *, FILE * );
+
+/******************************************************************************/
+unsigned char ReadChar ( FILE * );
+uint16_t ReadShort     ( FILE *, int );
+uint32_t ReadLong      ( FILE *, int );
+uint64_t ReadLongLong  ( FILE *, int );
+float ReadFloat        ( FILE *, int );
+void ReadFloatVector   ( FILE *, int, G3DVECTOR * );
+double ReadDouble      ( FILE *, int );
+void ReadDoubleVector  ( FILE *, int, G3DVECTOR * );
+
+/******************************************************************************/
+unsigned char parseHyperFile ( FILE *, unsigned char, uint32_t *, uint32_t *, 
+                                       C4DDATA * );
+
+/******************************************************************************/
+unsigned char ReadChar ( FILE *fsrc ) {
+    unsigned char value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    return value;
+}
+
+/******************************************************************************/
+uint16_t ReadShort ( FILE *fsrc, int order ) {
+    uint16_t value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    if ( order == __ORDER_LITTLE_ENDIAN__ ) return htobe16 ( value );
+
+    return value;
+}
+
+/******************************************************************************/
+uint32_t ReadLong ( FILE *fsrc, int order ) {
+    uint32_t value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    if ( order == __ORDER_LITTLE_ENDIAN__ ) return htobe32 ( value );
+
+    return value;
+}
+
+/******************************************************************************/
+uint64_t ReadLongLong ( FILE *fsrc, int order ) {
+    uint64_t value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    return value;
+}
+
+/******************************************************************************/
+float ReadFloat ( FILE *fsrc, int order ) {
+    float value;
+    uint32_t *lval = ( uint32_t * ) &value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    if ( order == __ORDER_LITTLE_ENDIAN__ ) (*lval) = htonl ( (*lval) );
+
+    return value;
+}
+
+/******************************************************************************/
+void ReadFloatVector ( FILE *fsrc, int order, G3DVECTOR *vout ) {
+    vout->x = ReadFloat ( fsrc, order );
+    vout->y = ReadFloat ( fsrc, order );
+    vout->z = ReadFloat ( fsrc, order );
+    vout->w = 1.0f;
+}
+
+/******************************************************************************/
+double ReadDouble ( FILE *fsrc, int order ) {
+    double value;
+    uint64_t *lval = ( uint64_t * ) &value;
+
+    readf ( &value, sizeof ( value ), 0x01, fsrc );
+
+    if ( order == __ORDER_LITTLE_ENDIAN__ ) (*lval) = htobe64 ( value );
+
+    return value;
+}
+
+/******************************************************************************/
+void ReadDoubleVector ( FILE *fsrc, int order, G3DVECTOR *vout ) {
+    /*** Note: G3DVECTOR uses 32bits Floating Points anyways ***/
+    vout->x = ( float ) ReadDouble ( fsrc, order );
+    vout->y = ( float ) ReadDouble ( fsrc, order );
+    vout->z = ( float ) ReadDouble ( fsrc, order );
+    vout->w = 1.0f;
+}
+
+/******************************************************************************/
+void PrintString ( FILE *fsrc ) {
+    uint32_t len = ReadLong ( fsrc, __BYTE_ORDER__ );
+    uint32_t i;
+
+    for ( i = 0x00; i < len; i++ ) {
+        if ( i & 0x00000001 ) {
+            printf ( "%c", ReadChar ( fsrc ) );
+        } else { 
+            ReadChar ( fsrc );
+        }
+    }
+
+    printf( "\n" );
+}
+
+/******************************************************************************/
+char *ReadString ( FILE *fsrc ) {
+    uint32_t len = ReadLong ( fsrc, __BYTE_ORDER__ );
+    char *str = ( char * ) calloc ( ( len >> 0x01 ) + 0x01, 0x01 );
+    uint32_t n = 0x00;
+    uint32_t i;
+
+    for ( i = 0x00; i < len; i++ ) {
+        if ( i & 0x00000001 ) {
+            str[n++] = ReadChar ( fsrc );
+        } else { 
+            ReadChar ( fsrc );
+        }
+    }
+
+    return str;
+}
+
+/******************************************************************************/
+unsigned char parseHyperFile ( FILE *fsrc, unsigned char hyperval,
+                                           uint32_t     *chunkid,
+                                           uint32_t     *chunkdt, 
+                                           C4DDATA      *c4d ) {
+    void (*previousReadFile) ( FILE *, uint32_t, G3DSCENE *, C4DDATA * );
+    static int level = 0x00;
+    uint32_t i;
+
+    switch ( hyperval ) {
+        case HYPERFILEVALUE_START : /*** 0x01 - start of a chunk ***/
+            (*chunkid) = ReadLong ( fsrc, __BYTE_ORDER__ );
+            (*chunkdt) = ReadLong ( fsrc, __BYTE_ORDER__ );
+ 
+            for ( i = 0; i < level; i++ ) printf ( "    |" );
+
+            level++;
+
+            printf ( "Chunk ID:%d HEX:%x at:%x\n",(*chunkid),
+                                                  (*chunkid), ftell ( fsrc ) );
+
+        return HYPERFILEVALUE_START;
+
+        case HYPERFILEVALUE_CHAR  :  /*** 0x0B ***/
+        case HYPERFILEVALUE_UCHAR :  /*** 0x0C ***/
+                ReadChar ( fsrc );
+        break;
+
+        case HYPERFILEVALUE_WORD  :  /*** 0x0D ***/
+        case HYPERFILEVALUE_UWORD :  /*** 0x0E ***/
+                ReadShort ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_LONG  :  /*** 0x0F ***/
+        case HYPERFILEVALUE_ULONG :  /*** 0x10 ***/
+            ReadLong ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_LLONG  : /*** 0x11 ***/
+        case HYPERFILEVALUE_LULONG : /*** 0x12 ***/
+            ReadLongLong ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_REAL :   /*** 0x13 ***/
+            if ( c4d->version > DOUBLEVERSION ) {
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+            } else {
+                ReadFloat  ( fsrc, __BYTE_ORDER__ );
+            }
+        break;
+
+        case HYPERFILEVALUE_LREAL :  /*** 0x14 ***/
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_BOOL  :  /*** 0x15 ***/
+            ReadChar ( fsrc );
+        break;
+
+        case HYPERFILEVALUE_TIME :   /*** 0x16 ***/
+            if ( c4d->version > DOUBLEVERSION ) {
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+            } else {
+                ReadFloat  ( fsrc, __BYTE_ORDER__ );
+                ReadFloat  ( fsrc, __BYTE_ORDER__ );
+            }
+        break;
+
+        case HYPERFILEVALUE_VECTOR : /*** 0x17 ***/
+            if ( c4d->version > DOUBLEVERSION ) {
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+            } else {
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+            }
+        break;
+
+        case HYPERFILEVALUE_LVECTOR : /*** 0x18 ***/
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_MATRIX : /*** 0x19 ***/
+            if ( c4d->version > DOUBLEVERSION ) {
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+                ReadDouble ( fsrc, __BYTE_ORDER__ );
+            } else {
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+                ReadFloat ( fsrc, __BYTE_ORDER__ );
+            }
+        break;
+
+        case HYPERFILEVALUE_LMATRIX : /*** 0x1A ***/
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+            ReadDouble ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_CONTAINER : /*** 0x84 ***/
+            ReadLong ( fsrc, __BYTE_ORDER__ );
+        break;
+
+        case HYPERFILEVALUE_STRING : { /*** 0x82 ***/
+            PrintString ( fsrc );
+        } break;
+
+        case HYPERFILEVALUE_ARRAY            :   /*** 0x8C ***/
+        case HYPERFILEVALUE_MEMORY           :   /*** 0x80 ***/
+        case HYPERFILEVALUE_IMAGE            :   /*** 0x81 ***/
+        case HYPERFILEVALUE_FILENAME         :   /*** 0x83 ***/
+        case HYPERFILEVALUE_VECTOR_ARRAY_EX  :   /*** 0x85 ***/
+        case HYPERFILEVALUE_POLYGON_ARRAY_EX :   /*** 0x86 ***/
+        case HYPERFILEVALUE_UWORD_ARRAY_EX   : { /*** 0x87 ***/
+            uint32_t len = ReadLong ( fsrc, __BYTE_ORDER__ );
+
+            fseek ( fsrc, len, SEEK_CUR );
+        } break;
+
+        case   HYPERFILEVALUE_STOP :  /*** 0x02 - end of a chunk ***/
+            level--;
+
+/*** some error detection ***/
+if ( level < 0x00 ) return HYPERFILEVALUE_STOP;
+
+            for ( i = 0; i < level; i++ ) printf ( "    |" );
+
+            printf ( "Chunk ends\n" );
+        return HYPERFILEVALUE_STOP;
+
+        default :
+            printf ( "HEX:%x : unknown data type at %x\n", hyperval, ftell ( fsrc ) );
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+void objectReadCoords ( G3DOBJECT *obj, C4DDATA *c4d,
+                                        FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    if ( c4d->version > DOUBLEVERSION ) {
+        ReadChar ( fsrc ); ReadDoubleVector ( fsrc, __BYTE_ORDER__, &obj->pos );
+        ReadChar ( fsrc ); ReadDoubleVector ( fsrc, __BYTE_ORDER__, &obj->sca );
+        ReadChar ( fsrc ); ReadDoubleVector ( fsrc, __BYTE_ORDER__, &obj->rot );
+    } else {
+        ReadChar ( fsrc ); ReadFloatVector ( fsrc, __BYTE_ORDER__, &obj->pos );
+        ReadChar ( fsrc ); ReadFloatVector ( fsrc, __BYTE_ORDER__, &obj->sca );
+        ReadChar ( fsrc ); ReadFloatVector ( fsrc, __BYTE_ORDER__, &obj->rot );
+    }
+
+    /*** Adjust to Gloss3D size ***/
+    obj->pos.x /= 100.0f;
+    obj->pos.y /= 100.0f;
+    obj->pos.z /= 100.0f;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            objectReadCoords ( obj, c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void objectReadBase ( G3DOBJECT *obj, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        default : {
+                            objectReadBase ( obj, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void objectReadFile ( G3DOBJECT *obj, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_BASELIST2D :    /*** 110050 - Obj Name   ***/
+                            objectReadBase ( obj, c4d, fsrc );
+                        break;
+
+                        case CHUNK_BASEOBJECT :    /*** 110052 - Obj Coords ***/
+                            objectReadCoords ( obj, c4d, fsrc );
+                        break;
+
+                        case CHUNK_ROOTLIST2D : {  /*** 110100 - Children ***/
+                            objectReadObjectList ( obj, c4d, fsrc );
+                        } break;
+
+                        default : {
+                            objectReadFile ( obj, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void meshReadPolygons ( G3DMESH *mes, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            case HYPERFILEVALUE_POLYGON_ARRAY_EX : {  /*** 0x86 ***/
+                uint32_t nbqua = ( ReadLong ( fsrc, __BYTE_ORDER__ ) - 0x04 ) / 8;
+                uint32_t i;
+
+                ReadLong ( fsrc, __BYTE_ORDER__ );
+
+                printf ( "%d Quads found\n", nbqua );
+
+                c4d->quaidx = calloc ( nbqua, sizeof ( uint16_t ) * 0x04 );
+                c4d->nbqua  = nbqua;
+
+                for ( i = 0x00; i < nbqua; i++ ) {
+                    c4d->quaidx[i][0x00] = ReadShort ( fsrc, __BYTE_ORDER__ );
+                    c4d->quaidx[i][0x01] = ReadShort ( fsrc, __BYTE_ORDER__ );
+                    c4d->quaidx[i][0x02] = ReadShort ( fsrc, __BYTE_ORDER__ );
+                    c4d->quaidx[i][0x03] = ReadShort ( fsrc, __BYTE_ORDER__ );
+                }
+            } break;
+
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            meshReadPolygons ( mes, c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void meshReadVertices ( G3DMESH *mes, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt; 
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            case HYPERFILEVALUE_VECTOR_ARRAY_EX : {  /*** 0x85 ***/
+                uint32_t nbver = ReadLong ( fsrc, __BYTE_ORDER__ );
+                G3DVERTEX **vertab = calloc ( nbver, sizeof ( G3DVERTEX * ) );
+                uint32_t i;
+
+                if ( c4d->version > DOUBLEVERSION ) nbver /= 24;
+                else                                nbver /= 12;
+
+                printf ( "%d vertices found\n", nbver );
+
+                for ( i = 0x00; i < nbver; i++ ) {
+                    float x, y, z;
+
+                    if ( c4d->version > DOUBLEVERSION ) {
+                        x = ReadDouble ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                        y = ReadDouble ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                        z = ReadDouble ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                    } else {
+                        x = ReadFloat ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                        y = ReadFloat ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                        z = ReadFloat ( fsrc, __BYTE_ORDER__ ) / 100.0f;
+                    }
+
+                    vertab[i] = g3dvertex_new ( x, y, z );
+
+                    g3dmesh_addVertex ( mes, vertab[i] );
+                }
+
+                for ( i = 0x00; i < c4d->nbqua; i++ ) {
+                    G3DVERTEX *ver[0x04] = { vertab[c4d->quaidx[i][0x00]],
+                                             vertab[c4d->quaidx[i][0x01]],
+                                             vertab[c4d->quaidx[i][0x02]],
+                                             vertab[c4d->quaidx[i][0x03]] };
+
+                    /*** C4D file format only deals with quads. ***/
+                    /*** For triangles, ver[0x02] == ver[0x03]. ***/
+                    if ( ver[0x02] == ver[0x03] ) {
+                        g3dmesh_addFace ( mes, g3dface_new ( ver, 0x03 ) );
+                    } else {
+                        g3dmesh_addFace ( mes, g3dface_new ( ver, 0x04 ) );
+                    }
+                }
+            } break;
+
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            meshReadVertices ( mes, c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void meshReadRootTag ( G3DMESH *mes, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt; 
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case Tpoint : { /*** 5600 - 0x15e0 ***/
+                            meshReadVertices ( mes, c4d, fsrc );
+                        } break;
+
+                        case Tpolygon : {
+                            meshReadPolygons ( mes, c4d, fsrc );
+                        } break;
+
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            meshReadRootTag ( mes, c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void symmetryReadParams ( G3DSYMMETRY *sym, C4DDATA *c4d, FILE *fsrc ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            case HYPERFILEVALUE_LONG : {
+                uint32_t paramid = ReadLong ( fsrc, __BYTE_ORDER__ );
+
+                switch ( paramid ) {
+                    case 0x000003E8 : { /*** Orientation ***/
+                        uint32_t ori;
+
+                        ReadChar ( fsrc );                 /*** Type    ***/
+                        ReadLong ( fsrc, __BYTE_ORDER__ ); /*** Unknown ***/
+
+                        ReadChar ( fsrc );                 /*** Type    ***/
+                        ori = ReadLong ( fsrc, __BYTE_ORDER__ );
+
+                        if (ori==0x00) g3dsymmetry_setPlane ( sym, SYMMETRYXY );
+                        if (ori==0x01) g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
+                        if (ori==0x02) g3dsymmetry_setPlane ( sym, SYMMETRYZX );
+                    } break;
+
+                    case 0x000003E9 :
+
+                    break;
+
+                    case 0x000003EA : { /*** Merge Limit ***/
+                        float mergelimit;
+
+                        ReadChar ( fsrc );                 /*** Type    ***/
+                        ReadLong ( fsrc, __BYTE_ORDER__ ); /*** Unknown ***/
+
+                        ReadChar ( fsrc );                 /*** Type    ***/
+                        mergelimit = ReadFloat ( fsrc, __BYTE_ORDER__ );
+
+                        g3dsymmetry_setMergeLimit ( sym, mergelimit );
+                    } break;
+
+                    case 0x000003EB :
+
+                    break;
+
+                    default :
+                    break;
+                }
+            } break;
+
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                /*** Normally, the below case should never be , ***/
+                /*** met. There are no subchunks to this chunk. ***/
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        default : {
+                            symmetryReadParams ( sym, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void symmetryReadBase ( G3DSYMMETRY *sym, C4DDATA *c4d, FILE *fsrc ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            case HYPERFILEVALUE_STRING : {/*** Read the name ***/
+                char *str = ReadString ( fsrc );
+
+                g3dobject_name ( obj, str );
+
+                free ( str );
+            } break;
+
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case 0x84 :
+                            symmetryReadParams ( sym, c4d, fsrc );
+                        break;
+
+                        default : {
+                            symmetryReadBase ( sym, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void symmetryReadFile ( G3DSYMMETRY *sym, C4DDATA *c4d, FILE *fsrc ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_BASELIST2D :    /*** 110050 - Obj Name   ***/
+                            symmetryReadBase ( sym, c4d, fsrc );
+                        break;
+
+                        case CHUNK_BASEOBJECT :    /*** 110052 - Obj Coords ***/
+                            objectReadCoords ( obj, c4d, fsrc );
+                        break;
+
+                        case CHUNK_ROOTLIST2D : {  /*** 110100 - Children ***/
+                            objectReadObjectList ( obj, c4d, fsrc );
+                        } break;
+
+                        default : {
+                            symmetryReadFile ( sym, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void meshReadFile ( G3DMESH *mes, C4DDATA *c4d, FILE *fsrc ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_BASELIST2D :    /*** 110050 - Obj Name   ***/
+                            objectReadBase ( obj, c4d, fsrc );
+                        break;
+
+                        case CHUNK_BASEOBJECT :    /*** 110052 - Obj Coords ***/
+                            objectReadCoords ( obj, c4d, fsrc );
+                        break;
+
+                        case CHUNK_ROOTLIST2D : {  /*** 110100 - Children ***/
+                            objectReadObjectList ( obj, c4d, fsrc );
+                        } break;
+
+                        /*** Mesh Chunks ***/
+
+                        case CHUNK_ROOT_TAG :   /*** 110108 - Root Tag ***/
+                            meshReadRootTag ( mes, c4d, fsrc );
+                        break;
+
+                        default : {
+                            meshReadFile ( mes, c4d, fsrc );
+                        } break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+G3DOBJECT *pluginReadLayer ( C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt; 
+    uint32_t objtype;
+    G3DOBJECT *obj = NULL;
+
+    /*** Skip ***/
+    ReadChar ( fsrc );
+    /*** Object Type ***/
+    objtype = ReadLong ( fsrc, __BYTE_ORDER__ );
+
+    /*** Skip ***/
+    ReadChar ( fsrc );
+    /*** Skip ***/
+    ReadLong ( fsrc, __BYTE_ORDER__ );
+
+    switch ( objtype ) {
+        case Opolygon : {
+            obj = ( G3DOBJECT * ) g3dmesh_new ( 0x00, "PluginMesh" );
+        } break;
+
+        case Osymmetry : {
+            obj = ( G3DOBJECT * ) g3dsymmetry_new ( 0x00, "PluginSymmetry" );
+        } break;
+
+        case Osphere : {
+            obj = g3dobject_new ( 0x00, "Sphere" );
+        } break;
+
+        case Ocube : {
+            obj = g3dobject_new ( 0x00, "Cube" );
+        } break;
+
+        case Otorus : {
+            obj = g3dobject_new ( 0x00, "Torus" );
+        } break;
+
+        case Ocylinder : {
+            obj = g3dobject_new ( 0x00, "Cylinder" );
+        } break;
+
+        case Oplane : {
+            obj = g3dobject_new ( 0x00, "Plane" );
+        } break;
+
+        default : {
+            obj = g3dobject_new ( 0x00, "Null Object" );
+        } break;
+    }
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return obj;
+
+                /*** There are no subchunks to this chunk  ***/
+                /*** if ( ret == HYPERFILEVALUE_START ) {} ***/
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+
+    return obj;
+}
+
+/******************************************************************************/
+G3DOBJECT *pluginReadFile ( C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt; 
+    G3DOBJECT *obj = NULL;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return obj;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_PLUGINLAYER : { /*** 110064 - 0x1adf0 ***/
+                            obj = pluginReadLayer ( c4d, fsrc );
+                        } break;
+
+                        /*** this function handles the unknown subchunks ***/
+                        /*** Commented - dont recurse ***/
+                        default :
+                            pluginReadFile ( c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+
+    return obj;
+}
+
+/******************************************************************************/
+void objectReadObjectList ( G3DOBJECT *obj, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    G3DPRIMITIVE *pri = NULL;
+                    G3DSYMMETRY *sym = NULL;
+                    G3DOBJECT *child = NULL;
+                    G3DMESH *mes = NULL;
+
+                    switch ( chunkid ) {
+                        case Opluginpolygon :
+                        case Opolygon : {
+                            mes = g3dmesh_new ( 0x00, "Mesh" );
+
+                            child = ( G3DOBJECT * ) mes;
+
+                            meshReadFile ( mes, c4d, fsrc );
+                        } break;
+
+                        case Osymmetry : {
+                            sym = g3dsymmetry_new ( 0x00, "" );
+
+                            child = ( G3DOBJECT * ) sym;
+
+                            symmetryReadFile ( sym, c4d, fsrc );
+                        } break;
+
+                        /*** This is really stupid ***/
+                        /*case Oplugin : {
+                        } break;*/
+
+                        /*case Osphere : {
+                        } break;
+
+                        case Ocube : {
+                        } break;
+
+                        case Otorus : {
+                        } break;
+
+                        case Ocylinder : {
+                        } break;
+
+                        case Oplane : {
+                        } break;*/
+
+                        default : {
+                            child = g3dobject_new ( 0x00, "Null Object" );
+
+                            objectReadFile ( child, c4d, fsrc );
+                        } break;
+                    }
+
+                    g3dobject_addChild ( obj, child );
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void fileReadVersion ( C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    /*** Skip the Hyperval byte ***/
+    ReadChar ( fsrc );
+
+    /*** Read the chunk data ***/
+    c4d->version = ReadLong ( fsrc, __BYTE_ORDER__ );
+
+printf ("File version %d\n", c4d->version );
+
+    /*** Read the rest of the stuff as usual ***/
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        /** Recursivity handles the unknown subchunks ***/
+                        default : 
+                            fileReadVersion ( c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void fileReadMaterialList ( C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        /** Recursivity handles the unknown subchunks ***/
+                        default : 
+                            fileReadMaterialList ( c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void objectReadRootTag  ( G3DOBJECT *obj, C4DDATA *c4d, FILE *fsrc ) {
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_ROOTLIST2D : {   /*** 110107 - 1ae1b ***/
+                            objectReadObjectList ( obj, c4d, fsrc );
+                        } break;
+
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            objectReadRootTag ( obj, c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+void fileRead ( C4DDATA *c4d, FILE *fsrc ) {
+    G3DSCENE *sce = c4d->sce;
+    unsigned char hyperval;
+    uint32_t chunkid;
+    uint32_t chunkdt;
+
+    readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+
+    while ( feof ( fsrc ) == 0x00 ) {
+        switch ( hyperval ) {
+            default : {
+                uint32_t ret = parseHyperFile ( fsrc, hyperval,
+                                                      &chunkid, 
+                                                      &chunkdt,
+                                                      c4d );
+
+                if ( ret == HYPERFILEVALUE_STOP  ) return;
+                if ( ret == HYPERFILEVALUE_START ) {
+                    switch ( chunkid ) {
+                        case CHUNK_VERSION : {       /*** 110024 - 1adc8 ***/
+                            fileReadVersion ( c4d, fsrc );
+                        } break;
+
+                        case CHUNK_ROOT_MATERIAL_EX :
+                        case CHUNK_ROOT_MATERIAL : { /*** 110308 - 1aee4 ***/
+                            fileReadMaterialList ( c4d, fsrc );
+                        } break;
+
+                        case CHUNK_ROOT_OBJECT : {   /*** 110107 - 1ae1b ***/
+                            objectReadRootTag ( (G3DOBJECT *) sce, c4d, fsrc );
+                        } break;
+
+                        /** this function handles the unknown subchunks ***/
+                        default :
+                            fileRead ( c4d, fsrc );
+                        break;
+                    }
+                }
+            } break;
+        }
+
+        readf ( &hyperval, sizeof ( hyperval ), 0x01, fsrc );
+    }
+}
+
+/******************************************************************************/
+G3DSCENE *g3dscene_importC4D ( const char *filename ) {
+    uint64_t magicid = 0x00;
+    uint32_t version = 0x00;
+    G3DSCENE *sce = NULL;
+    C4DDATA *c4d = NULL;
+    FILE *fsrc;
+
+    if ( ( fsrc = fopen ( filename, "rb" ) ) == NULL ) {
+        fprintf ( stderr, "g3dscene_importC4D: Cannot open %s\n", filename );
+
+        return NULL;
+    }
+
+    readf ( &magicid, sizeof ( magicid  ), 0x01, fsrc ); 
+    
+    /*** this programm is developped on a little endian architecture ***/
+    /***      we have to invert the bytes of our uint64_t number     ***/
+
+    if ( ( magicid & 0xFFFFFFFFFFFFFF00 ) != 0x3644344344344300 ) {
+        fprintf ( stderr, "g3dscene_importC4D: not a C4D file !\n" );
+
+        fclose ( fsrc );
+
+        return NULL;
+    }
+
+    c4d = c4ddata_new ( g3dscene_new ( 0x00, "Cinema 4D Scene" ) );
+
+    fileRead ( c4d, fsrc );
+
+
+
+    fclose ( fsrc );
+
+    return c4d->sce;
+}

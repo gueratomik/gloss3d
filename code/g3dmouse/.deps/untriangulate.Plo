@@ -1,0 +1,59 @@
+untriangulate.lo untriangulate.o: untriangulate.c ../include/config.h \
+  ../include/g3dmouse.h /root/mingw32/usr/local/include/stdio.h \
+  /root/mingw32/usr/local/include/_mingw.h \
+  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h \
+  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h \
+  /root/mingw32/usr/local/include/sys/types.h \
+  /root/mingw32/usr/local/include/stdlib.h \
+  /root/mingw32/usr/local/include/stdint.h \
+  /root/mingw32/usr/local/include/string.h \
+  /root/mingw32/usr/local/include/math.h ../include/list.h \
+  ../include/g3d.h /root/mingw32/usr/local/include/GL/gl.h \
+  /root/mingw32/usr/local/include/GL/glu.h \
+  /root/mingw32/usr/local/include/GL/glext.h \
+  /root/mingw32/gtk3/include/jpeglib.h \
+  /root/mingw32/gtk3/include/jconfig.h \
+  /root/mingw32/gtk3/include/jmorecfg.h ../include/g3durmanager.h \
+  /root/mingw32/usr/local/include/time.h
+
+../include/config.h:
+
+../include/g3dmouse.h:
+
+/root/mingw32/usr/local/include/stdio.h:
+
+/root/mingw32/usr/local/include/_mingw.h:
+
+/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h:
+
+/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h:
+
+/root/mingw32/usr/local/include/sys/types.h:
+
+/root/mingw32/usr/local/include/stdlib.h:
+
+/root/mingw32/usr/local/include/stdint.h:
+
+/root/mingw32/usr/local/include/string.h:
+
+/root/mingw32/usr/local/include/math.h:
+
+../include/list.h:
+
+../include/g3d.h:
+
+/root/mingw32/usr/local/include/GL/gl.h:
+
+/root/mingw32/usr/local/include/GL/glu.h:
+
+/root/mingw32/usr/local/include/GL/glext.h:
+
+/root/mingw32/gtk3/include/jpeglib.h:
+
+/root/mingw32/gtk3/include/jconfig.h:
+
+/root/mingw32/gtk3/include/jmorecfg.h:
+
+../include/g3durmanager.h:
+
+/root/mingw32/usr/local/include/time.h:

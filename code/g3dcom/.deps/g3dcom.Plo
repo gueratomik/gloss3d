@@ -1,0 +1,3 @@
+g3dcom.lo g3dcom.o: g3dcom.c ../include/g3dcom.h
+
+../include/g3dcom.h:

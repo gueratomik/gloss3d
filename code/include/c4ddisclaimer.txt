@@ -1,0 +1,56 @@
+Software License Agreement for MAXON MELANGE
+
+This Software License Agreement (the "Agreement") is a legal agreement between you and MAXON Computer GmbH, Max-Planck-Straﬂe 20, 61381 Friedrichsdorf, Germany ("MAXON"), governing the use of the software development kit MELANGE.
+
+By downloading or using MELANGE, you agree to be bound by and comply with the terms of this Agreement. If you do not agree to the terms of this Agreement, you are not allowed to download or use MELANGE or any portion thereof.
+
+
+1. Subject Matter
+
+ 1.1. MELANGE is a software development kit for the reading and writing of CINEMA 4D project files in the format ".c4d". It includes header files, compiled static libraries for various operating systems and compiler versions, programming examples and documentation (collectively referred to as "MELANGE"). MELANGE does not include the application CINEMA 4D which is required for the rendering of CINEMA 4D project files. 
+
+ 1.2. MAXON offers MELANGE to you in machine code form via download from the internet by courtesy and at no cost.
+
+ 1.3. MAXON offers MELANGE to you "as is". MAXON does not warrant that MELANGE operates without interruption or error, has specific functions, complies to specific requirements and is merchantable, free of defects in quality or title, compatible with specific software and hardware and suitable for a particular purpose. Furthermore, MAXON does not warrant that the results obtained from any use of MELANGE will be accurate and reliable. You are solely responsible for your use of MELANGE on your hardware, for the integration of MELANGE in other software and for any use and distribution of such software.
+
+ 1.4. MAXON is under no obligation to provide technical maintenance and support to you, to rectify defects and to restore failed systems and lost data.
+
+ 1.5. MAXON may at its sole discretion modify, develop further and enhance MELANGE and change its functions, naming and formats, but shall not be obliged to provide such modifications to you.
+
+
+2. Grant of License
+
+ 2.1. Subject to the terms and conditions of this Agreement, MAXON hereby grants to you a non-exclusive and worldwide right to download, copy and use MELANGE.
+
+ 2.2. You may integrate the header files and compiled static libraries of MELANGE in your software product and distribute such components only as integrated part of your software product.
+
+ 2.3. Your may not modify and/or distribute the programming examples and documentation of MELANGE.
+
+ 2.4. Except as expressly provided hereinabove, MAXON does not grant any express or implied rights or licenses to you. 
+
+
+3. Liability
+
+ 3.1. MAXON shall be liable without limitations (1) in case of intent and gross negligence; (2) in case of injuries to life, body or health; (3) pursuant to the terms of the German Product Liability Act; and (4) under a guarantee granted by MAXON.
+
+ 3.2. Subject to Sec. 3.1 above, MAXONís liability for slightly negligent breaches of cardinal duties shall be limited to such damage which was typical for this kind of business and foreseeable upon the execution of this Agreement. Cardinal duties are duties of MAXON which enable the performance of this Agreement, i. e. are precondition of the performance of this Agreement, and which you may therefore rely on.
+
+ 3.3. MAXON shall not be liable irrespective of the legal grounds except as expressly set forth in Sec. 3.1 to 3.2 above.
+
+
+4. Termination
+
+ 4.1. MAXON shall have the right to terminate this Agreement with immediate effect, if you (1) breach MAXONís intellectual property rights; or (2) materially breach any provision of this Agreement and fail to cure such breach within twenty (20) days after receiving written notice specifying such breach from MAXON.
+
+ 4.2. In the event of the termination of this Agreement, you shall immediately delete and destroy all copies and stop any use of MELANGE.
+
+
+5. General Provisions
+
+ 5.1. This Agreement shall be construed in accordance with and governed by the laws of Germany, but excluding the principles of conflict of laws and the United Nation Convention on the International Sale of Goods (CISG).
+
+ 5.2. The Parties agree to the exclusive jurisdiction of the competent courts of Frankfurt am Main, Germany, in respect of any proceeding, suit or action arising out of or in connection with this Agreement, including its valid conclusion or its termination.
+
+ 5.3. This Agreement sets forth the entire understanding of you and MAXON with respect to its subject matter and supersedes all prior or contemporaneous oral or written agreements, if any. Any general terms and conditions of either party shall not apply, even if the other party does not expressly object to them.
+
+ 5.4. This Agreement can be changed and amended only by a writing executed by both parties.

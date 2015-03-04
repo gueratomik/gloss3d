@@ -1,0 +1,199 @@
+/******************************************************************************/
+/*  GLOSS3D is free software: you can redistribute it and/or modify           */
+/*  it under the terms of the GNU General Public License as published by      */
+/*  the Free Software Foundation, either version 3 of the License, or         */
+/*  (at your option) any later version.                                       */
+/*                                                                            */
+/*  GLOSS3D is distributed in the hope that it will be useful,                */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU General Public License for more details.                              */
+/*                                                                            */
+/*  You should have received a copy of the GNU General Public License         */
+/*  along with GLOSS3D.  If not, see http://www.gnu.org/licenses/.            */
+/******************************************************************************/
+
+/******************************************************************************/
+/*                                                                            */
+/* Programmer: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2014         */
+/*                                                                            */
+/******************************************************************************/
+
+/******************************************************************************/
+/*                                                                            */
+/* Please avoid using global variables at all costs in this file, and never   */
+/* forget this :                                                              */
+/*                         Keep It Simple Stupid !                            */
+/*                                                                            */
+/******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+/******************************************************************************/
+#include <X11/X.h>
+#include <X11/Intrinsic.h>
+#include <X11/IntrinsicP.h>
+#include <X11/StringDefs.h>
+
+/******************************************************************************/
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <X11/extensions/XShm.h>
+
+/******************************************************************************/
+#include <Xm/Xm.h>
+#include <Xm/Form.h>
+#include <Xm/MainW.h>
+#include <Xm/RowColumn.h>
+#include <Xm/ToggleB.h>
+#include <Xm/PushB.h>
+#include <Xm/Manager.h>
+#include <Xm/ManagerP.h>
+#include <Xm/PrimitiveP.h>
+
+/******************************************************************************/
+#include <X11/xpm.h>
+
+/******************************************************************************/
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/GLwMDrawA.h>
+
+/******************************************************************************/
+#include <list.h>
+#include <g3d.h>
+#include <g3dmouse.h>
+#include <g3dui.h>
+#include <r3d.h>
+
+/******************************************************************************/
+static XtProc ClassInitialize ( void );
+static XtInitProc Initialize ( Widget, Widget, ArgList, Cardinal * );
+static XtRealizeProc Realize ( Widget, XtValueMask *, XSetWindowAttributes * );
+static XtWidgetProc Destroy ( Widget );
+static XtWidgetProc Resize ( Widget );
+static XtExposeProc Redisplay ( Widget, XEvent *, Region );
+
+/******************************************************************************/
+static void GListMouseEvent ( Widget w, XEvent *event,
+                              String *params, Cardinal *num_params ) {
+
+}
+
+/******************************************************************************/
+static char defaultTranslations[] = 
+"<PtrMoved>: GListMouseEvent()\n\
+<BtnDown>:   GListMouseEvent()\n\
+<Btn1Up>(2): GListMouseEvent()\n\
+<BtnUp>:     GListMouseEvent()\n";
+
+/******************************************************************************/
+static XtActionsRec Actions[] = { { "GListMouseEvent", GListMouseEvent } };
+
+/******************************************************************************/
+static XtProc ClassInitialize ( ) {
+    return ( XtProc ) NULL;
+}
+
+/******************************************************************************/
+static XtInitProc Initialize ( Widget request, Widget init,
+                               ArgList args, Cardinal *num ) {
+
+    return ( XtInitProc ) NULL;
+}
+
+/******************************************************************************/
+static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
+                               XSetWindowAttributes *attributes ) {
+
+    /*** this is required if we want to inherit the event mask. ***/
+    /*** Redisplay procedure would not be called otherwise      ***/
+    xmManagerClassRec.core_class.realize ( w, value_mask, attributes );
+
+    return ( XtRealizeProc ) NULL;
+}
+
+/******************************************************************************/
+static XtWidgetProc Destroy ( Widget w ) {
+
+    return ( XtWidgetProc ) NULL;
+}
+
+/******************************************************************************/
+static XtWidgetProc Resize ( Widget w ) {
+
+    return ( XtWidgetProc ) NULL;
+}
+
+/******************************************************************************/
+static XtExposeProc Redisplay ( Widget w, XEvent *event, Region region ) {
+
+    return ( XtExposeProc ) NULL;
+}
+
+/******************************************************************************/
+static XtSetValuesFunc set_values ( Widget current, Widget request, Widget set,
+                                    ArgList args, Cardinal *numargs ) {
+
+    return 0x00;
+}
+
+/******************************************************************************/
+GTimelineClassRec gtimelineClassRec = 
+                              { { (WidgetClass) &xmManagerClassRec,/*parent*/
+                                  "GQUAD",                      /* class_name */
+                                  sizeof ( GTimelineRec ),     /* widget size */
+                       ( XtProc ) ClassInitialize,        /* class_initialize */
+                                  NULL,              /* class_part_initialize */
+                                  FALSE,                      /* class_inited */
+                   ( XtInitProc ) Initialize,                   /* initialize */
+                                  NULL,                    /* initialize_hook */
+                ( XtRealizeProc ) Realize,                         /* realize */
+                                  Actions/*NULL*/,                 /* actions */
+                                  XtNumber ( Actions )/*0x00*/,/* num_actions */
+                                  NULL/*widgetRes*/,              /* resouces */
+                                  0x00/*XtNumber ( widgetRes )*/,/* num_resources */
+                                  NULLQUARK,                      /*xrm_class */
+                                  TRUE,                    /* compress_motion */
+                                  XtExposeCompressMaximal,/*compress_exposure */
+                                  TRUE,               /* compress_enterleave */
+                                  FALSE,                  /* visible_interest */
+                ( XtWidgetProc )  Destroy,                          /*destroy */
+                ( XtWidgetProc )  Resize,                           /* resize */
+                ( XtExposeProc )  Redisplay,                        /* expose */
+             ( XtSetValuesFunc )  set_values,                   /* set_values */
+                                  NULL,                    /* set_values_hook */
+                                  XtInheritSetValuesAlmost,/*set_values_almost*/
+                                  NULL,                    /* get_values_hook */
+                                  NULL,                       /* accept_focus */
+                                  XtVersion,                       /* version */
+                                  NULL,                   /* callback_offsets */
+                                  defaultTranslations,            /* tm_table */
+                                  XtInheritQueryGeometry,   /* query_geometry */
+                                  NULL,                /* display_accelerator */
+                                  NULL },                        /* extension */
+                                  /* Composite class part */
+                                { XtInheritGeometryManager,
+                                  XtInheritChangeManaged,
+                                  XtInheritInsertChild,
+                                  XtInheritDeleteChild,
+                                  NULL }
+                                  /* Constraint class part */
+                                ,{ NULL,
+                                  0x00,
+                                  0x00,
+                                  NULL,
+                                  NULL,
+                                  NULL,
+                                  NULL },
+                                  /* XmManager class part */
+                                {
+/* translations                 */ XtInheritTranslations,
+/* syn_resources                */ NULL,
+/* num_syn_resources            */ 0x00,
+/* syn_constraint_resources     */ NULL,
+/* num_syn_constraint_resources */ 0x00,
+/* parent_process               */ XmInheritParentProcess,
+/* extension                    */ NULL } };
+

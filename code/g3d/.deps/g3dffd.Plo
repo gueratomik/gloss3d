@@ -1,0 +1,199 @@
+g3dffd.lo g3dffd.o: g3dffd.c ../include/config.h ../include/g3d.h \
+  /root/mingw32/usr/local/include/stdio.h \
+  /root/mingw32/usr/local/include/_mingw.h \
+  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h \
+  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h \
+  /root/mingw32/usr/local/include/sys/types.h \
+  /root/mingw32/usr/local/include/stdlib.h \
+  /root/mingw32/usr/local/include/stdint.h \
+  /root/mingw32/usr/local/include/string.h \
+  /root/mingw32/usr/local/include/math.h \
+  /root/mingw32/usr/local/include/GL/gl.h \
+  /root/mingw32/usr/local/include/GL/glu.h \
+  /root/mingw32/usr/local/include/GL/glext.h \
+  /usr/src/tarball/libjpg-win32/include/jpeglib.h \
+  /usr/src/tarball/libjpg-win32/include/jconfig.h \
+  /root/mingw32/usr/local/include/windows.h \
+  /root/mingw32/usr/local/include/windef.h \
+  /root/mingw32/usr/local/include/winnt.h \
+  /root/mingw32/usr/local/include/winerror.h \
+  /root/mingw32/usr/local/include/basetsd.h \
+  /root/mingw32/usr/local/include/pshpack4.h \
+  /root/mingw32/usr/local/include/poppack.h \
+  /root/mingw32/usr/local/include/wincon.h \
+  /root/mingw32/usr/local/include/winbase.h \
+  /root/mingw32/usr/local/include/wingdi.h \
+  /root/mingw32/usr/local/include/winuser.h \
+  /root/mingw32/usr/local/include/winnls.h \
+  /root/mingw32/usr/local/include/winver.h \
+  /root/mingw32/usr/local/include/winnetwk.h \
+  /root/mingw32/usr/local/include/winreg.h \
+  /root/mingw32/usr/local/include/winsvc.h \
+  /root/mingw32/usr/local/include/cderr.h \
+  /root/mingw32/usr/local/include/dde.h \
+  /root/mingw32/usr/local/include/ddeml.h \
+  /root/mingw32/usr/local/include/dlgs.h \
+  /root/mingw32/usr/local/include/imm.h \
+  /root/mingw32/usr/local/include/lzexpand.h \
+  /root/mingw32/usr/local/include/mmsystem.h \
+  /root/mingw32/usr/local/include/nb30.h \
+  /root/mingw32/usr/local/include/rpc.h \
+  /root/mingw32/usr/local/include/rpcdce.h \
+  /root/mingw32/usr/local/include/basetyps.h \
+  /root/mingw32/usr/local/include/rpcdcep.h \
+  /root/mingw32/usr/local/include/rpcnsi.h \
+  /root/mingw32/usr/local/include/rpcnterr.h \
+  /root/mingw32/usr/local/include/shellapi.h \
+  /root/mingw32/usr/local/include/pshpack2.h \
+  /root/mingw32/usr/local/include/winperf.h \
+  /root/mingw32/usr/local/include/commdlg.h \
+  /root/mingw32/usr/local/include/winspool.h \
+  /root/mingw32/usr/local/include/winsock2.h \
+  /root/mingw32/usr/local/include/ole2.h \
+  /root/mingw32/usr/local/include/objbase.h \
+  /root/mingw32/usr/local/include/rpcndr.h \
+  /root/mingw32/usr/local/include/rpcnsip.h \
+  /root/mingw32/usr/local/include/objfwd.h \
+  /root/mingw32/usr/local/include/wtypes.h \
+  /root/mingw32/usr/local/include/unknwn.h \
+  /root/mingw32/usr/local/include/objidl.h \
+  /root/mingw32/usr/local/include/cguid.h \
+  /root/mingw32/usr/local/include/olectlid.h \
+  /root/mingw32/usr/local/include/oleauto.h \
+  /root/mingw32/usr/local/include/oaidl.h \
+  /root/mingw32/usr/local/include/oleidl.h \
+  /usr/src/tarball/libjpg-win32/include/jmorecfg.h ../include/list.h
+
+../include/config.h:
+
+../include/g3d.h:
+
+/root/mingw32/usr/local/include/stdio.h:
+
+/root/mingw32/usr/local/include/_mingw.h:
+
+/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h:
+
+/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h:
+
+/root/mingw32/usr/local/include/sys/types.h:
+
+/root/mingw32/usr/local/include/stdlib.h:
+
+/root/mingw32/usr/local/include/stdint.h:
+
+/root/mingw32/usr/local/include/string.h:
+
+/root/mingw32/usr/local/include/math.h:
+
+/root/mingw32/usr/local/include/GL/gl.h:
+
+/root/mingw32/usr/local/include/GL/glu.h:
+
+/root/mingw32/usr/local/include/GL/glext.h:
+
+/usr/src/tarball/libjpg-win32/include/jpeglib.h:
+
+/usr/src/tarball/libjpg-win32/include/jconfig.h:
+
+/root/mingw32/usr/local/include/windows.h:
+
+/root/mingw32/usr/local/include/windef.h:
+
+/root/mingw32/usr/local/include/winnt.h:
+
+/root/mingw32/usr/local/include/winerror.h:
+
+/root/mingw32/usr/local/include/basetsd.h:
+
+/root/mingw32/usr/local/include/pshpack4.h:
+
+/root/mingw32/usr/local/include/poppack.h:
+
+/root/mingw32/usr/local/include/wincon.h:
+
+/root/mingw32/usr/local/include/winbase.h:
+
+/root/mingw32/usr/local/include/wingdi.h:
+
+/root/mingw32/usr/local/include/winuser.h:
+
+/root/mingw32/usr/local/include/winnls.h:
+
+/root/mingw32/usr/local/include/winver.h:
+
+/root/mingw32/usr/local/include/winnetwk.h:
+
+/root/mingw32/usr/local/include/winreg.h:
+
+/root/mingw32/usr/local/include/winsvc.h:
+
+/root/mingw32/usr/local/include/cderr.h:
+
+/root/mingw32/usr/local/include/dde.h:
+
+/root/mingw32/usr/local/include/ddeml.h:
+
+/root/mingw32/usr/local/include/dlgs.h:
+
+/root/mingw32/usr/local/include/imm.h:
+
+/root/mingw32/usr/local/include/lzexpand.h:
+
+/root/mingw32/usr/local/include/mmsystem.h:
+
+/root/mingw32/usr/local/include/nb30.h:
+
+/root/mingw32/usr/local/include/rpc.h:
+
+/root/mingw32/usr/local/include/rpcdce.h:
+
+/root/mingw32/usr/local/include/basetyps.h:
+
+/root/mingw32/usr/local/include/rpcdcep.h:
+
+/root/mingw32/usr/local/include/rpcnsi.h:
+
+/root/mingw32/usr/local/include/rpcnterr.h:
+
+/root/mingw32/usr/local/include/shellapi.h:
+
+/root/mingw32/usr/local/include/pshpack2.h:
+
+/root/mingw32/usr/local/include/winperf.h:
+
+/root/mingw32/usr/local/include/commdlg.h:
+
+/root/mingw32/usr/local/include/winspool.h:
+
+/root/mingw32/usr/local/include/winsock2.h:
+
+/root/mingw32/usr/local/include/ole2.h:
+
+/root/mingw32/usr/local/include/objbase.h:
+
+/root/mingw32/usr/local/include/rpcndr.h:
+
+/root/mingw32/usr/local/include/rpcnsip.h:
+
+/root/mingw32/usr/local/include/objfwd.h:
+
+/root/mingw32/usr/local/include/wtypes.h:
+
+/root/mingw32/usr/local/include/unknwn.h:
+
+/root/mingw32/usr/local/include/objidl.h:
+
+/root/mingw32/usr/local/include/cguid.h:
+
+/root/mingw32/usr/local/include/olectlid.h:
+
+/root/mingw32/usr/local/include/oleauto.h:
+
+/root/mingw32/usr/local/include/oaidl.h:
+
+/root/mingw32/usr/local/include/oleidl.h:
+
+/usr/src/tarball/libjpg-win32/include/jmorecfg.h:
+
+../include/list.h:
