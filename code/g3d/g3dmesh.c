@@ -3362,57 +3362,57 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
         engine_flags |= NODISPLACEMENT;
     }
 
-    #ifdef __linux__
-    pthread_attr_init ( &attr );
-
-    /*** start threads on all CPUs ***/
-    pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
-    #endif
-
-    sdtthread.mes      = mes;
-    sdtthread.flags    = engine_flags | G3DMULTITHREADING;
-    sdtthread.rttrimem = rttrimem;
-
-    sdtmain.mes      = mes;
-    sdtmain.flags    = engine_flags;
-    sdtmain.rttrimem = rttrimem;
-
     /*** init face list ***/
     g3dmesh_getNextFace ( mes, ltmpfac );
 
-    for ( i = 0x00; i < nbcpu; i++ ) {
+    if ( nbcpu < 0x02 ) {
+        sdtmain.mes      = mes;
+        sdtmain.flags    = engine_flags;
+        sdtmain.rttrimem = rttrimem;
+
+        g3dface_catmull_clark_draw_t ( &sdtmain );
+    } else {
         #ifdef __linux__
-        pthread_create ( &tid[i], 
-                         &attr, 
-                         (void * (*)(void *))g3dface_catmull_clark_draw_t,
-                         &sdtthread );
+         pthread_attr_init ( &attr );
+
+        /*** start threads on all CPUs ***/
+        pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        #ifdef __MINGW32__
-        hdl[i] = CreateThread ( NULL, 
-                                0,
-                                (LPTHREAD_START_ROUTINE) g3dface_catmull_clark_draw_t, 
-                                &sdtthread,
-                                0,
-                                &tid[i] );
+        sdtthread.mes      = mes;
+        sdtthread.flags    = engine_flags | G3DMULTITHREADING;
+        sdtthread.rttrimem = rttrimem;
 
-        SetThreadIdealProcessor( hdl[i], i );
+        for ( i = 0x00; i < nbcpu; i++ ) {
+            #ifdef __linux__
+            pthread_create ( &tid[i], 
+                             &attr, 
+                             (void * (*)(void *))g3dface_catmull_clark_draw_t,
+                             &sdtthread );
+            #endif
 
-        #endif
+            #ifdef __MINGW32__
+            hdl[i] = CreateThread ( NULL, 
+                                    0,
+                                    (LPTHREAD_START_ROUTINE) g3dface_catmull_clark_draw_t, 
+                                    &sdtthread,
+                                    0,
+                                    &tid[i] );
+
+            SetThreadIdealProcessor( hdl[i], i );
+            #endif
+        }
+
+        for ( i = 0x00; i < nbcpu; i++ ) {
+            #ifdef __linux__
+            pthread_join   ( tid[i], NULL );
+            #endif
+            #ifdef __MINGW32__
+            WaitForSingleObject ( hdl[i], INFINITE );
+            CloseHandle ( hdl[i] );
+            #endif
+        }
     }
-
-    /*g3dface_catmull_clark_draw_t ( &sdtmain );*/
-
-    for ( i = 0x00; i < nbcpu; i++ ) {
-        #ifdef __linux__
-        pthread_join   ( tid[i], NULL );
-        #endif
-        #ifdef __MINGW32__
-        WaitForSingleObject ( hdl[i], INFINITE );
-        CloseHandle ( hdl[i] );
-        #endif
-    }
-
     /*t = clock() - t;
 
     printf ("Subdivision took %.4f ms\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );*/
