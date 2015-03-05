@@ -155,6 +155,16 @@ R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
                                       filtertowindow_free, 
                                       filtertowindow_new ( dis, win, active_fill ) );
 #endif
+
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+
+    fil = r3dfilter_new ( FILTERLINE, TOWINDOWFILTERNAME,
+                                      filtertowindow_draw,
+                                      filtertowindow_free, 
+                                      filtertowindow_new ( hWnd, active_fill ) );
+#endif
+
     return fil;
 }
 

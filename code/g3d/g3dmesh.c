@@ -3395,6 +3395,9 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
                                 &sdtthread,
                                 0,
                                 &tid[i] );
+
+        SetThreadIdealProcessor( hdl[i], i );
+
         #endif
     }
 

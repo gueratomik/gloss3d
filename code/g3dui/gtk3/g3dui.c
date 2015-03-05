@@ -97,7 +97,7 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *gui, uint64_t id,
                                                uint32_t width, uint32_t height,
                                                LIST *lfilters,
                                                uint32_t sequence ) {
-#ifdef __linux__
+
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
     G3DCAMERA *cam = gui->curcam;
     G3DSCENE *sce = gui->sce;
@@ -106,6 +106,7 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *gui, uint64_t id,
     /*if ( rpc == NULL ) {*/
         G3DUIRENDERPROCESS *rps;
         R3DSCENE *rsce  = NULL;
+        #ifdef __linux__
         pthread_attr_t attr;
         pthread_t tid;
 
@@ -115,6 +116,7 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *gui, uint64_t id,
 
         /*** start thread son all CPUs ***/
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
+        #endif
 
         rsce = r3dscene_new ( sce, cam, x1, y1,
                                         x2, y2,
@@ -126,9 +128,31 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *gui, uint64_t id,
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
+            #ifdef __linux__
             pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_sequence_t, rsce );
+            #endif
+
+            #ifdef __MINGW32__
+            rsce->tid = CreateThread ( NULL, 
+                                       0,
+                                       (LPTHREAD_START_ROUTINE) r3dscene_render_sequence_t, 
+                                       rsce,
+                                       0,
+                                       NULL );
+            #endif
         } else {
+            #ifdef __linux__
             pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_frame_t, rsce );
+            #endif
+
+            #ifdef __MINGW32__
+            rsce->tid = CreateThread ( NULL, 
+                                       0,
+                                       (LPTHREAD_START_ROUTINE) r3dscene_render_frame_t, 
+                                       rsce,
+                                       0,
+                                       NULL );
+            #endif
         }
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
@@ -143,7 +167,6 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *gui, uint64_t id,
     /*}*/
 
     return rps;
-#endif
 }
 
 /******************************************************************************/

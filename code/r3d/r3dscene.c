@@ -105,6 +105,7 @@ void r3dscene_import ( R3DSCENE *rsce, R3DCAMERA *rcam, uint32_t engine_flags ) 
 }
 
 /******************************************************************************/
+#ifdef __linux__
 static uint32_t getNumberOfCPUs ( ) {
     uint32_t nbcpu = 0x00;
     char str[0x100];
@@ -131,6 +132,17 @@ static uint32_t getNumberOfCPUs ( ) {
 
     return nbcpu;
 }
+#endif
+
+#ifdef __MINGW32__
+static uint32_t getNumberOfCPUs ( ) {
+    SYSTEM_INFO sysinfo;
+
+    GetSystemInfo ( &sysinfo );
+printf("NBPROC: %d\n", sysinfo.dwNumberOfProcessors );
+    return sysinfo.dwNumberOfProcessors;
+}
+#endif
 
 /******************************************************************************/
 /******** Wait the end of the render process, ie the end of each thread *******/
@@ -342,6 +354,7 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
     list_insert ( &rsce->lthread, ( void * ) tid );
 }
 #endif
+
 #ifdef __MINGW32__
 void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
     DWORD  thread;
@@ -537,6 +550,7 @@ void r3dscene_render ( R3DSCENE *rsce ) {
         return;
     }
     #endif
+
     #ifdef __MINGW32__
     rsce->area.lock = CreateMutex ( NULL, FALSE, NULL );
     #endif

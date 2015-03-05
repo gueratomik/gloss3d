@@ -270,6 +270,22 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEVECTOR;
 typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 
 /******************************************************************************/
+#ifdef __MINGW32__
+typedef struct _WImage {
+    BITMAPINFO *bi;
+    HDC dc;
+    HBITMAP hBmp;
+	char *data;	      /* pointer to image data */
+    struct funcs {    /* image manipulation routines */
+        unsigned long (*get_pixel)( struct _WImage *, uint32_t, uint32_t );
+        int           (*put_pixel)( struct _WImage *, uint32_t, 
+                                                      uint32_t,
+                                                      uint32_t );
+    } f;
+} WImage;
+#endif
+
+/******************************************************************************/
 typedef struct _R3DINTVECTOR {
     int32_t x, y, z, w;
 }R3DINTVECTOR;
@@ -482,14 +498,18 @@ typedef struct _FILTERTOWINDOW {
     XShmSegmentInfo ssi;
     XImage *ximg;
     #endif
+    #ifdef __MINGW32__
+    HWND hWnd;
+    WImage *wimg;
+    #endif
     uint32_t active_fill; /*** active_fill means that we use XPutImage to ***/
                           /*** the drawable. This can be desired for the ***/
-                          /*** OpenGL viewing windo but not for the final ***/
+                          /*** OpenGL viewing window but not for the final ***/
                           /*** rendering window because the latter can be ***/
                           /*** resized during rendering, which would lead to***/
                           /*** a crash. Passive fill means we generate an ***/
                           /*** expose event and that's it. The widget is ***/
-                          /*** reponsible for showinf the XImage on exposure***/
+                          /*** reponsible for showing the XImage on exposure***/
 } FILTERTOWINDOW;
 
 /******************************************************************************/
@@ -675,6 +695,10 @@ void            filtertowindow_free        ( R3DFILTER * );
 FILTERTOWINDOW *filtertowindow_new         ( Display *, Window, uint32_t );
 void            filtertowindow_allocXImage ( FILTERTOWINDOW *, Display *, 
                                                                Window );
+#endif
+#ifdef __MINGW32__
+FILTERTOWINDOW *filtertowindow_new         ( HWND, uint32_t );
+void            filtertowindow_allocWImage ( FILTERTOWINDOW *, HWND  );
 #endif
 
 /******************************************************************************/

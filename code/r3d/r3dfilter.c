@@ -526,10 +526,135 @@ void filtertowindow_allocXImage ( FILTERTOWINDOW *ftw,
     ftw->ximg = ximg;
 }
 #endif
+
+
+#ifdef __MINGW32__
+/******************************************************************************/
+int put_pixel ( WImage *wimg, uint32_t x, uint32_t y, uint32_t color ) {
+    uint32_t offset = ( wimg->bi->bmiHeader.biWidth * ( wimg->bi->bmiHeader.biHeight - 1 - y ) ) + x;
+
+    if ( ( ( x >= 0 ) && ( x < wimg->bi->bmiHeader.biWidth  ) ) &&
+         ( ( y >= 0 ) && ( y < wimg->bi->bmiHeader.biHeight ) ) ) {
+        switch ( wimg->bi->bmiHeader.biBitCount ) {
+            case 0x08 : 
+                ((uint8_t *)wimg->data)[offset] = 0xFF;
+            break;
+
+            case 0x10 :
+                ((uint16_t*)wimg->data)[offset] = color;
+            break;
+
+            case 0x20 :
+                ((uint32_t*)wimg->data)[offset] = color;
+            break;
+   
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+WImage *WCreateImage ( HDC dc, uint32_t width, 
+                               uint32_t height,
+                               uint32_t depth ) {
+    WImage *wimg = ( WImage * ) calloc ( 0x01, sizeof ( WImage ) );
+
+    if ( wimg == NULL ) {
+        fprintf ( stderr, "WCreateImage: calloc failed\n" );
+
+        return NULL;
+    }
+
+    wimg->dc = CreateCompatibleDC ( dc );
+
+    wimg->f.put_pixel = put_pixel;
+
+    switch ( depth ) {
+        case 0x08 :
+            fprintf ( stderr, "WCreateImage: 8 bpp WImage unsupported\n" );
+        break;
+
+        case 0x10 :
+            wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) + ( 0x03 * sizeof ( DWORD ) ) );
+
+            wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
+            wimg->bi->bmiHeader.biPlanes        = 0x01;
+
+            wimg->bi->bmiHeader.biBitCount      = 0x10;
+            wimg->bi->bmiHeader.biCompression   = BI_BITFIELDS;
+            ((DWORD*)wimg->bi->bmiColors)[0x00] = 0x0000F800;
+            ((DWORD*)wimg->bi->bmiColors)[0x01] = 0x000007E0;
+            ((DWORD*)wimg->bi->bmiColors)[0x02] = 0x0000001F;
+            wimg->bi->bmiHeader.biWidth         = width;
+            wimg->bi->bmiHeader.biHeight        = height;
+
+            wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
+        break;
+
+        case 0x20 :
+            wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) );
+
+            wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
+            wimg->bi->bmiHeader.biPlanes        = 0x01;
+
+            wimg->bi->bmiHeader.biBitCount      = 0x20;
+            wimg->bi->bmiHeader.biCompression   = BI_RGB;
+            wimg->bi->bmiHeader.biWidth         = width;
+            wimg->bi->bmiHeader.biHeight        = height;
+
+            wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
+        break;
+
+        default :
+        break;
+    }
+
+    SelectObject ( wimg->dc, ( HGDIOBJ ) wimg->hBmp );
+
+
+    return wimg;
+}
+
+/******************************************************************************/
+void *WDestroyImage ( WImage *wimg ) {
+    DeleteObject ( ( HGDIOBJ ) wimg->hBmp );
+
+    free ( wimg );
+}
+
+/******************************************************************************/
+void filtertowindow_allocWImage ( FILTERTOWINDOW *ftw, HWND hWnd ) {
+    HDC dc = GetDC ( hWnd );
+    uint32_t depth = GetDeviceCaps ( dc, BITSPIXEL );
+    RECT rec;
+
+    GetWindowRect ( hWnd, &rec );
+
+    ftw->wimg = WCreateImage ( dc, ( rec.right  - rec.left ),
+                                   ( rec.bottom - rec.top  ), depth );
+
+    /*BitBlt ( ftw->wimg->dc, 0x00, 0x00, ( rec.right  - rec.left ),
+                                        ( rec.bottom - rec.top  ), dc,
+                            0x00, 0x00, SRCCOPY );*/
+
+    glReadPixels ( 0, 0, ( rec.right  - rec.left ),
+                         ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );
+
+    ReleaseDC ( hWnd, dc );
+}
+#endif
+
 /******************************************************************************/
 #ifdef __linux__
 FILTERTOWINDOW *filtertowindow_new ( Display *dis, Window win, 
                                                    uint32_t active_fill ) {
+#endif
+
+#ifdef __MINGW32__
+FILTERTOWINDOW *filtertowindow_new ( HWND hWnd, uint32_t active_fill ) {
+#endif
+
     uint32_t structsize = sizeof ( FILTERTOWINDOW );
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) calloc ( 0x01, structsize );
 
@@ -539,17 +664,25 @@ FILTERTOWINDOW *filtertowindow_new ( Display *dis, Window win,
         return NULL;
     }
 
+    ftw->active_fill = active_fill;
+
+#ifdef __linux__
     ftw->dis = dis;
     ftw->win = win;
     ftw->gc  = XCreateGC ( dis, win, 0x00, NULL );
-    ftw->active_fill = active_fill;
 
     filtertowindow_allocXImage ( ftw, dis, win );
+#endif
 
+#ifdef __MINGW32__
+    ftw->hWnd = hWnd;
+
+    filtertowindow_allocWImage ( ftw, hWnd );
+#endif
 
     return ftw;
 }
-#endif
+
 /******************************************************************************/
 uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                float frameID,
@@ -558,20 +691,38 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                uint32_t to, 
                                                uint32_t depth, 
                                                uint32_t width ) {
-#ifdef __linux__
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
-    int CompletionType = XShmGetEventBase ( ftw->dis ) + ShmCompletion;
-    XWindowAttributes wattr;
+    uint32_t win_depth, win_width, win_height;
     int i, j;
 
+    #ifdef __linux__
+    int CompletionType = XShmGetEventBase ( ftw->dis ) + ShmCompletion;
+    XWindowAttributes wattr;
+
     XGetWindowAttributes ( ftw->dis, ftw->win, &wattr );
+
+    win_depth  = wattr.depth;
+    win_width  = wattr.width;
+    win_height = wattr.height;
+    #endif
+
+    #ifdef __MINGW32__
+    HDC dc = GetDC ( ftw->hWnd );
+    RECT rec;
+
+    GetWindowRect ( ftw->hWnd, &rec );
+
+    win_depth  = GetDeviceCaps ( dc, BITSPIXEL );
+    win_width  = ( rec.right  - rec.left );
+    win_height = ( rec.bottom  - rec.top );
+    #endif
 
     for ( i = from; i < to; i++ ) {
         uint32_t offset = ( i * bytesperline );
         unsigned char *imgptr = &img[offset];
 
-        switch ( wattr.depth ) {
+        switch ( win_depth ) {
             case 0x18 :
             case 0x20 : {
                 for ( j = 0x00; j < width; j++ ) {
@@ -584,7 +735,12 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
                     /*** Here we assume the XImage has the ***/
                     /*** same size and depth as the img array. ***/
+                    #ifdef __linux__
                     ftw->ximg->f.put_pixel ( ftw->ximg, j, i, color );
+                    #endif
+                    #ifdef __MINGW32__
+                    ftw->wimg->f.put_pixel ( ftw->wimg, j, i, color );
+                    #endif
                 }
             } break;
 
@@ -599,7 +755,12 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
                     /*** Here we assume the XImage has the ***/
                     /*** same size and depth as the img array. ***/
+                    #ifdef __linux__
                     ftw->ximg->f.put_pixel ( ftw->ximg, j, i, color );
+                    #endif
+                    #ifdef __MINGW32__
+                    ftw->wimg->f.put_pixel ( ftw->wimg, j, i, color );
+                    #endif
                 }
             } break;
 
@@ -608,14 +769,34 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         }
 
         if ( ftw->active_fill ) {
+            #ifdef __linux__
             XShmPutImage ( ftw->dis, ftw->win, ftw->gc, ftw->ximg,
                            0x00, i,
                            0x00, i,
-                           wattr.width, 0x01, False );
+                           win_width, 0x01, False );
+            #endif
+            #ifdef __MINGW32__
+            SetDIBitsToDevice ( dc, 0x00,            /* int XDest               */
+                                    0x00,            /* int YDest               */
+                                    win_width,       /* DWORD dwWidth           */
+                                    win_height,      /* DWORD dwHeight          */
+                                    0x00,            /* int XSrc                */
+                                    0x00,               /* int YSrc                */
+                                    0x00,            /* UINT uStartScan         */
+                                    win_height,      /* UINT cScanLines         */
+                                    ftw->wimg->data, /* const VOID *lpvBits     */
+                                    ftw->wimg->bi,   /* const BITMAPINFO *lpbmi */
+                                    ftw->wimg->bi->bmiHeader.biClrUsed );
+
+
+            #endif
         } else {
+            #ifdef __linux__
             XClearWindow ( ftw->dis, ftw->win );
+            #endif
         }
 
+        #ifdef __linux__
         XSync ( ftw->dis, 0 );
         /*** because the rendering engine is threaded, ***/
         /*** this causes hangs, so I comment it. ***/
@@ -628,11 +809,14 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 	}*/
 
         XFlush ( ftw->dis );
+        #endif
     }
 
+    #ifdef __MINGW32__
+    ReleaseDC ( ftw->hWnd, dc );
+    #endif
 
     return 0x00;
-#endif
 }
 
 /******************************************************************************/
