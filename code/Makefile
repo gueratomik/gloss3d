@@ -32,13 +32,13 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-host_triplet = i586-pc-mingw32msvc
-target_triplet = i586-pc-mingw32msvc
-bin_PROGRAMS = gloss3d-win32$(EXEEXT)
-#bin_PROGRAMS =  \
-#	gloss3d-motif$(EXEEXT)
-#bin_PROGRAMS = gloss3d-gtk3$(EXEEXT)
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
+target_triplet = x86_64-unknown-linux-gnu
+##bin_PROGRAMS = gloss3d-win32$(EXEEXT)
+##bin_PROGRAMS =  \
+##	gloss3d-motif$(EXEEXT)
+bin_PROGRAMS = gloss3d-gtk3$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
@@ -61,23 +61,23 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__gloss3d_gtk3_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
-am__objects_1 = main.$(OBJEXT) \
-	list.$(OBJEXT)
-#am__objects_1 = main.$(OBJEXT) \
-#	GLwDrawA.$(OBJEXT) \
-#	GLwMDrawA.$(OBJEXT) \
-#	list.$(OBJEXT)
-#am__objects_1 = main.$(OBJEXT) list.$(OBJEXT)
-#am_gloss3d_gtk3_OBJECTS = $(am__objects_1)
+##am__objects_1 = main.$(OBJEXT) \
+##	list.$(OBJEXT)
+##am__objects_1 = main.$(OBJEXT) \
+##	GLwDrawA.$(OBJEXT) \
+##	GLwMDrawA.$(OBJEXT) \
+##	list.$(OBJEXT)
+am__objects_1 = main.$(OBJEXT) list.$(OBJEXT)
+am_gloss3d_gtk3_OBJECTS = $(am__objects_1)
 gloss3d_gtk3_OBJECTS = $(am_gloss3d_gtk3_OBJECTS)
-#gloss3d_gtk3_DEPENDENCIES = g3d/libgloss-g3d.la \
-#	g3dexport/libgloss-g3dexport.la \
-#	g3dimport/libgloss-g3dimport.la \
-#	g3dmouse/libgloss-g3dmouse.la \
-#	g3dcom/libgloss-g3dcom.la \
-#	g3dui/libgloss-g3dui-gtk3.la \
-#	g3durmanager/libgloss-g3durmanager.la \
-#	r3d/libgloss-r3d.la r3dnet/libgloss-r3dnet.la
+gloss3d_gtk3_DEPENDENCIES = g3d/libgloss-g3d.la \
+	g3dexport/libgloss-g3dexport.la \
+	g3dimport/libgloss-g3dimport.la \
+	g3dmouse/libgloss-g3dmouse.la \
+	g3dcom/libgloss-g3dcom.la \
+	g3dui/libgloss-g3dui-gtk3.la \
+	g3durmanager/libgloss-g3durmanager.la \
+	r3d/libgloss-r3d.la
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
@@ -91,19 +91,18 @@ gloss3d_motif_OBJECTS = $(am_gloss3d_motif_OBJECTS)
 #	src/g3dcom/libgloss-g3dcom.la \
 #	src/g3dui/libgloss-g3dui-motif.la \
 #	src/g3durmanager/libgloss-g3durmanager.la \
-#	src/r3d/libgloss-r3d.la \
-#	src/r3dnet/libgloss-r3dnet.la
+#	src/r3d/libgloss-r3d.la
 am__gloss3d_win32_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
-am_gloss3d_win32_OBJECTS = $(am__objects_1)
+#am_gloss3d_win32_OBJECTS = $(am__objects_1)
 gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
-gloss3d_win32_DEPENDENCIES = g3d/libgloss-g3d.la \
-	g3dexport/libgloss-g3dexport.la \
-	g3dimport/libgloss-g3dimport.la \
-	g3dmouse/libgloss-g3dmouse.la \
-	g3dcom/libgloss-g3dcom.la \
-	g3dui/libgloss-g3dui-gtk3.la \
-	g3durmanager/libgloss-g3durmanager.la \
-	r3d/libgloss-r3d.la r3dnet/libgloss-r3dnet.la
+#gloss3d_win32_DEPENDENCIES = g3d/libgloss-g3d.la \
+#	g3dexport/libgloss-g3dexport.la \
+#	g3dimport/libgloss-g3dimport.la \
+#	g3dmouse/libgloss-g3dmouse.la \
+#	g3dcom/libgloss-g3dcom.la \
+#	g3dui/libgloss-g3dui-gtk3.la \
+#	g3durmanager/libgloss-g3durmanager.la \
+#	r3d/libgloss-r3d.la
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -186,30 +185,30 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run aclocal-1.11
-AMTAR = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run tar
+ACLOCAL = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run aclocal-1.11
+AMTAR = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run tar
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run autoconf
-AUTOHEADER = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run autoheader
-AUTOMAKE = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run automake-1.11
+AUTOCONF = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run autoconf
+AUTOHEADER = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run autoheader
+AUTOMAKE = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run automake-1.11
 AWK = gawk
-CC = i386-mingw32-gcc
+CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -I/root/mingw32/gtk3/include/gtk-3.0                                                      -I/root/mingw32/gtk3/include/pango-1.0                                                      -I/root/mingw32/gtk3/include                                                      -I/root/mingw32/gtk3/include/cairo                                                      -I/root/mingw32/gtk3/include/atk-1.0                                                      -I/root/mingw32/gtk3/include/gdk-pixbuf-2.0                                                      -I/root/mingw32/gtk3/lib/glib-2.0/include                                                      -I/root/mingw32/gtk3/include/glib-2.0                                                      -I/root/mingw32/gtk3/include/libpng15                                                      -I/root/mingw32/expat/include
-CPP = i386-mingw32-gcc -E
+CFLAGS = -g -O2 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
+CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
 DSYMUTIL = 
-DUMPBIN = :
+DUMPBIN = 
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
 EGREP = /bin/grep -E
-EXEEXT = .exe
+EXEEXT = 
 FGREP = /bin/grep -F
 GREP = /bin/grep
 INSTALL = /usr/bin/install -c
@@ -217,20 +216,20 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /root/mingw32/i386-mingw32/bin/ld
-LDFLAGS = 
+LD = /opt/gnat/libexec/gcc/x86_64-pc-linux-gnu/4.7.4/ld -m elf_x86_64
+LDFLAGS =  -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/missing --run makeinfo
+MAKEINFO = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
-MT_IM_GTK3_CFLAGS = 
-MT_IM_GTK3_LIBS = 
-NM = nm
+MT_IM_GTK3_CFLAGS = -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
+MT_IM_GTK3_LIBS = -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
+NM = /usr/bin/nm -B
 NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
@@ -244,7 +243,7 @@ PACKAGE_TARNAME = gloss3d
 PACKAGE_URL = 
 PACKAGE_VERSION = dev-0.2.36
 PATH_SEPARATOR = :
-PKG_CONFIG = 
+PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
 RANLIB = ranlib
@@ -253,40 +252,39 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = dev-0.2.36
-abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc6
-abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc6
-abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc6
-abs_top_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc6
+abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
+abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
+abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
+abs_top_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
 ac_ct_AR = ar
-ac_ct_CC = 
-ac_ct_DUMPBIN = link -dump
+ac_ct_CC = gcc
+ac_ct_DUMPBIN = 
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
-build_alias = i686-pc-linux-gnu
-build_cpu = i686
+build = x86_64-unknown-linux-gnu
+build_alias = 
+build_cpu = x86_64
 build_os = linux-gnu
-build_vendor = pc
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-have_win32 = yes
-host = i586-pc-mingw32msvc
-host_alias = i586-mingw32msvc
-host_cpu = i586
-host_os = mingw32msvc
-host_vendor = pc
+host = x86_64-unknown-linux-gnu
+host_alias = 
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc6/install-sh
+install_sh = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -295,28 +293,28 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr/local
+prefix = /usr
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-target = i586-pc-mingw32msvc
+target = x86_64-unknown-linux-gnu
 target_alias = 
-target_cpu = i586
-target_os = mingw32msvc
-target_vendor = pc
+target_cpu = x86_64
+target_os = linux-gnu
+target_vendor = unknown
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
-#AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 -ljpeg -lpng -lm -lpthread -lc
+AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 -ljpeg -lpng -lm -lpthread -lc
 #AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 -ljpeg -lpng -lm -lpthread -lc
-AM_LDFLAGS = -Wl,--no-as-needed -lGL -lGLU -ljpeg -lpng -lm
+#AM_LDFLAGS = -Wl,--no-as-needed -lGL -lGLU -ljpeg -lpng -lm
+AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
 #AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
-#AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
-AM_CFLAGS = -g -I$(top_srcdir)/include -I/usr/src/tarball/libjpg-win32/include -Wimplicit-function-declaration -Wformat 
+#AM_CFLAGS = -g -I$(top_srcdir)/include -I/usr/src/tarball/libjpg-win32/include -Wimplicit-function-declaration -Wformat 
 SUBDIRS = g3d \
           g3dexport \
           g3dimport \
@@ -326,27 +324,29 @@ SUBDIRS = g3d \
           g3durmanager \
           r3d
 
-#gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
-#gloss3d_gtk3_LDADD = g3d/libgloss-g3d.la \
-#                         g3dexport/libgloss-g3dexport.la \
-#                         g3dimport/libgloss-g3dimport.la \
-#                         g3dmouse/libgloss-g3dmouse.la \
-#                         g3dcom/libgloss-g3dcom.la \
-#                         g3dui/libgloss-g3dui-gtk3.la \
-#                         g3durmanager/libgloss-g3durmanager.la \
-#                         r3d/libgloss-r3d.la \
+gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
+gloss3d_gtk3_LDADD = g3d/libgloss-g3d.la \
+                         g3dexport/libgloss-g3dexport.la \
+                         g3dimport/libgloss-g3dimport.la \
+                         g3dmouse/libgloss-g3dmouse.la \
+                         g3dcom/libgloss-g3dcom.la \
+                         g3dui/libgloss-g3dui-gtk3.la \
+                         g3durmanager/libgloss-g3durmanager.la \
+                         r3d/libgloss-r3d.la
+
 #                         r3dnet/libgloss-r3dnet.la
+BINGLOSS3D_C_FILES = main.c \
+                           list.c
 
-#BINGLOSS3D_C_FILES = main.c \
-#                           list.c
-
+#                          src/r3dnet/libgloss-r3dnet.la
 #BINGLOSS3D_C_FILES = main.c \
 #                           GLwDrawA.c \
 #                           GLwMDrawA.c \
 #                           list.c
 
-BINGLOSS3D_C_FILES = main.c \
-                           list.c
+#                          r3dnet/libgloss-r3dnet.la
+#BINGLOSS3D_C_FILES = main.c \
+#                           list.c
 
 #gloss3d_motif_SOURCES = $(BINGLOSS3D_C_FILES)
 #gloss3d_motif_LDADD = src/g3d/libgloss-g3d.la \
@@ -356,19 +356,17 @@ BINGLOSS3D_C_FILES = main.c \
 #                          src/g3dcom/libgloss-g3dcom.la \
 #                          src/g3dui/libgloss-g3dui-motif.la \
 #                          src/g3durmanager/libgloss-g3durmanager.la \
-#                          src/r3d/libgloss-r3d.la \
-#                          src/r3dnet/libgloss-r3dnet.la
+#                          src/r3d/libgloss-r3d.la
 
-gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
-gloss3d_win32_LDADD = g3d/libgloss-g3d.la \
-                          g3dexport/libgloss-g3dexport.la \
-                          g3dimport/libgloss-g3dimport.la \
-                          g3dmouse/libgloss-g3dmouse.la \
-                          g3dcom/libgloss-g3dcom.la \
-                          g3dui/libgloss-g3dui-gtk3.la \
-                          g3durmanager/libgloss-g3durmanager.la \
-                          r3d/libgloss-r3d.la \
-                          r3dnet/libgloss-r3dnet.la
+#gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
+#gloss3d_win32_LDADD = g3d/libgloss-g3d.la \
+#                          g3dexport/libgloss-g3dexport.la \
+#                          g3dimport/libgloss-g3dimport.la \
+#                          g3dmouse/libgloss-g3dmouse.la \
+#                          g3dcom/libgloss-g3dcom.la \
+#                          g3dui/libgloss-g3dui-gtk3.la \
+#                          g3durmanager/libgloss-g3durmanager.la \
+#                          r3d/libgloss-r3d.la
 
 EXTRA_DIST = include/g3dexport.h \
                        include/g3d.h \

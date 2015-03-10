@@ -77,7 +77,7 @@ gloss3d_gtk3_OBJECTS = $(am_gloss3d_gtk3_OBJECTS)
 @HAVE_GTK3_TRUE@	g3dcom/libgloss-g3dcom.la \
 @HAVE_GTK3_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_GTK3_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@	r3d/libgloss-r3d.la r3dnet/libgloss-r3dnet.la
+@HAVE_GTK3_TRUE@	r3d/libgloss-r3d.la
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
@@ -91,8 +91,7 @@ gloss3d_motif_OBJECTS = $(am_gloss3d_motif_OBJECTS)
 @HAVE_MOTIF_TRUE@	src/g3dcom/libgloss-g3dcom.la \
 @HAVE_MOTIF_TRUE@	src/g3dui/libgloss-g3dui-motif.la \
 @HAVE_MOTIF_TRUE@	src/g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@	src/r3d/libgloss-r3d.la \
-@HAVE_MOTIF_TRUE@	src/r3dnet/libgloss-r3dnet.la
+@HAVE_MOTIF_TRUE@	src/r3d/libgloss-r3d.la
 am__gloss3d_win32_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
 @HAVE_WIN32_TRUE@am_gloss3d_win32_OBJECTS = $(am__objects_1)
 gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
@@ -103,7 +102,7 @@ gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
 @HAVE_WIN32_TRUE@	g3dcom/libgloss-g3dcom.la \
 @HAVE_WIN32_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_WIN32_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@	r3d/libgloss-r3d.la r3dnet/libgloss-r3dnet.la
+@HAVE_WIN32_TRUE@	r3d/libgloss-r3d.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -277,7 +276,6 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-have_win32 = @have_win32@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -334,17 +332,19 @@ SUBDIRS = g3d \
 @HAVE_GTK3_TRUE@                         g3dcom/libgloss-g3dcom.la \
 @HAVE_GTK3_TRUE@                         g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_GTK3_TRUE@                         g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@                         r3d/libgloss-r3d.la \
-@HAVE_GTK3_TRUE@                         r3dnet/libgloss-r3dnet.la
+@HAVE_GTK3_TRUE@                         r3d/libgloss-r3d.la
 
+#                         r3dnet/libgloss-r3dnet.la
 @HAVE_GTK3_TRUE@BINGLOSS3D_C_FILES = main.c \
 @HAVE_GTK3_TRUE@                           list.c
 
+#                          src/r3dnet/libgloss-r3dnet.la
 @HAVE_MOTIF_TRUE@BINGLOSS3D_C_FILES = main.c \
 @HAVE_MOTIF_TRUE@                           GLwDrawA.c \
 @HAVE_MOTIF_TRUE@                           GLwMDrawA.c \
 @HAVE_MOTIF_TRUE@                           list.c
 
+#                          r3dnet/libgloss-r3dnet.la
 @HAVE_WIN32_TRUE@BINGLOSS3D_C_FILES = main.c \
 @HAVE_WIN32_TRUE@                           list.c
 
@@ -356,8 +356,7 @@ SUBDIRS = g3d \
 @HAVE_MOTIF_TRUE@                          src/g3dcom/libgloss-g3dcom.la \
 @HAVE_MOTIF_TRUE@                          src/g3dui/libgloss-g3dui-motif.la \
 @HAVE_MOTIF_TRUE@                          src/g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@                          src/r3d/libgloss-r3d.la \
-@HAVE_MOTIF_TRUE@                          src/r3dnet/libgloss-r3dnet.la
+@HAVE_MOTIF_TRUE@                          src/r3d/libgloss-r3d.la
 
 @HAVE_WIN32_TRUE@gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
 @HAVE_WIN32_TRUE@gloss3d_win32_LDADD = g3d/libgloss-g3d.la \
@@ -367,8 +366,7 @@ SUBDIRS = g3d \
 @HAVE_WIN32_TRUE@                          g3dcom/libgloss-g3dcom.la \
 @HAVE_WIN32_TRUE@                          g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_WIN32_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@                          r3d/libgloss-r3d.la \
-@HAVE_WIN32_TRUE@                          r3dnet/libgloss-r3dnet.la
+@HAVE_WIN32_TRUE@                          r3d/libgloss-r3d.la
 
 EXTRA_DIST = include/g3dexport.h \
                        include/g3d.h \

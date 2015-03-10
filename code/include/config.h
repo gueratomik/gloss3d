@@ -2,7 +2,7 @@
 /* include/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <expat.h> header file. */
 #define HAVE_EXPAT_H 1
@@ -11,13 +11,13 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <jpeglib.h> header file. */
-/* #undef HAVE_JPEGLIB_H */
+#define HAVE_JPEGLIB_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the <png.h> header file. */
-/* #undef HAVE_PNG_H */
+#define HAVE_PNG_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -41,7 +41,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
-/* #undef HAVE_XM_XM_H */
+#define HAVE_XM_XM_H 1
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -75,10 +75,10 @@
 #define VERSION "dev-0.2.36"
 
 /* Use GTK+3 */
-/* #undef WITH_GTK3 */
+#define WITH_GTK3 1
 
 /* Use Motif */
 /* #undef WITH_MOTIF */
 
 /* Build for Windows */
-#define WITH_WIN32 1
+/* #undef WITH_WIN32 */

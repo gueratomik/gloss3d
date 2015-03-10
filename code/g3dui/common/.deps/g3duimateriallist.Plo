@@ -51,10 +51,10 @@ common/g3duimateriallist.lo: common/g3duimateriallist.c \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathinline.h \
  /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
  /usr/include/bits/setjmp.h /usr/include/jpeglib.h /usr/include/jconfig.h \
- /usr/include/jmorecfg.h ../include/r3d.h /usr/include/errno.h \
- /usr/include/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/asm/errno.h /usr/include/asm-generic/errno.h \
- /usr/include/asm-generic/errno-base.h /usr/include/libgen.h \
+ /usr/include/jmorecfg.h ../include/r3d.h /usr/include/libgen.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/sys/wait.h /usr/include/sys/resource.h \
  /usr/include/bits/resource.h /usr/include/X11/xpm.h ../include/g3dcom.h \
  ../include/r3dnet.h /usr/include/sys/socket.h /usr/include/sys/uio.h \
@@ -299,6 +299,8 @@ common/g3duimateriallist.lo: common/g3duimateriallist.c \
 
 ../include/r3d.h:
 
+/usr/include/libgen.h:
+
 /usr/include/errno.h:
 
 /usr/include/bits/errno.h:
@@ -310,8 +312,6 @@ common/g3duimateriallist.lo: common/g3duimateriallist.c \
 /usr/include/asm-generic/errno.h:
 
 /usr/include/asm-generic/errno-base.h:
-
-/usr/include/libgen.h:
 
 /usr/include/sys/wait.h:
 

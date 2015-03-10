@@ -421,7 +421,7 @@ typedef struct _R3DAREA {
     R3DINTERPOLATION pol[0x02]; /*** interpolation factors between viewport ***/
                                 /*** rays 0 -> 3 and 1 -> 2. See r3dcamera.c **/
                                 /*** for viewport rays coordinates.         ***/
-    #ifdef _linux__
+    #ifdef __linux__
     pthread_mutex_t lock;
     #endif
     #ifdef __MINGW32__

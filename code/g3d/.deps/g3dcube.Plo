@@ -1,199 +1,209 @@
-g3dcube.lo g3dcube.o: g3dcube.c ../include/config.h ../include/g3d.h \
-  /root/mingw32/usr/local/include/stdio.h \
-  /root/mingw32/usr/local/include/_mingw.h \
-  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h \
-  /root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h \
-  /root/mingw32/usr/local/include/sys/types.h \
-  /root/mingw32/usr/local/include/stdlib.h \
-  /root/mingw32/usr/local/include/stdint.h \
-  /root/mingw32/usr/local/include/string.h \
-  /root/mingw32/usr/local/include/math.h \
-  /root/mingw32/usr/local/include/GL/gl.h \
-  /root/mingw32/usr/local/include/GL/glu.h \
-  /root/mingw32/usr/local/include/GL/glext.h \
-  /usr/src/tarball/libjpg-win32/include/jpeglib.h \
-  /usr/src/tarball/libjpg-win32/include/jconfig.h \
-  /root/mingw32/usr/local/include/windows.h \
-  /root/mingw32/usr/local/include/windef.h \
-  /root/mingw32/usr/local/include/winnt.h \
-  /root/mingw32/usr/local/include/winerror.h \
-  /root/mingw32/usr/local/include/basetsd.h \
-  /root/mingw32/usr/local/include/pshpack4.h \
-  /root/mingw32/usr/local/include/poppack.h \
-  /root/mingw32/usr/local/include/wincon.h \
-  /root/mingw32/usr/local/include/winbase.h \
-  /root/mingw32/usr/local/include/wingdi.h \
-  /root/mingw32/usr/local/include/winuser.h \
-  /root/mingw32/usr/local/include/winnls.h \
-  /root/mingw32/usr/local/include/winver.h \
-  /root/mingw32/usr/local/include/winnetwk.h \
-  /root/mingw32/usr/local/include/winreg.h \
-  /root/mingw32/usr/local/include/winsvc.h \
-  /root/mingw32/usr/local/include/cderr.h \
-  /root/mingw32/usr/local/include/dde.h \
-  /root/mingw32/usr/local/include/ddeml.h \
-  /root/mingw32/usr/local/include/dlgs.h \
-  /root/mingw32/usr/local/include/imm.h \
-  /root/mingw32/usr/local/include/lzexpand.h \
-  /root/mingw32/usr/local/include/mmsystem.h \
-  /root/mingw32/usr/local/include/nb30.h \
-  /root/mingw32/usr/local/include/rpc.h \
-  /root/mingw32/usr/local/include/rpcdce.h \
-  /root/mingw32/usr/local/include/basetyps.h \
-  /root/mingw32/usr/local/include/rpcdcep.h \
-  /root/mingw32/usr/local/include/rpcnsi.h \
-  /root/mingw32/usr/local/include/rpcnterr.h \
-  /root/mingw32/usr/local/include/shellapi.h \
-  /root/mingw32/usr/local/include/pshpack2.h \
-  /root/mingw32/usr/local/include/winperf.h \
-  /root/mingw32/usr/local/include/commdlg.h \
-  /root/mingw32/usr/local/include/winspool.h \
-  /root/mingw32/usr/local/include/winsock2.h \
-  /root/mingw32/usr/local/include/ole2.h \
-  /root/mingw32/usr/local/include/objbase.h \
-  /root/mingw32/usr/local/include/rpcndr.h \
-  /root/mingw32/usr/local/include/rpcnsip.h \
-  /root/mingw32/usr/local/include/objfwd.h \
-  /root/mingw32/usr/local/include/wtypes.h \
-  /root/mingw32/usr/local/include/unknwn.h \
-  /root/mingw32/usr/local/include/objidl.h \
-  /root/mingw32/usr/local/include/cguid.h \
-  /root/mingw32/usr/local/include/olectlid.h \
-  /root/mingw32/usr/local/include/oleauto.h \
-  /root/mingw32/usr/local/include/oaidl.h \
-  /root/mingw32/usr/local/include/oleidl.h \
-  /usr/src/tarball/libjpg-win32/include/jmorecfg.h ../include/list.h
+g3dcube.lo: g3dcube.c ../include/config.h ../include/g3d.h \
+ /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
+ /opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stddef.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+ /opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stdarg.h \
+ /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
+ /usr/include/bits/stdio.h /usr/include/stdlib.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/bits/byteswap.h /usr/include/sys/types.h \
+ /usr/include/time.h /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/bits/time.h \
+ /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+ /usr/include/alloca.h \
+ /opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h /usr/include/string.h \
+ /usr/include/xlocale.h /usr/include/bits/string.h \
+ /usr/include/bits/string2.h /usr/include/math.h \
+ /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h \
+ /usr/include/bits/huge_vall.h /usr/include/bits/inf.h \
+ /usr/include/bits/nan.h /usr/include/bits/mathdef.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathinline.h \
+ /usr/include/X11/X.h /usr/include/X11/Intrinsic.h \
+ /usr/include/X11/Xlib.h /usr/include/X11/Xfuncproto.h \
+ /usr/include/X11/Xosdefs.h /usr/include/X11/Xutil.h \
+ /usr/include/X11/keysym.h /usr/include/X11/keysymdef.h \
+ /usr/include/X11/Xresource.h /usr/include/X11/Core.h \
+ /usr/include/X11/Composite.h /usr/include/X11/Constraint.h \
+ /usr/include/X11/Object.h /usr/include/X11/RectObj.h \
+ /usr/include/X11/IntrinsicP.h /usr/include/X11/CoreP.h \
+ /usr/include/X11/CompositeP.h /usr/include/X11/ConstrainP.h \
+ /usr/include/X11/ObjectP.h /usr/include/X11/RectObjP.h \
+ /usr/include/X11/StringDefs.h /usr/include/GL/gl.h \
+ /usr/include/GL/glext.h /usr/include/inttypes.h /usr/include/GL/glu.h \
+ /usr/include/GL/glx.h /usr/include/GL/glxext.h /usr/include/pthread.h \
+ /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/setjmp.h /usr/include/jpeglib.h /usr/include/jconfig.h \
+ /usr/include/jmorecfg.h ../include/list.h
 
 ../include/config.h:
 
 ../include/g3d.h:
 
-/root/mingw32/usr/local/include/stdio.h:
+/usr/include/stdio.h:
 
-/root/mingw32/usr/local/include/_mingw.h:
+/usr/include/features.h:
 
-/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stddef.h:
+/usr/include/sys/cdefs.h:
 
-/root/mingw32/lib/gcc/i386-mingw32/3.4.5/include/stdarg.h:
+/usr/include/bits/wordsize.h:
 
-/root/mingw32/usr/local/include/sys/types.h:
+/usr/include/gnu/stubs.h:
 
-/root/mingw32/usr/local/include/stdlib.h:
+/usr/include/gnu/stubs-64.h:
 
-/root/mingw32/usr/local/include/stdint.h:
+/opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stddef.h:
 
-/root/mingw32/usr/local/include/string.h:
+/usr/include/bits/types.h:
 
-/root/mingw32/usr/local/include/math.h:
+/usr/include/bits/typesizes.h:
 
-/root/mingw32/usr/local/include/GL/gl.h:
+/usr/include/libio.h:
 
-/root/mingw32/usr/local/include/GL/glu.h:
+/usr/include/_G_config.h:
 
-/root/mingw32/usr/local/include/GL/glext.h:
+/usr/include/wchar.h:
 
-/usr/src/tarball/libjpg-win32/include/jpeglib.h:
+/opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stdarg.h:
 
-/usr/src/tarball/libjpg-win32/include/jconfig.h:
+/usr/include/bits/stdio_lim.h:
 
-/root/mingw32/usr/local/include/windows.h:
+/usr/include/bits/sys_errlist.h:
 
-/root/mingw32/usr/local/include/windef.h:
+/usr/include/bits/stdio.h:
 
-/root/mingw32/usr/local/include/winnt.h:
+/usr/include/stdlib.h:
 
-/root/mingw32/usr/local/include/winerror.h:
+/usr/include/bits/waitflags.h:
 
-/root/mingw32/usr/local/include/basetsd.h:
+/usr/include/bits/waitstatus.h:
 
-/root/mingw32/usr/local/include/pshpack4.h:
+/usr/include/endian.h:
 
-/root/mingw32/usr/local/include/poppack.h:
+/usr/include/bits/endian.h:
 
-/root/mingw32/usr/local/include/wincon.h:
+/usr/include/bits/byteswap.h:
 
-/root/mingw32/usr/local/include/winbase.h:
+/usr/include/sys/types.h:
 
-/root/mingw32/usr/local/include/wingdi.h:
+/usr/include/time.h:
 
-/root/mingw32/usr/local/include/winuser.h:
+/usr/include/sys/select.h:
 
-/root/mingw32/usr/local/include/winnls.h:
+/usr/include/bits/select.h:
 
-/root/mingw32/usr/local/include/winver.h:
+/usr/include/bits/sigset.h:
 
-/root/mingw32/usr/local/include/winnetwk.h:
+/usr/include/bits/time.h:
 
-/root/mingw32/usr/local/include/winreg.h:
+/usr/include/sys/sysmacros.h:
 
-/root/mingw32/usr/local/include/winsvc.h:
+/usr/include/bits/pthreadtypes.h:
 
-/root/mingw32/usr/local/include/cderr.h:
+/usr/include/alloca.h:
 
-/root/mingw32/usr/local/include/dde.h:
+/opt/gnat/bin/../lib/gcc/x86_64-pc-linux-gnu/4.7.4/include/stdint.h:
 
-/root/mingw32/usr/local/include/ddeml.h:
+/usr/include/stdint.h:
 
-/root/mingw32/usr/local/include/dlgs.h:
+/usr/include/bits/wchar.h:
 
-/root/mingw32/usr/local/include/imm.h:
+/usr/include/string.h:
 
-/root/mingw32/usr/local/include/lzexpand.h:
+/usr/include/xlocale.h:
 
-/root/mingw32/usr/local/include/mmsystem.h:
+/usr/include/bits/string.h:
 
-/root/mingw32/usr/local/include/nb30.h:
+/usr/include/bits/string2.h:
 
-/root/mingw32/usr/local/include/rpc.h:
+/usr/include/math.h:
 
-/root/mingw32/usr/local/include/rpcdce.h:
+/usr/include/bits/huge_val.h:
 
-/root/mingw32/usr/local/include/basetyps.h:
+/usr/include/bits/huge_valf.h:
 
-/root/mingw32/usr/local/include/rpcdcep.h:
+/usr/include/bits/huge_vall.h:
 
-/root/mingw32/usr/local/include/rpcnsi.h:
+/usr/include/bits/inf.h:
 
-/root/mingw32/usr/local/include/rpcnterr.h:
+/usr/include/bits/nan.h:
 
-/root/mingw32/usr/local/include/shellapi.h:
+/usr/include/bits/mathdef.h:
 
-/root/mingw32/usr/local/include/pshpack2.h:
+/usr/include/bits/mathcalls.h:
 
-/root/mingw32/usr/local/include/winperf.h:
+/usr/include/bits/mathinline.h:
 
-/root/mingw32/usr/local/include/commdlg.h:
+/usr/include/X11/X.h:
 
-/root/mingw32/usr/local/include/winspool.h:
+/usr/include/X11/Intrinsic.h:
 
-/root/mingw32/usr/local/include/winsock2.h:
+/usr/include/X11/Xlib.h:
 
-/root/mingw32/usr/local/include/ole2.h:
+/usr/include/X11/Xfuncproto.h:
 
-/root/mingw32/usr/local/include/objbase.h:
+/usr/include/X11/Xosdefs.h:
 
-/root/mingw32/usr/local/include/rpcndr.h:
+/usr/include/X11/Xutil.h:
 
-/root/mingw32/usr/local/include/rpcnsip.h:
+/usr/include/X11/keysym.h:
 
-/root/mingw32/usr/local/include/objfwd.h:
+/usr/include/X11/keysymdef.h:
 
-/root/mingw32/usr/local/include/wtypes.h:
+/usr/include/X11/Xresource.h:
 
-/root/mingw32/usr/local/include/unknwn.h:
+/usr/include/X11/Core.h:
 
-/root/mingw32/usr/local/include/objidl.h:
+/usr/include/X11/Composite.h:
 
-/root/mingw32/usr/local/include/cguid.h:
+/usr/include/X11/Constraint.h:
 
-/root/mingw32/usr/local/include/olectlid.h:
+/usr/include/X11/Object.h:
 
-/root/mingw32/usr/local/include/oleauto.h:
+/usr/include/X11/RectObj.h:
 
-/root/mingw32/usr/local/include/oaidl.h:
+/usr/include/X11/IntrinsicP.h:
 
-/root/mingw32/usr/local/include/oleidl.h:
+/usr/include/X11/CoreP.h:
 
-/usr/src/tarball/libjpg-win32/include/jmorecfg.h:
+/usr/include/X11/CompositeP.h:
+
+/usr/include/X11/ConstrainP.h:
+
+/usr/include/X11/ObjectP.h:
+
+/usr/include/X11/RectObjP.h:
+
+/usr/include/X11/StringDefs.h:
+
+/usr/include/GL/gl.h:
+
+/usr/include/GL/glext.h:
+
+/usr/include/inttypes.h:
+
+/usr/include/GL/glu.h:
+
+/usr/include/GL/glx.h:
+
+/usr/include/GL/glxext.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/jpeglib.h:
+
+/usr/include/jconfig.h:
+
+/usr/include/jmorecfg.h:
 
 ../include/list.h:

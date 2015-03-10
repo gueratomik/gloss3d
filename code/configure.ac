@@ -18,7 +18,7 @@ AC_LANG(C)
 AC_HEADER_STDC
 
 #Check for MingW32 (default)
-AC_CHECK_PROG(have_win32, i386-mingw32-gcc, yes, no)
+#AC_CHECK_PROG(have_win32, i386-mingw32-gcc, yes, no)
 
 AM_CONDITIONAL(HAVE_MOTIF,false)
 AM_CONDITIONAL(HAVE_GTK3,false)
