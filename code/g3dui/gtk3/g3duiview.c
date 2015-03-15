@@ -43,7 +43,7 @@ static void     gtk_view_init          ( GtkView * );
 static void     gtk_view_realize       ( GtkWidget * );
 static void     gtk_view_size_request  ( GtkWidget *, GtkRequisition * );
 static gboolean gtk_view_expose        ( GtkWidget *, cairo_t * );
-static gboolean gtk_view_configure     ( GtkWidget *, GdkEventConfigure * );
+static gboolean gtk_view_configure     ( GtkWidget *, GdkEvent *, gpointer );
 static void     gtk_view_size_allocate ( GtkWidget *, GtkAllocation * );
 static void     gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
 
@@ -522,6 +522,7 @@ static void gtk_view_redraw_area ( GtkWidget *widget ) {
     GtkWidget *area = gtk_view_getGLArea ( widget );
     GdkRectangle arec;
 
+    /*** Tell cairo to shut the f*** up ***/
     arec.x = arec.y = 0;
     arec.width = arec.height = 1;
 
@@ -791,13 +792,19 @@ static void gtk_view_size_allocate ( GtkWidget     *widget,
 }
 
 /******************************************************************************/
-static gboolean gtk_view_configure ( GtkWidget *widget,
-                                       GdkEventConfigure *event ) {
+static gboolean gtk_area_filter ( GdkXEvent *xevent,
+                  GdkEvent *event,
+                  gpointer data ) {
+    #ifdef __MINGW32__
+    MSG *msg = ( MSG * ) xevent;
     /*** use parent class configure function ***/
-    GTK_WIDGET_CLASS(gtk_view_parent_class)->configure_event ( widget, event );
+    /*GTK_WIDGET_CLASS(gtk_view_parent_class)->configure_event ( widget, event );*/
+printf ( "test %d\n", msg->message );
+    if ( msg->message == 70 ) return GDK_FILTER_REMOVE;
 
+    #endif
 
-    return 0x01;
+    return GDK_FILTER_CONTINUE;
 }
 
 /******************************************************************************/
@@ -876,12 +883,12 @@ static void gtk_view_realize ( GtkWidget *widget ) {
 
     attributes.event_mask  |=  ( GDK_EXPOSURE_MASK            |
                                  GDK_KEY_PRESS_MASK           |
-			         GDK_KEY_RELEASE_MASK         |
+			                     GDK_KEY_RELEASE_MASK         |
                                  GDK_BUTTON_PRESS_MASK        |
                                  GDK_BUTTON_RELEASE_MASK      |
                                  GDK_POINTER_MOTION_MASK      |
                                  GDK_POINTER_MOTION_HINT_MASK |
-			         GDK_STRUCTURE_MASK );
+			                     GDK_STRUCTURE_MASK );
 
     window = gdk_window_new ( parent_window, &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL );
 
@@ -952,6 +959,9 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
     g_signal_connect ( G_OBJECT (gvw), "motion_notify_event" , G_CALLBACK (gtk_view_event), gui );
     g_signal_connect ( G_OBJECT (gvw), "button_press_event"  , G_CALLBACK (gtk_view_event), gui );
     g_signal_connect ( G_OBJECT (gvw), "button_release_event", G_CALLBACK (gtk_view_event), gui );
+    /*g_signal_connect ( G_OBJECT (gvw), "configure-event", G_CALLBACK (gtk_view_configure), gui );*/
+
+    /*gdk_window_add_filter ( gtk_widget_get_window ( area ), gtk_area_filter, gui );*/
 
     createObjectMenu ( area, gui );
     createVertexMenu ( area, gui );
@@ -1188,6 +1198,7 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     GdkWindow  *p_window = gtk_widget_get_parent_window ( widget );
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
+
 #ifdef __linux__
     Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      root     = DefaultRootWindow ( dis );
@@ -1295,6 +1306,13 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     view->glctx = wglCreateContext ( dc );
 
     wglMakeCurrent ( dc,  view->glctx );
+
+    ext_glActiveTextureARB   = (PFNGLACTIVETEXTUREARBPROC)  wglGetProcAddress("glActiveTextureARB");
+    ext_glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
+    ext_glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
+    /*ext_glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)  wglGetProcAddress("glGenerateMipmap");*/
+
+    printf ( " %d %d %d\n", ext_glActiveTextureARB, ext_glMultiTexCoord2fARB, ext_glClientActiveTextureARB  );
 
     common_g3duiview_initGL ( view );
 

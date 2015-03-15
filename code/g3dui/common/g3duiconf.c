@@ -33,24 +33,31 @@
 void common_g3dui_loadConfiguration ( G3DUI *gui, char *filename ) {
     FILE *fconf = NULL;
     char *str = NULL;
+    #ifdef __linux__
     char *home = getenv ( "HOME" );
 
-    #ifdef __linux__
     if ( access( filename, F_OK ) == 0x00 ) {
     #endif
     #ifdef __MINGW32__
-    if ( FileExists ( filename ) ) {
+    char *home = getenv ( "USERPROFILE" );
+
+    if ( PathFileExists ( filename ) == 0x00 ) {
     #endif
         char buf[0x100];
 
+        #ifdef __linux__
         snprintf ( buf, 0x100, "%s/.gloss3d/", home );
+        #endif
+        #ifdef __MINGW32__
+        snprintf ( buf, 0x100, "%s\\.gloss3d\\", home );
+        #endif
 
         /*** Create default directory if needed ***/
         #ifdef __linux__
         if ( access ( buf, F_OK ) == 0x00 ) {
         #endif
         #ifdef __MINGW32__
-        if ( FileExists ( buf ) ) {
+        if ( PathFileExists ( buf ) == 0x00 ) {
         #endif
             printf ( "Creating default user directory ~/.gloss3d\n" );
 
@@ -62,7 +69,12 @@ void common_g3dui_loadConfiguration ( G3DUI *gui, char *filename ) {
             #endif
         }
 
+        #ifdef __linux__
         snprintf ( buf, 0x100, "%s/.gloss3d/gloss3d.conf", home );
+        #endif
+        #ifdef __MINGW32__
+        snprintf ( buf, 0x100, "%s\\.gloss3d\\gloss3d.conf", home );
+        #endif
 
         fconf = fopen ( buf, "wt" );
     } else {

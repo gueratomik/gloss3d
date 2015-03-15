@@ -53,6 +53,11 @@
 #include <shlwapi.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+    PFNGLACTIVETEXTUREARBPROC ext_glActiveTextureARB;
+    PFNGLMULTITEXCOORD2FARBPROC ext_glMultiTexCoord2fARB;
+    PFNGLCLIENTACTIVETEXTUREARBPROC ext_glClientActiveTextureARB;
+    /*PFNGLGENERATEMIPMAPPROC ext_glGenerateMipmap;*/
 #endif
 
 /******************************************************************************/

@@ -1106,12 +1106,21 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "}                        \n" };
     GdkDisplay *display = gdk_display_get_default ( );
     GdkScreen  *screen  = gdk_display_get_default_screen ( display );
+    #ifdef __linux__
     char *home = getenv ( "HOME" );
+    #endif
+    #ifdef __MINGW32__
+    char *home = getenv ( "USERPROFILE" );
+    #endif
     char configFileName[0x100];
     GtkWidget *tab;
 
+    #ifdef __linux__
     snprintf ( configFileName, 0x100, "%s/.gloss3d/gloss3d.conf", home );
-
+    #endif
+    #ifdef __MINGW32__
+    snprintf ( configFileName, 0x100, "%s\\.gloss3d\\gloss3d.conf", home );
+    #endif
 
     gtk_style_context_add_provider_for_screen ( screen,
                                  GTK_STYLE_PROVIDER (provider),

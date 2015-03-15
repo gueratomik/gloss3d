@@ -48,11 +48,6 @@
     #include <windows.h>
     #include <g3dui_gtk3.h>
 
-    PFNGLACTIVETEXTUREARBPROC ext_glActiveTextureARB;
-    PFNGLMULTITEXCOORD2FARBPROC ext_glMultiTexCoord2fARB;
-    PFNGLCLIENTACTIVETEXTUREARBPROC ext_glClientActiveTextureARB;
-    /*PFNGLGENERATEMIPMAPPROC ext_glGenerateMipmap;*/
-
 char * strsep(char **sp, char *sep) {
     char *p, *s;
 
@@ -126,13 +121,6 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifdef WITH_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
-
-    #ifdef __MINGW32__
-    ext_glActiveTextureARB   = (PFNGLACTIVETEXTUREARBPROC)  wglGetProcAddress("glActiveTextureARB");
-    ext_glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
-    ext_glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
-    /*ext_glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)  wglGetProcAddress("glGenerateMipmap");*/
-    #endif
 
     #ifdef __linux__
     /*** Support multi-threads. Must be called before any Xlib function ***/
