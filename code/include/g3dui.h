@@ -50,6 +50,7 @@
 #ifdef __MINGW32__
 #include <windows.h>
 #include <winbase.h>
+#include <shlwapi.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif

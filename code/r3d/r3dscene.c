@@ -139,7 +139,7 @@ static uint32_t getNumberOfCPUs ( ) {
     SYSTEM_INFO sysinfo;
 
     GetSystemInfo ( &sysinfo );
-printf("NBPROC: %d\n", sysinfo.dwNumberOfProcessors );
+
     return sysinfo.dwNumberOfProcessors;
 }
 #endif

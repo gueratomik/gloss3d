@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS=-DWITH_GTK3 \
+       -g \
        -I. \
        -I./include \
        -IC:/GTK3/include/gtk-3.0 \
@@ -19,6 +20,7 @@ CFLAGS=-DWITH_GTK3 \
        -LC:/GTK3/lib
 
 LDFLAGS=-Wl,-luuid \
+        -lshlwapi \
         -lgtk-3 \
         -lgdk-3 \
         -lgdi32 \
@@ -46,7 +48,6 @@ LDFLAGS=-Wl,-luuid \
         -lglu32 \
         -ljpeg \
         -lpng15 \
-        -lshlwapi \
         -lexpat
 
 OBJECTS=main.o \
@@ -230,7 +231,7 @@ OBJECTS=main.o \
 		@$(CC) -c -o $@ $< $(CFLAGS)
 
 gloss3d-win32: $(OBJECTS)
-		gcc $^ $(CFLAGS) $(LDFLAGS) -o $@   
+		gcc $^ $(CFLAGS) -o $@  $(LDFLAGS)
 
 clean: 
 		erase /S $(OBJECTS)

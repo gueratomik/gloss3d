@@ -533,7 +533,6 @@ typedef struct _FILTERMOTIONBLUR {
 /******************************************************************************/
 typedef struct _FILTERTOFFMPEG {
     uint32_t flags;   /*** Play on completion ? ***/
-    int pipefd[0x02]; /*** pipe to ffmpeg ***/
     uint32_t height;
     uint32_t width;
     uint32_t depth;
@@ -542,9 +541,11 @@ typedef struct _FILTERTOFFMPEG {
     char *ffmpegpath;
     char *ffplaypath;
     #ifdef __linux__
+    int pipefd[0x02]; /*** pipe to ffmpeg ***/
     pthread_t tid;   /*** the reader thread ***/
     #endif
     #ifdef __MINGW32__
+    HANDLE pipefd[0x02];
     HANDLE tid;
     #endif
 } FILTERTOFFMPEG;
@@ -720,7 +721,13 @@ void              filtermotionblur_free     ( R3DFILTER * );
 
 /******************************************************************************/
 /************************* Send to FFMpeg Filter ******************************/
+#ifdef __linux__
 void           *filtertoffmpeg_listen_t ( FILTERTOFFMPEG * );
+#endif
+#ifdef __MINGW32__
+DWORD           filtertoffmpeg_listen_t ( FILTERTOFFMPEG * );
+#endif
+
 R3DFILTER      *r3dfilter_toFfmpeg_new  ( uint32_t, uint32_t, 
                                                     uint32_t, 
                                                     uint32_t,

@@ -36,12 +36,8 @@ static GtkWidget *window_get_area ( GtkWidget * );
 void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
-#ifdef __linux__
-    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window      win      = gdk_x11_window_get_xid ( gdkwin );
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
-    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
     /* rps might not be allocated yet by the map signal of the renderwindow */
     if ( rps ) {
@@ -52,6 +48,14 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
             uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
                      height = gtk_widget_get_allocated_height ( widget );
             uint32_t x = 0, y = 0;
+            #ifdef __linux__
+            Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+            Window      win      = gdk_x11_window_get_xid ( gdkwin );
+            static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+            #endif
+            #ifdef __MINGW32__
+            HDC dc = GetDC ( ftw->hWnd );
+            #endif
 
             /*** Tell cairo to shut the F*** up ***/
             GdkRectangle arec;
@@ -62,11 +66,11 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
             gdk_window_invalidate_rect ( gtk_widget_get_window ( widget ), &arec, FALSE );
             /*************************************/
 
+            #ifdef __linux__
             if ( width  > ftw->ximg->width  ) x = ( width  - ftw->ximg->width  ) * 0.5f;
             if ( height > ftw->ximg->height ) y = ( height - ftw->ximg->height ) * 0.5f;
 
             /*pthread_mutex_lock ( &lock );*/
-
             XShmPutImage ( ftw->dis, ftw->win, 
                                      ftw->gc, 
                                      ftw->ximg,
@@ -74,11 +78,29 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                      x, y,
                                      ftw->ximg->width, 
                                      ftw->ximg->height, False );
+            #endif
+            #ifdef __MINGW32__
+            if ( width  > ftw->wimg->bi->bmiHeader.biWidth  ) x = ( width  - ftw->wimg->bi->bmiHeader.biWidth  ) * 0.5f;
+            if ( height > ftw->wimg->bi->bmiHeader.biHeight ) y = ( height - ftw->wimg->bi->bmiHeader.biHeight ) * 0.5f;
 
+            SetDIBitsToDevice ( dc, x,                                 /* int XDest               */
+                                    y,                                 /* int YDest               */
+                                    ftw->wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
+                                    ftw->wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
+                                    0x00,                              /* int XSrc                */
+                                    0x00,                              /* int YSrc                */
+                                    0x00,                              /* UINT uStartScan         */
+                                    ftw->wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
+                                    ftw->wimg->data,                   /* const VOID *lpvBits     */
+                                    ftw->wimg->bi,                     /* const BITMAPINFO *lpbmi */
+                                    ftw->wimg->bi->bmiHeader.biClrUsed );
+
+            ReleaseDC ( ftw->hWnd, dc );
+
+            #endif
             /*pthread_mutex_unlock ( &lock );*/
         }
     }
-#endif
 }
 
 /******************************************************************************/
@@ -357,7 +379,7 @@ GtkWidget *createRenderWindowFileMenu ( GtkWidget *bar, G3DUI *gui,
     btn = g3dui_addMenuButton    ( menu, gui, "Save As JPEG", width, G_CALLBACK(saveAsImageCbk) );
 
     g3dui_addMenuSeparator ( menu );
-    g3dui_addMenuButton    ( menu, gui, "Exit"        , width, G_CALLBACK(exitWindowCbk) );
+    g3dui_addMenuButton    ( menu, gui, "Close"        , width, G_CALLBACK(exitWindowCbk) );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

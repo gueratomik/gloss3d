@@ -31,6 +31,7 @@
 
 /******************************************************************************/
 void g3duirendersettings_getFfmpegPath ( G3DUIRENDERSETTINGS *rsg ) {
+    #ifdef __linux__
     FILE *fp = popen ("which ffmpeg", "r" );
 
     if ( fp ) {
@@ -47,10 +48,28 @@ void g3duirendersettings_getFfmpegPath ( G3DUIRENDERSETTINGS *rsg ) {
 
         pclose ( fp );
     }
+    #endif
+    #ifdef __MINGW32__
+    char buf[FFMPEGPATHLEN];
+
+    GetModuleFileName ( GetModuleHandle ( NULL ), buf, FFMPEGPATHLEN );
+
+    /*** trim the program name ***/
+    *(strrchr ( buf, '\\' )) = 0;
+
+
+   /* for some unknown reason, I get an undefined reference on this func */
+   /* even is -lshlwapi is specified */
+    /*PathCchRemoveFileSpec ( buf, FFMPEGPATHLEN );*/
+
+    snprintf ( rsg->ffmpegpath, FFMPEGPATHLEN, "%s\\ffmpeg.exe", buf );
+
+    #endif
 }
 
 /******************************************************************************/
 void g3duirendersettings_getFfplayPath ( G3DUIRENDERSETTINGS *rsg ) {
+    #ifdef __linux__
     FILE *fp = popen ("which ffplay", "r" );
 
     if ( fp ) {
@@ -67,6 +86,17 @@ void g3duirendersettings_getFfplayPath ( G3DUIRENDERSETTINGS *rsg ) {
 
         pclose ( fp );
     }
+    #endif
+    #ifdef __MINGW32__
+    char buf[FFMPEGPATHLEN];
+
+    GetModuleFileName ( GetModuleHandle ( NULL ), buf, FFMPEGPATHLEN );
+
+    /*** trim the program name ***/
+    *(strrchr ( buf, '\\' )) = 0;
+
+    snprintf ( rsg->ffplaypath, FFMPEGPATHLEN, "%s\\ffplay.exe", buf );
+    #endif
 }
 
 /******************************************************************************/

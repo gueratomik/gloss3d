@@ -110,33 +110,50 @@ void r3dfilter_free ( R3DFILTER *fil ) {
 }
 
 /******************************************************************************/
-/*void *filtertoffmpeg_listen_t ( FILTERTOFFMPEG *ftf ) {
-    char res[0x10];
-    char fps[0x10];
+#ifdef __MINGW32__
+/*** thanks to http://windows.developpez.com/faq/win32/?page=processus ***/
+DWORD filtertoffmpeg_listen_t ( FILTERTOFFMPEG *ftf ) {
+    PROCESS_INFORMATION pi;
+    STARTUPINFO si;
+    char args[0x100];
 
-    snprintf ( res, 0x10, "%dx%d", ftf->width, ftf->height );
-    snprintf ( fps, 0x10, "%d"   , ftf->fps );
+    printf("%s\n", ftf->exportpath );
 
-    *//*** call ffmpeg to read STDIN and render our video ***//*
-    execl ( "ffmpeg",
-            "ffmpeg",
-            "-f", "rawvideo",
-            "-pix_fmt", "rgb24",
-            "-vcodec", "rawvideo",
-            "-s", res,
-            "-r", fps,
-            "-sameq",
-            "-y",
-            "-an",
-            "-i", "-",
-            ftf->exportpath,
-            NULL );
+    snprintf ( args, 0x100, "ffmpeg"
+                            " -f rawvideo"
+                            " -pix_fmt rgb24"
+                            " -vcodec rawvideo"
+                            " -s %dx%d"
+                            " -r %d"
+                            " -y"
+                            " -an"
+                            " -i pipe:0"
+                            " %s", ftf->width, ftf->height, ftf->fps, ftf->exportpath );
 
-    pthread_exit ( NULL );
+    printf ( "Command line: ffmpeg %s\n", args );
 
+    memset ( &si, 0x00, sizeof ( STARTUPINFO ) );
 
-    return NULL;
-}*/
+    if ( CreateProcess( ftf->ffmpegpath,
+                        args,
+                        NULL,
+                        NULL,
+                        FALSE,
+                        0x00,
+                        NULL,
+                        NULL,
+                        &si,
+                        &pi ) ) {
+
+        WaitForSingleObject ( pi.hProcess, INFINITE );
+ 
+        CloseHandle ( pi.hProcess );
+        CloseHandle ( pi.hThread  );
+    }
+
+    return 0x00;
+}
+#endif
 
 /******************************************************************************/
 R3DFILTER *r3dfilter_toFfmpeg_new ( uint32_t flags, 
@@ -180,12 +197,16 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
                                      char *exportpath,
                                      char *ffmpegpath,
                                      char *ffplaypath ) {
-#ifdef __linux__
     uint32_t structsize = sizeof ( FILTERTOFFMPEG );
     FILTERTOFFMPEG *ftf = ( FILTERTOFFMPEG * ) calloc ( 0x01, structsize );
+    #ifdef __linux__
     /*pthread_attr_t attr;
     pthread_t tid;*/
     pid_t cpid;
+    #endif
+    #ifdef __MINGW32__
+    HANDLE hdl;
+    #endif
 
     if ( ffmpegpath && ( strlen ( ffmpegpath ) == 0x00 ) ) {
         fprintf ( stderr, "filtertoffmpeg_new: ffmpeg is needed !\n" );
@@ -199,18 +220,19 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
         return NULL;
     }
 
-    /*** open ffmpeg pipe ***/
-    pipe ( ftf->pipefd );
-
     ftf->flags  = flags;
     ftf->width  = width;
     ftf->height = height;
     ftf->depth  = depth;
     ftf->fps    = fps;
 
-    ftf->exportpath = exportpath;
-    ftf->ffmpegpath = ffmpegpath;
-    ftf->ffplaypath = ffplaypath;
+    ftf->exportpath = strdup ( exportpath );
+    ftf->ffmpegpath = strdup ( ffmpegpath );
+    ftf->ffplaypath = strdup ( ffplaypath );
+
+#ifdef __linux__
+    /*** open ffmpeg pipe ***/
+    pipe ( ftf->pipefd );
 
     /*pthread_attr_init ( &attr );*/
 
@@ -258,14 +280,44 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
                  "-i", "-",
                  ftf->exportpath,
                  NULL );
-    printf ( "Exiting FFMpeg\n" );
+
+        printf ( "Exiting FFMpeg\n" );
+
         _exit ( EXIT_SUCCESS ); /*** Child is not needed anymore ***/
     } else {                   /*** Parent writes to pipe ***/
         close ( ftf->pipefd[0x00] ); /*** Close unused read end  ***/
     }
+#endif
+#ifdef __MINGW32__
+    HANDLE _stdin_rd = NULL;
+    HANDLE _stdin_wr = NULL;
+    HANDLE _stdout_rd = NULL;
+    HANDLE _stdout_wr = NULL;
+    SECURITY_ATTRIBUTES sa;
+
+    sa.nLength = sizeof ( SECURITY_ATTRIBUTES );
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+
+    if ( CreatePipe ( &ftf->pipefd[0x00], &ftf->pipefd[0x01], &sa, NULL ) == 0x00 ) {
+        fprintf ( stderr, "filtertoffmpeg_new: could not create pipe\n" );
+    }
+
+    SetHandleInformation ( ftf->pipefd[0x00], HANDLE_FLAG_INHERIT, 0 );
+    SetHandleInformation ( ftf->pipefd[0x01], HANDLE_FLAG_INHERIT, 0 );
+
+    SetStdHandle ( STD_INPUT_HANDLE, ftf->pipefd[0x00] );
+
+    hdl = CreateThread ( NULL, 
+                         0x00,
+                         (LPTHREAD_START_ROUTINE) filtertoffmpeg_listen_t, 
+                         ftf,
+                         0x00,
+                         NULL );
+#endif
 
     return ftf;
-#endif
+
 }
 
 /******************************************************************************/
@@ -279,9 +331,24 @@ uint32_t filtertoffmpeg_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     FILTERTOFFMPEG *ftf = ( FILTERTOFFMPEG * ) fil->data;
     uint32_t height  = ( to - from ) + 0x01;
     uint32_t bufsize = ( height * width  * ( depth >> 0x03 ) );
-#ifdef __linux__
+    uint32_t wbytes, wret;
+
+    #ifdef __linux__
     write ( ftf->pipefd[0x01], img, bufsize );
-#endif
+    #endif
+    #ifdef __MINGW32__
+    wret = WriteFile ( ftf->pipefd[0x01], /* handle to pipe           */
+                       img,               /* buffer to write from     */
+                       bufsize,           /* number of bytes to write */
+                      &wbytes,            /* number of bytes written  */
+                       NULL );            /* not overlapped I/O       */
+
+    if ( ( wret == 0x00 ) || ( wbytes != bufsize ) ) {
+        fprintf ( stderr, "Failure writing to pipe: %s", GetLastError( ) ); 
+    }
+
+    #endif
+
     return 0x00;
 
 }
@@ -289,18 +356,24 @@ uint32_t filtertoffmpeg_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 /******************************************************************************/
 void filtertoffmpeg_free ( R3DFILTER *fil ) {
     FILTERTOFFMPEG *ftf = ( FILTERTOFFMPEG * ) fil->data;
-#ifdef __linux__
+
     printf ( "Closing FFMpeg pipeline ...\n" );
 
+    #ifdef __linux__
     close ( ftf->pipefd[0x01] ); /*** Reader will see EOF ***/
 
     /*** Wait for child to terminate ***/
     wait ( NULL );
+    #endif
+    #ifdef __MINGW32__
+    CloseHandle ( ftf->pipefd[0x00] );
+    CloseHandle ( ftf->pipefd[0x01] );
+    #endif
 
     printf ( "Closed\n" );
 
     free ( ftf );
-#endif
+
 }
 
 /******************************************************************************/
@@ -408,9 +481,12 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                         uint32_t color = ( ( uint32_t ) oriimg[k][0x00] << 0x10 ) |
                                          ( ( uint32_t ) oriimg[k][0x01] << 0x08 ) |
                                          ( ( uint32_t ) oriimg[k][0x02] );
-#ifdef __linux__
+                        #ifdef __linux__
                         ftw->ximg->f.put_pixel ( ftw->ximg, k, j, color );
-#endif
+                        #endif
+                        #ifdef __MINGW32__
+                        ftw->wimg->f.put_pixel ( ftw->wimg, k, j, color );
+                        #endif
                     }
                 }
             }
@@ -638,8 +714,8 @@ void filtertowindow_allocWImage ( FILTERTOWINDOW *ftw, HWND hWnd ) {
                                         ( rec.bottom - rec.top  ), dc,
                             0x00, 0x00, SRCCOPY );*/
 
-    glReadPixels ( 0, 0, ( rec.right  - rec.left ),
-                         ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );
+    /*glReadPixels ( 0, 0, ( rec.right  - rec.left ),
+                         ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );*/
 
     ReleaseDC ( hWnd, dc );
 }
@@ -787,12 +863,13 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                     ftw->wimg->data, /* const VOID *lpvBits     */
                                     ftw->wimg->bi,   /* const BITMAPINFO *lpbmi */
                                     ftw->wimg->bi->bmiHeader.biClrUsed );
-
-
             #endif
         } else {
             #ifdef __linux__
             XClearWindow ( ftw->dis, ftw->win );
+            #endif
+            #ifdef __MINGW32__
+            /*InvalidateRect ( ftw->hWnd, NULL, TRUE );*/
             #endif
         }
 
@@ -997,13 +1074,24 @@ uint32_t filterwriteimage_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     char imagename[0x100];
 
     if ( fwi->sequence ) {
-        /*** http://linux.die.net/man/3/dirname ***/
-        dirc = strdup(fwi->imagename);
-        basec = strdup(fwi->imagename);
-        dname = dirname(dirc);
-        bname = basename(basec);
+        dirc = strdup ( fwi->imagename );
+        basec = strdup ( fwi->imagename );
 
-        snprintf ( imagename, 0x100, "%s/%03d_%s", dname, frameID, bname );
+        #ifdef __linux__
+        /*** http://linux.die.net/man/3/dirname ***/
+        dname = dirname ( dirc );
+        bname = basename ( basec );
+
+        snprintf ( imagename, 0x100, "%s/%03d_%s", dname, ( uint32_t ) frameID, bname );
+        #endif
+        #ifdef __MINGW32__
+        dname = dirname ( dirc );
+
+        if ( strrchr ( basec, '\\' ) ) bname = basename ( basec );
+        else                           bname = basec;
+
+        snprintf ( imagename, 0x100, "%s\\%03d_%s", dname, ( uint32_t ) frameID, bname );
+        #endif
 
         printf ( "saving %s\n", imagename );
 
