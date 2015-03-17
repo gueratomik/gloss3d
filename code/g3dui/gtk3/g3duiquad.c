@@ -307,9 +307,7 @@ GtkWidget *createQuad ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), gqw, x, y );
 
-
     gtk_quad_createDefaultViews ( gqw, gui );
-
 
     gtk_widget_show ( gqw );
 

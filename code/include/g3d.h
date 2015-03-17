@@ -64,6 +64,10 @@
 
 #ifdef __MINGW32__
 #include <GL/glext.h>
+PFNGLACTIVETEXTUREARBPROC       ext_glActiveTextureARB;
+PFNGLMULTITEXCOORD2FARBPROC     ext_glMultiTexCoord2fARB;
+PFNGLCLIENTACTIVETEXTUREARBPROC ext_glClientActiveTextureARB;
+void                          (*ext_glGenerateMipmap) (GLenum target);
 #endif
 
 /******************************************************************************/

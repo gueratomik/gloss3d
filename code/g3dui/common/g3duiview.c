@@ -232,6 +232,10 @@ void common_g3duiview_sizeGL ( G3DUIVIEW *view, uint32_t width,
 void common_g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DCAMERA       *cam = view->cam;
 
+    /*** we need to update the camera's matrix here because we need and ***/
+    /*** OpenGL context for matrix operations ***/
+    g3dobject_updateMatrix_r (  cam, 0x00 );
+
     /*** Set clear color for the OpenGL Window ***/
     glClearColor ( 0.40f, 0.40f, 0.40f, 1.0f );
 

@@ -63,14 +63,6 @@ char * strsep(char **sp, char *sep) {
     return(s);
 }
 
-BOOL FileExists(LPCTSTR szPath) {
-    DWORD dwAttrib = GetFileAttributes(szPath);
-
-    if ( dwAttrib == INVALID_FILE_ATTRIBUTES ) return 0x00;
-
-    return 0x01;
-}
-
 #endif
 
 /******************************************************************************/

@@ -323,11 +323,23 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
             if ( tex->map == uvs->map ) {
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
                     if ( mat->diffuse.image ) {
-                        ext_glActiveTextureARB ( arbid );
+                        #ifdef __linux__
+                        glActiveTextureARB ( arbid );
+                        #endif
+                        #ifdef __MINGW32__
+                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                        #endif
+                        
                         glDisable ( GL_TEXTURE_2D );
 
                         if ( fac->flags & FACESUBDIVIDED ) {
+                            #ifdef __linux__
                             ext_glClientActiveTextureARB ( arbid );
+                            #endif
+                            #ifdef __MINGW32__
+                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                            #endif
+
                             glDisableClientState     ( GL_TEXTURE_COORD_ARRAY );
                         }
 
@@ -335,11 +347,22 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                     }
 
                     if ( mat->bump.image ) {
-                        ext_glActiveTextureARB ( arbid );
+                        #ifdef __linux__
+                        glActiveTextureARB ( arbid );
+                        #endif
+                        #ifdef __MINGW32__
+                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                        #endif
+
                         glDisable ( GL_TEXTURE_2D );
 
                         if ( fac->flags & FACESUBDIVIDED ) {
-                            ext_glClientActiveTextureARB ( arbid );
+                            #ifdef __linux__
+                            glClientActiveTextureARB ( arbid );
+                            #endif
+                            #ifdef __MINGW32__
+                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                            #endif
                             glDisableClientState     ( GL_TEXTURE_COORD_ARRAY );
                         }
 
@@ -423,8 +446,13 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         /*** Color image ***/
                         if ( mat->diffuse.image && drawTextures ) {
                             G3DIMAGE *difimg = mat->diffuse.image;
+                            #ifdef __linux__
+                            glActiveTextureARB ( arbid );
+                            #endif
+                            #ifdef __MINGW32__
+                            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                            #endif
 
-                            ext_glActiveTextureARB ( arbid );
                             glBindTexture ( GL_TEXTURE_2D, mat->diffuse.image->id );
                             glEnable      ( GL_TEXTURE_2D );
 
@@ -432,7 +460,13 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                                         GL_COMBINE_EXT );
 
                             if ( fac->flags & FACESUBDIVIDED ) {
-                                ext_glClientActiveTextureARB ( arbid );
+                                #ifdef __linux__
+                                glClientActiveTextureARB ( arbid );
+                                #endif
+                                #ifdef __MINGW32__
+                                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                                #endif
+
                                 glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
                                 glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
                                                           fac->rtuvsmem );
@@ -463,7 +497,13 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                     if ( mat->bump.image && drawTextures ) {
                         G3DIMAGE *bmpimg = mat->bump.image;
 
-                        ext_glActiveTextureARB ( arbid );
+                        #ifdef __linux__
+                        glActiveTextureARB ( arbid );
+                        #endif
+                        #ifdef __MINGW32__
+                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                        #endif
+
                         glBindTexture ( GL_TEXTURE_2D, mat->bump.image->id );
                         glEnable      ( GL_TEXTURE_2D );
 
@@ -471,7 +511,13 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                                     GL_COMBINE_EXT );
 
                         if ( fac->flags & FACESUBDIVIDED ) {
-                            ext_glClientActiveTextureARB ( arbid );
+                            #ifdef __linux__
+                            glClientActiveTextureARB ( arbid );
+                            #endif
+                            #ifdef __MINGW32__
+                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                            #endif
+
                             glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
                             glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
                                                       fac->rtuvsmem );
@@ -625,33 +671,61 @@ if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
             glBegin  ( GL_QUADS );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x00], 
-                                           texcoord[i].v[0x00] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x00], 
+                                       texcoord[i].v[0x00] ); 
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x00], 
+                                                                           texcoord[i].v[0x00] ); 
+                #endif
             }
             glNormal3fv  ( ( float * ) &v0->nor );
             glVertex3fv  ( ( float * ) p0 );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x01], 
-                                           texcoord[i].v[0x01] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x01], 
+                                       texcoord[i].v[0x01] );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x01], 
+                                                                           texcoord[i].v[0x01] );
+                #endif
             }
             glNormal3fv  ( ( float * ) &v1->nor );
             glVertex3fv  ( ( float * ) p1 );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x02], 
-                                           texcoord[i].v[0x02] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x02], 
+                                       texcoord[i].v[0x02] );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x02], 
+                                                                           texcoord[i].v[0x02] );
+                #endif
             }
             glNormal3fv  ( ( float * ) &v2->nor );
             glVertex3fv  ( ( float * ) p2 );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x03], 
-                                           texcoord[i].v[0x03] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x03], 
+                                       texcoord[i].v[0x03] ); 
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x03], 
+                                                                           texcoord[i].v[0x03] ); 
+                #endif
             }
             glNormal3fv  ( ( float * ) &v3->nor );
             glVertex3fv  ( ( float * ) p3 );
@@ -816,25 +890,46 @@ if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
             glBegin ( GL_TRIANGLES );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x00], 
-                                           texcoord[i].v[0x00] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x00], 
+                                       texcoord[i].v[0x00] ); 
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x00], 
+                                                                           texcoord[i].v[0x00] ); 
+                #endif
             }
             glNormal3fv  ( ( float * ) &v0->nor );
             glVertex3fv  ( ( float * ) p0 );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x01], 
-                                           texcoord[i].v[0x01] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x01], 
+                                       texcoord[i].v[0x01] );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x01], 
+                                                                           texcoord[i].v[0x01] );
+                #endif
             }
             glNormal3fv  ( ( float * ) &v1->nor );
             glVertex3fv  ( ( float * ) p1 );
 
             for ( i = 0x00; i < nbtex; i++ ) {
-                ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                           texcoord[i].u[0x02], 
-                                           texcoord[i].v[0x02] ); 
+                #ifdef __linux__
+                glMultiTexCoord2fARB ( texcoord[i].tid,
+                                       texcoord[i].u[0x02], 
+                                       texcoord[i].v[0x02] );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
+                                                                           texcoord[i].u[0x02], 
+                                                                           texcoord[i].v[0x02] );
+                #endif
             }
             glNormal3fv  ( ( float * ) &v2->nor );
             glVertex3fv  ( ( float * ) p2 );

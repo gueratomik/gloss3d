@@ -52,11 +52,16 @@ void g3dimage_bind ( G3DIMAGE *img ) {
                                   img->width,
                                   img->height,
                                   0x00,
-                                  GL_RGB, 
+                                  GL_RGB,
                                   GL_UNSIGNED_BYTE,
                                   img->data );
 
-    /*glGenerateMipmap ( GL_TEXTURE_2D );*/
+    #ifdef __linux__
+    glGenerateMipmap ( GL_TEXTURE_2D );
+    #endif
+    #ifdef __MINGW32__
+    if ( ext_glGenerateMipmap ) ext_glGenerateMipmap ( GL_TEXTURE_2D );
+    #endif
 
     glDisable ( GL_TEXTURE_2D );
 }

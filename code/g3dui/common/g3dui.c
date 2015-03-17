@@ -182,7 +182,7 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
     if ( access( filename, F_OK ) == 0x00 ) {
 #endif
 #ifdef __MINGW32__
-    if ( FileExists ( filename ) ) {
+    if ( PathFileExists ( filename ) ) {
 #endif
         printf ( "Opening %s of type %s ...\n", filename, filedesc );
 
@@ -273,7 +273,7 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
     if ( access( filename, F_OK ) == 0x00 ) {
 #endif
 #ifdef __MINGW32__
-    if ( FileExists ( filename ) ) {
+    if ( PathFileExists ( filename ) ) {
 #endif
         printf ( "Opening %s ...\n", filename );
 

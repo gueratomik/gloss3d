@@ -1307,12 +1307,19 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
 
     wglMakeCurrent ( dc,  view->glctx );
 
-    ext_glActiveTextureARB   = (PFNGLACTIVETEXTUREARBPROC)  wglGetProcAddress("glActiveTextureARB");
-    ext_glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
-    ext_glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
-    /*ext_glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)  wglGetProcAddress("glGenerateMipmap");*/
+#ifdef __MINGW32__
+    if ( ext_glActiveTextureARB == NULL ) 
+        ext_glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) wglGetProcAddress("glActiveTextureARB");
 
-    printf ( " %d %d %d\n", ext_glActiveTextureARB, ext_glMultiTexCoord2fARB, ext_glClientActiveTextureARB  );
+    if ( ext_glMultiTexCoord2fARB == NULL ) 
+        ext_glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
+
+    if ( ext_glClientActiveTextureARB == NULL ) 
+        ext_glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
+
+    if ( ext_glGenerateMipmap == NULL ) 
+        ext_glGenerateMipmap = (void(*)(GLenum))wglGetProcAddress("glGenerateMipmap");
+#endif
 
     common_g3duiview_initGL ( view );
 
