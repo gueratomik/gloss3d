@@ -272,8 +272,8 @@ GtkWidget *createFunctionsMenu ( GtkWidget *bar, G3DUI *gui,
     createMirrorWeightGroupMenu ( menu, gui, MENU_MIRRORWEIGHTGROUP, width );
     createSplitMeshMenu         ( menu, gui, MENU_SPLITMESH        , width );
 
-/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk );
-*/
+    g3dui_addMenuButton ( menu, gui, "Convert to Mesh", width, g3dui_makeEditableCbk );
+
     gtk_widget_show     ( item );
 
     gtk_widget_show     ( menu );
