@@ -166,8 +166,8 @@ GtkWidget *createMaterialBoard ( GtkWidget *parent, G3DUI *gui,
 
     /*menuheight = gtk_widget_get_allocated_height ( menu );*/
 
-    createMaterialList ( frm, gui, "Materials"    , 0,  32, 320, 320 );
-    createMaterialEdit ( frm, gui, "Material Edit", 0, 352, 304, 200 );
+    createMaterialList     ( frm, gui, "Materials"    , 0,  32, 320, 320 );
+    createMaterialEdit     ( frm, gui, "Material Edit", 0, 352, 304, 168 );
 
     gtk_notebook_append_page ( GTK_NOTEBOOK(parent), frm, label );
 

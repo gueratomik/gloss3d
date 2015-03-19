@@ -52,3 +52,41 @@ void g3duicom_gotoframe ( GtkWidget *widget, gdouble frame,
     /*** Re-enable real time subdivision ***/
     gui->flags &= (~ONGOINGANIMATION);
 }
+
+/******************************************************************************/
+uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+                                                float frameID,
+                                                unsigned char *img, 
+                                                uint32_t from, 
+                                                uint32_t to, 
+                                                uint32_t depth, 
+                                                uint32_t width ) {
+    static EMITGOTOFRAMEDATA egd;
+
+    egd.ggt     = ( G3DUIGTK3 * ) fil->data;
+    egd.signame = "gotoframe";
+    egd.frame   = frameID + 1;
+
+    /*** Because OpenGL only works within the main context, we ***/
+    /*** cannot call g_signal_emit_by_name() directly, we have to ***/
+    /*** call g_main_context_invoke_full() that calls a wrapper to ***/
+    /*** g_signal_emit_by_name() ***/
+    g_main_context_invoke_full ( NULL, 0,
+                                       (GSourceFunc)emitgotoframe,
+                                       &egd,
+                                       NULL );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+R3DFILTER *r3dfilter_gotoframe_new ( G3DUIGTK3 *ggt ) {
+    R3DFILTER *fil;
+
+    fil = r3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,
+                                       filtergotoframe_draw,
+                                       NULL,
+                                       ggt );
+
+    return fil;
+}

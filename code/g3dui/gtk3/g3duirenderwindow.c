@@ -188,6 +188,11 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         /*if ( clean ) list_append ( &lfilters, clean );*/
 
         if ( gui->currsg->startframe != gui->currsg->endframe ) {
+            /*** this filter tells the engine to go to the next frame ***/
+            R3DFILTER *tofrm = r3dfilter_gotoframe_new ( ggt );
+
+            list_insert ( &lfilters, tofrm );
+
             rps = g3dui_render ( gui, ( uint64_t ) widget,
                                       0x00, 0x00,
                                       rsg->width  - 0x01,

@@ -49,14 +49,7 @@ void g3dui_stopCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-typedef struct _EMITGOTOFRAMEDATA {
-    G3DUIGTK3 *ggt;
-    char *signame;
-    float frame;
-} EMITGOTOFRAMEDATA;
-
-/******************************************************************************/
-static gboolean emitgotoframe ( EMITGOTOFRAMEDATA *egd ) {
+gboolean emitgotoframe ( EMITGOTOFRAMEDATA *egd ) {
     g_signal_emit_by_name ( egd->ggt->main, egd->signame, egd->frame );
 
     return G_SOURCE_REMOVE;

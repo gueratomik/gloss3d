@@ -36,6 +36,14 @@ static void imageColorCbk       ( GtkWidget *, gpointer  );
 static void chooseImageCbk      ( GtkWidget *, gpointer  );
 
 /******************************************************************************/
+static void nameCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    const char *name = gtk_entry_get_text ( GTK_ENTRY(widget) );
+
+    common_g3dui_materialNameCbk ( gui, name );
+}
+
+/******************************************************************************/
 GtkWidget *createPanel ( GtkWidget *parent, G3DUI *gui,
                                             char *name,
                                             gint x,
@@ -58,7 +66,7 @@ GtkWidget *createPanel ( GtkWidget *parent, G3DUI *gui,
 
 
 
-    gtk_widget_show ( lab );
+    /*gtk_widget_show ( lab );*/
     gtk_widget_show ( pan );
 
 
@@ -667,7 +675,7 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
+void updateMaterialChannels ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
@@ -699,6 +707,37 @@ void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    G3DMATERIAL *mat = gui->selmat;
+
+    gui->lock = 0x01;
+
+    if ( mat ) {
+        while ( children ) {
+            GtkWidget *child = ( GtkWidget * ) children->data;
+            const char *child_name = gtk_widget_get_name ( child );
+
+            if ( strcmp ( child_name, EDITMATERIALCHANNELS  ) == 0x00 ) {
+                updateMaterialChannels ( child, gui );
+            }
+
+            if ( strcmp ( child_name, EDITMATERIALNAME      ) == 0x00 ) {
+                if ( GTK_IS_ENTRY(child) ) {
+                    GtkEntry *ent = GTK_ENTRY(child);
+                 
+                    gtk_entry_set_text ( ent, mat->name );
+                }
+            }
+
+            children =  g_list_next ( children );
+        }
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -712,17 +751,32 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
                                                    gint y,
                                                    gint width,
                                                    gint height ) {
-    GdkRectangle gdkrec = { 0x00, 0x00, width, height };
-    GtkWidget *tab = gtk_notebook_new ( );
+    GdkRectangle frmrec = { 0x00, 0x00, width, height };
+    GdkRectangle gdkrec = { 0x00, 0x20, width, height - 0x20 };
+    GtkWidget * frm = gtk_fixed_new ( );
+    GtkWidget *tab;
+
+    gtk_widget_set_name ( frm, name );
+
+    gtk_widget_size_allocate ( frm, &frmrec );
+
+    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
+
+
+    createCharText ( frm, gui, EDITMATERIALNAME, 0, 0, 96, 96, nameCbk );
+
+
+    /********************/
+    tab = gtk_notebook_new ( );
 
     gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
 
-    gtk_widget_set_name ( tab, name );
+    gtk_widget_set_name ( tab, EDITMATERIALCHANNELS );
 
     gtk_widget_size_allocate ( tab, &gdkrec );
     /*gtk_widget_set_size_request ( tab, width, height );*/
 
-    gtk_fixed_put ( GTK_FIXED(parent), tab, x, y );
+    gtk_fixed_put ( GTK_FIXED(frm), tab, gdkrec.x, gdkrec.y );
 
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
 
@@ -732,10 +786,12 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
     createReflectionPanel   ( tab, gui, EDITREFLECTION  , 0, 0, width, height );
     createRefractionPanel   ( tab, gui, EDITREFRACTION  , 0, 0, width, height );
 
-    list_insert ( &gui->lmatedit, tab );
-
     gtk_widget_show ( tab );
 
 
-    return tab;
+    gtk_widget_show ( frm );
+
+    list_insert ( &gui->lmatedit, frm );
+
+    return frm;
 }

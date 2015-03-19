@@ -116,6 +116,15 @@ typedef struct _G3DUIGTK3 {
     GtkWidget *main;
 } G3DUIGTK3;
 
+/******************************************************************************/
+typedef struct _EMITGOTOFRAMEDATA {
+    G3DUIGTK3 *ggt;
+    char *signame;
+    float frame;
+} EMITGOTOFRAMEDATA;
+
+gboolean emitgotoframe ( EMITGOTOFRAMEDATA * );
+
 /***************************** Main Window Widget *****************************/
 typedef struct _GtkGlossUI {
     GtkFixed parent_instance;

@@ -334,7 +334,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
 
                         if ( fac->flags & FACESUBDIVIDED ) {
                             #ifdef __linux__
-                            ext_glClientActiveTextureARB ( arbid );
+                            glClientActiveTextureARB ( arbid );
                             #endif
                             #ifdef __MINGW32__
                             if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );

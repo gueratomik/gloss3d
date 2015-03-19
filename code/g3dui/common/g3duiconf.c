@@ -33,16 +33,16 @@
 void common_g3dui_loadConfiguration ( G3DUI *gui, char *filename ) {
     FILE *fconf = NULL;
     char *str = NULL;
-    #ifdef __linux__
-    char *home = getenv ( "HOME" );
 
-    if ( access( filename, F_OK ) == 0x00 ) {
+    #ifdef __linux__
+    if ( access ( filename, F_OK ) != 0x00 ) {
+        char *home = getenv ( "HOME" );
     #endif
-    #ifdef __MINGW32__
-    char *home = getenv ( "USERPROFILE" );
+        #ifdef __MINGW32__
+        char *home = getenv ( "USERPROFILE" );
 
     if ( PathFileExists ( filename ) == 0x00 ) {
-    #endif
+        #endif
         char buf[0x100];
 
         #ifdef __linux__
@@ -54,7 +54,7 @@ void common_g3dui_loadConfiguration ( G3DUI *gui, char *filename ) {
 
         /*** Create default directory if needed ***/
         #ifdef __linux__
-        if ( access ( buf, F_OK ) == 0x00 ) {
+        if ( access ( buf, F_OK ) != 0x00 ) {
         #endif
         #ifdef __MINGW32__
         if ( PathFileExists ( buf ) == 0x00 ) {

@@ -866,7 +866,9 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
             #endif
         } else {
             #ifdef __linux__
-            XClearWindow ( ftw->dis, ftw->win );
+            /*XClearWindow ( ftw->dis, ftw->win );*/
+            XClearArea ( ftw->dis, ftw->win, 0, 0, 0, 0, False );
+
             #endif
             #ifdef __MINGW32__
             /*InvalidateRect ( ftw->hWnd, NULL, TRUE );*/
@@ -875,6 +877,7 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
         #ifdef __linux__
         XSync ( ftw->dis, 0 );
+
         /*** because the rendering engine is threaded, ***/
         /*** this causes hangs, so I comment it. ***/
 	/*while ( 0x01 ) {

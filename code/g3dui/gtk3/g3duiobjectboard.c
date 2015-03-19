@@ -51,9 +51,6 @@ GtkWidget *createObjectBoard ( GtkWidget *parent, G3DUI *gui,
     gtk_notebook_append_page ( GTK_NOTEBOOK(parent), frm, label );
 
 
-
-
-
     /**** BOTTOM TABs ****/
     tab = gtk_notebook_new ( );
 

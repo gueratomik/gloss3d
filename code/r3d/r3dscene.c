@@ -452,6 +452,7 @@ void r3dscene_render_t_free ( R3DSCENE *rsce ) {
 void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
     G3DSCENE *sce  = ( G3DSCENE *  ) ((R3DOBJECT*)rsce)->obj;
     G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rsce->area.rcam)->obj;
+    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->lfilters, GOTOFRAMEFILTERNAME );
     uint32_t x1 = rsce->area.x1, 
              y1 = rsce->area.y1,
              x2 = rsce->area.x2,
@@ -470,6 +471,12 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
     for ( i = startframe + 1; i <= endframe; i++ ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
+
+            if ( tofrm ) {
+                tofrm->draw ( tofrm, NULL, i, NULL, 0x00, 0x00, 0x00, 0x00 );
+            } else {
+                fprintf ( stderr, "no callback to jump to nextframe\n" );
+            }
 
             nextrsce = r3dscene_new ( sce, cam, x1, y1,
                                                 x2, y2,

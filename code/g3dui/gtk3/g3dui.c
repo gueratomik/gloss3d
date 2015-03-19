@@ -1022,7 +1022,6 @@ static void gtk_glossui_init ( GtkGlossUI *glossui ) {
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
-    printf("%d %d\n", widget, gui );
 
     g_signal_connect(G_OBJECT(widget), "gotoframe", G_CALLBACK(g3duicom_gotoframe), gui );
 }
