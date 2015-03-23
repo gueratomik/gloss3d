@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # libtool - Provide generalized library-building support services.
-# Generated automatically by config.status (gloss3d) dev-0.2.36
+# Generated automatically by config.status (gloss3d) dev-0.2.5
 # Libtool was configured on host zuul:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #

@@ -166,7 +166,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/translate_view.xpm \
                        xpm/rotate_view.xpm \
                        xpm/maximize_view.xpm \
-                       xpm/zoom_view.xpm
+                       xpm/zoom_view.xpm \
+                       Makefile.win32
 
 backup:
 	tar -cvzf ../Motif-`date +%Y%m%d`.tar.gz * && \

@@ -478,7 +478,7 @@ void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *,
 
 void gtk3_g3dui_setMode ( GtkWidget *, gpointer );
 void g3dui_setMouseTool ( GtkWidget *, gpointer );
-void gtk3_showGL        ( GtkWidget *, cairo_t *, gpointer );
+gboolean gtk3_showGL    ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL        ( GtkWidget *, gpointer );
 void gtk3_sizeGL        ( GtkWidget *, GdkRectangle *, gpointer );
 void gtk3_inputGL       ( GtkWidget *, GdkEvent *, gpointer );

@@ -1,4 +1,4 @@
-AC_INIT(gloss3d,dev-0.2.36)
+AC_INIT(gloss3d,dev-0.2.5)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_HEADERS([include/config.h])
@@ -6,7 +6,7 @@ AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([subdir-objects])
-AM_INIT_AUTOMAKE(gloss3d,dev-0.2.36)
+AM_INIT_AUTOMAKE(gloss3d,dev-0.2.5)
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC
@@ -105,5 +105,6 @@ AC_OUTPUT([g3d/Makefile          \
            g3dcom/Makefile     \
            g3dui/Makefile        \
            g3durmanager/Makefile \
-           r3d/Makefile          \
-           r3dnet/Makefile])
+           r3d/Makefile])
+
+#           r3dnet/Makefile

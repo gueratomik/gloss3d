@@ -1328,7 +1328,7 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
+gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     GtkView      *gvw    = ( GtkView * ) gtk_widget_get_parent ( widget );
     G3DUIVIEW    *view   = &gvw->view;
     GdkDisplay   *gdkdpy = gtk_widget_get_display       ( widget );
@@ -1392,7 +1392,7 @@ void gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
         gui->flags &= (~ONGOINGANIMATION);
     }
 
-
+    return 0x01;
 }
 
 
