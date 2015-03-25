@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS=-DWITH_GTK3 \
+       -O2 \
        -g \
        -I. \
        -I./include \

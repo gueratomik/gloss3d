@@ -289,6 +289,10 @@ static void shadingCbk ( GtkWidget *widget, gpointer user_data ) {
         gvw->view.flags |= NOTEXTURE;
         gvw->view.mode   = GLVIEWWIREFRAME;
     }
+
+    if ( gtk_widget_get_realized ( widget ) ) {
+        g3dui_redrawGLViews ( gui );
+    }
 }
 
 /******************************************************************************/
@@ -388,6 +392,34 @@ static void createFaceMenu ( GtkWidget *widget, G3DUI *gui ) {
     list_insert ( &view->lmenu  , menu );
 }
 
+/*** for some unknown reason, the gtk_popup_menu does not position my menu ***/
+/*** correctly on dual monitor configuration, so I had to make this trick ***/
+void SetMenuPosition ( GtkMenu *menu, gint *x,
+                                      gint *y,
+                                      gboolean *push_in,
+                                      gpointer user_data ) {
+    GdkEventButton *bev = ( GdkEventButton  * ) user_data;
+    GdkScreen *scr = gdk_screen_get_default ( );
+    gint mx, my;
+    int mon = gdk_screen_get_monitor_at_window ( scr, bev->window );
+
+    gtk_menu_set_monitor ( menu, mon );
+
+    gdk_window_get_origin ( bev->window, &mx, &my );
+    /*gdk_window_get_device_position ( bev->window, bev->device,
+                                                 &mx,
+                                                 &my,
+                                                  NULL );*/
+
+    (*x) = mx + bev->x;
+    (*y) = my + bev->y;
+
+    /*(*x) = (gint) bev->x;
+    (*y) = (gint) bev->y;
+
+    printf ( "%f %f\n", bev->x, bev->y );*/
+}
+
 /******************************************************************************/
 static void PostMenu ( GtkWidget *widget, GdkEvent *event,
                                           gpointer user_data ) {
@@ -421,9 +453,20 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
     }
 
     if ( curmenu ) {
-        gtk_menu_popup ( GTK_MENU ( curmenu ), NULL, NULL, NULL, NULL,
-                                    bev->button,
-                                    gdk_event_get_time( ( GdkEvent * ) event ) );
+        /*gtk_menu_popup_for_device ( GTK_MENU ( curmenu ), bev->device, 
+                                                          NULL, 
+                                                          NULL, 
+                                                          NULL, 
+                                                          NULL,
+                                                          NULL,
+                                                          bev->button,
+                                                          gdk_event_get_time( ( GdkEvent * ) event ) );*/
+        gtk_menu_popup ( GTK_MENU ( curmenu ), NULL, 
+                                               NULL,
+                                               SetMenuPosition,
+                                               bev,
+                                               bev->button,
+                                               gdk_event_get_time( ( GdkEvent * ) event ) );
     }
 }
 
