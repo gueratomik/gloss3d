@@ -272,7 +272,7 @@ GtkWidget *createFunctionsMenu ( GtkWidget *bar, G3DUI *gui,
     createMirrorWeightGroupMenu ( menu, gui, MENU_MIRRORWEIGHTGROUP, width );
     createSplitMeshMenu         ( menu, gui, MENU_SPLITMESH        , width );
 
-    g3dui_addMenuButton ( menu, gui, "Convert to Mesh", width, g3dui_makeEditableCbk );
+    g3dui_addMenuButton         ( menu, gui, MENU_MAKEEDITABLE     , width, g3dui_makeEditableCbk );
 
     gtk_widget_show     ( item );
 
@@ -851,19 +851,19 @@ GtkWidget *createFileMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton    ( menu, gui, "New"    , width, G_CALLBACK(g3dui_newscenecbk) );
-    g3dui_addMenuButton    ( menu, gui, "Open"   , width, G_CALLBACK(g3dui_openfilecbk) );
-    createImportMenu ( menu, gui, "_Import", width );
+    g3dui_addMenuButton    ( menu, gui, MENU_NEWSCENE   , width, G_CALLBACK(g3dui_newscenecbk) );
+    g3dui_addMenuButton    ( menu, gui, MENU_OPENFILE   , width, G_CALLBACK(g3dui_openfilecbk) );
+    createImportMenu       ( menu, gui, MENU_IMPORTFILE , width );
 
     g3dui_addMenuSeparator ( menu );
 
-    g3dui_addMenuButton    ( menu, gui, "Save"   , width, G_CALLBACK(g3dui_savefilecbk) );
-    g3dui_addMenuButton    ( menu, gui, "Save As", width, G_CALLBACK(g3dui_saveascbk)   );
-    createExportMenu ( menu, gui, "_Export", width );
+    g3dui_addMenuButton    ( menu, gui, MENU_SAVEFILE   , width, G_CALLBACK(g3dui_savefilecbk) );
+    g3dui_addMenuButton    ( menu, gui, MENU_SAVEFILEAS , width, G_CALLBACK(g3dui_saveascbk)   );
+    createExportMenu       ( menu, gui, MENU_EXPORTSCENE, width );
 
     g3dui_addMenuSeparator ( menu );
 
-    g3dui_addMenuButton    ( menu, gui, "Exit"   , width, G_CALLBACK(g3dui_exitcbk)     );
+    g3dui_addMenuButton    ( menu, gui, MENU_EXIT       , width, G_CALLBACK(g3dui_exitcbk)     );
 
 
     gtk_widget_show ( item );

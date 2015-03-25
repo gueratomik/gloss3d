@@ -60,6 +60,8 @@ static GtkWidget *addModeBarButton ( GtkWidget *bar,
 
     gtk_widget_set_name ( btn, name );
 
+    gtk_widget_set_tooltip_text ( btn, name );
+
     gtk_widget_set_size_request ( btn, MODEBARBUTTONSIZE, MODEBARBUTTONSIZE );
 
     if ( xpm_data ) {
@@ -113,12 +115,12 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_orientable_set_orientation ( GTK_ORIENTABLE(bar), GTK_ORIENTATION_VERTICAL );
 
-    grp = addModeBarButton ( bar, NULL, gui, "VIEWOBJECT", objectmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, "VIEWVERTEX", vertexmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, "VIEWFACE"  , facemode_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, "VIEWEDGE"  , edgemode_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, "VIEWSKIN"  , skinmode_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, "VIEWUVWMAP", uvwmapmode_xpm, g3dui_setMode );
+    grp = addModeBarButton ( bar, NULL, gui, MODE_VIEWOBJECT, objectmode_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 

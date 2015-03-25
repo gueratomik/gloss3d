@@ -48,12 +48,12 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
                  defaultAmbient[] = { 0.2, 0.2, 0.2, 1.0 };
     uint32_t newmode = 0x00;
 
-    if ( strcmp ( modename, "VIEWOBJECT" ) == 0x00 ) newmode = VIEWOBJECT;
-    if ( strcmp ( modename, "VIEWVERTEX" ) == 0x00 ) newmode = VIEWVERTEX;
-    if ( strcmp ( modename, "VIEWFACE"   ) == 0x00 ) newmode = VIEWFACE;
-    if ( strcmp ( modename, "VIEWEDGE"   ) == 0x00 ) newmode = VIEWEDGE;
-    if ( strcmp ( modename, "VIEWSKIN"   ) == 0x00 ) newmode = VIEWSKIN;
-    if ( strcmp ( modename, "VIEWUVWMAP" ) == 0x00 ) newmode = VIEWUVWMAP;
+    if ( strcmp ( modename, MODE_VIEWOBJECT ) == 0x00 ) newmode = VIEWOBJECT;
+    if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEX;
+    if ( strcmp ( modename, MODE_VIEWFACE   ) == 0x00 ) newmode = VIEWFACE;
+    if ( strcmp ( modename, MODE_VIEWEDGE   ) == 0x00 ) newmode = VIEWEDGE;
+    if ( strcmp ( modename, MODE_VIEWSKIN   ) == 0x00 ) newmode = VIEWSKIN;
+    if ( strcmp ( modename, MODE_VIEWUVWMAP ) == 0x00 ) newmode = VIEWUVWMAP;
 
     if ( newmode == VIEWSKIN ) glEnable ( GL_COLOR_MATERIAL );
 

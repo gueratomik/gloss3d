@@ -278,6 +278,8 @@ static GtkWidget *addToolBarToggleButton ( GtkWidget *bar,
 
     gtk_widget_set_name ( btn, name );
 
+    gtk_widget_set_tooltip_text ( btn, name );
+
     gtk_widget_set_size_request ( btn, TOOLBARBUTTONSIZE, TOOLBARBUTTONSIZE );
 
     if ( xpm_data ) {
@@ -321,6 +323,8 @@ static GtkWidget *addToolBarPushButton ( GtkWidget *bar, G3DUI *gui,
 
     gtk_widget_set_name ( btn, name );
 
+    gtk_widget_set_tooltip_text ( btn, name );
+
     gtk_widget_set_size_request ( btn, TOOLBARBUTTONSIZE, TOOLBARBUTTONSIZE );
 
     if ( xpm_data ) {
@@ -356,9 +360,9 @@ static GtkWidget *addToolBarPushButton ( GtkWidget *bar, G3DUI *gui,
 static void addToolbarAxis ( GtkWidget *bar, G3DUI *gui ) {
     GtkWidget *xbtn, *ybtn, *zbtn;
 
-    xbtn = addToolBarToggleButton ( bar, gui, "NONAME", xaxis_xpm, xAxisCbk );
-    ybtn = addToolBarToggleButton ( bar, gui, "NONAME", yaxis_xpm, yAxisCbk );
-    zbtn = addToolBarToggleButton ( bar, gui, "NONAME", zaxis_xpm, zAxisCbk );
+    xbtn = addToolBarToggleButton ( bar, gui, MENU_XAXIS, xaxis_xpm, xAxisCbk );
+    ybtn = addToolBarToggleButton ( bar, gui, MENU_YAXIS, yaxis_xpm, yAxisCbk );
+    zbtn = addToolBarToggleButton ( bar, gui, MENU_ZAXIS, zaxis_xpm, zAxisCbk );
 
     gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(xbtn), TRUE );
     gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(ybtn), TRUE );
@@ -382,33 +386,33 @@ GtkWidget *createToolBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
 
-    addToolBarPushButton ( bar, gui, "NONAME", newfile_xpm  , g3dui_newscenecbk );
-    addToolBarPushButton ( bar, gui, "NONAME", openfile_xpm , g3dui_openfilecbk );
-    addToolBarPushButton ( bar, gui, "NONAME", saveas_xpm   , g3dui_saveascbk   );
-    addToolBarPushButton ( bar, gui, "NONAME", save_xpm     , g3dui_savefilecbk );
-    addToolBarPushButton ( bar, gui, "NONAME", undo_xpm     , g3dui_undoCbk     );
-    addToolBarPushButton ( bar, gui, "NONAME", redo_xpm     , g3dui_redoCbk     );
-    addToolBarPushButton ( bar, gui, "NONAME", delete_xpm   , g3dui_deleteSelectionCbk );
+    addToolBarPushButton   ( bar, gui, MENU_NEWSCENE    , newfile_xpm  , g3dui_newscenecbk );
+    addToolBarPushButton   ( bar, gui, MENU_OPENFILE    , openfile_xpm , g3dui_openfilecbk );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILEAS  , saveas_xpm   , g3dui_saveascbk   );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILE    , save_xpm     , g3dui_savefilecbk );
+    addToolBarPushButton   ( bar, gui, MENU_UNDO        , undo_xpm     , g3dui_undoCbk     );
+    addToolBarPushButton   ( bar, gui, MENU_REDO        , redo_xpm     , g3dui_redoCbk     );
+    addToolBarPushButton   ( bar, gui, MENU_DELETE      , delete_xpm   , g3dui_deleteSelectionCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, PICKTOOL  , pick_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, PICKTOOL         , pick_xpm  , g3dui_setMouseTool    );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, MOVETOOL  , move_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, MOVETOOL         , move_xpm  , g3dui_setMouseTool    );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, SCALETOOL , scale_xpm , g3dui_setMouseTool  );
+    addToolBarToggleButton ( bar, gui, SCALETOOL        , scale_xpm , g3dui_setMouseTool  );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, ROTATETOOL, rotate_xpm, g3dui_setMouseTool );
+    addToolBarToggleButton ( bar, gui, ROTATETOOL       , rotate_xpm, g3dui_setMouseTool );
 
-    addToolBarPushButton ( bar, gui, "NONAME", renderw_xpm   , g3dui_renderViewCbk   );
-    addToolBarPushButton ( bar, gui, "NONAME", render_xpm    , g3dui_runRenderCbk    );
-    addToolBarPushButton ( bar, gui, "NONAME", makeedit_xpm  , g3dui_makeEditableCbk );
+    addToolBarPushButton   ( bar, gui, MENU_RENDERVIEW  , renderw_xpm   , g3dui_renderViewCbk   );
+    addToolBarPushButton   ( bar, gui, MENU_RENDERFINAL , render_xpm    , g3dui_runRenderCbk    );
+    addToolBarPushButton   ( bar, gui, MENU_MAKEEDITABLE, makeedit_xpm  , g3dui_makeEditableCbk );
 
     addToolbarAxis ( bar, gui );
 

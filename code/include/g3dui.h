@@ -322,8 +322,28 @@
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
 
+#define MODE_VIEWOBJECT "Object mode"
+#define MODE_VIEWVERTEX "Vertex mode"
+#define MODE_VIEWEDGE   "Edge mode"
+#define MODE_VIEWFACE   "Face mode"
+#define MODE_VIEWSKIN   "Skin mode"
+#define MODE_VIEWUVWMAP "UVW mode"
+
+#define MENU_XAXIS "X axis"
+#define MENU_YAXIS "Y axis"
+#define MENU_ZAXIS "Z axis"
+
+#define MENU_NEWSCENE    "New scene"
+#define MENU_OPENFILE    "Open file"
+#define MENU_IMPORTFILE  "_Import"
+#define MENU_SAVEFILE    "Save"
+#define MENU_SAVEFILEAS  "Save as"
+#define MENU_EXPORTSCENE "_Export"
+#define MENU_EXIT        "Exit"
+
 #define MENU_UNDO                 "Undo"
 #define MENU_REDO                 "Redo"
+#define MENU_DELETE               "Delete"
 #define MENU_INVERTNORMALS        "Invert Normals"
 #define MENU_ALIGNNORMALS         "Align Faces"
 #define MENU_TRIANGULATE          "Triangulate"
@@ -369,6 +389,7 @@
 #define MENU_SPLITMESH            "Split Mesh"
 #define MENU_SPLITANDKEEP         "Split and keep"
 #define MENU_SPLITANDREMOVE       "Split and remove"
+#define MENU_MAKEEDITABLE         "Make editable"
 
 #define MENU_RENDERVIEW           "Render view"
 #define MENU_RENDERFINAL          "Render Final"
