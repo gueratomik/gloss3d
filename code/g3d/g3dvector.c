@@ -225,8 +225,19 @@ float g3dvector_length ( G3DVECTOR *vec ) {
 
     if ( ( len < NORMMAX ) && ( len > NORMMIN ) ) return 1.0f;
 
+/*** http://bits.stephan-brumme.com/squareRoot.html ***/
 
-    return sqrt ( len );
+  unsigned int i = *(unsigned int*) &len;
+
+  // adjust bias
+  i  += 127 << 23;
+  // approximation of square root
+  i >>= 1;
+
+  return *(float*) &i;
+/******************************************************/
+
+    /*return sqrt ( len );*/
 }
 
 /******************************************************************************/

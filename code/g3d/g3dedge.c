@@ -372,6 +372,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
     G3DVECTOR *n0 = &v0->nor,
               *n1 = &v1->nor;
     uint32_t nbver = 0x02;
+    float nbfacdiv = ( edg->nbfac ) ? 1.0f / edg->nbfac : 0.0f;
     G3DVECTOR favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
@@ -403,10 +404,8 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
     yposmid = mavg.y * 0.5f;
     zposmid = mavg.z * 0.5f;
 
-
-
-    /**** one version with normal calculation, one without to speed   ***/
-    /*** up the process. Typically, the normal calculation one is     ***/
+    /**** one version with Normal calculation, one without to speed   ***/
+    /*** up the process. Typically, the Normal calculation one is     ***/
     /*** used when a displacement channel is set on the Mesh, so we   ***/
     /*** need to move vertices along a rail. It is easier to retrieve ***/
     /*** this rail (the normal vector) by pre-computing it that way.  ***/
@@ -434,11 +433,11 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
         mavg.y /= nbver;
         mavg.z /= nbver;
 
-        if ( edg->nbfac ) {
-            favg.x /= edg->nbfac;
-            favg.y /= edg->nbfac;
-            favg.z /= edg->nbfac;
-        }
+        /*if ( edg->nbfac ) {*/
+            favg.x *= nbfacdiv;
+            favg.y *= nbfacdiv;
+            favg.z *= nbfacdiv;
+        /*}*/
 
         /*** Some special treatment for symmetry ***/
         if ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) &&
@@ -447,7 +446,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
             edg->nor.x = 0.0f;
         } else {
             edg->pos.x  = ( favg.x + ( mavg.x * 2.0f ) ) * ONETHIRD;
-            edg->nor.x  = ( navg.x / edg->nbfac );
+            edg->nor.x  = ( navg.x * nbfacdiv );
         }
 
         if ( ( edg->ver[0x00]->flags & VERTEXSYMZX ) &&
@@ -456,7 +455,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
             edg->nor.y = 0.0f;
         } else {
             edg->pos.y  = ( favg.y + ( mavg.y * 2.0f ) ) * ONETHIRD;
-            edg->nor.y  = ( navg.y / edg->nbfac );
+            edg->nor.y  = ( navg.y * nbfacdiv );
         }
 
         if ( ( edg->ver[0x00]->flags & VERTEXSYMXY ) &&
@@ -465,7 +464,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
             edg->nor.z = 0.0f;
         } else {
             edg->pos.z  = ( favg.z + ( mavg.z * 2.0f ) ) * ONETHIRD;
-            edg->nor.z  = ( navg.z / edg->nbfac );
+            edg->nor.z  = ( navg.z * nbfacdiv );
         }
 
         g3dvector_normalize ( &edg->nor, NULL );
@@ -491,11 +490,11 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
         mavg.y /= nbver;
         mavg.z /= nbver;
 
-        if ( edg->nbfac ) {
-            favg.x /= edg->nbfac;
-            favg.y /= edg->nbfac;
-            favg.z /= edg->nbfac;
-        }
+        /*if ( edg->nbfac ) {*/
+            favg.x *= nbfacdiv;
+            favg.y *= nbfacdiv;
+            favg.z *= nbfacdiv;
+        /*}*/
 
         /*** Some special treatment for symmetry ***/
         if ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) &&

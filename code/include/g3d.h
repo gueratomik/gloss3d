@@ -207,6 +207,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGELOCKADAPTIVE  (  1 << 3  )
 #define EDGESUBDIVIDED    (  1 << 4  )
 #define EDGEORIGINAL      (  1 << 5  )
+#define EDGEPOSITIONNED   (  1 << 6  )
 
 /******************************** Face Flags **********************************/
 #define FACESELECTED          (  1       )
@@ -416,6 +417,11 @@ typedef struct _G3DTINYVECTOR {
 typedef struct _G3DVECTOR {
     float x, y, z, w;
 } G3DVECTOR, G3DPOINT, G3DQUATERNION/*, G3DTINYVECTOR*/;
+
+typedef struct _G3DVECTORCACHE {
+    G3DVECTOR ref;
+    G3DVECTOR buf;
+} G3DVECTORCACHE;
 
 /******************************************************************************/
 typedef struct _G3DDOUBLEVECTOR {
@@ -995,6 +1001,14 @@ struct _G3DCAMERA {
 LIST *processHits ( GLint, GLuint * );
 
 /******************************************************************************/
+/*** hash function ***/
+uint16_t inline float_to_short ( float );
+
+#define _3FLOAT_TO_HASH(f0,f1,f2) ( ( float_to_short ( f0 ) >> 2 ) ^ \
+                                    ( float_to_short ( f1 ) >> 1 ) ^ \
+                                    ( float_to_short ( f2 ) >> 0 ) );
+
+/******************************************************************************/
 void     g3dcore_multmatrix              ( double *, double *, double * );
 void     g3dcore_invertMatrix            ( double *, double * );
 void     g3dcore_printMatrix             ( double *, uint32_t, uint32_t );
@@ -1280,14 +1294,16 @@ G3DFACE *g3dface_retSubFace       ( G3DFACE *, G3DVERTEX * );
 void     g3dface_drawEdges        ( G3DFACE *, uint32_t  );
 void     g3dface_drawCenter       ( G3DFACE *, uint32_t  );
 G3DFACE *g3dface_weld             ( G3DFACE *, LIST *, G3DVERTEX * );
-int      g3dface_applyCatmullScheme ( G3DFACE *, G3DSUBVERTEX * );
+int      g3dface_applyCatmullScheme ( G3DFACE *, G3DSUBVERTEX *, uint32_t, uint32_t );
 void     g3dface_recurseAlign     ( G3DFACE * );
 uint32_t g3dface_isAligned        ( G3DFACE *, uint32_t, G3DFACE * );
 void     g3dface_alignUnselected  ( G3DFACE * );
 void     g3dface_linkVertices     ( G3DFACE * );
-void     g3dface_calcSubFaces     ( G3DFACE *, G3DSUBVERTEX *, uint32_t,
-                                                               uint32_t, 
-                                                               uint32_t );
+void     g3dface_calcSubFaces     ( G3DFACE *, G3DSUBVERTEX *, 
+                                               G3DSUBVERTEX *[0x04],
+                                               uint32_t,
+                                               uint32_t, 
+                                               uint32_t );
 void     g3dface_setSubEdges      ( G3DFACE *, G3DSUBVERTEX *,
                                                G3DSUBVERTEX *,
                                                G3DSUBVERTEX *,

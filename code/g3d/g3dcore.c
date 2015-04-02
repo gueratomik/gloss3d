@@ -32,6 +32,17 @@
 #include <g3d.h>
 
 /******************************************************************************/
+uint16_t inline float_to_short ( float f ) {
+    uint32_t *l = ( uint32_t * ) &f;
+    uint16_t  s = ( ( (*l) & 0x80000000 ) >> 16 ) ^ /*** sign     ***/
+                  ( ( (*l) & 0x7F800000 ) >> 16 ) ^ /*** mantissa ***/
+                  ( ( (*l) & 0x007FFFFF )       );
+
+    return s;
+
+}
+
+/******************************************************************************/
 char *g3dcore_strclone ( char *str ) {
     uint32_t len = strlen ( str ) + 0x01;
     char *clone  = malloc ( len );

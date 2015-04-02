@@ -54,6 +54,7 @@
 
 /******************************************************************************/
 void g3dface_calcSubFaces ( G3DFACE *fac, G3DSUBVERTEX *orivercpy,
+                                          G3DSUBVERTEX *edgsubver[0x04],
                                           uint32_t      curdiv, 
                                           uint32_t      object_flags,
                                           uint32_t      engine_flags ) {
@@ -81,20 +82,25 @@ void g3dface_calcSubFaces ( G3DFACE *fac, G3DSUBVERTEX *orivercpy,
                     g3dface_normal ( subfac );
             }
 
-            /*** topology not needed for last recursion nor displacement ***/
+            /*** face position must be computed BEFORE edge position ***/
+            /*** because edge_position() precomputes the mid-edge from ***/
+            /*** neighbouring face positions ***/
             if ( curdiv > 0x01 ) {
-                uint32_t opflags = EDGECOMPUTENORMAL;
-                /*** Face center not needed on last recursion ***/
+            /*** Face center not needed on last recursion ***/
                 g3dface_position ( subfac );
-
-                /*** Edges position either ***/
-                if ( subfac->edg[0x00] ) g3dedge_position ( subfac->edg[0x00], opflags );
-                if ( subfac->edg[0x01] ) g3dedge_position ( subfac->edg[0x01], opflags );
-                if ( subfac->edg[0x02] ) g3dedge_position ( subfac->edg[0x02], opflags );
-                if ( subfac->edg[0x03] ) g3dedge_position ( subfac->edg[0x03], opflags );
             }
 
             ltmpfac = ltmpfac->next;
+        }
+    }
+
+    /*** topology not needed for last recursion nor displacement ***/
+    if ( curdiv > 0x01 ) {
+        uint32_t opflags = EDGECOMPUTENORMAL;
+
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            g3dvertex_edgePosition ( ( G3DVERTEX * ) &orivercpy[i], opflags );
+            g3dvertex_edgePosition ( ( G3DVERTEX * )  edgsubver[i], opflags );
         }
     }
 }
@@ -243,7 +249,7 @@ uint32_t g3dface_setInnerVertex ( G3DFACE *fac, G3DSUBVERTEX **subverptr,
 
                 fac->subver->ver.weight = ( fac->ver[0x00]->weight +
                                             fac->ver[0x01]->weight + 
-                                            fac->ver[0x02]->weight ) * 0.33f;
+                                            fac->ver[0x02]->weight ) * ONETHIRD;
             }
         }
     }
@@ -437,6 +443,7 @@ uint32_t g3dface_setSubFace ( G3DFACE *fac, G3DVERTEX     *vercmp,
 
             /*** vertex/face topology always needed for computing normals ***/
             g3dsubface_topology ( (*subfacptr) );
+
 
             (*subfacptr)++;
 
@@ -798,9 +805,16 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
 
         /*** remember for later normal compute ***/
         faccenptr = fac->subver;
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+
+        /*for ( i = 0x00; i < fac->nbver; i++ ) {
             edgverptr[i] = fac->edg[i]->subver;
-        }
+        }*/
+        /*** loop unrolling for speed ***/
+                           edgverptr[0] = fac->edg[0]->subver;
+                           edgverptr[1] = fac->edg[1]->subver;
+                           edgverptr[2] = fac->edg[2]->subver;
+        if ( fac->edg[3] ) edgverptr[3] = fac->edg[3]->subver;
+
 
         /*** we have to reset the inneredges because they were set    ***/
         /*** by the previous call to g3dface_catmull_clark_draw and   ***/
@@ -819,9 +833,6 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
         /*** reset at once ***/
         g3dface_resetAll ( fac );
 
-        /*** Move the original vertices ***/
-        g3dface_applyCatmullScheme ( fac, orivercpy );
-
         /*** Other thread can now proceed with their face's topology ***/
         #ifdef __linux__
         if ( engine_flags & G3DMULTITHREADING ) pthread_mutex_unlock ( &lock );
@@ -830,8 +841,12 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
         if ( engine_flags & G3DMULTITHREADING ) ReleaseMutex ( lock );
         #endif
 
-        g3dface_calcSubFaces ( fac, orivercpy, curdiv, object_flags, 
-                                                       engine_flags );
+        /*** Move the original vertices ***/
+        g3dface_applyCatmullScheme ( fac, orivercpy, curdiv, engine_flags );
+
+
+        g3dface_calcSubFaces ( fac, orivercpy, edgverptr, curdiv, object_flags, 
+                                                                  engine_flags );
 
 
 if ( curdiv == 0x01 ) {
@@ -955,13 +970,44 @@ if ( curdiv == 0x01 ) {
 }
 
 /******************************************************************************/
-int g3dface_applyCatmullScheme ( G3DFACE *fac, G3DSUBVERTEX *orivercpy  ) {
+int g3dface_applyCatmullScheme ( G3DFACE *fac, G3DSUBVERTEX *orivercpy, 
+                                               uint32_t curdiv,
+                                               uint32_t engine_flags  ) {
+    /*#define CACHEENABLED 1*/ /*** does not speed up as I expected :( ***/
+    #ifdef CACHEENABLED
+    static G3DVECTORCACHE cache[0x10000];
+    uint16_t hID;
+    #endif
     int retflags = 0x00;
     int i;
 
     /*** Catmull-Clark Subdivision Surfaces scheme. ***/
     for ( i = 0x00; i < fac->nbver; i++ ) {
         float xori, yori, zori;
+
+        #ifdef CACHEENABLED
+        if ( engine_flags & G3DNEXTSUBDIVISION ) {
+            hID = _3FLOAT_TO_HASH ( fac->ver[i]->pos.x, 
+                                    fac->ver[i]->pos.y, 
+                                    fac->ver[i]->pos.z );
+
+            if ( ( cache[hID].ref.x ==  fac->ver[i]->pos.x ) &&
+                 ( cache[hID].ref.y ==  fac->ver[i]->pos.y ) &&
+                 ( cache[hID].ref.z ==  fac->ver[i]->pos.z ) &&
+                 ( cache[hID].ref.w ==  curdiv             )  ) {
+                memcpy ( &orivercpy[i].ver.pos, 
+                         &cache[hID].buf, sizeof ( G3DVECTOR ) );
+
+                continue;
+            } else {
+                /*** prepare caching by storing the reference values ***/
+                cache[hID].ref.x = fac->ver[i]->pos.x;
+                cache[hID].ref.y = fac->ver[i]->pos.y;
+                cache[hID].ref.z = fac->ver[i]->pos.z;
+                cache[hID].ref.w = curdiv;
+            }
+        }
+        #endif
 
         if ( fac->ver[i]->flags & VERTEXSKINNED ) {
             xori = fac->ver[i]->skn.x;
@@ -988,57 +1034,65 @@ int g3dface_applyCatmullScheme ( G3DFACE *fac, G3DSUBVERTEX *orivercpy  ) {
             if ( orivercpy[i].ver.flags & VERTEXUSEADAPTIVE ) {
                 orivercpy[i].ver.flags |= VERTEXLOCKADAPTIVE;
             }
-        /*** number of edges connected to this vertex = vertex valence ***/
-        uint32_t valence = fac->ver[i]->nbedg;
-        /*** temporay values, hence static ***/
-        G3DVECTOR mavg, favg, verval;
+            /*** number of edges connected to this vertex = vertex valence ***/
+            uint32_t valence = fac->ver[i]->nbedg;
+            /*** temporay values, hence static ***/
+            G3DVECTOR mavg, favg, verval;
 
-        if ( valence == 0x02 ) { /*** vertex belongs to 1 face only ***/
-            /*** average mid points ***/
-            /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
-            memcpy ( &mavg, &fac->ver[i]->edgpnt, sizeof ( G3DVECTOR ) );
+            if ( valence == 0x02 ) { /*** vertex belongs to 1 face only ***/
+                /*** average mid points ***/
+                /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
+                memcpy ( &mavg, &fac->ver[i]->edgpnt, sizeof ( G3DVECTOR ) );
 
-            /*** average face points ***/
-            /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
-            memcpy ( &favg, &fac->ver[i]->facpnt, sizeof ( G3DVECTOR ) );
+                /*** average face points ***/
+                /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
+                memcpy ( &favg, &fac->ver[i]->facpnt, sizeof ( G3DVECTOR ) );
 
-            orivercpy[i].ver.pos.x = ( mavg.x + favg.x ) * 0.5f;
-            orivercpy[i].ver.pos.y = ( mavg.y + favg.y ) * 0.5f;
-            orivercpy[i].ver.pos.z = ( mavg.z + favg.z ) * 0.5f;
+                orivercpy[i].ver.pos.x = ( mavg.x + favg.x ) * 0.5f;
+                orivercpy[i].ver.pos.y = ( mavg.y + favg.y ) * 0.5f;
+                orivercpy[i].ver.pos.z = ( mavg.z + favg.z ) * 0.5f;
+            }
 
-        }
+            if ( valence >=  0x03 ) { /*** vertex belongs to more than one face ***/
+                uint32_t valmin3 = ( valence - 0x03 );
+                float    valdivm = ( valence == 0x03 ) ? ONETHIRD : 0.25f;
 
-        if ( valence >=  0x03 ) { /*** vertex belongs to more than one face ***/
-            uint32_t valmin3 = ( valence - 0x03 );
-            float    valdivm = ( valence == 0x03 ) ? ONETHIRD : 0.25f;
+                if ( valence > 0x04 ) valdivm = ( 1.0f / valence );
 
-            if ( valence > 0x04 ) valdivm = ( 1.0f / valence );
+                /*** average mid points ***/
+                /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
+                memcpy ( &mavg, &fac->ver[i]->edgpnt, sizeof ( G3DVECTOR ) );
 
-            /*** average mid points ***/
-            /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
-            memcpy ( &mavg, &fac->ver[i]->edgpnt, sizeof ( G3DVECTOR ) );
+                /*** average face points ***/
+                /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
+                memcpy ( &favg, &fac->ver[i]->facpnt, sizeof ( G3DVECTOR ) );
 
-            /*** average face points ***/
-            /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
-            memcpy ( &favg, &fac->ver[i]->facpnt, sizeof ( G3DVECTOR ) );
+                verval.x = ( float ) valmin3 * xori;
+                verval.y = ( float ) valmin3 * yori;
+                verval.z = ( float ) valmin3 * zori;
 
-            verval.x = ( float ) valmin3 * xori;
-            verval.y = ( float ) valmin3 * yori;
-            verval.z = ( float ) valmin3 * zori;
+                orivercpy[i].ver.pos.x = ( favg.x + ( mavg.x * 2.0f ) + verval.x ) * valdivm;
+                orivercpy[i].ver.pos.y = ( favg.y + ( mavg.y * 2.0f ) + verval.y ) * valdivm;
+                orivercpy[i].ver.pos.z = ( favg.z + ( mavg.z * 2.0f ) + verval.z ) * valdivm;
 
-            orivercpy[i].ver.pos.x = ( favg.x + ( mavg.x * 2.0f ) + verval.x ) * valdivm;
-            orivercpy[i].ver.pos.y = ( favg.y + ( mavg.y * 2.0f ) + verval.y ) * valdivm;
-            orivercpy[i].ver.pos.z = ( favg.z + ( mavg.z * 2.0f ) + verval.z ) * valdivm;
-
-            /*orivercpy[i].ver.pos.x = ( favg.x + ( mavg.x * 2.0f ) + verval.x ) / valence;
-            orivercpy[i].ver.pos.y = ( favg.y + ( mavg.y * 2.0f ) + verval.y ) / valence;
-            orivercpy[i].ver.pos.z = ( favg.z + ( mavg.z * 2.0f ) + verval.z ) / valence;*/
-        }
+                /*orivercpy[i].ver.pos.x = ( favg.x + ( mavg.x * 2.0f ) + verval.x ) / valence;
+                orivercpy[i].ver.pos.y = ( favg.y + ( mavg.y * 2.0f ) + verval.y ) / valence;
+                orivercpy[i].ver.pos.z = ( favg.z + ( mavg.z * 2.0f ) + verval.z ) / valence;*/
+            }
         }
 
         if ( orivercpy[i].ver.flags & VERTEXSYMYZ ) orivercpy[i].ver.pos.x = xori;
         if ( orivercpy[i].ver.flags & VERTEXSYMZX ) orivercpy[i].ver.pos.y = yori;
         if ( orivercpy[i].ver.flags & VERTEXSYMXY ) orivercpy[i].ver.pos.z = zori;
+
+        #ifdef CACHEENABLED
+        if ( engine_flags & G3DNEXTSUBDIVISION ) {
+            /*** Store result in cache ***/
+            cache[hID].buf.x = orivercpy[i].ver.pos.x;
+            cache[hID].buf.y = orivercpy[i].ver.pos.y;
+            cache[hID].buf.z = orivercpy[i].ver.pos.z;
+        }
+        #endif
     }
 
     return retflags;

@@ -1080,3 +1080,17 @@ void g3dvertex_free ( G3DVERTEX *ver ) {
 
     free ( ver );
 }
+
+/******************************************************************************/
+void g3dvertex_edgePosition ( G3DVERTEX *ver, uint32_t opflags ) {
+    LIST *ltmpedg = ver->ledg;
+
+    while ( ltmpedg ) {
+        G3DEDGE *subedg = ( G3DEDGE * ) ltmpedg->data;
+
+        g3dedge_position ( subedg, opflags );
+
+
+        ltmpedg = ltmpedg->next;
+    }
+}

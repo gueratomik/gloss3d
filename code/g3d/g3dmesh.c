@@ -3413,9 +3413,10 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
             #endif
         }
     }
-    /*t = clock() - t;
+/*
+    t = clock() - t;
 
-    printf ("Subdivision took %.4f ms\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );*/
+    printf ("Subdivision took %.8f ms\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );*/
 }
 
 /******************************************************************************/
