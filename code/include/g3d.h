@@ -220,6 +220,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEUSEADAPTIVE       (  1 << 7  )
 #define FACEDRAWEDGES         (  1 << 8  )
 #define FACEDRAWVERTICES      (  1 << 9  )
+#define FACEORIGINAL          (  1 << 10 )
 
 /***************************** Subdivision Flags ******************************/
 #define SUBDIVISIONMALLOCVERTICES (  1       )
@@ -1315,11 +1316,10 @@ uint32_t g3dface_setSubFaces      ( G3DFACE *, G3DSUBVERTEX  *,
                                                uint32_t,
                                                uint32_t,
                                                uint32_t );
-/*uint32_t g3dface_initsubmem       ( G3DFACE *, G3DSUBVERTEX  *,
-                                               G3DSUBVERTEX **,
+uint32_t g3dface_initsubmem       ( G3DFACE *, G3DSUBVERTEX **,
                                                G3DSUBEDGE   **,
                                                G3DSUBFACE   **,
-                                               G3DSUBUVSET  ** );*/
+                                               G3DSUBUVSET  ** );
 LIST    *g3dface_getEdgesFromList ( LIST * );
 void     g3dface_drawTriangleList ( LIST *, LIST *, uint32_t, uint32_t );
 void     g3dface_drawQuadList     ( LIST *, LIST *, uint32_t, uint32_t );

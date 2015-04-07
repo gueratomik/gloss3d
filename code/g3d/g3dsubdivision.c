@@ -360,6 +360,8 @@ uint32_t g3dface_setSubFace ( G3DFACE *fac, G3DVERTEX     *vercmp,
             if ( fac == faccmp  ) {
                 fac->subfac[i] = ( G3DFACE * ) (*subfacptr);
 
+                (*subfacptr)->fac.flags |= FACEORIGINAL;
+
                 (*subfacptr)->fac.ver[0x02] = ( G3DVERTEX * ) fac->subver;
             } else {
                 /*** Watch out, this could be an edge ***/
@@ -599,21 +601,22 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 }
 
 /******************************************************************************/
-#define SUBBUFFER 0x15
-uint32_t g3dface_initsubmem ( G3DFACE *fac, G3DSUBVERTEX  *orivercpy,
-                                            G3DSUBVERTEX **subverptr,
+#define SUBBUFFER 0x19 /*** 21 vertices + 4 original vertices ***/
+uint32_t g3dface_initsubmem ( G3DFACE *fac, G3DSUBVERTEX **subverptr,
                                             G3DSUBEDGE   **subedgptr,
                                             G3DSUBFACE   **subfacptr,
                                             G3DSUBUVSET  **subuvsptr ) {
     uint32_t nbsubedg = 0x00,
-             nbsubver = 0x00,
+             nbsubver = fac->nbver, /*** the first rows are for ***/
+                                    /*** the original vertices. ***/
              nbsubuvs = 0x00,
              nbsubfac = 0x00;
     uint32_t memflags = 0x00;
     uint32_t i;
     uint32_t nbadaptive = 0x00;
+    G3DSUBVERTEX orivercpy[0x04];
 
-    memset ( orivercpy, 0x00, sizeof ( G3DSUBVERTEX ) * 0x04 );
+    memset ( orivercpy, 0x00, sizeof ( G3DSUBVERTEX ) * fac->nbver );
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         /*** We keep original vertex flags, that's all. We don't      ***/
@@ -686,10 +689,128 @@ uint32_t g3dface_initsubmem ( G3DFACE *fac, G3DSUBVERTEX  *orivercpy,
     }
 
 
+    memcpy ( (*subverptr), orivercpy, sizeof ( G3DSUBVERTEX ) * fac->nbver );
+
+
     return memflags;
 }
 
 /******************************************************************************/
+uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
+                                        G3DSUBEDGE    *edgtab, uint32_t nbedg,
+                                        G3DSUBFACE    *factab, uint32_t nbfac,
+                                        G3DFACE       *ancestor,
+                /*** get triangles ***/ G3DRTTRIANGLE **rttriptr,
+                /*** get quads     ***/ G3DRTQUAD     **rtquaptr,
+                /*** get uvws      ***/ G3DRTUVSET    **rtuvsptr,
+                                        uint32_t curdiv,
+                                        uint32_t object_flags,
+                                        uint32_t engine_flags ) {
+    G3DSUBVERTEX memsubver[0x40], *subverptr = memsubver, *freeverptr;
+    G3DSUBEDGE   memsubedg[0x40], *subedgptr = memsubedg, *freeedgptr;
+    G3DSUBFACE   memsubfac[0x40], *subfacptr = memsubfac, *freefacptr;
+    uint32_t i, nbfacnew = 0x00;
+    uint32_t nbsubver, nbsubedg, nbsubfac;
+
+    memset ( memsubver, 0x00, sizeof ( memsubver ) );
+    memset ( memsubedg, 0x00, sizeof ( memsubedg ) );
+    memset ( memsubfac, 0x00, sizeof ( memsubfac ) );
+
+    freeverptr = subverptr;
+    freeedgptr = subedgptr; 
+    freefacptr = subfacptr;
+
+    if ( curdiv == 0x00 ) {
+        for ( i = 0x00; i < nbfac; i++ ) {
+            if ( factab[i].fac.flags & FACEORIGINAL )  {
+                g3dface_convert ( &factab[i], ancestor,
+                                              rttriptr, 
+                                              rtquaptr,
+                                              rtuvsptr, 
+                                              object_flags, 
+                                              engine_flags );
+                nbfacnew++;
+            }
+        }
+
+        return nbfacnew;
+    } else {
+        for ( i = 0x00; i < nbedg; i++ ) {
+            g3dedge_position ( &edgtab[i], 0x00 );
+
+            memcpy ( &subverptr->ver.pos, &edgtab[i].edg.pos, sizeof ( G3DVECTOR ) );
+
+            edgtab[i].edg.subver = subverptr++;
+        }
+  
+ 
+        for ( i = 0x00; i < nbver; i++ ) {
+            LIST *ltmpedg = vertab[i].ver.ledg;
+
+            while ( ltmpedg ) {
+                G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+
+                subedgptr->edg.ver[0x00] = subverptr;
+                subedgptr->edg.ver[0x01] = edg->subver;
+
+                subedgptr++;
+
+
+                ltmpedg = ltmpedg->next;
+            }
+        }
+
+        for ( i = 0x00; i < nbfac; i++ ) {
+            uint32_t j;
+
+            factab[i].fac.subver = subverptr++;
+
+            memcpy ( &factab[i].fac.subver->ver.pos, &factab[i].fac.pos, sizeof ( G3DVECTOR ) );
+
+            for ( j = 0x00; j < factab[i].fac.nbver; j++ ) {
+                uint32_t p = ( j + factab[i].fac.nbver - 0x01 ) % factab[i].fac.nbver;
+
+                if ( factab[i].fac.edg[j] && factab[i].fac.edg[j]->subver &&
+                     factab[i].fac.edg[p] && factab[i].fac.edg[p]->subver ) {
+                    subfacptr->fac.ver[0x00] = factab[i].fac.subver;
+                    subfacptr->fac.ver[0x01] = factab[i].fac.edg[j]->subver;
+                    subfacptr->fac.ver[0x02] = factab[i].fac.ver[j];
+                    subfacptr->fac.ver[0x03] = factab[i].fac.edg[p]->subver;
+
+                    subfacptr->fac.nbver = 0x04;
+
+                    if ( factab[i].fac.flags & FACEORIGINAL ) {
+                        subfacptr->fac.flags |= FACEORIGINAL;
+                    }
+
+                    subfacptr++;
+                }
+            }
+        }
+
+        nbsubver = ( ((char*)subverptr) - ((char*)freeverptr) ) / sizeof ( G3DSUBVERTEX );
+        nbsubedg = ( ((char*)subedgptr) - ((char*)freeedgptr) ) / sizeof ( G3DSUBEDGE   );
+        nbsubfac = ( ((char*)subfacptr) - ((char*)freefacptr) ) / sizeof ( G3DSUBFACE   );
+
+        nbfacnew  = g3dface_catmull_clark_drawV2 ( freeverptr, nbsubver,
+                                                   freeedgptr, nbsubedg,
+                                                   freefacptr, nbsubfac,
+                                                   ancestor,
+                /*** get triangles ***/            rttriptr,
+                /*** get quads     ***/            rtquaptr,
+                /*** get uvws      ***/            rtuvsptr,
+                                                   curdiv - 1,
+                                                   object_flags,
+                                                   engine_flags );
+    }
+
+
+    return nbfacnew;
+}
+
+/******************************************************************************/
+
+
 uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac, 
                                       G3DFACE        *ancestor,
                                       uint32_t        curdiv,
@@ -737,7 +858,7 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
         /*** store temporary UV coords ***/
         G3DSUBUVSET  memsubuvs[SUBBUFFER], *subuvsptr = memsubuvs, *freeuvsptr;
         /*** original vertices copy ***/
-        G3DSUBVERTEX  orivercpy[0x04];
+        G3DSUBVERTEX *orivercpy = NULL;
         G3DSUBVERTEX *edgverptr[0x04];
         G3DSUBVERTEX *faccenptr;
         uint64_t nbsubver = 0x00, /*** final number of assigned vertices ***/
@@ -747,11 +868,19 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
         uint32_t i;
 
         /*** Reset arrays, malloc if necessary ***/
-        memflags = g3dface_initsubmem ( fac, orivercpy,
-                                            &subverptr, 
-                                            &subedgptr,
-                                            &subfacptr,
-                                            &subuvsptr );
+        memflags = g3dface_initsubmem ( fac, &subverptr, 
+                                             &subedgptr,
+                                             &subfacptr,
+                                             &subuvsptr );
+
+        freeverptr = subverptr;
+        freeedgptr = subedgptr;
+        freefacptr = subfacptr;
+        freeuvsptr = subuvsptr;
+
+        /*** original vertices are stored at the beginning of the array ***/
+        orivercpy  = subverptr;
+        subverptr += fac->nbver;
 
         /*** Only one thread at a time for the topology stuffs ***/
 
@@ -767,10 +896,7 @@ uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac,
             g3dface_markAdaptive ( fac, orivercpy, cosang );
         }
 
-        freeverptr = subverptr;
-        freeedgptr = subedgptr;
-        freefacptr = subfacptr;
-        freeuvsptr = subuvsptr;
+
 
         freeflag |= g3dface_setInnerVertex ( fac, &subverptr, 
                                                    curdiv,
@@ -888,7 +1014,8 @@ if ( curdiv == 0x01 ) {
 }
 
         /********************[End]Displacement Part**************************/
-
+/*#define youpitralala*/
+#ifdef youpitralala
         /*** Recurse magic ***/
         for ( i = 0x00; i < fac->nbver; i++ ) {
             uint32_t nextdiv = curdiv - 0x01;
@@ -907,6 +1034,22 @@ if ( curdiv == 0x01 ) {
                                                   object_flags,
                                                   engine_flags & (~G3DMULTITHREADING) | G3DNEXTSUBDIVISION );
         }
+#else
+        nbsubver = ( ((char*)subverptr) - ((char*)freeverptr) ) / sizeof ( G3DSUBVERTEX );
+        nbsubedg = ( ((char*)subedgptr) - ((char*)freeedgptr) ) / sizeof ( G3DSUBEDGE   );
+        nbsubfac = ( ((char*)subfacptr) - ((char*)freefacptr) ) / sizeof ( G3DSUBFACE   );
+
+        nbfac  = g3dface_catmull_clark_drawV2 ( freeverptr, nbsubver,
+                                                freeedgptr, nbsubedg,
+                                                freefacptr, nbsubfac,
+                                                ancestor,
+             /*** get triangles ***/            rttriptr,
+             /*** get quads     ***/            rtquaptr,
+             /*** get uvws      ***/            rtuvsptr,
+                                                curdiv - 1,
+                                                object_flags,
+                                                engine_flags );
+#endif
 
         /*** free memory for extraordinary vertices, i.e the one which  ***/
         /*** needed dynamic linked-list for storing the topology. Other ***/
