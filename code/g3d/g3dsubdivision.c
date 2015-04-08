@@ -706,9 +706,9 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                                         uint32_t curdiv,
                                         uint32_t object_flags,
                                         uint32_t engine_flags ) {
-    G3DSUBVERTEX memsubver[0x40], *subverptr = memsubver, *freeverptr;
-    G3DSUBEDGE   memsubedg[0x40], *subedgptr = memsubedg, *freeedgptr;
-    G3DSUBFACE   memsubfac[0x40], *subfacptr = memsubfac, *freefacptr;
+    G3DSUBVERTEX memsubver[0x100], *subverptr = memsubver, *freeverptr;
+    G3DSUBEDGE   memsubedg[0x100], *subedgptr = memsubedg, *freeedgptr;
+    G3DSUBFACE   memsubfac[0x100], *subfacptr = memsubfac, *freefacptr;
     uint32_t i, nbfacnew = 0x00;
     uint32_t nbsubver, nbsubedg, nbsubfac;
 
@@ -735,62 +735,216 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
 
         return nbfacnew;
     } else {
-        for ( i = 0x00; i < nbedg; i++ ) {
-            g3dedge_position ( &edgtab[i], 0x00 );
-
-            memcpy ( &subverptr->ver.pos, &edgtab[i].edg.pos, sizeof ( G3DVECTOR ) );
-
-            edgtab[i].edg.subver = subverptr++;
-        }
-  
- 
-        for ( i = 0x00; i < nbver; i++ ) {
-            LIST *ltmpedg = vertab[i].ver.ledg;
-
-            while ( ltmpedg ) {
-                G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
-
-                subedgptr->edg.ver[0x00] = subverptr;
-                subedgptr->edg.ver[0x01] = edg->subver;
-
-                subedgptr++;
-
-
-                ltmpedg = ltmpedg->next;
-            }
-        }
-
         for ( i = 0x00; i < nbfac; i++ ) {
-            uint32_t j;
-
             factab[i].fac.subver = subverptr++;
 
             memcpy ( &factab[i].fac.subver->ver.pos, &factab[i].fac.pos, sizeof ( G3DVECTOR ) );
 
+            if ( factab[i].fac.flags & FACEORIGINAL ) {
+                factab[i].fac.subver->ver.flags |= VERTEXTOPOLOGY;
+            }
+        }
+
+        for ( i = 0x00; i < nbedg; i++ ) {
+            LIST *ltmpfac = edgtab[i].edg.lfac;
+
+            g3dedge_position ( &edgtab[i], 0x00 );
+
+            memcpy ( &subverptr->ver.pos, &edgtab[i].edg.pos, sizeof ( G3DVECTOR ) );
+
+            if ( curdiv > 0x01 ) {
+                /*** Outer edges ***/
+                if ( edgtab[i].edg.flags & EDGEORIGINAL ) {
+                    subverptr->ver.flags |= VERTEXTOPOLOGY;
+
+                    /*** Create first subedge ***/
+                    subedgptr->edg.flags      |= EDGEORIGINAL;
+                    subedgptr->edg.ver[0x00]   = subverptr;
+                    subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00];
+                    g3dsubvertex_addEdge ( subverptr, subedgptr );
+                    edgtab[i].edg.subedg[0x00] = subedgptr++;
+
+
+                    /*** Create second subedge ***/
+                    subedgptr->edg.flags     |= EDGEORIGINAL;
+                    subedgptr->edg.ver[0x00]  = subverptr;
+                    subedgptr->edg.ver[0x01]  = edgtab[i].edg.ver[0x01];
+                    g3dsubvertex_addEdge ( subverptr, subedgptr );
+                    edgtab[i].edg.subedg[0x01] = subedgptr++;
+                } else {
+                    /*** Create one subedge only ***/
+                    subedgptr->edg.ver[0x00]  = subverptr;
+
+                    if ( edgtab[i].edg.ver[0x00]->flags & VERTEXTOPOLOGY ) {
+                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00];
+                        g3dsubvertex_addEdge ( subverptr, subedgptr );
+                        edgtab[i].edg.subedg[0x00] = subedgptr++;
+                    } else {
+                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x01];
+                        g3dsubvertex_addEdge ( subverptr, subedgptr );
+                        edgtab[i].edg.subedg[0x01] = subedgptr++;
+                    }
+                }
+
+                /*** Inner edges ***/
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    uint32_t edgID;
+
+                    subedgptr->edg.ver[0x00] = subverptr;
+                    subedgptr->edg.ver[0x01] = fac->subver;
+
+                    if ( fac->flags & FACEORIGINAL ) {
+                        subedgptr->edg.flags     |= EDGEORIGINAL;
+
+                        g3dsubvertex_addEdge ( subedgptr->edg.ver[0x00], subedgptr );
+                        g3dsubvertex_addEdge ( subedgptr->edg.ver[0x01], subedgptr );
+                    } else {
+                        g3dsubvertex_addEdge ( subedgptr->edg.ver[0x00], subedgptr );
+                    }
+
+                    if ( fac->nbver == 0x03 ) {
+                        if ( fac->edg[0x00] == &edgtab[i] ) { edgID = 0x00; }
+                        if ( fac->edg[0x01] == &edgtab[i] ) { edgID = 0x01; }
+                        if ( fac->edg[0x02] == &edgtab[i] ) { edgID = 0x02; }
+                    } else {
+                        if ( fac->edg[0x00] == &edgtab[i] ) { edgID = 0x00; }
+                        if ( fac->edg[0x01] == &edgtab[i] ) { edgID = 0x01; }
+                        if ( fac->edg[0x02] == &edgtab[i] ) { edgID = 0x02; }
+                        if ( fac->edg[0x03] == &edgtab[i] ) { edgID = 0x03; }
+                    }
+
+                    /***  This will be use to retrieve the subfaces topology ***/
+                    fac->innedg[edgID] = subedgptr++;
+
+
+                    ltmpfac = ltmpfac->next;
+                }
+            }
+
+            edgtab[i].edg.subver = subverptr++;
+        }
+ 
+  
+        /**** Apply catmull clark scheme ***/
+        for ( i = 0x00; i < nbver; i++ ) {
+            if ( vertab[i].ver.flags & VERTEXTOPOLOGY ) {
+                uint32_t valence = vertab[i].ver.nbedg;
+                /*** temporay values, hence static ***/
+                G3DVECTOR mavg, favg, verval;
+
+                if ( valence == 0x02 ) { /*** vertex belongs to 1 face only ***/
+                    /*** average mid points ***/
+                    /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
+                    memcpy ( &mavg, &vertab[i].ver.edgpnt, sizeof ( G3DVECTOR ) );
+
+                    /*** average face points ***/
+                    /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
+                    memcpy ( &favg, &vertab[i].ver.facpnt, sizeof ( G3DVECTOR ) );
+
+                    vertab[i].ver.pos.x = ( mavg.x + favg.x ) * 0.5f;
+                    vertab[i].ver.pos.y = ( mavg.y + favg.y ) * 0.5f;
+                    vertab[i].ver.pos.z = ( mavg.z + favg.z ) * 0.5f;
+                }
+
+                if ( valence >=  0x03 ) { /*** vertex belongs to more than one face ***/
+                    uint32_t valmin3 = ( valence - 0x03 );
+                    float    valdivm = ( valence == 0x03 ) ? ONETHIRD : 0.25f;
+  
+                    if ( valence > 0x04 ) valdivm = ( 1.0f / valence );
+
+                    /*** average mid points ***/
+                    /*g3dvertex_getAverageMidPoint  ( fac->ver[i], &mavg );*/
+                    memcpy ( &mavg, &vertab[i].ver.edgpnt, sizeof ( G3DVECTOR ) );
+
+                    /*** average face points ***/
+                    /*g3dvertex_getAverageFacePoint ( fac->ver[i], &favg );*/
+                    memcpy ( &favg, &vertab[i].ver.facpnt, sizeof ( G3DVECTOR ) );
+
+                    verval.x = ( float ) valmin3 * vertab[i].ver.pos.x;
+                    verval.y = ( float ) valmin3 * vertab[i].ver.pos.y;
+                    verval.z = ( float ) valmin3 * vertab[i].ver.pos.z;
+
+                    vertab[i].ver.pos.x = ( favg.x + ( mavg.x * 2.0f ) + verval.x ) * valdivm;
+                    vertab[i].ver.pos.y = ( favg.y + ( mavg.y * 2.0f ) + verval.y ) * valdivm;
+                    vertab[i].ver.pos.z = ( favg.z + ( mavg.z * 2.0f ) + verval.z ) * valdivm;
+                }
+            }
+        }
+        /******************************/
+
+        for ( i = 0x00; i < nbfac; i++ ) {
+            uint32_t j;
+
             for ( j = 0x00; j < factab[i].fac.nbver; j++ ) {
                 uint32_t p = ( j + factab[i].fac.nbver - 0x01 ) % factab[i].fac.nbver;
+                G3DEDGE *edgj = factab[i].fac.edg[j],
+                        *edgp = factab[i].fac.edg[p];
 
                 if ( factab[i].fac.edg[j] && factab[i].fac.edg[j]->subver &&
                      factab[i].fac.edg[p] && factab[i].fac.edg[p]->subver ) {
-                    subfacptr->fac.ver[0x00] = factab[i].fac.subver;
+                    subfacptr->fac.ver[0x00] = factab[i].fac.ver[j];
                     subfacptr->fac.ver[0x01] = factab[i].fac.edg[j]->subver;
-                    subfacptr->fac.ver[0x02] = factab[i].fac.ver[j];
+                    subfacptr->fac.ver[0x02] = factab[i].fac.subver;
                     subfacptr->fac.ver[0x03] = factab[i].fac.edg[p]->subver;
 
                     subfacptr->fac.nbver = 0x04;
 
+                    /*** Edge topology not needed on last recursion ***/
+                    if ( curdiv > 0x01 ) {
+                        subfacptr->fac.edg[0x01] = factab[i].fac.innedg[j];
+                        subfacptr->fac.edg[0x02] = factab[i].fac.innedg[p];
+                        subfacptr->fac.edg[0x00] = g3dedge_getSubEdge ( edgj, subfacptr->fac.ver[0],
+                                                                              subfacptr->fac.ver[1] );
+                        subfacptr->fac.edg[0x03] = g3dedge_getSubEdge ( edgp, subfacptr->fac.ver[3],
+                                                                              subfacptr->fac.ver[0] );
+                    }
+
                     if ( factab[i].fac.flags & FACEORIGINAL ) {
                         subfacptr->fac.flags |= FACEORIGINAL;
                     }
+
+                    if ( curdiv == 0x01 ) {
+                        g3dface_normal ( subfacptr );
+                    }
+
+                    if ( curdiv > 0x01 ) {
+                        g3dface_position ( subfacptr );
+                    }
+
+                    /*** vertex/face topology always needed for computing normals ***/
+                    g3dsubface_topology ( subfacptr );
 
                     subfacptr++;
                 }
             }
         }
 
+        if ( curdiv == 0x01 ) {
+            for ( i = 0x00; i < nbver; i++ ) {
+                if ( vertab[i].ver.flags & VERTEXTOPOLOGY ) {
+                    g3dvertex_normal ( ( G3DVERTEX * ) &vertab[i], 0x00 );
+                }
+            }
+        } else {
+            for ( i = 0x00; i < nbver; i++ ) {
+                if ( vertab[i].ver.flags & VERTEXTOPOLOGY ) {
+                    g3dvertex_normal ( ( G3DVERTEX * ) &vertab[i], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+                }
+            }
+        }
+
+        if ( curdiv > 0x01 ) {
+
+        }
+
         nbsubver = ( ((char*)subverptr) - ((char*)freeverptr) ) / sizeof ( G3DSUBVERTEX );
         nbsubedg = ( ((char*)subedgptr) - ((char*)freeedgptr) ) / sizeof ( G3DSUBEDGE   );
         nbsubfac = ( ((char*)subfacptr) - ((char*)freefacptr) ) / sizeof ( G3DSUBFACE   );
+
+/*printf ( "%d\n"
+         "%d\n"
+         "%d\n", nbsubver, nbsubedg, nbsubfac );*/
 
         nbfacnew  = g3dface_catmull_clark_drawV2 ( freeverptr, nbsubver,
                                                    freeedgptr, nbsubedg,
