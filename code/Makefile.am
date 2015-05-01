@@ -48,15 +48,15 @@ if HAVE_MOTIF
     bin_PROGRAMS = gloss3d-motif
     gloss3d_motif_SOURCES = $(BINGLOSS3D_C_FILES)
 
-    gloss3d_motif_LDADD = src/g3d/libgloss-g3d.la \
-                          src/g3dexport/libgloss-g3dexport.la \
-                          src/g3dimport/libgloss-g3dimport.la \
-                          src/g3dmouse/libgloss-g3dmouse.la \
-                          src/g3dcom/libgloss-g3dcom.la \
-                          src/g3dui/libgloss-g3dui-motif.la \
-                          src/g3durmanager/libgloss-g3durmanager.la \
-                          src/r3d/libgloss-r3d.la
-#                          src/r3dnet/libgloss-r3dnet.la
+    gloss3d_motif_LDADD = g3d/libgloss-g3d.la \
+                          g3dexport/libgloss-g3dexport.la \
+                          g3dimport/libgloss-g3dimport.la \
+                          g3dmouse/libgloss-g3dmouse.la \
+                          g3dcom/libgloss-g3dcom.la \
+                          g3dui/libgloss-g3dui-motif.la \
+                          g3durmanager/libgloss-g3durmanager.la \
+                          r3d/libgloss-r3d.la
+#                          r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
                            GLwDrawA.c \

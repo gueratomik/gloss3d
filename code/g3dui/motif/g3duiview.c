@@ -93,6 +93,16 @@ Widget g3duiview_getGLArea ( Widget w ) {
 }
 
 /******************************************************************************/
+Widget g3duiview_redraw_area ( Widget w ) {
+    Widget area = g3duiview_getGLArea ( w );
+
+    XClearArea ( XtDisplay ( area ),
+                 XtWindow  ( area ), 0, 0, 0, 0, True );
+
+    return NULL;
+}
+
+/******************************************************************************/
 static void cancelRender ( Widget w ) {
     GViewWidget gw = ( GViewWidget ) w;
 
@@ -112,7 +122,6 @@ static void GViewMouseEvent ( Widget w, XEvent *event,
     GViewWidget gw = ( GViewWidget ) w;
     G3DUIVIEW *view = &gw->gview;
     G3DCAMERA *cam = gw->gview.cam;
-    Widget ogl = g3duiview_getGLArea ( w );
     static int xold, yold;
     static int xmid, ymid, xori, yori;
     Dimension width, height;
@@ -133,6 +142,13 @@ static void GViewMouseEvent ( Widget w, XEvent *event,
             Window win = XtWindow ( w );
             Display *dis = XtDisplay ( w );
             XWindowAttributes attr;
+            Widget area = g3duiview_getGLArea ( w );
+
+            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
+            /*** If there was a running render, cancel it and dont go further ***/
+            if ( rps ) {
+                r3dscene_cancelRender ( rps->rsce );
+            }
 
             gw->gview.buttonID = common_g3duiview_getCurrentButton ( view, bev->x, 
                                                                     bev->y );
@@ -232,8 +248,7 @@ static void GViewMouseEvent ( Widget w, XEvent *event,
             xold = xmid;
             yold = ymid;
 
-            XClearArea ( XtDisplay ( ogl ),
-                         XtWindow  ( ogl ), 0, 0, 0, 0, True );
+            g3duiview_redraw_area ( w );
         } break;
 
         case ButtonRelease : {
@@ -494,6 +509,16 @@ static void inputGL ( Widget wid, XtPointer client, XtPointer call ) {
     glXMakeCurrent ( dis, win, gw->gview.glctx );
 
     switch ( das->event->type ) {
+        case ButtonPress : {
+            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) wid );
+            /*** If there was a running render, cancel it and dont go further ***/
+            if ( rps ) {
+                r3dscene_cancelRender ( rps->rsce );
+
+                return;
+            }
+        } break;
+
         case KeyPress : {
             XKeyEvent *kev = ( XKeyEvent * ) das->event;
             KeySym keysym;
@@ -505,7 +530,7 @@ static void inputGL ( Widget wid, XtPointer client, XtPointer call ) {
                         g3dui_setHourGlass ( gui );
 
                         /*** gw has XmNuserData set ***/
-                        g3dui_deleteSelectionCbk ( wid, client, call );
+                        common_g3dui_deleteSelectionCbk ( gui );
 
                         g3dui_unsetHourGlass ( gui );
                     } break;
@@ -514,14 +539,14 @@ static void inputGL ( Widget wid, XtPointer client, XtPointer call ) {
                     case XK_z: {
                         /*** undo ***/
                         if ( kev->state & ControlMask ) {
-                            g3dui_undoCbk ( wid, gui, call );
+                            common_g3dui_undoCbk ( gui );
                         }
                     } break;
 
                     case XK_y: {
                         /*** redo ***/
                         if ( kev->state & ControlMask ) {
-                            g3dui_redoCbk ( wid, gui, call );
+                            common_g3dui_redoCbk ( gui );
                         }
                     } break;
 
@@ -572,49 +597,7 @@ printf("pasting\n");
                     /*************************************************/
 
                     case XK_a: {
-                        /*** select all objects ***/
-                        if ( gui->flags & VIEWOBJECT ) {
-                            g3dscene_unselectAllObjects ( sce, gui->flags );
-                            g3dscene_selectAllObjects   ( sce, gui->flags );
-                        }
-
-                        /*** select all vertices ***/
-                        if ( gui->flags & VIEWVERTEX ) {
-                            G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-                            if ( obj && obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
-
-                                g3dmesh_unselectAllVertices ( mes );
-                                g3dmesh_selectAllVertices   ( mes );
-                            }
-                        }
-
-                        /*** select all edges ***/
-                        if ( gui->flags & VIEWEDGE ) {
-                            G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-                            if ( obj && obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
-
-                                g3dmesh_unselectAllEdges ( mes );
-                                g3dmesh_selectAllEdges   ( mes );
-                            }
-                        }
-
-                        /*** select all vertices ***/
-                        if ( gui->flags & VIEWFACE ) {
-                            G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-                            if ( obj && obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
-
-                                g3dmesh_unselectAllFaces ( mes );
-                                g3dmesh_selectAllFaces   ( mes );
-                            }
-                        }
-
-                        g3dui_redrawGLViews ( gui );
+                        common_g3dui_selectAllCbk ( gui );
                     } break;
  
                     default :
@@ -687,6 +670,7 @@ static void initGL ( Widget w, XtPointer client, XtPointer call ) {
                              <BtnUp>:        glwInput() \n\
                              <BtnMotion>:    glwInput() \n\
                              <PtrMoved>:     glwInput()";
+    static GLXContext shared = NULL;
     Display *dis = XtDisplay ( w );
     Window win   = XtWindow  ( w );
     G3DUIVIEW *view = &gw->gview;
@@ -698,7 +682,15 @@ static void initGL ( Widget w, XtPointer client, XtPointer call ) {
 
     XtVaGetValues ( w, GLwNvisualInfo, &vi, NULL );
 
-    common_g3duiview_initGL ( view, dis, win, vi );
+    /*** Create OpenGL Context ***/
+    view->glctx = glXCreateContext( dis, vi, shared, True );
+
+    if ( shared == NULL ) shared = view->glctx;
+
+    /*** Set Context as the current context ***/
+    glXMakeCurrent ( dis, win, view->glctx );
+
+    common_g3duiview_initGL ( view );
 
     /*** Free the memory assigned for GLwNvisualInfo ***/
     free ( vi );
@@ -804,7 +796,7 @@ static void PostMenu ( Widget w, XtPointer client, XEvent *event, Boolean *c ) {
     Widget parent = XtParent ( w );
     Widget menu = getViewMenu ( parent, gui );
 
-    if ( menu == NULL ) { printf ("poo %s\n", XtName ( parent ) ); return; }
+    if ( menu == NULL ) { return; }
 
     if ( ev->button != Button3 ) return;
 
@@ -1519,7 +1511,9 @@ Widget createView ( Widget parent, G3DUI *gui, char *name,
                     G3DCAMERA *cam,
                     Dimension x    , Dimension y,
                     Dimension width, Dimension height ) {
+    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     Pixel background, foreground;
+    G3DUIVIEW *view;
     Widget gvw;
 
     XtVaGetValues ( parent, XmNbackground, &background,
@@ -1543,6 +1537,17 @@ Widget createView ( Widget parent, G3DUI *gui, char *name,
         XtManageChild ( gvw );
     }
 
+    view = &((GViewWidget)gvw)->gview;
+
+    /*** I don't have time to implement GTK+3 property ***/
+    /*** thing. Plus, it's , freaking complicated .... ***/
+    view->cam = view->defcam = cam;
+
+    memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR ) );
+    memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR ) );
+
+              view->defcamfoc = cam->focal;
 
     return gvw;
 }

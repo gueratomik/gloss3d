@@ -706,9 +706,9 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                                         uint32_t curdiv,
                                         uint32_t object_flags,
                                         uint32_t engine_flags ) {
-    G3DSUBVERTEX memsubver[0x100], *subverptr = memsubver, *freeverptr;
-    G3DSUBEDGE   memsubedg[0x100], *subedgptr = memsubedg, *freeedgptr;
-    G3DSUBFACE   memsubfac[0x100], *subfacptr = memsubfac, *freefacptr;
+    G3DSUBVERTEX memsubver[0x200], *subverptr = memsubver, *freeverptr;
+    G3DSUBEDGE   memsubedg[0x200], *subedgptr = memsubedg, *freeedgptr;
+    G3DSUBFACE   memsubfac[0x200], *subfacptr = memsubfac, *freefacptr;
     uint32_t i, nbfacnew = 0x00;
     uint32_t nbsubver, nbsubedg, nbsubfac;
 
@@ -735,6 +735,16 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
 
         return nbfacnew;
     } else {
+        for ( i = 0x00; i < nbver; i++ ) {
+            vertab[i].ver.subver = subverptr++;
+
+            memcpy ( &vertab[i].ver.subver->pos, &vertab[i].ver.pos, sizeof ( G3DVECTOR ) );
+
+            if ( vertab[i].ver.flags & VERTEXTOPOLOGY ) {
+                vertab[i].ver.subver->flags |= VERTEXTOPOLOGY;
+            }
+        }
+
         for ( i = 0x00; i < nbfac; i++ ) {
             factab[i].fac.subver = subverptr++;
 
@@ -760,7 +770,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                     /*** Create first subedge ***/
                     subedgptr->edg.flags      |= EDGEORIGINAL;
                     subedgptr->edg.ver[0x00]   = subverptr;
-                    subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00];
+                    subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00]->subver;
                     g3dsubvertex_addEdge ( subverptr, subedgptr );
                     edgtab[i].edg.subedg[0x00] = subedgptr++;
 
@@ -768,7 +778,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                     /*** Create second subedge ***/
                     subedgptr->edg.flags     |= EDGEORIGINAL;
                     subedgptr->edg.ver[0x00]  = subverptr;
-                    subedgptr->edg.ver[0x01]  = edgtab[i].edg.ver[0x01];
+                    subedgptr->edg.ver[0x01]  = edgtab[i].edg.ver[0x01]->subver;
                     g3dsubvertex_addEdge ( subverptr, subedgptr );
                     edgtab[i].edg.subedg[0x01] = subedgptr++;
                 } else {
@@ -776,11 +786,11 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                     subedgptr->edg.ver[0x00]  = subverptr;
 
                     if ( edgtab[i].edg.ver[0x00]->flags & VERTEXTOPOLOGY ) {
-                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00];
+                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x00]->subver;
                         g3dsubvertex_addEdge ( subverptr, subedgptr );
                         edgtab[i].edg.subedg[0x00] = subedgptr++;
                     } else {
-                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x01];
+                        subedgptr->edg.ver[0x01]   = edgtab[i].edg.ver[0x01]->subver;
                         g3dsubvertex_addEdge ( subverptr, subedgptr );
                         edgtab[i].edg.subedg[0x01] = subedgptr++;
                     }
@@ -1168,8 +1178,8 @@ if ( curdiv == 0x01 ) {
 }
 
         /********************[End]Displacement Part**************************/
-/*#define youpitralala*/
-#ifdef youpitralala
+#define CATMULLCLARKV1
+#ifdef  CATMULLCLARKV1
         /*** Recurse magic ***/
         for ( i = 0x00; i < fac->nbver; i++ ) {
             uint32_t nextdiv = curdiv - 0x01;

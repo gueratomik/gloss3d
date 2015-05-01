@@ -39,6 +39,56 @@
 #include <xpm/extrude.xpm>
 
 /******************************************************************************/
+void common_g3dui_selectAllCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+
+    /*** select all objects ***/
+    if ( gui->flags & VIEWOBJECT ) {
+        g3dscene_unselectAllObjects ( sce, gui->flags );
+        g3dscene_selectAllObjects   ( sce, gui->flags );
+    }
+
+    /*** select all vertices ***/
+    if ( gui->flags & VIEWVERTEX ) {
+        G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+        if ( obj && obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            g3dmesh_unselectAllVertices ( mes );
+            g3dmesh_selectAllVertices   ( mes );
+        }
+    }
+
+    /*** select all edges ***/
+    if ( gui->flags & VIEWEDGE ) {
+        G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+        if ( obj && obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            g3dmesh_unselectAllEdges ( mes );
+            g3dmesh_selectAllEdges   ( mes );
+        }
+    }
+
+    /*** select all vertices ***/
+    if ( gui->flags & VIEWFACE ) {
+        G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+        if ( obj && obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            g3dmesh_unselectAllFaces ( mes );
+            g3dmesh_selectAllFaces   ( mes );
+        }
+    }
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_redrawObjectList     ( gui );
+}
+
+/******************************************************************************/
 uint64_t getTotalMemory ( ) {
     #ifdef __linux__
     long long unsigned int memsize = 0x00;

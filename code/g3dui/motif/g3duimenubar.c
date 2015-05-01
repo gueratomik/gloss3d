@@ -30,6 +30,166 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
+Widget g3dui_addMenuSeparator ( Widget wmenu ) {
+    Pixel background, foreground;
+    Widget wbtn;
+
+    XtVaGetValues ( wmenu, XmNbackground, &background,
+                           XmNforeground, &foreground, NULL );
+
+    wbtn = XmVaCreateSeparator ( wmenu, "",
+                                        XmNrecomputeSize, False,
+                                        XmNhighlightThickness, 0x001,
+                                        XmNshadowThickness, 0x01,
+                                        XmNbackground, background,
+                                        XmNforeground, 0x00,
+                                        NULL );
+
+    XtManageChild ( wbtn );
+
+
+    return wbtn;
+}
+
+/******************************************************************************/
+Widget g3dui_addMenuButton ( Widget wmenu, G3DUI *gui, 
+                                           char *name,
+                                           Dimension width,
+                                           void (*cbk) ( Widget, XtPointer, 
+                                                                 XtPointer ) ) {
+    Pixel background, foreground;
+    Widget wbtn;
+    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+
+    XtVaGetValues ( wmenu, XmNbackground, &background,
+                           XmNforeground, &foreground, NULL );
+
+    /************************************************/
+    /*** XmCreateFileSelectionDialog() called by openfilecbk() crashes ***/
+    /*** if wopen is a PushButtonGadget. So I replace it by a regular  ***/
+    /*** PushButton ***/
+    wbtn = XmVaCreatePushButton ( wmenu, name,
+                                         XmNwidth, width,
+                                         XmNrecomputeSize, False,
+                                         XmNfontList, gmt->fontlist,
+                                         XmNhighlightThickness, 0x01,
+                                         XmNshadowThickness, 0x01,
+                                         XmNbackground, background,
+                                         XmNforeground, 0x00,
+                                         NULL );
+
+    /*** I had some strange behavior using XmNarmCallback.  ***/
+    /*** I switched to XmNactivateCallback. It works better ***/
+    if ( cbk ) XtAddCallback ( wbtn, XmNactivateCallback, cbk, gui );
+
+    XtManageChild ( wbtn );
+
+
+    return wbtn;
+}
+
+/******************************************************************************/
+static void addUVMapCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duimenubar_addUVMapCbk ( gui );
+}
+
+/******************************************************************************/
+static void fitUVMapCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duimenubar_fitUVMapCbk ( gui );
+}
+
+/******************************************************************************/
+static void alignUVMapCbk ( Widget w, XtPointer client, XtPointer call ) {
+    const char *option = XtName  ( w );
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duimenubar_alignUVMapCbk ( gui, option );
+}
+
+/******************************************************************************/
+Widget createAlignUVMapMenu ( Widget parent, G3DUI *gui, 
+                                             char *name,
+                                             Dimension width ) {
+    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+    Pixel background, foreground;
+    Widget item, menu;
+
+    menu = XmCreatePulldownMenu ( parent, name, NULL, 0x00 );
+
+    XtVaGetValues ( parent, XmNbackground, &background,
+                            XmNforeground, &foreground,
+                            NULL );
+
+    XtVaSetValues ( menu, XmNhighlightThickness, 0x00,
+                          XmNshadowThickness   , 0x01, 
+                          NULL );
+
+    item = XmVaCreateCascadeButton ( parent, name,
+                                     XmNwidth, width,
+                                     XmNrecomputeSize, False,
+                                     XmNfontList, gmt->fontlist,
+                                     XmNhighlightThickness, 0x01,
+                                     XmNshadowThickness, 0x01,
+                                     XmNbackground, background,
+                                     XmNforeground, foreground,
+                                     XmNsubMenuId, menu,
+                                     NULL );
+
+    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPXY, width, alignUVMapCbk );
+    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPYZ, width, alignUVMapCbk );
+    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPZX, width, alignUVMapCbk );
+
+
+    XtManageChild ( item );
+
+
+    return menu;
+}
+
+/******************************************************************************/
+Widget createUVMappingMenu ( Widget bar, G3DUI *gui, 
+                                         char *name,
+                                         Dimension width ) {
+    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+    Pixel background, foreground;
+    Widget item, menu;
+
+    menu = XmCreatePulldownMenu ( bar, "UVMapping", NULL, 0x00 );
+
+    XtVaGetValues ( bar, XmNbackground, &background,
+                         XmNforeground, &foreground,
+                         NULL );
+
+    XtVaSetValues ( menu, XmNhighlightThickness, 0x00,
+                          XmNshadowThickness   , 0x01, 
+                          NULL );
+
+    item = XmVaCreateCascadeButton ( bar, "UVMapping",
+                                     XmNwidth, width,
+                                     XmNrecomputeSize, False,
+                                     XmNfontList, gmt->fontlist,
+                                     XmNhighlightThickness, 0x01,
+                                     XmNshadowThickness, 0x01,
+                                     XmNbackground, background,
+                                     XmNforeground, foreground,
+                                     XmNsubMenuId, menu,
+                                     NULL );
+
+    g3dui_addMenuButton  ( menu, gui, MENU_ADDUVMAP  , width, addUVMapCbk );
+    g3dui_addMenuButton  ( menu, gui, MENU_FITUVMAP  , width, fitUVMapCbk );
+    createAlignUVMapMenu ( menu, gui, MENU_ALIGNUVMAP, width );
+
+    XtManageChild ( item );
+
+
+    return menu;
+}
+
+/******************************************************************************/
 static void renderSettingsCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
     Display *dis = XtDisplay ( w );
@@ -861,65 +1021,6 @@ void g3dui_exitCbk ( Widget w, XtPointer client, XtPointer call ) {
 }
 
 /******************************************************************************/
-Widget g3dui_addMenuSeparator ( Widget wmenu ) {
-    Pixel background, foreground;
-    Widget wbtn;
-
-    XtVaGetValues ( wmenu, XmNbackground, &background,
-                           XmNforeground, &foreground, NULL );
-
-    wbtn = XmVaCreateSeparator ( wmenu, "",
-                                        XmNrecomputeSize, False,
-                                        XmNhighlightThickness, 0x001,
-                                        XmNshadowThickness, 0x01,
-                                        XmNbackground, background,
-                                        XmNforeground, 0x00,
-                                        NULL );
-
-    XtManageChild ( wbtn );
-
-
-    return wbtn;
-}
-
-/******************************************************************************/
-Widget g3dui_addMenuButton ( Widget wmenu, G3DUI *gui, 
-                                           char *name,
-                                           Dimension width,
-                                           void (*cbk) ( Widget, XtPointer, 
-                                                                 XtPointer ) ) {
-    Pixel background, foreground;
-    Widget wbtn;
-    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
-
-    XtVaGetValues ( wmenu, XmNbackground, &background,
-                           XmNforeground, &foreground, NULL );
-
-    /************************************************/
-    /*** XmCreateFileSelectionDialog() called by openfilecbk() crashes ***/
-    /*** if wopen is a PushButtonGadget. So I replace it by a regular  ***/
-    /*** PushButton ***/
-    wbtn = XmVaCreatePushButton ( wmenu, name,
-                                         XmNwidth, width,
-                                         XmNrecomputeSize, False,
-                                         XmNfontList, gmt->fontlist,
-                                         XmNhighlightThickness, 0x01,
-                                         XmNshadowThickness, 0x01,
-                                         XmNbackground, background,
-                                         XmNforeground, 0x00,
-                                         NULL );
-
-    /*** I had some strange behavior using XmNarmCallback.  ***/
-    /*** I switched to XmNactivateCallback. It works better ***/
-    if ( cbk ) XtAddCallback ( wbtn, XmNactivateCallback, cbk, gui );
-
-    XtManageChild ( wbtn );
-
-
-    return wbtn;
-}
-
-/******************************************************************************/
 Widget createExportMenu ( Widget parent, G3DUI *gui, 
                                          char *name,
                                          Dimension width ) {
@@ -1074,11 +1175,12 @@ Widget createMenuBar ( Widget parent, G3DUI *gui,
                                             XmNforeground, foreground,
                                             NULL );
 
-    createFileMenu      ( bar, gui, "FileMenu"     , 120 );
-    createEditMenu      ( bar, gui, "EditMenu"     , 140 );
+    createFileMenu      ( bar, gui, "FileMenu"     , 90  );
+    createEditMenu      ( bar, gui, "EditMenu"     , 100 );
     createObjectsMenu   ( bar, gui, "ObjectsMenu"  , 120 );
     createModifiersMenu ( bar, gui, "ModifiersMenu", 120 );
     createFunctionsMenu ( bar, gui, "FunctionsMenu", 140 );
+    createUVMappingMenu ( bar, gui, "UVMappingMenu", 120 );
     createRenderMenu    ( bar, gui, "RenderMenu"   , 120 );
 
     XtManageChild ( bar );

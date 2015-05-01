@@ -616,11 +616,11 @@ static void gtk_view_event ( GtkWidget *widget, GdkEvent *event,
             /*** cancel renderprocess if any ***/
             /*g3dui_cancelRenderByID ( gui, ( uint64_t ) area );*/
 
-        G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
-        /*** If there was a running render, cancel it and dont go further ***/
-        if ( rps ) {
-            r3dscene_cancelRender ( rps->rsce );
-        }
+            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
+            /*** If there was a running render, cancel it and dont go further ***/
+            if ( rps ) {
+                r3dscene_cancelRender ( rps->rsce );
+            }
 
             view->buttonID = common_g3duiview_getCurrentButton ( view, bev->x, 
                                                                        bev->y );
@@ -1121,12 +1121,30 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
                     common_g3dui_deleteSelectionCbk ( gui );
                 } break;
 
+                case GDK_KEY_z: {
+                    /*** undo ***/
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_g3dui_undoCbk ( gui );
+                    }
+                } break;
+
+                case GDK_KEY_y: {
+                    /*** redo ***/
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_g3dui_redoCbk ( gui );
+                    }
+                } break;
+
                 case GDK_KEY_c: {
                     common_g3dui_copySelectionCbk ( gui );
                 } break;
 
                 case GDK_KEY_v: {
                     common_g3dui_pasteSelectionCbk ( gui );
+                } break;
+
+                case GDK_KEY_a: {
+                    common_g3dui_selectAllCbk ( gui );
                 } break;
             }
         } break;

@@ -1654,6 +1654,7 @@ void g3dui_updateCoords ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+#ifdef UNUSED
 void reloadfilesignal ( int signo, siginfo_t *info, void *extra ) {
     void *ptr_val = info->si_value.sival_ptr;
     /*int int_val = info->si_value.sival_int;*/
@@ -1687,6 +1688,7 @@ void reloadfilesignal ( int signo, siginfo_t *info, void *extra ) {
         /*pthread_detach ( clt->tid );*/
     }
 }
+#endif
 
 /******************************************************************************/
 void g3dui_setHourGlass ( G3DUI *gui ) {

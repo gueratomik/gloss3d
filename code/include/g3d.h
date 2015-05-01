@@ -527,6 +527,7 @@ typedef struct _G3DVERTEX {
     float surface;    /*** average surface of connected faces. Used for ***/
                       /*** scaling normal vector when showing normals ***/
     G3DRTVERTEX     *rtvermem; /*** Vertex buffer in buffered mode ***/
+    struct _G3DVERTEX *subver;
 } G3DVERTEX;
 
 /******************************************************************************/

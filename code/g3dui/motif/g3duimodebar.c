@@ -122,12 +122,12 @@ Widget createModeBar ( Widget parent, G3DUI *gui, char *name,
                                        XmNhighlightThickness, 0x00,
                                        NULL );
 
-    addModeBarButton ( bar, gui, "VIEWOBJECT", objectmode_xpm, g3dui_setMode );
-    addModeBarButton ( bar, gui, "VIEWVERTEX", vertexmode_xpm, g3dui_setMode );
-    addModeBarButton ( bar, gui, "VIEWFACE"  , facemode_xpm  , g3dui_setMode );
-    addModeBarButton ( bar, gui, "VIEWEDGE"  , edgemode_xpm  , g3dui_setMode );
-    addModeBarButton ( bar, gui, "VIEWSKIN"  , skinmode_xpm  , g3dui_setMode );
-    addModeBarButton ( bar, gui, "VIEWUVWMAP", uvwmapmode_xpm, g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWOBJECT, objectmode_xpm, g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
+    addModeBarButton ( bar, gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
 
     XtManageChild ( bar );
 

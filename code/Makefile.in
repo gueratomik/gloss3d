@@ -84,14 +84,14 @@ am__v_lt_0 = --silent
 am__gloss3d_motif_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
 @HAVE_MOTIF_TRUE@am_gloss3d_motif_OBJECTS = $(am__objects_1)
 gloss3d_motif_OBJECTS = $(am_gloss3d_motif_OBJECTS)
-@HAVE_MOTIF_TRUE@gloss3d_motif_DEPENDENCIES = src/g3d/libgloss-g3d.la \
-@HAVE_MOTIF_TRUE@	src/g3dexport/libgloss-g3dexport.la \
-@HAVE_MOTIF_TRUE@	src/g3dimport/libgloss-g3dimport.la \
-@HAVE_MOTIF_TRUE@	src/g3dmouse/libgloss-g3dmouse.la \
-@HAVE_MOTIF_TRUE@	src/g3dcom/libgloss-g3dcom.la \
-@HAVE_MOTIF_TRUE@	src/g3dui/libgloss-g3dui-motif.la \
-@HAVE_MOTIF_TRUE@	src/g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@	src/r3d/libgloss-r3d.la
+@HAVE_MOTIF_TRUE@gloss3d_motif_DEPENDENCIES = g3d/libgloss-g3d.la \
+@HAVE_MOTIF_TRUE@	g3dexport/libgloss-g3dexport.la \
+@HAVE_MOTIF_TRUE@	g3dimport/libgloss-g3dimport.la \
+@HAVE_MOTIF_TRUE@	g3dmouse/libgloss-g3dmouse.la \
+@HAVE_MOTIF_TRUE@	g3dcom/libgloss-g3dcom.la \
+@HAVE_MOTIF_TRUE@	g3dui/libgloss-g3dui-motif.la \
+@HAVE_MOTIF_TRUE@	g3durmanager/libgloss-g3durmanager.la \
+@HAVE_MOTIF_TRUE@	r3d/libgloss-r3d.la
 am__gloss3d_win32_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
 @HAVE_WIN32_TRUE@am_gloss3d_win32_OBJECTS = $(am__objects_1)
 gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
@@ -338,7 +338,7 @@ SUBDIRS = g3d \
 @HAVE_GTK3_TRUE@BINGLOSS3D_C_FILES = main.c \
 @HAVE_GTK3_TRUE@                           list.c
 
-#                          src/r3dnet/libgloss-r3dnet.la
+#                          r3dnet/libgloss-r3dnet.la
 @HAVE_MOTIF_TRUE@BINGLOSS3D_C_FILES = main.c \
 @HAVE_MOTIF_TRUE@                           GLwDrawA.c \
 @HAVE_MOTIF_TRUE@                           GLwMDrawA.c \
@@ -349,14 +349,14 @@ SUBDIRS = g3d \
 @HAVE_WIN32_TRUE@                           list.c
 
 @HAVE_MOTIF_TRUE@gloss3d_motif_SOURCES = $(BINGLOSS3D_C_FILES)
-@HAVE_MOTIF_TRUE@gloss3d_motif_LDADD = src/g3d/libgloss-g3d.la \
-@HAVE_MOTIF_TRUE@                          src/g3dexport/libgloss-g3dexport.la \
-@HAVE_MOTIF_TRUE@                          src/g3dimport/libgloss-g3dimport.la \
-@HAVE_MOTIF_TRUE@                          src/g3dmouse/libgloss-g3dmouse.la \
-@HAVE_MOTIF_TRUE@                          src/g3dcom/libgloss-g3dcom.la \
-@HAVE_MOTIF_TRUE@                          src/g3dui/libgloss-g3dui-motif.la \
-@HAVE_MOTIF_TRUE@                          src/g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@                          src/r3d/libgloss-r3d.la
+@HAVE_MOTIF_TRUE@gloss3d_motif_LDADD = g3d/libgloss-g3d.la \
+@HAVE_MOTIF_TRUE@                          g3dexport/libgloss-g3dexport.la \
+@HAVE_MOTIF_TRUE@                          g3dimport/libgloss-g3dimport.la \
+@HAVE_MOTIF_TRUE@                          g3dmouse/libgloss-g3dmouse.la \
+@HAVE_MOTIF_TRUE@                          g3dcom/libgloss-g3dcom.la \
+@HAVE_MOTIF_TRUE@                          g3dui/libgloss-g3dui-motif.la \
+@HAVE_MOTIF_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
+@HAVE_MOTIF_TRUE@                          r3d/libgloss-r3d.la
 
 @HAVE_WIN32_TRUE@gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
 @HAVE_WIN32_TRUE@gloss3d_win32_LDADD = g3d/libgloss-g3d.la \

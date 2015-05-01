@@ -1051,6 +1051,7 @@ void common_g3dui_alignNormalsCbk       ( G3DUI * );
 void common_g3dui_weldVerticesCbk       ( G3DUI * );
 void common_g3dui_deleteLoneVerticesCbk ( G3DUI * );
 void common_g3dui_invertSelectionCbk    ( G3DUI * );
+void common_g3dui_selectAllCbk          ( G3DUI * );
 
 /************ Functions that shoud be implemented by the toolkit  **************/
 void g3dui_clearMaterials                ( G3DUI * );
