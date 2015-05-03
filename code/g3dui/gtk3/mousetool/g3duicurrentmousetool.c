@@ -110,7 +110,7 @@ GtkWidget *createCurrentMouseTool ( GtkWidget *parent, G3DUI *gui,
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-    createPickToolEdit    ( frm, gui, PICKTOOL   , 0, 0, 320,  64 );
+    createPickToolEdit    ( frm, gui, PICKTOOL   , 0, 0, 320, 192 );
     createCutMeshToolEdit ( frm, gui, CUTMESHTOOL, 0, 0, 320, 320 );
 
     list_insert ( &gui->lmtools, frm );

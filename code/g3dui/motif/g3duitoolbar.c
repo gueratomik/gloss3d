@@ -407,22 +407,15 @@ void renderfinalcbk  ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui   = ( G3DUI * ) client;
     Pixel background, foreground;
     Widget shell, wren, area = NULL;
-    G3DUIRENDERSETTINGS *rsg;
+    G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
+    G3DSCENE  *sce = gui->sce;
+    G3DCAMERA *cam = gui->curcam;
     XWindowAttributes wat;
-    G3DSCENE  *sce;
-    G3DCAMERA *cam;
-    Widget menubar;
-    Widget frm;
-    Widget wfile, cfile, wbtn;
     G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
-
-    /*** Get current render settings ***/
-    rsg = gui->currsg;
-    sce = gui->sce;
-    cam = gui->curcam;
-
-    float ratio = ( rsg->ratio ) ? rsg->ratio : cam->ratio;
-    uint32_t rsgwidth = rsg->height * ratio;
+    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
+    uint32_t rsgwidth  = rsg->height * ratio;
+    uint32_t rsgheight = rsg->height;
+    Widget dial;
 
     /*** This helps up to position the rendering ***/
     /*** window in the middle of the screen. ***/
@@ -432,126 +425,21 @@ void renderfinalcbk  ( Widget w, XtPointer client, XtPointer call ) {
                        XmNforeground, &foreground, NULL );
 
     /*** Start the rendering in a new window ***/
-    shell = XtVaAppCreateShell ( NULL, "Class", topLevelShellWidgetClass,
-                                                dis, 
-                                                XtNtitle,"Render Shell",
-                                                XtNx, ( wat.width  >> 1 ) - ( rsgwidth  >> 1 ),
-                                                XtNy, ( wat.height >> 1 ) - ( rsg->height >> 1 ),
-                                                XtNwidth,  rsgwidth  + 0x02,
-                                                XtNheight, rsg->height + 0x20,
-                                                XmNforeground, foreground,
-                                                XmNbackground, background,
-                                                NULL );
+    dial = XtVaAppCreateShell ( NULL, "Class", topLevelShellWidgetClass,
+                                               dis, 
+                                               XtNtitle,"Render Shell",
+                                               XtNx, ( wat.width  >> 1 ) - ( rsgwidth  >> 1 ),
+                                               XtNy, ( wat.height >> 1 ) - ( rsg->height >> 1 ),
+                                               XtNwidth,  rsgwidth  + 0x02,
+                                               XtNheight, rsg->height + 0x20,
+                                               XmNforeground, foreground,
+                                               XmNbackground, background,
+                                               NULL );
 
-    frm = XmVaCreateManagedForm ( shell, "Form",
-                                          XmNforeground, foreground,
-                                          XmNbackground, background,
-                                          XmNborderWidth, 0x00,
-                                          XmNuserData, gui,
-                                          NULL );
+    createRenderWindow ( dial, gui, "RENDER WINDOW", 0, 0, rsgwidth,
+                                                           rsgheight );
 
-    /************************************************/
-    menubar = XmVaCreateSimpleMenuBar ( frm, "Menubar",
-                                        XmNfontList, gmt->fontlist,
-                                        XmNheight, 0x20,
-                                        XmNwidth, wat.width,
-                                        XmNhighlightThickness, 0x01,
-                                        XmNshadowThickness, 0x01,
-                                        XmNbackground, background,
-                                        XmNforeground, foreground,
-
-                                        XmNtopAttachment  , XmATTACH_FORM,
-                                        XmNleftAttachment , XmATTACH_FORM,
-                                        XmNrightAttachment, XmATTACH_FORM,
-
-                                        NULL );
-
-
-    wfile = XmCreatePulldownMenu ( menubar, "FilePullDown", NULL, 0x00 );
-
-    XtVaSetValues ( wfile, XmNhighlightThickness, 0x00,
-                           XmNshadowThickness   , 0x01, NULL );
-
-    cfile = XmVaCreateCascadeButton ( menubar, "File",
-                                      XmNwidth, 0x60,
-                                      XmNrecomputeSize, False,
-                                      XmNfontList, gmt->fontlist,
-                                      XmNhighlightThickness, 0x01,
-                                      XmNshadowThickness, 0x01,
-                                      XmNbackground, background,
-                                      XmNforeground, 0x00,
-                                      XmNsubMenuId, wfile,
-                                      NULL );
-
-    /*** I dont use the createMenuBarButton convenience function because ***/
-    /*** I dont need to pass GUI as an argument, I need to pass the drawing ***/
-    /*** area as an argument to the activateCallback in order to retrieve ***/
-    /*** the raw image data ***/
-    wbtn = XmVaCreatePushButton ( wfile, "Save as JPG", 
-                                          XmNwidth, 0x60,
-                                          XmNrecomputeSize, False,
-                                          XmNfontList, gmt->fontlist,
-                                          XmNhighlightThickness, 0x00,
-                                          XmNshadowThickness, 0x00,
-                                          XmNbackground, background,
-                                          XmNforeground, 0x00,
-                                          XmNuserData, gui,
-                                          NULL );
-
-    /************************************************/
-
-    /*** This function create a scrolled window ***/
-    wren = XmVaCreateManagedScrolledWindow ( frm, "Render",
-                                             XmNscrollingPolicy, XmAUTOMATIC,
-                                             XmNspacing, 0x00,
-                                             XmNtopShadowColor, background,
-                                             XmNbottomShadowColor, background,
-                                             XmNshadowThickness, 0x01,
-                                             XmNforeground, foreground,
-                                             XmNbackground, background,
-
-                                             XmNtopAttachment   , XmATTACH_WIDGET,
-                                             XmNtopWidget, menubar,
-                                             XmNleftAttachment  , XmATTACH_FORM,
-                                             XmNrightAttachment , XmATTACH_FORM,
-                                             XmNbottomAttachment, XmATTACH_FORM,
-
-                                             XmNuserData, gui,
-                                             NULL );
-
-    area = XmVaCreateManagedDrawingArea ( wren, "Drawing Area",
-                                          XtNx, 0x00,
-                                          XtNy, 0x00,
-                                          XtNwidth , rsgwidth,
-                                          XtNheight, rsg->height,
-                                          XmNforeground, foreground,
-                                          XmNbackground, background,
-                                          XmNborderWidth, 0x00,
-                                          NULL );
-
-    /*** If the rendering window is closed while the raytracer is running,  ***/
-    /*** this will allow us to cleanly terminate the rendering thread using ***/
-    /*** the DrawingArea Widget's destroywindow callback. The R3DSCENE ptr  ***/
-    /*** will be stored in XmNuserData structure member. ***/
-    XtAddCallback ( area, XmNdestroyCallback, renderdestroycbk, NULL );
-    XtAddCallback ( area, XmNexposeCallback, renderexposecbk, NULL );
-
-    /*** now that the drawing area is created, I can create the menu callback */
-    XtAddCallback ( wbtn, XmNactivateCallback, savejpgcbk, area );
-    XtManageChild ( wbtn );
-
-    XtManageChild ( cfile );
-
-    XtManageChild ( menubar );
-
-
-    XtRealizeWidget ( shell );
-
-    /*if ( rsg->startframe == rsg->endframe ) {
-        g3duirendersettings_rendertoimage ( rsg, sce, cam, gui->flags, area );
-    } else {
-        g3duirendersettings_rendertovideo ( rsg, sce, cam, gui->flags, area );
-    }*/
+    XtRealizeWidget ( dial );
 }
 
 /******************************************************************************/

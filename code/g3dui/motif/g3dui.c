@@ -50,58 +50,6 @@ static XtResource widgetRes[] = {
       XtRImmediate, ( XtPointer ) 0x00 } };
 
 /******************************************************************************/
-void g3duicom_goToFrame ( G3DUI *gui, float frame ) {
-    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
-    Display *dis = XtDisplay ( gmt->main );
-    Window win = XtWindow ( gmt->main );
-    XClientMessageEvent client ;
-
-    client.type      = ClientMessage ;
-    client.display   = dis; /* Could be remote */
-    client.window    = win; /* Could be remote */
-
-    /*client.send_event   = True;*/
-    client.format    = 32 ; /*** Why is this needed (crash o/w) ? ***/
-    client.data.l[0] = COMGOTOFRAME;
-
-    memcpy ( &client.data.l[1], &frame, sizeof ( float ) );
-
-    /* Send the data off to the other process */
-    XSendEvent ( dis, win, True, NoEventMask, (XEvent*) &client ) ;
-
-    XFlush ( client.display ) ;
-}
-
-/******************************************************************************/
-static uint32_t gotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
-                                                 float frameID,
-                                                 unsigned char *img, 
-                                                 uint32_t from, 
-                                                 uint32_t to, 
-                                                 uint32_t depth, 
-                                                 uint32_t width ) {
-    G3DUI *gui = ( G3DUI * ) fil->data;
-    float nextframe = frameID + 1.0f;
-
-    g3duicom_goToFrame ( gui, nextframe );
-
-
-    return 0x00;
-}
-
-/******************************************************************************/
-R3DFILTER *r3dfilter_goToFrame_new ( G3DUI *gui ) {
-    R3DFILTER *fil;
-
-    fil = r3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,
-                                       gotoframe_draw, /*** Jump to next frame ***/
-                                       NULL,           /*** don't free ***/
-                                       gui );          /*** userData   ***/
-
-    return fil;
-}
-
-/******************************************************************************/
 static uint32_t cleanMe ( R3DFILTER *fil, R3DSCENE *rsce, 
                                           unsigned char *img, 
                                           uint32_t from, 
@@ -932,7 +880,7 @@ Widget createHorizontalScale ( Widget parent, G3DUI *gui,
                                         XmNwidth, width,
                                         XmNheight, height,
                                         XmNorientation, XmHORIZONTAL,
-                                        XmNshowValue, False,
+                                        XmNshowValue, True,
                                         XmNshadowThickness, 0x01,
                                         XmNdecimalPoints, 0x00,
                                         XmNhighlightOnEnter, False,
@@ -1484,7 +1432,7 @@ void g3dui_setMouseTool ( Widget w, XtPointer client, XtPointer call ) {
 
         gmt->curmou = w;
 
-        /*updateAllCurrentMouseTools ( gui );*/
+        g3dui_updateAllCurrentMouseTools ( gui );
     }
 }
 
@@ -1629,7 +1577,7 @@ void g3dui_updateAllCurrentMouseTools ( G3DUI *gui ) {
     while ( ltmp ) {
         Widget w = ( Widget ) ltmp->data;
 
-        /*updateCurrentMouseTool ( w );*/
+        updateCurrentMouseTool ( w, gui );
 
         ltmp = ltmp->next;
     }
@@ -1645,7 +1593,7 @@ void g3dui_updateCoords ( G3DUI *gui ) {
         while ( ltmpcoordedit ) {
             Widget w = ( Widget ) ltmpcoordedit->data;
 
-            /*updateCoordinatesEdit ( w );*/
+            updateCoordinatesEdit ( w, gui );
 
 
             ltmpcoordedit = ltmpcoordedit->next;

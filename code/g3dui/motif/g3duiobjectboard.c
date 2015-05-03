@@ -61,10 +61,10 @@ Widget createObjectBoard ( Widget parent, G3DUI *gui, char *name,
                                               XmNheight, 0x140,
                                               XmNfontList, gmt->fontlist,
                                               NULL );
-/*
-    createCurrentMouseTool ( tab, gui, "Tool"    , 0x00, 0x00, 0x140, 0x90 );
-    createCoordinatesEdit  ( tab, gui, "Coords"  , 0x00, 0x00, 0x140, 0x90 );*/
-    createCurrentEdit      ( tab, gui, "Object"    , 0, 0, 310, 192 );
+
+    createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
+    createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
+    createCurrentMouseTool ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
 
 
     XtManageChild ( frm );

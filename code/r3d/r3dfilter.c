@@ -865,10 +865,16 @@ uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                     ftw->wimg->bi->bmiHeader.biClrUsed );
             #endif
         } else {
+            XExposeEvent ev = { Expose, 0, 1,  ftw->dis, ftw->win, 0, 0, win_width, win_height, 0 };
+
             #ifdef __linux__
             /*XClearWindow ( ftw->dis, ftw->win );*/
-            XClearArea ( ftw->dis, ftw->win, 0, 0, 0, 0, False );
-
+#ifdef WITH_MOTIF
+/** For some unknon reason, GTK3 does not need exposure signal to be sent. ***/
+/** If I send an exposure event, it flickers. ***/
+XSendEvent ( ftw->dis, ftw->win, False, ExposureMask, &ev );
+#endif
+            /*XFlush ( ftw->dis );*/
             #endif
             #ifdef __MINGW32__
             /*InvalidateRect ( ftw->hWnd, NULL, TRUE );*/

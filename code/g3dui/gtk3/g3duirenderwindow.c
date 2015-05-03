@@ -78,6 +78,9 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                      x, y,
                                      ftw->ximg->width, 
                                      ftw->ximg->height, False );
+            /*** must be called or else expect jerky effects ***/
+            XSync ( ftw->dis, 0 ); 
+            XFlush ( ftw->dis );
             #endif
             #ifdef __MINGW32__
             if ( width  > ftw->wimg->bi->bmiHeader.biWidth  ) x = ( width  - ftw->wimg->bi->bmiHeader.biWidth  ) * 0.5f;
@@ -189,25 +192,25 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         if ( gui->currsg->startframe != gui->currsg->endframe ) {
             /*** this filter tells the engine to go to the next frame ***/
-            R3DFILTER *tofrm = r3dfilter_gotoframe_new ( ggt );
+            R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
 
             list_insert ( &lfilters, tofrm );
 
-            rps = g3dui_render ( gui, ( uint64_t ) widget,
-                                      0x00, 0x00,
-                                      rsg->width  - 0x01,
-                                      rsg->height - 0x01,
-                                      rsg->width,
-                                      rsg->height,
-                                      lfilters, 0x01 );
+            rps = common_g3dui_render ( gui, ( uint64_t ) widget,
+                                             0x00, 0x00,
+                                             rsg->width  - 0x01,
+                                             rsg->height - 0x01,
+                                             rsg->width,
+                                             rsg->height,
+                                             lfilters, 0x01 );
         } else {
-            rps = g3dui_render ( gui, ( uint64_t ) widget,
-                                      0x00, 0x00,
-                                      rsg->width  - 0x01,
-                                      rsg->height - 0x01,
-                                      rsg->width,
-                                      rsg->height,
-                                      lfilters, 0x00 );
+            rps = common_g3dui_render ( gui, ( uint64_t ) widget,
+                                             0x00, 0x00,
+                                             rsg->width  - 0x01,
+                                             rsg->height - 0x01,
+                                             rsg->width,
+                                             rsg->height,
+                                             lfilters, 0x00 );
         }
     }
 }
@@ -558,8 +561,8 @@ GtkWidget *createRenderWindow ( GtkWidget *parent, G3DUI *gui,
     g_signal_connect (G_OBJECT(frm), "size-allocate", G_CALLBACK (wResize) , gui);
     g_signal_connect (G_OBJECT(frm), "realize"      , G_CALLBACK (wRealize), gui);
 
-    createRenderWindowDrawingArea ( frm, gui, "DRW", 0, 32, width, height - 32 );
-    createRenderWindowMenuBar     ( frm, gui, "BAR", 0,  0, width, 32 );
+    createRenderWindowDrawingArea ( frm, gui, RENDERWINDOWMENUWORKAREANAME, 0, 32, width, height - 32 );
+    createRenderWindowMenuBar     ( frm, gui, RENDERWINDOWMENUBARNAME     , 0,  0, width, 32 );
 
     gtk_widget_show ( frm );
 

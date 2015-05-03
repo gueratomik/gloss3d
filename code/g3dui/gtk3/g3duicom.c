@@ -80,7 +80,8 @@ uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 }
 
 /******************************************************************************/
-R3DFILTER *r3dfilter_gotoframe_new ( G3DUIGTK3 *ggt ) {
+R3DFILTER *r3dfilter_gotoframe_new ( G3DUI* gui ) {
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     R3DFILTER *fil;
 
     fil = r3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,

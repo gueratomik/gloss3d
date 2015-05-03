@@ -1,4 +1,4 @@
-AC_INIT(gloss3d,dev-0.2.52)
+AC_INIT(gloss3d,dev-0.2.53)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_HEADERS([include/config.h])
@@ -6,7 +6,7 @@ AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([subdir-objects])
-AM_INIT_AUTOMAKE(gloss3d,dev-0.2.52)
+AM_INIT_AUTOMAKE(gloss3d,dev-0.2.53)
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC

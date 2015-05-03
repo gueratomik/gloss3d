@@ -63,7 +63,6 @@ GtkWidget *createObjectBoard ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(frm), tab, 0x00, 0x140 );
 
-
     createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
     createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
     createCurrentMouseTool ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );

@@ -749,9 +749,9 @@ void *g3duirendersettings_rendertovideo_thread ( G3DUI * );
 void g3dui_rendertowindow ( G3DUI *, G3DCAMERA *, Display *, Window );
 void g3dui_rendervideo    ( G3DUI *, G3DCAMERA * );
 
-void updateSymmetryEdit ( Widget );
-void updatePickToolEdit ( Widget );
-void updateKeyEdit ( Widget );
+void updateSymmetryEdit ( Widget, G3DUI * );
+void updatePickToolEdit ( Widget, G3DUI * );
+void updateKeyEdit ( Widget, G3DUI * );
 
 void g3dui_setSkinMode   ( Widget, XtPointer, XtPointer );
 void g3dui_setUVWMapMode ( Widget, XtPointer, XtPointer );

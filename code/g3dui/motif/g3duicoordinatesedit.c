@@ -30,468 +30,70 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
-static void zscacbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
+static void posCbk ( Widget w, XtPointer client, XtPointer call ) {
+    char *value = XmTextGetString ( w );
+    float val = strtof ( value, NULL );
+    const char *name = XtName ( w );
+    G3DUI *gui = ( G3DUI * ) client;
 
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
+    if ( strcmp ( name, EDITXPOSITION ) == 0x00 ) {
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIXAXIS, val );
+    }
 
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
+    if ( strcmp ( name, EDITYPOSITION ) == 0x00 ) {
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIYAXIS, val );
+    }
 
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float zsca = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->sca.z = zsca;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
+    if ( strcmp ( name, EDITZPOSITION ) == 0x00 ) {
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIZAXIS, val );
     }
 }
 
 /******************************************************************************/
-static void yscacbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
+static void rotCbk ( Widget w, XtPointer client, XtPointer call ) {
+    char *value = XmTextGetString ( w );
+    float val = strtof ( value, NULL );
+    const char *name = XtName ( w );
+    G3DUI *gui = ( G3DUI * ) client;
 
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
+    if ( strcmp ( name, EDITXROTATION ) == 0x00 ) {
+        common_g3duicoordinatesedit_rotCbk ( gui, G3DUIXAXIS, val );
+    }
 
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
+    if ( strcmp ( name, EDITYROTATION ) == 0x00 ) {
+        common_g3duicoordinatesedit_rotCbk ( gui, G3DUIYAXIS, val );
+    }
 
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float ysca = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->sca.y = ysca;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
+    if ( strcmp ( name, EDITZROTATION ) == 0x00 ) {
+        common_g3duicoordinatesedit_rotCbk ( gui, G3DUIZAXIS, val );
     }
 }
 
 /******************************************************************************/
-static void xscacbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
+static void scaCbk ( Widget w, XtPointer client, XtPointer call ) {
+    char *value = XmTextGetString ( w );
+    float val = strtof ( value, NULL );
+    const char *name = XtName ( w );
+    G3DUI *gui = ( G3DUI * ) client;
 
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
+    if ( strcmp ( name, EDITXSCALING ) == 0x00 ) {
+        common_g3duicoordinatesedit_scaCbk ( gui, G3DUIXAXIS, val );
+    }
 
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
+    if ( strcmp ( name, EDITYSCALING ) == 0x00 ) {
+        common_g3duicoordinatesedit_scaCbk ( gui, G3DUIYAXIS, val );
+    }
 
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float xsca = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->sca.x = xsca;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
+    if ( strcmp ( name, EDITZSCALING ) == 0x00 ) {
+        common_g3duicoordinatesedit_scaCbk ( gui, G3DUIZAXIS, val );
     }
 }
 
 /******************************************************************************/
-static void zrotcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float zrot = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->rot.z = zrot;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-static void yrotcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float yrot = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->rot.y = yrot;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-static void xrotcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float xrot = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->rot.x = xrot;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-static void zposcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float zpos = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->pos.z = zpos;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-static void yposcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float ypos = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->pos.y = ypos;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-static void xposcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DURMANAGER *urm = NULL;
-    G3DSCENE     *sce = NULL;
-    G3DOBJECT    *obj = NULL;
-    G3DUI        *gui = NULL;
-
-    /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    /*** prevents a loop when refreshing the widget ***/
-    if ( gui->lock ) return;
-
-    sce = gui->sce;
-    urm = gui->urm;
-    obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float xpos = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-            obj->pos.x = xpos;
-
-            g3dobject_updateMatrix_r ( obj, gui->flags );
-
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca, REDRAWVIEW );
-        }
-
-        /*if ( ( gui->flags & VIEWVERTEX ) ||
-             ( gui->flags & VIEWEDGE   ) ||
-             ( gui->flags & VIEWFACE   ) ) {
-            if ( obj->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                LIST *ltmpver, *lver = NULL;
-
-                if ( gui->flags & VIEWVERTEX ) lver = list_copy                   ( mes->lselver );
-                if ( gui->flags & VIEWEDGE   ) lver = g3dedge_getVerticesFromList ( mes->lselfac );
-                if ( gui->flags & VIEWFACE   ) lver = g3dface_getVerticesFromList ( mes->lseledg );
-
-                ltmpver = lver;
-
-                while ( ltmpver ) {
-                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-                    ver->pos.x = xpos;
-
-                    if ( obj->parent && obj->parent->childvertexchange ) {
-                        obj->parent->childvertexchange ( obj->parent, obj, ver );
-                    }
-
-                    ltmpver = ltmpver->next;
-                }
-
-                list_free ( &lver, NULL );
-            }
-        }*/
-
-        g3dui_unsetHourGlass ( gui );
-
-        XtFree ( value );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void updateCoordinatesEdit ( Widget w ) {
+void updateCoordinatesEdit ( Widget w, G3DUI *gui ) {
     WidgetList children;
-    G3DOBJECT *obj;
-    G3DSCENE *sce;
-    G3DUI *gui;
-
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    sce = gui->sce;
-    obj = g3dscene_getSelectedObject ( sce );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     /*** prevent useless primitive building when XmTextSetString is called, ***/
     /*** as XmTextSetString will call XmNvalueChanged callback whereas we   ***/
@@ -573,6 +175,13 @@ void updateCoordinatesEdit ( Widget w ) {
 }
 
 /******************************************************************************/
+static void Destroy ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    list_remove ( &gui->lcoordedit, w );
+}
+
+/******************************************************************************/
 Widget createCoordinatesEdit ( Widget parent, G3DUI *gui, char *name,
                                Dimension x    , Dimension y,
                                Dimension width, Dimension height ) {
@@ -593,8 +202,8 @@ Widget createCoordinatesEdit ( Widget parent, G3DUI *gui, char *name,
                                   NULL );
 
     rwc = XmVaCreateRowColumn ( frm, name,
-                                XmNx, x,
-                                XmNy, y,
+                                XmNx, 0,
+                                XmNy, 0,
                                 XmNwidth , width,
                                 XmNheight, height,
                                 XmNnumColumns, 0x03,
@@ -606,27 +215,31 @@ Widget createCoordinatesEdit ( Widget parent, G3DUI *gui, char *name,
                                 XmNuserData, gui,
                                 NULL );
 
-     createSimpleLabel ( rwc, "Position"   , 0x00, 0x00, 0x60 );
-     createFloatText   ( rwc, EDITXPOSITION, 0x00, 0x00, 0x00, 0x60, xposcbk );
-     createFloatText   ( rwc, EDITYPOSITION, 0x00, 0x00, 0x00, 0x60, yposcbk );
-     createFloatText   ( rwc, EDITZPOSITION, 0x00, 0x00, 0x00, 0x60, zposcbk );
+    createSimpleLabel ( rwc, gui, "Position"   ,   0,  0, 0, 96 );
+    createFloatText   ( rwc, gui, EDITXPOSITION,   0, 24, 0, 96, posCbk );
+    createFloatText   ( rwc, gui, EDITYPOSITION,   0, 48, 0, 96, posCbk );
+    createFloatText   ( rwc, gui, EDITZPOSITION,   0, 72, 0, 96, posCbk );
 
-     createSimpleLabel ( rwc, "Rotation"   , 0x00, 0x00, 0x60 );
-     createFloatText   ( rwc, EDITXROTATION, 0x00, 0x00, 0x00, 0x60, xrotcbk );
-     createFloatText   ( rwc, EDITYROTATION, 0x00, 0x00, 0x00, 0x60, yrotcbk );
-     createFloatText   ( rwc, EDITZROTATION, 0x00, 0x00, 0x00, 0x60, zrotcbk );
+    createSimpleLabel ( rwc, gui, "Rotation"   ,  96,  0, 0, 96 );
+    createFloatText   ( rwc, gui, EDITXROTATION,  96, 24, 0, 96, rotCbk );
+    createFloatText   ( rwc, gui, EDITYROTATION,  96, 48, 0, 96, rotCbk );
+    createFloatText   ( rwc, gui, EDITZROTATION,  96, 72, 0, 96, rotCbk );
 
-     createSimpleLabel ( rwc, "Scaling"   , 0x00, 0x00, 0x60 );
-     createFloatText   ( rwc, EDITXSCALING, 0x00, 0x00, 0x00, 0x60, xscacbk );
-     createFloatText   ( rwc, EDITYSCALING, 0x00, 0x00, 0x00, 0x60, yscacbk );
-     createFloatText   ( rwc, EDITZSCALING, 0x00, 0x00, 0x00, 0x60, zscacbk );
+    createSimpleLabel ( rwc, gui, "Scaling"    , 192,  0, 0, 96 );
+    createFloatText   ( rwc, gui, EDITXSCALING , 192, 24, 0, 96, scaCbk );
+    createFloatText   ( rwc, gui, EDITYSCALING , 192, 48, 0, 96, scaCbk );
+    createFloatText   ( rwc, gui, EDITZSCALING , 192, 72, 0, 96, scaCbk );
 
     /*coords = createObjectCoordinates ( frm, gui, "COORDINATES",
                                        x, y, width, height );*/
 
+    XtAddCallback ( rwc, XmNdestroyCallback, Destroy, gui );
+
     XtManageChild ( rwc );
 
-    list_insert ( &gui->lcoord, rwc );
+    updateCoordinatesEdit ( rwc, gui );
+
+    list_insert ( &gui->lcoordedit, rwc );
 
 
     return frm;

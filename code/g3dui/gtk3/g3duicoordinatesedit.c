@@ -160,6 +160,7 @@ void updateCoordinatesEdit ( GtkWidget *widget, G3DUI *gui ) {
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
+    list_remove ( &gui->lcoordedit, widget );
 }
 
 /******************************************************************************/

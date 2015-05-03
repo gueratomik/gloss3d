@@ -31,10 +31,10 @@
 
 /******************************************************************************/
 static void paintRadiusCbk  ( GtkWidget *widget, gpointer user_data ) {
-    int rad = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    int radius = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui    = ( G3DUI * ) user_data;
 
-    common_g3duipicktooledit_paintRadiusCbk ( gui, rad );
+    common_g3duipicktooledit_paintRadiusCbk ( gui, radius );
 }
 
 /******************************************************************************/

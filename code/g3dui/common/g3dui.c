@@ -39,6 +39,85 @@
 #include <xpm/extrude.xpm>
 
 /******************************************************************************/
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
+                                                      uint32_t x1, uint32_t y1,
+                                                      uint32_t x2, uint32_t y2,
+                                                      uint32_t width, uint32_t height,
+                                                      LIST *lfilters,
+                                                      uint32_t sequence ) {
+
+    G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
+    G3DCAMERA *cam = gui->curcam;
+    G3DSCENE *sce = gui->sce;
+
+    /*** Don't start a new render before the current one has finished ***/
+    /*if ( rpc == NULL ) {*/
+        G3DUIRENDERPROCESS *rps;
+        R3DSCENE *rsce  = NULL;
+        #ifdef __linux__
+        pthread_attr_t attr;
+        pthread_t tid;
+
+        /*r3dfilter_setType ( towin, FILTERLINE );*/
+
+        pthread_attr_init ( &attr );
+
+        /*** start thread son all CPUs ***/
+        pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
+        #endif
+
+        rsce = r3dscene_new ( sce, cam, x1, y1,
+                                        x2, y2,
+                                        width, height,
+                                        rsg->background,
+                                        rsg->startframe,
+                                        rsg->endframe,
+                                        lfilters );
+
+        /*** launch rays in a thread ***/
+        if ( sequence ) {
+            #ifdef __linux__
+            pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_sequence_t, rsce );
+            #endif
+
+            #ifdef __MINGW32__
+            rsce->tid = CreateThread ( NULL, 
+                                       0,
+                                       (LPTHREAD_START_ROUTINE) r3dscene_render_sequence_t, 
+                                       rsce,
+                                       0,
+                                       NULL );
+            #endif
+        } else {
+            #ifdef __linux__
+            pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_frame_t, rsce );
+            #endif
+
+            #ifdef __MINGW32__
+            rsce->tid = CreateThread ( NULL, 
+                                       0,
+                                       (LPTHREAD_START_ROUTINE) r3dscene_render_frame_t, 
+                                       rsce,
+                                       0,
+                                       NULL );
+            #endif
+        }
+
+        /*** Remember the thread id for cancelling on mouse input e.g ***/
+        /*** We use the widget as an ID ***/
+        rps = g3duirenderprocess_new ( id, rsce, NULL/*towin*/, NULL/*tobuf*/ );
+
+        /*** register the renderprocess so that we can cancel it ***/
+        list_insert ( &gui->lrps, rps );
+
+        /*** prepare to release resources after thread termination ***/
+        /*pthread_detach ( tid );*/
+    /*}*/
+
+    return rps;
+}
+
+/******************************************************************************/
 void common_g3dui_selectAllCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
 

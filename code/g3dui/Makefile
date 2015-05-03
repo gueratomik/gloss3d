@@ -114,18 +114,21 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c motif/TabbedBook.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
-	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
-	motif/g3duicylinderedit.c motif/g3duiffdedit.c \
-	motif/g3duilist.c motif/g3duimainboard.c \
+	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
+	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
+	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
 	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
 	motif/g3duimateriallist.c motif/g3duimeshedit.c \
 	motif/g3duimenubar.c motif/g3duimodebar.c \
 	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
 	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duisphereedit.c \
-	motif/g3duitimeline.c motif/g3duitimeboard.c \
-	motif/g3duitoolbar.c motif/g3duiview.c \
-	motif/g3duiweightgrouplist.c
+	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
+	motif/g3duisphereedit.c motif/g3duitimeline.c \
+	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiweightgrouplist.c \
+	motif/mousetool/g3duicurrentmousetool.c \
+	motif/mousetool/g3duicutmeshtooledit.c \
+	motif/mousetool/g3duipicktooledit.c
 am__dirstamp = $(am__leading_dot)dirstamp
 ##am__objects_1 = common/g3dui.lo \
 ##	common/g3duiboneedit.lo \
@@ -169,6 +172,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 ##	motif/ColorEdit.lo \
 ##	motif/g3dui.lo \
 ##	motif/g3duicom.lo \
+##	motif/g3duicoordinatesedit.lo \
 ##	motif/g3duicubeedit.lo \
 ##	motif/g3duicurrentedit.lo \
 ##	motif/g3duicylinderedit.lo \
@@ -186,12 +190,16 @@ am__dirstamp = $(am__leading_dot)dirstamp
 ##	motif/g3duiobjectedit.lo \
 ##	motif/g3duiquad.lo \
 ##	motif/g3duirenderedit.lo \
+##	motif/g3duirenderwindow.lo \
 ##	motif/g3duisphereedit.lo \
 ##	motif/g3duitimeline.lo \
 ##	motif/g3duitimeboard.lo \
 ##	motif/g3duitoolbar.lo \
 ##	motif/g3duiview.lo \
-##	motif/g3duiweightgrouplist.lo
+##	motif/g3duiweightgrouplist.lo \
+##	motif/mousetool/g3duicurrentmousetool.lo \
+##	motif/mousetool/g3duicutmeshtooledit.lo \
+##	motif/mousetool/g3duipicktooledit.lo
 am__objects_1 = common/g3dui.lo \
 	common/g3duiboneedit.lo \
 	common/g3duibonelinker.lo \
@@ -300,18 +308,21 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c motif/TabbedBook.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
-	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
-	motif/g3duicylinderedit.c motif/g3duiffdedit.c \
-	motif/g3duilist.c motif/g3duimainboard.c \
+	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
+	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
+	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
 	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
 	motif/g3duimateriallist.c motif/g3duimeshedit.c \
 	motif/g3duimenubar.c motif/g3duimodebar.c \
 	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
 	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duisphereedit.c \
-	motif/g3duitimeline.c motif/g3duitimeboard.c \
-	motif/g3duitoolbar.c motif/g3duiview.c \
-	motif/g3duiweightgrouplist.c
+	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
+	motif/g3duisphereedit.c motif/g3duitimeline.c \
+	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiweightgrouplist.c \
+	motif/mousetool/g3duicurrentmousetool.c \
+	motif/mousetool/g3duicutmeshtooledit.c \
+	motif/mousetool/g3duipicktooledit.c
 #am_libgloss_g3dui_motif_la_OBJECTS =  \
 #	$(am__objects_1)
 libgloss_g3dui_motif_la_OBJECTS =  \
@@ -403,10 +414,10 @@ OTOOL64 =
 PACKAGE = gloss3d
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = gloss3d
-PACKAGE_STRING = gloss3d dev-0.2.52
+PACKAGE_STRING = gloss3d dev-0.2.53
 PACKAGE_TARNAME = gloss3d
 PACKAGE_URL = 
-PACKAGE_VERSION = dev-0.2.52
+PACKAGE_VERSION = dev-0.2.53
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -416,7 +427,7 @@ SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = dev-0.2.52
+VERSION = dev-0.2.53
 abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dui
 abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dui
 abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
@@ -603,6 +614,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
 #                            motif/ColorEdit.c \
 #                            motif/g3dui.c \
 #                            motif/g3duicom.c \
+#                            motif/g3duicoordinatesedit.c \
 #                            motif/g3duicubeedit.c \
 #                            motif/g3duicurrentedit.c \
 #                            motif/g3duicylinderedit.c \
@@ -620,12 +632,16 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
 #                            motif/g3duiobjectedit.c \
 #                            motif/g3duiquad.c \
 #                            motif/g3duirenderedit.c \
+#                            motif/g3duirenderwindow.c \
 #                            motif/g3duisphereedit.c \
 #                            motif/g3duitimeline.c \
 #                            motif/g3duitimeboard.c \
 #                            motif/g3duitoolbar.c \
 #                            motif/g3duiview.c \
-#                            motif/g3duiweightgrouplist.c
+#                            motif/g3duiweightgrouplist.c \
+#                            motif/mousetool/g3duicurrentmousetool.c \
+#                            motif/mousetool/g3duicutmeshtooledit.c \
+#                            motif/mousetool/g3duipicktooledit.c
 
 #libgloss_g3dui_motif_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 all: all-am
@@ -888,6 +904,8 @@ motif/ColorEdit.lo: motif/$(am__dirstamp) \
 motif/g3dui.lo: motif/$(am__dirstamp) motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duicom.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duicoordinatesedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duicubeedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duicurrentedit.lo: motif/$(am__dirstamp) \
@@ -922,6 +940,8 @@ motif/g3duiquad.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duirenderedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duirenderwindow.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duisphereedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duitimeline.lo: motif/$(am__dirstamp) \
@@ -934,6 +954,20 @@ motif/g3duiview.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duiweightgrouplist.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/mousetool/$(am__dirstamp):
+	@$(MKDIR_P) motif/mousetool
+	@: > motif/mousetool/$(am__dirstamp)
+motif/mousetool/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) motif/mousetool/$(DEPDIR)
+	@: > motif/mousetool/$(DEPDIR)/$(am__dirstamp)
+motif/mousetool/g3duicurrentmousetool.lo:  \
+	motif/mousetool/$(am__dirstamp) \
+	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
+motif/mousetool/g3duicutmeshtooledit.lo:  \
+	motif/mousetool/$(am__dirstamp) \
+	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
+motif/mousetool/g3duipicktooledit.lo: motif/mousetool/$(am__dirstamp) \
+	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
 libgloss-g3dui-gtk3.la: $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) $(am_libgloss_g3dui_gtk3_la_rpath) $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_LIBADD) $(LIBS)
 libgloss-g3dui-motif.la: $(libgloss_g3dui_motif_la_OBJECTS) $(libgloss_g3dui_motif_la_DEPENDENCIES) 
@@ -1107,6 +1141,8 @@ mostlyclean-compile:
 	-rm -f motif/g3dui.lo
 	-rm -f motif/g3duicom.$(OBJEXT)
 	-rm -f motif/g3duicom.lo
+	-rm -f motif/g3duicoordinatesedit.$(OBJEXT)
+	-rm -f motif/g3duicoordinatesedit.lo
 	-rm -f motif/g3duicubeedit.$(OBJEXT)
 	-rm -f motif/g3duicubeedit.lo
 	-rm -f motif/g3duicurrentedit.$(OBJEXT)
@@ -1141,6 +1177,8 @@ mostlyclean-compile:
 	-rm -f motif/g3duiquad.lo
 	-rm -f motif/g3duirenderedit.$(OBJEXT)
 	-rm -f motif/g3duirenderedit.lo
+	-rm -f motif/g3duirenderwindow.$(OBJEXT)
+	-rm -f motif/g3duirenderwindow.lo
 	-rm -f motif/g3duisphereedit.$(OBJEXT)
 	-rm -f motif/g3duisphereedit.lo
 	-rm -f motif/g3duitimeboard.$(OBJEXT)
@@ -1153,6 +1191,12 @@ mostlyclean-compile:
 	-rm -f motif/g3duiview.lo
 	-rm -f motif/g3duiweightgrouplist.$(OBJEXT)
 	-rm -f motif/g3duiweightgrouplist.lo
+	-rm -f motif/mousetool/g3duicurrentmousetool.$(OBJEXT)
+	-rm -f motif/mousetool/g3duicurrentmousetool.lo
+	-rm -f motif/mousetool/g3duicutmeshtooledit.$(OBJEXT)
+	-rm -f motif/mousetool/g3duicutmeshtooledit.lo
+	-rm -f motif/mousetool/g3duipicktooledit.$(OBJEXT)
+	-rm -f motif/mousetool/g3duipicktooledit.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -1240,6 +1284,7 @@ include motif/$(DEPDIR)/ColorEdit.Plo
 include motif/$(DEPDIR)/TabbedBook.Plo
 include motif/$(DEPDIR)/g3dui.Plo
 include motif/$(DEPDIR)/g3duicom.Plo
+include motif/$(DEPDIR)/g3duicoordinatesedit.Plo
 include motif/$(DEPDIR)/g3duicubeedit.Plo
 include motif/$(DEPDIR)/g3duicurrentedit.Plo
 include motif/$(DEPDIR)/g3duicylinderedit.Plo
@@ -1257,12 +1302,16 @@ include motif/$(DEPDIR)/g3duiobjectedit.Plo
 include motif/$(DEPDIR)/g3duiplaneedit.Plo
 include motif/$(DEPDIR)/g3duiquad.Plo
 include motif/$(DEPDIR)/g3duirenderedit.Plo
+include motif/$(DEPDIR)/g3duirenderwindow.Plo
 include motif/$(DEPDIR)/g3duisphereedit.Plo
 include motif/$(DEPDIR)/g3duitimeboard.Plo
 include motif/$(DEPDIR)/g3duitimeline.Plo
 include motif/$(DEPDIR)/g3duitoolbar.Plo
 include motif/$(DEPDIR)/g3duiview.Plo
 include motif/$(DEPDIR)/g3duiweightgrouplist.Plo
+include motif/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
+include motif/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
+include motif/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1301,6 +1350,7 @@ clean-libtool:
 	-rm -rf gtk3/.libs gtk3/_libs
 	-rm -rf gtk3/mousetool/.libs gtk3/mousetool/_libs
 	-rm -rf motif/.libs motif/_libs
+	-rm -rf motif/mousetool/.libs motif/mousetool/_libs
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -1422,6 +1472,8 @@ distclean-generic:
 	-rm -f gtk3/mousetool/$(am__dirstamp)
 	-rm -f motif/$(DEPDIR)/$(am__dirstamp)
 	-rm -f motif/$(am__dirstamp)
+	-rm -f motif/mousetool/$(DEPDIR)/$(am__dirstamp)
+	-rm -f motif/mousetool/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1432,7 +1484,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf common/$(DEPDIR) common/mousetool/$(DEPDIR) gtk3/$(DEPDIR) gtk3/mousetool/$(DEPDIR) motif/$(DEPDIR)
+	-rm -rf common/$(DEPDIR) common/mousetool/$(DEPDIR) gtk3/$(DEPDIR) gtk3/mousetool/$(DEPDIR) motif/$(DEPDIR) motif/mousetool/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1478,7 +1530,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf common/$(DEPDIR) common/mousetool/$(DEPDIR) gtk3/$(DEPDIR) gtk3/mousetool/$(DEPDIR) motif/$(DEPDIR)
+	-rm -rf common/$(DEPDIR) common/mousetool/$(DEPDIR) gtk3/$(DEPDIR) gtk3/mousetool/$(DEPDIR) motif/$(DEPDIR) motif/mousetool/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -1514,21 +1566,9 @@ uninstall-am: uninstall-libLTLIBRARIES
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
 
-#                            motif/ColorEdit.c \
-#                            motif/g3duicubeedit.c \
-#                            motif/g3duicurrentedit.c \
-#                            motif/g3duicylinderedit.c \
 #                            motif/g3duilightsettings.c \
-#                            motif/g3duilist.c \
 #                            motif/g3duimaterialsettings.c \
-#                            motif/g3duirenderedit.c \
-#                            motif/g3duimenubar.c \
-#                            motif/g3duimeshedit.c \
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duimodebar.c \
-#                            motif/g3duiobjectedit.c \
-#                            motif/g3duiquad.c \
-#                            motif/g3duisphereedit.c \
 #                            motif/g3duiuvmapedit.c \
 #                            motif/g3duitab.c \
 #                            motif/g3duiconf.c \
@@ -1538,17 +1578,9 @@ uninstall-am: uninstall-libLTLIBRARIES
 #                            motif/g3duiview.c \
 #                            motif/g3duisymmetryedit.c \
 #                            motif/g3duirenderwindow.c \
-#                            motif/MaterialBoard.c \
-#                            motif/MaterialEdit.c \
-#                            motif/MaterialList.c \
-#                            motif/TabbedBook.c \
-#                            motif/g3duimousetools.c \
-#                            motif/g3duiffdedit.c \
-#                            motif/g3duiplaneedit.c \
 #                            motif/g3duitorusedit.c \
 #                            motif/g3duicoordinatesedit.c \
 #                            motif/g3duikeyedit.c \
-#                            motif/g3duiobjectboard.c \
 #                            motif/g3duiclipboard.c
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -135,6 +135,7 @@ if HAVE_MOTIF
                             motif/ColorEdit.c \
                             motif/g3dui.c \
                             motif/g3duicom.c \
+                            motif/g3duicoordinatesedit.c \
                             motif/g3duicubeedit.c \
                             motif/g3duicurrentedit.c \
                             motif/g3duicylinderedit.c \
@@ -152,29 +153,21 @@ if HAVE_MOTIF
                             motif/g3duiobjectedit.c \
                             motif/g3duiquad.c \
                             motif/g3duirenderedit.c \
+                            motif/g3duirenderwindow.c \
                             motif/g3duisphereedit.c \
                             motif/g3duitimeline.c \
                             motif/g3duitimeboard.c \
                             motif/g3duitoolbar.c \
                             motif/g3duiview.c \
-                            motif/g3duiweightgrouplist.c
+                            motif/g3duiweightgrouplist.c \
+                            motif/mousetool/g3duicurrentmousetool.c \
+                            motif/mousetool/g3duicutmeshtooledit.c \
+                            motif/mousetool/g3duipicktooledit.c
 endif
 
-#                            motif/ColorEdit.c \
-#                            motif/g3duicubeedit.c \
-#                            motif/g3duicurrentedit.c \
-#                            motif/g3duicylinderedit.c \
 #                            motif/g3duilightsettings.c \
-#                            motif/g3duilist.c \
 #                            motif/g3duimaterialsettings.c \
-#                            motif/g3duirenderedit.c \
-#                            motif/g3duimenubar.c \
-#                            motif/g3duimeshedit.c \
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duimodebar.c \
-#                            motif/g3duiobjectedit.c \
-#                            motif/g3duiquad.c \
-#                            motif/g3duisphereedit.c \
 #                            motif/g3duiuvmapedit.c \
 #                            motif/g3duitab.c \
 #                            motif/g3duiconf.c \
@@ -184,15 +177,7 @@ endif
 #                            motif/g3duiview.c \
 #                            motif/g3duisymmetryedit.c \
 #                            motif/g3duirenderwindow.c \
-#                            motif/MaterialBoard.c \
-#                            motif/MaterialEdit.c \
-#                            motif/MaterialList.c \
-#                            motif/TabbedBook.c \
-#                            motif/g3duimousetools.c \
-#                            motif/g3duiffdedit.c \
-#                            motif/g3duiplaneedit.c \
 #                            motif/g3duitorusedit.c \
 #                            motif/g3duicoordinatesedit.c \
 #                            motif/g3duikeyedit.c \
-#                            motif/g3duiobjectboard.c \
 #                            motif/g3duiclipboard.c
