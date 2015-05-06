@@ -726,8 +726,8 @@ Widget createMaterialEdit ( Widget parent, G3DUI *gui,
     createCharText ( frm, gui, EDITMATERIALNAME, 0, 0, 96, 96, setMaterialNameCbk );
 
     tab =  XmVaCreateManagedTabbedBook ( frm, EDITMATERIALCHANNELS,
-                                         XmNx, 0x00,
-                                         XmNy, 0x18,
+                                         XmNx,  0,
+                                         XmNy, 24,
                                          XmNwidth, width,
                                          XmNheight, height,
                                          XmNfontList, gmt->fontlist,

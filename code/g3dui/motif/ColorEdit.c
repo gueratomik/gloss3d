@@ -38,15 +38,10 @@ static XtWidgetProc Resize    ( Widget );
 static XtExposeProc Redisplay ( Widget, XEvent *, Region );
 
 static void drawCursor ( XImage *, XImage *, int, int );
-static void triangle_init ( TRIANGLE *, unsigned char *,
-                                        unsigned char *,
-                                        unsigned char *,
-                                        int *,
-                                        int * );
 static void updateText ( Widget );
 static void sendColorEvent ( Widget, int, XEvent * );
 static void GColorEditMouseEvent ( Widget, XEvent *, String *, Cardinal * );
-void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk );
+void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk, uint32_t );
 void drawline ( int, int, int, int, int, int, int, int, int, int, HLINE * );
 static uint32_t triangle_rgbIn ( TRIANGLE *, unsigned char,
                                              unsigned char,
@@ -54,7 +49,8 @@ static uint32_t triangle_rgbIn ( TRIANGLE *, unsigned char,
                                              float *,
                                              float *,
                                              float * );
-static uint32_t triangle_pointIn ( TRIANGLE *, int,
+static uint32_t triangle_pointIn ( TRIANGLE *, XImage *,
+                                               int,
                                                int,
                                                float *,
                                                float *,
@@ -66,7 +62,8 @@ static uint32_t hexagon_rgb2xy ( HEXAGON *, unsigned char,
                                             unsigned char,
                                             int *,
                                             int *, unsigned char * );
-static uint32_t hexagon_xy2rgb ( HEXAGON *, int,
+static uint32_t hexagon_xy2rgb ( HEXAGON *, XImage *,
+                                            int,
                                             int,
                                             unsigned char *,
                                             unsigned char *,
@@ -75,7 +72,7 @@ static void triangle_init ( TRIANGLE *, unsigned char *,
                                         unsigned char *,
                                         unsigned char *,
                                         int *,
-                                        int * );
+                                        int *, uint32_t );
 static void triangle_draw ( TRIANGLE *, XImage *, XImage * );
 static void hexagon_draw  ( HEXAGON *, XImage *, XImage *, int, int );
 static void fillBackground ( XImage *, Pixel );
@@ -212,7 +209,8 @@ static void GColorEditMouseEvent ( Widget w, XEvent *event,
                                                 xcw->coloredit.csrx,
                                                 xcw->coloredit.csry );
 
-            if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.csrx,
+            if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.mskimg,
+                                                       xcw->coloredit.csrx,
                                                        xcw->coloredit.csry,
                                                        &R, &G, &B ) ) {
                 xcw->coloredit.pixel = ( R << 0x10 ) | ( G << 0x08 ) | B;
@@ -251,7 +249,8 @@ static void GColorEditMouseEvent ( Widget w, XEvent *event,
                                                     xcw->coloredit.csrx,
                                                     xcw->coloredit.csry );
 
-                if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.csrx,
+                if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.mskimg,
+                                                           xcw->coloredit.csrx,
                                                            xcw->coloredit.csry,
                                                            &R, &G, &B ) ) {
                     xcw->coloredit.pixel = ( R << 0x10 ) | ( G << 0x08 ) | B;
@@ -300,7 +299,8 @@ static XtResource widgetRes[] = {
       XtRImmediate, ( XtPointer ) NULL } };
 
 /******************************************************************************/
-void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk ) {
+void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk, 
+                                                   uint32_t msk_color ) {
     int dx = ( hline->x2 - hline->x1 ), ddx = ( dx ) ? abs ( dx ) : 0x01;
     int dr = ( hline->r2 - hline->r1 );
     int dg = ( hline->g2 - hline->g1 );
@@ -325,8 +325,8 @@ void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk ) {
                 int B = ( b >> 0x08 ) >> 0x03;
                 unsigned long pixel = ( ( R << 0x0B ) | ( G << 0x05 ) | B );
 
-                img->f.put_pixel ( img, x, y, pixel );
-                msk->f.put_pixel ( msk, x, y, 0x01  );
+                img->f.put_pixel ( img, x, y, pixel      );
+                msk->f.put_pixel ( msk, x, y, msk_color  );
 
                 x += px;
 
@@ -344,8 +344,8 @@ void drawhline ( HLINE *hline, int y, XImage *img, XImage *msk ) {
                 int B = ( b >> 0x08 );
                 unsigned long pixel = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 
-                img->f.put_pixel ( img, x, y, pixel );
-                msk->f.put_pixel ( msk, x, y, 0x01  );
+                img->f.put_pixel ( img, x, y, pixel      );
+                msk->f.put_pixel ( msk, x, y, msk_color  );
 
                 x += px;
 
@@ -551,7 +551,8 @@ static uint32_t triangle_rgbIn ( TRIANGLE *tri, unsigned char r,
 }
 
 /******************************************************************************/
-static uint32_t triangle_pointIn ( TRIANGLE *tri, int csrx, 
+static uint32_t triangle_pointIn ( TRIANGLE *tri, XImage *msk,
+                                                  int csrx, 
                                                   int csry,
                                                   float *RAT0,
                                                   float *RAT1,
@@ -582,11 +583,13 @@ static uint32_t triangle_pointIn ( TRIANGLE *tri, int csrx,
     LEN1 = g3dvector_length ( &c1 );
     LEN2 = g3dvector_length ( &c2 );
 
-    if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF + EPSILON ) ) {
+
+
+    /*** for the colision test we just use a hidden image ***/
+    if ( tri->msk_color == msk->f.get_pixel ( msk, csrx, csry ) ) {
         if ( RAT2 ) (*RAT2) = ( LEN0 / LENF );
         if ( RAT0 ) (*RAT0) = ( LEN1 / LENF );
         if ( RAT1 ) (*RAT1) = ( LEN2 / LENF );
-
 
         return 0x01;
     }
@@ -608,8 +611,9 @@ static void hexagon_gray ( HEXAGON *hex, unsigned char gray ) {
 /******************************************************************************/
 static void hexagon_init ( HEXAGON *hex, unsigned char gray ) {
     /*** the hexagon is made of 6 triangles pointing to its middle ***/
-    int xval[0x06] = { 0x7F, 0xE4, 0xE4, 0x7F, 0x12, 0x12 },
-        yval[0x06] = { 0x00, 0x40, 0xC0, 0xFF, 0xC0, 0x40 };
+    int xval[0x06] = { 128, 240, 240, 128,  16, 16 },
+        yval[0x06] = {   0,  64, 192, 255, 192, 64 };
+    uint32_t msk_color[0x06] = { 0x1010, 0x2020, 0x3030, 0x4040, 0x5050, 0x6060 };
     /*** red, magenta, blue, cyan, green, yellow ***/
     unsigned char rval[0x06] = { 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF },
                   gval[0x06] = { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF },
@@ -624,7 +628,7 @@ static void hexagon_init ( HEXAGON *hex, unsigned char gray ) {
         int X[0x03] = { HEXIMGORIG, xval[i], xval[n] },
             Y[0x03] = { HEXIMGORIG, yval[i], yval[n] };
 
-        triangle_init ( &hex->tri[i], R, G, B, X, Y );
+        triangle_init ( &hex->tri[i], R, G, B, X, Y, msk_color[i] );
     }
 }
 
@@ -663,7 +667,8 @@ static uint32_t hexagon_rgb2xy ( HEXAGON *hex, unsigned char r,
 }
 
 /******************************************************************************/
-static uint32_t hexagon_xy2rgb ( HEXAGON *hex, int csrx,
+static uint32_t hexagon_xy2rgb ( HEXAGON *hex, XImage *msk,
+                                               int csrx,
                                                int csry,
                                                unsigned char *R,
                                                unsigned char *G,
@@ -672,20 +677,27 @@ static uint32_t hexagon_xy2rgb ( HEXAGON *hex, int csrx,
 
     for ( i = 0x00; i < 0x06; i++ ) {
         float RAT0, RAT1, RAT2;
+        uint32_t r, g, b;
 
-        if ( triangle_pointIn ( &hex->tri[i], csrx, 
+        if ( triangle_pointIn ( &hex->tri[i], msk,
+                                              csrx, 
                                               csry, &RAT0, &RAT1, &RAT2 ) ) {
-            (*R) = ( RAT0 * hex->tri[i].r[0x00] ) +
-                   ( RAT1 * hex->tri[i].r[0x01] ) +
-                   ( RAT2 * hex->tri[i].r[0x02] );
 
-            (*G) = ( RAT0 * hex->tri[i].g[0x00] ) +
-                   ( RAT1 * hex->tri[i].g[0x01] ) +
-                   ( RAT2 * hex->tri[i].g[0x02] );
+            r = ( RAT0 * hex->tri[i].r[0x00] ) +
+                ( RAT1 * hex->tri[i].r[0x01] ) +
+                ( RAT2 * hex->tri[i].r[0x02] );
 
-            (*B) = ( RAT0 * hex->tri[i].b[0x00] ) +
-                   ( RAT1 * hex->tri[i].b[0x01] ) +
-                   ( RAT2 * hex->tri[i].b[0x02] );
+            g = ( RAT0 * hex->tri[i].g[0x00] ) +
+                ( RAT1 * hex->tri[i].g[0x01] ) +
+                ( RAT2 * hex->tri[i].g[0x02] );
+
+            b = ( RAT0 * hex->tri[i].b[0x00] ) +
+                ( RAT1 * hex->tri[i].b[0x01] ) +
+                ( RAT2 * hex->tri[i].b[0x02] );
+
+            (*R) = ( r > 0xFF ) ? 0xFF : r;
+            (*G) = ( g > 0xFF ) ? 0xFF : g;
+            (*B) = ( b > 0xFF ) ? 0xFF : b;
 
             return 0x01;
         }
@@ -699,7 +711,7 @@ static void triangle_init ( TRIANGLE *tri, unsigned char *r,
                                            unsigned char *g,
                                            unsigned char *b,
                                            int *x,
-                                           int *y ) {
+                                           int *y, uint32_t msk_color ) {
     int i;
 
     for ( i = 0x00; i < 0x03; i++ ) {
@@ -710,6 +722,8 @@ static void triangle_init ( TRIANGLE *tri, unsigned char *r,
         tri->x[i] = x[i];
         tri->y[i] = y[i];
     }
+
+    tri->msk_color = msk_color;
 }
 
 /******************************************************************************/
@@ -731,7 +745,7 @@ static void triangle_draw ( TRIANGLE *tri, XImage *img, XImage *msk ) {
     for ( i = 0x00; i < HEXIMGSIZE; i++ ) {
         if ( hline[i].set == 0x02 ) {
 
-            drawhline ( &hline[i], i, img, msk );
+            drawhline ( &hline[i], i, img, msk, tri->msk_color );
         }
     }
 }
@@ -913,7 +927,7 @@ static XImage *allocMaskImage ( Display *dis ) {
     switch ( attr.depth ) {
         case 0x10 :
             img = XCreateImage ( dis, DefaultVisual ( dis, 0x00 ),
-                                 0x01, XYBitmap,
+                                 DefaultDepth  ( dis, 0x00 ), ZPixmap,
                                  0x00, NULL,
                                  HEXIMGSIZE, /*** Square Image ...   ***/
                                  HEXIMGSIZE, /*** ... Width = Height ***/
@@ -924,7 +938,7 @@ static XImage *allocMaskImage ( Display *dis ) {
         case 0x18 :
         case 0x20 :
             img = XCreateImage ( dis, DefaultVisual ( dis, 0x00 ),
-                                 0x01, XYBitmap,
+                                 DefaultDepth  ( dis, 0x00 ), ZPixmap,
                                  0x00, NULL,
                                  HEXIMGSIZE, /*** Square Image ...   ***/
                                  HEXIMGSIZE, /*** ... Width = Height ***/
@@ -983,7 +997,8 @@ static void dragcbk ( Widget w, XtPointer client, XtPointer call ) {
                                             xcw->coloredit.csrx,
                                             xcw->coloredit.csry );
 
-        if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.csrx,
+        if ( hexagon_xy2rgb ( &xcw->coloredit.hex, xcw->coloredit.mskimg,
+                                                   xcw->coloredit.csrx,
                                                    xcw->coloredit.csry,
                                                    &R, &G, &B ) ) {
             xcw->coloredit.pixel = ( R << 0x10 ) | ( G << 0x08 ) | B;

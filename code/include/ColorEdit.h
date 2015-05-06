@@ -57,6 +57,7 @@ typedef struct _TRIANGLE {
     int g[0x03];
     int b[0x03];
     float gray;
+    uint32_t msk_color;
 } TRIANGLE;
 
 /******************************************************************************/

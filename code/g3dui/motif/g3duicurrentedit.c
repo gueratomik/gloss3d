@@ -70,8 +70,8 @@ void updateCurrentEdit ( Widget w, G3DUI *gui ) {
                     if ( obj->type == G3DPLANETYPE    ) updatePlaneEdit   ( child, gui );
                     if ( obj->type == G3DFFDTYPE      ) updateFFDEdit     ( child, gui );
                     if ( obj->type == G3DMESHTYPE     ) updateMeshEdit    ( child, gui );
-/*                    if ( obj->type == G3DLIGHTTYPE    ) updateLightEdit   ( child, gui );
-                    if ( obj->type == G3DSYMMETRYTYPE ) updateSymmetryEdit( child, gui );
+                    if ( obj->type == G3DLIGHTTYPE    ) updateLightEdit   ( child, gui );
+/*                    if ( obj->type == G3DSYMMETRYTYPE ) updateSymmetryEdit( child, gui );
                     if ( obj->type == G3DTORUSTYPE    ) updateTorusEdit   ( child, gui );
                     if ( obj->type == G3DBONETYPE     ) updateBoneEdit    ( child, gui );
                     if ( obj->type == G3DUVMAPTYPE    ) updateUVMapEdit   ( child, gui );
@@ -150,9 +150,9 @@ Widget createCurrentEdit ( Widget parent, G3DUI *gui, char *name,
     /*createSphereEdit   ( frm, gui, EDITSPHERE  , 0x00, 0x20, 0x140, 0x140 );
     createCubeEdit     ( frm, gui, EDITCUBE    , 0x00, 0x20, 0x140, 0x140 );*/
     /*createCylinderEdit ( frm, gui, EDITCYLINDER, 0x00, 0x20, 0x140, 0x140 );
-    createMeshEdit     ( frm, gui, EDITMESH    , 0x00, 0x20, 0x140, 0x140 );
-    createLightEdit    ( frm, gui, EDITLIGHT   , 0x00, 0x20, 0x140, 0x140 );
-    createSymmetryEdit ( frm, gui, EDITSYMMETRY, 0x00, 0x20, 0x140, 0x140 );
+    createMeshEdit     ( frm, gui, EDITMESH    , 0x00, 0x20, 0x140, 0x140 );*/
+    createLightEdit    ( frm, gui, EDITLIGHT   , 0, 32, 320, 320 );
+    /*createSymmetryEdit ( frm, gui, EDITSYMMETRY, 0x00, 0x20, 0x140, 0x140 );
     createFFDEdit      ( frm, gui, EDITFFD     , 0x00, 0x20, 0x140, 0x140 );
     createPlaneEdit    ( frm, gui, EDITPLANE   , 0x00, 0x20, 0x140, 0x140 );
     createTorusEdit    ( frm, gui, EDITTORUS   , 0x00, 0x20, 0x140, 0x140 );

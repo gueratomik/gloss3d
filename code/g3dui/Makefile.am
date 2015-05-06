@@ -104,6 +104,7 @@ if HAVE_MOTIF
                             common/g3duicylinderedit.c \
                             common/g3duiffdedit.c \
                             common/g3duikeyedit.c \
+                            common/g3duilightedit.c \
                             common/g3duilist.c \
                             common/g3duimaterialboard.c \
                             common/g3duimaterialedit.c \
@@ -140,6 +141,7 @@ if HAVE_MOTIF
                             motif/g3duicurrentedit.c \
                             motif/g3duicylinderedit.c \
                             motif/g3duiffdedit.c \
+                            motif/g3duilightedit.c \
                             motif/g3duilist.c \
                             motif/g3duimainboard.c \
                             motif/g3duimaterialboard.c \

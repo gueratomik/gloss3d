@@ -116,15 +116,16 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
 	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
 	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
-	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
-	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
-	motif/g3duimateriallist.c motif/g3duimeshedit.c \
-	motif/g3duimenubar.c motif/g3duimodebar.c \
-	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
-	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
-	motif/g3duisphereedit.c motif/g3duitimeline.c \
-	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiffdedit.c motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duimainboard.c motif/g3duimaterialboard.c \
+	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
+	motif/g3duimeshedit.c motif/g3duimenubar.c \
+	motif/g3duimodebar.c motif/g3duiplaneedit.c \
+	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
+	motif/g3duiquad.c motif/g3duirenderedit.c \
+	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
+	motif/g3duitimeline.c motif/g3duitimeboard.c \
+	motif/g3duitoolbar.c motif/g3duiview.c \
 	motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
@@ -141,6 +142,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duicylinderedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duiffdedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duikeyedit.lo \
+@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duilightedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duilist.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duimaterialboard.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	common/g3duimaterialedit.lo \
@@ -177,6 +179,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duicurrentedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duicylinderedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duiffdedit.lo \
+@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duilightedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duilist.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duimainboard.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duimaterialboard.lo \
@@ -310,15 +313,16 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
 	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
 	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
-	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
-	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
-	motif/g3duimateriallist.c motif/g3duimeshedit.c \
-	motif/g3duimenubar.c motif/g3duimodebar.c \
-	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
-	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
-	motif/g3duisphereedit.c motif/g3duitimeline.c \
-	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiffdedit.c motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duimainboard.c motif/g3duimaterialboard.c \
+	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
+	motif/g3duimeshedit.c motif/g3duimenubar.c \
+	motif/g3duimodebar.c motif/g3duiplaneedit.c \
+	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
+	motif/g3duiquad.c motif/g3duirenderedit.c \
+	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
+	motif/g3duitimeline.c motif/g3duitimeboard.c \
+	motif/g3duitoolbar.c motif/g3duiview.c \
 	motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
@@ -583,6 +587,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_MOTIF_TRUE@                            common/g3duicylinderedit.c \
 @HAVE_MOTIF_TRUE@                            common/g3duiffdedit.c \
 @HAVE_MOTIF_TRUE@                            common/g3duikeyedit.c \
+@HAVE_MOTIF_TRUE@                            common/g3duilightedit.c \
 @HAVE_MOTIF_TRUE@                            common/g3duilist.c \
 @HAVE_MOTIF_TRUE@                            common/g3duimaterialboard.c \
 @HAVE_MOTIF_TRUE@                            common/g3duimaterialedit.c \
@@ -619,6 +624,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_MOTIF_TRUE@                            motif/g3duicurrentedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duicylinderedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duiffdedit.c \
+@HAVE_MOTIF_TRUE@                            motif/g3duilightedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duilist.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duimainboard.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duimaterialboard.c \
@@ -914,6 +920,8 @@ motif/g3duicylinderedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duiffdedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duilightedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duilist.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duimainboard.lo: motif/$(am__dirstamp) \
@@ -1151,6 +1159,8 @@ mostlyclean-compile:
 	-rm -f motif/g3duicylinderedit.lo
 	-rm -f motif/g3duiffdedit.$(OBJEXT)
 	-rm -f motif/g3duiffdedit.lo
+	-rm -f motif/g3duilightedit.$(OBJEXT)
+	-rm -f motif/g3duilightedit.lo
 	-rm -f motif/g3duilist.$(OBJEXT)
 	-rm -f motif/g3duilist.lo
 	-rm -f motif/g3duimainboard.$(OBJEXT)
@@ -1289,6 +1299,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duicurrentedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duicylinderedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duiffdedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duilightedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duilist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duimainboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duimaterialboard.Plo@am__quote@

@@ -116,107 +116,43 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
 	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
 	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
-	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
-	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
-	motif/g3duimateriallist.c motif/g3duimeshedit.c \
-	motif/g3duimenubar.c motif/g3duimodebar.c \
-	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
-	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
-	motif/g3duisphereedit.c motif/g3duitimeline.c \
-	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiffdedit.c motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duimainboard.c motif/g3duimaterialboard.c \
+	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
+	motif/g3duimeshedit.c motif/g3duimenubar.c \
+	motif/g3duimodebar.c motif/g3duiplaneedit.c \
+	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
+	motif/g3duiquad.c motif/g3duirenderedit.c \
+	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
+	motif/g3duitimeline.c motif/g3duitimeboard.c \
+	motif/g3duitoolbar.c motif/g3duiview.c \
 	motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
 	motif/mousetool/g3duipicktooledit.c
 am__dirstamp = $(am__leading_dot)dirstamp
-##am__objects_1 = common/g3dui.lo \
-##	common/g3duiboneedit.lo \
-##	common/g3duibonelinker.lo \
-##	common/g3duiclipboard.lo \
-##	common/g3duiconf.lo \
-##	common/g3duicoordinatesedit.lo \
-##	common/g3duicubeedit.lo \
-##	common/g3duicurrentedit.lo \
-##	common/g3duicylinderedit.lo \
-##	common/g3duiffdedit.lo \
-##	common/g3duikeyedit.lo \
-##	common/g3duilist.lo \
-##	common/g3duimaterialboard.lo \
-##	common/g3duimaterialedit.lo \
-##	common/g3duimateriallist.lo \
-##	common/g3duimenubar.lo \
-##	common/g3duimeshedit.lo \
-##	common/g3duimodebar.lo \
-##	common/g3duiobjectedit.lo \
-##	common/g3duiplaneedit.lo \
-##	common/g3duiquad.lo \
-##	common/g3duirenderedit.lo \
-##	common/g3duirenderprocess.lo \
-##	common/g3duirendersettings.lo \
-##	common/g3duirenderwindow.lo \
-##	common/g3duisphereedit.lo \
-##	common/g3duisymmetryedit.lo \
-##	common/g3duitextureedit.lo \
-##	common/g3duitimeboard.lo \
-##	common/g3duitimeline.lo \
-##	common/g3duitoolbar.lo \
-##	common/g3duitorusedit.lo \
-##	common/g3duiuvmapedit.lo \
-##	common/g3duiview.lo \
-##	common/g3duiweightgrouplist.lo \
-##	common/mousetool/g3duicurrentmousetool.lo \
-##	common/mousetool/g3duicutmeshtooledit.lo \
-##	common/mousetool/g3duipicktooledit.lo \
-##	motif/TabbedBook.lo \
-##	motif/ColorEdit.lo \
-##	motif/g3dui.lo \
-##	motif/g3duicom.lo \
-##	motif/g3duicoordinatesedit.lo \
-##	motif/g3duicubeedit.lo \
-##	motif/g3duicurrentedit.lo \
-##	motif/g3duicylinderedit.lo \
-##	motif/g3duiffdedit.lo \
-##	motif/g3duilist.lo \
-##	motif/g3duimainboard.lo \
-##	motif/g3duimaterialboard.lo \
-##	motif/g3duimaterialedit.lo \
-##	motif/g3duimateriallist.lo \
-##	motif/g3duimeshedit.lo \
-##	motif/g3duimenubar.lo \
-##	motif/g3duimodebar.lo \
-##	motif/g3duiplaneedit.lo \
-##	motif/g3duiobjectboard.lo \
-##	motif/g3duiobjectedit.lo \
-##	motif/g3duiquad.lo \
-##	motif/g3duirenderedit.lo \
-##	motif/g3duirenderwindow.lo \
-##	motif/g3duisphereedit.lo \
-##	motif/g3duitimeline.lo \
-##	motif/g3duitimeboard.lo \
-##	motif/g3duitoolbar.lo \
-##	motif/g3duiview.lo \
-##	motif/g3duiweightgrouplist.lo \
-##	motif/mousetool/g3duicurrentmousetool.lo \
-##	motif/mousetool/g3duicutmeshtooledit.lo \
-##	motif/mousetool/g3duipicktooledit.lo
 am__objects_1 = common/g3dui.lo \
 	common/g3duiboneedit.lo \
 	common/g3duibonelinker.lo \
-	common/g3duiclipboard.lo common/g3duiconf.lo \
+	common/g3duiclipboard.lo \
+	common/g3duiconf.lo \
 	common/g3duicoordinatesedit.lo \
 	common/g3duicubeedit.lo \
 	common/g3duicurrentedit.lo \
 	common/g3duicylinderedit.lo \
-	common/g3duiffdedit.lo common/g3duikeyedit.lo \
-	common/g3duilightedit.lo common/g3duilist.lo \
+	common/g3duiffdedit.lo \
+	common/g3duikeyedit.lo \
+	common/g3duilightedit.lo \
+	common/g3duilist.lo \
 	common/g3duimaterialboard.lo \
 	common/g3duimaterialedit.lo \
 	common/g3duimateriallist.lo \
-	common/g3duimenubar.lo common/g3duimeshedit.lo \
+	common/g3duimenubar.lo \
+	common/g3duimeshedit.lo \
 	common/g3duimodebar.lo \
 	common/g3duiobjectedit.lo \
-	common/g3duiplaneedit.lo common/g3duiquad.lo \
+	common/g3duiplaneedit.lo \
+	common/g3duiquad.lo \
 	common/g3duirenderedit.lo \
 	common/g3duirenderprocess.lo \
 	common/g3duirendersettings.lo \
@@ -225,46 +161,113 @@ am__objects_1 = common/g3dui.lo \
 	common/g3duisymmetryedit.lo \
 	common/g3duitextureedit.lo \
 	common/g3duitimeboard.lo \
-	common/g3duitimeline.lo common/g3duitoolbar.lo \
+	common/g3duitimeline.lo \
+	common/g3duitoolbar.lo \
 	common/g3duitorusedit.lo \
-	common/g3duiuvmapedit.lo common/g3duiview.lo \
+	common/g3duiuvmapedit.lo \
+	common/g3duiview.lo \
 	common/g3duiweightgrouplist.lo \
 	common/mousetool/g3duicurrentmousetool.lo \
 	common/mousetool/g3duicutmeshtooledit.lo \
 	common/mousetool/g3duipicktooledit.lo \
-	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
-	gtk3/g3duibonelinker.lo gtk3/g3duicom.lo \
-	gtk3/g3duicoordinatesedit.lo \
-	gtk3/g3duicubeedit.lo gtk3/g3duicurrentedit.lo \
-	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
-	gtk3/g3duikeyedit.lo gtk3/g3duilightedit.lo \
-	gtk3/g3duilist.lo gtk3/g3duimainboard.lo \
-	gtk3/g3duimaterialboard.lo \
-	gtk3/g3duimaterialedit.lo \
-	gtk3/g3duimateriallist.lo gtk3/g3duimenubar.lo \
-	gtk3/g3duimeshedit.lo gtk3/g3duimodebar.lo \
-	gtk3/g3duiobjectboard.lo \
-	gtk3/g3duiobjectedit.lo gtk3/g3duiplaneedit.lo \
-	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
-	gtk3/g3duirenderprocess.lo \
-	gtk3/g3duirendersettings.lo \
-	gtk3/g3duirenderwindow.lo \
-	gtk3/g3duisphereedit.lo \
-	gtk3/g3duisymmetryedit.lo \
-	gtk3/g3duitextureedit.lo \
-	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
-	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
-	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
-	gtk3/g3duiweightgrouplist.lo \
-	gtk3/mousetool/g3duicurrentmousetool.lo \
-	gtk3/mousetool/g3duicutmeshtooledit.lo \
-	gtk3/mousetool/g3duipicktooledit.lo
-am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
+	motif/TabbedBook.lo \
+	motif/ColorEdit.lo \
+	motif/g3dui.lo \
+	motif/g3duicom.lo \
+	motif/g3duicoordinatesedit.lo \
+	motif/g3duicubeedit.lo \
+	motif/g3duicurrentedit.lo \
+	motif/g3duicylinderedit.lo \
+	motif/g3duiffdedit.lo \
+	motif/g3duilightedit.lo \
+	motif/g3duilist.lo \
+	motif/g3duimainboard.lo \
+	motif/g3duimaterialboard.lo \
+	motif/g3duimaterialedit.lo \
+	motif/g3duimateriallist.lo \
+	motif/g3duimeshedit.lo \
+	motif/g3duimenubar.lo \
+	motif/g3duimodebar.lo \
+	motif/g3duiplaneedit.lo \
+	motif/g3duiobjectboard.lo \
+	motif/g3duiobjectedit.lo \
+	motif/g3duiquad.lo \
+	motif/g3duirenderedit.lo \
+	motif/g3duirenderwindow.lo \
+	motif/g3duisphereedit.lo \
+	motif/g3duitimeline.lo \
+	motif/g3duitimeboard.lo \
+	motif/g3duitoolbar.lo \
+	motif/g3duiview.lo \
+	motif/g3duiweightgrouplist.lo \
+	motif/mousetool/g3duicurrentmousetool.lo \
+	motif/mousetool/g3duicutmeshtooledit.lo \
+	motif/mousetool/g3duipicktooledit.lo
+#am__objects_1 = common/g3dui.lo \
+#	common/g3duiboneedit.lo \
+#	common/g3duibonelinker.lo \
+#	common/g3duiclipboard.lo common/g3duiconf.lo \
+#	common/g3duicoordinatesedit.lo \
+#	common/g3duicubeedit.lo \
+#	common/g3duicurrentedit.lo \
+#	common/g3duicylinderedit.lo \
+#	common/g3duiffdedit.lo common/g3duikeyedit.lo \
+#	common/g3duilightedit.lo common/g3duilist.lo \
+#	common/g3duimaterialboard.lo \
+#	common/g3duimaterialedit.lo \
+#	common/g3duimateriallist.lo \
+#	common/g3duimenubar.lo common/g3duimeshedit.lo \
+#	common/g3duimodebar.lo \
+#	common/g3duiobjectedit.lo \
+#	common/g3duiplaneedit.lo common/g3duiquad.lo \
+#	common/g3duirenderedit.lo \
+#	common/g3duirenderprocess.lo \
+#	common/g3duirendersettings.lo \
+#	common/g3duirenderwindow.lo \
+#	common/g3duisphereedit.lo \
+#	common/g3duisymmetryedit.lo \
+#	common/g3duitextureedit.lo \
+#	common/g3duitimeboard.lo \
+#	common/g3duitimeline.lo common/g3duitoolbar.lo \
+#	common/g3duitorusedit.lo \
+#	common/g3duiuvmapedit.lo common/g3duiview.lo \
+#	common/g3duiweightgrouplist.lo \
+#	common/mousetool/g3duicurrentmousetool.lo \
+#	common/mousetool/g3duicutmeshtooledit.lo \
+#	common/mousetool/g3duipicktooledit.lo \
+#	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
+#	gtk3/g3duibonelinker.lo gtk3/g3duicom.lo \
+#	gtk3/g3duicoordinatesedit.lo \
+#	gtk3/g3duicubeedit.lo gtk3/g3duicurrentedit.lo \
+#	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
+#	gtk3/g3duikeyedit.lo gtk3/g3duilightedit.lo \
+#	gtk3/g3duilist.lo gtk3/g3duimainboard.lo \
+#	gtk3/g3duimaterialboard.lo \
+#	gtk3/g3duimaterialedit.lo \
+#	gtk3/g3duimateriallist.lo gtk3/g3duimenubar.lo \
+#	gtk3/g3duimeshedit.lo gtk3/g3duimodebar.lo \
+#	gtk3/g3duiobjectboard.lo \
+#	gtk3/g3duiobjectedit.lo gtk3/g3duiplaneedit.lo \
+#	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
+#	gtk3/g3duirenderprocess.lo \
+#	gtk3/g3duirendersettings.lo \
+#	gtk3/g3duirenderwindow.lo \
+#	gtk3/g3duisphereedit.lo \
+#	gtk3/g3duisymmetryedit.lo \
+#	gtk3/g3duitextureedit.lo \
+#	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
+#	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
+#	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
+#	gtk3/g3duiweightgrouplist.lo \
+#	gtk3/mousetool/g3duicurrentmousetool.lo \
+#	gtk3/mousetool/g3duicutmeshtooledit.lo \
+#	gtk3/mousetool/g3duipicktooledit.lo
+#am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
-am_libgloss_g3dui_gtk3_la_rpath = -rpath $(libdir)
+#am_libgloss_g3dui_gtk3_la_rpath = -rpath $(libdir)
 libgloss_g3dui_motif_la_LIBADD =
 am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiboneedit.c common/g3duibonelinker.c \
@@ -310,24 +313,25 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	motif/ColorEdit.c motif/g3dui.c motif/g3duicom.c \
 	motif/g3duicoordinatesedit.c motif/g3duicubeedit.c \
 	motif/g3duicurrentedit.c motif/g3duicylinderedit.c \
-	motif/g3duiffdedit.c motif/g3duilist.c motif/g3duimainboard.c \
-	motif/g3duimaterialboard.c motif/g3duimaterialedit.c \
-	motif/g3duimateriallist.c motif/g3duimeshedit.c \
-	motif/g3duimenubar.c motif/g3duimodebar.c \
-	motif/g3duiplaneedit.c motif/g3duiobjectboard.c \
-	motif/g3duiobjectedit.c motif/g3duiquad.c \
-	motif/g3duirenderedit.c motif/g3duirenderwindow.c \
-	motif/g3duisphereedit.c motif/g3duitimeline.c \
-	motif/g3duitimeboard.c motif/g3duitoolbar.c motif/g3duiview.c \
+	motif/g3duiffdedit.c motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duimainboard.c motif/g3duimaterialboard.c \
+	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
+	motif/g3duimeshedit.c motif/g3duimenubar.c \
+	motif/g3duimodebar.c motif/g3duiplaneedit.c \
+	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
+	motif/g3duiquad.c motif/g3duirenderedit.c \
+	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
+	motif/g3duitimeline.c motif/g3duitimeboard.c \
+	motif/g3duitoolbar.c motif/g3duiview.c \
 	motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
 	motif/mousetool/g3duipicktooledit.c
-#am_libgloss_g3dui_motif_la_OBJECTS =  \
-#	$(am__objects_1)
+am_libgloss_g3dui_motif_la_OBJECTS =  \
+	$(am__objects_1)
 libgloss_g3dui_motif_la_OBJECTS =  \
 	$(am_libgloss_g3dui_motif_la_OBJECTS)
-#am_libgloss_g3dui_motif_la_rpath = -rpath $(libdir)
+am_libgloss_g3dui_motif_la_rpath = -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -371,7 +375,7 @@ AUTOMAKE = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run au
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
+CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -393,7 +397,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /opt/gnat/libexec/gcc/x86_64-pc-linux-gnu/4.7.4/ld -m elf_x86_64
-LDFLAGS =  -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
+LDFLAGS = 
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -414,10 +418,10 @@ OTOOL64 =
 PACKAGE = gloss3d
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = gloss3d
-PACKAGE_STRING = gloss3d dev-0.2.53
+PACKAGE_STRING = gloss3d dev-0.2.54
 PACKAGE_TARNAME = gloss3d
 PACKAGE_URL = 
-PACKAGE_VERSION = dev-0.2.53
+PACKAGE_VERSION = dev-0.2.54
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -427,7 +431,7 @@ SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = dev-0.2.53
+VERSION = dev-0.2.54
 abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dui
 abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dui
 abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
@@ -488,10 +492,90 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -I$(top_srcdir)/include \
             -I$(top_srcdir) -Wimplicit-function-declaration -Wformat
 
-AM_LDFLAGS = -Wl,--no-as-needed `pkg-config --libs gtk+-3.0`
-lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
-#lib_LTLIBRARIES = libgloss-g3dui-motif.la
-libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
+#AM_LDFLAGS = -Wl,--no-as-needed `pkg-config --libs gtk+-3.0`
+#lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
+lib_LTLIBRARIES = libgloss-g3dui-motif.la
+#libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
+#LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+#                            common/g3duiboneedit.c \
+#                            common/g3duibonelinker.c \
+#                            common/g3duiclipboard.c \
+#                            common/g3duiconf.c \
+#                            common/g3duicoordinatesedit.c \
+#                            common/g3duicubeedit.c \
+#                            common/g3duicurrentedit.c \
+#                            common/g3duicylinderedit.c \
+#                            common/g3duiffdedit.c \
+#                            common/g3duikeyedit.c \
+#                            common/g3duilightedit.c \
+#                            common/g3duilist.c \
+#                            common/g3duimaterialboard.c \
+#                            common/g3duimaterialedit.c \
+#                            common/g3duimateriallist.c \
+#                            common/g3duimenubar.c \
+#                            common/g3duimeshedit.c \
+#                            common/g3duimodebar.c \
+#                            common/g3duiobjectedit.c \
+#                            common/g3duiplaneedit.c \
+#                            common/g3duiquad.c \
+#                            common/g3duirenderedit.c \
+#                            common/g3duirenderprocess.c \
+#                            common/g3duirendersettings.c \
+#                            common/g3duirenderwindow.c \
+#                            common/g3duisphereedit.c \
+#                            common/g3duisymmetryedit.c \
+#                            common/g3duitextureedit.c \
+#                            common/g3duitimeboard.c \
+#                            common/g3duitimeline.c \
+#                            common/g3duitoolbar.c \
+#                            common/g3duitorusedit.c \
+#                            common/g3duiuvmapedit.c \
+#                            common/g3duiview.c \
+#                            common/g3duiweightgrouplist.c \
+#                            common/mousetool/g3duicurrentmousetool.c \
+#                            common/mousetool/g3duicutmeshtooledit.c \
+#                            common/mousetool/g3duipicktooledit.c \
+#                            gtk3/g3dui.c \
+#                            gtk3/g3duiboneedit.c \
+#                            gtk3/g3duibonelinker.c \
+#                            gtk3/g3duicom.c \
+#                            gtk3/g3duicoordinatesedit.c \
+#                            gtk3/g3duicubeedit.c \
+#                            gtk3/g3duicurrentedit.c \
+#                            gtk3/g3duicylinderedit.c \
+#                            gtk3/g3duiffdedit.c \
+#                            gtk3/g3duikeyedit.c \
+#                            gtk3/g3duilightedit.c \
+#                            gtk3/g3duilist.c \
+#                            gtk3/g3duimainboard.c \
+#                            gtk3/g3duimaterialboard.c \
+#                            gtk3/g3duimaterialedit.c \
+#                            gtk3/g3duimateriallist.c \
+#                            gtk3/g3duimenubar.c \
+#                            gtk3/g3duimeshedit.c \
+#                            gtk3/g3duimodebar.c \
+#                            gtk3/g3duiobjectboard.c \
+#                            gtk3/g3duiobjectedit.c \
+#                            gtk3/g3duiplaneedit.c \
+#                            gtk3/g3duiquad.c \
+#                            gtk3/g3duirenderedit.c \
+#                            gtk3/g3duirenderprocess.c \
+#                            gtk3/g3duirendersettings.c \
+#                            gtk3/g3duirenderwindow.c \
+#                            gtk3/g3duisphereedit.c \
+#                            gtk3/g3duisymmetryedit.c \
+#                            gtk3/g3duitextureedit.c \
+#                            gtk3/g3duitimeboard.c \
+#                            gtk3/g3duitimeline.c \
+#                            gtk3/g3duitoolbar.c \
+#                            gtk3/g3duitorusedit.c \
+#                            gtk3/g3duiuvmapedit.c \
+#                            gtk3/g3duiview.c \
+#                            gtk3/g3duiweightgrouplist.c \
+#                            gtk3/mousetool/g3duicurrentmousetool.c \
+#                            gtk3/mousetool/g3duicutmeshtooledit.c \
+#                            gtk3/mousetool/g3duipicktooledit.c
+
 LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             common/g3duiboneedit.c \
                             common/g3duibonelinker.c \
@@ -531,119 +615,41 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
-                            gtk3/g3dui.c \
-                            gtk3/g3duiboneedit.c \
-                            gtk3/g3duibonelinker.c \
-                            gtk3/g3duicom.c \
-                            gtk3/g3duicoordinatesedit.c \
-                            gtk3/g3duicubeedit.c \
-                            gtk3/g3duicurrentedit.c \
-                            gtk3/g3duicylinderedit.c \
-                            gtk3/g3duiffdedit.c \
-                            gtk3/g3duikeyedit.c \
-                            gtk3/g3duilightedit.c \
-                            gtk3/g3duilist.c \
-                            gtk3/g3duimainboard.c \
-                            gtk3/g3duimaterialboard.c \
-                            gtk3/g3duimaterialedit.c \
-                            gtk3/g3duimateriallist.c \
-                            gtk3/g3duimenubar.c \
-                            gtk3/g3duimeshedit.c \
-                            gtk3/g3duimodebar.c \
-                            gtk3/g3duiobjectboard.c \
-                            gtk3/g3duiobjectedit.c \
-                            gtk3/g3duiplaneedit.c \
-                            gtk3/g3duiquad.c \
-                            gtk3/g3duirenderedit.c \
-                            gtk3/g3duirenderprocess.c \
-                            gtk3/g3duirendersettings.c \
-                            gtk3/g3duirenderwindow.c \
-                            gtk3/g3duisphereedit.c \
-                            gtk3/g3duisymmetryedit.c \
-                            gtk3/g3duitextureedit.c \
-                            gtk3/g3duitimeboard.c \
-                            gtk3/g3duitimeline.c \
-                            gtk3/g3duitoolbar.c \
-                            gtk3/g3duitorusedit.c \
-                            gtk3/g3duiuvmapedit.c \
-                            gtk3/g3duiview.c \
-                            gtk3/g3duiweightgrouplist.c \
-                            gtk3/mousetool/g3duicurrentmousetool.c \
-                            gtk3/mousetool/g3duicutmeshtooledit.c \
-                            gtk3/mousetool/g3duipicktooledit.c
+                            motif/TabbedBook.c \
+                            motif/ColorEdit.c \
+                            motif/g3dui.c \
+                            motif/g3duicom.c \
+                            motif/g3duicoordinatesedit.c \
+                            motif/g3duicubeedit.c \
+                            motif/g3duicurrentedit.c \
+                            motif/g3duicylinderedit.c \
+                            motif/g3duiffdedit.c \
+                            motif/g3duilightedit.c \
+                            motif/g3duilist.c \
+                            motif/g3duimainboard.c \
+                            motif/g3duimaterialboard.c \
+                            motif/g3duimaterialedit.c \
+                            motif/g3duimateriallist.c \
+                            motif/g3duimeshedit.c \
+                            motif/g3duimenubar.c \
+                            motif/g3duimodebar.c \
+                            motif/g3duiplaneedit.c \
+                            motif/g3duiobjectboard.c \
+                            motif/g3duiobjectedit.c \
+                            motif/g3duiquad.c \
+                            motif/g3duirenderedit.c \
+                            motif/g3duirenderwindow.c \
+                            motif/g3duisphereedit.c \
+                            motif/g3duitimeline.c \
+                            motif/g3duitimeboard.c \
+                            motif/g3duitoolbar.c \
+                            motif/g3duiview.c \
+                            motif/g3duiweightgrouplist.c \
+                            motif/mousetool/g3duicurrentmousetool.c \
+                            motif/mousetool/g3duicutmeshtooledit.c \
+                            motif/mousetool/g3duipicktooledit.c
 
-#LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
-#                            common/g3duiboneedit.c \
-#                            common/g3duibonelinker.c \
-#                            common/g3duiclipboard.c \
-#                            common/g3duiconf.c \
-#                            common/g3duicoordinatesedit.c \
-#                            common/g3duicubeedit.c \
-#                            common/g3duicurrentedit.c \
-#                            common/g3duicylinderedit.c \
-#                            common/g3duiffdedit.c \
-#                            common/g3duikeyedit.c \
-#                            common/g3duilist.c \
-#                            common/g3duimaterialboard.c \
-#                            common/g3duimaterialedit.c \
-#                            common/g3duimateriallist.c \
-#                            common/g3duimenubar.c \
-#                            common/g3duimeshedit.c \
-#                            common/g3duimodebar.c \
-#                            common/g3duiobjectedit.c \
-#                            common/g3duiplaneedit.c \
-#                            common/g3duiquad.c \
-#                            common/g3duirenderedit.c \
-#                            common/g3duirenderprocess.c \
-#                            common/g3duirendersettings.c \
-#                            common/g3duirenderwindow.c \
-#                            common/g3duisphereedit.c \
-#                            common/g3duisymmetryedit.c \
-#                            common/g3duitextureedit.c \
-#                            common/g3duitimeboard.c \
-#                            common/g3duitimeline.c \
-#                            common/g3duitoolbar.c \
-#                            common/g3duitorusedit.c \
-#                            common/g3duiuvmapedit.c \
-#                            common/g3duiview.c \
-#                            common/g3duiweightgrouplist.c \
-#                            common/mousetool/g3duicurrentmousetool.c \
-#                            common/mousetool/g3duicutmeshtooledit.c \
-#                            common/mousetool/g3duipicktooledit.c \
-#                            motif/TabbedBook.c \
-#                            motif/ColorEdit.c \
-#                            motif/g3dui.c \
-#                            motif/g3duicom.c \
-#                            motif/g3duicoordinatesedit.c \
-#                            motif/g3duicubeedit.c \
-#                            motif/g3duicurrentedit.c \
-#                            motif/g3duicylinderedit.c \
-#                            motif/g3duiffdedit.c \
-#                            motif/g3duilist.c \
-#                            motif/g3duimainboard.c \
-#                            motif/g3duimaterialboard.c \
-#                            motif/g3duimaterialedit.c \
-#                            motif/g3duimateriallist.c \
-#                            motif/g3duimeshedit.c \
-#                            motif/g3duimenubar.c \
-#                            motif/g3duimodebar.c \
-#                            motif/g3duiplaneedit.c \
-#                            motif/g3duiobjectboard.c \
-#                            motif/g3duiobjectedit.c \
-#                            motif/g3duiquad.c \
-#                            motif/g3duirenderedit.c \
-#                            motif/g3duirenderwindow.c \
-#                            motif/g3duisphereedit.c \
-#                            motif/g3duitimeline.c \
-#                            motif/g3duitimeboard.c \
-#                            motif/g3duitoolbar.c \
-#                            motif/g3duiview.c \
-#                            motif/g3duiweightgrouplist.c \
-#                            motif/mousetool/g3duicurrentmousetool.c \
-#                            motif/mousetool/g3duicutmeshtooledit.c \
-#                            motif/mousetool/g3duipicktooledit.c
-
-#libgloss_g3dui_motif_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
+libgloss_g3dui_motif_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 all: all-am
 
 .SUFFIXES:
@@ -914,6 +920,8 @@ motif/g3duicylinderedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duiffdedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duilightedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duilist.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duimainboard.lo: motif/$(am__dirstamp) \
@@ -1151,6 +1159,8 @@ mostlyclean-compile:
 	-rm -f motif/g3duicylinderedit.lo
 	-rm -f motif/g3duiffdedit.$(OBJEXT)
 	-rm -f motif/g3duiffdedit.lo
+	-rm -f motif/g3duilightedit.$(OBJEXT)
+	-rm -f motif/g3duilightedit.lo
 	-rm -f motif/g3duilist.$(OBJEXT)
 	-rm -f motif/g3duilist.lo
 	-rm -f motif/g3duimainboard.$(OBJEXT)
@@ -1289,6 +1299,7 @@ include motif/$(DEPDIR)/g3duicubeedit.Plo
 include motif/$(DEPDIR)/g3duicurrentedit.Plo
 include motif/$(DEPDIR)/g3duicylinderedit.Plo
 include motif/$(DEPDIR)/g3duiffdedit.Plo
+include motif/$(DEPDIR)/g3duilightedit.Plo
 include motif/$(DEPDIR)/g3duilist.Plo
 include motif/$(DEPDIR)/g3duimainboard.Plo
 include motif/$(DEPDIR)/g3duimaterialboard.Plo

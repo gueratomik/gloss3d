@@ -60,6 +60,7 @@
 #include <Xm/PrimitiveP.h>
 #include <Xm/Scale.h>
 #include <Xm/Text.h>
+#include <Xm/Label.h>
 #include <Xm/List.h>
 #include <Xm/Frame.h>
 #include <Xm/ComboBox.h>
