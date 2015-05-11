@@ -30,53 +30,112 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
-static void projcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void projectionCbk ( Widget w, XtPointer client, XtPointer call ) {
     XmComboBoxCallbackStruct *cbs = ( XmComboBoxCallbackStruct * ) call;
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     char *str;
 
     XmStringGetLtoR ( cbs->item_or_text, XmFONTLIST_DEFAULT_TAG, &str );
 
-    if ( obj && ( obj->type == G3DUVMAPTYPE ) ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) obj;
-
-        if ( strcmp ( str, CYLINDRICALPROJECTION ) == 0x00 ) {
-            map->projection = UVMAPCYLINDRICAL;
-        }
-
-        if ( strcmp ( str, SPHERICALPROJECTION ) == 0x00 ) {
-            map->projection = UVMAPSPHERICAL;
-        }
-        
-        if ( strcmp ( str, FLATPROJECTION ) == 0x00 ) {
-            map->projection = UVMAPFLAT;
-        }
-
-        g3dobject_updateMatrix_r ( ( G3DOBJECT * ) map, gui->flags );
-        /*g3duvmap_applyProjection ( map );*/
-
-        g3dui_redrawGLViews ( gui );
-    }
+    common_g3duiuvmap_projectionCbk ( gui, str );
 
     XtFree ( str );
 }
 
 /******************************************************************************/
-void updateUVMapEdit ( Widget w ) {
+static void lockUVMapCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duiuvmap_lockUVMapCbk ( gui );
+}
+
+/******************************************************************************/
+void createProjectionSelection ( Widget parent, G3DUI *gui,
+                                                char *name,
+                                                Dimension x,
+                                                Dimension y,
+                                                Dimension labwidth,
+                                                Dimension txtwidth,
+                                                void (*cbk)( Widget, 
+                                                             XtPointer,
+                                                             XtPointer ) ) {
+    Pixel white = XWhitePixel ( XtDisplay ( parent ), 0x00 );
+    Pixel background, foreground;
+    uint32_t strsize = sizeof ( XmString );
+    XmStringTable dmlist = ( XmStringTable ) XtMalloc ( 0x03 * strsize );
+    Widget lab;
+    Widget sel;
+    G3DUIMOTIF *gmt;
+
+    XtVaGetValues ( parent, XmNbackground, &background, 
+                            XmNforeground, &foreground, 
+                            NULL );
+
+    gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+
+    dmlist[0x00] = XmStringCreate ( FLATPROJECTION       , XmFONTLIST_DEFAULT_TAG );
+    dmlist[0x01] = XmStringCreate ( SPHERICALPROJECTION  , XmFONTLIST_DEFAULT_TAG );
+    dmlist[0x02] = XmStringCreate ( CYLINDRICALPROJECTION, XmFONTLIST_DEFAULT_TAG );
+
+    lab = XmVaCreateManagedLabel ( parent, name,
+                                   XmNx, x,
+                                   XmNy, y,
+                                   XmNwidth , labwidth,
+                                   XmNheight, 0x12,
+                                   XmNfontList, gmt->fontlist,
+                                   XmNforeground, foreground,
+                                   XmNbackground, background,
+                                   NULL );
+
+    sel = XmVaCreateManagedComboBox ( parent, name, 
+                                       XmNx, x + labwidth,
+                                       XmNy, y,
+                                       XmNwidth , txtwidth,
+                                       XmNhighlightThickness, 0x00,
+                                       XmNshadowThickness, 0x01,
+                                       XmNmarginHeight, 0x00,
+                                       XmNmarginWidth, 0x00,
+                                       XmNitemCount,	0x03,
+                                       XmNitems, dmlist,
+                                       XmNvisibleItemCount, 0x03,
+                                       XmNfontList, gmt->fontlist,
+                                       XmNarrowSize, 0x0C,
+                                       XmNcomboBoxType, XmDROP_DOWN_LIST,
+                                       XmNrenderTable, gmt->renTable,
+                                       XmNtraversalOn, False,
+                                       XtNbackground, background,
+                                       XtNforeground, foreground,
+                                       NULL );
+
+    /*** OpenMotif prior to 2.3.4 crashes if this is set before managing ***/
+    XtVaSetValues ( sel, XmNheight, 0x12, NULL );
+
+    XmComboBoxSelectItem ( sel, dmlist[0x00] );
+
+    XmStringFree ( dmlist[0x00] );
+    XmStringFree ( dmlist[0x01] );
+    XmStringFree ( dmlist[0x02] );
+
+    XtFree ( ( char * ) dmlist );
+
+    if ( cbk ) {
+        XtAddCallback ( sel, XmNselectionCallback, cbk, gui );
+    }
+}
+
+/******************************************************************************/
+void updateUVMapEdit ( Widget w, G3DUI *gui ) {
     WidgetList children;
-    G3DOBJECT *obj;
-    G3DSCENE *sce;
-    G3DUI *gui;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
+    /*** prevent useless primitive building when XmTextSetString is called, ***/
+    /*** as XmTextSetString will call XmNvalueChanged callback whereas we   ***/
+    /*** already know the value !                                           ***/
+    gui->lock = 0x01;
 
-    sce = gui->sce;
-    obj = g3dscene_getSelectedObject ( sce );
-
-    if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
-        G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
+    if ( obj && ( obj->type == G3DUVMAPTYPE ) ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) obj;
         Cardinal nc;
         int i;
 
@@ -88,6 +147,16 @@ void updateUVMapEdit ( Widget w ) {
             Widget child = children[i];
             char *name = XtName ( child );
 
+            if ( XtClass ( child ) == xmToggleButtonWidgetClass ) {
+                if ( strcmp ( name, EDITUVMAPFIXED ) == 0x00 ) {
+                    if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
+                        XtVaSetValues ( child, XmNset, True, NULL );
+                    } else {
+                        XtVaSetValues ( child, XmNset, False, NULL );
+                    }
+                }
+            }
+
             if ( XtClass ( child ) == xmComboBoxWidgetClass ) {
                 if ( strcmp ( name, EDITUVMAPPROJECTION   ) == 0x00 ) {
                     /*XtVaSetValues ( child, XmNselectedPosition,
@@ -96,23 +165,8 @@ void updateUVMapEdit ( Widget w ) {
             }
         }
     }
-}
 
-/******************************************************************************/
-static void uvmapfixedcbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( obj && ( obj->type == G3DUVMAPTYPE ) ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) obj;
-
-        if ( obj->flags & UVMAPFIXED ) {
-            g3duvmap_unfix ( map );
-        } else {
-            g3duvmap_fix   ( map );
-        }
-    }
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -136,12 +190,11 @@ Widget createUVMapEdit ( Widget parent  , G3DUI *gui, char *name,
                                    XmNuserData, gui,
                                    NULL );
 
-    createUVMappingSelection ( frm, EDITUVMAPPROJECTION, 0x00, 0x30,
-                                                         0x60, 0x60, projcbk );
+    createToggleLabel         ( frm, gui, EDITUVMAPFIXED,
+                                0,  0, 200, 20, lockUVMapCbk );
 
-    createToggleLabel ( frm, EDITUVMAPFIXED, 0x00, 0x20,
-                                                   0x60, 0x10, uvmapfixedcbk );
-
+    createProjectionSelection ( frm, gui, EDITUVMAPPROJECTION, 
+                                0, 24, 96, 96, projectionCbk );
 
     XtManageChild ( frm );
 

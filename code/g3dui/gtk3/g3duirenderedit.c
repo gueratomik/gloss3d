@@ -30,61 +30,6 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-/*void filtertogdkwindow_free ( FILTERTOGDKWINDOW *ftg ) {
-    cairo_surface_destroy ( ftg->crsurf );
-    cairo_destroy         ( ftg->cr     );
-}*/
-
-/******************************************************************************/
-/*FILTERTOGDKWINDOW *filtertogdkwindow_new ( GdkWindow *gdkwin ) {
-    uint32_t structsize = sizeof ( FILTERTOGDKWINDOW );
-    FILTERTOGDKWINDOW *ftg = ( FILTERTOGDKWINDOW * ) calloc ( 0x01, structsize );
-    uint32_t width  = gdk_window_get_width  ( gdkwin ),
-             height = gdk_window_get_height ( gdkwin );
-
-    if ( ftg == NULL ) {
-        fprintf ( stderr, "filtertogdkwindow_new: memory allocation failed\n" );
-
-        return NULL;
-    }
-
-    ftg->gdkwin = gdkwin;
-    ftg->crsurf = cairo_image_surface_create ( CAIRO_FORMAT_RGB24, width,
-                                                                   height );
-
-    ftg->cr     = cairo_create ( ftg->crsurf );
-
-
-    return ftg;
-}*/
-
-/******************************************************************************/
-/*void filtertogdkwindow_draw ( void *data, R3DSCENE *rsce, unsigned char *img, 
-                                                          uint32_t from, 
-                                                          uint32_t to, 
-                                                          uint32_t depth, 
-                                                          uint32_t width ) {
-    uint32_t bytesperline = ( depth >> 0x03 ) * width;
-    FILTERTOGDKWINDOW *ftg = ( FILTERTOGDKWINDOW * ) data;
-    uint32_t win_width  = gdk_window_get_width  ( ftg->gdkwin ),
-             win_height = gdk_window_get_height ( ftg->gdkwin );
-    int i, j;
-
-    for ( i = from; i < to; i++ ) {
-        uint32_t offset = ( i * bytesperline );
-        unsigned char *imgptr = &img[offset];
-
-        for ( j = 0x00; j < width; j++ ) {
-            unsigned char R = imgptr[0x00];
-            unsigned char G = imgptr[0x01];
-            unsigned char B = imgptr[0x02];
-
-            imgptr += 0x03;
-        }
-    }
-}*/
-
-/******************************************************************************/
 static void formatCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
     G3DUI *gui = ( G3DUI * ) user_data;

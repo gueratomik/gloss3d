@@ -72,7 +72,6 @@ if HAVE_GTK3
                             gtk3/g3duiquad.c \
                             gtk3/g3duirenderedit.c \
                             gtk3/g3duirenderprocess.c \
-                            gtk3/g3duirendersettings.c \
                             gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
                             gtk3/g3duisymmetryedit.c \
@@ -157,9 +156,12 @@ if HAVE_MOTIF
                             motif/g3duirenderedit.c \
                             motif/g3duirenderwindow.c \
                             motif/g3duisphereedit.c \
+                            motif/g3duisymmetryedit.c \
                             motif/g3duitimeline.c \
                             motif/g3duitimeboard.c \
                             motif/g3duitoolbar.c \
+                            motif/g3duitorusedit.c \
+                            motif/g3duiuvmapedit.c \
                             motif/g3duiview.c \
                             motif/g3duiweightgrouplist.c \
                             motif/mousetool/g3duicurrentmousetool.c \
@@ -167,19 +169,10 @@ if HAVE_MOTIF
                             motif/mousetool/g3duipicktooledit.c
 endif
 
-#                            motif/g3duilightsettings.c \
-#                            motif/g3duimaterialsettings.c \
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duiuvmapedit.c \
-#                            motif/g3duitab.c \
 #                            motif/g3duiconf.c \
 #                            motif/g3duitimeline.c \
-#                            motif/g3duitoolbar.c \
 #                            motif/g3duitextureedit.c \
 #                            motif/g3duiview.c \
-#                            motif/g3duisymmetryedit.c \
-#                            motif/g3duirenderwindow.c \
-#                            motif/g3duitorusedit.c \
-#                            motif/g3duicoordinatesedit.c \
 #                            motif/g3duikeyedit.c \
 #                            motif/g3duiclipboard.c

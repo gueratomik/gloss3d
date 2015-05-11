@@ -152,20 +152,20 @@ GtkWidget *createTorusEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    createIntegerText ( frm, gui, EDITTORUSSLICE , 0x00, 0x00,
-                                                   0x60, 0x20, sliceCbk  );
+    createIntegerText ( frm, gui, EDITTORUSSLICE ,  0, 0,
+                                                   96, 32, sliceCbk  );
 
-    createIntegerText ( frm, gui, EDITTORUSCAP   , 0x00, 0x14, 
-                                                   0x60, 0x20, capCbk    );
+    createIntegerText ( frm, gui, EDITTORUSCAP   ,  0, 20, 
+                                                   96, 32, capCbk    );
 
-    createFloatText   ( frm, gui, EDITTORUSEXTRAD, 0x00, 0x28,
-                                                   0x60, 0x60, extRadiusCbk );
+    createFloatText   ( frm, gui, EDITTORUSEXTRAD,  0, 40,
+                                                   96, 96, extRadiusCbk );
 
-    createFloatText   ( frm, gui, EDITTORUSINTRAD, 0x00, 0x3C, 
-                                                   0x60, 0x60, intRadiusCbk );
+    createFloatText   ( frm, gui, EDITTORUSINTRAD,  0, 60, 
+                                                   96, 96, intRadiusCbk );
 
-    createOrientationSelection ( frm, gui, EDITTORUSORIENTATION, 0x00, 0x50,
-                                                                 0x60, 0x60, orientationCbk );
+    createOrientationSelection ( frm, gui, EDITTORUSORIENTATION,  0, 80,
+                                                                 96, 96, orientationCbk );
 
     gtk_widget_show ( frm );
 

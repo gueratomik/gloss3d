@@ -826,6 +826,7 @@ GtkWidget *createExportMenu ( GtkWidget *parent, G3DUI *gui,
     gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
 
     g3dui_addMenuButton ( menu, gui, FILEDESC_OBJ, width, G_CALLBACK(g3dui_exportfilecbk) );
+    g3dui_addMenuButton ( menu, gui, FILEDESC_STA, width, G_CALLBACK(g3dui_exportfilecbk) );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

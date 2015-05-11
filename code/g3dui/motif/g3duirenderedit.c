@@ -47,25 +47,6 @@ void g3dui_renderViewCbk  ( Widget w, XtPointer client, XtPointer call ) {
 }
 
 /******************************************************************************/
-void g3duirendersettings_rendertoimage ( G3DUIRENDERSETTINGS *rsg, 
-                                         G3DSCENE *sce,
-                                         G3DCAMERA *cam,
-                                         uint32_t engine_flags,
-                                         Widget area ) {
-
-}
-
-/******************************************************************************/
-void g3duirendersettings_rendertovideo ( G3DUIRENDERSETTINGS *rsg, 
-                                         G3DSCENE *sce,
-                                         G3DCAMERA *cam,
-                                         uint32_t engine_flags,
-                                         Widget area ) {
-
-}
-
-
-/******************************************************************************/
 static void previewCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
 

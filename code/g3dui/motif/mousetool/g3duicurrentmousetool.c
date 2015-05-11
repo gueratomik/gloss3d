@@ -30,56 +30,28 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
-void updateCurrentEdit ( Widget w, G3DUI *gui ) {
+void updateCurrentMouseTool ( Widget w, G3DUI *gui ) {
+    G3DMOUSETOOL *mou = gui->mou;;
     WidgetList children;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj;
+    G3DSCENE *sce;
     Cardinal nc;
     int i;
 
     XtVaGetValues ( w, XmNchildren, &children,
                        XmNnumChildren, &nc, NULL );
 
-    if ( obj ) {
-        char *wname = NULL;
-
-        if ( obj->type == G3DSPHERETYPE   ) wname = EDITSPHERE;
-        if ( obj->type == G3DCUBETYPE     ) wname = EDITCUBE;
-        if ( obj->type == G3DCYLINDERTYPE ) wname = EDITCYLINDER;
-        if ( obj->type == G3DMESHTYPE     ) wname = EDITMESH;
-        if ( obj->type == G3DLIGHTTYPE    ) wname = EDITLIGHT;
-        if ( obj->type == G3DSYMMETRYTYPE ) wname = EDITSYMMETRY;
-        if ( obj->type == G3DFFDTYPE      ) wname = EDITFFD;
-        if ( obj->type == G3DPLANETYPE    ) wname = EDITPLANE;
-        if ( obj->type == G3DTORUSTYPE    ) wname = EDITTORUS;
-        if ( obj->type == G3DBONETYPE     ) wname = EDITBONE;
-        if ( obj->type == G3DUVMAPTYPE    ) wname = EDITUVMAP;
-
+    if ( mou ) {
         for ( i = 0x00; i < nc; i++ ) {
             Widget child = children[i];
 
-            if ( strcmp ( XtName ( child ), EDITOBJECT ) == 0x00 ) {
-                updateObjectEdit ( child, gui );
+            if ( strcmp ( XtName ( child ), mou->name ) == 0x00 ) {
+                if ( strcmp ( mou->name, PICKTOOL    ) == 0x00 ) updatePickToolEdit    ( child, gui );
+                /*if ( strcmp ( mou->name, CUTMESHTOOL ) == 0x00 ) updateCutMeshToolEdit ( child, gui );*/
 
                 XtMapWidget ( child );
             } else {
-                if ( wname && ( strcmp ( XtName ( child ), wname ) == 0x00 ) ) {
-                    if ( obj->type == G3DCUBETYPE     ) updateCubeEdit    ( child, gui );
-                    if ( obj->type == G3DSPHERETYPE   ) updateSphereEdit  ( child, gui );
-                    if ( obj->type == G3DCYLINDERTYPE ) updateCylinderEdit( child, gui );
-                    if ( obj->type == G3DPLANETYPE    ) updatePlaneEdit   ( child, gui );
-                    if ( obj->type == G3DFFDTYPE      ) updateFFDEdit     ( child, gui );
-                    if ( obj->type == G3DMESHTYPE     ) updateMeshEdit    ( child, gui );
-                    if ( obj->type == G3DLIGHTTYPE    ) updateLightEdit   ( child, gui );
-                    if ( obj->type == G3DTORUSTYPE    ) updateTorusEdit   ( child, gui );
-                    if ( obj->type == G3DSYMMETRYTYPE ) updateSymmetryEdit( child, gui );
-/*                    if ( obj->type == G3DBONETYPE     ) updateBoneEdit    ( child, gui );*/
-                    if ( obj->type == G3DUVMAPTYPE    ) updateUVMapEdit   ( child, gui );
-
-                    XtMapWidget ( child );
-                } else {
-                    XtUnmapWidget   ( child );
-                }
+                XtUnmapWidget   ( child );
             }
         }
     /*** Hide all children widgets if no object is selected ***/
@@ -99,9 +71,12 @@ void updateCurrentEdit ( Widget w, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-Widget createCurrentEdit ( Widget parent, G3DUI *gui, char *name,
-                           Dimension x    , Dimension y,
-                           Dimension width, Dimension height ) {
+Widget createCurrentMouseTool ( Widget parent, G3DUI *gui, 
+                                               char *name,
+                                               Dimension x,
+                                               Dimension y,
+                                               Dimension width,
+                                               Dimension height ) {
     Pixel background, foreground;
     Widget scr, frm;
 
@@ -124,34 +99,23 @@ Widget createCurrentEdit ( Widget parent, G3DUI *gui, char *name,
                                             NULL );
 
     frm = XmVaCreateManagedForm ( scr, name,
-                                  XtNx, 0,
-                                  XtNy, 0,
-                                  XmNwidth , 320,
-                                  XmNheight, 480,
+                                  XtNx, 0x00,
+                                  XtNy, 0x00,
+                                  XmNwidth , 0x140,
+                                  XmNheight, 0x140,
                                   XmNforeground, foreground,
                                   XmNbackground, background,
                                   XmNborderWidth, 0x00,
                                   NULL );
 
-    createObjectEdit   ( frm, gui, EDITOBJECT  , 0, 0, 320, 32 );
+    /*** This is type dependent: hidden if not of ***/
+    /*** selected object type showed otherwise.   ***/
+    createPickToolEdit    ( frm, gui, PICKTOOL   , 0, 0, 320,  192 );
+    /*createCutMeshToolEdit ( frm, gui, CUTMESHTOOL, 0, 0, 320, 320 );*/
 
-    createSphereEdit   ( frm, gui, EDITSPHERE  , 0, 32, 320, 320 );
-    createCubeEdit     ( frm, gui, EDITCUBE    , 0, 32, 320, 320 );
-    createCylinderEdit ( frm, gui, EDITCYLINDER, 0, 32, 320, 320 );
-    createPlaneEdit    ( frm, gui, EDITPLANE   , 0, 32, 320, 320 );
-    createTorusEdit    ( frm, gui, EDITTORUS   , 0, 32, 296, 320 );
-    createFFDEdit      ( frm, gui, EDITFFD     , 0, 32, 320, 320 );
-    createMeshEdit     ( frm, gui, EDITMESH    , 0, 32, 320, 360 );
-    createLightEdit    ( frm, gui, EDITLIGHT   , 0, 32, 320, 320 );
-    createSymmetryEdit ( frm, gui, EDITSYMMETRY, 0, 32, 320, 320 );
+    updateCurrentMouseTool ( frm, gui );
 
-    /*createBoneEdit     ( frm, gui, EDITBONE    , 0x00, 0x20, 0x140, 0x140 );*/
-    createUVMapEdit    ( frm, gui, EDITUVMAP   , 0, 32, 320, 320 );
-
-
-    updateCurrentEdit ( frm, gui );
-
-    list_insert ( &gui->lcuredit, frm );
+    list_insert ( &gui->lmtools, frm );
 
 
     return scr;

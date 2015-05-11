@@ -104,11 +104,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duimeshedit.c gtk3/g3duimodebar.c \
 	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
-	gtk3/g3duirenderprocess.c gtk3/g3duirendersettings.c \
-	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
-	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisymmetryedit.c \
+	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -124,9 +124,10 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
 	motif/g3duiquad.c motif/g3duirenderedit.c \
 	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
-	motif/g3duitimeline.c motif/g3duitimeboard.c \
-	motif/g3duitoolbar.c motif/g3duiview.c \
-	motif/g3duiweightgrouplist.c \
+	motif/g3duisymmetryedit.c motif/g3duitimeline.c \
+	motif/g3duitimeboard.c motif/g3duitoolbar.c \
+	motif/g3duitorusedit.c motif/g3duiuvmapedit.c \
+	motif/g3duiview.c motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
 	motif/mousetool/g3duipicktooledit.c
@@ -195,9 +196,12 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duirenderedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duirenderwindow.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duisphereedit.lo \
+@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duisymmetryedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duitimeline.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duitimeboard.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duitoolbar.lo \
+@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duitorusedit.lo \
+@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duiuvmapedit.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duiview.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/g3duiweightgrouplist.lo \
 @HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	motif/mousetool/g3duicurrentmousetool.lo \
@@ -250,7 +254,6 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo gtk3/g3duiplaneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderprocess.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duirendersettings.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisymmetryedit.lo \
@@ -301,11 +304,11 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duimeshedit.c gtk3/g3duimodebar.c \
 	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
-	gtk3/g3duirenderprocess.c gtk3/g3duirendersettings.c \
-	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
-	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisymmetryedit.c \
+	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -321,9 +324,10 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duiobjectboard.c motif/g3duiobjectedit.c \
 	motif/g3duiquad.c motif/g3duirenderedit.c \
 	motif/g3duirenderwindow.c motif/g3duisphereedit.c \
-	motif/g3duitimeline.c motif/g3duitimeboard.c \
-	motif/g3duitoolbar.c motif/g3duiview.c \
-	motif/g3duiweightgrouplist.c \
+	motif/g3duisymmetryedit.c motif/g3duitimeline.c \
+	motif/g3duitimeboard.c motif/g3duitoolbar.c \
+	motif/g3duitorusedit.c motif/g3duiuvmapedit.c \
+	motif/g3duiview.c motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
 	motif/mousetool/g3duipicktooledit.c
@@ -560,7 +564,6 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiquad.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderprocess.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duirendersettings.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisymmetryedit.c \
@@ -640,9 +643,12 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_MOTIF_TRUE@                            motif/g3duirenderedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duirenderwindow.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duisphereedit.c \
+@HAVE_MOTIF_TRUE@                            motif/g3duisymmetryedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duitimeline.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duitimeboard.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duitoolbar.c \
+@HAVE_MOTIF_TRUE@                            motif/g3duitorusedit.c \
+@HAVE_MOTIF_TRUE@                            motif/g3duiuvmapedit.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duiview.c \
 @HAVE_MOTIF_TRUE@                            motif/g3duiweightgrouplist.c \
 @HAVE_MOTIF_TRUE@                            motif/mousetool/g3duicurrentmousetool.c \
@@ -860,8 +866,6 @@ gtk3/g3duirenderedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duirenderprocess.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
-gtk3/g3duirendersettings.lo: gtk3/$(am__dirstamp) \
-	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duirenderwindow.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
@@ -952,11 +956,17 @@ motif/g3duirenderwindow.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duisphereedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duisymmetryedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duitimeline.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duitimeboard.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duitoolbar.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duitorusedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duiuvmapedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duiview.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
@@ -1111,8 +1121,6 @@ mostlyclean-compile:
 	-rm -f gtk3/g3duirenderedit.lo
 	-rm -f gtk3/g3duirenderprocess.$(OBJEXT)
 	-rm -f gtk3/g3duirenderprocess.lo
-	-rm -f gtk3/g3duirendersettings.$(OBJEXT)
-	-rm -f gtk3/g3duirendersettings.lo
 	-rm -f gtk3/g3duirenderwindow.$(OBJEXT)
 	-rm -f gtk3/g3duirenderwindow.lo
 	-rm -f gtk3/g3duisphereedit.$(OBJEXT)
@@ -1191,12 +1199,18 @@ mostlyclean-compile:
 	-rm -f motif/g3duirenderwindow.lo
 	-rm -f motif/g3duisphereedit.$(OBJEXT)
 	-rm -f motif/g3duisphereedit.lo
+	-rm -f motif/g3duisymmetryedit.$(OBJEXT)
+	-rm -f motif/g3duisymmetryedit.lo
 	-rm -f motif/g3duitimeboard.$(OBJEXT)
 	-rm -f motif/g3duitimeboard.lo
 	-rm -f motif/g3duitimeline.$(OBJEXT)
 	-rm -f motif/g3duitimeline.lo
 	-rm -f motif/g3duitoolbar.$(OBJEXT)
 	-rm -f motif/g3duitoolbar.lo
+	-rm -f motif/g3duitorusedit.$(OBJEXT)
+	-rm -f motif/g3duitorusedit.lo
+	-rm -f motif/g3duiuvmapedit.$(OBJEXT)
+	-rm -f motif/g3duiuvmapedit.lo
 	-rm -f motif/g3duiview.$(OBJEXT)
 	-rm -f motif/g3duiview.lo
 	-rm -f motif/g3duiweightgrouplist.$(OBJEXT)
@@ -1275,7 +1289,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiquad.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderprocess.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirendersettings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisphereedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisymmetryedit.Plo@am__quote@
@@ -1315,9 +1328,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duirenderedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duisphereedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duisymmetryedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duitimeboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duitimeline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duitoolbar.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duitorusedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duiview.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@motif/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo@am__quote@
@@ -1577,20 +1593,11 @@ uninstall-am: uninstall-libLTLIBRARIES
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
 
-#                            motif/g3duilightsettings.c \
-#                            motif/g3duimaterialsettings.c \
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duiuvmapedit.c \
-#                            motif/g3duitab.c \
 #                            motif/g3duiconf.c \
 #                            motif/g3duitimeline.c \
-#                            motif/g3duitoolbar.c \
 #                            motif/g3duitextureedit.c \
 #                            motif/g3duiview.c \
-#                            motif/g3duisymmetryedit.c \
-#                            motif/g3duirenderwindow.c \
-#                            motif/g3duitorusedit.c \
-#                            motif/g3duicoordinatesedit.c \
 #                            motif/g3duikeyedit.c \
 #                            motif/g3duiclipboard.c
 

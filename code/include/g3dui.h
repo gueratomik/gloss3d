@@ -77,6 +77,7 @@
 #define FILEDESC_OBJ "Wavefront .obj"
 #define FILEDESC_DAE "Collada .dae"
 #define FILEDESC_C4D "Cinema4D .c4d"
+#define FILEDESC_STA "Ascii STL .stl"
 
 #define OBJECTMENUNAME  "Object Menu"
 #define VERTEXMENUNAME  "Vertex Menu"

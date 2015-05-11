@@ -57,7 +57,7 @@
 #define PACKAGE_NAME "gloss3d"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gloss3d dev-0.2.54"
+#define PACKAGE_STRING "gloss3d dev-0.2.55"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gloss3d"
@@ -66,19 +66,19 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "dev-0.2.54"
+#define PACKAGE_VERSION "dev-0.2.55"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "dev-0.2.54"
+#define VERSION "dev-0.2.55"
 
 /* Use GTK+3 */
-/* #undef WITH_GTK3 */
+#define WITH_GTK3 1
 
 /* Use Motif */
-#define WITH_MOTIF 1
+/* #undef WITH_MOTIF */
 
 /* Build for Windows */
 /* #undef WITH_WIN32 */

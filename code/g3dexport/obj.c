@@ -100,7 +100,7 @@ void g3dscene_exportObj ( G3DSCENE *sce, const char *filename,
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     FILE *fdst;
 
-    if ( ( fdst = fopen ( filename, "wb" ) ) == NULL ) {
+    if ( ( fdst = fopen ( filename, "wt" ) ) == NULL ) {
         fprintf ( stderr, "g3dscene_exportObj: could not open %s\n", filename );
 
         return;

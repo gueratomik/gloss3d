@@ -30,189 +30,80 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
-static void slicecbk ( Widget w, XtPointer client, XtPointer call ) {
+static void sliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     Widget parent = XtParent ( w );
+    char *value = XmTextGetString ( w );
+    int slice = strtol ( value, NULL, 10 );
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        char *value = XmTextGetString ( w );
-        int slice = strtol ( value, NULL, 10 );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( slice >= 0x03 ) {
-            g3dtorus_build ( pri, tds->orientation, 
-                                  slice,
-                                  tds->cap,
-                                  tds->extrad, 
-                                  tds->intrad );
-        } else {
-            updateTorusEdit ( parent );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-        XtFree ( value );
+    if ( slice >= 0x03 ) {
+        common_g3duitorusedit_sliceCbk ( gui, slice );
+    } else {
+        updateTorusEdit ( parent, gui );
     }
+
+    XtFree ( value );
 }
 
 /******************************************************************************/
-static void capcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void capCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     Widget parent = XtParent ( w );
+    char *value = XmTextGetString ( w );
+    int cap = strtol ( value, NULL, 10 );
 
     /*** prevent useless primitive building when XmTextSetString is called ***/
     if ( gui->lock ) return;
 
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        char *value = XmTextGetString ( w );
-        int cap = strtol ( value, NULL, 10 );
-
-        g3dui_setHourGlass ( gui );
-
-        if ( cap >= 0x03 ) {
-            g3dtorus_build ( pri, tds->orientation, 
-                                  tds->slice,
-                                  cap,
-                                  tds->extrad, 
-                                  tds->intrad );
-        } else {
-            updateTorusEdit ( parent );
-        }
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-        XtFree ( value );
+    if ( cap >= 0x03 ) {
+        common_g3duitorusedit_sliceCbk ( gui, cap );
+    } else {
+        updateTorusEdit ( parent, gui );
     }
+
+    XtFree ( value );
 }
 
 /******************************************************************************/
-static void extradcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void extRadiusCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    char *value = XmTextGetString ( w );
+    float rad = strtof ( value, NULL );
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    common_g3duitorusedit_extRadiusCbk ( gui, rad );
 
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        char *value = XmTextGetString ( w );
-        float extrad = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              tds->slice,
-                              tds->cap,
-                              extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-        XtFree ( value );
-    }
+    XtFree ( value );
 }
 
 /******************************************************************************/
-static void intradcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void intRadiusCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    char *value = XmTextGetString ( w );
+    float rad = strtof ( value, NULL );
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    common_g3duitorusedit_intRadiusCbk ( gui, rad );
 
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        char *value = XmTextGetString ( w );
-        float intrad = strtof ( value, NULL );
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              tds->slice,
-                              tds->cap,
-                              tds->extrad, 
-                              intrad );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-        XtFree ( value );
-    }
+    XtFree ( value );
 }
 
 /******************************************************************************/
-static void orientationcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void orientationCbk ( Widget w, XtPointer client, XtPointer call ) {
     XmComboBoxCallbackStruct *cbs = ( XmComboBoxCallbackStruct * ) call;
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     char *str;
 
     XmStringGetLtoR ( cbs->item_or_text, XmFONTLIST_DEFAULT_TAG, &str );
 
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        uint32_t orientation;
-
-        if ( strcmp ( str, ZXSTR ) == 0x00 ) {
-            orientation = TORUSZX;
-        }
-
-        if ( strcmp ( str, XYSTR ) == 0x00 ) {
-            orientation = TORUSXY;
-        }
-
-        if ( strcmp ( str, YZSTR ) == 0x00 ) {
-            orientation = TORUSYZ;
-        }
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, orientation,
-                              tds->slice,
-                              tds->cap,
-                              tds->extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui );        
-
-        g3dui_redrawGLViews ( gui );
-    }
+    common_g3duitorusedit_orientationCbk ( gui, str );
 
     XtFree ( str );
 }
 
 /******************************************************************************/
-void updateTorusEdit ( Widget w ) {
+void updateTorusEdit ( Widget w, G3DUI *gui ) {
     WidgetList children;
-    G3DOBJECT *obj;
-    G3DSCENE *sce;
-    G3DUI *gui;
-
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    sce = gui->sce;
-    obj = g3dscene_getSelectedObject ( sce );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     /*** prevent useless primitive building when XmTextSetString is called, ***/
     /*** as XmTextSetString will call XmNvalueChanged callback whereas we   ***/
@@ -297,11 +188,22 @@ Widget createTorusEdit ( Widget parent, G3DUI *gui, char *name,
                                    XmNuserData, gui,
                                    NULL );
 
-    createIntegerText ( frm, EDITTORUSSLICE , 0x00, 0x00, 0x60, 0x20, slicecbk  );
-    createIntegerText ( frm, EDITTORUSCAP   , 0x00, 0x14, 0x60, 0x20, capcbk    );
-    createFloatText   ( frm, EDITTORUSEXTRAD, 0x00, 0x28, 0x60, 0x60, extradcbk );
-    createFloatText   ( frm, EDITTORUSINTRAD, 0x00, 0x3C, 0x60, 0x60, intradcbk );
-    createOrientationSelection ( frm, EDITTORUSORIENTATION, 0x00, 0x50, 0x60, 0x60, orientationcbk );
+    createIntegerText ( frm, gui, EDITTORUSSLICE ,  0, 0,
+                                                   96, 32, sliceCbk  );
+
+    createIntegerText ( frm, gui, EDITTORUSCAP   ,  0, 20, 
+                                                   96, 32, capCbk    );
+
+    createFloatText   ( frm, gui, EDITTORUSEXTRAD,  0, 40,
+                                                   96, 96, extRadiusCbk );
+
+    createFloatText   ( frm, gui, EDITTORUSINTRAD,  0, 60, 
+                                                   96, 96, intRadiusCbk );
+
+    createOrientationSelection ( frm, gui, EDITTORUSORIENTATION,  0, 80,
+                                                                 96, 96, orientationCbk );
+
+    updateTorusEdit ( frm, gui );
 
     XtManageChild ( frm );
 

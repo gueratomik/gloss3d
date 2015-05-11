@@ -29,48 +29,36 @@
 #include <config.h>
 #include <g3dui_motif.h>
 
+
 /******************************************************************************/
-static void planecbk ( Widget w, XtPointer client, XtPointer call ) {
-    XmComboBoxCallbackStruct *cbs = ( XmComboBoxCallbackStruct * ) call;
+static void limitCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-    char *str;
+    char *value = XmTextGetString ( w );
+    float lim = strtof ( value, NULL );
 
-    XmStringGetLtoR ( cbs->item_or_text, XmFONTLIST_DEFAULT_TAG, &str );
+    common_g3duisymmetryedit_limitCbk ( gui, lim );
 
-    if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
-        G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-
-        if ( strcmp ( str, ZXSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYZX );
-        }
-
-        if ( strcmp ( str, XYSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYXY );
-        }
-        
-        if ( strcmp ( str, YZSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
-        }
-
-        g3dui_redrawGLViews ( gui );
-    }
-
-    XtFree ( str );
+    XtFree ( value );
 }
 
 /******************************************************************************/
-void updateSymmetryEdit ( Widget w ) {
+static void planeCbk ( Widget w, XtPointer client, XtPointer call ) {
+    XmComboBoxCallbackStruct *cbs = ( XmComboBoxCallbackStruct * ) call;
+    G3DUI *gui = ( G3DUI * ) client;
+    char *orientation;
+
+    XmStringGetLtoR ( cbs->item_or_text, XmFONTLIST_DEFAULT_TAG, &orientation );
+
+    common_g3duisymmetryedit_planeCbk ( gui, orientation );
+
+    XtFree ( orientation );
+}
+
+/******************************************************************************/
+void updateSymmetryEdit ( Widget w, G3DUI *gui ) {
     WidgetList children;
-    G3DOBJECT *obj;
-    G3DSCENE *sce;
-    G3DUI *gui;
-
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    sce = gui->sce;
-    obj = g3dscene_getSelectedObject ( sce );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
         G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
@@ -116,7 +104,13 @@ Widget createSymmetryEdit ( Widget parent  , G3DUI *gui, char *name,
                                    XmNuserData, gui,
                                    NULL );
 
-    createOrientationSelection ( frm, EDITSYMMETRYPLANE, 0x00, 0x50, 0x60, 0x60, planecbk );
+    createFloatText            ( frm, gui, EDITSYMMETRYLIMIT, 0,  0,
+                                                             96, 96, limitCbk );
+
+    createOrientationSelection ( frm, gui, EDITSYMMETRYPLANE, 0, 32,
+                                                             96, 32, planeCbk );
+
+    updateSymmetryEdit ( frm, gui );
 
 
     XtManageChild ( frm );

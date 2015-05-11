@@ -295,6 +295,10 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
         g3dscene_exportObj ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );
     }
 
+    if ( strcmp ( filedesc, FILEDESC_STA ) == 0x00 ) {
+        g3dscene_exportStlA ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );
+    }
+
     g3dui_unsetHourGlass ( gui );
 
     g3dui_redrawGLViews        ( gui );

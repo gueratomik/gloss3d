@@ -72,7 +72,7 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dexport_la_LIBADD =
-am__objects_1 = g3dexport.lo obj.lo
+am__objects_1 = g3dexport.lo stl.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -119,7 +119,7 @@ AUTOMAKE = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run au
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -g -O2 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -141,7 +141,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /opt/gnat/libexec/gcc/x86_64-pc-linux-gnu/4.7.4/ld -m elf_x86_64
-LDFLAGS = 
+LDFLAGS =  -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -162,10 +162,10 @@ OTOOL64 =
 PACKAGE = gloss3d
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = gloss3d
-PACKAGE_STRING = gloss3d dev-0.2.54
+PACKAGE_STRING = gloss3d dev-0.2.55
 PACKAGE_TARNAME = gloss3d
 PACKAGE_URL = 
-PACKAGE_VERSION = dev-0.2.54
+PACKAGE_VERSION = dev-0.2.55
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -175,7 +175,7 @@ SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = dev-0.2.54
+VERSION = dev-0.2.55
 abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dexport
 abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3dexport
 abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
@@ -237,6 +237,7 @@ AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dexport.la
 libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
 LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
+                            stl.c \
                             obj.c
 
 all: all-am
@@ -315,6 +316,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/g3dexport.Plo
 include ./$(DEPDIR)/obj.Plo
+include ./$(DEPDIR)/stl.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

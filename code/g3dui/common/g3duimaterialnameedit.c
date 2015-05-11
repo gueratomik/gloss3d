@@ -27,32 +27,4 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui_gtk3.h>
-
-/******************************************************************************/
-GtkWidget *createMainBoard ( GtkWidget *parent, G3DUI *gui,
-                                                char *name,
-                                                gint x,
-                                                gint y,
-                                                gint width,
-                                                gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *tab = gtk_notebook_new ( );
-    GtkWidget *objbrd, *matbrd;
-
-    gtk_widget_set_name ( tab, name );
-
-    gtk_widget_size_allocate ( tab, &gdkrec );
-
-    gtk_fixed_put ( GTK_FIXED(parent), tab, x, y );
-
-    /*createMaterialBoard ( tab, &guw->gui, "Material Board", 0x00, 0x00, 0x140, 0x300 );
-*/  objbrd = createObjectBoard   ( tab, gui, OBJECTBOARDNAME  , 0, 0, width, height );
-    matbrd = createMaterialBoard ( tab, gui, MATERIALBOARDNAME, 0, 0, width, height );
-
-
-    gtk_widget_show ( tab );
-
-
-    return tab;
-}
+#include <g3dui.h>
