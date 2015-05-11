@@ -886,7 +886,7 @@ static void exportFileOkCbk ( Widget w, XtPointer client, XtPointer call ) {
                         ( XmFileSelectionBoxCallbackStruct * ) call;
     G3DUI *gui = ( G3DUI * ) client;
     char *filename;
-    char *filedesc;
+    char *filedesc = NULL;
 
     XtVaGetValues ( w, XmNuserData, &filedesc, NULL );
 
@@ -919,6 +919,8 @@ void g3dui_exportFileCbk ( Widget w, XtPointer client, XtPointer call ) {
 
     dialog = XmCreateFileSelectionDialog ( parent, "Save File", 
                                            NULL, 0x00 );
+
+    XtVaSetValues ( dialog, XmNuserData, XtName ( w ), NULL );
 
     XtAddCallback ( dialog, XmNokCallback    , exportFileOkCbk    , gui );
     XtAddCallback ( dialog, XmNcancelCallback, exportFileCancelCbk, gui );
@@ -1050,7 +1052,7 @@ Widget createExportMenu ( Widget parent, G3DUI *gui,
                                      NULL );
 
     g3dui_addMenuButton ( menu, gui, FILEDESC_OBJ, width, g3dui_exportFileCbk );
-
+    g3dui_addMenuButton ( menu, gui, FILEDESC_STA, width, g3dui_exportFileCbk );
 
     XtManageChild ( item );
 

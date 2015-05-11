@@ -75,10 +75,10 @@
 #define VERSION "dev-0.2.55"
 
 /* Use GTK+3 */
-#define WITH_GTK3 1
+/* #undef WITH_GTK3 */
 
 /* Use Motif */
-/* #undef WITH_MOTIF */
+#define WITH_MOTIF 1
 
 /* Build for Windows */
 /* #undef WITH_WIN32 */
