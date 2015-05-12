@@ -118,7 +118,6 @@ OBJECTS=main.o \
 		g3dui\gtk3\g3duiquad.o \
 		g3dui\gtk3\g3duirenderedit.o \
 		g3dui\gtk3\g3duirenderprocess.o \
-		g3dui\gtk3\g3duirendersettings.o \
 		g3dui\gtk3\g3duirenderwindow.o \
 		g3dui\gtk3\g3duisphereedit.o \
 		g3dui\gtk3\g3duisymmetryedit.o \
@@ -212,6 +211,7 @@ OBJECTS=main.o \
         g3dimport\g3dimport.o \
         g3dimport\obj.o \
         g3dexport\g3dexport.o \
+        g3dexport\stl.o \
         g3dexport\obj.o \
         r3d\r3d.o \
         r3d\r3darea.o \
