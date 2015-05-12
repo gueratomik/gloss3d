@@ -138,6 +138,29 @@ void common_g3duimenubar_alignUVMapCbk ( G3DUI *gui, const char *option ) {
 }
 
 /******************************************************************************/
+void common_g3dui_mergeMeshCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    uint32_t objID = g3dscene_getNextObjectID ( sce );
+
+    if ( sce->lsel ) {
+        G3DMESH *mrg = g3dmesh_merge ( sce->lsel, objID, gui->flags );
+
+        g3durm_object_addChild ( urm, sce, gui->flags, 
+                                           ( REDRAWVIEW |
+                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                           ( G3DOBJECT * ) NULL,
+                                           ( G3DOBJECT * ) sce,
+                                           ( G3DOBJECT * ) mrg );
+    }
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
 void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -147,6 +170,7 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
     if ( gui->flags & VIEWFACE ) {
         if ( obj && ( obj->type == G3DMESHTYPE ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DOBJECT *parent = obj->parent;
 
             if ( mes->lselfac ) {
                 G3DMESH *spl;
@@ -165,8 +189,13 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
                                                             gui->flags );
                 }
 
-                g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
-                                     ( G3DOBJECT *  ) spl );
+                g3durm_object_addChild ( urm, sce, gui->flags, 
+                                           ( REDRAWVIEW |
+                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                           ( G3DOBJECT * ) NULL,
+                                           ( G3DOBJECT * ) parent,
+                                           ( G3DOBJECT * ) spl );
+
             }
         }
     }

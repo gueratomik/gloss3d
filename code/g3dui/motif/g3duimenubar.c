@@ -263,6 +263,13 @@ Widget createRenderMenu ( Widget parent, G3DUI *gui,
 }
 
 /******************************************************************************/
+void g3dui_mergeMeshCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3dui_mergeMeshCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_splitMeshCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
     char *option = XtName ( w );
@@ -386,6 +393,8 @@ Widget createFunctionsMenu ( Widget bar, G3DUI *gui,
 
     createMirrorWeightGroupMenu ( menu, gui, MENU_MIRRORWEIGHTGROUP, width );
     createSplitMeshMenu         ( menu, gui, MENU_SPLITMESH        , width );
+    g3dui_addMenuButton         ( menu, gui, MENU_MERGEMESH        , width, g3dui_mergeMeshCbk );
+    g3dui_addMenuButton         ( menu, gui, MENU_MAKEEDITABLE     , width, g3dui_makeEditableCbk );
 
     XtManageChild ( item );
 

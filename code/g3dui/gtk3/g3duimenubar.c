@@ -186,6 +186,13 @@ GtkWidget *createRenderMenu ( GtkWidget *bar, G3DUI *gui,
 }
 
 /******************************************************************************/
+void g3dui_mergeMeshCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_mergeMeshCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_splitMeshCbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *option = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -271,7 +278,7 @@ GtkWidget *createFunctionsMenu ( GtkWidget *bar, G3DUI *gui,
 
     createMirrorWeightGroupMenu ( menu, gui, MENU_MIRRORWEIGHTGROUP, width );
     createSplitMeshMenu         ( menu, gui, MENU_SPLITMESH        , width );
-
+    g3dui_addMenuButton         ( menu, gui, MENU_MERGEMESH        , width, g3dui_mergeMeshCbk );
     g3dui_addMenuButton         ( menu, gui, MENU_MAKEEDITABLE     , width, g3dui_makeEditableCbk );
 
     gtk_widget_show     ( item );

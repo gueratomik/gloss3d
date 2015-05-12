@@ -32,6 +32,102 @@
 /******************************************************************************/
 /** 
  * @author Gary Gabriel
+ * @date 12 May 2015
+ * @brief Merge selected objects into a new mesh.
+ * @param Object list.
+ * @param new mesh's ID.
+ * @param engine flags.
+ * @return the merged mesh.
+ *
+ * This function creates a new mesh from a list of selected objects.
+ * Objects that are not of type G3DMESHTYPE are not merged.
+ */
+G3DMESH *g3dmesh_merge ( LIST *lobj, uint32_t mesID, uint32_t engine_flags ) {
+    G3DMESH *mrg = g3dmesh_new ( mesID, "Merged mesh", engine_flags );
+    LIST *ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            if ( mes->nbver ) {
+                G3DVERTEX **vertab = calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
+                LIST *ltmpver = mes->lver;
+                LIST *ltmpfac = mes->lfac;
+                uint32_t verid = 0x00;
+
+                while ( ltmpver ) {
+                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                    G3DVERTEX *newver;
+                    G3DVECTOR  pos;
+
+                    /*** Convert to World coordinates. The new ***/
+                    /*** mesh's matrix is the identity matrix. ***/
+                    g3dvector_matrix ( &ver->pos, obj->wmatrix, &pos );
+
+                    newver = g3dvertex_new ( pos.x, pos.y, pos.z );
+
+                    ver->id = verid++;
+
+                    /*** Build index ***/
+                    vertab[ver->id] = newver;
+
+                    g3dmesh_addVertex ( mrg, newver );
+
+                    ltmpver = ltmpver->next;
+                }
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    G3DFACE *newfac;
+
+                    if ( fac->nbver == 0x03 ) {
+                        newfac = g3dtriangle_new ( vertab[fac->ver[0x00]->id],
+                                                   vertab[fac->ver[0x01]->id],
+                                                   vertab[fac->ver[0x02]->id] );
+                    } else {
+                        newfac = g3dquad_new     ( vertab[fac->ver[0x00]->id],
+                                                   vertab[fac->ver[0x01]->id],
+                                                   vertab[fac->ver[0x02]->id],
+                                                   vertab[fac->ver[0x03]->id] );
+                    }
+
+                    g3dmesh_addFace ( mrg, newfac );
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                free ( vertab );
+            }
+        }
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    g3dmesh_update ( mrg, NULL, /*** Recompute vertices    ***/
+                          NULL, /*** Recompute edges       ***/
+                          NULL, /*** Recompute faces       ***/
+                          NULL, /*** Recompute subdivision ***/
+                          COMPUTEFACEPOSITION |
+                          COMPUTEFACENORMAL   | 
+                          COMPUTEEDGEPOSITION |
+                          COMPUTEVERTEXNORMAL |
+                          COMPUTEUVMAPPING    |
+                          REALLOCSUBDIVISION  |
+                          COMPUTESUBDIVISION,
+                          engine_flags );
+
+    g3dmesh_updateBbox ( mrg );
+
+
+    return mrg;
+}
+
+/******************************************************************************/
+/** 
+ * @author Gary Gabriel
  * @date 18 Oct 2014
  * @brief Create new mesh from the selected faces.
  * @param the orignal mesh.

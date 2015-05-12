@@ -391,6 +391,7 @@
 #define MENU_SPLITANDKEEP         "Split and keep"
 #define MENU_SPLITANDREMOVE       "Split and remove"
 #define MENU_MAKEEDITABLE         "Make editable"
+#define MENU_MERGEMESH            "Merge Meshes"
 
 #define MENU_RENDERVIEW           "Render view"
 #define MENU_RENDERFINAL          "Render Final"
@@ -1025,6 +1026,7 @@ void common_g3dui_sighandler ( int, siginfo_t *, void * );
 
 /******************************* Menu Bar *************************************/
 void common_g3dui_splitMeshCbk          ( G3DUI *, const char * );
+void common_g3dui_mergeMeshCbk          ( G3DUI * );
 void common_g3dui_mirrorWeightGroupCbk  ( G3DUI *, const char * );
 void common_g3dui_resetBoneTreeCbk      ( G3DUI * );
 void common_g3dui_resetBoneCbk          ( G3DUI * );
