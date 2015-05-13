@@ -842,7 +842,7 @@ static gboolean gtk_area_filter ( GdkXEvent *xevent,
     MSG *msg = ( MSG * ) xevent;
     /*** use parent class configure function ***/
     /*GTK_WIDGET_CLASS(gtk_view_parent_class)->configure_event ( widget, event );*/
-printf ( "test %d\n", msg->message );
+
     if ( msg->message == 70 ) return GDK_FILTER_REMOVE;
 
     #endif

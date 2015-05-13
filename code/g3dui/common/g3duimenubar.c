@@ -650,6 +650,8 @@ void common_g3dui_triangulateCbk ( G3DUI *gui, const char *option ) {
             g3durm_mesh_triangulate ( urm, mes, 0x00, gui->flags, REDRAWVIEW );
 
         }
+		
+        g3dui_redrawGLViews ( gui );
     }
 }
 
@@ -663,6 +665,8 @@ void common_g3dui_invertNormalCbk ( G3DUI *gui ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         g3durm_mesh_invertNormal ( urm, mes, gui->flags, REDRAWVIEW );
+		
+        g3dui_redrawGLViews ( gui );
     }
 }
 

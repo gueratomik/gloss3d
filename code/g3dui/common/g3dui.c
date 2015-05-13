@@ -462,6 +462,8 @@ void common_g3dui_setMouseTool ( G3DUI *gui, G3DMOUSETOOL *mou ) {
     /*** can be used by this function to initialize some values ***/
     if ( mou->init ) {
             mou->init ( mou, gui->sce, gui->curcam, gui->urm, gui->flags );
+			
+			g3dui_redrawGLViews ( gui );
     }
 
     if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
