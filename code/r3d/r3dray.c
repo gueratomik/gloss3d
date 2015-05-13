@@ -436,7 +436,7 @@ uint32_t r3dray_inOctree ( R3DRAY *ray, R3DOCTREE *rot,
 
     /*** If we hit the edge, we got only 1 hit. We must fix that ***/
     if ( nbhit == 0x01 ) {
-        memcpy ( &ptout, &ptin, sizeof ( R3DPOINT ) );
+        memcpy ( ptout, ptin, sizeof ( R3DPOINT ) );
     }
 
 
