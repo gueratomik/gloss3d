@@ -48,15 +48,17 @@ G3DCUTMESH *cutMesh_new ( ) {
 }
 
 /******************************************************************************/
-void cutMesh_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                       G3DCAMERA *cam,
-                                       G3DURMANAGER *urm, 
-                                       uint32_t engine_flags ) {
+uint32_t cutMesh_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                           G3DCAMERA *cam,
+                                           G3DURMANAGER *urm, 
+                                           uint32_t engine_flags ) {
     if ( mou->data ) {
         G3DCUTMESH *cm = mou->data;
     } else {
         mou->data = cutMesh_new ( );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

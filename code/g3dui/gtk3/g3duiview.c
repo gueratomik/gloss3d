@@ -1179,39 +1179,7 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
                                             gui->urm,
                                             gui->flags, &g3dev );
 
-            if ( msk & REDRAWVIEW ) {
-                g3dui_redrawGLViews ( gui );
-            }
-
-            if ( msk & REDRAWLIST ) {
-                g3dui_redrawObjectList ( gui );
-            }
-
-            if ( msk & REDRAWCURRENTOBJECT ) {
-                g3dui_updateAllCurrentEdit ( gui );
-            }
-
-            if ( msk & REDRAWTIMELINE ) {
-                g3dui_redrawTimeline ( gui );
-            }
-
-            if ( msk & REDRAWCOORDS ) {
-                g3dui_updateCoords ( gui );
-            }
-
-            if ( msk & REDRAWCOORDS ) {
-                g3dui_updateCoords ( gui );
-            }
-
-            if ( msk & NOBUFFEREDSUBDIVISION ) {
-                /*** this should be replace by some MEANINGFUL mask ***/
-                gui->flags |= ONGOINGANIMATION;
-            }
-
-            if ( msk & BUFFEREDSUBDIVISIONOK ) {
-                /*** this should be replace by some MEANINGFUL mask ***/
-                gui->flags &= (~ONGOINGANIMATION);
-            }
+            common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
             if ( gdkev->type == GDK_BUTTON_RELEASE ) {
                 g3dcursor_reset ( &gui->sce->csr );

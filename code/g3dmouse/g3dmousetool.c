@@ -31,10 +31,10 @@
 
 /******************************************************************************/
 G3DMOUSETOOL *g3dmousetool_new ( char *name, char key, const char **icon,
-                                 void (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
-                                                G3DCAMERA *,
-                                                G3DURMANAGER *, 
-                                                uint32_t ),
+                                 uint32_t (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
+                                                    G3DCAMERA *,
+                                                    G3DURMANAGER *, 
+                                                    uint32_t ),
                                  void (*draw) ( G3DMOUSETOOL *,
                                                 G3DSCENE *, uint32_t ),
                                  int  (*tool) ( G3DMOUSETOOL *, G3DSCENE *,

@@ -35,10 +35,10 @@
 /******************************************************************************/
 
 /******************************************************************************/
-void weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                             G3DCAMERA *cam,
-                                             G3DURMANAGER *urm, 
-                                             uint32_t engine_flags ) {
+uint32_t weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                 G3DCAMERA *cam,
+                                                 G3DURMANAGER *urm, 
+                                                 uint32_t engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
@@ -46,5 +46,9 @@ void weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
         g3durm_mesh_weldSelectedVertices ( urm, mes, 0x01, 
                                                      engine_flags, REDRAWVIEW );
+
+        return REDRAWVIEW;
     }
+
+    return 0x00;
 }

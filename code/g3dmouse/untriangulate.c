@@ -35,10 +35,10 @@
 /******************************************************************************/
 
 /******************************************************************************/
-void untriangulate_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                              G3DCAMERA *cam,
-                                              G3DURMANAGER *urm, 
-                                              uint32_t engine_flags ) {
+uint32_t untriangulate_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                  G3DCAMERA *cam,
+                                                  G3DURMANAGER *urm, 
+                                                  uint32_t engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
@@ -47,8 +47,8 @@ void untriangulate_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
         g3durm_mesh_untriangulate ( urm, mes, engine_flags,
                                               REDRAWVIEW );
 
-        /*return REDRAWVIEW;*/
+        return REDRAWVIEW;
     }
 
-    /*return FALSE;*/
+    return 0x00;
 }

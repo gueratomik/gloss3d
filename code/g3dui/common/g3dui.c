@@ -461,14 +461,53 @@ void common_g3dui_setMouseTool ( G3DUI *gui, G3DMOUSETOOL *mou ) {
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou->init ) {
-            mou->init ( mou, gui->sce, gui->curcam, gui->urm, gui->flags );
+        uint32_t msk = mou->init ( mou, gui->sce, 
+                                        gui->curcam, 
+                                        gui->urm, gui->flags );
 			
-			g3dui_redrawGLViews ( gui );
+        common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
     }
 
     if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
         /*** We don't check this variable is non-NULL because it must never be ***/
         gui->mou    = mou;
+    }
+}
+
+/******************************************************************************/
+void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
+    if ( msk & REDRAWVIEW ) {
+        g3dui_redrawGLViews ( gui );
+    }
+
+    if ( msk & REDRAWLIST ) {
+        g3dui_redrawObjectList ( gui );
+    }
+
+    if ( msk & REDRAWCURRENTOBJECT ) {
+        g3dui_updateAllCurrentEdit ( gui );
+    }
+
+    if ( msk & REDRAWTIMELINE ) {
+        g3dui_redrawTimeline ( gui );
+    }
+
+    if ( msk & REDRAWCOORDS ) {
+        g3dui_updateCoords ( gui );
+    }
+
+    if ( msk & REDRAWCOORDS ) {
+        g3dui_updateCoords ( gui );
+    }
+
+    if ( msk & NOBUFFEREDSUBDIVISION ) {
+        /*** this should be replace by some MEANINGFUL mask ***/
+        gui->flags |= ONGOINGANIMATION;
+    }
+
+    if ( msk & BUFFEREDSUBDIVISIONOK ) {
+        /*** this should be replace by some MEANINGFUL mask ***/
+        gui->flags &= (~ONGOINGANIMATION);
     }
 }
 

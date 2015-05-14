@@ -47,10 +47,10 @@ G3DEXTRUDEFACE *extrudeFace_new ( ) {
 }
 
 /******************************************************************************/
-void extrudeFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                           G3DCAMERA *cam,
-                                           G3DURMANAGER *urm, 
-                                           uint32_t engine_flags ) {
+uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                               G3DCAMERA *cam,
+                                               G3DURMANAGER *urm, 
+                                               uint32_t engine_flags ) {
     if ( mou->data == NULL ) {
         G3DEXTRUDEFACE *ef =  extrudeFace_new ( );
 
@@ -58,13 +58,15 @@ void extrudeFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
         mou->data = ef;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void extrudeInner_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                            G3DCAMERA *cam,
-                                            G3DURMANAGER *urm, 
-                                            uint32_t engine_flags ) {
+uint32_t extrudeInner_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                G3DCAMERA *cam,
+                                                G3DURMANAGER *urm, 
+                                                uint32_t engine_flags ) {
     if ( mou->data == NULL ) {
         G3DEXTRUDEFACE *ef =  extrudeFace_new ( );
 
@@ -72,6 +74,8 @@ void extrudeInner_init ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
         mou->data = ef;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

@@ -52,17 +52,18 @@ G3DPICKTOOL *pickTool_new ( ) {
 }
 
 /******************************************************************************/
-void pickTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                        G3DCAMERA *cam,
-                                        G3DURMANAGER *urm, 
-                                        uint32_t engine_flags ) {
-    /*** reset the vertex array ***/
+uint32_t pickTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                            G3DCAMERA *cam,
+                                            G3DURMANAGER *urm, 
+                                            uint32_t engine_flags ) {
     if ( mou->data ) {
         G3DPICKTOOL *pt = mou->data;
 
     } else {
         mou->data = pickTool_new ( );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

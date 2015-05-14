@@ -49,10 +49,10 @@ G3DCREATEFACE *createFace_new ( ) {
 }
 
 /******************************************************************************/
-void createFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                          G3DCAMERA *cam,
-                                          G3DURMANAGER *urm, 
-                                          uint32_t engine_flags ) {
+uint32_t createFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                              G3DCAMERA *cam,
+                                              G3DURMANAGER *urm, 
+                                              uint32_t engine_flags ) {
     /*** reset the vertex array ***/
     if ( mou->data ) {
         G3DCREATEFACE *cf = mou->data;
@@ -66,6 +66,8 @@ void createFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce,
     } else {
         mou->data = createFace_new ( );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

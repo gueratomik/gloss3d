@@ -840,6 +840,7 @@ void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t,
 void      common_g3dui_setMode              ( G3DUI *, const char * );
 void      common_g3dui_dispatchGLMenuButton ( G3DUI *, G3DMOUSETOOL *,
                                                        uint32_t );
+void      common_g3dui_interpretMouseToolReturnFlags ( G3DUI *, uint32_t );
 
 /****************************** Callbacks *************************************/
 void      common_g3dui_deleteSelectionCbk     ( G3DUI * );

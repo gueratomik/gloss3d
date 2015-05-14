@@ -30,11 +30,11 @@
 #include <g3dmouse.h>
 
 /******************************************************************************/
-void paintWeight_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                           G3DCAMERA *cam,
-                                           G3DURMANAGER *urm, 
-                                           uint32_t engine_flags ) {
-
+uint32_t paintWeight_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                               G3DCAMERA *cam,
+                                               G3DURMANAGER *urm, 
+                                               uint32_t engine_flags ) {
+    return 0x00;
 }
 
 /******************************************************************************/
