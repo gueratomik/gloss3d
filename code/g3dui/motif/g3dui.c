@@ -1138,6 +1138,26 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
                                        NULL );
     }
 
+    txt = XmVaCreateManagedSpinButton ( parent, name,
+                                  XmNx, x + labwidth,
+                                  XmNy, y,
+                                  XmNwidth ,
+                                  txtwidth + 0x20, /* 32 pix for "+-" buttons */
+                                  XmNheight, 0x12,
+                                  XmNfontList, gmt->fontlist,
+                                  XmNmaxLength, 0x04,
+                                  XmNmarginWidth, 0x00,
+                                  XmNmarginHeight, 0x00,
+                                  XmNshadowThickness, 0x01,
+                                  XmNhighlightOnEnter, True,
+                                  XmNhighlightThickness, 0x01,
+                                  XmNforeground, foreground,
+                                  /*XmNbackground, white,*/
+                                  /*** in case it belongs to a frame ***/
+                                  XmNframeChildType, XmFRAME_GENERIC_CHILD,
+                                  NULL );
+
+#ifdef dfdsfdsfdsf
     txt = XmVaCreateManagedText ( parent, name,
                                   XmNx, x + labwidth,
                                   XmNy, y,
@@ -1155,11 +1175,12 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
                                   /*** in case it belongs to a frame ***/
                                   XmNframeChildType, XmFRAME_GENERIC_CHILD,
                                   NULL );
+#endif
 
-    XtAddCallback ( txt, XmNmodifyVerifyCallback, verifyintcbk, NULL );
+    /*XtAddCallback ( txt, XmNmodifyVerifyCallback, verifyintcbk, NULL );*/
 
     if ( cbk ) {
-        XtAddCallback ( txt, XmNvalueChangedCallback, cbk, gui );
+        /*XtAddCallback ( txt, XmNvalueChangedCallback, cbk, gui );*/
     }
 
     return txt;

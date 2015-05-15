@@ -236,17 +236,17 @@ void updateSubdivisionForm ( Widget w, G3DUI *gui ) {
             char *name = XtName ( child );
             char buf[0x10];
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITMESHSUBDIVVIEW ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%d", mes->subdiv );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
 
                 if ( strcmp ( name, EDITMESHSUBDIVREND ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%d", mes->subdiv_render );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
 
                 if ( strcmp ( name, EDITMESHADVANGLE ) == 0x00 ) {
@@ -254,7 +254,7 @@ void updateSubdivisionForm ( Widget w, G3DUI *gui ) {
 
                     snprintf ( buf, 0x10, "%.2f", mes->advang );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
             }
 

@@ -133,6 +133,7 @@ if HAVE_MOTIF
                             common/mousetool/g3duipicktooledit.c \
                             motif/TabbedBook.c \
                             motif/ColorEdit.c \
+                            motif/SpinButton.c \
                             motif/g3dui.c \
                             motif/g3duicom.c \
                             motif/g3duicoordinatesedit.c \
