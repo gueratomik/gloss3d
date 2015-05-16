@@ -31,13 +31,10 @@
 
 /******************************************************************************/
 static void paintRadiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    int radius = strtol ( value, NULL, 10 );
+    int radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duipicktooledit_paintRadiusCbk ( gui, radius );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -89,12 +86,9 @@ void updatePickToolWeightForm ( Widget w, G3DUI *gui ) {
                 }
             }
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( XtName ( child ), EDITPICKTOOLWEIGHTRADIUS ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", pt->paint_radius );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, pt->paint_radius );
                 }
             }
         }

@@ -118,7 +118,7 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
     rsg->format      = RENDERTOIMAGE;
     rsg->width       = 640;
     rsg->height      = 480;
-    rsg->ratio       = 1.33f;
+    rsg->ratio       = 0.0f;
     rsg->background  = 0x00404040;
 
     g3duirendersettings_getFfmpegPath ( rsg );

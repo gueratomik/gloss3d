@@ -403,7 +403,7 @@ static void motif_quad_createDefaultViews ( GQuadWidget gqw ) {
 
     cam = common_g3dui_createDefaultCameras ( gui );
 
-    /*gui->defcam = gui->curcam = cam[0x00];*/
+    gui->defcam = gui->curcam = cam[0x00];
 
     for ( i = 0x00; i < 0x04; i++ ) {
         uint32_t vwidth  = ( quad->seg[i].x2 - quad->seg[i].x1 ),

@@ -165,6 +165,7 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
     Display *dis = XtDisplay ( w );
     Pixel background, foreground;
     Widget txt, inc, dec;
+    char str[0x100];
 
     /*** this is required if we want to inherit the event mask. ***/
     /*** Redisplay procedure would not be called otherwise      ***/
@@ -180,14 +181,17 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
     dec_x = width - 0x20;
     inc_x = width - 0x10;
 
+    if ( xsw->spinbutton.decimal ) snprintf ( str, 0x100, "%.2f",      xsw->spinbutton.value );
+    else                           snprintf ( str, 0x100, "%d"  , (int)xsw->spinbutton.value );
+
     txt = XmVaCreateManagedText ( w, SPINTXT,
-                                     XmNvalue, "0",
+                                     XmNvalue, str,
                                      XmNx, txt_x,
                                      XmNy, 0x00,
                                      XmNwidth, dec_x - txt_x,
                                      XmNheight, height,
                                      XmNbackground, white,
-                                     XmNforeground, foreground,
+                                     /*XmNforeground, foreground,*/
                                      XmNmarginWidth, 0x00,
                                      XmNmarginHeight, 0x00,
                                      XmNshadowThickness, 0x01,
@@ -204,8 +208,8 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
                                            XmNwidth, 0x10,
                                            XmNheight, height,
                                            XmNlabelString, label_minus,
-                                           XmNbackground, background,
-                                           XmNforeground, foreground,
+                                           /*XmNbackground, background,
+                                           XmNforeground, foreground,*/
                                            XmNmarginWidth, 0x00,
                                            XmNmarginHeight, 0x00,
                                            XmNshadowThickness, 0x01,
@@ -221,8 +225,8 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
                                            XmNwidth, 0x10,
                                            XmNheight, height,
                                            XmNlabelString, label_plus,
-                                           XmNbackground, background,
-                                           XmNforeground, foreground,
+                                           /*XmNbackground, background,
+                                           XmNforeground, foreground,*/
                                            XmNmarginWidth, 0x00,
                                            XmNmarginHeight, 0x00,
                                            XmNshadowThickness, 0x01,
@@ -300,6 +304,10 @@ static XtSetValuesFunc set_values ( Widget current, Widget request, Widget set,
             XtVaSetValues ( txt, XmNvalue, args[i].value, NULL );
         }
 
+        /*if ( strcmp ( args[i].name, XmNcursorPosition ) == 0x00 ) {
+            XtVaSetValues ( txt, XmNcursorPosition, args[i].value, NULL );
+        }*/
+
         /*if ( strcmp ( args[i].name, XmNhighlightThickness ) == 0x00 ) {
             XtVaSetValues ( txt, XmNhighlightThickness, args[i].value, NULL );
             XtVaSetValues ( dec, XmNhighlightThickness, args[i].value, NULL );
@@ -375,6 +383,23 @@ XmSpinButtonClassRec xmSpinButtonClassRec =
 WidgetClass xmSpinButtonWidgetClass = ( WidgetClass ) &xmSpinButtonClassRec;
 
 /******************************************************************************/
+void XmSpinButtonTailCursor ( Widget w ) {
+    XmSpinButtonWidget xsw = ( XmSpinButtonWidget  ) w;
+    Widget txt = xsw->spinbutton.txt;
+    char *str = XmTextGetString ( txt );
+
+    if ( str ) {
+        int len = strlen ( str );
+
+        if ( len ) {
+            XtVaSetValues ( txt, XmNcursorPosition, len, NULL );
+        }
+
+        XtFree ( str );
+    }
+}
+
+/******************************************************************************/
 double XmSpinButtonGetValue ( Widget w ) {
     XmSpinButtonWidget xsw = ( XmSpinButtonWidget  ) w;
     char *value = XmTextGetString ( xsw->spinbutton.txt );
@@ -390,10 +415,14 @@ void XmSpinButtonSetValue ( Widget w, double val ) {
     XmSpinButtonWidget xsw = ( XmSpinButtonWidget  ) w;
     char str[0x100];
 
+    xsw->spinbutton.value = val;
+
     if ( xsw->spinbutton.decimal ) snprintf ( str, 0x100, "%.2f",      val );
     else                           snprintf ( str, 0x100, "%d"  , (int)val );
 
-    XmTextSetString ( xsw->spinbutton.txt, str );
+    if ( XtIsRealized ( w ) ) {
+        XmTextSetString ( xsw->spinbutton.txt, str );
+    }
 }
 
 /******************************************************************************/

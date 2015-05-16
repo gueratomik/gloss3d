@@ -401,48 +401,6 @@ void savejpgcbk  ( Widget w, XtPointer client, XtPointer call ) {
 }
 
 /******************************************************************************/
-void renderfinalcbk  ( Widget w, XtPointer client, XtPointer call ) {
-    Display *dis = XtDisplay ( w );
-    Window  root = XDefaultRootWindow ( dis );
-    G3DUI *gui   = ( G3DUI * ) client;
-    Pixel background, foreground;
-    Widget shell, wren, area = NULL;
-    G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
-    G3DSCENE  *sce = gui->sce;
-    G3DCAMERA *cam = gui->curcam;
-    XWindowAttributes wat;
-    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
-    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
-    uint32_t rsgwidth  = rsg->height * ratio;
-    uint32_t rsgheight = rsg->height;
-    Widget dial;
-
-    /*** This helps up to position the rendering ***/
-    /*** window in the middle of the screen. ***/
-    XGetWindowAttributes ( dis, root, &wat );
-
-    XtVaGetValues ( w, XmNbackground, &background,
-                       XmNforeground, &foreground, NULL );
-
-    /*** Start the rendering in a new window ***/
-    dial = XtVaAppCreateShell ( NULL, "Class", topLevelShellWidgetClass,
-                                               dis, 
-                                               XtNtitle,"Render Shell",
-                                               XtNx, ( wat.width  >> 1 ) - ( rsgwidth  >> 1 ),
-                                               XtNy, ( wat.height >> 1 ) - ( rsg->height >> 1 ),
-                                               XtNwidth,  rsgwidth  + 0x02,
-                                               XtNheight, rsg->height + 0x20,
-                                               XmNforeground, foreground,
-                                               XmNbackground, background,
-                                               NULL );
-
-    createRenderWindow ( dial, gui, "RENDER WINDOW", 0, 0, rsgwidth,
-                                                           rsgheight );
-
-    XtRealizeWidget ( dial );
-}
-
-/******************************************************************************/
 void g3dui_deleteSelectionCbk ( Widget w, XtPointer client,
                                           XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
@@ -804,7 +762,7 @@ XmNspacing, 0,*/
     /********************************/
 
     g3dui_addToolBarPushButton ( toolbar, gui, renderw_xpm , g3dui_renderViewCbk   );
-    g3dui_addToolBarPushButton ( toolbar, gui, render_xpm  , renderfinalcbk        );
+    g3dui_addToolBarPushButton ( toolbar, gui, render_xpm  , g3dui_runRenderCbk        );
     g3dui_addToolBarPushButton ( toolbar, gui, makeedit_xpm, g3dui_makeEditableCbk );
 
     addToolbarAxis ( toolbar, gui );

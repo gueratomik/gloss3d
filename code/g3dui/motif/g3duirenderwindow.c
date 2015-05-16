@@ -380,18 +380,16 @@ Widget createRenderWindow ( Widget parent, G3DUI *gui, char *name,
     Pixel background, foreground;
     Widget mwd, wrk, mnu;
 
-    XtVaGetValues ( parent, XmNbackground, &background,
-                            XmNforeground, &foreground, NULL );
-
-
+    /*XtVaGetValues ( parent, XmNbackground, &background,
+                            XmNforeground, &foreground, NULL );*/
 
     mwd = XmVaCreateForm ( parent, name,
                                          XtNx, x,
                                          XtNy, y,
                                          XtNwidth , width,
                                          XtNheight, height,
-                                         XmNforeground, foreground,
-                                         XmNbackground, background,
+                                         /*XmNforeground, foreground,
+                                         XmNbackground, background,*/
                                          XmNborderWidth, 0x00,
                                          XmNuserData, gui,
                                          NULL );

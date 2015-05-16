@@ -194,9 +194,13 @@ static void renderSettingsCbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
     Display *dis = XtDisplay ( w );
     Window root = XDefaultRootWindow ( dis );
+    int screen = DefaultScreen ( dis );
+    Visual *visual = DefaultVisual ( dis, screen );
     Pixel background, foreground;
     Dimension width, height;
     XWindowAttributes wat;
+    Colormap cmap;
+    XColor scrcol, exacol;
     Widget shell, edit;
     /*** double-click on the same tile as before ***/
 
@@ -207,19 +211,25 @@ static void renderSettingsCbk ( Widget w, XtPointer client, XtPointer call ) {
 
     XGetWindowAttributes ( dis, root, &wat );
 
+    cmap = XCreateColormap ( dis, root, visual, AllocNone );
+
+    XAllocNamedColor ( dis, cmap, BACKGROUNDCOLOR, &scrcol, &exacol );
+
     shell = XtVaAppCreateShell ( NULL, "Class",
                                  topLevelShellWidgetClass,
                                  dis, 
                                  XtNtitle,"Render Settings",
                                  XtNx, ( wat.width/2) -150,
-                                 XtNy, ( wat.height/2) -134,
+                                 XtNy, ( wat.height/2) -168,
                                  XtNwidth, 300,
-                                 XtNheight, 268,
-                                 XmNbackground, background, 
-                                 XmNforeground, foreground,
+                                 XtNheight, 316,
+                                 XmNvisual, visual,
+                                 XmNcolormap, cmap,
+                                 /*XmNbackground, scrcol.pixel, */
+                                 /*XmNforeground, foreground,*/
                                  NULL );
 
-    createRenderEdit ( shell, gui, "RENDEREDIT", 0, 0, 300, 268 );
+    createRenderEdit ( shell, gui, "RENDEREDIT", 0, 0, 300, 316 );
 
     XtRealizeWidget ( shell );
 }

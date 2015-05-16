@@ -631,6 +631,7 @@ void g3dui_openFileCbk        ( Widget, XtPointer, XtPointer );
 void g3dui_saveFileCbk        ( Widget, XtPointer, XtPointer );
 void g3dui_saveAsCbk          ( Widget, XtPointer, XtPointer );
 void g3dui_exitCbk            ( Widget, XtPointer, XtPointer );
+void g3dui_runRenderCbk       ( Widget, XtPointer, XtPointer );
 
 void g3dui_addImage    ( G3DUI *, G3DIMAGE * );
 void g3dui_removeImage ( G3DUI *, G3DIMAGE * );

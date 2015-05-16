@@ -1074,8 +1074,8 @@ void createFloatText ( Widget parent, G3DUI *gui,
                                        XmNalignment, XmALIGNMENT_END,
                                        XmNframeChildType, XmFRAME_GENERIC_CHILD,
                                        XmNfontList, gmt->fontlist,
-                                       XmNforeground, foreground,
-                                       XmNbackground, background,
+                                       /*XmNforeground, foreground,
+                                       XmNbackground, background,*/
                                        NULL );
     }
 
@@ -1095,7 +1095,7 @@ void createFloatText ( Widget parent, G3DUI *gui,
                                   XmNincrement, 10,
                                   XmNminimum, -INT_MAX,
                                   XmNmaximum,  INT_MAX,
-                                  XmNforeground, foreground,
+                                  /*XmNforeground, foreground,*/
                                   /*XmNbackground, white,*/
                                   /*** in case it belongs to a frame ***/
                                   XmNframeChildType, XmFRAME_GENERIC_CHILD,
@@ -1141,9 +1141,9 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
     Widget lab; /*** Label     ***/
     G3DUIMOTIF *gmt;
 
-    XtVaGetValues ( parent, XmNbackground, &background, 
+    /*XtVaGetValues ( parent, XmNbackground, &background, 
                             XmNforeground, &foreground, 
-                            NULL );
+                            NULL );*/
 
     gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
 
@@ -1154,8 +1154,8 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
                                        XmNwidth , labwidth,
                                        XmNheight, 0x12,
                                        XmNfontList, gmt->fontlist,
-                                       XmNforeground, foreground,
-                                       XmNbackground, background,
+                                       /*XmNforeground, foreground,
+                                       XmNbackground, background,*/
                                        XmNalignment, XmALIGNMENT_END,
                                       /*** in case it belongs to a frame ***/
                                        XmNframeChildType, XmFRAME_GENERIC_CHILD,
@@ -1169,13 +1169,14 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
                                   txtwidth + 0x20, /* 32 pix for "+-" buttons */
                                   XmNheight, 0x12,
                                   XmNfontList, gmt->fontlist,
-                                  XmNmaxLength, 0x04,
+                                  XmNminimum, 0x00,
+                                  XmNmaximum, INT_MAX,
                                   XmNmarginWidth, 0x00,
                                   XmNmarginHeight, 0x00,
                                   XmNshadowThickness, 0x01,
                                   XmNhighlightOnEnter, True,
                                   XmNhighlightThickness, 0x01,
-                                  XmNforeground, foreground,
+                                  /*XmNforeground, foreground,*/
                                   /*XmNbackground, white,*/
                                   /*** in case it belongs to a frame ***/
                                   XmNframeChildType, XmFRAME_GENERIC_CHILD,

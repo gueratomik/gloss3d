@@ -30,6 +30,110 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
+static void formatCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI    *gui = ( G3DUI * ) client;
+    XmComboBoxCallbackStruct *cbs = ( XmComboBoxCallbackStruct * ) call;
+    char *str;
+
+    XmStringGetLtoR ( cbs->item_or_text, XmFONTLIST_DEFAULT_TAG, &str );
+
+    common_g3duirenderedit_formatCbk ( gui, str );
+
+    XtFree ( str );
+}
+
+/******************************************************************************/
+void createRenderFormat ( Widget parent, G3DUI *gui, 
+                                         char *name,
+                                         Dimension x, Dimension y,
+                                         Dimension labwidth,
+                                         Dimension txtwidth,
+                                         void (*cbk)( Widget, 
+                                                      XtPointer,
+                                                      XtPointer ) ) {
+    Pixel white = XWhitePixel ( XtDisplay ( parent ), 0x00 );
+    Pixel background, foreground;
+    uint32_t strsize = sizeof ( XmString );
+    XmStringTable dmlist = ( XmStringTable ) XtMalloc ( 0x02 * strsize );
+    Widget lab;
+    Widget sel;
+    G3DUIMOTIF *gmt;
+
+    XtVaGetValues ( parent, XmNbackground, &background, 
+                            XmNforeground, &foreground, 
+                            NULL );
+
+    gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+
+    dmlist[0x00] = XmStringCreate ( RENDERTOIMAGENAME, XmFONTLIST_DEFAULT_TAG );
+    dmlist[0x01] = XmStringCreate ( RENDERTOVIDEONAME, XmFONTLIST_DEFAULT_TAG );
+
+    lab = XmVaCreateManagedLabel ( parent, name,
+                                   XmNx, x,
+                                   XmNy, y,
+                                   XmNwidth , labwidth,
+                                   XmNheight, 0x12,
+                                   XmNfontList, gmt->fontlist,
+                                   XmNforeground, foreground,
+                                   XmNbackground, background,
+                                   NULL );
+
+    sel = XmVaCreateManagedComboBox ( parent, name, 
+                                       XmNx, x + labwidth,
+                                       XmNy, y,
+                                       XmNwidth , txtwidth,
+                                       XmNhighlightThickness, 0x00,
+                                       XmNshadowThickness, 0x01,
+                                       XmNmarginHeight, 0x00,
+                                       XmNmarginWidth, 0x00,
+                                       XmNitemCount,	0x02,
+                                       XmNitems, dmlist,
+                                       XmNvisibleItemCount, 0x02,
+                                       XmNeditable, False,/*
+                                       XmNverticalMargin, 0x01,
+                                       XmNhorizontalMargin, 0x01,*/
+                                       XmNfontList, gmt->fontlist,
+                                       XmNarrowSize, 0x0C,
+                                       XmNcomboBoxType, XmDROP_DOWN_LIST,
+                                       XmNrenderTable, gmt->renTable,
+                                       XmNtraversalOn, False,
+                                       XtNbackground, background,
+                                       XtNforeground, foreground,
+                                       NULL );
+
+    /*** OpenMotif prior to 2.3.4 crashes if this is set before managing ***/
+    XtVaSetValues ( sel, XmNheight, 0x12, NULL );
+
+    XmComboBoxSelectItem ( sel, dmlist[0x00] );
+
+    XmStringFree ( dmlist[0x00] );
+    XmStringFree ( dmlist[0x01] );
+
+    XtFree ( ( char * ) dmlist );
+
+    if ( cbk ) {
+        XtAddCallback ( sel, XmNselectionCallback, cbk, gui );
+    }
+}
+
+/******************************************************************************/
+static void saveCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI    *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    common_g3duirenderedit_saveCbk ( gui );
+
+    updateRenderEdit ( parent, gui );
+}
+
+/******************************************************************************/
+static void previewCbk ( Widget w, XtPointer client, XtPointer call ) {
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duirenderedit_previewCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_renderViewCbk  ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI      *gui = ( G3DUI * ) client;
     G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
@@ -46,95 +150,108 @@ void g3dui_renderViewCbk  ( Widget w, XtPointer client, XtPointer call ) {
                                     gmt->curogl, 0x01 );
 }
 
-/******************************************************************************/
-static void previewCbk ( Widget w, XtPointer client, XtPointer call ) {
-    G3DUI *gui = ( G3DUI * ) client;
 
-
-}
 
 /******************************************************************************/
 static void startFrameCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float frame = strtof ( value, NULL );
+    float frame = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     common_g3duirenderedit_startFrameCbk ( gui, frame );
 
-    XtFree ( value );
+    updateRenderEdit ( parent, gui );
 }
 
 /******************************************************************************/
 static void fpsCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float fps = strtof ( value, NULL );
+    float fps = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duirenderedit_fpsCbk ( gui, fps );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void endFrameCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float frame = strtof ( value, NULL );
+    float frame = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     common_g3duirenderedit_endFrameCbk ( gui, frame );
 
-    XtFree ( value );
+    updateRenderEdit ( parent, gui );
 }
 
 /******************************************************************************/
 static void ratioCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float ratio = strtof ( value, NULL );
+    float ratio = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     common_g3duirenderedit_ratioCbk ( gui, ratio );
 
-    XtFree ( value );
+    updateRenderEdit ( parent, gui );
+
+    XmSpinButtonTailCursor ( w );
 }
 
 /******************************************************************************/
 static void widthCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    int width = strtol ( value, NULL, 10 );
+    int width = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     common_g3duirenderedit_widthCbk ( gui, width );
 
-    XtFree ( value );
+    updateRenderEdit ( parent, gui );
+
+    XmSpinButtonTailCursor ( w );
 }
 
 /******************************************************************************/
 static void heightCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    int height = strtol ( value, NULL, 10 );
+    int height = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     common_g3duirenderedit_heightCbk ( gui, height );
 
-    XtFree ( value );
+    updateRenderEdit ( parent, gui );
+
+    XmSpinButtonTailCursor ( w );
 }
 
 /******************************************************************************/
 static void outputCbk ( Widget w, XtPointer client, XtPointer call ) {
+    char *outfile = XmTextGetString ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
+    common_g3duirenderedit_outputCbk ( gui, outfile );
 
+    XtFree ( outfile );
 }
 
 /******************************************************************************/
 static void motionBlurCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    int nbstep = strtol ( value, NULL, 10 );
+    int nbstep = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duirenderedit_motionBlurCbk ( gui, nbstep );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -169,7 +286,6 @@ void updateRenderEdit ( Widget w, G3DUI *gui ) {
     for ( i = 0x00; i < nc; i++ ) {
         Widget child = children[i];
         char *name = XtName ( child );
-        char buf[0x10];
 
         if ( XtClass ( child ) == xmToggleButtonWidgetClass ) {
             /*if ( strcmp ( name, EDITKEYLOOP ) == 0x00 ) {
@@ -177,69 +293,7 @@ void updateRenderEdit ( Widget w, G3DUI *gui ) {
             }*/
         }
 
-        if ( XtClass ( child ) == xmPushButtonWidgetClass ) {
-            if ( strcmp ( name, EDITRENDERBACKGROUND ) == 0x00 ) {
-                uint32_t pixel = rsg->background;
-
-                XtVaSetValues ( child, XmNbackground, pixel, NULL );
-            }
-        }
-
         if ( XtClass ( child ) == xmTextWidgetClass ) {
-            /****************** Start Frame *****************/
-            if ( strcmp ( name, EDITRENDERSTART ) == 0x00 ) {
-                snprintf ( buf, 0x10, "%d", rsg->startframe );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** End Frame *****************/
-            if ( strcmp ( name, EDITRENDEREND ) == 0x00 ) {
-                snprintf ( buf, 0x10, "%d", rsg->endframe );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** End Frame *****************/
-            if ( strcmp ( name, EDITRENDERMBLUR ) == 0x00 ) {
-                snprintf ( buf, 0x10, "%d", rsg->mblur );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** End Frame *****************/
-            if ( strcmp ( name, EDITRENDERRATIO ) == 0x00 ) {
-                float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
-
-                snprintf ( buf, 0x10, "%f", ratio );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** FPS *****************/
-            if ( strcmp ( name, EDITRENDERFPS ) == 0x00 ) {
-                snprintf ( buf, 0x10, "%d", rsg->fps );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** FPS *****************/
-            if ( strcmp ( name, EDITRENDERWIDTH ) == 0x00 ) {
-                float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
-                uint32_t rsgwidth = rsg->height * ratio;
-
-                snprintf ( buf, 0x10, "%d", rsgwidth );
-
-                XmTextSetString ( child, buf );
-            }
-
-            /****************** FPS *****************/
-            if ( strcmp ( name, EDITRENDERHEIGHT ) == 0x00 ) {
-                snprintf ( buf, 0x10, "%d", rsg->height );
-
-                XmTextSetString ( child, buf );
-            }
-
             if ( strcmp ( name, EDITRENDEROUTPUT ) == 0x00 ) {
                 if ( rsg->outfile ) {
                     uint32_t len = strlen ( rsg->outfile ) + 0x01;
@@ -253,9 +307,124 @@ void updateRenderEdit ( Widget w, G3DUI *gui ) {
                 }
             }
         }
+
+        if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
+            /****************** Start Frame *****************/
+            if ( strcmp ( name, EDITRENDERSTART ) == 0x00 ) {
+                XmSpinButtonSetValue ( child, rsg->startframe );
+            }
+
+            /****************** End Frame *****************/
+            if ( strcmp ( name, EDITRENDEREND ) == 0x00 ) {
+                XmSpinButtonSetValue ( child, rsg->endframe );
+            }
+
+            /****************** End Frame *****************/
+            if ( strcmp ( name, EDITRENDERMBLUR ) == 0x00 ) {
+                XmSpinButtonSetValue ( child, rsg->mblur );
+            }
+
+            /****************** End Frame *****************/
+            if ( strcmp ( name, EDITRENDERRATIO ) == 0x00 ) {
+                float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
+
+                XmSpinButtonSetValue ( child, ratio );
+            }
+
+            /****************** FPS *****************/
+            if ( strcmp ( name, EDITRENDERFPS ) == 0x00 ) {
+                XmSpinButtonSetValue ( child, rsg->fps );
+            }
+
+            /****************** FPS *****************/
+            if ( strcmp ( name, EDITRENDERWIDTH ) == 0x00 ) {
+               /* float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
+                uint32_t rsgwidth = rsg->height * ratio;*/
+
+                XmSpinButtonSetValue ( child, rsg->width );
+            }
+
+            /****************** FPS *****************/
+            if ( strcmp ( name, EDITRENDERHEIGHT ) == 0x00 ) {
+                XmSpinButtonSetValue ( child, rsg->height );
+            }
+        }
+
+         if ( XtClass ( child ) == xmComboBoxWidgetClass ) {
+                if ( strcmp ( name, EDITRENDERFORMAT   ) == 0x00 ) {
+                    if ( rsg->flags & RENDERSAVE ) {
+                        XtSetSensitive ( child, True );
+                    } else {
+                        XtSetSensitive ( child, False );
+                    }
+
+                    XtVaSetValues ( child, XmNselectedPosition,
+                                           rsg->format, NULL );
+                }
+            }
+
+        if ( XtClass ( child ) == xmPushButtonWidgetClass ) {
+            if ( strcmp ( name, EDITRENDERBACKGROUND ) == 0x00 ) {
+                uint32_t pixel = rsg->background;
+
+                XtVaSetValues ( child, XmNbackground, pixel, NULL );
+            }
+        }
     }
 
     gui->lock = 0x00;
+}
+
+/******************************************************************************/
+void g3dui_runRenderCbk  ( Widget w, XtPointer client, XtPointer call ) {
+    Display *dis = XtDisplay ( w );
+    Window  root = XDefaultRootWindow ( dis );
+    G3DUI *gui   = ( G3DUI * ) client;
+    Pixel background, foreground;
+    Widget shell, wren, area = NULL;
+    G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
+    G3DSCENE  *sce = gui->sce;
+    G3DCAMERA *cam = gui->curcam;
+    XWindowAttributes wat;
+    G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
+    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
+    uint32_t rsgwidth  = rsg->height * ratio;
+    uint32_t rsgheight = rsg->height;
+    Widget dial;
+    Colormap cmap;
+    XColor scrcol, exacol;
+    int screen = DefaultScreen ( dis );
+    Visual *visual = DefaultVisual ( dis, screen );
+
+    /*** This helps up to position the rendering ***/
+    /*** window in the middle of the screen. ***/
+    XGetWindowAttributes ( dis, root, &wat );
+
+    /*XtVaGetValues ( w, XmNbackground, &background,
+                       XmNforeground, &foreground, NULL );*/
+
+    cmap = XCreateColormap ( dis, root, visual, AllocNone );
+
+    XAllocNamedColor ( dis, cmap, BACKGROUNDCOLOR, &scrcol, &exacol );
+
+    /*** Start the rendering in a new window ***/
+    dial = XtVaAppCreateShell ( NULL, "Class", topLevelShellWidgetClass,
+                                               dis, 
+                                               XtNtitle,"Render Shell",
+                                               XtNx, ( wat.width  >> 1 ) - ( rsgwidth  >> 1 ),
+                                               XtNy, ( wat.height >> 1 ) - ( rsg->height >> 1 ),
+                                               XtNwidth,  rsgwidth  + 0x02,
+                                               XtNheight, rsg->height + 0x20,
+                                               XmNvisual, visual,
+                                               XmNcolormap, cmap,
+                                               /*XmNforeground, foreground,
+                                               XmNbackground, background,*/
+                                               NULL );
+
+    createRenderWindow ( dial, gui, "RENDER WINDOW", 0, 0, rsgwidth,
+                                                           rsgheight );
+
+    XtRealizeWidget ( dial );
 }
 
 /******************************************************************************/
@@ -280,53 +449,71 @@ Widget createRenderEdit ( Widget parent, G3DUI *gui,
     Pixel background, foreground;
     Widget frm, col;
 
-    XtVaGetValues ( parent, XmNbackground, &background,
-                            XmNforeground, &foreground, NULL );
+    /*** Crashes if attached to a shell widget :
+
+  X Error of failed request:  BadValue (integer parameter out of range for operation)
+  Major opcode of failed request:  91 (X_QueryColors)
+  Value in failed request:  0xf8fa30ea
+  Serial number of failed request:  7329
+  Current serial number in output stream:  7329
+
+  I guess that's a colormap issue but I don't know how to fix this yet **/
+
+
+    /*XtVaGetValues ( parent, XmNbackground, &background,
+                            XmNforeground, &foreground, NULL );*/
 
     frm = XmVaCreateManagedForm ( parent, name,
                                   XmNx, x,
                                   XmNy, y,
                                   XmNwidth , width,
                                   XmNheight, height,
-                                  XmNforeground, foreground,
-                                  XmNbackground, background,
+                                  /*XmNforeground, foreground,
+                                  XmNbackground, background,*/
                                   NULL );
 
-    createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
-                               0,   0, 104, 20, previewCbk );
+
+    createToggleLabel ( frm, gui, EDITRENDERSAVE,
+                               0,   0, 104, 20, saveCbk );
+
+    /*createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
+                               0,  24, 104, 20, previewCbk );*/
 
     createIntegerText ( frm, gui, EDITRENDERSTART,
-                               0,  24, 96,  32, startFrameCbk );
+                               0,  48, 96,  32, startFrameCbk );
 
     createIntegerText ( frm, gui, EDITRENDEREND,
-                               0,  48, 96,  32, endFrameCbk );
+                               0,  72, 96,  32, endFrameCbk );
 
     createIntegerText ( frm, gui, EDITRENDERFPS,
-                               0,  72, 96,  32, fpsCbk );
+                               0,  96, 96,  32, fpsCbk );
 
     createIntegerText ( frm, gui, EDITRENDERWIDTH,
-                               0,  96, 96,  32, widthCbk );
+                               0, 120, 96,  32, widthCbk );
 
     createIntegerText ( frm, gui, EDITRENDERHEIGHT,
-                               0, 120, 96,  32, heightCbk );
+                               0, 144, 96,  32, heightCbk );
 
     createFloatText   ( frm, gui, EDITRENDERRATIO,
-                               0, 144, 96,  64, ratioCbk );
+                               0, 168, 96,  64, ratioCbk );
+
+    createRenderFormat( frm, gui, EDITRENDERFORMAT,
+                               0, 192, 96,  64, formatCbk );
 
     createCharText    ( frm, gui, EDITRENDEROUTPUT,
-                               0, 168, 96, 200, outputCbk );
+                               0, 216, 96, 200, outputCbk );
 
     createIntegerText ( frm, gui, EDITRENDERMBLUR,
-                               0, 192, 96,  64, motionBlurCbk );
+                               0, 240, 96,  64, motionBlurCbk );
 
     createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,
-                               0, 216, 96, 20 );
+                               0, 264, 96, 20 );
 
     createColorButton ( frm, gui, EDITRENDERBACKGROUND,
-                              96, 216, 96, 18, backgroundCbk );
+                              96, 264, 96, 18, backgroundCbk );
 
-    /*createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 240, 48, 20, g3dui_runRenderCbk );*/
+    createPushButton  ( frm, gui, EDITRENDERRUN,
+                              96, 288, 48, 20, g3dui_runRenderCbk );
 
 
     updateRenderEdit ( frm, gui );

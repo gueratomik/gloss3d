@@ -315,6 +315,14 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                     gtk_spin_button_set_value ( sbn, rsg->endframe );
                 }
 
+                if ( strcmp ( child_name, EDITRENDERMBLUR ) == 0x00 ) {
+                    gtk_spin_button_set_value ( sbn, rsg->height );
+                }
+
+                if ( strcmp ( child_name, EDITRENDERRATIO ) == 0x00 ) {
+                    gtk_spin_button_set_value ( sbn, rsg->ratio );
+                }
+
                 if ( strcmp ( child_name, EDITRENDERFPS ) == 0x00 ) {
                     gtk_spin_button_set_value ( sbn, rsg->fps );
                 }
@@ -327,9 +335,7 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                     gtk_spin_button_set_value ( sbn, rsg->height );
                 }
 
-                if ( strcmp ( child_name, EDITRENDERRATIO ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->ratio );
-                }
+
             }
 
             if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
