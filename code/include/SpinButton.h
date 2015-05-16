@@ -45,6 +45,8 @@ typedef struct _XmSpinButtonPart {
     int minimum;
     int maximum;
     Widget txt, inc, dec;
+    XtCallbackList callback;
+    int lock;
 } XmSpinButtonPart;
 
 /*************************** Full instance record declaration *****************/
@@ -76,5 +78,6 @@ extern XmSpinButtonClassRec xmSpinButtonClassRec;
 
 Widget XmVaCreateManagedSpinButton ( Widget, char *, ... );
 Widget XmVaCreateSpinButton        ( Widget, char *, ... );
+double XmSpinButtonGetValue        ( Widget );
 
 #endif

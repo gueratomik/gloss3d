@@ -32,8 +32,7 @@
 /******************************************************************************/
 static void xsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     if ( slice ) {
@@ -41,15 +40,12 @@ static void xsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateCubeEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void ysliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     if ( slice ) {
@@ -57,15 +53,12 @@ static void ysliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateCubeEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void zsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     if ( slice ) {
@@ -73,19 +66,14 @@ static void zsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateCubeEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void radiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duicubeedit_radiusCbk ( gui, radius );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -114,29 +102,29 @@ void updateCubeEdit ( Widget w, G3DUI *gui ) {
             char *name = XtName ( child );
             char buf[0x10];
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITCUBEXSLICES   ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%d", cds->nbx );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
 
                 if ( strcmp ( name, EDITCUBEYSLICES ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%d", cds->nby );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
 
                 if ( strcmp ( name, EDITCUBEZSLICES ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%d", cds->nbz );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
 
                 if ( strcmp ( name, EDITCUBERADIUS ) == 0x00 ) {
                     snprintf ( buf, 0x10, "%f", cds->radius );
 
-                    XmTextSetString ( child, buf );
+                    XtVaSetValues ( child, XmNvalue, buf, NULL );
                 }
             }
         }

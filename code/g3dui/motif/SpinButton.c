@@ -57,7 +57,11 @@ static XtResource widgetRes[] = {
     { XmNmaximum,
       XmNmaximum, XtRInt, sizeof ( int ),
       XtOffsetOf ( XmSpinButtonRec, spinbutton.maximum ),
-      XtRImmediate, ( XtPointer ) 100 } };
+      XtRImmediate, ( XtPointer ) 100 },
+    { XmNvalueChangedCallback,
+      XmNvalueChangedCallback, XtRCallback, sizeof ( XtCallbackList ),
+      XtOffsetOf ( XmSpinButtonRec, spinbutton.callback ),
+      XtRImmediate, ( XtPointer ) 0 } };
 
 /******************************************************************************/
 static XtProc ClassInitialize ( ) {
@@ -115,7 +119,7 @@ void checkAlphaNumerical ( Widget w, XtPointer client, XtPointer call ) {
 }
 
 /******************************************************************************/
-void changeValueCbk ( Widget w, XtPointer client, XtPointer call ) {
+void incrementValueCbk ( Widget w, XtPointer client, XtPointer call ) {
     XmSpinButtonWidget xsw = ( XmSpinButtonWidget ) XtParent ( w );
     float increment = xsw->spinbutton.increment / 100;
     char str[0x100];
@@ -136,6 +140,18 @@ void changeValueCbk ( Widget w, XtPointer client, XtPointer call ) {
     else                           snprintf ( str, 0x100, "%d"  , (int)fval );
 
     XtVaSetValues ( xsw->spinbutton.txt, XmNvalue, str, NULL );
+}
+
+/******************************************************************************/
+void changeValueCbk ( Widget w, XtPointer client, XtPointer call ) {
+    Widget parent = XtParent ( w );
+    XmSpinButtonWidget xsw = ( XmSpinButtonWidget ) parent;
+
+    if ( xsw->spinbutton.lock ) return;
+
+    if ( XtHasCallbacks ( parent, XmNvalueChangedCallback ) ) {
+        XtCallCallbacks ( parent, XmNvalueChangedCallback, call );
+    }
 }
 
 /******************************************************************************/
@@ -180,6 +196,7 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
                                      NULL );
 
     XtAddCallback ( txt, XmNmodifyVerifyCallback, checkAlphaNumerical, NULL );
+    XtAddCallback ( txt, XmNvalueChangedCallback, changeValueCbk, NULL );
     
     dec = XmVaCreateManagedPushButton ( w, SPINDEC,
                                            XmNx, dec_x,
@@ -196,7 +213,7 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
                                            XmNhighlightThickness, 0x01,
                                            NULL );
 
-    XtAddCallback ( dec, XmNactivateCallback, changeValueCbk, NULL );
+    XtAddCallback ( dec, XmNactivateCallback, incrementValueCbk, NULL );
 
     inc = XmVaCreateManagedPushButton ( w, SPININC,
                                            XmNx, inc_x,
@@ -213,7 +230,7 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
                                            XmNhighlightThickness, 0x01,
                                            NULL );
 
-    XtAddCallback ( inc, XmNactivateCallback, changeValueCbk, NULL );
+    XtAddCallback ( inc, XmNactivateCallback, incrementValueCbk, NULL );
 
     xsw->spinbutton.txt = txt;
     xsw->spinbutton.dec = dec;
@@ -276,8 +293,10 @@ static XtSetValuesFunc set_values ( Widget current, Widget request, Widget set,
     Widget dec = xsw->spinbutton.dec;
     uint32_t i;
 
+    xsw->spinbutton.lock = 0x01;
+
     for ( i = 0x00; i < (*numargs); i++ ) {
-        if ( strcmp ( args[i].name, XmNvalue        ) == 0x00 ) {
+        if ( strcmp ( args[i].name, XmNvalue ) == 0x00 ) {
             XtVaSetValues ( txt, XmNvalue, args[i].value, NULL );
         }
 
@@ -287,6 +306,9 @@ static XtSetValuesFunc set_values ( Widget current, Widget request, Widget set,
             XtVaSetValues ( inc, XmNhighlightThickness, args[i].value, NULL );
         }*/
     }
+
+    xsw->spinbutton.lock = 0x00;
+
 
     return 0x00;
 }
@@ -351,6 +373,17 @@ XmSpinButtonClassRec xmSpinButtonClassRec =
 
 /******************************************************************************/
 WidgetClass xmSpinButtonWidgetClass = ( WidgetClass ) &xmSpinButtonClassRec;
+
+/******************************************************************************/
+double XmSpinButtonGetValue ( Widget w ) {
+    XmSpinButtonWidget xsw = ( XmSpinButtonWidget  ) w;
+    char *value = XmTextGetString ( xsw->spinbutton.txt );
+    double val = atof ( value );
+
+    XtFree ( value );
+
+    return val;
+} 
 
 /******************************************************************************/
 Widget XmVaCreateSpinButton ( Widget parent, char *name, ... ) {

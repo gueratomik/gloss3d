@@ -181,8 +181,7 @@ static void useIsoLinesCbk ( Widget w, XtPointer client, XtPointer call ) {
 /******************************************************************************/
 static void subdivRenderCbk ( Widget w, XtPointer client, XtPointer call ) {
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int level = strtol ( value, NULL, 10 );
+    int level = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     if ( level >= 0x00 ) {
@@ -190,15 +189,12 @@ static void subdivRenderCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateMeshEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void subdivLevelCbk ( Widget w, XtPointer client, XtPointer call ) {
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int level = strtol ( value, NULL, 10 );
+    int level = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     if ( level >= 0x00 ) {
@@ -206,8 +202,6 @@ static void subdivLevelCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateMeshEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/

@@ -1157,7 +1157,7 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
                                   XmNframeChildType, XmFRAME_GENERIC_CHILD,
                                   NULL );
 
-#ifdef dfdsfdsfdsf
+#ifdef OLDCODE
     txt = XmVaCreateManagedText ( parent, name,
                                   XmNx, x + labwidth,
                                   XmNy, y,
@@ -1180,7 +1180,7 @@ Widget createIntegerText ( Widget parent, G3DUI *gui,
     /*XtAddCallback ( txt, XmNmodifyVerifyCallback, verifyintcbk, NULL );*/
 
     if ( cbk ) {
-        /*XtAddCallback ( txt, XmNvalueChangedCallback, cbk, gui );*/
+        XtAddCallback ( txt, XmNvalueChangedCallback, cbk, gui );
     }
 
     return txt;
