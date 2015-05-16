@@ -31,26 +31,22 @@
 
 /******************************************************************************/
 static void sliceCbk ( Widget w, XtPointer client, XtPointer call ) {
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
 
     if ( slice >= 0x03 ) {
         common_g3duitorusedit_sliceCbk ( gui, slice );
     } else {
         updateTorusEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void capCbk ( Widget w, XtPointer client, XtPointer call ) {
+    int cap = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int cap = strtol ( value, NULL, 10 );
 
     /*** prevent useless primitive building when XmTextSetString is called ***/
     if ( gui->lock ) return;
@@ -60,30 +56,22 @@ static void capCbk ( Widget w, XtPointer client, XtPointer call ) {
     } else {
         updateTorusEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void extRadiusCbk ( Widget w, XtPointer client, XtPointer call ) {
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    char *value = XmTextGetString ( w );
-    float rad = strtof ( value, NULL );
 
-    common_g3duitorusedit_extRadiusCbk ( gui, rad );
-
-    XtFree ( value );
+    common_g3duitorusedit_extRadiusCbk ( gui, radius );
 }
 
 /******************************************************************************/
 static void intRadiusCbk ( Widget w, XtPointer client, XtPointer call ) {
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    char *value = XmTextGetString ( w );
-    float rad = strtof ( value, NULL );
 
-    common_g3duitorusedit_intRadiusCbk ( gui, rad );
-
-    XtFree ( value );
+    common_g3duitorusedit_intRadiusCbk ( gui, radius );
 }
 
 /******************************************************************************/
@@ -124,33 +112,21 @@ void updateTorusEdit ( Widget w, G3DUI *gui ) {
             Widget child = children[i];
             char *name = XtName ( child );
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
-                if ( strcmp ( name, EDITTORUSSLICE   ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", tds->slice );
-
-                    XmTextSetString ( child, buf );
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
+                if ( strcmp ( name, EDITTORUSSLICE  ) == 0x00 ) {
+                    XmSpinButtonSetValue ( child, tds->slice );
                 }
 
-                if ( strcmp ( name, EDITTORUSCAP ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", tds->cap );
-
-                    XmTextSetString ( child, buf );
+                if ( strcmp ( name, EDITTORUSCAP    ) == 0x00 ) {
+                    XmSpinButtonSetValue ( child, tds->cap );
                 }
 
                 if ( strcmp ( name, EDITTORUSEXTRAD ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", tds->extrad );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, tds->extrad );
                 }
 
                 if ( strcmp ( name, EDITTORUSINTRAD ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", tds->intrad );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, tds->intrad );
                 }
             }
 

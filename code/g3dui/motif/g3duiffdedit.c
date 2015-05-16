@@ -31,98 +31,80 @@
 
 /******************************************************************************/
 static void xsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( slice ) {
         common_g3duiffdedit_sliceCbk ( gui, G3DUIXAXIS, slice );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void ysliceCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( slice ) {
         common_g3duiffdedit_sliceCbk ( gui, G3DUIYAXIS, slice );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void zsliceCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( slice ) {
         common_g3duiffdedit_sliceCbk ( gui, G3DUIZAXIS, slice );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void xradiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( radius >= 0.0f ) {
         common_g3duiffdedit_radiusCbk ( gui, G3DUIXAXIS, radius );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void yradiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( radius >= 0.0f ) {
         common_g3duiffdedit_radiusCbk ( gui, G3DUIYAXIS, radius );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void zradiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( radius >= 0.0f ) {
         common_g3duiffdedit_radiusCbk ( gui, G3DUIZAXIS, radius );
     } else {
         updateFFDEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -149,47 +131,29 @@ void updateFFDEdit ( Widget w, G3DUI *gui ) {
             Widget child = children[i];
             char *name = XtName ( child );
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITFFDXSLICES   ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", ffd->nbx );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->nbx );
                 }
 
                 if ( strcmp ( name, EDITFFDYSLICES ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", ffd->nby );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->nby );
                 }
 
                 if ( strcmp ( name, EDITFFDZSLICES ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", ffd->nbz );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->nbz );
                 }
 
                 if ( strcmp ( name, EDITFFDXRADIUS ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", ffd->locmax.x );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->locmax.x );
                 }
 
                 if ( strcmp ( name, EDITFFDYRADIUS ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", ffd->locmax.y );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->locmax.y );
                 }
 
                 if ( strcmp ( name, EDITFFDZRADIUS ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", ffd->locmax.z );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, ffd->locmax.z );
                 }
             }
         }

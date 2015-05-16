@@ -1079,6 +1079,29 @@ void createFloatText ( Widget parent, G3DUI *gui,
                                        NULL );
     }
 
+    txt = XmVaCreateManagedSpinButton ( parent, name,
+                                  XmNx, x + labwidth,
+                                  XmNy, y,
+                                  XmNwidth ,
+                                  txtwidth + 0x20, /* 32 pix for "+-" buttons */
+                                  XmNheight, 0x12,
+                                  XmNfontList, gmt->fontlist,
+                                  XmNmarginWidth, 0x00,
+                                  XmNmarginHeight, 0x00,
+                                  XmNshadowThickness, 0x01,
+                                  XmNhighlightOnEnter, True,
+                                  XmNhighlightThickness, 0x01,
+                                  XmNdecimal, 0x02,
+                                  XmNincrement, 10,
+                                  XmNminimum, -INT_MAX,
+                                  XmNmaximum,  INT_MAX,
+                                  XmNforeground, foreground,
+                                  /*XmNbackground, white,*/
+                                  /*** in case it belongs to a frame ***/
+                                  XmNframeChildType, XmFRAME_GENERIC_CHILD,
+                                  NULL );
+
+#ifdef OLDCODE
     txt = XmVaCreateManagedText ( parent, name,
                                   XmNx, x + labwidth,
                                   XmNy, y,
@@ -1095,8 +1118,9 @@ void createFloatText ( Widget parent, G3DUI *gui,
                                   XmNforeground, foreground,
                                   XmNbackground, white,
                                   NULL );
+#endif
 
-    XtAddCallback ( txt, XmNmodifyVerifyCallback, verifyfloatcbk, NULL );
+    /*XtAddCallback ( txt, XmNmodifyVerifyCallback, verifyfloatcbk, NULL );*/
 
     if ( cbk ) {
         XtAddCallback ( txt, XmNvalueChangedCallback, cbk  , gui  );

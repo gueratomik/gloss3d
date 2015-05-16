@@ -31,8 +31,7 @@
 
 /******************************************************************************/
 static void posCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float val = strtof ( value, NULL );
+    float val = XmSpinButtonGetValue ( w );
     const char *name = XtName ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
@@ -51,8 +50,7 @@ static void posCbk ( Widget w, XtPointer client, XtPointer call ) {
 
 /******************************************************************************/
 static void rotCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float val = strtof ( value, NULL );
+    float val = XmSpinButtonGetValue ( w );
     const char *name = XtName ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
@@ -71,8 +69,7 @@ static void rotCbk ( Widget w, XtPointer client, XtPointer call ) {
 
 /******************************************************************************/
 static void scaCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float val = strtof ( value, NULL );
+    float val = XmSpinButtonGetValue ( w );
     const char *name = XtName ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
@@ -111,61 +108,42 @@ void updateCoordinatesEdit ( Widget w, G3DUI *gui ) {
         for ( i = 0x00; i < nc; i++ ) {
             Widget child = children[i];
             char *name = XtName ( child );
-            char buf[0x10];
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITXPOSITION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->pos.x );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->pos.x );
                 }
 
                 if ( strcmp ( name, EDITYPOSITION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->pos.y );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->pos.y );
                 }
 
                 if ( strcmp ( name, EDITZPOSITION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->pos.z );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->pos.z );
                 }
 
                 if ( strcmp ( name, EDITXROTATION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->rot.x );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->rot.x );
                 }
 
                 if ( strcmp ( name, EDITYROTATION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->rot.y );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->rot.y );
                 }
 
                 if ( strcmp ( name, EDITZROTATION   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->rot.z );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->rot.z );
                 }
 
                 if ( strcmp ( name, EDITXSCALING   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->sca.x );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->sca.x );
                 }
 
                 if ( strcmp ( name, EDITYSCALING   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->sca.y );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->sca.y );
                 }
 
                 if ( strcmp ( name, EDITZSCALING   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%.3f", obj->sca.z );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, obj->sca.z );
                 }
             }
         }
@@ -216,19 +194,19 @@ Widget createCoordinatesEdit ( Widget parent, G3DUI *gui, char *name,
                                 NULL );
 
     createSimpleLabel ( rwc, gui, "Position"   ,   0,  0, 0, 96 );
-    createFloatText   ( rwc, gui, EDITXPOSITION,   0, 24, 0, 96, posCbk );
-    createFloatText   ( rwc, gui, EDITYPOSITION,   0, 48, 0, 96, posCbk );
-    createFloatText   ( rwc, gui, EDITZPOSITION,   0, 72, 0, 96, posCbk );
+    createFloatText   ( rwc, gui, EDITXPOSITION,   0, 24, 0, 72, posCbk );
+    createFloatText   ( rwc, gui, EDITYPOSITION,   0, 48, 0, 72, posCbk );
+    createFloatText   ( rwc, gui, EDITZPOSITION,   0, 72, 0, 72, posCbk );
 
     createSimpleLabel ( rwc, gui, "Rotation"   ,  96,  0, 0, 96 );
-    createFloatText   ( rwc, gui, EDITXROTATION,  96, 24, 0, 96, rotCbk );
-    createFloatText   ( rwc, gui, EDITYROTATION,  96, 48, 0, 96, rotCbk );
-    createFloatText   ( rwc, gui, EDITZROTATION,  96, 72, 0, 96, rotCbk );
+    createFloatText   ( rwc, gui, EDITXROTATION,  96, 24, 0, 72, rotCbk );
+    createFloatText   ( rwc, gui, EDITYROTATION,  96, 48, 0, 72, rotCbk );
+    createFloatText   ( rwc, gui, EDITZROTATION,  96, 72, 0, 72, rotCbk );
 
     createSimpleLabel ( rwc, gui, "Scaling"    , 192,  0, 0, 96 );
-    createFloatText   ( rwc, gui, EDITXSCALING , 192, 24, 0, 96, scaCbk );
-    createFloatText   ( rwc, gui, EDITYSCALING , 192, 48, 0, 96, scaCbk );
-    createFloatText   ( rwc, gui, EDITZSCALING , 192, 72, 0, 96, scaCbk );
+    createFloatText   ( rwc, gui, EDITXSCALING , 192, 24, 0, 72, scaCbk );
+    createFloatText   ( rwc, gui, EDITYSCALING , 192, 48, 0, 72, scaCbk );
+    createFloatText   ( rwc, gui, EDITZSCALING , 192, 72, 0, 72, scaCbk );
 
     /*coords = createObjectCoordinates ( frm, gui, "COORDINATES",
                                        x, y, width, height );*/

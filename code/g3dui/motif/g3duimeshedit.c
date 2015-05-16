@@ -155,13 +155,10 @@ static void nameCbk ( Widget w, XtPointer client, XtPointer call ) {
 
 /******************************************************************************/
 static void setAdaptiveAngleCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float angle = strtof ( value, NULL );
+    float angle = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duimeshedit_setAdaptiveAngleCbk ( gui, angle );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -180,9 +177,9 @@ static void useIsoLinesCbk ( Widget w, XtPointer client, XtPointer call ) {
 
 /******************************************************************************/
 static void subdivRenderCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
     int level = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( level >= 0x00 ) {
         common_g3duimeshedit_subdivRenderCbk ( gui, level );
@@ -193,9 +190,9 @@ static void subdivRenderCbk ( Widget w, XtPointer client, XtPointer call ) {
 
 /******************************************************************************/
 static void subdivLevelCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
     int level = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( level >= 0x00 ) {
         common_g3duimeshedit_subdivLevelCbk ( gui, level );
@@ -228,27 +225,18 @@ void updateSubdivisionForm ( Widget w, G3DUI *gui ) {
         for ( i = 0x00; i < nc; i++ ) {
             Widget child = children[i];
             char *name = XtName ( child );
-            char buf[0x10];
 
             if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITMESHSUBDIVVIEW ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%d", mes->subdiv );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, mes->subdiv );
                 }
 
                 if ( strcmp ( name, EDITMESHSUBDIVREND ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%d", mes->subdiv_render );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, mes->subdiv_render );
                 }
 
                 if ( strcmp ( name, EDITMESHADVANGLE ) == 0x00 ) {
-                    char buf[0x10];
-
-                    snprintf ( buf, 0x10, "%.2f", mes->advang );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, mes->advang );
                 }
             }
 

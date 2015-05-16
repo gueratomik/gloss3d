@@ -121,7 +121,7 @@ void checkAlphaNumerical ( Widget w, XtPointer client, XtPointer call ) {
 /******************************************************************************/
 void incrementValueCbk ( Widget w, XtPointer client, XtPointer call ) {
     XmSpinButtonWidget xsw = ( XmSpinButtonWidget ) XtParent ( w );
-    float increment = xsw->spinbutton.increment / 100;
+    float increment = ( float ) xsw->spinbutton.increment / 100;
     char str[0x100];
     char *value;
     float fval;
@@ -383,7 +383,18 @@ double XmSpinButtonGetValue ( Widget w ) {
     XtFree ( value );
 
     return val;
-} 
+}
+
+/******************************************************************************/
+void XmSpinButtonSetValue ( Widget w, double val ) {
+    XmSpinButtonWidget xsw = ( XmSpinButtonWidget  ) w;
+    char str[0x100];
+
+    if ( xsw->spinbutton.decimal ) snprintf ( str, 0x100, "%.2f",      val );
+    else                           snprintf ( str, 0x100, "%d"  , (int)val );
+
+    XmTextSetString ( xsw->spinbutton.txt, str );
+}
 
 /******************************************************************************/
 Widget XmVaCreateSpinButton ( Widget parent, char *name, ... ) {

@@ -100,31 +100,22 @@ void updateCubeEdit ( Widget w, G3DUI *gui ) {
         for ( i = 0x00; i < nc; i++ ) {
             Widget child = children[i];
             char *name = XtName ( child );
-            char buf[0x10];
 
             if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITCUBEXSLICES   ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%d", cds->nbx );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, cds->nbx );
                 }
 
                 if ( strcmp ( name, EDITCUBEYSLICES ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%d", cds->nby );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, cds->nby );
                 }
 
                 if ( strcmp ( name, EDITCUBEZSLICES ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%d", cds->nbz );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, cds->nbz );
                 }
 
                 if ( strcmp ( name, EDITCUBERADIUS ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%f", cds->radius );
-
-                    XtVaSetValues ( child, XmNvalue, buf, NULL );
+                    XmSpinButtonSetValue ( child, cds->radius );
                 }
             }
         }

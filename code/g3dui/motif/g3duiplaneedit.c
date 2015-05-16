@@ -31,66 +31,54 @@
 
 /******************************************************************************/
 static void divuCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char  *value  = XmTextGetString ( w );
-    int    div    = strtol ( value, NULL, 10 );
+    int div = XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    G3DUI *gui    = ( G3DUI * ) client;
 
     if ( div ) {
         common_g3duiplaneedit_divCbk ( gui, G3DUIUAXIS, div );
     } else {
         updatePlaneEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void divvCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char  *value  = XmTextGetString ( w );
-    int    div    = strtol ( value, NULL, 10 );
+    int div = XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    G3DUI *gui    = ( G3DUI * ) client;
 
     if ( div ) {
         common_g3duiplaneedit_divCbk ( gui, G3DUIVAXIS, div );
     } else {
         updatePlaneEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void raduCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    G3DUI *gui    = ( G3DUI * ) client;
 
     if ( radius >= 0.0f ) {
         common_g3duiplaneedit_radiusCbk ( gui, G3DUIUAXIS, radius );
     } else {
         updatePlaneEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void radvCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
-    G3DUI *gui    = ( G3DUI * ) client;
 
     if ( radius >= 0.0f ) {
         common_g3duiplaneedit_radiusCbk ( gui, G3DUIVAXIS, radius );
     } else {
         updatePlaneEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -136,33 +124,21 @@ void updatePlaneEdit ( Widget w, G3DUI *gui ) {
             Widget child = children[i];
             char *name = XtName ( child );
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( name, EDITPLANEDIVU   ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", pds->nbu );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, pds->nbu );
                 }
 
                 if ( strcmp ( name, EDITPLANEDIVV ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", pds->nbv );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, pds->nbv );
                 }
 
                 if ( strcmp ( name, EDITPLANERADU ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", pds->radu );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, pds->radu );
                 }
 
                 if ( strcmp ( name, EDITPLANERADV ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", pds->radv );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, pds->radv );
                 }
             }
 

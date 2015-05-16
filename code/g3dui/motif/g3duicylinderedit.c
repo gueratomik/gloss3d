@@ -31,72 +31,57 @@
 
 /******************************************************************************/
 static void lengthCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float length = strtof ( value, NULL );
+    float length = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duicylinderedit_lengthCbk ( gui, length );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void radiusCbk ( Widget w, XtPointer client, XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float radius = strtof ( value, NULL );
+    float radius = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3duicylinderedit_radiusCbk ( gui, radius );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void xcapCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int cap = strtol ( value, NULL, 10 );
+    int cap = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( cap ) {
         common_g3duicylinderedit_capCbk ( gui, G3DUIXAXIS, cap );
     } else {
         updateCylinderEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void ycapCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int cap = strtol ( value, NULL, 10 );
+    int cap = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( cap ) {
         common_g3duicylinderedit_capCbk ( gui, G3DUIYAXIS, cap );
     } else {
         updateCylinderEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
 static void sliceCbk ( Widget w, XtPointer client, XtPointer call ) {
-    Widget parent = XtParent ( w );
-    char *value = XmTextGetString ( w );
-    int slice = strtol ( value, NULL, 10 );
+    int slice = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
+    Widget parent = XtParent ( w );
 
     if ( slice >= 0x03 ) {
         common_g3duicylinderedit_sliceCbk ( gui, slice );
     } else {
         updateCylinderEdit ( parent, gui );
     }
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -124,40 +109,25 @@ void updateCylinderEdit ( Widget w, G3DUI *gui ) {
             Widget child = children[i];
             char *name = XtName ( child );
 
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
-                if ( strcmp ( name, EDITCYLINDERXCAPS   ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", cds->capx );
-
-                    XmTextSetString ( child, buf );
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
+                if ( strcmp ( name, EDITCYLINDERXCAPS  ) == 0x00 ) {
+                    XmSpinButtonSetValue ( child, cds->capx );
                 }
 
-                if ( strcmp ( name, EDITCYLINDERYCAPS   ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", cds->capy );
-
-                    XmTextSetString ( child, buf );
+                if ( strcmp ( name, EDITCYLINDERYCAPS  ) == 0x00 ) {
+                    XmSpinButtonSetValue ( child, cds->capy );
                 }
 
                 if ( strcmp ( name, EDITCYLINDERSLICES ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%d", cds->slice );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, cds->slice );
                 }
 
                 if ( strcmp ( name, EDITCYLINDERRADIUS ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", cds->radius );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, cds->radius );
                 }
 
                 if ( strcmp ( name, EDITCYLINDERLENGTH ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", cds->length );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, cds->length );
                 }
             }
         }

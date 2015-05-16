@@ -79,5 +79,6 @@ extern XmSpinButtonClassRec xmSpinButtonClassRec;
 Widget XmVaCreateManagedSpinButton ( Widget, char *, ... );
 Widget XmVaCreateSpinButton        ( Widget, char *, ... );
 double XmSpinButtonGetValue        ( Widget );
+void XmSpinButtonSetValue          ( Widget, double );
 
 #endif
