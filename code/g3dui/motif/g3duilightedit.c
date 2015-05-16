@@ -148,9 +148,8 @@ static void diffuseChangeCbk ( Widget w, XtPointer client,
 /******************************************************************************/
 static void diffuseIntensityCbk ( Widget w, XtPointer client,
                                             XtPointer call ) {
+    float intensity = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    char *value = XmTextGetString ( w );
-    float intensity = strtof ( value, NULL );
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
@@ -224,12 +223,9 @@ static void updateColorPanel ( Widget w, G3DUI *gui ) {
             }
 
             /*** Crashes if I don't use the if statement below. Don't know why ***/
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( EDITLIGHTINTENSITY, XtName ( child ) ) == 0x00 ) {
-                    char buf[0x10];
-                    snprintf ( buf, 0x10, "%f", lig->intensity );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, lig->intensity );
                 }
             }
         }

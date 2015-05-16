@@ -80,13 +80,10 @@ static void displacementImageCbk ( Widget w, XtPointer client,
 /******************************************************************************/
 static void displacementStrengthCbk ( Widget w, XtPointer client, 
                                                 XtPointer call ) {
-    char *value = XmTextGetString ( w );
-    float strength = strtof ( value, NULL );
+    float strength = XmSpinButtonGetValue ( w );
     G3DUI *gui = ( G3DUI * ) client;
 
     common_g3dui_materialDisplacementStrengthCbk ( gui, strength );
-
-    XtFree ( value );
 }
 
 /******************************************************************************/
@@ -114,11 +111,9 @@ void updateDisplacementPanel ( Widget w, G3DUI *gui ) {
 
             /*** Update toggle button, the one allowing the user to choose ***/
             /*** if the material color should be solid or from image file. ***/
-            if ( XtClass ( child ) == xmTextWidgetClass ) {
+            if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
                 if ( strcmp ( XtName ( child ), EDITDISPLACEMENTSTRENGTH ) == 0x00 ) {
-                    snprintf ( buf, 0x10, "%f", mat->displacement_strength );
-
-                    XmTextSetString ( child, buf );
+                    XmSpinButtonSetValue ( child, mat->displacement_strength );
                 }
             }
 
