@@ -117,7 +117,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duicom.c motif/g3duicoordinatesedit.c \
 	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
 	motif/g3duicylinderedit.c motif/g3duiffdedit.c \
-	motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duikeyedit.c motif/g3duilightedit.c motif/g3duilist.c \
 	motif/g3duimainboard.c motif/g3duimaterialboard.c \
 	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
 	motif/g3duimeshedit.c motif/g3duimenubar.c \
@@ -182,6 +182,7 @@ am__objects_1 = common/g3dui.lo \
 	motif/g3duicurrentedit.lo \
 	motif/g3duicylinderedit.lo \
 	motif/g3duiffdedit.lo \
+	motif/g3duikeyedit.lo \
 	motif/g3duilightedit.lo \
 	motif/g3duilist.lo \
 	motif/g3duimainboard.lo \
@@ -319,7 +320,7 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duicom.c motif/g3duicoordinatesedit.c \
 	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
 	motif/g3duicylinderedit.c motif/g3duiffdedit.c \
-	motif/g3duilightedit.c motif/g3duilist.c \
+	motif/g3duikeyedit.c motif/g3duilightedit.c motif/g3duilist.c \
 	motif/g3duimainboard.c motif/g3duimaterialboard.c \
 	motif/g3duimaterialedit.c motif/g3duimateriallist.c \
 	motif/g3duimeshedit.c motif/g3duimenubar.c \
@@ -631,6 +632,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             motif/g3duicurrentedit.c \
                             motif/g3duicylinderedit.c \
                             motif/g3duiffdedit.c \
+                            motif/g3duikeyedit.c \
                             motif/g3duilightedit.c \
                             motif/g3duilist.c \
                             motif/g3duimainboard.c \
@@ -930,6 +932,8 @@ motif/g3duicylinderedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duiffdedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
+motif/g3duikeyedit.lo: motif/$(am__dirstamp) \
+	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duilightedit.lo: motif/$(am__dirstamp) \
 	motif/$(DEPDIR)/$(am__dirstamp)
 motif/g3duilist.lo: motif/$(am__dirstamp) \
@@ -1175,6 +1179,8 @@ mostlyclean-compile:
 	-rm -f motif/g3duicylinderedit.lo
 	-rm -f motif/g3duiffdedit.$(OBJEXT)
 	-rm -f motif/g3duiffdedit.lo
+	-rm -f motif/g3duikeyedit.$(OBJEXT)
+	-rm -f motif/g3duikeyedit.lo
 	-rm -f motif/g3duilightedit.$(OBJEXT)
 	-rm -f motif/g3duilightedit.lo
 	-rm -f motif/g3duilist.$(OBJEXT)
@@ -1321,6 +1327,7 @@ include motif/$(DEPDIR)/g3duicubeedit.Plo
 include motif/$(DEPDIR)/g3duicurrentedit.Plo
 include motif/$(DEPDIR)/g3duicylinderedit.Plo
 include motif/$(DEPDIR)/g3duiffdedit.Plo
+include motif/$(DEPDIR)/g3duikeyedit.Plo
 include motif/$(DEPDIR)/g3duilightedit.Plo
 include motif/$(DEPDIR)/g3duilist.Plo
 include motif/$(DEPDIR)/g3duimainboard.Plo
@@ -1603,12 +1610,7 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duiconf.c \
-#                            motif/g3duitimeline.c \
-#                            motif/g3duitextureedit.c \
-#                            motif/g3duiview.c \
-#                            motif/g3duikeyedit.c \
-#                            motif/g3duiclipboard.c
+#                            motif/g3duitextureedit.c
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

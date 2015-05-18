@@ -30,90 +30,62 @@
 #include <g3dui_motif.h>
 
 /******************************************************************************/
-static void keycbk ( Widget w, XtPointer client, XtPointer call ) {
+static void usePosCbk ( Widget w, XtPointer client, XtPointer call ) {
+    uint32_t rpos = XmToggleButtonGetState ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        float fval = strtof ( value, NULL );
-        LIST *ltmpkey = obj->lselkey;
-        char *wname = XtName ( w );
-
-        while ( ltmpkey ) {
-            G3DKEY *key = ltmpkey->data;
-
-            if ( strcmp ( wname, EDITKEYXPOSITION ) == 0x00 ) key->pos.x = fval;
-            if ( strcmp ( wname, EDITKEYYPOSITION ) == 0x00 ) key->pos.y = fval;
-            if ( strcmp ( wname, EDITKEYZPOSITION ) == 0x00 ) key->pos.z = fval;
-
-            if ( strcmp ( wname, EDITKEYXROTATION ) == 0x00 ) key->rot.x = fval;
-            if ( strcmp ( wname, EDITKEYYROTATION ) == 0x00 ) key->rot.y = fval;
-            if ( strcmp ( wname, EDITKEYZROTATION ) == 0x00 ) key->rot.z = fval;
-
-            if ( strcmp ( wname, EDITKEYXSCALING  ) == 0x00 ) key->sca.x = fval;
-            if ( strcmp ( wname, EDITKEYYSCALING  ) == 0x00 ) key->sca.y = fval;
-            if ( strcmp ( wname, EDITKEYZSCALING  ) == 0x00 ) key->sca.z = fval;
-
-            ltmpkey = ltmpkey->next;
-        }
-
-        g3dui_redrawGLViews ( gui );
-        XtFree ( value );
-    }
+    if ( rpos ) common_g3duikeyedit_setFlagCbk   ( gui, KEYPOSITION );
+    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYPOSITION );
 }
 
 /******************************************************************************/
-static void loopcbk ( Widget w, XtPointer client, XtPointer call ) {
+static void useRotCbk ( Widget w, XtPointer client, XtPointer call ) {
+    uint32_t rrot = XmToggleButtonGetState ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpobj = sce->lsel;
-    XmToggleButtonCallbackStruct *tcs = ( XmToggleButtonCallbackStruct * ) call;
 
-    while ( ltmpobj ) {
-        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-
-        if ( tcs->set ) {
-            g3dkey_unsetLoopFromList ( obj->lselkey );
-        } else {
-            g3dkey_setLoopFromList ( obj->lselkey );
-        }
-
-        ltmpobj = ltmpobj->next;
-    }
+    if ( rrot ) common_g3duikeyedit_setFlagCbk   ( gui, KEYROTATION );
+    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYROTATION );
 }
 
 /******************************************************************************/
-static void loopframecbk ( Widget w, XtPointer client, XtPointer call ) {
+static void useScaCbk ( Widget w, XtPointer client, XtPointer call ) {
+    uint32_t rsca = XmToggleButtonGetState ( w );
     G3DUI *gui = ( G3DUI * ) client;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    if ( obj ) {
-        char *value = XmTextGetString ( w );
-        int32_t val = strtol ( value, NULL, 10 );
-
-        g3dkey_setLoopFrameFromList ( obj->lselkey, (float) val );
-
-        XtFree ( value );
-    }
+    if ( rsca ) common_g3duikeyedit_setFlagCbk   ( gui, KEYSCALING );
+    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYSCALING );
 }
 
 /******************************************************************************/
-void updateKeyEdit ( Widget w ) {
+static void loopFrameCbk ( Widget w, XtPointer client, XtPointer call ) {
+    float frm = ( float ) XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duikeyedit_loopFrameCbk ( gui, frm );
+}
+
+/******************************************************************************/
+static void loopCbk ( Widget w, XtPointer client, XtPointer call ) {
+    uint32_t loop = XmToggleButtonGetState ( w );
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duikeyedit_loopCbk ( gui, loop );
+}
+
+/******************************************************************************/
+static void keyCbk ( Widget w, XtPointer client, XtPointer call ) {
+    const char *field_name = XtName ( w );
+    float val = ( float ) XmSpinButtonGetValue ( w );
+    G3DUI *gui = ( G3DUI * ) client;
+
+    common_g3duikeyedit_keyCbk ( gui, field_name, val );
+}
+
+/******************************************************************************/
+void updateKeyEdit ( Widget w, G3DUI *gui ) {
     WidgetList children;
-    G3DOBJECT *obj;
-    G3DSCENE *sce;
-    G3DUI *gui;
-
-    XtVaGetValues ( w, XmNuserData, &gui, NULL );
-
-    sce = gui->sce;
-    obj = g3dscene_getSelectedObject ( sce );
+    G3DSCENE  *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     /*** prevent useless primitive building when XmTextSetString is called, ***/
     /*** as XmTextSetString will call XmNvalueChanged callback whereas we   ***/
@@ -130,17 +102,14 @@ void updateKeyEdit ( Widget w ) {
                            XmNnumChildren, &nc,
                            NULL );
 
-        if ( obj->lselkey == NULL ) {
-            for ( i = 0x00; i < nc; i++ ) {
-                Widget child = children[i];
-
-                if ( XtClass ( child ) == xmTextWidgetClass ) {
-                    XmTextSetEditable ( child, False );
-                }
-            }
-        } else {
+        if ( obj && obj->lselkey ) {
+            G3DVECTOR keypos, keyrot, keysca;
+            uint32_t keyloop = 0x00;
             float loopFrame;
             uint32_t loopFlag;
+            uint32_t usePos = g3dkey_getUsePositionFromList ( obj->lselkey );
+            uint32_t useRot = g3dkey_getUseRotationFromList ( obj->lselkey );
+            uint32_t useSca = g3dkey_getUseScalingFromList  ( obj->lselkey );
 
             loopFlag = g3dkey_getLoopFrameFromList ( obj->lselkey, &loopFrame );
 
@@ -148,11 +117,9 @@ void updateKeyEdit ( Widget w ) {
                                                              &keyrot,
                                                              &keysca );
 
-
             for ( i = 0x00; i < nc; i++ ) {
                 Widget child = children[i];
                 char *name = XtName ( child );
-                char buf[0x10];
 
                 if ( XtClass ( child ) == xmToggleButtonWidgetClass ) {
                     if ( strcmp ( name, EDITKEYLOOP ) == 0x00 ) {
@@ -162,74 +129,67 @@ void updateKeyEdit ( Widget w ) {
                             XmToggleButtonSetState ( child, False, False );
                         }
                     }
-                }
 
-                if ( XtClass ( child ) == xmTextWidgetClass ) {
-                    if ( XmTextGetEditable ( child ) == False ) {
-                        XmTextSetEditable ( child, True );
+                    if ( strcmp ( name, EDITKEYPOSITION ) == 0x00 ) {
+                        XmToggleButtonSetState ( child, usePos, False );
                     }
 
-                    if ( strcmp ( name, EDITKEYLOOPFRAME ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%d", ( int32_t ) loopFrame );
+                    if ( strcmp ( name, EDITKEYROTATION ) == 0x00 ) {
+                        XmToggleButtonSetState ( child, useRot, False );
+                    }
 
-                        XmTextSetString ( child, buf );
+                    if ( strcmp ( name, EDITKEYSCALING ) == 0x00 ) {
+                        XmToggleButtonSetState ( child, useSca, False );
+                    }
+                }
+
+                if ( XtClass ( child ) == xmSpinButtonWidgetClass ) {
+                    /*if ( XmTextGetEditable ( child ) == False ) {
+                        XmTextSetEditable ( child, True );
+                    }*/
+
+                    if ( strcmp ( name, EDITKEYLOOPFRAME ) == 0x00 ) {
+                        XmSpinButtonSetValue ( child, loopFrame );
+printf("eheh %f\n", loopFrame );
                     }
 
                     /****************** Position *****************/
                     if ( strcmp ( name, EDITKEYXPOSITION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keypos.x );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keypos.x );
                     }
 
                     if ( strcmp ( name, EDITKEYYPOSITION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keypos.y );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keypos.y );
                     }
 
                     if ( strcmp ( name, EDITKEYZPOSITION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keypos.z );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keypos.z );
                     }
 
                     /****************** Rotation *****************/
                     if ( strcmp ( name, EDITKEYXROTATION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keyrot.x );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keyrot.x );
                     }
 
                     if ( strcmp ( name, EDITKEYYROTATION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keyrot.y );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keyrot.y );
                     }
 
                     if ( strcmp ( name, EDITKEYZROTATION ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keyrot.z );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keyrot.z );
                     }
 
                     /****************** Scaling  *****************/
                     if ( strcmp ( name, EDITKEYXSCALING  ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keysca.x );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keysca.x );
                     }
 
                     if ( strcmp ( name, EDITKEYYSCALING  ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keysca.y );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keysca.y );
                     }
 
                     if ( strcmp ( name, EDITKEYZSCALING  ) == 0x00 ) {
-                        snprintf ( buf, 0x10, "%f", keysca.z );
-
-                        XmTextSetString ( child, buf );
+                        XmSpinButtonSetValue ( child, keysca.z );
                     }
                 }
             }
@@ -254,48 +214,58 @@ Widget createKeyEdit ( Widget parent, G3DUI *gui, char *name,
     Pixel background, foreground;
     Widget frm;
 
-    XtVaGetValues ( parent, XmNbackground, &background,
-                            XmNforeground, &foreground, NULL );
+    /*XtVaGetValues ( parent, XmNbackground, &background,
+                            XmNforeground, &foreground, NULL );*/
 
     frm = XmVaCreateManagedForm ( parent, name,
                                   XmNx, x,
                                   XmNy, y,
                                   XmNwidth , width,
                                   XmNheight, height,
-                                  XmNforeground, foreground,
-                                  XmNbackground, background,
-                                  XmNuserData, gui,
+                                  /*XmNforeground, foreground,
+                                  XmNbackground, background,*/
                                   NULL );
+
+    /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
+    gui->lock = 0x01;
 
     /******** Translation values text fields *****************/
 
-    createSimpleLabel ( frm, "Position", 0x00, 0x00, 0x60 );
+    createToggleLabel ( frm, gui, EDITKEYPOSITION ,   8, 0, 96, 20, usePosCbk );
 
-    createFloatText ( frm, EDITKEYXPOSITION, 0x00, 0x14, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYYPOSITION, 0x00, 0x28, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYZPOSITION, 0x00, 0x3C, 0x00, 0x60, keycbk );
+    createFloatText   ( frm, gui, EDITKEYXPOSITION,   8, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYPOSITION,   8, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZPOSITION,   8, 72, 0, 96, keyCbk );
 
     /********** Rotation values text fields ****************/
 
-    createSimpleLabel ( frm, "Rotation", 0x60, 0x00, 0x60 );
+    createToggleLabel ( frm, gui, EDITKEYROTATION , 160, 0, 96, 20, useRotCbk );
 
-    createFloatText ( frm, EDITKEYXROTATION, 0x60, 0x14, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYYROTATION, 0x60, 0x28, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYZROTATION, 0x60, 0x3C, 0x00, 0x60, keycbk );
+    createFloatText   ( frm, gui, EDITKEYXROTATION, 160, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYROTATION, 160, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZROTATION, 160, 72, 0, 96, keyCbk );
 
     /********** Scaling values text fields ****************/
 
-    createSimpleLabel ( frm, "Scaling" , 0xC0, 0x00, 0x60 );
+    createToggleLabel ( frm, gui, EDITKEYSCALING  , 312, 0, 96, 20, useScaCbk );
 
-    createFloatText ( frm, EDITKEYXSCALING , 0xC0, 0x14, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYYSCALING , 0xC0, 0x28, 0x00, 0x60, keycbk );
-    createFloatText ( frm, EDITKEYZSCALING , 0xC0, 0x3C, 0x00, 0x60, keycbk );
+    createFloatText   ( frm, gui, EDITKEYXSCALING , 312, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYSCALING , 312, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZSCALING , 312, 72, 0, 96, keyCbk );
 
-    createToggleLabel ( frm, EDITKEYLOOP, 0x00, 0x50, 0x80, 0x20, loopcbk );
-    createIntegerText   ( frm, EDITKEYLOOPFRAME, 0x84, 0x54,
-                                                 0x00, 0x20, loopframecbk );
+    /*** Loop frame ***/
 
-    updateKeyEdit ( frm );
+    createToggleLabel ( frm, gui, EDITKEYLOOP     ,   8, 104,
+                                                    128,
+                                                     20, loopCbk );
+
+    createIntegerText ( frm, gui, EDITKEYLOOPFRAME, 160, 104,
+                                                      0,
+                                                     32, loopFrameCbk );
+
+    updateKeyEdit ( frm, gui );
+
+    gui->lock = 0x00;
 
     list_insert ( &gui->lkeyedit, frm );
 

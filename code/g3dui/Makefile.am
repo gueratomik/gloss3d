@@ -141,6 +141,7 @@ if HAVE_MOTIF
                             motif/g3duicurrentedit.c \
                             motif/g3duicylinderedit.c \
                             motif/g3duiffdedit.c \
+                            motif/g3duikeyedit.c \
                             motif/g3duilightedit.c \
                             motif/g3duilist.c \
                             motif/g3duimainboard.c \
@@ -171,9 +172,4 @@ if HAVE_MOTIF
 endif
 
 #                            motif/g3duiboneedit.c \
-#                            motif/g3duiconf.c \
-#                            motif/g3duitimeline.c \
-#                            motif/g3duitextureedit.c \
-#                            motif/g3duiview.c \
-#                            motif/g3duikeyedit.c \
-#                            motif/g3duiclipboard.c
+#                            motif/g3duitextureedit.c

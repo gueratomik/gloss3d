@@ -45,9 +45,9 @@ static void Input ( Widget w, XtPointer client,
     TIMELINEDATA *tdata = NULL;
 
     /*** retrieve the global GUI structure ***/
-    XtVaGetValues ( w, XmNuserData, &tdata,
+    XtVaGetValues ( w, XmNuserData, &tdata,/*
                        XmNbackground, &background, 
-                       XmNforeground, &foreground, 
+                       XmNforeground, &foreground, */
                        XmNwidth, &width,
                        XmNheight, &height, NULL );
 
@@ -90,19 +90,28 @@ static void Input ( Widget w, XtPointer client,
             /*** First check whether or not we clicked the cursor ***/
             if ( pressed_frame == gui->curframe ) {
                 oncursor = 0x01;
-            } else {
+            }/* else {*/
                 /*** else check whether or not we clicked a key ***/
                 onkey = common_timelinedata_selectKey ( tdata, sce->lsel, 
                                                                pressed_frame,
                                                                keep,
                                                                width );
-            }
+            /*}*/
 
             /*** Move the whole timeline indefinitely. For so, we hide the ***/
             /*** cursor so that the user does not see the mouse pointer    ***/
             /*** moving back to the center of the widget all the time.     ***/
             xold = xori = bev->x;
             yold = yori = bev->y;
+
+            if ( /*( oncursor == 0x00 ) &&
+                 ( onkey    == 0x00 ) && */
+                 ( dragging == 0x00 ) ) {
+                /*g3duitimeline_grab_pointer ( widget, gdkev );
+                g3duitimeline_hide_pointer ( widget );*/
+
+                dragging = 0x01;
+            }
 
             xacc = 0x00;
 
@@ -151,6 +160,40 @@ static void Input ( Widget w, XtPointer client,
         case ButtonRelease : {
             XButtonEvent *bev = ( XButtonEvent * ) event;
 
+            if ( dragging ) {
+                /*g3duitimeline_ungrab_pointer ( widget, gdkev );
+                g3duitimeline_show_pointer   ( widget );*/
+
+                if ( oncursor ) {
+                    int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
+
+                    /*** Recompute buffered subdivided Meshes ***/
+                    g3dscene_updateBufferedMeshes ( sce, gui->flags );
+
+                    /*** After dragging the cursor, move ***/
+                    /*** the pointer to its position.    ***/
+                    /*** Check the new position is within widget boundaries.***/
+                    if ( ( xnew < 0x00 ) || ( xnew > width ) ) {
+                        XWarpPointer ( XtDisplay ( w ), 
+                                       XtWindow  ( w ),
+                                       XtWindow  ( w ), 0, 0, width, height, xori, yori );
+                    } else {
+printf("test\n");
+                        XWarpPointer ( XtDisplay ( w ), 
+                                       XtWindow  ( w ),
+                                       XtWindow  ( w ), 0, 0, width, height, xnew, yori );
+                    }
+                } else {
+            /*** If press and release position are the same, dragging equals 1***/
+            /*** because dragging equals 2 when it go through MotionNotify. ***/
+                    if ( dragging == 0x01 ) {
+                        gui->curframe = pressed_frame;
+                    }
+                }
+
+                /*g3duitimeline_move_pointer ( widget, gdkev, xori, yori );*/
+            }
+
             /*** disable animation mode whatever happens ***/
             gui->flags &= (~ONGOINGANIMATION);
 
@@ -166,31 +209,41 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
 
                 /*** double-click on the same tile as before ***/
                 if ( dift < 500 ) {
-                    /*Display *dis = XtDisplay ( w );
+                    Display *dis = XtDisplay ( w );
                     Window root = XDefaultRootWindow ( dis );
+                    int screen = DefaultScreen ( dis );
+                    Visual *visual = DefaultVisual ( dis, screen );
                     XWindowAttributes wat;
                     Widget shell, edit;
+                    Colormap cmap;
+                    XColor scrcol, exacol;
 
                     XGetWindowAttributes ( dis, root, &wat );
+
+                    cmap = XCreateColormap ( dis, root, visual, AllocNone );
+
+                    XAllocNamedColor ( dis, cmap, BACKGROUNDCOLOR, &scrcol, &exacol );
 
                     shell = XtVaAppCreateShell ( NULL, "Class",
                                                  topLevelShellWidgetClass,
                                                  dis, 
                                                  XtNtitle,"Key Editor",
-                                                 XtNx, ( wat.width/2) -145,
-                                                 XtNy, ( wat.height/2) -50,
-                                                 XtNwidth, 290,
-                                                 XtNheight, 100,
+                                                 XtNx, ( wat.width/2) -230,
+                                                 XtNy, ( wat.height/2) -96,
+                                                 XmNvisual, visual,
+                                                 XmNcolormap, cmap,
+                                                 XtNwidth, 460,
+                                                 XtNheight, 192,/*
                                                  XmNbackground, background, 
-                                                 XmNforeground, foreground,
+                                                 XmNforeground, foreground,*/
                                                  NULL );
 
                     edit = createKeyEdit ( shell, gui, "Key Edit",
-                                           0x00, 0x00, 290, 100 );
+                                           0, 0, 460, 192 );
 
                     XtManageChild ( edit );
 
-                    XtRealizeWidget ( shell );*/
+                    XtRealizeWidget ( shell );
                 }
 
                 /*** no double-click ***/          
@@ -198,6 +251,15 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
             } else {
                 click = bev->time;
             }
+
+            /*** disable animation mode whatever happens ***/
+            gui->flags &= (~ONGOINGANIMATION);
+
+            oncursor = onkey = dragging = 0x00;
+
+            g3dui_redrawGLViews ( gui );
+            XClearArea ( XtDisplay ( w ),
+                         XtWindow  ( w ), 0x00, 0x00, 0x01, 0x01, True );
         } break;
 
         default : {
