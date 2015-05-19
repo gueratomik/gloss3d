@@ -1246,7 +1246,7 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     GdkScreen *gdkscr;
     XVisualInfo *vi;
     Window win;
-
+    
     vi = glXChooseVisual ( dis, 0, glattr );
 
     if ( vi == 0x00 ) {
@@ -1310,6 +1310,10 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
     HDC dc = GetDC ( hWnd );
     int pxf;
+    
+    /*** prevents erasing the background ***/
+    gtk_widget_set_double_buffered (GTK_WIDGET (widget), FALSE);
+    gtk_widget_set_app_paintable (GTK_WIDGET (widget), TRUE);
 
     memset ( &pfd, 0x00, sizeof ( PIXELFORMATDESCRIPTOR ) );
 
@@ -1420,6 +1424,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
         /*** Re-enable real time subdivision ***/
         gui->flags &= (~ONGOINGANIMATION);
     }
+	
 
     return 0x01;
 }
