@@ -150,7 +150,6 @@ void updateKeyEdit ( Widget w, G3DUI *gui ) {
 
                     if ( strcmp ( name, EDITKEYLOOPFRAME ) == 0x00 ) {
                         XmSpinButtonSetValue ( child, loopFrame );
-printf("eheh %f\n", loopFrame );
                     }
 
                     /****************** Position *****************/

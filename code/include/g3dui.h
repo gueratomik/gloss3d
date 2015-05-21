@@ -1019,7 +1019,7 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI *, unsigned char,
                                                      unsigned char, 
                                                      unsigned char );
 void common_g3duirenderedit_formatCbk     ( G3DUI *, const char * );
-void common_g3duirenderedit_saveCbk       ( G3DUI * );
+void common_g3duirenderedit_saveCbk       ( G3DUI *, uint32_t );
 
 #ifdef __linux__
 void common_g3dui_sighandler ( int, siginfo_t *, void * );

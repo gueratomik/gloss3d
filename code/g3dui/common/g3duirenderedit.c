@@ -124,15 +124,15 @@ void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_saveCbk ( G3DUI *gui ) {
+void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( rsg->flags & RENDERSAVE ) {
-        rsg->flags &= (~RENDERSAVE);
-    } else {
+    if ( save ) {
         rsg->flags |=   RENDERSAVE;
+    } else {
+        rsg->flags &= (~RENDERSAVE);
     } 
 }
 

@@ -695,6 +695,7 @@ uint32_t g3dface_initsubmem ( G3DFACE *fac, G3DSUBVERTEX **subverptr,
     return memflags;
 }
 
+#ifdef OLDVER 
 /******************************************************************************/
 uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
                                         G3DSUBEDGE    *edgtab, uint32_t nbedg,
@@ -971,6 +972,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
 
     return nbfacnew;
 }
+#endif
 
 /******************************************************************************/
 
@@ -1178,7 +1180,7 @@ if ( curdiv == 0x01 ) {
 }
 
         /********************[End]Displacement Part**************************/
-#define CATMULLCLARKV1
+#define CATMULLCLARKV2
 #ifdef  CATMULLCLARKV1
         /*** Recurse magic ***/
         for ( i = 0x00; i < fac->nbver; i++ ) {

@@ -78,10 +78,10 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dkey.lo g3dlight.lo g3dmaterial.lo g3dmesh.lo g3dobject.lo \
 	g3dpivot.lo g3dplane.lo g3dprimitive.lo g3dquaternion.lo \
 	g3drgba.lo g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
-	g3dscene.lo g3dsphere.lo g3dsubdivision.lo g3dsubedge.lo \
-	g3dsubface.lo g3dsubvertex.lo g3dsymmetry.lo g3dtexture.lo \
-	g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo \
-	g3dweight.lo
+	g3dscene.lo g3dsphere.lo g3dsubdivision.lo g3dsubdivisionV2.lo \
+	g3dsubedge.lo g3dsubface.lo g3dsubvertex.lo g3dsymmetry.lo \
+	g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo \
+	g3dvertex.lo g3dweight.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -171,10 +171,10 @@ OTOOL64 =
 PACKAGE = gloss3d
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = gloss3d
-PACKAGE_STRING = gloss3d dev-0.2.56
+PACKAGE_STRING = gloss3d dev-0.2.58
 PACKAGE_TARNAME = gloss3d
 PACKAGE_URL = 
-PACKAGE_VERSION = dev-0.2.56
+PACKAGE_VERSION = dev-0.2.58
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -184,7 +184,7 @@ SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = dev-0.2.56
+VERSION = dev-0.2.58
 abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3d
 abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3d
 abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
@@ -275,6 +275,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dscene.c \
                       g3dsphere.c \
                       g3dsubdivision.c \
+                      g3dsubdivisionV2.c \
                       g3dsubedge.c \
                       g3dsubface.c \
                       g3dsubvertex.c \
@@ -390,6 +391,7 @@ include ./$(DEPDIR)/g3drtvertex.Plo
 include ./$(DEPDIR)/g3dscene.Plo
 include ./$(DEPDIR)/g3dsphere.Plo
 include ./$(DEPDIR)/g3dsubdivision.Plo
+include ./$(DEPDIR)/g3dsubdivisionV2.Plo
 include ./$(DEPDIR)/g3dsubedge.Plo
 include ./$(DEPDIR)/g3dsubface.Plo
 include ./$(DEPDIR)/g3dsubvertex.Plo

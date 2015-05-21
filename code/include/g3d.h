@@ -891,6 +891,9 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH *mes;
     uint32_t flags;
     G3DRTTRIANGLE *rttrimem;
+    G3DSUBVERTEX *newsubvermem, *freesubverptr;
+    G3DSUBEDGE   *newsubedgmem, *freesubedgptr;
+    G3DSUBFACE   *newsubfacmem, *freesubfacptr;
 } G3DSUBDIVISIONTHREAD;
 
 /******************************************************************************/
@@ -1253,7 +1256,8 @@ void     g3dface_setSelected      ( G3DFACE * );
 G3DFACE *g3dface_new              ( G3DVERTEX **, uint32_t );
 void     g3dface_delete           ( G3DFACE * );
 void     g3dface_invertNormal     ( G3DFACE * );
-uint32_t g3dface_catmull_clark_draw ( G3DFACE *, G3DFACE *, 
+uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *,
+                                      G3DFACE *, G3DFACE *, 
                                                  uint32_t,
                                                  float,
                          /*** get triangles ***/ G3DRTTRIANGLE **,

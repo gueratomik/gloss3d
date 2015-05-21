@@ -118,10 +118,14 @@ void createRenderFormat ( Widget parent, G3DUI *gui,
 
 /******************************************************************************/
 static void saveCbk ( Widget w, XtPointer client, XtPointer call ) {
+    uint32_t save = XmToggleButtonGetState ( w );
     G3DUI    *gui = ( G3DUI * ) client;
     Widget parent = XtParent ( w );
 
-    common_g3duirenderedit_saveCbk ( gui );
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    common_g3duirenderedit_saveCbk ( gui, save );
 
     updateRenderEdit ( parent, gui );
 }
@@ -288,9 +292,21 @@ void updateRenderEdit ( Widget w, G3DUI *gui ) {
         char *name = XtName ( child );
 
         if ( XtClass ( child ) == xmToggleButtonWidgetClass ) {
-            /*if ( strcmp ( name, EDITKEYLOOP ) == 0x00 ) {
+            if ( strcmp ( name, EDITRENDERSAVE ) == 0x00 ) {
+                if ( rsg->flags & RENDERSAVE ) {
+                    XmToggleButtonSetState ( child, True , False );
+                } else {
+                    XmToggleButtonSetState ( child, False, False );
+                }
+            }
 
-            }*/
+            if ( strcmp ( name, EDITRENDERPREVIEW ) == 0x00 ) {
+                if ( rsg->flags & RENDERPREVIEW ) {
+                    XmToggleButtonSetState ( child, True , False );
+                } else {
+                    XmToggleButtonSetState ( child, False, False );
+                }
+            }
         }
 
         if ( XtClass ( child ) == xmTextWidgetClass ) {
@@ -498,7 +514,7 @@ Widget createRenderEdit ( Widget parent, G3DUI *gui,
                                0, 168, 96,  64, ratioCbk );
 
     createRenderFormat( frm, gui, EDITRENDERFORMAT,
-                               0, 192, 96,  64, formatCbk );
+                               0, 192, 96,  128, formatCbk );
 
     createCharText    ( frm, gui, EDITRENDEROUTPUT,
                                0, 216, 96, 200, outputCbk );
@@ -513,7 +529,7 @@ Widget createRenderEdit ( Widget parent, G3DUI *gui,
                               96, 264, 96, 18, backgroundCbk );
 
     createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 288, 48, 20, g3dui_runRenderCbk );
+                              96, 288, 96, 20, g3dui_runRenderCbk );
 
 
     updateRenderEdit ( frm, gui );

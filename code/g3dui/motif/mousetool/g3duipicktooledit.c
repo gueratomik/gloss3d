@@ -51,8 +51,7 @@ static void onlyVisibleCbk ( Widget w, XtPointer client, XtPointer call ) {
     XmToggleButtonCallbackStruct *tbs = ( XmToggleButtonCallbackStruct * ) call;
     G3DUI *gui = ( G3DUI * ) client;
 
-    if ( tbs->set ) common_g3duipicktooledit_onlyVisibleCbk ( gui, 0 );
-    else            common_g3duipicktooledit_onlyVisibleCbk ( gui, 1 );
+    common_g3duipicktooledit_onlyVisibleCbk ( gui, tbs->set );
 }
 
 /******************************************************************************/

@@ -178,7 +178,6 @@ static void Input ( Widget w, XtPointer client,
                                        XtWindow  ( w ),
                                        XtWindow  ( w ), 0, 0, width, height, xori, yori );
                     } else {
-printf("test\n");
                         XWarpPointer ( XtDisplay ( w ), 
                                        XtWindow  ( w ),
                                        XtWindow  ( w ), 0, 0, width, height, xnew, yori );

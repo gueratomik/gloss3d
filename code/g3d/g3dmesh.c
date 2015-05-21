@@ -3434,12 +3434,33 @@ void g3dmesh_unsetBufferedSubdivision ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
+                                                 G3DRTTRIANGLE *rttrimem,
+                                                 uint32_t engine_flags ) {
+    G3DSUBDIVISIONTHREAD *std = ( G3DSUBDIVISIONTHREAD * ) calloc ( 0x01, sizeof ( G3DSUBDIVISIONTHREAD ) );
+
+    if ( std == NULL ) {
+
+        return NULL;
+    }
+
+    std->mes      = mes;
+    std->flags    = engine_flags;
+    std->rttrimem = rttrimem;
+
+    std->newsubvermem = calloc ( 16384, sizeof ( G3DSUBVERTEX ) )
+    std->newsubedgmem = calloc ( 16384, sizeof ( G3DSUBEDGE   ) )
+    std->newsubfacmem = calloc ( 16384, sizeof ( G3DSUBFACE   ) )
+
+    return std;
+}
+
+/******************************************************************************/
 void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
                                                  G3DRTTRIANGLE *rttrimem,
                                                  uint32_t nbcpu,
                                                  uint32_t flags ) {
     LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
-    G3DSUBDIVISIONTHREAD sdtthread, sdtmain;
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
     #ifdef __linux__
     pthread_t tid[0x08]; /*** let's say, max 8 threads ***/
@@ -3462,9 +3483,10 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
     g3dmesh_getNextFace ( mes, ltmpfac );
 
     if ( nbcpu < 0x02 ) {
-        sdtmain.mes      = mes;
-        sdtmain.flags    = engine_flags;
-        sdtmain.rttrimem = rttrimem;
+        G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( mes, rttrimem,
+                                                                    engine_flags );
+
+
 
         g3dface_catmull_clark_draw_t ( &sdtmain );
     } else {

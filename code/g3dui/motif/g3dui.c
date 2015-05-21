@@ -778,7 +778,7 @@ void createToggleLabel ( Widget parent, G3DUI *gui,
                                   XmNframeChildType, XmFRAME_GENERIC_CHILD,
                                           NULL );
 
-    if ( cbk ) XtAddCallback ( btn, XmNarmCallback, cbk, gui );
+    if ( cbk ) XtAddCallback ( btn, XmNdisarmCallback, cbk, gui );
 }
 
 /******************************************************************************/
@@ -966,7 +966,7 @@ void createToggleButton ( Widget parent, G3DUI *gui, char *name,
                                           XmNframeChildType, XmFRAME_GENERIC_CHILD,
                                           NULL );
 
-    if ( armcbk ) XtAddCallback ( btn, XmNarmCallback, armcbk, gui );
+    if ( armcbk ) XtAddCallback ( btn, XmNdisarmCallback, armcbk, gui );
 }
 
 /******************************************************************************/
