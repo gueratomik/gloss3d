@@ -29,6 +29,10 @@
 #include <config.h>
 #include <g3d.h>
 
+void g3dvector_print ( G3DVECTOR *vec ) {
+    printf ( "%f %f %f\n", vec->x, vec->y, vec->z );
+}
+
 /******************************************************************************/
 uint32_t g3dvector_reflect ( G3DVECTOR *vec, G3DVECTOR *nor, G3DVECTOR *vout ) {
     float dot = g3dvector_scalar ( vec, nor );

@@ -29,7 +29,6 @@
 #include <config.h>
 #include <g3d.h>
 
-
 /******************************************************************************/
 uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
                                         G3DSUBVERTEX  *subvertab, uint32_t nbsubver,
@@ -49,31 +48,18 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
     uint32_t i, nbfacnew = 0x00;
     uint32_t totsubver = 0x00, totsubfac = 0x00;
 
-    if ( meminit ) {
-
-    } else {*/
-        newsubvermem = newsubverptr = calloc ( 16384, sizeof ( G3DSUBVERTEX ) );
-        newsubedgmem = newsubedgptr = calloc ( 16384, sizeof ( G3DSUBEDGE   ) );
-        newsubfacmem = newsubfacptr = calloc ( 16384, sizeof ( G3DSUBFACE   ) );
-
-        freesubverptr = newsubvermem;
-        freesubedgptr = newsubedgmem; 
-        freesubfacptr = newsubfacmem;
-
-
     while ( curdiv-- ) {
         memset ( newsubvermem, 0x00, sizeof ( G3DSUBVERTEX ) * ( nbsubfac + 
                                                                  nbsubedg +
-                                                                 nbsubver );
+                                                                 nbsubver ) );
         memset ( newsubedgmem, 0x00, sizeof ( G3DSUBEDGE   ) * ( nbsubfac * 4 + 
-                                                                 nbsubedg * 2 );
-        memset ( newsubfacmem, 0x00, sizeof ( G3DSUBFACE   ) * ( nbsubfac * 4 );
+                                                                 nbsubedg * 2 ) );
+        memset ( newsubfacmem, 0x00, sizeof ( G3DSUBFACE   ) * ( nbsubfac * 4 ) );
 
 
         for ( i = 0x00; i < nbsubver; i++ ) {
-          if ( subvertab[i].ver.flags & VERTEXMALLOCFACES ) newsubverptr->ver.flags |= VERTEXMALLOCFACES;
-
           if ( subvertab[i].ver.flags & VERTEXTOPOLOGY ) {
+            if ( subvertab[i].ver.flags & VERTEXMALLOCFACES ) newsubverptr->ver.flags |= VERTEXMALLOCFACES;
             memcpy ( &newsubverptr->ver.pos, &subvertab[i].ver.pos, sizeof ( G3DVECTOR ) );
             newsubverptr->ver.flags |= VERTEXTOPOLOGY;
             subvertab[i].ver.subver = newsubverptr++;
@@ -117,18 +103,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
 
         /*** assign face-center vertices ***/
         for ( i = 0x00; i < nbsubfac; i++ ) {
-            newsubverptr->ver.pos.x = ( subfactab[i].fac.ver[0x00]->pos.x +
-                                        subfactab[i].fac.ver[0x01]->pos.x +
-                                        subfactab[i].fac.ver[0x02]->pos.x +
-                                        subfactab[i].fac.ver[0x03]->pos.x ) / 4;
-            newsubverptr->ver.pos.y = ( subfactab[i].fac.ver[0x00]->pos.y +
-                                        subfactab[i].fac.ver[0x01]->pos.y +
-                                        subfactab[i].fac.ver[0x02]->pos.y +
-                                        subfactab[i].fac.ver[0x03]->pos.y ) / 4;
-            newsubverptr->ver.pos.z = ( subfactab[i].fac.ver[0x00]->pos.z +
-                                        subfactab[i].fac.ver[0x01]->pos.z +
-                                        subfactab[i].fac.ver[0x02]->pos.z +
-                                        subfactab[i].fac.ver[0x03]->pos.z ) / 4;
+            memcpy ( &newsubverptr->ver.pos, &subfactab[i].fac.pos, sizeof ( G3DVECTOR ) );
 
             if ( ( subfactab[i].fac.ver[0x00]->flags & VERTEXTOPOLOGY ) &&
                  ( subfactab[i].fac.ver[0x01]->flags & VERTEXTOPOLOGY ) &&
@@ -175,15 +150,15 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
                 if ( fac->ver[0x03] == &subvertab[i] ) { verID = 0x03; prvID = 0x02; }
 
                 if ( curdiv ) {
-                newsubfacptr->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[verID], subvertab[i].ver.subver, fac->edg[verID]->subver );
-                newsubfacptr->fac.edg[0x01] = fac->innedg[verID];
-                newsubfacptr->fac.edg[0x02] = fac->innedg[prvID];
-                newsubfacptr->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[prvID], subvertab[i].ver.subver, fac->edg[prvID]->subver );
+                    newsubfacptr->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[verID], subvertab[i].ver.subver, fac->edg[verID]->subver );
+                    newsubfacptr->fac.edg[0x01] = fac->innedg[verID];
+                    newsubfacptr->fac.edg[0x02] = fac->innedg[prvID];
+                    newsubfacptr->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[prvID], subvertab[i].ver.subver, fac->edg[prvID]->subver );
 
-                g3dsubedge_addFace ( newsubfacptr->fac.edg[0x00], newsubfacptr );
-                g3dsubedge_addFace ( newsubfacptr->fac.edg[0x01], newsubfacptr );
-                g3dsubedge_addFace ( newsubfacptr->fac.edg[0x02], newsubfacptr );
-                g3dsubedge_addFace ( newsubfacptr->fac.edg[0x03], newsubfacptr );
+                    g3dsubedge_addFace ( newsubfacptr->fac.edg[0x00], newsubfacptr );
+                    g3dsubedge_addFace ( newsubfacptr->fac.edg[0x01], newsubfacptr );
+                    g3dsubedge_addFace ( newsubfacptr->fac.edg[0x02], newsubfacptr );
+                    g3dsubedge_addFace ( newsubfacptr->fac.edg[0x03], newsubfacptr );
                 }
 
                 newsubfacptr->fac.ver[0x00] = subvertab[i].ver.subver;
@@ -191,12 +166,38 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
                 newsubfacptr->fac.ver[0x02] = fac->subver;
                 newsubfacptr->fac.ver[0x03] = fac->edg[prvID]->subver;
 
-                g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x00], newsubfacptr );
-                g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x01], newsubfacptr );
-                g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x02], newsubfacptr );
-                g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x03], newsubfacptr );
+                newsubfacptr->fac.nbver = 0x04;
 
-                if ( curdiv == 0x00 ) g3dface_normal ( newsubfacptr );
+                if ( curdiv == 0x00 ) {
+                    g3dface_normal   ( newsubfacptr );
+
+                    newsubfacptr->fac.ver[0x00]->nor.x += newsubfacptr->fac.nor.x;
+                    newsubfacptr->fac.ver[0x00]->nor.y += newsubfacptr->fac.nor.y;
+                    newsubfacptr->fac.ver[0x00]->nor.z += newsubfacptr->fac.nor.z;
+                    newsubfacptr->fac.ver[0x00]->nbfac++;
+
+                    newsubfacptr->fac.ver[0x01]->nor.x += newsubfacptr->fac.nor.x;
+                    newsubfacptr->fac.ver[0x01]->nor.y += newsubfacptr->fac.nor.y;
+                    newsubfacptr->fac.ver[0x01]->nor.z += newsubfacptr->fac.nor.z;
+                    newsubfacptr->fac.ver[0x01]->nbfac++;
+
+                    newsubfacptr->fac.ver[0x02]->nor.x += newsubfacptr->fac.nor.x;
+                    newsubfacptr->fac.ver[0x02]->nor.y += newsubfacptr->fac.nor.y;
+                    newsubfacptr->fac.ver[0x02]->nor.z += newsubfacptr->fac.nor.z;
+                    newsubfacptr->fac.ver[0x02]->nbfac++;
+
+                    newsubfacptr->fac.ver[0x03]->nor.x += newsubfacptr->fac.nor.x;
+                    newsubfacptr->fac.ver[0x03]->nor.y += newsubfacptr->fac.nor.y;
+                    newsubfacptr->fac.ver[0x03]->nor.z += newsubfacptr->fac.nor.z;
+                    newsubfacptr->fac.ver[0x03]->nbfac++;
+                } else {
+                    g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x00], newsubfacptr );
+                    g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x01], newsubfacptr );
+                    g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x02], newsubfacptr );
+                    g3dsubvertex_addFace ( newsubfacptr->fac.ver[0x03], newsubfacptr );
+
+                    g3dface_position ( newsubfacptr );
+                }
 
                 if ( fac->flags & FACEORIGINAL ) {
                     newsubfacptr->fac.flags |= FACEORIGINAL;
@@ -235,7 +236,12 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,
 
         for ( i = 0x00; i < nbsubver; i++ ) {
             if ( subvertab[i].ver.flags & VERTEXTOPOLOGY ) {
-                g3dvertex_normal ( &subvertab[i], 0x00 );
+                subvertab[i].ver.nor.x /= subvertab[i].ver.nbfac;
+                subvertab[i].ver.nor.y /= subvertab[i].ver.nbfac;
+                subvertab[i].ver.nor.z /= subvertab[i].ver.nbfac;
+                subvertab[i].ver.nor.w  = 1.0f;
+
+                /*g3dvertex_normal ( &subvertab[i], 0x00 );*/
             }
         }
 

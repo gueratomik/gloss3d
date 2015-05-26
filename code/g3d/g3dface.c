@@ -78,6 +78,27 @@ Edge ID
 }*/
 
 /*****************************************************************************/
+uint32_t g3dquad_isRegular ( G3DFACE *fac ) {
+    if ( ( fac->ver[0]->nbedg == 0x04 ) &&
+         ( fac->ver[1]->nbedg == 0x04 ) &&
+         ( fac->ver[2]->nbedg == 0x04 ) &&
+         ( fac->ver[3]->nbedg == 0x04 ) &&
+         ( fac->ver[0]->nbfac == 0x04 ) &&
+         ( fac->ver[1]->nbfac == 0x04 ) &&
+         ( fac->ver[2]->nbfac == 0x04 ) &&
+         ( fac->ver[3]->nbfac == 0x04 ) &&
+         ( fac->edg[0]->nbfac == 0x02 ) &&
+         ( fac->edg[1]->nbfac == 0x02 ) &&
+         ( fac->edg[2]->nbfac == 0x02 ) &&
+         ( fac->edg[3]->nbfac == 0x02 ) ) {
+
+        return 0x01;
+    }
+
+    return 0x00;
+}
+
+/*****************************************************************************/
 void g3dface_markAdaptive ( G3DFACE *fac, G3DSUBVERTEX *orivercpy, float cosang ) {
     uint32_t i;
 
@@ -568,7 +589,7 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
             glDisableClientState ( GL_VERTEX_ARRAY );
         } else {
 
-            fac->nbrtfac = g3dface_catmull_clark_draw ( fac, fac,
+            fac->nbrtfac = g3dface_catmull_clark_draw ( NULL, fac, fac,
                                                         subdiv, 
                                                         0.0f,
                                                         NULL, 
@@ -1612,10 +1633,13 @@ void g3dface_updateBufferedSubdivision ( G3DFACE *fac, uint32_t subdiv,
                                                        float    cosang,
                                                        uint32_t object_flags,
                                                        uint32_t engine_flags ) {
+    G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( NULL, NULL,
+                                                                0, /** cpuID **/
+                                                                engine_flags );
     G3DRTQUAD   *rtfacmem = fac->rtfacmem;
     G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
 
-    fac->nbrtfac = g3dface_catmull_clark_draw ( fac,        /*** Our face             ***/
+    fac->nbrtfac = g3dface_catmull_clark_draw ( std, fac,        /*** Our face             ***/
                                                 fac,
                                                 subdiv,     /*** Subdiv Level         ***/
                                                 cosang,     /*** Adaptive Limit Angle ***/

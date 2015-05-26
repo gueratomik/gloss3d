@@ -194,7 +194,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
         G3DRTTRIANGLE *triptr = tribuf;
         G3DRTUVSET    *uvsptr = uvsbuf;
 
-        uint32_t nbfac = g3dface_catmull_clark_draw ( fac,
+        uint32_t nbfac = g3dface_catmull_clark_draw ( NULL, fac,
                                                       fac,
                                                       subdiv,
                                                       cosang,

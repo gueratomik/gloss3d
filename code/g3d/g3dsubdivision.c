@@ -583,7 +583,7 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
         G3DRTQUAD   *rtfacmem = fac->rtfacmem;
 
-        fac->nbrtfac = g3dface_catmull_clark_draw ( fac, fac,
+        fac->nbrtfac = g3dface_catmull_clark_draw ( sdt, fac, fac,
                                                     subdiv, 
                                                     cosang,
                                                     NULL,
@@ -593,6 +593,8 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                                     obj->flags,
                                                     sdt->flags );
     }
+
+    g3dsubdivisionthread_free ( sdt );
 
     /*** this is needed for memory release ***/
 #ifdef __linux__
@@ -697,7 +699,7 @@ uint32_t g3dface_initsubmem ( G3DFACE *fac, G3DSUBVERTEX **subverptr,
 
 #ifdef OLDVER 
 /******************************************************************************/
-uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
+uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *sdt, G3DSUBVERTEX  *vertab, uint32_t nbver,
                                         G3DSUBEDGE    *edgtab, uint32_t nbedg,
                                         G3DSUBFACE    *factab, uint32_t nbfac,
                                         G3DFACE       *ancestor,
@@ -957,7 +959,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
          "%d\n"
          "%d\n", nbsubver, nbsubedg, nbsubfac );*/
 
-        nbfacnew  = g3dface_catmull_clark_drawV2 ( freeverptr, nbsubver,
+        nbfacnew  = g3dface_catmull_clark_drawV2 ( sdt, freeverptr, nbsubver,
                                                    freeedgptr, nbsubedg,
                                                    freefacptr, nbsubfac,
                                                    ancestor,
@@ -977,7 +979,7 @@ uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBVERTEX  *vertab, uint32_t nbver,
 /******************************************************************************/
 
 
-uint32_t g3dface_catmull_clark_draw ( G3DFACE        *fac, 
+uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *sdt, G3DFACE        *fac, 
                                       G3DFACE        *ancestor,
                                       uint32_t        curdiv,
                                       float           cosang,
@@ -1186,7 +1188,7 @@ if ( curdiv == 0x01 ) {
         for ( i = 0x00; i < fac->nbver; i++ ) {
             uint32_t nextdiv = curdiv - 0x01;
 
-            nbfac += g3dface_catmull_clark_draw ( fac->subfac[i],
+            nbfac += g3dface_catmull_clark_draw ( sdt, fac->subfac[i],
                                                   ancestor,
                                                   nextdiv,
                                                   cosang,
@@ -1205,7 +1207,7 @@ if ( curdiv == 0x01 ) {
         nbsubedg = ( ((char*)subedgptr) - ((char*)freeedgptr) ) / sizeof ( G3DSUBEDGE   );
         nbsubfac = ( ((char*)subfacptr) - ((char*)freefacptr) ) / sizeof ( G3DSUBFACE   );
 
-        nbfac  = g3dface_catmull_clark_drawV2 ( freeverptr, nbsubver,
+        nbfac  = g3dface_catmull_clark_drawV2 ( sdt, freeverptr, nbsubver,
                                                 freeedgptr, nbsubedg,
                                                 freefacptr, nbsubfac,
                                                 ancestor,

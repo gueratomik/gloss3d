@@ -48,7 +48,7 @@ void g3drtvertex_init ( G3DRTVERTEX *rtver, G3DVERTEX *ver,
         rtver->g = ( ver->flags & VERTEXPAINTED ) ? ver->weight : 0.0f;
         rtver->b = 0.0f;
     } else {
-        if ( ver->lfac == NULL ) {
+        if ( ver->nbfac == 0x00 ) {
             if ( ver->flags & VERTEXSELECTED ) {
                 rtver->r = rtver->a = 1.0f;
                 rtver->g = 0.0f;

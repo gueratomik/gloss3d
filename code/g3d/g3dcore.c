@@ -32,6 +32,46 @@
 #include <g3d.h>
 
 /******************************************************************************/
+#ifdef __linux__
+uint32_t g3dcore_getNumberOfCPUs ( ) {
+    uint32_t nbcpu = 0x00;
+    char str[0x100];
+    FILE *fp;
+
+    if ( ( fp =  fopen ( "/proc/cpuinfo", "r" ) ) == NULL ) {
+        fprintf ( stderr, "Could not open /proc/cpuinfo\n" );
+
+        /** There's at leats one CPU. How do you think your computer runs ?! **/
+        return 0x01;
+    }
+
+    while ( feof ( fp ) == 0x00 ) {
+        fgets ( str, sizeof ( str ), fp );
+
+        if ( strstr ( str, "processor" ) ) {
+            nbcpu++;
+        }
+
+        memset ( str, 0x00, sizeof ( str ) );
+    }
+
+    fclose ( fp );
+
+    return nbcpu;
+}
+#endif
+
+#ifdef __MINGW32__
+uint32_t g3dcore_getNumberOfCPUs ( ) {
+    SYSTEM_INFO sysinfo;
+
+    GetSystemInfo ( &sysinfo );
+
+    return sysinfo.dwNumberOfProcessors;
+}
+#endif
+
+/******************************************************************************/
 uint16_t inline float_to_short ( float f ) {
     uint32_t *l = ( uint32_t * ) &f;
     uint16_t  s = ( ( (*l) & 0x80000000 ) >> 16 ) ^ /*** sign     ***/

@@ -1573,6 +1573,36 @@ static void g3dmesh_drawFaceList ( G3DMESH *mes, LIST *lis, uint32_t flags ) {
 }
 
 /******************************************************************************/
+void g3dmesh_freeSubPatterns ( G3DMESH *mes ) {
+    uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
+    uint32_t i, j;
+
+    for ( j = 0x00; j < nbcpu; j++ ) {
+        for ( i = 0x00; i < mes->subdiv; i++ ) {
+            g3dsubpattern_free ( mes->subpatterns[(j*mes->subdiv)+i] );
+        }
+    }
+
+    free ( mes->subpatterns );
+
+    mes->subpatterns = NULL;
+}
+
+/******************************************************************************/
+void g3dmesh_allocSubPatterns ( G3DMESH *mes ) {
+    uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
+    uint32_t i, j;
+
+    mes->subpatterns = calloc ( nbcpu, mes->subdiv * sizeof ( G3DSUBPATTERN * ) );
+
+    for ( j = 0x00; j < nbcpu; j++ ) {
+        for ( i = 0x00; i < mes->subdiv; i++ ) {
+            mes->subpatterns[(j*mes->subdiv)+i] = g3dsubpattern_new ( );
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
                                     LIST *ledg, /*** Recompute edges       ***/
                                     LIST *lfac, /*** Recompute faces       ***/
@@ -1673,6 +1703,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
         list_free ( &lmap, NULL );
     }
 
+
     if ( update_flags & REALLOCFACESUBDIVISION ) {
         if ( mes->subdiv ) {
             g3dmesh_allocFaceSubdivisionBuffer ( mes, mes->subdiv, engine_flags );
@@ -1699,7 +1730,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
         if ( mes->rtfacmem && 
              mes->subdiv   && ( objmes->flags & BUFFEREDSUBDIVISION ) ) {
 /*** 0x02 is NBCPU - TODO : make it a "system" variable ***/
-            g3dmesh_fillSubdividedFaces ( mes, ltmpsub, NULL, 0x02, engine_flags );
+            g3dmesh_fillSubdividedFaces ( mes, ltmpsub, NULL, 0x01, engine_flags );
         }
     }
 }
@@ -2405,6 +2436,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
     /*** that's pretty useless, it's just for consistency ***/
     float    cosang = cos ( mes->advang * M_PI / 180 );
     uint32_t nbsubdivfac = 0x00;
+    G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( mes, NULL, 0, engine_flags );
 
     /*g3dmesh_color ( mes, engine_flags );*/
 
@@ -2412,7 +2444,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
 
-        nbsubdivfac  = g3dface_catmull_clark_draw ( fac, fac,
+        nbsubdivfac  = g3dface_catmull_clark_draw ( std, fac, fac,
                                                          subdiv, 
                                                          cosang,
                                                          NULL, 
@@ -2427,6 +2459,8 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
 
         ltmpfac = ltmpfac->next;
     }
+
+    g3dsubdivisionthread_free ( std );
 
     /*if ( objmes->flags & MESHUSEADAPTIVE )  {
         double powlev  = pow ( 4, mes->subdiv - 0x01 );
@@ -2677,13 +2711,13 @@ void g3dmesh_addFace ( G3DMESH *mes, G3DFACE *fac ) {
 
 /******************************************************************************/
 void g3dmesh_free ( G3DOBJECT *obj ) {
-    /*G3DMESH *mes = ( G3DMESH * ) obj;*/
+    G3DMESH *mes = ( G3DMESH * ) obj;
 
     /*** Is the Undo-Redo manager ***/
     /*** going to handle freeing  ***/
     /*** memory ? I have to think ***/
     /*** about it ***/
-
+    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes );
 }
 
 /******************************************************************************/
@@ -3434,8 +3468,18 @@ void g3dmesh_unsetBufferedSubdivision ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD *sdt ) {
+    free ( sdt->newsubvermem );
+    free ( sdt->newsubedgmem );
+    free ( sdt->newsubfacmem );
+
+    free ( sdt );
+}
+
+/******************************************************************************/
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
                                                  G3DRTTRIANGLE *rttrimem,
+                                                 uint32_t cpuID,
                                                  uint32_t engine_flags ) {
     G3DSUBDIVISIONTHREAD *std = ( G3DSUBDIVISIONTHREAD * ) calloc ( 0x01, sizeof ( G3DSUBDIVISIONTHREAD ) );
 
@@ -3447,10 +3491,11 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes,
     std->mes      = mes;
     std->flags    = engine_flags;
     std->rttrimem = rttrimem;
+    std->cpuID    = cpuID;
 
-    std->newsubvermem = calloc ( 16384, sizeof ( G3DSUBVERTEX ) )
-    std->newsubedgmem = calloc ( 16384, sizeof ( G3DSUBEDGE   ) )
-    std->newsubfacmem = calloc ( 16384, sizeof ( G3DSUBFACE   ) )
+    std->newsubvermem = calloc ( 16384, sizeof ( G3DSUBVERTEX ) );
+    std->newsubedgmem = calloc ( 16384, sizeof ( G3DSUBEDGE   ) );
+    std->newsubfacmem = calloc ( 16384, sizeof ( G3DSUBFACE   ) );
 
     return std;
 }
@@ -3484,11 +3529,10 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
 
     if ( nbcpu < 0x02 ) {
         G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( mes, rttrimem,
+                                                                    0,
                                                                     engine_flags );
 
-
-
-        g3dface_catmull_clark_draw_t ( &sdtmain );
+        g3dface_catmull_clark_draw_t ( std );
     } else {
         #ifdef __linux__
          pthread_attr_init ( &attr );
@@ -3497,23 +3541,22 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        sdtthread.mes      = mes;
-        sdtthread.flags    = engine_flags | G3DMULTITHREADING;
-        sdtthread.rttrimem = rttrimem;
-
         for ( i = 0x00; i < nbcpu; i++ ) {
+            G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( mes, rttrimem,
+                                                                        i, /** cpuID **/
+                                                                        engine_flags | G3DMULTITHREADING );
             #ifdef __linux__
             pthread_create ( &tid[i], 
                              &attr, 
                              (void * (*)(void *))g3dface_catmull_clark_draw_t,
-                             &sdtthread );
+                             std );
             #endif
 
             #ifdef __MINGW32__
             hdl[i] = CreateThread ( NULL, 
                                     0,
                                     (LPTHREAD_START_ROUTINE) g3dface_catmull_clark_draw_t, 
-                                    &sdtthread,
+                                    std,
                                     0,
                                     &tid[i] );
 
@@ -3676,6 +3719,9 @@ void g3dmesh_setSubdivisionLevel ( G3DMESH *mes, uint32_t level,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     mes->subdiv = level;
+
+    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes );
+                            g3dmesh_allocSubPatterns ( mes );
 
     if ( obj->flags & SYNCSUBDIVISION ) mes->subdiv_render = mes->subdiv;
 

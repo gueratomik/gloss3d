@@ -79,9 +79,9 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dpivot.lo g3dplane.lo g3dprimitive.lo g3dquaternion.lo \
 	g3drgba.lo g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
 	g3dscene.lo g3dsphere.lo g3dsubdivision.lo g3dsubdivisionV2.lo \
-	g3dsubedge.lo g3dsubface.lo g3dsubvertex.lo g3dsymmetry.lo \
-	g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo \
-	g3dvertex.lo g3dweight.lo
+	g3dsubedge.lo g3dsubface.lo g3dsubpattern.lo g3dsubvertex.lo \
+	g3dsymmetry.lo g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo \
+	g3dvector.lo g3dvertex.lo g3dweight.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -278,6 +278,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dsubdivisionV2.c \
                       g3dsubedge.c \
                       g3dsubface.c \
+                      g3dsubpattern.c \
                       g3dsubvertex.c \
                       g3dsymmetry.c \
                       g3dtexture.c \
@@ -394,6 +395,7 @@ include ./$(DEPDIR)/g3dsubdivision.Plo
 include ./$(DEPDIR)/g3dsubdivisionV2.Plo
 include ./$(DEPDIR)/g3dsubedge.Plo
 include ./$(DEPDIR)/g3dsubface.Plo
+include ./$(DEPDIR)/g3dsubpattern.Plo
 include ./$(DEPDIR)/g3dsubvertex.Plo
 include ./$(DEPDIR)/g3dsymmetry.Plo
 include ./$(DEPDIR)/g3dtexture.Plo

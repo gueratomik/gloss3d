@@ -30,6 +30,23 @@
 #include <g3d.h>
 
 /******************************************************************************/
+/*** returns the first face that is NOT cmp ***/
+G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg, G3DFACE *cmp ) {
+    LIST *ltmpfac = edg->lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        if ( fac != cmp ) {
+
+            return fac;
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+}
+
+/******************************************************************************/
 LIST *g3dedge_getFacesFromList ( LIST *ledg ) {
     LIST *lfac = NULL;
 

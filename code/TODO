@@ -1,19 +1,16 @@
 drag'n'drop image when moving objects in g3duilist
 save views
-add custom camera
 save rendering settings
 fix the grid
 test open custom format
-implement 3ds and obj export
-per-mode menu
+implement 3ds export
 all undo-redo
 render preview
-edit object coords
-render resolution
 frame number
-check primitive typed values
 window shell names
 logo
 hide face
 disable symmetry
 reset anim to zero when starting rendering
+
+g3dcore_getNumberOfCPUs should use static variables inited once

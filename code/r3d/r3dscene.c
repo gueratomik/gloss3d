@@ -105,46 +105,6 @@ void r3dscene_import ( R3DSCENE *rsce, R3DCAMERA *rcam, uint32_t engine_flags ) 
 }
 
 /******************************************************************************/
-#ifdef __linux__
-static uint32_t getNumberOfCPUs ( ) {
-    uint32_t nbcpu = 0x00;
-    char str[0x100];
-    FILE *fp;
-
-    if ( ( fp =  fopen ( "/proc/cpuinfo", "r" ) ) == NULL ) {
-        fprintf ( stderr, "Could not open /proc/cpuinfo\n" );
-
-        /** There's at leats one CPU. How do you think your computer runs ?! **/
-        return 0x01;
-    }
-
-    while ( feof ( fp ) == 0x00 ) {
-        fgets ( str, sizeof ( str ), fp );
-
-        if ( strstr ( str, "processor" ) ) {
-            nbcpu++;
-        }
-
-        memset ( str, 0x00, sizeof ( str ) );
-    }
-
-    fclose ( fp );
-
-    return nbcpu;
-}
-#endif
-
-#ifdef __MINGW32__
-static uint32_t getNumberOfCPUs ( ) {
-    SYSTEM_INFO sysinfo;
-
-    GetSystemInfo ( &sysinfo );
-
-    return sysinfo.dwNumberOfProcessors;
-}
-#endif
-
-/******************************************************************************/
 /******** Wait the end of the render process, ie the end of each thread *******/
 void r3dscene_wait ( R3DSCENE *rsce ) {
     LIST *ltmp = rsce->lthread;
@@ -543,7 +503,7 @@ void *r3dscene_render_frame_t ( R3DSCENE *rsce ) {
 
 /******************************************************************************/
 void r3dscene_render ( R3DSCENE *rsce ) {
-    uint32_t nbcpu = getNumberOfCPUs ( );
+    uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
     clock_t t = clock ( );  
     int i;
 

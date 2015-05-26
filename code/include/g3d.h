@@ -837,6 +837,13 @@ typedef struct _G3DSPOT {
 } G3DSPOT;
 
 /******************************************************************************/
+typedef struct _G3DSUBPATTERN {
+    G3DVERTEX *vertab[25];
+    G3DEDGE   *edgtab[24];
+    G3DFACE   *factab[16];
+} G3DSUBPATTERN;
+
+/******************************************************************************/
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
     LIST *lver;    /*** List of vertices        ***/
@@ -883,6 +890,7 @@ struct _G3DMESH {
     uint64_t     nbrtver;
     uint64_t nbrtverpertriangle;
     uint64_t nbrtverperquad;
+    G3DSUBPATTERN **subpatterns;
 };
 
 /******************************************************************************/
@@ -891,10 +899,17 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH *mes;
     uint32_t flags;
     G3DRTTRIANGLE *rttrimem;
+    uint32_t cpuID;
     G3DSUBVERTEX *newsubvermem, *freesubverptr;
     G3DSUBEDGE   *newsubedgmem, *freesubedgptr;
     G3DSUBFACE   *newsubfacmem, *freesubfacptr;
 } G3DSUBDIVISIONTHREAD;
+
+typedef struct _G3DRESOURCES {
+    G3DSUBVERTEX *newsubvermem, *freesubverptr;
+    G3DSUBEDGE   *newsubedgmem, *freesubedgptr;
+    G3DSUBFACE   *newsubfacmem, *freesubfacptr;
+} G3DRESOURCES;
 
 /******************************************************************************/
 typedef struct _G3DFFD {
@@ -1015,6 +1030,7 @@ uint16_t inline float_to_short ( float );
 
 /******************************************************************************/
 void     g3dcore_multmatrix              ( double *, double *, double * );
+uint32_t g3dcore_getNumberOfCPUs         ( );
 void     g3dcore_invertMatrix            ( double *, double * );
 void     g3dcore_printMatrix             ( double *, uint32_t, uint32_t );
 void     g3dcore_transposeMatrix         ( double *, double * );
@@ -1184,6 +1200,11 @@ void g3dvertex_clearAdaptiveTopology ( G3DVERTEX * );
 void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR * );
 void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
+
+G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
+                                                 G3DRTTRIANGLE *rttrimem,
+                                                 uint32_t cpuID,
+                                                 uint32_t engine_flags );
 
 /******************************************************************************/
 G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *, G3DVERTEX * );
@@ -1387,6 +1408,11 @@ uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
 void g3dsubface_isAdaptive ( G3DSUBFACE *  );
 void g3dsubface_topology   ( G3DSUBFACE *  );
+
+/******************************************************************************/
+void           g3dsubpattern_free ( G3DSUBPATTERN * );
+G3DSUBPATTERN *g3dsubpattern_new  ( );
+
 
 /******************************************************************************/
 G3DCUTFACE *g3dcutface_new ( G3DFACE *, G3DCUTEDGE *[0x04] );
