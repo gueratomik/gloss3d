@@ -32,7 +32,6 @@
 /******************************************************************************/
 
 #ifdef TEMPLATE_SCHEME
-
 #######################
 #      #       #      #
 #  @   @   @   @   @  #
@@ -46,18 +45,17 @@
 #  @   @   @   @   @  #
 #      #       #      #
 #######################
-
 #endif
 #ifdef VERTEX_SCHEME
 #######################
 #      #       #      #
 #  24  9  10  11  12  #
 #      |   |   |      #
-###23--1---5---2--13###
+###23--0---4---1--13###
 #      |   |   |      #
-#  22--8---0---6--14  #
+#  22--7---8---5--14  #
 #      |   |   |      #
-###21--4---7---3--15###
+###21--3---6---2--15###
 #      |   |   |      #
 #  20 19  18  17  16  #
 #      #       #      #
@@ -108,9 +106,8 @@ void g3dsubpattern_getCoordsFromVertex ( G3DVERTEX *ver,
         if ( ( fac != cmp0 ) &&
              ( fac != cmp1 ) &&
              ( fac != cmp2 ) ) {
-
             memcpy ( fc, &fac->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( fn, &fac->nor, sizeof ( G3DVECTOR ) );
+            /*memcpy ( fn, &fac->nor, sizeof ( G3DVECTOR ) );*/
 
             return;
         }
@@ -132,28 +129,33 @@ G3DFACE *g3dsubpattern_getCoordsFromEdge ( G3DVERTEX *v0, G3DVERTEX *v1,
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         if ( fac != cmp ) {
-            uint32_t i, nb;
+            uint32_t i;
 
-            for ( i = 0x00, nb = 0x00; i < fac->nbver, nb < 0x02; i++ ) {
-                if ( ( ( fac->edg[i]->ver[0x00] == v0 ) && 
-                       ( fac->edg[i]->ver[0x01] != v1 ) ) ||
-                     ( ( fac->edg[i]->ver[0x01] == v0 ) && 
-                       ( fac->edg[i]->ver[0x00] != v1 ) ) ) {
-                    memcpy ( p0, &fac->edg[i]->pos, sizeof ( G3DVECTOR ) );
-                    memcpy ( n0, &fac->edg[i]->nor, sizeof ( G3DVECTOR ) );
+            for ( i = 0x00; i < fac->nbver; i++ ) {
+                uint32_t n = ( i + 0x01 ) % fac->nbver;
+                uint32_t p = ( i + fac->nbver - 0x01 ) % fac->nbver;
 
-                    nb++;
+              if ( fac->edg[i] ) {
+                if ( ( fac->ver[i] == v0 ) && 
+                     ( fac->ver[n] == v1 ) ) {
+                    memcpy ( p0, &fac->edg[p]->pos, sizeof ( G3DVECTOR ) );
+                    /*memcpy ( n0, &fac->edg[p]->nor, sizeof ( G3DVECTOR ) );*/
+                    memcpy ( p1, &fac->edg[n]->pos, sizeof ( G3DVECTOR ) );
+                    /*memcpy ( n1, &fac->edg[n]->nor, sizeof ( G3DVECTOR ) );*/
+
+                    break;
                 }
 
-                if ( ( ( fac->edg[i]->ver[0x00] == v1 ) && 
-                       ( fac->edg[i]->ver[0x01] != v0 ) ) ||
-                     ( ( fac->edg[i]->ver[0x01] == v1 ) && 
-                       ( fac->edg[i]->ver[0x00] != v0 ) ) ) {
-                    memcpy ( p1, &fac->edg[i]->pos, sizeof ( G3DVECTOR ) );
-                    memcpy ( n1, &fac->edg[i]->nor, sizeof ( G3DVECTOR ) );
+                if ( ( fac->ver[i] == v1 ) && 
+                     ( fac->ver[n] == v0 ) ) {
+                    memcpy ( p0, &fac->edg[n]->pos, sizeof ( G3DVECTOR ) );
+                    /*memcpy ( n0, &fac->edg[n]->nor, sizeof ( G3DVECTOR ) );*/
+                    memcpy ( p1, &fac->edg[p]->pos, sizeof ( G3DVECTOR ) );
+                    /*memcpy ( n1, &fac->edg[p]->nor, sizeof ( G3DVECTOR ) );*/
 
-                    nb++;
+                    break;
                 }
+              }
             }
 
             memcpy ( fc, &fac->pos, sizeof ( G3DVECTOR ) );
@@ -169,7 +171,11 @@ G3DFACE *g3dsubpattern_getCoordsFromEdge ( G3DVERTEX *v0, G3DVERTEX *v1,
 }
 
 /******************************************************************************/
-void g3dsuppattern_fill ( G3DSUBPATTERN *spn, G3DFACE *fac ) {
+void g3dsubpattern_fill ( G3DSUBPATTERN *spn, G3DFACE *fac,
+                                              G3DSUBVERTEX *orivercpy, 
+                                              uint32_t curdiv,
+                                              uint32_t object_flags,
+                                              uint32_t engine_flags ) {
     G3DFACE *cmp[0x05] = { NULL, NULL, NULL, NULL, fac };
     G3DVERTEX **vertab = spn->vertab;
     uint32_t i;
@@ -215,63 +221,90 @@ void g3dsuppattern_fill ( G3DSUBPATTERN *spn, G3DFACE *fac ) {
                                                   &vertab[23]->nor );
 
     g3dsubpattern_getCoordsFromVertex ( fac->ver[0x00],
-                                        cmp[5],
+                                        cmp[4],
                                         cmp[3],
                                         cmp[0],
                                         &vertab[24]->pos,
                                         &vertab[24]->nor );
 
     g3dsubpattern_getCoordsFromVertex ( fac->ver[0x01],
-                                        cmp[5],
+                                        cmp[4],
                                         cmp[0],
                                         cmp[1],
                                         &vertab[12]->pos,
                                         &vertab[12]->nor );
 
     g3dsubpattern_getCoordsFromVertex ( fac->ver[0x02],
-                                        cmp[5],
+                                        cmp[4],
                                         cmp[1],
                                         cmp[2],
                                         &vertab[16]->pos,
                                         &vertab[16]->nor );
 
     g3dsubpattern_getCoordsFromVertex ( fac->ver[0x03],
-                                        cmp[5],
+                                        cmp[4],
                                         cmp[2],
                                         cmp[3],
                                         &vertab[20]->pos,
                                         &vertab[20]->nor );
- 
-    memcpy ( &vertab[0]->pos, &fac->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[0]->pos, &fac->nor, sizeof ( G3DVECTOR ) );
 
+    memcpy ( &vertab[0]->pos, &orivercpy[0x00].ver.pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[1]->pos, &orivercpy[0x01].ver.pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[2]->pos, &orivercpy[0x02].ver.pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[3]->pos, &orivercpy[0x03].ver.pos, sizeof ( G3DVECTOR ) );
 
+    memcpy ( &vertab[4]->pos, &fac->edg[0x00]->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[5]->pos, &fac->edg[0x01]->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[6]->pos, &fac->edg[0x02]->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[7]->pos, &fac->edg[0x03]->pos, sizeof ( G3DVECTOR ) );
 
-    memcpy ( &vertab[1]->pos, &fac->ver[0x00]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[1]->pos, &fac->ver[0x00]->nor, sizeof ( G3DVECTOR ) );
+    memcpy ( &vertab[8]->pos, &fac->pos, sizeof ( G3DVECTOR ) );
 
-    memcpy ( &vertab[2]->pos, &fac->ver[0x01]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[2]->pos, &fac->ver[0x01]->nor, sizeof ( G3DVECTOR ) );
+    if ( curdiv ) {
+        for ( i = 0x00; i < 16; i++ ) {
+            g3dface_position ( spn->factab[i] );
+        }
 
-    memcpy ( &vertab[3]->pos, &fac->ver[0x02]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[3]->pos, &fac->ver[0x02]->nor, sizeof ( G3DVECTOR ) );
+        for ( i = 0x00; i < 24; i++ ) {
+            g3dedge_position ( spn->edgtab[i], 0x00 );
+        }
 
-    memcpy ( &vertab[4]->pos, &fac->ver[0x03]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[4]->pos, &fac->ver[0x03]->nor, sizeof ( G3DVECTOR ) );
+        g3dvertex_normal ( spn->vertab[0], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[1], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[2], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[3], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[4], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[5], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[6], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[7], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        g3dvertex_normal ( spn->vertab[8], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+    } else {
+        for ( i = 0x00; i < 16; i++ ) {
+            g3dface_normal ( spn->factab[i] );
+        }
 
+        g3dvertex_normal ( spn->vertab[0], 0x00 );
+        g3dvertex_normal ( spn->vertab[1], 0x00 );
+        g3dvertex_normal ( spn->vertab[2], 0x00 );
+        g3dvertex_normal ( spn->vertab[3], 0x00 );
+        g3dvertex_normal ( spn->vertab[4], 0x00 );
+        g3dvertex_normal ( spn->vertab[5], 0x00 );
+        g3dvertex_normal ( spn->vertab[6], 0x00 );
+        g3dvertex_normal ( spn->vertab[7], 0x00 );
+        g3dvertex_normal ( spn->vertab[8], 0x00 );
+    }
 
-
-    memcpy ( &vertab[5]->pos, &fac->edg[0x00]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[5]->pos, &fac->edg[0x00]->nor, sizeof ( G3DVECTOR ) );
-
-    memcpy ( &vertab[6]->pos, &fac->edg[0x01]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[6]->pos, &fac->edg[0x01]->nor, sizeof ( G3DVECTOR ) );
-
-    memcpy ( &vertab[7]->pos, &fac->edg[0x02]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[7]->pos, &fac->edg[0x02]->nor, sizeof ( G3DVECTOR ) );
-
-    memcpy ( &vertab[8]->pos, &fac->edg[0x03]->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vertab[8]->pos, &fac->edg[0x03]->nor, sizeof ( G3DVECTOR ) );
+    if ( fac->flags & FACESELECTED ) {
+        spn->factab[0]->flags |= FACESELECTED;
+        spn->factab[1]->flags |= FACESELECTED;
+        spn->factab[2]->flags |= FACESELECTED;
+        spn->factab[3]->flags |= FACESELECTED;
+    } else {
+        spn->factab[0]->flags &= (~FACESELECTED);
+        spn->factab[1]->flags &= (~FACESELECTED);
+        spn->factab[2]->flags &= (~FACESELECTED);
+        spn->factab[3]->flags &= (~FACESELECTED);
+    }
 }
 
 /******************************************************************************/
@@ -280,12 +313,12 @@ void g3dsubpattern_free ( G3DSUBPATTERN *spn ) {
 
     /*** delete faces ***/
     for ( i = 0; i < 16; i++ ) {
-        g3dface_free ( spn->factab[i] );
+        g3dface_free   ( spn->factab[i] );
     }
 
     /*** delete edges ***/
     for ( i = 0; i < 24; i++ ) {
-        g3dedge_free ( spn->edgtab[i] );
+        g3dedge_free   ( spn->edgtab[i] );
     }
 
     /*** delete vertices ***/
@@ -297,22 +330,34 @@ void g3dsubpattern_free ( G3DSUBPATTERN *spn ) {
 /******************************************************************************/
 G3DSUBPATTERN *g3dsubpattern_new ( ) {
     G3DSUBPATTERN *spn = ( G3DSUBPATTERN * ) calloc ( 0x01, sizeof ( G3DSUBPATTERN ) );
-    uint32_t edgverID[24][2] = { {0, 5},{0, 6},{0, 7},{0, 8},{1, 5},{2, 5},
-                                 {2, 6},{3, 6},{3, 7},{4, 7},{4, 8},{1, 8},
-                                 {1, 9},{5,10},{2,11},{2,13},{6,14},{3,15},
-                                 {3,17},{7,18},{4,19},{4,21},{8,22},{1,23} };
-    uint32_t facverID[16][4] = { {1 , 5, 0, 8},{ 5, 2, 6, 0},
-                                 {0 , 6, 3, 7},{ 8, 0, 7, 4},
-                                 {0 ,10, 5, 1},{10,11, 2, 5},
-                                 {11,12,13, 2},{ 2,13,14, 6},
-                                 {6 ,14,15, 3},{ 3,15,16,17},
-                                 {7 , 3,17,18},{ 4, 7,18,19},
-                                 {21, 4,19,20},{22, 8, 4,21},
-                                 {23, 1, 8,22},{24, 9, 1,23} };
-    uint32_t i;
+    uint32_t edgverID[24][2] = { {8, 4},{8, 5},{8, 6},{8, 7},{0, 4},{4, 1},
+                                 {1, 5},{5, 2},{2, 6},{6, 3},{3, 7},{7, 0},
+                                 {0, 9},{4,10},{1,11},{1,13},{5,14},{2,15},
+                                 {2,17},{6,18},{3,19},{3,21},{7,22},{0,23} };
+    uint32_t edgfacID[24][2] = { {0, 1},{ 1, 2},{ 2, 3},{ 3, 0},{ 0, 4},{ 1, 5},
+                                 {1, 7},{ 2, 8},{ 2,10},{ 3,11},{ 3,13},{ 0,14},
+                                 {4,15},{ 4, 5},{ 5, 6},{ 6, 7},{ 7, 8},{ 8, 9},
+                                 {9,10},{10,11},{11,12},{12,13},{13,14},{14,15} };
+    uint32_t facverID[16][4] = { {0 , 4, 8, 7},{ 4, 1, 5, 8},
+                                 {8 , 5, 2, 6},{ 7, 8, 6, 3},
+                                 {9 ,10, 4, 0},{10,11, 1, 4},
+                                 {11,12,13, 1},{ 1,13,14, 5},
+                                 {5 ,14,15, 2},{ 2,15,16,17},
+                                 {6 , 2,17,18},{ 3, 6,18,19},
+                                 {21, 3,19,20},{22, 7, 3,21},
+                                 {23, 0, 7,22},{24, 9, 0,23} };
+     int32_t facedgID[16][4] = { {4 , 0, 3,11},{ 5, 6, 1, 0},
+                                 {1 , 7, 8, 2},{ 3, 2, 9,10},
+                                 {-1,13, 4,12},{-1,14, 5,13},
+                                 {-1,-1,15,14},{15,-1,16, 6},
+                                 {16,-1,17, 7},{17,-1,-1,18},
+                                 {8 ,18,-1,19},{ 9,19,-1,20},
+                                 {21,20,-1,-1},{22,10,21,-1},
+                                 {23,11,22,-1},{-1,12,23,-1} };
+    uint32_t i, j;
 
     if ( spn == NULL ) {
-        fprintf ( stderr, "g3dsuppattern_new: calloc failed\n" );
+        fprintf ( stderr, "g3dsubpattern_new: calloc failed\n" );
 
         return NULL;
     }
@@ -334,6 +379,21 @@ G3DSUBPATTERN *g3dsubpattern_new ( ) {
                                        spn->vertab[facverID[i][1]],
                                        spn->vertab[facverID[i][2]],
                                        spn->vertab[facverID[i][3]] );
+    }
+
+    /*** add face to edges ***/
+    for ( i = 0; i < 24; i++ ) {
+        g3dedge_addFace ( spn->edgtab[i], spn->factab[edgfacID[i][0]] );
+        g3dedge_addFace ( spn->edgtab[i], spn->factab[edgfacID[i][1]] );
+    }
+
+    for ( i = 0; i < 16; i++ ) {
+    /*** associate edges to faces ***/
+        for ( j = 0; j < 4; j++ ) {
+            int32_t edgID = facedgID[i][j];
+
+            spn->factab[i]->edg[j] = ( edgID >= 0 ) ? spn->edgtab[edgID] : NULL;
+        }
     }
 
     return spn;

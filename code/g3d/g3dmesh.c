@@ -1573,13 +1573,13 @@ static void g3dmesh_drawFaceList ( G3DMESH *mes, LIST *lis, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dmesh_freeSubPatterns ( G3DMESH *mes ) {
+void g3dmesh_freeSubPatterns ( G3DMESH *mes, uint32_t level ) {
     uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
     uint32_t i, j;
 
     for ( j = 0x00; j < nbcpu; j++ ) {
-        for ( i = 0x00; i < mes->subdiv; i++ ) {
-            g3dsubpattern_free ( mes->subpatterns[(j*mes->subdiv)+i] );
+        for ( i = 0x00; i < level; i++ ) {
+            g3dsubpattern_free ( mes->subpatterns[(j*level)+i] );
         }
     }
 
@@ -1589,15 +1589,15 @@ void g3dmesh_freeSubPatterns ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-void g3dmesh_allocSubPatterns ( G3DMESH *mes ) {
+void g3dmesh_allocSubPatterns ( G3DMESH *mes, uint32_t level ) {
     uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
     uint32_t i, j;
 
-    mes->subpatterns = calloc ( nbcpu, mes->subdiv * sizeof ( G3DSUBPATTERN * ) );
+    mes->subpatterns = calloc ( nbcpu, level * sizeof ( G3DSUBPATTERN * ) );
 
     for ( j = 0x00; j < nbcpu; j++ ) {
-        for ( i = 0x00; i < mes->subdiv; i++ ) {
-            mes->subpatterns[(j*mes->subdiv)+i] = g3dsubpattern_new ( );
+        for ( i = 0x00; i < level; i++ ) {
+            mes->subpatterns[(j*level)+i] = g3dsubpattern_new ( );
         }
     }
 }
@@ -2717,7 +2717,7 @@ void g3dmesh_free ( G3DOBJECT *obj ) {
     /*** going to handle freeing  ***/
     /*** memory ? I have to think ***/
     /*** about it ***/
-    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes );
+    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes, mes->subdiv );
 }
 
 /******************************************************************************/
@@ -3718,10 +3718,11 @@ void g3dmesh_setSubdivisionLevel ( G3DMESH *mes, uint32_t level,
                                                  uint32_t flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
+    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes, mes->subdiv );
+
     mes->subdiv = level;
 
-    if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes );
-                            g3dmesh_allocSubPatterns ( mes );
+    if ( level )            g3dmesh_allocSubPatterns ( mes, level );
 
     if ( obj->flags & SYNCSUBDIVISION ) mes->subdiv_render = mes->subdiv;
 

@@ -1002,6 +1002,73 @@ uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *sdt, G3DFACE        
     if ( lock == NULL ) lock = CreateMutex ( NULL, FALSE, NULL );
     #endif
 
+    if ( ( engine_flags & FORCESUBPATTERN ) || ( ( fac->nbver == 0x04        ) && 
+                                                 ( g3dquad_isRegular ( fac ) ) ) ) {
+        if ( curdiv == 0x00 ) {
+            if ( (rttriptr && (*rttriptr)) || 
+                 (rtquaptr && (*rtquaptr)) ) {
+                return g3dface_convert ( fac, ancestor,
+                                              rttriptr, 
+                                              rtquaptr,
+                                              rtuvsptr, 
+                                              object_flags, 
+                                              engine_flags );
+            } else {
+                g3dface_drawQuad ( fac, ltex, object_flags, engine_flags );
+
+                return 0x01;
+            }
+        } else {
+            G3DMESH *mes = sdt->mes;
+            uint32_t cpuID = sdt->cpuID;
+            uint32_t level = mes->subdiv;
+            uint32_t patternID = (cpuID*level)+curdiv;
+            uint32_t nextdiv = curdiv - 0x01;
+            uint32_t i;
+            G3DSUBVERTEX orivercpy[0x04];
+
+    memset ( orivercpy, 0x00, sizeof ( G3DSUBVERTEX ) * fac->nbver );
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        /*** We keep original vertex flags, that's all. We don't      ***/
+        /*** keep the Vertex Skinned flag because we only use skinned ***/
+        /*** vertex position for the first level of recursion.        ***/
+        orivercpy[i].ver.flags = ( fac->ver[i]->flags | VERTEXTOPOLOGY ) & (~VERTEXSKINNED);
+
+        orivercpy[i].ver.id = fac->ver[i]->id;
+
+        orivercpy[i].ver.weight = fac->ver[i]->weight;
+
+        memcpy ( &orivercpy[i].ver.pos, &fac->ver[i]->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &orivercpy[i].ver.nor, &fac->ver[i]->nor, sizeof ( G3DVECTOR ) );
+    }
+
+            /*** Move the original vertices ***/
+
+            g3dface_applyCatmullScheme ( fac, orivercpy, curdiv, engine_flags );
+
+            g3dsubpattern_fill ( mes->subpatterns[patternID], fac, orivercpy, nextdiv, object_flags, engine_flags );
+
+            for ( i = 0x00; i < fac->nbver; i++ ) {
+                nbfac += g3dface_catmull_clark_draw ( sdt, mes->subpatterns[patternID]->factab[i],
+                                                      ancestor,
+                                                      nextdiv,
+                                                      cosang,
+                                                      /** Multithreading is only **/
+                                                      /** for the first level,   **/
+                                                      /** Do not transmit it.    **/
+                                                      rttriptr, /* For rendering */
+                                                      rtquaptr, /* For buffering */
+                                                      rtuvsptr, /* For UV Coords */
+                                                      ltex,
+                                                      object_flags,
+                                                      engine_flags & (~G3DMULTITHREADING) | G3DNEXTSUBDIVISION | FORCESUBPATTERN );
+            }
+
+            return nbfac;
+        }
+    }
+
     if ( curdiv == 0x00 ) {
         if ( (rttriptr && (*rttriptr)) || 
              (rtquaptr && (*rtquaptr)) ) {
@@ -1182,7 +1249,7 @@ if ( curdiv == 0x01 ) {
 }
 
         /********************[End]Displacement Part**************************/
-#define CATMULLCLARKV2
+#define CATMULLCLARKV1
 #ifdef  CATMULLCLARKV1
         /*** Recurse magic ***/
         for ( i = 0x00; i < fac->nbver; i++ ) {
@@ -1284,41 +1351,12 @@ if ( curdiv == 0x01 ) {
 int g3dface_applyCatmullScheme ( G3DFACE *fac, G3DSUBVERTEX *orivercpy, 
                                                uint32_t curdiv,
                                                uint32_t engine_flags  ) {
-    /*#define CACHEENABLED 1*/ /*** does not speed up as I expected :( ***/
-    #ifdef CACHEENABLED
-    static G3DVECTORCACHE cache[0x10000];
-    uint16_t hID;
-    #endif
     int retflags = 0x00;
     int i;
 
     /*** Catmull-Clark Subdivision Surfaces scheme. ***/
     for ( i = 0x00; i < fac->nbver; i++ ) {
         float xori, yori, zori;
-
-        #ifdef CACHEENABLED
-        if ( engine_flags & G3DNEXTSUBDIVISION ) {
-            hID = _3FLOAT_TO_HASH ( fac->ver[i]->pos.x, 
-                                    fac->ver[i]->pos.y, 
-                                    fac->ver[i]->pos.z );
-
-            if ( ( cache[hID].ref.x ==  fac->ver[i]->pos.x ) &&
-                 ( cache[hID].ref.y ==  fac->ver[i]->pos.y ) &&
-                 ( cache[hID].ref.z ==  fac->ver[i]->pos.z ) &&
-                 ( cache[hID].ref.w ==  curdiv             )  ) {
-                memcpy ( &orivercpy[i].ver.pos, 
-                         &cache[hID].buf, sizeof ( G3DVECTOR ) );
-
-                continue;
-            } else {
-                /*** prepare caching by storing the reference values ***/
-                cache[hID].ref.x = fac->ver[i]->pos.x;
-                cache[hID].ref.y = fac->ver[i]->pos.y;
-                cache[hID].ref.z = fac->ver[i]->pos.z;
-                cache[hID].ref.w = curdiv;
-            }
-        }
-        #endif
 
         if ( fac->ver[i]->flags & VERTEXSKINNED ) {
             xori = fac->ver[i]->skn.x;
@@ -1395,15 +1433,6 @@ int g3dface_applyCatmullScheme ( G3DFACE *fac, G3DSUBVERTEX *orivercpy,
         if ( orivercpy[i].ver.flags & VERTEXSYMYZ ) orivercpy[i].ver.pos.x = xori;
         if ( orivercpy[i].ver.flags & VERTEXSYMZX ) orivercpy[i].ver.pos.y = yori;
         if ( orivercpy[i].ver.flags & VERTEXSYMXY ) orivercpy[i].ver.pos.z = zori;
-
-        #ifdef CACHEENABLED
-        if ( engine_flags & G3DNEXTSUBDIVISION ) {
-            /*** Store result in cache ***/
-            cache[hID].buf.x = orivercpy[i].ver.pos.x;
-            cache[hID].buf.y = orivercpy[i].ver.pos.y;
-            cache[hID].buf.z = orivercpy[i].ver.pos.z;
-        }
-        #endif
     }
 
     return retflags;

@@ -133,6 +133,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NOTEXTURE         ( 1  << 20 )
 #define G3DNEXTSUBDIVISION ( 1  << 21 )
 #define NODRAWPOLYGON     ( 1  << 22 )
+#define FORCESUBPATTERN   ( 1  << 23 )
 
 /******************************* Object Types *********************************/
 #define OBJECT    (  1       )
