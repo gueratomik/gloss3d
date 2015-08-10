@@ -615,10 +615,10 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
             if ( edg->ver[0x00] == vercmp ) edg->subedg[0x00] = ( G3DEDGE * ) (*subedgptr);
             if ( edg->ver[0x01] == vercmp ) edg->subedg[0x01] = ( G3DEDGE * ) (*subedgptr);
 
-            /*** IDs ***/
+            /*** IDs ***/ /*
             if ( ( edg == edgi ) || ( edg == edgp ) ) {
                 (*subedgptr)->edg.geoID = (*nbpos)++;
-            }
+            } */
 
             /*** Heritage part ***/
             (*subedgptr)->edg.id     = edg->id;

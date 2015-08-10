@@ -597,7 +597,6 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                                     mes->ltex,
                                                     obj->flags,
                                                     sdt->flags );
-        printf("NBPOS:%d\n", nbpos);
     }
 
     g3dsubdivisionthread_free ( sdt );
@@ -861,14 +860,14 @@ uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *sdt, G3DFACE        
         #endif
 
     /*** this is the first loop ***/
-    if ( ( engine_flags & G3DNEXTSUBDIVISION ) == 0x00 ) {
+    /* if ( ( engine_flags & G3DNEXTSUBDIVISION ) == 0x00 ) {
         for ( i = 0x00; i < fac->nbver; i++ ) {
             fac->ver[i]->geoID = (*nbpos)++;
             fac->edg[i]->geoID = (*nbpos)++;
         }
     }
 
-    fac->geoID  = (*nbpos)++;
+    fac->geoID  = (*nbpos)++; */
     /*****/
 
         if ( ( object_flags & MESHUSEADAPTIVE    ) &&

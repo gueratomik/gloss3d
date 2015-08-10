@@ -295,9 +295,9 @@ uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *edg, G3DFACE *faccmp,
             (*subedgptr)->edg.ver[0x01] = ( G3DVERTEX * ) fac->subver;
 
             /*** IDs ***/
-            if ( fac == faccmp ) {
+            /* if ( fac == faccmp ) {
                 (*subedgptr)->edg.geoID = (*nbpos)++;
-            }
+            } */
 
             /****** Adaptive part ****************************/
             if ( edg->flags & EDGELOCKADAPTIVE ) {
