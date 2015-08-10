@@ -241,6 +241,7 @@ static void GViewMouseEvent ( Widget w, XEvent *event,
 
                 XWarpPointer ( dis, None, win, 0, 0, 0, 0, xmid, ymid );
                 XSync( dis, False );
+                XFlush(dis);
 
                 XSelectInput ( dis, win, attr.your_event_mask );
             }

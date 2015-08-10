@@ -201,6 +201,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
                                                      &triptr,
                                                       NULL,
                                                      &uvsptr,
+                                                      NULL, NULL,
                                                       mes->ltex,
                                                       obj->flags,
                                                       engine_flags );

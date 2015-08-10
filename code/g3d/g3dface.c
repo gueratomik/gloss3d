@@ -596,6 +596,7 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
                                                         NULL,
                                                         NULL,
                                                         NULL,
+                                                        NULL, NULL,
                                                         object_flags,
                                                         engine_flags );
         }
@@ -1646,6 +1647,7 @@ void g3dface_updateBufferedSubdivision ( G3DFACE *fac, uint32_t subdiv,
                                                 NULL,       /*** No RTTRIANGLES       ***/
                                                &rtfacmem,
                                                &rtuvsmem,
+                                                NULL, NULL,
                                                 NULL,       /*** no textures ? ****/
                                                 object_flags,
                                                 engine_flags  ); /*** Drawing Flags  ***/

@@ -115,7 +115,7 @@ R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
 
 /******************************************************************************/
 static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
-    uint32_t save = gtk_toggle_button_get_state ( widget );
+    uint32_t save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
     G3DUI *gui = ( G3DUI * ) user_data;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 

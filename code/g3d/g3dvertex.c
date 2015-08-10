@@ -540,6 +540,7 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
                                                       G3DEDGE       *edgp,
                                                       G3DSUBVERTEX **subverptr,
                                                       G3DSUBEDGE   **subedgptr,
+                                                      uint32_t      *nbpos,
                                                       uint32_t       curdiv,
                                                       uint32_t       object_flags,
                                                       uint32_t       engine_flags ) {
@@ -613,6 +614,11 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
              ( object_flags & MESHUSEISOLINES ) ) {
             if ( edg->ver[0x00] == vercmp ) edg->subedg[0x00] = ( G3DEDGE * ) (*subedgptr);
             if ( edg->ver[0x01] == vercmp ) edg->subedg[0x01] = ( G3DEDGE * ) (*subedgptr);
+
+            /*** IDs ***/
+            if ( ( edg == edgi ) || ( edg == edgp ) ) {
+                (*subedgptr)->edg.geoID = (*nbpos)++;
+            }
 
             /*** Heritage part ***/
             (*subedgptr)->edg.id     = edg->id;

@@ -161,7 +161,7 @@ lock_old_archive_extraction=no
 LTCC="gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2"
+LTCFLAGS="-g -O2 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  "
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 \\2 \\2/p' | sed '/ __gnu_lto/d'"
@@ -269,7 +269,7 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/opt/gnat/lib/gcc/x86_64-pc-linux-gnu/4.7.4 /opt/gnat/lib/gcc /opt/gnat/lib64 /lib64 /usr/lib64 "
+sys_lib_search_path_spec="/usr/lib/gcc/x86_64-unknown-linux-gnu/4.9.1 /usr/lib64 /lib64 /usr/x86_64-unknown-linux-gnu/lib "
 
 # Run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib /lib /usr/lib64 /usr/lib /usr/local/lib /opt/lib /usr/lib/X11 /usr/lib/firefox-10.0.1 /usr/lib/firefox-10.0.1/plugins /usr/local/maven-3.0.5/lib /root/CODE/C/Motif/current "
@@ -289,7 +289,7 @@ striplib="strip --strip-unneeded"
 
 
 # The linker used to build libraries.
-LD="/opt/gnat/libexec/gcc/x86_64-pc-linux-gnu/4.7.4/ld -m elf_x86_64"
+LD="/usr/x86_64-unknown-linux-gnu/bin/ld -m elf_x86_64"
 
 # How to create reloadable object files.
 reload_flag=" -r"

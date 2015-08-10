@@ -2450,6 +2450,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
                                                          NULL, 
                                                          NULL,
                                                          NULL,
+                                                         NULL, NULL,
                                                          mes->ltex,
                                                          objmes->flags,
                                                          engine_flags );

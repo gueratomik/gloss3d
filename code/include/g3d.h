@@ -511,6 +511,7 @@ typedef struct _G3DRTVERTEX {
 typedef struct _G3DVERTEX {
     uint32_t flags;
     uint32_t id;      /*** Vertex ID - Should never be trusted !        ***/
+    uint32_t geoID;   /*** geomtry ID, all types included               ***/
     G3DVECTOR  pos;   /*** Vertex position                              ***/
     G3DVECTOR  skn;   /*** Vertex Skinned position                      ***/
     G3DVECTOR  nor;   /*** Vertex normal vector                         ***/
@@ -703,6 +704,7 @@ typedef struct _G3DRTTRIANGLE {
 /******************************************************************************/
 typedef struct _G3DEDGE {
     uint32_t id;
+    uint32_t geoID;   /*** geomtry ID, all types included               ***/
     uint32_t flags;
     uint32_t nbfac;                /*** number of connected faces           ***/
     LIST *lfac;                    /*** Face list                           ***/
@@ -738,6 +740,7 @@ typedef struct _G3DCUTEDGE {
 /******************************************************************************/
 typedef struct _G3DFACE {
     uint32_t         id;           /*** face ID                             ***/
+    uint32_t geoID;   /*** geomtry ID, all types included               ***/
     uint32_t         flags;        /*** selected or not                     ***/
     uint32_t         nbver;        /*** number of vertices and edges        ***/
     G3DVERTEX       *ver[0x04];    /*** vertices array                      ***/
@@ -1141,6 +1144,7 @@ uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
                                                   G3DEDGE       *,
                                                   G3DSUBVERTEX **,
                                                   G3DSUBEDGE   **,
+                                                  uint32_t *,
                                                   uint32_t,
                                                   uint32_t,
                                                   uint32_t );
@@ -1231,6 +1235,7 @@ void g3dedge_position ( G3DEDGE *, uint32_t );
 uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *, G3DFACE *,
                                                   G3DSUBVERTEX **,
                                                   G3DSUBEDGE   **,
+                                                  uint32_t *,
                                                   uint32_t, uint32_t, uint32_t );
 void g3dedge_draw ( G3DEDGE *, uint32_t );
 void g3dedge_createBothSubEdge ( G3DEDGE *, G3DSUBEDGE **, G3DSUBVERTEX ** );
@@ -1285,6 +1290,7 @@ uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *,
                          /*** get triangles ***/ G3DRTTRIANGLE **,
                          /*** get quads     ***/ G3DRTQUAD     **,
                                                  G3DRTUVSET    **,
+                                                 G3DVECTOR *, uint32_t *,
                                                  LIST          *,
                                                  uint32_t,
                                                  uint32_t );
@@ -1397,6 +1403,7 @@ void     g3dface_markAdaptive ( G3DFACE *, G3DSUBVERTEX *, float );
 uint32_t g3dface_setAllEdges ( G3DFACE *, G3DSUBVERTEX  *,
                                           G3DSUBVERTEX **,
                                           G3DSUBEDGE   **, 
+                                          uint32_t *,
                                           uint32_t       ,
                                           uint32_t       ,
                                           uint32_t        );

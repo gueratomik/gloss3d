@@ -155,6 +155,9 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
 
     glEnable ( GL_DEPTH_TEST );
 
+glEnable(GL_CULL_FACE);
+glCullFace(GL_BACK);
+
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
     glPolygonOffset ( 1.0f, 1.0f );
