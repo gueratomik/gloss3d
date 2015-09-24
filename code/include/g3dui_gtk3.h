@@ -124,9 +124,7 @@ typedef struct _G3DUIGTK3 {
 typedef struct _G3DUIACTION {
     uint32_t wait;
     uint32_t type;
-#ifdef __linux__
     pthread_mutex_t done;
-#endif
     G3DUI *gui;
 } G3DUIACTION;
 
