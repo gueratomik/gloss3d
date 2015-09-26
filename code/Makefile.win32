@@ -1,0 +1,29 @@
+CC=C:\MingW\bin\gcc.exe
+
+# The Target Binary Program
+CFLAGS      := -O2 -g -Wall -I. -Iinclude $(shell C:\CODE\C\gtk-3.6.4\bin\pkg-config.exe --cflags gtk+-3.0) -IC:\CODE\C\pthread-w32-2.9.1\include
+TARGET      := gloss3d-gtk3
+SRCDIR      := g3dui/gtk3 g3dui/common r3d g3dmouse g3dimport g3dexport g3durmanager g3dengine
+SRCEXT      := c
+OBJEXT      := o
+SOURCES     := $(shell C:\cygwin\bin\find.exe $(SRCDIR) -type f -name "*.$(SRCEXT)")
+TARGETDIR   := win32
+LIB         := $(shell C:\GTK3\bin\pkg-config.exe --libs gtk+-3.0) -lopengl32 -lglu32 -lexpat -ljpeg -LC:\CODE\C\pthread-w32-2.9.1\lib\x86 -lpthreadGC2 -lshlwapi
+OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
+OBJDIR      := obj
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) -mconsole -Wl,--no-as-needed  $^ main.c list.c $(LIB) -o $(TARGETDIR)/$(TARGET)
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+
+
+#$(TARGET): $(OBJECTS)
+#    $(CC) -o $(TARGETDIR)/$(TARGET) $^ $(LIB)
+
+#all:
+#		C:\MingW\bin\gcc $(MY_VAR) main.c list.c  -Iinclude -Ixpm
