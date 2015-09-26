@@ -34,13 +34,31 @@
 /*** https://gist.github.com/CallumDev/7c66b3f9cf7a876ef75f ***/
 /*** http://stackoverflow.com/questions/10542832/how-to-use-fontconfig-to-get-font-list-c-c ***/
 static char *getFontFileNameFromFamily ( const char *fontFamilyName ) {
+#ifdef __linux__
     FcConfig* config = FcInitLoadConfigAndFonts ( );
+#endif
+#ifdef __MINGW32__
+    static int fontDirInited;
+    static FcConfig* config;
+
+    if (fontDirInited == 0 ) {
+        config = FcConfigCreate();
+        #define WINDIRBUFSIZE 256
+        static char windir[WINDIRBUFSIZE];
+        uint32_t nbchar = GetEnvironmentVariable("WINDIR", windir, WINDIRBUFSIZE);
+        char *winfontsdir = ( nbchar ) ? strcat ( windir, "\\Fonts" ) : "C:\\Windows\\Fonts";
+
+        fontDirInited = 1;
+
+        FcConfigAppFontAddDir(config, (const FcChar8 *) winfontsdir );
+    }
+#endif
     FcPattern* pat = FcNameParse ( ( const FcChar8* ) fontFamilyName );
     FcConfigSubstitute ( config, pat, FcMatchPattern );
     FcDefaultSubstitute ( pat );
     FcResult result;
     FcPattern* font = FcFontMatch ( config, pat, &result );
-
+    
     if ( font ) {
 	    FcChar8* file = NULL;
 	    if ( FcPatternGetString ( font, FC_FILE, 0, &file ) == FcResultMatch ) {

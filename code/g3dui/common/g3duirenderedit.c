@@ -159,22 +159,22 @@ void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
-                                        float  far ) {
+                                        float  ffar ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->fog.far = far;
+    rsg->fog.ffar = ffar;
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_fogNearCbk ( G3DUI *gui,
-                                         float  near ) {
+                                         float  fnear ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->fog.near = near;
+    rsg->fog.fnear = fnear;
 }
 
 /******************************************************************************/

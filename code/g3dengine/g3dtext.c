@@ -306,8 +306,17 @@ void g3dtext_setFont ( G3DTEXT *txt,
                        char    *fontFaceFile,
                        uint32_t fontFaceSize,
                        uint32_t engine_flags ) {
+    #ifdef __linux__
     char *searchPath[] = { "/usr/share/fonts/X11/TTF",
                            "/usr/share/fonts/TrueType" };
+    #endif
+    #ifdef __MINGW32__
+    #define WINDIRBUFSIZE 256
+    static char windir[WINDIRBUFSIZE];
+    uint32_t nbchar = GetEnvironmentVariable("WINDIR", windir, WINDIRBUFSIZE);
+    char *winfontsdir = ( nbchar ) ? strcat ( windir, "\\Fonts" ) : "C:\\Windows\\Fonts";
+    char *searchPath[] = { winfontsdir };
+    #endif
     uint32_t nbSearchPath = sizeof ( searchPath ) / sizeof ( char * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     char fontPath[0x100] = { 0 };
@@ -488,39 +497,43 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                           GLUtesselator *tobj,
                                           uint32_t       engine_flags ) {
     G3DCHARACTER *chr = g3dtext_getCharacterByCode ( txt, code );
-    uint32_t   verDataSize = sizeof ( double ) * 0x03;
+    uint32_t   verDataSize = sizeof ( GLdouble ) * 0x03;
     uint32_t   n_points;
     FT_Vector *points;
     short     *contours;
     uint32_t   firstPoint = 0x01;
     uint32_t   firstPointID = 0x00;
-    double   (*tessData)[0x03] = NULL;
+    GLdouble  (*tessData)[0x03] = NULL;
 #define COORD_ARRAY_COUNT 0x800
-    static double coords[COORD_ARRAY_COUNT][0x03] = { 0 };
+    static GLdouble coords[COORD_ARRAY_COUNT][0x03];
     uint32_t maxSteps = COORD_ARRAY_COUNT;
     uint32_t nbStepsPerSegment = txt->roundness;
     uint32_t handleID = 0x00;
     FT_UInt  glyph_index;
     uint32_t j;
+    uint32_t divFactor = 1000;
 
 
     if ( ( chr == NULL ) && txt->face ) {
         chr = g3dcharacter_new ( code );
 
+        memset ( coords, 0x00, sizeof ( coords ) );
+        
         if ( chr->code != '\n' ) {
             glyph_index = FT_Get_Char_Index ( txt->face, code );
 
             FT_Load_Glyph ( txt->face, glyph_index, FT_LOAD_DEFAULT );
 
-            chr->width = ( float ) txt->face->glyph->metrics.horiAdvance / 1000;
+            chr->width = ( float ) txt->face->glyph->metrics.horiAdvance / divFactor;
 
             contours = txt->face->glyph->outline.contours;
             n_points = txt->face->glyph->outline.n_points;
             points   = txt->face->glyph->outline.points;
 
-            tessData = realloc ( tessData, verDataSize * n_points );
+            tessData = calloc ( n_points, verDataSize );
 
             gluTessBeginPolygon ( tobj, txt );
+
             gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
 
             for ( j = 0x00; j < txt->face->glyph->outline.n_points; j++ ) {
@@ -576,16 +589,16 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                             pt1.ver.pos.z = 0.0f;
                         }
 
-                        pt0.ver.pos.x = ( pt0.ver.pos.x / 1000 );
-                        pt0.ver.pos.y = ( pt0.ver.pos.y / 1000 );
+                        pt0.ver.pos.x = ( pt0.ver.pos.x / divFactor );
+                        pt0.ver.pos.y = ( pt0.ver.pos.y / divFactor );
                         pt0.ver.pos.z = 0.0f;
 
-                        pt1.ver.pos.x = ( pt1.ver.pos.x / 1000 );
-                        pt1.ver.pos.y = ( pt1.ver.pos.y / 1000 );
+                        pt1.ver.pos.x = ( pt1.ver.pos.x / divFactor );
+                        pt1.ver.pos.y = ( pt1.ver.pos.y / divFactor );
                         pt1.ver.pos.z = 0.0f;
 
-                        tessData[j][0] = ( tessData[j][0] / 1000 );
-                        tessData[j][1] = ( tessData[j][1] / 1000 );
+                        tessData[j][0] = ( tessData[j][0] / divFactor );
+                        tessData[j][1] = ( tessData[j][1] / divFactor );
                         tessData[j][2] = 0.0f;
 
                         g3dquadraticsegment_init ( &qsg, 
@@ -619,12 +632,11 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                         if ( ( firstPoint              ) ||
                              ( htag == FT_CURVE_TAG_ON ) ||
                              ( ntag == FT_CURVE_TAG_ON ) ) {
-                            tessData[j][0] = ( tessData[j][0] / 1000 );
-                            tessData[j][1] = ( tessData[j][1] / 1000 );
+                            tessData[j][0] = ( tessData[j][0] / divFactor );
+                            tessData[j][1] = ( tessData[j][1] / divFactor );
                             tessData[j][2] = 0.0f;
 
-                            gluTessVertex ( tobj, tessData[j], 
-                                                  tessData[j] );
+                            gluTessVertex ( tobj, tessData[j], tessData[j] );
                         }
                     } break;
 
@@ -637,7 +649,11 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                     firstPointID = j + 1;
 
                     gluTessEndContour ( tobj );
-                    gluTessBeginContour ( tobj );
+
+                    if ( j < (txt->face->glyph->outline.n_points-1)) {
+                        gluTessBeginContour ( tobj );
+                    }
+
                     contours++;
                 } else {
                     firstPoint = 0x00;
@@ -655,7 +671,6 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
             txt->currentCharacter = NULL;
 
             if ( tessData ) free ( tessData );
-
         }
     }
 
@@ -663,7 +678,12 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
 }
 
 /******************************************************************************/
-static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
+#ifdef __linux__
+void g3dtext_vertex3dv ( void *vertex_data, void *object_data ) {
+#endif
+#ifdef __MINGW32__
+void CALLBACK g3dtext_vertex3dv ( void *vertex_data, void *object_data ) {
+#endif
     G3DTEXT *txt      = ( G3DTEXT * ) object_data;
     G3DCHARACTER *chr = txt->currentCharacter;
 
@@ -671,15 +691,15 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
         G3DMESH *txtmes = ( G3DMESH * ) txt;
         float epsilon = ( float ) txt->fontFaceSize / 100000;
         G3DVERTEX *ver  = g3dvertex_seekVertexByPosition ( chr->lver, 
-                                                           vertex_data[0], 
-                                                           vertex_data[1], 
-                                                           vertex_data[2],
+                                                           ((GLdouble*)vertex_data)[0], 
+                                                           ((GLdouble*)vertex_data)[1], 
+                                                           ((GLdouble*)vertex_data)[2],
                                                            epsilon );
 
         if ( ( ver == NULL ) ) {
-            ver = g3dvertex_new ( vertex_data[0],
-                                  vertex_data[1],
-                                  vertex_data[2] );
+            ver = g3dvertex_new ( ((GLdouble*)vertex_data)[0],
+                                  ((GLdouble*)vertex_data)[1],
+                                  ((GLdouble*)vertex_data)[2] );
 
             ver->nor.x = ver->nor.y = 0.0f;
             ver->nor.z = 1.0f;
@@ -730,7 +750,12 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
 }
 
 /******************************************************************************/
+#ifdef __linux__
 static void g3dtext_beginGroup( GLenum type, void *object_data ) {
+#endif
+#ifdef __MINGW32__
+static void CALLBACK g3dtext_beginGroup( GLenum type, void *object_data ) {
+#endif
     G3DTEXT *txt    = ( G3DTEXT * ) object_data;
     G3DMESH *txtmes = ( G3DMESH * ) txt;
 
@@ -742,7 +767,38 @@ static void g3dtext_beginGroup( GLenum type, void *object_data ) {
 }
 
 /******************************************************************************/
+#ifdef __linux__
+static void g3dtext_error( GLenum type ) {
+#endif
+#ifdef __MINGW32__
+static void CALLBACK g3dtext_error( GLenum type ) {
+#endif
+    fprintf(stderr, "error %d\n", type);
+}
+
+/******************************************************************************/
+#ifdef __linux__
+static void g3dtext_combine( GLdouble coords[3], 
+                             void *d[4],
+                             GLfloat w[4], 
+                             void **dataOut ) {
+#endif
+#ifdef __MINGW32__
+static void CALLBACK g3dtext_combine( GLdouble coords[3], 
+                                      void *d[4],
+                                      GLfloat w[4], 
+                                      void **dataOut ) {
+#endif
+    fprintf(stderr, "combine not supported yest\n");
+}
+
+/******************************************************************************/
+#ifdef __linux__
 static void g3dtext_endGroup( void *object_data ) {
+#endif
+#ifdef __MINGW32__
+static void CALLBACK g3dtext_endGroup( void *object_data ) {
+#endif
     G3DTEXT *txt    = ( G3DTEXT * ) object_data;
     G3DMESH *txtmes = ( G3DMESH * ) txt;
 
@@ -887,7 +943,8 @@ void g3dtext_generate ( G3DOBJECT *obj,
         gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_beginGroup );
         gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv  );
         gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_endGroup   );
-
+        /*gluTessCallback ( tobj, GLU_TESS_COMBINE    , g3dtext_combine    );*/
+        gluTessCallback ( tobj, GLU_TESS_ERROR      , g3dtext_error      );
 
         for ( i = 0; i < items_written; i++ ) {
             uint32_t characterCode = str[i];

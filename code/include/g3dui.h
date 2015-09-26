@@ -663,7 +663,12 @@ G3DMOUSETOOL *common_g3dui_getMouseTool ( G3DUI *, const char * );
 typedef struct _G3DUIACTION {
     uint32_t wait;
     uint32_t type;
+#ifdef __linux__
     pthread_mutex_t done;
+#endif
+#ifdef  __MINGW32__
+    HANDLE done; 
+#endif
     G3DUI *gui;
 } G3DUIACTION;
 

@@ -379,10 +379,10 @@ void *r3dscene_raytrace ( void *ptr ) {
 
                 if ( ray.flags & INTERSECT ) {
                     float fogDistance = area->zBuffer[offset];
-                    float deltaFog = ( rsce->rsg->fog.far - 
-                                       rsce->rsg->fog.near );
+                    float deltaFog = ( rsce->rsg->fog.ffar - 
+                                       rsce->rsg->fog.fnear );
                     float incFogRatio = ( fogDistance - 
-                                          rsce->rsg->fog.near ) / deltaFog;
+                                          rsce->rsg->fog.fnear ) / deltaFog;
                     float decFogRatio = 1.0f - incFogRatio;
 
                     if ( incFogRatio > 1.0f ) {

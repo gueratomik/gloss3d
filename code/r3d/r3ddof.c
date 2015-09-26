@@ -62,8 +62,8 @@ void filterdof_free ( R3DFILTER *fil ) {
 /******************************************************************************/
 R3DFILTER *r3dfilter_dof_new ( uint32_t width,
                                uint32_t height,
-                               float    near,
-                               float    far,
+                               float    dnear,
+                               float    dfar,
                                uint32_t radius ) {
     R3DFILTER *fil;
 
@@ -72,8 +72,8 @@ R3DFILTER *r3dfilter_dof_new ( uint32_t width,
                                        filterdof_free,
                                        r3ddof_new ( width, 
                                                     height,
-                                                    near,
-                                                    far,
+                                                    dnear,
+                                                    dfar,
                                                     radius ) );
 
     return fil;
@@ -82,8 +82,8 @@ R3DFILTER *r3dfilter_dof_new ( uint32_t width,
 /******************************************************************************/
 R3DDOF *r3ddof_new ( uint32_t width,
                      uint32_t height,
-                     float    near,
-                     float    far,
+                     float    dnear,
+                     float    dfar,
                      uint32_t radius ) {
     R3DDOF *rdf = calloc ( 0x01, sizeof ( R3DDOF ) );
     int i;
@@ -97,8 +97,8 @@ R3DDOF *r3ddof_new ( uint32_t width,
     rdf->width = width;
     rdf->height = height;
     rdf->radius = radius;
-    rdf->near = near;
-    rdf->far = far;
+    rdf->dnear = dnear;
+    rdf->dfar = dfar;
 
     rdf->dofimg = calloc ( width * height, 0x03 * sizeof ( char ) );
 
@@ -125,12 +125,12 @@ void r3ddof_blurifyPixel ( R3DDOF  *rdf,
     int i, j;
     uint32_t radius = rdf->radius; /* default value */
 
-    if ( zBuffer[offset] < rdf->near ) {
+    if ( zBuffer[offset] < rdf->dnear ) {
         radius = 0; 
     }
 
-    if ( ( zBuffer[offset] > rdf->near ) && ( zBuffer[offset] < rdf->far ) ) {
-        radius = rdf->radius * ( ( zBuffer[offset] - rdf->near ) / ( rdf->far - rdf->near ) ); 
+    if ( ( zBuffer[offset] > rdf->dnear ) && ( zBuffer[offset] < rdf->dfar ) ) {
+        radius = rdf->radius * ( ( zBuffer[offset] - rdf->dnear ) / ( rdf->dfar - rdf->dnear ) ); 
     }
 
     for ( i  =  (int) y - (int) radius ; 

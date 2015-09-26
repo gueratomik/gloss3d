@@ -56,7 +56,7 @@ static void *play_t ( void *ptr ) {
 
     /*** http://www.motifdeveloper.com/tips/tip6.html ***/
     while ( gui->playLock ) {
-	curframe += 1.0f;
+	    curframe += 1.0f;
 
         /*** skip sending event if animation has not completed yet ***/
         if ( ( gui->flags & ONGOINGANIMATION ) == 0x00 ) {
@@ -94,10 +94,9 @@ void g3dui_playCbk ( GtkWidget *widget, gpointer user_data ) {
     HANDLE     hdl;
     #endif 
 
-    gui->playLock = 0x01;
-
     /*** if scene is not currently played ***/
-    if ( gui->playthreadid == 0x00 ) {
+    if ( gui->playLock /*gui->playthreadid*/ == 0x00 ) {
+        gui->playLock = 0x01;
         #ifdef __linux__
         pthread_attr_t attr;
 

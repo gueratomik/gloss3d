@@ -32,17 +32,17 @@
 /******************************************************************************/
 void common_g3dui_stopCbk ( G3DUI *gui ) {
     /*** if scene is currently played ***/
-    if ( gui->playthreadid ) {
-        #ifdef __linux__
+    if ( /*gui->playthreadid*/gui->playLock ) {
+        /* #ifdef __linux__
         pthread_join   ( gui->playthreadid, NULL );
         #endif
         #ifdef __MINGW32__
         WaitForSingleObject ( gui->playthreadid, INFINITE );
         CloseHandle ( gui->playthreadid );
-        #endif
+        #endif */
 
         gui->playLock     = 0x00;
-        gui->playthreadid = 0x00;
+        /*gui->playthreadid = 0x00;*/
 
         gui->flags &= (~ONGOINGANIMATION);
 

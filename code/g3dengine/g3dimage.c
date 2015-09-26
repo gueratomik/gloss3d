@@ -49,34 +49,44 @@ void g3dimage_getVideoSize ( G3DIMAGE *image,
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     char commandLine[BUFFERLEN];
 
-    snprintf ( commandLine, BUFFERLEN, "\"%s\""
-                                       " -v error"
-                                       " -of flat=s=_"
-                                       " -select_streams v:0"
-                                       " -show_entries"
-                                       " stream=height,width"
-                                       " \"%s\"", sysinfo->ffprobePath,
-                                                  image->filename );
-
+    if ( sysinfo->ffprobePath ) {
+        snprintf ( commandLine, BUFFERLEN, 
     #ifdef __linux__
-    FILE *fp = popen (commandLine, "r" );
-
-    if ( fp ) {
-        char line[BUFFERLEN];
-
-        while ( ( fgets ( line, BUFFERLEN, fp ) ) != NULL ) {
-            sscanf ( line, "streams_stream_0_width=%d", &image->width );
-            sscanf ( line, "streams_stream_0_height=%d", &image->height );
-        }
-        pclose ( fp );
-    }
+                                           "\"%s\""
     #endif
     #ifdef __MINGW32__
-    fprintf ( stderr, "%s not implemented for Windows systems!\n", __func__ );
+                                           "cmd /c \"\"%s\""
     #endif
+                                           " -v error"
+                                           " -of flat=s=_"
+                                           " -select_streams v:0"
+                                           " -show_entries"
+                                           " stream=height,width"
+    #ifdef __linux__
+                                           " \"%s\""
+    #endif
+    #ifdef __MINGW32__
+                                           " \"%s\"\"",
+    #endif
+                                           sysinfo->ffprobePath,
+                                           image->filename );
 
-    image->bytesPerPixel = image->previewBytesPerPixel = 3;
-    image->bytesPerLine  = image->bytesPerPixel * image->width;
+        FILE *fp = popen (commandLine, "r" );
+
+        if ( fp ) {
+            char line[BUFFERLEN];
+
+            while ( ( fgets ( line, BUFFERLEN, fp ) ) != NULL ) {
+                printf("line: %s\n", line);
+                sscanf ( line, "streams_stream_0_width=%d", &image->width );
+                sscanf ( line, "streams_stream_0_height=%d", &image->height );
+            }
+            pclose ( fp );
+        }
+
+        image->bytesPerPixel = image->previewBytesPerPixel = 3;
+        image->bytesPerLine  = image->bytesPerPixel * image->width;
+    }
 }
 
 /******************************************************************************/
@@ -105,36 +115,45 @@ static void loadFrame ( char     *animationFileName,
 
     char commandLine[BUFFERLEN];
 
-    snprintf ( commandLine, BUFFERLEN, "\"%s\""
-                                       " -ss %02d:%02d:%02d.%03d"
-                                       " -hide_banner"
-                                       " -loglevel panic"
-                                       " -i \"%s\""
-                                       " -frames:v %d"
-                                       " -f rawvideo"
-                                       " -pix_fmt rgb24"
-                                       " -vf scale=%d:%d"
-                                       " pipe:1", sysinfo->ffmpegPath,
-                                                  deltaHours, 
-                                                  deltaMinutes,
-                                                  deltaSeconds,
-                                                  deltaMillis,
-                                                  animationFileName,
-                                                  nbRequestedFrames,
-                                                  width, height );
-
+    if ( sysinfo->ffmpegPath ) {
+        snprintf ( commandLine, BUFFERLEN,
     #ifdef __linux__
-    FILE *fp = popen ( commandLine, "r" );
-
-    if ( fp ) {
-        fread ( data, height, ( bytesPerPixel * width ) * NBPREVIEWS, fp );
-
-        pclose ( fp );
-    }
+                                           "\"%s\""
     #endif
     #ifdef __MINGW32__
-    fprintf ( stderr, "%s not implemented for Windows systems!\n", __func__ );
+                                           "cmd /c \"\"%s\""
     #endif
+                                           " -ss %02d:%02d:%02d.%03d"
+                                           " -hide_banner"
+                                           " -loglevel panic"
+                                           " -i \"%s\""
+                                           " -frames:v %d"
+                                           " -f rawvideo"
+                                           " -pix_fmt rgb24"
+                                           " -vf scale=%d:%d"
+    #ifdef __linux__
+                                           " pipe:1",
+    #endif
+    #ifdef __MINGW32__
+                                           " pipe:1\"",
+    #endif
+                                           sysinfo->ffmpegPath,
+                                           deltaHours, 
+                                           deltaMinutes,
+                                           deltaSeconds,
+                                           deltaMillis,
+                                           animationFileName,
+                                           nbRequestedFrames,
+                                           width, height );
+
+        FILE *fp = popen ( commandLine, "r" );
+
+        if ( fp ) {
+            fread ( data, height, ( bytesPerPixel * width ) * NBPREVIEWS, fp );
+
+            pclose ( fp );
+        }
+    }
 }
 
 /******************************************************************************/

@@ -32,7 +32,7 @@
 /******************************************************************************/
 void common_g3duimeshedit_useIsoLinesCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;
@@ -63,7 +63,7 @@ void common_g3duimeshedit_useIsoLinesCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duimeshedit_subdivRenderCbk ( G3DUI *gui, int level ) {
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;
@@ -85,7 +85,7 @@ void common_g3duimeshedit_subdivRenderCbk ( G3DUI *gui, int level ) {
 /******************************************************************************/
 void common_g3duimeshedit_gouraudCbk ( G3DUI *gui, float scalarLimit ) {
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;
@@ -108,7 +108,7 @@ void common_g3duimeshedit_gouraudCbk ( G3DUI *gui, float scalarLimit ) {
 /******************************************************************************/
 void common_g3duimeshedit_subdivLevelCbk ( G3DUI *gui, int level ) {
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;

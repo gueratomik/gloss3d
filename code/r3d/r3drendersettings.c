@@ -391,13 +391,13 @@ static uint32_t r3dfogfar_blockSize ( ) {
 }
 
 /******************************************************************************/
-static void r3dfogfar_writeBlock ( float  far, 
+static void r3dfogfar_writeBlock ( float  ffar, 
                                    FILE  *fdst ) {
     chunk_write ( R3DFOGFARSIG, 
                   r3dfogfar_blockSize ( ),
                   fdst );
 
-    writef ( &far, sizeof ( float ), 0x01, fdst );
+    writef ( &ffar, sizeof ( float ), 0x01, fdst );
 }
 
 /******************************************************************************/
@@ -406,13 +406,13 @@ static uint32_t r3dfognear_blockSize ( ) {
 }
 
 /******************************************************************************/
-static void r3dfognear_writeBlock ( float  near, 
+static void r3dfognear_writeBlock ( float  fnear, 
                                     FILE  *fdst ) {
     chunk_write ( R3DFOGNEARSIG, 
                   r3dfognear_blockSize ( ),
                   fdst );
 
-    writef ( &near, sizeof ( float ), 0x01, fdst );
+    writef ( &fnear, sizeof ( float ), 0x01, fdst );
 }
 
 /******************************************************************************/
@@ -466,8 +466,8 @@ static void r3dfogsettings_writeBlock ( R3DFOGSETTINGS *rfs,
 
     r3dfogflags_writeBlock ( rfs->flags, fdst );
     r3dfogcolor_writeBlock ( rfs->color, fdst );
-    r3dfognear_writeBlock ( rfs->near, fdst );
-    r3dfogfar_writeBlock ( rfs->far, fdst );
+    r3dfognear_writeBlock ( rfs->fnear, fdst );
+    r3dfogfar_writeBlock ( rfs->ffar, fdst );
 }
 
 /******************************************************************************/
@@ -761,8 +761,8 @@ R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 
     rsg->fog.flags = FOGAFFECTSBACKGROUND;
-    rsg->fog.near  = 0.0f;
-    rsg->fog.far   = 100.0f;
+    rsg->fog.fnear  = 0.0f;
+    rsg->fog.ffar   = 100.0f;
     rsg->fog.color = 0x00FFFFFF;
 
     rsg->lfilter     = NULL;

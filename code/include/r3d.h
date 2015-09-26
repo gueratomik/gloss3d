@@ -340,16 +340,16 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 
 typedef struct _R3DFOGSETTINGS {
     uint64_t flags;
-    float    near;
-    float    far;
+    float    fnear; /* far is a C keyword. Use prefix f */
+    float    ffar; /* far is a C keyword. Use prefix f */
     uint32_t color;
 } R3DFOGSETTINGS;
 
 /******************************************************************************/
 typedef struct _R3DDOFSETTINGS {
     uint64_t flags;
-    float    near;
-    float    far;
+    float    dnear;
+    float    dfar;
     uint32_t radius;
 } R3DDOFSETTINGS;
 
@@ -670,8 +670,8 @@ typedef struct _R3DDOF {
     unsigned char (*dofimg)[0x03];
     uint32_t        width;
     uint32_t        height;
-    float           near;
-    float           far;
+    float           dnear; /* near is a C keyword. use prefix f */
+    float           dfar; /* far is a C keyword. use prefix f */
     uint32_t        radius;
 } R3DDOF;
 

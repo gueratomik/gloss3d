@@ -806,7 +806,7 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    gtk_spin_button_set_value ( sbn, rsg->fog.near );
+                    gtk_spin_button_set_value ( sbn, rsg->fog.fnear );
                 }
 
                 if ( strcmp ( child_name, EDITRENDERFOGFAR ) == 0x00 ) {
@@ -816,7 +816,7 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    gtk_spin_button_set_value ( sbn, rsg->fog.far );
+                    gtk_spin_button_set_value ( sbn, rsg->fog.ffar );
                 }
             }
 
@@ -877,19 +877,19 @@ static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    float near = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    float fnear = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
-    common_g3duirenderedit_fogNearCbk ( gui, near );
+    common_g3duirenderedit_fogNearCbk ( gui, fnear );
 }
 
 /******************************************************************************/
 static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    float far = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    float ffar = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
-    common_g3duirenderedit_fogFarCbk ( gui, far );
+    common_g3duirenderedit_fogFarCbk ( gui, ffar );
 }
 
 /******************************************************************************/
