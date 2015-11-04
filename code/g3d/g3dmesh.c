@@ -2444,7 +2444,10 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
 
-        nbsubdivfac  = g3dface_catmull_clark_draw ( std, fac, fac,
+
+        g3dface_catmull_clark_drawV3 ( fac, subdiv, objmes->flags, engine_flags );
+
+        /*nbsubdivfac  = g3dface_catmull_clark_draw ( std, fac, fac,
                                                          subdiv, 
                                                          cosang,
                                                          NULL, 
@@ -2455,7 +2458,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
                                                          objmes->flags,
                                                          engine_flags );
 
-        fac->nbrtfac = nbsubdivfac;
+        fac->nbrtfac = nbsubdivfac;*/
 
 
         ltmpfac = ltmpfac->next;
@@ -3765,7 +3768,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags
     obj->copy = g3dmesh_copy;
 
     /*** Subdivision are not rendered on the fly by default but buffered ***/
-    g3dmesh_setBufferedSubdivision ( mes, engine_flags );
+    /*g3dmesh_setBufferedSubdivision ( mes, engine_flags );*/
 }
 
 /******************************************************************************/

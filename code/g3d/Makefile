@@ -79,9 +79,10 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dpivot.lo g3dplane.lo g3dprimitive.lo g3dquaternion.lo \
 	g3drgba.lo g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
 	g3dscene.lo g3dsphere.lo g3dsubdivision.lo g3dsubdivisionV2.lo \
-	g3dsubedge.lo g3dsubface.lo g3dsubpattern.lo g3dsubvertex.lo \
-	g3dsymmetry.lo g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo \
-	g3dvector.lo g3dvertex.lo g3dweight.lo
+	g3dsubdivisionV3.lo g3dsubedge.lo g3dsubface.lo \
+	g3dsubpattern.lo g3dsubvertex.lo g3dsymmetry.lo g3dtexture.lo \
+	g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo \
+	g3dweight.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -118,17 +119,17 @@ DIST_SOURCES = $(libgloss_g3d_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run aclocal-1.11
-AMTAR = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run tar
+ACLOCAL = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run aclocal-1.11
+AMTAR = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run tar
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run autoconf
-AUTOHEADER = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run autoheader
-AUTOMAKE = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run automake-1.11
+AUTOCONF = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run autoconf
+AUTOHEADER = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run autoheader
+AUTOMAKE = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
+CFLAGS = -g -O0 -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -157,7 +158,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/missing --run makeinfo
+MAKEINFO = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 MT_IM_GTK3_CFLAGS = -pthread -I/usr/include/gtk-3.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng15 -I/usr/include/pixman-1  
@@ -185,10 +186,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = dev-0.2.58
-abs_builddir = /root/CODE/C/Motif/rc7/gloss3d/code/g3d
-abs_srcdir = /root/CODE/C/Motif/rc7/gloss3d/code/g3d
-abs_top_builddir = /root/CODE/C/Motif/rc7/gloss3d/code
-abs_top_srcdir = /root/CODE/C/Motif/rc7/gloss3d/code
+abs_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3d
+abs_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/g3d
+abs_top_builddir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
+abs_top_srcdir = /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -217,7 +218,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /root/CODE/C/Motif/rc7/gloss3d/code/install-sh
+install_sh = ${SHELL} /mnt/PORTABLE/CODE/C/Motif/rc7/gloss3d/code/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -226,7 +227,7 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr/local
+prefix = /usr
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -276,6 +277,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dsphere.c \
                       g3dsubdivision.c \
                       g3dsubdivisionV2.c \
+                      g3dsubdivisionV3.c \
                       g3dsubedge.c \
                       g3dsubface.c \
                       g3dsubpattern.c \
@@ -393,6 +395,7 @@ include ./$(DEPDIR)/g3dscene.Plo
 include ./$(DEPDIR)/g3dsphere.Plo
 include ./$(DEPDIR)/g3dsubdivision.Plo
 include ./$(DEPDIR)/g3dsubdivisionV2.Plo
+include ./$(DEPDIR)/g3dsubdivisionV3.Plo
 include ./$(DEPDIR)/g3dsubedge.Plo
 include ./$(DEPDIR)/g3dsubface.Plo
 include ./$(DEPDIR)/g3dsubpattern.Plo

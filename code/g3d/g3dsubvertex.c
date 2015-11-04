@@ -30,7 +30,7 @@
 #include <g3d.h>
 
 /******************************************************************************/
-inline void g3dsubvertex_addUV ( G3DSUBVERTEX *subver, G3DUV *uv ) {
+void g3dsubvertex_addUV ( G3DSUBVERTEX *subver, G3DUV *uv ) {
     LIST *nextluv = subver->ver.luv;
 
     /*** Go with dynamic allocation if this subvertex UV buffer is too small***/
@@ -48,7 +48,23 @@ inline void g3dsubvertex_addUV ( G3DSUBVERTEX *subver, G3DUV *uv ) {
 }
 
 /******************************************************************************/
-inline void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg ) {
+void g3dsubvertex_resetEdgeList ( G3DSUBVERTEX *subver ) {
+    memset ( subver->ledgbuf, 0x00, sizeof ( subver->ledgbuf ) );
+
+    subver->ver.ledg  = NULL;
+    subver->ver.nbedg = 0x00;
+}
+
+/******************************************************************************/
+void g3dsubvertex_resetFaceList ( G3DSUBVERTEX *subver ) {
+    memset ( subver->lfacbuf, 0x00, sizeof ( subver->lfacbuf ) );
+
+    subver->ver.lfac  = NULL;
+    subver->ver.nbfac = 0x00;
+}
+
+/******************************************************************************/
+void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg ) {
     LIST *nextledg = subver->ver.ledg;
 
     if ( subver->ver.flags & VERTEXMALLOCEDGES ) {
@@ -65,7 +81,7 @@ inline void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg ) {
 }
 
 /******************************************************************************/
-inline void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac ) {
+void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac ) {
     LIST *nextlfac = subver->ver.lfac;
 
     if ( subver->ver.flags & VERTEXMALLOCFACES ) {

@@ -78,6 +78,49 @@ Edge ID
 }*/
 
 /*****************************************************************************/
+void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
+                                         G3DVERTEX  *oriver,
+                                         G3DVERTEX  *orivercpy,
+                                         uint32_t    needEdges ) {
+    uint32_t i;
+
+    subfac->fac.nbver = 0x04;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        if ( fac->ver[i] == oriver ) {
+            uint32_t p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+
+            subfac->fac.ver[0x00] = orivercpy;
+            subfac->fac.ver[0x01] = fac->edg[i]->subver;
+            subfac->fac.ver[0x02] = fac->subver;
+            subfac->fac.ver[0x03] = fac->edg[p]->subver;
+
+            if ( needEdges ) {
+                subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
+                subfac->fac.edg[0x01] = fac->innedg[i];
+                subfac->fac.edg[0x02] = fac->innedg[p];
+                subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
+            }
+
+            g3dsubface_position ( subfac );
+
+            return;
+        }
+    }
+}
+
+/*****************************************************************************/
+uint32_t g3dface_hasEdge ( G3DFACE *fac, G3DEDGE *edg  ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        if ( fac->edg[i] == edg ) return 0x01;
+    }
+
+    return 0x00;
+}
+
+/*****************************************************************************/
 uint32_t g3dquad_isRegular ( G3DFACE *fac ) {
     if ( ( fac->ver[0]->nbedg == 0x04 ) &&
          ( fac->ver[1]->nbedg == 0x04 ) &&

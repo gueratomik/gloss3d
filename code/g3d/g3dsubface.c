@@ -30,6 +30,24 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dsubface_position ( G3DSUBFACE *subfac  ) {
+    subfac->fac.pos.x = ( subfac->fac.ver[0x00]->pos.x + 
+                          subfac->fac.ver[0x01]->pos.x + 
+                          subfac->fac.ver[0x02]->pos.x + 
+                          subfac->fac.ver[0x03]->pos.x ) * 0.25;
+
+    subfac->fac.pos.y = ( subfac->fac.ver[0x00]->pos.y + 
+                          subfac->fac.ver[0x01]->pos.y + 
+                          subfac->fac.ver[0x02]->pos.y + 
+                          subfac->fac.ver[0x03]->pos.y ) * 0.25;
+
+    subfac->fac.pos.z = ( subfac->fac.ver[0x00]->pos.z + 
+                          subfac->fac.ver[0x01]->pos.z + 
+                          subfac->fac.ver[0x02]->pos.z + 
+                          subfac->fac.ver[0x03]->pos.z ) * 0.25;
+}
+
+/******************************************************************************/
 void g3dsubface_topology ( G3DSUBFACE *subfac  ) {
     G3DFACE *fac = ( G3DFACE * ) subfac;
     int i;
@@ -41,6 +59,8 @@ void g3dsubface_topology ( G3DSUBFACE *subfac  ) {
 
         if ( subver->ver.flags & VERTEXTOPOLOGY ) {
             g3dsubvertex_addFace ( subver, ( G3DFACE * ) fac );
+
+/*printf("adding topo:%d\n", subver );*/
         }
 
         if ( subedg ) {

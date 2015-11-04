@@ -30,7 +30,19 @@
 #include <g3d.h>
 
 /******************************************************************************/
-inline void g3dsubedge_addFace ( G3DSUBEDGE *subedg, G3DFACE *fac ) {
+void g3dsubedge_position ( G3DSUBEDGE *subedg ) {
+    subedg->edg.pos.x = ( subedg->edg.ver[0x00]->pos.x + 
+                          subedg->edg.ver[0x01]->pos.x ) * 0.5;
+
+    subedg->edg.pos.y = ( subedg->edg.ver[0x00]->pos.y + 
+                          subedg->edg.ver[0x01]->pos.y ) * 0.5;
+
+    subedg->edg.pos.z = ( subedg->edg.ver[0x00]->pos.z + 
+                          subedg->edg.ver[0x01]->pos.z ) * 0.5;
+}
+
+/******************************************************************************/
+void g3dsubedge_addFace ( G3DSUBEDGE *subedg, G3DFACE *fac ) {
     LIST *nextlfac = subedg->edg.lfac;
 
     if ( subedg->edg.flags & EDGEMALLOCFACES ) {

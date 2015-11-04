@@ -222,6 +222,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEDRAWEDGES         (  1 << 8  )
 #define FACEDRAWVERTICES      (  1 << 9  )
 #define FACEORIGINAL          (  1 << 10 )
+#define FACEINNER             (  1 << 11 )
+#define FACEOUTER             (  1 << 12 )
 
 /***************************** Subdivision Flags ******************************/
 #define SUBDIVISIONMALLOCVERTICES (  1       )
@@ -529,7 +531,7 @@ typedef struct _G3DVERTEX {
     float surface;    /*** average surface of connected faces. Used for ***/
                       /*** scaling normal vector when showing normals ***/
     G3DRTVERTEX     *rtvermem; /*** Vertex buffer in buffered mode ***/
-    struct _G3DVERTEX *subver;
+    struct _G3DSUBVERTEX *subver;
 } G3DVERTEX;
 
 /******************************************************************************/
@@ -1205,6 +1207,7 @@ void g3dvertex_clearAdaptiveTopology ( G3DVERTEX * );
 void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR * );
 void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
+void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
                                                  G3DRTTRIANGLE *rttrimem,
@@ -1259,6 +1262,7 @@ uint32_t g3dedge_isAdaptive ( G3DEDGE * );
 uint32_t g3dedge_getAveragePosition ( G3DEDGE *, G3DVECTOR * );
 uint32_t g3dedge_getAverageNormal ( G3DEDGE *, G3DVECTOR * );
 void     g3dedge_drawSimple  ( G3DEDGE *, uint32_t, uint32_t, uint32_t );
+void g3dsubedge_position ( G3DSUBEDGE * );
 
 /******************************************************************************/
 G3DCUTEDGE *g3dcutedge_new ( G3DEDGE *, G3DVERTEX * );
@@ -1411,11 +1415,16 @@ G3DVERTEX *g3dface_getVertexByID ( G3DFACE *, uint32_t );
 G3DEDGE   *g3dface_getEdgeByID   ( G3DFACE *, uint32_t );
 void     g3dface_drawSimple  ( G3DFACE *, uint32_t, uint32_t, uint32_t );
 uint32_t g3dface_checkOrientation ( G3DFACE * );
+void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
+                                      G3DVERTEX  *,
+                                      G3DVERTEX  *,
+                                      uint32_t );
 
 /******************************************************************************/
 void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
 void g3dsubface_isAdaptive ( G3DSUBFACE *  );
 void g3dsubface_topology   ( G3DSUBFACE *  );
+void g3dsubface_position   ( G3DSUBFACE * );
 
 /******************************************************************************/
 void           g3dsubpattern_free ( G3DSUBPATTERN * );
