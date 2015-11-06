@@ -59,8 +59,6 @@ void g3dsubface_topology ( G3DSUBFACE *subfac  ) {
 
         if ( subver->ver.flags & VERTEXTOPOLOGY ) {
             g3dsubvertex_addFace ( subver, ( G3DFACE * ) fac );
-
-/*printf("adding topo:%d\n", subver );*/
         }
 
         if ( subedg ) {
