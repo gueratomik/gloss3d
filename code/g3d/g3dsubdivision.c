@@ -444,7 +444,7 @@ uint32_t g3dface_setSubFace ( G3DFACE *fac, G3DVERTEX     *vercmp,
             }
 
             /*** vertex/face topology always needed for computing normals ***/
-            g3dsubface_topology ( (*subfacptr) );
+            g3dsubface_topology ( (*subfacptr), 0x00 );
 
 
             (*subfacptr)++;

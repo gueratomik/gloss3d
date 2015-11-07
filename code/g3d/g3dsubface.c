@@ -48,21 +48,25 @@ void g3dsubface_position ( G3DSUBFACE *subfac  ) {
 }
 
 /******************************************************************************/
-void g3dsubface_topology ( G3DSUBFACE *subfac  ) {
+void g3dsubface_topology ( G3DSUBFACE *subfac, uint32_t topo_flags  ) {
     G3DFACE *fac = ( G3DFACE * ) subfac;
     int i;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         int p = ( i + fac->nbver - 0x01 ) % fac->nbver;
         G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) fac->ver[i];
-        G3DSUBEDGE   *subedg = ( G3DSUBEDGE *   ) fac->edg[i];
 
         if ( subver->ver.flags & VERTEXTOPOLOGY ) {
             g3dsubvertex_addFace ( subver, ( G3DFACE * ) fac );
         }
 
-        if ( subedg ) {
-            g3dsubedge_addFace ( subedg, ( G3DFACE * ) fac );
+        /*** This is unneeded on the last subdivision step, hence the flag. ***/
+        if ( topo_flags & NEEDEDGETOPOLOGY ) {
+            G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) fac->edg[i];
+
+            if ( subedg ) {
+                g3dsubedge_addFace ( subedg, ( G3DFACE * ) fac );
+            }
         }
     }
 }

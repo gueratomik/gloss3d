@@ -102,7 +102,7 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                 subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
             }
 
-            g3dsubface_position ( subfac );
+            /*g3dsubface_position ( subfac );*/
 
             return;
         }

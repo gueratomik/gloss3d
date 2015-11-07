@@ -236,7 +236,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SUBDIVISIONCLEANORIGINAL  (  1 <<  7 )
 #define SUBDIVISIONLASTSTEP       (  1 <<  8 ) /*** Adaptive mode ***/
 #define SUBDIVISIONDRAWEDGES      (  1 <<  9 ) 
-#define SUBDIVISIONDRAWVERTICES   (  1 << 10 ) 
+#define SUBDIVISIONDRAWVERTICES   (  1 << 10 )
+/************************* Subdivision topology Flags *************************/
+#define NEEDEDGETOPOLOGY              (  1       )
+#define NEEDFULLTOPOLOGY               0xFFFFFFFF
 
 /***************************** Weightgroup Flags ******************************/
 #define WEIGHTGROUPSELECTED   ( 1      )
@@ -1423,7 +1426,7 @@ void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
 /******************************************************************************/
 void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
 void g3dsubface_isAdaptive ( G3DSUBFACE *  );
-void g3dsubface_topology   ( G3DSUBFACE *  );
+void g3dsubface_topology   ( G3DSUBFACE *, uint32_t  );
 void g3dsubface_position   ( G3DSUBFACE * );
 
 /******************************************************************************/
