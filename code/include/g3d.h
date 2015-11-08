@@ -685,7 +685,7 @@ typedef struct _G3DRTEDGE {
 /*** Interleaved vertex arrays for buffered subdivided mesh. ***/
 /*** GL_C4F_N3F_V3F ***/
 typedef struct _G3DRTQUAD {
-    G3DRTVERTEX rtver[0x04];
+    uint32_t rtver[0x04];
 } G3DRTQUAD;
 
 /******************************************************************************/
@@ -853,6 +853,23 @@ typedef struct _G3DSUBPATTERN {
 } G3DSUBPATTERN;
 
 /******************************************************************************/
+typedef struct _G3DSUBDIVISION {
+    G3DSUBFACE    *innerFaces; 
+    G3DSUBFACE    *outerFaces; 
+    G3DSUBEDGE    *innerEdges; 
+    G3DSUBEDGE    *outerEdges; 
+    G3DSUBVERTEX  *innerVertices; 
+    G3DSUBVERTEX  *outerVertices; 
+    uint32_t       nbInnerFaces;
+    uint32_t       nbOuterFaces;
+    uint32_t       nbInnerEdges;
+    uint32_t       nbOuterEdges;
+    uint32_t       nbInnerVertices;
+    uint32_t       nbOuterVertices;
+    G3DSUBPATTERN *pattern;
+} G3DSUBDIVISION;
+
+/******************************************************************************/
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
     LIST *lver;    /*** List of vertices        ***/
@@ -899,7 +916,8 @@ struct _G3DMESH {
     uint64_t     nbrtver;
     uint64_t nbrtverpertriangle;
     uint64_t nbrtverperquad;
-    G3DSUBPATTERN **subpatterns;
+    G3DSUBPATTERN  **subpatterns;
+    G3DSUBDIVISION **subdivisions;
 };
 
 /******************************************************************************/
@@ -1428,6 +1446,19 @@ void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
 void g3dsubface_isAdaptive ( G3DSUBFACE *  );
 void g3dsubface_topology   ( G3DSUBFACE *, uint32_t  );
 void g3dsubface_position   ( G3DSUBFACE * );
+
+/******************************************************************************/
+uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *, uint32_t *, uint32_t *,
+                                               uint32_t *, uint32_t *,
+                                               uint32_t *, uint32_t *,
+                                               uint32_t );
+uint32_t g3dsubdivisionV3_subdivide ( G3DFACE *, G3DSUBFACE   *, G3DSUBFACE   *,
+                                                 G3DSUBEDGE   *, G3DSUBEDGE   *,
+                                                 G3DSUBVERTEX *, G3DSUBVERTEX *,
+                                                 uint32_t      ,
+                                                 uint32_t      ,
+                                                 uint32_t       );
+void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *, G3DFACE *, uint32_t );
 
 /******************************************************************************/
 void           g3dsubpattern_free ( G3DSUBPATTERN * );

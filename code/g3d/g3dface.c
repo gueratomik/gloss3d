@@ -81,7 +81,7 @@ Edge ID
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
-                                         uint32_t    needEdges ) {
+                                         uint32_t    curdiv ) {
     uint32_t i;
 
     subfac->fac.nbver = 0x04;
@@ -95,12 +95,15 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
             subfac->fac.ver[0x02] = fac->subver;
             subfac->fac.ver[0x03] = fac->edg[p]->subver;
 
-            if ( needEdges ) {
+            if ( curdiv > 1 ) {
                 subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
                 subfac->fac.edg[0x01] = fac->innedg[i];
                 subfac->fac.edg[0x02] = fac->innedg[p];
                 subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
             }
+
+            /*** we need normal vector only on last subdivision ***/
+            if ( curdiv == 0x01 ) g3dface_normal ( subfac );
 
             /*g3dsubface_position ( subfac );*/
 

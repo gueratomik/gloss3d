@@ -259,52 +259,6 @@ void g3dsubpattern_fill ( G3DSUBPATTERN *spn, G3DFACE *fac,
     memcpy ( &vertab[7]->pos, &fac->edg[0x03]->pos, sizeof ( G3DVECTOR ) );
 
     memcpy ( &vertab[8]->pos, &fac->pos, sizeof ( G3DVECTOR ) );
-
-    if ( curdiv ) {
-        for ( i = 0x00; i < 16; i++ ) {
-            g3dface_position ( spn->factab[i] );
-        }
-
-        for ( i = 0x00; i < 24; i++ ) {
-            g3dedge_position ( spn->edgtab[i], 0x00 );
-        }
-
-        g3dvertex_normal ( spn->vertab[0], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[1], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[2], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[3], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[4], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[5], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[6], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[7], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-        g3dvertex_normal ( spn->vertab[8], NOVERTEXNORMAL | COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-    } else {
-        for ( i = 0x00; i < 16; i++ ) {
-            g3dface_normal ( spn->factab[i] );
-        }
-
-        g3dvertex_normal ( spn->vertab[0], 0x00 );
-        g3dvertex_normal ( spn->vertab[1], 0x00 );
-        g3dvertex_normal ( spn->vertab[2], 0x00 );
-        g3dvertex_normal ( spn->vertab[3], 0x00 );
-        g3dvertex_normal ( spn->vertab[4], 0x00 );
-        g3dvertex_normal ( spn->vertab[5], 0x00 );
-        g3dvertex_normal ( spn->vertab[6], 0x00 );
-        g3dvertex_normal ( spn->vertab[7], 0x00 );
-        g3dvertex_normal ( spn->vertab[8], 0x00 );
-    }
-
-    if ( fac->flags & FACESELECTED ) {
-        spn->factab[0]->flags |= FACESELECTED;
-        spn->factab[1]->flags |= FACESELECTED;
-        spn->factab[2]->flags |= FACESELECTED;
-        spn->factab[3]->flags |= FACESELECTED;
-    } else {
-        spn->factab[0]->flags &= (~FACESELECTED);
-        spn->factab[1]->flags &= (~FACESELECTED);
-        spn->factab[2]->flags &= (~FACESELECTED);
-        spn->factab[3]->flags &= (~FACESELECTED);
-    }
 }
 
 /******************************************************************************/

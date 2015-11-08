@@ -2436,16 +2436,20 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
     /*** that's pretty useless, it's just for consistency ***/
     float    cosang = cos ( mes->advang * M_PI / 180 );
     uint32_t nbsubdivfac = 0x00;
-    G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( mes, NULL, 0, engine_flags );
+    /*G3DSUBDIVISION *sdi = g3dsubdivision_new ( mes, NULL, 0, engine_flags );*/
 
     /*g3dmesh_color ( mes, engine_flags );*/
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        G3DSUBDIVISION *sdv = mes->subdivisions[0x00];
 
+        g3dsubdivisionV3_prepare ( sdv, fac, subdiv );
 
-
-        g3dface_catmull_clark_drawV3 ( fac, subdiv, objmes->flags, engine_flags );
+        g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces, sdv->outerFaces,
+                                          sdv->innerEdges, sdv->outerEdges,
+                                          sdv->innerVertices, sdv->outerVertices,
+                                          subdiv, objmes->flags, engine_flags );
 
         /*nbsubdivfac  = g3dface_catmull_clark_draw ( std, fac, fac,
                                                          subdiv, 
@@ -2464,7 +2468,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
         ltmpfac = ltmpfac->next;
     }
 
-    g3dsubdivisionthread_free ( std );
+    /*g3dsubdivisionthread_free ( std );*/
 
     /*if ( objmes->flags & MESHUSEADAPTIVE )  {
         double powlev  = pow ( 4, mes->subdiv - 0x01 );
@@ -3766,6 +3770,9 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags
     obj->flags |= ( SYNCSUBDIVISION );
 
     obj->copy = g3dmesh_copy;
+
+    mes->subdivisions = ( G3DSUBDIVISION ** ) calloc ( 0x01, sizeof ( G3DSUBDIVISION * ) );
+    mes->subdivisions[0x00] = g3dsubdivisionV3_new ( );
 
     /*** Subdivision are not rendered on the fly by default but buffered ***/
     /*g3dmesh_setBufferedSubdivision ( mes, engine_flags );*/
