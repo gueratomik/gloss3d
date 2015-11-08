@@ -757,6 +757,7 @@ typedef struct _G3DFACE {
     G3DSUBVERTEX    *subver;       /*** Face center when subdividing        ***/
     G3DRTQUAD       *rtfacmem;     /*** Face buffer in buffered mode        ***/
     G3DRTUVSET      *rtuvsmem;     /*** UVSet buffer in buffered mode       ***/
+    G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode       ***/
     LIST            *luvs;         /*** List of UVSets                      ***/
     uint32_t         nbrtfac;
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
@@ -1291,6 +1292,10 @@ G3DCUTEDGE *g3dcutedge_seek ( LIST *, G3DEDGE * );
 void g3dcutedge_free ( G3DCUTEDGE * );
 
 /******************************************************************************/
+void     g3dtriangle_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
+                                                             uint32_t * );
+void     g3dquad_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
+                                                         uint32_t * );
 void     g3dface_attachEdges      ( G3DFACE *, G3DEDGE ** );
 G3DFACE *g3dquad_new              ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX *,
                                                               G3DVERTEX * );
@@ -1383,7 +1388,8 @@ void     g3dface_drawTriangleList ( LIST *, LIST *, uint32_t, uint32_t );
 void     g3dface_drawQuadList     ( LIST *, LIST *, uint32_t, uint32_t );
 void     g3dface_drawTriangle     ( G3DFACE *, LIST *, uint32_t, uint32_t );
 void     g3dface_drawQuad         ( G3DFACE *, LIST *, uint32_t, uint32_t );
-void     g3dface_updateBufferedSubdivision ( G3DFACE *, uint32_t, 
+void     g3dface_updateBufferedSubdivision ( G3DFACE *, G3DSUBDIVISION *,
+                                                        uint32_t, 
                                                         float, 
                                                         uint32_t,
                                                         uint32_t );
@@ -1455,6 +1461,8 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *, uint32_t *, uint32_t *,
 uint32_t g3dsubdivisionV3_subdivide ( G3DFACE *, G3DSUBFACE   *, G3DSUBFACE   *,
                                                  G3DSUBEDGE   *, G3DSUBEDGE   *,
                                                  G3DSUBVERTEX *, G3DSUBVERTEX *,
+                         /*** get quads     ***/ G3DRTQUAD    *,
+                         /*** get vertices  ***/ G3DRTVERTEX  *,
                                                  uint32_t      ,
                                                  uint32_t      ,
                                                  uint32_t       );
@@ -1738,8 +1746,7 @@ void       g3dmesh_freeSubdivisionBuffer         ( G3DMESH * );
 void       g3dmesh_freeFaceSubdivisionBuffer     ( G3DMESH * );
 void       g3dmesh_freeEdgeSubdivisionBuffer     ( G3DMESH * );
 void       g3dmesh_freeVertexSubdivisionBuffer     ( G3DMESH * );
-void       g3dmesh_allocSubdivisionBuffer        ( G3DMESH *, uint32_t,
-                                                              uint32_t );
+void       g3dmesh_allocSubdivisionBuffers       ( G3DMESH *, uint32_t );
 void       g3dmesh_allocFaceSubdivisionBuffer    ( G3DMESH *, uint32_t,
                                                               uint32_t );
 void       g3dmesh_allocEdgeSubdivisionBuffer    ( G3DMESH *, uint32_t,

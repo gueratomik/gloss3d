@@ -1706,23 +1706,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
 
     if ( update_flags & REALLOCFACESUBDIVISION ) {
         if ( mes->subdiv ) {
-            g3dmesh_allocFaceSubdivisionBuffer ( mes, mes->subdiv, engine_flags );
-        }
-    }
-
-    if ( update_flags & REALLOCEDGESUBDIVISION ) {
-        if ( ( objmes->flags & MESHUSEISOLINES ) && mes->subdiv ) {
-            g3dmesh_allocEdgeSubdivisionBuffer   ( mes, mes->subdiv, engine_flags );
-        } else {
-            if ( mes->rtedgmem ) g3dmesh_freeEdgeSubdivisionBuffer   ( mes );
-        }
-    }
-
-    if ( update_flags & REALLOCVERTEXSUBDIVISION ) {
-        if ( ( objmes->flags & MESHUSEISOLINES ) && mes->subdiv ) {
-            g3dmesh_allocVertexSubdivisionBuffer ( mes, mes->subdiv, engine_flags );
-        } else {
-            if ( mes->rtvermem ) g3dmesh_freeVertexSubdivisionBuffer ( mes );
+            g3dmesh_allocSubdivisionBuffers ( mes, engine_flags );
         }
     }
 
@@ -2446,10 +2430,17 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
 
         g3dsubdivisionV3_prepare ( sdv, fac, subdiv );
 
-        g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces, sdv->outerFaces,
-                                          sdv->innerEdges, sdv->outerEdges,
-                                          sdv->innerVertices, sdv->outerVertices,
-                                          subdiv, objmes->flags, engine_flags );
+        fac->nbrtfac = g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces,
+                                                         sdv->outerFaces,
+                                                         sdv->innerEdges,
+                                                         sdv->outerEdges,
+                                                         sdv->innerVertices,
+                                                         sdv->outerVertices,
+                                                         NULL,
+                                                         NULL,
+                                                         subdiv,
+                                                         objmes->flags,
+                                                         engine_flags );
 
         /*nbsubdivfac  = g3dface_catmull_clark_draw ( std, fac, fac,
                                                          subdiv, 
@@ -3607,118 +3598,21 @@ uint64_t g3dmesh_evalSubdivisionBuffer ( G3DMESH *mes, uint32_t level,
 }
 
 /******************************************************************************/
-void g3dmesh_allocVertexSubdivisionBuffer ( G3DMESH *mes, uint32_t level,
-                                                          uint32_t engine_flags ){
-    uint64_t memsize = mes->nbver * sizeof ( G3DRTVERTEX );
-    G3DRTVERTEX *rtvermem = ( memsize ) ? realloc ( mes->rtvermem, memsize ) : NULL;
-    LIST *ltmpver       = mes->lver;
+void g3dmesh_allocSubdivisionBuffers ( G3DMESH *mes, uint32_t engine_flags ) {
+    uint32_t triFaces, triEdges, triVertices;
+    uint32_t quaFaces, quaEdges, quaVertices;
+    uint32_t subdiv = mes->subdiv;
 
-    mes->rtvermem = rtvermem;
-    mes->nbrtver  = mes->nbver;
+    g3dtriangle_evalSubdivision ( subdiv, &triFaces, &triEdges, &triVertices );
+    g3dquad_evalSubdivision     ( subdiv, &quaFaces, &quaEdges, &quaVertices );
 
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+    mes->nbrtfac = ( mes->nbtri * triFaces    ) + ( mes->nbqua * quaFaces    );
+    mes->nbrtedg = ( mes->nbtri * triEdges    ) + ( mes->nbqua * quaEdges    );
+    mes->nbrtver = ( mes->nbtri * triVertices ) + ( mes->nbqua * quaVertices );
 
-        ver->flags |= VERTEXSUBDIVIDED;
-        ver->rtvermem = rtvermem;
-
-        /*** we must init the rtvertex or else it could keep the values of ***/
-        /*** the former "parent" vertex (because of the reallocation and  ***/
-        /*** if it does not belong to any face. In that case, it would not ***/
-        /*** be "isoparmed" and would keep its former values ***/
-        g3drtvertex_init ( ver->rtvermem, ver, 0x00, engine_flags );
-
-
-
-        rtvermem++;
-
-        ltmpver = ltmpver->next;
-    }
-}
-
-/******************************************************************************/
-void g3dmesh_allocEdgeSubdivisionBuffer ( G3DMESH *mes, uint32_t level,
-                                                        uint32_t engine_flags ){
-    double powlev           = pow ( 2, level - 1 );
-    uint64_t nbrtedgperedge = ( 2 * powlev );
-    uint64_t nbrtedg        = ( mes->nbedg * nbrtedgperedge );
-    uint64_t memsize        = nbrtedg * sizeof ( G3DRTEDGE );
-    G3DRTEDGE *rtedgmem     = ( memsize ) ? realloc ( mes->rtedgmem, memsize ) : NULL;
-    LIST *ltmpedg           = mes->ledg;
-
-    mes->rtedgmem = rtedgmem;
-    mes->nbrtedg  = nbrtedg;
-
-    while ( ltmpedg ) {
-        G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
-
-        edg->flags |= EDGESUBDIVIDED;
-        edg->rtedgmem = rtedgmem;
-
-        edg->nbrtedg = nbrtedgperedge;
-
-        rtedgmem += nbrtedgperedge;
-
-        ltmpedg = ltmpedg->next;
-    }
-}
-
-/******************************************************************************/
-void g3dmesh_allocFaceSubdivisionBuffer ( G3DMESH *mes, uint32_t level,
-                                                        uint32_t engine_flags ) {
-    double powlev  = pow ( 4, level - 1 );
-    uint64_t nbrtfacpertriangle = ( 3 * powlev );
-    uint64_t nbrtfacperquad     = ( 4 * powlev );
-    uint64_t nbrtfac = ( mes->nbqua * nbrtfacperquad     ) + 
-                       ( mes->nbtri * nbrtfacpertriangle );
-    uint64_t memsize =  nbrtfac * sizeof ( G3DRTQUAD );
-    LIST *ltmpfac = mes->lfac;
-    G3DRTQUAD *rtfacmem = ( memsize ) ? realloc ( mes->rtfacmem, memsize ) : NULL;
-    G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-
-    /*** VIEWSKIN mode applied only to selected objects ***/
-    if ( ( objmes->flags & OBJECTSELECTED ) == 0x00 ) engine_flags &= (~VIEWSKIN);
-
-    if  ( ( memsize == 0x00 ) || ( rtfacmem == NULL ) ) {
-        fprintf ( stderr, "g3dmesh_allocFaceSubdivisionBuffer: realloc failed\n" );
-
-        mes->rtfacmem = NULL;
-        mes->nbrtfac  = 0x00;
-
-        return;
-    }
-
-    printf ( "NBRTFAC = %llu, "
-             "MEMSIZE = %llu Bytes\n", ( long long unsigned int ) nbrtfac, 
-                                       ( long long unsigned int ) memsize );
-
-    mes->rtfacmem = rtfacmem;
-    mes->nbrtfac  = nbrtfac;
-
-    mes->nbrtverpertriangle = nbrtfacpertriangle * 0x04;
-    mes->nbrtverperquad     = nbrtfacperquad     * 0x04;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-        uint64_t nbrtfacperfac = ( fac->nbver == 0x03 ) ? nbrtfacpertriangle :
-                                                          nbrtfacperquad;
-        /*G3DRTUVSET *rtuvsmem;*/
-
-        if ( fac->luvs ) g3dface_allocSubdividedUVSets ( fac, nbrtfacperfac );
-
-        fac->flags |= FACESUBDIVIDED;
-
-        fac->rtfacmem = rtfacmem;
-
-        rtfacmem += nbrtfacperfac;
-
-        /*rtuvsmem = fac->rtuvsmem;*/
-
-        /*g3dface_updateBufferedSubdivision ( fac, level, flags );*/
-
-
-        ltmpfac = ltmpfac->next;
-    }
+    mes->rtfacmem = realloc ( mes->rtfacmem, ( mes->nbrtfac * G3DRTQUAD   ) );
+    mes->rtedgmem = realloc ( mes->rtedgmem, ( mes->nbrtedg * G3DRTEDGE   ) );
+    mes->rtvermem = realloc ( mes->rtvermem, ( mes->nbrtver * G3DRTVERTEX ) );
 }
 
 /******************************************************************************/

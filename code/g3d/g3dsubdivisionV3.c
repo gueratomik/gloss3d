@@ -411,23 +411,25 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *fac, uint32_t *totalInnerFaces,
     uint32_t outerVertices = 0x000;
     uint32_t i;
 
-    /*** After the first subdivision ***/
-    (*totalInnerFaces) = innerFaces;
-    (*totalOuterFaces) = 0x800;
-    (*totalInnerEdges) = innerEdges;
-    (*totalOuterEdges) = 0x800;
-    (*totalInnerVertices) = innerVertices;
-    (*totalOuterVertices) = 0x800;
+    if ( level ) {
+        /*** After the first subdivision ***/
+        (*totalInnerFaces) = innerFaces;
+        (*totalOuterFaces) = 0x800;
+        (*totalInnerEdges) = innerEdges;
+        (*totalOuterEdges) = 0x800;
+        (*totalInnerVertices) = innerVertices;
+        (*totalOuterVertices) = 0x800;
 
-    /*** Other steps ***/
-    for ( i = 0x00; i < level - 1; i++ ) {
-        innerVertices = (innerVertices + innerEdges + innerFaces);
-        innerEdges    = (innerEdges * 0x02 ) + (innerFaces * 0x04);
-        innerFaces    = (innerFaces * 0x04 );
+        /*** Other steps ***/
+        for ( i = 0x00; i < level - 1; i++ ) {
+            innerVertices = (innerVertices + innerEdges + innerFaces);
+            innerEdges    = (innerEdges * 0x02 ) + (innerFaces * 0x04);
+            innerFaces    = (innerFaces * 0x04 );
 
-        (*totalInnerFaces) += innerFaces;
-        (*totalInnerEdges) += innerEdges;
-        (*totalInnerVertices) += innerVertices;
+            (*totalInnerFaces) += innerFaces;
+            (*totalInnerEdges) += innerEdges;
+            (*totalInnerVertices) += innerVertices;
+        }
     }
 }
 
@@ -623,6 +625,41 @@ uint32_t g3dsubdivisionV3_subdivideFirstPass ( G3DFACE       *fac,
     return init_flags;
 }
 
+/******************************************************************************/
+void *g3dsubdivisionV3_subdivide_t ( G3DMESH *mes ) {
+    G3DSUBDIVISION *sdv = mes->subdivisions[0x00];
+    G3DFACE *fac;
+
+    while ( ( fac = g3dmesh_getNextFace ( mes, NULL ) ) ) {
+        G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
+        G3DRTQUAD   *rtfacmem = fac->rtfacmem;
+        G3DRTVERTEX *rtvermem = fac->rtvermem;
+        uint32_t nbpos = 0x00;
+
+        g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces,
+                                          sdv->outerFaces,
+                                          sdv->innerEdges,
+                                          sdv->outerEdges,
+                                          sdv->innerVertices,
+                                          sdv->outerVertices,
+                                          fac->rtfacmem,
+                                          fac->rtvermem,
+                                          mes->subdiv,
+                                          obj->flags,
+                                          0x00/*engine_flags*/ );
+
+        /*fac->nbrtfac = g3dface_catmull_clark_draw ( sdt, fac, fac,
+                                                    subdiv, 
+                                                    cosang,
+                                                    NULL,
+                                                   &rtfacmem,
+                                                   &rtuvsmem,
+                                                    NULL, &nbpos,
+                                                    mes->ltex,
+                                                    obj->flags,
+                                                    sdt->flags );*/
+    }
+}
 
 #define BUFSIZE 0x1000
 /******************************************************************************/
@@ -633,6 +670,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DFACE      *fac,
                                       G3DSUBEDGE   *memOuterEdges,
                                       G3DSUBVERTEX *memInnerVertices,
                                       G3DSUBVERTEX *memOuterVertices,
+              /*** get quads     ***/ G3DRTQUAD    *rtFaces,
+              /*** get quads     ***/ G3DRTVERTEX  *rtVertices,
                                       uint32_t      curdiv,
                                       uint32_t      object_flags,
                                       uint32_t      engine_flags ) {
@@ -726,15 +765,24 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DFACE      *fac,
                 }
             }
 
-            for ( i = 0x00; i < nbInnerFaces; i++ ) {
-                glNormal3fv ( &curInnerFaces[i].fac.ver[0x00]->nor );
-                glVertex3fv ( &curInnerFaces[i].fac.ver[0x00]->pos );
-                glNormal3fv ( &curInnerFaces[i].fac.ver[0x01]->nor );
-                glVertex3fv ( &curInnerFaces[i].fac.ver[0x01]->pos );
-                glNormal3fv ( &curInnerFaces[i].fac.ver[0x02]->nor );
-                glVertex3fv ( &curInnerFaces[i].fac.ver[0x02]->pos );
-                glNormal3fv ( &curInnerFaces[i].fac.ver[0x03]->nor );
-                glVertex3fv ( &curInnerFaces[i].fac.ver[0x03]->pos );
+            if ( rtFaces ) {
+                g3dsubdivisionV3_convertToRTQUAD ( curInnerFaces,
+                                                   nbInnerFaces,
+                                                   curInnerVertices,
+                                                   nbInnerVertices,
+                                                   rtFaces,
+                                                   rtVertices );
+            } else {
+                for ( i = 0x00; i < nbInnerFaces; i++ ) {
+                    glNormal3fv ( &curInnerFaces[i].fac.ver[0x00]->nor );
+                    glVertex3fv ( &curInnerFaces[i].fac.ver[0x00]->pos );
+                    glNormal3fv ( &curInnerFaces[i].fac.ver[0x01]->nor );
+                    glVertex3fv ( &curInnerFaces[i].fac.ver[0x01]->pos );
+                    glNormal3fv ( &curInnerFaces[i].fac.ver[0x02]->nor );
+                    glVertex3fv ( &curInnerFaces[i].fac.ver[0x02]->pos );
+                    glNormal3fv ( &curInnerFaces[i].fac.ver[0x03]->nor );
+                    glVertex3fv ( &curInnerFaces[i].fac.ver[0x03]->pos );
+                }
             }
 
         } else {
@@ -934,4 +982,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DFACE      *fac,
     } while ( curdiv );
 
     glEnd ( );
+
+    return nbInnerFaces;
 }

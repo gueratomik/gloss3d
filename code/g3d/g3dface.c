@@ -78,6 +78,62 @@ Edge ID
 }*/
 
 /*****************************************************************************/
+void g3dtriangle_evalSubdivision ( uint32_t level, uint32_t *totalFaces,
+                                                   uint32_t *totalEdges,
+                                                   uint32_t *totalVertices ) {
+    (*totalFaces)    = 0x00;
+    (*totalEdges)    = 0x00;
+    (*totalVertices) = 0x00;
+
+    if ( level ) {
+        /*** After the first subdivision, we would have ***/
+        uint32_t nbFaces    = 0x03; /*** 3 faces    ***/
+        uint32_t nbEdges    = 0x09; /*** 9 edges    ***/
+        uint32_t nbVertices = 0x07; /*** 7 vertices ***/
+        uint32_t i;
+
+        /*** Other steps ***/
+        for ( i = 0x00; i < level - 1; i++ ) {
+            nbVertices = (nbVertices + nbEdges + nbFaces);
+            nbEdges    = (nbEdges * 0x02 ) + (nbFaces * 0x04);
+            nbFaces    = (nbFaces * 0x04 );
+        }
+
+        (*totalFaces)    = nbFaces;
+        (*totalEdges)    = nbEdges;
+        (*totalVertices) = nbVertices;
+    }
+}
+
+/*****************************************************************************/
+void g3dquad_evalSubdivision ( uint32_t level, uint32_t *totalFaces,
+                                               uint32_t *totalEdges,
+                                               uint32_t *totalVertices ) {
+    (*totalFaces)    = 0x00;
+    (*totalEdges)    = 0x00;
+    (*totalVertices) = 0x00;
+
+    if ( level ) {
+        /*** After the first subdivision, we would have ***/
+        uint32_t nbFaces    = 0x04; /***  4 faces    ***/
+        uint32_t nbEdges    = 0x0C; /*** 12 edges    ***/
+        uint32_t nbVertices = 0x09; /***  9 vertices ***/
+        uint32_t i;
+
+        /*** Other steps ***/
+        for ( i = 0x00; i < level - 1; i++ ) {
+            nbVertices = (nbVertices + nbEdges + nbFaces);
+            nbEdges    = (nbEdges * 0x02 ) + (nbFaces * 0x04);
+            nbFaces    = (nbFaces * 0x04 );
+        }
+
+        (*totalFaces)    = nbFaces;
+        (*totalEdges)    = nbEdges;
+        (*totalVertices) = nbVertices;
+    }
+}
+
+/*****************************************************************************/
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
@@ -1676,27 +1732,23 @@ void g3dface_update ( G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-void g3dface_updateBufferedSubdivision ( G3DFACE *fac, uint32_t subdiv,
+void g3dface_updateBufferedSubdivision ( G3DFACE *fac, G3DSUBDIVISION *sdv,
+                                                       uint32_t subdiv,
                                                        float    cosang,
                                                        uint32_t object_flags,
                                                        uint32_t engine_flags ) {
-    G3DSUBDIVISIONTHREAD *std = g3dsubdivisionthread_new ( NULL, NULL,
-                                                                0, /** cpuID **/
-                                                                engine_flags );
-    G3DRTQUAD   *rtfacmem = fac->rtfacmem;
-    G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
 
-    fac->nbrtfac = g3dface_catmull_clark_draw ( std, fac,        /*** Our face             ***/
-                                                fac,
-                                                subdiv,     /*** Subdiv Level         ***/
-                                                cosang,     /*** Adaptive Limit Angle ***/
-                                                NULL,       /*** No RTTRIANGLES       ***/
-                                               &rtfacmem,
-                                               &rtuvsmem,
-                                                NULL, NULL,
-                                                NULL,       /*** no textures ? ****/
-                                                object_flags,
-                                                engine_flags  ); /*** Drawing Flags  ***/
+    fac->nbrtfac = g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces,
+                                                     sdv->outerFaces,
+                                                     sdv->innerEdges,
+                                                     sdv->outerEdges,
+                                                     sdv->innerVertices,
+                                                     sdv->outerVertices,
+                                                     fac->rtfacmem,
+                                                     fac->rtvermem,
+                                                     subdiv,
+                                                     object_flags,
+                                                     engine_flags );
 }
 
 /******************************************************************************/
