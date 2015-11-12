@@ -36,6 +36,7 @@
 #include <xpm/edgemode.xpm>
 #include <xpm/skinmode.xpm>
 #include <xpm/uvwmapmode.xpm>
+#include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
 void g3dui_setMode ( GtkWidget *widget, gpointer user_data ) {
@@ -121,6 +122,7 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
           addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWSCULPT, sculptmode_xpm, g3dui_setMode );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 

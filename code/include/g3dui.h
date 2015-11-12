@@ -83,6 +83,7 @@
 #define VERTEXMENUNAME  "Vertex Menu"
 #define EDGEMENUNAME    "Edge Menu"
 #define FACEMENUNAME    "Face Menu"
+#define SCULPTMENUNAME  "Sculpt Menu"
 #define OPTIONMENUNAME  "Option_Menu"
 #define SHADINGMENUNAME "Shading_Menu"
 
@@ -137,6 +138,7 @@
 #define FACEMODETOOL   ( 1 << 2 )
 #define EDGEMODETOOL   ( 1 << 3 )
 #define GLMENUTOOL     ( 1 << 4 )
+#define SCULPTMODETOOL ( 1 << 5 )
 
 #define EDITGLVIEWMODE   "Display Mode"
 #define EDITGLVIEWCAMERA "Use camera"
@@ -328,6 +330,7 @@
 #define MODE_VIEWEDGE   "Edge mode"
 #define MODE_VIEWFACE   "Face mode"
 #define MODE_VIEWSKIN   "Skin mode"
+#define MODE_VIEWSCULPT "Sculpt mode"
 #define MODE_VIEWUVWMAP "UVW mode"
 
 #define MENU_XAXIS "X axis"
@@ -534,6 +537,7 @@ typedef struct _G3DUI {
     LIST         *lvermenu;
     LIST         *ledgmenu;
     LIST         *lfacmenu;
+    LIST         *lscpmenu;
     LIST         *lmtools; /*** list of mousetools widget ***/
     LIST         *lglview;
     LIST         *lobjlist;

@@ -208,6 +208,9 @@ void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
     LIST *ltmpbon = obj->lchildren;
     LIST *ltmprig = bon->lrig;
+    G3DSYSINFO *sif = g3dsysinfo_get ( );
+    /*** Get the temporary subdivision arrays for CPU #0 ***/
+    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
 
     while ( ltmprig ) {
         G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
@@ -215,17 +218,20 @@ void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
         LIST *ltmpfac = rig->lextfac;
         G3DMESH *mes = grp->mes;
         G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-        float    cosang = cos ( mes->advang * M_PI / 180 );
+        /*float    cosang = cos ( mes->advang * M_PI / 180 );*/
         uint32_t subdiv = mes->subdiv;
 
         if ( (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) && mes->subdiv ) {
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-                g3dface_updateBufferedSubdivision ( fac, subdiv,
-                                                         cosang,
-                                                         objmes->flags,
-                                                         engine_flags );
+                g3dsubdivisionV3_subdivide ( sdv, fac,
+                                                  fac->rtfacmem,
+                                                  fac->rtedgmem,
+                                                  fac->rtvermem,
+                                                  subdiv,
+                                                  objmes->flags,
+                                                  engine_flags );
 
                 ltmpfac = ltmpfac->next;
             }

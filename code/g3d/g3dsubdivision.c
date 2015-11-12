@@ -575,7 +575,7 @@ uint32_t g3dface_setAllEdges ( G3DFACE *fac, G3DSUBVERTEX  *orivercpy,
 
 /******************************************************************************/
 void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
-    G3DRTTRIANGLE *rttriptr = sdt->rttrimem;
+    /*G3DRTTRIANGLE *rttriptr = sdt->rttrimem;*/
     G3DMESH       *mes      = sdt->mes;
     G3DOBJECT     *obj = ( G3DOBJECT * ) mes;
     G3DFACE       *fac      = NULL;
@@ -596,14 +596,14 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                                     NULL, &nbpos,
                                                     mes->ltex,
                                                     obj->flags,
-                                                    sdt->flags );
+                                                    sdt->engine_flags );
     }
 
     g3dsubdivisionthread_free ( sdt );
 
     /*** this is needed for memory release ***/
 #ifdef __linux__
-    if ( sdt->flags & G3DMULTITHREADING ) pthread_exit ( NULL );
+    if ( sdt->engine_flags & G3DMULTITHREADING ) pthread_exit ( NULL );
 #endif
 }
 

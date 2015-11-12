@@ -77,7 +77,7 @@ am__objects_1 = createCube.lo createCylinder.lo createFace.lo \
 	createTorus.lo cutMesh.lo triangulate.lo untriangulate.lo \
 	paintWeight.lo invertNormal.lo empty.lo extrudeFace.lo \
 	g3dmousetool.lo weldvertices.lo move.lo pick.lo rotate.lo \
-	scale.lo
+	sculpt.lo scale.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -244,7 +244,7 @@ libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)
 LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createCylinder.c \
                            createFace.c     \
-                           createPlane.c     \
+                           createPlane.c    \
                            createSphere.c   \
                            createVertex.c   \
                            createBone.c     \
@@ -253,7 +253,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            triangulate.c    \
                            untriangulate.c  \
                            paintWeight.c    \
-                           invertNormal.c    \
+                           invertNormal.c   \
                            empty.c          \
                            extrudeFace.c    \
                            g3dmousetool.c   \
@@ -261,6 +261,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            move.c           \
                            pick.c           \
                            rotate.c         \
+                           sculpt.c         \
                            scale.c
 
 all: all-am
@@ -355,6 +356,7 @@ include ./$(DEPDIR)/paintWeight.Plo
 include ./$(DEPDIR)/pick.Plo
 include ./$(DEPDIR)/rotate.Plo
 include ./$(DEPDIR)/scale.Plo
+include ./$(DEPDIR)/sculpt.Plo
 include ./$(DEPDIR)/triangulate.Plo
 include ./$(DEPDIR)/untriangulate.Plo
 include ./$(DEPDIR)/weldvertices.Plo

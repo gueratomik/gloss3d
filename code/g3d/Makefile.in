@@ -78,11 +78,11 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dkey.lo g3dlight.lo g3dmaterial.lo g3dmesh.lo g3dobject.lo \
 	g3dpivot.lo g3dplane.lo g3dprimitive.lo g3dquaternion.lo \
 	g3drgba.lo g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
-	g3dscene.lo g3dsphere.lo g3dsubdivision.lo g3dsubdivisionV2.lo \
-	g3dsubdivisionV3.lo g3dsubedge.lo g3dsubface.lo \
-	g3dsubpattern.lo g3dsubvertex.lo g3dsymmetry.lo g3dtexture.lo \
-	g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo \
-	g3dweight.lo
+	g3dscene.lo g3dsculptmap.lo g3dsphere.lo g3dsubdivision.lo \
+	g3dsubdivisionthread.lo g3dsubdivisionV3.lo g3dsubedge.lo \
+	g3dsubface.lo g3dsubpattern.lo g3dsubvertex.lo g3dsymmetry.lo \
+	g3dsysinfo.lo g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo \
+	g3dvector.lo g3dvertex.lo g3dweight.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -274,15 +274,17 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \
                       g3dscene.c \
+                      g3dsculptmap.c \
                       g3dsphere.c \
                       g3dsubdivision.c \
-                      g3dsubdivisionV2.c \
+                      g3dsubdivisionthread.c \
                       g3dsubdivisionV3.c \
                       g3dsubedge.c \
                       g3dsubface.c \
                       g3dsubpattern.c \
                       g3dsubvertex.c \
                       g3dsymmetry.c \
+                      g3dsysinfo.c \
                       g3dtexture.c \
                       g3dtorus.c \
                       g3dtube.c \
@@ -392,15 +394,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drttriangleuvw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drtvertex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dscene.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsculptmap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsphere.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubdivision.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubdivisionV2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubdivisionV3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubdivisionthread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubedge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubpattern.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsubvertex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsymmetry.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dsysinfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dtexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dtorus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dtube.Plo@am__quote@

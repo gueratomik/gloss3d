@@ -40,6 +40,7 @@
 
 /******************************************************************************/
 #define PICKTOOL           "Pick"
+#define SCULPTTOOL         "Sculpt"
 #define MOVETOOL           "Move"
 #define ROTATETOOL         "Rotate"
 #define SCALETOOL          "Scale"
@@ -163,6 +164,13 @@ typedef struct G3DPICKTOOL {
 } G3DPICKTOOL;
 
 /******************************************************************************/
+typedef struct G3DSCULPTTOOL {
+    uint32_t verIDs[0x10000];
+    int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
+    int only_visible;
+} G3DSCULPTTOOL;
+
+/******************************************************************************/
 typedef struct _G3DCUTMESH {
     int start;
     GLdouble coord[0x04][0x03];
@@ -234,6 +242,14 @@ uint32_t        paintWeight_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
                                                                 uint32_t );
 int             paintWeight_tool  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+                                                                G3DURMANAGER *, 
+                                                                uint32_t,
+                                                                G3DEvent * );
+/******************************************************************************/
+uint32_t        sculptTool_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+                                                                G3DURMANAGER *,
+                                                                uint32_t );
+int             sculpt_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *, 
                                                                 uint32_t,
                                                                 G3DEvent * );

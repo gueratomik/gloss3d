@@ -134,6 +134,20 @@ void g3dquad_evalSubdivision ( uint32_t level, uint32_t *totalFaces,
 }
 
 /*****************************************************************************/
+void g3dface_evalSubdivision ( G3DFACE *fac, uint32_t level,
+                                             uint32_t *totalFaces,
+                                             uint32_t *totalEdges,
+                                             uint32_t *totalVertices ) {
+    if ( fac->nbver == 0x03 ) g3dtriangle_evalSubdivision ( level, totalFaces, totalEdges, totalVertices );
+    if ( fac->nbver == 0x04 ) g3dquad_evalSubdivision     ( level, totalFaces, totalEdges, totalVertices );
+}
+
+/*****************************************************************************/
+void g3dface_addSculptMap ( G3DFACE *fac, G3DSCULPTMAP *sculptmap ) {
+    fac->sculptmap = sculptmap;
+}
+
+/*****************************************************************************/
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
@@ -1729,26 +1743,6 @@ void g3dface_update ( G3DFACE *fac ) {
 
     /*** Compute face's normal vector ***/
     g3dface_normal ( fac );
-}
-
-/******************************************************************************/
-void g3dface_updateBufferedSubdivision ( G3DFACE *fac, G3DSUBDIVISION *sdv,
-                                                       uint32_t subdiv,
-                                                       float    cosang,
-                                                       uint32_t object_flags,
-                                                       uint32_t engine_flags ) {
-
-    fac->nbrtfac = g3dsubdivisionV3_subdivide ( fac, sdv->innerFaces,
-                                                     sdv->outerFaces,
-                                                     sdv->innerEdges,
-                                                     sdv->outerEdges,
-                                                     sdv->innerVertices,
-                                                     sdv->outerVertices,
-                                                     fac->rtfacmem,
-                                                     fac->rtvermem,
-                                                     subdiv,
-                                                     object_flags,
-                                                     engine_flags );
 }
 
 /******************************************************************************/

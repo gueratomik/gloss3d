@@ -448,12 +448,14 @@ void common_g3dui_dispatchGLMenuButton ( G3DUI *gui, G3DMOUSETOOL *mou,
     LIST *lobjmenu = gui->lobjmenu,
          *lvermenu = gui->lvermenu,
          *ledgmenu = gui->ledgmenu,
-         *lfacmenu = gui->lfacmenu;
+         *lfacmenu = gui->lfacmenu,
+         *lscpmenu = gui->lscpmenu;
 
     if ( tool_flags & OBJECTMODETOOL ) addMenuListButton ( gui, lobjmenu, mou );
     if ( tool_flags & VERTEXMODETOOL ) addMenuListButton ( gui, lvermenu, mou );
     if ( tool_flags & EDGEMODETOOL   ) addMenuListButton ( gui, ledgmenu, mou );
     if ( tool_flags & FACEMODETOOL   ) addMenuListButton ( gui, lfacmenu, mou );
+    if ( tool_flags & SCULPTMODETOOL ) addMenuListButton ( gui, lscpmenu, mou );
 }
 
 /******************************************************************************/
@@ -629,6 +631,14 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
                              NULL, paintWeight_tool, 0x00 );
 
     common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL );
+
+    /********************************/
+
+    mou = g3dmousetool_new ( SCULPTTOOL, 'x', extrude_xpm,
+                             sculptTool_init,
+                             NULL, sculpt_tool, 0x00 );
+
+    common_g3dui_addMouseTool ( gui, mou, SCULPTMODETOOL | GLMENUTOOL );
 
     /********************************/
 

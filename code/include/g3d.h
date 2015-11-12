@@ -103,37 +103,38 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /******************************* Engine Flags *********************************/
 
 
-#define VIEWOBJECT        ( 1        )
-#define VIEWVERTEX        ( 1  <<  1 )
-#define VIEWEDGE          ( 1  <<  2 )
-#define VIEWFACE          ( 1  <<  3 )
-#define VIEWFACENORMAL    ( 1  <<  4 )
-#define VIEWVERTEXNORMAL  ( 1  <<  5 )
-#define VIEWNORMALS       ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define VIEWSKIN          ( 1  <<  6 )
-#define VIEWUVWMAP        ( 1  <<  7 )
-#define VIEWDETAILS       ( VIEWUVWMAP | VIEWSKIN | \
-                            VIEWVERTEX | VIEWEDGE | VIEWFACE | \
-                            VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define MODEMASK          ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
-                            VIEWVERTEX | VIEWEDGE   | VIEWFACE )
-#define SELECTMODE        ( 1  <<  8 )
-#define XAXIS             ( 1  <<  9 )
-#define YAXIS             ( 1  << 10 ) 
-#define ZAXIS             ( 1  << 11 )
-#define G3DMULTITHREADING ( 1  << 12 )
-#define KEEPVISIBLEONLY   ( 1  << 13 )
-#define SYMMETRYVIEW      ( 1  << 14 )
-#define ONGOINGANIMATION  ( 1  << 15 ) /*** This helps us to ***/
+#define VIEWOBJECT         ( 1        )
+#define VIEWVERTEX         ( 1  <<  1 )
+#define VIEWEDGE           ( 1  <<  2 )
+#define VIEWFACE           ( 1  <<  3 )
+#define VIEWFACENORMAL     ( 1  <<  4 )
+#define VIEWVERTEXNORMAL   ( 1  <<  5 )
+#define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
+#define VIEWSKIN           ( 1  <<  6 )
+#define VIEWUVWMAP         ( 1  <<  7 )
+#define VIEWSCULPT         ( 1  <<  8 )
+#define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
+                             VIEWVERTEX | VIEWEDGE | VIEWFACE | \
+                             VIEWFACENORMAL | VIEWVERTEXNORMAL )
+#define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
+                             VIEWVERTEX | VIEWEDGE   | VIEWFACE )
+#define SELECTMODE         ( 1  <<  9 )
+#define XAXIS              ( 1  << 10 )
+#define YAXIS              ( 1  << 11 ) 
+#define ZAXIS              ( 1  << 12 )
+#define G3DMULTITHREADING  ( 1  << 13 )
+#define KEEPVISIBLEONLY    ( 1  << 14 )
+#define SYMMETRYVIEW       ( 1  << 15 )
+#define ONGOINGANIMATION   ( 1  << 16 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES         ( 1  << 16 )
-#define HIDEGRID          ( 1  << 17 )
-#define NOLIGHTING        ( 1  << 18 )
-#define NODISPLACEMENT    ( 1  << 19 )
-#define NOTEXTURE         ( 1  << 20 )
-#define G3DNEXTSUBDIVISION ( 1  << 21 )
-#define NODRAWPOLYGON     ( 1  << 22 )
-#define FORCESUBPATTERN   ( 1  << 23 )
+#define HIDEBONES          ( 1  << 17 )
+#define HIDEGRID           ( 1  << 18 )
+#define NOLIGHTING         ( 1  << 19 )
+#define NODISPLACEMENT     ( 1  << 20 )
+#define NOTEXTURE          ( 1  << 21 )
+#define G3DNEXTSUBDIVISION ( 1  << 22 )
+#define NODRAWPOLYGON      ( 1  << 23 )
+#define FORCESUBPATTERN    ( 1  << 24 )
 
 /******************************* Object Types *********************************/
 #define OBJECT    (  1       )
@@ -743,9 +744,14 @@ typedef struct _G3DCUTEDGE {
 } G3DCUTEDGE;
 
 /******************************************************************************/
+typedef struct _G3DSCULTMAP {
+    G3DVECTOR *points;
+    uint32_t maxpoints;
+} G3DSCULPTMAP;
+
+/******************************************************************************/
 typedef struct _G3DFACE {
     uint32_t         id;           /*** face ID                             ***/
-    uint32_t geoID;   /*** geomtry ID, all types included               ***/
     uint32_t         flags;        /*** selected or not                     ***/
     uint32_t         nbver;        /*** number of vertices and edges        ***/
     G3DVERTEX       *ver[0x04];    /*** vertices array                      ***/
@@ -756,12 +762,14 @@ typedef struct _G3DFACE {
     G3DVECTOR        pos;          /*** Face position (average position)    ***/
     G3DSUBVERTEX    *subver;       /*** Face center when subdividing        ***/
     G3DRTQUAD       *rtfacmem;     /*** Face buffer in buffered mode        ***/
+    G3DRTEDGE       *rtedgmem;     /*** Edge buffer in buffered mode        ***/
+    G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode      ***/
     G3DRTUVSET      *rtuvsmem;     /*** UVSet buffer in buffered mode       ***/
-    G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode       ***/
     LIST            *luvs;         /*** List of UVSets                      ***/
     uint32_t         nbrtfac;
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
     float            surface;/*** used by the raytracer               ***/
+    G3DSCULPTMAP    *sculptmap;
 } G3DFACE;
 
 /******************************************************************************/
@@ -871,6 +879,12 @@ typedef struct _G3DSUBDIVISION {
 } G3DSUBDIVISION;
 
 /******************************************************************************/
+typedef struct _G3DSYSINFO { 
+    uint32_t nbcpu;
+    G3DSUBDIVISION **subdivisions;
+} G3DSYSINFO;
+
+/******************************************************************************/
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
     LIST *lver;    /*** List of vertices        ***/
@@ -917,20 +931,15 @@ struct _G3DMESH {
     uint64_t     nbrtver;
     uint64_t nbrtverpertriangle;
     uint64_t nbrtverperquad;
-    G3DSUBPATTERN  **subpatterns;
-    G3DSUBDIVISION **subdivisions;
+    G3DFACE **faceindex; /*** Face index array in sculpt mode ***/ 
 };
 
 /******************************************************************************/
 /**************** For Multi-Threaded Catmull-Clark implementation *************/
 typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH *mes;
-    uint32_t flags;
-    G3DRTTRIANGLE *rttrimem;
+    uint32_t engine_flags;
     uint32_t cpuID;
-    G3DSUBVERTEX *newsubvermem, *freesubverptr;
-    G3DSUBEDGE   *newsubedgmem, *freesubedgptr;
-    G3DSUBFACE   *newsubfacmem, *freesubfacptr;
 } G3DSUBDIVISIONTHREAD;
 
 typedef struct _G3DRESOURCES {
@@ -1231,10 +1240,10 @@ void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 
-G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
-                                                 G3DRTTRIANGLE *rttrimem,
-                                                 uint32_t cpuID,
-                                                 uint32_t engine_flags );
+void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
+G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *, 
+                                                 uint32_t,
+                                                 uint32_t );
 
 /******************************************************************************/
 G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *, G3DVERTEX * );
@@ -1292,6 +1301,8 @@ G3DCUTEDGE *g3dcutedge_seek ( LIST *, G3DEDGE * );
 void g3dcutedge_free ( G3DCUTEDGE * );
 
 /******************************************************************************/
+void     g3dface_evalSubdivision ( G3DFACE *, uint32_t, uint32_t *, uint32_t *,
+                                                             uint32_t * );
 void     g3dtriangle_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
                                                              uint32_t * );
 void     g3dquad_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
@@ -1458,15 +1469,15 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *, uint32_t *, uint32_t *,
                                                uint32_t *, uint32_t *,
                                                uint32_t *, uint32_t *,
                                                uint32_t );
-uint32_t g3dsubdivisionV3_subdivide ( G3DFACE *, G3DSUBFACE   *, G3DSUBFACE   *,
-                                                 G3DSUBEDGE   *, G3DSUBEDGE   *,
-                                                 G3DSUBVERTEX *, G3DSUBVERTEX *,
-                         /*** get quads     ***/ G3DRTQUAD    *,
-                         /*** get vertices  ***/ G3DRTVERTEX  *,
-                                                 uint32_t      ,
-                                                 uint32_t      ,
-                                                 uint32_t       );
+uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *, 
+                                                        G3DRTQUAD *,
+                                /*** get vertices  ***/ G3DRTEDGE  *,
+                                /*** get vertices  ***/ G3DRTVERTEX  *,
+                                                        uint32_t      ,
+                                                        uint32_t      ,
+                                                        uint32_t       );
 void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *, G3DFACE *, uint32_t );
+void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD * );
 
 /******************************************************************************/
 void           g3dsubpattern_free ( G3DSUBPATTERN * );
@@ -1779,7 +1790,6 @@ void       g3dmesh_update                        ( G3DMESH *, LIST *,
                                                               uint32_t );
 void       g3dmesh_fillSubdividedFaces           ( G3DMESH *, LIST *,
                                                               G3DRTTRIANGLE *,
-                                                              uint32_t ,
                                                               uint32_t  );
 G3DFACE   *g3dmesh_getNextFace ( G3DMESH *, LIST * );
 uint32_t   g3dmesh_isDisplaced ( G3DMESH *, uint32_t );
@@ -1811,6 +1821,7 @@ G3DMESH   *g3dmesh_splitSelectedFaces ( G3DMESH *, uint32_t,
                                                    uint32_t );
 void       g3dmesh_invertEdgeSelection ( G3DMESH *, uint32_t );
 void       g3dmesh_triangulate ( G3DMESH *, LIST **, LIST **, int );
+void       g3dmesh_updateFaceIndex ( G3DMESH * );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -1991,6 +2002,13 @@ void      g3dpivot_draw ( G3DOBJECT *, G3DCAMERA *, uint32_t );
 void      g3dpivot_init ( G3DPIVOT *, G3DCAMERA *, G3DVECTOR * );
 G3DPIVOT *g3dpivot_new  ( G3DCAMERA *, G3DVECTOR * );
 void      g3dpivot_orbit ( G3DPIVOT *, int32_t, int32_t, int32_t, int32_t );
+
+/******************************************************************************/
+G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *, uint32_t );
+G3DSYSINFO     *g3dsysinfo_get ( );
+
+void          g3dsculptmap_realloc ( G3DSCULPTMAP *, uint32_t );
+G3DSCULPTMAP *g3dsculptmap_new     ( uint32_t );
 
 /******************************************************************************/
 G3DRTTRIANGLEUVW *g3drttriangleuvw_new ( float, float,

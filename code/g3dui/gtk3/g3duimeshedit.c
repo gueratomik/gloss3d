@@ -107,8 +107,8 @@ static void subdivLevelCbk  ( GtkWidget *widget, gpointer user_data ) {
         if ( obj && ( obj->type == G3DMESHTYPE ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             uint64_t memsize = getTotalMemory ( );
-            uint64_t needmem = g3dmesh_evalSubdivisionBuffer ( mes, level, 
-                                                                    gui->flags );
+            uint64_t needmem = /*g3dmesh_evalSubdivisionBuffer ( mes, level, 
+                                                                    gui->flags )*/0;
             if ( needmem == 0xFFFFFFFFFFFFFFFF ) {
             /*** Display some warning if the needed memory is > Total memory/16 ***/
                 GtkWidget *dialog = gtk_message_dialog_new ( NULL,

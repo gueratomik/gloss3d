@@ -392,6 +392,16 @@ static void createFaceMenu ( GtkWidget *widget, G3DUI *gui ) {
     list_insert ( &view->lmenu  , menu );
 }
 
+/******************************************************************************/
+static void createSculptMenu ( GtkWidget *widget, G3DUI *gui ) {
+    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
+    GtkWidget *menu = createViewMenu ( widget, gui, SCULPTMENUNAME );
+    G3DUIVIEW *view = &gvw->view;
+
+    list_insert ( &gui->lscpmenu, menu );
+    list_insert ( &view->lmenu  , menu );
+}
+
 /*** for some unknown reason, the gtk_popup_menu does not position my menu ***/
 /*** correctly on dual monitor configuration, so I had to make this trick ***/
 void SetMenuPosition ( GtkMenu *menu, gint *x,
@@ -447,6 +457,10 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
 
         if ( gui->flags & VIEWFACE ) {
             if ( strcmp ( gtk_widget_get_name ( menu ), FACEMENUNAME   ) == 0x00 ) curmenu = menu;
+        }
+
+        if ( gui->flags & VIEWSCULPT ) {
+            if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMENUNAME   ) == 0x00 ) curmenu = menu;
         }
 
         ltmpmenu = ltmpmenu->next;
@@ -1010,6 +1024,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
     createVertexMenu ( area, gui );
     createEdgeMenu   ( area, gui );
     createFaceMenu   ( area, gui );
+    createSculptMenu ( area, gui );
 
     g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), gui );
     g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (gtk3_initGL ), gui );

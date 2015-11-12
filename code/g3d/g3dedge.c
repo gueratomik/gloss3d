@@ -44,6 +44,8 @@ G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg, G3DFACE *cmp ) {
 
         ltmpfac = ltmpfac->next;
     }
+
+    return NULL;
 }
 
 /******************************************************************************/

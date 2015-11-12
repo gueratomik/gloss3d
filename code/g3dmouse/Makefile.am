@@ -8,7 +8,7 @@ libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)
 LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createCylinder.c \
                            createFace.c     \
-                           createPlane.c     \
+                           createPlane.c    \
                            createSphere.c   \
                            createVertex.c   \
                            createBone.c     \
@@ -17,7 +17,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            triangulate.c    \
                            untriangulate.c  \
                            paintWeight.c    \
-                           invertNormal.c    \
+                           invertNormal.c   \
                            empty.c          \
                            extrudeFace.c    \
                            g3dmousetool.c   \
@@ -25,5 +25,6 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            move.c           \
                            pick.c           \
                            rotate.c         \
+                           sculpt.c         \
                            scale.c
 

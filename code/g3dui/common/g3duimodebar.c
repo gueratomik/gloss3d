@@ -36,6 +36,7 @@
 #include <xpm/edgemode.xpm>
 #include <xpm/skinmode.xpm>
 #include <xpm/uvwmapmode.xpm>
+#include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
 void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
@@ -53,9 +54,16 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
     if ( strcmp ( modename, MODE_VIEWFACE   ) == 0x00 ) newmode = VIEWFACE;
     if ( strcmp ( modename, MODE_VIEWEDGE   ) == 0x00 ) newmode = VIEWEDGE;
     if ( strcmp ( modename, MODE_VIEWSKIN   ) == 0x00 ) newmode = VIEWSKIN;
+    if ( strcmp ( modename, MODE_VIEWSCULPT ) == 0x00 ) newmode = VIEWSCULPT;
     if ( strcmp ( modename, MODE_VIEWUVWMAP ) == 0x00 ) newmode = VIEWUVWMAP;
 
     if ( newmode == VIEWSKIN ) glEnable ( GL_COLOR_MATERIAL );
+
+    if ( newmode == VIEWSCULPT ) {
+        if ( obj && (obj->type == G3DMESHTYPE) ) {
+            g3dmesh_updateFaceIndex ( ( G3DMESH * ) obj );
+        }
+    }
 
     /*** Restore default behavior ***/
     /*glDisable ( GL_COLOR_MATERIAL );*/
