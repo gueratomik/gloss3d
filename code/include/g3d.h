@@ -210,6 +210,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGESUBDIVIDED    (  1 << 4  )
 #define EDGEORIGINAL      (  1 << 5  )
 #define EDGEPOSITIONNED   (  1 << 6  )
+#define EDGEINNER         (  1 << 7  )
+#define EDGEOUTER         (  1 << 8  )
 
 /******************************** Face Flags **********************************/
 #define FACESELECTED          (  1       )
