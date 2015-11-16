@@ -3597,7 +3597,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags
     obj->copy = g3dmesh_copy;
 
     /*** Subdivision are not rendered on the fly by default but buffered ***/
-    /*g3dmesh_setBufferedSubdivision ( mes, engine_flags );*/
+    g3dmesh_setBufferedSubdivision ( mes, engine_flags );
 }
 
 /******************************************************************************/

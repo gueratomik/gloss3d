@@ -40,8 +40,8 @@ void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *innerFaces,
 
     for ( i = 0x00; i < nbInnerVertices; i++ ) {
         uint32_t vid = innerVertices[i].ver.id;
-/*printf("%d\n", vid);
-printf("%f %f %f\n", innerVertices[i].ver.pos.x, innerVertices[i].ver.pos.y, innerVertices[i].ver.pos.z );*/
+/*printf("%d\n", vid);*/
+/*printf("%f %f %f\n", innerVertices[i].ver.pos.x, innerVertices[i].ver.pos.y, innerVertices[i].ver.pos.z );*/
 
         /*memcpy ( &rtVertices[vid].pos, &innerVertices[i].ver.pos, sizeof ( G3DTINYVECTOR ) );
         memcpy ( &rtVertices[vid].nor, &innerVertices[i].ver.nor, sizeof ( G3DTINYVECTOR ) );*/
@@ -206,19 +206,20 @@ void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
                                        uint32_t    nbInnerFaces,
                                        G3DSUBFACE *outerFaces,
                                        uint32_t    nbOuterFaces,
+                                       uint32_t    subdiv_level,
                                        uint32_t    topo_flags ) {
     uint32_t i;
 
     for ( i = 0x00; i < nbInnerFaces; i++ ) {
         g3dsubface_topology ( &innerFaces[i], topo_flags );
 
-        g3dface_position ( &innerFaces[i] );
+        if ( subdiv_level > 1 ) g3dface_position ( &innerFaces[i] );
     }
 
     for ( i = 0x00; i < nbOuterFaces; i++ ) {
         g3dsubface_topology ( &outerFaces[i], topo_flags );
 
-        g3dface_position ( &outerFaces[i] );
+        if ( subdiv_level > 1 ) g3dface_position ( &outerFaces[i] );
     }
 }
 
@@ -295,19 +296,25 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *fac, uint32_t *totalInnerFaces,
 uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
                                      G3DSUBFACE    *innerFace,
                                      G3DSUBFACE    *outerFaces,
+                                     uint32_t      *nbOuterFaces,
                                      G3DSUBEDGE    *innerEdges,
                                      G3DSUBEDGE    *outerEdges,
+                                     uint32_t      *nbOuterEdges,
                                      G3DSUBVERTEX  *innerVertices,
                                      uint32_t       curdiv,
                                      uint32_t       object_flags,
                                      uint32_t       engine_flags ) {
-    G3DEDGE *edglookup[0x0C][0x02];
+    G3DEDGE *edglookup[0x40][0x02];
     G3DFACE *oldadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DFACE *newadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DSUBFACE *memOuterFaces = outerFaces;
     uint32_t nbedglookup = 0x00;
-    uint32_t nbOuterFaces = 0x00;
     uint32_t i, j;
+
+    memset ( edglookup, 0x00, sizeof ( edglookup ) );
+
+    (*nbOuterFaces) = 0x00;
+    (*nbOuterEdges) = 0x00;
 
     innerFace->fac.nbver     = fac->nbver;
     innerFace->fac.id        = fac->id;
@@ -321,10 +328,10 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
         oldadjfac[i] = g3dedge_getOtherFace ( fac->edg[i], fac );
 
         if ( oldadjfac[i] ) {
-            G3DSUBFACE *outfac = outerFaces++; nbOuterFaces++;
+            G3DSUBFACE *outfac = outerFaces++; (*nbOuterFaces)++;
 
             outfac->fac.nbver = oldadjfac[i]->nbver;
-            memcpy ( &outfac->fac.edg, &oldadjfac[i]->edg, sizeof ( G3DEDGE * ) * 0x04 );
+            memcpy ( &outfac->fac.edg, &oldadjfac[i]->edg, sizeof ( G3DEDGE   * ) * 0x04 );
             memcpy ( &outfac->fac.ver, &oldadjfac[i]->ver, sizeof ( G3DVERTEX * ) * 0x04 );
             memcpy ( &outfac->fac.pos, &oldadjfac[i]->pos, sizeof ( G3DVECTOR ) );
             memcpy ( &outfac->fac.nor, &oldadjfac[i]->nor, sizeof ( G3DVECTOR ) );
@@ -345,17 +352,21 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
         LIST *ltmpedg = ver->ledg;
         LIST *ltmpfac = ver->lfac;
 
-        g3dsubvertex_addFace ( &innerVertices[i], innerFace );
-        g3dsubedge_addFace   ( &innerEdges[i]   , innerFace );
-
         innerFace->fac.ver[i] = &innerVertices[i];
         /*** copy vertices ***/
-        innerVertices[i].ver.id    = fac->ver[i]->id;
+        /*** !!!!!! WARNING - fac-ver[i]->id starts at 1 !!!!! ***/
+        innerVertices[i].ver.id    = /*fac->ver[i]->id*/i;
         innerVertices[i].ver.flags = fac->ver[i]->flags | VERTEXTOPOLOGY;
         memcpy ( &innerVertices[i].ver.pos   , &ver->pos, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.nor   , &ver->nor, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.edgpnt, &ver->edgpnt, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.facpnt, &ver->facpnt, sizeof ( G3DVECTOR ) );
+
+        if ( fac->ver[i]->nbfac > 0x04 ) innerVertices[i].ver.flags |= VERTEXMALLOCFACES;
+        if ( fac->ver[i]->nbedg > 0x04 ) innerVertices[i].ver.flags |= VERTEXMALLOCEDGES;
+
+        g3dsubvertex_addFace ( &innerVertices[i], innerFace );
+        g3dsubedge_addFace   ( &innerEdges[i]   , innerFace );
 
         if ( newadjfac[i] ) g3dsubvertex_addFace ( &innerVertices[i], newadjfac[i] );
         if ( newadjfac[p] ) g3dsubvertex_addFace ( &innerVertices[i], newadjfac[p] );
@@ -387,7 +398,7 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
                  ( verfac != oldadjfac[0x01] ) &&
                  ( verfac != oldadjfac[0x02] ) &&
                  ( verfac != oldadjfac[0x03] ) ) {
-                G3DSUBFACE *outfac = outerFaces++; nbOuterFaces++;
+                G3DSUBFACE *outfac = outerFaces++; (*nbOuterFaces)++;
 
                 outfac->fac.flags = FACEOUTER;
                 outfac->fac.nbver = verfac->nbver;
@@ -411,7 +422,7 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
 
             if ( ( veredg != fac->edg[i] ) &&
                  ( veredg != fac->edg[p] ) ) {
-                G3DSUBEDGE *outedg = outerEdges++;
+                G3DSUBEDGE *outedg = outerEdges++; (*nbOuterEdges)++;
 
                 outedg->edg.flags = EDGEOUTER;
                 memcpy ( &outedg->edg.pos, &veredg->pos, sizeof ( G3DVECTOR ) );
@@ -432,7 +443,7 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
         }
     }
 
-    for ( i = 0x00; i < nbOuterFaces; i++ ) {
+    for ( i = 0x00; i < (*nbOuterFaces); i++ ) {
         uint32_t nbedg;
 
         for ( j = 0x00; j < nbedglookup; j++ ) {
@@ -441,61 +452,11 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
             if ( edglookup[j][0x00] == memOuterFaces[i].fac.edg[0x02] ) {memOuterFaces[i].fac.edg[0x02] = edglookup[j][0x01]; g3dsubedge_addFace ( edglookup[j][0x01], &memOuterFaces[i] );}
             if ( edglookup[j][0x00] == memOuterFaces[i].fac.edg[0x03] ) {memOuterFaces[i].fac.edg[0x03] = edglookup[j][0x01]; g3dsubedge_addFace ( edglookup[j][0x01], &memOuterFaces[i] );}
         }
-/*printf ( "O:%d %d %d %d\n", memOuterFaces[i].fac.edg[0], memOuterFaces[i].fac.edg[1], memOuterFaces[i].fac.edg[2], memOuterFaces[i].fac.edg[3] );*/
     }
-
-    /*for ( i = 0x00; i < fac->nbver; i++ ) {
-        printf ( "Vertex %d - nbFace: %d, nbEdge: %d\n", i, innerFace->fac.ver[i]->nbfac, innerFace->fac.ver[i]->nbedg );
-        printf ( "Edge %d - nbFace: %d\n", i, innerFace->fac.edg[i]->nbfac );
-        printf ( "Edge %d - %d %d\n", i, innerFace->fac.edg[i]->ver[0x00], innerFace->fac.edg[i]->ver[0x01] );
-    }*/
 
     return 0;
 }
 
-/******************************************************************************/
-void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
-    G3DSYSINFO *sif = g3dsysinfo_get ( );
-    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, sdt->cpuID );
-    G3DMESH *mes = sdt->mes;
-    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DFACE *fac;
-
-    while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
-        G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
-        G3DRTQUAD   *rtfacmem = fac->rtfacmem;
-        G3DRTVERTEX *rtvermem = fac->rtvermem;
-        uint32_t nbpos = 0x00;
-
-        fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
-                                                         fac->rtfacmem,
-                                                         fac->rtedgmem,
-                                                         fac->rtvermem,
-                                                         mes->subdiv,
-                                                         obj->flags,
-                                                         sdt->engine_flags );
-
-        /*fac->nbrtfac = g3dface_catmull_clark_draw ( sdt, fac, fac,
-                                                    subdiv, 
-                                                    cosang,
-                                                    NULL,
-                                                   &rtfacmem,
-                                                   &rtuvsmem,
-                                                    NULL, &nbpos,
-                                                    mes->ltex,
-                                                    obj->flags,
-                                                    sdt->flags );*/
-    }
-
-    g3dsubdivisionthread_free ( sdt );
-
-    /*** this is needed for memory release ***/
-#ifdef __linux__
-    if ( sdt->engine_flags & G3DMULTITHREADING ) pthread_exit ( NULL );
-#endif
-}
-
-#define BUFSIZE 0x1000
 /******************************************************************************/
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DFACE        *fac,
@@ -505,16 +466,14 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       uint32_t        subdiv_level,
                                       uint32_t        object_flags,
                                       uint32_t        engine_flags ) {
-    uint32_t nbInnerFaces       = 0x00, nbOuterFaces       = 0x00;
-    uint32_t nbInnerEdges       = 0x00, nbOuterEdges       = 0x00;
-    uint32_t nbInnerVertices    = 0x00, nbOuterVertices    = 0x00;
-    uint32_t totalInnerFaces    = 0x00, totalOuterFaces    = 0x00;
-    uint32_t totalInnerEdges    = 0x00, totalOuterEdges    = 0x00;
-    uint32_t totalInnerVertices = 0x00, totalOuterVertices = 0x00;
-    static int init;
-    static uint32_t old_level = 0x00;
+    uint32_t nbInnerFaces    = 0x01      , nbOuterFaces    = 0x00;
+    uint32_t nbInnerEdges    = fac->nbver, nbOuterEdges    = 0x00;
+    uint32_t nbInnerVertices = fac->nbver, nbOuterVertices = 0x00;
+    /*static int init;
+    static uint32_t old_level = 0x00;*/
 
-    if ( init == 0x00 || old_level != subdiv_level ) g3dsubdivisionV3_prepare ( sdv, fac, subdiv_level );
+    /*if ( init == 0x00 || old_level != subdiv_level ) */
+    g3dsubdivisionV3_prepare ( sdv, fac, subdiv_level );
 
     G3DSUBFACE   *curInnerFaces    = NULL, *innerFaces    = sdv->innerFaces,
                  *curOuterFaces    = NULL, *outerFaces    = sdv->outerFaces;
@@ -527,53 +486,38 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     uint32_t i, j;
     uint32_t topo_flags = 0x00;
     uint32_t init_flags = 0x00;
-    G3DSUBFACE   cpyInnerFaces[0x01];
-    G3DSUBFACE   cpyOuterFaces[0x08];
-    G3DSUBEDGE   cpyInnerEdges[0x04];
-    G3DSUBEDGE   cpyOuterEdges[0x08];
-    G3DSUBVERTEX cpyInnerVertices[0x04];
+    G3DSUBFACE   memInnerFaces[0x01];
+    G3DSUBFACE   memOuterFaces[0x20];
+    G3DSUBEDGE   memInnerEdges[0x04];
+    G3DSUBEDGE   memOuterEdges[0x20];
+    G3DSUBVERTEX memInnerVertices[0x04];
 
-    memset ( cpyInnerFaces   , 0x00, sizeof ( cpyInnerFaces    ) );
-    memset ( cpyOuterFaces   , 0x00, sizeof ( cpyOuterFaces    ) );
-    memset ( cpyInnerEdges   , 0x00, sizeof ( cpyInnerEdges    ) );
-    memset ( cpyOuterEdges   , 0x00, sizeof ( cpyOuterEdges    ) );
-    memset ( cpyInnerVertices, 0x00, sizeof ( cpyInnerVertices ) );
+    memset ( memInnerFaces   , 0x00, sizeof ( memInnerFaces    ) );
+    memset ( memOuterFaces   , 0x00, sizeof ( memOuterFaces    ) );
+    memset ( memInnerEdges   , 0x00, sizeof ( memInnerEdges    ) );
+    memset ( memOuterEdges   , 0x00, sizeof ( memOuterEdges    ) );
+    memset ( memInnerVertices, 0x00, sizeof ( memInnerVertices ) );
 
-    g3dsubdivisionV3_copyFace ( fac, cpyInnerFaces,
-                                     cpyOuterFaces,
-                                     cpyInnerEdges,
-                                     cpyOuterEdges,
-                                     cpyInnerVertices,
+    g3dsubdivisionV3_copyFace ( fac, memInnerFaces,
+                                     memOuterFaces,
+                                    &nbOuterFaces,
+                                     memInnerEdges,
+                                     memOuterEdges,
+                                    &nbOuterEdges,
+                                     memInnerVertices,
                                      subdiv_level,
                                      object_flags,
                                      engine_flags );
 
-    totalInnerFaces = nbInnerFaces = 1;
-    totalOuterFaces = nbOuterFaces = 8;
-    totalInnerEdges = nbInnerEdges = 4;
-    totalOuterEdges = nbOuterEdges = 8;
-    totalInnerVertices = nbInnerVertices = 4;
-    totalOuterVertices = nbOuterVertices = 0;
-
-    curInnerFaces    = cpyInnerFaces,
-    curOuterFaces    = cpyOuterFaces;
-    curInnerEdges    = cpyInnerEdges,
-    curOuterEdges    = cpyOuterEdges;
-    curInnerVertices = cpyInnerVertices,
+    curInnerFaces    = memInnerFaces,
+    curOuterFaces    = memOuterFaces;
+    curInnerEdges    = memInnerEdges,
+    curOuterEdges    = memOuterEdges;
+    curInnerVertices = memInnerVertices,
     curOuterVertices = NULL;
 
-
-    /*if ( rtFaces == NULL )*/
     /*** Iterative part ***/
-    /*** This is thread safe if no drawing occurs ***/
     do {
-        /*subdiv_level--;*/
-        /*printf ( "nbInnerFaces: %d\n"
-                 "nbInnerEdges: %d\n"
-                 "nbInnerVertices: %d\n", nbInnerFaces,
-                                          nbInnerEdges,
-                                          nbInnerVertices );*/
-
         if ( subdiv_level == 0x00 ) {
             if ( (engine_flags & SELECTMODE) && (engine_flags & VIEWSCULPT) ) {
 
@@ -622,7 +566,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                                    rtFaces,
                                                    rtVertices );
             } else {
-/*printf("NBFACES:%d\n", nbInnerFaces );*/
                 glBegin ( GL_QUADS );
                 for ( i = 0x00; i < nbInnerFaces; i++ ) {
                     glNormal3fv ( &curInnerFaces[i].fac.ver[0x00]->nor );
@@ -658,18 +601,12 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
             nbInnerVertices = 0x00;
             nbOuterVertices = 0x00;
 
-        /*printf ( "nbOuterFaces: %d\n"
-                 "nbOuterEdges: %d\n"
-                 "nbOuterVertices: %d\n", nbOuterFaces,
-                                          nbOuterEdges,
-                                          nbOuterVertices );*/
-
             for ( i = 0x00; i < nbParentInnerVertices; i++ ) {
                 G3DSUBVERTEX *subver = innerVertices++; 
 
                 /*memset ( subver, 0x00, sizeof ( G3DSUBVERTEX ) );*/
                 subver->ver.id     = curInnerVertices[i].ver.id; nbInnerVertices++;
-                subver->ver.flags  = VERTEXTOPOLOGY;
+                subver->ver.flags  = curInnerVertices[i].ver.flags; /*** inherits flags ***/
                 subver->ver.nbfac  = subver->ver.nbedg = 0x00;
                 subver->ver.lfac   = subver->ver.ledg  = NULL;
 
@@ -683,7 +620,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
             }
 
             /*if ( curdiv ) {*/
-/*printf("nbParentInnerEdges %d\n", nbParentInnerEdges );*/
                 for ( i = 0x00; i < nbParentInnerEdges; i++ ) {
                     G3DSUBVERTEX *subver = innerVertices++;
 
@@ -694,7 +630,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     subver->ver.lfac   = subver->ver.ledg  = NULL;
 
                     curInnerEdges[i].edg.subver = subver;
-/*printf("caca %d %d\n", &curInnerEdges[i], curInnerEdges[i].edg.subver );*/
+
                     memcpy ( &curInnerEdges[i].edg.subver->ver.pos,
                              &curInnerEdges[i].edg.pos, sizeof ( G3DVECTOR ) );
 
@@ -773,7 +709,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                 if ( fac->sculptmap ) g3dsculptmap_processVertex ( fac->sculptmap, subver, subdiv_level );
 
-                for ( j = 0x00; j < 0x04; j++ ) {
+                for ( j = 0x00; j < curInnerFaces[i].fac.nbver; j++ ) {
                     G3DSUBEDGE *subedg = innerEdges++; nbInnerEdges++;
 
                     /*memset ( subedg, 0x00, sizeof ( G3DSUBEDGE ) );*/
@@ -793,18 +729,20 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                 memcpy ( &curOuterFaces[i].fac.subver->ver.pos, &curOuterFaces[i].fac.pos, sizeof ( G3DVECTOR ) );
 
-                for ( j = 0x00; j < 0x04; j++ ) {
-                    if ( curOuterFaces[i].fac.edg[j] && ( curOuterFaces[i].fac.edg[j]->flags & EDGEINNER ) ) {
+                for ( j = 0x00; j < curOuterFaces[i].fac.nbver; j++ ) {
+                    if ( curOuterFaces[i].fac.edg[j] && ( ( curOuterFaces[i].fac.edg[j]->flags & EDGEINNER ) ||
+                                                          ( curOuterFaces[i].fac.edg[j]->flags & EDGEOUTER ) ) ) {
                         G3DSUBEDGE *subedg = outerEdges++; nbOuterEdges++;
 
                         /*memset ( subedg, 0x00, sizeof ( G3DSUBEDGE ) );*/
+                        subedg->edg.flags = EDGEOUTER;
+
                         subedg->edg.lfac = 0x00;
                         subedg->edg.nbfac = 0x00;
 
                         curOuterFaces[i].fac.innedg[j] = subedg;
                         curOuterFaces[i].fac.innedg[j]->ver[0x00] = curOuterFaces[i].fac.subver;
                         curOuterFaces[i].fac.innedg[j]->ver[0x01] = curOuterFaces[i].fac.edg[j]->subver;
-/*printf("curOuterFacesEdg:%d / %d / %d\n", i,  curOuterFaces[i].fac.edg[j], curOuterFaces[i].fac.edg[j]->subver );*/
                     }
                 }
             }
@@ -832,13 +770,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     ltmpfac = ltmpfac->next;
                 }
             }
-
-            totalInnerFaces += nbInnerFaces;
-            totalOuterFaces += nbOuterFaces;
-            totalInnerEdges += nbInnerEdges;
-            totalOuterEdges += nbOuterEdges;
-            totalInnerVertices += nbInnerVertices;
-            totalOuterVertices += nbOuterVertices;
 
             if ( init_flags & SUBDIVISIONCLEANVERTICES ) {
                 /*** Only the first 4 vertices can be extraordinary ***/
@@ -872,10 +803,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
             /***   If this is the last subdivision step, we only need the face   ***/
             /*** to link itself with its vertices. If this is not the last step, ***/
             /*** we need the face to link itself to both its vertices and edges. ***/
-          if ( init == 0x00 || old_level != subdiv_level ) {
+          /*if ( init == 0x00 || old_level != subdiv_level ) {*/
             topo_flags = ( subdiv_level > 1 ) ? NEEDEDGETOPOLOGY : 0x00;
             g3dsubdivision_makeFaceTopology ( curInnerFaces, nbInnerFaces,
                                               curOuterFaces, nbOuterFaces,
+                                              subdiv_level,
                                               topo_flags );
             /*** Now the edge topology. Note that this is needed only if more ***/
             /*** subdivision is going to happen.                              ***/
@@ -884,11 +816,37 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                                   curOuterEdges, nbOuterEdges,
                                                   0x00 );
             }
-          }
+          /*}*/
             /*** END OF TOPOLOGY ***/
         }
     } while ( subdiv_level-- );
-init = 0x01;
-old_level = subdiv_level;
+/*init = 0x01;
+old_level = subdiv_level;*/
     return nbInnerFaces;
+}
+
+/******************************************************************************/
+void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
+    G3DSYSINFO *sif = g3dsysinfo_get ( );
+    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, sdt->cpuID );
+    G3DMESH *mes = sdt->mes;
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DFACE *fac;
+
+    while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
+        G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
+        G3DRTQUAD   *rtfacmem = fac->rtfacmem;
+        G3DRTVERTEX *rtvermem = fac->rtvermem;
+        uint32_t nbpos = 0x00;
+
+        fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
+                                                         fac->rtfacmem,
+                                                         fac->rtedgmem,
+                                                         fac->rtvermem,
+                                                         mes->subdiv,
+                                                         obj->flags,
+                                                         sdt->engine_flags );
+    }
+
+    g3dsubdivisionthread_free ( sdt );
 }

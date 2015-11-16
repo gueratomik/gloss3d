@@ -1246,6 +1246,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *, 
                                                  uint32_t,
                                                  uint32_t );
+int g3dvertex_applyCatmullScheme ( G3DVERTEX *, G3DSUBVERTEX * );
 
 /******************************************************************************/
 G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *, G3DVERTEX * );
@@ -1471,6 +1472,17 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *, uint32_t *, uint32_t *,
                                                uint32_t *, uint32_t *,
                                                uint32_t *, uint32_t *,
                                                uint32_t );
+uint32_t g3dsubdivisionV3_copyFace ( G3DFACE      *, 
+                                     G3DSUBFACE   *,
+                                     G3DSUBFACE   *,
+                                     uint32_t     *,
+                                     G3DSUBEDGE   *,
+                                     G3DSUBEDGE   *,
+                                     uint32_t     *,
+                                     G3DSUBVERTEX *,
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t );
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *, 
                                                         G3DRTQUAD *,
                                 /*** get vertices  ***/ G3DRTEDGE  *,
@@ -1478,8 +1490,26 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *,
                                                         uint32_t      ,
                                                         uint32_t      ,
                                                         uint32_t       );
-void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *, G3DFACE *, uint32_t );
+void  g3dsubdivisionV3_prepare     ( G3DSUBDIVISION *, G3DFACE *, uint32_t );
 void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD * );
+void  g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *,
+                                        uint32_t    ,
+                                        G3DSUBEDGE *,
+                                        uint32_t    ,
+                                        uint32_t );
+void  g3dsubdivision_makeFaceTopology ( G3DSUBFACE *,
+                                        uint32_t    ,
+                                        G3DSUBFACE *,
+                                        uint32_t    ,
+                                        uint32_t    ,
+                                        uint32_t );
+G3DSUBDIVISION *g3dsubdivisionV3_new ( );
+void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *,
+                                        uint32_t      ,
+                                        G3DSUBVERTEX *,
+                                        uint32_t      ,
+                                        G3DRTQUAD    *,
+                                        G3DRTVERTEX  * );
 
 /******************************************************************************/
 void           g3dsubpattern_free ( G3DSUBPATTERN * );
