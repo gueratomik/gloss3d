@@ -135,6 +135,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DNEXTSUBDIVISION ( 1  << 22 )
 #define NODRAWPOLYGON      ( 1  << 23 )
 #define FORCESUBPATTERN    ( 1  << 24 )
+#define BUILDSUBINDEX      ( 1  << 25 )
 
 /******************************* Object Types *********************************/
 #define OBJECT    (  1       )
@@ -197,6 +198,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VERTEXLOCKADAPTIVE (  1 << 14 ) /*** Adaptive subdivision flag for face subver ***/
 #define VERTEXORIGINAL     (  1 << 15  )
 #define VERTEXSUBDIVIDED   (  1 << 16  )
+#define VERTEXINNER        (  1 << 17  )
+#define VERTEXOUTER        (  1 << 18  )
+#define VERTEXSCULPTED     (  1 << 19  )
 
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
@@ -864,6 +868,12 @@ typedef struct _G3DSUBPATTERN {
 } G3DSUBPATTERN;
 
 /******************************************************************************/
+typedef struct _G3DSUBINDEX {
+    uint32_t (*qua)[0x04];
+    uint32_t (*tri)[0x04];
+} G3DSUBINDEX;
+
+/******************************************************************************/
 typedef struct _G3DSUBDIVISION {
     G3DSUBFACE    *innerFaces; 
     G3DSUBFACE    *outerFaces; 
@@ -880,10 +890,11 @@ typedef struct _G3DSUBDIVISION {
     G3DSUBPATTERN *pattern;
 } G3DSUBDIVISION;
 
+
 /******************************************************************************/
 typedef struct _G3DSYSINFO { 
     uint32_t nbcpu;
-    G3DSUBDIVISION **subdivisions;
+    G3DSUBDIVISION **subdivisions; /*** one per core ***/
 } G3DSYSINFO;
 
 /******************************************************************************/
@@ -1459,6 +1470,8 @@ uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
                                       G3DVERTEX  *,
                                       G3DVERTEX  *,
+                                      uint32_t (*)[0x04],
+                                      uint32_t,
                                       uint32_t );
 
 /******************************************************************************/
@@ -2041,6 +2054,8 @@ G3DSYSINFO     *g3dsysinfo_get ( );
 
 void          g3dsculptmap_realloc ( G3DSCULPTMAP *, uint32_t );
 G3DSCULPTMAP *g3dsculptmap_new     ( uint32_t );
+
+uint32_t *g3dsubindex_get ( uint32_t, uint32_t );
 
 /******************************************************************************/
 G3DRTTRIANGLEUVW *g3drttriangleuvw_new ( float, float,

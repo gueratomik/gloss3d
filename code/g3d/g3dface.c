@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3d.h>
 
+extern uint32_t quad_indexes[][0x04];
+
 /******************************************************************************/
 /***
 Vertex ID
@@ -151,8 +153,10 @@ void g3dface_addSculptMap ( G3DFACE *fac, G3DSCULPTMAP *sculptmap ) {
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
+                                         uint32_t  (*subindex)[0x04],
+                                         uint32_t    iteration,
                                          uint32_t    curdiv ) {
-    uint32_t i;
+    uint32_t i, j;
 
     subfac->fac.nbver = 0x04;
 
@@ -160,10 +164,14 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
         if ( fac->ver[i] == oriver ) {
             uint32_t p = ( i + fac->nbver - 0x01 ) % fac->nbver;
 
+            subfac->fac.id = fac->id | ( i << (iteration*2) );
+
             subfac->fac.ver[0x00] = orivercpy;
             subfac->fac.ver[0x01] = fac->edg[i]->subver;
             subfac->fac.ver[0x02] = fac->subver;
             subfac->fac.ver[0x03] = fac->edg[p]->subver;
+
+            subfac->fac.sculptmap = fac->sculptmap;
 
             if ( curdiv > 1 ) {
                 subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
@@ -173,7 +181,24 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
             }
 
             /*** we need normal vector only on last subdivision ***/
-            if ( curdiv == 0x01 ) g3dface_normal ( subfac );
+            if ( curdiv == 0x01 ) {
+                if ( fac->sculptmap ) {
+                    if ( fac->flags & FACEOUTER ) {
+                        for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
+                            if (   ( subfac->fac.ver[j]->flags & VERTEXOUTER    ) &&
+                                 ( ( subfac->fac.ver[j]->flags & VERTEXSCULPTED ) == 0x00 ) ) {
+                                subfac->fac.ver[j]->id = subindex[subfac->fac.id][j];
+
+                                g3dsculptmap_processVertex ( subfac->fac.sculptmap, subfac->fac.ver[j], curdiv );
+
+                                subfac->fac.ver[j]->flags |= VERTEXSCULPTED;
+                            }
+                        }
+                    }
+                }
+
+                g3dface_normal ( subfac );
+            }
 
             /*g3dsubface_position ( subfac );*/
 
@@ -433,6 +458,36 @@ LIST *g3dface_getExtendedFacesFromList ( LIST *lfac ) {
                 }
 
                 ltmpedgfac = ltmpedgfac->next;
+            }
+        } 
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return lextfac;
+}
+
+/******************************************************************************/
+LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
+    LIST *lextfac = list_copy ( lfac );
+    LIST *ltmpfac = lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t i;
+
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            G3DVERTEX *ver = fac->ver[i];
+            LIST *ltmpverfac = ver->lfac;
+
+            while ( ltmpverfac ) {
+                G3DFACE *extfac = ( G3DFACE * ) ltmpverfac->data;
+
+                if ( list_seek ( lextfac, extfac ) == NULL ) {
+                    list_insert ( &lextfac, extfac );
+                }
+
+                ltmpverfac = ltmpverfac->next;
             }
         } 
 

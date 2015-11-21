@@ -30,40 +30,24 @@
 #include <g3d.h>
 
 /******************************************************************************/
-static G3DSYSINFO *g3dsysinfo_new ( ) {
-    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, sizeof ( G3DSYSINFO ) );
-    uint32_t i;
+void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD *sdt ) {
+    free ( sdt );
+}
 
-    if ( sif == NULL ) {
-        fprintf ( stderr, "g3dsysinfo_new: calloc failed\n" );
+/******************************************************************************/
+G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes, 
+                                                 uint32_t cpuID,
+                                                 uint32_t engine_flags ) {
+    G3DSUBDIVISIONTHREAD *std = ( G3DSUBDIVISIONTHREAD * ) calloc ( 0x01, sizeof ( G3DSUBDIVISIONTHREAD ) );
+
+    if ( std == NULL ) {
 
         return NULL;
     }
 
+    std->mes          = mes;
+    std->cpuID        = cpuID;
+    std->engine_flags = engine_flags;
 
-    sif->nbcpu = /*g3dcore_getNumberOfCPUs ( )*/1;
-
-    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, sizeof ( G3DSUBDIVISION * ) );
-
-    for ( i = 0x00; i < sif->nbcpu; i++ ) {
-        sif->subdivisions[i] = g3dsubdivisionV3_new ( );
-    }
-
-    return sif;
-}
-/******************************************************************************/
-G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, uint32_t cpuID ) {
-    return sif->subdivisions[cpuID];
-}
-
-/******************************************************************************/
-G3DSYSINFO *g3dsysinfo_get ( ) {
-    /*** This way we don't need a sysinfo global variable or pass it as an ***/
-    /*** argument. The first call to g3dsysinfo_get create the sysinfo     ***/
-    /*** structure and later calls can retrieve it.                        ***/
-    static G3DSYSINFO *sif = NULL;
-
-    if ( sif == NULL ) sif = g3dsysinfo_new ( );
-
-    return sif;
+    return std;
 }

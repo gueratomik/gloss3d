@@ -2409,7 +2409,9 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
                     } else {
                         glEnableClientState ( GL_COLOR_ARRAY  );
-                        glInterleavedArrays ( GL_C4F_N3F_V3F, 0, fac->rtvermem );
+                        /*glInterleavedArrays ( GL_C4F_N3F_V3F, 0, fac->rtvermem );*/
+	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 28 );
+                        glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 16 );
                         glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtfacmem );
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
                         glDisableClientState ( GL_COLOR_ARRAY  );
