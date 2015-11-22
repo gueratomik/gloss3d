@@ -33,8 +33,8 @@
 void r3dmesh_free ( R3DOBJECT *rob ) {
     R3DMESH *rms = ( R3DMESH * ) rob;
 
-    if ( rms->rfc ) free ( rms->rfc );
-
+    if ( rms->rfac ) free ( rms->rfac );
+    if ( rms->rver ) free ( rms->rver );
     if ( rms->uvs ) free ( rms->uvs );
 }
 
@@ -59,7 +59,7 @@ void r3dmesh_allocUVSets ( R3DMESH *rms ) {
     uint32_t nbmap = rms->nbmap;
 
     if ( nbmap ) {
-        rms->nbuvs = rms->nbrfc * nbmap;
+        rms->nbuvs = rms->nbrfac * nbmap;
         uint32_t memsize = rms->nbuvs * sizeof ( R3DRTUVSET );
 
         rms->uvs   = calloc ( rms->nbuvs, sizeof ( R3DRTUVSET ) );
@@ -83,53 +83,55 @@ void r3dmesh_allocUVSets ( R3DMESH *rms ) {
 }
 
 /******************************************************************************/
-void r3dmesh_allocFaces ( R3DMESH *rms, uint32_t nbrfc ) {
-    uint32_t memsize = nbrfc * sizeof ( R3DFACE );
+void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrfac, uint32_t nbrver ) {
+    uint32_t memsize = nbrfac * sizeof ( R3DFACE ) + 
+                       nbrver * sizeof ( R3DVERTEX );
     G3DOBJECT *obj = ((R3DOBJECT*)rms)->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
 
-    rms->rfc = ( R3DFACE * ) calloc ( nbrfc, sizeof ( R3DFACE ) );
+    rms->rver = ( R3DVERTEX * ) calloc ( nbrver, sizeof ( R3DVERTEX ) );
+    rms->rfac = ( R3DFACE   * ) calloc ( nbrfac, sizeof ( R3DFACE   ) );
 
     if ( memsize < 1024 ) {
-        printf ( "R3DFACE memory: %d Bytes\n", memsize );
+        printf ( "R3DMESH memory: %d Bytes\n", memsize );
     } else if ( memsize < 1048576 ) {
-        printf ( "R3DFACE memory: %.2f KBytes\n", ( float ) memsize / 1024 );
+        printf ( "R3DMESH memory: %.2f KBytes\n", ( float ) memsize / 1024 );
     } else if ( memsize < 1073741824 ) {
-        printf ( "R3DFACE memory: %.2f MBytes\n", ( float ) memsize / 1048576 );
+        printf ( "R3DMESH memory: %.2f MBytes\n", ( float ) memsize / 1048576 );
     } else {
-        printf ( "R3DFACE memory: %.2f GBytes\n", ( float ) memsize / 1073741824 );
+        printf ( "R3DMESH memory: %.2f GBytes\n", ( float ) memsize / 1073741824 );
     }
 
-    if ( rms->rfc == NULL ) {
+    if ( rms->rfac == NULL ) {
         fprintf ( stderr, "r3dmesh_allocFaces: memory allocation failed\n" );
 
         return;
     }
 
-    rms->nbrfc = nbrfc;
+    rms->nbrfac = nbrfac;
 }
 
 /******************************************************************************/
 void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
                                           R3DFACE **rfcarray,
-                                          uint32_t  nbrfc ) {
+                                          uint32_t  nbrfac ) {
     R3DOBJECT *rob = ( R3DOBJECT * ) rms;
     G3DOBJECT *obj = rob->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
-    uint32_t maxnbrfc = 0x40 * ( mes->subdiv_render + 0x01 );
+    uint32_t maxnbrfac = 0x40 * ( mes->subdiv_render + 0x01 );
     float xmin, ymin, zmin, xmax, ymax, zmax;
 
     r3dface_getMinMaxFromArray ( &xmin, &ymin, &zmin,
-                                 &xmax, &ymax, &zmax, rms->rfc, rms->nbrfc );
+                                 &xmax, &ymax, &zmax, rms->rfac, rms->nbrfac );
 
     rob->rot = r3doctree_new ( xmin, ymin, zmin,
                                xmax, ymax, zmax,
-                               rfcarray, nbrfc, maxnbrfc, 0x01 );
+                               rfcarray, nbrfac, maxnbrfac, 0x01 );
 
     /*** the dividing part has been taken out the octree creation part ***/
     /*** to avoid high memory usage when dispatching the R3DFACEs, because ***/
     /*** now we can free the rfcarray of the parent octree before dividing ***/
-    if ( nbrfc > maxnbrfc ) r3doctree_divide_r ( rob->rot );
+    if ( nbrfac > maxnbrfac ) r3doctree_divide_r ( rob->rot );
 
 /* If uncommented, please comment r3dobject.c:r3doctree_free call ***/
 /* If uncommented, please uncomment r3doctree.c:g3dobject_init call ***/
@@ -141,31 +143,51 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
 R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
                                      double  *wnormix, 
                                      uint32_t engine_flags ) {
+
     uint32_t structsize = sizeof ( R3DMESH );
     R3DMESH *rms   = ( R3DMESH * ) calloc ( 0x01, structsize );
     R3DOBJECT *rob = ( R3DOBJECT * ) rms;
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *lmap = g3dobject_getChildrenByType ( obj, G3DUVMAPTYPE );
     uint32_t nbmap = list_count ( lmap );
-    /*** We allocate enough memory, i.e the memory needed to store triangles***/
-    /*** that were created from a QUAD, not from a TRIANGLE, as the number  ***/
-    /*** of sub QUADS would be smaller than those create from a QUAD.       ***/
-    uint32_t nbrttri = pow ( 4, mes->subdiv_render ) * 2;
-    uint32_t trimemsize = nbrttri * sizeof ( G3DRTTRIANGLE );
-    uint32_t uvsmemsize = ( nbmap ) ? nbrttri * nbmap * sizeof ( G3DRTUVSET ) : 0x00;
-    G3DRTTRIANGLE *tribuf = ( G3DRTTRIANGLE * ) calloc ( 0x01, trimemsize );
+    uint32_t uvsmemsize;
     G3DRTUVSET    *uvsbuf = ( uvsmemsize ) ? ( G3DRTUVSET    * ) calloc ( 0x01, uvsmemsize ) : NULL;
     LIST *ltmpfac = mes->lfac;
     uint32_t n = 0x00, i;
     R3DFACE **rfcarray;
     float    cosang = cos ( mes->advang * M_PI / 180 );
     uint32_t subdiv = mes->subdiv_render;
+    G3DSYSINFO *sif = g3dsysinfo_get ( );
+    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
+    uint32_t triFaces, triEdges, triVertices;
+    uint32_t quaFaces, quaEdges, quaVertices;
+    G3DRTQUAD   *rtfacmem = NULL;
+    G3DRTEDGE   *rtedgmem = NULL;
+    G3DRTVERTEX *rtvermem = NULL;
+    R3DVERTEX   *rver;
+    R3DFACE     *rfac;
+    uint32_t ver_offset = 0x00;
+    uint32_t nbrfac, nbrver;
 
     if ( rms == NULL ) {
         fprintf ( stderr, "r3dmesh_new: malloc failed\n" );
 
         return NULL;
     }
+
+    g3dtriangle_evalSubdivision ( subdiv, &triFaces, &triEdges, &triVertices );
+    g3dquad_evalSubdivision     ( subdiv, &quaFaces, &quaEdges, &quaVertices );
+
+    nbrfac = ( ( mes->nbtri * triFaces    ) + 
+               ( mes->nbqua * quaFaces    ) ) * 0x02;
+    nbrver = ( mes->nbtri * triVertices ) + ( mes->nbqua * quaVertices );
+
+    uvsmemsize = ( nbmap ) ? nbrfac * nbmap * sizeof ( G3DRTUVSET ) : 0x00;
+
+    r3dmesh_allocArrays ( rms, nbrfac, nbrver );
+
+    rver = rms->rver;
+    rfac = rms->rfac;
 
     /*** get configuous IDs for faces, starting from 0 ***/
     g3dmesh_renumberFaces ( mes );
@@ -174,10 +196,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
 
     ((R3DOBJECT*)rms)->obj = ( G3DOBJECT * ) mes;
 
-    /*** Alloc the memory were we will store our rendering triangles ***/
-    r3dmesh_allocFaces ( rms, g3dmesh_evalRenderFacesCount ( mes, mes->subdiv_render ) );
-
-    if ( ( rfcarray = calloc ( rms->nbrfc, sizeof ( R3DFACE * ) ) ) == NULL ) {
+    if ( ( rfcarray = calloc ( rms->nbrfac, sizeof ( R3DFACE * ) ) ) == NULL ) {
         fprintf ( stderr, "r3dmesh_new: malloc failed\n" );
 
         free ( rms );
@@ -191,69 +210,104 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
     /*** coordinates. ***/
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE* ) ltmpfac->data;
-        G3DRTTRIANGLE *triptr = tribuf;
-        G3DRTUVSET    *uvsptr = uvsbuf;
+        /*G3DRTTRIANGLE *triptr = tribuf;
+        G3DRTUVSET    *uvsptr = uvsbuf;*/
+        uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, subdiv );
+        uint32_t nbrtfac = ( fac->nbver == 0x04 ) ? quaFaces    : triFaces;
+        uint32_t nbrtver = ( fac->nbver == 0x04 ) ? quaVertices : triVertices;
+        uint32_t nbfac;
+        uint32_t i, j;
 
-        uint32_t nbfac = g3dface_catmull_clark_draw ( NULL, fac,
-                                                      fac,
-                                                      subdiv,
-                                                      cosang,
-                                                     &triptr,
-                                                      NULL,
-                                                     &uvsptr,
-                                                      NULL, NULL,
-                                                      mes->ltex,
-                                                      obj->flags,
-                                                      engine_flags );
-        uint32_t j;
+        /*** This is for temporary storing the subdivided RTQUAD ***/
+        rtfacmem = realloc ( rtfacmem, nbrtfac * sizeof ( G3DRTQUAD   ) );
+        rtvermem = realloc ( rtvermem, nbrtver * sizeof ( G3DRTVERTEX ) );
 
-        for ( j = 0x00; j < nbfac; j++ ) {
+        nbfac = g3dsubdivisionV3_subdivide ( sdv, fac, 
+                                                  rtfacmem,
+                                                  rtedgmem,
+                                                  rtvermem,
+                                                  subindex,
+                                                  subdiv,
+                                                  obj->flags,
+                                                  engine_flags );
+
+        for ( i = 0x00; i < nbrtver; i++ ) {
+            r3dtinyvector_matrix ( &rtvermem[i].pos, wmatrix, &rver[i+ver_offset].pos );
+            r3dtinyvector_matrix ( &rtvermem[i].nor, wnormix, &rver[i+ver_offset].nor );
+        }
+
+        for ( i = 0x00; i < nbrtfac; i++ ) {
             uint32_t offset = rms->nbmap * n;
-            R3DFACE *rfc = &rms->rfc[n];
             LIST *ltmpmap = lmap;
             uint32_t k = 0x00;
 
-            r3dface_init ( rfc, fac, &tribuf[j], wmatrix, wnormix );
+            /*** each RTQUAD gives birth to 2 triangles ***/
+            for ( j = 0x00; j < 0x02; j++ ) {
+                static uint32_t idx[0x02][0x03] = {{ 0x00, 0x01, 0x02 },
+                                                   { 0x02, 0x03, 0x00 }};
+                G3DDOUBLEVECTOR rfacpos;
+                float length;
 
-            rfc->uvsmem = &rms->uvs[offset];
+                rfac->fac = fac;
+                rfac->ver[0x00] = &rver[rtfacmem[i].rtver[idx[j][0]]+ver_offset];
+                rfac->ver[0x01] = &rver[rtfacmem[i].rtver[idx[j][1]]+ver_offset];
+                rfac->ver[0x02] = &rver[rtfacmem[i].rtver[idx[j][2]]+ver_offset];
 
-            while ( ltmpmap ) {
-                G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
+                /** Compute the triangle center needed for face equation ***/
+                r3dface_position ( rfac, &rfacpos );
 
-                uint32_t index = ( offset + k );
+                r3dface_normal ( rfac, &length );
 
-                rms->uvs[index].u[0x00] = uvsbuf[j+k].u0;
-                rms->uvs[index].v[0x00] = uvsbuf[j+k].v0;
-                rms->uvs[index].u[0x01] = uvsbuf[j+k].u1;
-                rms->uvs[index].v[0x01] = uvsbuf[j+k].v1;
-                rms->uvs[index].u[0x02] = uvsbuf[j+k].u2;
-                rms->uvs[index].v[0x02] = uvsbuf[j+k].v2;
+                rfac->surface = length;
+                rfac->epsilon = 0.00001f;
+                /*** d is a part of a Mathematical Face Equation.  ***/
+                /*** Useful for detecting face / line intersection ***/
+                rfac->d = - ( ( rfac->nor.x * rfacpos.x ) + 
+                              ( rfac->nor.y * rfacpos.y ) + 
+                              ( rfac->nor.z * rfacpos.z ) );
 
-                rms->uvs[index].map     = map;
+                r3dface_getMinMax ( rfac, &rfac->xmin, &rfac->ymin, &rfac->zmin, 
+                                          &rfac->xmax, &rfac->ymax, &rfac->zmax );
 
-                k++;
+                rfac->uvsmem = &rms->uvs[offset];
 
-                ltmpmap = ltmpmap->next;
+                while ( ltmpmap ) {
+                    G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
+
+                    uint32_t index = ( offset + k );
+
+                    rms->uvs[index].u[0x00] = uvsbuf[i+k].u0;
+                    rms->uvs[index].v[0x00] = uvsbuf[i+k].v0;
+                    rms->uvs[index].u[0x01] = uvsbuf[i+k].u1;
+                    rms->uvs[index].v[0x01] = uvsbuf[i+k].v1;
+                    rms->uvs[index].u[0x02] = uvsbuf[i+k].u2;
+                    rms->uvs[index].v[0x02] = uvsbuf[i+k].v2;
+
+                    rms->uvs[index].map     = map;
+
+                    k++;
+
+                    ltmpmap = ltmpmap->next;
+                }
+
+                rfcarray[n++] = rfac;
+
+                rfac++;
             }
-
-            rfcarray[n++] = rfc;
         }
 
-        /*** reset temporary array or expect crash from list functions ***/
-        memset ( tribuf, 0x00, trimemsize );
-
+        ver_offset += nbrtver;
 
         ltmpfac = ltmpfac->next;
     }
 
-    r3dmesh_createOctree ( rms, wmatrix, rfcarray, rms->nbrfc );
+    r3dmesh_createOctree ( rms, wmatrix, rfcarray, rms->nbrfac );
 
 
     r3dobject_init ( rob, obj->type, obj->flags, r3dmesh_free );
 
 
     if ( rfcarray ) free ( rfcarray );
-    if ( tribuf   ) free ( tribuf   );
     if ( uvsbuf   ) free ( uvsbuf   );
 
     list_free ( &lmap, NULL );

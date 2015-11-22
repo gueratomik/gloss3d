@@ -42,6 +42,7 @@ void updateCurrentMouseTool ( GtkWidget *widget, G3DUI *gui ) {
             if ( strcmp ( child_name, mou->name ) == 0x00 ) {
                 if ( strcmp ( mou->name, PICKTOOL    ) == 0x00 ) updatePickToolEdit    ( child, gui );
                 if ( strcmp ( mou->name, CUTMESHTOOL ) == 0x00 ) updateCutMeshToolEdit ( child, gui );
+                if ( strcmp ( mou->name, SCULPTTOOL  ) == 0x00 ) updateSculptToolEdit  ( child, gui );
 
                 gtk_widget_show ( child );
             } else {
@@ -112,6 +113,7 @@ GtkWidget *createCurrentMouseTool ( GtkWidget *parent, G3DUI *gui,
     /*** selected object type showed otherwise.   ***/
     createPickToolEdit    ( frm, gui, PICKTOOL   , 0, 0, 320, 192 );
     createCutMeshToolEdit ( frm, gui, CUTMESHTOOL, 0, 0, 320, 320 );
+    createSculptToolEdit  ( frm, gui, SCULPTTOOL , 0, 0, 320, 192 );
 
     list_insert ( &gui->lmtools, frm );
 

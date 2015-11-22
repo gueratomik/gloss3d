@@ -13,4 +13,5 @@ hide face
 disable symmetry
 reset anim to zero when starting rendering
 
-g3dcore_getNumberOfCPUs should use static variables inited once
+what to do with mutex :
+uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {

@@ -30,40 +30,23 @@
 #include <g3d.h>
 
 /******************************************************************************/
-static G3DSYSINFO *g3dsysinfo_new ( ) {
-    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, sizeof ( G3DSYSINFO ) );
-    uint32_t i;
-
-    if ( sif == NULL ) {
-        fprintf ( stderr, "g3dsysinfo_new: calloc failed\n" );
-
-        return NULL;
-    }
-
-
-    sif->nbcpu = g3dcore_getNumberOfCPUs ( );
-
-    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, sizeof ( G3DSUBDIVISION * ) );
-
-    for ( i = 0x00; i < sif->nbcpu; i++ ) {
-        sif->subdivisions[i] = g3dsubdivisionV3_new ( );
-    }
-
-    return sif;
-}
-/******************************************************************************/
-G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, uint32_t cpuID ) {
-    return sif->subdivisions[cpuID];
-}
+typedef struct _G3DINDEXFACE {
+    uint32_t id;
+    uint32_t *ver[0x04];
+} G3DINDEXFACE;
 
 /******************************************************************************/
-G3DSYSINFO *g3dsysinfo_get ( ) {
-    /*** This way we don't need a sysinfo global variable or pass it as an ***/
-    /*** argument. The first call to g3dsysinfo_get create the sysinfo     ***/
-    /*** structure and later calls can retrieve it.                        ***/
-    static G3DSYSINFO *sif = NULL;
+typedef struct _G3DINDEXEDGE {
+    uint32_t id;
+    uint32_t *ver[0x02];
+} G3DINDEXEDGE;
 
-    if ( sif == NULL ) sif = g3dsysinfo_new ( );
+typedef uint32_t G3DINDEXVERTEX;
 
-    return sif;
+/******************************************************************************/
+G3DINDEXFACE *
+
+void g3dindexface_build ( uint32_t nbver, uint32_t subdiv ) {
+
+
 }

@@ -45,10 +45,13 @@ G3DSCULPTTOOL *sculptTool_new ( ) {
     }
 
     st->only_visible = 0x01;
-
+    st->pressure     = 0.5f;
+    st->radius       = 0x20;
 
     return st;
 }
+
+#define BUFFERSIZE 0x10000
 
 /******************************************************************************/
 void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
@@ -64,7 +67,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     static GLint VPX[0x04];
     static double PJX[0x10];
     int middle = 0x00;
-    GLuint *ptr = st->verIDs;
+    GLuint buffer[BUFFERSIZE], *ptr = buffer;
     GLint min, max;
     uint32_t i, j;
     GLint hits;
@@ -82,10 +85,10 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     g3dtriangle_evalSubdivision ( subdiv, &triFaces, &triEdges, &triVertices );
     g3dquad_evalSubdivision     ( subdiv, &quaFaces, &quaEdges, &quaVertices );
 
-    if ( MW == 0x00 ) { MW = 0x30; middle = 0x01; };
-    if ( MH == 0x00 ) { MH = 0x30; middle = 0x01; };
+    /*if ( MW == 0x00 ) { MW = 0x30; middle = 0x01; };
+    if ( MH == 0x00 ) { MH = 0x30; middle = 0x01; };*/
 
-    glSelectBuffer ( 0x10000 , ptr );
+    glSelectBuffer ( BUFFERSIZE, buffer );
 
     glRenderMode ( GL_SELECT );
 
@@ -97,7 +100,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
     glLoadIdentity ( );
-    gluPickMatrix ( MX, MY, MW, MH, VPX );
+    gluPickMatrix ( MX, MY, st->radius, st->radius, VPX );
     g3dcamera_project ( cam, engine_flags );
     glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
 
@@ -174,14 +177,14 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
             }*/
 
             if ( st->ctrl_key ) {
-                fac->sculptmap->points[verID].x += (fac->rtvermem[verID].nor.x * 0.0025f);
-                fac->sculptmap->points[verID].y += (fac->rtvermem[verID].nor.y * 0.0025f);
-                fac->sculptmap->points[verID].z += (fac->rtvermem[verID].nor.z * 0.0025f);
+                fac->sculptmap->points[verID].x -= (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
+                fac->sculptmap->points[verID].y -= (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
+                fac->sculptmap->points[verID].z -= (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
                 fac->sculptmap->points[verID].w  = mes->subdiv;
             } else {
-                fac->sculptmap->points[verID].x -= (fac->rtvermem[verID].nor.x * 0.0025f);
-                fac->sculptmap->points[verID].y -= (fac->rtvermem[verID].nor.y * 0.0025f);
-                fac->sculptmap->points[verID].z -= (fac->rtvermem[verID].nor.z * 0.0025f);
+                fac->sculptmap->points[verID].x += (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
+                fac->sculptmap->points[verID].y += (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
+                fac->sculptmap->points[verID].z += (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
                 fac->sculptmap->points[verID].w  = mes->subdiv;
             }
 
@@ -191,7 +194,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
       }
     }
 
-    /*lextfac = g3dface_getNeighbourFacesFromList ( lfac );*/
+    lextfac = g3dface_getNeighbourFacesFromList ( lfac );
 
     /*g3dmesh_update ( mes, NULL,
                           NULL,
@@ -200,24 +203,29 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
                           COMPUTESUBDIVISION, engine_flags );*/
 
 
-    /*ltmpfac = lextfac;*/
-    ltmpfac = lfac;
+    ltmpfac = lextfac;
+    /*ltmpfac = lfac;*/
 
-    while ( ltmpfac ) {
+
+    g3dmesh_fillSubdividedFaces ( mes, lextfac, engine_flags );
+
+    /*while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, mes->subdiv );
 
         g3dsubdivisionV3_subdivide ( sdv, fac,
                                           fac->rtfacmem,
                                           fac->rtedgmem,
                                           fac->rtvermem,
+                                          subindex,
                                           mes->subdiv,
                                           ((G3DOBJECT*)mes)->flags,
                                           engine_flags );
 
         ltmpfac = ltmpfac->next;
-    }
+    }*/
 
-    /*list_free ( &lextfac, NULL );*/
+    list_free ( &lextfac, NULL );
     list_free ( &lfac, NULL );
 }
 

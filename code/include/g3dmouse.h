@@ -165,9 +165,10 @@ typedef struct G3DPICKTOOL {
 
 /******************************************************************************/
 typedef struct G3DSCULPTTOOL {
-    uint32_t verIDs[0x10000];
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
     int only_visible;
+    int radius;
+    float pressure;
     int ctrl_key;
 } G3DSCULPTTOOL;
 

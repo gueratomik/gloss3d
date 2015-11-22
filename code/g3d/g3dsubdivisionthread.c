@@ -49,5 +49,10 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *mes,
     std->cpuID        = cpuID;
     std->engine_flags = engine_flags;
 
+    /*** this is here so that we dont have to use mutexes if it were in ***/
+    /*** g3dsubdivisionV3_subdivide. ***/
+    std->qua_indexes  = g3dsubindex_get ( 0x04, mes->subdiv );
+    std->tri_indexes  = g3dsubindex_get ( 0x03, mes->subdiv );
+
     return std;
 }

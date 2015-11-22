@@ -953,6 +953,8 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH *mes;
     uint32_t engine_flags;
     uint32_t cpuID;
+    uint32_t *qua_indexes; /*** Quad subindexes - used for sculpting ***/
+    uint32_t *tri_indexes; /*** Triangles subindexes  - used for sculpting ***/
 } G3DSUBDIVISIONTHREAD;
 
 typedef struct _G3DRESOURCES {
@@ -1500,6 +1502,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *,
                                                         G3DRTQUAD *,
                                 /*** get vertices  ***/ G3DRTEDGE  *,
                                 /*** get vertices  ***/ G3DRTVERTEX  *,
+                                                        uint32_t (*)[0x04],
                                                         uint32_t      ,
                                                         uint32_t      ,
                                                         uint32_t       );
@@ -1834,7 +1837,6 @@ void       g3dmesh_update                        ( G3DMESH *, LIST *,
                                                               uint32_t,
                                                               uint32_t );
 void       g3dmesh_fillSubdividedFaces           ( G3DMESH *, LIST *,
-                                                              G3DRTTRIANGLE *,
                                                               uint32_t  );
 G3DFACE   *g3dmesh_getNextFace ( G3DMESH *, LIST * );
 uint32_t   g3dmesh_isDisplaced ( G3DMESH *, uint32_t );

@@ -93,7 +93,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiweightgrouplist.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
-	common/mousetool/g3duipicktooledit.c gtk3/g3dui.c \
+	common/mousetool/g3duipicktooledit.c \
+	common/mousetool/g3duisculpttooledit.c gtk3/g3dui.c \
 	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c gtk3/g3duicom.c \
 	gtk3/g3duicoordinatesedit.c gtk3/g3duicubeedit.c \
 	gtk3/g3duicurrentedit.c gtk3/g3duicylinderedit.c \
@@ -112,7 +113,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiweightgrouplist.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
-	gtk3/mousetool/g3duipicktooledit.c motif/TabbedBook.c \
+	gtk3/mousetool/g3duipicktooledit.c \
+	gtk3/mousetool/g3duisculpttooledit.c motif/TabbedBook.c \
 	motif/ColorEdit.c motif/SpinButton.c motif/g3dui.c \
 	motif/g3duicom.c motif/g3duicoordinatesedit.c \
 	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
@@ -131,7 +133,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duiview.c motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
-	motif/mousetool/g3duipicktooledit.c
+	motif/mousetool/g3duipicktooledit.c \
+	motif/mousetool/g3duisculpttooledit.c
 am__dirstamp = $(am__leading_dot)dirstamp
 ##am__objects_1 = common/g3dui.lo \
 ##	common/g3duiboneedit.lo \
@@ -172,6 +175,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 ##	common/mousetool/g3duicurrentmousetool.lo \
 ##	common/mousetool/g3duicutmeshtooledit.lo \
 ##	common/mousetool/g3duipicktooledit.lo \
+##	common/mousetool/g3duisculpttooledit.lo \
 ##	motif/TabbedBook.lo \
 ##	motif/ColorEdit.lo \
 ##	motif/SpinButton.lo \
@@ -209,7 +213,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 ##	motif/g3duiweightgrouplist.lo \
 ##	motif/mousetool/g3duicurrentmousetool.lo \
 ##	motif/mousetool/g3duicutmeshtooledit.lo \
-##	motif/mousetool/g3duipicktooledit.lo
+##	motif/mousetool/g3duipicktooledit.lo \
+##	motif/mousetool/g3duisculpttooledit.lo
 am__objects_1 = common/g3dui.lo \
 	common/g3duiboneedit.lo \
 	common/g3duibonelinker.lo \
@@ -242,6 +247,7 @@ am__objects_1 = common/g3dui.lo \
 	common/mousetool/g3duicurrentmousetool.lo \
 	common/mousetool/g3duicutmeshtooledit.lo \
 	common/mousetool/g3duipicktooledit.lo \
+	common/mousetool/g3duisculpttooledit.lo \
 	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
 	gtk3/g3duibonelinker.lo gtk3/g3duicom.lo \
 	gtk3/g3duicoordinatesedit.lo \
@@ -267,7 +273,8 @@ am__objects_1 = common/g3dui.lo \
 	gtk3/g3duiweightgrouplist.lo \
 	gtk3/mousetool/g3duicurrentmousetool.lo \
 	gtk3/mousetool/g3duicutmeshtooledit.lo \
-	gtk3/mousetool/g3duipicktooledit.lo
+	gtk3/mousetool/g3duipicktooledit.lo \
+	gtk3/mousetool/g3duisculpttooledit.lo
 am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -296,7 +303,8 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiweightgrouplist.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
-	common/mousetool/g3duipicktooledit.c gtk3/g3dui.c \
+	common/mousetool/g3duipicktooledit.c \
+	common/mousetool/g3duisculpttooledit.c gtk3/g3dui.c \
 	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c gtk3/g3duicom.c \
 	gtk3/g3duicoordinatesedit.c gtk3/g3duicubeedit.c \
 	gtk3/g3duicurrentedit.c gtk3/g3duicylinderedit.c \
@@ -315,7 +323,8 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiweightgrouplist.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
-	gtk3/mousetool/g3duipicktooledit.c motif/TabbedBook.c \
+	gtk3/mousetool/g3duipicktooledit.c \
+	gtk3/mousetool/g3duisculpttooledit.c motif/TabbedBook.c \
 	motif/ColorEdit.c motif/SpinButton.c motif/g3dui.c \
 	motif/g3duicom.c motif/g3duicoordinatesedit.c \
 	motif/g3duicubeedit.c motif/g3duicurrentedit.c \
@@ -334,7 +343,8 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	motif/g3duiview.c motif/g3duiweightgrouplist.c \
 	motif/mousetool/g3duicurrentmousetool.c \
 	motif/mousetool/g3duicutmeshtooledit.c \
-	motif/mousetool/g3duipicktooledit.c
+	motif/mousetool/g3duipicktooledit.c \
+	motif/mousetool/g3duisculpttooledit.c
 #am_libgloss_g3dui_motif_la_OBJECTS =  \
 #	$(am__objects_1)
 libgloss_g3dui_motif_la_OBJECTS =  \
@@ -543,6 +553,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
+                            common/mousetool/g3duisculpttooledit.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboneedit.c \
                             gtk3/g3duibonelinker.c \
@@ -581,7 +592,8 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
-                            gtk3/mousetool/g3duipicktooledit.c
+                            gtk3/mousetool/g3duipicktooledit.c \
+                            gtk3/mousetool/g3duisculpttooledit.c
 
 #LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
 #                            common/g3duiboneedit.c \
@@ -622,6 +634,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
 #                            common/mousetool/g3duicurrentmousetool.c \
 #                            common/mousetool/g3duicutmeshtooledit.c \
 #                            common/mousetool/g3duipicktooledit.c \
+#                            common/mousetool/g3duisculpttooledit.c \
 #                            motif/TabbedBook.c \
 #                            motif/ColorEdit.c \
 #                            motif/SpinButton.c \
@@ -659,7 +672,8 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
 #                            motif/g3duiweightgrouplist.c \
 #                            motif/mousetool/g3duicurrentmousetool.c \
 #                            motif/mousetool/g3duicutmeshtooledit.c \
-#                            motif/mousetool/g3duipicktooledit.c
+#                            motif/mousetool/g3duipicktooledit.c \
+#                            motif/mousetool/g3duisculpttooledit.c
 
 #libgloss_g3dui_motif_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 all: all-am
@@ -820,6 +834,9 @@ common/mousetool/g3duicutmeshtooledit.lo:  \
 common/mousetool/g3duipicktooledit.lo:  \
 	common/mousetool/$(am__dirstamp) \
 	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/g3duisculpttooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
 gtk3/$(am__dirstamp):
 	@$(MKDIR_P) gtk3
 	@: > gtk3/$(am__dirstamp)
@@ -906,6 +923,8 @@ gtk3/mousetool/g3duicutmeshtooledit.lo:  \
 	gtk3/mousetool/$(am__dirstamp) \
 	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/g3duipicktooledit.lo: gtk3/mousetool/$(am__dirstamp) \
+	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
+gtk3/mousetool/g3duisculpttooledit.lo: gtk3/mousetool/$(am__dirstamp) \
 	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
 motif/$(am__dirstamp):
 	@$(MKDIR_P) motif
@@ -996,6 +1015,9 @@ motif/mousetool/g3duicutmeshtooledit.lo:  \
 	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
 motif/mousetool/g3duipicktooledit.lo: motif/mousetool/$(am__dirstamp) \
 	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
+motif/mousetool/g3duisculpttooledit.lo:  \
+	motif/mousetool/$(am__dirstamp) \
+	motif/mousetool/$(DEPDIR)/$(am__dirstamp)
 libgloss-g3dui-gtk3.la: $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) $(am_libgloss_g3dui_gtk3_la_rpath) $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_LIBADD) $(LIBS)
 libgloss-g3dui-motif.la: $(libgloss_g3dui_motif_la_OBJECTS) $(libgloss_g3dui_motif_la_DEPENDENCIES) 
@@ -1081,6 +1103,8 @@ mostlyclean-compile:
 	-rm -f common/mousetool/g3duicutmeshtooledit.lo
 	-rm -f common/mousetool/g3duipicktooledit.$(OBJEXT)
 	-rm -f common/mousetool/g3duipicktooledit.lo
+	-rm -f common/mousetool/g3duisculpttooledit.$(OBJEXT)
+	-rm -f common/mousetool/g3duisculpttooledit.lo
 	-rm -f gtk3/g3dui.$(OBJEXT)
 	-rm -f gtk3/g3dui.lo
 	-rm -f gtk3/g3duiboneedit.$(OBJEXT)
@@ -1159,6 +1183,8 @@ mostlyclean-compile:
 	-rm -f gtk3/mousetool/g3duicutmeshtooledit.lo
 	-rm -f gtk3/mousetool/g3duipicktooledit.$(OBJEXT)
 	-rm -f gtk3/mousetool/g3duipicktooledit.lo
+	-rm -f gtk3/mousetool/g3duisculpttooledit.$(OBJEXT)
+	-rm -f gtk3/mousetool/g3duisculpttooledit.lo
 	-rm -f motif/ColorEdit.$(OBJEXT)
 	-rm -f motif/ColorEdit.lo
 	-rm -f motif/SpinButton.$(OBJEXT)
@@ -1235,6 +1261,8 @@ mostlyclean-compile:
 	-rm -f motif/mousetool/g3duicutmeshtooledit.lo
 	-rm -f motif/mousetool/g3duipicktooledit.$(OBJEXT)
 	-rm -f motif/mousetool/g3duipicktooledit.lo
+	-rm -f motif/mousetool/g3duisculpttooledit.$(OBJEXT)
+	-rm -f motif/mousetool/g3duisculpttooledit.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -1278,6 +1306,7 @@ include common/$(DEPDIR)/g3duiweightgrouplist.Plo
 include common/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 include common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
+include common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo
 include gtk3/$(DEPDIR)/g3dui.Plo
 include gtk3/$(DEPDIR)/g3duiboneedit.Plo
 include gtk3/$(DEPDIR)/g3duibonelinker.Plo
@@ -1317,6 +1346,7 @@ include gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
+include gtk3/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo
 include motif/$(DEPDIR)/ColorEdit.Plo
 include motif/$(DEPDIR)/SpinButton.Plo
 include motif/$(DEPDIR)/TabbedBook.Plo
@@ -1355,6 +1385,7 @@ include motif/$(DEPDIR)/g3duiweightgrouplist.Plo
 include motif/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include motif/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 include motif/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
+include motif/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

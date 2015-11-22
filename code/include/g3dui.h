@@ -325,6 +325,12 @@
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
 
+
+#define EDITSCULPTTOOLVISIBLE  "Only visible"
+#define EDITSCULPTTOOLPRESSURE "Pressure"
+#define EDITSCULPTTOOLRADIUS   "Radius"
+
+
 #define MODE_VIEWOBJECT "Object mode"
 #define MODE_VIEWVERTEX "Vertex mode"
 #define MODE_VIEWEDGE   "Edge mode"
@@ -989,6 +995,11 @@ G3DWEIGHTGROUP *common_g3duiweightgrouplist_getWeightGroup ( G3DMESH *, float,
 void common_g3duipicktooledit_onlyVisibleCbk ( G3DUI *, int   );
 void common_g3duipicktooledit_setWeightCbk   ( G3DUI *, float );
 void common_g3duipicktooledit_paintRadiusCbk ( G3DUI *, float );
+
+/**************************** SculptTool Edit  **********************************/
+void common_g3duisculpttooledit_setRadiusCbk   ( G3DUI *, int    );
+void common_g3duisculpttooledit_setPressureCbk ( G3DUI *, float  );
+void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *, int    );
 
 /****************************** UVMap Edit  ***********************************/
 void common_g3duiuvmap_lockUVMapCbk  ( G3DUI * );

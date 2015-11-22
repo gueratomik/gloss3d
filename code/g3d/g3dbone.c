@@ -224,11 +224,13 @@ void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
         if ( (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) && mes->subdiv ) {
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, mes->subdiv );
 
                 g3dsubdivisionV3_subdivide ( sdv, fac,
                                                   fac->rtfacmem,
                                                   fac->rtedgmem,
                                                   fac->rtvermem,
+                                                  subindex,
                                                   subdiv,
                                                   objmes->flags,
                                                   engine_flags );

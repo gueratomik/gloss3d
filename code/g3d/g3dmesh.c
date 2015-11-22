@@ -1714,7 +1714,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
         if ( mes->rtfacmem && 
              mes->subdiv   && ( objmes->flags & BUFFEREDSUBDIVISION ) ) {
 
-            g3dmesh_fillSubdividedFaces ( mes, ltmpsub, NULL, engine_flags );
+            g3dmesh_fillSubdividedFaces ( mes, ltmpsub, engine_flags );
         }
     }
 }
@@ -2461,11 +2461,13 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, mes->subdiv );
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
                                                          NULL,
                                                          NULL,
                                                          NULL,
+                                                         subindex,
                                                          subdiv,
                                                          objmes->flags,
                                                          engine_flags );
@@ -3422,7 +3424,6 @@ void g3dmesh_unsetBufferedSubdivision ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
-                                                 G3DRTTRIANGLE *rttrimem,
                                                  uint32_t flags ) {
     G3DSYSINFO *sif = g3dsysinfo_get ( );
     LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;

@@ -27,43 +27,43 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dui.h>
 
 /******************************************************************************/
-static G3DSYSINFO *g3dsysinfo_new ( ) {
-    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, sizeof ( G3DSYSINFO ) );
-    uint32_t i;
+void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui, int radius ) {
+    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
 
-    if ( sif == NULL ) {
-        fprintf ( stderr, "g3dsysinfo_new: calloc failed\n" );
+    if ( gui->lock ) return;
 
-        return NULL;
+    if ( mou ) {
+        G3DSCULPTTOOL *st = mou->data;
+
+        st->radius = radius;
     }
-
-
-    sif->nbcpu = g3dcore_getNumberOfCPUs ( );
-
-    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, sizeof ( G3DSUBDIVISION * ) );
-
-    for ( i = 0x00; i < sif->nbcpu; i++ ) {
-        sif->subdivisions[i] = g3dsubdivisionV3_new ( );
-    }
-
-    return sif;
-}
-/******************************************************************************/
-G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, uint32_t cpuID ) {
-    return sif->subdivisions[cpuID];
 }
 
 /******************************************************************************/
-G3DSYSINFO *g3dsysinfo_get ( ) {
-    /*** This way we don't need a sysinfo global variable or pass it as an ***/
-    /*** argument. The first call to g3dsysinfo_get create the sysinfo     ***/
-    /*** structure and later calls can retrieve it.                        ***/
-    static G3DSYSINFO *sif = NULL;
+void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui, float pressure ) {
+    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
 
-    if ( sif == NULL ) sif = g3dsysinfo_new ( );
+    if ( gui->lock ) return;
 
-    return sif;
+    if ( mou ) {
+        G3DSCULPTTOOL *st = mou->data;
+
+        st->pressure = pressure;
+    }
+}
+
+/******************************************************************************/
+void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui, int visible_only ) {
+    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+
+    if ( gui->lock ) return;
+
+    if ( mou ) {
+        G3DSCULPTTOOL *st = mou->data;
+
+        st->only_visible = visible_only;
+    }
 }

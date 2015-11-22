@@ -465,10 +465,10 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DRTQUAD      *rtFaces,
                                       G3DRTEDGE      *rtEdges,
                                       G3DRTVERTEX    *rtVertices,
+                                      uint32_t      (*subindex)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
                                       uint32_t        object_flags,
                                       uint32_t        engine_flags ) {
-    uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, subdiv_level );
     uint32_t nbInnerFaces    = 0x01      , nbOuterFaces    = 0x00;
     uint32_t nbInnerEdges    = fac->nbver, nbOuterEdges    = 0x00;
     uint32_t nbInnerVertices = fac->nbver, nbOuterVertices = 0x00;
@@ -883,12 +883,15 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
         G3DRTQUAD   *rtfacmem = fac->rtfacmem;
         G3DRTVERTEX *rtvermem = fac->rtvermem;
+        uint32_t (*subindex)[0x04] = ( fac->nbver == 0x04 ) ? sdt->qua_indexes :
+                                                              sdt->tri_indexes;
         uint32_t nbpos = 0x00;
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
                                                          fac->rtfacmem,
                                                          fac->rtedgmem,
                                                          fac->rtvermem,
+                                                         subindex,
                                                          mes->subdiv,
                                                          obj->flags,
                                                          sdt->engine_flags );

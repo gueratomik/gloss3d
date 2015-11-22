@@ -47,6 +47,7 @@ if HAVE_GTK3
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
+                            common/mousetool/g3duisculpttooledit.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboneedit.c \
                             gtk3/g3duibonelinker.c \
@@ -85,7 +86,8 @@ if HAVE_GTK3
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
-                            gtk3/mousetool/g3duipicktooledit.c
+                            gtk3/mousetool/g3duipicktooledit.c \
+                            gtk3/mousetool/g3duisculpttooledit.c
 endif
 
 if HAVE_MOTIF
@@ -131,6 +133,7 @@ if HAVE_MOTIF
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
+                            common/mousetool/g3duisculpttooledit.c \
                             motif/TabbedBook.c \
                             motif/ColorEdit.c \
                             motif/SpinButton.c \
@@ -168,7 +171,8 @@ if HAVE_MOTIF
                             motif/g3duiweightgrouplist.c \
                             motif/mousetool/g3duicurrentmousetool.c \
                             motif/mousetool/g3duicutmeshtooledit.c \
-                            motif/mousetool/g3duipicktooledit.c
+                            motif/mousetool/g3duipicktooledit.c \
+                            motif/mousetool/g3duisculpttooledit.c
 endif
 
 #                            motif/g3duiboneedit.c \

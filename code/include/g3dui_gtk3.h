@@ -349,6 +349,10 @@ void       updatePickToolEdit     ( GtkWidget *, G3DUI * );
 GtkWidget *createPickToolEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
+void       updateSculptToolEdit   ( GtkWidget *, G3DUI * );
+GtkWidget *createSculptToolEdit   ( GtkWidget *, G3DUI *, char *, gint, gint, 
+                                                                  gint, gint );
+
 void       updateRenderEdit       ( GtkWidget *, G3DUI * );
 GtkWidget *createRenderEdit       ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );

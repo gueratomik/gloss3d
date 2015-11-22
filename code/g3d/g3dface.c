@@ -182,7 +182,7 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
 
             /*** we need normal vector only on last subdivision ***/
             if ( curdiv == 0x01 ) {
-                if ( fac->sculptmap ) {
+                if ( fac->sculptmap && subindex ) {
                     if ( fac->flags & FACEOUTER ) {
                         for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
                             if (   ( subfac->fac.ver[j]->flags & VERTEXOUTER    ) &&

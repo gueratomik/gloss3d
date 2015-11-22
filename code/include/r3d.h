@@ -313,9 +313,9 @@ typedef struct _R3DBBOX {
 
 /******************************************************************************/
 typedef struct _R3DFACE {
-    R3DVERTEX ver[0x03]; /*** our face is a triangle              ***/
-    R3DVECTOR nor;       /*** face normal position in world coord ***/
-    G3DFACE  *fac;       /*** original face ***/
+    R3DVERTEX *ver[0x03]; /*** our face is a triangle              ***/
+    R3DVECTOR  nor;       /*** face normal position in world coord ***/
+    G3DFACE   *fac;       /*** original face ***/
     float xmin, ymin, zmin,/*** That's quite a lot of memory ***/
           xmax, ymax, zmax;
     double     d;
@@ -404,8 +404,10 @@ typedef struct _R3DLIGHT {
 /******************************************************************************/
 typedef struct _R3DMESH {
     R3DOBJECT   robj;
-    R3DFACE    *rfc; /*** list of render faces  ***/
-    uint32_t    nbrfc;
+    R3DFACE    *rfac; /*** list of render faces  ***/
+    uint32_t    nbrfac;
+    R3DVERTEX  *rver;
+    uint32_t    nbrver;
     R3DRTUVSET *uvs;
     uint32_t    nbuvs;
     uint32_t    nbmap;
@@ -614,7 +616,6 @@ void r3dface_getMinMaxFromArray ( float *, float *, float *,
                                   float *, float *, float *,
                                   R3DFACE *, uint32_t );
 void r3dface_free ( void * );
-void r3dface_init ( R3DFACE *, G3DFACE *, G3DRTTRIANGLE *, double *, double * );
 void r3dface_reset ( R3DFACE * );
 void r3dface_getMinMax ( R3DFACE *, float *, float *, float *,
                                     float *, float *, float * );
