@@ -73,6 +73,7 @@ uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
                                                 NULL,
                                                 NULL,
                                                 subindexes[subdiv_level]->qua,
+                                                subindexes[subdiv_level]->tri,
                                                 subdiv_level,
                                                 0x00,
                                                 BUILDSUBINDEX );
@@ -82,6 +83,7 @@ uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
         g3dsubdivisionV3_subdivide ( sdv, &fac, NULL,
                                                 NULL,
                                                 NULL,
+                                                subindexes[subdiv_level]->qua,
                                                 subindexes[subdiv_level]->tri,
                                                 subdiv_level,
                                                 0x00,

@@ -319,6 +319,8 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
     innerFace->fac.nbver     = fac->nbver;
     innerFace->fac.id        = /*fac->id*/0x00;
     innerFace->fac.flags     = fac->flags | FACEINNER;
+    innerFace->fac.flags    |= ( fac->nbver == 0x04 ) ? FACEFROMQUAD : 
+                                                        FACEFROMTRIANGLE;
     innerFace->fac.sculptmap = fac->sculptmap;
     memcpy ( &innerFace->fac.pos, &fac->pos, sizeof ( G3DVECTOR ) );
     memcpy ( &innerFace->fac.nor, &fac->nor, sizeof ( G3DVECTOR ) );
@@ -331,6 +333,9 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
         if ( oldadjfac[i] ) {
             G3DSUBFACE *outfac = outerFaces++; (*nbOuterFaces)++;
 
+            outfac->fac.flags  = FACEOUTER;
+            outfac->fac.flags |= ( oldadjfac[i]->nbver == 0x04 ) ? FACEFROMQUAD : 
+                                                                   FACEFROMTRIANGLE;
             outfac->fac.nbver = oldadjfac[i]->nbver;
             outfac->fac.sculptmap = oldadjfac[i]->sculptmap;
             memcpy ( &outfac->fac.edg, &oldadjfac[i]->edg, sizeof ( G3DEDGE   * ) * 0x04 );
@@ -401,7 +406,9 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
                  ( verfac != oldadjfac[0x03] ) ) {
                 G3DSUBFACE *outfac = outerFaces++; (*nbOuterFaces)++;
 
-                outfac->fac.flags = FACEOUTER;
+                outfac->fac.flags  = FACEOUTER;
+                outfac->fac.flags |= ( verfac->nbver == 0x04 ) ? FACEFROMQUAD : 
+                                                                 FACEFROMTRIANGLE;
                 outfac->fac.nbver = verfac->nbver;
                 outfac->fac.sculptmap = verfac->sculptmap;
                 memcpy ( &outfac->fac.edg, &verfac->edg, sizeof ( G3DEDGE * ) * 0x04 );
@@ -465,7 +472,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DRTQUAD      *rtFaces,
                                       G3DRTEDGE      *rtEdges,
                                       G3DRTVERTEX    *rtVertices,
-                                      uint32_t      (*subindex)[0x04], /*** for sculpt mode ***/
+                                      uint32_t      (*qua_indexes)[0x04], /*** for sculpt mode ***/
+                                      uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
                                       uint32_t        object_flags,
                                       uint32_t        engine_flags ) {
@@ -524,6 +532,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     do {
         if ( subdiv_level == 0x00 ) {
             if ( engine_flags & BUILDSUBINDEX ) {
+                uint32_t (*subindex)[0x04] = ( fac->nbver == 0x04 ) ? qua_indexes : tri_indexes;
+
                 for ( i = 0x00; i < nbInnerFaces; i++ ) {
                     subindex[curInnerFaces[i].fac.id][0x00] = curInnerFaces[i].fac.ver[0x00]->id;
                     subindex[curInnerFaces[i].fac.id][0x01] = curInnerFaces[i].fac.ver[0x01]->id;
@@ -665,9 +675,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     }
 
                     if ( fac->sculptmap ) {
-                        if ( g3dsculptmap_processVertex ( fac->sculptmap, subver, subdiv_level ) == 0x00 ) {
-                            /*g3dsculptmap_processEdgeSubvertex (  fac->sculptmap, &curInnerEdges[i], subdiv_level );*/
-                        }
+                        /*if ( g3dsculptmap_processVertex ( fac->sculptmap, subver, subdiv_level ) == 0x00 ) {*/
+                            g3dsculptmap_processVertexFromEdge (  fac->sculptmap, subver, &curInnerEdges[i], subdiv_level );
+                        /*}*/
                     }
 
                     for ( j = 0x00; j < 0x02; j++ ) {
@@ -744,9 +754,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                          &curInnerFaces[i].fac.pos, sizeof ( G3DVECTOR ) );
 
                 if ( fac->sculptmap ) {
-                    if ( g3dsculptmap_processVertex ( fac->sculptmap, subver, subdiv_level ) == 0x00 ) {
-                        /*g3dsculptmap_processEdgeSubvertex ( fac->sculptmap, &curInnerFaces[i], subdiv_level );*/
-                    }
+                    /*if ( g3dsculptmap_processVertex ( fac->sculptmap, subver, subdiv_level ) == 0x00 ) {*/
+                        g3dsculptmap_processVertexFromFace ( fac->sculptmap, subver, &curInnerFaces[i], subdiv_level );
+                    /*}*/
                 }
 
                 for ( j = 0x00; j < curInnerFaces[i].fac.nbver; j++ ) {
@@ -802,14 +812,14 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     if ( polygon->flags & FACEINNER ) {
                         subfac = innerFaces++; nbInnerFaces++;
                         /*** Flag for next pass ***/
-                        subfac->fac.flags  = FACEINNER;
+                        subfac->fac.flags  = polygon->flags;
                     } else {
                         subfac = outerFaces++; nbOuterFaces++;
                         /*** Flag for next pass ***/
-                        subfac->fac.flags  = FACEOUTER;
+                        subfac->fac.flags  = polygon->flags;
                     }
 
-                    g3dface_initSubface ( polygon, subfac, &curInnerVertices[i], curInnerVertices[i].ver.subver, subindex, loopID, subdiv_level );
+                    g3dface_initSubface ( polygon, subfac, &curInnerVertices[i], curInnerVertices[i].ver.subver, qua_indexes, tri_indexes, loopID, subdiv_level );
 
                     ltmpfac = ltmpfac->next;
                 }
@@ -883,15 +893,14 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
         G3DRTQUAD   *rtfacmem = fac->rtfacmem;
         G3DRTVERTEX *rtvermem = fac->rtvermem;
-        uint32_t (*subindex)[0x04] = ( fac->nbver == 0x04 ) ? sdt->qua_indexes :
-                                                              sdt->tri_indexes;
         uint32_t nbpos = 0x00;
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
                                                          fac->rtfacmem,
                                                          fac->rtedgmem,
                                                          fac->rtvermem,
-                                                         subindex,
+                                                         sdt->qua_indexes,
+                                                         sdt->tri_indexes,
                                                          mes->subdiv,
                                                          obj->flags,
                                                          sdt->engine_flags );

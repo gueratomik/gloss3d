@@ -2461,13 +2461,15 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-        uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, mes->subdiv );
+        uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, mes->subdiv );
+        uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, mes->subdiv );
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
                                                          NULL,
                                                          NULL,
                                                          NULL,
-                                                         subindex,
+                                                         qua_indexes,
+                                                         tri_indexes,
                                                          subdiv,
                                                          objmes->flags,
                                                          engine_flags );

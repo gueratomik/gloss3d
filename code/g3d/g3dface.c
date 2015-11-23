@@ -153,7 +153,8 @@ void g3dface_addSculptMap ( G3DFACE *fac, G3DSCULPTMAP *sculptmap ) {
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
-                                         uint32_t  (*subindex)[0x04],
+                                         uint32_t  (*qua_indexes)[0x04],
+                                         uint32_t  (*tri_indexes)[0x04],
                                          uint32_t    iteration,
                                          uint32_t    curdiv ) {
     uint32_t i, j;
@@ -182,12 +183,16 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
 
             /*** we need normal vector only on last subdivision ***/
             if ( curdiv == 0x01 ) {
-                if ( fac->sculptmap && subindex ) {
+                if ( fac->sculptmap && qua_indexes && tri_indexes ) {
                     if ( fac->flags & FACEOUTER ) {
                         for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
                             if (   ( subfac->fac.ver[j]->flags & VERTEXOUTER    ) &&
                                  ( ( subfac->fac.ver[j]->flags & VERTEXSCULPTED ) == 0x00 ) ) {
-                                subfac->fac.ver[j]->id = subindex[subfac->fac.id][j];
+                                if ( subfac->fac.flags & FACEFROMQUAD ) {
+                                    subfac->fac.ver[j]->id = qua_indexes[subfac->fac.id][j];
+                                } else {
+                                    subfac->fac.ver[j]->id = tri_indexes[subfac->fac.id][j];
+                                }
 
                                 g3dsculptmap_processVertex ( subfac->fac.sculptmap, subfac->fac.ver[j], curdiv );
 

@@ -212,7 +212,8 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
         G3DFACE *fac = ( G3DFACE* ) ltmpfac->data;
         /*G3DRTTRIANGLE *triptr = tribuf;
         G3DRTUVSET    *uvsptr = uvsbuf;*/
-        uint32_t (*subindex)[0x04] = g3dsubindex_get ( fac->nbver, subdiv );
+        uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, subdiv );
+        uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, subdiv );
         uint32_t nbrtfac = ( fac->nbver == 0x04 ) ? quaFaces    : triFaces;
         uint32_t nbrtver = ( fac->nbver == 0x04 ) ? quaVertices : triVertices;
         uint32_t nbfac;
@@ -226,7 +227,8 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, double  *wmatrix,
                                                   rtfacmem,
                                                   rtedgmem,
                                                   rtvermem,
-                                                  subindex,
+                                                  qua_indexes,
+                                                  tri_indexes,
                                                   subdiv,
                                                   obj->flags,
                                                   engine_flags );

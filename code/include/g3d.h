@@ -231,6 +231,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEORIGINAL          (  1 << 10 )
 #define FACEINNER             (  1 << 11 )
 #define FACEOUTER             (  1 << 12 )
+#define FACEFROMQUAD          (  1 << 13 ) /*** subface ancestor is a quad ***/
+#define FACEFROMTRIANGLE      (  1 << 14 ) /*** subface ancestor is a triangle ***/
 
 /***************************** Subdivision Flags ******************************/
 #define SUBDIVISIONMALLOCVERTICES (  1       )
@@ -1473,6 +1475,7 @@ void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
                                       G3DVERTEX  *,
                                       G3DVERTEX  *,
                                       uint32_t (*)[0x04],
+                                      uint32_t (*)[0x04],
                                       uint32_t,
                                       uint32_t );
 
@@ -1502,6 +1505,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *,
                                                         G3DRTQUAD *,
                                 /*** get vertices  ***/ G3DRTEDGE  *,
                                 /*** get vertices  ***/ G3DRTVERTEX  *,
+                                                        uint32_t (*)[0x04],
                                                         uint32_t (*)[0x04],
                                                         uint32_t      ,
                                                         uint32_t      ,

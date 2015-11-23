@@ -177,16 +177,19 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
             }*/
 
             if ( st->ctrl_key ) {
-                fac->sculptmap->points[verID].x -= (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].y -= (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].z -= (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].w  = mes->subdiv;
+                fac->rtvermem[verID].pos.x -= (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
+                fac->rtvermem[verID].pos.y -= (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
+                fac->rtvermem[verID].pos.z -= (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
             } else {
-                fac->sculptmap->points[verID].x += (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].y += (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].z += (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
-                fac->sculptmap->points[verID].w  = mes->subdiv;
+                fac->rtvermem[verID].pos.x += (fac->rtvermem[verID].nor.x * st->pressure * 0.01f);
+                fac->rtvermem[verID].pos.y += (fac->rtvermem[verID].nor.y * st->pressure * 0.01f);
+                fac->rtvermem[verID].pos.z += (fac->rtvermem[verID].nor.z * st->pressure * 0.01f);
             }
+
+            fac->sculptmap->points[verID].x = fac->rtvermem[verID].pos.x;
+            fac->sculptmap->points[verID].y = fac->rtvermem[verID].pos.y;
+            fac->sculptmap->points[verID].z = fac->rtvermem[verID].pos.z;
+            fac->sculptmap->points[verID].w = 1.0f/*mes->subdiv*/;
 
             /*list_insert ( &lis, ( void * ) cname );*/
             /*printf ("facID:%d verID:%d\n", facID, verID );*/

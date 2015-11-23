@@ -33,11 +33,88 @@
 uint32_t g3dsculptmap_processVertex ( G3DSCULPTMAP *scm, G3DVERTEX *ver, 
                                                          uint32_t subdiv_level ) {
     if ( /*scm->points[ver->id].w >= */subdiv_level == 0x01 ) {
-        ver->pos.x += scm->points[ver->id].x;
-        ver->pos.y += scm->points[ver->id].y;
-        ver->pos.z += scm->points[ver->id].z;
+        if ( scm->points[ver->id].w ) {
+            ver->pos.x  = scm->points[ver->id].x;
+            ver->pos.y  = scm->points[ver->id].y;
+            ver->pos.z  = scm->points[ver->id].z;
 
-        return 0x01;
+            return 0x01;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dsculptmap_processVertexFromEdge ( G3DSCULPTMAP *scm, G3DVERTEX *ver,
+                                                                 G3DEDGE   *edg,
+                                                                 uint32_t subdiv_level ) {
+    if ( /*scm->points[ver->id].w >= */subdiv_level == 0x01 ) {
+        if ( scm->points[ver->id].w == 1.0f ) {
+            ver->pos.x  = scm->points[ver->id].x;
+            ver->pos.y  = scm->points[ver->id].y;
+            ver->pos.z  = scm->points[ver->id].z;
+
+            return 0x01;
+        } else {
+            if ( scm->points[edg->ver[0x00]->id].w && 
+                 scm->points[edg->ver[0x01]->id].w ) {
+                ver->pos.x  = ( ( scm->points[edg->ver[0x00]->id].x + scm->points[edg->ver[0x01]->id].x ) * 0.5f );
+                ver->pos.y  = ( ( scm->points[edg->ver[0x00]->id].y + scm->points[edg->ver[0x01]->id].y ) * 0.5f );
+                ver->pos.z  = ( ( scm->points[edg->ver[0x00]->id].z + scm->points[edg->ver[0x01]->id].z ) * 0.5f );
+
+                scm->points[ver->id].x = ver->pos.x;
+                scm->points[ver->id].y = ver->pos.y;
+                scm->points[ver->id].z = ver->pos.z;
+                scm->points[ver->id].w = 2.0f;
+            }
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dsculptmap_processVertexFromFace ( G3DSCULPTMAP *scm, G3DVERTEX *ver,
+                                                                 G3DFACE   *fac,
+                                                                 uint32_t subdiv_level ) {
+    if ( /*scm->points[ver->id].w >= */subdiv_level == 0x01 ) {
+        if ( scm->points[ver->id].w == 1.0f ) {
+            ver->pos.x  = scm->points[ver->id].x;
+            ver->pos.y  = scm->points[ver->id].y;
+            ver->pos.z  = scm->points[ver->id].z;
+
+            return 0x01;
+        } else {
+            if ( fac->nbver == 0x04 ) {
+                if ( scm->points[fac->ver[0x00]->id].w && 
+                     scm->points[fac->ver[0x01]->id].w &&
+                     scm->points[fac->ver[0x02]->id].w &&
+                     scm->points[fac->ver[0x03]->id].w ) {
+                    ver->pos.x  = ( ( scm->points[fac->ver[0x00]->id].x + scm->points[fac->ver[0x01]->id].x + scm->points[fac->ver[0x02]->id].x + scm->points[fac->ver[0x03]->id].x ) * 0.25f );
+                    ver->pos.y  = ( ( scm->points[fac->ver[0x00]->id].y + scm->points[fac->ver[0x01]->id].y + scm->points[fac->ver[0x02]->id].y + scm->points[fac->ver[0x03]->id].y ) * 0.25f );
+                    ver->pos.z  = ( ( scm->points[fac->ver[0x00]->id].z + scm->points[fac->ver[0x01]->id].z + scm->points[fac->ver[0x02]->id].z + scm->points[fac->ver[0x03]->id].z ) * 0.25f );
+
+                    scm->points[ver->id].x = ver->pos.x;
+                    scm->points[ver->id].y = ver->pos.y;
+                    scm->points[ver->id].z = ver->pos.z;
+                    scm->points[ver->id].w = 2.0f;
+                }
+            } else {
+                if ( scm->points[fac->ver[0x00]->id].w && 
+                     scm->points[fac->ver[0x01]->id].w &&
+                     scm->points[fac->ver[0x03]->id].w ) {
+                    ver->pos.x  = ( ( scm->points[fac->ver[0x00]->id].x + scm->points[fac->ver[0x01]->id].x + scm->points[fac->ver[0x02]->id].x ) * 0.33f );
+                    ver->pos.y  = ( ( scm->points[fac->ver[0x00]->id].y + scm->points[fac->ver[0x01]->id].y + scm->points[fac->ver[0x02]->id].y ) * 0.33f );
+                    ver->pos.z  = ( ( scm->points[fac->ver[0x00]->id].z + scm->points[fac->ver[0x01]->id].z + scm->points[fac->ver[0x02]->id].z ) * 0.33f );
+
+                    scm->points[ver->id].x = ver->pos.x;
+                    scm->points[ver->id].y = ver->pos.y;
+                    scm->points[ver->id].z = ver->pos.z;
+                    scm->points[ver->id].w = 2.0f;
+                }
+            }
+        }
     }
 
     return 0x00;
