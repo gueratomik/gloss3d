@@ -69,6 +69,7 @@ void g3drtvertex_init ( G3DRTVERTEX *rtver, G3DVERTEX *ver,
         }
     }
 
+    rtver->flags = ver->flags;
 
     memcpy ( &rtver->nor, &ver->nor, sizeof ( G3DTINYVECTOR ) );
     memcpy ( &rtver->pos, &ver->pos, sizeof ( G3DTINYVECTOR ) );

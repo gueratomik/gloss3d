@@ -24,6 +24,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dedge.c \
                       g3dface.c \
                       g3dffd.c \
+                      g3dheightmap.c \
                       g3dimage.c \
                       g3dkey.c \
                       g3dlight.c \
@@ -39,7 +40,6 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \
                       g3dscene.c \
-                      g3dsculptmap.c \
                       g3dsphere.c \
                       g3dsubdivision.c \
                       g3dsubdivisionthread.c \

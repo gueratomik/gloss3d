@@ -41,6 +41,7 @@
 /******************************************************************************/
 #define PICKTOOL           "Pick"
 #define SCULPTTOOL         "Sculpt"
+#define SMOOTHTOOL         "Smooth"
 #define MOVETOOL           "Move"
 #define ROTATETOOL         "Rotate"
 #define SCALETOOL          "Scale"
@@ -164,13 +165,29 @@ typedef struct G3DPICKTOOL {
 } G3DPICKTOOL;
 
 /******************************************************************************/
+typedef struct _SCULPTFACE {
+    G3DFACE *fac;
+    G3DRTVERTEX *rtvermem;
+} SCULPTFACE;
+
+/******************************************************************************/
 typedef struct G3DSCULPTTOOL {
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
     int only_visible;
     int radius;
     float pressure;
     int ctrl_key;
+    LIST *lscf; /*** SCULPTFACE list ***/
 } G3DSCULPTTOOL;
+
+/******************************************************************************/
+typedef struct _G3DSMOOTHTOOL {
+    int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
+    int only_visible;
+    int radius;
+    float pressure;
+    int ctrl_key;
+} G3DSMOOTHTOOL;
 
 /******************************************************************************/
 typedef struct _G3DCUTMESH {
@@ -252,6 +269,15 @@ uint32_t        sculptTool_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
                                                                 uint32_t );
 int             sculpt_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+                                                                G3DURMANAGER *, 
+                                                                uint32_t,
+                                                                G3DEvent * );
+
+/******************************************************************************/
+uint32_t        smoothTool_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+                                                                G3DURMANAGER *,
+                                                                uint32_t );
+int             smooth_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *, 
                                                                 uint32_t,
                                                                 G3DEvent * );

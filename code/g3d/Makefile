@@ -74,15 +74,16 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3d_la_LIBADD =
 am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dcore.lo g3dcube.lo g3dcursor.lo g3dcutface.lo \
-	g3dcylinder.lo g3dedge.lo g3dface.lo g3dffd.lo g3dimage.lo \
-	g3dkey.lo g3dlight.lo g3dmaterial.lo g3dmesh.lo g3dobject.lo \
-	g3dpivot.lo g3dplane.lo g3dprimitive.lo g3dquaternion.lo \
-	g3drgba.lo g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
-	g3dscene.lo g3dsculptmap.lo g3dsphere.lo g3dsubdivision.lo \
-	g3dsubdivisionthread.lo g3dsubdivisionV3.lo g3dsubedge.lo \
-	g3dsubface.lo g3dsubindex.lo g3dsubpattern.lo g3dsubvertex.lo \
-	g3dsymmetry.lo g3dsysinfo.lo g3dtexture.lo g3dtorus.lo \
-	g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo g3dweight.lo
+	g3dcylinder.lo g3dedge.lo g3dface.lo g3dffd.lo g3dheightmap.lo \
+	g3dimage.lo g3dkey.lo g3dlight.lo g3dmaterial.lo g3dmesh.lo \
+	g3dobject.lo g3dpivot.lo g3dplane.lo g3dprimitive.lo \
+	g3dquaternion.lo g3drgba.lo g3drttriangle.lo \
+	g3drttriangleuvw.lo g3drtvertex.lo g3dscene.lo g3dsphere.lo \
+	g3dsubdivision.lo g3dsubdivisionthread.lo g3dsubdivisionV3.lo \
+	g3dsubedge.lo g3dsubface.lo g3dsubindex.lo g3dsubpattern.lo \
+	g3dsubvertex.lo g3dsymmetry.lo g3dsysinfo.lo g3dtexture.lo \
+	g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo \
+	g3dweight.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -259,6 +260,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dedge.c \
                       g3dface.c \
                       g3dffd.c \
+                      g3dheightmap.c \
                       g3dimage.c \
                       g3dkey.c \
                       g3dlight.c \
@@ -274,7 +276,6 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \
                       g3dscene.c \
-                      g3dsculptmap.c \
                       g3dsphere.c \
                       g3dsubdivision.c \
                       g3dsubdivisionthread.c \
@@ -380,6 +381,7 @@ include ./$(DEPDIR)/g3dcylinder.Plo
 include ./$(DEPDIR)/g3dedge.Plo
 include ./$(DEPDIR)/g3dface.Plo
 include ./$(DEPDIR)/g3dffd.Plo
+include ./$(DEPDIR)/g3dheightmap.Plo
 include ./$(DEPDIR)/g3dimage.Plo
 include ./$(DEPDIR)/g3dkey.Plo
 include ./$(DEPDIR)/g3dlight.Plo
@@ -395,7 +397,6 @@ include ./$(DEPDIR)/g3drttriangle.Plo
 include ./$(DEPDIR)/g3drttriangleuvw.Plo
 include ./$(DEPDIR)/g3drtvertex.Plo
 include ./$(DEPDIR)/g3dscene.Plo
-include ./$(DEPDIR)/g3dsculptmap.Plo
 include ./$(DEPDIR)/g3dsphere.Plo
 include ./$(DEPDIR)/g3dsubdivision.Plo
 include ./$(DEPDIR)/g3dsubdivisionV3.Plo

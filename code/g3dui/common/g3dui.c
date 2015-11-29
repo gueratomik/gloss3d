@@ -642,6 +642,14 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
 
     /********************************/
 
+    /*mou = g3dmousetool_new ( SMOOTHTOOL, 'x', extrude_xpm,
+                             smoothTool_init,
+                             NULL, smooth_tool, 0x00 );
+
+    common_g3dui_addMouseTool ( gui, mou, SCULPTMODETOOL | GLMENUTOOL );*/
+
+    /********************************/
+
     mou = g3dmousetool_new ( EXTRUDETOOL, 'x', extrude_xpm,
                              extrudeFace_init,
                              NULL, extrudeFace_tool, 0x00 );

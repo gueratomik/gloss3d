@@ -202,6 +202,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VERTEXOUTER        (  1 << 18  )
 #define VERTEXSCULPTED     (  1 << 19  )
 
+#define VERTEXONEDGE       (  1 << 20  )
+
+
+
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
 #define TEXTUREDISPLACE   ( 1 << 1 )
@@ -233,6 +237,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEOUTER             (  1 << 12 )
 #define FACEFROMQUAD          (  1 << 13 ) /*** subface ancestor is a quad ***/
 #define FACEFROMTRIANGLE      (  1 << 14 ) /*** subface ancestor is a triangle ***/
+
+/******************************** height Flags ********************************/
+#define HEIGHTSET (  1       )
 
 /***************************** Subdivision Flags ******************************/
 #define SUBDIVISIONMALLOCVERTICES (  1       )
@@ -440,6 +447,14 @@ typedef struct _G3DVECTORCACHE {
 } G3DVECTORCACHE;
 
 /******************************************************************************/
+/**** This is NOT to be confused with the plane primitive ***/
+typedef struct _G3DPLANE {
+    G3DVECTOR pos;
+    G3DVECTOR nor;
+    float d;
+} G3DPLANE;
+
+/******************************************************************************/
 typedef struct _G3DDOUBLEVECTOR {
     double x, y, z, w;
 } G3DDOUBLEVECTOR;
@@ -519,6 +534,7 @@ typedef struct _G3DRTVERTEX {
     float r, g, b, a;
     G3DTINYVECTOR nor;
     G3DTINYVECTOR pos;
+    uint32_t flags;
 } G3DRTVERTEX;
 
 /******************************************************************************/
@@ -752,10 +768,22 @@ typedef struct _G3DCUTEDGE {
 } G3DCUTEDGE;
 
 /******************************************************************************/
-typedef struct _G3DSCULTMAP {
+/*typedef struct _G3DSCULTMAP {
     G3DVECTOR *points;
     uint32_t maxpoints;
-} G3DSCULPTMAP;
+} G3DSCULPTMAP;*/
+
+/******************************************************************************/
+typedef struct _G3DHEIGHT {
+    float elevation;
+    uint32_t flags;
+} G3DHEIGHT;
+
+/******************************************************************************/
+typedef struct _G3DHEIGHTMAP {
+    G3DHEIGHT *heights;
+    uint32_t maxheights;
+} G3DHEIGHTMAP;
 
 /******************************************************************************/
 typedef struct _G3DFACE {
@@ -777,7 +805,7 @@ typedef struct _G3DFACE {
     uint32_t         nbrtfac;
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
     float            surface;/*** used by the raytracer               ***/
-    G3DSCULPTMAP    *sculptmap;
+    G3DHEIGHTMAP    *heightmap;
 } G3DFACE;
 
 /******************************************************************************/
@@ -2058,8 +2086,8 @@ void      g3dpivot_orbit ( G3DPIVOT *, int32_t, int32_t, int32_t, int32_t );
 G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *, uint32_t );
 G3DSYSINFO     *g3dsysinfo_get ( );
 
-void          g3dsculptmap_realloc ( G3DSCULPTMAP *, uint32_t );
-G3DSCULPTMAP *g3dsculptmap_new     ( uint32_t );
+void          g3dheightmap_realloc ( G3DHEIGHTMAP *, uint32_t );
+G3DHEIGHTMAP *g3dheightmap_new     ( uint32_t );
 
 uint32_t *g3dsubindex_get ( uint32_t, uint32_t );
 

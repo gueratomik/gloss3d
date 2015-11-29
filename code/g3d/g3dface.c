@@ -145,8 +145,8 @@ void g3dface_evalSubdivision ( G3DFACE *fac, uint32_t level,
 }
 
 /*****************************************************************************/
-void g3dface_addSculptMap ( G3DFACE *fac, G3DSCULPTMAP *sculptmap ) {
-    fac->sculptmap = sculptmap;
+void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
+    fac->heightmap = heightmap;
 }
 
 /*****************************************************************************/
@@ -172,7 +172,7 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
             subfac->fac.ver[0x02] = fac->subver;
             subfac->fac.ver[0x03] = fac->edg[p]->subver;
 
-            subfac->fac.sculptmap = fac->sculptmap;
+            subfac->fac.heightmap = fac->heightmap;
 
             if ( curdiv > 1 ) {
                 subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
@@ -181,9 +181,8 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                 subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
             }
 
-            /*** we need normal vector only on last subdivision ***/
             if ( curdiv == 0x01 ) {
-                if ( fac->sculptmap && qua_indexes && tri_indexes ) {
+                if ( fac->heightmap && qua_indexes && tri_indexes ) {
                     if ( fac->flags & FACEOUTER ) {
                         for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
                             if (   ( subfac->fac.ver[j]->flags & VERTEXOUTER    ) &&
@@ -194,14 +193,17 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                     subfac->fac.ver[j]->id = tri_indexes[subfac->fac.id][j];
                                 }
 
-                                g3dsculptmap_processVertex ( subfac->fac.sculptmap, subfac->fac.ver[j], curdiv );
+                                /*g3dheightmap_processVertex ( subfac->fac.heightmap, subfac->fac.ver[j], curdiv );*/
 
                                 subfac->fac.ver[j]->flags |= VERTEXSCULPTED;
                             }
                         }
                     }
                 }
+            }
 
+            /*** we need normal vector only on last subdivision ***/
+            if ( ( curdiv == 0x01 ) || ( fac->heightmap ) ) {
                 g3dface_normal ( subfac );
             }
 

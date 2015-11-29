@@ -31,39 +31,21 @@
 /******************************************************************************/
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
+/******************************************************************************/
+typedef struct _SMOOTHVERTEX {
+    uint32_t      verid;
+    G3DRTVERTEX  *rtver;
+    G3DSCULPTMAP *scmap;
+} SMOOTHVERTEX;
 
 /******************************************************************************/
-uint32_t directionChange ( uint32_t x, uint32_t y ) {
-    static uint32_t oldx, oldy;
-    static G2DVECTOR olddir;
-    static int32_t oldres;
-    G2DVECTOR dir = { x - oldx, y - oldy };
-    int32_t res;
-    uint32_t change = 0;
+G3DSMOOTHTOOL *smoothTool_new ( ) {
+    uint32_t structsize = sizeof ( G3DSMOOTHTOOL );
 
-    res = g2dvector_scalar ( &dir, &olddir );
-
-    if ( res * oldres < 0 ) change = 0x01;
-
-    oldres = res;
-
-    olddir.x = dir.x;
-    olddir.y = dir.y;
-
-    oldx = x;
-    oldy = y;
-
-    return change;
-}
-
-/******************************************************************************/
-G3DSCULPTTOOL *sculptTool_new ( ) {
-    uint32_t structsize = sizeof ( G3DSCULPTTOOL );
-
-    G3DSCULPTTOOL *st =  ( G3DSCULPTTOOL * ) calloc ( 0x01, structsize );
+    G3DSMOOTHTOOL *st =  ( G3DSMOOTHTOOL * ) calloc ( 0x01, structsize );
 
     if ( st == NULL ) {
-        fprintf ( stderr, "sculptTool_new: Memory allocation failed\n" );
+        fprintf ( stderr, "smoothTool_new: Memory allocation failed\n" );
 
         return NULL;
     }
@@ -78,7 +60,7 @@ G3DSCULPTTOOL *sculptTool_new ( ) {
 #define BUFFERSIZE 0x10000
 
 /******************************************************************************/
-void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
+void smooth_pick ( G3DSMOOTHTOOL *st, G3DMESH *mes,
                                       G3DCAMERA *cam,
                                       G3DVECTOR *dir,
                                       uint32_t engine_flags ) {
@@ -105,8 +87,11 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     uint32_t subdiv = mes->subdiv;
     LIST *ltmpfac = mes->lfac;
     LIST *lfac = NULL, *lextfac = NULL;
-    uint32_t dirchange;
-    LIST *ltmpscf = st->lscf;
+    G3DPLANE plane;
+    uint32_t nbver = 0x00;
+    LIST *lsmver = NULL;
+
+    memset ( &plane, 0x00, sizeof ( G3DPLANE ) );
 
     g3dtriangle_evalSubdivision ( subdiv, &triFaces, &triEdges, &triVertices );
     g3dquad_evalSubdivision     ( subdiv, &quaFaces, &quaEdges, &quaVertices );
@@ -136,18 +121,6 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     g3dcamera_view ( cam, 0x00 );
 
     glMultMatrixd ( ((G3DOBJECT*)mes)->wmatrix );
-
-    if ( directionChange ( MX, MY ) ) {
-        while ( ltmpscf ) {
-            G3DHEIGHTMAP *htm = ( G3DHEIGHTMAP * ) ltmpscf->data;
-
-            for ( i = 0x00; i < htm->maxheights; i++ ) {
-                 htm->heights[i].flags &= ~(0x80000000);
-            }
-
-            ltmpscf = ltmpscf->next;
-        }
-    }
 
     if ( ( obj->flags & BUFFEREDSUBDIVISION ) ) {
         if ( mes->subdiv ) {
@@ -187,32 +160,76 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
             uint32_t facID = name >> 0x10;
             uint32_t verID = name & 0x000FFFF;
             G3DFACE *fac = mes->faceindex[facID];
+            SMOOTHVERTEX *smver = calloc ( 0x01, sizeof ( SMOOTHVERTEX ) );
 
             /*** prepare redrawing ***/
             if ( list_seek ( lfac, fac ) == NULL ) {
                 list_insert ( &lfac, fac );
             }
 
-            if ( list_seek ( st->lscf, fac->heightmap ) == NULL ) {
-                list_insert ( &st->lscf, fac->heightmap );
-            }
+            /*g3dface_evalSubdivision ( fac, mes->subdiv, &nbFaces, &nbEdges, &nbVertices );*/
 
-            fac->heightmap->heights[verID].flags |= HEIGHTSET;
+            smver->verid =  verID;
+            smver->rtver = &fac->rtvermem[verID];
+            smver->scmap =  fac->sculptmap;
 
-            if ( (fac->heightmap->heights[verID].flags & 0x80000000) == 0x00 ) {
-                if ( st->ctrl_key ) {
-                    fac->heightmap->heights[verID].elevation -= (st->pressure * 0.01f);
-                } else {
-                    fac->heightmap->heights[verID].elevation += (st->pressure * 0.01f);
-                }
+            list_insert ( &lsmver, smver );
 
-                fac->heightmap->heights[verID].flags |= 0x80000000; /*** no more change allowed ***/
-            }
+            plane.pos.x += fac->rtvermem[verID].pos.x;
+            plane.pos.y += fac->rtvermem[verID].pos.y;
+            plane.pos.z += fac->rtvermem[verID].pos.z;
+
+            plane.nor.x += fac->rtvermem[verID].nor.x;
+            plane.nor.y += fac->rtvermem[verID].nor.y;
+            plane.nor.z += fac->rtvermem[verID].nor.z;
+
+            nbver++;
 
             /*list_insert ( &lis, ( void * ) cname );*/
             /*printf ("facID:%d verID:%d\n", facID, verID );*/
         }
       }
+    }
+
+    if ( nbver > 0x02 ) {
+        LIST *ltmpsmver = lsmver;
+
+        plane.pos.x /= nbver;
+        plane.pos.y /= nbver;
+        plane.pos.z /= nbver;
+
+        plane.nor.x /= nbver;
+        plane.nor.y /= nbver;
+        plane.nor.z /= nbver;
+
+        g3dvector_normalize ( &plane.nor, NULL );
+
+        plane.d = - ( plane.nor.x * plane.pos.x ) + 
+                    ( plane.nor.y * plane.pos.y ) +
+                    ( plane.nor.z * plane.pos.z );
+
+        /*G3DVERTEX *ver = g3dvertex_new ( plane.pos.x, plane.pos.y, plane.pos.z );
+
+        ver->nor.x = plane.nor.x;
+        ver->nor.y = plane.nor.y;
+        ver->nor.z = plane.nor.z;
+        ver->nor.w = 1.0f;
+        ver->surface = 1.0f;
+
+        g3dmesh_addVertex ( mes, ver  );*/
+
+        while ( ltmpsmver ) {
+            SMOOTHVERTEX *smver = ( SMOOTHVERTEX * ) ltmpsmver->data;
+            float distance = ( plane.nor.x * smver->rtver->pos.x ) + 
+                             ( plane.nor.y * smver->rtver->pos.y ) + 
+                             ( plane.nor.z * smver->rtver->pos.z ) + plane.d;
+/*printf("%f\n", distance );*/
+            smver->scmap->points[smver->verid].x -= (plane.nor.x * distance * 0.01f);
+            smver->scmap->points[smver->verid].y -= (plane.nor.y * distance * 0.01f);
+            smver->scmap->points[smver->verid].z -= (plane.nor.z * distance * 0.01f);
+
+            ltmpsmver = ltmpsmver->next;
+        }
     }
 
     lextfac = g3dface_getNeighbourFacesFromList ( lfac );
@@ -228,7 +245,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
     /*ltmpfac = lfac;*/
 
 
-    if ( lextfac ) g3dmesh_fillSubdividedFaces ( mes, lextfac, engine_flags );
+    g3dmesh_fillSubdividedFaces ( mes, lextfac, engine_flags );
 
     /*while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -248,31 +265,33 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
 
     list_free ( &lextfac, NULL );
     list_free ( &lfac, NULL );
+
+    list_free ( &lsmver, free );
 }
 
 /******************************************************************************/
-uint32_t sculptTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+uint32_t smoothTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
                                               G3DCAMERA *cam,
                                               G3DURMANAGER *urm, 
                                               uint32_t engine_flags ) {
     if ( mou->data ) {
-        G3DSCULPTTOOL *st = mou->data;
+        G3DSMOOTHTOOL *st = mou->data;
     } else {
-        mou->data = sculptTool_new ( );
+        mou->data = smoothTool_new ( );
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static void sculpt_free ( void *data ) {
+static void smooth_free ( void *data ) {
 
 }
 
 /******************************************************************************/
-int sculpt_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
+int smooth_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                   G3DURMANAGER *urm, uint32_t engine_flags, G3DEvent *event ) {
-    G3DSCULPTTOOL *st = mou->data;
+    G3DSMOOTHTOOL *st = mou->data;
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static GLdouble MVX[0x10], PJX[0x10];
@@ -283,11 +302,11 @@ int sculpt_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
             obj = g3dscene_getLastSelected ( sce );
 
-            /*** Sculpting is only available to buffer subdivided objects because ***/
+            /*** Smoothing is only available to buffer subdivided objects because ***/
             /*** we can only retrieve the Z values thanks to the coordinates stored***/
             /*** in the rtvermem buffer. ***/
             if ( ( obj->flags & BUFFEREDSUBDIVISION ) == 0x00 ) {
-                printf ( stderr, "sculpt_tool: Sculpting is only available to "
+                printf ( stderr, "smooth_tool: Smoothing is only available to "
                                  "buffer subdivided objects" );
 
                 obj = NULL;
@@ -338,14 +357,12 @@ int sculpt_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     G3DMESH *mes = ( G3DMESH * ) obj;
 
-                    sculpt_pick ( st, mes, cam, &dir, engine_flags );
+                    smooth_pick ( st, mes, cam, &dir, engine_flags );
                 }
             }
         } break;
 
         case G3DButtonRelease : {
-            list_free ( &st->lscf, NULL );
-
             obj = NULL;
         } break;
 

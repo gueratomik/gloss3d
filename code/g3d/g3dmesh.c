@@ -2401,17 +2401,24 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
                         } else {
                             g3dface_bindMaterials ( fac, mes->ltex, NULL, engine_flags & (~VIEWFACE) );
                         }
+                        glEnableClientState ( GL_COLOR_ARRAY  );
 /*printf("%d %d %d %d\n", fac->rtfacmem->rtver[0], fac->rtfacmem->rtver[1], fac->rtfacmem->rtver[2], fac->rtfacmem->rtver[3] );*/
-                        glInterleavedArrays ( GL_C4F_N3F_V3F, 0, fac->rtvermem );
+                        /*glInterleavedArrays ( GL_C4F_N3F_V3F, 0, fac->rtvermem );*/
 	                /*glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), fac->rtvermem + 28 );
                         glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), fac->rtvermem + 16 );*/
+	                glColorPointer  ( 4, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem)      );
+	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 28 );
+                        glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 16 );
+
                         glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtfacmem );
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
+                        glDisableClientState ( GL_COLOR_ARRAY  );
                     } else {
                         glEnableClientState ( GL_COLOR_ARRAY  );
                         /*glInterleavedArrays ( GL_C4F_N3F_V3F, 0, fac->rtvermem );*/
-	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 28 );
-                        glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 16 );
+	                glColorPointer  ( 4, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem)      );
+	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 28 );
+                        glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 16 );
                         glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtfacmem );
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
                         glDisableClientState ( GL_COLOR_ARRAY  );
@@ -3525,12 +3532,12 @@ void g3dmesh_allocSubdivisionBuffers ( G3DMESH *mes, uint32_t engine_flags ) {
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( fac->sculptmap ) {
-            if ( fac->nbver == 0x03 ) g3dsculptmap_realloc ( fac->sculptmap, triVertices );
-            if ( fac->nbver == 0x04 ) g3dsculptmap_realloc ( fac->sculptmap, quaVertices );
+        if ( fac->heightmap ) {
+            if ( fac->nbver == 0x03 ) g3dheightmap_realloc ( fac->heightmap, triVertices );
+            if ( fac->nbver == 0x04 ) g3dheightmap_realloc ( fac->heightmap, quaVertices );
         } else {
-            if ( fac->nbver == 0x03 ) fac->sculptmap = g3dsculptmap_new ( triVertices );
-            if ( fac->nbver == 0x04 ) fac->sculptmap = g3dsculptmap_new ( quaVertices );
+            if ( fac->nbver == 0x03 ) fac->heightmap = g3dheightmap_new ( triVertices );
+            if ( fac->nbver == 0x04 ) fac->heightmap = g3dheightmap_new ( quaVertices );
         }
 
         fac->rtfacmem = rtfacmem;
