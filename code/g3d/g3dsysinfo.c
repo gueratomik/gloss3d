@@ -41,7 +41,7 @@ static G3DSYSINFO *g3dsysinfo_new ( ) {
     }
 
 
-    sif->nbcpu = g3dcore_getNumberOfCPUs ( );
+    sif->nbcpu = /*g3dcore_getNumberOfCPUs ( )*/1;
 
     sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, sizeof ( G3DSUBDIVISION * ) );
 

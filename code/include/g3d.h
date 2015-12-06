@@ -1500,6 +1500,7 @@ G3DEDGE   *g3dface_getEdgeByID   ( G3DFACE *, uint32_t );
 void     g3dface_drawSimple  ( G3DFACE *, uint32_t, uint32_t, uint32_t );
 uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
+                                      G3DHEIGHTMAP *,
                                       G3DVERTEX  *,
                                       G3DVERTEX  *,
                                       uint32_t (*)[0x04],

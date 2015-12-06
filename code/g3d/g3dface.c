@@ -151,6 +151,7 @@ void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
 
 /*****************************************************************************/
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
+                                         G3DHEIGHTMAP *mainheightmap,
                                          G3DVERTEX  *oriver,
                                          G3DVERTEX  *orivercpy,
                                          uint32_t  (*qua_indexes)[0x04],
@@ -159,6 +160,7 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
                                          uint32_t    curdiv ) {
     uint32_t i, j;
 
+    subfac->fac.flags = fac->flags;
     subfac->fac.nbver = 0x04;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
@@ -183,22 +185,30 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
 
             if ( curdiv == 0x01 ) {
                 if ( fac->heightmap && qua_indexes && tri_indexes ) {
-                    if ( fac->flags & FACEOUTER ) {
+/*printf("%d\n", subfac->fac.id );
+g3dheightmap_print ( subfac->fac.heightmap );*/
                         for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
-                            if (   ( subfac->fac.ver[j]->flags & VERTEXOUTER    ) &&
-                                 ( ( subfac->fac.ver[j]->flags & VERTEXSCULPTED ) == 0x00 ) ) {
-                                if ( subfac->fac.flags & FACEFROMQUAD ) {
-                                    subfac->fac.ver[j]->id = qua_indexes[subfac->fac.id][j];
-                                } else {
-                                    subfac->fac.ver[j]->id = tri_indexes[subfac->fac.id][j];
+                            if (  ( subfac->fac.ver[j]->flags & VERTEXSCULPTED ) == 0x00 ) {
+                                uint32_t verID;
+
+                                if ( subfac->fac.ver[j]->flags & VERTEXOUTER ) {
+                                   verID = ( subfac->fac.flags & FACEFROMQUAD ) ? qua_indexes[subfac->fac.id][j] :
+                                                                                  tri_indexes[subfac->fac.id][j];
+
+                                    g3dheightmap_processVertex ( subfac->fac.heightmap, subfac->fac.ver[j], verID, curdiv );
                                 }
 
-                                /*g3dheightmap_processVertex ( subfac->fac.heightmap, subfac->fac.ver[j], curdiv );*/
+                                if ( subfac->fac.ver[j]->flags & VERTEXINNER ) {
+                                   verID = subfac->fac.ver[j]->id;
+
+                                    g3dheightmap_processVertex ( mainheightmap, subfac->fac.ver[j], verID, curdiv );
+                                }
+
+
 
                                 subfac->fac.ver[j]->flags |= VERTEXSCULPTED;
                             }
                         }
-                    }
                 }
             }
 

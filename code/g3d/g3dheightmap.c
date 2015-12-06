@@ -31,18 +31,31 @@
 
 /******************************************************************************/
 uint32_t g3dheightmap_processVertex ( G3DHEIGHTMAP *htm, G3DVERTEX *ver, 
+                                                         uint32_t verID,
                                                          uint32_t subdiv_level ) {
     /*if ( subdiv_level == 0x01 ) {*/
-        if ( htm->heights[ver->id].flags & HEIGHTSET ) {
-            ver->pos.x  += ( ver->nor.x * htm->heights[ver->id].elevation );
-            ver->pos.y  += ( ver->nor.y * htm->heights[ver->id].elevation );
-            ver->pos.z  += ( ver->nor.z * htm->heights[ver->id].elevation );
-/*printf("V - %d %f X:%f Y:%f Z:%f\n", ver->id, htm->heights[ver->id].elevation, ver->nor.x, ver->nor.y, ver->nor.z );*/
+        if ( htm->heights[verID].flags & HEIGHTSET ) {
+            ver->pos.x  += ( ver->nor.x * htm->heights[verID].elevation );
+            ver->pos.y  += ( ver->nor.y * htm->heights[verID].elevation );
+            ver->pos.z  += ( ver->nor.z * htm->heights[verID].elevation );
+/*if ( ver->id == 0x04 )
+    printf("V - %d %f X:%f Y:%f Z:%f\n", ver->id, htm->heights[ver->id].elevation, ver->nor.x, ver->nor.y, ver->nor.z );*/
             return 0x01;
         }
     /*}*/
 
     return 0x00;
+}
+
+/******************************************************************************/
+void g3dheightmap_print ( G3DHEIGHTMAP *htm ) {
+    uint32_t i;
+
+    printf ( "Heigthmap:%d\n", htm );
+    for ( i = 0x00; i < htm->maxheights; i++ ) {
+        printf ( "%f\n", htm->heights[i].elevation );
+    }
+    printf ( "\n" );
 }
 
 /******************************************************************************/

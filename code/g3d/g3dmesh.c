@@ -3598,11 +3598,11 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags
     mes->advang = 15.0f; /*** maximum limit to consider a face as ***/
                         /*** one that does not needed more subdiv ***/
 
-    mes->verid = 0x01; /*** start at 1 because we could have problem when ***/
+    mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/
                        /*** allocated vertex with ID 0  ***/
-    mes->edgid = 0x01;
-    mes->facid = 0x01;
+    mes->edgid = 0x00;
+    mes->facid = 0x00;
 
     obj->flags |= ( SYNCSUBDIVISION );
 

@@ -205,7 +205,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
                 } else {
                     fac->heightmap->heights[verID].elevation += (st->pressure * 0.01f);
                 }
-
+/*printf("%\d %d\n", facID, verID );*/
                 fac->heightmap->heights[verID].flags |= 0x80000000; /*** no more change allowed ***/
             }
 
