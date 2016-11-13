@@ -30,12 +30,13 @@
 #include <g3d.h>
 
 /******************************************************************************/
-void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *innerFaces,
-                                        uint32_t      nbInnerFaces,
-                                        G3DSUBVERTEX *innerVertices,
-                                        uint32_t      nbInnerVertices,
-                                        G3DRTQUAD    *rtFaces,
-                                        G3DRTVERTEX  *rtVertices ) {
+void g3dsubdivisionV3_convertToRTFACE ( G3DSUBFACE    *innerFaces,
+                                        uint32_t       nbInnerFaces,
+                                        G3DSUBVERTEX  *innerVertices,
+                                        uint32_t       nbInnerVertices,
+                                        G3DRTTRIANGLE *rtTriangles,
+                                        G3DRTQUAD     *rtQuads,
+                                        G3DRTVERTEX   *rtVertices ) {
     uint32_t i;
 
     for ( i = 0x00; i < nbInnerVertices; i++ ) {
@@ -51,12 +52,20 @@ void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *innerFaces,
     for ( i = 0x00; i < nbInnerFaces; i++ ) {
         /*uint32_t fid = innerFaces[i].fac.id;*/
 
-        rtFaces[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
-        rtFaces[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
-        rtFaces[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
-        rtFaces[i].rtver[0x03] = innerFaces[i].fac.ver[0x03]->id;
-
+        if ( innerFaces[i].fac.nbver == 0x03 ) {
+            rtTriangles[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
+            rtTriangles[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
+            rtTriangles[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
         }
+
+        if ( innerFaces[i].fac.nbver == 0x04 ) {
+            rtQuads[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
+            rtQuads[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
+            rtQuads[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
+            rtQuads[i].rtver[0x03] = innerFaces[i].fac.ver[0x03]->id;
+        }
+
+    }
 }
 
 /******************************************************************************/
@@ -262,7 +271,7 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *fac, uint32_t *totalInnerFaces,
                                                   uint32_t  level ) {
     uint32_t innerFaces = fac->nbver;
     uint32_t outerFaces = 0x000;
-    uint32_t innerEdges = fac->nbver * 0x02 + 0x04;
+    uint32_t innerEdges = fac->nbver * 0x02 + fac->nbver;
     uint32_t outerEdges = 0x000;
     uint32_t innerVertices = fac->nbver + fac->nbver + 0x01;
     uint32_t outerVertices = 0x000;
@@ -364,8 +373,10 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
         innerFace->fac.ver[i] = &innerVertices[i];
         /*** copy vertices ***/
         innerVertices[i].ver.id    = i;
-        innerVertices[i].ver.flags = fac->ver[i]->flags | VERTEXTOPOLOGY | VERTEXINNER;
-        memcpy ( &innerVertices[i].ver.pos   , &ver->pos, sizeof ( G3DVECTOR ) );
+        innerVertices[i].ver.flags = (fac->ver[i]->flags | VERTEXTOPOLOGY | VERTEXINNER) & ~VERTEXSKINNED;
+
+        
+        memcpy ( &innerVertices[i].ver.pos   , ( ver->flags & VERTEXSKINNED ) ? &ver->skn : &ver->pos, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.nor   , &ver->nor, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.edgpnt, &ver->edgpnt, sizeof ( G3DVECTOR ) );
         memcpy ( &innerVertices[i].ver.facpnt, &ver->facpnt, sizeof ( G3DVECTOR ) );
@@ -496,7 +507,8 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE       *fac,
 /******************************************************************************/
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DFACE        *fac,
-                                      G3DRTQUAD      *rtFaces,
+                                      G3DRTTRIANGLE  *rtTriangles,
+                                      G3DRTQUAD      *rtQuads,
                                       G3DRTEDGE      *rtEdges,
                                       G3DRTVERTEX    *rtVertices,
                                       uint32_t      (*qua_indexes)[0x04], /*** for sculpt mode ***/
@@ -525,9 +537,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     uint32_t topo_flags = 0x00;
     uint32_t init_flags = 0x00;
     G3DSUBFACE   memInnerFaces[0x01];
-    G3DSUBFACE   memOuterFaces[0x20];
+    G3DSUBFACE   memOuterFaces[0x40];
     G3DSUBEDGE   memInnerEdges[0x04];
-    G3DSUBEDGE   memOuterEdges[0x20];
+    G3DSUBEDGE   memOuterEdges[0x40];
     G3DSUBVERTEX memInnerVertices[0x04];
     uint32_t loopID = 0x00;
 
@@ -610,12 +622,13 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 }
             }
 
-            if ( rtFaces ) {
-                g3dsubdivisionV3_convertToRTQUAD ( curInnerFaces,
+            if ( rtTriangles || rtQuads ) {
+                g3dsubdivisionV3_convertToRTFACE ( curInnerFaces,
                                                    nbInnerFaces,
                                                    curInnerVertices,
                                                    nbInnerVertices,
-                                                   rtFaces,
+                                                   rtTriangles,
+                                                   rtQuads,
                                                    rtVertices );
             } else {
                 glBegin ( GL_QUADS );
@@ -855,7 +868,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                     g3dface_initSubface ( polygon, subfac, fac->heightmap,
                                                           &curInnerVertices[i],
-                                                           curInnerVertices[i].ver.subver, qua_indexes,
+                                                           curInnerVertices[i].ver.subver, NULL, qua_indexes,
                                                                                            tri_indexes, loopID, subdiv_level );
 
                     ltmpfac = ltmpfac->next;
@@ -928,12 +941,13 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
     while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
         G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
-        G3DRTQUAD   *rtfacmem = fac->rtfacmem;
+        G3DRTQUAD   *rtquamem = fac->rtquamem;
         G3DRTVERTEX *rtvermem = fac->rtvermem;
         uint32_t nbpos = 0x00;
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
-                                                         fac->rtfacmem,
+                                                         NULL,
+                                                         fac->rtquamem,
                                                          fac->rtedgmem,
                                                          fac->rtvermem,
                                                          sdt->qua_indexes,

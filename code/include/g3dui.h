@@ -78,6 +78,7 @@
 #define FILEDESC_DAE "Collada .dae"
 #define FILEDESC_C4D "Cinema4D .c4d"
 #define FILEDESC_STA "Ascii STL .stl"
+#define FILEDESC_POV "Povray Scene .pov"
 
 #define OBJECTMENUNAME  "Object Menu"
 #define VERTEXMENUNAME  "Vertex Menu"
@@ -105,6 +106,7 @@
 
 #define RENDERWINDOWMENUBARNAME "RENDERWINDOWMENUBAR"
 #define RENDERWINDOWMENUWORKAREANAME "RENDERWINDOWMENUWORKAREA"
+#define RENDERWINDOWSTATUSBARNAME "RENDERWINDOWSTATUSBAR"
 
 /*
 #define G3DFONT     "-*-lucida-medium-r-*-*-12-*-*-*-*-*-iso8859-1"
@@ -177,20 +179,25 @@
 #define EDITKEYLOOPFRAME "EDITKEYLOOPFRAME"
 
 /******************************************************************************/
-
-#define EDITRENDERSTART      "From Frame"
-#define EDITRENDEREND        "To Frame"
-#define EDITRENDERFPS        "Framerate"
-#define EDITRENDEROUTPUT     "Output file"
-#define EDITRENDERFORMAT     "Format"
-#define EDITRENDERWIDTH      "Render width"
-#define EDITRENDERHEIGHT     "Render height"
-#define EDITRENDERRATIO      "Aspect ratio"
-#define EDITRENDERMBLUR      "MotionBlur(iter)"
-#define EDITRENDERBACKGROUND "Background"
-#define EDITRENDERPREVIEW    "Make preview"
-#define EDITRENDERRUN        "Run render"
-#define EDITRENDERSAVE       "Save result"
+#define EDITRENDERSTART            "From Frame"
+#define EDITRENDEREND              "To Frame"
+#define EDITRENDERFPS              "Framerate"
+#define EDITRENDEROUTPUT           "Output file"
+#define EDITRENDERFORMAT           "Format"
+#define EDITRENDERWIDTH            "Render width"
+#define EDITRENDERHEIGHT           "Render height"
+#define EDITRENDERRATIO            "Aspect ratio"
+#define EDITRENDERMOTIONBLURFRAME  "Motion Blur Settings"
+#define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur (faster but less precise)"
+#define EDITRENDERMOTIONBLURSTRENGTH "Strength"
+#define EDITRENDERSCENEMOTIONBLUR  "Scene Motion Blur"
+#define EDITRENDERSCENEMOTIONBLURITERATION "Iterations:"
+#define EDITRENDERENABLEMOTIONBLUR "Enable Motion Blur"
+#define EDITRENDERBACKGROUND       "Background"
+#define EDITRENDERPREVIEW          "Make preview"
+#define EDITRENDERRUN              "Run render"
+#define EDITRENDERSAVEOUTPUTFRAME  "Output"
+#define EDITRENDERSAVE             "Save result"
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
 
@@ -468,8 +475,11 @@ typedef struct _G3DUICONF {
 #define FFMPEGPATHLEN 0x200
 
 /*** G3DUIRENDERSETTINGS flags ***/
-#define RENDERPREVIEW ( 1      )
-#define RENDERSAVE    ( 1 << 1 )
+#define RENDERPREVIEW    ( 1      )
+#define RENDERSAVE       ( 1 << 1 )
+#define ENABLEMOTIONBLUR ( 1 << 2 )
+#define SCENEMOTIONBLUR  ( 1 << 3 )
+#define VECTORMOTIONBLUR ( 1 << 4 )
 
 typedef struct _G3DUIRENDERSETTINGS {
     uint32_t background;
@@ -487,6 +497,7 @@ typedef struct _G3DUIRENDERSETTINGS {
     char     ffplaypath[FFMPEGPATHLEN];
     LIST    *lfilter;
     int pipefd[0x02];
+    uint32_t    mblurStrength;
 } G3DUIRENDERSETTINGS;
 
 /****************************** g3duirendersettings.c *************************/
@@ -1072,6 +1083,8 @@ void common_g3dui_deleteLoneVerticesCbk ( G3DUI * );
 void common_g3dui_invertSelectionCbk    ( G3DUI * );
 void common_g3dui_selectAllCbk          ( G3DUI * );
 
+void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *, float );
+
 /************ Functions that shoud be implemented by the toolkit  **************/
 void g3dui_clearMaterials                ( G3DUI * );
 void g3dui_importMaterials               ( G3DUI * );
@@ -1089,6 +1102,15 @@ void g3dui_updateKeyEdit                 ( G3DUI * );
 void g3dui_updateMaterialEdit            ( G3DUI * );
 void g3dui_updateSelectedMaterialPreview ( G3DUI * );
 
+/******************************************************************************/
+uint32_t filterpreview_draw ( R3DFILTER *, R3DSCENE *,
+                                              float,
+                                              unsigned char (*)[0x03], 
+                                              uint32_t, 
+                                              uint32_t, 
+                                              uint32_t, 
+                                              uint32_t );
+R3DFILTER *r3dfilter_preview_new ( G3DUI *gui );
 
 /******************************************************************************/
 void common_g3dui_loadConfiguration ( G3DUI *, char * );

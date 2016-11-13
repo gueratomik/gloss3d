@@ -150,14 +150,15 @@ void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
 }
 
 /*****************************************************************************/
-void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE *subfac,
+void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
                                          G3DHEIGHTMAP *mainheightmap,
-                                         G3DVERTEX  *oriver,
-                                         G3DVERTEX  *orivercpy,
-                                         uint32_t  (*qua_indexes)[0x04],
-                                         uint32_t  (*tri_indexes)[0x04],
-                                         uint32_t    iteration,
-                                         uint32_t    curdiv ) {
+                                         G3DVERTEX    *oriver,
+                                         G3DVERTEX    *orivercpy,
+                                         G3DSUBUVSET  *subuvs,
+                                         uint32_t    (*qua_indexes)[0x04],
+                                         uint32_t    (*tri_indexes)[0x04],
+                                         uint32_t      iteration,
+                                         uint32_t      curdiv ) {
     uint32_t i, j;
 
     subfac->fac.flags = fac->flags;
@@ -192,16 +193,18 @@ g3dheightmap_print ( subfac->fac.heightmap );*/
                                 uint32_t verID;
 
                                 if ( subfac->fac.ver[j]->flags & VERTEXOUTER ) {
-                                   verID = ( subfac->fac.flags & FACEFROMQUAD ) ? qua_indexes[subfac->fac.id][j] :
+                                    verID = ( subfac->fac.flags & FACEFROMQUAD ) ? qua_indexes[subfac->fac.id][j] :
                                                                                   tri_indexes[subfac->fac.id][j];
 
                                     g3dheightmap_processVertex ( subfac->fac.heightmap, subfac->fac.ver[j], verID, curdiv );
                                 }
 
                                 if ( subfac->fac.ver[j]->flags & VERTEXINNER ) {
-                                   verID = subfac->fac.ver[j]->id;
+                                    verID = subfac->fac.ver[j]->id;
 
-                                    g3dheightmap_processVertex ( mainheightmap, subfac->fac.ver[j], verID, curdiv );
+                                    if ( mainheightmap ) {
+                                        g3dheightmap_processVertex ( mainheightmap, subfac->fac.ver[j], verID, curdiv );
+                                    }
                                 }
 
 
@@ -767,8 +770,8 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
               *v3 = fac->ver[0x03];
 
     if ( fac->flags & FACESUBDIVIDED ) {
-        if ( fac->rtfacmem ) {
-            char *rtbuffer = ( char * ) fac->rtfacmem;
+        if ( fac->rtquamem ) {
+            char *rtbuffer = ( char * ) fac->rtquamem;
             uint32_t nbrtverperface = fac->nbrtfac * 0x04;
 
             glEnableClientState ( GL_VERTEX_ARRAY );
@@ -1410,12 +1413,14 @@ void g3dface_drawCenter ( G3DFACE *fac, uint32_t flags ) {
 }
 
 /******************************************************************************/
+
 uint32_t g3dface_convert ( G3DFACE *fac, G3DFACE        *ancestor,
                                          G3DRTTRIANGLE **rttriptr,
                                          G3DRTQUAD     **rtquaptr,
                                          G3DRTUVSET    **rtuvsptr,
                                          uint32_t        object_flags,
                                          uint32_t        engine_flags ) {
+#ifdef unused
     uint32_t i, j;
 
     if ( rttriptr ) {
@@ -1661,9 +1666,10 @@ uint32_t g3dface_convert ( G3DFACE *fac, G3DFACE        *ancestor,
 
         return 0x01;
     }
-
+#endif
     return 0x00;
 }
+
 
 /******************************************************************************/
 void g3dface_invertNormal ( G3DFACE *fac ) {

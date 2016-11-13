@@ -32,10 +32,10 @@
 /******************************************************************************/
 void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(widget);
-    int restrict = (int) gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(tbn));
+    int restricted = (int) gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(tbn));
     G3DUI *gui    = ( G3DUI * ) user_data;
 
-    common_g3duicutmeshtooledit_restrictCbk ( gui, restrict );
+    common_g3duicutmeshtooledit_restrictCbk ( gui, restricted );
 }
 
 /******************************************************************************/

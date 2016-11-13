@@ -73,8 +73,9 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_r3d_la_LIBADD =
 am__objects_1 = r3darea.lo r3d.lo r3dcamera.lo r3dface.lo \
-	r3dinterpolation.lo r3dlight.lo r3dmesh.lo r3dobject.lo \
-	r3doctree.lo r3dplane.lo r3dray.lo r3dscene.lo r3dfilter.lo
+	r3dinterpolation.lo r3dlight.lo r3dmesh.lo r3dmotionblur.lo \
+	r3dobject.lo r3doctree.lo r3dplane.lo r3dray.lo r3dscene.lo \
+	r3dfilter.lo
 am_libgloss_r3d_la_OBJECTS = $(am__objects_1)
 libgloss_r3d_la_OBJECTS = $(am_libgloss_r3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -245,6 +246,7 @@ LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3dinterpolation.c \
                       r3dlight.c \
                       r3dmesh.c \
+                      r3dmotionblur.c \
                       r3dobject.c \
                       r3doctree.c \
                       r3dplane.c \
@@ -334,6 +336,7 @@ include ./$(DEPDIR)/r3dfilter.Plo
 include ./$(DEPDIR)/r3dinterpolation.Plo
 include ./$(DEPDIR)/r3dlight.Plo
 include ./$(DEPDIR)/r3dmesh.Plo
+include ./$(DEPDIR)/r3dmotionblur.Plo
 include ./$(DEPDIR)/r3dobject.Plo
 include ./$(DEPDIR)/r3doctree.Plo
 include ./$(DEPDIR)/r3dplane.Plo

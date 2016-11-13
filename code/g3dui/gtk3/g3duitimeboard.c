@@ -49,16 +49,8 @@ void g3dui_stopCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-gboolean emitgotoframe ( EMITGOTOFRAMEDATA *egd ) {
-    g_signal_emit_by_name ( egd->ggt->main, egd->signame, egd->frame );
-
-    return G_SOURCE_REMOVE;
-}
-
-/******************************************************************************/
 static void *play_t ( void *ptr ) {
     G3DUI *gui = ( G3DUI * ) ptr;
-    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DSCENE *sce = gui->sce;
     float curframe = gui->curframe;
 
@@ -68,23 +60,13 @@ static void *play_t ( void *ptr ) {
 
         /*** skip sending event if animation has not completed yet ***/
         if ( ( gui->flags & ONGOINGANIMATION ) == 0x00 ) {
-            static EMITGOTOFRAMEDATA egd;
+            static GOTOFRAME gtf;
 
-            egd.ggt     = ggt;
-            egd.signame = "gotoframe";
-            egd.frame   = curframe;
+            gtf.action.type = ACTION_GOTOFRAME;
+            gtf.action.gui  = gui;
+            gtf.frame       = curframe;
 
-            /*** Because OpenGL only works within the main context, we ***/
-            /*** cannot call g_signal_emit_by_name() directly, we have to ***/
-            /*** call g_main_context_invoke_full() that calls a wrapper to ***/
-            /*** g_signal_emit_by_name() ***/
-            g_main_context_invoke_full ( NULL, 0,
-                                               (GSourceFunc)emitgotoframe,
-                                               &egd,
-                                               NULL );
-
-
-	    /*g3duicom_goToFrame ( gui, curframe );*/
+            g3duicom_requestActionFromMainThread ( gui, &gtf );
         }
 
 #ifdef __linux__

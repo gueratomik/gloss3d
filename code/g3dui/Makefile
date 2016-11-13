@@ -110,7 +110,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
 	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
 	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c \
+	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
@@ -271,6 +271,7 @@ am__objects_1 = common/g3dui.lo \
 	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
 	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
 	gtk3/g3duiweightgrouplist.lo \
+	gtk3/r3dpreview.lo \
 	gtk3/mousetool/g3duicurrentmousetool.lo \
 	gtk3/mousetool/g3duicutmeshtooledit.lo \
 	gtk3/mousetool/g3duipicktooledit.lo \
@@ -320,7 +321,7 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
 	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
 	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c \
+	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
@@ -590,6 +591,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
+                            gtk3/r3dpreview.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
@@ -910,6 +912,8 @@ gtk3/g3duiuvmapedit.lo: gtk3/$(am__dirstamp) \
 gtk3/g3duiview.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiweightgrouplist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/r3dpreview.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/$(am__dirstamp):
 	@$(MKDIR_P) gtk3/mousetool
 	@: > gtk3/mousetool/$(am__dirstamp)
@@ -1185,6 +1189,8 @@ mostlyclean-compile:
 	-rm -f gtk3/mousetool/g3duipicktooledit.lo
 	-rm -f gtk3/mousetool/g3duisculpttooledit.$(OBJEXT)
 	-rm -f gtk3/mousetool/g3duisculpttooledit.lo
+	-rm -f gtk3/r3dpreview.$(OBJEXT)
+	-rm -f gtk3/r3dpreview.lo
 	-rm -f motif/ColorEdit.$(OBJEXT)
 	-rm -f motif/ColorEdit.lo
 	-rm -f motif/SpinButton.$(OBJEXT)
@@ -1343,6 +1349,7 @@ include gtk3/$(DEPDIR)/g3duitorusedit.Plo
 include gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 include gtk3/$(DEPDIR)/g3duiview.Plo
 include gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo
+include gtk3/$(DEPDIR)/r3dpreview.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duipicktooledit.Plo

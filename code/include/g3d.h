@@ -530,10 +530,17 @@ typedef struct _G3DKEY {
 } G3DKEY;
 
 /******************************************************************************/
+typedef struct _G3DEXTENSION {
+    uint32_t name; /* extension name */
+    struct _G3DEXTENSION *next;
+} G3DEXTENSION;
+
+/******************************************************************************/
 typedef struct _G3DRTVERTEX {
     float r, g, b, a;
     G3DTINYVECTOR nor;
     G3DTINYVECTOR pos;
+    /* G3DEXTENSION *extension; */
     uint32_t flags;
 } G3DRTVERTEX;
 
@@ -559,6 +566,7 @@ typedef struct _G3DVERTEX {
     float surface;    /*** average surface of connected faces. Used for ***/
                       /*** scaling normal vector when showing normals ***/
     G3DRTVERTEX     *rtvermem; /*** Vertex buffer in buffered mode ***/
+    G3DEXTENSION    *extension;
     struct _G3DSUBVERTEX *subver;
 } G3DVERTEX;
 
@@ -714,6 +722,11 @@ typedef struct _G3DRTQUAD {
 } G3DRTQUAD;
 
 /******************************************************************************/
+typedef struct _G3DRTTRIANGLE {
+    uint32_t rtver[0x03];
+} G3DRTTRIANGLE;
+
+/******************************************************************************/
 /***************** This is to use with the raytracer actually *****************/
 typedef struct _G3DRTTRIANGLEUVW {
     float u[0x03];
@@ -722,14 +735,14 @@ typedef struct _G3DRTTRIANGLEUVW {
 } G3DRTTRIANGLEUVW;
 
 /******************************************************************************/
-typedef struct _G3DRTTRIANGLE {
+/*typedef struct _G3DRTTRIANGLE {
     G3DTINYVECTOR verpos[0x03];
     G3DTINYVECTOR vernor[0x03];
     G3DTINYVECTOR tripos;
-    G3DTINYVECTOR trinor;  /*** original normal vector ***/
+    G3DTINYVECTOR trinor;*/  /*** original normal vector ***/ /*
     float         surface;
     LIST         *luvw;
-} G3DRTTRIANGLE;
+} G3DRTTRIANGLE; */
 
 /******************************************************************************/
 typedef struct _G3DEDGE {
@@ -797,7 +810,7 @@ typedef struct _G3DFACE {
     G3DVECTOR        nor;          /*** Face normal vector                  ***/
     G3DVECTOR        pos;          /*** Face position (average position)    ***/
     G3DSUBVERTEX    *subver;       /*** Face center when subdividing        ***/
-    G3DRTQUAD       *rtfacmem;     /*** Face buffer in buffered mode        ***/
+    G3DRTQUAD       *rtquamem;     /*** Face buffer in buffered mode        ***/
     G3DRTEDGE       *rtedgmem;     /*** Edge buffer in buffered mode        ***/
     G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode      ***/
     G3DRTUVSET      *rtuvsmem;     /*** UVSet buffer in buffered mode       ***/
@@ -956,6 +969,7 @@ struct _G3DMESH {
     uint32_t nbtri;
     uint32_t nbqua;
     uint32_t nbgrp;
+    uint32_t nbhtm; /*** Number of heightmaps ***/
     uint32_t nbselver;
     uint32_t nbseledg;
     uint32_t nbselfac;
@@ -966,7 +980,7 @@ struct _G3DMESH {
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
     GLuint dlist;
-    G3DRTQUAD *rtfacmem;
+    G3DRTQUAD *rtquamem;
     uint64_t   nbrtfac;
     G3DRTEDGE *rtedgmem;
     uint64_t   nbrtedg;
@@ -1195,6 +1209,9 @@ void g3dquaternion_init ( G3DQUATERNION *, float, float, float, float );
 
 /******************************************************************************/
 G3DVERTEX *g3dvertex_new        ( float, float, float );
+G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
+void g3dvertex_addExtension ( G3DVERTEX *, G3DEXTENSION * );
+G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *, uint32_t );
 void       g3dvertex_normal     ( G3DVERTEX *, uint32_t );
 void       g3dvertex_addFace    ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_removeFace ( G3DVERTEX *, G3DFACE * );
@@ -1499,12 +1516,13 @@ G3DVERTEX *g3dface_getVertexByID ( G3DFACE *, uint32_t );
 G3DEDGE   *g3dface_getEdgeByID   ( G3DFACE *, uint32_t );
 void     g3dface_drawSimple  ( G3DFACE *, uint32_t, uint32_t, uint32_t );
 uint32_t g3dface_checkOrientation ( G3DFACE * );
-void g3dface_initSubface ( G3DFACE *, G3DSUBFACE *,
+void g3dface_initSubface ( G3DFACE *, G3DSUBFACE   *,
                                       G3DHEIGHTMAP *,
-                                      G3DVERTEX  *,
-                                      G3DVERTEX  *,
-                                      uint32_t (*)[0x04],
-                                      uint32_t (*)[0x04],
+                                      G3DVERTEX    *,
+                                      G3DVERTEX    *,
+                                      G3DSUBUVSET  *,
+                                      uint32_t    (*)[0x04],
+                                      uint32_t    (*)[0x04],
                                       uint32_t,
                                       uint32_t );
 
@@ -1531,6 +1549,7 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE      *,
                                      uint32_t,
                                      uint32_t );
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *, 
+                                                        G3DRTTRIANGLE *,
                                                         G3DRTQUAD *,
                                 /*** get vertices  ***/ G3DRTEDGE  *,
                                 /*** get vertices  ***/ G3DRTVERTEX  *,
@@ -1986,8 +2005,8 @@ void         g3dmaterial_enableReflectionImageColor ( G3DMATERIAL * );
 void         g3dmaterial_name ( G3DMATERIAL *, const char * );
 
 /******************************************************************************/
-void  g3drttriangle_getposition ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );
-void  g3drttriangle_getnormal   ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );
+/*void  g3drttriangle_getposition ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );
+void  g3drttriangle_getnormal   ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );*/
 
 /******************************************************************************/
 G3DBONE *g3dbone_new                    ( uint32_t, char *, float );

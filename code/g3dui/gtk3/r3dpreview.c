@@ -27,69 +27,72 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
+#include <r3d.h>
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    const char *object_name = gtk_entry_get_text ( GTK_ENTRY(widget) );
+uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+                                              float frameID,
+                                              unsigned char (*img)[0x03], 
+                                              uint32_t from, 
+                                              uint32_t to, 
+                                              uint32_t depth, 
+                                              uint32_t width ) {
+    G3DCAMERA *cam = (G3DCAMERA*)((R3DOBJECT*)rsce->area.rcam)->obj;
+    uint32_t scrX = cam->vmatrix[0x00],
+             scrY = cam->vmatrix[0x01],
+             scrW = cam->vmatrix[0x02],
+             scrH = cam->vmatrix[0x03];
+    uint32_t height = rsce->area.height;
+    G3DUI *gui = ( G3DUI * ) fil->data;
+    static DUMPSCREEN dsn;
+    uint32_t i, j;
 
-    common_g3duiobjectedit_nameCbk ( gui, object_name );
-}
+    dsn.action.type = ACTION_DUMPSCREEN;
+    dsn.action.gui = gui;
+    dsn.x = scrX;
+    dsn.y = scrY;
+    dsn.width = scrW;
+    dsn.height = scrH;
 
-/******************************************************************************/
-void updateObjectEdit ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    float wRatio = ( float ) dsn.width / width,
+          hRatio = ( float ) dsn.height / height;
 
-    /*** prevent useless primitive building when XmTextSetString is called, ***/
-    /*** as XmTextSetString will call XmNvalueChanged callback whereas we   ***/
-    /*** already know the value !                                           ***/
-    gui->lock = 0x01;
+    dsn.buffer = calloc ( dsn.width *
+                          dsn.height, sizeof ( unsigned char ) * 0x04 );
 
-    if ( obj ) {
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
+    g3duicom_requestActionFromMainThread ( gui, &dsn );
 
-            if ( GTK_IS_ENTRY(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
+    /*** Scale to fit the destination buffer ***/
+    for ( j = 0x00; j < height; j++ ) {
+        for ( i = 0x00; i < width; i++ ) {
+            uint32_t dstOffset =   ( j * width  ) + i;
+            uint32_t srcj = dsn.height - ( j * hRatio );
+            uint32_t srci = ( i * wRatio );
+            uint32_t srcOffset = ( srcj * dsn.width ) + srci;
 
-                if ( strcmp ( child_name, EDITOBJECTNAME ) == 0x00 ) {
-                    gtk_entry_set_text ( ent, obj->name );
-                }
+            if ( ( srcj > 0 && srcj < dsn.height ) &&
+                 ( srci > 0 && srci < dsn.width  ) ) {
+                img[dstOffset][0x00] = dsn.buffer[srcOffset][0x00];
+                img[dstOffset][0x01] = dsn.buffer[srcOffset][0x01];
+                img[dstOffset][0x02] = dsn.buffer[srcOffset][0x02];
             }
-
-            children =  g_list_next ( children );
         }
     }
 
-    gui->lock = 0x00;
+    free ( dsn.buffer );
+ 
+    return 0x02; /** don't raytrace ***/
 }
 
 /******************************************************************************/
-GtkWidget *createObjectEdit ( GtkWidget *parent, G3DUI *gui,
-                                                 char *name,
-                                                 gint x,
-                                                 gint y,
-                                                 gint width,
-                                                 gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget * frm = gtk_fixed_new ( );
+R3DFILTER *r3dfilter_preview_new ( G3DUI *gui ) {
+    R3DFILTER *fil;
 
-    gtk_widget_set_name ( frm, name );
+    fil = r3dfilter_new ( FILTERBEFORE, PREVIEWFILTERNAME,
+                                        filterpreview_draw,
+                                        NULL,   /** no free()   **/
+                                        gui );
 
-    gtk_widget_size_allocate ( frm, &gdkrec );
-
-    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
-
-
-    createCharText ( frm, gui, EDITOBJECTNAME, 0, 0, 96, 96, nameCbk );
-
-
-    gtk_widget_show ( frm );
-
-
-    return frm;
+    return fil;
 }

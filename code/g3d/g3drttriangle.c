@@ -45,12 +45,12 @@
 
 
 /******************************************************************************/
-void g3drttriangle_addUVW ( G3DRTTRIANGLE *rttri, G3DRTTRIANGLEUVW *uvw ) {
+/*void g3drttriangle_addUVW ( G3DRTTRIANGLE *rttri, G3DRTTRIANGLEUVW *uvw ) {
     list_insert ( &rttri->luvw, uvw );
-}
+}*/
 
 /******************************************************************************/
-void g3drttriangle_getnormal ( G3DRTTRIANGLE *tri, G3DDOUBLEVECTOR *nor ) {
+/*void g3drttriangle_getnormal ( G3DRTTRIANGLE *tri, G3DDOUBLEVECTOR *nor ) {
     G3DTINYVECTOR *v0 = &tri->verpos[0x00],
                   *v1 = &tri->verpos[0x01],
                   *v2 = &tri->verpos[0x02];
@@ -62,7 +62,7 @@ void g3drttriangle_getnormal ( G3DRTTRIANGLE *tri, G3DDOUBLEVECTOR *nor ) {
                              ( v2->z - v0->z ), 1.0f };
 
     g3ddoublevector_cross ( &v0v1, &v0v2, nor );
-}
+}*/
 
 /******************************************************************************/
 /*float g3drttriangle_getnormal ( G3DRTTRIANGLE *tri, G3DVECTOR *nor ) {

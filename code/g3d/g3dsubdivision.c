@@ -584,14 +584,14 @@ void *g3dface_catmull_clark_draw_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
     while ( ( fac = g3dmesh_getNextFace ( mes, NULL ) ) ) {
         G3DRTUVSET  *rtuvsmem = fac->rtuvsmem;
-        G3DRTQUAD   *rtfacmem = fac->rtfacmem;
+        G3DRTQUAD   *rtquamem = fac->rtquamem;
         uint32_t nbpos = 0x00;
 
         fac->nbrtfac = g3dface_catmull_clark_draw ( sdt, fac, fac,
                                                     subdiv, 
                                                     cosang,
                                                     NULL,
-                                                   &rtfacmem,
+                                                   &rtquamem,
                                                    &rtuvsmem,
                                                     NULL, &nbpos,
                                                     mes->ltex,

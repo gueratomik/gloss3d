@@ -1421,7 +1421,7 @@ void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
 void g3dmesh_cut ( G3DMESH *mes, G3DFACE *knife, LIST   **loldfac,
                                                  LIST   **lnewver,
                                                  LIST   **lnewfac,
-                                                 uint32_t restrict,
+                                                 uint32_t restricted,
                                                  uint32_t engine_flags ) {
     LIST *lcutfac = NULL; /*** list of cut faces    ***/
     LIST *lcutedg = NULL;
@@ -1429,7 +1429,7 @@ void g3dmesh_cut ( G3DMESH *mes, G3DFACE *knife, LIST   **loldfac,
     LIST *ltmpedg, *lseledg;
     LIST *ltmpfac;
 
-    if ( ( restrict ) && ( engine_flags & VIEWFACE ) ) {
+    if ( ( restricted ) && ( engine_flags & VIEWFACE ) ) {
         lseledg = ltmpedg = g3dface_getEdgesFromList ( mes->lselfac );
     } else {
         lseledg = ltmpedg = mes->ledg;
@@ -1496,7 +1496,7 @@ void g3dmesh_cut ( G3DMESH *mes, G3DFACE *knife, LIST   **loldfac,
         ltmpfac = ltmpfac->next;
     }
 
-    if ( ( restrict ) && ( engine_flags & VIEWFACE ) ) {
+    if ( ( restricted ) && ( engine_flags & VIEWFACE ) ) {
         list_free ( &lseledg, NULL );
     }
 
@@ -1711,7 +1711,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
     }
 
     if ( update_flags & COMPUTESUBDIVISION ) {
-        if ( mes->rtfacmem && 
+        if ( mes->rtquamem && 
              mes->subdiv   && ( objmes->flags & BUFFEREDSUBDIVISION ) ) {
 
             g3dmesh_fillSubdividedFaces ( mes, ltmpsub, engine_flags );
@@ -2344,7 +2344,7 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
                         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     /*uint32_t nbrtverperface = ( fac->nbver == 0x03 ) ? mes->nbrtverpertriangle : 
                                                                        mes->nbrtverperquad;*/
-                        char *rtbuffer = ( char * ) fac->rtfacmem;
+                        char *rtbuffer = ( char * ) fac->rtquamem;
                         uint32_t nbrtverperface = fac->nbrtfac * 0x04;
 
                         if ( ( engine_flags & SYMMETRYVIEW ) )  {
@@ -2361,7 +2361,7 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
                         ltmpfac = ltmpfac->next;
                     }
                 } else {
-                    char *rtbuffer = ( char * ) mes->rtfacmem;
+                    char *rtbuffer = ( char * ) mes->rtquamem;
 
                     if ( ( engine_flags & SYMMETRYVIEW ) )  {
 /*** In symmetry view, we dont want to display the selected face in orange, ***/
@@ -2369,14 +2369,14 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
 	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 28 );
                         glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), mes->rtvermem + 16 );
 
-                        glDrawElements( GL_QUADS, mes->nbrtfac * 4, GL_UNSIGNED_INT, mes->rtfacmem );
+                        glDrawElements( GL_QUADS, mes->nbrtfac * 4, GL_UNSIGNED_INT, mes->rtquamem );
 	                /*glDrawArrays ( GL_QUADS, 0, mes->nbrtfac * 4 );*/
                     } else {
 
                         glEnableClientState ( GL_COLOR_ARRAY  );
                         glInterleavedArrays ( GL_C4F_N3F_V3F, 0, mes->rtvermem );
 
-                        glDrawElements( GL_QUADS, mes->nbrtfac * 4, GL_UNSIGNED_INT, mes->rtfacmem );
+                        glDrawElements( GL_QUADS, mes->nbrtfac * 4, GL_UNSIGNED_INT, mes->rtquamem );
 	                /*glDrawArrays ( GL_QUADS, 0, mes->nbrtfac * 4 );*/
                         glDisableClientState ( GL_COLOR_ARRAY  );
                     }
@@ -2410,7 +2410,7 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
 	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 28 );
                         glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 16 );
 
-                        glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtfacmem );
+                        glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtquamem );
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
                         glDisableClientState ( GL_COLOR_ARRAY  );
                     } else {
@@ -2419,7 +2419,7 @@ void g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
 	                glColorPointer  ( 4, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem)      );
 	                glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 28 );
                         glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)fac->rtvermem) + 16 );
-                        glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtfacmem );
+                        glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtquamem );
 	                /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
                         glDisableClientState ( GL_COLOR_ARRAY  );
                     }
@@ -2472,6 +2472,7 @@ void g3dmesh_drawSubdividedObject ( G3DMESH *mes, uint32_t engine_flags ) {
         uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, mes->subdiv );
 
         fac->nbrtfac = g3dsubdivisionV3_subdivide ( sdv, fac,
+                                                         NULL,
                                                          NULL,
                                                          NULL,
                                                          NULL,
@@ -3387,11 +3388,11 @@ uint32_t g3dmesh_world_intersect ( G3DMESH *mes, LIST *llig,/* list of lights */
 
 /******************************************************************************/
 void g3dmesh_freeSubdivisionBuffer ( G3DMESH *mes ) {
-    if ( mes->rtfacmem ) free ( mes->rtfacmem );
+    if ( mes->rtquamem ) free ( mes->rtquamem );
     if ( mes->rtedgmem ) free ( mes->rtedgmem );
     if ( mes->rtvermem ) free ( mes->rtvermem );
 
-    mes->rtfacmem = NULL;
+    mes->rtquamem = NULL;
     mes->rtedgmem = NULL;
     mes->rtvermem = NULL;
 }
@@ -3514,7 +3515,7 @@ void g3dmesh_allocSubdivisionBuffers ( G3DMESH *mes, uint32_t engine_flags ) {
     uint32_t quaFaces, quaEdges, quaVertices;
     uint32_t subdiv = mes->subdiv;
     LIST *ltmpfac = mes->lfac;
-    G3DRTQUAD   *rtfacmem;
+    G3DRTQUAD   *rtquamem;
     G3DRTEDGE   *rtedgmem;
     G3DRTVERTEX *rtvermem;
 
@@ -3525,31 +3526,23 @@ void g3dmesh_allocSubdivisionBuffers ( G3DMESH *mes, uint32_t engine_flags ) {
     mes->nbrtedg = ( mes->nbtri * triEdges    ) + ( mes->nbqua * quaEdges    );
     mes->nbrtver = ( mes->nbtri * triVertices ) + ( mes->nbqua * quaVertices );
 
-    mes->rtfacmem = rtfacmem = realloc ( mes->rtfacmem, ( mes->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
+    mes->rtquamem = rtquamem = realloc ( mes->rtquamem, ( mes->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
     mes->rtedgmem = rtedgmem = realloc ( mes->rtedgmem, ( mes->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
     mes->rtvermem = rtvermem = realloc ( mes->rtvermem, ( mes->nbrtver * sizeof ( G3DRTVERTEX ) ) );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( fac->heightmap ) {
-            if ( fac->nbver == 0x03 ) g3dheightmap_realloc ( fac->heightmap, triVertices );
-            if ( fac->nbver == 0x04 ) g3dheightmap_realloc ( fac->heightmap, quaVertices );
-        } else {
-            if ( fac->nbver == 0x03 ) fac->heightmap = g3dheightmap_new ( triVertices );
-            if ( fac->nbver == 0x04 ) fac->heightmap = g3dheightmap_new ( quaVertices );
-        }
-
-        fac->rtfacmem = rtfacmem;
+        fac->rtquamem = rtquamem;
         fac->rtedgmem = rtedgmem;
         fac->rtvermem = rtvermem;
 
         if ( fac->nbver == 0x04 ) {
-            rtfacmem += quaFaces;
+            rtquamem += quaFaces;
             rtedgmem += quaEdges;
             rtvermem += quaVertices;
         } else {
-            rtfacmem += triFaces;
+            rtquamem += triFaces;
             rtedgmem += triEdges;
             rtvermem += triVertices;
         }

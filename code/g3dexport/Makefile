@@ -72,7 +72,7 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dexport_la_LIBADD =
-am__objects_1 = g3dexport.lo stl.lo obj.lo
+am__objects_1 = g3dexport.lo stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -238,6 +238,7 @@ lib_LTLIBRARIES = libgloss-g3dexport.la
 libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
 LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             stl.c \
+                            pov.c \
                             obj.c
 
 all: all-am
@@ -316,6 +317,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/g3dexport.Plo
 include ./$(DEPDIR)/obj.Plo
+include ./$(DEPDIR)/pov.Plo
 include ./$(DEPDIR)/stl.Plo
 
 .c.o:

@@ -43,17 +43,24 @@ void r3dobject_free ( R3DOBJECT *rob ) {
 }
 
 /******************************************************************************/
-void r3dobject_init ( R3DOBJECT *rob, uint32_t type,
+void r3dobject_init ( R3DOBJECT *rob, uint32_t id,
+                                      uint32_t type,
                                       uint32_t flags,
                                       void (*freefunc)(R3DOBJECT *) ) {
+    rob->id    = id;
     rob->type  = type;
     rob->flags = flags;
     rob->free  = freefunc;
+
+    memcpy ( rob->wmatrix, rob->obj->wmatrix, sizeof ( rob->wmatrix ) );
 }
 
 /******************************************************************************/
 void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
+                        uint32_t nextId,
                         double *wmatrix, /*** world matrix           ***/
+                        double *cmatrix, /* camera world matrix */
+                        double *pmatrix, /*** world matrix           ***/
                         LIST **lrob,    /*** List of Render Objects ***/
                         LIST **lrlt, 
                         uint32_t engine_flags ) { /*** List of lights         ***/
@@ -77,8 +84,11 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         if (   ( child->type == G3DMESHTYPE ) ||
              ( ( child->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH *mes = ( G3DMESH * ) child;
-            R3DMESH *rms = r3dmesh_new ( mes, childwmatrix,
-                                              childwnormix, engine_flags );
+            R3DMESH *rms = r3dmesh_new ( mes, nextId++,
+                                              childwmatrix,
+                                              cmatrix,
+                                              childwnormix,
+                                              pmatrix, engine_flags );
 
             /* uncomment the line below to visualize the octree **/
             /*g3dobject_addChild ( rsce->sce, ((R3DOBJECT*)rms)->rot );*/
@@ -97,7 +107,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
             g3dcore_multmatrix ( sym->smatrix, childwmatrix, swmatrix );
 
-            r3dobject_import ( ( G3DOBJECT * ) sym, swmatrix, lrob,
+            r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, cmatrix, pmatrix, lrob,
                                                               lrlt, 0x00 );
 
             /*** Add this rendermesh to our list of renderobjects ***/
@@ -107,14 +117,14 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
         if ( child->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) child;
-            R3DLIGHT *rlt = r3dlight_new ( lig );
+            R3DLIGHT *rlt = r3dlight_new ( lig, nextId++ );
 
             /*** Add this renderlight to our list of renderlights ***/
             /*** We now have a Light in World coordinates ***/
             list_insert ( lrlt, rlt );
         }
 
-        r3dobject_import ( child, childwmatrix, lrob, lrlt, engine_flags );
+        r3dobject_import ( child, nextId++, childwmatrix, cmatrix, pmatrix, lrob, lrlt, engine_flags );
 
         ltmp = ltmp->next;
     }

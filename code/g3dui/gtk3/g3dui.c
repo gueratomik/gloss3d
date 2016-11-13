@@ -42,12 +42,38 @@ static void     gtk_glossui_size_allocate ( GtkWidget *, GtkAllocation * );
 static void     gtk_glossui_show          ( GtkWidget * );
 
 /******************************************************************************/
+GtkWidget* getChild ( GtkWidget* parent, const gchar* name) {
+    if ( strcmp ( gtk_widget_get_name ( parent ), name ) == 0 ) {
+        return parent;
+    }
+
+    if ( GTK_IS_BIN ( parent ) ) {
+        GtkWidget *child = gtk_bin_get_child(GTK_BIN(parent));
+
+        return getChild ( child, name );
+    }
+
+    if ( GTK_IS_CONTAINER ( parent ) ) {
+        GList *children = gtk_container_get_children ( GTK_CONTAINER ( parent ) );
+        while ( ( children = g_list_next ( children ) ) != NULL ) {
+            GtkWidget* widget = getChild ( children->data, name );
+            if ( widget != NULL ) {
+                return widget;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI     *gui = ( G3DUI * ) user_data;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     uint32_t width  = gtk_widget_get_allocated_width  ( ggt->curogl ),
              height = gtk_widget_get_allocated_height ( ggt->curogl );
-    R3DFILTER *towin = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
+    R3DFILTER *progressiveDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
+    /*R3DFILTER *finalDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01, 0x00 );*/
     /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
     R3DFILTER *clean = r3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
                                        NULL, 
@@ -55,8 +81,12 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     LIST *lfilters = NULL;
     G3DUIRENDERPROCESS *rps;
 
-    list_append ( &lfilters, towin );
+    list_append ( &lfilters, progressiveDisplay );
+    /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
+    list_append ( &lfilters, finalDisplay );*/
     list_append ( &lfilters, clean );
+
+
 
     rps = common_g3dui_render ( gui, ( uint64_t ) ggt->curogl,
                                      0x00, 0x00,
@@ -150,6 +180,27 @@ GtkWidget *createColorButton ( GtkWidget *parent, G3DUI *gui,
 
 
     return btn;
+}
+
+/******************************************************************************/
+GtkWidget *createStatusBar   ( GtkWidget *parent, G3DUI *gui,
+                                                  char *name,
+                                                  gint x, 
+                                                  gint y,
+                                                  gint width,
+                                                  gint height ) {
+    GtkWidget *bar = gtk_statusbar_new ( );
+
+    gtk_widget_set_name ( bar, name );
+
+    gtk_widget_set_size_request ( bar, width, height );
+
+    gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
+
+    gtk_widget_show ( bar );
+
+
+    return bar;
 }
 
 /******************************************************************************/
@@ -398,7 +449,8 @@ void createCharText ( GtkWidget *parent, G3DUI *gui,
                                                gint x, gint y,
                                                gint labwidth,
                                                gint txtwidth,
-                                               void (*cbk)( GtkWidget *, 
+                                               void (*cbk)( GtkWidget *,
+                                                            GdkEvent  *, 
                                                             gpointer ) ) {
     GdkRectangle brec = { 0x00, 0x00, txtwidth, 0x12 };
     GtkWidget *ent = gtk_entry_new ( );
@@ -425,7 +477,7 @@ void createCharText ( GtkWidget *parent, G3DUI *gui,
     }
 
     if ( cbk ) {
-        g_signal_connect ( ent, "activate", G_CALLBACK(cbk), gui );
+        g_signal_connect ( ent, "key-release-event", G_CALLBACK(cbk), gui );
     }
 
     gtk_widget_show ( ent );
@@ -871,12 +923,12 @@ static void gtk_glossui_class_init ( GtkGlossUIClass *glossui_class ) {
    * l'objet) */
   /*g_type_class_add_private (klass, sizeof (PfxFooPrivate));*/
 
-    g_signal_new( "gotoframe", G_TYPE_FROM_CLASS(glossui_class), 
+    g_signal_new( "action", G_TYPE_FROM_CLASS(glossui_class), 
                                G_SIGNAL_RUN_FIRST,
-                               G_STRUCT_OFFSET (GtkGlossUIClass,gotoframe),
+                               G_STRUCT_OFFSET (GtkGlossUIClass,action),
                                NULL, NULL,
-                               g_cclosure_marshal_VOID__DOUBLE,
-                               G_TYPE_NONE, 1, G_TYPE_DOUBLE );
+                               g_cclosure_marshal_VOID__POINTER,
+                               G_TYPE_NONE, 1, G_TYPE_POINTER );
 }
 
 /******************************************************************************/
@@ -943,8 +995,7 @@ static void gtk_glossui_init ( GtkGlossUI *glossui ) {
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
-
-    g_signal_connect(G_OBJECT(widget), "gotoframe", G_CALLBACK(g3duicom_gotoframe), gui );
+    g_signal_connect(G_OBJECT(widget), "action", G_CALLBACK(g3duicom_handleAction), gui );
 }
 
 /******************************************************************************/

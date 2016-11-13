@@ -49,6 +49,15 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
     G3DCAMERA *cam = gui->curcam;
     G3DSCENE *sce = gui->sce;
+    double *MVX = ((G3DOBJECT*)cam)->iwmatrix,
+            PJX[0x10];
+
+    glMatrixMode ( GL_PROJECTION );
+    glLoadIdentity ( );
+    gluPerspective ( cam->focal, (height) ? (float)width / height : 0, cam->znear, 
+                                                                       cam->zfar );
+    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
+    glMatrixMode ( GL_MODELVIEW );
 
     /*** Don't start a new render before the current one has finished ***/
     /*if ( rpc == NULL ) {*/
@@ -66,7 +75,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        rsce = r3dscene_new ( sce, cam, x1, y1,
+        rsce = r3dscene_new ( sce, MVX, PJX, x1, y1,
                                         x2, y2,
                                         width, height,
                                         rsg->background,
@@ -290,6 +299,10 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
     g3dui_setHourGlass ( gui );
 
     printf ( "Exporting to %s of type %s ...\n", filename, filedesc );
+
+    if ( strcmp ( filedesc, FILEDESC_POV ) == 0x00 ) {
+        g3dscene_exportPov ( gui->sce, filename, "/*Made with Gloss3D*/\n\n", 0 );
+    }
 
     if ( strcmp ( filedesc, FILEDESC_OBJ ) == 0x00 ) {
         g3dscene_exportObj ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );

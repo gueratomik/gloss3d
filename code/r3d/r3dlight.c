@@ -29,14 +29,13 @@
 #include <config.h>
 #include <r3d.h>
 
-
 /******************************************************************************/
 void r3dlight_free ( R3DOBJECT *rob ) {
     R3DLIGHT *rlt = ( R3DLIGHT * ) rob;
 }
 
 /******************************************************************************/
-R3DLIGHT *r3dlight_new ( G3DLIGHT *lig ) {
+R3DLIGHT *r3dlight_new ( G3DLIGHT *lig, uint32_t id ) {
     int structsize = sizeof ( R3DLIGHT );
     R3DLIGHT *rlt = ( R3DLIGHT * ) calloc ( 0x01, structsize );
     R3DOBJECT *rob = ( R3DOBJECT * ) rlt;
@@ -49,12 +48,13 @@ R3DLIGHT *r3dlight_new ( G3DLIGHT *lig ) {
         return NULL;
     }
 
+    rob->obj = obj;
     rlt->lig = lig;
 
     g3dvector_init ( &pos, 0.0f, 0.0f, 0.0f, 1.0f );
     g3dvector_matrix ( &pos, ((G3DOBJECT*)lig)->wmatrix, &rlt->pos );
 
-    r3dobject_init ( rob, obj->type, obj->flags, r3dlight_free );
+    r3dobject_init ( rob, id, obj->type, obj->flags, r3dlight_free );
 
 
     return rlt;

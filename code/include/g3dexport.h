@@ -82,6 +82,7 @@
 #define MESHSAVEGEOMETRY      ( 0x00000001 )
 #define MESHSAVESUBDIVISION   ( 0x00000002 )
 #define MESHSAVEWEIGHTGROUPS  ( 0x00000004 )
+#define MESHSAVEHEIGHTMAPS    ( 0x00000008 )
 #define MESHSAVEALL           ( 0xFFFFFFFF )
 
 #define SYMMETRYSAVEALL       ( 0xFFFFFFFF ) /*** not used ***/
@@ -174,6 +175,10 @@
 #define WEIGHTGROUPNAMESIG 0x3221
 #define WEIGHTGROUPDATASIG 0x3222
 
+#define HEIGHTMAPSSIG      0x3400
+#define NBHEIGHTMAPSIG     0x3410
+#define HEIGHTMAPSIG       0x3420
+
 #define GEOSIG             0x3100
 #define GEOVERTICES        0x3110
 #define GEOTRIANGLES       0x3120
@@ -243,6 +248,7 @@
 /******************************************************************************/
 void g3dscene_write ( G3DSCENE *, char *, char *, uint32_t );
 void g3dscene_exportObj ( G3DSCENE *, const char *, const char *,  uint32_t );
+void g3dscene_exportPov ( G3DSCENE *, const char *, const char *,  uint32_t );
 void writef ( void *, size_t, size_t, FILE * );
 
 #endif

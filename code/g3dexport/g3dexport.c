@@ -154,6 +154,13 @@ OBJECT(0x2000)
 ------------------- Number of weights
 ------------------- Array( uint32_t[VERTEXID], float[Weight] )
 ------- FACEGROUPS(0x3300)
+------- HEIGHTMAPS(0x3400)
+----------- NBHEIGHTMAPS(0x3410)
+--------------- Number of heightmaps ( uint32_t )
+----------- HEIGHTMAP(0x3420)
+--------------- FaceID ( uint32_t )
+--------------- Number of heights ( uint32_t )
+--------------- Array( uint32_t flags, float elevation)
 ------- UVSETS(0x3400)
 /*** a UVSet should be saved only if the UVMAP is fixed (locked) ***/
 --------------- Number of uvsets ( uint32_t )
@@ -868,6 +875,36 @@ static uint32_t weightgroups_blocksize ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+static uint32_t heightmap_blocksize ( G3DHEIGHTMAP *htm ) {
+    return sizeof ( uint32_t ) + 
+           sizeof ( uint32_t ) + ( ( sizeof ( uint32_t ) + 
+                                     sizeof ( float    ) ) * htm->maxheights );
+}
+
+/******************************************************************************/
+static uint32_t nbheightmap_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static uint32_t heightmaps_blocksize ( G3DMESH *mes ) {
+    uint32_t blocksize = 0x00;
+    LIST *ltmpfac = mes->lfac;
+
+    blocksize += ( ( nbheightmap_blocksize ( ) + 0x06 ) );
+
+    while ( ltmpfac ) {
+        G3DHEIGHTMAP *htm = ( G3DHEIGHTMAP * ) ltmpfac->data;
+
+        blocksize += ( heightmap_blocksize ( htm ) + 0x06 );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return blocksize;
+}
+
+/******************************************************************************/
 static uint32_t mesh_blocksize ( G3DMESH * mes, uint32_t flags ) {
     uint32_t blocksize = 0x00;
 
@@ -883,6 +920,10 @@ static uint32_t mesh_blocksize ( G3DMESH * mes, uint32_t flags ) {
 
     if ( flags & MESHSAVEWEIGHTGROUPS ) {
         blocksize += weightgroups_blocksize ( mes ) + 0x06;
+    }
+
+    if ( flags & MESHSAVEHEIGHTMAPS ) {
+        blocksize += heightmaps_blocksize ( mes ) + 0x06;
     }
 
 
@@ -1445,7 +1486,6 @@ static void weightgroup_writeblock ( G3DWEIGHTGROUP *grp, FILE *fdst ) {
 
 /******************************************************************************/
 static void weightgroups_writeblock ( G3DMESH *mes, FILE *fdst ) {
-    uint32_t blocksize = nbweightgroup_blocksize ( );
     LIST *ltmp = mes->lgrp;
     uint32_t id = 0x00;
 
@@ -1462,6 +1502,47 @@ static void weightgroups_writeblock ( G3DMESH *mes, FILE *fdst ) {
         weightgroup_writeblock ( grp, fdst );
 
         ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
+static void nbheightmap_writeblock ( G3DMESH *mes, FILE *fdst ) {
+    writef ( &mes->nbhtm, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void heightmap_writeblock ( G3DFACE *fac, FILE *fdst ) {
+    uint32_t i;
+
+    writef ( &fac->id, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &fac->heightmap->maxheights, sizeof ( uint32_t ), 0x01, fdst );
+
+    for ( i = 0x00; i < fac->heightmap->maxheights; i++ ) {
+        float elevation = fac->heightmap->heights[i].elevation;
+        uint32_t flags = fac->heightmap->heights[i].flags;
+
+        writef ( &flags    , sizeof ( uint32_t ), 0x01, fdst );
+        writef ( &elevation, sizeof ( float    ), 0x01, fdst );
+    }
+}
+
+/******************************************************************************/
+static void heightmaps_writeblock ( G3DMESH *mes, FILE *fdst ) {
+    LIST *ltmpfac = mes->lfac;
+
+    chunk_write ( NBHEIGHTMAPSIG, nbheightmap_blocksize ( ), fdst );
+    nbheightmap_writeblock ( mes, fdst );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        if ( fac->heightmap ) {
+            uint32_t blocksize = heightmap_blocksize ( fac->heightmap );
+
+            chunk_write ( HEIGHTMAPSIG, blocksize, fdst );
+            heightmap_writeblock ( fac, fdst );
+        }
+
+        ltmpfac = ltmpfac->next;
     }
 }
 
@@ -1861,6 +1942,15 @@ static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
 
         chunk_write ( MESHGRP, blocksize, fdst );
         weightgroups_writeblock ( mes, fdst );
+    }
+
+    if ( flags & MESHSAVEHEIGHTMAPS ) {
+        if ( mes->nbhtm ) {
+            uint32_t blocksize = heightmaps_blocksize ( mes );
+
+            chunk_write ( HEIGHTMAPSSIG, blocksize, fdst );
+            heightmaps_writeblock ( mes, fdst );
+        }
     }
 }
 

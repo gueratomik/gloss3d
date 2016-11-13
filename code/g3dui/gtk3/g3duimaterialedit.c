@@ -36,7 +36,7 @@ static void imageColorCbk       ( GtkWidget *, gpointer  );
 static void chooseImageCbk      ( GtkWidget *, gpointer  );
 
 /******************************************************************************/
-static void nameCbk ( GtkWidget *widget, gpointer user_data ) {
+static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     const char *name = gtk_entry_get_text ( GTK_ENTRY(widget) );
 

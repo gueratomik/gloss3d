@@ -29,28 +29,88 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-/****************** Event handler for interprocess communication **************/
-void g3duicom_gotoframe ( GtkWidget *widget, gdouble frame, 
-                                             gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    /*printf("%d %d %f\n", widget, gui, frame );*/
-
-/*printf("gui:%lld %lld %f\n", widget, ( long long ) gui, frame );*/
+/******************************************************************************/
+static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     /*** Force disabling real time subdivision ***/
     /*** otherwise g3dobject_anim_r() may call some buffered subdivision ***/
     /*** updates and that;s gonna be really slow. We prefer to rely ***/
     /*** On real time stuff ***/
     gui->flags |= ONGOINGANIMATION;
 
-    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, frame, gui->flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, gtf->frame, gui->flags );
 
-    g3dui_redrawGLViews ( gui );
+    g3dui_redrawGLViews  ( gui );
+    g3dui_redrawTimeline ( gui );
 
-    gui->curframe = frame;
+    gui->curframe = gtf->frame;
 
     /*** Re-enable real time subdivision ***/
     gui->flags &= (~ONGOINGANIMATION);
+}
+
+/******************************************************************************/
+static void dumpscreen ( G3DUI *gui, DUMPSCREEN *dsn ) {
+    glReadPixels ( dsn->x, 
+                   dsn->y, 
+                   dsn->width,
+                   dsn->height, 
+                   GL_RGBA, GL_UNSIGNED_BYTE,
+                   dsn->buffer );
+}
+
+/****************** Event handler for interprocess communication **************/
+void g3duicom_handleAction ( GtkWidget *widget, gpointer ptr, 
+                                                gpointer user_data ) {
+
+    G3DUIACTION *action = ( G3DUIACTION * ) ptr;
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    switch ( action->type ) {
+        case ACTION_GOTOFRAME :
+            gotoframe ( gui, action );
+        break;
+
+        case ACTION_DUMPSCREEN :
+            dumpscreen ( gui, action );
+        break;
+
+        default:
+        break;
+    }
+
+    /*** wake up waiting process **/
+    pthread_mutex_unlock ( &action->done );
+}
+
+/******************************************************************************/
+static gboolean emitAction ( G3DUIACTION *action ) {
+    G3DUI *gui = action->gui;
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+
+    g_signal_emit_by_name ( ggt->main, "action", action );
+
+    return G_SOURCE_REMOVE;
+}
+
+/******************************************************************************/
+void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
+    pthread_mutex_init ( &action->done, NULL );
+    pthread_mutex_lock ( &action->done );
+
+    /*** Because OpenGL only works within the main context, we ***/
+    /*** cannot call g_signal_emit_by_name() directly, we have to ***/
+    /*** call g_main_context_invoke_full() that calls a wrapper to ***/
+    /*** g_signal_emit_by_name() ***/
+    g_main_context_invoke_full ( NULL, 0, (GSourceFunc)emitAction,
+                                               action,
+                                               NULL );
+
+    /** wait until completion **/
+    pthread_mutex_lock    ( &action->done ); 
+    pthread_mutex_unlock  ( &action->done );
+
+    /** destry after the action is completed ***/
+    pthread_mutex_destroy ( &action->done );
 }
 
 /******************************************************************************/
@@ -61,33 +121,27 @@ uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                 uint32_t to, 
                                                 uint32_t depth, 
                                                 uint32_t width ) {
-    static EMITGOTOFRAMEDATA egd;
+    G3DUI *gui = ( G3DUI * ) fil->data;
+    static GOTOFRAME gtf;
 
-    egd.ggt     = ( G3DUIGTK3 * ) fil->data;
-    egd.signame = "gotoframe";
-    egd.frame   = frameID + 1;
+    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
+    gtf.action.type = ACTION_GOTOFRAME;
+    gtf.action.gui  = gui;
+    gtf.frame       = frameID + 1;
 
-    /*** Because OpenGL only works within the main context, we ***/
-    /*** cannot call g_signal_emit_by_name() directly, we have to ***/
-    /*** call g_main_context_invoke_full() that calls a wrapper to ***/
-    /*** g_signal_emit_by_name() ***/
-    g_main_context_invoke_full ( NULL, 0,
-                                       (GSourceFunc)emitgotoframe,
-                                       &egd,
-                                       NULL );
+    g3duicom_requestActionFromMainThread ( gui, &gtf );
 
     return 0x00;
 }
 
 /******************************************************************************/
 R3DFILTER *r3dfilter_gotoframe_new ( G3DUI* gui ) {
-    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     R3DFILTER *fil;
 
     fil = r3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,
                                        filtergotoframe_draw,
                                        NULL,
-                                       ggt );
+                                       gui );
 
     return fil;
 }

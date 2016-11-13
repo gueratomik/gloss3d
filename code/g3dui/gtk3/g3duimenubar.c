@@ -149,7 +149,7 @@ static void renderSettingsCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
 
-    createRenderEdit ( dial, gui, "RENDEREDIT", 0, 0, 300, 316 );
+    createRenderEdit ( dial, gui, "RENDEREDIT", 0, 0, 256, 348 );
 
     gtk_widget_show ( dial );
 }
@@ -833,6 +833,7 @@ GtkWidget *createExportMenu ( GtkWidget *parent, G3DUI *gui,
     gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
 
     g3dui_addMenuButton ( menu, gui, FILEDESC_OBJ, width, G_CALLBACK(g3dui_exportfilecbk) );
+    g3dui_addMenuButton ( menu, gui, FILEDESC_POV, width, G_CALLBACK(g3dui_exportfilecbk) );
     g3dui_addMenuButton ( menu, gui, FILEDESC_STA, width, G_CALLBACK(g3dui_exportfilecbk) );
 
     gtk_widget_show ( item );

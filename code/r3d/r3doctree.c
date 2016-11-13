@@ -190,7 +190,6 @@ void r3doctree_divide_r ( R3DOCTREE *rot ) {
           zavg = ( ( zmax + zmin ) / 2.0f );
     uint32_t i;
 
-
     rot->children[0x00] = r3doctree_new ( xmin, ymin, zmin, xavg, yavg, zavg,
                                           rot->rfcarray, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );

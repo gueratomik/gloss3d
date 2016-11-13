@@ -193,6 +193,19 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
                 list_insert ( &lfac, fac );
             }
 
+            if ( fac->heightmap ) {
+                uint32_t nbheights = ( fac->nbver == 0x04 ) ? quaVertices : triVertices;
+
+                if ( fac->heightmap->maxheights < nbheights ) {
+                    g3dheightmap_realloc ( fac->heightmap, nbheights );
+                }
+            } else {
+                if ( fac->nbver == 0x03 ) fac->heightmap = g3dheightmap_new ( triVertices );
+                if ( fac->nbver == 0x04 ) fac->heightmap = g3dheightmap_new ( quaVertices );
+
+                mes->nbhtm++;
+            }
+
             if ( list_seek ( st->lscf, fac->heightmap ) == NULL ) {
                 list_insert ( &st->lscf, fac->heightmap );
             }

@@ -117,13 +117,27 @@ typedef struct _G3DUIGTK3 {
 } G3DUIGTK3;
 
 /******************************************************************************/
-typedef struct _EMITGOTOFRAMEDATA {
-    G3DUIGTK3 *ggt;
-    char *signame;
-    float frame;
-} EMITGOTOFRAMEDATA;
+#define ACTION_GOTOFRAME  0x01
+#define ACTION_DUMPSCREEN 0x02
 
-gboolean emitgotoframe ( EMITGOTOFRAMEDATA * );
+typedef struct _G3DUIACTION {
+    uint32_t type;
+#ifdef __linux__
+    pthread_mutex_t done;
+#endif
+    G3DUI *gui;
+} G3DUIACTION;
+
+typedef struct _GOTOFRAME {
+    G3DUIACTION action;
+    float frame;
+} GOTOFRAME;
+
+typedef struct _DUMPSCREEN {
+    G3DUIACTION action;
+    uint32_t x, y, width, height;
+    unsigned char (*buffer)[4];
+} DUMPSCREEN;
 
 /***************************** Main Window Widget *****************************/
 typedef struct _GtkGlossUI {
@@ -135,7 +149,7 @@ typedef struct _GtkGlossUI {
 typedef struct _GtkGlossUIClass {
   GtkFixedClass parent_class;
    /* private signal */
-   void (*gotoframe) (GtkGlossUI * gui );
+   void (*action) (GtkGlossUI * gui );
 } GtkGlossUIClass;
 
 /******************************************************************************/
@@ -438,6 +452,7 @@ void       createCharText        ( GtkWidget *, G3DUI *,
                                                 gint, gint,
                                                 gint, gint,
                                                 void (*)( GtkWidget *, 
+                                                          GdkEvent  *,
                                                           gpointer ) );
 
 void createOrientationSelection  ( GtkWidget *, G3DUI *,
@@ -526,7 +541,9 @@ GtkWidget *g3dui_addMenuButton    ( GtkWidget *, G3DUI *,
                                                  gint,
                                                  GCallback );
 
-void g3duicom_gotoframe ( GtkWidget *, gdouble, gpointer );
+void g3duicom_handleAction ( GtkWidget *, gpointer, gpointer );
+void g3duicom_gotoframe    ( G3DUI *, GOTOFRAME  * );
+void g3duicom_dumpscreen   ( G3DUI *, DUMPSCREEN * );
 
 /******************************************************************************/
 #define TOGDKWINDOWFILTERNAME "TOGDKWINDOWFILTERNAME"

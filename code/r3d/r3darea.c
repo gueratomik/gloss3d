@@ -33,14 +33,12 @@
 /*** This is responsible for RAY interpolation. We are not going to compute ***/
 /*** each ray from calls to gluProject, we just need the boundary rays, then **/
 /*** we build the other rays from those ones. It should be faster this way. ***/
-void r3darea_viewport ( R3DAREA *area, G3DCAMERA *cam,
-                                       uint32_t x1, uint32_t y1, 
+void r3darea_viewport ( R3DAREA *area, uint32_t x1, uint32_t y1, 
                                        uint32_t x2, uint32_t y2,
                                        uint32_t width, uint32_t height ) {
     uint32_t coords[0x04][0x02] = { { x1, y1 }, { x2, y1 },
                                     { x2, y2 }, { x1, y2 } };
-    double *MVX = ((G3DOBJECT*)cam)->iwmatrix,
-           *PJX = cam->pmatrix;
+    /*double *MVX = ((G3DOBJECT*)cam)->iwmatrix;*/
     GLint   VPX[0x04] = { 0x00, 0x00, width, height };
     R3DINTERPOLATION vip[0x04];
     uint32_t i;
@@ -52,7 +50,9 @@ void r3darea_viewport ( R3DAREA *area, G3DCAMERA *cam,
 
         /*** Get ray's foreground coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 0.000001f, MVX, PJX, VPX, &rx, &ry, &rz );
+        gluUnProject ( x, height - y, 0.000001f, area->rcam->MVX, 
+                                                 area->rcam->PJX,
+                                                 VPX, &rx, &ry, &rz );
 
         vip[i].src.x = ( rx );
         vip[i].src.y = ( ry );
@@ -61,7 +61,9 @@ void r3darea_viewport ( R3DAREA *area, G3DCAMERA *cam,
 
         /*** Get ray's background coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 0.999999f, MVX, PJX, VPX, &rx, &ry, &rz );
+        gluUnProject ( x, height - y, 0.999999f, area->rcam->MVX, 
+                                                 area->rcam->PJX,
+                                                 VPX, &rx, &ry, &rz );
 
         vip[i].dst.x = ( rx );
         vip[i].dst.y = ( ry );

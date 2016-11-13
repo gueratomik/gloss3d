@@ -71,12 +71,52 @@ void common_g3duirenderedit_endFrameCbk ( G3DUI *gui, float frame ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_motionBlurCbk ( G3DUI *gui, uint32_t nbstep ) {
+void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & ENABLEMOTIONBLUR ) {
+        rsg->flags = (rsg->flags & ~ENABLEMOTIONBLUR);
+    } else {
+        rsg->flags = (rsg->flags | ENABLEMOTIONBLUR);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->flags = (rsg->flags | SCENEMOTIONBLUR) & ~VECTORMOTIONBLUR;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->flags = (rsg->flags | VECTORMOTIONBLUR) & ~SCENEMOTIONBLUR;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI *gui, uint32_t nbstep ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->mblur = nbstep;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, float strength ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->mblurStrength = strength;
 }
 
 /******************************************************************************/
@@ -93,6 +133,8 @@ void common_g3duirenderedit_outputCbk ( G3DUI *gui, const char *outfile ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->outfile ) free ( rsg->outfile );
 
     rsg->outfile = strdup ( outfile );
 }
@@ -139,12 +181,11 @@ void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
 /******************************************************************************/
 void common_g3duirenderedit_widthCbk ( G3DUI *gui, uint32_t width ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
-    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->width  = width;
-    rsg->height = width / ratio;
+    rsg->height = width / rsg->ratio;
 
     /*updateRenderHeight ( parent );*/
 }
@@ -152,12 +193,11 @@ void common_g3duirenderedit_widthCbk ( G3DUI *gui, uint32_t width ) {
 /******************************************************************************/
 void common_g3duirenderedit_heightCbk ( G3DUI *gui, uint32_t height ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
-    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->height = height;
-    rsg->width  = height * ratio;
+    rsg->width  = height * rsg->ratio;
 
 
     /*updateRenderWidth ( parent );*/

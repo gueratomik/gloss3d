@@ -91,16 +91,19 @@ void r3dscene_cancelRender ( R3DSCENE *rsce ) {
 }
 
 /******************************************************************************/
-void r3dscene_import ( R3DSCENE *rsce, R3DCAMERA *rcam, uint32_t engine_flags ) {
+void r3dscene_import ( R3DSCENE *rsce, uint32_t engine_flags ) {
     LIST *ltmp = ((R3DOBJECT*)rsce)->obj->lchildren;
-    G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rcam)->obj;
     static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
                                 0.0f, 1.0f, 0.0f, 0.0f,
                                 0.0f, 0.0f, 1.0f, 0.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f };
 
-    r3dobject_import ( ((R3DOBJECT*)rsce)->obj, IDX, &rsce->lrob, 
-                                                     &rsce->lrlt, engine_flags );
+    r3dobject_import ( ((R3DOBJECT*)rsce)->obj, ++((R3DOBJECT*)rsce)->id,
+                                                IDX,
+                                                rsce->area.rcam->MVX, 
+                                                rsce->area.rcam->PJX,
+                                                &rsce->lrob, 
+                                                &rsce->lrlt, engine_flags );
 
 }
 
@@ -142,6 +145,7 @@ void r3dscene_free ( R3DOBJECT *rob ) {
     list_free ( &rsce->lrob, (void(*)(void*))r3dobject_free );
 
     free ( rsce->area.img );
+    free ( rsce->area.rfc );
 
     r3dcamera_free ( rsce->area.rcam );
 
@@ -184,15 +188,19 @@ static uint32_t r3dscene_getNextLine ( R3DSCENE *rsce,
 }
 
 /******************************************************************************/
-void rd3scene_filterline ( R3DSCENE *rsce, uint32_t from, uint32_t to,
-                                           uint32_t depth, uint32_t width ) {
+void rd3scene_filterline ( R3DSCENE *rsce, uint32_t from, 
+                                               uint32_t to,
+                                               uint32_t depth, 
+                                               uint32_t width ) {
     LIST *ltmp = rsce->lfilters;
     char *img = rsce->area.img;
+
+    if ( rsce->running == 0x00 ) return;
 
     while ( ltmp ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
 
-        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type == FILTERLINE ) ) {
+        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERLINE ) ) {
             if ( fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return;
@@ -204,15 +212,19 @@ void rd3scene_filterline ( R3DSCENE *rsce, uint32_t from, uint32_t to,
 }
 
 /******************************************************************************/
-void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from, uint32_t to,
-                                            uint32_t depth, uint32_t width ) {
+void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from, 
+                                                uint32_t to,
+                                                uint32_t depth, 
+                                                uint32_t width ) {
     LIST *ltmp = rsce->lfilters;
     char *img = rsce->area.img;
+
+    if ( rsce->running == 0x00 ) return;
 
     while ( ltmp ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
 
-        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type == FILTERIMAGE ) ) {
+        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERIMAGE ) ) {
             if ( fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return;
@@ -221,6 +233,33 @@ void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from, uint32_t to,
 
         ltmp = ltmp->next;
     }
+}
+
+/******************************************************************************/
+uint32_t rd3scene_filterbefore ( R3DSCENE *rsce, uint32_t from, 
+                                                 uint32_t to,
+                                                 uint32_t depth, 
+                                                 uint32_t width ) {
+    LIST *ltmp = rsce->lfilters;
+    char *img = rsce->area.img;
+    uint32_t ret = 0x00;
+
+    if ( rsce->running == 0x00 ) return;
+
+    while ( ltmp ) {
+        R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
+
+        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERBEFORE ) ) {
+            if ( ret = fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
+                /*** stop processing filters if 1 is returned ***/
+                return ret;
+            }
+        }
+
+        ltmp = ltmp->next;
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -254,6 +293,9 @@ void *r3dscene_raytrace ( void *ptr ) {
             /*** First, reset the ray ***/
             memset ( &ray, 0x00, sizeof ( R3DRAY ) );
 
+            ray.x = i;
+            ray.y = scanline;
+
             /*** then set its source position ***/
             /*memcpy ( &ray.ori, &pone.src, sizeof ( R3DVECTOR ) );*/
 
@@ -274,7 +316,7 @@ void *r3dscene_raytrace ( void *ptr ) {
             r3dtinyvector_normalize ( &ray.dir, NULL );
 
             /*** shoot the ray ***/
-            color = r3dray_shoot ( &ray, rsce, NULL, 0x00, RAYQUERYALL );
+            color = r3dray_shoot ( &ray, rsce, NULL, 0x00, RAYQUERYALL | RAYSTART);
 
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
@@ -331,7 +373,9 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( G3DSCENE *sce, G3DCAMERA *cam,
+R3DSCENE *r3dscene_new ( G3DSCENE *sce, 
+                         double *MVX,
+                         double *PJX,
                          uint32_t x1   , uint32_t y1,
                          uint32_t x2   , uint32_t y2,
                          uint32_t width, uint32_t height,
@@ -361,11 +405,21 @@ R3DSCENE *r3dscene_new ( G3DSCENE *sce, G3DCAMERA *cam,
         return NULL;
     }
 
+    /*** This fce buffer for storing face-pixel information ***/
+    if ( ( rsce->area.rfc = ( R3DFACE ** ) calloc ( width * height, sizeof ( R3DFACE * ) ) ) == NULL ) {
+        fprintf ( stderr, "r3dscene_new: fac memory allocation failed\n" );
+
+        free ( rsce->area.img );
+        free ( rsce );
+
+        return NULL;
+    }
+
     /*** default background color ***/
     rsce->background = background;
 
     /*** viewing camera ***/
-    rsce->area.rcam = r3dcamera_new ( cam );
+    rsce->area.rcam = r3dcamera_new ( MVX, PJX, width, height );
 
     rsce->startframe = startframe;
     rsce->endframe   = endframe;
@@ -388,12 +442,12 @@ R3DSCENE *r3dscene_new ( G3DSCENE *sce, G3DCAMERA *cam,
     rsce->lfilters = lfilters;
 
     /*** Compute the interpolation factors for rays ***/
-    r3darea_viewport ( &rsce->area, cam, x1, y1, x2, y2, width, height );
+    r3darea_viewport ( &rsce->area, x1, y1, x2, y2, width, height );
 
-    r3dobject_init ( ( R3DOBJECT * ) rsce, obj->type, obj->flags, r3dscene_free );
+    r3dobject_init ( ( R3DOBJECT * ) rsce, 0, obj->type, obj->flags, r3dscene_free );
 
     /*** Convert objects into world oriented objects ***/
-    r3dscene_import ( rsce, rsce->area.rcam, 0x00 );
+    r3dscene_import ( rsce, 0x00 );
 
 
     return rsce;
@@ -412,7 +466,6 @@ void r3dscene_render_t_free ( R3DSCENE *rsce ) {
 void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
     G3DSCENE *sce  = ( G3DSCENE *  ) ((R3DOBJECT*)rsce)->obj;
     G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rsce->area.rcam)->obj;
-    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->lfilters, GOTOFRAMEFILTERNAME );
     uint32_t x1 = rsce->area.x1, 
              y1 = rsce->area.y1,
              x2 = rsce->area.x2,
@@ -432,18 +485,14 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            if ( tofrm ) {
-                tofrm->draw ( tofrm, NULL, i, NULL, 0x00, 0x00, 0x00, 0x00 );
-            } else {
-                fprintf ( stderr, "no callback to jump to nextframe\n" );
-            }
-
-            nextrsce = r3dscene_new ( sce, cam, x1, y1,
-                                                x2, y2,
-                                                width, height, 
-                                                background,
-                                                startframe, endframe,
-                                                lfilters );
+            nextrsce = r3dscene_new ( sce, rsce->area.rcam->MVX,
+                                           rsce->area.rcam->PJX,
+                                           x1, y1,
+                                           x2, y2,
+                                           width, height, 
+                                           background,
+                                           startframe, endframe,
+                                           lfilters );
 
             nextrsce->curframe = i;
 
@@ -506,6 +555,7 @@ void r3dscene_render ( R3DSCENE *rsce ) {
     uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
     clock_t t = clock ( );  
     int i;
+    uint32_t doRender;
 
     /*** http://www.thegeekstuff.com/2012/05/c-mutex-examples/ ***/
     /*** This mutex is used when each rendering thread ***/
@@ -522,14 +572,21 @@ void r3dscene_render ( R3DSCENE *rsce ) {
     rsce->area.lock = CreateMutex ( NULL, FALSE, NULL );
     #endif
 
-    /*** Start as many threads as CPUs. Each thread queries the parent ***/
-    /*** process in order to retrieve the scanline number it must render. ***/
-    for ( i = 0x00; i < nbcpu; i++ ) {
-        r3dscene_createRenderThread ( rsce );
-    }
+    doRender = rd3scene_filterbefore ( rsce, 0, 
+                                             0,
+                                             rsce->area.depth, 
+                                             rsce->area.width );
 
-    /*** wait all render threads to finish ***/ 
-    r3dscene_wait ( rsce );
+    if ( doRender != 0x02 ) {
+        /*** Start as many threads as CPUs. Each thread queries the parent ***/
+        /*** process in order to retrieve the scanline number it must render. ***/
+        for ( i = 0x00; i < nbcpu; i++ ) {
+            r3dscene_createRenderThread ( rsce );
+        }
+
+        /*** wait all render threads to finish ***/ 
+        r3dscene_wait ( rsce );
+    }
 
     rd3scene_filterimage ( rsce, rsce->area.y1, 
                                  rsce->area.y2,

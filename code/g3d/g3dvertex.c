@@ -30,6 +30,51 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dvertex_addExtension ( G3DVERTEX *ver, G3DEXTENSION *extension ) {
+    extension->next = ver->extension;
+    ver->extension = extension;
+}
+
+/******************************************************************************/
+G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
+    G3DEXTENSION *extension = ver->extension;
+
+    while ( extension ) {
+        if ( extension->name == extensionName ) {
+            return extension;
+        }
+
+        extension = extension->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
+    G3DEXTENSION *extension = ver->extension;
+    G3DEXTENSION *previousExtension = NULL;
+    G3DEXTENSION *removedExtension = NULL;
+
+    while ( extension ) {
+        if ( extension->name == extensionName ) {
+            removedExtension = extension;
+
+            if ( previousExtension == NULL ) {
+                ver->extension = extension->next;
+            } else {
+                previousExtension->next = extension->next;
+            }
+        }
+
+        previousExtension = extension;
+        extension = extension->next;
+    }
+
+    return removedExtension;
+}
+
+/******************************************************************************/
 void g3dvertex_renumberList ( LIST *lver, uint32_t id ) {
     LIST *ltmpver = lver;
 

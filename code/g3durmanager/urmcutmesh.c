@@ -143,7 +143,7 @@ void cutMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
                                           G3DFACE *knife,
-                                          int restrict,
+                                          int restricted,
                                           uint32_t flags,
                                           uint32_t return_flags ) {
     LIST *loldfac = NULL,
@@ -151,7 +151,7 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
          *lnewfac = NULL;
     URMCUTMESH *cms;
 
-    g3dmesh_cut ( mes, knife, &loldfac, &lnewver, &lnewfac, restrict, flags );
+    g3dmesh_cut ( mes, knife, &loldfac, &lnewver, &lnewfac, restricted, flags );
 
     g3dmesh_update ( mes, NULL,
                           NULL,

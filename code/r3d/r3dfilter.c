@@ -274,10 +274,10 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
                  "-vcodec", "rawvideo",
                  "-s", res,
                  "-r", fps,
-                 "-sameq",
                  "-y",
                  "-an",
                  "-i", "-",
+                 "-q:v", "1",
                  ftf->exportpath,
                  NULL );
 
@@ -404,7 +404,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     int i, j, k;
 
     /*** dont motion-blurize the first frame ***/
-    if ( rsce->curframe == rsce->startframe ) return;
+    if ( rsce->curframe == rsce->startframe ) return 0x00;
 
     /*** init our buffer with the first image ***/
     for ( j = from; j < to; j++ ) {
@@ -438,12 +438,14 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         nextframe += difstep;
 
         /*** Prepare the scene ***/
-        blurrsce = r3dscene_new ( sce, cam, x1, y1,
-                                            x2, y2,
-                                            width, height, 
-                                            background,
-                                            startframe, endframe,
-                                            lkeepfilters );
+        blurrsce = r3dscene_new ( sce, rsce->area.rcam->MVX,
+                                       rsce->area.rcam->PJX,
+                                       x1, y1,
+                                       x2, y2,
+                                       width, height, 
+                                       background,
+                                       startframe, endframe,
+                                       lkeepfilters );
 
         /*** register this child renderscene in case we need to cancel it ***/
         r3dscene_addSubRender ( rsce, blurrsce );
@@ -1004,7 +1006,7 @@ R3DFILTER *r3dfilter_toBuffer_new ( uint32_t width, uint32_t height,
                                     uint32_t depth, uint32_t background ) {
     R3DFILTER *fil;
 
-    fil = r3dfilter_new ( FILTERLINE, TOBUFFERFILTERNAME,
+    fil = r3dfilter_new ( FILTERIMAGE, TOBUFFERFILTERNAME,
                                       filtertobuffer_draw,
                                 /*** freeing is done by the widget on close ***/
                                       filtertobuffer_free,

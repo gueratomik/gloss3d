@@ -30,13 +30,13 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duicutmeshtooledit_restrictCbk ( G3DUI *gui, int restrict ) {
+void common_g3duicutmeshtooledit_restrictCbk ( G3DUI *gui, int restricted ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, CUTMESHTOOL );
     G3DCUTMESH   *cm = mou->data;
 
     if ( gui->lock ) return;
 
     if ( mou ) {
-        cm->restrict_to_selection = restrict;
+        cm->restrict_to_selection = restricted;
     }
 }

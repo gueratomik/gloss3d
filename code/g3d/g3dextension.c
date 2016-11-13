@@ -27,31 +27,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui_gtk3.h>
-
+#include <g3d.h>
 
 /******************************************************************************/
-GtkWidget *createMaterialNameEdit ( GtkWidget *parent, G3DUI *gui,
-                                                       char *name,
-                                                       gint x,
-                                                       gint y,
-                                                       gint width,
-                                                       gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget * frm = gtk_fixed_new ( );
-
-    gtk_widget_set_name ( frm, name );
-
-    gtk_widget_size_allocate ( frm, &gdkrec );
-
-    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
-
-
-    createCharText ( frm, gui, EDITMATERIALNAME, 0, 0, 96, 96, nameCbk );
-
-
-    gtk_widget_show ( frm );
-
-
-    return frm;
-}

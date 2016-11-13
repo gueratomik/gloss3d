@@ -107,12 +107,48 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 }
 
 /******************************************************************************/
+uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+                                                  float frameID,
+                                                  unsigned char *img, 
+                                                  uint32_t from, 
+                                                  uint32_t to, 
+                                                  uint32_t depth, 
+                                                  uint32_t width ) {
+    GtkWidget *widget = ( GtkWidget * ) fil->data;
+    guint cont = gtk_statusbar_get_context_id ( widget, "context" );
+    char str[100];
+
+    if ( from == 0x00 && to == 0x00 ) {
+        snprintf ( str, 100, "Rendering frame %.2f", frameID );
+    } else {
+        snprintf ( str, 100, "Done" );
+    }
+
+    gtk_statusbar_push ( widget, cont, str );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+/*** This filter is declared in the g3dui layer because of GtkWidget struct***/
+R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget ) {
+    R3DFILTER *fil = r3dfilter_new ( FILTERBEFORE | FILTERIMAGE, "TOSTATUSBAR",
+                                     filtertostatusbar_draw,
+                                     NULL, 
+                                     widget );
+    return fil;
+}
+
+/******************************************************************************/
 static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
-
+    GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
+    GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
+    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      win      = gdk_x11_window_get_xid ( gdkwin );
     rsg->width  = gtk_widget_get_allocated_width  ( widget );
     rsg->height = gtk_widget_get_allocated_height ( widget );
 
@@ -130,6 +166,33 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                            gui );*/
 
         LIST *lfilters = NULL;
+
+        if (   ( rsg->flags & ENABLEMOTIONBLUR ) && 
+             ( ( rsg->flags & RENDERPREVIEW    ) == 0x00 ) ) {
+            R3DFILTER *blur;
+
+            if ( rsg->flags & VECTORMOTIONBLUR ) {
+                blur = r3dfilter_VectorMotionBlur_new ( rsg->width, 
+                                                        rsg->height,
+                                                        rsg->mblurStrength / 100 );
+
+            }
+
+            if ( rsg->flags & SCENEMOTIONBLUR ) {
+                blur = r3dfilter_MotionBlur_new ( rsg->width, 
+                                                  rsg->height,
+                                                  rsg->depth, 
+                                                  rsg->mblur );
+            }
+
+            if ( blur ) list_append ( &lfilters, blur );
+        }
+
+        list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME)) );
+
+        if ( rsg->flags & RENDERPREVIEW ) {
+            list_append ( &lfilters, r3dfilter_preview_new ( gui ) );
+        }
 
         list_append ( &lfilters, tobuf );
         list_append ( &lfilters, towin );
@@ -151,7 +214,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
                 /*** ffmpg is NULL is ffmpeg is not found ***/
                 if ( ffmpg ) {
-                    list_insert ( &lfilters, ffmpg );
+                    list_append ( &lfilters, ffmpg );
                 } else {
                     GtkWidget *dialog = gtk_message_dialog_new ( NULL,
                                                                  GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -175,16 +238,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                     toimg = r3dfilter_writeImage_new ( buf, 0x00 );
                 }
 
-                list_insert ( &lfilters, toimg );
+                list_append ( &lfilters, toimg );
             }
-        }
-
-        if ( rsg->mblur > 0x00 ) {
-            R3DFILTER *mblur = r3dfilter_MotionBlur_new ( rsg->width, 
-                                                          rsg->height,
-                                                          rsg->depth, 
-                                                          rsg->mblur );
-            list_insert ( &lfilters, mblur );
         }
 
         /*** COMMENTED - Cleaning is done when closing window ***/
@@ -194,7 +249,10 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*** this filter tells the engine to go to the next frame ***/
             R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
 
-            list_insert ( &lfilters, tofrm );
+            list_append ( &lfilters, tofrm );
+
+            /*** force starting at the first frame **/
+            tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );
 
             rps = common_g3dui_render ( gui, ( uint64_t ) widget,
                                              0x00, 0x00,
@@ -282,7 +340,7 @@ GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
     /*** Drawing area does not receive mous events by defaults ***/
     gtk_widget_set_events ( drw, gtk_widget_get_events ( drw )  |
                                  GDK_KEY_PRESS_MASK             |
-			         GDK_KEY_RELEASE_MASK           |
+                                 GDK_KEY_RELEASE_MASK           |
                                  GDK_BUTTON_PRESS_MASK          |
                                  GDK_BUTTON_RELEASE_MASK        |
                                  GDK_POINTER_MOTION_MASK        |
@@ -515,7 +573,21 @@ static void wResize ( GtkWidget *widget, GdkRectangle *allocation,
             gdkrec.x      = 0x00;
             gdkrec.y      = 0x20;
             gdkrec.width  = allocation->width;
-            gdkrec.height = allocation->height - 0x20;
+            gdkrec.height = allocation->height - 0x40;
+
+            /*if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
+                gdkrec.x += allocation->x;
+                gdkrec.y += allocation->y;
+            }*/
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
+        if ( GTK_IS_STATUSBAR(child) ) {
+            gdkrec.x      = 0x00;
+            gdkrec.y      = allocation->height - 0x20;
+            gdkrec.width  = allocation->width;
+            gdkrec.height = 0x20;
 
             /*if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
                 gdkrec.x += allocation->x;
@@ -547,8 +619,8 @@ GtkWidget *createRenderWindow ( GtkWidget *parent, G3DUI *gui,
     GdkRectangle gdkrec = { 0, 0, width, height };
     GtkWidget *frm, *area, *mbar;
 
-    if ( width  > 800 ) gdkrec.width  = 800;
-    if ( height > 600 ) gdkrec.height = 600;
+    /*if ( width  > 1024 ) gdkrec.width  = 1024;
+    if ( height >  768 ) gdkrec.height = 768;*/
 
     frm = gtk_fixed_new ( );
 
@@ -561,8 +633,9 @@ GtkWidget *createRenderWindow ( GtkWidget *parent, G3DUI *gui,
     g_signal_connect (G_OBJECT(frm), "size-allocate", G_CALLBACK (wResize) , gui);
     g_signal_connect (G_OBJECT(frm), "realize"      , G_CALLBACK (wRealize), gui);
 
-    createRenderWindowDrawingArea ( frm, gui, RENDERWINDOWMENUWORKAREANAME, 0, 32, width, height - 32 );
+    createRenderWindowDrawingArea ( frm, gui, RENDERWINDOWMENUWORKAREANAME, 0, 32, width, height - 48 );
     createRenderWindowMenuBar     ( frm, gui, RENDERWINDOWMENUBARNAME     , 0,  0, width, 32 );
+    createStatusBar               ( frm, gui, RENDERWINDOWSTATUSBARNAME   , 0,  height - 48, width, 16 );
 
     gtk_widget_show ( frm );
 

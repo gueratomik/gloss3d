@@ -228,7 +228,8 @@ void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
                 uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, mes->subdiv );
 
                 g3dsubdivisionV3_subdivide ( sdv, fac,
-                                                  fac->rtfacmem,
+                                                  NULL,
+                                                  fac->rtquamem,
                                                   fac->rtedgmem,
                                                   fac->rtvermem,
                                                   qua_indexes,

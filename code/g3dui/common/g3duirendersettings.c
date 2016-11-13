@@ -109,17 +109,19 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
         return NULL;
     }
 
-    rsg->flags       = 0x00;
+    rsg->flags       = VECTORMOTIONBLUR;
     rsg->fps         = 0x18;
     rsg->depth       = 0x18;
     rsg->startframe  = 0x00;
     rsg->endframe    = 0x00;
-    rsg->outfile     = "Untitled";
+    rsg->outfile     = strdup("Untitled");
     rsg->format      = RENDERTOIMAGE;
     rsg->width       = 640;
     rsg->height      = 480;
-    rsg->ratio       = 0.0f;
+    rsg->ratio       = (float) rsg->width / rsg->height;
     rsg->background  = 0x00404040;
+    rsg->mblur       = 5;
+    rsg->mblurStrength = 75;
 
     g3duirendersettings_getFfmpegPath ( rsg );
     g3duirendersettings_getFfplayPath ( rsg );

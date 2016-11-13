@@ -169,7 +169,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/zoom_view.xpm
 
 backup:
-	tar -cvzf ../Motif-`date +%Y%m%d`.tar.gz * && \
+	tar -cvzf ../Motif-`date +%Y%m%d`.tar.gz `find . -type f | grep -v "\.o"` && \
         ./backup.sh ../Motif-`date +%Y%m%d`.tar.gz && \
         rm -f ../Motif-`date +%Y%m%d`.tar.gz
 .PHONY: backup

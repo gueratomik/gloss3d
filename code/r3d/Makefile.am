@@ -12,6 +12,7 @@ LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3dinterpolation.c \
                       r3dlight.c \
                       r3dmesh.c \
+                      r3dmotionblur.c \
                       r3dobject.c \
                       r3doctree.c \
                       r3dplane.c \

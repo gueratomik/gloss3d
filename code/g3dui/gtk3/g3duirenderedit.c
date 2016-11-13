@@ -79,7 +79,7 @@ void createRenderFormat ( GtkWidget *parent, G3DUI *gui,
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, RENDERTOIMAGENAME );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, RENDERTOVIDEONAME );
 
-    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), gui->currsg->format );
 
     gtk_widget_show ( cmb );
 }
@@ -90,12 +90,13 @@ R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
     R3DFILTER *fil;
+    uint32_t filterMode =  FILTERLINE | FILTERIMAGE;
 #ifdef __linux__
     Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      win      = gdk_x11_window_get_xid ( gdkwin );
 
 
-    fil = r3dfilter_new ( FILTERLINE, TOWINDOWFILTERNAME,
+    fil = r3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
                                       filtertowindow_draw,
                                       filtertowindow_free, 
                                       filtertowindow_new ( dis, win, active_fill ) );
@@ -104,7 +105,7 @@ R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
 #ifdef __MINGW32__
     HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
 
-    fil = r3dfilter_new ( FILTERLINE, TOWINDOWFILTERNAME,
+    fil = r3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
                                       filtertowindow_draw,
                                       filtertowindow_free, 
                                       filtertowindow_new ( hWnd, active_fill ) );
@@ -121,7 +122,7 @@ static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_saveCbk ( gui, save );
 
-    updateRenderEdit ( parent, gui );
+    updateSaveOutputForm ( parent, gui );
 }
 
 
@@ -177,32 +178,30 @@ static void ratioCbk ( GtkWidget *widget, gpointer user_data ) {
 static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     int width = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_widthCbk ( gui, ( uint32_t ) width );
+
+    updateRenderEdit ( parent, gui );
 }
 
 /******************************************************************************/
 static void heightCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     int height = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_heightCbk ( gui, ( uint32_t ) height );
+
+    updateRenderEdit ( parent, gui );
 }
 
 /******************************************************************************/
-static void outputCbk ( GtkWidget *widget, gpointer user_data ) {
+static void outputCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     const char *outfile = gtk_entry_get_text ( GTK_ENTRY(widget) );
 
     common_g3duirenderedit_outputCbk ( gui, outfile );
-}
-
-/******************************************************************************/
-static void motionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    int nbstep = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-
-    common_g3duirenderedit_motionBlurCbk ( gui, ( uint32_t ) nbstep );
 }
 
 /******************************************************************************/
@@ -258,7 +257,47 @@ static void Destroy ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+static void setMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setMotionBlurCbk ( gui );
+
+    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void sceneMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_sceneMotionBlurCbk ( gui );
+}
+
+/******************************************************************************/
+static void sceneMotionBlurIterationCbk ( GtkWidget *widget, gpointer user_data ) {
+    uint32_t iteration = gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_sceneMotionBlurIterationCbk ( gui, iteration );
+}
+
+/******************************************************************************/
+static void vectorMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_vectorMotionBlurCbk ( gui );
+}
+
+/******************************************************************************/
+static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_motionBlurStrengthCbk ( gui, strength );
+}
+
+/******************************************************************************/
+void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     /*** prevents a loop ***/
@@ -271,19 +310,11 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( gui->currsg ) {
             G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
+            if ( GTK_IS_TOGGLE_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITRENDERSAVE ) == 0x00 ) {
                     if ( rsg->flags & RENDERSAVE ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-
-                if ( strcmp ( child_name, EDITRENDERPREVIEW ) == 0x00 ) {
-                    if ( rsg->flags & RENDERPREVIEW ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -305,6 +336,229 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBox *cmb = GTK_COMBO_BOX(child);
+
+                if ( strcmp ( child_name, EDITRENDERFORMAT   ) == 0x00 ) {
+                    if ( rsg->flags & RENDERSAVE ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_combo_box_set_active ( cmb, rsg->format );
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+void updateSaveOutputFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateSaveOutputForm ( frm, gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createSaveOutputForm ( GtkWidget *parent, G3DUI *gui,
+                                                             char *name,
+                                                             gint x,
+                                                             gint y,
+                                                             gint width,
+                                                             gint height ) {
+    GtkWidget *vbr, *col, *frm, *btn;
+
+    frm = createFrame ( parent, gui, name, x, y, width, height );
+
+    createToggleLabel ( frm, gui, EDITRENDERSAVE,
+                               0,  0, 104, 20, saveCbk );
+
+    createRenderFormat( frm, gui, EDITRENDERFORMAT,
+                               0, 24, 96,  64, formatCbk );
+
+    createCharText    ( frm, gui, EDITRENDEROUTPUT,
+                               0, 48, 96, 200, outputCbk );
+
+
+    return frm;
+}
+
+
+/******************************************************************************/
+void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    /*** prevents a loop ***/
+    gui->lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( GTK_IS_CHECK_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERENABLEMOTIONBLUR ) == 0x00 ) {
+                    if ( rsg->flags & ENABLEMOTIONBLUR ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_RADIO_BUTTON(child) ) {
+                GtkEntry *ent = GTK_ENTRY(child);
+
+                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLUR ) == 0x00 ) {
+                    if ( rsg->flags & VECTORMOTIONBLUR ) {
+                        gtk_toggle_button_set_active ( child, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( child, FALSE );
+                    }
+
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITRENDERSCENEMOTIONBLUR ) == 0x00 ) {
+                    if ( rsg->flags & SCENEMOTIONBLUR ) {
+                        gtk_toggle_button_set_active ( child, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( child, FALSE );
+                    }
+
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON(child) ) {
+                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERSCENEMOTIONBLURITERATION ) == 0x00 ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->mblur );
+                }
+
+                if ( strcmp ( child_name, EDITRENDERMOTIONBLURSTRENGTH ) == 0x00 ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->mblurStrength );
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+void updateMotionBlurFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateMotionBlurForm ( frm, gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
+                                                             char *name,
+                                                             gint x,
+                                                             gint y,
+                                                             gint width,
+                                                             gint height ) {
+    GtkWidget *vbr, *col, *frm, *btn;
+
+    frm = createFrame ( parent, gui, name, x, y, width, height );
+
+          createToggleLabel ( frm, gui,
+                                   EDITRENDERENABLEMOTIONBLUR,
+                                     0,  0, 96, 18,
+                                   setMotionBlurCbk );
+
+          createIntegerText ( frm, gui, EDITRENDERMOTIONBLURSTRENGTH,
+                                    160, 0, 96,  32,
+                                   motionBlurStrengthCbk );
+
+    btn = createRadioLabel ( frm, gui,
+                                   EDITRENDERVECTORMOTIONBLUR,
+                                   NULL,
+                                     0,  24, 96, 18,
+                                   vectorMotionBlurCbk );
+
+          createRadioLabel ( frm, gui,
+                                   EDITRENDERSCENEMOTIONBLUR,
+                                   btn,
+                                     0, 48, 96, 18,
+                                   sceneMotionBlurCbk );
+
+          createIntegerText ( frm, gui, EDITRENDERSCENEMOTIONBLURITERATION,
+                                    160, 48, 96,  32,
+                                   sceneMotionBlurIterationCbk );
+
+
+    return frm;
+}
+
+/******************************************************************************/
+void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    /*** prevents a loop ***/
+    gui->lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( strcmp ( child_name, EDITRENDERMOTIONBLURFRAME ) == 0x00 ) {
+                updateMotionBlurFrame ( child, gui );
+            }
+
+            if ( strcmp ( child_name, EDITRENDERSAVEOUTPUTFRAME ) == 0x00 ) {
+                updateSaveOutputFrame ( child, gui );
+            }
+
+            if ( GTK_IS_CHECK_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERPREVIEW ) == 0x00 ) {
+                    if ( rsg->flags & RENDERPREVIEW ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
             if ( GTK_IS_SPIN_BUTTON(child) ) {
                 GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
@@ -314,10 +568,6 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
 
                 if ( strcmp ( child_name, EDITRENDEREND ) == 0x00 ) {
                     gtk_spin_button_set_value ( sbn, rsg->endframe );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERMBLUR ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->height );
                 }
 
                 if ( strcmp ( child_name, EDITRENDERRATIO ) == 0x00 ) {
@@ -337,20 +587,6 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
 
-            }
-
-            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
-                GtkComboBox *cmb = GTK_COMBO_BOX(child);
-
-                if ( strcmp ( child_name, EDITRENDERFORMAT   ) == 0x00 ) {
-                    if ( rsg->flags & RENDERSAVE ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_combo_box_set_active ( cmb, rsg->format );
-                }
             }
 
             if ( GTK_IS_COLOR_BUTTON(child) ) {
@@ -404,47 +640,43 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
     gui->lock = 0x01;
 
-    createToggleLabel ( frm, gui, EDITRENDERSAVE,
-                               0,   0, 104, 20, saveCbk );
 
-    /*createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
-                               0,  24, 104, 20, previewCbk );*/
+
+    createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
+                               0,  0, 104, 20, previewCbk );
 
     createIntegerText ( frm, gui, EDITRENDERSTART,
-                               0,  48, 96,  32, startFrameCbk );
+                               0,  24, 96,  32, startFrameCbk );
 
     createIntegerText ( frm, gui, EDITRENDEREND,
-                               0,  72, 96,  32, endFrameCbk );
+                               0,  48, 96,  32, endFrameCbk );
 
     createIntegerText ( frm, gui, EDITRENDERFPS,
-                               0,  96, 96,  32, fpsCbk );
+                               0,  72, 96,  32, fpsCbk );
 
     createIntegerText ( frm, gui, EDITRENDERWIDTH,
-                               0, 120, 96,  32, widthCbk );
+                               0,  96, 96,  32, widthCbk );
 
     createIntegerText ( frm, gui, EDITRENDERHEIGHT,
-                               0, 144, 96,  32, heightCbk );
+                               0, 120, 96,  32, heightCbk );
 
     createFloatText   ( frm, gui, EDITRENDERRATIO,
-                               0, 168, 96,  64, ratioCbk );
+                               0, 144, 96,  64, ratioCbk );
 
-    createRenderFormat( frm, gui, EDITRENDERFORMAT,
-                               0, 192, 96,  64, formatCbk );
+    createSaveOutputForm ( frm, gui, EDITRENDERSAVEOUTPUTFRAME,
+                               0, 168, 256,  96 );
 
-    createCharText    ( frm, gui, EDITRENDEROUTPUT,
-                               0, 216, 96, 200, outputCbk );
-
-    createIntegerText ( frm, gui, EDITRENDERMBLUR,
-                               0, 240, 96,  64, motionBlurCbk );
+    createMotionBlurForm ( frm, gui, EDITRENDERMOTIONBLURFRAME,
+                               0, 264, 256,  96 );
 
     createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,
-                               0, 264, 96, 20 );
+                               0, 360, 96, 20 );
 
     createColorButton ( frm, gui, EDITRENDERBACKGROUND,
-                              96, 264, 96, 18, backgroundCbk );
+                              96, 360, 96, 18, backgroundCbk );
 
     createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 288, 48, 20, g3dui_runRenderCbk );
+                              96, 384, 48, 20, g3dui_runRenderCbk );
 
 
     gui->lock = 0x00;

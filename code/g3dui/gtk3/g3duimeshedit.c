@@ -46,7 +46,7 @@ static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void nameCbk  ( GtkWidget *widget, gpointer user_data ) {
+static void nameCbk  ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 

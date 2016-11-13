@@ -104,7 +104,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
     G3DPRIMITIVE *pri = NULL;
     G3DSYMMETRY *sym = NULL;
     G3DVERTEX **ver = NULL;
-    G3DFACE **_fac = NULL;
+    G3DFACE **facarr = NULL;
     G3DOBJECT *obj = NULL;
     G3DSCENE *sce = NULL;
     G3DCAMERA *cam = NULL;
@@ -120,6 +120,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
     uint16_t chunksig;
     uint32_t chunklen;
     uint32_t grpid;
+    uint32_t nbhtm;
     FILE *fsrc;
 
     /*** This will be replaced by some linked list or realloc indexation ***/
@@ -956,6 +957,51 @@ printf("NB Quds = %d\n", nbqua );
                 g3dmesh_setSubdivisionLevel ( mes, subdiv, flags );
             } break;
 
+            case HEIGHTMAPSSIG : {
+                LIST *ltmpfac = mes->lfac;
+ 
+                printf ( "Heightmaps found\n");
+
+                if ( facarr ) free ( facarr );
+
+                facarr = ( G3DFACE ** ) calloc ( mes->nbfac, sizeof ( G3DFACE * ) );
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+                    facarr[fac->id] = fac;
+
+                    ltmpfac = ltmpfac->next;
+                }
+            } break;
+
+            case NBHEIGHTMAPSIG : {
+                readf ( &nbhtm, sizeof ( uint32_t ), 0x01, fsrc );
+            } break;
+
+            case HEIGHTMAPSIG : {
+                G3DHEIGHTMAP *htm;
+                uint32_t facID;
+                uint32_t nbheights;
+                uint32_t i;
+
+                printf ( "Reading Heightmap ...\n");
+
+                readf ( &facID    , sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &nbheights, sizeof ( uint32_t ), 0x01, fsrc );
+printf("%d\n", facID);
+                htm = g3dheightmap_new ( nbheights );
+
+                mes->nbhtm++;
+
+                for ( i = 0x00; i < nbheights; i++ ) {
+                    readf ( &htm->heights[i].flags    , sizeof ( uint32_t ), 0x01, fsrc );
+                    readf ( &htm->heights[i].elevation, sizeof ( float    ), 0x01, fsrc );
+                }
+
+                facarr[facID]->heightmap = htm;
+            } break;
+
             case MESHGRP :
                 printf ( "Weightgroups found\n");
 
@@ -1097,6 +1143,7 @@ printf("NB Quds = %d\n", nbqua );
     }
 
     if ( matarr ) free ( matarr );
+    if ( facarr ) free ( facarr );
 
     g3dscene_checkLights ( sce );
 

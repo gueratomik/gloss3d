@@ -1002,7 +1002,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
     /*** Drawing area does not receive mous events by defaults ***/
     gtk_widget_set_events ( area, gtk_widget_get_events ( area ) |
                                   GDK_KEY_PRESS_MASK             |
-			          GDK_KEY_RELEASE_MASK           |
+			                      GDK_KEY_RELEASE_MASK           |
                                   GDK_BUTTON_PRESS_MASK          |
                                   GDK_BUTTON_RELEASE_MASK        |
                                   GDK_POINTER_MOTION_MASK        |
@@ -1250,7 +1250,7 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
                              GLX_RED_SIZE,    8,
                              GLX_BLUE_SIZE,   8,
                              GLX_GREEN_SIZE,  8,
-                             GLX_ALPHA_SIZE,  0,
+                             GLX_ALPHA_SIZE,  8,
                              GLX_DEPTH_SIZE, 24,
                              GLX_DOUBLEBUFFER,
                              None };

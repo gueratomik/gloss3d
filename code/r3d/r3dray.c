@@ -230,7 +230,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                 spcray.dir.z = ( ray->pnt.z - rlt->pos.z );
 
                 r3dtinyvector_normalize ( &spcray.dir, NULL );
-
+#ifdef unused
                 if ( r3dray_reflect ( &spcray, &refray ) ) {
 
     /*** COMMENTED: Normalizing already in r3dray_reflect() ***/
@@ -257,7 +257,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                     }
 
                 }
-
+#endif
                 ltmptex = ltmptex->next;
             }
         }
@@ -522,6 +522,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
 
             uint32_t nbmap = ( rms ) ? rms->nbmap : 0x00;
+
+            if ( query_flags & RAYSTART ) rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
 
             r3dray_getHitFaceColor ( ray, hitrfc, nbmap, &rgba, ltex );
 

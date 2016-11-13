@@ -84,6 +84,7 @@ if HAVE_GTK3
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
+                            gtk3/r3dpreview.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \

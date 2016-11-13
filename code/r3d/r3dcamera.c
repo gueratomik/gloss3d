@@ -30,18 +30,24 @@
 #include <r3d.h>
 
 /******************************************************************************/
-R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam ) {
+R3DCAMERA *r3dcamera_new ( double *MVX, double *PJX, uint32_t width, uint32_t height ) {
     R3DCAMERA *rcam   = ( R3DCAMERA * ) calloc ( 0x01, sizeof ( R3DCAMERA ) );
-    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     R3DVECTOR  zero   = { 0.0f, 0.0f, 0.0f };
 
     if ( rcam == NULL ) {
         fprintf ( stderr, "r3dcamera_new: memory allocation failed\n" );
     }
 
-    ((R3DOBJECT*)rcam)->obj = ( G3DOBJECT * ) cam;
+    /*** image render size. Differs from the OpenGL view ***/
+    rcam->VPX[0] = 0;
+    rcam->VPX[1] = 0;
+    rcam->VPX[2] = width;
+    rcam->VPX[3] = height;
 
-    g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );
+    memcpy ( rcam->MVX, MVX, sizeof ( double ) * 0x10 );
+    memcpy ( rcam->PJX, PJX, sizeof ( double ) * 0x10 );
+
+    /*g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );*/
 
 
     return rcam;
