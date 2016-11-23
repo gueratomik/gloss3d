@@ -373,7 +373,8 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( G3DSCENE *sce, 
+R3DSCENE *r3dscene_new ( G3DSCENE *sce,
+                         G3DCAMERA *cam,
                          double *MVX,
                          double *PJX,
                          uint32_t x1   , uint32_t y1,
@@ -419,7 +420,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE *sce,
     rsce->background = background;
 
     /*** viewing camera ***/
-    rsce->area.rcam = r3dcamera_new ( MVX, PJX, width, height );
+    rsce->area.rcam = r3dcamera_new ( cam, MVX, PJX, width, height );
 
     rsce->startframe = startframe;
     rsce->endframe   = endframe;
@@ -485,7 +486,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            nextrsce = r3dscene_new ( sce, rsce->area.rcam->MVX,
+            nextrsce = r3dscene_new ( sce, cam, rsce->area.rcam->MVX,
                                            rsce->area.rcam->PJX,
                                            x1, y1,
                                            x2, y2,

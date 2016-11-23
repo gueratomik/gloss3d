@@ -27,36 +27,41 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <r3d.h>
+#include <g3d.h>
 
 /******************************************************************************/
-R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam, double *MVX, double *PJX, uint32_t width, uint32_t height ) {
-    R3DCAMERA *rcam   = ( R3DCAMERA * ) calloc ( 0x01, sizeof ( R3DCAMERA ) );
-    R3DVECTOR  zero   = { 0.0f, 0.0f, 0.0f };
-    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+void g3dlookup_add ( G3DLOOKUP *lookup, void *src, void *dst ) {
+    lookup->table[lookup->rank][0x00] = src;
+    lookup->table[lookup->rank][0x01] = dst;
 
-    if ( rcam == NULL ) {
-        fprintf ( stderr, "r3dcamera_new: memory allocation failed\n" );
-    }
-
-    ((R3DOBJECT*)rcam)->obj = cam;
-
-    /*** image render size. Differs from the OpenGL view ***/
-    rcam->VPX[0] = 0;
-    rcam->VPX[1] = 0;
-    rcam->VPX[2] = width;
-    rcam->VPX[3] = height;
-
-    memcpy ( rcam->MVX, MVX, sizeof ( double ) * 0x10 );
-    memcpy ( rcam->PJX, PJX, sizeof ( double ) * 0x10 );
-
-    g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );
-
-
-    return rcam;
+    lookup->rank++;
 }
 
 /******************************************************************************/
-void r3dcamera_free ( R3DCAMERA *rcam ) {
-    free ( rcam );
+void *g3dlookup_get ( G3DLOOKUP *lookup, void *src ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < lookup->rank; i++ ) {
+        if ( lookup->table[i][0x00] == src ) return lookup->table[i][0x01];
+    }
+
+    return src;
+}
+
+/******************************************************************************/
+void g3dlookup_reset ( G3DLOOKUP *lookup ) {
+    memset ( lookup->table, 0x00, lookup->size * sizeof ( void * ) * 0x02 );
+
+    lookup->rank = 0x00;
+}
+
+/******************************************************************************/
+void g3dlookup_realloc ( G3DLOOKUP *lookup, uint32_t size ) {
+    lookup->table = realloc ( lookup->table, size * sizeof ( void * ) * 0x02 );
+    lookup->size = size;
+}
+
+/******************************************************************************/
+uint32_t g3dlookup_getSize ( G3DLOOKUP *lookup ) {
+    return lookup->size;
 }

@@ -28,12 +28,15 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dimage.c \
                       g3dkey.c \
                       g3dlight.c \
+                      g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
                       g3dobject.c \
                       g3dpivot.c \
                       g3dplane.c \
                       g3dprimitive.c \
+                      g3dprocedural.c \
+                      g3dproceduralnoise.c \
                       g3dquaternion.c \
                       g3drgba.c \
                       g3drttriangle.c \
@@ -41,7 +44,6 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3drtvertex.c \
                       g3dscene.c \
                       g3dsphere.c \
-                      g3dsubdivision.c \
                       g3dsubdivisionthread.c \
                       g3dsubdivisionV3.c \
                       g3dsubedge.c \

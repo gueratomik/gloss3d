@@ -35,24 +35,23 @@
 
 /******************************************************************************/
 void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
-                                           uint32_t nbuvs,
                                            R3DRGBA *rgba,
                                            LIST    *ltex ) {
+    LIST *ltmpuvs = rfc->fac->luvs;
     uint32_t i;
 
-    if ( nbuvs == 0x00 ) {
-        rgba->r = rgba->g = rgba->b = MESHCOLORUB;
-    }
+    if ( ltmpuvs == NULL ) rgba->r = rgba->g = rgba->b = MESHCOLORUB;
 
-    for ( i = 0x00; i < nbuvs; i++ ) {
-        R3DRTUVSET *uvs = &rfc->uvsmem[i];
-        float avgu =       ( ( uvs->u[0x00] * ray->ratio[0x00] ) +
-                             ( uvs->u[0x01] * ray->ratio[0x01] ) +
-                             ( uvs->u[0x02] * ray->ratio[0x02] ) ),
+    while ( ltmpuvs ) {
+        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+        G3DRTUV *rtuvmem = rfc->fac->rtuvmem;
+        float avgu =       ( ( rtuvmem[rfc->ver[0x00]->id].u * ray->ratio[0x00] ) +
+                             ( rtuvmem[rfc->ver[0x01]->id].u * ray->ratio[0x01] ) +
+                             ( rtuvmem[rfc->ver[0x02]->id].u * ray->ratio[0x02] ) ),
 
-              avgv =       ( ( uvs->v[0x00] * ray->ratio[0x00] ) +
-                             ( uvs->v[0x01] * ray->ratio[0x01] ) +
-                             ( uvs->v[0x02] * ray->ratio[0x02] ) );
+              avgv =       ( ( rtuvmem[rfc->ver[0x00]->id].v * ray->ratio[0x00] ) +
+                             ( rtuvmem[rfc->ver[0x01]->id].v * ray->ratio[0x01] ) +
+                             ( rtuvmem[rfc->ver[0x02]->id].v * ray->ratio[0x02] ) );
         LIST *ltmptex = ltex;
 
 
@@ -85,10 +84,22 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
                 if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
                     g3dcolor_toRGBA ( &mat->diffuse.solid, rgba );
                 }
+
+                if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                    G3DPROCEDURAL *proc = mat->diffuse.proc;
+
+                    if ( proc ) {
+                        proc->getColor ( proc, avgu, avgv, 0.0f, rgba );
+                    } else {
+                        g3dcolor_toRGBA ( &mat->diffuse.solid, rgba );
+                    }
+                }
             }
 
             ltmptex = ltmptex->next;
         }
+
+        ltmpuvs = ltmpuvs->next;
     }
 }
 
@@ -230,7 +241,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                 spcray.dir.z = ( ray->pnt.z - rlt->pos.z );
 
                 r3dtinyvector_normalize ( &spcray.dir, NULL );
-#ifdef unused
+
                 if ( r3dray_reflect ( &spcray, &refray ) ) {
 
     /*** COMMENTED: Normalizing already in r3dray_reflect() ***/
@@ -257,7 +268,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                     }
 
                 }
-#endif
+
                 ltmptex = ltmptex->next;
             }
         }
@@ -525,43 +536,49 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             if ( query_flags & RAYSTART ) rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
 
-            r3dray_getHitFaceColor ( ray, hitrfc, nbmap, &rgba, ltex );
+            r3dray_getHitFaceColor ( ray, hitrfc, &rgba, ltex );
 
             if ( query_flags & RAYQUERYREFLECTION ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < nbmap; i++ ) {
-                    R3DRTUVSET *uvs = &hitrfc->uvsmem[i];
                     LIST *ltmptex = ((G3DMESH*)hitrob->obj)->ltex;
 
                     while ( ltmptex ) {
                         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
                         G3DMATERIAL *mat = tex->mat;
+                        LIST *ltmpuvs = hitrfc->fac->luvs;
 
-                        if ( ( tex->map == uvs->map ) && mat->reflection_strength ) {
-                            uint32_t retcol;
-                            R3DRAY flxray;
+                        while ( ltmpuvs ) {
+                            G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                            /** TODO: make it cumulative **/
+                            if ( ( tex->map == uvs->map ) && mat->reflection_strength ) {
+                                uint32_t retcol;
+                                R3DRAY flxray;
 
-                            /*** build the reflexion ray from the current ray ***/
-                            if ( r3dray_reflect ( ray, &flxray ) ) {
+                                /*** build the reflexion ray from the current ray ***/
+                                if ( r3dray_reflect ( ray, &flxray ) ) {
+  
+                                    retcol = r3dray_shoot ( &flxray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
 
-                                retcol = r3dray_shoot ( &flxray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
+                                    if ( mat->reflection_strength == 1.0f ) {
+                                        rgba.r = ( retcol & 0x00FF0000 ) >> 0x10;
+                                        rgba.g = ( retcol & 0x0000FF00 ) >> 0x08;
+                                        rgba.b = ( retcol & 0x000000FF );
+                                    } else {
+                                        float sub = ( 1.0f - mat->reflection_strength );
+                                        uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
+                                                 REFG = ( retcol & 0x0000FF00 ) >> 0x08,
+                                                 REFB = ( retcol & 0x000000FF );
 
-                                if ( mat->reflection_strength == 1.0f ) {
-                                    rgba.r = ( retcol & 0x00FF0000 ) >> 0x10;
-                                    rgba.g = ( retcol & 0x0000FF00 ) >> 0x08;
-                                    rgba.b = ( retcol & 0x000000FF );
-                                } else {
-                                    float sub = ( 1.0f - mat->reflection_strength );
-                                    uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
-                                             REFG = ( retcol & 0x0000FF00 ) >> 0x08,
-                                             REFB = ( retcol & 0x000000FF );
-
-                                    rgba.r = ( REFR * mat->reflection_strength ) + ( rgba.r * sub );
-                                    rgba.g = ( REFG * mat->reflection_strength ) + ( rgba.g * sub );
-                                    rgba.b = ( REFB * mat->reflection_strength ) + ( rgba.b * sub );
+                                        rgba.r = ( REFR * mat->reflection_strength ) + ( rgba.r * sub );
+                                        rgba.g = ( REFG * mat->reflection_strength ) + ( rgba.g * sub );
+                                        rgba.b = ( REFB * mat->reflection_strength ) + ( rgba.b * sub );
+                                    }
                                 }
                             }
+
+                            ltmpuvs = ltmpuvs->next;
                         }
 
                         ltmptex = ltmptex->next;
@@ -573,36 +590,40 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                 uint32_t i;
 
                 for ( i = 0x00; i < nbmap; i++ ) {
-                    R3DRTUVSET *uvs = &hitrfc->uvsmem[i];
                     LIST *ltmptex = ((G3DMESH*)hitrob->obj)->ltex;
 
                     while ( ltmptex ) {
                         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
                         G3DMATERIAL *mat = tex->mat;
+                        LIST *ltmpuvs = hitrfc->fac->luvs;
 
-                        if ( ( tex->map == uvs->map ) && mat->transparency_strength ) {
-                            uint32_t retcol;
-                            R3DRAY frcray;
+                        while ( ltmpuvs ) {
+                            G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                            if ( ( tex->map == uvs->map ) && mat->transparency_strength ) {
+                                uint32_t retcol;
+                                R3DRAY frcray;
 
-                            /*** build the reflexion ray from the current ray ***/
-                            r3dray_refract ( ray, &frcray, mat->refraction_strength );
+                                /*** build the reflexion ray from the current ray ***/
+                                r3dray_refract ( ray, &frcray, mat->refraction_strength );
 
-                            retcol = r3dray_shoot ( &frcray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
+                                retcol = r3dray_shoot ( &frcray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
 
-                            if ( mat->transparency_strength == 1.0f ) {
-                                rgba.r = ( retcol & 0x00FF0000 ) >> 0x10;
-                                rgba.g = ( retcol & 0x0000FF00 ) >> 0x08;
-                                rgba.b = ( retcol & 0x000000FF );
-                            } else {
-                                float sub = ( 1.0f - mat->transparency_strength );
-                                uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
-                                         REFG = ( retcol & 0x0000FF00 ) >> 0x08,
-                                         REFB = ( retcol & 0x000000FF );
+                                if ( mat->transparency_strength == 1.0f ) {
+                                    rgba.r = ( retcol & 0x00FF0000 ) >> 0x10;
+                                    rgba.g = ( retcol & 0x0000FF00 ) >> 0x08;
+                                    rgba.b = ( retcol & 0x000000FF );
+                                } else {
+                                    float sub = ( 1.0f - mat->transparency_strength );
+                                    uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
+                                             REFG = ( retcol & 0x0000FF00 ) >> 0x08,
+                                             REFB = ( retcol & 0x000000FF );
 
-                                rgba.r = ( REFR * mat->transparency_strength ) + ( rgba.r * sub );
-                                rgba.g = ( REFG * mat->transparency_strength ) + ( rgba.g * sub );
-                                rgba.b = ( REFB * mat->transparency_strength ) + ( rgba.b * sub );
+                                    rgba.r = ( REFR * mat->transparency_strength ) + ( rgba.r * sub );
+                                    rgba.g = ( REFG * mat->transparency_strength ) + ( rgba.g * sub );
+                                    rgba.b = ( REFB * mat->transparency_strength ) + ( rgba.b * sub );
+                                }
                             }
+                            ltmpuvs = ltmpuvs->next;
                         }
 
                         ltmptex = ltmptex->next;

@@ -158,11 +158,17 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
                                          uint32_t    (*qua_indexes)[0x04],
                                          uint32_t    (*tri_indexes)[0x04],
                                          uint32_t      iteration,
-                                         uint32_t      curdiv ) {
+                                         uint32_t      curdiv,
+                                         uint32_t      engine_flags ) {
     uint32_t i, j;
 
     subfac->fac.flags = fac->flags;
     subfac->fac.nbver = 0x04;
+
+    subfac->fac.luvs = NULL;
+    subfac->fac.nbuvs = 0;
+
+    subfac->fac.rtuvmem = fac->rtuvmem;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         if ( fac->ver[i] == oriver ) {
@@ -184,41 +190,16 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
                 subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
             }
 
-            if ( curdiv == 0x01 ) {
-                if ( fac->heightmap && qua_indexes && tri_indexes ) {
-/*printf("%d\n", subfac->fac.id );
-g3dheightmap_print ( subfac->fac.heightmap );*/
-                        for ( j = 0x00; j < subfac->fac.nbver; j++ ) {
-                            if (  ( subfac->fac.ver[j]->flags & VERTEXSCULPTED ) == 0x00 ) {
-                                uint32_t verID;
-
-                                if ( subfac->fac.ver[j]->flags & VERTEXOUTER ) {
-                                    verID = ( subfac->fac.flags & FACEFROMQUAD ) ? qua_indexes[subfac->fac.id][j] :
-                                                                                  tri_indexes[subfac->fac.id][j];
-
-                                    g3dheightmap_processVertex ( subfac->fac.heightmap, subfac->fac.ver[j], verID, curdiv );
-                                }
-
-                                if ( subfac->fac.ver[j]->flags & VERTEXINNER ) {
-                                    verID = subfac->fac.ver[j]->id;
-
-                                    if ( mainheightmap ) {
-                                        g3dheightmap_processVertex ( mainheightmap, subfac->fac.ver[j], verID, curdiv );
-                                    }
-                                }
-
-
-
-                                subfac->fac.ver[j]->flags |= VERTEXSCULPTED;
-                            }
-                        }
-                }
-            }
-
             /*** we need normal vector only on last subdivision ***/
-            if ( ( curdiv == 0x01 ) || ( fac->heightmap ) ) {
+            if ( ( curdiv == 0x01 ) || 
+            /*** we need to compute edge normals from face normals ***/
+            /*** when doing displacement, at each level. Same for sculpting ***/
+                 ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) || 
+                 ( fac->heightmap ) ) {
                 g3dface_normal ( subfac );
             }
+
+            g3dsubface_importUVSets ( subfac, fac, i, subuvs, curdiv );
 
             /*g3dsubface_position ( subfac );*/
 
@@ -286,13 +267,26 @@ uint32_t g3dface_isAdaptive ( G3DFACE *fac, float cosang ) {
 }	
 
 /******************************************************************************/
+void g3dface_subdivideUVSets ( G3DFACE *fac ) {
+    LIST *ltmpuvs = fac->luvs;
+
+    while ( ltmpuvs ) {
+        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+
+        g3duvset_subdivide ( uvs, fac );
+
+        ltmpuvs = ltmpuvs->next;
+    }
+}
+
+/******************************************************************************/
 void g3dface_allocSubdividedUVSets ( G3DFACE *fac, uint32_t nbrtfac ) {
-    uint32_t structsize = sizeof ( G3DRTUVSET );
+    uint32_t structsize = sizeof ( G3DRTUV );
 
     /*** TODO - here it should be fac->nbtex instead of fac->nbuvs ***/
-    fac->rtuvsmem = realloc ( fac->rtuvsmem, fac->nbuvs * nbrtfac * structsize );
+    fac->rtuvmem = realloc ( fac->rtuvmem, fac->nbuvs * nbrtfac * structsize );
 
-    if ( fac->rtuvsmem == NULL ) {
+    if ( fac->rtuvmem == NULL ) {
         fprintf ( stderr, "g3dface_allocSubdividedUVSets: realloc failed\n" );
     }
 }
@@ -637,7 +631,8 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         }
                     }
 
-                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                    if ( ( mat->flags & DIFFUSE_USEIMAGECOLOR ) || 
+                         ( mat->flags & DIFFUSE_USEPROCEDURAL ) ) {
                         if ( ( fac->flags   & FACESELECTED ) && 
                              /*( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&*/
                              ( engine_flags & VIEWFACE     ) ) {
@@ -656,8 +651,19 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         }
 
                         /*** Color image ***/
-                        if ( mat->diffuse.image && drawTextures ) {
-                            G3DIMAGE *difimg = mat->diffuse.image;
+                        if ( drawTextures ) {
+                            G3DIMAGE *difimg = NULL;
+
+                            if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                                difimg = mat->diffuse.image;
+                            }
+
+                            if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                                if ( mat->diffuse.proc ) {
+                                    difimg = &mat->diffuse.proc->image;
+                                }
+                            }
+
                             #ifdef __linux__
                             glActiveTextureARB ( arbid );
                             #endif
@@ -665,7 +671,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                             if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
                             #endif
 
-                            glBindTexture ( GL_TEXTURE_2D, mat->diffuse.image->id );
+                            if ( difimg ) glBindTexture ( GL_TEXTURE_2D, difimg->id );
                             glEnable      ( GL_TEXTURE_2D );
 
                             glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
@@ -680,8 +686,14 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                 #endif
 
                                 glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+/*for ( int k = 0; k < fac->nbrtfac; k++ ) {
+    printf ( "%f %f\n", fac->rtuvsmem[k].uv[0].u, fac->rtuvsmem[k].uv[0].v );
+    printf ( "%f %f\n", fac->rtuvsmem[k].uv[1].u, fac->rtuvsmem[k].uv[1].v );
+    printf ( "%f %f\n", fac->rtuvsmem[k].uv[2].u, fac->rtuvsmem[k].uv[2].v );
+    printf ( "%f %f\n", fac->rtuvsmem[k].uv[3].u, fac->rtuvsmem[k].uv[3].v );
+}*/
                                 glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                          fac->rtuvsmem );
+                                                          fac->rtuvmem );
                             } else {
                                 texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
                                 texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
@@ -732,7 +744,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
 
                             glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
                             glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                      fac->rtuvsmem );
+                                                      fac->rtuvmem );
                         } else {
                             texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
                             texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
@@ -776,11 +788,12 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
 
             glEnableClientState ( GL_VERTEX_ARRAY );
             glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), rtbuffer + 28 );
-            glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );
+            /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
+            glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtquamem );
             glDisableClientState ( GL_VERTEX_ARRAY );
         } else {
 
-            fac->nbrtfac = g3dface_catmull_clark_draw ( NULL, fac, fac,
+            /*fac->nbrtfac = g3dface_catmull_clark_draw ( NULL, fac, fac,
                                                         subdiv, 
                                                         0.0f,
                                                         NULL, 
@@ -789,7 +802,7 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
                                                         NULL,
                                                         NULL, NULL,
                                                         object_flags,
-                                                        engine_flags );
+                                                        engine_flags );*/
         }
     } else {
         if ( fac->nbver == 0x03 ) {

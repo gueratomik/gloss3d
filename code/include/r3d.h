@@ -330,7 +330,6 @@ typedef struct _R3DFACE {
     double     d;
     double     surface;
     double     epsilon;   /*** epsilon varies depending on the surface size ***/
-    R3DRTUVSET *uvsmem;
 } R3DFACE;
 
 /******************************************************************************/
@@ -407,7 +406,7 @@ typedef struct _R3DCAMERA {
     R3DOBJECT robj;
     double MVX[0x10];
     double PJX[0x10];
-    /*R3DVECTOR pos;*/
+    R3DVECTOR pos;
     int VPX[4];
 } R3DCAMERA;
 
@@ -637,7 +636,7 @@ uint32_t r3dray_inOctreeZXmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT *
 uint32_t r3dray_inOctreeZXpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
-void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *, uint32_t, R3DRGBA *, LIST * );
+void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *, R3DRGBA *, LIST * );
 uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,
                                                                R3DPOINT *,
                                                                R3DPOINT *,
@@ -711,7 +710,7 @@ R3DLIGHT *r3dlight_new ( G3DLIGHT *, uint32_t );
 
 /******************************************************************************/
 
-R3DCAMERA *r3dcamera_new  ( double *, double *, uint32_t, uint32_t );
+R3DCAMERA *r3dcamera_new  ( G3DCAMERA *, double *, double *, uint32_t, uint32_t );
 void       r3dcamera_free ( R3DCAMERA * );
 
 /******************************************************************************/
@@ -729,7 +728,7 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( G3DSCENE *, double *, double *, uint32_t, uint32_t,
+R3DSCENE *r3dscene_new ( G3DSCENE *, G3DCAMERA *, double *, double *, uint32_t, uint32_t,
                                                uint32_t, uint32_t,
                                                uint32_t, uint32_t,
                                                uint32_t,

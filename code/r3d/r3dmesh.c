@@ -182,7 +182,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
     }
 
     if ( subdiv == 0x00 ) {
-	nbrfac = mes->nbtri + ( mes->nbqua * 0x02 );
+	    nbrfac = mes->nbtri + ( mes->nbqua * 0x02 );
     } else {
         g3dtriangle_evalSubdivision ( subdiv, &triFaces, 
                                               &triEdges, 
@@ -191,7 +191,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                               &quaEdges,
                                               &quaVertices );
 
-	nbrfac = ( ( mes->nbtri * triFaces    ) + 
+        nbrfac = ( ( mes->nbtri * triFaces    ) + 
                    ( mes->nbqua * quaFaces    ) ) * 0x02;
     }
 
@@ -248,11 +248,13 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
         if ( nbrtqua ) rtquamem = realloc ( rtquamem, nbrtqua * sizeof ( G3DRTQUAD     ) );
         if ( nbrtver ) rtvermem = realloc ( rtvermem, nbrtver * sizeof ( G3DRTVERTEX   ) );
 
-        nbfac = g3dsubdivisionV3_subdivide ( sdv, fac,
+        nbfac = g3dsubdivisionV3_subdivide ( sdv, mes,
+                                                  fac,
                                                   rttrimem,
                                                   rtquamem,
                                                   rtedgmem,
                                                   rtvermem,
+                                                  mes->ltex,
                                                   qua_indexes,
                                                   tri_indexes,
                                                   subdiv,
@@ -296,27 +298,6 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
             r3dface_getMinMax ( rfac, &rfac->xmin, &rfac->ymin, &rfac->zmin, 
                                       &rfac->xmax, &rfac->ymax, &rfac->zmax );
 
-            /*rfac->uvsmem = &rms->uvs[offset];
-
-            while ( ltmpmap ) {
-                G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
-
-                uint32_t index = ( offset + k );
-
-                rms->uvs[index].u[0x00] = uvsbuf[i+k].u0;
-                rms->uvs[index].v[0x00] = uvsbuf[i+k].v0;
-                rms->uvs[index].u[0x01] = uvsbuf[i+k].u1;
-                rms->uvs[index].v[0x01] = uvsbuf[i+k].v1;
-                rms->uvs[index].u[0x02] = uvsbuf[i+k].u2;
-                rms->uvs[index].v[0x02] = uvsbuf[i+k].v2;
-
-                rms->uvs[index].map     = map;
-
-                k++;
-
-                ltmpmap = ltmpmap->next;
-            }*/
-
             rfcarray[n++] = rfac;
 
             rfac++;
@@ -354,27 +335,6 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
 
                 r3dface_getMinMax ( rfac, &rfac->xmin, &rfac->ymin, &rfac->zmin, 
                                           &rfac->xmax, &rfac->ymax, &rfac->zmax );
-
-                /*rfac->uvsmem = &rms->uvs[offset];
-
-                while ( ltmpmap ) {
-                    G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
-
-                    uint32_t index = ( offset + k );
-
-                    rms->uvs[index].u[0x00] = uvsbuf[i+k].u0;
-                    rms->uvs[index].v[0x00] = uvsbuf[i+k].v0;
-                    rms->uvs[index].u[0x01] = uvsbuf[i+k].u1;
-                    rms->uvs[index].v[0x01] = uvsbuf[i+k].v1;
-                    rms->uvs[index].u[0x02] = uvsbuf[i+k].u2;
-                    rms->uvs[index].v[0x02] = uvsbuf[i+k].v2;
-
-                    rms->uvs[index].map     = map;
-
-                    k++;
-
-                    ltmpmap = ltmpmap->next;
-                }*/
 
                 rfcarray[n++] = rfac;
 

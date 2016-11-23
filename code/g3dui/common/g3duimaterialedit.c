@@ -258,6 +258,52 @@ void common_g3dui_materialImageColorCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3dui_materialProceduralCbk ( G3DUI *gui ) {
+    G3DMATERIAL *mat = gui->selmat;
+
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
+    if ( mat ) {
+        G3DPROCEDURALNOISE *proc = g3dproceduralnoise_new ( );
+        g3dmaterial_enableDiffuseProcedural ( mat );
+
+        /*** fill preview ***/
+        g3dprocedural_fill ( proc );
+        g3dmaterial_addDiffuseProcedural ( mat, proc );
+
+        /*** Redraw Material List widget Previews ***/
+        g3dui_updateSelectedMaterialPreview ( gui );
+
+        g3dui_redrawGLViews      ( gui );
+        g3dui_redrawMaterialList ( gui );
+    }
+}
+
+/******************************************************************************/
+void common_g3dui_materialDisplacementProceduralCbk ( G3DUI *gui ) {
+    G3DMATERIAL *mat = gui->selmat;
+
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
+    if ( mat ) {
+        G3DPROCEDURALNOISE *proc = g3dproceduralnoise_new ( );
+        g3dmaterial_enableDisplacementProcedural ( mat );
+
+        /*** fill preview ***/
+        g3dprocedural_fill ( proc );
+        g3dmaterial_addDisplacementProcedural ( mat, proc );
+
+        /*** Redraw Material List widget Previews ***/
+        g3dui_updateSelectedMaterialPreview ( gui );
+
+        g3dui_redrawGLViews      ( gui );
+        g3dui_redrawMaterialList ( gui );
+    }
+}
+
+/******************************************************************************/
 void common_g3dui_materialSolidColorCbk ( G3DUI *gui ) {
     G3DMATERIAL *mat = gui->selmat;
 

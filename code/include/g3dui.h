@@ -301,6 +301,7 @@
 #define EDITDIFFUSE                "Diffuse"
 #define EDITDIFFUSECOLOR           "Color"
 #define EDITDIFFUSEIMAGE           "Image"
+#define EDITDIFFUSEPROCEDURAL      "Procedural"
 
 #define EDITSPECULARITY            "Specularity"
 #define EDITSPECULARITYSHININESS   "Shininess"
@@ -312,6 +313,7 @@
 #define EDITDISPLACEMENTENABLED    "Enable Displacement Channel"
 #define EDITDISPLACEMENTCHANNEL    "Displacement Channel"
 #define EDITDISPLACEMENTIMAGE      "Image"
+#define EDITDISPLACEMENTPROCEDURAL "Procedural"
 #define EDITDISPLACEMENTSTRENGTH   "Strength"
 
 #define EDITREFLECTION             "Reflection"

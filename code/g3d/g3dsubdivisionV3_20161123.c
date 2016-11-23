@@ -735,49 +735,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 return nbInnerFaces;
             }
 
-            for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                g3dvertex_normal ( &curInnerVertices[i], 0x00 );
-            }
-
-            /*if ( ( engine_flags & NOHEIGHTMAP ) == 0 ) {*/
-                for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
-                        g3dsubvertex_elevate ( &curInnerVertices[i], qua_indexes, 
-                                                                     tri_indexes );
-                    /*}*/
-                }
-
-                for ( i = 0x00; i < nbOuterVertices; i++ ) {
-                    /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
-                        g3dsubvertex_elevate ( &curOuterVertices[i], qua_indexes, 
-                                                                     tri_indexes );
-                    /*}*/
-                }
-            /*}*/
-
-            if ( ltex  && ( ( engine_flags & NODISPLACEMENT ) == 0 ) ) {
-                for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    g3dvertex_displace ( &curInnerVertices[i], ltex );
-                }
-
-                for ( i = 0x00; i < nbOuterVertices; i++ ) {
-                    g3dvertex_displace ( &curOuterVertices[i], ltex );
-                }
-            }
-
-                for ( i = 0x00; i < nbInnerFaces; i++ ) {
-                    g3dface_normal ( &curInnerFaces[i] );
-                }
-
-                for ( i = 0x00; i < nbOuterFaces; i++ ) {
-                    g3dface_normal ( &curOuterFaces[i] );
-                }
-
-                for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    g3dvertex_normal ( &curInnerVertices[i], 0x00 );
-                }
-
-
             if ( (engine_flags & SELECTMODE) && (engine_flags & VIEWSCULPT) ) {
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
                     curInnerVertices[i].ver.id = ( fac->id << 0x10 ) | curInnerVertices[i].ver.id;
@@ -790,6 +747,32 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
 
                 return nbInnerFaces;
+            }
+
+            for ( i = 0x00; i < nbInnerVertices; i++ ) {
+                g3dvertex_normal ( &curInnerVertices[i], 0x00 );
+            }
+
+            if ( ltex  && ( ( engine_flags & NODISPLACEMENT ) == 0 ) ) {
+                for ( i = 0x00; i < nbInnerVertices; i++ ) {
+                    g3dvertex_displace ( &curInnerVertices[i], ltex );
+                }
+
+                for ( i = 0x00; i < nbOuterVertices; i++ ) {
+                    g3dvertex_displace ( &curOuterVertices[i], ltex );
+                }
+
+                for ( i = 0x00; i < nbInnerFaces; i++ ) {
+                    g3dface_normal ( &curInnerFaces[i] );
+                }
+
+                for ( i = 0x00; i < nbOuterFaces; i++ ) {
+                    g3dface_normal ( &curOuterFaces[i] );
+                }
+
+                for ( i = 0x00; i < nbInnerVertices; i++ ) {
+                    g3dvertex_normal ( &curInnerVertices[i], 0x00 );
+                }
             }
 
             if ( init_flags & SUBDIVISIONCLEANVERTICES ) {
@@ -861,7 +844,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 G3DSUBVERTEX *subver = innerVertices++; 
 
                 /*memset ( subver, 0x00, sizeof ( G3DSUBVERTEX ) );*/
-
+printf("%d\n", curInnerVertices[i].ver.id);
                 subver->ver.id     = curInnerVertices[i].ver.id; nbInnerVertices++;
                 subver->ver.flags  = curInnerVertices[i].ver.flags; /*** inherits flags ***/
                 subver->ver.nbfac  = subver->ver.nbedg = subver->ver.nbuv = 0x00;
@@ -935,7 +918,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                     /*memset ( subver, 0x00, sizeof ( G3DSUBVERTEX ) );*/
 
-                    subver->ver.flags = VERTEXOUTER | VERTEXTOPOLOGY;
+                    subver->ver.flags = VERTEXOUTER;
                     subver->ver.nbfac  = subver->ver.nbedg = subver->ver.nbuv = 0x00;
                     subver->ver.lfac   = subver->ver.ledg  = subver->ver.luv  = NULL;
 
@@ -1031,7 +1014,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     g3dface_subdivideUVSets ( &curOuterFaces[i] );
                 }
 
-                subver->ver.flags = VERTEXOUTER | VERTEXTOPOLOGY;
+                subver->ver.flags = VERTEXOUTER;
                 subver->ver.nbfac  = subver->ver.nbedg = subver->ver.nbuv = 0x00;
                 subver->ver.lfac   = subver->ver.ledg  = subver->ver.luv  = NULL;
 

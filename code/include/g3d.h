@@ -204,8 +204,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 #define VERTEXONEDGE       (  1 << 20  )
 
-
-
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
 #define TEXTUREDISPLACE   ( 1 << 1 )
@@ -220,6 +218,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGEPOSITIONNED   (  1 << 6  )
 #define EDGEINNER         (  1 << 7  )
 #define EDGEOUTER         (  1 << 8  )
+#define EDGETOPOLOGY      (  1 << 9  )
 
 /******************************** Face Flags **********************************/
 #define FACESELECTED          (  1       )
@@ -390,6 +389,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
                                      REFRACTION_USEIMAGECOLOR | \
                                      REFRACTION_USEPROCEDURAL )
 
+#define PROCEDURALNOISE        0x01
+#define PROCEDURALCHECKERBOARD 0x02
+
 /******************************************************************************/
 #define _FASTLENGTH(vec) ( sqrt ( ( vec.x * vec.x ) + \
                                   ( vec.y * vec.y ) + \
@@ -473,7 +475,7 @@ typedef struct _G3DIMAGE {
     uint32_t depth;
     uint32_t bytesperpixel;
     uint32_t bytesperline;
-    unsigned char *data;
+    unsigned char (*data)[0x03];
     float wratio;   /*** Used when the image dimension must be a power of 2 ***/
     float hratio;   /*** Used when the image dimension must be a power of 2 ***/
     GLuint id;
@@ -481,8 +483,20 @@ typedef struct _G3DIMAGE {
 
 /******************************************************************************/
 typedef struct _G3DPROCEDURAL {
-    int dummy; /*** not implemented yet ***/
+    uint32_t type;
+    void (*getColor)( struct _G3DPROCEDURAL *, double, 
+                                               double, 
+                                               double, G3DRGBA * );
+    G3DIMAGE image;
+    unsigned char preview[256][256][0x03];
 } G3DPROCEDURAL;
+
+/******************************************************************************/
+typedef struct _G3DPROCEDURALNOISE {
+    G3DPROCEDURAL procedural;
+    G3DRGBA color1;
+    G3DRGBA color2;
+} G3DPROCEDURALNOISE;
 
 /******************************************************************************/
 typedef struct _G3DCHANNEL {
@@ -700,11 +714,14 @@ typedef struct _G3DINNERVERTEX {
 } G3DINNERVERTEX, G3DSUBVERTEX;
 
 /******************************************************************************/
+typedef struct _G3DRTUV {
+    float u;
+    float v;
+} G3DRTUV;
+
+/******************************************************************************/
 typedef struct _G3DRTUVSET {
-    float u0, v0;
-    float u1, v1;
-    float u2, v2;
-    float u3, v3;
+    G3DRTUV uv[0x04];
 } G3DRTUVSET;
 
 /******************************************************************************/
@@ -813,7 +830,7 @@ typedef struct _G3DFACE {
     G3DRTQUAD       *rtquamem;     /*** Face buffer in buffered mode        ***/
     G3DRTEDGE       *rtedgmem;     /*** Edge buffer in buffered mode        ***/
     G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode      ***/
-    G3DRTUVSET      *rtuvsmem;     /*** UVSet buffer in buffered mode       ***/
+    G3DRTUV         *rtuvmem;      /*** UV    buffer in buffered mode       ***/
     LIST            *luvs;         /*** List of UVSets                      ***/
     uint32_t         nbrtfac;
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
@@ -917,6 +934,13 @@ typedef struct _G3DSUBINDEX {
 } G3DSUBINDEX;
 
 /******************************************************************************/
+typedef struct _G3DLOOKUP {
+    void *(*table)[0x02];
+    uint32_t rank;
+    uint32_t size;
+} G3DLOOKUP;
+
+/******************************************************************************/
 typedef struct _G3DSUBDIVISION {
     G3DSUBFACE    *innerFaces; 
     G3DSUBFACE    *outerFaces; 
@@ -924,12 +948,21 @@ typedef struct _G3DSUBDIVISION {
     G3DSUBEDGE    *outerEdges; 
     G3DSUBVERTEX  *innerVertices; 
     G3DSUBVERTEX  *outerVertices; 
+    G3DSUBUVSET   *innerUVSets; 
+    G3DSUBUVSET   *outerUVSets; 
+    G3DLOOKUP      vertexLookup;
+    G3DLOOKUP      edgeLookup;
+    G3DLOOKUP      faceLookup;
+    uint32_t       nbEdgeLookup;
+    uint32_t       nbVertexLookup;
     uint32_t       nbInnerFaces;
     uint32_t       nbOuterFaces;
     uint32_t       nbInnerEdges;
     uint32_t       nbOuterEdges;
     uint32_t       nbInnerVertices;
     uint32_t       nbOuterVertices;
+    uint32_t       nbInnerUVSets;
+    uint32_t       nbOuterUVSets;
     G3DSUBPATTERN *pattern;
 } G3DSUBDIVISION;
 
@@ -976,6 +1009,7 @@ struct _G3DMESH {
     uint32_t nbselgrp;
     uint32_t nbseltex;
     uint32_t nbtex;
+    uint32_t nbuvmap;
     float    advang; /*** Angle limit, used for Adaptive subdiv ***/
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
@@ -1118,11 +1152,11 @@ LIST *processHits ( GLint, GLuint * );
 
 /******************************************************************************/
 /*** hash function ***/
-uint16_t inline float_to_short ( float );
+/*uint16_t inline float_to_short ( float );
 
 #define _3FLOAT_TO_HASH(f0,f1,f2) ( ( float_to_short ( f0 ) >> 2 ) ^ \
                                     ( float_to_short ( f1 ) >> 1 ) ^ \
-                                    ( float_to_short ( f2 ) >> 0 ) );
+                                    ( float_to_short ( f2 ) >> 0 ) );*/
 
 /******************************************************************************/
 void     g3dcore_multmatrix              ( double *, double *, double * );
@@ -1524,20 +1558,30 @@ void g3dface_initSubface ( G3DFACE *, G3DSUBFACE   *,
                                       uint32_t    (*)[0x04],
                                       uint32_t    (*)[0x04],
                                       uint32_t,
+                                      uint32_t,
                                       uint32_t );
+void g3dface_subdivideUVSets ( G3DFACE * );
 
 /******************************************************************************/
 void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
 void g3dsubface_isAdaptive ( G3DSUBFACE *  );
 void g3dsubface_topology   ( G3DSUBFACE *, uint32_t  );
 void g3dsubface_position   ( G3DSUBFACE * );
+void g3dsubface_importUVSets ( G3DSUBFACE *, G3DFACE   *,
+                                             uint32_t  ,
+                                             G3DUVSET *,
+                                             uint32_t  );
 
 /******************************************************************************/
-uint32_t g3dsubdivisionV3EvalSize ( G3DFACE *, uint32_t *, uint32_t *,
-                                               uint32_t *, uint32_t *,
-                                               uint32_t *, uint32_t *,
-                                               uint32_t );
-uint32_t g3dsubdivisionV3_copyFace ( G3DFACE      *, 
+uint32_t g3dsubdivisionV3EvalSize ( G3DMESH *, 
+                                    G3DFACE *,
+                                    uint32_t *, uint32_t *,
+                                    uint32_t *, uint32_t *,
+                                    uint32_t *, uint32_t *,
+                                    uint32_t *, uint32_t *,
+                                    uint32_t );
+uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *,
+                                     G3DFACE      *, 
                                      G3DSUBFACE   *,
                                      G3DSUBFACE   *,
                                      uint32_t     *,
@@ -1545,20 +1589,26 @@ uint32_t g3dsubdivisionV3_copyFace ( G3DFACE      *,
                                      G3DSUBEDGE   *,
                                      uint32_t     *,
                                      G3DSUBVERTEX *,
+                                     G3DSUBVERTEX *,
+                                     uint32_t     *,
                                      uint32_t,
                                      uint32_t,
                                      uint32_t );
-uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DFACE *, 
+uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DMESH *,
+                                                        G3DFACE *, 
                                                         G3DRTTRIANGLE *,
                                                         G3DRTQUAD *,
                                 /*** get vertices  ***/ G3DRTEDGE  *,
                                 /*** get vertices  ***/ G3DRTVERTEX  *,
+                                                        LIST *,
                                                         uint32_t (*)[0x04],
                                                         uint32_t (*)[0x04],
                                                         uint32_t      ,
                                                         uint32_t      ,
                                                         uint32_t       );
-void  g3dsubdivisionV3_prepare     ( G3DSUBDIVISION *, G3DFACE *, uint32_t );
+void  g3dsubdivisionV3_prepare      ( G3DSUBDIVISION *, G3DMESH *, 
+                                                        G3DFACE *, 
+                                                        uint32_t );
 void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD * );
 void  g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *,
                                         uint32_t    ,
@@ -1578,6 +1628,17 @@ void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *,
                                         uint32_t      ,
                                         G3DRTQUAD    *,
                                         G3DRTVERTEX  * );
+void          g3dsubdivision_resetLookupTables ( G3DSUBDIVISION * );
+void          g3dsubdivision_addFaceLookup     ( G3DSUBDIVISION *, G3DFACE *, 
+                                                                   G3DSUBFACE * );
+G3DSUBFACE   *g3dsubdivision_lookFaceUp        ( G3DSUBDIVISION *, G3DFACE * );
+void          g3dsubdivision_addEdgeLookup     ( G3DSUBDIVISION *, G3DEDGE *,
+                                                                   G3DSUBEDGE * );
+G3DSUBEDGE   *g3dsubdivision_lookEdgeUp        ( G3DSUBDIVISION *, G3DEDGE * );
+void          g3dsubdivision_addVertexLookup   ( G3DSUBDIVISION *, G3DVERTEX *,
+                                                                   G3DSUBVERTEX * );
+G3DSUBVERTEX *g3dsubdivision_lookVertexUp      ( G3DSUBDIVISION *, G3DVERTEX * );
+
 
 /******************************************************************************/
 void           g3dsubpattern_free ( G3DSUBPATTERN * );
@@ -2000,6 +2061,7 @@ void         g3dmaterial_enableDisplacement   ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacementImageColor ( G3DMATERIAL * );
 void         g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL * );
 void         g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL * );
+void         g3dmaterial_enableDiffuseProcedural ( G3DMATERIAL * );
 void         g3dmaterial_enableDiffuseSolidColor ( G3DMATERIAL * );
 void         g3dmaterial_enableReflectionImageColor ( G3DMATERIAL * );
 void         g3dmaterial_name ( G3DMATERIAL *, const char * );
@@ -2118,4 +2180,10 @@ G3DRTTRIANGLEUVW *g3drttriangleuvw_new ( float, float,
 void g3drttriangle_addUVW ( G3DRTTRIANGLE *, G3DRTTRIANGLEUVW * );
 void g3drttriangleuvw_free ( G3DRTTRIANGLEUVW * );
 
+/******************************************************************************/
+void     g3dlookup_add     ( G3DLOOKUP *, void *, void * );
+void    *g3dlookup_get     ( G3DLOOKUP *, void * );
+void     g3dlookup_reset   ( G3DLOOKUP * );
+void     g3dlookup_realloc ( G3DLOOKUP *, uint32_t );
+uint32_t g3dlookup_getSize ( G3DLOOKUP * );
 #endif

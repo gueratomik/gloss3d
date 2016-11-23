@@ -81,6 +81,13 @@ void g3dmaterial_addDiffuseImage ( G3DMATERIAL *mat, G3DIMAGE *colimg ) {
 }
 
 /******************************************************************************/
+void g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+    mat->diffuse.proc = proc;
+
+    g3dimage_bind ( &mat->diffuse.proc->image );
+}
+
+/******************************************************************************/
 void g3dmaterial_enableDiffuseSolidColor ( G3DMATERIAL *mat ) {
         mat->flags &= (~DIFFUSE_USEMASK); /*** clear flags first ***/
 
@@ -95,10 +102,24 @@ void g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL *mat ) {
 }
 
 /******************************************************************************/
+void g3dmaterial_enableDiffuseProcedural ( G3DMATERIAL *mat ) {
+        mat->flags &= (~DIFFUSE_USEMASK); /*** clear flags first ***/
+
+        mat->flags |= DIFFUSE_USEPROCEDURAL;
+}
+
+/******************************************************************************/
 void g3dmaterial_addDisplacementImage ( G3DMATERIAL *mat, G3DIMAGE *disimg ) {
     mat->displacement.image = disimg;
 
-    g3dimage_bind ( mat->displacement.image );
+    /*g3dimage_bind ( mat->displacement.image );*/
+}
+
+/******************************************************************************/
+void g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+    mat->displacement.proc = proc;
+
+    /*g3dimage_bind ( &mat->diffuse.proc->image );*/
 }
 
 /******************************************************************************/

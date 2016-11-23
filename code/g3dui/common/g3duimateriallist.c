@@ -185,23 +185,34 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 float rf, gf, bf;
                 uint32_t col = 0x00;
 
-                if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
-                    if ( mat->diffuse.image ) {
-                        G3DIMAGE *colimg = mat->diffuse.image;
+                if ( ( mat->flags & DIFFUSE_USEIMAGECOLOR ) ||
+                     ( mat->flags & DIFFUSE_USEPROCEDURAL ) ) {
+                    G3DIMAGE *colimg = NULL;
+
+                    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            colimg = &mat->diffuse.proc->image;
+                        }
+                    }
+
+                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                        colimg = mat->diffuse.image;
+                    }
+
+                    if ( colimg ) {
                         uint32_t imgx = ((uint32_t)((float)p->u * colimg->width  * colimg->wratio ));
                         uint32_t imgy = ((uint32_t)((float)p->v * colimg->height * colimg->hratio ));
-                        uint32_t offset = ( imgy * colimg->bytesperline  ) +
-                                          ( imgx * colimg->bytesperpixel );
+                        uint32_t offset = ( imgy * colimg->width  ) + imgx;
 
                         /*** This depth part should be optimized ***/
                         if ( colimg->depth == 0x18 ) {
-                            R = colimg->data[offset+0x00];
-                            G = colimg->data[offset+0x01];
-                            B = colimg->data[offset+0x02];
+                            R = colimg->data[offset][0x00];
+                            G = colimg->data[offset][0x01];
+                            B = colimg->data[offset][0x02];
                         }
 
                         if ( colimg->depth == 0x08 ) {
-                            R = G = B = colimg->data[offset+0x00];
+                            R = G = B = colimg->data[offset][0x00];
                         }
                     }
                 }

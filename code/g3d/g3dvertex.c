@@ -98,29 +98,41 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
 
         if ( tex ) {
             G3DMATERIAL *mat = ( tex->mat );
-            G3DIMAGE *disimg = mat->displacement.image;
-
-            if ( disimg && mat->displacement_strength ) {
-                uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
-                uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
-
-                if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
-                if ( imgy < 0x00 ) imgy = disimg->height - imgy;
-
-                uint32_t offset = ( imgy * disimg->bytesperline  ) +
-                                  ( imgx * disimg->bytesperpixel );
+            if ( mat->displacement_strength ) {
                 uint32_t gray = 0x00;
                 float factor;
+                if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
+                    G3DIMAGE *disimg = mat->displacement.image;
+                    if ( disimg ) {
+                        uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
+                        uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
 
-                /*** This depth part should be optimized ***/
-                if ( disimg->depth == 0x18 ) {
-                    gray = ( disimg->data[offset+0x00] +
-                             disimg->data[offset+0x01] +
-                             disimg->data[offset+0x02] ) * ONETHIRD;
+                        if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
+                        if ( imgy < 0x00 ) imgy = disimg->height - imgy;
+
+                        uint32_t offset = ( imgy * disimg->width  ) + imgx;
+
+                        /*** This depth part should be optimized ***/
+                        if ( disimg->depth == 0x18 ) {
+                            gray = ( disimg->data[offset][0x00] +
+                                     disimg->data[offset][0x01] +
+                                     disimg->data[offset][0x02] ) * ONETHIRD;
+                        }
+   
+                        if ( disimg->depth == 0x08 ) {
+                            gray = disimg->data[offset][0x00];
+                        }
+                    }
                 }
 
-                if ( disimg->depth == 0x08 ) {
-                    gray = disimg->data[offset+0x00];
+                if ( mat->flags & DISPLACEMENT_USEPROCEDURAL ) {
+                    G3DPROCEDURAL *procedural = mat->displacement.proc;
+                    G3DRGBA rgba;
+
+                    procedural->getColor ( procedural, uv->u, 
+                                                       uv->v, 0.0f, &rgba );
+
+                    gray = ( rgba.r + rgba.g + rgba.b ) * ONETHIRD;
                 }
 
                 factor = gray * mat->displacement_strength * 0.001f;
@@ -736,14 +748,14 @@ uint32_t g3dvertex_setSubFaces ( G3DVERTEX *vercmp, G3DFACE       *faccmp,
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
 
-        freeflag |= g3dface_setSubFace ( fac, vercmp, faccmp,
+        /*freeflag |= g3dface_setSubFace ( fac, vercmp, faccmp,
                                                       newver,
                                                       subverptr,
                                                       subfacptr,
                                                       subuvsptr,
                                                       curdiv, 
                                                       object_flags,
-                                                      engine_flags );
+                                                      engine_flags );*/
 
         ltmp = ltmp->next;
     }

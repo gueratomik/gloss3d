@@ -30,6 +30,43 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
+                                                   uint32_t   i,
+                                                   G3DUVSET  *subuvs,
+                                                   uint32_t   curdiv  ) {
+    uint32_t p = ( i + parent->nbver - 0x01 ) % parent->nbver;
+    LIST *ltmpuvs = parent->luvs;
+
+    while ( ltmpuvs ) {
+        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+
+        subuvs->map = uvs->map;
+
+        subuvs->veruv[0x00].u = uvs->veruv[i].u;
+        subuvs->veruv[0x00].v = uvs->veruv[i].v;
+        subuvs->veruv[0x00].set = uvs;
+
+        subuvs->veruv[0x01].u = uvs->miduv[i].u;
+        subuvs->veruv[0x01].v = uvs->miduv[i].v;
+        subuvs->veruv[0x01].set = uvs;
+
+        subuvs->veruv[0x02].u = uvs->cenuv.u;
+        subuvs->veruv[0x02].v = uvs->cenuv.v;
+        subuvs->veruv[0x02].set = uvs;
+
+        subuvs->veruv[0x03].u = uvs->miduv[p].u;
+        subuvs->veruv[0x03].v = uvs->miduv[p].v;
+        subuvs->veruv[0x03].set = uvs;
+
+        g3dsubface_addUVSet ( subfac, subuvs, curdiv );
+
+        subuvs++;
+
+        ltmpuvs = ltmpuvs->next;
+    }
+}
+
+/******************************************************************************/
 void g3dsubface_position ( G3DSUBFACE *subfac  ) {
     subfac->fac.pos.x = ( subfac->fac.ver[0x00]->pos.x + 
                           subfac->fac.ver[0x01]->pos.x + 
@@ -64,7 +101,7 @@ void g3dsubface_topology ( G3DSUBFACE *subfac, uint32_t topo_flags  ) {
         if ( topo_flags & NEEDEDGETOPOLOGY ) {
             G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) fac->edg[i];
 
-            if ( subedg ) {
+            if ( subedg && ( subedg->edg.flags & EDGETOPOLOGY ) ) {
                 g3dsubedge_addFace ( subedg, ( G3DFACE * ) fac );
             }
         }
@@ -76,24 +113,6 @@ void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
                                                uint32_t curdiv ) {
     LIST *nextluvs = subfac->fac.luvs;
     uint32_t i;
-
-    /*** not needed for final recursion ***/
-    if ( curdiv > 0x01 ) {
-        uvs->cenuv.set = uvs;
-        uvs->cenuv.u   = ( uvs->veruv[0x00].u + uvs->veruv[0x01].u +
-                           uvs->veruv[0x02].u + uvs->veruv[0x03].u ) * 0.25f;
-
-        uvs->cenuv.v   = ( uvs->veruv[0x00].v + uvs->veruv[0x01].v +
-                           uvs->veruv[0x02].v + uvs->veruv[0x03].v ) * 0.25f;
-
-        for ( i = 0x00; i < subfac->fac.nbver; i++ ) {
-            uint32_t n = ( i + 0x01 ) % subfac->fac.nbver;
-
-            uvs->miduv[i].set = uvs;
-            uvs->miduv[i].u   = ( uvs->veruv[i].u + uvs->veruv[n].u ) * 0.5;
-            uvs->miduv[i].v   = ( uvs->veruv[i].v + uvs->veruv[n].v ) * 0.5;
-        }
-    }
 
     /*** if mallocated, use the normal function ***/
     if ( subfac->fac.flags & FACEMALLOCUVSETS ) {
@@ -109,9 +128,12 @@ void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
 
     subfac->fac.nbuvs++;
 
-    for ( i = 0x00; i < subfac->fac.nbver; i++ ) {
-        g3dsubvertex_addUV ( ( G3DSUBVERTEX * ) subfac->fac.ver[i], &uvs->veruv[i] );
-
-        if ( subfac->fac.edg[i] ) subfac->fac.edg[i]->nbuvs++;
+    /** No need to add individual UVs before the last subdivision. Saves us **/
+    /** some computation time. **/
+    if ( curdiv == 0x01 ) {
+        for ( i = 0x00; i < subfac->fac.nbver; i++ ) {
+            g3dsubvertex_addUV ( ( G3DSUBVERTEX * ) subfac->fac.ver[i], 
+                                                    &uvs->veruv[i] );
+        }
     }
 }

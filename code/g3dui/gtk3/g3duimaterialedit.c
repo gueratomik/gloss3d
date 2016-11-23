@@ -33,6 +33,7 @@
 static void solidColorCbk       ( GtkWidget *, gpointer  );
 static void solidColorChangeCbk ( GtkWidget *, gpointer  );
 static void imageColorCbk       ( GtkWidget *, gpointer  );
+static void proceduralCbk       ( GtkWidget *, gpointer  );
 static void chooseImageCbk      ( GtkWidget *, gpointer  );
 
 /******************************************************************************/
@@ -270,6 +271,13 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void displacementProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_materialDisplacementProceduralCbk ( gui );
+}
+
+/******************************************************************************/
 static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
@@ -358,13 +366,19 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                48, displacementStrengthCbk );
 
     /*** Use image as displacement texture ***/
-    createRadioLabel   ( pan, gui, EDITDISPLACEMENTIMAGE, NULL,
+    btn = createRadioLabel   ( pan, gui, EDITDISPLACEMENTIMAGE, NULL,
                                 0, 48, 
                                96, 18, NULL );
 
     createPushButton   ( pan, gui, EDITDISPLACEMENTIMAGE,
                                96,  48, 
                                96,  18, displacementImageCbk );
+
+          /*** Use image as texture ***/
+          createRadioLabel ( pan, gui, EDITDISPLACEMENTPROCEDURAL,
+                                   btn,
+                                     0, 72, 96, 18,
+                                   displacementProceduralCbk );
 
 
     return pan;
@@ -530,6 +544,13 @@ static void imageColorCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void proceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_materialProceduralCbk ( gui );
+}
+
+/******************************************************************************/
 static void solidColorChangeCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
@@ -669,6 +690,13 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                    EDITDIFFUSEIMAGE,
                                    104, 24, 96, 18,
                                    chooseImageCbk );
+
+          /*** Use image as texture ***/
+          createRadioLabel ( pan, gui,
+                                   EDITDIFFUSEPROCEDURAL,
+                                   btn,
+                                     0, 48, 96, 18,
+                                   proceduralCbk );
 
 
     return pan;

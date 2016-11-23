@@ -75,7 +75,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        rsce = r3dscene_new ( sce, MVX, PJX, x1, y1,
+        rsce = r3dscene_new ( sce, cam, MVX, PJX, x1, y1,
                                         x2, y2,
                                         width, height,
                                         rsg->background,

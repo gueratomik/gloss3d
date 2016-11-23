@@ -84,11 +84,13 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         if (   ( child->type == G3DMESHTYPE ) ||
              ( ( child->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH *mes = ( G3DMESH * ) child;
+        /*** Force the flag in case our mesh does not need displacement ***/
+
             R3DMESH *rms = r3dmesh_new ( mes, nextId++,
                                               childwmatrix,
                                               cmatrix,
                                               childwnormix,
-                                              pmatrix, engine_flags );
+                                              pmatrix, engine_flags | g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT );
 
             /* uncomment the line below to visualize the octree **/
             /*g3dobject_addChild ( rsce->sce, ((R3DOBJECT*)rms)->rot );*/

@@ -27,36 +27,43 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <r3d.h>
+#include <g3d.h>
 
 /******************************************************************************/
-R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam, double *MVX, double *PJX, uint32_t width, uint32_t height ) {
-    R3DCAMERA *rcam   = ( R3DCAMERA * ) calloc ( 0x01, sizeof ( R3DCAMERA ) );
-    R3DVECTOR  zero   = { 0.0f, 0.0f, 0.0f };
-    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+void g3dprocedural_init ( G3DPROCEDURAL *proc, 
+                          uint32_t       type, 
+                          void         (*func)( G3DPROCEDURAL *, 
+                                                double, 
+                                                double, 
+                                                double, 
+                                                G3DRGBA * ) ) {
+    proc->type       = type;
+    proc->getColor   = func;
 
-    if ( rcam == NULL ) {
-        fprintf ( stderr, "r3dcamera_new: memory allocation failed\n" );
-    }
-
-    ((R3DOBJECT*)rcam)->obj = cam;
-
-    /*** image render size. Differs from the OpenGL view ***/
-    rcam->VPX[0] = 0;
-    rcam->VPX[1] = 0;
-    rcam->VPX[2] = width;
-    rcam->VPX[3] = height;
-
-    memcpy ( rcam->MVX, MVX, sizeof ( double ) * 0x10 );
-    memcpy ( rcam->PJX, PJX, sizeof ( double ) * 0x10 );
-
-    g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );
-
-
-    return rcam;
+    proc->image.width  = 256;
+    proc->image.height = 256;
+    proc->image.depth  = 0x18; /* 24 */
+    proc->image.wratio = 1;
+    proc->image.hratio = 1;
+    proc->image.data   = proc->preview;
 }
 
 /******************************************************************************/
-void r3dcamera_free ( R3DCAMERA *rcam ) {
-    free ( rcam );
+void g3dprocedural_fill ( G3DPROCEDURAL *proc ) {
+    uint32_t i, j;
+
+    for ( j = 0x00; j < proc->image.height; j++ ) {
+        for ( i = 0x00; i < proc->image.width; i++ ) {
+            uint32_t offset = ( j * proc->image.width ) + i;
+            G3DRGBA rgba;
+
+            proc->getColor ( proc, (double) i / proc->image.width, 
+                                   (double) j / proc->image.height,
+                                   (double) 0, &rgba );
+
+            proc->image.data[offset][0x00] = rgba.r;
+            proc->image.data[offset][0x01] = rgba.g;
+            proc->image.data[offset][0x02] = rgba.b;
+        }
+    }
 }

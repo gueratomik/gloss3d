@@ -546,6 +546,17 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
 }
 
 /******************************************************************************/
+uint32_t g3dege_hasVertices ( G3DEDGE *edg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
+    if ( ( ( edg->ver[0x00] == v0 ) && ( edg->ver[0x01] == v1 ) ) || 
+         ( ( edg->ver[0x01] == v0 ) && ( edg->ver[0x00] == v1 ) ) ) {
+
+        return 1;
+    }
+
+    return 0;
+}
+
+/******************************************************************************/
 G3DEDGE *g3dedge_seek ( LIST *lis, G3DVERTEX *v0, G3DVERTEX *v1 ) {
     LIST *ltmp = lis;
 

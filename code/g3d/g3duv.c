@@ -99,6 +99,13 @@ void g3duvset_subdivide ( G3DUVSET *uvs, G3DFACE *fac ) {
     uvs->cenuv.set = uvs;
     uvs->cenuv.u   = cenu / fac->nbver;
     uvs->cenuv.v   = cenv / fac->nbver;
+
+
+    /*printf ( "%s %f %f\n", __func__, uvs->cenuv.u, uvs->cenuv.v );
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        printf ( "%s %f %f\n", __func__, uvs->veruv[i].u, uvs->veruv[i].v );
+        printf ( "%s %f %f\n", __func__, uvs->miduv[i].u, uvs->miduv[i].v );
+    }*/
 }
 
 /******************************************************************************/
