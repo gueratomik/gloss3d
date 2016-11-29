@@ -30,24 +30,6 @@
 #include <g3d.h>
 
 /******************************************************************************/
-uint32_t g3dheightmap_processVertex ( G3DHEIGHTMAP *htm, G3DVERTEX *ver, 
-                                                         uint32_t verID,
-                                                         uint32_t subdiv_level ) {
-    if ( subdiv_level == 0x01 ) {
-        if ( htm->heights[verID].flags & HEIGHTSET ) {
-            ver->pos.x  += ( ver->nor.x * htm->heights[verID].elevation );
-            ver->pos.y  += ( ver->nor.y * htm->heights[verID].elevation );
-            ver->pos.z  += ( ver->nor.z * htm->heights[verID].elevation );
-/*if ( ver->id == 0x04 )
-    printf("V - %d %f X:%f Y:%f Z:%f\n", ver->id, htm->heights[ver->id].elevation, ver->nor.x, ver->nor.y, ver->nor.z );*/
-            return 0x01;
-        }
-    }
-
-    return 0x00;
-}
-
-/******************************************************************************/
 void g3dheightmap_print ( G3DHEIGHTMAP *htm ) {
     uint32_t i;
 
@@ -56,87 +38,6 @@ void g3dheightmap_print ( G3DHEIGHTMAP *htm ) {
         printf ( "%f\n", htm->heights[i].elevation );
     }
     printf ( "\n" );
-}
-
-/******************************************************************************/
-uint32_t g3dheightmap_processVertexFromEdge ( G3DHEIGHTMAP *htm, G3DVERTEX *ver,
-                                                                 G3DEDGE   *edg,
-                                                                 uint32_t subdiv_level ) {
-    if ( subdiv_level == 0x01 ) {
-        if ( htm->heights[ver->id].flags & HEIGHTSET ) {
-            ver->pos.x  += ( ver->nor.x * htm->heights[ver->id].elevation );
-            ver->pos.y  += ( ver->nor.y * htm->heights[ver->id].elevation );
-            ver->pos.z  += ( ver->nor.z * htm->heights[ver->id].elevation );
-/*printf("E - %d %f X:%f Y:%f Z:%f\n", ver->id, htm->heights[ver->id].elevation, ver->nor.x, ver->nor.y, ver->nor.z );*/
-            return 0x01;
-        } else {
-            /*uint32_t v0id = edg->ver[0x00]->id,
-                     v1id = edg->ver[0x01]->id;
-            if ( ( htm->heights[v0id].flags & HEIGHTSET ) && 
-                 ( htm->heights[v1id].flags & HEIGHTSET ) ) {
-                float elevation = ( htm->heights[v0id].elevation + 
-                                    htm->heights[v1id].elevation ) * 0.5;
-
-                ver->pos.x  += ( ver->nor.x * elevation );
-                ver->pos.y  += ( ver->nor.y * elevation );
-                ver->pos.z  += ( ver->nor.z * elevation );
-            }*/
-        }
-    }
-
-    return 0x00;
-}
-
-/******************************************************************************/
-uint32_t g3dheightmap_processVertexFromFace ( G3DHEIGHTMAP *htm, G3DVERTEX *ver,
-                                                                 G3DFACE   *fac,
-                                                                 uint32_t subdiv_level ) {
-    if ( subdiv_level == 0x01 ) {
-        if ( htm->heights[ver->id].flags & HEIGHTSET ) {
-            ver->pos.x  += ( ver->nor.x * htm->heights[ver->id].elevation );
-            ver->pos.y  += ( ver->nor.y * htm->heights[ver->id].elevation );
-            ver->pos.z  += ( ver->nor.z * htm->heights[ver->id].elevation );
-/*printf("F - %d %f X:%f Y:%f Z:%f\n", ver->id, htm->heights[ver->id].elevation, ver->nor.x, ver->nor.y, ver->nor.z );*/
-            return 0x01;
-        } else {
-            /*if ( fac->nbver == 0x04 ) {
-                uint32_t v0id = fac->ver[0x00]->id,
-                         v1id = fac->ver[0x01]->id,
-                         v2id = fac->ver[0x02]->id,
-                         v3id = fac->ver[0x03]->id;
-                if ( ( htm->heights[v0id].flags & HEIGHTSET ) && 
-                     ( htm->heights[v1id].flags & HEIGHTSET ) &&
-                     ( htm->heights[v2id].flags & HEIGHTSET ) &&
-                     ( htm->heights[v3id].flags & HEIGHTSET ) ) {
-                    float elevation = ( htm->heights[v0id].elevation + 
-                                        htm->heights[v1id].elevation +
-                                        htm->heights[v2id].elevation +
-                                        htm->heights[v3id].elevation ) * 0.25f;
-
-                    ver->pos.x  += ( ver->nor.x * elevation );
-                    ver->pos.y  += ( ver->nor.y * elevation );
-                    ver->pos.z  += ( ver->nor.z * elevation );
-                }
-            } else {
-                uint32_t v0id = fac->ver[0x00]->id,
-                         v1id = fac->ver[0x01]->id,
-                         v2id = fac->ver[0x02]->id;
-                if ( ( htm->heights[v0id].flags & HEIGHTSET ) && 
-                     ( htm->heights[v1id].flags & HEIGHTSET ) &&
-                     ( htm->heights[v2id].flags & HEIGHTSET ) ) {
-                    float elevation = ( htm->heights[v0id].elevation + 
-                                        htm->heights[v1id].elevation +
-                                        htm->heights[v2id].elevation ) * 0.33f;
-
-                    ver->pos.x  += ( ver->nor.x * elevation );
-                    ver->pos.y  += ( ver->nor.y * elevation );
-                    ver->pos.z  += ( ver->nor.z * elevation );
-                }
-            }*/
-        }
-    }
-
-    return 0x00;
 }
 
 /******************************************************************************/

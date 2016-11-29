@@ -159,13 +159,16 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
                                          uint32_t    (*tri_indexes)[0x04],
                                          uint32_t      iteration,
                                          uint32_t      curdiv,
+                                         uint32_t      object_flags,
+                                         uint32_t      subdiv_flags,
                                          uint32_t      engine_flags ) {
     uint32_t i, j;
 
+    subfac->ancestorFace   = ((G3DSUBFACE*)fac)->ancestorFace;
+
     subfac->fac.flags = fac->flags;
     subfac->fac.nbver = 0x04;
-
-    subfac->fac.luvs = NULL;
+    subfac->fac.luvs  = NULL;
     subfac->fac.nbuvs = 0;
 
     subfac->fac.rtuvmem = fac->rtuvmem;
@@ -183,7 +186,9 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
 
             subfac->fac.heightmap = fac->heightmap;
 
-            if ( curdiv > 1 ) {
+            if ( ( curdiv > 1 ) ||
+                 ( subdiv_flags & SUBDIVISIONCOMMIT ) ||
+                 ( object_flags & MESHUSEISOLINES   ) ) {
                 subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
                 subfac->fac.edg[0x01] = fac->innedg[i];
                 subfac->fac.edg[0x02] = fac->innedg[p];

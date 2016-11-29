@@ -206,13 +206,17 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
 
                         /*** This depth part should be optimized ***/
                         if ( colimg->depth == 0x18 ) {
-                            R = colimg->data[offset][0x00];
-                            G = colimg->data[offset][0x01];
-                            B = colimg->data[offset][0x02];
+                            unsigned char (*data)[0x03] = colimg->data;
+
+                            R = data[offset][0x00];
+                            G = data[offset][0x01];
+                            B = data[offset][0x02];
                         }
 
                         if ( colimg->depth == 0x08 ) {
-                            R = G = B = colimg->data[offset][0x00];
+                            unsigned char (*data)[0x01] = colimg->data;
+
+                            R = G = B = data[offset][0x00];
                         }
                     }
                 }

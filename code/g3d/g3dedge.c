@@ -275,13 +275,13 @@ uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *edg, G3DFACE *faccmp,
             /*** /!\ This part is the same in g3dface_setInnerVertex() ***/
             /*fac->subver->ver.flags |= VERTEXFACETOPOLOGY;*/
 
-            memcpy ( &fac->subver->ver.pos, &fac->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &fac->subver->ver.nor, &fac->nor, sizeof ( G3DVECTOR ) );
+            memcpy ( &fac->subver->pos, &fac->pos, sizeof ( G3DVECTOR ) );
+            memcpy ( &fac->subver->nor, &fac->nor, sizeof ( G3DVECTOR ) );
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
 /*** for faces different than the central face (the face getting subdivided)***/
             if ( (fac->nbuvs*4) > SUBVERTEXUVBUFFER ) {
-                fac->subver->ver.flags |= VERTEXMALLOCUVS;
+                fac->subver->flags |= VERTEXMALLOCUVS;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;
             }

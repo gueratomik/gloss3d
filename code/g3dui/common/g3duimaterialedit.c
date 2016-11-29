@@ -269,7 +269,7 @@ void common_g3dui_materialProceduralCbk ( G3DUI *gui ) {
         g3dmaterial_enableDiffuseProcedural ( mat );
 
         /*** fill preview ***/
-        g3dprocedural_fill ( proc );
+        g3dprocedural_fill ( proc, 256, 256, 0x18 );
         g3dmaterial_addDiffuseProcedural ( mat, proc );
 
         /*** Redraw Material List widget Previews ***/
@@ -292,7 +292,7 @@ void common_g3dui_materialDisplacementProceduralCbk ( G3DUI *gui ) {
         g3dmaterial_enableDisplacementProcedural ( mat );
 
         /*** fill preview ***/
-        g3dprocedural_fill ( proc );
+        g3dprocedural_fill ( proc, 1024, 1024, 0x08 );
         g3dmaterial_addDisplacementProcedural ( mat, proc );
 
         /*** Redraw Material List widget Previews ***/

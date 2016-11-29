@@ -45,6 +45,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dscene.c \
                       g3dsphere.c \
                       g3dsubdivisionthread.c \
+                      g3dsubdivider.c \
                       g3dsubdivisionV3.c \
                       g3dsubedge.c \
                       g3dsubface.c \

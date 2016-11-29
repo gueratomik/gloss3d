@@ -233,11 +233,14 @@ void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
                                                   fac->rtquamem,
                                                   fac->rtedgmem,
                                                   fac->rtvermem,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
                                                   mes->ltex,
                                                   qua_indexes,
                                                   tri_indexes,
                                                   subdiv,
-                                                  objmes->flags,
+                                                  SUBDIVISIONPREVIEW,
                                                   engine_flags );
 
                 ltmpfac = ltmpfac->next;

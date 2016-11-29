@@ -254,11 +254,14 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                                   rtquamem,
                                                   rtedgmem,
                                                   rtvermem,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
                                                   mes->ltex,
                                                   qua_indexes,
                                                   tri_indexes,
                                                   subdiv,
-                                                  obj->flags,
+                                                  SUBDIVISIONPREVIEW,
                                                   engine_flags );
 
         for ( i = 0x00; i < nbrtver; i++ ) {

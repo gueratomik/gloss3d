@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *proc, 
-                          uint32_t       type, 
+                          uint32_t       type,
                           void         (*func)( G3DPROCEDURAL *, 
                                                 double, 
                                                 double, 
@@ -39,18 +39,21 @@ void g3dprocedural_init ( G3DPROCEDURAL *proc,
                                                 G3DRGBA * ) ) {
     proc->type       = type;
     proc->getColor   = func;
-
-    proc->image.width  = 256;
-    proc->image.height = 256;
-    proc->image.depth  = 0x18; /* 24 */
-    proc->image.wratio = 1;
-    proc->image.hratio = 1;
-    proc->image.data   = proc->preview;
 }
 
 /******************************************************************************/
-void g3dprocedural_fill ( G3DPROCEDURAL *proc ) {
+void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
+                                               uint32_t resy,
+                                               uint32_t bpp ) {
     uint32_t i, j;
+
+    proc->image.width  = resx;
+    proc->image.height = resy;
+    proc->image.depth  = bpp;
+    proc->image.wratio = 1;
+    proc->image.hratio = 1;
+    proc->image.data   = realloc ( proc->image.data, resx * 
+                                                     resy * ( bpp >> 0x03 ) );
 
     for ( j = 0x00; j < proc->image.height; j++ ) {
         for ( i = 0x00; i < proc->image.width; i++ ) {
@@ -61,9 +64,25 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc ) {
                                    (double) j / proc->image.height,
                                    (double) 0, &rgba );
 
-            proc->image.data[offset][0x00] = rgba.r;
-            proc->image.data[offset][0x01] = rgba.g;
-            proc->image.data[offset][0x02] = rgba.b;
+            switch ( bpp ) {
+                case 0x18 : {
+                    unsigned char (*data)[0x03] = proc->image.data;
+
+                    data[offset][0x00] = rgba.r;
+                    data[offset][0x01] = rgba.g;
+                    data[offset][0x02] = rgba.b;
+                } break;
+
+                case 0x08 : {
+                    unsigned char (*data)[0x01] = proc->image.data;
+                    uint32_t color = ( rgba.r + rgba.g + rgba.b ) / 0x03;
+
+                    data[offset][0x00] = color;
+                } break;
+
+                default:
+                break;
+            }
         }
     }
 }

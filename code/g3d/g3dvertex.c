@@ -99,40 +99,43 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
         if ( tex ) {
             G3DMATERIAL *mat = ( tex->mat );
             if ( mat->displacement_strength ) {
+                G3DIMAGE *disimg = NULL;
                 uint32_t gray = 0x00;
                 float factor;
+
                 if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
-                    G3DIMAGE *disimg = mat->displacement.image;
-                    if ( disimg ) {
-                        uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
-                        uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
-
-                        if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
-                        if ( imgy < 0x00 ) imgy = disimg->height - imgy;
-
-                        uint32_t offset = ( imgy * disimg->width  ) + imgx;
-
-                        /*** This depth part should be optimized ***/
-                        if ( disimg->depth == 0x18 ) {
-                            gray = ( disimg->data[offset][0x00] +
-                                     disimg->data[offset][0x01] +
-                                     disimg->data[offset][0x02] ) * ONETHIRD;
-                        }
-   
-                        if ( disimg->depth == 0x08 ) {
-                            gray = disimg->data[offset][0x00];
-                        }
-                    }
+                    disimg = mat->displacement.image;
                 }
 
                 if ( mat->flags & DISPLACEMENT_USEPROCEDURAL ) {
-                    G3DPROCEDURAL *procedural = mat->displacement.proc;
-                    G3DRGBA rgba;
+                    /* Way too slow to query directly the procedure, */
+                    /* instead we query the generated image */
+                    disimg = &mat->displacement.proc->image;
+                }
 
-                    procedural->getColor ( procedural, uv->u, 
-                                                       uv->v, 0.0f, &rgba );
+                if ( disimg ) {
+                    uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
+                    uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
 
-                    gray = ( rgba.r + rgba.g + rgba.b ) * ONETHIRD;
+                    if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
+                    if ( imgy < 0x00 ) imgy = disimg->height - imgy;
+
+                    uint32_t offset = ( imgy * disimg->width  ) + imgx;
+
+                    /*** This depth part should be optimized ***/
+                    if ( disimg->depth == 0x18 ) {
+                        unsigned char (*data)[0x03] = disimg->data;
+
+                        gray = ( data[offset][0x00] +
+                                 data[offset][0x01] +
+                                 data[offset][0x02] ) * ONETHIRD;
+                    }
+   
+                    if ( disimg->depth == 0x08 ) {
+                        unsigned char (*data)[0x01] = disimg->data;
+
+                        gray = data[offset][0x00];
+                    }
                 }
 
                 factor = gray * mat->displacement_strength * 0.001f;
@@ -615,7 +618,7 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
 
 /*** Note, each face gives 2 faces for an edge-subvertex, so 2*2 = 4 ***/
             if ( edg->nbfac > 0x02 ) {
-                edg->subver->ver.flags |= VERTEXMALLOCFACES;
+                edg->subver->flags |= VERTEXMALLOCFACES;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;
             }
@@ -624,42 +627,42 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
             if ( engine_flags & VIEWSKIN ) {
                 if ( ( edg->ver[0x00]->flags & VERTEXPAINTED ) ||
                      ( edg->ver[0x01]->flags & VERTEXPAINTED ) ) {
-                    edg->subver->ver.flags |= VERTEXPAINTED;
+                    edg->subver->flags |= VERTEXPAINTED;
 
-                    edg->subver->ver.weight = ( edg->ver[0x00]->weight +
-                                                edg->ver[0x01]->weight ) * 0.5f;
+                    edg->subver->weight = ( edg->ver[0x00]->weight +
+                                            edg->ver[0x01]->weight ) * 0.5f;
                 }
             }
 
                 /*** /!\ Duplicate ! same in g3dvertex_setOuterEdges() ***/
             if ( ( edg->ver[0x00]->flags & VERTEXSYMZX ) &&
                  ( edg->ver[0x01]->flags & VERTEXSYMZX ) ) {
-                edg->subver->ver.flags |= VERTEXSYMZX;
+                edg->subver->flags |= VERTEXSYMZX;
             }
 
             if ( ( edg->ver[0x00]->flags & VERTEXSYMXY ) &&
                  ( edg->ver[0x01]->flags & VERTEXSYMXY ) ) {
-                edg->subver->ver.flags |= VERTEXSYMXY;
+                edg->subver->flags |= VERTEXSYMXY;
             }
 
             if ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) &&
                  ( edg->ver[0x01]->flags & VERTEXSYMYZ ) ) {
-                edg->subver->ver.flags |= VERTEXSYMYZ;
+                edg->subver->flags |= VERTEXSYMYZ;
             }
             /*********************************************************/
 
             /****** Adaptive part ****************************/
-            memcpy ( &edg->subver->ver.pos, &edg->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &edg->subver->ver.nor, &edg->nor, sizeof ( G3DVECTOR ) );
+            memcpy ( &edg->subver->pos, &edg->pos, sizeof ( G3DVECTOR ) );
+            memcpy ( &edg->subver->nor, &edg->nor, sizeof ( G3DVECTOR ) );
 
             if ( edg->flags & EDGELOCKADAPTIVE ) {
-                edg->subver->ver.flags |= VERTEXLOCKADAPTIVE;
+                edg->subver->flags |= VERTEXLOCKADAPTIVE;
             }
             /*********************************************************/
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
             if ( edg->nbuvs > SUBVERTEXUVBUFFER ) {
-                edg->subver->ver.flags |= VERTEXMALLOCUVS;
+                edg->subver->flags |= VERTEXMALLOCUVS;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;
             }
@@ -718,7 +721,7 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
             g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) (*subedgptr)->edg.ver[0x00], 
                                    ( G3DEDGE *      ) (*subedgptr) );
 
-            if ( edg->subver->ver.flags & VERTEXTOPOLOGY ) {
+            if ( edg->subver->flags & VERTEXTOPOLOGY ) {
                 g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) (*subedgptr)->edg.ver[0x01],
                                        ( G3DEDGE *      ) (*subedgptr) );
             }

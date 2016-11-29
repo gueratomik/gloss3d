@@ -389,6 +389,7 @@
 
 #define MENU_ADDBONE              "Add Bone"
 #define MENU_ADDSYMMETRY          "Add Symmetry"
+#define MENU_ADDSUBDIVIDER        "Add Subdivider"
 #define MENU_ADDFFDBOX            "Add FFD Box"
 #define MENU_ASSIGNFFD            "Assign FFD"
 #define MENU_RESETFFD             "Reset FFD"

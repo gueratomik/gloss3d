@@ -138,44 +138,46 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define BUILDSUBINDEX      ( 1  << 25 )
 
 /******************************* Object Types *********************************/
-#define OBJECT    (  1       )
-#define PRIMITIVE (  1 << 1  )
-#define SPHERE    (  1 << 2  )
-#define TORUS     (  1 << 3  )
-#define MESH      (  1 << 4  )
-#define CAMERA    (  1 << 5  )
-#define SCENE     (  1 << 6  )
-#define BONE      (  1 << 7  )
-#define LIGHT     (  1 << 8  )
-#define SPOT      (  1 << 9  )
-#define CUBE      (  1 << 10 )
-#define SYMMETRY  (  1 << 11 )
-#define CYLINDER  (  1 << 12 )
-#define MODIFIER  (  1 << 13 )
-#define FFD       (  1 << 14 )
-#define PLANE     (  1 << 15 )
-#define CONE      (  1 << 16 )
-#define UVMAP     (  1 << 17 )
-#define PIVOT     (  1 << 18 )
+#define OBJECT     (  1       )
+#define PRIMITIVE  (  1 << 1  )
+#define SPHERE     (  1 << 2  )
+#define TORUS      (  1 << 3  )
+#define MESH       (  1 << 4  )
+#define CAMERA     (  1 << 5  )
+#define SCENE      (  1 << 6  )
+#define BONE       (  1 << 7  )
+#define LIGHT      (  1 << 8  )
+#define SPOT       (  1 << 9  )
+#define CUBE       (  1 << 10 )
+#define SYMMETRY   (  1 << 11 )
+#define CYLINDER   (  1 << 12 )
+#define MODIFIER   (  1 << 13 )
+#define FFD        (  1 << 14 )
+#define PLANE      (  1 << 15 )
+#define CONE       (  1 << 16 )
+#define UVMAP      (  1 << 17 )
+#define PIVOT      (  1 << 18 )
+#define SUBDIVIDER (  1 << 19 )
 
-#define G3DOBJECTTYPE    ( OBJECT )
-#define G3DMESHTYPE      ( OBJECT | MESH )
-#define G3DPRIMITIVETYPE ( OBJECT | MESH | PRIMITIVE )
-#define G3DSPHERETYPE    ( OBJECT | MESH | PRIMITIVE | SPHERE )
-#define G3DPLANETYPE     ( OBJECT | MESH | PRIMITIVE | PLANE )
-#define G3DTORUSTYPE     ( OBJECT | MESH | PRIMITIVE | TORUS )
-#define G3DCUBETYPE      ( OBJECT | MESH | PRIMITIVE | CUBE )
-#define G3DCYLINDERTYPE  ( OBJECT | MESH | PRIMITIVE | CYLINDER )
-#define G3DCONETYPE      ( OBJECT | MESH | PRIMITIVE | CONE )
-#define G3DFFDTYPE       ( OBJECT | MESH | MODIFIER | FFD )
-#define G3DSYMMETRYTYPE  ( OBJECT | SYMMETRY )
-#define G3DCAMERATYPE    ( OBJECT | CAMERA )
-#define G3DSCENETYPE     ( OBJECT | SCENE )
-#define G3DBONETYPE      ( OBJECT | BONE )
-#define G3DLIGHTTYPE     ( OBJECT | LIGHT )
-#define G3DSPOTTYPE      ( OBJECT | LIGHT| SPOT )
-#define G3DUVMAPTYPE     ( OBJECT | UVMAP )
-#define G3DPIVOTTYPE     ( OBJECT | PIVOT )
+#define G3DOBJECTTYPE     ( OBJECT )
+#define G3DMESHTYPE       ( OBJECT | MESH )
+#define G3DPRIMITIVETYPE  ( OBJECT | MESH | PRIMITIVE )
+#define G3DSPHERETYPE     ( OBJECT | MESH | PRIMITIVE | SPHERE )
+#define G3DPLANETYPE      ( OBJECT | MESH | PRIMITIVE | PLANE )
+#define G3DTORUSTYPE      ( OBJECT | MESH | PRIMITIVE | TORUS )
+#define G3DCUBETYPE       ( OBJECT | MESH | PRIMITIVE | CUBE )
+#define G3DCYLINDERTYPE   ( OBJECT | MESH | PRIMITIVE | CYLINDER )
+#define G3DCONETYPE       ( OBJECT | MESH | PRIMITIVE | CONE )
+#define G3DFFDTYPE        ( OBJECT | MESH | MODIFIER | FFD )
+#define G3DSYMMETRYTYPE   ( OBJECT | SYMMETRY )
+#define G3DCAMERATYPE     ( OBJECT | CAMERA )
+#define G3DSCENETYPE      ( OBJECT | SCENE )
+#define G3DBONETYPE       ( OBJECT | BONE )
+#define G3DLIGHTTYPE      ( OBJECT | LIGHT )
+#define G3DSPOTTYPE       ( OBJECT | LIGHT| SPOT )
+#define G3DUVMAPTYPE      ( OBJECT | UVMAP )
+#define G3DPIVOTTYPE      ( OBJECT | PIVOT )
+#define G3DSUBDIVIDERTYPE ( OBJECT | SUBDIVIDER )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -203,6 +205,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VERTEXSCULPTED     (  1 << 19  )
 
 #define VERTEXONEDGE       (  1 << 20  )
+#define VERTEXSTITCHABLE   (  1 << 21  )
 
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
@@ -252,6 +255,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SUBDIVISIONLASTSTEP       (  1 <<  8 ) /*** Adaptive mode ***/
 #define SUBDIVISIONDRAWEDGES      (  1 <<  9 ) 
 #define SUBDIVISIONDRAWVERTICES   (  1 << 10 )
+#define SUBDIVISIONELEVATE        (  1 << 11 ) /* is heightmapping required */
+#define SUBDIVISIONCOMMIT         (  1 << 12 ) 
+#define SUBDIVISIONPREVIEW        (  1 << 13 )
+
 /************************* Subdivision topology Flags *************************/
 #define NEEDEDGETOPOLOGY              (  1       )
 #define NEEDFULLTOPOLOGY               0xFFFFFFFF
@@ -475,7 +482,7 @@ typedef struct _G3DIMAGE {
     uint32_t depth;
     uint32_t bytesperpixel;
     uint32_t bytesperline;
-    unsigned char (*data)[0x03];
+    unsigned char *data;
     float wratio;   /*** Used when the image dimension must be a power of 2 ***/
     float hratio;   /*** Used when the image dimension must be a power of 2 ***/
     GLuint id;
@@ -488,7 +495,7 @@ typedef struct _G3DPROCEDURAL {
                                                double, 
                                                double, G3DRGBA * );
     G3DIMAGE image;
-    unsigned char preview[256][256][0x03];
+    unsigned char *preview; /*** holds the generated image data ***/
 } G3DPROCEDURAL;
 
 /******************************************************************************/
@@ -620,6 +627,9 @@ typedef struct _G3DOBJECT {
     void (*transform)( struct _G3DOBJECT *, uint32_t ); /*** On Matrix change ***/
     void (*childvertexchange)( struct _G3DOBJECT *,
                                struct _G3DOBJECT *, G3DVERTEX *ver ) ;
+    void (*activate)(struct _G3DOBJECT *, uint32_t );
+    void (*deactivate)(struct _G3DOBJECT *, uint32_t );
+    void (*commit)(struct _G3DOBJECT *, uint32_t );
     struct _G3DOBJECT *parent; /*** Parent Object ***/
     LIST *lchildren;        /*** List of children ***/
     G3DBBOX bbox;
@@ -703,17 +713,6 @@ typedef struct _G3DCURSOR {
 } G3DCURSOR;
 
 /******************************************************************************/
-#define SUBVERTEXUVBUFFER   0x08 /*** max 8 UVs   ***/
-#define SUBVERTEXEDGEBUFFER 0x04 /*** max 4 edges ***/
-#define SUBVERTEXFACEBUFFER 0x04 /*** max 4 faces ***/
-typedef struct _G3DINNERVERTEX {
-    G3DVERTEX ver;
-    LIST   ledgbuf[SUBVERTEXEDGEBUFFER];
-    LIST   lfacbuf[SUBVERTEXFACEBUFFER];
-    LIST   luvbuf[SUBVERTEXUVBUFFER];
-} G3DINNERVERTEX, G3DSUBVERTEX;
-
-/******************************************************************************/
 typedef struct _G3DRTUV {
     float u;
     float v;
@@ -728,7 +727,7 @@ typedef struct _G3DRTUVSET {
 /*** Interleaved vertex arrays for buffered subdivided mesh. ***/
 /*** GL_C4F_N3F_V3F ***/
 typedef struct _G3DRTEDGE {
-    G3DRTVERTEX rtver[0x02];
+    uint32_t rtver[0x02];
 } G3DRTEDGE;
 
 /******************************************************************************/
@@ -769,7 +768,7 @@ typedef struct _G3DEDGE {
     uint32_t nbfac;                /*** number of connected faces           ***/
     LIST *lfac;                    /*** Face list                           ***/
     G3DVERTEX       *ver[0x02];    /*** Our edge is made of 2 vertices      ***/
-    G3DSUBVERTEX    *subver;       /*** Edge center for mesh subdivision    ***/
+    G3DVERTEX       *subver;       /*** Edge center for mesh subdivision    ***/
     G3DVECTOR        pos;          /*** Precomputed subdivided position     ***/
     G3DVECTOR        nor;          /*** Precomputed subdivided normal vector***/
     struct _G3DEDGE *subedg[0x02]; /*** for mesh subdivision                ***/
@@ -783,13 +782,6 @@ typedef struct _G3DSPLITEDGE {
     G3DEDGE *ref;
     G3DEDGE *sub;
 } G3DSPLITEDGE;
-
-/******************************************************************************/
-typedef struct _G3DINNEREDGE {
-    G3DEDGE edg;
-    LIST lfacbuf[0x02];      /*** static list buffer ***/
-    LIST luvsbuf[0x04];      /*** static list buffer ***/
-} G3DINNEREDGE, G3DSUBEDGE;
 
 /******************************************************************************/
 typedef struct _G3DCUTEDGE {
@@ -826,7 +818,7 @@ typedef struct _G3DFACE {
             G3DEDGE *innedg[0x04]; /*** for mesh subdivision                ***/
     G3DVECTOR        nor;          /*** Face normal vector                  ***/
     G3DVECTOR        pos;          /*** Face position (average position)    ***/
-    G3DSUBVERTEX    *subver;       /*** Face center when subdividing        ***/
+    G3DVERTEX       *subver;       /*** Face center when subdividing        ***/
     G3DRTQUAD       *rtquamem;     /*** Face buffer in buffered mode        ***/
     G3DRTEDGE       *rtedgmem;     /*** Edge buffer in buffered mode        ***/
     G3DRTVERTEX     *rtvermem;     /*** Vertex buffer in buffered mode      ***/
@@ -839,13 +831,39 @@ typedef struct _G3DFACE {
 } G3DFACE;
 
 /******************************************************************************/
+typedef struct _G3DINNEREDGE {
+    G3DEDGE  edg;
+    LIST     lfacbuf[0x02]; /*** static list buffer ***/
+    LIST     luvsbuf[0x04]; /*** static list buffer ***/
+    G3DEDGE *ancestorEdge;
+    G3DFACE *ancestorFace;
+    uint32_t commitID;
+} G3DINNEREDGE, G3DSUBEDGE;
+
+/******************************************************************************/
 #define SUBFACEUVSETBUFFER 0x04 /*** max 4 uvwmaps    ***/
 #define SUBFACETEXBUFFER   0x04 /*** max 4 textures   ***/
 typedef struct _G3DSUBFACE {
-    G3DFACE fac;
-    LIST luvsbuf[SUBFACEUVSETBUFFER];
-    LIST ltexbuf[SUBFACETEXBUFFER];
+    G3DFACE  fac;
+    LIST     luvsbuf[SUBFACEUVSETBUFFER];
+    LIST     ltexbuf[SUBFACETEXBUFFER];
+    G3DFACE *ancestorFace;
 } G3DSUBFACE;
+
+/******************************************************************************/
+#define SUBVERTEXUVBUFFER   0x08 /*** max 8 UVs   ***/
+#define SUBVERTEXEDGEBUFFER 0x04 /*** max 4 edges ***/
+#define SUBVERTEXFACEBUFFER 0x04 /*** max 4 faces ***/
+typedef struct _G3DINNERVERTEX {
+    G3DVERTEX  ver;
+    LIST       ledgbuf[SUBVERTEXEDGEBUFFER];
+    LIST       lfacbuf[SUBVERTEXFACEBUFFER];
+    LIST       luvbuf[SUBVERTEXUVBUFFER];
+    G3DVERTEX *ancestorVertex;
+    G3DEDGE   *ancestorEdge;
+    G3DFACE   *ancestorFace;
+    uint32_t   commitID;
+} G3DINNERVERTEX, G3DSUBVERTEX;
 
 /******************************************************************************/
 typedef struct _G3DCUTFACE {
@@ -966,6 +984,12 @@ typedef struct _G3DSUBDIVISION {
     G3DSUBPATTERN *pattern;
 } G3DSUBDIVISION;
 
+/******************************************************************************/
+typedef struct _G3DSUBDIVIDER {
+    G3DOBJECT obj;
+    uint32_t subdiv_view;
+    uint32_t subdiv_render;
+} G3DSUBDIVIDER;
 
 /******************************************************************************/
 typedef struct _G3DSYSINFO { 
@@ -1559,6 +1583,8 @@ void g3dface_initSubface ( G3DFACE *, G3DSUBFACE   *,
                                       uint32_t    (*)[0x04],
                                       uint32_t,
                                       uint32_t,
+                                      uint32_t,
+                                      uint32_t,
                                       uint32_t );
 void g3dface_subdivideUVSets ( G3DFACE * );
 
@@ -1581,6 +1607,7 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DMESH *,
                                     uint32_t *, uint32_t *,
                                     uint32_t );
 uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *,
+                                     G3DMESH      *,
                                      G3DFACE      *, 
                                      G3DSUBFACE   *,
                                      G3DSUBFACE   *,
@@ -1598,8 +1625,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DMESH *,
                                                         G3DFACE *, 
                                                         G3DRTTRIANGLE *,
                                                         G3DRTQUAD *,
-                                /*** get vertices  ***/ G3DRTEDGE  *,
+                                   /*** get edges  ***/ G3DRTEDGE  *,
                                 /*** get vertices  ***/ G3DRTVERTEX  *,
+                                                        G3DVERTEX **,
+                                                        G3DEDGE   **,
+                                                        G3DFACE   **,
                                                         LIST *,
                                                         uint32_t (*)[0x04],
                                                         uint32_t (*)[0x04],
@@ -1965,6 +1995,7 @@ void       g3dmesh_unselectEdge ( G3DMESH *, G3DEDGE * );
 void       g3dmesh_assignFaceUVSets ( G3DMESH *, G3DFACE * );
 uint64_t   g3dmesh_evalSubdivisionBuffer ( G3DMESH *, uint32_t, uint32_t );
 void       g3dmesh_renumberFaces ( G3DMESH * );
+void       g3dmesh_renumberEdges ( G3DMESH * );
 void       g3dmesh_setSyncSubdivision   ( G3DMESH * );
 void       g3dmesh_unsetSyncSubdivision ( G3DMESH * );
 void       g3dmesh_invertFaceSelection   ( G3DMESH *, uint32_t );
@@ -1982,6 +2013,9 @@ G3DMESH   *g3dmesh_splitSelectedFaces ( G3DMESH *, uint32_t,
 void       g3dmesh_invertEdgeSelection ( G3DMESH *, uint32_t );
 void       g3dmesh_triangulate ( G3DMESH *, LIST **, LIST **, int );
 void       g3dmesh_updateFaceIndex ( G3DMESH * );
+G3DMESH   *g3dmesh_commitSubdivision ( G3DMESH  *, uint32_t,
+                                                   unsigned char *,
+                                                   uint32_t );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2186,4 +2220,26 @@ void    *g3dlookup_get     ( G3DLOOKUP *, void * );
 void     g3dlookup_reset   ( G3DLOOKUP * );
 void     g3dlookup_realloc ( G3DLOOKUP *, uint32_t );
 uint32_t g3dlookup_getSize ( G3DLOOKUP * );
+
+/******************************************************************************/
+G3DSUBDIVIDER *g3dsubdivider_new        ( uint32_t, char *, uint32_t );
+void           g3dsubdivider_init       ( G3DSUBDIVIDER *, uint32_t, 
+                                                           char *,
+                                                           uint32_t );
+void           g3dsubdivider_deactivate ( G3DSUBDIVIDER *, uint32_t );
+void           g3dsubdivider_activate   ( G3DSUBDIVIDER *, uint32_t );
+G3DSUBDIVIDER *g3dsubdivider_copy       ( G3DSUBDIVIDER *, uint32_t );
+
+/******************************************************************************/
+void g3dprocedural_init ( G3DPROCEDURAL *,
+                          uint32_t       ,
+                          void         (*)( G3DPROCEDURAL *, 
+                                            double, 
+                                            double, 
+                                            double, 
+                                            G3DRGBA * ) );
+void g3dprocedural_fill ( G3DPROCEDURAL *, uint32_t,
+                                           uint32_t,
+                                           uint32_t );
+
 #endif
