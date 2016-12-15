@@ -166,9 +166,9 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     g3dvertex_copyPositionFromList ( lver, &oldpos );
 
 
-                    if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
+                    /*if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
                         lsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }
+                    }*/
                 }
 
                 g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
@@ -223,6 +223,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 } else {
                     if ( obj->type & MESH ) {
                         LIST *ltmp = lver;
+                        G3DVERTEX **vertices = list_to_array ( lver );
 
                         while ( ltmp ) {
                             G3DVERTEX *ver = ltmp->data;
@@ -250,6 +251,12 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                             ltmp = ltmp->next;
                         }
+
+                        g3dmesh_updateModifiers ( obj, vertices, 
+                                                       list_count ( lver ), 
+                                                       flags );
+
+                        free ( vertices );
 
                         if ( obj->type == G3DFFDTYPE ) {
                             G3DFFD  *ffd = ( G3DFFD * ) obj;

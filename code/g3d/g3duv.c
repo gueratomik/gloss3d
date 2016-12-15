@@ -249,7 +249,7 @@ void g3duvmap_applyProjection ( G3DUVMAP *map ) {
 }
 
 /******************************************************************************/
-void g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
+uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
     if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return;
@@ -290,6 +290,8 @@ void g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) 
     }
 
     glPopAttrib ( );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -304,15 +306,24 @@ void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t policy,
                                                 uint32_t projection ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-    g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, g3duvmap_draw,
-                                                       g3duvmap_free );
-
-    map->projection = projection;
-    map->policy     = policy;
+    g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, DRAWBEFORECHILDREN,
+                                                       g3duvmap_draw,
+                                                       g3duvmap_free,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL );
 
     objmap->transform = g3duvmap_transform;
 
     /*obj->copy = g3dprimitive_copy;*/
+
+    map->projection = projection;
+    map->policy     = policy;
 }
 
 /******************************************************************************/

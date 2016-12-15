@@ -148,9 +148,9 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     ledg = g3dface_getEdgesFromList    ( lfac );
                     lvtx = g3dface_getVerticesFromList ( lfac );
 
-                    if ( mes->subdiv && (objmes->flags & BUFFEREDSUBDIVISION) ) {
+                    /*if ( mes->subdiv && (objmes->flags & BUFFEREDSUBDIVISION) ) {
                         lsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }
+                    }*/
 
                     /*** for the undo/redo manager ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos );

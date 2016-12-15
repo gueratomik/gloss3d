@@ -27,43 +27,94 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dui.h>
 
 /******************************************************************************/
-void g3dsubedge_position ( G3DSUBEDGE *subedg ) {
-    subedg->edg.pos.x = ( subedg->edg.ver[0x00]->pos.x + 
-                          subedg->edg.ver[0x01]->pos.x ) * 0.5;
+void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    subedg->edg.pos.y = ( subedg->edg.ver[0x00]->pos.y + 
-                          subedg->edg.ver[0x01]->pos.y ) * 0.5;
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
-    subedg->edg.pos.z = ( subedg->edg.ver[0x00]->pos.z + 
-                          subedg->edg.ver[0x01]->pos.z ) * 0.5;
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        if ( obj->flags & SYNCSUBDIVISION ) {
+            g3dsubdivider_unsetSyncSubdivision ( sdr );
+        } else {
+            g3dsubdivider_setSyncSubdivision   ( sdr );
+        }
+    }
 }
 
 /******************************************************************************/
-void g3dsubedge_init ( G3DSUBEDGE *subedg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
-    subedg->edg.ver[0x00] = v0;
-    subedg->edg.ver[0x01] = v1;
+void common_g3duisubdivideredit_useIsoLinesCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    /*** add this edge to the vertex list of edges ***/
-    g3dsubvertex_addEdge ( v0, subedg );
-    g3dsubvertex_addEdge ( v1, subedg );
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        g3dui_setHourGlass ( gui );
+
+        if ( obj->flags & MESHUSEISOLINES ) {
+            obj->flags &= (~MESHUSEISOLINES);
+        } else {
+            obj->flags |= MESHUSEISOLINES;
+        }
+
+        g3dui_unsetHourGlass ( gui );
+
+        g3dui_redrawGLViews ( gui );
+    }
 }
 
 /******************************************************************************/
-void g3dsubedge_addFace ( G3DSUBEDGE *subedg, G3DFACE *fac ) {
-    LIST *nextlfac = subedg->edg.lfac;
+void common_g3duisubdivideredit_subdivRenderCbk ( G3DUI *gui, int level ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    if ( subedg->edg.flags & EDGEMALLOCFACES ) {
-        g3dedge_addFace ( ( G3DEDGE * ) subedg, fac );
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
-        return;
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        g3dui_setHourGlass ( gui );
+
+        sdr->subdiv_render = level;
+
+        g3dui_unsetHourGlass ( gui );
     }
 
-    subedg->edg.lfac       = &subedg->lfacbuf[subedg->edg.nbfac];
-    subedg->edg.lfac->next = nextlfac;
-    subedg->edg.lfac->data = fac;
+    g3dui_redrawGLViews ( gui );
+}
 
-    subedg->edg.nbfac++;
+
+/******************************************************************************/
+void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        g3dui_setHourGlass ( gui );
+
+        sdr->subdiv_preview = level;
+
+        g3dmodifier_modify_r ( sdr, gui->flags );
+
+        g3dui_unsetHourGlass ( gui );
+        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->flags );*/
+    }
+
+    g3dui_redrawGLViews ( gui );
 }

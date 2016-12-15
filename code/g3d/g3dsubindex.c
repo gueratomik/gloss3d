@@ -97,8 +97,8 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
                                             subindexes->qua,
                                             NULL,
                                             subdiv_level,
-                                            SUBDIVISIONPREVIEW,
-                                            BUILDSUBINDEX );
+                                            SUBDIVISIONINDEX,
+                                            0x00 );
 }
 
 /******************************************************************************/
@@ -161,8 +161,8 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
                                             NULL,
                                             subindexes->tri,
                                             subdiv_level,
-                                            SUBDIVISIONPREVIEW,
-                                            BUILDSUBINDEX );
+                                            SUBDIVISIONINDEX,
+                                            0x00 );
 }
 
 /******************************************************************************/

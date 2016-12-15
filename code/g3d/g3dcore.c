@@ -381,7 +381,7 @@ void g3dcore_keepVisibleVerticesOnly ( LIST **lselver, LIST *lfac,
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        g3dface_drawSimple ( fac, subdiv, object_flags, engine_flags );
+        g3dface_drawSimple ( fac, object_flags, engine_flags );
 
 
         ltmpfac = ltmpfac->next;
@@ -467,7 +467,7 @@ void g3dcore_keepVisibleEdgesOnly ( LIST **lseledg, LIST *lfac,
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        g3dface_drawSimple ( fac, subdiv, object_flags, engine_flags );
+        g3dface_drawSimple ( fac, object_flags, engine_flags );
 
 
         ltmpfac = ltmpfac->next;
@@ -481,7 +481,7 @@ void g3dcore_keepVisibleEdgesOnly ( LIST **lseledg, LIST *lfac,
         /*** draw vertex ***/
         glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-        g3dedge_drawSimple ( edg, subdiv, object_flags, engine_flags );
+        g3dedge_drawSimple ( edg, object_flags, engine_flags );
 
         /*** test the selection rectangle center lies in the face ***/
         glReadPixels ( moux, mouy,
@@ -525,7 +525,7 @@ void g3dcore_keepVisibleEdgesOnly ( LIST **lseledg, LIST *lfac,
         /*** erase face ***/
         glColor3ub ( 0x00, 0x00, 0x00 );
 
-        g3dedge_drawSimple ( edg, subdiv, object_flags, engine_flags );
+        g3dedge_drawSimple ( edg, object_flags, engine_flags );
 
 
         ltmpsel = ltmpsel->next;
@@ -573,7 +573,7 @@ void g3dcore_keepVisibleFacesOnly ( LIST **lselfac, LIST *lfac,
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        g3dface_drawSimple ( fac, subdiv, object_flags, engine_flags );
+        g3dface_drawSimple ( fac, object_flags, engine_flags );
 
 
         ltmpfac = ltmpfac->next;
@@ -587,7 +587,7 @@ void g3dcore_keepVisibleFacesOnly ( LIST **lselfac, LIST *lfac,
         /*** draw vertex ***/
         glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-        g3dface_drawSimple ( fac, subdiv, object_flags, engine_flags );
+        g3dface_drawSimple ( fac, object_flags, engine_flags );
 
         /*** test the selection rectangle center lies in the face ***/
         glReadPixels ( moux, mouy,
@@ -628,7 +628,7 @@ void g3dcore_keepVisibleFacesOnly ( LIST **lselfac, LIST *lfac,
         /*** erase face ***/
         glColor3ub ( 0x00, 0x00, 0x00 );
 
-        g3dface_drawSimple ( fac, subdiv, object_flags, engine_flags );
+        g3dface_drawSimple ( fac, object_flags, engine_flags );
 
         ltmpsel = ltmpsel->next;
     }

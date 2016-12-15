@@ -326,6 +326,20 @@ void g3dui_addSymmetryCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addWireframeCbk ( gui );
+}
+
+/******************************************************************************/
+void g3dui_commitModifierCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_commitModifierCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_addSubdividerCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -433,7 +447,8 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDSUBDIVIDER  , width, G_CALLBACK(g3dui_addSubdividerCbk)     );
+    g3dui_addMenuButton       ( menu, gui, MENU_ADDWIREFRAME   , width, G_CALLBACK(g3dui_addWireframeCbk)    );
+    g3dui_addMenuButton       ( menu, gui, MENU_ADDSUBDIVIDER  , width, G_CALLBACK(g3dui_addSubdividerCbk)   );
     g3dui_addMenuButton       ( menu, gui, MENU_ADDSYMMETRY    , width, G_CALLBACK(g3dui_addSymmetryCbk)     );
     g3dui_addMenuButton       ( menu, gui, MENU_CONVERTSYMMETRY, width, G_CALLBACK(g3dui_convertSymmetryCbk) );
 
@@ -448,6 +463,8 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton       ( menu, gui, MENU_ADDBONE  , width, G_CALLBACK(g3dui_addBoneCbk)      );
     createFixBoneMenu   ( menu, gui, MENU_FIXBONE  , width );
     createResetBoneMenu ( menu, gui, MENU_RESETBONE, width );
+
+    g3dui_addMenuButton       ( menu, gui, MENU_COMMITMODIFIER , width, G_CALLBACK(g3dui_commitModifierCbk)  );
 
 /*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
 */

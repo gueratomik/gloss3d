@@ -322,14 +322,11 @@ typedef struct _R3DBBOX {
 
 /******************************************************************************/
 typedef struct _R3DFACE {
-    R3DVERTEX *ver[0x03]; /*** our face is a triangle              ***/
-    R3DVECTOR  nor;       /*** face normal position in world coord ***/
-    G3DFACE   *fac;       /*** original face ***/
-    float xmin, ymin, zmin,/*** That's quite a lot of memory ***/
-          xmax, ymax, zmax;
+    R3DVERTEX *ver[0x03];    /*** our face is a triangle              ***/
+    R3DVECTOR  nor;          /*** face normal in world coord ***/
+    G3DFACE   *ancestorFace; /*** original face ***/
     double     d;
     double     surface;
-    double     epsilon;   /*** epsilon varies depending on the surface size ***/
 } R3DFACE;
 
 /******************************************************************************/

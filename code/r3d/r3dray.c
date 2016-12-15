@@ -37,14 +37,14 @@
 void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
                                            R3DRGBA *rgba,
                                            LIST    *ltex ) {
-    LIST *ltmpuvs = rfc->fac->luvs;
+    LIST *ltmpuvs = rfc->ancestorFace->luvs;
     uint32_t i;
 
     if ( ltmpuvs == NULL ) rgba->r = rgba->g = rgba->b = MESHCOLORUB;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-        G3DRTUV *rtuvmem = rfc->fac->rtuvmem;
+        G3DRTUV *rtuvmem = rfc->ancestorFace->rtuvmem;
         float avgu =       ( ( rtuvmem[rfc->ver[0x00]->id].u * ray->ratio[0x00] ) +
                              ( rtuvmem[rfc->ver[0x01]->id].u * ray->ratio[0x01] ) +
                              ( rtuvmem[rfc->ver[0x02]->id].u * ray->ratio[0x02] ) ),
@@ -547,7 +547,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                     while ( ltmptex ) {
                         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
                         G3DMATERIAL *mat = tex->mat;
-                        LIST *ltmpuvs = hitrfc->fac->luvs;
+                        LIST *ltmpuvs = hitrfc->ancestorFace->luvs;
 
                         while ( ltmpuvs ) {
                             G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -595,7 +595,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                     while ( ltmptex ) {
                         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
                         G3DMATERIAL *mat = tex->mat;
-                        LIST *ltmpuvs = hitrfc->fac->luvs;
+                        LIST *ltmpuvs = hitrfc->ancestorFace->luvs;
 
                         while ( ltmpuvs ) {
                             G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;

@@ -30,6 +30,40 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void vertex_elevate ( G3DVERTEX *ver ) {
+    G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
+    LIST *ltmpfac = ver->lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        if ( fac->heightmap ) {
+            uint32_t i;
+
+            for ( i = 0x00; i < fac->nbver; i++ ) {
+                if ( fac->ver[i] == ver ) {
+                    uint32_t verID = i;
+
+                    if ( fac->heightmap->heights[verID].flags & HEIGHTSET ) {
+                        pos.x  += ( ver->nor.x * fac->heightmap->heights[verID].elevation );
+                        pos.y  += ( ver->nor.y * fac->heightmap->heights[verID].elevation );
+                        pos.z  += ( ver->nor.z * fac->heightmap->heights[verID].elevation );
+                    }
+                }
+            }
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    if ( ver->nbfac ) {
+        ver->pos.x += ( pos.x / ver->nbfac );
+        ver->pos.y += ( pos.y / ver->nbfac );
+        ver->pos.z += ( pos.z / ver->nbfac );
+    }
+}
+
+/******************************************************************************/
 void g3dvertex_addExtension ( G3DVERTEX *ver, G3DEXTENSION *extension ) {
     extension->next = ver->extension;
     ver->extension = extension;
@@ -661,7 +695,7 @@ uint32_t g3dvertex_setOuterEdges ( G3DVERTEX *vercmp, G3DSUBVERTEX  *newver,
             /*********************************************************/
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
-            if ( edg->nbuvs > SUBVERTEXUVBUFFER ) {
+            if ( edg->nbuvs > SUBVERTEXMAXUV ) {
                 edg->subver->flags |= VERTEXMALLOCUVS;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;

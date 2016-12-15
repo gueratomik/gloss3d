@@ -119,7 +119,7 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
     R3DOBJECT *rob = ( R3DOBJECT * ) rms;
     G3DOBJECT *obj = rob->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
-    uint32_t maxnbrfac = 0x40 * ( mes->subdiv_render + 0x01 );
+    uint32_t maxnbrfac = 0x40 * ( /*mes->subdiv_render*/0x00 + 0x01 );
     float xmin, ymin, zmin, xmax, ymax, zmax;
 
     r3dface_getMinMaxFromArray ( &xmin, &ymin, &zmin,
@@ -159,8 +159,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
     LIST *ltmpver = mes->lver;
     uint32_t n = 0x00, i;
     R3DFACE **rfcarray;
-    float    cosang = cos ( mes->advang * M_PI / 180 );
-    uint32_t subdiv = mes->subdiv_render;
+    uint32_t subdiv = /*mes->subdiv_render*/0x00;
     G3DSYSINFO *sif = g3dsysinfo_get ( );
     G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
     uint32_t triFaces = 1, triEdges = 3, triVertices = 3;
@@ -252,7 +251,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                                   fac,
                                                   rttrimem,
                                                   rtquamem,
-                                                  rtedgmem,
+                                                  NULL,
                                                   rtvermem,
                                                   NULL,
                                                   NULL,
@@ -261,7 +260,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                                   qua_indexes,
                                                   tri_indexes,
                                                   subdiv,
-                                                  SUBDIVISIONPREVIEW,
+                                                  SUBDIVISIONCOMPUTE,
                                                   engine_flags );
 
         for ( i = 0x00; i < nbrtver; i++ ) {
@@ -280,7 +279,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
             G3DDOUBLEVECTOR rfacpos;
             float length;
 
-            rfac->fac = fac;
+            rfac->ancestorFace = fac;
             rfac->ver[0x00] = &rver[rttrimem[i].rtver[0]+ver_offset];
             rfac->ver[0x01] = &rver[rttrimem[i].rtver[1]+ver_offset];
             rfac->ver[0x02] = &rver[rttrimem[i].rtver[2]+ver_offset];
@@ -291,15 +290,11 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
             r3dface_normal ( rfac, &length );
 
             rfac->surface = length;
-            rfac->epsilon = 0.00001f;
             /*** d is a part of a Mathematical Face Equation.  ***/
             /*** Useful for detecting face / line intersection ***/
             rfac->d = - ( ( rfac->nor.x * rfacpos.x ) + 
                           ( rfac->nor.y * rfacpos.y ) + 
                           ( rfac->nor.z * rfacpos.z ) );
-
-            r3dface_getMinMax ( rfac, &rfac->xmin, &rfac->ymin, &rfac->zmin, 
-                                      &rfac->xmax, &rfac->ymax, &rfac->zmax );
 
             rfcarray[n++] = rfac;
 
@@ -318,7 +313,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                 G3DDOUBLEVECTOR rfacpos;
                 float length;
 
-                rfac->fac = fac;
+                rfac->ancestorFace = fac;
                 rfac->ver[0x00] = &rver[rtquamem[i].rtver[idx[j][0]]+ver_offset];
                 rfac->ver[0x01] = &rver[rtquamem[i].rtver[idx[j][1]]+ver_offset];
                 rfac->ver[0x02] = &rver[rtquamem[i].rtver[idx[j][2]]+ver_offset];
@@ -329,15 +324,11 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                 r3dface_normal ( rfac, &length );
 
                 rfac->surface = length;
-                rfac->epsilon = 0.00001f;
                 /*** d is a part of a Mathematical Face Equation.  ***/
                 /*** Useful for detecting face / line intersection ***/
                 rfac->d = - ( ( rfac->nor.x * rfacpos.x ) + 
                               ( rfac->nor.y * rfacpos.y ) + 
                               ( rfac->nor.z * rfacpos.z ) );
-
-                r3dface_getMinMax ( rfac, &rfac->xmin, &rfac->ymin, &rfac->zmin, 
-                                          &rfac->xmax, &rfac->ymax, &rfac->zmax );
 
                 rfcarray[n++] = rfac;
 

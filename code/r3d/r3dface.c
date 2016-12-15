@@ -166,13 +166,12 @@ int r3dface_pointIn ( R3DFACE *rfc, R3DDOUBLEPOINT *pnt, float *RAT0,
     LEN2 = g3ddoublevector_length ( &DOT2 );
 
     if ( LENF ) {
-        if ( ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF + rfc->epsilon ) ) ) {
     /*** The test below FAILS when dealing with mirrored faces. Of course,  ***/
     /*** because we dont recompute the face normal vector but we recompute  ***/
     /*** test subtriangle normal vectors. They are not in the same direction***/
-        /*if ( ( g3ddoublevector_scalar ( &DOT0, &rfcnor ) >= -rfc->epsilon ) && 
-             ( g3ddoublevector_scalar ( &DOT1, &rfcnor ) >= -rfc->epsilon ) && 
-             ( g3ddoublevector_scalar ( &DOT2, &rfcnor ) >= -rfc->epsilon ) ) {*/
+        if ( ( g3ddoublevector_scalar ( &DOT0, &rfcnor ) >= 0.0f ) && 
+             ( g3ddoublevector_scalar ( &DOT1, &rfcnor ) >= 0.0f ) && 
+             ( g3ddoublevector_scalar ( &DOT2, &rfcnor ) >= 0.0f ) ) {
         /*** return subtriangles surface ratio if needed ***/
             if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
             if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );
@@ -187,20 +186,25 @@ int r3dface_pointIn ( R3DFACE *rfc, R3DDOUBLEPOINT *pnt, float *RAT0,
 
 /******************************************************************************/
 uint32_t r3dface_inRenderOctree ( R3DFACE *rfc, R3DOCTREE *rot ) {
-    if ( rfc->xmin > rot->xmax ) return 0x00;
-    if ( rfc->ymin > rot->ymax ) return 0x00;
-    if ( rfc->zmin > rot->zmax ) return 0x00;
+    float xmin, ymin, zmin, xmax, ymax, zmax;
 
-    if ( rfc->xmax < rot->xmin ) return 0x00;
-    if ( rfc->ymax < rot->ymin ) return 0x00;
-    if ( rfc->zmax < rot->zmin ) return 0x00;
+    r3dface_getMinMax ( rfc, &xmin, &ymin, &zmin, 
+                             &xmax, &ymax, &zmax );
 
-    if ( ( rfc->xmin >= rot->xmin ) &&
-         ( rfc->ymin >= rot->ymin ) &&
-         ( rfc->zmin >= rot->zmin ) &&
-         ( rfc->xmax <= rot->xmax ) &&
-         ( rfc->ymax <= rot->ymax ) &&
-         ( rfc->zmax <= rot->zmax ) ) {
+    if ( xmin > rot->xmax ) return 0x00;
+    if ( ymin > rot->ymax ) return 0x00;
+    if ( zmin > rot->zmax ) return 0x00;
+
+    if ( xmax < rot->xmin ) return 0x00;
+    if ( ymax < rot->ymin ) return 0x00;
+    if ( zmax < rot->zmin ) return 0x00;
+
+    if ( ( xmin >= rot->xmin ) &&
+         ( ymin >= rot->ymin ) &&
+         ( zmin >= rot->zmin ) &&
+         ( xmax <= rot->xmax ) &&
+         ( ymax <= rot->ymax ) &&
+         ( zmax <= rot->zmax ) ) {
 
         return 0x02; /*** the polygon is entirely in the octree ***/
     }

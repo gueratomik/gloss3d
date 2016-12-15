@@ -200,31 +200,6 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
                 ltmp = ltmp->next;
             }
 
-            /*** We have to rebuild the mesh in case we use isolines ***/
-            /*** in order to get the right color for iso vertices ***/
-            if ( g3dmesh_isSubdivided ( mes, flags ) && 
-                 g3dmesh_isBuffered   ( mes, flags ) ) {
-                LIST *loldselfac = g3dvertex_getFacesFromList ( loldselver );
-                LIST *lnewselfac = g3dvertex_getFacesFromList ( lnewselver );
-
-                /*** clear only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      loldselfac,
-                                      COMPUTESUBDIVISION, flags );
-
-                /*** draw only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      lnewselfac,
-                                      COMPUTESUBDIVISION, flags );
-
-                list_free ( &loldselfac, NULL );
-                list_free ( &lnewselfac, NULL );
-            }
-
             list_free ( &loldselver, NULL );
             list_free ( &lnewselver, NULL );
         }
@@ -247,26 +222,6 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
                 }
 
                 ltmpfac = ltmpfac->next;
-            }
-
-            /*** We have to rebuild the mesh in case we use isolines ***/
-            /*** in order to get the right color for iso vertices ***/
-            if ( g3dmesh_isSubdivided ( mes, flags ) && 
-                 g3dmesh_isBuffered   ( mes, flags ) ) {
-
-                /*** clear only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      loldselfac,
-                                      COMPUTESUBDIVISION, flags );
-
-                /*** draw only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      lnewselfac,
-                                      COMPUTESUBDIVISION, flags );
             }
 
             list_free ( &loldselfac, NULL );
@@ -293,31 +248,6 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
                 }
 
                 ltmpedg = ltmpedg->next;
-            }
-
-            /*** We have to rebuild the mesh in case we use isolines ***/
-            /*** in order to get the right color for iso vertices ***/
-            if ( g3dmesh_isSubdivided ( mes, flags ) && 
-                 g3dmesh_isBuffered   ( mes, flags ) ) {
-                LIST *loldselfac = g3dedge_getFacesFromList ( loldseledg );
-                LIST *lnewselfac = g3dedge_getFacesFromList ( lnewseledg );
-
-                /*** clear only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      loldselfac,
-                                      COMPUTESUBDIVISION, flags );
-
-                /*** draw only where needed ***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      lnewselfac,
-                                      COMPUTESUBDIVISION, flags );
-
-                list_free ( &loldselfac, NULL );
-                list_free ( &lnewselfac, NULL );
             }
 
             list_free ( &loldseledg, NULL );

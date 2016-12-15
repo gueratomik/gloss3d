@@ -72,10 +72,10 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
     }
 
     if ( pob->picked == ACTIVERECTHIT ) {
-        if ( obj->flags & OBJECTINACTIVE ) {
-            obj->flags &= (~OBJECTINACTIVE);
+        if ( g3dobject_isActive ( obj ) == 0x00 ) {
+            g3dobject_activate ( obj, engine_flags );
         } else {
-            obj->flags |=  (OBJECTINACTIVE);
+            g3dobject_deactivate ( obj, engine_flags );
         }
     }
 

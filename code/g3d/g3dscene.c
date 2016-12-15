@@ -326,25 +326,6 @@ void g3dscene_unselectObject ( G3DSCENE *sce, G3DOBJECT *obj, uint32_t flags ) {
     g3dobject_unsetSelected ( obj ); /*** unset SELECTION flags ***/
 
     list_remove ( &sce->lsel, obj );
-
-    /*** if it is a buffered subdivided mesh, we have to rebuild it ***/
-    /*** because in skin mode the object would be red and keep its red ***/
-    /*** color even if we pick another object ***/
-    if ( obj->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-        uint32_t nopaintflags = flags & (~VIEWSKIN);
-
-        /*** Rebuild the subdivided mesh ***/
-        if ( ( obj->flags & BUFFEREDSUBDIVISION ) && mes->subdiv ) {
-            /*** Rebuild mesh ***/
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  NULL,
-                                  REALLOCSUBDIVISION  |
-                                  COMPUTESUBDIVISION, nopaintflags );
-        }
-    }
 }
 
 /******************************************************************************/
@@ -379,7 +360,7 @@ void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     G3DSCENE *sce = ( G3DSCENE * ) obj;
     LIST *ltmp = sce->lsel;
 
@@ -459,6 +440,7 @@ void g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
 
     /*if ( ( flags & SELECTMODE ) == 0x00 ) g3dcursor_draw ( &sce->csr, flags );*/
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -533,8 +515,17 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DSCENETYPE, id, name, /*g3dscene_draw*/NULL,
-                                                  g3dscene_free );
+    g3dobject_init ( obj, G3DSCENETYPE, id, name, DRAWAFTERCHILDREN,
+                                                  g3dscene_draw,
+                                                  g3dscene_free,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL );
 
     g3dcursor_init ( &sce->csr );
 

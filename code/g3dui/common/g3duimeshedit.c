@@ -30,85 +30,6 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duimeshedit_subdivSyncCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        if ( obj->flags & SYNCSUBDIVISION ) {
-            g3dmesh_unsetSyncSubdivision ( mes );
-        } else {
-            g3dmesh_setSyncSubdivision   ( mes );
-        }
-    }
-}
-
-/******************************************************************************/
-void common_g3duimeshedit_setAdaptiveAngleCbk ( G3DUI *gui, float angle ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        mes->advang = angle;
-
-        g3dui_setHourGlass ( gui );
-
-        /*** rebuild using adaptive subdivision (or not) ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              COMPUTESUBDIVISION, gui->flags );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duimeshedit_useAdaptiveCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        if ( obj->flags & MESHUSEADAPTIVE ) {
-            obj->flags &= (~MESHUSEADAPTIVE);
-        } else {
-            obj->flags |= MESHUSEADAPTIVE;
-        }
-
-        g3dui_setHourGlass ( gui );
-
-        /*** rebuild using adaptive subdivision (or not) ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              COMPUTESUBDIVISION, gui->flags );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
 void common_g3duimeshedit_useIsoLinesCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -154,7 +75,7 @@ void common_g3duimeshedit_subdivRenderCbk ( G3DUI *gui, int level ) {
 
         g3dui_setHourGlass ( gui );
 
-        mes->subdiv_render = level;
+        /*mes->subdiv_render = level;*/
 
 
         g3dui_unsetHourGlass ( gui );
@@ -177,7 +98,7 @@ void common_g3duimeshedit_subdivLevelCbk ( G3DUI *gui, int level ) {
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3dmesh_setSubdivisionLevel ( mes, level, gui->flags );
+        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->flags );*/
     }
 
     g3dui_unsetHourGlass ( gui );

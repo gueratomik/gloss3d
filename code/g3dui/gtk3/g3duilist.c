@@ -52,6 +52,7 @@
 #include <xpm/enaico.xpm>
 #include <xpm/disico.xpm>
 #include <xpm/subico.xpm>
+#include <xpm/wirico.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -308,7 +309,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
                      *defico, *symico, *cubico,
                      *sphico, *torico, *conico,
                      *plnico, *ffdico, *cylico,
-                     *camico, *scnico, *mapico, *objico, *subico;
+                     *camico, *scnico, *mapico, *objico, *subico, *wirico;
 
     /*********************** Inited once and for all **************************/
     if ( bonico == NULL ) bonico = gdk_pixbuf_new_from_xpm_data ( bonico_xpm );
@@ -327,6 +328,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
     if ( scnico == NULL ) scnico = gdk_pixbuf_new_from_xpm_data ( scnico_xpm );
     if ( mapico == NULL ) mapico = gdk_pixbuf_new_from_xpm_data ( mapico_xpm );
     if ( subico == NULL ) subico = gdk_pixbuf_new_from_xpm_data ( subico_xpm );
+    if ( wirico == NULL ) wirico = gdk_pixbuf_new_from_xpm_data ( wirico_xpm );
    /***************************************************************************/
 
     switch ( obj->type ) {
@@ -345,6 +347,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
         case G3DCAMERATYPE     : objico = camico; break;
         case G3DSCENETYPE      : objico = scnico; break;
         case G3DUVMAPTYPE      : objico = mapico; break;
+        case G3DWIREFRAMETYPE  : objico = wirico; break;
         default                : objico = defico; break;
     }
 
@@ -597,8 +600,8 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                            ( G3DOBJECT * ) dst,
                                            ( G3DOBJECT * ) obj );
 
-                    if ( ( dst->type & G3DSYMMETRYTYPE ) &&
-                         ( obj->type & G3DMESHTYPE ) ) {
+                    if ( ( dst->type == G3DSYMMETRYTYPE ) &&
+                         ( obj->type == G3DMESHTYPE ) ) {
                         g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
 
                         g3dmesh_update ( ( G3DMESH * ) obj, NULL,

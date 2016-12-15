@@ -307,8 +307,6 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
 
     g3dobject_draw ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
 
-    g3dscene_draw  ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
-
     /*** draw the mouse tool only in the current workspace window ***/
     if ( current ) {
         if ( mou && mou->draw ) {

@@ -30,7 +30,7 @@
 #include <g3d.h>
 
 /******************************************************************************/
-int fact ( int n ) {
+static int fact ( int n ) {
     if ( n > 0x01 )
         return n * fact ( n - 0x01 );
     else
@@ -39,7 +39,8 @@ int fact ( int n ) {
     /*return exp ( lgamma ( n + 1.0 ) ) ;*/
 }
 
-double binomialcoeff ( int n, int k ) {
+/******************************************************************************/
+static double binomialcoeff ( int n, int k ) {
     int div = fact ( k ) * fact ( n - k );
 
     if ( div == 0x00 ) return 0.0f;
@@ -288,8 +289,8 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
                     ( nby + 0x01 ) *
                     ( nbz + 0x01 ) * structsize;
 
-    list_free ( &((G3DMESH*)ffd)->lver, NULL );
-    ((G3DMESH*)ffd)->nbver = 0x00;
+    /*list_free ( &((G3DMESH*)ffd)->lver, NULL );
+    ((G3DMESH*)ffd)->nbver = 0x00;*/
 
     ffd->pnt = ( G3DVERTEX * ) realloc ( ffd->pnt, size );
 
@@ -339,18 +340,20 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
                 pnt->pos.y = yloc;
                 pnt->pos.z = zloc;
 
-                g3dmesh_addVertex ( ( G3DMESH * ) ffd, pnt );
+                /*g3dmesh_addVertex ( ( G3DMESH * ) ffd, pnt );*/
             }
         }
     }
 }
 
 /******************************************************************************/
-void g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
+uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
-    uint32_t nbpnt = ((G3DMESH*)ffd)->nbver;
     uint32_t i, j, k;
     uint32_t n = 0x00;
+    uint32_t nbpnt = ( ffd->nbx + 0x01 ) *
+                     ( ffd->nby + 0x01 ) *
+                     ( ffd->nbz + 0x01 );
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
@@ -421,6 +424,8 @@ void g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     }
 
     glPopAttrib ( );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -440,8 +445,17 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DFFDTYPE, id, name, g3dffd_draw,
-                                                g3dffd_free );
+    g3dobject_init ( obj, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN,
+                                                g3dffd_draw,
+                                                g3dffd_free,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL );
 
     obj->flags |= OBJECTNOSYMMETRY;
 

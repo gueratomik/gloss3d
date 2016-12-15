@@ -255,17 +255,7 @@
 
 /**** Widget names for MeshEdit TextField widget ***/
 #define EDITMESH            "Mesh"
-#define EDITMESHSUBDIVISION "Subdivision"
 #define EDITMESHWEIGHTGROUP "Weight Groups"
-#define EDITMESHSUBDIVMODE  "Buffered Subdivision (Faster)"
-#define EDITMESHSUBDIVVLAB  "Editing level"
-#define EDITMESHSUBDIVVIEW  "Subdivision (view)"
-#define EDITMESHSUBDIVSYNC  "Sync"
-#define EDITMESHSUBDIVRLAB  "Render level"
-#define EDITMESHSUBDIVREND  "Subdivision (render)"
-#define EDITMESHADAPTIVE    "Adaptive mode (Experimental)"
-#define EDITMESHADVANGLE    "Limit Angle"
-#define EDITMESHISOLINES    "Use isoparms (Slower)"
 
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
@@ -334,6 +324,11 @@
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
 
+#define EDITSUBDIVIDER         "Subdivider"
+#define EDITSUBDIVIDERPREVIEW  "Subdivision (preview)"
+#define EDITSUBDIVIDERSYNC     "Sync"
+#define EDITSUBDIVIDERRENDER   "Subdivision (render)"
+#define EDITMESHISOLINES       "Use isoparms (Slower)"
 
 #define EDITSCULPTTOOLVISIBLE  "Only visible"
 #define EDITSCULPTTOOLPRESSURE "Pressure"
@@ -387,8 +382,10 @@
 #define MENU_ADDCAMERA            "Add Camera"
 #define MENU_ADDEMPTYMESH         "Add Empty Mesh"
 
+#define MENU_COMMITMODIFIER       "Commit up to modifier"
 #define MENU_ADDBONE              "Add Bone"
 #define MENU_ADDSYMMETRY          "Add Symmetry"
+#define MENU_ADDWIREFRAME         "Add Wireframe"
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
 #define MENU_ADDFFDBOX            "Add FFD Box"
 #define MENU_ASSIGNFFD            "Assign FFD"

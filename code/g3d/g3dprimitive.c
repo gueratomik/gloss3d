@@ -66,7 +66,9 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
     /*** some trick to force the creation of a Mesh, not a Primitive. ***/
     obj->copy = g3dmesh_copy;
 
-    mes = ( G3DMESH * ) g3dobject_copy ( obj, 0x00, engine_flags );
+    mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
+                                              obj->name, 
+                                              engine_flags );
 
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, NULL,
@@ -93,7 +95,8 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dprimitive_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
+uint32_t g3dprimitive_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
+                                             uint32_t   engine_flags ) {
     /*** Primitive is not editable ***/
     engine_flags &= (~MODEMASK) | VIEWOBJECT;
 
@@ -110,6 +113,8 @@ void g3dprimitive_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
     glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, &whiteShininess );*/
 
     g3dmesh_draw ( obj, curcam, engine_flags );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -130,8 +135,17 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
     pri->data    = data;
     pri->datalen = datalen;
 
-    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, g3dprimitive_draw,
-                                                      g3dprimitive_free );
+    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN,
+                                                      g3dprimitive_draw,
+                                                      g3dprimitive_free,
+                                                      NULL,
+                                                      NULL,
+                                                      g3dprimitive_copy,
+                                                      NULL,
+                                                      NULL,
+                                                      NULL,
+                                                      NULL,
+                                                      NULL );
 
     obj->copy = g3dprimitive_copy;
 }

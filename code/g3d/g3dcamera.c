@@ -359,7 +359,7 @@ void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) obj;
     GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
                                 {  0.25, -0.5,  0.5 },
@@ -417,6 +417,8 @@ void g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     glEnd ( );
 
     glPopAttrib ( );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -458,8 +460,17 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DCAMERATYPE, id, name, g3dcamera_draw,
-                                                   g3dcamera_free );
+    g3dobject_init ( obj, G3DCAMERATYPE, id, name, DRAWBEFORECHILDREN,
+                                                   g3dcamera_draw,
+                                                   g3dcamera_free,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL );
 
     cam->focal = focal;
     cam->ratio = ratio;

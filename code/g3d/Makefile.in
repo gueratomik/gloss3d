@@ -76,7 +76,7 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dcore.lo g3dcube.lo g3dcursor.lo g3dcutface.lo \
 	g3dcylinder.lo g3dedge.lo g3dface.lo g3dffd.lo g3dheightmap.lo \
 	g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo g3dmaterial.lo \
-	g3dmesh.lo g3dobject.lo g3dpivot.lo g3dplane.lo \
+	g3dmesh.lo g3dmodifier.lo g3dobject.lo g3dpivot.lo g3dplane.lo \
 	g3dprimitive.lo g3dprocedural.lo g3dproceduralnoise.lo \
 	g3dquaternion.lo g3drgba.lo g3drttriangle.lo \
 	g3drttriangleuvw.lo g3drtvertex.lo g3dscene.lo g3dsphere.lo \
@@ -84,7 +84,7 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dsubedge.lo g3dsubface.lo g3dsubindex.lo g3dsubpattern.lo \
 	g3dsubvertex.lo g3dsymmetry.lo g3dsysinfo.lo g3dtexture.lo \
 	g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo g3dvertex.lo \
-	g3dweight.lo
+	g3dweight.lo g3dwireframe.lo
 am_libgloss_g3d_la_OBJECTS = $(am__objects_1)
 libgloss_g3d_la_OBJECTS = $(am_libgloss_g3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -268,6 +268,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
+                      g3dmodifier.c \
                       g3dobject.c \
                       g3dpivot.c \
                       g3dplane.c \
@@ -297,7 +298,8 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3duv.c \
                       g3dvector.c \
                       g3dvertex.c \
-                      g3dweight.c
+                      g3dweight.c \
+                      g3dwireframe.c
 
 all: all-am
 
@@ -392,6 +394,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dlookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmaterial.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmesh.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmodifier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dobject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dpivot.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dplane.Plo@am__quote@
@@ -422,6 +425,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dvector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dvertex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dweight.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dwireframe.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

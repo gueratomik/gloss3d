@@ -82,6 +82,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
                                       G3DCAMERA *cam,
                                       G3DVECTOR *dir,
                                       uint32_t engine_flags ) {
+#ifdef REFURSBISH
     int MX = st->coord[0x00] + ( ( st->coord[0x02] - st->coord[0x00] ) >> 0x01 ),
         MY = st->coord[0x01] + ( ( st->coord[0x03] - st->coord[0x01] ) >> 0x01 ),
         MW = ( st->coord[0x02] - st->coord[0x00] ), /*** width ***/
@@ -261,6 +262,7 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
 
     list_free ( &lextfac, NULL );
     list_free ( &lfac, NULL );
+#endif
 }
 
 /******************************************************************************/

@@ -778,65 +778,39 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
 
 
 /******************************************************************************/
-void g3dface_drawSimple  ( G3DFACE *fac, uint32_t subdiv,
-                                         uint32_t object_flags,
+void g3dface_drawSimple  ( G3DFACE *fac, uint32_t object_flags,
                                          uint32_t engine_flags ) {
     G3DVERTEX *v0 = fac->ver[0x00],
               *v1 = fac->ver[0x01],
               *v2 = fac->ver[0x02],
               *v3 = fac->ver[0x03];
 
-    if ( fac->flags & FACESUBDIVIDED ) {
-        if ( fac->rtquamem ) {
-            char *rtbuffer = ( char * ) fac->rtquamem;
-            uint32_t nbrtverperface = fac->nbrtfac * 0x04;
+    if ( fac->nbver == 0x03 ) {
+        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
+                  *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
+                  *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
 
-            glEnableClientState ( GL_VERTEX_ARRAY );
-            glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), rtbuffer + 28 );
-            /*glDrawArrays ( GL_QUADS, 0x00, nbrtverperface );*/
-            glDrawElements( GL_QUADS, fac->nbrtfac * 4, GL_UNSIGNED_INT, fac->rtquamem );
-            glDisableClientState ( GL_VERTEX_ARRAY );
-        } else {
+        glBegin ( GL_TRIANGLES );
 
-            /*fac->nbrtfac = g3dface_catmull_clark_draw ( NULL, fac, fac,
-                                                        subdiv, 
-                                                        0.0f,
-                                                        NULL, 
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL, NULL,
-                                                        object_flags,
-                                                        engine_flags );*/
-        }
+        glVertex3fv ( ( GLfloat * ) p0 );
+        glVertex3fv ( ( GLfloat * ) p1 );
+        glVertex3fv ( ( GLfloat * ) p2 );
+
+       glEnd ( );
     } else {
-        if ( fac->nbver == 0x03 ) {
-            G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                      *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
-                      *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
+        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
+                  *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
+                  *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos,
+                  *p3 = ( v3->flags & VERTEXSKINNED ) ? &v3->skn : &v3->pos;
 
-            glBegin ( GL_TRIANGLES );
+        glBegin ( GL_QUADS );
 
-            glVertex3fv ( ( GLfloat * ) p0 );
-            glVertex3fv ( ( GLfloat * ) p1 );
-            glVertex3fv ( ( GLfloat * ) p2 );
+        glVertex3fv ( ( GLfloat * ) p0 );
+        glVertex3fv ( ( GLfloat * ) p1 );
+        glVertex3fv ( ( GLfloat * ) p2 );
+        glVertex3fv ( ( GLfloat * ) p3 );
 
-           glEnd ( );
-        } else {
-            G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                      *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
-                      *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos,
-                      *p3 = ( v3->flags & VERTEXSKINNED ) ? &v3->skn : &v3->pos;
-
-            glBegin ( GL_QUADS );
-
-            glVertex3fv ( ( GLfloat * ) p0 );
-            glVertex3fv ( ( GLfloat * ) p1 );
-            glVertex3fv ( ( GLfloat * ) p2 );
-            glVertex3fv ( ( GLfloat * ) p3 );
-
-            glEnd ( );
-        }
+        glEnd ( );
     }
 }
 
@@ -1842,30 +1816,25 @@ void g3dface_update ( G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-G3DFACE *g3dface_new ( G3DVERTEX **ver, uint32_t nbver ) {
-    G3DFACE *fac;
+void g3dface_initWithEdges ( G3DFACE *fac, G3DVERTEX **ver, 
+                                           G3DEDGE   **edg,
+                                           uint32_t    nbver ) {
     uint32_t i;
 
-    /*** return NULL if args are malformed ***/
-    if ( ver == NULL || nbver == 0x00 ) return NULL;
+    g3dface_init ( fac, ver, nbver );
 
-    fac = ( G3DFACE * ) calloc ( 0x01, sizeof ( G3DFACE ) );
-    if ( fac == NULL ) {
-        fprintf ( stderr, "g3dface_new: calloc failed\n" );
+    for ( i = 0x00; i < nbver; i++ ) {
+        fac->edg[i] = edg[i];
 
-        return NULL;
+        g3dedge_addFace ( edg[i], fac );
     }
+}
+
+/******************************************************************************/
+void g3dface_init ( G3DFACE *fac, G3DVERTEX **ver, uint32_t nbver ) {
+    uint32_t i;
 
     fac->nbver = nbver;
-
-    /*fac->ver = ( G3DVERTEX ** ) calloc ( nbver, sizeof ( G3DVERTEX * ) );
-    if ( fac->ver == NULL ) {
-        fprintf ( stderr, "g3dface_new: vertices calloc failed\n" );
-
-        return NULL;
-    }*/
-
-    /*fac->id    = id;*//*** this is set by the object receiving the face ***/
 
     /*** add this face to the vertex's faces list ***/
     for ( i = 0x00; i < nbver; i++ ) {
@@ -1877,10 +1846,40 @@ G3DFACE *g3dface_new ( G3DVERTEX **ver, uint32_t nbver ) {
     /*** update normal vector and face position ***/
     g3dface_update ( fac );
 
-    /*** Recompute vertex's normal vector after each call to this function ***/
-    /*for ( i = 0x00; i < nbver; i++ ) {
-        g3dvertex_normal ( ver[i] );
-    }/* handled by g3dmesh_addFace */
+    return fac;
+}
+
+/******************************************************************************/
+G3DFACE *g3dface_newWithEdges ( G3DVERTEX **ver,
+                                G3DEDGE   **edg, uint32_t nbver ) {
+    G3DFACE *fac;
+    uint32_t i;
+
+    fac = ( G3DFACE * ) calloc ( 0x01, sizeof ( G3DFACE ) );
+    if ( fac == NULL ) {
+        fprintf ( stderr, "g3dface_new: calloc failed\n" );
+
+        return NULL;
+    }
+
+    g3dface_initWithEdges ( fac, ver, edg, nbver );
+
+    return fac;
+}
+
+/******************************************************************************/
+G3DFACE *g3dface_new ( G3DVERTEX **ver, uint32_t nbver ) {
+    G3DFACE *fac;
+    uint32_t i;
+
+    fac = ( G3DFACE * ) calloc ( 0x01, sizeof ( G3DFACE ) );
+    if ( fac == NULL ) {
+        fprintf ( stderr, "g3dface_new: calloc failed\n" );
+
+        return NULL;
+    }
+
+    g3dface_init ( fac, ver, nbver );
 
     return fac;
 }

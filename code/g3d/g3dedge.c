@@ -111,33 +111,20 @@ LIST *g3dedge_getVerticesFromList ( LIST *ledg ) {
 }
 
 /******************************************************************************/
-void g3dedge_drawSimple ( G3DEDGE *edg, uint32_t subdiv,
-                                        uint32_t object_flags,
+void g3dedge_drawSimple ( G3DEDGE *edg, uint32_t object_flags,
                                         uint32_t engine_flags ) {
     G3DVERTEX *v0 = edg->ver[0x00],
               *v1 = edg->ver[0x01];
 
-    if ( edg->flags & EDGESUBDIVIDED ) {
-        if ( edg->rtedgmem ) {
-            char *rtbuffer = ( char * ) edg->rtedgmem;
-            uint32_t nbrtverperedge = edg->nbrtedg * 0x02;
+    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
+              *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
 
-            glEnableClientState ( GL_VERTEX_ARRAY );
-            glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), rtbuffer + 28 );
-            glDrawArrays ( GL_LINES, 0x00, nbrtverperedge );
-            glDisableClientState ( GL_VERTEX_ARRAY );
-        }
-    } else {
-        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                  *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
+    glBegin ( GL_LINES );
 
-        glBegin ( GL_LINES );
+    glVertex3fv ( ( GLfloat * ) p0 );
+    glVertex3fv ( ( GLfloat * ) p1 );
 
-        glVertex3fv ( ( GLfloat * ) p0 );
-        glVertex3fv ( ( GLfloat * ) p1 );
-
-       glEnd ( );
-    }
+    glEnd ( );
 }
 
 /******************************************************************************/
@@ -280,7 +267,7 @@ uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *edg, G3DFACE *faccmp,
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
 /*** for faces different than the central face (the face getting subdivided)***/
-            if ( (fac->nbuvs*4) > SUBVERTEXUVBUFFER ) {
+            if ( (fac->nbuvs*4) > SUBVERTEXMAXUV ) {
                 fac->subver->flags |= VERTEXMALLOCUVS;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;

@@ -31,6 +31,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
+                      g3dmodifier.c \
                       g3dobject.c \
                       g3dpivot.c \
                       g3dplane.c \
@@ -60,6 +61,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3duv.c \
                       g3dvector.c \
                       g3dvertex.c \
-                      g3dweight.c
+                      g3dweight.c \
+                      g3dwireframe.c
 
 ##LIBGLOSSG3D_H_FILES = include/g3d.h include/list.h

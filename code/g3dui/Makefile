@@ -86,11 +86,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiquad.c common/g3duirenderedit.c \
 	common/g3duirenderprocess.c common/g3duirendersettings.c \
 	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisymmetryedit.c common/g3duitextureedit.c \
-	common/g3duitimeboard.c common/g3duitimeline.c \
-	common/g3duitoolbar.c common/g3duitorusedit.c \
-	common/g3duiuvmapedit.c common/g3duiview.c \
-	common/g3duiweightgrouplist.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextureedit.c common/g3duitimeboard.c \
+	common/g3duitimeline.c common/g3duitoolbar.c \
+	common/g3duitorusedit.c common/g3duiuvmapedit.c \
+	common/g3duiview.c common/g3duiweightgrouplist.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -106,10 +106,10 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
 	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisymmetryedit.c \
-	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
-	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
+	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
+	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
+	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -237,6 +237,7 @@ am__objects_1 = common/g3dui.lo \
 	common/g3duirendersettings.lo \
 	common/g3duirenderwindow.lo \
 	common/g3duisphereedit.lo \
+	common/g3duisubdivideredit.lo \
 	common/g3duisymmetryedit.lo \
 	common/g3duitextureedit.lo \
 	common/g3duitimeboard.lo \
@@ -265,6 +266,7 @@ am__objects_1 = common/g3dui.lo \
 	gtk3/g3duirenderprocess.lo \
 	gtk3/g3duirenderwindow.lo \
 	gtk3/g3duisphereedit.lo \
+	gtk3/g3duisubdivideredit.lo \
 	gtk3/g3duisymmetryedit.lo \
 	gtk3/g3duitextureedit.lo \
 	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
@@ -297,11 +299,11 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiquad.c common/g3duirenderedit.c \
 	common/g3duirenderprocess.c common/g3duirendersettings.c \
 	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisymmetryedit.c common/g3duitextureedit.c \
-	common/g3duitimeboard.c common/g3duitimeline.c \
-	common/g3duitoolbar.c common/g3duitorusedit.c \
-	common/g3duiuvmapedit.c common/g3duiview.c \
-	common/g3duiweightgrouplist.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextureedit.c common/g3duitimeboard.c \
+	common/g3duitimeline.c common/g3duitoolbar.c \
+	common/g3duitorusedit.c common/g3duiuvmapedit.c \
+	common/g3duiview.c common/g3duiweightgrouplist.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -317,10 +319,10 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
 	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisymmetryedit.c \
-	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
-	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
+	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
+	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
+	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
 	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -542,6 +544,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             common/g3duirendersettings.c \
                             common/g3duirenderwindow.c \
                             common/g3duisphereedit.c \
+                            common/g3duisubdivideredit.c \
                             common/g3duisymmetryedit.c \
                             common/g3duitextureedit.c \
                             common/g3duitimeboard.c \
@@ -582,6 +585,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             gtk3/g3duirenderprocess.c \
                             gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
+                            gtk3/g3duisubdivideredit.c \
                             gtk3/g3duisymmetryedit.c \
                             gtk3/g3duitextureedit.c \
                             gtk3/g3duitimeboard.c \
@@ -803,6 +807,8 @@ common/g3duirenderwindow.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duisphereedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duisubdivideredit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duisymmetryedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duitextureedit.lo: common/$(am__dirstamp) \
@@ -894,6 +900,8 @@ gtk3/g3duirenderprocess.lo: gtk3/$(am__dirstamp) \
 gtk3/g3duirenderwindow.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duisubdivideredit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisymmetryedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1083,6 +1091,8 @@ mostlyclean-compile:
 	-rm -f common/g3duirenderwindow.lo
 	-rm -f common/g3duisphereedit.$(OBJEXT)
 	-rm -f common/g3duisphereedit.lo
+	-rm -f common/g3duisubdivideredit.$(OBJEXT)
+	-rm -f common/g3duisubdivideredit.lo
 	-rm -f common/g3duisymmetryedit.$(OBJEXT)
 	-rm -f common/g3duisymmetryedit.lo
 	-rm -f common/g3duitextureedit.$(OBJEXT)
@@ -1163,6 +1173,8 @@ mostlyclean-compile:
 	-rm -f gtk3/g3duirenderwindow.lo
 	-rm -f gtk3/g3duisphereedit.$(OBJEXT)
 	-rm -f gtk3/g3duisphereedit.lo
+	-rm -f gtk3/g3duisubdivideredit.$(OBJEXT)
+	-rm -f gtk3/g3duisubdivideredit.lo
 	-rm -f gtk3/g3duisymmetryedit.$(OBJEXT)
 	-rm -f gtk3/g3duisymmetryedit.lo
 	-rm -f gtk3/g3duitextureedit.$(OBJEXT)
@@ -1300,6 +1312,7 @@ include common/$(DEPDIR)/g3duirenderprocess.Plo
 include common/$(DEPDIR)/g3duirendersettings.Plo
 include common/$(DEPDIR)/g3duirenderwindow.Plo
 include common/$(DEPDIR)/g3duisphereedit.Plo
+include common/$(DEPDIR)/g3duisubdivideredit.Plo
 include common/$(DEPDIR)/g3duisymmetryedit.Plo
 include common/$(DEPDIR)/g3duitextureedit.Plo
 include common/$(DEPDIR)/g3duitimeboard.Plo
@@ -1340,6 +1353,7 @@ include gtk3/$(DEPDIR)/g3duirenderedit.Plo
 include gtk3/$(DEPDIR)/g3duirenderprocess.Plo
 include gtk3/$(DEPDIR)/g3duirenderwindow.Plo
 include gtk3/$(DEPDIR)/g3duisphereedit.Plo
+include gtk3/$(DEPDIR)/g3duisubdivideredit.Plo
 include gtk3/$(DEPDIR)/g3duisymmetryedit.Plo
 include gtk3/$(DEPDIR)/g3duitextureedit.Plo
 include gtk3/$(DEPDIR)/g3duitimeboard.Plo

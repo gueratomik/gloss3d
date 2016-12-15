@@ -1929,13 +1929,13 @@ static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
                               GEOMETRYSAVEALL, fdst );
     }
 
-    if ( flags & MESHSAVESUBDIVISION ) {
+    /*if ( flags & MESHSAVESUBDIVISION ) {
         uint32_t blocksize = subdivision_blocksize ( );
 
         chunk_write ( MESHSUB, blocksize, fdst );
         subdivision_writeblock ( mes->subdiv,
                                  mes->subdiv_render, mes->subalg, fdst );
-    }
+    }*/
 
     if ( flags & MESHSAVEWEIGHTGROUPS ) {
         uint32_t blocksize = weightgroups_blocksize ( mes );

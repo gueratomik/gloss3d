@@ -201,69 +201,6 @@ void g3dbone_updateVertices ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-/*** This function is to be used with catmull-clark buffered mesh           ***/
-/*** g3dface_update() and g3dface_updateBufferedSubdivision should not be() ***/
-/*** within the same function, because g3dface_updateBufferedSubdivision    ***/
-void g3dbone_updateSubdividedFaces ( G3DBONE *bon, uint32_t engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-    LIST *ltmpbon = obj->lchildren;
-    LIST *ltmprig = bon->lrig;
-    G3DSYSINFO *sif = g3dsysinfo_get ( );
-    /*** Get the temporary subdivision arrays for CPU #0 ***/
-    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
-
-    while ( ltmprig ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpfac = rig->lextfac;
-        G3DMESH *mes = grp->mes;
-        G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-        /*float    cosang = cos ( mes->advang * M_PI / 180 );*/
-        uint32_t subdiv = mes->subdiv;
-
-        if ( (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) && mes->subdiv ) {
-            while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, mes->subdiv );
-                uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, mes->subdiv );
-
-                g3dsubdivisionV3_subdivide ( sdv, mes,
-                                                  fac,
-                                                  NULL,
-                                                  fac->rtquamem,
-                                                  fac->rtedgmem,
-                                                  fac->rtvermem,
-                                                  NULL,
-                                                  NULL,
-                                                  NULL,
-                                                  mes->ltex,
-                                                  qua_indexes,
-                                                  tri_indexes,
-                                                  subdiv,
-                                                  SUBDIVISIONPREVIEW,
-                                                  engine_flags );
-
-                ltmpfac = ltmpfac->next;
-            }
-        }
-
-        ltmprig = ltmprig->next;
-    }
-
-    /*** this function must recurse or else children ***/
-    /*** bones vertices wont get updated ***/
-    while ( ltmpbon ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpbon->data;
-
-        if ( child->type == G3DBONETYPE ) {
-            g3dbone_updateSubdividedFaces ( ( G3DBONE * ) child, engine_flags );
-        }
-
-        ltmpbon = ltmpbon->next;
-    }
-}
-
-/******************************************************************************/
 void g3dbone_updateEdges ( G3DBONE *bon ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
     LIST *ltmpbon = obj->lchildren;
@@ -330,9 +267,9 @@ void g3dbone_transform ( G3DOBJECT *obj, uint32_t flags ) {
     g3dbone_updateVertexNormals ( bon, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
 
     /*** For buffered faces ***/
-    if ( ( flags & ONGOINGANIMATION ) == 0x00 ) {
+    /*if ( ( flags & ONGOINGANIMATION ) == 0x00 ) {
         g3dbone_updateSubdividedFaces ( bon, flags );
-    }
+    }*/
 }
 
 /******************************************************************************/
@@ -475,7 +412,7 @@ void g3dbone_reset_r ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-void g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
@@ -517,6 +454,8 @@ void g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     glEnd ( );
 
     glPopAttrib ( );
+
+    return 0x00;
 }
 
 /*****************************************************************************/
@@ -753,8 +692,17 @@ G3DBONE *g3dbone_new ( uint32_t id, char *name, float len ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DBONETYPE, id, name, g3dbone_draw,
-                                                 g3dbone_free );
+    g3dobject_init ( obj, G3DBONETYPE, id, name, DRAWBEFORECHILDREN,
+                                                 g3dbone_draw,
+                                                 g3dbone_free,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL );
 
     /*obj->anim      = g3dbone_anim;*/
     obj->transform = g3dbone_transform;

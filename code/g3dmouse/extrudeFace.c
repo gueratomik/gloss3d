@@ -151,9 +151,9 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                     lseledg = g3dface_getEdgesFromList    ( lselfac );
                     lselver = g3dface_getVerticesFromList ( lselfac );
 
-                    if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
+                    /*if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
                         lselsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }
+                    }*/
 
                     /*if ( ef->inner ) {
                         g3dvertex_getAveragePositionFromList ( lver, &pivot );

@@ -181,9 +181,9 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     lfac = g3dvertex_getFacesFromList ( lver );
                     ledg = g3dface_getEdgesFromList   ( lfac );
 
-                    if ( mes->subdiv && (objmes->flags & BUFFEREDSUBDIVISION)){
+                    /*if ( mes->subdiv && (objmes->flags & BUFFEREDSUBDIVISION)){
                         lsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }
+                    }*/
 
                     /*** for the undo/redo manager ***/
                     nbver = g3dvertex_copyPositionFromList ( lver, &oldpos );

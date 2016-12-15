@@ -29,56 +29,92 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-/******************************************************************************/
-static void deleteWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void updateSubdivisionForm ( GtkWidget *, G3DUI * );
 
-    common_g3duiweightgrouplist_deleteWeightGroupCbk ( gui );
-}
 
 /******************************************************************************/
-static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
+static void subdivSyncCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3duiweightgrouplist_addWeightGroupCbk ( gui );
-}
-
-/******************************************************************************/
-static void nameCbk  ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
-    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duiweightgrouplist_nameCbk ( gui, grpname );
+    /*common_g3duimeshedit_subdivSyncCbk ( gui );*/
 }
 
 /******************************************************************************/
 static void useIsoLinesCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3duimeshedit_useIsoLinesCbk ( gui );
+    /*common_g3duimeshedit_useIsoLinesCbk ( gui );*/
 }
 
 /******************************************************************************/
-void updateWeightgroupForm ( GtkWidget *widget, G3DUI *gui ) {
+static void subdivRenderCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent     ( widget );
+    int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( level >= 0x00 ) {
+        common_g3duisubdivideredit_subdivRenderCbk ( gui, level );
+    }
+
+    /*updateSubdivisionForm ( parent, gui );*/
+}
+
+/******************************************************************************/
+static void subdivPreviewCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DUI *gui    = ( G3DUI * ) user_data;
+
+    if ( level >= 0x00 ) {
+        common_g3duisubdivideredit_subdivPreviewCbk ( gui, level );
+    }
+
+    /*updateSubdivisionForm ( parent, gui );*/
+}
+
+/******************************************************************************/
+static void updateSubdivisionForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     gui->lock = 0x01;
 
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );
 
-            if ( GTK_IS_ENTRY(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
+            if ( GTK_IS_SPIN_BUTTON(child) ) {
+                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
-                if ( strcmp ( child_name, EDITWEIGHTGROUPNAME ) == 0x00 ) {
-                    if ( mes->curgrp ) {
-                        gtk_entry_set_text ( ent, mes->curgrp->name );
+                if ( strcmp ( child_name, EDITSUBDIVIDERPREVIEW ) == 0x00 ) {
+                    gtk_spin_button_set_value ( sbn, sdr->subdiv_preview );
+                }
+
+                if ( strcmp ( child_name, EDITSUBDIVIDERRENDER ) == 0x00 ) {
+                    gtk_spin_button_set_value ( sbn, sdr->subdiv_render );
+                }
+            }
+
+            if ( GTK_IS_CHECK_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITMESHISOLINES ) == 0x00 ) {
+                    if ( ((G3DOBJECT*)sdr)->flags & MESHUSEISOLINES ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITSUBDIVIDERSYNC ) == 0x00 ) {
+                    if ( ((G3DOBJECT*)sdr)->flags & SYNCSUBDIVISION ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
                     }
                 }
             }
@@ -91,36 +127,39 @@ void updateWeightgroupForm ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void updateWeightgroupFrame ( GtkWidget *widget, G3DUI *gui ) {
+void updateSubdivisionFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
-    if ( frm ) updateWeightgroupForm ( frm, gui );
+    if ( frm ) updateSubdivisionForm ( frm, gui );
 }
 
+
 /******************************************************************************/
-static void createWeightgroupFrame ( GtkWidget *frm, G3DUI *gui,
+static void createSubdivisionFrame ( GtkWidget *frm, G3DUI *gui,
                                                      gint x,
                                                      gint y,
                                                      gint width,
                                                      gint height ) {
-    GtkWidget *wgf, *lst;
+    GtkWidget *sdf;
 
-    wgf = createFrame ( frm, gui, EDITMESHWEIGHTGROUP,  x, y, width, height );
+    sdf = createFrame ( frm, gui, EDITSUBDIVIDER       , x,   y, width, height );
 
-    /*** We have to encapsulate widget into a bulletin board widget because ***/
-    /*** XmFrame always wants to resize itself. This way, it does not resize***/
-    /*brd = createBoard ( sdf, gui, EDITMESHVERTEXGROUP,  4,   20, 278, 120 );*/
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0,   0, 128, 32,
+                                                       subdivPreviewCbk );
 
-    createCharText ( wgf, gui, EDITWEIGHTGROUPNAME, 0, 0, 96, 132, nameCbk );
+    createToggleLabel ( sdf, gui, EDITSUBDIVIDERSYNC   , 230,  12,  20, 20,
+                                                       subdivSyncCbk );
 
-    createWeightgroupList ( wgf, gui, EDITWEIGHTGROUPLIST,  0, 36, 218, 128 );
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0,  24, 128, 32,
+                                                       subdivRenderCbk );
 
-    createPushButton ( wgf, gui, "+", 246,  36, 32, 32, addWeightGroupCbk    );
-    createPushButton ( wgf, gui, "-", 246, 132, 32, 32, deleteWeightGroupCbk );
+    createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,
+                                                       useIsoLinesCbk );
 }
 
+
 /******************************************************************************/
-void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
+void updateSubdividerEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     /*** prevent a loop ***/
@@ -130,17 +169,12 @@ void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
         const char *child_name = gtk_widget_get_name ( child );
 
-        if ( strcmp ( child_name, EDITMESHWEIGHTGROUP ) == 0x00 ) {
-            updateWeightgroupFrame ( child, gui );
+        if ( strcmp ( child_name, EDITSUBDIVIDER ) == 0x00 ) {
+            updateSubdivisionFrame ( child, gui );
         }
 
         children =  g_list_next ( children );
     }
-
-    /*** It's not the best place for that but I don't ***/
-    /*** have time to figure out a better solution. ***/
-    g3dui_redrawAllWeightGroupList ( gui );
-
 
     gui->lock = 0x00;
 }
@@ -149,16 +183,16 @@ void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    updateMeshEdit ( widget, gui );
+    updateSubdividerEdit ( widget, gui );
 }
 
 /******************************************************************************/
-GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
-                                               char *name,
-                                               gint x,
-                                               gint y,
-                                               gint width,
-                                               gint height ) {
+GtkWidget *createSubdividerEdit ( GtkWidget *parent, G3DUI *gui,
+                                                     char *name,
+                                                     gint x,
+                                                     gint y,
+                                                     gint width,
+                                                     gint height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *frm, *sdf, *fix;
 
@@ -172,7 +206,7 @@ GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createWeightgroupFrame ( frm, gui,   0, 144, 286, 140 );
+    createSubdivisionFrame ( frm, gui,   0,   0, 286, 140 );
 
     gtk_widget_show ( frm );
 

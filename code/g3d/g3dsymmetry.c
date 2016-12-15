@@ -224,7 +224,8 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-void g3dsymmetry_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dsymmetry_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
+                                            uint32_t   flags ) {
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
     LIST *ltmp = obj->lchildren;
 
@@ -243,6 +244,8 @@ void g3dsymmetry_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
 
     glPopMatrix ( );
+
+    return 0x00;
 }
 
 /*****************************************************************************/
@@ -284,8 +287,17 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id, char *name ) {
 
     g3dsymmetry_setMergeLimit ( sym, 0.02f );
 
-    g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, g3dsymmetry_draw,
-                                                     g3dsymmetry_free );
+    g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, DRAWBEFORECHILDREN,
+                                                     g3dsymmetry_draw,
+                                                     g3dsymmetry_free,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL );
 
     obj->childvertexchange = g3dsymmetry_childVertexChange;
 

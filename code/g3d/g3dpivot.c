@@ -36,7 +36,7 @@ void g3dpivot_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dpivot_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
+uint32_t g3dpivot_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
                                      uint32_t engine_flags ) {
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -53,6 +53,8 @@ void g3dpivot_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
 
     glEnd ( );
     glPopAttrib ( );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -103,8 +105,17 @@ void g3dpivot_init ( G3DPIVOT *piv, G3DCAMERA *cam, G3DVECTOR *pos ) {
     double RMX[0x10];
     double LCX[0x10];
 
-    g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", g3dpivot_draw,
-                                                          g3dpivot_free );
+    g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", DRAWBEFORECHILDREN,
+                                                          g3dpivot_draw,
+                                                          g3dpivot_free,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL );
 
     piv->cam = cam;
 

@@ -938,7 +938,7 @@ printf("NB Quds = %d\n", nbqua );
                 }
             } break;
 
-            case MESHSUB : {
+            /*case MESHSUB : {
                 uint16_t subdiv, subdiv_render;
                 uint32_t subalg;
 
@@ -955,7 +955,7 @@ printf("NB Quds = %d\n", nbqua );
                 }
 
                 g3dmesh_setSubdivisionLevel ( mes, subdiv, flags );
-            } break;
+            } break;*/
 
             case HEIGHTMAPSSIG : {
                 LIST *ltmpfac = mes->lfac;

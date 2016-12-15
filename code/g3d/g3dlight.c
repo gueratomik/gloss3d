@@ -30,7 +30,7 @@
 #include <g3d.h>
 
 /******************************************************************************/
-void g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
+uint32_t g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     G3DLIGHT *lig = ( G3DLIGHT * ) obj;
     float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
     float diffcol[0x04] = { ( lig->diffcol.r * lig->intensity ) / 256.0f, 
@@ -90,6 +90,8 @@ void g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     glLightfv ( lig->lid, GL_DIFFUSE , ( const float * ) &diffcol );
     glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &speccol );
     glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos      );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -150,8 +152,17 @@ G3DLIGHT *g3dlight_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, g3dlight_draw,
-                                                  g3dlight_free );
+    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, DRAWBEFORECHILDREN,
+                                                  g3dlight_draw,
+                                                  g3dlight_free,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  NULL );
 
     /*obj->bbox.xmin = obj->bbox.ymin = obj->bbox.zmin = -1.0f;
     obj->bbox.xmax = obj->bbox.ymax = obj->bbox.zmax =  1.0f;*/

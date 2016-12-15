@@ -144,7 +144,7 @@ void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli, G3DSCENE *sce,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        G3DOBJECT *cpy = ( G3DOBJECT * ) g3dobject_copy ( obj, recurse, engine_flags );
+        G3DOBJECT *cpy = ( G3DOBJECT * ) g3dobject_copy ( obj, 0x00, obj->name, engine_flags );
         G3DUICOPIEDITEM *item = g3duicopieditem_new ( cpy,  /*** object  ***/
                                                       NULL, /*** not key ***/
                                                       CLIPBOARDCOPYOBJECT );
@@ -177,7 +177,7 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli, G3DURMANAGER *urm,
 
                 /*** We copy again. That way, the copied objects still are  ***/
                 /*** in memory and can be pasted again, until a copy occur. ***/
-                cpyobj = g3dobject_copy ( item->obj, 1, flags );
+                cpyobj = g3dobject_copy ( item->obj, 0x00, item->obj->name, flags );
 
                 /*** The object renaming is done here and not in the ***/
                 /*** g3dobject_copy function because ths function is ***/
