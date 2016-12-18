@@ -43,14 +43,9 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm, G3DMESH *mes, int clockwise,
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 
     /*** Triagulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/

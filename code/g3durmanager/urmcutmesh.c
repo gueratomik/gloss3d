@@ -98,14 +98,9 @@ void cutMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -130,14 +125,10 @@ void cutMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -155,14 +146,10 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
 
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, flags );
 
     cms = urmcutmesh_new ( mes, loldfac, lnewver, lnewfac );
 

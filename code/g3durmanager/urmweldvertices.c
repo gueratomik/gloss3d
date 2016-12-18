@@ -103,14 +103,9 @@ void weldVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -137,14 +132,9 @@ void weldVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -163,14 +153,9 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 
     wvs = urmweldvertices_new ( mes, loldver, loldfac, lnewfac, newver );
 

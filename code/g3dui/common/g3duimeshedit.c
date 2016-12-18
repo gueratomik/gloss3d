@@ -51,10 +51,7 @@ void common_g3duimeshedit_useIsoLinesCbk ( G3DUI *gui ) {
         /*** rebuild using adaptive subdivision (or not) ***/
         g3dmesh_update ( mes, NULL,
                               NULL,
-                              NULL,
-                              NULL,
-                              REALLOCSUBDIVISION |
-                              COMPUTESUBDIVISION, gui->flags );
+                              0x00, gui->flags );
 
         g3dui_unsetHourGlass ( gui );
 

@@ -165,6 +165,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dvertex_copyPositionFromList ( lver, &oldpos );
 
+                    g3dmesh_startUpdateModifiers_r ( obj, flags );
 
                     /*if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
                         lsub = g3dvertex_getAreaFacesFromList ( lver );
@@ -223,7 +224,6 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 } else {
                     if ( obj->type & MESH ) {
                         LIST *ltmp = lver;
-                        G3DVERTEX **vertices = list_to_array ( lver );
 
                         while ( ltmp ) {
                             G3DVERTEX *ver = ltmp->data;
@@ -252,11 +252,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             ltmp = ltmp->next;
                         }
 
-                        g3dmesh_updateModifiers ( obj, vertices, 
-                                                       list_count ( lver ), 
-                                                       flags );
-
-                        free ( vertices );
+                        g3dmesh_updateModifiers_r ( obj, flags );
 
                         if ( obj->type == G3DFFDTYPE ) {
                             G3DFFD  *ffd = ( G3DFFD * ) obj;
@@ -266,28 +262,20 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                             if ( ffdmes && (((G3DOBJECT*)ffdmes)->type & MESH) ) {
                                 g3dmesh_update ( ffdmes, ffd->lver,
-                                                         ffd->ledg,
                                                          ffd->lfac,
-                                                         ffdlsub,
-                                                         COMPUTEFACEPOSITION |
-                                                         COMPUTEFACENORMAL   |
-                                                         COMPUTEEDGEPOSITION |
-                                                         COMPUTEVERTEXNORMAL |
-                                                         COMPUTESUBDIVISION, flags );
+                                                         UPDATEFACEPOSITION |
+                                                         UPDATEFACENORMAL   |
+                                                         UPDATEVERTEXNORMAL, flags );
                             }
                         }
 
                         if ( obj->type == G3DMESHTYPE ) {
                             g3dmesh_update ( mes, lvtx,
-                                                  ledg,
                                                   lfac,
-                                                  lsub,
-                                                  COMPUTEFACEPOSITION |
-                                                  COMPUTEFACENORMAL   |
-                                                  COMPUTEEDGEPOSITION |
-                                                  COMPUTEVERTEXNORMAL |
-                                                  COMPUTEUVMAPPING    |
-                                                  COMPUTESUBDIVISION, flags );
+                                                  UPDATEFACEPOSITION |
+                                                  UPDATEFACENORMAL   |
+                                                  UPDATEVERTEXNORMAL |
+                                                  COMPUTEUVMAPPING, flags );
                         }
                     }
 
@@ -335,9 +323,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         if ( uvwmes ) {
                             g3dmesh_update ( uvwmes, NULL,
                                                      NULL,
-                                                     NULL,
-                                                     NULL,
-                                                     COMPUTESUBDIVISION, flags );
+                                                     0x00, flags );
                         }
                     }
 
@@ -361,6 +347,8 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             g3dmesh_updateBbox ( mes );
                         }
                     }
+
+                    g3dmesh_endUpdateModifiers_r ( obj, flags );
 
                     /*if ( obj->type == G3DBONETYPE ) {
                         if ( msftab ) {

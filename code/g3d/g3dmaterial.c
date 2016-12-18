@@ -42,9 +42,7 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, uint32_t engine_flags ) {
             if ( obj->flags & BUFFEREDSUBDIVISION ) {
                 g3dmesh_update ( mes, NULL,
                                       NULL,
-                                      NULL,
-                                      NULL,
-                                      COMPUTESUBDIVISION, engine_flags );
+                                      0x00, engine_flags );
             }
         }
 

@@ -135,15 +135,10 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                     /*** regenerate subdivision buffer ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          NULL,
-                                          NULL,
-                                          COMPUTEFACEPOSITION |
-                                          COMPUTEFACENORMAL   |
-                                          COMPUTEEDGEPOSITION |
-                                          COMPUTEVERTEXNORMAL |
-                                          COMPUTEUVMAPPING    |
-                                          REALLOCSUBDIVISION  |
-                                          COMPUTESUBDIVISION, flags );
+                                          UPDATEFACEPOSITION |
+                                          UPDATEFACENORMAL   |
+                                          UPDATEVERTEXNORMAL |
+                                          COMPUTEUVMAPPING, flags );
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
@@ -209,15 +204,11 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                 }
 
                 g3dmesh_update ( mes, lselver,
-                                      lseledg,
                                       lselfac,
-                                      lselsub,
-                                      COMPUTEFACEPOSITION |
-                                      COMPUTEFACENORMAL   |
-                                      COMPUTEEDGEPOSITION |
-                                      COMPUTEVERTEXNORMAL |
-                                      COMPUTEUVMAPPING    |
-                                      COMPUTESUBDIVISION, flags );
+                                      UPDATEFACEPOSITION |
+                                      UPDATEFACENORMAL   |
+                                      UPDATEVERTEXNORMAL |
+                                      COMPUTEUVMAPPING, flags );
             }
 
             xold = mev->x;

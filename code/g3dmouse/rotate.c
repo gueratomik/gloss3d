@@ -294,27 +294,19 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                             if ( ffdmes ) {
                                 g3dmesh_update ( ffdmes, ffd->lver,
-                                                         ffd->ledg,
                                                          ffd->lfac,
-                                                         ffdlsub,
-                                                         COMPUTEFACEPOSITION |
-                                                         COMPUTEFACENORMAL   |
-                                                         COMPUTEEDGEPOSITION |
-                                                         COMPUTEVERTEXNORMAL |
-                                                         COMPUTESUBDIVISION, flags );
+                                                         UPDATEFACEPOSITION |
+                                                         UPDATEFACENORMAL   |
+                                                         UPDATEVERTEXNORMAL, flags );
                             }
                         }
 
                         g3dmesh_update ( mes, lver,
-                                              ledg,
                                               lfac,
-                                              lsub,
-                                              COMPUTEFACEPOSITION |
-                                              COMPUTEFACENORMAL   |
-                                              COMPUTEEDGEPOSITION |
-                                              COMPUTEVERTEXNORMAL |
-                                              COMPUTEUVMAPPING    |
-                                              COMPUTESUBDIVISION, flags );
+                                              UPDATEFACEPOSITION |
+                                              UPDATEFACENORMAL   |
+                                              UPDATEVERTEXNORMAL |
+                                              COMPUTEUVMAPPING, flags );
                     }
                 }
 
@@ -362,9 +354,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         if ( uvwmes ) {
                             g3dmesh_update ( uvwmes, NULL,
                                                      NULL,
-                                                     NULL,
-                                                     NULL,
-                                                     COMPUTESUBDIVISION, flags );
+                                                     0x00, flags );
                         }
                     }
 

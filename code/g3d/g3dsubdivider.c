@@ -80,12 +80,13 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                 uint32_t       commitMeshID,
                                 unsigned char *commitMeshName,
                                 uint32_t       engine_flags ) {
-    G3DOBJECT *parent = ((G3DOBJECT*)sdr)->parent;
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     G3DMESH *commitMesh = g3dmesh_new ( commitMeshID,
                                         commitMeshName, 
                                         engine_flags );
 
-    if ( parent && ( parent->flags & MESH ) ) {
+    if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         G3DOBJECT *obj = ( G3DOBJECT * ) mes;
         G3DSYSINFO *sif = g3dsysinfo_get ( );
@@ -119,6 +120,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 
             nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
                                                         fac,
+                                                        NULL,
                                                         NULL,
                                                         NULL,
                                                         NULL,
@@ -159,16 +161,11 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         g3dmesh_updateBbox ( commitMesh );
  
         g3dmesh_update ( commitMesh, NULL, /*** Recompute vertices    ***/
-                                     NULL, /*** Recompute edges       ***/
                                      NULL, /*** Recompute faces       ***/
-                                     NULL, /*** Recompute subdivision ***/
-                                     COMPUTEFACEPOSITION |
-                                     COMPUTEFACENORMAL   | 
-                                     COMPUTEEDGEPOSITION |
-                                     COMPUTEVERTEXNORMAL |
-                                     COMPUTEUVMAPPING    |
-                                     REALLOCSUBDIVISION  |
-                                     COMPUTESUBDIVISION,
+                                     UPDATEFACEPOSITION |
+                                     UPDATEFACENORMAL   |
+                                     UPDATEVERTEXNORMAL |
+                                     COMPUTEUVMAPPING,
                                      engine_flags );
 
         free( commitVertices );
@@ -182,9 +179,10 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
                                                      uint32_t flags ) {
-    G3DOBJECT *parent = ((G3DOBJECT*)sdr)->parent;
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( parent && ( parent->flags & MESH ) ) {
+    if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         #define MAX_SUBDIVISION_THREADS 0x20
         G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
@@ -213,6 +211,8 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
                                                     sdr->nbrtedg,
                                                     sdr->rtquamem,
                                                     sdr->nbrtfac,
+                                                    sdr->rtuvmem,
+                                                    sdr->nbrtuv,
                                                     sdr->nbVerticesPerTriangle,
                                                     sdr->nbVerticesPerQuad,
                                                     sdr->nbEdgesPerTriangle,
@@ -239,6 +239,8 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
                                                      sdr->nbrtedg,
                                                      sdr->rtquamem,
                                                      sdr->nbrtfac,
+                                                     sdr->rtuvmem,
+                                                     sdr->nbrtuv,
                                                      sdr->nbVerticesPerTriangle,
                                                      sdr->nbVerticesPerQuad,
                                                      sdr->nbEdgesPerTriangle,
@@ -265,9 +267,10 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
 
 /******************************************************************************/
 void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
-    G3DOBJECT *parent = ((G3DOBJECT*)sdr)->parent;
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( parent && ( parent->flags & MESH ) ) {
+    if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         g3dtriangle_evalSubdivision ( sdr->subdiv_preview, 
                                       &sdr->nbFacesPerTriangle, 
@@ -284,10 +287,13 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
                        ( mes->nbqua * sdr->nbEdgesPerQuad        );
         sdr->nbrtver = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
                        ( mes->nbqua * sdr->nbVerticesPerQuad     );
+        sdr->nbrtuv  = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
+                       ( mes->nbqua * sdr->nbVerticesPerQuad     )  * mes->nbuvmap;
 
         sdr->rtquamem = realloc ( sdr->rtquamem, ( sdr->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
         sdr->rtedgmem = realloc ( sdr->rtedgmem, ( sdr->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
         sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( G3DRTVERTEX ) ) );
+        sdr->rtuvmem  = realloc ( sdr->rtuvmem , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
     /*while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -324,11 +330,39 @@ G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, G3DMESH    *mes,
-                                                G3DVERTEX **vertices,
-                                                uint32_t    nbver,
-                                                uint32_t    engine_flags ) {
+void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+    G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
+    if ( parent ) {
+        G3DMESH *mes = ( G3DMESH * ) parent;
+        LIST *lver = NULL;
+
+        if ( engine_flags & VIEWVERTEX ) {
+            lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+        }
+
+        if ( engine_flags & VIEWEDGE ) {
+            lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
+        }
+
+        if ( engine_flags & VIEWFACE ) {
+            lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
+        }
+
+        sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
+    }
+}
+
+/******************************************************************************/
+void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+    g3dsubdivider_fillBuffers ( sdr, sdr->lsubfac, engine_flags );
+}
+
+/******************************************************************************/
+void g3dsubdivider_endUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+    list_free ( &sdr->lsubfac, NULL );
 }
 
 /******************************************************************************/
@@ -340,11 +374,10 @@ uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( obj->parent && ( obj->parent->type & MESH ) ) {
-        G3DOBJECT *parent = obj->parent;
-
-        g3dmesh_modify ( parent, engine_flags );
+    if ( parent ) {
+        g3dmesh_modify_r ( parent, engine_flags );
     }
 
     /*g3dmesh_modify ( obj, engine_flags );*/
@@ -356,14 +389,113 @@ void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
+static void bindMaterials ( G3DMESH *mes, G3DFACE *fac, 
+                                          G3DRTUV *rtuvmem ) {
+    GLint arbid = GL_TEXTURE0_ARB;
+    LIST *ltmptex = mes->ltex;
+    LIST *ltmpuvs = fac->luvs;
+
+    while ( ltmpuvs ) {
+        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+        while ( ltmptex ) {
+            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
+            G3DMATERIAL *mat = tex->mat;
+            G3DIMAGE    *difimg = NULL;
+
+            if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                difimg = mat->diffuse.image;
+            }
+
+            if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                if ( mat->diffuse.proc ) {
+                    difimg = &mat->diffuse.proc->image;
+                }
+            }
+
+            #ifdef __linux__
+            glActiveTextureARB ( arbid );
+            #endif
+            #ifdef __MINGW32__
+            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+            #endif
+
+            if ( difimg ) glBindTexture ( GL_TEXTURE_2D, difimg->id );
+            glEnable      ( GL_TEXTURE_2D );
+
+            glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT );
+
+            if ( tex->map == uvs->map ) {
+                #ifdef __linux__
+                glClientActiveTextureARB ( arbid );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                #endif
+                glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+
+                glTexCoordPointer ( 0x02, GL_FLOAT, 0x00, rtuvmem );
+
+                arbid++;
+            }
+
+            ltmptex = ltmptex->next;
+        }
+
+        ltmpuvs = ltmpuvs->next;
+    }
+}
+
+/******************************************************************************/
+static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac, 
+                                            G3DRTUV *rtuvmem ) {
+    GLint arbid = GL_TEXTURE0_ARB;
+    LIST *ltmptex = mes->ltex;
+    LIST *ltmpuvs = fac->luvs;
+
+    while ( ltmpuvs ) {
+        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+        while ( ltmptex ) {
+            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
+            G3DMATERIAL *mat = tex->mat;
+
+            #ifdef __linux__
+            glActiveTextureARB ( arbid );
+            #endif
+            #ifdef __MINGW32__
+            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+            #endif
+
+            glDisable ( GL_TEXTURE_2D );
+
+            if ( tex->map == uvs->map ) {
+                #ifdef __linux__
+                glClientActiveTextureARB ( arbid );
+                #endif
+                #ifdef __MINGW32__
+                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                #endif
+                glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+
+                arbid++;
+            }
+
+            ltmptex = ltmptex->next;
+        }
+
+        ltmpuvs = ltmpuvs->next;
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                                                   uint32_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( obj->flags & OBJECTINACTIVE ) return 0x00;
 
-    if ( obj->parent && ( obj->parent->type & MESH ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj->parent;
+    if ( parent ) {
+        G3DMESH *mes = ( G3DMESH * ) parent;
         LIST *ltmpfac = mes->lfac;
 
         while ( ltmpfac ) {
@@ -371,20 +503,28 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             G3DRTVERTEX *rtvermem = NULL;
             G3DRTEDGE   *rtedgmem = NULL;
             G3DRTQUAD   *rtquamem = NULL;
+            G3DRTUV     *rtuvmem  = NULL;
             uint32_t     nbrtfac;
-
+            GLint arbid = GL_TEXTURE0_ARB;
+            LIST *ltmptex = mes->ltex;
+            LIST *ltmpuvs = fac->luvs;
 
             if ( fac->nbver == 0x03 ) {
                 nbrtfac  = sdr->nbFacesPerTriangle;
                 rtvermem = sdr->rtvermem + ( fac->typeID * sdr->nbVerticesPerTriangle );
                 rtquamem = sdr->rtquamem + ( fac->typeID * sdr->nbFacesPerTriangle );
+                rtuvmem  = sdr->rtuvmem  + ( fac->typeID * sdr->nbVerticesPerTriangle * mes->nbuvmap );
             } else {
                 nbrtfac  = sdr->nbFacesPerQuad;
                 rtvermem = sdr->rtvermem + ( mes->nbtri  * sdr->nbVerticesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbVerticesPerQuad );
                 rtquamem = sdr->rtquamem + ( mes->nbtri  * sdr->nbFacesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbFacesPerQuad );
+                rtuvmem  = sdr->rtuvmem  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * mes->nbuvmap ) +
+                                           ( fac->typeID * sdr->nbVerticesPerQuad * mes->nbuvmap );
             }
+
+            bindMaterials ( mes, fac, rtuvmem );
 
             glEnableClientState ( GL_VERTEX_ARRAY );
             glEnableClientState ( GL_NORMAL_ARRAY );
@@ -396,6 +536,8 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             glDisableClientState ( GL_COLOR_ARRAY  );
             glDisableClientState ( GL_NORMAL_ARRAY );
             glDisableClientState ( GL_VERTEX_ARRAY );
+
+            unbindMaterials ( mes, fac, rtuvmem );
 
             ltmpfac = ltmpfac->next;
         }
@@ -425,7 +567,9 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          NULL,
                                                          NULL,
                                                          g3dsubdivider_modify,
-                                                         g3dsubdivider_update );
+                                                         NULL,
+                                                         g3dsubdivider_update,
+                                                         NULL );
 }
 
 /******************************************************************************/

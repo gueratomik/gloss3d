@@ -54,13 +54,8 @@ void common_g3duisymmetryedit_limitCbk ( G3DUI *gui, float limit ) {
                    /*** Rebuild mesh ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          NULL,
-                                          NULL,
-                                          COMPUTEEDGEPOSITION |
-                                          COMPUTEVERTEXNORMAL |
-                                          COMPUTEFACENORMAL   |
-                                          REALLOCSUBDIVISION  |
-                                          COMPUTESUBDIVISION, gui->flags );
+                                          UPDATEVERTEXNORMAL |
+                                          UPDATEFACENORMAL, gui->flags );
                 }
             }
 

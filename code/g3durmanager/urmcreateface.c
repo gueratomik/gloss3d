@@ -88,14 +88,9 @@ void createFace_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -122,14 +117,9 @@ void createFace_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/

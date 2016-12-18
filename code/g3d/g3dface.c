@@ -171,7 +171,8 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
     subfac->fac.luvs  = NULL;
     subfac->fac.nbuvs = 0;
 
-    subfac->fac.rtuvmem = fac->rtuvmem;
+    /* to uncomment */
+    /*subfac->rtuvmem = fac->rtuvmem;*/
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         if ( fac->ver[i] == oriver ) {
@@ -180,19 +181,19 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
             subfac->fac.id = fac->id | ( i << (iteration*2) );
 
             subfac->fac.ver[0x00] = orivercpy;
-            subfac->fac.ver[0x01] = fac->edg[i]->subver;
-            subfac->fac.ver[0x02] = fac->subver;
-            subfac->fac.ver[0x03] = fac->edg[p]->subver;
+            subfac->fac.ver[0x01] = ((G3DSUBEDGE*)fac->edg[i])->subver;
+            subfac->fac.ver[0x02] = ((G3DSUBFACE*)fac)->subver;
+            subfac->fac.ver[0x03] = ((G3DSUBEDGE*)fac->edg[p])->subver;
 
             subfac->fac.heightmap = fac->heightmap;
 
             if ( ( curdiv > 1 ) ||
                  ( subdiv_flags & SUBDIVISIONCOMMIT ) ||
                  ( object_flags & MESHUSEISOLINES   ) ) {
-                subfac->fac.edg[0x00] = g3dedge_getSubEdge ( fac->edg[i], orivercpy, fac->edg[i]->subver );
-                subfac->fac.edg[0x01] = fac->innedg[i];
-                subfac->fac.edg[0x02] = fac->innedg[p];
-                subfac->fac.edg[0x03] = g3dedge_getSubEdge ( fac->edg[p], orivercpy, fac->edg[p]->subver );
+                subfac->fac.edg[0x00] = g3dsubedge_getSubEdge ( fac->edg[i], orivercpy, ((G3DSUBEDGE*)fac->edg[i])->subver );
+                subfac->fac.edg[0x01] = ((G3DSUBFACE*)fac)->innedg[i];
+                subfac->fac.edg[0x02] = ((G3DSUBFACE*)fac)->innedg[p];
+                subfac->fac.edg[0x03] = g3dsubedge_getSubEdge ( fac->edg[p], orivercpy, ((G3DSUBEDGE*)fac->edg[p])->subver );
             }
 
             /*** we need normal vector only on last subdivision ***/
@@ -245,32 +246,6 @@ uint32_t g3dquad_isRegular ( G3DFACE *fac ) {
     return 0x00;
 }
 
-/*****************************************************************************/
-void g3dface_markAdaptive ( G3DFACE *fac, G3DSUBVERTEX *orivercpy, float cosang ) {
-    uint32_t i;
-
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        g3dvertex_markAdaptiveFaces ( fac->ver[i], &orivercpy[i], cosang );
-        g3dvertex_markAdaptiveEdges ( fac->ver[i] );
-    }
-}
-
-/*****************************************************************************/
-uint32_t g3dface_isAdaptive ( G3DFACE *fac, float cosang ) {
-    uint32_t nbadaptive = 0x00;
-    uint32_t i;
-
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        float testang = fabs ( g3dvector_scalar ( &fac->ver[i]->nor, 
-                                                  &fac->nor ) );
-        if ( testang < cosang ) {
-            return 0x00;
-        }
-    }
-
-    return 0x01;
-}	
-
 /******************************************************************************/
 void g3dface_subdivideUVSets ( G3DFACE *fac ) {
     LIST *ltmpuvs = fac->luvs;
@@ -289,11 +264,11 @@ void g3dface_allocSubdividedUVSets ( G3DFACE *fac, uint32_t nbrtfac ) {
     uint32_t structsize = sizeof ( G3DRTUV );
 
     /*** TODO - here it should be fac->nbtex instead of fac->nbuvs ***/
-    fac->rtuvmem = realloc ( fac->rtuvmem, fac->nbuvs * nbrtfac * structsize );
+    /*fac->rtuvmem = realloc ( fac->rtuvmem, fac->nbuvs * nbrtfac * structsize );*/
 
-    if ( fac->rtuvmem == NULL ) {
+    /*if ( fac->rtuvmem == NULL ) {*/
         fprintf ( stderr, "g3dface_allocSubdividedUVSets: realloc failed\n" );
-    }
+    /*}*/
 }
 
 /******************************************************************************/
@@ -372,7 +347,7 @@ void g3dface_addUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
     for ( i = 0x00; i < fac->nbver; i++ ) {
         g3dvertex_addUV  (  fac->ver[i], &uvs->veruv[i] );
 
-        fac->edg[i]->nbuvs++;
+        /*fac->edg[i]->nbuvs++;*/
     } 
 
     fac->nbuvs++;
@@ -403,7 +378,7 @@ void g3dface_removeUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
     for ( i = 0x00; i < fac->nbver; i++ ) {
         g3dvertex_removeUV  (  fac->ver[i], &uvs->veruv[i] );
 
-        fac->edg[i]->nbuvs--;
+        /*fac->edg[i]->nbuvs--;*/
     } 
 
     fac->nbuvs--;
@@ -697,8 +672,9 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
     printf ( "%f %f\n", fac->rtuvsmem[k].uv[2].u, fac->rtuvsmem[k].uv[2].v );
     printf ( "%f %f\n", fac->rtuvsmem[k].uv[3].u, fac->rtuvsmem[k].uv[3].v );
 }*/
-                                glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                          fac->rtuvmem );
+                                /* to uncomment */
+                                /*glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
+                                                          fac->rtuvmem );*/
                             } else {
                                 texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
                                 texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
@@ -748,8 +724,9 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                             #endif
 
                             glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
-                            glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                      fac->rtuvmem );
+                            /* to uncomment */
+                            /*glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
+                                                      fac->rtuvmem );*/
                         } else {
                             texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
                             texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
@@ -1384,10 +1361,6 @@ void g3dface_drawEdges ( G3DFACE *fac, uint32_t flags ) {
     for ( i = 0x00; i < fac->nbver; i++ ) {
         if ( fac->edg[i] ) {
             g3dedge_draw ( fac->edg[i], flags );
-        }
-
-        if ( fac->innedg[i] ) {
-            g3dedge_draw ( fac->innedg[i], flags );
         }
     }
 }

@@ -30,6 +30,23 @@
 #include <g3d.h>
 
 /******************************************************************************/
+G3DOBJECT *g3dobject_getActiveParentByType ( G3DOBJECT *obj, uint32_t type ) {
+    G3DOBJECT *parent = obj->parent;
+
+    while ( parent ) {
+        if ( g3dobject_isActive ( parent ) ) {
+            if ( ( parent->type & type ) == type ) {
+                return parent;
+            }
+        }
+
+        parent = parent->parent;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dobject_printCoordinates ( G3DOBJECT *obj ) {
     printf ( "Position: X:%f Y:%f Z:%f\n", obj->pos.x, obj->pos.y, obj->pos.z );
     printf ( "Rotation: X:%f Y:%f Z:%f\n", obj->rot.x, obj->rot.y, obj->rot.z );

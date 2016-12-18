@@ -138,12 +138,8 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
             /*** update vertex painting ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  lsub,
-                                  COMPUTEEDGEPOSITION |
-                                  COMPUTEVERTEXNORMAL |
-                                  COMPUTEFACENORMAL   |
-                                  COMPUTESUBDIVISION, gui->flags );
+                                  UPDATEVERTEXNORMAL |
+                                  UPDATEFACENORMAL, gui->flags );
 
             list_free ( &lsub, NULL );
 
@@ -176,9 +172,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
             /*** update vertex painting ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  lsub,
-                                  COMPUTESUBDIVISION, gui->flags );
+                                  0x00, gui->flags );
 
             list_free ( &lsub, NULL );
         }
@@ -188,9 +182,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
         /*** update vertex painting ***/
         g3dmesh_update ( mes, NULL,
                               NULL,
-                              NULL,
-                              lsub,
-                              COMPUTESUBDIVISION, gui->flags );
+                              0x00, gui->flags );
 
         list_free ( &lsub, NULL );
 

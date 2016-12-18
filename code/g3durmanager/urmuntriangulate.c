@@ -94,14 +94,9 @@ void unTriangulate_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -126,14 +121,9 @@ void unTriangulate_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 }
 
 /******************************************************************************/
@@ -149,14 +139,9 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, G3DMESH *mes,
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
-                          NULL,
-                          NULL,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL, engine_flags );
 
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );

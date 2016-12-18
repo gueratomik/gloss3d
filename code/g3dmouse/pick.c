@@ -488,15 +488,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          NULL,
-                                          lselold,
-                                          COMPUTESUBDIVISION, flags );
-
-                    g3dmesh_update ( mes, NULL,
-                                          NULL,
-                                          NULL,
-                                          lselnew,
-                                          COMPUTESUBDIVISION, flags );
+                                          0x00, flags );
                 }
             }
 

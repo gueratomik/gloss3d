@@ -780,9 +780,7 @@ void common_g3dui_alignNormalsCbk ( G3DUI *gui ) {
         /*** Update subdivision if we are in buffered mode. ***/
         g3dmesh_update ( mes, NULL,
                               NULL,
-                              NULL,
-                              NULL,
-                              COMPUTESUBDIVISION, gui->flags );
+                              0x00, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }

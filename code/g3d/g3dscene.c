@@ -46,13 +46,8 @@ void g3dscene_updateBufferedMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
             /*** Rebuild mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTEEDGEPOSITION |
-                                  COMPUTEVERTEXNORMAL |
-                                  COMPUTEFACENORMAL   |
-                                  REALLOCSUBDIVISION  |
-                                  COMPUTESUBDIVISION, engine_flags );
+                                  UPDATEVERTEXNORMAL |
+                                  UPDATEFACENORMAL, engine_flags );
         }
 
         ltmpmes = ltmpmes->next;
@@ -346,9 +341,7 @@ void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
             /*** must be entirely rebuilt because it must change color (red)***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTESUBDIVISION, engine_flags );
+                                  0x00, engine_flags );
         }
 
         list_append ( &sce->lsel, obj );

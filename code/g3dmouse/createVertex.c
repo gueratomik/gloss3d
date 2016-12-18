@@ -132,14 +132,9 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** Rebuild the subdivided mesh ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          NULL,
-                                          NULL,
-                                          COMPUTEFACEPOSITION |
-                                          COMPUTEFACENORMAL   |
-                                          COMPUTEEDGEPOSITION |
-                                          COMPUTEVERTEXNORMAL |
-                                          REALLOCSUBDIVISION  |
-                                          COMPUTESUBDIVISION, flags );
+                                          UPDATEFACEPOSITION |
+                                          UPDATEFACENORMAL   |
+                                          UPDATEVERTEXNORMAL, flags );
 
                     /*** add this action to the undo redo stack ***/
                     /*createVertex_push ( urm, mes, ver );*/

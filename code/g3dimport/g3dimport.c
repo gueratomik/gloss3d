@@ -884,8 +884,8 @@ printf("NB Triangles = %d\n", nbtri );
                                               NULL,
                                               NULL,
                                               COMPUTEEDGEPOSITION |
-                                              COMPUTEVERTEXNORMAL |
-                                              COMPUTEFACENORMAL   |
+                                              UPDATEVERTEXNORMAL |
+                                              UPDATEFACENORMAL   |
                                               COMPUTESUBDIVISION, flags );*/
 
                         free ( vid );
@@ -926,8 +926,8 @@ printf("NB Quds = %d\n", nbqua );
                                               NULL,
                                               NULL,
                                               COMPUTEEDGEPOSITION |
-                                              COMPUTEVERTEXNORMAL |
-                                              COMPUTEFACENORMAL   |
+                                              UPDATEVERTEXNORMAL |
+                                              UPDATEFACENORMAL   |
                                               REALLOCSUBDIVISION  |
                                               COMPUTESUBDIVISION, flags );*/
 

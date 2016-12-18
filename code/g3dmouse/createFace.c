@@ -306,14 +306,9 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** regenerate subdivision buffer ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          NULL,
-                                          NULL,
-                                          COMPUTEFACEPOSITION |
-                                          COMPUTEFACENORMAL   |
-                                          COMPUTEEDGEPOSITION |
-                                          COMPUTEVERTEXNORMAL |
-                                          REALLOCSUBDIVISION  |
-                                          COMPUTESUBDIVISION, flags );
+                                          UPDATEFACEPOSITION |
+                                          UPDATEFACENORMAL   |
+                                          UPDATEVERTEXNORMAL, flags );
 
                     /*** be ready for another bridging ***/
                     ver[0x00] = tmpver2;

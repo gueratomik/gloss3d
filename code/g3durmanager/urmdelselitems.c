@@ -141,14 +141,9 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
             /*** Rebuild the subdivided mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTEFACEPOSITION |
-                                  COMPUTEFACENORMAL   |
-                                  COMPUTEEDGEPOSITION |
-                                  COMPUTEVERTEXNORMAL |
-                                  REALLOCSUBDIVISION  |
-                                  COMPUTESUBDIVISION, flags );
+                                  UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL, flags );
         }
     }
 }
@@ -200,14 +195,9 @@ void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
             /*** Rebuild the subdivided mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTEFACEPOSITION |
-                                  COMPUTEFACENORMAL   |
-                                  COMPUTEEDGEPOSITION |
-                                  COMPUTEVERTEXNORMAL |
-                                  REALLOCSUBDIVISION  |
-                                  COMPUTESUBDIVISION, flags );
+                                  UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL, flags );
         }
     }
 }

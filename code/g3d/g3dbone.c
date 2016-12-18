@@ -201,29 +201,6 @@ void g3dbone_updateVertices ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-void g3dbone_updateEdges ( G3DBONE *bon ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-    LIST *ltmpbon = obj->lchildren;
-    LIST *ltmprig = bon->lrig;
-
-    while ( ltmprig ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpedg = rig->ledg;
-
-        while ( ltmpedg ) {
-            G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
-
-            g3dedge_position ( edg, 0x00 );
-
-            ltmpedg = ltmpedg->next;
-        }
-
-        ltmprig = ltmprig->next;
-    }
-}
-
-/******************************************************************************/
 void g3dbone_updateFaces ( G3DBONE *bon ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
     LIST *ltmpbon = obj->lchildren;
@@ -259,9 +236,6 @@ void g3dbone_transform ( G3DOBJECT *obj, uint32_t flags ) {
 
     /*** recompute faces middle position, normal vector ***/
     g3dbone_updateFaces ( bon );
-
-    /*** recompute Edges middle position. Needs faces to be updated first ***/
-    g3dbone_updateEdges ( bon );
 
     /*** recompute vertices normal vector ***/
     g3dbone_updateVertexNormals ( bon, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
@@ -424,7 +398,7 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     int i;
 
     /*** displaying bones could be annoying ***/
-    if ( flags & HIDEBONES ) return;
+    if ( flags & HIDEBONES ) return 0x00;
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );

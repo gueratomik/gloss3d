@@ -71,33 +71,28 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t     id,
                         char        *name,
                         uint32_t     object_flags,
-                        uint32_t   (*Draw)      ( G3DOBJECT *, G3DCAMERA *, 
-                                                               uint32_t ),
-                        void       (*Free)      ( G3DOBJECT * ),
-                        void       (*Pick)      ( G3DOBJECT *, G3DCAMERA *, 
-                                                               uint32_t ),
-                        void       (*Pose)      ( G3DOBJECT *, G3DKEY * ),
-                        G3DOBJECT* (*Copy)      ( G3DOBJECT *, uint32_t,
-                                                               unsigned char *,
-                                                               uint32_t ),
-                        void       (*Activate)  ( G3DOBJECT *, uint32_t ),
-                        void       (*Deactivate)( G3DOBJECT *, uint32_t ),
-                        void       (*Commit)    ( G3DOBJECT *, uint32_t,
-                                                               unsigned char *,
-                                                               uint32_t ),
-                        void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
-                                                               uint32_t ),
-                        void       (*SetParent) ( G3DOBJECT *, G3DOBJECT *, 
-                                                               uint32_t ),
-                        uint32_t   (*Modify)    ( G3DMODIFIER *, G3DMESH *,
-                                                                 LIST *,
-                                                                 LIST *,
-                                                                 LIST *,
+                        uint32_t   (*Draw)        ( G3DOBJECT *, G3DCAMERA *, 
                                                                  uint32_t ),
-                        void       (*Update)    ( G3DMODIFIER *, G3DMESH *,
-                                                                 G3DVERTEX **,
-                                                                 uint32_t,
-                                                                 uint32_t) ) {
+                        void       (*Free)        ( G3DOBJECT * ),
+                        void       (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
+                                                                 uint32_t ),
+                        void       (*Pose)        ( G3DOBJECT *, G3DKEY * ),
+                        G3DOBJECT* (*Copy)        ( G3DOBJECT *, uint32_t,
+                                                                 const char *,
+                                                                 uint32_t ),
+                        void       (*Activate)    ( G3DOBJECT *, uint32_t ),
+                        void       (*Deactivate)  ( G3DOBJECT *, uint32_t ),
+                        void       (*Commit)      ( G3DOBJECT *, uint32_t,
+                                                                 const char *,
+                                                                 uint32_t ),
+                        void       (*AddChild)    ( G3DOBJECT *, G3DOBJECT *,
+                                                                 uint32_t ),
+                        void       (*SetParent)   ( G3DOBJECT *, G3DOBJECT *, 
+                                                                 uint32_t ),
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint32_t ),
+                        void       (*StartUpdate) ( G3DMODIFIER *, uint32_t ),
+                        void       (*Update)      ( G3DMODIFIER *, uint32_t ),
+                        void       (*EndUpdate)   ( G3DMODIFIER *, uint32_t ) ) {
     g3dobject_init ( mod, type, id, name, object_flags,
                                           Draw,
                                           Free,
@@ -110,8 +105,10 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                           AddChild,
                                           SetParent );
 
-    mod->modify = Modify;
-    mod->update = Update;
+    mod->modify      = Modify;
+    mod->startUpdate = StartUpdate;
+    mod->update      = Update;
+    mod->endUpdate   = EndUpdate;
 
     g3dobject_deactivate ( mod, 0x00 );
 }

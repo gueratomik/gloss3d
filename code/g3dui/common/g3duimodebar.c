@@ -85,9 +85,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTESUBDIVISION, gui->flags );
+                                  0x00, gui->flags );
         }
 
         /*** The below restores the face ***/
@@ -96,11 +94,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
             if ( mes->lselfac ) {
                 g3dmesh_update ( mes, NULL,
                                       NULL,
-                                      NULL,
-                                  /*** there is no need to rebuild the     ***/
-                                  /*** whole mesh, only the selected faces ***/
-                                      mes->lselfac,
-                                      COMPUTESUBDIVISION, gui->flags );
+                                      0x00, gui->flags );
             }
         }
     }

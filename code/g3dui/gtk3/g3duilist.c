@@ -606,11 +606,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
                         g3dmesh_update ( ( G3DMESH * ) obj, NULL,
                                               NULL,
-                                              NULL,
-                                              NULL,
-                                              COMPUTEFACEPOSITION |
-                                              COMPUTEEDGEPOSITION |
-                                              COMPUTESUBDIVISION, gui->flags );
+                                              UPDATEFACEPOSITION, gui->flags );
                     }
 
                     g3dui_updateCoords ( gui );

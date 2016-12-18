@@ -101,15 +101,11 @@ void moveVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 
     /*** update faces and subdivided faces ***/
     g3dmesh_update ( mes, mvs->lver,
-                          mvs->ledg,
                           mvs->lfac,
-                          mvs->lsub,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          COMPUTEUVMAPPING    |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          COMPUTEUVMAPPING, engine_flags );
 
     /*** TODO: understand why those 2 calls are needed. It's becoming ***/
     /*** messy I  dont even know why the faces dont get correctly ***/
@@ -141,15 +137,11 @@ void moveVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 
     /*** update faces and subdivided faces ***/
     g3dmesh_update ( mes, mvs->lver,
-                          mvs->ledg,
                           mvs->lfac,
-                          mvs->lsub,
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   |
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL |
-                          COMPUTEUVMAPPING    |
-                          COMPUTESUBDIVISION, engine_flags );
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          COMPUTEUVMAPPING, engine_flags );
 
     /*** TODO: understand why those 2 calls are needed. It's becoming ***/
     /*** messy I  dont even know why the faces dont get correctly ***/

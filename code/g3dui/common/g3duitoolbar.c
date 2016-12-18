@@ -202,14 +202,9 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
             /*** Rebuild the subdivided mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  COMPUTEFACEPOSITION |
-                                  COMPUTEFACENORMAL   |
-                                  COMPUTEEDGEPOSITION |
-                                  COMPUTEVERTEXNORMAL |
-                                  REALLOCSUBDIVISION  |
-                                  COMPUTESUBDIVISION, gui->flags );
+                                  UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL, gui->flags );
         }
     }
 

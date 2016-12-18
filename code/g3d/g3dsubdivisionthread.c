@@ -43,6 +43,8 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              nbrtedg,
                                  G3DRTQUAD            *rtquamem,
                                  uint32_t              nbrtfac,
+                                 G3DRTUV              *rtuvmem,
+                                 uint32_t              nbrtuv,
                                  uint32_t              nbVerticesPerTriangle,
                                  uint32_t              nbVerticesPerQuad,
                                  uint32_t              nbEdgesPerTriangle,
@@ -59,6 +61,8 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
     std->nbrtedg               = nbrtedg;
     std->rtquamem              = rtquamem;
     std->nbrtfac               = nbrtfac;
+    std->rtuvmem               = rtuvmem;
+    std->nbrtuv                = nbrtuv;
     std->nbVerticesPerTriangle = nbVerticesPerTriangle;
     std->nbVerticesPerQuad     = nbVerticesPerQuad;
     std->nbEdgesPerTriangle    = nbEdgesPerTriangle;
@@ -84,6 +88,8 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     nbrtedg,
                                                  G3DRTQUAD   *rtquamem,
                                                  uint32_t     nbrtfac,
+                                                 G3DRTUV     *rtuvmem,
+                                                 uint32_t     nbrtuv,
                                                  uint32_t     nbVerticesPerTriangle,
                                                  uint32_t     nbVerticesPerQuad,
                                                  uint32_t     nbEdgesPerTriangle,
@@ -110,6 +116,8 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                      nbrtedg,
                                      rtquamem,
                                      nbrtfac,
+                                     rtuvmem,
+                                     nbrtuv,
                                      nbVerticesPerTriangle,
                                      nbVerticesPerQuad,
                                      nbEdgesPerTriangle,

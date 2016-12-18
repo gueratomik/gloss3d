@@ -569,7 +569,7 @@ printf("pasting\n");
                                               NULL,
                                               NULL,
                                               NULL,
-                                              COMPUTEFACEPOSITION |
+                                              UPDATEFACEPOSITION |
                                               COMPUTEEDGEPOSITION |
                                               COMPUTESUBDIVISION, gui->flags );
                     }
@@ -846,7 +846,7 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
                                               NULL,
                                               NULL,
                                               NULL,
-                                              COMPUTEFACEPOSITION |
+                                              UPDATEFACEPOSITION |
                                               COMPUTEEDGEPOSITION |
                                               COMPUTESUBDIVISION, gui->flags );
                     }

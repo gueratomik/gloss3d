@@ -30,37 +30,92 @@
 #include <g3d.h>
 
 /******************************************************************************/
-void g3dwireframe_update ( G3DWIREFRAME *wir, G3DVERTEX **vertices,
-                                              uint32_t    nbver,
-                                              uint32_t    engine_flags ) {
-    G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
-    G3DOBJECT *parent = obj->parent;
+void g3dwireframe_startUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+    G3DMODIFIER *mod = ( G3DMODIFIER * ) wir;
+    G3DOBJECT *obj = ( G3DOBJECT * ) wir;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( parent && ( parent->type & MESH ) ) {
+    if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         uint32_t nbVerPerFace = ( obj->flags & TRIANGULAR ) ?  4 :  8;
         uint32_t nbEdgPerFace = ( obj->flags & TRIANGULAR ) ? 12 : 16;
-        uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12; 
-        G3DVERTEX **modvertices = calloc ( ((G3DMESH*)wir)->nbver, sizeof ( G3DVERTEX * ) );
+        uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12;
+        LIST *lupdver = NULL, *ltmpupdver;
+
+        if ( engine_flags & VIEWVERTEX ) {
+            lupdver = list_copy ( mes->lselver );
+        }
+
+        if ( engine_flags & VIEWEDGE ) {
+            lupdver = g3dedge_getVerticesFromList ( mes->lseledg );
+        }
+
+        if ( engine_flags & VIEWFACE ) {
+            lupdver = g3dface_getVerticesFromList ( mes->lselfac );
+        }
+
+        ltmpupdver = lupdver;
+
+        while ( ltmpupdver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpupdver->data;
+            LIST *ltmpfac = ver->lfac;
+
+            list_insert ( &((G3DMESH*)mod)->lselver, &wir->modver[((ver->id)*2)+0] );
+            list_insert ( &((G3DMESH*)mod)->lselver, &wir->modver[((ver->id)*2)+1] );
+
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                uint32_t verOffset, j;
+
+                verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
+
+                for ( j = 0x00; j < fac->nbver; j++ ) {
+                    if ( ver == fac->ver[j] ) {
+                        list_insert ( &((G3DMESH*)mod)->lselver, &wir->modver[verOffset+j] );
+                    }
+                }
+
+                ltmpfac = ltmpfac->next;
+            }
+
+            ltmpupdver = ltmpupdver->next;
+        }
+
+        list_free ( &lupdver, NULL );
+    }
+}
+
+/******************************************************************************/
+void g3dwireframe_endUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+    list_free ( &((G3DMESH*)wir)->lselver, NULL );
+}
+
+/******************************************************************************/
+void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+    G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+    if ( parent ) {
+        G3DMESH *mes = ( G3DMESH * ) parent;
+        uint32_t nbVerPerFace = ( obj->flags & TRIANGULAR ) ?  4 :  8;
+        uint32_t nbEdgPerFace = ( obj->flags & TRIANGULAR ) ? 12 : 16;
+        uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12;
         uint32_t nbmodver = 0x00;
         uint32_t i;
+        LIST *ltmpver = mes->lselver;
 
         /*** recompute original vertex split ***/
-        for ( i = 0x00; i < nbver; i++ ) {
-            G3DVERTEX *ver = vertices[i];
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
             LIST *ltmpfac = ver->lfac;
 
             wir->modver[((ver->id)*2)+0].ver.pos.x = ver->pos.x + ( ver->nor.x * 0.05 );
             wir->modver[((ver->id)*2)+0].ver.pos.y = ver->pos.y + ( ver->nor.y * 0.05 );
             wir->modver[((ver->id)*2)+0].ver.pos.z = ver->pos.z + ( ver->nor.z * 0.05 );
 
-            modvertices[nbmodver++] = &wir->modver[((ver->id)*2)+0];
-
             wir->modver[((ver->id)*2)+1].ver.pos.x = ver->pos.x - ( ver->nor.x * 0.05 );
             wir->modver[((ver->id)*2)+1].ver.pos.y = ver->pos.y - ( ver->nor.y * 0.05 );
             wir->modver[((ver->id)*2)+1].ver.pos.z = ver->pos.z - ( ver->nor.z * 0.05 );
-
-            modvertices[nbmodver++] = &wir->modver[((ver->id)*2)+1];
 
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -77,32 +132,36 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, G3DVERTEX **vertices,
                         wir->modver[verOffset+j].ver.pos.x = fac->ver[j]->pos.x + ( dir.x * 0.05f );
                         wir->modver[verOffset+j].ver.pos.y = fac->ver[j]->pos.y + ( dir.y * 0.05f );
                         wir->modver[verOffset+j].ver.pos.z = fac->ver[j]->pos.z + ( dir.z * 0.05f );
-
-                        modvertices[nbmodver++] = &wir->modver[verOffset+j];
                     }
                 }
 
                 ltmpfac = ltmpfac->next;
             }
+
+            ltmpver = ltmpver->next;
         }
 
-        g3dmesh_updateModifiers ( wir, modvertices, nbmodver, engine_flags );
-
-        free ( modvertices );
+        g3dmesh_update ( wir, NULL,
+                              NULL,
+                              UPDATEFACEPOSITION |
+                              UPDATEFACENORMAL   |
+                              UPDATEVERTEXNORMAL |
+                              COMPUTEUVMAPPING, engine_flags );
     }
 }
 
 /******************************************************************************/
 uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
-    G3DOBJECT *parent = obj->parent;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     /*** We consider triangles as quads as well ***/
     uint32_t nbVerPerFace = ( obj->flags & TRIANGULAR ) ?  4 :  8;
     uint32_t nbEdgPerFace = ( obj->flags & TRIANGULAR ) ? 12 : 16;
     uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12;
 
+    g3dmesh_clearGeometry ( wir );
 
-    if ( parent && ( parent->type & MESH ) ) {
+    if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         LIST *ltmpver = mes->lver;
         LIST *ltmpedg = mes->ledg;
@@ -278,16 +337,10 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     }
 
     g3dmesh_update ( wir, NULL, /*** Recompute vertices    ***/
-                          NULL, /*** Recompute edges       ***/
                           NULL, /*** Recompute faces       ***/
-                          NULL, /*** Recompute subdivision ***/
-                          COMPUTEFACEPOSITION |
-                          COMPUTEFACENORMAL   | 
-                          COMPUTEEDGEPOSITION |
-                          COMPUTEVERTEXNORMAL /*|
-                          COMPUTEUVMAPPING    |
-                          REALLOCSUBDIVISION  |
-                          COMPUTESUBDIVISION*/,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL,
                           engine_flags );
 
     /*((G3DMESH*)wir)->lver  = ltmpver;
@@ -300,11 +353,10 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3dwireframe_activate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( obj->parent && ( obj->parent->type & MESH ) ) {
-        G3DOBJECT *parent = obj->parent;
-
-        g3dmesh_modify ( parent, engine_flags );
+    if ( parent ) {
+        g3dmesh_modify_r ( parent, engine_flags );
     }
 
     /*g3dmesh_modify ( obj, engine_flags );*/
@@ -313,14 +365,10 @@ void g3dwireframe_activate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3dwireframe_deactivate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
-    G3DOBJECT *parent = obj->parent;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_borrowGeometry ( wir, parent );
-
-        if ( parent->type & MESH ) {
-            g3dmesh_modify ( parent, engine_flags );
-        }
+        g3dmesh_modify_r ( parent, engine_flags );
 
     /*g3dmesh_modify ( wir, engine_flags );*/
     }
@@ -369,7 +417,9 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id, char *name ) {
                                                         NULL,
                                                         NULL,
                                                         g3dwireframe_modify,
-                                                        g3dwireframe_update );
+                                                        g3dwireframe_startUpdate,
+                                                        g3dwireframe_update,
+                                                        g3dwireframe_endUpdate );
 
     return wir;
 }

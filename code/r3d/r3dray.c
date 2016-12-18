@@ -44,7 +44,8 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-        G3DRTUV *rtuvmem = rfc->ancestorFace->rtuvmem;
+        /* to uncomment */
+        G3DRTUV *rtuvmem = /*rfc->ancestorFace->rtuvmem*/NULL;
         float avgu =       ( ( rtuvmem[rfc->ver[0x00]->id].u * ray->ratio[0x00] ) +
                              ( rtuvmem[rfc->ver[0x01]->id].u * ray->ratio[0x01] ) +
                              ( rtuvmem[rfc->ver[0x02]->id].u * ray->ratio[0x02] ) ),
