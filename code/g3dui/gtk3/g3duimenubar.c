@@ -361,20 +361,6 @@ void g3dui_addFFDBoxCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void g3dui_assignFFDBoxCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_assignFFDBoxCbk ( gui );
-}
-
-/******************************************************************************/
-void g3dui_resetFFDBoxCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_resetFFDBoxCbk ( gui );
-}
-
-/******************************************************************************/
 void g3dui_addBoneCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -451,12 +437,7 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton       ( menu, gui, MENU_ADDSUBDIVIDER  , width, G_CALLBACK(g3dui_addSubdividerCbk)   );
     g3dui_addMenuButton       ( menu, gui, MENU_ADDSYMMETRY    , width, G_CALLBACK(g3dui_addSymmetryCbk)     );
     g3dui_addMenuButton       ( menu, gui, MENU_CONVERTSYMMETRY, width, G_CALLBACK(g3dui_convertSymmetryCbk) );
-
-    g3dui_addMenuSeparator    ( menu );
-
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDFFDBOX, width, G_CALLBACK(g3dui_addFFDBoxCbk)    );
-    g3dui_addMenuButton       ( menu, gui, MENU_ASSIGNFFD, width, G_CALLBACK(g3dui_assignFFDBoxCbk) );
-    g3dui_addMenuButton       ( menu, gui, MENU_RESETFFD , width, G_CALLBACK(g3dui_resetFFDBoxCbk)  );
+    g3dui_addMenuButton       ( menu, gui, MENU_ADDFFDBOX      , width, G_CALLBACK(g3dui_addFFDBoxCbk)    );
 
     g3dui_addMenuSeparator    ( menu );
 

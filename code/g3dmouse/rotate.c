@@ -160,7 +160,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                                        VPX[0x03] - bev->y,
                                  flags );
 
-                if ( obj->type & MESH ) {
+                if ( obj->type & EDITABLE ) {
                     G3DOBJECT *objmes = obj;
 
                     mes = ( G3DMESH * ) obj;
@@ -236,7 +236,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dobject_updateMatrix_r ( obj, 0x00 );
                 } else {
-                    if ( obj->type & MESH ) {
+                    if ( obj->type & EDITABLE ) {
                         double rmatrix[0x10];
                         LIST *ltmp = lver;
                         mes = ( G3DMESH * ) obj;
@@ -290,7 +290,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             G3DFFD  *ffd = ( G3DFFD * ) obj;
                             G3DMESH *ffdmes = ( G3DMESH * ) obj->parent;
 
-                            g3dffd_modify ( ffd );
+                            /*g3dffd_modify ( ffd );*/
 
                             if ( ffdmes ) {
                                 g3dmesh_update ( ffdmes, ffd->lver,

@@ -138,13 +138,16 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL |
-                                          COMPUTEUVMAPPING, flags );
+                                          COMPUTEUVMAPPING   |
+                                          RESETMODIFIERS, flags );
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
                     lselfac = g3dvertex_getFacesFromList  ( lver    );
                     lseledg = g3dface_getEdgesFromList    ( lselfac );
                     lselver = g3dface_getVerticesFromList ( lselfac );
+
+                    g3dmesh_startUpdateModifiers_r ( obj, flags );
 
                     /*if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
                         lselsub = g3dvertex_getAreaFacesFromList ( lver );
@@ -203,12 +206,14 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                     }
                 }
 
-                g3dmesh_update ( mes, lselver,
-                                      lselfac,
-                                      UPDATEFACEPOSITION |
-                                      UPDATEFACENORMAL   |
-                                      UPDATEVERTEXNORMAL |
-                                      COMPUTEUVMAPPING, flags );
+                g3dmesh_updateModifiers_r ( obj, flags );
+
+                if ( mes->onGeometryMove ) {
+                     mes->onGeometryMove ( mes, lselver, 
+                                                NULL, 
+                                                lselfac, 
+                                                flags );
+                }
             }
 
             xold = mev->x;
@@ -225,6 +230,8 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                                             oldpos,
                                             newpos,
                                             REDRAWVIEW );
+
+            g3dmesh_endUpdateModifiers_r ( obj, flags );
 
             g3dmesh_updateBbox ( mes );
 

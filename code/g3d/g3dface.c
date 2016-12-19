@@ -518,17 +518,6 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                         
                         glDisable ( GL_TEXTURE_2D );
 
-                        if ( fac->flags & FACESUBDIVIDED ) {
-                            #ifdef __linux__
-                            glClientActiveTextureARB ( arbid );
-                            #endif
-                            #ifdef __MINGW32__
-                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
-                            #endif
-
-                            glDisableClientState     ( GL_TEXTURE_COORD_ARRAY );
-                        }
-
                         arbid++;
                     }
 
@@ -541,16 +530,6 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                         #endif
 
                         glDisable ( GL_TEXTURE_2D );
-
-                        if ( fac->flags & FACESUBDIVIDED ) {
-                            #ifdef __linux__
-                            glClientActiveTextureARB ( arbid );
-                            #endif
-                            #ifdef __MINGW32__
-                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
-                            #endif
-                            glDisableClientState     ( GL_TEXTURE_COORD_ARRAY );
-                        }
 
                         arbid++;
                     }
@@ -578,8 +557,20 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
     uint32_t drawTextures = ( engine_flags & NOTEXTURE ) ? 0x00 : 0x01;
     static GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f },
                    whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
-                   whiteAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
+                   whiteAmbient[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    whiteShininess  = 0.0f;
+    static GLfloat selectDiffuse[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+    static GLfloat grayDiffuse[]   = { MESHCOLORF, 
+                                       MESHCOLORF, 
+                                       MESHCOLORF, 1.0f };
+
+    glDisable ( GL_COLOR_MATERIAL );
+
+    if ( fac->flags & FACESELECTED ) {
+        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+    } else {
+        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+    }
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -592,10 +583,45 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                   mat->specular.solid.g * mat->specular_level,
                                   mat->specular.solid.b * mat->specular_level,
                                   mat->specular.solid.a * mat->specular_level };
+            G3DIMAGE *difimg = NULL;
 
             if ( tex->map == uvs->map ) {
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
+                    glDisable ( GL_COLOR_MATERIAL );
+
                     if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+                    } else {
+                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
+                    }
+
+                    if ( fac->flags & FACESELECTED ) {
+                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+                    }
+
+                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                        difimg = mat->diffuse.image;
+                    }
+
+                    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            difimg = &mat->diffuse.proc->image;
+                        }
+                    }
+
+                    if ( difimg ) {
+                        glBindTexture ( GL_TEXTURE_2D, difimg->id );
+                        glEnable      ( GL_TEXTURE_2D );
+
+                        glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                                    GL_COMBINE_EXT );
+                    }
+
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR , ( GLfloat * ) &specular );
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess );
+
+#ifdef unused
                         if ( ( fac->flags   & FACESELECTED ) && 
                              /*( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&*/
                              ( engine_flags & VIEWFACE     ) ) {
@@ -605,142 +631,38 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                             glDisable ( GL_COLOR_MATERIAL );
 
                             glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE,   ( GLfloat * ) &mat->diffuse.solid  );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT,   ( GLfloat * ) &mat->ambient.solid  );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR,  ( GLfloat * ) &specular );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess      );
+
                         }
                     }
+#endif
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
 
-                    if ( ( mat->flags & DIFFUSE_USEIMAGECOLOR ) || 
-                         ( mat->flags & DIFFUSE_USEPROCEDURAL ) ) {
-                        if ( ( fac->flags   & FACESELECTED ) && 
-                             /*( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&*/
-                             ( engine_flags & VIEWFACE     ) ) {
-                            glEnable   ( GL_COLOR_MATERIAL );
-                            glColor3ub ( 0xFF, 0x7F, 0x00 );
-                        } else {
-                            glEnable   ( GL_COLOR_MATERIAL );
-                            glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-                            glDisable ( GL_COLOR_MATERIAL );
-
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE,   ( GLfloat * ) whiteDiffuse  );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT,   ( GLfloat * ) whiteAmbient  );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR,  ( GLfloat * ) &specular );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess      );
-                        }
-
-                        /*** Color image ***/
-                        if ( drawTextures ) {
-                            G3DIMAGE *difimg = NULL;
-
-                            if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
-                                difimg = mat->diffuse.image;
-                            }
-
-                            if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
-                                if ( mat->diffuse.proc ) {
-                                    difimg = &mat->diffuse.proc->image;
-                                }
-                            }
-
-                            #ifdef __linux__
-                            glActiveTextureARB ( arbid );
-                            #endif
-                            #ifdef __MINGW32__
-                            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                            #endif
-
-                            if ( difimg ) glBindTexture ( GL_TEXTURE_2D, difimg->id );
-                            glEnable      ( GL_TEXTURE_2D );
-
-                            glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-                                                        GL_COMBINE_EXT );
-
-                            if ( fac->flags & FACESUBDIVIDED ) {
-                                #ifdef __linux__
-                                glClientActiveTextureARB ( arbid );
-                                #endif
-                                #ifdef __MINGW32__
-                                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
-                                #endif
-
-                                glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
-/*for ( int k = 0; k < fac->nbrtfac; k++ ) {
-    printf ( "%f %f\n", fac->rtuvsmem[k].uv[0].u, fac->rtuvsmem[k].uv[0].v );
-    printf ( "%f %f\n", fac->rtuvsmem[k].uv[1].u, fac->rtuvsmem[k].uv[1].v );
-    printf ( "%f %f\n", fac->rtuvsmem[k].uv[2].u, fac->rtuvsmem[k].uv[2].v );
-    printf ( "%f %f\n", fac->rtuvsmem[k].uv[3].u, fac->rtuvsmem[k].uv[3].v );
-}*/
-                                /* to uncomment */
-                                /*glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                          fac->rtuvmem );*/
-                            } else {
-                                texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
-                                texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
-                                texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
-                                texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
-                                texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
-                                texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
-                                texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
-                                texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
-                                texcoord[nbtex].tid = arbid;
-                            }
-
-                            arbid++; nbtex++;
-                        } else {
-                            glDisable ( GL_COLOR_MATERIAL );
-
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE,    blackDiffuse   );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT,    blackAmbient   );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR,   blackSpecular  );
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, &blackShininess );
-                        }
-                    }
-
-                    /*** Bump channel ***/
-                    if ( mat->bump.image && drawTextures ) {
-                        G3DIMAGE *bmpimg = mat->bump.image;
-
-                        #ifdef __linux__
-                        glActiveTextureARB ( arbid );
-                        #endif
-                        #ifdef __MINGW32__
-                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                        #endif
-
-                        glBindTexture ( GL_TEXTURE_2D, mat->bump.image->id );
+                    if ( difimg ) {
+                        glBindTexture ( GL_TEXTURE_2D, difimg->id );
                         glEnable      ( GL_TEXTURE_2D );
 
                         glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
                                                     GL_COMBINE_EXT );
 
-                        if ( fac->flags & FACESUBDIVIDED ) {
-                            #ifdef __linux__
-                            glClientActiveTextureARB ( arbid );
-                            #endif
-                            #ifdef __MINGW32__
-                            if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
-                            #endif
-
-                            glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
-                            /* to uncomment */
-                            /*glTexCoordPointer ( 0x02, GL_FLOAT, 0x00,
-                                                      fac->rtuvmem );*/
-                        } else {
-                            texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
-                            texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
-                            texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
-                            texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
-                            texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
-                            texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
-                            texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
-                            texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
-                            texcoord[nbtex].tid = arbid;
-                        }
-
-                        arbid++; nbtex++;
+                        texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
+                        texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
+                        texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
+                        texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
+                        texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
+                        texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
+                        texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
+                        texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
+                        texcoord[nbtex].tid = arbid;
                     }
+
+                    /*glEnable ( GL_COLOR_MATERIAL );*/
+
+                    arbid++; nbtex++;
                 }
             }
 

@@ -50,6 +50,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( obj->type == G3DBONETYPE       ) wname = EDITBONE;
         if ( obj->type == G3DUVMAPTYPE      ) wname = EDITUVMAP;
         if ( obj->type == G3DSUBDIVIDERTYPE ) wname = EDITSUBDIVIDER;
+        if ( obj->type == G3DWIREFRAMETYPE  ) wname = EDITWIREFRAME;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
@@ -73,6 +74,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                     if ( obj->type == G3DLIGHTTYPE      ) updateLightEdit      ( child, gui );
                     if ( obj->type == G3DUVMAPTYPE      ) updateUVMapEdit      ( child, gui );
                     if ( obj->type == G3DSUBDIVIDERTYPE ) updateSubdividerEdit ( child, gui );
+                    if ( obj->type == G3DWIREFRAMETYPE  ) updateWireframeEdit  ( child, gui );
 
                     gtk_widget_show ( child );
                 } else {
@@ -157,6 +159,7 @@ GtkWidget *createCurrentEdit ( GtkWidget *parent, G3DUI *gui,
     createSubdividerEdit ( frm, gui, EDITSUBDIVIDER, 0, 32, 296, 320 );
     createLightEdit      ( frm, gui, EDITLIGHT     , 0, 32, 296,  96 );
     createUVMapEdit      ( frm, gui, EDITUVMAP     , 0, 32, 296,  96 );
+    createWireframeEdit  ( frm, gui, EDITWIREFRAME , 0, 32, 296,  96 );
 
     list_insert ( &gui->lcuredit, frm );
 

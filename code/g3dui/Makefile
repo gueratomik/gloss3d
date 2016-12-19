@@ -91,6 +91,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duitimeline.c common/g3duitoolbar.c \
 	common/g3duitorusedit.c common/g3duiuvmapedit.c \
 	common/g3duiview.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -110,8 +111,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
 	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
 	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
-	gtk3/mousetool/g3duicurrentmousetool.c \
+	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
+	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c motif/TabbedBook.c \
@@ -245,6 +246,7 @@ am__objects_1 = common/g3dui.lo \
 	common/g3duitorusedit.lo \
 	common/g3duiuvmapedit.lo common/g3duiview.lo \
 	common/g3duiweightgrouplist.lo \
+	common/g3duiwireframeedit.lo \
 	common/mousetool/g3duicurrentmousetool.lo \
 	common/mousetool/g3duicutmeshtooledit.lo \
 	common/mousetool/g3duipicktooledit.lo \
@@ -273,7 +275,7 @@ am__objects_1 = common/g3dui.lo \
 	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
 	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
 	gtk3/g3duiweightgrouplist.lo \
-	gtk3/r3dpreview.lo \
+	gtk3/g3duiwireframeedit.lo gtk3/r3dpreview.lo \
 	gtk3/mousetool/g3duicurrentmousetool.lo \
 	gtk3/mousetool/g3duicutmeshtooledit.lo \
 	gtk3/mousetool/g3duipicktooledit.lo \
@@ -304,6 +306,7 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duitimeline.c common/g3duitoolbar.c \
 	common/g3duitorusedit.c common/g3duiuvmapedit.c \
 	common/g3duiview.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -323,8 +326,8 @@ am__libgloss_g3dui_motif_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
 	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
 	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c gtk3/r3dpreview.c \
-	gtk3/mousetool/g3duicurrentmousetool.c \
+	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
+	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c motif/TabbedBook.c \
@@ -554,6 +557,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             common/g3duiuvmapedit.c \
                             common/g3duiview.c \
                             common/g3duiweightgrouplist.c \
+                            common/g3duiwireframeedit.c \
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
@@ -595,6 +599,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
+                            gtk3/g3duiwireframeedit.c \
                             gtk3/r3dpreview.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -827,6 +832,8 @@ common/g3duiview.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiweightgrouplist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiwireframeedit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/mousetool/$(am__dirstamp):
 	@$(MKDIR_P) common/mousetool
 	@: > common/mousetool/$(am__dirstamp)
@@ -919,6 +926,8 @@ gtk3/g3duiuvmapedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiview.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiweightgrouplist.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiwireframeedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/r3dpreview.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1111,6 +1120,8 @@ mostlyclean-compile:
 	-rm -f common/g3duiview.lo
 	-rm -f common/g3duiweightgrouplist.$(OBJEXT)
 	-rm -f common/g3duiweightgrouplist.lo
+	-rm -f common/g3duiwireframeedit.$(OBJEXT)
+	-rm -f common/g3duiwireframeedit.lo
 	-rm -f common/mousetool/g3duicurrentmousetool.$(OBJEXT)
 	-rm -f common/mousetool/g3duicurrentmousetool.lo
 	-rm -f common/mousetool/g3duicutmeshtooledit.$(OBJEXT)
@@ -1193,6 +1204,8 @@ mostlyclean-compile:
 	-rm -f gtk3/g3duiview.lo
 	-rm -f gtk3/g3duiweightgrouplist.$(OBJEXT)
 	-rm -f gtk3/g3duiweightgrouplist.lo
+	-rm -f gtk3/g3duiwireframeedit.$(OBJEXT)
+	-rm -f gtk3/g3duiwireframeedit.lo
 	-rm -f gtk3/mousetool/g3duicurrentmousetool.$(OBJEXT)
 	-rm -f gtk3/mousetool/g3duicurrentmousetool.lo
 	-rm -f gtk3/mousetool/g3duicutmeshtooledit.$(OBJEXT)
@@ -1322,6 +1335,7 @@ include common/$(DEPDIR)/g3duitorusedit.Plo
 include common/$(DEPDIR)/g3duiuvmapedit.Plo
 include common/$(DEPDIR)/g3duiview.Plo
 include common/$(DEPDIR)/g3duiweightgrouplist.Plo
+include common/$(DEPDIR)/g3duiwireframeedit.Plo
 include common/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 include common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
@@ -1363,6 +1377,7 @@ include gtk3/$(DEPDIR)/g3duitorusedit.Plo
 include gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 include gtk3/$(DEPDIR)/g3duiview.Plo
 include gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo
+include gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
 include gtk3/$(DEPDIR)/r3dpreview.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo
 include gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo

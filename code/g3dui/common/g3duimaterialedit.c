@@ -150,7 +150,6 @@ void common_g3dui_materialDisplacementStrengthCbk  ( G3DUI *gui,
 
         g3dmaterial_updateMeshes ( mat, gui->flags );
 
-
         g3dui_redrawGLViews ( gui );
     }
 }

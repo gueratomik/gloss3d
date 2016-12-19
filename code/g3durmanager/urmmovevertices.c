@@ -95,7 +95,7 @@ void moveVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
         ltmp = ltmp->next;
     }
 
-    if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) mes );
+    /*if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) mes );*/
 
     g3dmesh_updateBbox ( mvs->mes );
 
@@ -130,7 +130,7 @@ void moveVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
         ltmp = ltmp->next;
     }
 
-    if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) obj );
+    /*if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) obj );*/
 
 
     g3dmesh_updateBbox ( mvs->mes );

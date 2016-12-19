@@ -158,9 +158,11 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define PIVOT      (  1 << 18 )
 #define SUBDIVIDER (  1 << 19 )
 #define WIREFRAME  (  1 << 20 )
+#define MULTIPLIER (  1 << 21 )
+#define EDITABLE   (  1 << 22 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
-#define G3DMESHTYPE       ( OBJECT | MESH )
+#define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
 #define G3DPRIMITIVETYPE  ( OBJECT | MESH | PRIMITIVE )
 #define G3DSPHERETYPE     ( OBJECT | MESH | PRIMITIVE | SPHERE )
 #define G3DPLANETYPE      ( OBJECT | MESH | PRIMITIVE | PLANE )
@@ -168,13 +170,14 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DCUBETYPE       ( OBJECT | MESH | PRIMITIVE | CUBE )
 #define G3DCYLINDERTYPE   ( OBJECT | MESH | PRIMITIVE | CYLINDER )
 #define G3DCONETYPE       ( OBJECT | MESH | PRIMITIVE | CONE )
-#define G3DFFDTYPE        ( OBJECT | MESH | MODIFIER | FFD )
-#define G3DSYMMETRYTYPE   ( OBJECT | SYMMETRY )
+#define G3DSYMMETRYTYPE   ( OBJECT | MULTIPLIER | SYMMETRY )
 #define G3DCAMERATYPE     ( OBJECT | CAMERA )
 #define G3DSCENETYPE      ( OBJECT | SCENE )
-#define G3DBONETYPE       ( OBJECT | MESH | MODIFIER | BONE )
-#define G3DWIREFRAMETYPE  ( OBJECT | MESH | MODIFIER | WIREFRAME )
-#define G3DSUBDIVIDERTYPE ( OBJECT | MESH | MODIFIER | SUBDIVIDER )
+#define G3DBONETYPE       ( OBJECT | BONE )
+                    /* ffd not flagged as mesh but still inherits from mesh */
+#define G3DFFDTYPE        ( OBJECT | EDITABLE |        MODIFIER | FFD )
+#define G3DWIREFRAMETYPE  ( OBJECT | EDITABLE | MESH | MODIFIER | WIREFRAME )
+#define G3DSUBDIVIDERTYPE ( OBJECT | EDITABLE | MESH | MODIFIER | SUBDIVIDER )
 #define G3DLIGHTTYPE      ( OBJECT | LIGHT )
 #define G3DSPOTTYPE       ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE      ( OBJECT | UVMAP )
@@ -981,10 +984,6 @@ struct _G3DMESH {
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
-    /*G3DVECTOR midver;
-    G3DVECTOR midfac;*/
-    /*uint32_t subdiv;*/ /*** subdivision levels ***/
-    /*uint32_t subdiv_render;*/ /*** subdivision levels for rendering ***/
     uint32_t subalg; /*** subdivision algo   ***/
     uint32_t nbver;
     uint32_t nbedg;
@@ -1000,19 +999,14 @@ struct _G3DMESH {
     uint32_t nbseltex;
     uint32_t nbtex;
     uint32_t nbuvmap;
-    /*float    advang;*/ /*** Angle limit, used for Adaptive subdiv ***/
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
-    /*GLuint dlist;*/
-    /*G3DRTQUAD *rtquamem;
-    uint64_t   nbrtfac;
-    G3DRTEDGE *rtedgmem;
-    uint64_t   nbrtedg;
-    G3DRTVERTEX *rtvermem;
-    uint64_t     nbrtver;
-    uint64_t nbrtverpertriangle;
-    uint64_t nbrtverperquad;*/
-    G3DFACE **faceindex; /*** Face index array in sculpt mode ***/ 
+    G3DFACE **faceindex; /*** Face index array in sculpt mode ***/
+    /*** callbacks ***/
+    void (*onGeometryMove) ( struct _G3DMESH *, LIST *,
+                                                LIST *,
+                                                LIST *,
+                                                uint32_t );
 };
 
 /******************************************************************************/
@@ -1062,19 +1056,15 @@ typedef struct _G3DBONE {
 
 /******************************************************************************/
 typedef struct _G3DWIREFRAME {
-    G3DMODIFIER mod;  /*** Bone inherits G3DOBJECT        ***/
-    G3DVECTOR fixpos; /*** Position vector value when the bone was fixed ***/
-    G3DVECTOR fixrot; /*** Rotation vector value when the bone was fixed ***/
-    G3DVECTOR fixsca; /*** Scale vector value when the bone was fixed ***/
-    float len;        /*** Bone len                       ***/
-    LIST *lrig;       /*** list of rigged weight groups   ***/
-    uint32_t nbrig;
+    G3DMODIFIER   mod;  /*** Bone inherits G3DOBJECT        ***/
+    float         thickness;
+    float         aperture;
     G3DSUBVERTEX *modver; /* we use the sub structures because of their */
     G3DSUBEDGE   *modedg; /* ability to provide static topology */
     G3DSUBFACE   *modfac;
-    uint32_t   nbmodver;
-    uint32_t   nbmodedg;
-    uint32_t   nbmodfac;
+    uint32_t      nbmodver;
+    uint32_t      nbmodedg;
+    uint32_t      nbmodfac;
 } G3DWIREFRAME;
 
 /******************************************************************************/
@@ -2207,7 +2197,7 @@ void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, flo
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
 void    g3dffd_addVertex    ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_generateuvw  ( G3DFFD * );
-void    g3dffd_modify       ( G3DFFD * );
+uint32_t g3dffd_modify ( G3DFFD *, uint32_t );
 void    g3dffd_appendVertex ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_unassign     ( G3DFFD * );
 
@@ -2403,11 +2393,13 @@ void g3dmodifier_init ( G3DMODIFIER *,
 uint32_t g3dmodifier_draw ( G3DMODIFIER *, G3DCAMERA *, uint32_t );
 
 /******************************************************************************/
-G3DWIREFRAME *g3dwireframe_new    ( uint32_t, char * );
-uint32_t      g3dwireframe_modify ( G3DWIREFRAME *, uint32_t );
-void          g3dwireframe_update ( G3DWIREFRAME *, uint32_t );
-uint32_t      g3dwireframe_draw   ( G3DWIREFRAME *, G3DCAMERA *, uint32_t );
-void          g3dwireframe_free   ( G3DWIREFRAME * );
-
+G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
+uint32_t      g3dwireframe_modify       ( G3DWIREFRAME *, uint32_t );
+void          g3dwireframe_update       ( G3DWIREFRAME *, uint32_t );
+uint32_t      g3dwireframe_draw         ( G3DWIREFRAME *, G3DCAMERA *, 
+                                                          uint32_t );
+void          g3dwireframe_free         ( G3DWIREFRAME * );
+void          g3dwireframe_setThickness ( G3DWIREFRAME *, float,
+                                                          uint32_t );
 
 #endif

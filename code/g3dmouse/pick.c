@@ -173,7 +173,7 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
 
-    if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type & MESH ) ) {
+    if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type & EDITABLE ) ) {
         glMultMatrixd ( obj->wmatrix );
         glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
@@ -423,7 +423,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             if ( ( flags & VIEWVERTEX ) ) {
                 obj = g3dscene_getLastSelected ( sce );
 
-                if ( obj && ( obj->type & MESH ) ) {
+                if ( obj && ( obj->type & EDITABLE ) ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
                     lselold = list_copy ( mes->lselver );
 
@@ -448,7 +448,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             if ( ( flags & VIEWEDGE ) ) {
                 obj = g3dscene_getLastSelected ( sce );
 
-                if ( obj && ( obj->type & MESH ) ) {
+                if ( obj && ( obj->type & EDITABLE ) ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
                     lselold = list_copy ( mes->lseledg );
 
@@ -467,7 +467,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             if ( ( flags & VIEWFACE ) ) {
                 obj = g3dscene_getLastSelected ( sce );
 
-                if ( obj && ( obj->type & MESH ) ) {
+                if ( obj && ( obj->type & EDITABLE ) ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
                     lselold = list_copy ( mes->lselfac );
 

@@ -45,6 +45,7 @@ if HAVE_GTK3
                             common/g3duiuvmapedit.c \
                             common/g3duiview.c \
                             common/g3duiweightgrouplist.c \
+                            common/g3duiwireframeedit.c \
                             common/mousetool/g3duicurrentmousetool.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
@@ -86,6 +87,7 @@ if HAVE_GTK3
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
+                            gtk3/g3duiwireframeedit.c \
                             gtk3/r3dpreview.c \
                             gtk3/mousetool/g3duicurrentmousetool.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \

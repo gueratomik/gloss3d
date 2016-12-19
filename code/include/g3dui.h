@@ -330,6 +330,9 @@
 #define EDITSUBDIVIDERRENDER   "Subdivision (render)"
 #define EDITMESHISOLINES       "Use isoparms (Slower)"
 
+#define EDITWIREFRAME          "Wireframe"
+#define EDITWIREFRAMETHICKNESS "Thickness"
+
 #define EDITSCULPTTOOLVISIBLE  "Only visible"
 #define EDITSCULPTTOOLPRESSURE "Pressure"
 #define EDITSCULPTTOOLRADIUS   "Radius"
@@ -1121,5 +1124,7 @@ uint32_t            common_g3dui_cancelRenderByID        ( G3DUI *, uint64_t   )
 uint32_t            common_g3dui_cancelRenderByScene     ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
+
+void common_g3duiwireframeedit_thicknessCbk ( G3DUI *, float );
 
 #endif

@@ -315,50 +315,6 @@ void common_g3dui_addBoneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_resetFFDBoxCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DURMANAGER *urm = gui->urm;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        if ( obj->type == G3DFFDTYPE ) {
-            G3DFFD *ffd = ( G3DFFD * ) obj;
-            G3DOBJECT *parent = obj->parent;
-
-            if ( parent->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) parent;
-
-                g3dffd_unassign ( ffd );
-
-                g3dui_redrawGLViews ( gui );
-            }
-        }
-    }
-}
-
-/******************************************************************************/
-void common_g3dui_assignFFDBoxCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DURMANAGER *urm = gui->urm;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ) {
-        if ( obj->type == G3DFFDTYPE ) {
-            G3DFFD *ffd = ( G3DFFD * ) obj;
-            G3DOBJECT *parent = obj->parent;
-
-            if ( parent->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) parent;
-
-                g3dffd_assign ( ffd, mes );
-
-                g3dui_redrawGLViews ( gui );
-            }
-        }
-    }
-}
-
-/******************************************************************************/
 void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
@@ -367,7 +323,7 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
     G3DFFD *ffd = g3dffd_new ( pid, "FFD Box" );
 
     /*** let's create a default shape ***/
-    g3dffd_shape ( ffd, 0x04, 0x04, 0x04, 3.0f, 3.0f, 3.0f );
+    g3dffd_shape ( ffd, 0x01, 0x01, 0x01, 3.0f, 3.0f, 3.0f );
 
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->flags, 

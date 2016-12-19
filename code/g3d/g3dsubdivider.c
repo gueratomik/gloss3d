@@ -390,10 +390,31 @@ void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 
 /******************************************************************************/
 static void bindMaterials ( G3DMESH *mes, G3DFACE *fac, 
-                                          G3DRTUV *rtuvmem ) {
+                                          G3DRTUV *rtuvmem,
+                                          uint32_t engine_flags ) {
+    static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
+                   blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
+                   blackSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
+                   blackShininess  = 0.0f;
+    static GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f },
+                   whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
+                   whiteAmbient[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
+                   whiteShininess  = 0.0f;
+    static GLfloat selectDiffuse[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+    static GLfloat grayDiffuse[]   = { MESHCOLORF, 
+                                       MESHCOLORF, 
+                                       MESHCOLORF, 1.0f };
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
     LIST *ltmpuvs = fac->luvs;
+
+    glDisable ( GL_COLOR_MATERIAL );
+
+    if ( fac->flags & FACESELECTED ) {
+        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+    } else {
+        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+    }
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -401,6 +422,22 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
             G3DMATERIAL *mat = tex->mat;
             G3DIMAGE    *difimg = NULL;
+            G3DCOLOR specular = { mat->specular.solid.r * mat->specular_level,
+                                  mat->specular.solid.g * mat->specular_level,
+                                  mat->specular.solid.b * mat->specular_level,
+                                  mat->specular.solid.a * mat->specular_level };
+
+
+
+            if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+            } else {
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
+            }
+
+            if ( fac->flags & FACESELECTED ) {
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+            }
 
             if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
                 difimg = mat->diffuse.image;
@@ -412,30 +449,45 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
                 }
             }
 
-            #ifdef __linux__
-            glActiveTextureARB ( arbid );
-            #endif
-            #ifdef __MINGW32__
-            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-            #endif
+            if ( difimg ) {
+                glBindTexture ( GL_TEXTURE_2D, difimg->id );
+                glEnable      ( GL_TEXTURE_2D );
 
-            if ( difimg ) glBindTexture ( GL_TEXTURE_2D, difimg->id );
-            glEnable      ( GL_TEXTURE_2D );
+                glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                            GL_COMBINE_EXT );
+            }
 
-            glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT );
+            glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
+            glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR , ( GLfloat * ) &specular );
+            glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess );
 
-            if ( tex->map == uvs->map ) {
+            if ( difimg ) {
                 #ifdef __linux__
-                glClientActiveTextureARB ( arbid );
+                glActiveTextureARB ( arbid );
                 #endif
                 #ifdef __MINGW32__
-                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
                 #endif
-                glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
 
-                glTexCoordPointer ( 0x02, GL_FLOAT, 0x00, rtuvmem );
+                glBindTexture ( GL_TEXTURE_2D, difimg->id );
+                glEnable      ( GL_TEXTURE_2D );
 
-                arbid++;
+                glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, 
+                                            GL_COMBINE_EXT );
+
+                if ( tex->map == uvs->map ) {
+                    #ifdef __linux__
+                    glClientActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                    #endif
+                    glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+
+                    glTexCoordPointer ( 0x02, GL_FLOAT, 0x00, rtuvmem );
+
+                    arbid++;
+                }
             }
 
             ltmptex = ltmptex->next;
@@ -447,7 +499,8 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
 
 /******************************************************************************/
 static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac, 
-                                            G3DRTUV *rtuvmem ) {
+                                            G3DRTUV *rtuvmem,
+                                            uint32_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
     LIST *ltmpuvs = fac->luvs;
@@ -524,7 +577,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                                            ( fac->typeID * sdr->nbVerticesPerQuad * mes->nbuvmap );
             }
 
-            bindMaterials ( mes, fac, rtuvmem );
+            bindMaterials ( mes, fac, rtuvmem, engine_flags );
 
             glEnableClientState ( GL_VERTEX_ARRAY );
             glEnableClientState ( GL_NORMAL_ARRAY );
@@ -537,7 +590,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             glDisableClientState ( GL_NORMAL_ARRAY );
             glDisableClientState ( GL_VERTEX_ARRAY );
 
-            unbindMaterials ( mes, fac, rtuvmem );
+            unbindMaterials ( mes, fac, rtuvmem, engine_flags );
 
             ltmpfac = ltmpfac->next;
         }

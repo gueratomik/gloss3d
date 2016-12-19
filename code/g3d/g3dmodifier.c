@@ -56,7 +56,8 @@ uint32_t g3dmodifier_draw ( G3DMODIFIER *mod, G3DCAMERA *cam,
     uint32_t takenOver = g3dobject_drawModifiers ( mod, 
                                                    cam, engine_flags );
 
-    if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
+    if ( ( ( obj->type == G3DFFDTYPE ) && ( obj->flags & OBJECTSELECTED ) ) ||
+         ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) ) {
         if ( obj->draw ) {
             takenOver |= obj->draw ( mod, cam, engine_flags );
         }

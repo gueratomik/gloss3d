@@ -109,14 +109,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                MVX, PJX, VPX,
                                &orix, &oriy, &oriz );
 
-                /*** Get subdivided faces to update when FFD box is changed ***/
-                if ( obj->type == G3DFFDTYPE ) {
-                    G3DFFD *ffd = ( G3DFFD * ) obj;
-
-                    ffdlsub = g3dvertex_getAreaFacesFromList ( ffd->lver );
-                }
-
-                if ( obj->type & MESH ) { /*** ffd also concerned ***/
+                if ( obj->type & EDITABLE ) { /*** ffd also concerned ***/
                     mes = ( G3DMESH * ) obj;
 
                     /****** Cursor axis picked ? ******/
@@ -222,7 +215,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dobject_updateMatrix_r ( obj, 0x00 );
                 } else {
-                    if ( obj->type & MESH ) {
+                    if ( obj->type & EDITABLE ) {
                         LIST *ltmp = lver;
 
                         while ( ltmp ) {
@@ -254,28 +247,11 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                         g3dmesh_updateModifiers_r ( obj, flags );
 
-                        if ( obj->type == G3DFFDTYPE ) {
-                            G3DFFD  *ffd = ( G3DFFD * ) obj;
-                            G3DMESH *ffdmes = ( G3DMESH * ) obj->parent;
-
-                            g3dffd_modify ( ffd );
-
-                            if ( ffdmes && (((G3DOBJECT*)ffdmes)->type & MESH) ) {
-                                g3dmesh_update ( ffdmes, ffd->lver,
-                                                         ffd->lfac,
-                                                         UPDATEFACEPOSITION |
-                                                         UPDATEFACENORMAL   |
-                                                         UPDATEVERTEXNORMAL, flags );
-                            }
-                        }
-
-                        if ( obj->type == G3DMESHTYPE ) {
-                            g3dmesh_update ( mes, lvtx,
-                                                  lfac,
-                                                  UPDATEFACEPOSITION |
-                                                  UPDATEFACENORMAL   |
-                                                  UPDATEVERTEXNORMAL |
-                                                  COMPUTEUVMAPPING, flags );
+                        if ( mes->onGeometryMove ) {
+                            mes->onGeometryMove ( mes, lver, 
+                                                       ledg, 
+                                                       lfac, 
+                                                       flags );
                         }
                     }
 
@@ -336,7 +312,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     if ( ( flags & VIEWVERTEX ) ||
                          ( flags & VIEWEDGE   ) ||
                          ( flags & VIEWFACE   ) ) {
-                        if ( obj->type & MESH ) { /*** FFD also concerned ***/
+                        if ( obj->type & EDITABLE ) { /*** FFD also concerned ***/
                             g3dvertex_copyPositionFromList ( lver, &newpos );
 
                             g3durm_mesh_moveVertexList ( urm, mes, lver, ledg, lfac, lsub,

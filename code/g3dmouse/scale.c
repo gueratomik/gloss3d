@@ -252,7 +252,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         G3DFFD  *ffd = ( G3DFFD * ) obj;
                         G3DMESH *ffdmes = ( G3DMESH * ) obj->parent;
 
-                        g3dffd_modify ( ffd );
+                        /*g3dffd_modify ( ffd );*/
 
                         if ( ffdmes ) {
                             g3dmesh_update ( ffdmes, ffd->lver,

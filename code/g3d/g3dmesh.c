@@ -332,7 +332,8 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING,
+                          COMPUTEUVMAPPING   |
+                          RESETMODIFIERS,
                           engine_flags );
 
     g3dmesh_update ( spl, NULL, /*** Recompute vertices    ***/
@@ -340,7 +341,8 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING,
+                          COMPUTEUVMAPPING   |
+                          RESETMODIFIERS,
                           engine_flags );
 
     g3dmesh_updateBbox ( spl );
@@ -1179,14 +1181,15 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
     G3DFACE   **factab = (G3DFACE   **) list_to_array ( mes->lfac );
     uint32_t i;
 
-    /** COMMENTED: now handled by g3dobject_copy() */
-    /*g3dobject_importTransformations ( ( G3DOBJECT * ) cpymes,
-                                      ( G3DOBJECT * ) mes );*/
+    /** duplicated in by g3dobject_copy() */
+    g3dobject_importTransformations ( ( G3DOBJECT * ) cpymes,
+                                      ( G3DOBJECT * ) mes );
 
     /*((G3DOBJECT*)cpymes)->flags = ((G3DOBJECT*)mes)->flags & (~OBJECTSELECTED);*/
 
-    memcpy ( &((G3DOBJECT*)cpymes)->bbox,
-             &((G3DOBJECT*)mes)->bbox, sizeof ( G3DBBOX ) );
+
+    /*memcpy ( &((G3DOBJECT*)cpymes)->bbox,
+             &((G3DOBJECT*)mes)->bbox, sizeof ( G3DBBOX ) );*/
 
     while ( ltmpver ) {
         G3DVERTEX *oriver = ( G3DVERTEX * ) ltmpver->data;
@@ -1239,6 +1242,8 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
     if ( vertab ) free ( vertab );
     if ( edgtab ) free ( edgtab );
     if ( factab ) free ( factab );
+
+    g3dmesh_updateBbox ( cpymes );
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( cpymes, NULL,
@@ -3236,7 +3241,22 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes, LIST *lfac,
 }
 
 /******************************************************************************/
-void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags ) {
+void g3dmesh_onGeometryMove ( G3DMESH *mes, LIST    *lver,
+                                            LIST    *ledg,
+                                            LIST    *lfac,
+                                            uint32_t engine_flags ) {
+    g3dmesh_update ( mes, lver,
+                          lfac,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          COMPUTEUVMAPPING, engine_flags );
+}
+
+/******************************************************************************/
+void g3dmesh_init ( G3DMESH *mes, uint32_t id, 
+                                  char    *name,
+                                  uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     g3dobject_init ( obj, G3DMESHTYPE, id, name, DRAWBEFORECHILDREN,
@@ -3256,6 +3276,8 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id, char *name, uint32_t engine_flags
                        /*** allocated vertex with ID 0  ***/
     mes->edgid = 0x00;
     mes->facid = 0x00;
+
+    mes->onGeometryMove = g3dmesh_onGeometryMove;
 }
 
 /******************************************************************************/
@@ -3269,7 +3291,6 @@ G3DMESH *g3dmesh_new ( uint32_t id, char *name, uint32_t engine_flags ) {
     }
 
     g3dmesh_init ( mes, id, name, engine_flags );
-
 
     return mes;
 }

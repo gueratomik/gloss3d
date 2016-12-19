@@ -29,57 +29,39 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-/******************************************************************************/
-static void deleteWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void updateWireframeForm ( GtkWidget *, G3DUI * );
 
-    common_g3duiweightgrouplist_deleteWeightGroupCbk ( gui );
+/******************************************************************************/
+static void thicknessCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    double thickness = gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DUI *gui    = ( G3DUI * ) user_data;
+
+    common_g3duiwireframeedit_thicknessCbk ( gui, thickness );
+
+    /*updateSubdivisionForm ( parent, gui );*/
 }
 
 /******************************************************************************/
-static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duiweightgrouplist_addWeightGroupCbk ( gui );
-}
-
-/******************************************************************************/
-static void nameCbk  ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
-    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duiweightgrouplist_nameCbk ( gui, grpname );
-}
-
-/******************************************************************************/
-static void useIsoLinesCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duimeshedit_useIsoLinesCbk ( gui );
-}
-
-/******************************************************************************/
-void updateWeightgroupForm ( GtkWidget *widget, G3DUI *gui ) {
+static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     gui->lock = 0x01;
 
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
+    if ( obj && ( obj->type == G3DWIREFRAMETYPE ) ) {
+        G3DWIREFRAME *wir = ( G3DWIREFRAME * ) obj;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );
 
-            if ( GTK_IS_ENTRY(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
+            if ( GTK_IS_SPIN_BUTTON(child) ) {
+                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
-                if ( strcmp ( child_name, EDITWEIGHTGROUPNAME ) == 0x00 ) {
-                    if ( mes->curgrp ) {
-                        gtk_entry_set_text ( ent, mes->curgrp->name );
-                    }
+                if ( strcmp ( child_name, EDITWIREFRAMETHICKNESS ) == 0x00 ) {
+                    gtk_spin_button_set_value ( sbn, wir->thickness );
                 }
             }
 
@@ -91,36 +73,30 @@ void updateWeightgroupForm ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void updateWeightgroupFrame ( GtkWidget *widget, G3DUI *gui ) {
+void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
-    if ( frm ) updateWeightgroupForm ( frm, gui );
+    if ( frm ) updateWireframeForm ( frm, gui );
 }
 
+
 /******************************************************************************/
-static void createWeightgroupFrame ( GtkWidget *frm, G3DUI *gui,
+static void createWireframeFrame ( GtkWidget *frm, G3DUI *gui,
                                                      gint x,
                                                      gint y,
                                                      gint width,
                                                      gint height ) {
-    GtkWidget *wgf, *lst;
+    GtkWidget *wrf;
 
-    wgf = createFrame ( frm, gui, EDITMESHWEIGHTGROUP,  x, y, width, height );
+    wrf = createFrame ( frm, gui, EDITWIREFRAME       , x,   y, width, height );
 
-    /*** We have to encapsulate widget into a bulletin board widget because ***/
-    /*** XmFrame always wants to resize itself. This way, it does not resize***/
-    /*brd = createBoard ( sdf, gui, EDITMESHVERTEXGROUP,  4,   20, 278, 120 );*/
-
-    createCharText ( wgf, gui, EDITWEIGHTGROUPNAME, 0, 0, 96, 132, nameCbk );
-
-    createWeightgroupList ( wgf, gui, EDITWEIGHTGROUPLIST,  0, 36, 218, 128 );
-
-    createPushButton ( wgf, gui, "+", 246,  36, 32, 32, addWeightGroupCbk    );
-    createPushButton ( wgf, gui, "-", 246, 132, 32, 32, deleteWeightGroupCbk );
+    createFloatText ( wrf, gui, EDITWIREFRAMETHICKNESS , 0,  24, 128, 32,
+                                                         thicknessCbk );
 }
 
+
 /******************************************************************************/
-void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
+void updateWireframeEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     /*** prevent a loop ***/
@@ -130,17 +106,12 @@ void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
         const char *child_name = gtk_widget_get_name ( child );
 
-        if ( strcmp ( child_name, EDITMESHWEIGHTGROUP ) == 0x00 ) {
-            updateWeightgroupFrame ( child, gui );
+        if ( strcmp ( child_name, EDITWIREFRAME ) == 0x00 ) {
+            updateWireframeFrame ( child, gui );
         }
 
         children =  g_list_next ( children );
     }
-
-    /*** It's not the best place for that but I don't ***/
-    /*** have time to figure out a better solution. ***/
-    g3dui_redrawAllWeightGroupList ( gui );
-
 
     gui->lock = 0x00;
 }
@@ -149,16 +120,16 @@ void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    updateMeshEdit ( widget, gui );
+    updateWireframeEdit ( widget, gui );
 }
 
 /******************************************************************************/
-GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
-                                               char *name,
-                                               gint x,
-                                               gint y,
-                                               gint width,
-                                               gint height ) {
+GtkWidget *createWireframeEdit ( GtkWidget *parent, G3DUI *gui,
+                                                     char *name,
+                                                     gint x,
+                                                     gint y,
+                                                     gint width,
+                                                     gint height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *frm, *sdf, *fix;
 
@@ -172,7 +143,7 @@ GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createWeightgroupFrame ( frm, gui,   0, 0, 286, 140 );
+    createWireframeFrame ( frm, gui,   0,   0, 286, 140 );
 
     gtk_widget_show ( frm );
 

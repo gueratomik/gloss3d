@@ -280,7 +280,7 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
                 g3dvector_matrix ( &pos, selobj->wmatrix, &cam->pivot );
             }
 
-            if ( selobj->type == G3DMESHTYPE ) {
+            if ( selobj->type & EDITABLE ) {
                 G3DMESH *mes= ( G3DMESH * ) selobj;
 
                 if ( engine_flags & VIEWVERTEX ) {

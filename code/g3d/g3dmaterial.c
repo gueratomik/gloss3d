@@ -39,11 +39,9 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, uint32_t engine_flags ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
-            if ( obj->flags & BUFFEREDSUBDIVISION ) {
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      0x00, engine_flags );
-            }
+            g3dmesh_update ( mes, NULL,
+                                  NULL,
+                                  RESETMODIFIERS, engine_flags );
         }
 
         ltmpobj = ltmpobj->next;
