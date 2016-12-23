@@ -145,6 +145,8 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
                                                       NULL );
 
     obj->copy = g3dprimitive_copy;
+
+    ((G3DMESH*)obj)->dump = g3dmesh_default_dump;
 }
 
 /******************************************************************************/

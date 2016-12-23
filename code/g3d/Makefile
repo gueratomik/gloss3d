@@ -73,7 +73,7 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3d_la_LIBADD =
 am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
-	g3dcore.lo g3dcube.lo g3dcursor.lo g3dcutface.lo \
+	g3dchannel.lo g3dcore.lo g3dcube.lo g3dcursor.lo g3dcutface.lo \
 	g3dcylinder.lo g3dedge.lo g3dface.lo g3dffd.lo g3dheightmap.lo \
 	g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo g3dmaterial.lo \
 	g3dmesh.lo g3dmodifier.lo g3dobject.lo g3dpivot.lo g3dplane.lo \
@@ -253,6 +253,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dbbox.c \
                       g3dbone.c \
                       g3dcamera.c \
+                      g3dchannel.c \
                       g3dcore.c \
                       g3dcube.c \
                       g3dcursor.c \
@@ -378,6 +379,7 @@ include ./$(DEPDIR)/g2dvector.Plo
 include ./$(DEPDIR)/g3dbbox.Plo
 include ./$(DEPDIR)/g3dbone.Plo
 include ./$(DEPDIR)/g3dcamera.Plo
+include ./$(DEPDIR)/g3dchannel.Plo
 include ./$(DEPDIR)/g3dcore.Plo
 include ./$(DEPDIR)/g3dcube.Plo
 include ./$(DEPDIR)/g3dcursor.Plo

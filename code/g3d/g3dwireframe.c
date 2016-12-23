@@ -490,5 +490,7 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id, char *name ) {
 
     wir->thickness = 0.05f;
 
+    ((G3DMESH*)wir)->dump = g3dmesh_default_dump;
+
     return wir;
 }

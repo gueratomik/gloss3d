@@ -348,33 +348,6 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_commitModifierCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-    G3DSCENE *sce = gui->sce;
-    uint32_t oid = g3dscene_getNextObjectID ( sce );
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj->type & MODIFIER ) {
-        G3DMESH *commitedMesh = g3dobject_commit ( obj, oid, obj->name, gui->flags );
-
-        g3durm_object_addChild ( urm, sce, gui->flags, 
-                                           ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
-                                           ( G3DOBJECT * ) NULL,
-                                           ( G3DOBJECT * ) sce,
-                                           ( G3DOBJECT * ) commitedMesh );
-
-        g3dscene_unselectAllObjects ( sce, gui->flags );
-        g3dscene_selectObject ( sce, ( G3DOBJECT * ) commitedMesh, gui->flags );
-
-        g3dui_redrawGLViews ( gui );
-        g3dui_updateCoords ( gui );
-        g3dui_redrawObjectList ( gui );
-        g3dui_updateAllCurrentEdit ( gui );
-    }
-}
-
-/******************************************************************************/
 void common_g3dui_addSymmetryCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;

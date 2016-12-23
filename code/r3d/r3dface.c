@@ -31,22 +31,22 @@
 
 /******************************************************************************/
 void r3dface_position ( R3DFACE *rfc, G3DDOUBLEVECTOR *pos ) {
-    pos->x = ( rfc->ver[0x00]->pos.x + 
-               rfc->ver[0x01]->pos.x + 
-               rfc->ver[0x02]->pos.x ) / 0x03;
-    pos->y = ( rfc->ver[0x00]->pos.y + 
-               rfc->ver[0x01]->pos.y + 
-               rfc->ver[0x02]->pos.y ) / 0x03;
-    pos->z = ( rfc->ver[0x00]->pos.z + 
-               rfc->ver[0x01]->pos.z + 
-               rfc->ver[0x02]->pos.z ) / 0x03;
+    pos->x = ( rfc->ver[0x00].pos.x + 
+               rfc->ver[0x01].pos.x + 
+               rfc->ver[0x02].pos.x ) / 0x03;
+    pos->y = ( rfc->ver[0x00].pos.y + 
+               rfc->ver[0x01].pos.y + 
+               rfc->ver[0x02].pos.y ) / 0x03;
+    pos->z = ( rfc->ver[0x00].pos.z + 
+               rfc->ver[0x01].pos.z + 
+               rfc->ver[0x02].pos.z ) / 0x03;
 }
 
 /******************************************************************************/
 void r3dface_normal ( R3DFACE *rfc, float *length ) {
-    G3DTINYVECTOR *v0 = &rfc->ver[0x00]->pos,
-                  *v1 = &rfc->ver[0x01]->pos,
-                  *v2 = &rfc->ver[0x02]->pos;
+    G3DTINYVECTOR *v0 = &rfc->ver[0x00].pos,
+                  *v1 = &rfc->ver[0x01].pos,
+                  *v2 = &rfc->ver[0x02].pos;
     G3DDOUBLEVECTOR v0v1 = { ( v1->x - v0->x ),
                              ( v1->y - v0->y ),
                              ( v1->z - v0->z ), 1.0f },
@@ -70,19 +70,19 @@ void r3dface_getMinMax ( R3DFACE *rfc, float *xmin, float *ymin, float *zmin,
                                        float *xmax, float *ymax, float *zmax ) {
     uint32_t i;
 
-    (*xmin) = (*xmax ) = rfc->ver[0x00]->pos.x;
-    (*ymin) = (*ymax ) = rfc->ver[0x00]->pos.y;
-    (*zmin) = (*zmax ) = rfc->ver[0x00]->pos.z;
+    (*xmin) = (*xmax ) = rfc->ver[0x00].pos.x;
+    (*ymin) = (*ymax ) = rfc->ver[0x00].pos.y;
+    (*zmin) = (*zmax ) = rfc->ver[0x00].pos.z;
 
     for ( i = 0x01; i < 0x03; i++ ) {
-        if ( rfc->ver[i]->pos.x < (*xmin) ) (*xmin) = rfc->ver[i]->pos.x;
-        if ( rfc->ver[i]->pos.x > (*xmax) ) (*xmax) = rfc->ver[i]->pos.x;
+        if ( rfc->ver[i].pos.x < (*xmin) ) (*xmin) = rfc->ver[i].pos.x;
+        if ( rfc->ver[i].pos.x > (*xmax) ) (*xmax) = rfc->ver[i].pos.x;
 
-        if ( rfc->ver[i]->pos.y < (*ymin) ) (*ymin) = rfc->ver[i]->pos.y;
-        if ( rfc->ver[i]->pos.y > (*ymax) ) (*ymax) = rfc->ver[i]->pos.y;
+        if ( rfc->ver[i].pos.y < (*ymin) ) (*ymin) = rfc->ver[i].pos.y;
+        if ( rfc->ver[i].pos.y > (*ymax) ) (*ymax) = rfc->ver[i].pos.y;
 
-        if ( rfc->ver[i]->pos.z < (*zmin) ) (*zmin) = rfc->ver[i]->pos.z;
-        if ( rfc->ver[i]->pos.z > (*zmax) ) (*zmax) = rfc->ver[i]->pos.z;
+        if ( rfc->ver[i].pos.z < (*zmin) ) (*zmin) = rfc->ver[i].pos.z;
+        if ( rfc->ver[i].pos.z > (*zmax) ) (*zmax) = rfc->ver[i].pos.z;
     }
 }
 
@@ -95,22 +95,22 @@ void r3dface_getMinMaxFromArray ( float *xmin, float *ymin, float *zmin,
     if ( nbrfc ) {
         R3DFACE *rfc = &rfcarray[0x00];
 
-        (*xmin) = (*xmax) = rfc->ver[0x00]->pos.x;
-        (*ymin) = (*ymax) = rfc->ver[0x00]->pos.y;
-        (*zmin) = (*zmax) = rfc->ver[0x00]->pos.z;
+        (*xmin) = (*xmax) = rfc->ver[0x00].pos.x;
+        (*ymin) = (*ymax) = rfc->ver[0x00].pos.y;
+        (*zmin) = (*zmax) = rfc->ver[0x00].pos.z;
 
         for ( i = 0x00; i < nbrfc; i++ ) {
             R3DFACE *rfc = &rfcarray[i];
             /*** Our octree must not be flat, so add or substract 0.1 ***/
             for ( j = 0x00; j < 0x03; j++ ) {
-                if ( rfc->ver[j]->pos.x < (*xmin) ) (*xmin) = rfc->ver[j]->pos.x;
-                if ( rfc->ver[j]->pos.x > (*xmax) ) (*xmax) = rfc->ver[j]->pos.x;
+                if ( rfc->ver[j].pos.x < (*xmin) ) (*xmin) = rfc->ver[j].pos.x;
+                if ( rfc->ver[j].pos.x > (*xmax) ) (*xmax) = rfc->ver[j].pos.x;
 
-                if ( rfc->ver[j]->pos.y < (*ymin) ) (*ymin) = rfc->ver[j]->pos.y;
-                if ( rfc->ver[j]->pos.y > (*ymax) ) (*ymax) = rfc->ver[j]->pos.y;
+                if ( rfc->ver[j].pos.y < (*ymin) ) (*ymin) = rfc->ver[j].pos.y;
+                if ( rfc->ver[j].pos.y > (*ymax) ) (*ymax) = rfc->ver[j].pos.y;
 
-                if ( rfc->ver[j]->pos.z < (*zmin) ) (*zmin) = rfc->ver[j]->pos.z;
-                if ( rfc->ver[j]->pos.z > (*zmax) ) (*zmax) = rfc->ver[j]->pos.z;
+                if ( rfc->ver[j].pos.z < (*zmin) ) (*zmin) = rfc->ver[j].pos.z;
+                if ( rfc->ver[j].pos.z > (*zmax) ) (*zmax) = rfc->ver[j].pos.z;
             }
         }
     }
@@ -124,29 +124,29 @@ www.soe.ucsc.edu/classes/cmps160/Fall10/resources/barycentricInterpolation.pdf
 int r3dface_pointIn ( R3DFACE *rfc, R3DDOUBLEPOINT *pnt, float *RAT0,
                                                          float *RAT1,
                                                          float *RAT2 ) {
-    G3DDOUBLEVECTOR V0P = { .x = ( pnt->x - rfc->ver[0x00]->pos.x ),
-                            .y = ( pnt->y - rfc->ver[0x00]->pos.y ),
-                            .z = ( pnt->z - rfc->ver[0x00]->pos.z ),
+    G3DDOUBLEVECTOR V0P = { .x = ( pnt->x - rfc->ver[0x00].pos.x ),
+                            .y = ( pnt->y - rfc->ver[0x00].pos.y ),
+                            .z = ( pnt->z - rfc->ver[0x00].pos.z ),
                             .w = 1.0f },
-                    V1P = { .x = ( pnt->x - rfc->ver[0x01]->pos.x ),
-                            .y = ( pnt->y - rfc->ver[0x01]->pos.y ),
-                            .z = ( pnt->z - rfc->ver[0x01]->pos.z ),
+                    V1P = { .x = ( pnt->x - rfc->ver[0x01].pos.x ),
+                            .y = ( pnt->y - rfc->ver[0x01].pos.y ),
+                            .z = ( pnt->z - rfc->ver[0x01].pos.z ),
                             .w = 1.0f },
-                    V2P = { .x = ( pnt->x - rfc->ver[0x02]->pos.x ),
-                            .y = ( pnt->y - rfc->ver[0x02]->pos.y ),
-                            .z = ( pnt->z - rfc->ver[0x02]->pos.z ),
+                    V2P = { .x = ( pnt->x - rfc->ver[0x02].pos.x ),
+                            .y = ( pnt->y - rfc->ver[0x02].pos.y ),
+                            .z = ( pnt->z - rfc->ver[0x02].pos.z ),
                             .w = 1.0f },
-                   V0V1 = { .x = ( rfc->ver[0x01]->pos.x - rfc->ver[0x00]->pos.x ),
-                            .y = ( rfc->ver[0x01]->pos.y - rfc->ver[0x00]->pos.y ),
-                            .z = ( rfc->ver[0x01]->pos.z - rfc->ver[0x00]->pos.z ),
+                   V0V1 = { .x = ( rfc->ver[0x01].pos.x - rfc->ver[0x00].pos.x ),
+                            .y = ( rfc->ver[0x01].pos.y - rfc->ver[0x00].pos.y ),
+                            .z = ( rfc->ver[0x01].pos.z - rfc->ver[0x00].pos.z ),
                             .w = 1.0f },
-                   V1V2 = { .x = ( rfc->ver[0x02]->pos.x - rfc->ver[0x01]->pos.x ),
-                            .y = ( rfc->ver[0x02]->pos.y - rfc->ver[0x01]->pos.y ),
-                            .z = ( rfc->ver[0x02]->pos.z - rfc->ver[0x01]->pos.z ),
+                   V1V2 = { .x = ( rfc->ver[0x02].pos.x - rfc->ver[0x01].pos.x ),
+                            .y = ( rfc->ver[0x02].pos.y - rfc->ver[0x01].pos.y ),
+                            .z = ( rfc->ver[0x02].pos.z - rfc->ver[0x01].pos.z ),
                             .w = 1.0f },
-                   V2V0 = { .x = ( rfc->ver[0x00]->pos.x - rfc->ver[0x02]->pos.x ),
-                            .y = ( rfc->ver[0x00]->pos.y - rfc->ver[0x02]->pos.y ),
-                            .z = ( rfc->ver[0x00]->pos.z - rfc->ver[0x02]->pos.z ),
+                   V2V0 = { .x = ( rfc->ver[0x00].pos.x - rfc->ver[0x02].pos.x ),
+                            .y = ( rfc->ver[0x00].pos.y - rfc->ver[0x02].pos.y ),
+                            .z = ( rfc->ver[0x00].pos.z - rfc->ver[0x02].pos.z ),
                             .w = 1.0f };
     G3DDOUBLEVECTOR DOT0, DOT1, DOT2, DOTF;
     double LENF, LEN0, LEN1, LEN2;
@@ -350,17 +350,17 @@ uint32_t r3dface_intersectRay ( R3DFACE *rfc, R3DRAY *ray, uint32_t query_flags 
                     ray->flags |= INTERSECT;
 
                     /*if ( rfc->flags & R3DFACESMOOTH ) {*/
-                        ray->nor.x = ( ( RAT0 * rfc->ver[0x00]->nor.x ) + 
-                                       ( RAT1 * rfc->ver[0x01]->nor.x ) + 
-                                       ( RAT2 * rfc->ver[0x02]->nor.x ) );
+                        ray->nor.x = ( ( RAT0 * rfc->ver[0x00].nor.x ) + 
+                                       ( RAT1 * rfc->ver[0x01].nor.x ) + 
+                                       ( RAT2 * rfc->ver[0x02].nor.x ) );
 
-                        ray->nor.y = ( ( RAT0 * rfc->ver[0x00]->nor.y ) + 
-                                       ( RAT1 * rfc->ver[0x01]->nor.y ) + 
-                                       ( RAT2 * rfc->ver[0x02]->nor.y ) );
+                        ray->nor.y = ( ( RAT0 * rfc->ver[0x00].nor.y ) + 
+                                       ( RAT1 * rfc->ver[0x01].nor.y ) + 
+                                       ( RAT2 * rfc->ver[0x02].nor.y ) );
 
-                        ray->nor.z = ( ( RAT0 * rfc->ver[0x00]->nor.z ) + 
-                                       ( RAT1 * rfc->ver[0x01]->nor.z ) + 
-                                       ( RAT2 * rfc->ver[0x02]->nor.z ) );
+                        ray->nor.z = ( ( RAT0 * rfc->ver[0x00].nor.z ) + 
+                                       ( RAT1 * rfc->ver[0x01].nor.z ) + 
+                                       ( RAT2 * rfc->ver[0x02].nor.z ) );
 
                         /* Vertices normals are already normalized, I guess ***/
                         /* the function call below is unneeded ***/

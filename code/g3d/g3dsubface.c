@@ -123,13 +123,4 @@ void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
     subfac->fac.luvs->data = uvs;
 
     subfac->fac.nbuvs++;
-
-    /** No need to add individual UVs before the last subdivision. Saves us **/
-    /** some computation time. **/
-    if ( curdiv == 0x01 ) {
-        for ( i = 0x00; i < subfac->fac.nbver; i++ ) {
-            g3dsubvertex_addUV ( ( G3DSUBVERTEX * ) subfac->fac.ver[i], 
-                                                    &uvs->veruv[i] );
-        }
-    }
 }

@@ -344,12 +344,6 @@ void g3dface_addUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
 
     list_insert ( &fac->luvs, uvs );
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        g3dvertex_addUV  (  fac->ver[i], &uvs->veruv[i] );
-
-        /*fac->edg[i]->nbuvs++;*/
-    } 
-
     fac->nbuvs++;
 }
 
@@ -374,12 +368,6 @@ void g3dface_removeUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
     uint32_t i;
 
     list_remove ( &fac->luvs, uvs );
-
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        g3dvertex_removeUV  (  fac->ver[i], &uvs->veruv[i] );
-
-        /*fac->edg[i]->nbuvs--;*/
-    } 
 
     fac->nbuvs--;
 }
@@ -566,7 +554,8 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
 
     glDisable ( GL_COLOR_MATERIAL );
 
-    if ( fac->flags & FACESELECTED ) {
+    if ( ( fac->flags & FACESELECTED ) &&
+         ( engine_flags & VIEWFACE ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
     } else {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
@@ -589,23 +578,25 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
                     glDisable ( GL_COLOR_MATERIAL );
 
-                    if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
-                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
-                    } else {
-                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
-                    }
+                    if ( mat->flags & DIFFUSE_ENABLED ) {
+                        if ( mat->diffuse.flags & USESOLIDCOLOR ) {
+                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+                        } else {
+                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
+                        }
 
-                    if ( fac->flags & FACESELECTED ) {
-                        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
-                    }
+                        if ( fac->flags & FACESELECTED ) {
+                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+                        }
 
-                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
-                        difimg = mat->diffuse.image;
-                    }
+                        if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                            difimg = mat->diffuse.image;
+                        }
 
-                    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
-                        if ( mat->diffuse.proc ) {
-                            difimg = &mat->diffuse.proc->image;
+                        if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                            if ( mat->diffuse.proc ) {
+                                difimg = &mat->diffuse.proc->image;
+                            }
                         }
                     }
 

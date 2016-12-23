@@ -138,12 +138,13 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
                 ltmpfac = ltmpfac->next;
             }
 
-            /*** Rebuild the subdivided mesh ***/
+            /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
-                                  UPDATEVERTEXNORMAL, flags );
+                                  UPDATEVERTEXNORMAL |
+                                  RESETMODIFIERS, flags );
         }
     }
 }
@@ -192,12 +193,13 @@ void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
                 ltmpver = ltmpver->next;
             }
 
-            /*** Rebuild the subdivided mesh ***/
+            /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
-                                  UPDATEVERTEXNORMAL, flags );
+                                  UPDATEVERTEXNORMAL |
+                                  RESETMODIFIERS, flags );
         }
     }
 }

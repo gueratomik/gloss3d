@@ -30,6 +30,86 @@
 #include <g3d.h>
 
 /******************************************************************************/
+uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+                                                                uint32_t, /* nbquads */
+                                                                uint32_t, /* nbuv */
+                                                                void * ),
+                                                 void (*Dump) ( G3DFACE *,
+                                                                void * ),
+                                                 void *data,
+                                                 uint32_t engine_flags ) {
+    LIST *ltmpchildren = ((G3DOBJECT*)mes)->lchildren;
+    uint32_t takenOver = 0x00;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            takenOver = g3dmesh_dumpModifiers_r ( mod, Alloc, Dump, data, engine_flags );
+
+            if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
+                if ( g3dobject_isActive ( child ) ) {
+                    if ( ((G3DMESH*)mod)->dump ) {
+                        takenOver = ((G3DMESH*)mod)->dump ( mod, Alloc, Dump, data, engine_flags );
+                    }
+                }
+            }
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    return takenOver;
+}
+
+/******************************************************************************/
+void g3dmesh_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+                                                 uint32_t, /* nbquads */
+                                                 uint32_t, /* nbuv */
+                                                 void * ),
+                                  void (*Dump) ( G3DFACE *,
+                                                 void * ),
+                                  void *data,
+                                  uint32_t engine_flags ) {
+
+    uint32_t takenOver = g3dmesh_dumpModifiers_r ( mes, Alloc, Dump, data, engine_flags );
+
+    if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
+        if ( g3dobject_isActive ( mes ) ) {
+            if ( mes->dump ) {
+                mes->dump ( mes, Alloc, Dump, data, engine_flags );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+uint32_t g3dmesh_default_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+                                                             uint32_t, /* nbquads */
+                                                             uint32_t, /* nbuv */
+                                                             void * ),
+                                              void (*Dump) ( G3DFACE *,
+                                                             void * ),
+                                              void *data,
+                                              uint32_t engine_flags ) {
+    LIST *ltmpfac = mes->lfac;
+
+    if ( Alloc ) Alloc ( mes->nbtri, mes->nbqua, 0x00, data );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        if ( Dump ) Dump ( fac, data );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return MODIFIERTAKESOVER;
+}
+
+/******************************************************************************/
 void g3dmesh_clearGeometry ( G3DMESH *mes ) {
     mes->nbver = 0x00;
     mes->nbedg = 0x00;
@@ -3278,6 +3358,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     mes->facid = 0x00;
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
+    mes->dump           = g3dmesh_default_dump;
 }
 
 /******************************************************************************/

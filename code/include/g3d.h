@@ -354,50 +354,20 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UVMAPCYLINDRICAL 0x02
 
 /****************************** Material Flags ********************************/
-#define DIFFUSE_USESOLIDCOLOR      ( 1       )
-#define DIFFUSE_USEIMAGECOLOR      ( 1 <<  1 )
-#define DIFFUSE_USEPROCEDURAL      ( 1 <<  2 )
-#define DIFFUSE_USEMASK            ( DIFFUSE_USESOLIDCOLOR | \
-                                     DIFFUSE_USEIMAGECOLOR | \
-                                     DIFFUSE_USEPROCEDURAL )
+#define DIFFUSE_ENABLED      ( 1       )
+#define SPECULAR_ENABLED     ( 1 <<  1 )
+#define DISPLACEMENT_ENABLED ( 1 <<  2 )
+#define BUMP_ENABLED         ( 1 <<  3 )
+#define REFLECTION_ENABLED   ( 1 <<  4 )
+#define REFRACTION_ENABLED   ( 1 <<  5 )
 
-#define SPECULAR_ENABLED           ( 1 <<  3 )
-#define SPECULAR_USESOLIDCOLOR     ( 1 <<  4 )
-#define SPECULAR_USEIMAGECOLOR     ( 1 <<  5 )
-#define SPECULAR_USEPROCEDURAL     ( 1 <<  6 )
-#define SPECULAR_USEMASK           ( SPECULAR_USESOLIDCOLOR | \
-                                     SPECULAR_USEIMAGECOLOR | \
-                                     SPECULAR_USEPROCEDURAL )
+/******************************* Channel Flags ********************************/
+#define USESOLIDCOLOR        ( 1       )
+#define USEIMAGECOLOR        ( 1 <<  1 )
+#define USEPROCEDURAL        ( 1 <<  2 )
+#define USECHANNELMASK       ( USESOLIDCOLOR | USEIMAGECOLOR | USEPROCEDURAL )
 
-#define DISPLACEMENT_ENABLED       ( 1 <<  7 )
-#define DISPLACEMENT_USEIMAGECOLOR ( 1 <<  8 )
-#define DISPLACEMENT_USEPROCEDURAL ( 1 <<  9 )
-#define DISPLACEMENT_USEMASK       ( DISPLACEMENT_USEIMAGECOLOR | \
-                                     DISPLACEMENT_USEPROCEDURAL )
-
-#define BUMP_ENABLED               ( 1 << 10 )
-#define BUMP_USEIMAGECOLOR         ( 1 << 11 )
-#define BUMP_USEPROCEDURAL         ( 1 << 12 )
-#define BUMP_USEMASK               ( BUMP_USESOLIDCOLOR | \
-                                     BUMP_USEIMAGECOLOR | \
-                                     BUMP_USEPROCEDURAL )
-
-#define REFLECTION_ENABLED         ( 1 << 13 )
-#define REFLECTION_USESOLIDCOLOR   ( 1 << 14 )
-#define REFLECTION_USEIMAGECOLOR   ( 1 << 15 )
-#define REFLECTION_USEPROCEDURAL   ( 1 << 16 )
-#define REFLECTION_USEMASK         ( REFLECTION_USESOLIDCOLOR | \
-                                     REFLECTION_USEIMAGECOLOR | \
-                                     REFLECTION_USEPROCEDURAL )
-
-#define REFRACTION_ENABLED         ( 1 << 17 )
-#define REFRACTION_USESOLIDCOLOR   ( 1 << 18 )
-#define REFRACTION_USEIMAGECOLOR   ( 1 << 19 )
-#define REFRACTION_USEPROCEDURAL   ( 1 << 20 )
-#define REFRACTION_USEMASK         ( REFRACTION_USESOLIDCOLOR | \
-                                     REFRACTION_USEIMAGECOLOR | \
-                                     REFRACTION_USEPROCEDURAL )
-
+/******************************* Procedural types *****************************/
 #define PROCEDURALNOISE        0x01
 #define PROCEDURALCHECKERBOARD 0x02
 
@@ -509,6 +479,7 @@ typedef struct _G3DPROCEDURALNOISE {
 
 /******************************************************************************/
 typedef struct _G3DCHANNEL {
+    uint32_t       flags;
     G3DCOLOR       solid;
     G3DIMAGE      *image;
     G3DPROCEDURAL *proc;
@@ -525,9 +496,8 @@ typedef struct _G3DMATERIAL {
     G3DCHANNEL bump;
     G3DCHANNEL specular; 
     G3DCHANNEL reflection; 
-    float     refraction_strength;
+    G3DCHANNEL refraction;
     float     transparency_strength;
-    float     reflection_strength;
     float     specular_level;  /*** specular intensity ***/
     float     shininess;  /*** specular shininess ***/
     float     displacement_strength;
@@ -578,11 +548,9 @@ typedef struct _G3DVERTEX {
     LIST *lfac;       /*** list of faces connected to this vertex       ***/
     LIST *ledg;       /*** list of connected edges                      ***/
     LIST *lwei;       /*** List of weight                               ***/
-    LIST *luv;        /*** List of UV Coords                            ***/
     uint32_t nbfac;   /*** number of connected faces                    ***/
     uint32_t nbedg;   /*** number of connected edges                    ***/
     uint32_t nbwei;   /*** number of weights                            ***/
-    uint32_t nbuv;    /*** number of UV Coords                          ***/
     float weight;     /*** weight value used when editing weight groups ***/
     G3DVECTOR facpnt; /*** precompute subdivision average face point    ***/
     G3DVECTOR edgpnt; /*** precompute subdivision average edge point    ***/
@@ -669,6 +637,7 @@ typedef struct _G3DUVMAP {
     uint32_t fixed;
     LIST    *lmat;  /*** list of attached materials ***/
     uint32_t nbmat; /*** Number of attached materials ***/
+    uint32_t mapID;
 } G3DUVMAP;
 
 /******************************************************************************/
@@ -1007,6 +976,14 @@ struct _G3DMESH {
                                                 LIST *,
                                                 LIST *,
                                                 uint32_t );
+    uint32_t (*dump) ( struct _G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+                                                         uint32_t, /* nbquads */
+                                                         uint32_t, /* nbuv */
+                                                         void * ),
+                                          void (*Dump) ( G3DFACE *,
+                                                         void * ),
+                                          void *data,
+                                          uint32_t );
 };
 
 /******************************************************************************/
@@ -2136,6 +2113,30 @@ void       g3dmesh_updateFaceIndex               ( G3DMESH * );
 G3DMESH   *g3dmesh_commitSubdivision             ( G3DMESH  *, uint32_t,
                                                                unsigned char *,
                                                                uint32_t );
+uint32_t   g3dmesh_default_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+                                                            uint32_t, /* nbquads */
+                                                            uint32_t, /* nbuv */
+                                                            void * ),
+                                             void (*Dump) ( G3DFACE *,
+                                                            void * ),
+                                             void *data,
+                                             uint32_t );
+void       g3dmesh_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbverts */
+                                                    uint32_t, /* nbtris */
+                                                    uint32_t, /* nbquads */
+                                                    void * ),
+                                     void (*Dump) ( G3DFACE *,
+                                                    void * ),
+                                     void *data,
+                                     uint32_t );
+uint32_t   g3dmesh_dumpModifiers_r ( G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+                                                               uint32_t, /* nbquads */
+                                                               uint32_t, /* nbuv */
+                                                               void * ),
+                                                void (*Dump) ( G3DFACE *,
+                                                               void * ),
+                                                void *data,
+                                                uint32_t );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2401,5 +2402,8 @@ uint32_t      g3dwireframe_draw         ( G3DWIREFRAME *, G3DCAMERA *,
 void          g3dwireframe_free         ( G3DWIREFRAME * );
 void          g3dwireframe_setThickness ( G3DWIREFRAME *, float,
                                                           uint32_t );
+
+/******************************************************************************/
+void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
 
 #endif

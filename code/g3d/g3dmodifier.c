@@ -34,7 +34,7 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod, uint32_t engine_flags ) {
     G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
 
-    if ( mod->modify ) {
+    if ( g3dobject_isActive ( obj ) && mod->modify ) {
         mod->modify ( mod, engine_flags );
     }
 

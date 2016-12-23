@@ -124,122 +124,141 @@ void g3dvertex_renumberList ( LIST *lver, uint32_t id ) {
 /******************************************************************************/
 void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
-    LIST *ltmpuv = ver->luv;
+    LIST     *ltmpfac = ver->lfac;
+    LIST     *ltmptex = ltex;
+    uint32_t  nbuv = 0x00;
 
-    while ( ltmpuv ) {
-        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
-        G3DTEXTURE *tex = g3dtexture_getFromUVMap ( ltex, uv->set->map );
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        LIST *ltmpuvs = fac->luvs;
 
-        if ( tex ) {
-            G3DMATERIAL *mat = ( tex->mat );
-            if ( mat->displacement_strength ) {
-                G3DIMAGE *disimg = NULL;
-                uint32_t gray = 0x00;
-                float factor;
+        while ( ltmpuvs ) {
+            G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+            uint32_t i;
 
-                if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
-                    disimg = mat->displacement.image;
-                }
+            while ( ltmptex ) {
+                G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
-                if ( mat->flags & DISPLACEMENT_USEPROCEDURAL ) {
-                    /* Way too slow to query directly the procedure, */
-                    /* instead we query the generated image */
-                    disimg = &mat->displacement.proc->image;
-                }
+                if ( tex->map == uvs->map ) {
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        if ( ver == fac->ver[i] ) {
+                            G3DMATERIAL *mat = ( tex->mat );
+                            G3DUV *uv = &uvs->veruv[i];
 
-                if ( disimg ) {
-                    uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
-                    uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
+                            if ( mat->displacement_strength ) {
+                                G3DIMAGE *disimg = NULL;
+                                uint32_t gray = 0x00;
+                                float factor;
 
-                    if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
-                    if ( imgy < 0x00 ) imgy = disimg->height - imgy;
+                                if ( mat->flags & DISPLACEMENT_ENABLED ) {
+                                    if ( mat->displacement.flags & USEIMAGECOLOR ) {
+                                        disimg = mat->displacement.image;
+                                    }
+    
+                                    if ( mat->displacement.flags & USEPROCEDURAL ) {
+                                        /* Way too slow to query directly the procedure, */
+                                        /* instead we query the generated image */
+                                        disimg = &mat->displacement.proc->image;
+                                    }
 
-                    uint32_t offset = ( imgy * disimg->width  ) + imgx;
+                                    if ( disimg ) {
+                                        uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
+                                        uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
 
-                    /*** This depth part should be optimized ***/
-                    if ( disimg->depth == 0x18 ) {
-                        unsigned char (*data)[0x03] = disimg->data;
+                                        if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
+                                        if ( imgy < 0x00 ) imgy = disimg->height - imgy;
 
-                        gray = ( data[offset][0x00] +
-                                 data[offset][0x01] +
-                                 data[offset][0x02] ) * ONETHIRD;
-                    }
+                                        uint32_t offset = ( imgy * disimg->width  ) + imgx;
+
+                                        /*** This depth part should be optimized ***/
+                                        if ( disimg->depth == 0x18 ) {
+                                            unsigned char (*data)[0x03] = disimg->data;
+
+                                            gray = ( data[offset][0x00] +
+                                                     data[offset][0x01] +
+                                                     data[offset][0x02] ) * ONETHIRD;
+                                        }
    
-                    if ( disimg->depth == 0x08 ) {
-                        unsigned char (*data)[0x01] = disimg->data;
+                                        if ( disimg->depth == 0x08 ) {
+                                            unsigned char (*data)[0x01] = disimg->data;
 
-                        gray = data[offset][0x00];
-                    }
-                }
+                                            gray = data[offset][0x00];
+                                        }
+                                    }
+                                }
 
-                factor = gray * mat->displacement_strength * 0.001f;
+                                factor = gray * mat->displacement_strength * 0.001f;
+  
+                                pos.x += ( ver->nor.x * factor );
+                                pos.y += ( ver->nor.y * factor );
+                                pos.z += ( ver->nor.z * factor );
 
-                pos.x += ( ver->nor.x * factor );
-                pos.y += ( ver->nor.y * factor );
-                pos.z += ( ver->nor.z * factor );
+
+                            }
+
+                            break; /* break the for loop */
+                        } /* end if */
+                    } /* end for */
+
+                    nbuv++;
+                } /* end if */
+
+                ltmptex = ltmptex->next;
             }
+
+            ltmpuvs = ltmpuvs->next;
         }
 
-        ltmpuv = ltmpuv->next;
+        ltmpfac = ltmpfac->next;
     }
 
-    if ( ver->nbuv ) {
-        ver->pos.x += ( pos.x / ver->nbuv );
-        ver->pos.y += ( pos.y / ver->nbuv );
-        ver->pos.z += ( pos.z / ver->nbuv );
+
+    if ( nbuv ) {
+        ver->pos.x += ( pos.x / nbuv );
+        ver->pos.y += ( pos.y / nbuv );
+        ver->pos.z += ( pos.z / nbuv );
     }
 }
 
 /******************************************************************************/
+
 void g3dvertex_getAverageUV ( G3DVERTEX *ver, G3DUVMAP *map, float *u,
                                                              float *v ) {
-    float U = 0.0f, V = 0.0f;
-    LIST *ltmpuv = ver->luv;
+    float avgu = 0.0f, avgv = 0.0f;
+    LIST *ltmpfac = ver->lfac;
+    uint32_t nbuv = 0x00;
 
-    while ( ltmpuv ) {
-        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        LIST *ltmpuvs = fac->luvs;
 
-        if ( uv->set->map == map ) {
-            U += uv->u;
-            V += uv->v;
-        } 
+        while ( ltmpuvs ) {
+            G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+            uint32_t i;
 
-        ltmpuv = ltmpuv->next;
+            for ( i = 0x00; i < fac->nbver; i++ ) {
+                if ( ver == fac->ver[i] ) {
+                    G3DUV *uv = &uvs->veruv[i];
+
+                    avgu += uv->u;
+                    avgv += uv->v;
+
+                    nbuv++;
+
+                    break; /* break the for loop */
+                }
+            }
+
+            ltmpuvs = ltmpuvs->next;
+        }
+
+        ltmpfac = ltmpfac->next;
     }
 
-    if ( ver->nbuv ) {
-        *u = ( U / ver->nbuv );
-        *v = ( V / ver->nbuv );
+    if ( nbuv ) {
+        *u = ( avgu / nbuv );
+        *v = ( avgv / nbuv );
     }
-}
-
-/******************************************************************************/
-G3DUV *g3dvertex_getUV ( G3DVERTEX *ver, G3DUVMAP *map ) {
-    LIST *ltmpuv = ver->luv;
-
-    while ( ltmpuv ) {
-        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
-
-        if ( uv->set->map == map ) return uv; 
-
-        ltmpuv = ltmpuv->next;
-    }
-
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dvertex_addUV ( G3DVERTEX *ver, G3DUV *uv ) {
-    list_insert ( &ver->luv, uv );
-
-    ver->nbuv++;
-}
-
-/******************************************************************************/
-void g3dvertex_removeUV ( G3DVERTEX *ver, G3DUV *uv ) {
-    list_remove ( &ver->luv, uv );
-
-    ver->nbuv--;
 }
 
 /******************************************************************************/

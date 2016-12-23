@@ -174,15 +174,22 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
 
                 memcpy ( &locnor, &locpos, sizeof ( G3DVECTOR ) );
 
-                locnor.x = -locnor.x;
-                locnor.y = -locnor.y;
-                locnor.z = -locnor.z;
-
                 g3dvector_normalize ( &locnor, NULL );
 
+                /*locnor.x = -locnor.x;
+                locnor.y = -locnor.y;
+                locnor.z = -locnor.z;*/
+
+/*printf("%f %f %f\n", locnor.x, locnor.y, locnor.z );*/
                 /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
                 uvs->veruv[i].u =   ( atan2f( locnor.z, locnor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 uvs->veruv[i].v = - ( asin  ( locnor.y )           / ( M_PI        ) ) + 0.5f;
+
+
+                if ( uvs->veruv[i].u < 0.0f ) uvs->veruv[i].u = 0.0f;
+                if ( uvs->veruv[i].u > 1.0f ) uvs->veruv[i].u = 1.0f;
+                if ( uvs->veruv[i].v < 0.0f ) uvs->veruv[i].v = 0.0f;
+                if ( uvs->veruv[i].v > 1.0f ) uvs->veruv[i].v = 1.0f;
 
 /*printf("U: %f V:%f\n", uvs->veruv[i].u, uvs->veruv[i].v );*/
             } break;

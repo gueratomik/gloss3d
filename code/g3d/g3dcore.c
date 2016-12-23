@@ -244,7 +244,7 @@ void g3dcore_loadJpeg ( const char *filename, uint32_t      *width,
 
     bytesperline = cinfo.output_width * cinfo.output_components;
 
-    (*data) = malloc ( cinfo.output_width * bytesperline );
+    (*data) = malloc ( cinfo.output_height * bytesperline );
 
     (*width)  = cinfo.output_width;
     (*height) = cinfo.output_height;

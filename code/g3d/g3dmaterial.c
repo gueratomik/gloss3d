@@ -64,9 +64,9 @@ void g3dmaterial_removeObject ( G3DMATERIAL *mat, G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dmaterial_enableReflectionImageColor ( G3DMATERIAL *mat ) {
-        mat->flags &= (~REFLECTION_USEMASK); /*** clear flags first ***/
+        mat->flags &= (~USECHANNELMASK); /*** clear flags first ***/
 
-        mat->flags |= REFLECTION_USEIMAGECOLOR;
+        mat->reflection.flags |= USEIMAGECOLOR;
 }
 
 /******************************************************************************/
@@ -85,37 +85,33 @@ void g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) 
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseSolidColor ( G3DMATERIAL *mat ) {
-        mat->flags &= (~DIFFUSE_USEMASK); /*** clear flags first ***/
+        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
 
-        mat->flags |= DIFFUSE_USESOLIDCOLOR;
+        mat->diffuse.flags |= USESOLIDCOLOR;
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL *mat ) {
-        mat->flags &= (~DIFFUSE_USEMASK); /*** clear flags first ***/
+        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
 
-        mat->flags |= DIFFUSE_USEIMAGECOLOR;
+        mat->diffuse.flags |= USEIMAGECOLOR;
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseProcedural ( G3DMATERIAL *mat ) {
-        mat->flags &= (~DIFFUSE_USEMASK); /*** clear flags first ***/
+        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
 
-        mat->flags |= DIFFUSE_USEPROCEDURAL;
+        mat->diffuse.flags |= USEPROCEDURAL;
 }
 
 /******************************************************************************/
 void g3dmaterial_addDisplacementImage ( G3DMATERIAL *mat, G3DIMAGE *disimg ) {
     mat->displacement.image = disimg;
-
-    /*g3dimage_bind ( mat->displacement.image );*/
 }
 
 /******************************************************************************/
 void g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
     mat->displacement.proc = proc;
-
-    /*g3dimage_bind ( &mat->diffuse.proc->image );*/
 }
 
 /******************************************************************************/
@@ -130,16 +126,16 @@ void g3dmaterial_disableDisplacement ( G3DMATERIAL *mat ) {
 
 /******************************************************************************/
 void g3dmaterial_enableDisplacementImageColor ( G3DMATERIAL *mat ) {
-        mat->flags &= (~DISPLACEMENT_USEMASK); /*** clear flags first ***/
+        mat->displacement.flags &= (~USECHANNELMASK); /* clear flags first */
 
-        mat->flags |= DISPLACEMENT_USEIMAGECOLOR;
+        mat->displacement.flags |= USEIMAGECOLOR;
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL *mat ) {
-        mat->flags &= (~DISPLACEMENT_USEMASK); /*** clear flags first ***/
+        mat->displacement.flags &= (~USECHANNELMASK); /*** clear flags first ***/
 
-        mat->flags |= DISPLACEMENT_USEPROCEDURAL;
+        mat->displacement.flags |= USEPROCEDURAL;
 }
 
 /******************************************************************************/
@@ -161,30 +157,53 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     if ( name ) g3dmaterial_name ( mat, name );
 
-    mat->flags = DIFFUSE_USESOLIDCOLOR  | 
-                 SPECULAR_USESOLIDCOLOR | 
-                 DISPLACEMENT_USEIMAGECOLOR;
+    mat->flags = DIFFUSE_ENABLED | SPECULAR_ENABLED | REFLECTION_ENABLED;
 
-    mat->reflection_strength   = 0.0f;
-    mat->refraction_strength   = 1.0f;
     mat->transparency_strength = 0.0f;
 
     /*** default material color is gray ***/
-    mat->diffuse.solid.r   = 0.5f;
-    mat->diffuse.solid.g   = 0.5f;
-    mat->diffuse.solid.b   = 0.5f;
-    mat->diffuse.solid.a   = 1.0f;
+    mat->diffuse.flags         = USESOLIDCOLOR;
+    mat->diffuse.solid.r       = 0.5f;
+    mat->diffuse.solid.g       = 0.5f;
+    mat->diffuse.solid.b       = 0.5f;
+    mat->diffuse.solid.a       = 1.0f;
+
+    mat->specular.flags        = USESOLIDCOLOR;
+    mat->specular.solid.r      = 1.0f;
+    mat->specular.solid.g      = 1.0f;
+    mat->specular.solid.b      = 1.0f;
+    mat->specular.solid.a      = 1.0f;
+
+    mat->bump.flags            = USEIMAGECOLOR;
+    mat->bump.solid.r          = 1.0f;
+    mat->bump.solid.g          = 1.0f;
+    mat->bump.solid.b          = 1.0f;
+    mat->bump.solid.a          = 1.0f;
 
     /*** default ambient ***/
-    mat->ambient.solid.r   = 0.8f;
-    mat->ambient.solid.g   = 0.8f;
-    mat->ambient.solid.b   = 0.8f;
-    mat->ambient.solid.a   = 1.0f;
+    mat->ambient.flags         = USESOLIDCOLOR;
+    mat->ambient.solid.r       = 0.8f;
+    mat->ambient.solid.g       = 0.8f;
+    mat->ambient.solid.b       = 0.8f;
+    mat->ambient.solid.a       = 1.0f;
 
-    mat->specular.solid.r  = 1.0f;
-    mat->specular.solid.g  = 1.0f;
-    mat->specular.solid.b  = 1.0f;
-    mat->specular.solid.a  = 1.0f;
+    mat->displacement.flags    = USEIMAGECOLOR;
+    mat->displacement.solid.r  = 1.0f;
+    mat->displacement.solid.g  = 1.0f;
+    mat->displacement.solid.b  = 1.0f;
+    mat->displacement.solid.a  = 1.0f;
+
+    mat->reflection.flags      = USESOLIDCOLOR;
+    mat->reflection.solid.r    = 0.0f;
+    mat->reflection.solid.g    = 0.0f;
+    mat->reflection.solid.b    = 0.0f;
+    mat->reflection.solid.a    = 0.0f;
+
+    mat->refraction.flags      = USESOLIDCOLOR;
+    mat->refraction.solid.r    = 0.0f;
+    mat->refraction.solid.g    = 0.0f;
+    mat->refraction.solid.b    = 0.0f;
+    mat->refraction.solid.a    = 0.0f;
 
     /*** Default specularity factor ***/
     mat->specular_level    = 0.25f;

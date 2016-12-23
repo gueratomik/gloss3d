@@ -112,7 +112,8 @@ void extrudeMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -139,7 +140,8 @@ void extrudeMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/

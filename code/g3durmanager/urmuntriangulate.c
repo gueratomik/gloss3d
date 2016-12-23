@@ -91,12 +91,13 @@ void unTriangulate_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -118,12 +119,13 @@ void unTriangulate_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -136,12 +138,13 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, G3DMESH *mes,
 
     g3dmesh_untriangulate ( mes, &loldfac, &lnewfac );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );

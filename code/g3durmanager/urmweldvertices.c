@@ -100,12 +100,13 @@ void weldVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 
     list_exec ( wvs->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -129,12 +130,13 @@ void weldVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 
     list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_linkVertices );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -150,12 +152,13 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
 
     newver = g3dmesh_weldSelectedVertices ( mes, type, &loldfac, &lnewfac );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 
     wvs = urmweldvertices_new ( mes, loldver, loldfac, lnewfac, newver );
 

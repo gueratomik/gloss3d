@@ -665,9 +665,9 @@ void r3dmotionblur_traceMesh ( R3DMOTIONBLUR *rmb, R3DMOTIONMESH *mms ) {
 
     /*** For each triangle, fill the vector buffer ***/
     for ( i = 0x00; i < mms->rms->nbrfac; i++ ) {
-        uint32_t ids[3] = { mms->rms->rfac[i].ver[0x00]->id,
-                            mms->rms->rfac[i].ver[0x01]->id,
-                            mms->rms->rfac[i].ver[0x02]->id };
+        uint32_t ids[3] = { mms->rms->rfac[i].ver[0x00].id,
+                            mms->rms->rfac[i].ver[0x01].id,
+                            mms->rms->rfac[i].ver[0x02].id };
         R3DMOTIONTRACKPOINT *startPoint[3] = { &mms->startPoint[ids[0]],
                                                &mms->startPoint[ids[1]],
                                                &mms->startPoint[ids[2]] },

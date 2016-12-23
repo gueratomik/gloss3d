@@ -119,16 +119,17 @@ OBJECT(0x2000)
 ------------------- Path ( char[] )
 --------------- PROCEDURAL(0xAAA2)
 ----------- MATERIALREFLECTION(0x9260)
---------------- REFLECTIONSTRENGTH (0x9261)
-------------------- strength ( float )
 --------------- SOLIDCOLOR(0xAAA0)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
 --------------- IMAGECOLOR(0xAAA1)
 ------------------- Path ( char[] )
 --------------- PROCEDURAL(0xAAA2)
 ----------- MATERIALREFRACTION(0x9270)
---------------- REFRACTIONSTRENGTH (0x9271)
-------------------- strength ( float )
+--------------- SOLIDCOLOR(0xAAA0)
+------------------- Red-Green-Blue-Alpha (float-float-float-float)
+--------------- IMAGECOLOR(0xAAA1)
+------------------- Path ( char[] )
+--------------- PROCEDURAL(0xAAA2)
 --- MESH(0x3000)
 ------- SUBDIVISION(0x3010)
 ----------- Level         (uint16_t)
@@ -469,17 +470,18 @@ static uint32_t solidcolor_blocksize ( ) {
 static uint32_t materialcolor_blocksize ( G3DMATERIAL *mat ) {
     uint32_t blocksize = 0x00;
 
-    if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+    if ( mat->diffuse.flags & USESOLIDCOLOR ) {
         blocksize += solidcolor_blocksize ( &mat->diffuse.solid ) + 0x06;
     }
 
-    if ( mat->diffuse.image ) {
-        if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+
+    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+        if ( mat->diffuse.image ) {
             blocksize += imagecolor_blocksize (  mat->diffuse.image ) + 0x06;
         }
     }
 
-    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+    if ( mat->diffuse.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 
@@ -504,17 +506,17 @@ static uint32_t materialspecular_blocksize ( G3DMATERIAL *mat ) {
 
     blocksize += materialspecularlevel_blocksize ( ) + 0x06;
 
-    if ( mat->flags & SPECULAR_USESOLIDCOLOR ) {
+    if ( mat->specular.flags & USESOLIDCOLOR ) {
         blocksize += solidcolor_blocksize ( &mat->specular.solid ) + 0x06;
     }
 
-    if ( mat->specular.image ) {
-        if ( mat->flags & SPECULAR_USEIMAGECOLOR ) {
+    if ( mat->specular.flags & USEIMAGECOLOR ) {
+        if ( mat->specular.image ) {
             blocksize += imagecolor_blocksize (  mat->specular.image ) + 0x06;
         }
     }
 
-    if ( mat->flags & SPECULAR_USEPROCEDURAL ) {
+    if ( mat->specular.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 
@@ -532,13 +534,14 @@ static uint32_t materialdisplacement_blocksize ( G3DMATERIAL *mat ) {
 
     blocksize += materialdisplacementstrength_blocksize ( ) + 0x06;
 
-    if ( mat->displacement.image ) {
-        if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
+
+    if ( mat->displacement.flags & USEIMAGECOLOR ) {
+        if ( mat->displacement.image ) {
             blocksize += imagecolor_blocksize (  mat->displacement.image ) + 0x06;
         }
     }
  
-    if ( mat->flags & DISPLACEMENT_USEPROCEDURAL ) {
+    if ( mat->displacement.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 
@@ -556,13 +559,14 @@ static uint32_t materialreflection_blocksize ( G3DMATERIAL *mat ) {
 
     blocksize += materialreflectionstrength_blocksize ( ) + 0x06;
 
-    if ( mat->reflection.image ) {
-        if ( mat->flags & REFLECTION_USEIMAGECOLOR ) {
+
+    if ( mat->reflection.flags & USEIMAGECOLOR ) {
+        if ( mat->reflection.image ) {
             blocksize += imagecolor_blocksize (  mat->reflection.image ) + 0x06;
         }
     }
 
-    if ( mat->flags & REFLECTION_USEPROCEDURAL ) {
+    if ( mat->reflection.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 
@@ -1720,15 +1724,15 @@ static void materialspecular_writeblock ( G3DMATERIAL *mat,
         materialspecularlevel_writeblock ( mat, fdst );
     }
 
-    if ( mat->flags & SPECULAR_USESOLIDCOLOR ) {
+    if ( mat->specular.flags & USESOLIDCOLOR ) {
         uint32_t blocksize = solidcolor_blocksize ( );
 
         chunk_write ( SOLIDCOLORSIG, blocksize, fdst );
         solidcolor_writeblock ( &mat->specular.solid, fdst );
     }
 
-    if ( mat->specular.image ) {
-        if ( mat->flags & SPECULAR_USEIMAGECOLOR ) {
+    if ( mat->specular.flags & USEIMAGECOLOR ) {
+        if ( mat->specular.image ) {
             uint32_t blocksize = imagecolor_blocksize ( mat->specular.image );
 
             chunk_write ( IMAGECOLORSIG, blocksize, fdst );
@@ -1736,7 +1740,7 @@ static void materialspecular_writeblock ( G3DMATERIAL *mat,
         }
     }
 
-    if ( mat->flags & SPECULAR_USEPROCEDURAL ) {
+    if ( mat->specular.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 }
@@ -1758,8 +1762,8 @@ static void materialdisplacement_writeblock ( G3DMATERIAL *mat,
         materialdisplacementstrength_writeblock ( mat, fdst );
     }
 
-    if ( mat->displacement.image ) {
-        if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
+    if ( mat->displacement.flags & USEIMAGECOLOR ) {
+        if ( mat->displacement.image ) {
             uint32_t blocksize = imagecolor_blocksize ( mat->displacement.image );
 
             chunk_write ( IMAGECOLORSIG, blocksize, fdst );
@@ -1767,30 +1771,23 @@ static void materialdisplacement_writeblock ( G3DMATERIAL *mat,
         }
     }
 
-    if ( mat->flags & DISPLACEMENT_USEPROCEDURAL ) {
+    if ( mat->displacement.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 }
 
 /******************************************************************************/
-static void materialreflectionstrength_writeblock ( G3DMATERIAL *mat, 
-                                                    FILE *fdst ) {
-    writef ( &mat->reflection_strength, sizeof ( float ), 0x01, fdst );
-}
-
-/******************************************************************************/
 static void materialreflection_writeblock ( G3DMATERIAL *mat, 
                                             uint32_t save_flags, FILE *fdst ) {
+    if ( mat->reflection.flags & USESOLIDCOLOR ) {
+        uint32_t blocksize = solidcolor_blocksize ( );
 
-    if ( save_flags & REFLECTIONSAVESTRENGTH ) {
-        uint32_t blocksize = materialreflectionstrength_blocksize ( );
-
-        chunk_write ( REFLECTIONSTRENGTHSIG, blocksize, fdst );
-        materialreflectionstrength_writeblock ( mat, fdst );
+        chunk_write ( SOLIDCOLORSIG, blocksize, fdst );
+        solidcolor_writeblock ( &mat->reflection.solid, fdst );
     }
 
-    if ( mat->reflection.image ) {
-        if ( mat->flags & REFLECTION_USEIMAGECOLOR ) {
+    if ( mat->reflection.flags & USEIMAGECOLOR ) {
+        if ( mat->reflection.image ) {
             uint32_t blocksize = imagecolor_blocksize ( mat->reflection.image );
 
             chunk_write ( IMAGECOLORSIG, blocksize, fdst );
@@ -1798,22 +1795,22 @@ static void materialreflection_writeblock ( G3DMATERIAL *mat,
         }
     }
 
-    if ( mat->flags & REFLECTION_USEPROCEDURAL ) {
+    if ( mat->reflection.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 }
 
 /******************************************************************************/
 static void materialcolor_writeblock ( G3DMATERIAL *mat, FILE *fdst ) {
-    if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+    if ( mat->diffuse.flags & USESOLIDCOLOR ) {
         uint32_t blocksize = solidcolor_blocksize ( );
 
         chunk_write ( SOLIDCOLORSIG, blocksize, fdst );
         solidcolor_writeblock ( &mat->diffuse.solid, fdst );
     }
 
-    if ( mat->diffuse.image ) {
-        if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+        if ( mat->diffuse.image ) {
             uint32_t blocksize = imagecolor_blocksize ( mat->diffuse.image );
 
             chunk_write ( IMAGECOLORSIG, blocksize, fdst );
@@ -1821,7 +1818,7 @@ static void materialcolor_writeblock ( G3DMATERIAL *mat, FILE *fdst ) {
         }
     }
 
-    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+    if ( mat->diffuse.flags & USEPROCEDURAL ) {
         /*** not implemented yet ***/
     }
 }
@@ -1859,7 +1856,7 @@ static void material_writeblock ( G3DMATERIAL *mat, uint32_t save_flags,
         }
     }
 
-    if ( mat->reflection_strength ) {
+    if ( mat->flags & REFLECTION_ENABLED ) {
         if ( save_flags & MATERIALSAVEREFLECTION ) {
             uint32_t blocksize = materialreflection_blocksize ( mat );
 

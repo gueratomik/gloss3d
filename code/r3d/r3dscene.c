@@ -219,8 +219,6 @@ void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from,
     LIST *ltmp = rsce->lfilters;
     char *img = rsce->area.img;
 
-    if ( rsce->running == 0x00 ) return;
-
     while ( ltmp ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
 

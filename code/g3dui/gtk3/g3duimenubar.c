@@ -333,13 +333,6 @@ void g3dui_addWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void g3dui_commitModifierCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_commitModifierCbk ( gui );
-}
-
-/******************************************************************************/
 void g3dui_addSubdividerCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -444,8 +437,6 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton       ( menu, gui, MENU_ADDBONE  , width, G_CALLBACK(g3dui_addBoneCbk)      );
     createFixBoneMenu   ( menu, gui, MENU_FIXBONE  , width );
     createResetBoneMenu ( menu, gui, MENU_RESETBONE, width );
-
-    g3dui_addMenuButton       ( menu, gui, MENU_COMMITMODIFIER , width, G_CALLBACK(g3dui_commitModifierCbk)  );
 
 /*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
 */

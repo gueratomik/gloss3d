@@ -73,6 +73,7 @@ void common_g3dui_redoCbk ( G3DUI *gui ) {
 void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    uint32_t oid = g3dscene_getNextObjectID ( sce );
 
     if ( obj && ( obj->type & PRIMITIVE ) ) {
         g3durm_primitive_convert ( gui->urm, 
@@ -86,6 +87,27 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
         g3dui_redrawObjectList     ( gui );
         g3dui_updateAllCurrentEdit ( gui );
         g3dui_redrawGLViews        ( gui );
+    }
+
+    if ( obj && ( obj->type & MODIFIER ) ) {
+        G3DMESH *commitedMesh = g3dobject_commit ( obj, oid, obj->name, gui->flags );
+
+        g3durm_object_addChild ( gui->urm, 
+                                 gui->sce, 
+                                 gui->flags, 
+                                 ( REDRAWVIEW |
+                                   REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                 ( G3DOBJECT * ) NULL,
+                                 ( G3DOBJECT * ) sce,
+                                 ( G3DOBJECT * ) commitedMesh );
+
+        g3dscene_unselectAllObjects ( sce, gui->flags );
+        g3dscene_selectObject ( sce, ( G3DOBJECT * ) commitedMesh, gui->flags );
+
+        g3dui_redrawGLViews ( gui );
+        g3dui_updateCoords ( gui );
+        g3dui_redrawObjectList ( gui );
+        g3dui_updateAllCurrentEdit ( gui );
     }
 }
 

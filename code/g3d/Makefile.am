@@ -16,6 +16,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dbbox.c \
                       g3dbone.c \
                       g3dcamera.c \
+                      g3dchannel.c \
                       g3dcore.c \
                       g3dcube.c \
                       g3dcursor.c \

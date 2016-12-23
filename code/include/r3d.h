@@ -305,8 +305,6 @@ typedef enum _G3DSHADINGMODE {
 
 /******************************************************************************/
 typedef struct _R3DVERTEX {
-    uint32_t id;
-    R3DVECTOR ori; /*** Vertex position in World coord      ***/
     R3DVECTOR pos; /*** Vertex position in World coord      ***/
     R3DVECTOR nor; /*** Vertex normals in World coord       ***/
 } R3DVERTEX;
@@ -321,12 +319,22 @@ typedef struct _R3DBBOX {
 } R3DBBOX;
 
 /******************************************************************************/
+typedef struct _R3DUV {
+    float u, v;
+} R3DUV;
+
+/******************************************************************************/
+typedef struct _R3DUVSET {
+    R3DUV uv[0x03];
+} R3DUVSET;
+
+/******************************************************************************/
 typedef struct _R3DFACE {
-    R3DVERTEX *ver[0x03];    /*** our face is a triangle              ***/
+    R3DVERTEX  ver[0x03];    /*** our face is a triangle     ***/
     R3DVECTOR  nor;          /*** face normal in world coord ***/
-    G3DFACE   *ancestorFace; /*** original face ***/
-    double     d;
-    double     surface;
+    float      d;
+    float      surface;
+    R3DUVSET  *ruvs;
 } R3DFACE;
 
 /******************************************************************************/
@@ -383,6 +391,7 @@ typedef struct _R3DOBJECT {
     uint32_t flags; /*** inherited from G3DOBJECT ***/
     void (*free) (struct _R3DOBJECT *);
     double wmatrix[16];
+    double wnormix[16];
     R3DBBOX   *rbx;
     R3DOCTREE *rot;
     G3DOBJECT *obj; /*** reference object ***/
@@ -419,11 +428,10 @@ typedef struct _R3DMESH {
     R3DOBJECT   robj;
     R3DFACE    *rfac; /*** list of render faces  ***/
     uint32_t    nbrfac;
-    R3DVERTEX  *rver;
-    uint32_t    nbrver;
-    R3DRTUVSET *uvs;
-    uint32_t    nbuvs;
+    R3DUVSET   *ruvs;
+    uint32_t    nbruvs;
     uint32_t    nbmap;
+    R3DFACE    *curfac; /* used at creation */
 } R3DMESH;
 
 /******************************************************************************/
@@ -633,7 +641,13 @@ uint32_t r3dray_inOctreeZXmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT *
 uint32_t r3dray_inOctreeZXpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
-void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *, R3DRGBA *, LIST * );
+void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *,
+                                             R3DRGBA *,
+                                             R3DRGBA *,
+                                             R3DRGBA *,
+                                             R3DRGBA *,
+                                             R3DRGBA *,
+                                             LIST * );
 uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,
                                                                R3DPOINT *,
                                                                R3DPOINT *,

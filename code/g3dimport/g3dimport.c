@@ -247,10 +247,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 /*g3dmaterial_enableReflection ( mat );*/
             } break;
 
-            case REFLECTIONSTRENGTHSIG : {
-                readf ( &mat->reflection_strength, sizeof ( float ), 0x01, fsrc );
-            } break;
-
             case SOLIDCOLORSIG : {
                 if ( curchannel == &mat->diffuse ) {
                     g3dmaterial_enableDiffuseSolidColor ( mat );

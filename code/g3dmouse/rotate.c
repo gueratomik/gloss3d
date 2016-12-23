@@ -116,14 +116,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 locroty = 0.0f;
                 locrotz = 0.0f;
 
-                /*** Get subdivided faces to update when FFD box is changed ***/
-                if ( obj->type == G3DFFDTYPE ) {
-                    G3DFFD *ffd = ( G3DFFD * ) obj;
-
-                    ffdlsub = g3dvertex_getAreaFacesFromList ( ffd->lver );
-                }
-
-                if ( obj->type == G3DMESHTYPE ) {
+                if ( obj->type & EDITABLE ) {
                     mes = ( G3DMESH * ) obj;
 
                     /****** Cursor axis picked ? ******/
@@ -187,6 +180,8 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     /*** for the undo/redo manager ***/
                     nbver = g3dvertex_copyPositionFromList ( lver, &oldpos );
+
+                    g3dmesh_startUpdateModifiers_r ( obj, flags );
 
                     vec = oldpos;
 
@@ -286,27 +281,14 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             ltmp = ltmp->next;
                         }
 
-                        if ( obj->type == G3DFFDTYPE ) {
-                            G3DFFD  *ffd = ( G3DFFD * ) obj;
-                            G3DMESH *ffdmes = ( G3DMESH * ) obj->parent;
+                        g3dmesh_updateModifiers_r ( obj, flags );
 
-                            /*g3dffd_modify ( ffd );*/
-
-                            if ( ffdmes ) {
-                                g3dmesh_update ( ffdmes, ffd->lver,
-                                                         ffd->lfac,
-                                                         UPDATEFACEPOSITION |
-                                                         UPDATEFACENORMAL   |
-                                                         UPDATEVERTEXNORMAL, flags );
-                            }
+                        if ( mes->onGeometryMove ) {
+                            mes->onGeometryMove ( mes, lver, 
+                                                       ledg, 
+                                                       lfac, 
+                                                       flags );
                         }
-
-                        g3dmesh_update ( mes, lver,
-                                              lfac,
-                                              UPDATEFACEPOSITION |
-                                              UPDATEFACENORMAL   |
-                                              UPDATEVERTEXNORMAL |
-                                              COMPUTEUVMAPPING, flags );
                     }
                 }
 

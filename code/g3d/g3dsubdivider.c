@@ -76,6 +76,153 @@ void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
                     }/*
 
 /******************************************************************************/
+uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbtris */
+                                                                 uint32_t, /* nbquads */
+                                                                 uint32_t, /* nbuv */
+                                                                 void * ),
+                                                  void (*Dump) ( G3DFACE *,
+                                                                 void * ),
+                                                  void *data,
+                                                  uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+    if ( sdr->subdiv_render == 0x00 ) return 0x00;
+
+    if ( parent ) {
+        uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
+        uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
+        G3DSYSINFO *sif = g3dsysinfo_get ( );
+        /*** Get the temporary subdivision arrays for CPU #0 ***/
+        G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
+        G3DMESH     *mes      = ( G3DMESH * ) parent;
+        G3DRTUV     *rtuvmem  = NULL;
+        G3DRTVERTEX *rtvermem = NULL;
+        G3DRTEDGE   *rtedgmem = NULL;
+        G3DRTQUAD   *rtquamem = NULL;
+        LIST *ltmpfac = mes->lfac;
+
+        g3dtriangle_evalSubdivision ( sdr->subdiv_render, 
+                                      &nbFacesPerTriangle, 
+                                      &nbEdgesPerTriangle,
+                                      &nbVerticesPerTriangle );
+        g3dquad_evalSubdivision     ( sdr->subdiv_render,
+                                      &nbFacesPerQuad, 
+                                      &nbEdgesPerQuad,
+                                      &nbVerticesPerQuad );
+
+        if ( Alloc ) Alloc ( 0x00, ( mes->nbtri * nbFacesPerTriangle ) +
+                                   ( mes->nbqua * nbFacesPerQuad ), 
+                                   ( mes->nbuvmap ), data );
+
+        if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
+            /*** Force the flag in case our mesh does not need displacement ***/
+            engine_flags |= NODISPLACEMENT;
+        }
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            uint32_t nbv = fac->nbver;
+            uint32_t nbVerticesPerFace = ( nbv == 3 ) ? nbVerticesPerTriangle :
+                                                        nbVerticesPerQuad;
+            uint32_t nbEdgesPerFace    = ( nbv == 3 ) ? nbEdgesPerTriangle :
+                                                        nbEdgesPerQuad;
+            uint32_t nbFacesPerFace    = ( nbv == 3 ) ? nbFacesPerTriangle :
+                                                        nbFacesPerQuad;
+            uint32_t nbrtfac, i;
+
+            rtvermem = realloc ( rtvermem, nbVerticesPerFace * sizeof ( G3DRTVERTEX ) );
+            rtedgmem = realloc ( rtedgmem, nbEdgesPerFace    * sizeof ( G3DRTEDGE   ) );
+            rtquamem = realloc ( rtquamem, nbFacesPerFace    * sizeof ( G3DRTQUAD   ) );
+
+            if ( mes->nbuvmap ) {
+                rtuvmem  = realloc ( rtuvmem , nbVerticesPerFace * 
+                                               mes->nbuvmap      * sizeof ( G3DRTUV ) );
+            }
+
+            nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
+                                                        fac,
+                                                        NULL,
+                                                        rtquamem,
+                                                        rtedgmem,
+                                                        rtvermem,
+                                                        rtuvmem,
+                                                        NULL,
+                                                        NULL,
+                                                        NULL,
+                                                        mes->ltex,
+                                                        g3dsubindex_get ( 0x04, sdr->subdiv_render ),
+                                                        g3dsubindex_get ( 0x03, sdr->subdiv_render ),
+                                                        sdr->subdiv_render,
+                                                        SUBDIVISIONCOMPUTE,
+                                                        engine_flags );
+
+
+            for ( i = 0x00; i < nbrtfac; i++ ) {
+                LIST *ltmpuvs = fac->luvs;
+                uint32_t nbuvs = 0x00;
+                G3DVERTEX dumpVer[0x04];
+                G3DFACE   dumpFac;
+                uint32_t  j;
+
+                memset ( &dumpFac, 0x00, sizeof ( G3DFACE ) );
+
+                for ( j = 0x00; j < 0x04; j++ ) {
+                    G3DRTVERTEX *rtver = &rtvermem[rtquamem[i].rtver[j]];
+
+                    memset ( &dumpVer[j], 0x00, sizeof ( G3DVERTEX ) );
+
+                    memcpy ( &dumpVer[j].pos, &rtver->pos, sizeof ( G3DTINYVECTOR ) );
+                    memcpy ( &dumpVer[j].nor, &rtver->nor, sizeof ( G3DTINYVECTOR ) );
+                }
+
+                dumpFac.nbver = 0x04;
+
+                dumpFac.ver[0x00] = &dumpVer[0x00];
+                dumpFac.ver[0x01] = &dumpVer[0x01];
+                dumpFac.ver[0x02] = &dumpVer[0x02];
+                dumpFac.ver[0x03] = &dumpVer[0x03];
+
+                /*** rebuild uvmaps ***/
+                while ( ltmpuvs ) {
+                    G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                    uint32_t offset = ( nbuvs * nbVerticesPerFace );
+#define MAX_UV_MAPS 0x20
+                    G3DUVSET   dumpUvs[MAX_UV_MAPS];
+                    LIST      ldumpUvs[MAX_UV_MAPS];
+                    uint32_t k;
+
+                    dumpUvs[nbuvs].map = uvs->map;
+
+                    for ( k = 0x00; k < 0x04; k++ ) {
+                        dumpUvs[nbuvs].veruv[k].u = rtuvmem[(offset + rtquamem[i].rtver[k])].u;
+                        dumpUvs[nbuvs].veruv[k].v = rtuvmem[(offset + rtquamem[i].rtver[k])].v;
+                    }
+
+                    ldumpUvs[nbuvs].data  = &dumpUvs[nbuvs];
+                    ldumpUvs[nbuvs].next  =  dumpFac.luvs;
+                    dumpFac.luvs          = &ldumpUvs[nbuvs];
+                    dumpFac.nbuvs         = nbuvs++;
+
+                    ltmpuvs = ltmpuvs->next;
+                }
+
+                Dump ( &dumpFac, data );
+            }
+
+            ltmpfac = ltmpfac->next;
+        }
+
+        if ( rtvermem ) free ( rtvermem );
+        if ( rtedgmem ) free ( rtedgmem );
+        if ( rtquamem ) free ( rtquamem );
+        if ( rtuvmem  ) free ( rtuvmem  );
+    }
+
+    return MODIFIERTAKESOVER;
+}
+
+/******************************************************************************/
 G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr, 
                                 uint32_t       commitMeshID,
                                 unsigned char *commitMeshName,
@@ -352,6 +499,8 @@ void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
         }
 
         sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
+
+        list_free ( &lver, NULL );
     }
 }
 
@@ -404,13 +553,16 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
     static GLfloat grayDiffuse[]   = { MESHCOLORF, 
                                        MESHCOLORF, 
                                        MESHCOLORF, 1.0f };
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
     LIST *ltmpuvs = fac->luvs;
 
     glDisable ( GL_COLOR_MATERIAL );
 
-    if ( fac->flags & FACESELECTED ) {
+    if ( ( obj->flags & OBJECTSELECTED ) &&
+         ( fac->flags & FACESELECTED ) &&
+         ( engine_flags & VIEWFACE ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
     } else {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
@@ -429,32 +581,36 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
 
 
 
-            if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
-                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
-            } else {
-                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
-            }
-
-            if ( fac->flags & FACESELECTED ) {
-                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
-            }
-
-            if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
-                difimg = mat->diffuse.image;
-            }
-
-            if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
-                if ( mat->diffuse.proc ) {
-                    difimg = &mat->diffuse.proc->image;
+            if ( mat->flags & DIFFUSE_ENABLED ) {
+                if ( mat->diffuse.flags & USESOLIDCOLOR ) {
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+                } else {
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
                 }
-            }
 
-            if ( difimg ) {
-                glBindTexture ( GL_TEXTURE_2D, difimg->id );
-                glEnable      ( GL_TEXTURE_2D );
+                if ( ( obj->flags & OBJECTSELECTED ) &&
+                     ( fac->flags & FACESELECTED ) &&
+                     ( engine_flags & VIEWFACE ) ) {
+                    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
+                }
 
-                glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-                                            GL_COMBINE_EXT );
+                if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                    difimg = mat->diffuse.image;
+                }
+
+                if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                    if ( mat->diffuse.proc ) {
+                        difimg = &mat->diffuse.proc->image;
+                    }
+                }
+
+                if ( difimg ) {
+                    glBindTexture ( GL_TEXTURE_2D, difimg->id );
+                    glEnable      ( GL_TEXTURE_2D );
+
+                    glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                                GL_COMBINE_EXT );
+                }
             }
 
             glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
@@ -510,26 +666,41 @@ static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac,
         while ( ltmptex ) {
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
             G3DMATERIAL *mat = tex->mat;
+            G3DIMAGE    *difimg = NULL;
 
-            #ifdef __linux__
-            glActiveTextureARB ( arbid );
-            #endif
-            #ifdef __MINGW32__
-            if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-            #endif
+            if ( mat->flags & DIFFUSE_ENABLED ) {
+                if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                    difimg = mat->diffuse.image;
+                }
 
-            glDisable ( GL_TEXTURE_2D );
+                if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                    if ( mat->diffuse.proc ) {
+                        difimg = &mat->diffuse.proc->image;
+                    }
+                }
 
-            if ( tex->map == uvs->map ) {
-                #ifdef __linux__
-                glClientActiveTextureARB ( arbid );
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
-                #endif
-                glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+                if ( difimg ) {
+                    glDisable ( GL_TEXTURE_2D );
 
-                arbid++;
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
+
+                    if ( tex->map == uvs->map ) {
+                        #ifdef __linux__
+                        glClientActiveTextureARB ( arbid );
+                        #endif
+                        #ifdef __MINGW32__
+                        if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                         #endif
+                       glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+
+                        arbid++;
+                    }
+                }
             }
 
             ltmptex = ltmptex->next;
@@ -620,9 +791,11 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          NULL,
                                                          NULL,
                                                          g3dsubdivider_modify,
-                                                         NULL,
+                                                         g3dsubdivider_startUpdate,
                                                          g3dsubdivider_update,
-                                                         NULL );
+                                                         g3dsubdivider_endUpdate );
+
+    ((G3DMESH*)sdr)->dump = g3dsubdivider_dump;
 }
 
 /******************************************************************************/

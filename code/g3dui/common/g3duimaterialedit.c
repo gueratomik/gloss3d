@@ -51,7 +51,10 @@ void common_g3dui_materialRefractionStrengthCbk ( G3DUI *gui, float strength ) {
     if ( gui->lock ) return;
 
     if ( mat ) {
-        mat->refraction_strength = strength;
+        mat->refraction.solid.r = strength;
+        mat->refraction.solid.g = strength;
+        mat->refraction.solid.b = strength;
+        mat->refraction.solid.a = strength;
 
         g3dui_updateSelectedMaterialPreview ( gui );
     }
@@ -65,7 +68,10 @@ void common_g3dui_materialReflectionStrengthCbk ( G3DUI *gui, float strength ) {
     if ( gui->lock ) return;
 
     if ( mat ) {
-        mat->reflection_strength = strength;
+        mat->reflection.solid.r = strength;
+        mat->reflection.solid.g = strength;
+        mat->reflection.solid.b = strength;
+        mat->reflection.solid.a = strength;
 
         g3dui_updateSelectedMaterialPreview ( gui );
     }

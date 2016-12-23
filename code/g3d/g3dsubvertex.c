@@ -66,24 +66,6 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver, uint32_t (*qua_indexes)[0x04],
 }
 
 /******************************************************************************/
-void g3dsubvertex_addUV ( G3DSUBVERTEX *subver, G3DUV *uv ) {
-    LIST *nextluv = subver->ver.luv;
-
-    /*** Go with dynamic allocation if this subvertex UV buffer is too small***/
-    if ( subver->ver.flags & VERTEXMALLOCUVS ) {
-        g3dvertex_addUV ( ( G3DVERTEX * ) subver, uv );
-
-        return;
-    }
-
-    subver->ver.luv       = &subver->luvbuf[subver->ver.nbuv];
-    subver->ver.luv->next = nextluv;
-    subver->ver.luv->data = uv;
-
-    subver->ver.nbuv++;
-}
-
-/******************************************************************************/
 void g3dsubvertex_resetEdgeList ( G3DSUBVERTEX *subver ) {
     memset ( subver->ledgbuf, 0x00, sizeof ( subver->ledgbuf ) );
 

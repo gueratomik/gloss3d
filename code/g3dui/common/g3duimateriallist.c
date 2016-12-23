@@ -185,17 +185,17 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 float rf, gf, bf;
                 uint32_t col = 0x00;
 
-                if ( ( mat->flags & DIFFUSE_USEIMAGECOLOR ) ||
-                     ( mat->flags & DIFFUSE_USEPROCEDURAL ) ) {
+                if ( ( mat->diffuse.flags & USEIMAGECOLOR ) ||
+                     ( mat->diffuse.flags & USEPROCEDURAL ) ) {
                     G3DIMAGE *colimg = NULL;
 
-                    if ( mat->flags & DIFFUSE_USEPROCEDURAL ) {
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
                         if ( mat->diffuse.proc ) {
                             colimg = &mat->diffuse.proc->image;
                         }
                     }
 
-                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         colimg = mat->diffuse.image;
                     }
 
@@ -221,7 +221,7 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                     }
                 }
 
-                if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+                if ( mat->diffuse.flags & USESOLIDCOLOR ) {
                     R = ( uint32_t ) rgba.r,
                     G = ( uint32_t ) rgba.g,
                     B = ( uint32_t ) rgba.b;

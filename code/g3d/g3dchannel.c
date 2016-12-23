@@ -19,7 +19,6 @@
 /*                                                                            */
 /******************************************************************************/
 
-
 /******************************************************************************/
 /*                                                                            */
 /* Please avoid using global variables at all costs in this file, and never   */
@@ -28,31 +27,43 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3durmanager.h>
+#include <g3d.h>
 
 /******************************************************************************/
-void g3durm_mesh_triangulate ( G3DURMANAGER *urm, G3DMESH *mes, int clockwise,
-                                                  uint32_t engine_flags,
-                                                  uint32_t return_flags ) {
-    LIST *loldfac = NULL,
-         *lnewfac = NULL;
-    URMTRIANGULATE *ums;
+void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
+                                            float    v,
+                                            G3DRGBA *rgba ) {
+    if ( cha->flags & USEIMAGECOLOR ) {
+        G3DIMAGE *colimg = cha->image;
+        if ( colimg ) {
+            int32_t imgx = ((int32_t)((float)u * colimg->width  )) % colimg->width;
+            int32_t imgy = ((int32_t)((float)v * colimg->height )) % colimg->height;
 
-    g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
+            if ( imgx < 0x00 ) imgx = colimg->width  - imgx;
+            if ( imgy < 0x00 ) imgy = colimg->height - imgy;
 
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+            uint32_t offset = ( imgy * colimg->bytesperline  ) +
+                              ( imgx * colimg->bytesperpixel );
 
-    /*** Triagulate and unTriagulate feature use ***/
-    /*** the same functions and data structures. ***/
-    ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
+            rgba->r = colimg->data[offset+0x00];
+            rgba->g = colimg->data[offset+0x01];
+            rgba->b = colimg->data[offset+0x02];
+        } else {
+            g3dcolor_toRGBA ( &cha->solid, rgba );
+        }
+    }
 
-    g3durmanager_push ( urm, unTriangulate_undo,
-                             unTriangulate_redo,
-                             unTriangulate_free, ums, return_flags );
+    if ( cha->flags & USESOLIDCOLOR ) {
+        g3dcolor_toRGBA ( &cha->solid, rgba );
+    }
+
+    if ( cha->flags & USEPROCEDURAL ) {
+        G3DPROCEDURAL *proc = cha->proc;
+
+        if ( proc ) {
+            proc->getColor ( proc, u, v, 0.0f, rgba );
+        } else {
+            g3dcolor_toRGBA ( &cha->solid, rgba );
+        }
+    }
 }

@@ -110,7 +110,11 @@ static void updateRefractionPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkRange *ran = GTK_RANGE(child);
 
                 if ( strcmp ( child_name, EDITREFRACTIONSTRENGTH ) == 0x00 ) {
-                    gtk_range_set_value ( ran, mat->refraction_strength * 100 );
+                    float refractionStrength = ( mat->refraction.solid.r + 
+                                                 mat->refraction.solid.g +
+                                                 mat->refraction.solid.b ) / 3.0f;
+
+                    gtk_range_set_value ( ran, refractionStrength * 100 );
                 }
 
                 if ( strcmp ( child_name, EDITREFRACTIONTRANSPARENCY ) == 0x00 ) {
@@ -188,7 +192,10 @@ static void updateReflectionPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkRange *ran = GTK_RANGE(child);
 
                 if ( strcmp ( child_name, EDITREFLECTIONSTRENGTH ) == 0x00 ) {
-                    gtk_range_set_value ( ran, mat->reflection_strength * 100 );
+                    float reflectionStrength = ( mat->reflection.solid.r + 
+                                                 mat->reflection.solid.g +
+                                                 mat->reflection.solid.b ) / 3.0f;
+                    gtk_range_set_value ( ran, reflectionStrength * 100 );
                 }
             }
         }
@@ -297,7 +304,7 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkButton *btn = GTK_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITDISPLACEMENTIMAGE ) == 0x00 ) {
-                    if ( mat->flags & DISPLACEMENT_USEIMAGECOLOR ) {
+                    if ( mat->displacement.flags & USEIMAGECOLOR ) {
                         if ( mat->displacement.image ) {
                             if ( mat->displacement.image->name ) {
                                 char *imgpath, *imgname;
@@ -595,7 +602,7 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkButton *btn = GTK_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITDIFFUSEIMAGE ) == 0x00 ) {
-                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         if ( mat->diffuse.image ) {
                             if ( mat->diffuse.image->name ) {
                                 char *imgpath, *imgname;
@@ -619,7 +626,7 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITDIFFUSECOLOR ) == 0x00 ) {
-                    if ( mat->flags & DIFFUSE_USESOLIDCOLOR ) {
+                    if ( mat->diffuse.flags & USESOLIDCOLOR ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -627,7 +634,7 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITDIFFUSEIMAGE ) == 0x00 ) {
-                    if ( mat->flags & DIFFUSE_USEIMAGECOLOR ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );

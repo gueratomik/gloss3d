@@ -78,19 +78,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 /*** save status ***/
                 memcpy ( &objsca, &obj->sca, sizeof ( G3DVECTOR ) );
 
-                /*** Get subdivided faces to update when FFD box is changed ***/
-                if ( obj->type == G3DFFDTYPE ) {
-                    G3DFFD *ffd = ( G3DFFD * ) obj;
-
-                    ffdlsub = g3dvertex_getAreaFacesFromList ( ffd->lver );
-                }
-
-                /*if ( ( flags & VIEWOBJECT ) ||
-                     ( flags & VIEWSKIN   ) ) {
-
-                } else {*/
-
-                if ( obj->type == G3DMESHTYPE ) {
+                if ( obj->type & EDITABLE ) {
                     mes = ( G3DMESH * ) obj;
 
                     /****** Cursor axis picked ? ******/
@@ -127,7 +115,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                                        VPX[0x03] - bev->y,
                                  flags );
 
-                if ( obj->type & MESH ) {
+                if ( obj->type & EDITABLE ) {
                     G3DOBJECT *objmes = obj;
                     LIST *ltmp;
                     mes = ( G3DMESH * ) obj;
@@ -154,6 +142,8 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     /*** for the undo/redo manager ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos );
+
+                    g3dmesh_startUpdateModifiers_r ( obj, flags );
 
                     /*** get scaling center. It is the average pos of vertices ***/
                     /*** we are going to move ***/
@@ -210,7 +200,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     LIST *ltmp = lver;
                     LIST *lbuf = lori;
 
-                    if ( obj->type == G3DMESHTYPE ) {
+                    if ( obj->type & EDITABLE ) {
                         while ( ltmp ) {
                             G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
                             G3DVECTOR *ori = ( G3DVECTOR * ) lbuf->data;
@@ -240,26 +230,13 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             /*g3dvertex_updateFacesPosition ( ver );*/
                         }
 
-                        g3dmesh_update ( mes, lvtx,
-                                              lfac,
-                                              UPDATEFACEPOSITION |
-                                              UPDATEFACENORMAL   |
-                                              UPDATEVERTEXNORMAL |
-                                              COMPUTEUVMAPPING, flags );
-                    }
+                        g3dmesh_updateModifiers_r ( obj, flags );
 
-                    if ( obj->type == G3DFFDTYPE ) {
-                        G3DFFD  *ffd = ( G3DFFD * ) obj;
-                        G3DMESH *ffdmes = ( G3DMESH * ) obj->parent;
-
-                        /*g3dffd_modify ( ffd );*/
-
-                        if ( ffdmes ) {
-                            g3dmesh_update ( ffdmes, ffd->lver,
-                                                     ffd->lfac,
-                                                     UPDATEFACEPOSITION |
-                                                     UPDATEFACENORMAL   |
-                                                     UPDATEVERTEXNORMAL, flags );
+                        if ( mes->onGeometryMove ) {
+                            mes->onGeometryMove ( mes, lver, 
+                                                       ledg, 
+                                                       lfac, 
+                                                       flags );
                         }
                     }
                 }

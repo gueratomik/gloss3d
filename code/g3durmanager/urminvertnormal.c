@@ -71,12 +71,13 @@ void invertNormal_undo ( G3DURMANAGER *urm, void *data,
 
     list_exec ( ins->lfac, (void (*)(void *)) g3dface_invertNormal );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -98,12 +99,13 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, G3DMESH *mes,
 
     g3dmesh_invertNormal ( mes );
 
-    /*** Rebuild the subdivided mesh ***/
+    /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
 
     g3durmanager_push ( urm, invertNormal_undo,
                              invertNormal_redo,
