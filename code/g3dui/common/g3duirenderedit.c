@@ -84,6 +84,52 @@ void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3duirenderedit_setOutlineCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & RENDEROUTLINE ) {
+        rsg->flags = (rsg->flags & ~RENDEROUTLINE);
+    } else {
+        rsg->flags = (rsg->flags | RENDEROUTLINE);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_setOutlineLightingCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & OUTLINELIGHTING ) {
+        rsg->flags = (rsg->flags & ~OUTLINELIGHTING);
+    } else {
+        rsg->flags = (rsg->flags | OUTLINELIGHTING);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_outlineThicknessCbk ( G3DUI *gui, float outlineThickness ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->outlineThickness = outlineThickness;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_outlineColorCbk ( G3DUI *gui, unsigned char R, 
+                                                          unsigned char G, 
+                                                          unsigned char B ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->outlineColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+}
+
+/******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 

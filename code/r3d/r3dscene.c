@@ -102,6 +102,7 @@ void r3dscene_import ( R3DSCENE *rsce, uint32_t engine_flags ) {
                                                 IDX,
                                                 rsce->area.rcam->MVX, 
                                                 rsce->area.rcam->PJX,
+                                                rsce->area.rcam->VPX,
                                                 &rsce->lrob, 
                                                 &rsce->lrlt, engine_flags );
 
@@ -271,6 +272,7 @@ void *r3dscene_raytrace ( void *ptr ) {
     uint32_t width  = ( area->x2 - area->x1 ) + 0x01;
     uint32_t height = ( area->y2 - area->y1 ) + 0x01;
     uint32_t bytesperline = ( width * 0x03 );
+    uint32_t outlineFlag = ( rsce->outline ) ? RAYQUERYOUTLINE : 0x00;
     int i;
 
     /*** return immediately when canceled ***/
@@ -314,7 +316,15 @@ void *r3dscene_raytrace ( void *ptr ) {
             r3dtinyvector_normalize ( &ray.dir, NULL );
 
             /*** shoot the ray ***/
-            color = r3dray_shoot ( &ray, rsce, NULL, 0x00, RAYQUERYALL | RAYSTART);
+            color = r3dray_shoot ( &ray, rsce, 
+                                         NULL, 
+                                         0x00, 
+                                         RAYSTART           |
+                                         RAYQUERYHIT        | 
+                                         RAYQUERYLIGHTING   |
+                                         RAYQUERYREFLECTION |
+                                         RAYQUERYREFRACTION |
+                                         outlineFlag );
 
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
@@ -371,17 +381,24 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( G3DSCENE *sce,
+R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          G3DCAMERA *cam,
-                         double *MVX,
-                         double *PJX,
-                         uint32_t x1   , uint32_t y1,
-                         uint32_t x2   , uint32_t y2,
-                         uint32_t width, uint32_t height,
-                         uint32_t background,
-                         int32_t startframe,
-                         int32_t endframe,
-                         LIST *lfilters ) {
+                         double    *MVX,
+                         double    *PJX,
+                         uint32_t   x1, 
+                         uint32_t   y1,
+                         uint32_t   x2,
+                         uint32_t   y2,
+                         uint32_t   width, 
+                         uint32_t   height,
+                         uint32_t   background,
+                         int32_t    startframe,
+                         int32_t    endframe,
+                         uint32_t   outline,
+                         uint32_t   outlineLighting,
+                         uint32_t   outlineColor,
+                         float      outlineThickness,
+                         LIST      *lfilters ) {
     uint32_t structsize = sizeof ( R3DSCENE );
     uint32_t bytesperline = ( width * 0x03 );
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
@@ -434,6 +451,11 @@ R3DSCENE *r3dscene_new ( G3DSCENE *sce,
 
     /*** first scan line ***/
     rsce->area.scanline = y1;
+
+    rsce->outline          = outline;
+    rsce->outlineLighting  = outlineLighting;
+    rsce->outlineColor     = outlineColor;
+    rsce->outlineThickness = outlineThickness;
 
     rsce->running = 0x01;
 
@@ -491,6 +513,10 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
                                            width, height, 
                                            background,
                                            startframe, endframe,
+                                           rsce->outline,
+                                           rsce->outlineLighting,
+                                           rsce->outlineColor,
+                                           rsce->outlineThickness,
                                            lfilters );
 
             nextrsce->curframe = i;

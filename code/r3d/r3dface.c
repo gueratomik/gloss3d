@@ -165,6 +165,12 @@ int r3dface_pointIn ( R3DFACE *rfc, R3DDOUBLEPOINT *pnt, float *RAT0,
     LEN1 = g3ddoublevector_length ( &DOT1 );
     LEN2 = g3ddoublevector_length ( &DOT2 );
 
+    if ( rfc->flags & RFACEMIRRORED ) {
+        g3ddoublevector_invert ( &DOT0 );
+        g3ddoublevector_invert ( &DOT1 );
+        g3ddoublevector_invert ( &DOT2 );
+    }
+
     if ( LENF ) {
     /*** The test below FAILS when dealing with mirrored faces. Of course,  ***/
     /*** because we dont recompute the face normal vector but we recompute  ***/
@@ -241,69 +247,6 @@ uint32_t r3dface_inRenderOctree ( R3DFACE *rfc, R3DOCTREE *rot ) {
 void r3dface_reset ( R3DFACE *rfc ) {
     /*list_free ( &rfc->luvw, (void (*)(void *)) g3drttriangleuvw_free );*/
 }
-
-/******************************************************************************/
-/***  Create a Face that has World coordinates. This will help us with the  ***/
-/***  raytracing process. All our Meshes will be merged into a list of this ***/
-/***  structure. Will then be able to follow a ray more easily.             ***/
-/******************************************************************************/
-#ifdef UNUSED
-void r3dface_init ( R3DFACE *rfc, G3DRTQUAD   *rtfac,
-                                  uint32_t     vertex_offset,
-                                  G3DFACE     *fac,
-                                  double      *matrix,
-                                  double      *normix ) {
-    G3DTINYVECTOR pos, nor, rfcpos;
-    G3DDOUBLEVECTOR rfcnor;
-    G3DDOUBLEVECTOR tmpnor;
-    float A0, A1, A2;
-    uint32_t i;
-
-    for ( i = 0x00; i < 0x02; i++ ) {
-        r3dtinyvector_matrix ( &rtfac->pos, matrix, &rfcpos );
-
-        rfc->fac = fac;
-
-        /*r3dtinyvector_matrix ( &tri->trinor      , normix, &rfc->nor            );*/
-
-        g3drttriangle_getnormal ( tri, &rfcnor );
-
-        rfc->surface = g3ddoublevector_length ( &rfcnor );
-
-        g3ddoublevector_matrix ( &rfcnor, normix, &tmpnor );
-
-        /*rfc->surface = tri->surface;*/
-
-        /*** d is a part of a Mathematical Face Equation.  ***/
-        /*** Useful for detecting face / line intersection ***/
-        rfc->d = - ( ( tmpnor.x * rfcpos.x ) + 
-                     ( tmpnor.y * rfcpos.y ) + 
-                     ( tmpnor.z * rfcpos.z ) );
-
-        /*** tmpnor is double but rfc->nor is float, for saving memory ***/
-        rfc->nor.x = tmpnor.x;
-        rfc->nor.y = tmpnor.y;
-        rfc->nor.z = tmpnor.z;
-
-        r3dface_getMinMax ( rfc, &rfc->xmin, &rfc->ymin, &rfc->zmin, 
-                                 &rfc->xmax, &rfc->ymax, &rfc->zmax );
-    }
-
-    /*printf ( "RFCNOR:%f %f %f\n", rfc->nor.x, rfc->nor.y, rfc->nor.z );*/
-
-/*    A0 = acos ( g3dvector_scalar ( &rfc->ver[0x00].nor, &rfc->nor ) );
-    A1 = acos ( g3dvector_scalar ( &rfc->ver[0x01].nor, &rfc->nor ) );
-    A2 = acos ( g3dvector_scalar ( &rfc->ver[0x02].nor, &rfc->nor ) );
-
-    if ( ( A0 < R3DANGLELIMIT ) &&
-         ( A1 < R3DANGLELIMIT ) && 
-         ( A2 < R3DANGLELIMIT ) ) {*/
-        /*rfc->flags |= R3DFACESMOOTH;*/
-/*    } else {
-        rfc->flags |= R3DFACEFLAT;
-    }*/
-}
-#endif 
 
 /******************************************************************************/
 /*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/

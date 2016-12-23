@@ -198,6 +198,12 @@
 #define EDITRENDERRUN              "Run render"
 #define EDITRENDERSAVEOUTPUTFRAME  "Output"
 #define EDITRENDERSAVE             "Save result"
+#define EDITRENDEROUTLINEFRAME     "Outline Settings"
+#define EDITRENDEROUTLINE          "Outline"
+#define EDITRENDEROUTLINELIGHTING  "Outline Lighting"
+#define EDITRENDEROUTLINETHICKNESS "Thickness"
+#define EDITRENDEROUTLINECOLOR     "Color"
+
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
 
@@ -483,6 +489,8 @@ typedef struct _G3DUICONF {
 #define ENABLEMOTIONBLUR ( 1 << 2 )
 #define SCENEMOTIONBLUR  ( 1 << 3 )
 #define VECTORMOTIONBLUR ( 1 << 4 )
+#define RENDEROUTLINE    ( 1 << 5 )
+#define OUTLINELIGHTING  ( 1 << 6 )
 
 typedef struct _G3DUIRENDERSETTINGS {
     uint32_t background;
@@ -499,8 +507,10 @@ typedef struct _G3DUIRENDERSETTINGS {
     char     ffmpegpath[FFMPEGPATHLEN];
     char     ffplaypath[FFMPEGPATHLEN];
     LIST    *lfilter;
-    int pipefd[0x02];
-    uint32_t    mblurStrength;
+    int      pipefd[0x02];
+    uint32_t mblurStrength;
+    uint32_t outlineColor;
+    float    outlineThickness;
 } G3DUIRENDERSETTINGS;
 
 /****************************** g3duirendersettings.c *************************/
@@ -1047,6 +1057,13 @@ void common_g3duirenderedit_ratioCbk      ( G3DUI *, float );
 void common_g3duirenderedit_backgroundCbk ( G3DUI *, unsigned char, 
                                                      unsigned char, 
                                                      unsigned char );
+void common_g3duirenderedit_setOutlineCbk ( G3DUI * );
+void common_g3duirenderedit_setOutlineLightingCbk ( G3DUI * );
+void common_g3duirenderedit_outlineThicknessCbk ( G3DUI *, float );
+void common_g3duirenderedit_outlineColorCbk ( G3DUI *, unsigned char, 
+                                                       unsigned char, 
+                                                       unsigned char );
+
 void common_g3duirenderedit_formatCbk     ( G3DUI *, const char * );
 void common_g3duirenderedit_saveCbk       ( G3DUI *, uint32_t );
 

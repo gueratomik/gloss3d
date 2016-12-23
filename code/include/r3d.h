@@ -105,22 +105,23 @@
 #define BACKFACED ( 1 << 4 )
 
 /******************************************************************************/
-#define R3DFACESMOOTH    ( 1      )
-#define R3DFACEFLAT      ( 1 << 1 )
-#define R3DFACECONTAINER ( 1 << 2 )
+#define RFACESMOOTH       ( 1      )
+#define RFACEFLAT         ( 1 << 1 )
+#define RFACECONTAINER    ( 1 << 2 )
+#define RFACEFROMTRIANGLE ( 1 << 3 )
+#define RFACEFROMQUAD     ( 1 << 4 )
+#define RFACEMIRRORED     ( 1 << 5 )
 
 #define RAYQUERYHIT             ( 1      )
 #define RAYQUERYLIGHTING        ( 1 << 1 ) /*** create a shadow vector?     ***/
 #define RAYQUERYREFLECTION      ( 1 << 2 ) /*** create a reflection vector? ***/
 #define RAYQUERYREFRACTION      ( 1 << 3 ) /*** create a refraction vector? ***/
 #define RAYQUERYNOCHECKIN       ( 1 << 4 )
-#define RAYQUERYALL             ( RAYQUERYHIT        | \
-                                  RAYQUERYLIGHTING   | \
-                                  RAYQUERYREFLECTION | \
-                                  RAYQUERYREFRACTION )
-#define RAYQUERYIGNOREBACKFACE  ( 1 << 5 )
-#define RAYLUXRAY               ( 1 << 6 ) /*** For identifying ray's nature ***/
-#define RAYSTART                ( 1 << 7 ) /*** the first shoot of the ray ***/
+#define RAYQUERYOUTLINE         ( 1 << 5 )
+#define RAYQUERYIGNOREBACKFACE  ( 1 << 6 )
+#define RAYLUXRAY               ( 1 << 7 ) /*** For identifying ray's nature ***/
+#define RAYSTART                ( 1 << 8 ) /*** the first shoot of the ray ***/
+
 
 /*** filter flags ***/
 #define ENABLEFILTER ( 1 << 1 )
@@ -295,7 +296,13 @@ typedef struct _WImage {
 /******************************************************************************/
 typedef struct _R3DINTVECTOR {
     int32_t x, y, z, w;
-}R3DINTVECTOR;
+} R3DINTVECTOR;
+
+/******************************************************************************/
+typedef struct _R2DVECTOR {
+    int32_t x, y;
+    float z;
+} R2DVECTOR;
 
 /******************************************************************************/
 typedef enum _G3DSHADINGMODE {
@@ -305,6 +312,7 @@ typedef enum _G3DSHADINGMODE {
 
 /******************************************************************************/
 typedef struct _R3DVERTEX {
+    R2DVECTOR scr; /*** screen position ***/
     R3DVECTOR pos; /*** Vertex position in World coord      ***/
     R3DVECTOR nor; /*** Vertex normals in World coord       ***/
 } R3DVERTEX;
@@ -330,6 +338,7 @@ typedef struct _R3DUVSET {
 
 /******************************************************************************/
 typedef struct _R3DFACE {
+    uint32_t   flags;
     R3DVERTEX  ver[0x03];    /*** our face is a triangle     ***/
     R3DVECTOR  nor;          /*** face normal in world coord ***/
     float      d;
@@ -390,8 +399,6 @@ typedef struct _R3DOBJECT {
     uint32_t type; /*** inherited from G3DOBJECT ***/
     uint32_t flags; /*** inherited from G3DOBJECT ***/
     void (*free) (struct _R3DOBJECT *);
-    double wmatrix[16];
-    double wnormix[16];
     R3DBBOX   *rbx;
     R3DOCTREE *rot;
     G3DOBJECT *obj; /*** reference object ***/
@@ -478,7 +485,22 @@ typedef struct _R3DSCENE {
     #ifdef __MINGW32__
     HANDLE tid;
     #endif
+    uint32_t outline;
+    uint32_t outlineLighting;
+    uint32_t outlineColor;
+    float    outlineThickness;
 } R3DSCENE;
+
+/******************************************************************************/
+typedef struct _R3DDUMP {
+    R3DMESH  *rmes;
+    double  *cmatrix; /* camera modelview  */
+    double  *pmatrix; /* camera projection */
+    double  *wmatrix; /* object modelview  */
+    double  *wnormix; /* object normal matrix (invert modelview)  */
+    int     *vmatrix; /* camera viewport   */
+    uint32_t engine_flags;
+} R3DDUMP;
 
 /******************************************************************************/
 typedef struct _R3DMOTIONTRACKPOINT {
@@ -647,7 +669,11 @@ void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *,
                                              R3DRGBA *,
                                              R3DRGBA *,
                                              R3DRGBA *,
-                                             LIST * );
+                                             uint32_t,
+                                             uint32_t,
+                                             float,
+                                             LIST *,
+                                             uint32_t );
 uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,
                                                                R3DPOINT *,
                                                                R3DPOINT *,
@@ -656,7 +682,14 @@ uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,
 /******************************************************************************/
 void r3dobject_init   ( R3DOBJECT *, uint32_t, uint32_t, uint32_t, void (*)(R3DOBJECT *) );
 void r3dobject_free   ( R3DOBJECT * );
-void r3dobject_import ( G3DOBJECT *, uint32_t, double *, double *, double *, LIST **, LIST **, uint32_t );
+void r3dobject_import ( G3DOBJECT *, uint32_t, 
+                                     double *, 
+                                     double *, 
+                                     double *, 
+                                     int *, 
+                                     LIST **, 
+                                     LIST **, 
+                                     uint32_t );
 
 /******************************************************************************/
 void r3dinterpolation_build ( R3DINTERPOLATION *,
@@ -707,7 +740,13 @@ void r3dcontainerface_init ( R3DCONTAINERFACE *, G3DFACE       *,
 void r3dcontainerface_free ( R3DCONTAINERFACE * );
 
 /******************************************************************************/
-R3DMESH *r3dmesh_new ( G3DMESH *, uint32_t, double *, double *, double *, double *, uint32_t );
+R3DMESH *r3dmesh_new ( G3DMESH *, uint32_t, 
+                                  double *,
+                                  double *,
+                                  double *,
+                                  double *,
+                                  int *,
+                                  uint32_t );
 R3DMESH *r3dmesh_newFromPrimitive ( G3DPRIMITIVE *, double *, double * );
 void r3dmesh_free ( R3DOBJECT * );
 void r3dmesh_allocFaces ( R3DMESH *, uint32_t );
@@ -739,13 +778,23 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( G3DSCENE *, G3DCAMERA *, double *, double *, uint32_t, uint32_t,
-                                               uint32_t, uint32_t,
-                                               uint32_t, uint32_t,
-                                               uint32_t,
-                                               int32_t, 
-                                               int32_t, 
-                                               LIST * );
+R3DSCENE *r3dscene_new ( G3DSCENE *, G3DCAMERA *,
+                                     double *,
+                                     double *,
+                                     uint32_t, 
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     int32_t,
+                                     int32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     uint32_t,
+                                     float,
+                                     LIST * );
 
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );

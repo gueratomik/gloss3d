@@ -445,6 +445,10 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                        width, height, 
                                        background,
                                        startframe, endframe,
+                                       rsce->outline,
+                                       rsce->outlineLighting,
+                                       rsce->outlineColor,
+                                       rsce->outlineThickness,
                                        lkeepfilters );
 
         /*** register this child renderscene in case we need to cancel it ***/

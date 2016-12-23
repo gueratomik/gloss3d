@@ -52,7 +52,7 @@ void r3dobject_init ( R3DOBJECT *rob, uint32_t id,
     rob->flags = flags;
     rob->free  = freefunc;
 
-    memcpy ( rob->wmatrix, rob->obj->wmatrix, sizeof ( rob->wmatrix ) );
+    /*memcpy ( rob->wmatrix, rob->obj->wmatrix, sizeof ( rob->wmatrix ) );*/
 }
 
 /******************************************************************************/
@@ -61,6 +61,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                         double *wmatrix, /*** world matrix           ***/
                         double *cmatrix, /* camera world matrix */
                         double *pmatrix, /*** world matrix           ***/
+                        int    *vmatrix, /*** camera viewport ****/
                         LIST **lrob,    /*** List of Render Objects ***/
                         LIST **lrlt, 
                         uint32_t engine_flags ) { /*** List of lights         ***/
@@ -90,7 +91,8 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                                               childwmatrix,
                                               cmatrix,
                                               childwnormix,
-                                              pmatrix, engine_flags | g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT );
+                                              pmatrix,
+                                              vmatrix, engine_flags | ( g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT ) );
 
             /* uncomment the line below to visualize the octree **/
             /*g3dobject_addChild ( rsce->sce, ((R3DOBJECT*)rms)->rot );*/
@@ -109,8 +111,8 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
             g3dcore_multmatrix ( sym->smatrix, childwmatrix, swmatrix );
 
-            r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, cmatrix, pmatrix, lrob,
-                                                              lrlt, 0x00 );
+            r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, cmatrix, pmatrix, vmatrix, lrob,
+                                                              lrlt, SYMMETRYVIEW );
 
             /*** Add this rendermesh to our list of renderobjects ***/
             /*** We now have an Object in World coordinates ***/
@@ -126,7 +128,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
             list_insert ( lrlt, rlt );
         }
 
-        r3dobject_import ( child, nextId++, childwmatrix, cmatrix, pmatrix, lrob, lrlt, engine_flags );
+        r3dobject_import ( child, nextId++, childwmatrix, cmatrix, pmatrix, vmatrix, lrob, lrlt, engine_flags );
 
         ltmp = ltmp->next;
     }

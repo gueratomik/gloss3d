@@ -40,7 +40,11 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
                                            R3DRGBA *bump,
                                            R3DRGBA *reflection,
                                            R3DRGBA *refraction,
-                                           LIST    *ltex ) {
+                                           uint32_t outlineLighting,
+                                           uint32_t outlineColor,
+                                           float    outlineThickness,
+                                           LIST    *ltex,
+                                           uint32_t query_flags ) {
     uint32_t divDiffuse    = 0x00;
     uint32_t divSpecular   = 0x00;
     uint32_t divBump       = 0x00;
@@ -49,17 +53,15 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
     LIST *ltmptex = ltex;
     uint32_t i;
 
-    if ( ltex == NULL ) { 
-        diffuse->r = diffuse->g = diffuse->b = MESHCOLORUB;
-
-        return;
-    }
-
     memset ( diffuse   , 0x00, sizeof ( R3DRGBA ) );
     memset ( specular  , 0x00, sizeof ( R3DRGBA ) );
     memset ( bump      , 0x00, sizeof ( R3DRGBA ) );
     memset ( reflection, 0x00, sizeof ( R3DRGBA ) );
     memset ( refraction, 0x00, sizeof ( R3DRGBA ) );
+
+    if ( ltex == NULL ) { 
+        diffuse->r = diffuse->g = diffuse->b = MESHCOLORUB;
+    }
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -168,6 +170,67 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
         refraction->g /= divRefraction;
         refraction->b /= divRefraction;
         refraction->a /= divRefraction;
+    }
+
+    if ( query_flags & RAYSTART ) {
+        if ( query_flags & RAYQUERYOUTLINE ) {
+            uint32_t i;
+
+            for ( i = 0x00; i < 0x03; i++ ) {
+                uint32_t n = ( i + 0x01 ) % 0x03;
+                int32_t x1 = rfc->ver[i].scr.x,
+                        y1 = rfc->ver[i].scr.y,
+                        x2 = rfc->ver[n].scr.x,
+                        y2 = rfc->ver[n].scr.y;
+                float dist;
+
+                /* skip the central edge for former quads */
+                if ( ( rfc->flags & RFACEFROMQUAD ) && 
+                     ( ( i == 0x02 ) && ( n == 0x00 ) ) ) {
+                    continue;
+                }
+
+            /*https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line */
+                dist = abs ( ( ( y2 - y1 ) * ray->x ) - 
+                             ( ( x2 - x1 ) * ray->y ) + ( x2 * y1 ) - 
+                                                        ( y2 * x1 ) ) /
+                       sqrt ( (( y2 - y1 ) * ( y2 - y1 )) + 
+                              (( x2 - x1 ) * ( x2 - x1 )) );
+
+                if ( dist <= outlineThickness ) {
+                    unsigned char R = ( outlineColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( outlineColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( outlineColor & 0x000000FF ) >> 0x00,
+                                  A = 0x00;
+
+                    /* if lighting if enabled for outlining, we can render    */
+                    /* the outlines with some sort of antialiasing effect     */
+                    /* by combining with the object material color. It does   */
+                    /* not work when outline lighting is disabled because     */
+                    /* the diffuse color we use is from BEFORE the lighting   */
+                    /* and thus the antialised pixel will look different from */
+                    /* the final material aspect with the lighting. */
+                    if ( outlineLighting ) {
+                        float mix = dist / outlineThickness;
+
+                        diffuse->r = (float) diffuse->r * mix + (float) ( 1.0f - mix ) * R;
+                        diffuse->g = (float) diffuse->g * mix + (float) ( 1.0f - mix ) * G;
+                        diffuse->b = (float) diffuse->b * mix + (float) ( 1.0f - mix ) * B;
+                        diffuse->a = (float) diffuse->a * mix + (float) ( 1.0f - mix ) * A;
+                    } else {
+                        diffuse->r = R;
+                        diffuse->g = G;
+                        diffuse->b = B;
+                        diffuse->a = A;
+                    }
+
+                    ray->flags |= OUTLINED;
+
+                    /* commented: a ray could be close to each edge */
+                    /*return;*/
+                }
+            }
+        }
     }
 }
 
@@ -608,7 +671,17 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                                   &specular,
                                                   &bump,
                                                   &reflection,
-                                                  &refraction, ltex );
+                                                  &refraction,
+                                                   rsce->outlineLighting,
+                                                   rsce->outlineColor,
+                                                   rsce->outlineThickness,
+                                                   ltex, 
+                                                   query_flags );
+
+            if ( ( ray->flags & OUTLINED ) && 
+                 ( rsce->outlineLighting == 0x00 ) ) {
+                return g3drgba_toLong ( &diffuse );
+            }
 
             if ( query_flags & RAYQUERYREFLECTION ) {
                 float reflectionStrength = ( ( reflection.r + 
@@ -621,7 +694,13 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                 if ( reflectionStrength > 0.0f ) {
                     /*** build the reflexion ray from the current ray ***/
                     if ( r3dray_reflect ( ray, &flxray ) ) {
-                        retcol = r3dray_shoot ( &flxray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
+                        retcol = r3dray_shoot ( &flxray, rsce, 
+                                                         hitrfc, 
+                                                         nbhop + 0x01,
+                                                         RAYQUERYHIT        | 
+                                                         RAYQUERYLIGHTING   |
+                                                         RAYQUERYREFLECTION |
+                                                         RAYQUERYREFRACTION );
 
                         if ( reflectionStrength == 1.0f ) {
                             diffuse.r = ( retcol & 0x00FF0000 ) >> 0x10;

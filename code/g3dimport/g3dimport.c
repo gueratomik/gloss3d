@@ -875,14 +875,11 @@ printf("NB Triangles = %d\n", nbtri );
                             g3dmesh_addFace ( mes, fac );
                         }
 
-                        /*g3dmesh_update ( mes, NULL,
+                        g3dmesh_update ( mes, NULL,
                                               NULL,
-                                              NULL,
-                                              NULL,
-                                              COMPUTEEDGEPOSITION |
-                                              UPDATEVERTEXNORMAL |
-                                              UPDATEFACENORMAL   |
-                                              COMPUTESUBDIVISION, flags );*/
+                                              UPDATEVERTEXNORMAL  |
+                                              UPDATEFACEPOSITION  |
+                                              UPDATEFACENORMAL, flags );
 
                         free ( vid );
                     } else {
@@ -917,15 +914,11 @@ printf("NB Quds = %d\n", nbqua );
                             g3dmesh_addFace ( mes, fac );
                         }
 
-                        /*g3dmesh_update ( mes, NULL,
+                        g3dmesh_update ( mes, NULL,
                                               NULL,
-                                              NULL,
-                                              NULL,
-                                              COMPUTEEDGEPOSITION |
-                                              UPDATEVERTEXNORMAL |
-                                              UPDATEFACENORMAL   |
-                                              REALLOCSUBDIVISION  |
-                                              COMPUTESUBDIVISION, flags );*/
+                                              UPDATEVERTEXNORMAL  |
+                                              UPDATEFACEPOSITION  |
+                                              UPDATEFACENORMAL, flags );
 
                         free ( vid );
                     } else {

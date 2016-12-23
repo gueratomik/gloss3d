@@ -125,7 +125,8 @@ static void Alloc ( uint32_t nbtri,
                     uint32_t nbqua,
                     uint32_t nbuv,
                     void *data ) {
-    R3DMESH *rms = ( R3DMESH * ) data;
+    R3DDUMP *rdump = ( R3DDUMP * ) data;
+    R3DMESH *rms = rdump->rmes;
 
     if ( rms ) {
         r3dmesh_allocArrays ( rms, nbtri + ( nbqua * 0x02 ) );
@@ -134,7 +135,11 @@ static void Alloc ( uint32_t nbtri,
 
 /******************************************************************************/
 static void Dump ( G3DFACE *fac, void *data ) {
-    R3DMESH *rms = ( R3DMESH * ) data;
+    R3DDUMP *rdump = ( R3DDUMP * ) data;
+    R3DMESH *rms = rdump->rmes;
+    double MVX[0x10];
+
+    g3dcore_multmatrix ( rdump->wmatrix, rdump->cmatrix, MVX );
 
     if ( rms ) {
         uint32_t i, j;
@@ -149,12 +154,27 @@ static void Dump ( G3DFACE *fac, void *data ) {
                 G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                   &ver->pos,
                           *nor = &ver->nor;
+                double sx, sy, sz;
                 /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/
 
 
-                r3dtinyvector_matrix ( pos, ((R3DOBJECT*)rms)->wmatrix, &rms->curfac->ver[i].pos );
-                r3dtinyvector_matrix ( nor, ((R3DOBJECT*)rms)->wnormix, &rms->curfac->ver[i].nor );
+                gluProject ( pos->x,
+                             pos->y,
+                             pos->z,
+                             MVX, 
+                             rdump->pmatrix,
+                             rdump->vmatrix,
+                             &sx, &sy, &sz );
+
+                rms->curfac->ver[i].scr.x = sx;
+                rms->curfac->ver[i].scr.y = rdump->vmatrix[0x03] - sy;
+                rms->curfac->ver[i].scr.z = sz;
+
+                r3dtinyvector_matrix ( pos, rdump->wmatrix, &rms->curfac->ver[i].pos );
+                r3dtinyvector_matrix ( nor, rdump->wnormix, &rms->curfac->ver[i].nor );
             }
+
+            rms->curfac->flags |= RFACEFROMTRIANGLE;
 
             /** Compute the triangle center needed for face equation ***/
             r3dface_position ( rms->curfac, &rfacpos );
@@ -162,6 +182,15 @@ static void Dump ( G3DFACE *fac, void *data ) {
             r3dface_normal ( rms->curfac, &length );
 
             rms->curfac->surface = length;
+
+            if ( rdump->engine_flags & SYMMETRYVIEW ) {
+                rms->curfac->flags |= RFACEMIRRORED;
+
+                rms->curfac->nor.x = - rms->curfac->nor.x;
+                rms->curfac->nor.y = - rms->curfac->nor.y;
+                rms->curfac->nor.z = - rms->curfac->nor.z;
+            }
+
             /*** d is a part of a Mathematical Face Equation.  ***/
             /*** Useful for detecting face / line intersection ***/
             rms->curfac->d = - ( ( rms->curfac->nor.x * rfacpos.x ) + 
@@ -199,11 +228,27 @@ static void Dump ( G3DFACE *fac, void *data ) {
                     G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                       &ver->pos,
                               *nor = &ver->nor;
+                    double sx, sy, sz;
                     /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/
 
-                    r3dtinyvector_matrix ( pos, ((R3DOBJECT*)rms)->wmatrix, &rms->curfac->ver[j].pos );
-                    r3dtinyvector_matrix ( nor, ((R3DOBJECT*)rms)->wnormix, &rms->curfac->ver[j].nor );
+
+                    gluProject ( pos->x,
+                                 pos->y,
+                                 pos->z,
+                                 MVX, 
+                                 rdump->pmatrix,
+                                 rdump->vmatrix,
+                                 &sx, &sy, &sz );
+
+                    rms->curfac->ver[j].scr.x = sx;
+                    rms->curfac->ver[j].scr.y = rdump->vmatrix[0x03] - sy;
+                    rms->curfac->ver[j].scr.z = sz;
+
+                    r3dtinyvector_matrix ( pos, rdump->wmatrix, &rms->curfac->ver[j].pos );
+                    r3dtinyvector_matrix ( nor, rdump->wnormix, &rms->curfac->ver[j].nor );
                 }
+
+                rms->curfac->flags |= RFACEFROMQUAD;
 
                 /** Compute the triangle center needed for face equation ***/
                 r3dface_position ( rms->curfac, &rfacpos );
@@ -211,6 +256,15 @@ static void Dump ( G3DFACE *fac, void *data ) {
                 r3dface_normal ( rms->curfac, &length );
 
                 rms->curfac->surface = length;
+
+                if ( rdump->engine_flags & SYMMETRYVIEW ) {
+                    rms->curfac->flags |= RFACEMIRRORED;
+
+                    rms->curfac->nor.x = - rms->curfac->nor.x;
+                    rms->curfac->nor.y = - rms->curfac->nor.y;
+                    rms->curfac->nor.z = - rms->curfac->nor.z;
+                }
+
                 /*** d is a part of a Mathematical Face Equation.  ***/
                 /*** Useful for detecting face / line intersection ***/
                 rms->curfac->d = - ( ( rms->curfac->nor.x * rfacpos.x ) + 
@@ -245,6 +299,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                      double  *cmatrix, /* camera world matrix */
                                      double  *wnormix,
                                      double  *pmatrix, /* camera proj matrix */
+                                     int     *vmatrix, /* camera viewport */
                                      uint32_t engine_flags ) {
 
     uint32_t structsize = sizeof ( R3DMESH );
@@ -253,6 +308,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     uint32_t n = 0x00, i;
     R3DFACE **rfcarray = NULL;
+    R3DDUMP rdump;
 
     if ( rms == NULL ) {
         fprintf ( stderr, "r3dmesh_new: malloc failed\n" );
@@ -262,10 +318,15 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
 
     ((R3DOBJECT*)rms)->obj = ( G3DOBJECT * ) mes;
 
-    memcpy ( ((R3DOBJECT*)rms)->wmatrix, wmatrix, sizeof ( double ) * 0x10 );
-    memcpy ( ((R3DOBJECT*)rms)->wnormix, wnormix, sizeof ( double ) * 0x10 );
+    rdump.rmes = rms;
+    rdump.cmatrix = cmatrix;
+    rdump.pmatrix = pmatrix;
+    rdump.wmatrix = wmatrix;
+    rdump.wnormix = wnormix;
+    rdump.vmatrix = vmatrix;
+    rdump.engine_flags = engine_flags;
 
-    g3dmesh_dump ( mes, Alloc, Dump, rms, engine_flags );
+    g3dmesh_dump ( mes, Alloc, Dump, &rdump, engine_flags );
 
     if ( ( rfcarray = calloc ( rms->nbrfac, sizeof ( R3DFACE * ) ) ) == NULL ) {
         fprintf ( stderr, "r3dmesh_new: malloc failed\n" );

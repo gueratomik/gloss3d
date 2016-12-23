@@ -217,6 +217,18 @@ static void backgroundCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void outlineColorCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    GdkRGBA color;
+
+    gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
+
+    common_g3duirenderedit_outlineColorCbk ( gui, ( color.red   * 255 ), 
+                                                  ( color.green * 255 ),
+                                                  ( color.blue  * 255 ) );
+}
+
+/******************************************************************************/
 static void Configure ( GtkWidget *widget, GdkEvent *event, 
                                            gpointer user_data ) {
     GtkWidget *child = gtk_bin_get_child ( GTK_BIN(widget) );
@@ -254,6 +266,33 @@ void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
+}
+
+/******************************************************************************/
+static void setOutlineCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setOutlineCbk ( gui );
+
+    updateOutlineForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void setOutlineLightingCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setOutlineLightingCbk ( gui );
+
+    updateOutlineForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void outlineThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float thickness = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_outlineThicknessCbk ( gui, thickness );
 }
 
 /******************************************************************************/
@@ -299,9 +338,6 @@ static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    /*** prevents a loop ***/
-    gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -353,8 +389,6 @@ void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
 
         children =  g_list_next ( children );
     }
-
-    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -392,9 +426,6 @@ static GtkWidget *createSaveOutputForm ( GtkWidget *parent, G3DUI *gui,
 /******************************************************************************/
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    /*** prevents a loop ***/
-    gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -474,8 +505,6 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
 
         children =  g_list_next ( children );
     }
-
-    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -526,11 +555,128 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+void updateOutlineForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
-    /*** prevents a loop ***/
-    gui->lock = 0x01;
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( GTK_IS_CHECK_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDEROUTLINE ) == 0x00 ) {
+                    if ( rsg->flags & RENDEROUTLINE ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITRENDEROUTLINELIGHTING ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    if ( rsg->flags & OUTLINELIGHTING ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON(child) ) {
+                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDEROUTLINETHICKNESS ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->outlineThickness );
+                }
+            }
+
+            if ( GTK_IS_COLOR_BUTTON(child) ) {
+                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
+
+                if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                    gtk_widget_set_sensitive ( child, TRUE );
+                } else {
+                    gtk_widget_set_sensitive ( child, FALSE );
+                }
+
+                if ( strcmp ( child_name, EDITRENDEROUTLINECOLOR ) == 0x00 ) {
+                    unsigned char R = ( rsg->outlineColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( rsg->outlineColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( rsg->outlineColor & 0x000000FF );
+                    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                                     .green = ( float ) G / 255,
+                                     .blue  = ( float ) B / 255,
+                                     .alpha = 1.0f };
+
+                    gtk_color_chooser_set_rgba ( ccr, &rgba );
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+}
+
+/******************************************************************************/
+void updateOutlineFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateOutlineForm ( frm, gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createOutlineForm ( GtkWidget *parent, G3DUI *gui,
+                                                         char *name,
+                                                         gint x,
+                                                         gint y,
+                                                         gint width,
+                                                         gint height ) {
+    GtkWidget *vbr, *col, *frm, *btn;
+
+    frm = createFrame ( parent, gui, name, x, y, width, height );
+
+          createToggleLabel ( frm, gui,
+                                   EDITRENDEROUTLINE,
+                                     0,  0, 96, 18,
+                                   setOutlineCbk );
+
+          createToggleLabel ( frm, gui,
+                                   EDITRENDEROUTLINELIGHTING,
+                                     0, 24, 96, 18,
+                                   setOutlineLightingCbk );
+
+          createFloatText ( frm, gui, EDITRENDEROUTLINETHICKNESS,
+                                     0, 48, 96,  48,
+                                   outlineThicknessCbk );
+
+          createSimpleLabel ( frm, gui, EDITRENDEROUTLINECOLOR,
+                                     0, 72, 96, 20 );
+
+          createColorButton ( frm, gui, EDITRENDEROUTLINECOLOR,
+                                     96, 72, 96, 18, outlineColorCbk );
+
+
+    return frm;
+}
+
+/******************************************************************************/
+void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -545,6 +691,10 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
 
             if ( strcmp ( child_name, EDITRENDERSAVEOUTPUTFRAME ) == 0x00 ) {
                 updateSaveOutputFrame ( child, gui );
+            }
+
+            if ( strcmp ( child_name, EDITRENDEROUTLINEFRAME ) == 0x00 ) {
+                updateOutlineFrame ( child, gui );
             }
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
@@ -608,15 +758,17 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
 
         children =  g_list_next ( children );
     }
-
-    gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
+    gui->lock = 1;
+
     updateRenderEdit ( widget, gui );
+
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -638,9 +790,7 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
     /*** For some reason, GtkSpinButtons calls its callbacks ***/
     /*** when being realized. With this trick I bypass that. ***/
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
-    gui->lock = 0x01;
-
-
+    /*gui->lock = 0x01;*/
 
     createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
                                0,  0, 104, 20, previewCbk );
@@ -669,17 +819,17 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
     createMotionBlurForm ( frm, gui, EDITRENDERMOTIONBLURFRAME,
                                0, 264, 256,  96 );
 
+    createOutlineForm ( frm, gui, EDITRENDEROUTLINEFRAME,
+                               0, 360, 256,  96 );
+
     createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,
-                               0, 360, 96, 20 );
+                               0, 480, 96, 20 );
 
     createColorButton ( frm, gui, EDITRENDERBACKGROUND,
-                              96, 360, 96, 18, backgroundCbk );
+                              96, 480, 96, 18, backgroundCbk );
 
     createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 384, 48, 20, g3dui_runRenderCbk );
-
-
-    gui->lock = 0x00;
+                              96, 512, 48, 20, g3dui_runRenderCbk );
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
     g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), gui );
@@ -688,6 +838,7 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_widget_show_all ( frm );
 
+    /*gui->lock = 0x00;*/
 
     return frm;
 }

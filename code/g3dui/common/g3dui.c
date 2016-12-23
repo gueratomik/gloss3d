@@ -81,6 +81,10 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
                                         rsg->background,
                                         rsg->startframe,
                                         rsg->endframe,
+                                        rsg->flags & RENDEROUTLINE,
+                                        rsg->flags & OUTLINELIGHTING,
+                                        rsg->outlineColor,
+                                        rsg->outlineThickness,
                                         lfilters );
 
         /*** launch rays in a thread ***/

@@ -82,6 +82,13 @@ double g3ddoublevector_length ( G3DDOUBLEVECTOR *vec ) {
 }
 
 /******************************************************************************/
+void g3ddoublevector_invert ( G3DDOUBLEVECTOR *vec ) {
+    vec->x = - vec->x;
+    vec->y = - vec->y;
+    vec->z = - vec->z;
+}
+
+/******************************************************************************/
 double g3ddoublevector_scalar ( G3DDOUBLEVECTOR *v0, G3DDOUBLEVECTOR *v1 ) {
     return ( ( v0->x * v1->x ) + ( v0->y * v1->y ) + ( v0->z * v1->z ) );
 }

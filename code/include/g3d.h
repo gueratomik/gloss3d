@@ -2283,6 +2283,7 @@ void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 void g3drgba_init    ( G3DRGBA *, uint32_t, uint32_t, uint32_t, uint32_t );
 void g3dcolor_toRGBA ( G3DCOLOR *, G3DRGBA  * );
 void g3drgba_toColor ( G3DRGBA  *, G3DCOLOR * );
+uint32_t g3drgba_toLong ( G3DRGBA * );
 
 /******************************************************************************/
 G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP *, G3DFACEGROUP * );
