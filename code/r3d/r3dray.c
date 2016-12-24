@@ -34,7 +34,8 @@
 /*** 07-more-lighting-ambient-specular-attenuation-gamma/  ***/
 
 /******************************************************************************/
-void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
+void r3dray_getHitFaceColor ( R3DRAY *ray, R3DMESH *rms,
+                                           R3DFACE *rfc,
                                            R3DRGBA *diffuse,
                                            R3DRGBA *specular,
                                            R3DRGBA *bump,
@@ -178,10 +179,10 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DFACE *rfc,
 
             for ( i = 0x00; i < 0x03; i++ ) {
                 uint32_t n = ( i + 0x01 ) % 0x03;
-                int32_t x1 = rfc->ver[i].scr.x,
-                        y1 = rfc->ver[i].scr.y,
-                        x2 = rfc->ver[n].scr.x,
-                        y2 = rfc->ver[n].scr.y;
+                int32_t x1 = rms->rver[rfc->rverID[i]].scr.x,
+                        y1 = rms->rver[rfc->rverID[i]].scr.y,
+                        x2 = rms->rver[rfc->rverID[n]].scr.x,
+                        y2 = rms->rver[rfc->rverID[n]].scr.y;
                 float dist;
 
                 /* skip the central edge for former quads */
@@ -445,7 +446,8 @@ uint32_t r3dray_intersectPlane ( R3DRAY *ray, R3DPLANE *pla, R3DPOINT *pt ) {
 }
 
 /******************************************************************************/
-uint32_t r3dray_intersectOctree ( R3DRAY *ray, R3DOCTREE *rot,/*
+uint32_t r3dray_intersectOctree ( R3DRAY *ray, R3DMESH   *rms,
+                                               R3DOCTREE *rot,/*
                                                R3DPOINT  *raymin,
                                                R3DPOINT  *raymax,*/
                                                R3DFACE   *discard, 
@@ -470,6 +472,7 @@ uint32_t r3dray_intersectOctree ( R3DRAY *ray, R3DOCTREE *rot,/*
                     r3dpoint_getMinMax ( &ptin, &ptout, raymin, raymax );*/
 
                     hit += r3dray_intersectOctree ( ray,
+                                                    rms,
                                                     octkid,/*
                                                     raymin,
                                                     raymax,*/
@@ -494,7 +497,7 @@ uint32_t r3dray_intersectOctree ( R3DRAY *ray, R3DOCTREE *rot,/*
                 if ( ( ( xmin < raymax->x ) && ( xmax > raymin->x ) ) &&
                      ( ( ymin < raymax->y ) && ( ymax > raymin->y ) ) &&
                      ( ( zmin < raymax->z ) && ( zmax > raymin->z ) ) ) {*/
-                    if ( r3dface_intersectRay ( rfc, ray, query_flags ) ) {
+                    if ( r3dface_intersectRay ( rfc, rms->rver, ray, query_flags ) ) {
                         hit = 0x01;
                     }
                 /*}*/
@@ -642,7 +645,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
                         r3dpoint_getMinMax ( &ptin, &ptout, &raymin, &raymax );*/
 
-                        if ( r3dray_intersectOctree ( ray, oct,/* 
+                        if ( r3dray_intersectOctree ( ray, rob,
+                                                           oct,/* 
                                                           &raymin, 
                                                           &raymax,*/
                                                            discard, 
@@ -667,16 +671,18 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             if ( query_flags & RAYSTART ) rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
 
-            r3dray_getHitFaceColor ( ray, hitrfc, &diffuse,
-                                                  &specular,
-                                                  &bump,
-                                                  &reflection,
-                                                  &refraction,
-                                                   rsce->outlineLighting,
-                                                   rsce->outlineColor,
-                                                   rsce->outlineThickness,
-                                                   ltex, 
-                                                   query_flags );
+            r3dray_getHitFaceColor ( ray, rms,
+                                          hitrfc,
+                                         &diffuse,
+                                         &specular,
+                                         &bump,
+                                         &reflection,
+                                         &refraction,
+                                          rsce->outlineLighting,
+                                          rsce->outlineColor,
+                                          rsce->outlineThickness,
+                                          ltex, 
+                                          query_flags );
 
             if ( ( ray->flags & OUTLINED ) && 
                  ( rsce->outlineLighting == 0x00 ) ) {

@@ -339,7 +339,7 @@ typedef struct _R3DUVSET {
 /******************************************************************************/
 typedef struct _R3DFACE {
     uint32_t   flags;
-    R3DVERTEX  ver[0x03];    /*** our face is a triangle     ***/
+    uint32_t   rverID[0x03]; /* Use IDs to save memory (for arch >= 64 bits) */
     R3DVECTOR  nor;          /*** face normal in world coord ***/
     float      d;
     float      surface;
@@ -433,6 +433,8 @@ typedef struct _R3DLIGHT {
 /******************************************************************************/
 typedef struct _R3DMESH {
     R3DOBJECT   robj;
+    R3DVERTEX  *rver; /*** list of render faces  ***/
+    uint32_t    nbrver;
     R3DFACE    *rfac; /*** list of render faces  ***/
     uint32_t    nbrfac;
     R3DUVSET   *ruvs;
@@ -650,7 +652,7 @@ void r3darea_free ( R3DAREA * );
 uint32_t r3dray_shoot ( R3DRAY *, R3DSCENE *, R3DFACE *, uint32_t, uint32_t );
 uint32_t r3dray_inOctree ( R3DRAY *, R3DOCTREE *, R3DPOINT *, R3DPOINT * );
 uint32_t r3dray_inOctreeSimple ( R3DRAY *, R3DOCTREE * );
-uint32_t r3dray_intersectOctree ( R3DRAY *, R3DOCTREE *,/* R3DPOINT *, R3DPOINT *,*/ R3DFACE *, uint32_t );
+uint32_t r3dray_intersectOctree ( R3DRAY *, R3DMESH *, R3DOCTREE *,/* R3DPOINT *, R3DPOINT *,*/ R3DFACE *, uint32_t );
 void r3dray_getOctrees ( R3DRAY *, LIST *, LIST ** );
 uint32_t r3dray_illumination ( R3DRAY *, R3DSCENE *, R3DRGBA *, R3DRGBA *, R3DFACE *, uint32_t, LIST * );
 void r3dray_intersect ( R3DRAY *, R3DSCENE * );
@@ -663,7 +665,8 @@ uint32_t r3dray_inOctreeZXmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT *
 uint32_t r3dray_inOctreeZXpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
-void     r3dray_getHitFaceColor  ( R3DRAY *, R3DFACE *,
+void     r3dray_getHitFaceColor  ( R3DRAY *, R3DMESH *,
+                                             R3DFACE *,
                                              R3DRGBA *,
                                              R3DRGBA *,
                                              R3DRGBA *,
@@ -699,11 +702,12 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void r3doctree_getMinMax ( R3DOCTREE *, float *, float *, float *,
                                         float *, float *, float * );
 void r3doctree_size ( R3DOCTREE * );
-void r3doctree_importRenderFacesThatFit ( R3DOCTREE *, R3DFACE **, uint32_t );
+void r3doctree_importRenderFacesThatFit ( R3DOCTREE *, R3DFACE **,
+                                                       R3DVERTEX *rver, uint32_t );
 R3DOCTREE *r3doctree_new ( float, float, float,
                            float, float, float,
-                           R3DFACE **, uint32_t, uint32_t, uint32_t );
-void r3doctree_divide_r( R3DOCTREE * );
+                           R3DFACE **, R3DVERTEX *rver, uint32_t, uint32_t, uint32_t );
+void r3doctree_divide_r( R3DOCTREE *, R3DVERTEX *rver );
 void r3doctree_draw_r ( G3DOBJECT *, uint32_t );
 void r3doctree_free_r ( R3DOCTREE * );
 
@@ -713,18 +717,22 @@ uint32_t r3dray_intersectPlane ( R3DRAY *, R3DPLANE *, R3DPOINT * );
 
 /******************************************************************************/
 R3DFACE *r3dface_new ( G3DRTTRIANGLE *, double *, double * );
-uint32_t r3dface_intersectLine ( R3DFACE *rfc, R3DLINE *lin );
-uint32_t r3dface_intersectRay ( R3DFACE *, R3DRAY *, uint32_t );
+uint32_t r3dface_intersectLine ( R3DFACE *rfc, R3DVERTEX *, R3DLINE *lin );
+uint32_t r3dface_intersectRay ( R3DFACE *, R3DVERTEX *, R3DRAY *, uint32_t );
 void r3dface_interpolate ( R3DFACE *, G3DVECTOR *, G3DVECTOR *);
 void r3dface_getMinMaxFromArray ( float *, float *, float *,
                                   float *, float *, float *,
-                                  R3DFACE *, uint32_t );
+                                  R3DFACE *, R3DVERTEX *, uint32_t );
+void r3dface_normal ( R3DFACE *, R3DVERTEX *, float * );
+void r3dface_position ( R3DFACE *, R3DVERTEX *, G3DDOUBLEVECTOR * );
 void r3dface_free ( void * );
 void r3dface_reset ( R3DFACE * );
-void r3dface_getMinMax ( R3DFACE *, float *, float *, float *,
+void r3dface_getMinMax ( R3DFACE *, R3DVERTEX *,
+                                    float *, float *, float *,
                                     float *, float *, float * );
-int r3dface_pointIn ( R3DFACE *, R3DDOUBLEPOINT *, float *, float *, float * );
-uint32_t r3dface_inRenderOctree ( R3DFACE *, R3DOCTREE * );
+int r3dface_pointIn ( R3DFACE *, R3DVERTEX *, 
+                                 R3DDOUBLEPOINT *, float *, float *, float * );
+uint32_t r3dface_inRenderOctree ( R3DFACE *, R3DVERTEX *, R3DOCTREE * );
 
 /******************************************************************************/
 void r3dpoint_getMinMax ( R3DPOINT *, R3DPOINT *, 

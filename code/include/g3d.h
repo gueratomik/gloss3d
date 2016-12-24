@@ -261,10 +261,11 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SUBDIVISIONDRAWEDGES      (  1 <<  9 ) 
 #define SUBDIVISIONDRAWVERTICES   (  1 << 10 )
 #define SUBDIVISIONELEVATE        (  1 << 11 ) /* is heightmapping required */
-#define SUBDIVISIONCOMMIT         (  1 << 12 ) 
-#define SUBDIVISIONCOMPUTE        (  1 << 13 )
-#define SUBDIVISIONDISPLAY        (  1 << 14 )
-#define SUBDIVISIONINDEX          (  1 << 15 )
+#define SUBDIVISIONCOMMIT         (  1 << 12 )
+#define SUBDIVISIONDUMP           (  1 << 13 ) 
+#define SUBDIVISIONCOMPUTE        (  1 << 14 )
+#define SUBDIVISIONDISPLAY        (  1 << 15 )
+#define SUBDIVISIONINDEX          (  1 << 16 )
 
 /************************* Subdivision topology Flags *************************/
 #define NEEDEDGETOPOLOGY              (  1       )
@@ -530,11 +531,11 @@ typedef struct _G3DEXTENSION {
 
 /******************************************************************************/
 typedef struct _G3DRTVERTEX {
-    float r, g, b, a;
+    float         r, g, b;
     G3DTINYVECTOR nor;
     G3DTINYVECTOR pos;
-    /* G3DEXTENSION *extension; */
-    uint32_t flags;
+    uint32_t      id;
+    uint32_t      flags;
 } G3DRTVERTEX;
 
 /******************************************************************************/
@@ -976,7 +977,8 @@ struct _G3DMESH {
                                                 LIST *,
                                                 LIST *,
                                                 uint32_t );
-    uint32_t (*dump) ( struct _G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+    uint32_t (*dump) ( struct _G3DMESH *, void (*Alloc)( uint32_t, /* nbver */
+                                                         uint32_t, /* nbtris */
                                                          uint32_t, /* nbquads */
                                                          uint32_t, /* nbuv */
                                                          void * ),
@@ -2113,7 +2115,8 @@ void       g3dmesh_updateFaceIndex               ( G3DMESH * );
 G3DMESH   *g3dmesh_commitSubdivision             ( G3DMESH  *, uint32_t,
                                                                unsigned char *,
                                                                uint32_t );
-uint32_t   g3dmesh_default_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+uint32_t   g3dmesh_default_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbver */
+                                                            uint32_t, /* nbtris */
                                                             uint32_t, /* nbquads */
                                                             uint32_t, /* nbuv */
                                                             void * ),
@@ -2124,12 +2127,14 @@ uint32_t   g3dmesh_default_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbtris 
 void       g3dmesh_dump ( G3DMESH *, void (*Alloc)( uint32_t, /* nbverts */
                                                     uint32_t, /* nbtris */
                                                     uint32_t, /* nbquads */
+                                                    uint32_t, /* nbuv */
                                                     void * ),
                                      void (*Dump) ( G3DFACE *,
                                                     void * ),
                                      void *data,
                                      uint32_t );
-uint32_t   g3dmesh_dumpModifiers_r ( G3DMESH *, void (*Alloc)( uint32_t, /* nbtris */
+uint32_t   g3dmesh_dumpModifiers_r ( G3DMESH *, void (*Alloc)( uint32_t, /* nbver */
+                                                               uint32_t, /* nbtris */
                                                                uint32_t, /* nbquads */
                                                                uint32_t, /* nbuv */
                                                                void * ),

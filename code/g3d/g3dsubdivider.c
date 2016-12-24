@@ -76,7 +76,8 @@ void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
                     }/*
 
 /******************************************************************************/
-uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbtris */
+uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver */
+                                                                 uint32_t, /* nbtris */
                                                                  uint32_t, /* nbquads */
                                                                  uint32_t, /* nbuv */
                                                                  void * ),
@@ -92,6 +93,9 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
     if ( parent ) {
         uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
         uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
+        uint32_t nbUniqueVerticesPerEdge;
+        uint32_t nbUniqueVerticesPerTriangle;
+        uint32_t nbUniqueVerticesPerQuad;
         G3DSYSINFO *sif = g3dsysinfo_get ( );
         /*** Get the temporary subdivision arrays for CPU #0 ***/
         G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
@@ -111,9 +115,19 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                       &nbEdgesPerQuad,
                                       &nbVerticesPerQuad );
 
-        if ( Alloc ) Alloc ( 0x00, ( mes->nbtri * nbFacesPerTriangle ) +
-                                   ( mes->nbqua * nbFacesPerQuad ), 
-                                   ( mes->nbuvmap ), data );
+        nbUniqueVerticesPerEdge     = pow ( 2, sdr->subdiv_render ) - 1;
+        nbUniqueVerticesPerTriangle = nbVerticesPerTriangle - ( nbUniqueVerticesPerEdge * 0x03 ) - 0x03;
+        nbUniqueVerticesPerQuad     = nbVerticesPerQuad     - ( nbUniqueVerticesPerEdge * 0x04 ) - 0x04;
+
+        if ( Alloc ) Alloc ( ( mes->nbver ) + 
+                             ( mes->nbedg * nbUniqueVerticesPerEdge ) + 
+                             ( mes->nbtri * nbUniqueVerticesPerTriangle ) +
+                             ( mes->nbqua * nbUniqueVerticesPerQuad ), /* nbver */
+                             ( 0x00 ),                                 /* nbtri = 0 */
+                             ( mes->nbtri * nbFacesPerTriangle ) +
+                             ( mes->nbqua * nbFacesPerQuad ),          /* nb quads */
+                             ( mes->nbuvmap ),                         /* nbuvmaps */
+                              data );
 
         if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
             /*** Force the flag in case our mesh does not need displacement ***/
@@ -154,7 +168,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                         g3dsubindex_get ( 0x04, sdr->subdiv_render ),
                                                         g3dsubindex_get ( 0x03, sdr->subdiv_render ),
                                                         sdr->subdiv_render,
-                                                        SUBDIVISIONCOMPUTE,
+                                                        SUBDIVISIONCOMPUTE | SUBDIVISIONDUMP,
                                                         engine_flags );
 
 
@@ -171,6 +185,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                     G3DRTVERTEX *rtver = &rtvermem[rtquamem[i].rtver[j]];
 
                     memset ( &dumpVer[j], 0x00, sizeof ( G3DVERTEX ) );
+
+                    dumpVer[j].id = rtver->id;
 
                     memcpy ( &dumpVer[j].pos, &rtver->pos, sizeof ( G3DTINYVECTOR ) );
                     memcpy ( &dumpVer[j].nor, &rtver->nor, sizeof ( G3DTINYVECTOR ) );
@@ -754,12 +770,12 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             glEnableClientState ( GL_NORMAL_ARRAY );
             glEnableClientState ( GL_COLOR_ARRAY  );
             glColorPointer  ( 4, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem)      );
-            glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 28 );
-            glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 16 );
+            glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 12 );
+            glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 24 );
             glDrawElements ( GL_QUADS, nbrtfac * 4, GL_UNSIGNED_INT, rtquamem );
-            glDisableClientState ( GL_COLOR_ARRAY  );
-            glDisableClientState ( GL_NORMAL_ARRAY );
             glDisableClientState ( GL_VERTEX_ARRAY );
+            glDisableClientState ( GL_NORMAL_ARRAY );
+            glDisableClientState ( GL_COLOR_ARRAY  );
 
             unbindMaterials ( mes, fac, rtuvmem, engine_flags );
 

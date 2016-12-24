@@ -71,6 +71,7 @@ void r3doctree_size ( R3DOCTREE *rot ) {
 /******************************************************************************/
 /****** Pick RENDERFACES that fit our OCTREE, from a list of renderfaces ******/
 void r3doctree_importRenderFacesThatFit ( R3DOCTREE *rot, R3DFACE **rfcarray,
+                                                          R3DVERTEX *rver,
                                                           uint32_t  nbrfc ) {
     uint32_t maxnbrfc = rot->maxnbrfc;
     uint32_t n = 0x00;
@@ -81,7 +82,7 @@ void r3doctree_importRenderFacesThatFit ( R3DOCTREE *rot, R3DFACE **rfcarray,
 
         /*** RFC could be null in case it was removed from the list ***/
         if ( rfc ) {
-            uint32_t ino = r3dface_inRenderOctree ( rfc, rot );
+            uint32_t ino = r3dface_inRenderOctree ( rfc, rver, rot );
 
             /*** remove the face from the list if it ***/
             /*** lies entirely in the  child octree. ***/
@@ -117,7 +118,8 @@ void r3doctree_importRenderFacesThatFit ( R3DOCTREE *rot, R3DFACE **rfcarray,
 #define OCTREEMAXDEPTH 0x08
 R3DOCTREE *r3doctree_new ( float xone, float yone, float zone,
                            float xtwo, float ytwo, float ztwo,
-                           R3DFACE **rfcarray, uint32_t nbrfc,
+                           R3DFACE **rfcarray, R3DVERTEX *rver,
+                                               uint32_t nbrfc,
                                                uint32_t maxnbrfc,
                                                uint32_t copyOnly ) {
     R3DOCTREE *rot = ( R3DOCTREE * ) calloc ( 0x01, sizeof ( R3DOCTREE ) );
@@ -161,7 +163,7 @@ R3DOCTREE *r3doctree_new ( float xone, float yone, float zone,
     } else {
         rot->rfcarray = calloc ( rot->maxnbrfc, sizeof ( R3DFACE * ) );
 
-        r3doctree_importRenderFacesThatFit ( rot, rfcarray, nbrfc );
+        r3doctree_importRenderFacesThatFit ( rot, rfcarray, rver, nbrfc );
     }
 
     /*** The EPSILON adjustment is done after subdividing ***/
@@ -182,7 +184,7 @@ R3DOCTREE *r3doctree_new ( float xone, float yone, float zone,
 
 
 /******************************************************************************/
-void r3doctree_divide_r ( R3DOCTREE *rot ) {
+void r3doctree_divide_r ( R3DOCTREE *rot, R3DVERTEX *rver ) {
     float xmax = rot->xmax, ymax = rot->ymax, zmax = rot->zmax,
           xmin = rot->xmin, ymin = rot->ymin, zmin = rot->zmin,
           xavg = ( ( xmax + xmin ) / 2.0f ),
@@ -191,35 +193,35 @@ void r3doctree_divide_r ( R3DOCTREE *rot ) {
     uint32_t i;
 
     rot->children[0x00] = r3doctree_new ( xmin, ymin, zmin, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x01] = r3doctree_new ( xmin, ymin, zmax, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x02] = r3doctree_new ( xmax, ymin, zmax, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x03] = r3doctree_new ( xmax, ymin, zmin, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x04] = r3doctree_new ( xmax, ymax, zmax, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x05] = r3doctree_new ( xmax, ymax, zmin, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x06] = r3doctree_new ( xmin, ymax, zmin, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     rot->children[0x07] = r3doctree_new ( xmin, ymax, zmax, xavg, yavg, zavg,
-                                          rot->rfcarray, rot->nbrfc,
+                                          rot->rfcarray, rver, rot->nbrfc,
                                           rot->maxnbrfc, 0x00 );
 
     /*** free memory BEFORE recursing or we'll deplete the memory ***/
@@ -234,7 +236,7 @@ void r3doctree_divide_r ( R3DOCTREE *rot ) {
         if ( ( child->nbrfc != parent->nbrfc ) ) {
             /*** then subdivide octree if needed ***/
             if ( child->nbrfc > child->maxnbrfc ) {
-                r3doctree_divide_r ( child );
+                r3doctree_divide_r ( child, rver );
             }
         }
     }

@@ -232,6 +232,7 @@ void g3dsubdivisionV3_commit ( G3DMESH       *mes,
 
 /******************************************************************************/
 void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
+                                        G3DFACE       *ancestorFace,
                                         G3DSUBVERTEX  *innerVertices,
                                         uint32_t       nbInnerVertices,
                                         G3DSUBEDGE    *innerEdges,
@@ -242,12 +243,83 @@ void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                         G3DRTQUAD     *rtQuads,
                                         G3DRTEDGE     *rtEdges,
                                         G3DRTVERTEX   *rtVertices,
-                                        G3DRTUV       *rtUVs ) {
+                                        G3DRTUV       *rtUVs,
+                                        uint32_t       subdiv_level,
+                                        uint32_t       subdiv_flags ) {
+    uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
+    uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
+    uint32_t nbUniqueVerticesPerEdge;
+    uint32_t nbUniqueVerticesPerTriangle;
+    uint32_t nbUniqueVerticesPerQuad;
+    uint32_t backupVertexID[0x04];
+    uint32_t backupEdgeID[0x04];
+    uint32_t backupFaceID;
     uint32_t i, j;
+
+    if ( subdiv_flags & SUBDIVISIONDUMP ) {
+        uint32_t i, j;
+
+        g3dtriangle_evalSubdivision ( subdiv_level, &nbFacesPerTriangle, 
+                                                    &nbEdgesPerTriangle, 
+                                                    &nbVerticesPerTriangle );
+        g3dquad_evalSubdivision     ( subdiv_level, &nbFacesPerQuad, 
+                                                    &nbEdgesPerQuad, 
+                                                    &nbVerticesPerQuad );
+
+        /*** Prepare to fill the gaps ***/
+        for ( i = 0x00; i < ancestorFace->nbver; i++ ) {
+            backupVertexID[i] = ancestorFace->ver[i]->id;
+            backupEdgeID[i]   = ancestorFace->edg[i]->id;
+
+        }
+        backupFaceID = ancestorFace->id;
+
+        /** at most, a face will have nbVerticesPerFace vertices, none of them ***/
+        /** belonging to the edges (only interior vertices ) ***/
+        nbUniqueVerticesPerEdge     = pow ( 2, subdiv_level ) - 1;
+        nbUniqueVerticesPerTriangle = nbVerticesPerTriangle - ( nbUniqueVerticesPerEdge * 0x03 ) - 0x03;
+        nbUniqueVerticesPerQuad     = nbVerticesPerQuad     - ( nbUniqueVerticesPerEdge * 0x04 ) - 0x04;
+
+        for ( i = 0x00; i < ancestorFace->nbver; i++ ) {
+            ancestorFace->edg[i]->id = ( ancestorFace->edg[i]->id * nbUniqueVerticesPerEdge );
+        }
+
+        if ( ancestorFace->nbver == 0x03 ) {
+            ancestorFace->id = ( ancestorFace->typeID * nbUniqueVerticesPerTriangle );
+        } else {
+            ancestorFace->id = ( mes->nbtri * nbUniqueVerticesPerTriangle ) +
+                               ( ancestorFace->typeID * nbUniqueVerticesPerQuad );
+        }
+    }
 
     for ( i = 0x00; i < nbInnerVertices; i++ ) {
         uint32_t vid = innerVertices[i].ver.id;
         uint32_t texNumber = 0x00;
+
+        if ( subdiv_flags & SUBDIVISIONDUMP ) {
+            uint32_t dumpID;
+
+            /*** if the vertex descends from an original vertex, its ID is ***/
+            /*** unchanged ***/
+            if ( innerVertices[i].ancestorVertex ) {
+                dumpID = innerVertices[i].ancestorVertex->id;
+            }
+            /*** if the vertex descends from an original edge, its ID is ***/
+            /*** the edge's ID++ (knowing that edge IDs are separated by ***/
+            /*** as many steps as edge vertices. ***/
+            if ( innerVertices[i].ancestorEdge   ) {
+                dumpID = mes->nbver + innerVertices[i].ancestorEdge->id++;
+            }
+            /*** For the other vertices (the one lying on the original face, ***/
+            /*** their IDs is the face's ID++ (knowing that face IDs are ***/
+            /*** separated by as many steps as face vertices. ***/
+            if ( innerVertices[i].ancestorFace   ) {
+                dumpID = ( mes->nbver ) + 
+                         ( mes->nbedg * nbUniqueVerticesPerEdge ) + innerVertices[i].ancestorFace->id++;
+            }
+
+            rtVertices[vid].id = dumpID;
+        }
 
         g3drtvertex_init ( &rtVertices[vid], &innerVertices[i], 0, 0 );
     }
@@ -283,6 +355,15 @@ void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                 }
             }
         }
+    }
+
+    if ( subdiv_flags & SUBDIVISIONDUMP ) {
+        /*** Restore IDs ***/
+        for ( i = 0x00; i < ancestorFace->nbver; i++ ) {
+            ancestorFace->edg[i]->id = backupEdgeID[i];
+
+        }
+        ancestorFace->id = backupFaceID;
     }
 }
 
@@ -993,6 +1074,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
             if ( subdiv_flags & SUBDIVISIONCOMPUTE ) {
                 g3dsubdivisionV3_convertToRTFACE ( mes,
+                                                   fac,
                                                    curInnerVertices,
                                                    nbInnerVertices,
                                                    curInnerEdges,
@@ -1003,7 +1085,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                                    rtQuads,
                                                    rtEdges,
                                                    rtVertices,
-                                                   rtUVs );
+                                                   rtUVs,
+                                                   original_subdiv_level,
+                                                   subdiv_flags );
             }
 
             if ( subdiv_flags & SUBDIVISIONDISPLAY ) {

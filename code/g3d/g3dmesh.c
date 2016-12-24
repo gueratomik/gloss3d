@@ -30,7 +30,8 @@
 #include <g3d.h>
 
 /******************************************************************************/
-uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbver */
+                                                                uint32_t, /* nbtris */
                                                                 uint32_t, /* nbquads */
                                                                 uint32_t, /* nbuv */
                                                                 void * ),
@@ -65,7 +66,8 @@ uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbt
 }
 
 /******************************************************************************/
-void g3dmesh_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+void g3dmesh_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbver */
+                                                 uint32_t, /* nbtris */
                                                  uint32_t, /* nbquads */
                                                  uint32_t, /* nbuv */
                                                  void * ),
@@ -86,7 +88,8 @@ void g3dmesh_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
 }
 
 /******************************************************************************/
-uint32_t g3dmesh_default_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris */
+uint32_t g3dmesh_default_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /*nbver */
+                                                             uint32_t, /* nbtris */
                                                              uint32_t, /* nbquads */
                                                              uint32_t, /* nbuv */
                                                              void * ),
@@ -96,7 +99,7 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbtris
                                               uint32_t engine_flags ) {
     LIST *ltmpfac = mes->lfac;
 
-    if ( Alloc ) Alloc ( mes->nbtri, mes->nbqua, 0x00, data );
+    if ( Alloc ) Alloc ( mes->nbver, mes->nbtri, mes->nbqua, 0x00, data );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;

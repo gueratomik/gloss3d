@@ -52,16 +52,18 @@ uint32_t g3dmesh_evalRenderFacesCount ( G3DMESH *mes, uint32_t subdiv ) {
 }
 
 /******************************************************************************/
-void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrfac ) {
+void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
     G3DOBJECT *obj = ((R3DOBJECT*)rms)->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
     uint32_t nbruvs  = ( nbrfac * mes->nbuvmap );
-    uint32_t memsize = ( nbrfac * sizeof ( R3DFACE  ) ) + 
-                       ( nbruvs * sizeof ( R3DUVSET ) );
+    uint32_t memsize = ( nbrver * sizeof ( R3DVERTEX ) ) +
+                       ( nbrfac * sizeof ( R3DFACE   ) ) + 
+                       ( nbruvs * sizeof ( R3DUVSET  ) );
 
     uint32_t i;
 
-    rms->rfac = ( R3DFACE  * ) calloc ( nbrfac, sizeof ( R3DFACE  ) );
+    rms->rver = ( R3DVERTEX  * ) calloc ( nbrver, sizeof ( R3DVERTEX  ) );
+    rms->rfac = ( R3DFACE    * ) calloc ( nbrfac, sizeof ( R3DFACE    ) );
 
     if ( nbruvs ) {
         rms->ruvs = ( R3DUVSET * ) calloc ( nbruvs, sizeof ( R3DUVSET ) );
@@ -72,6 +74,10 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrfac ) {
     }
 
     rms->curfac = rms->rfac;
+
+    printf ( "r3dvertex count: %lu\n", nbrver);
+    printf ( "r3dface   count: %lu\n", nbrfac);
+    printf ( "r3duvset  count: %lu\n", nbruvs);
 
     if ( memsize < 1024 ) {
         printf ( "R3DMESH memory: %d Bytes\n", memsize );
@@ -90,6 +96,7 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrfac ) {
     }
 
     rms->nbrfac = nbrfac;
+    rms->nbrver = nbrver;
     rms->nbruvs = nbruvs;
 }
 
@@ -104,16 +111,18 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
     float xmin, ymin, zmin, xmax, ymax, zmax;
 
     r3dface_getMinMaxFromArray ( &xmin, &ymin, &zmin,
-                                 &xmax, &ymax, &zmax, rms->rfac, rms->nbrfac );
+                                 &xmax, &ymax, &zmax, rms->rfac, 
+                                                      rms->rver, 
+                                                      rms->nbrfac );
 
     rob->rot = r3doctree_new ( xmin, ymin, zmin,
                                xmax, ymax, zmax,
-                               rfcarray, nbrfac, maxnbrfac, 0x01 );
+                               rfcarray, rms->rver, nbrfac, maxnbrfac, 0x01 );
 
     /*** the dividing part has been taken out the octree creation part ***/
     /*** to avoid high memory usage when dispatching the R3DFACEs, because ***/
     /*** now we can free the rfcarray of the parent octree before dividing ***/
-    if ( nbrfac > maxnbrfac ) r3doctree_divide_r ( rob->rot );
+    if ( nbrfac > maxnbrfac ) r3doctree_divide_r ( rob->rot, rms->rver );
 
 /* If uncommented, please comment r3dobject.c:r3doctree_free call ***/
 /* If uncommented, please uncomment r3doctree.c:g3dobject_init call ***/
@@ -121,7 +130,8 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
 }
 
 /******************************************************************************/
-static void Alloc ( uint32_t nbtri, 
+static void Alloc ( uint32_t nbver,
+                    uint32_t nbtri, 
                     uint32_t nbqua,
                     uint32_t nbuv,
                     void *data ) {
@@ -129,7 +139,7 @@ static void Alloc ( uint32_t nbtri,
     R3DMESH *rms = rdump->rmes;
 
     if ( rms ) {
-        r3dmesh_allocArrays ( rms, nbtri + ( nbqua * 0x02 ) );
+        r3dmesh_allocArrays ( rms, nbver, nbtri + ( nbqua * 0x02 ) );
     }
 }
 
@@ -149,14 +159,18 @@ static void Dump ( G3DFACE *fac, void *data ) {
             G3DDOUBLEVECTOR rfacpos;
             float length;
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            rms->curfac->rverID[0x00] = fac->ver[0x00]->id;
+            rms->curfac->rverID[0x01] = fac->ver[0x01]->id;
+            rms->curfac->rverID[0x02] = fac->ver[0x02]->id;
+
+            for ( i = 0x00; i < 0x03; i++ ) {
                 G3DVERTEX *ver = fac->ver[i];
                 G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                   &ver->pos,
                           *nor = &ver->nor;
                 double sx, sy, sz;
                 /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/
-
+                R3DVERTEX *rver = &rms->rver[rms->curfac->rverID[i]];
 
                 gluProject ( pos->x,
                              pos->y,
@@ -166,20 +180,20 @@ static void Dump ( G3DFACE *fac, void *data ) {
                              rdump->vmatrix,
                              &sx, &sy, &sz );
 
-                rms->curfac->ver[i].scr.x = sx;
-                rms->curfac->ver[i].scr.y = rdump->vmatrix[0x03] - sy;
-                rms->curfac->ver[i].scr.z = sz;
+                rver->scr.x = sx;
+                rver->scr.y = rdump->vmatrix[0x03] - sy;
+                rver->scr.z = sz;
 
-                r3dtinyvector_matrix ( pos, rdump->wmatrix, &rms->curfac->ver[i].pos );
-                r3dtinyvector_matrix ( nor, rdump->wnormix, &rms->curfac->ver[i].nor );
+                r3dtinyvector_matrix ( pos, rdump->wmatrix, &rver->pos );
+                r3dtinyvector_matrix ( nor, rdump->wnormix, &rver->nor );
             }
 
             rms->curfac->flags |= RFACEFROMTRIANGLE;
 
             /** Compute the triangle center needed for face equation ***/
-            r3dface_position ( rms->curfac, &rfacpos );
+            r3dface_position ( rms->curfac, rms->rver, &rfacpos );
 
-            r3dface_normal ( rms->curfac, &length );
+            r3dface_normal ( rms->curfac, rms->rver, &length );
 
             rms->curfac->surface = length;
 
@@ -223,12 +237,17 @@ static void Dump ( G3DFACE *fac, void *data ) {
                 G3DDOUBLEVECTOR rfacpos;
                 float length;
 
+                rms->curfac->rverID[0x00] = fac->ver[idx[i][0x00]]->id;
+                rms->curfac->rverID[0x01] = fac->ver[idx[i][0x01]]->id;
+                rms->curfac->rverID[0x02] = fac->ver[idx[i][0x02]]->id;
+
                 for ( j = 0x00; j < 0x03; j++ ) {
                     G3DVERTEX *ver = fac->ver[idx[i][j]];
                     G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                       &ver->pos,
                               *nor = &ver->nor;
                     double sx, sy, sz;
+                    R3DVERTEX *rver = &rms->rver[rms->curfac->rverID[j]];
                     /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/
 
 
@@ -240,20 +259,20 @@ static void Dump ( G3DFACE *fac, void *data ) {
                                  rdump->vmatrix,
                                  &sx, &sy, &sz );
 
-                    rms->curfac->ver[j].scr.x = sx;
-                    rms->curfac->ver[j].scr.y = rdump->vmatrix[0x03] - sy;
-                    rms->curfac->ver[j].scr.z = sz;
+                    rver->scr.x = sx;
+                    rver->scr.y = rdump->vmatrix[0x03] - sy;
+                    rver->scr.z = sz;
 
-                    r3dtinyvector_matrix ( pos, rdump->wmatrix, &rms->curfac->ver[j].pos );
-                    r3dtinyvector_matrix ( nor, rdump->wnormix, &rms->curfac->ver[j].nor );
+                    r3dtinyvector_matrix ( pos, rdump->wmatrix, &rver->pos );
+                    r3dtinyvector_matrix ( nor, rdump->wnormix, &rver->nor );
                 }
 
                 rms->curfac->flags |= RFACEFROMQUAD;
 
                 /** Compute the triangle center needed for face equation ***/
-                r3dface_position ( rms->curfac, &rfacpos );
+                r3dface_position ( rms->curfac, rms->rver, &rfacpos );
 
-                r3dface_normal ( rms->curfac, &length );
+                r3dface_normal ( rms->curfac, rms->rver, &length );
 
                 rms->curfac->surface = length;
 

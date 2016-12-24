@@ -598,7 +598,6 @@ R3DMOTIONMESH *r3dmotionmesh_new ( R3DMESH *rms ) {
  */
 uint32_t r3dmotionmesh_track ( R3DMOTIONMESH *mms, double *CMX, 
                                                    double *PJX, int *VPX ) {
-#ifdef unused
     uint32_t structSize = sizeof ( R3DMOTIONTRACKPOINT );
     uint32_t trackingArraySize = mms->rms->nbrver * structSize;
     double IDX[] = { 1.0f, 0.0f, 0.0f, 0.0f,
@@ -639,28 +638,13 @@ uint32_t r3dmotionmesh_track ( R3DMOTIONMESH *mms, double *CMX,
         trace = 1;
     }
 
-    g3dcore_multmatrix (  ((R3DOBJECT*)mms->rms)->wmatrix, CMX, fullmatrix);
-
     for ( i = 0x00; i < mms->rms->nbrver; i++ ) {
-#ifdef unused
-        gluProject ( mms->rms->rver[i].ori.x, 
-                     mms->rms->rver[i].ori.y, 
-                     mms->rms->rver[i].ori.z, 
-                     /* R3DVERTICES are already transformed with the object's */
-                     /* modelview matrix. So we use an identitiy matrix.      */
-                     fullmatrix,
-                     PJX,
-                     VPX,
-                     &trackingPoint[i].x,
-                     &trackingPoint[i].y,
-                     &trackingPoint[i].z );
-        /* OpenGL screen cooords are inverted on the Y-Axis */
-#endif
-        trackingPoint[i].y = VPX[0x03] - trackingPoint[i].y;
+        trackingPoint[i].x = mms->rms->rver[i].scr.x;
+        trackingPoint[i].y = mms->rms->rver[i].scr.y;
+        trackingPoint[i].z = mms->rms->rver[i].scr.z;
     }
 
     return trace;
-#endif
 }
 
 /******************************************************************************/
@@ -669,10 +653,9 @@ void r3dmotionblur_traceMesh ( R3DMOTIONBLUR *rmb, R3DMOTIONMESH *mms ) {
 
     /*** For each triangle, fill the vector buffer ***/
     for ( i = 0x00; i < mms->rms->nbrfac; i++ ) {
-#ifdef unused
-        uint32_t ids[3] = { mms->rms->rfac[i].ver[0x00].id,
-                            mms->rms->rfac[i].ver[0x01].id,
-                            mms->rms->rfac[i].ver[0x02].id };
+        uint32_t ids[3] = { mms->rms->rfac[i].rverID[0x00],
+                            mms->rms->rfac[i].rverID[0x01],
+                            mms->rms->rfac[i].rverID[0x02] };
         R3DMOTIONTRACKPOINT *startPoint[3] = { &mms->startPoint[ids[0]],
                                                &mms->startPoint[ids[1]],
                                                &mms->startPoint[ids[2]] },
@@ -681,7 +664,6 @@ void r3dmotionblur_traceMesh ( R3DMOTIONBLUR *rmb, R3DMOTIONMESH *mms ) {
                                                &mms->endPoint[ids[2]] };
 
         r3dmotionblur_fillVectorBuffer ( rmb, startPoint, endPoint );
-#endif
     }
 }
 
@@ -705,7 +687,7 @@ R3DMOTIONMESH *r3dmotionblur_getMotionMesh ( R3DMOTIONBLUR *rmb, uint32_t id ) {
 /******************************************************************************/
 void r3dmotionblur_trace ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce ) {
     LIST *ltmprob = rsce->lrob;
-#ifdef unused
+
     while ( ltmprob ) {
         R3DOBJECT *rob = ( R3DOBJECT * ) ltmprob->data;
         if ( rob->obj->type == G3DMESHTYPE ) {
@@ -738,7 +720,6 @@ void r3dmotionblur_trace ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce ) {
 
         ltmprob = ltmprob->next;
     }
-#endif
 }
 
 

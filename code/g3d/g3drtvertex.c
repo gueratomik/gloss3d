@@ -44,27 +44,27 @@ void g3drtvertex_init ( G3DRTVERTEX *rtver, G3DVERTEX *ver,
 
 
     if ( engine_flags & VIEWSKIN ) {
-        rtver->r = rtver->a = 1.0f;
+        rtver->r = 1.0f;
         rtver->g = ( ver->flags & VERTEXPAINTED ) ? ver->weight : 0.0f;
         rtver->b = 0.0f;
     } else {
         if ( ver->nbfac == 0x00 ) {
             if ( ver->flags & VERTEXSELECTED ) {
-                rtver->r = rtver->a = 1.0f;
+                rtver->r = 1.0f;
                 rtver->g = 0.0f;
                 rtver->b = 0.0f;
             } else {
                 rtver->r = 0.0f;
                 rtver->g = 0.0f;
-                rtver->b = rtver->a = 1.0f;
+                rtver->b = 1.0f;
             }
         } else {
             if ( facsel ) {
                 rtver->r = 1.0f;
                 rtver->g = 0.5f;
-                rtver->b = rtver->a = 0.0f;
+                rtver->b = 0.0f;
             } else {
-                rtver->r = rtver->g = rtver->b = rtver->a = MESHCOLORF;
+                rtver->r = rtver->g = rtver->b = MESHCOLORF;
             }
         }
     }
