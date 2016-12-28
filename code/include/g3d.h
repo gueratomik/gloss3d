@@ -1264,10 +1264,10 @@ void g3ddoublevector_cross ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR *,
 
 /******************************************************************************/
 int32_t    g2dvector_scalar    ( G2DVECTOR *, G2DVECTOR * );
-void       g2dvector_cross     ( G2DVECTOR *, G2DVECTOR *, G3DVECTOR * );
+int32_t    g2dvector_cross     ( G2DVECTOR *, G2DVECTOR *, G3DVECTOR * );
 void       g2dvector_average   ( G2DVECTOR *, G2DVECTOR *, G2DVECTOR * );
 void       g2dvector_init      ( G2DVECTOR *, int32_t, int32_t );
-float      g2dvector_length    ( G2DVECTOR * );
+uint32_t   g2dvector_length    ( G2DVECTOR * );
 void       g2dvector_normalize ( G2DVECTOR * );
 void       g2dvector_free      ( void * );
 G2DVECTOR *g2dvector_new       ( int32_t, int32_t );

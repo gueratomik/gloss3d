@@ -84,49 +84,49 @@ void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_setOutlineCbk ( G3DUI *gui ) {
+void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( rsg->flags & RENDEROUTLINE ) {
-        rsg->flags = (rsg->flags & ~RENDEROUTLINE);
+    if ( rsg->flags & RENDERWIREFRAME ) {
+        rsg->flags = (rsg->flags & ~RENDERWIREFRAME);
     } else {
-        rsg->flags = (rsg->flags | RENDEROUTLINE);
+        rsg->flags = (rsg->flags | RENDERWIREFRAME);
     }
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_setOutlineLightingCbk ( G3DUI *gui ) {
+void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( rsg->flags & OUTLINELIGHTING ) {
-        rsg->flags = (rsg->flags & ~OUTLINELIGHTING);
+    if ( rsg->flags & WIREFRAMELIGHTING ) {
+        rsg->flags = (rsg->flags & ~WIREFRAMELIGHTING);
     } else {
-        rsg->flags = (rsg->flags | OUTLINELIGHTING);
+        rsg->flags = (rsg->flags | WIREFRAMELIGHTING);
     }
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_outlineThicknessCbk ( G3DUI *gui, float outlineThickness ) {
+void common_g3duirenderedit_wireframeThicknessCbk ( G3DUI *gui, float wireframeThickness ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->outlineThickness = outlineThickness;
+    rsg->wireframeThickness = wireframeThickness;
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_outlineColorCbk ( G3DUI *gui, unsigned char R, 
-                                                          unsigned char G, 
-                                                          unsigned char B ) {
+void common_g3duirenderedit_wireframeColorCbk ( G3DUI *gui, unsigned char R, 
+                                                            unsigned char G, 
+                                                            unsigned char B ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->outlineColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+    rsg->wireframeColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 }
 
 /******************************************************************************/

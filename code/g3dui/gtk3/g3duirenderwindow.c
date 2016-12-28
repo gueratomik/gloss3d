@@ -174,7 +174,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             if ( rsg->flags & VECTORMOTIONBLUR ) {
                 blur = r3dfilter_VectorMotionBlur_new ( rsg->width, 
                                                         rsg->height,
-                                                        rsg->mblurStrength / 100 );
+                                                        ( float ) rsg->mblurStrength / 100 );
 
             }
 
@@ -251,7 +251,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
             list_append ( &lfilters, tofrm );
 
-            /*** force starting at the first frame **/
+            /*** force starting at the first frame. **/
+            /*** -1 is because the gotoframe filter will add 1 further. ***/
+            /*** this should probably be changed ***/
             tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );
 
             rps = common_g3dui_render ( gui, ( uint64_t ) widget,

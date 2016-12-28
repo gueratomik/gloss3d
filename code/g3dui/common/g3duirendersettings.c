@@ -109,7 +109,7 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
         return NULL;
     }
 
-    rsg->flags       = VECTORMOTIONBLUR | OUTLINELIGHTING;
+    rsg->flags       = VECTORMOTIONBLUR;
     rsg->fps         = 0x18;
     rsg->depth       = 0x18;
     rsg->startframe  = 0x00;
@@ -123,8 +123,8 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
     rsg->mblur       = 5;
     rsg->mblurStrength = 75;
 
-    rsg->outlineThickness = 1.0f;
-    rsg->outlineColor     = 0x00FF7F00;
+    rsg->wireframeThickness = 1.0f;
+    rsg->wireframeColor     = 0x00D3D3D3; /* light gray */
 
     g3duirendersettings_getFfmpegPath ( rsg );
     g3duirendersettings_getFfplayPath ( rsg );

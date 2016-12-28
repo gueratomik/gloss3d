@@ -49,15 +49,6 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
     G3DCAMERA *cam = gui->curcam;
     G3DSCENE *sce = gui->sce;
-    double *MVX = ((G3DOBJECT*)cam)->iwmatrix,
-            PJX[0x10];
-
-    glMatrixMode ( GL_PROJECTION );
-    glLoadIdentity ( );
-    gluPerspective ( cam->focal, (height) ? (float)width / height : 0, cam->znear, 
-                                                                       cam->zfar );
-    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
-    glMatrixMode ( GL_MODELVIEW );
 
     /*** Don't start a new render before the current one has finished ***/
     /*if ( rpc == NULL ) {*/
@@ -75,16 +66,16 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        rsce = r3dscene_new ( sce, cam, MVX, PJX, x1, y1,
+        rsce = r3dscene_new ( sce, cam, x1, y1,
                                         x2, y2,
                                         width, height,
                                         rsg->background,
                                         rsg->startframe,
                                         rsg->endframe,
-                                        rsg->flags & RENDEROUTLINE,
-                                        rsg->flags & OUTLINELIGHTING,
-                                        rsg->outlineColor,
-                                        rsg->outlineThickness,
+                                        rsg->flags & RENDERWIREFRAME,
+                                        rsg->flags & WIREFRAMELIGHTING,
+                                        rsg->wireframeColor,
+                                        rsg->wireframeThickness,
                                         lfilters );
 
         /*** launch rays in a thread ***/

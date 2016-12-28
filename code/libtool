@@ -269,7 +269,7 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/usr/lib/gcc/x86_64-unknown-linux-gnu/4.9.1 /usr/lib64 /lib64 /usr/x86_64-unknown-linux-gnu/lib "
+sys_lib_search_path_spec="/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.0 /usr/lib64 /lib64 "
 
 # Run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib /lib /usr/lib64 /usr/lib /usr/local/lib /opt/lib /usr/lib/X11 /usr/lib/firefox-10.0.1 /usr/lib/firefox-10.0.1/plugins /usr/local/maven-3.0.5/lib /root/CODE/C/Motif/current "
@@ -289,7 +289,7 @@ striplib="strip --strip-unneeded"
 
 
 # The linker used to build libraries.
-LD="/usr/x86_64-unknown-linux-gnu/bin/ld -m elf_x86_64"
+LD="/usr/bin/ld -m elf_x86_64"
 
 # How to create reloadable object files.
 reload_flag=" -r"

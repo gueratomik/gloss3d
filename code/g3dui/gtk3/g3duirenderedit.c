@@ -217,13 +217,13 @@ static void backgroundCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void outlineColorCbk ( GtkWidget *widget, gpointer user_data ) {
+static void wireframeColorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     GdkRGBA color;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
 
-    common_g3duirenderedit_outlineColorCbk ( gui, ( color.red   * 255 ), 
+    common_g3duirenderedit_wireframeColorCbk ( gui, ( color.red   * 255 ), 
                                                   ( color.green * 255 ),
                                                   ( color.blue  * 255 ) );
 }
@@ -266,33 +266,6 @@ void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-}
-
-/******************************************************************************/
-static void setOutlineCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duirenderedit_setOutlineCbk ( gui );
-
-    updateOutlineForm ( gtk_widget_get_parent ( widget ), gui );
-}
-
-/******************************************************************************/
-static void setOutlineLightingCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duirenderedit_setOutlineLightingCbk ( gui );
-
-    updateOutlineForm ( gtk_widget_get_parent ( widget ), gui );
-}
-
-/******************************************************************************/
-static void outlineThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    float thickness = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    GtkWidget *parent = gtk_widget_get_parent ( widget );
-
-    common_g3duirenderedit_outlineThicknessCbk ( gui, thickness );
 }
 
 /******************************************************************************/
@@ -555,7 +528,7 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-void updateOutlineForm ( GtkWidget *widget, G3DUI *gui ) {
+static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
@@ -568,22 +541,22 @@ void updateOutlineForm ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_CHECK_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
-                if ( strcmp ( child_name, EDITRENDEROUTLINE ) == 0x00 ) {
-                    if ( rsg->flags & RENDEROUTLINE ) {
+                if ( strcmp ( child_name, EDITRENDERWIREFRAME ) == 0x00 ) {
+                    if ( rsg->flags & RENDERWIREFRAME ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
                     }
                 }
 
-                if ( strcmp ( child_name, EDITRENDEROUTLINELIGHTING ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                if ( strcmp ( child_name, EDITRENDERWIREFRAMELIGHTING ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERWIREFRAME ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
                     } else {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    if ( rsg->flags & OUTLINELIGHTING ) {
+                    if ( rsg->flags & WIREFRAMELIGHTING ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -594,30 +567,30 @@ void updateOutlineForm ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_SPIN_BUTTON(child) ) {
                 GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
-                if ( strcmp ( child_name, EDITRENDEROUTLINETHICKNESS ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                if ( strcmp ( child_name, EDITRENDERWIREFRAMETHICKNESS ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERWIREFRAME ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
                     } else {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    gtk_spin_button_set_value ( sbn, rsg->outlineThickness );
+                    gtk_spin_button_set_value ( sbn, rsg->wireframeThickness );
                 }
             }
 
             if ( GTK_IS_COLOR_BUTTON(child) ) {
                 GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
 
-                if ( ( rsg->flags & RENDEROUTLINE ) ) {
+                if ( ( rsg->flags & RENDERWIREFRAME ) ) {
                     gtk_widget_set_sensitive ( child, TRUE );
                 } else {
                     gtk_widget_set_sensitive ( child, FALSE );
                 }
 
-                if ( strcmp ( child_name, EDITRENDEROUTLINECOLOR ) == 0x00 ) {
-                    unsigned char R = ( rsg->outlineColor & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->outlineColor & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->outlineColor & 0x000000FF );
+                if ( strcmp ( child_name, EDITRENDERWIREFRAMECOLOR ) == 0x00 ) {
+                    unsigned char R = ( rsg->wireframeColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( rsg->wireframeColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( rsg->wireframeColor & 0x000000FF );
                     GdkRGBA rgba = { .red   = ( float ) R / 255,
                                      .green = ( float ) G / 255,
                                      .blue  = ( float ) B / 255,
@@ -633,14 +606,41 @@ void updateOutlineForm ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void updateOutlineFrame ( GtkWidget *widget, G3DUI *gui ) {
+static void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
-    if ( frm ) updateOutlineForm ( frm, gui );
+    if ( frm ) updateWireframeForm ( frm, gui );
 }
 
 /******************************************************************************/
-static GtkWidget *createOutlineForm ( GtkWidget *parent, G3DUI *gui,
+static void setWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setWireframeCbk ( gui );
+
+    updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void setWireframeLightingCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setWireframeLightingCbk ( gui );
+
+    updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void wireframeThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float thickness = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_wireframeThicknessCbk ( gui, thickness );
+}
+
+/******************************************************************************/
+static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
                                                          char *name,
                                                          gint x,
                                                          gint y,
@@ -651,24 +651,24 @@ static GtkWidget *createOutlineForm ( GtkWidget *parent, G3DUI *gui,
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
           createToggleLabel ( frm, gui,
-                                   EDITRENDEROUTLINE,
+                                   EDITRENDERWIREFRAME,
                                      0,  0, 96, 18,
-                                   setOutlineCbk );
+                                   setWireframeCbk );
 
           createToggleLabel ( frm, gui,
-                                   EDITRENDEROUTLINELIGHTING,
+                                   EDITRENDERWIREFRAMELIGHTING,
                                      0, 24, 96, 18,
-                                   setOutlineLightingCbk );
+                                   setWireframeLightingCbk );
 
-          createFloatText ( frm, gui, EDITRENDEROUTLINETHICKNESS,
+          createFloatText ( frm, gui, EDITRENDERWIREFRAMETHICKNESS,
                                      0, 48, 96,  48,
-                                   outlineThicknessCbk );
+                                   wireframeThicknessCbk );
 
-          createSimpleLabel ( frm, gui, EDITRENDEROUTLINECOLOR,
+          createSimpleLabel ( frm, gui, EDITRENDERWIREFRAMECOLOR,
                                      0, 72, 96, 20 );
 
-          createColorButton ( frm, gui, EDITRENDEROUTLINECOLOR,
-                                     96, 72, 96, 18, outlineColorCbk );
+          createColorButton ( frm, gui, EDITRENDERWIREFRAMECOLOR,
+                                     96, 72, 96, 18, wireframeColorCbk );
 
 
     return frm;
@@ -693,8 +693,8 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                 updateSaveOutputFrame ( child, gui );
             }
 
-            if ( strcmp ( child_name, EDITRENDEROUTLINEFRAME ) == 0x00 ) {
-                updateOutlineFrame ( child, gui );
+            if ( strcmp ( child_name, EDITRENDERWIREFRAMEFRAME ) == 0x00 ) {
+                updateWireframeFrame ( child, gui );
             }
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
@@ -819,7 +819,7 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
     createMotionBlurForm ( frm, gui, EDITRENDERMOTIONBLURFRAME,
                                0, 264, 256,  96 );
 
-    createOutlineForm ( frm, gui, EDITRENDEROUTLINEFRAME,
+    createWireframeForm ( frm, gui, EDITRENDERWIREFRAMEFRAME,
                                0, 360, 256,  96 );
 
     createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,

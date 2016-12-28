@@ -73,7 +73,7 @@ static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
+static void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
     if ( frm ) updateWireframeForm ( frm, gui );

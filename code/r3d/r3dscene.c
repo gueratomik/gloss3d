@@ -272,7 +272,7 @@ void *r3dscene_raytrace ( void *ptr ) {
     uint32_t width  = ( area->x2 - area->x1 ) + 0x01;
     uint32_t height = ( area->y2 - area->y1 ) + 0x01;
     uint32_t bytesperline = ( width * 0x03 );
-    uint32_t outlineFlag = ( rsce->outline ) ? RAYQUERYOUTLINE : 0x00;
+    uint32_t outlineFlag = ( rsce->wireframe ) ? RAYQUERYOUTLINE : 0x00;
     int i;
 
     /*** return immediately when canceled ***/
@@ -383,8 +383,6 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 /******************************************************************************/
 R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          G3DCAMERA *cam,
-                         double    *MVX,
-                         double    *PJX,
                          uint32_t   x1, 
                          uint32_t   y1,
                          uint32_t   x2,
@@ -395,9 +393,9 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,
-                         uint32_t   outlineLighting,
-                         uint32_t   outlineColor,
-                         float      outlineThickness,
+                         uint32_t   wireframeLighting,
+                         uint32_t   wireframeColor,
+                         float      wireframeThickness,
                          LIST      *lfilters ) {
     uint32_t structsize = sizeof ( R3DSCENE );
     uint32_t bytesperline = ( width * 0x03 );
@@ -435,9 +433,10 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     rsce->background = background;
 
     /*** viewing camera ***/
-    rsce->area.rcam = r3dcamera_new ( cam, MVX, PJX, width, height );
+    rsce->area.rcam = r3dcamera_new ( cam, width, height );
 
     rsce->startframe = startframe;
+    rsce->curframe   = startframe;
     rsce->endframe   = endframe;
 
     /*** render square area ***/
@@ -452,10 +451,10 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     /*** first scan line ***/
     rsce->area.scanline = y1;
 
-    rsce->outline          = outline;
-    rsce->outlineLighting  = outlineLighting;
-    rsce->outlineColor     = outlineColor;
-    rsce->outlineThickness = outlineThickness;
+    rsce->wireframe          = outline;
+    rsce->wireframeLighting  = wireframeLighting;
+    rsce->wireframeColor     = wireframeColor;
+    rsce->wireframeThickness = wireframeThickness;
 
     rsce->running = 0x01;
 
@@ -506,17 +505,20 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            nextrsce = r3dscene_new ( sce, cam, rsce->area.rcam->MVX,
-                                           rsce->area.rcam->PJX,
-                                           x1, y1,
-                                           x2, y2,
-                                           width, height, 
+            nextrsce = r3dscene_new ( sce, cam, 
+                                           x1,
+                                           y1,
+                                           x2,
+                                           y2,
+                                           width,
+                                           height, 
                                            background,
-                                           startframe, endframe,
-                                           rsce->outline,
-                                           rsce->outlineLighting,
-                                           rsce->outlineColor,
-                                           rsce->outlineThickness,
+                                           startframe,
+                                           endframe,
+                                           rsce->wireframe,
+                                           rsce->wireframeLighting,
+                                           rsce->wireframeColor,
+                                           rsce->wireframeThickness,
                                            lfilters );
 
             nextrsce->curframe = i;

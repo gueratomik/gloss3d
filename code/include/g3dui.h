@@ -198,11 +198,11 @@
 #define EDITRENDERRUN              "Run render"
 #define EDITRENDERSAVEOUTPUTFRAME  "Output"
 #define EDITRENDERSAVE             "Save result"
-#define EDITRENDEROUTLINEFRAME     "Outline Settings"
-#define EDITRENDEROUTLINE          "Outline"
-#define EDITRENDEROUTLINELIGHTING  "Outline Lighting"
-#define EDITRENDEROUTLINETHICKNESS "Thickness"
-#define EDITRENDEROUTLINECOLOR     "Color"
+#define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
+#define EDITRENDERWIREFRAME          "Wireframe"
+#define EDITRENDERWIREFRAMELIGHTING  "Wireframe Lighting"
+#define EDITRENDERWIREFRAMETHICKNESS "Thickness"
+#define EDITRENDERWIREFRAMECOLOR     "Color"
 
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
@@ -489,8 +489,8 @@ typedef struct _G3DUICONF {
 #define ENABLEMOTIONBLUR ( 1 << 2 )
 #define SCENEMOTIONBLUR  ( 1 << 3 )
 #define VECTORMOTIONBLUR ( 1 << 4 )
-#define RENDEROUTLINE    ( 1 << 5 )
-#define OUTLINELIGHTING  ( 1 << 6 )
+#define RENDERWIREFRAME    ( 1 << 5 )
+#define WIREFRAMELIGHTING  ( 1 << 6 )
 
 typedef struct _G3DUIRENDERSETTINGS {
     uint32_t background;
@@ -498,8 +498,8 @@ typedef struct _G3DUIRENDERSETTINGS {
     uint32_t fps; /*** frame per second ***/
     uint32_t depth;
     uint32_t mblur; /*** motion blur iterations ***/
-    int32_t  startframe;
-    int32_t  endframe;
+    float    startframe;
+    float    endframe;
     char    *outfile;
     uint32_t format;
     uint32_t width, height;
@@ -509,8 +509,8 @@ typedef struct _G3DUIRENDERSETTINGS {
     LIST    *lfilter;
     int      pipefd[0x02];
     uint32_t mblurStrength;
-    uint32_t outlineColor;
-    float    outlineThickness;
+    uint32_t wireframeColor;
+    float    wireframeThickness;
 } G3DUIRENDERSETTINGS;
 
 /****************************** g3duirendersettings.c *************************/
@@ -1143,5 +1143,7 @@ G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * )
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
 
 void common_g3duiwireframeedit_thicknessCbk ( G3DUI *, float );
-
+void common_g3duirenderedit_wireframeColorCbk ( G3DUI *, unsigned char, 
+                                                         unsigned char, 
+                                                         unsigned char );
 #endif

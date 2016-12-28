@@ -35,11 +35,17 @@ int32_t g2dvector_scalar ( G2DVECTOR *v0, G2DVECTOR *v1 ) {
 }
 
 /******************************************************************************/
-void g2dvector_cross ( G2DVECTOR *vone, G2DVECTOR *vtwo, G3DVECTOR *vout ) {
-    vout->x = 0.0f;
-    vout->y = 0.0f;
-    vout->z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
-    vout->w = 1.0f;
+int32_t g2dvector_cross ( G2DVECTOR *vone, G2DVECTOR *vtwo, G3DVECTOR *vout ) {
+    int32_t z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
+
+    if ( vout ) {
+        vout->x = 0.0f;
+        vout->y = 0.0f;
+        vout->z = ( float ) z;
+        vout->w = 1.0f;
+    }
+
+    return z;
 }
 
 /******************************************************************************/
@@ -55,10 +61,10 @@ void g2dvector_init ( G2DVECTOR *vec, int32_t x, int32_t y ) {
 }
 
 /******************************************************************************/
-float g2dvector_length ( G2DVECTOR *vec ) {
+uint32_t g2dvector_length ( G2DVECTOR *vec ) {
     float len = sqrt ( ( vec->x * vec->x ) +
                        ( vec->y * vec->y ) );
-    return len;
+    return ( uint32_t ) len;
 }
 
 /******************************************************************************/

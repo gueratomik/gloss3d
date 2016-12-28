@@ -438,17 +438,20 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         nextframe += difstep;
 
         /*** Prepare the scene ***/
-        blurrsce = r3dscene_new ( sce, cam, rsce->area.rcam->MVX,
-                                       rsce->area.rcam->PJX,
-                                       x1, y1,
-                                       x2, y2,
-                                       width, height, 
+        blurrsce = r3dscene_new ( sce, cam,
+                                       x1,
+                                       y1,
+                                       x2,
+                                       y2,
+                                       width,
+                                       height, 
                                        background,
-                                       startframe, endframe,
-                                       rsce->outline,
-                                       rsce->outlineLighting,
-                                       rsce->outlineColor,
-                                       rsce->outlineThickness,
+                                       startframe,
+                                       endframe,
+                                       rsce->wireframe,
+                                       rsce->wireframeLighting,
+                                       rsce->wireframeColor,
+                                       rsce->wireframeThickness,
                                        lkeepfilters );
 
         /*** register this child renderscene in case we need to cancel it ***/
