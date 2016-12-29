@@ -111,6 +111,7 @@
 #define RFACEFROMTRIANGLE ( 1 << 3 )
 #define RFACEFROMQUAD     ( 1 << 4 )
 #define RFACEMIRRORED     ( 1 << 5 )
+#define RFACEHITATSTART   ( 1 << 6 )
 
 #define RAYQUERYHIT             ( 1      )
 #define RAYQUERYLIGHTING        ( 1 << 1 ) /*** create a shadow vector?     ***/
@@ -537,11 +538,13 @@ typedef struct _R3DMOTIONHLINE {
 typedef struct _R3DMOTIONBLUR {
     uint32_t        *div; /* divider for averaging */
     unsigned char  (*curimg)[0x03];
+    unsigned char  (*cpyimg)[0x03];
     uint32_t       (*blur)[0x03];
     R3DMOTIONHLINE  *hlines;
     double          *z; /* zBuffer */
     uint32_t         width;
     uint32_t         height;
+    uint32_t         background;
     float            strength;
     LIST            *lMotionMesh;
 } R3DMOTIONBLUR;
@@ -950,11 +953,5 @@ void r3draw_to_jpg ( char *, uint32_t, uint32_t, uint32_t, char * );
 
 
 /******************************************************************************/
-R3DMOTIONBLUR *r3dmotionblur_new ( uint32_t, uint32_t, float );
-void r3dmotionblur_drawInterpolatedFrame ( R3DMOTIONBLUR *, 
-                                           uint32_t ,
-                                           uint32_t  );
-void r3dmotionblur_clearZBuffer ( R3DMOTIONBLUR * );
-void r3dmotionblur_blurify ( R3DMOTIONBLUR *, unsigned char (*)[0x03] );
 
 #endif

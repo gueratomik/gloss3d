@@ -663,7 +663,11 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             uint32_t nbmap = ( rms ) ? rms->nbmap : 0x00;
 
-            if ( query_flags & RAYSTART ) rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
+            if ( query_flags & RAYSTART ) {
+                hitrfc->flags |= RFACEHITATSTART;
+
+                rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
+            }
 
             r3dray_getHitFaceColor ( ray, rms,
                                           hitrfc,
