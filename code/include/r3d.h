@@ -505,21 +505,24 @@ typedef struct _R3DDUMP {
 } R3DDUMP;
 
 /******************************************************************************/
-
 typedef struct _R3DMOTIONVECTOR {
-    double  x, y, z;
+    int32_t  x;
+    int32_t  y;
+    double   z;
     float   ratio0,
-            ratio1, 
+            ratio1,
             ratio2;
-    int32_t dstx, dsty;
-    float   dstz;
-    int32_t srcx, srcy;
-    float   srcz;
 } R3DMOTIONVECTOR, R3DMOTIONPOINT, R3DMOTIONTRACKPOINT;
+
+/******************************************************************************/
+typedef struct _R3DMOTIONFACE {
+    uint32_t nbDraw; /*** store the count of drawing for that face ***/
+} R3DMOTIONFACE;
 
 /******************************************************************************/
 typedef struct _R3DMOTIONMESH {
     R3DMESH         *rms;
+    R3DMOTIONFACE   *mfac;
     R3DMOTIONPOINT **geometry; /*** geometry sample array ***/
     uint32_t         nbGeometry;
 } R3DMOTIONMESH;
@@ -536,12 +539,12 @@ typedef struct _R3DMOTIONHLINE {
 
 /******************************************************************************/
 typedef struct _R3DMOTIONBLUR {
-    uint32_t        *div; /* divider for averaging */
     unsigned char  (*curimg)[0x03];
-    unsigned char  (*cpyimg)[0x03];
     uint32_t       (*blur)[0x03];
+    uint32_t       (*div);
     R3DMOTIONHLINE  *hlines;
-    double          *z; /* zBuffer */
+    double          *zBuffer; /* zBuffer */
+    R3DMOTIONFACE  **faceBuffer;
     uint32_t         width;
     uint32_t         height;
     uint32_t         background;
