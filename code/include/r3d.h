@@ -550,6 +550,7 @@ typedef struct _R3DMOTIONBLUR {
     unsigned char  (*curimg)[0x03];
     uint32_t       (*blur)[0x03];
     uint32_t       (*div); /* number of motion drawing for each pixel */
+    float          *zBuffer;
     R3DMOTIONHLINE  *hlines;
     R3DMOTIONFACE  **faceBuffer;
     /*double          *zBuffer;*/ /* zBuffer */
