@@ -166,6 +166,26 @@ void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, float strength )
 }
 
 /******************************************************************************/
+void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *gui, 
+                                                         uint32_t nbSamples ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->vMotionBlurSamples = nbSamples;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *gui, 
+                                                                 float subSamplingRate ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->vMotionBlurSubSamplingRate = subSamplingRate;
+}
+
+/******************************************************************************/
 void common_g3duirenderedit_fpsCbk ( G3DUI *gui, uint32_t fps ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 

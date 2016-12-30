@@ -174,7 +174,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             if ( rsg->flags & VECTORMOTIONBLUR ) {
                 blur = r3dfilter_VectorMotionBlur_new ( rsg->width, 
                                                         rsg->height,
-                                                        ( float ) rsg->mblurStrength / 100 );
+                                                        ( float ) rsg->mblurStrength / 100,
+                                                        rsg->vMotionBlurSamples,
+                                                        rsg->vMotionBlurSubSamplingRate );
 
             }
 

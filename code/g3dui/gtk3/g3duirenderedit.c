@@ -309,6 +309,24 @@ static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void vectorMotionBlurSamplesCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    uint32_t samples = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_vectorMotionBlurSamplesCbk ( gui, samples );
+}
+
+/******************************************************************************/
+static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float rate = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( gui, rate / 100.0f );
+}
+
+/******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
@@ -473,6 +491,26 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
 
                     gtk_spin_button_set_value ( sbn, rsg->mblurStrength );
                 }
+
+                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSAMPLES ) == 0x00 ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->vMotionBlurSamples );
+                }
+
+                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE ) == 0x00 ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->vMotionBlurSubSamplingRate * 100 );
+                }
             }
         }
 
@@ -513,14 +551,22 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
                                      0,  24, 96, 18,
                                    vectorMotionBlurCbk );
 
+          createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSAMPLES,
+                                    160, 24, 96,  32,
+                                   vectorMotionBlurSamplesCbk );
+
+          createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE,
+                                    160, 48, 96,  32,
+                                   vectorMotionBlurSubSamplingRateCbk );
+
           createRadioLabel ( frm, gui,
                                    EDITRENDERSCENEMOTIONBLUR,
                                    btn,
-                                     0, 48, 96, 18,
+                                     0, 72, 96, 18,
                                    sceneMotionBlurCbk );
 
           createIntegerText ( frm, gui, EDITRENDERSCENEMOTIONBLURITERATION,
-                                    160, 48, 96,  32,
+                                    160, 72, 96,  32,
                                    sceneMotionBlurIterationCbk );
 
 
@@ -820,16 +866,16 @@ GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
                                0, 264, 256,  96 );
 
     createWireframeForm ( frm, gui, EDITRENDERWIREFRAMEFRAME,
-                               0, 360, 256,  96 );
+                               0, 384, 256,  96 );
 
     createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,
-                               0, 480, 96, 20 );
+                               0, 504, 96, 20 );
 
     createColorButton ( frm, gui, EDITRENDERBACKGROUND,
-                              96, 480, 96, 18, backgroundCbk );
+                              96, 504, 96, 18, backgroundCbk );
 
     createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 512, 48, 20, g3dui_runRenderCbk );
+                              96, 536, 48, 20, g3dui_runRenderCbk );
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
     g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), gui );

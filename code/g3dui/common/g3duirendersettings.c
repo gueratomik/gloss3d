@@ -124,7 +124,10 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
     rsg->mblurStrength = 75;
 
     rsg->wireframeThickness = 1.0f;
-    rsg->wireframeColor     = 0x00D3D3D3; /* light gray */
+    rsg->wireframeColor     = 0x00FF7F00; /* light gray */
+
+    rsg->vMotionBlurSamples = 0x01;
+    rsg->vMotionBlurSubSamplingRate = 1.0f;
 
     g3duirendersettings_getFfmpegPath ( rsg );
     g3duirendersettings_getFfplayPath ( rsg );

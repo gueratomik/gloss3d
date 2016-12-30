@@ -188,7 +188,9 @@
 #define EDITRENDERHEIGHT           "Render height"
 #define EDITRENDERRATIO            "Aspect ratio"
 #define EDITRENDERMOTIONBLURFRAME  "Motion Blur Settings"
-#define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur (faster but less precise)"
+#define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur"
+#define EDITRENDERVECTORMOTIONBLURSAMPLES "Samples"
+#define EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE "Sub-Sampling %"
 #define EDITRENDERMOTIONBLURSTRENGTH "Strength"
 #define EDITRENDERSCENEMOTIONBLUR  "Scene Motion Blur"
 #define EDITRENDERSCENEMOTIONBLURITERATION "Iterations:"
@@ -511,6 +513,8 @@ typedef struct _G3DUIRENDERSETTINGS {
     uint32_t mblurStrength;
     uint32_t wireframeColor;
     float    wireframeThickness;
+    uint32_t vMotionBlurSamples;
+    float    vMotionBlurSubSamplingRate;
 } G3DUIRENDERSETTINGS;
 
 /****************************** g3duirendersettings.c *************************/
@@ -1146,4 +1150,9 @@ void common_g3duiwireframeedit_thicknessCbk ( G3DUI *, float );
 void common_g3duirenderedit_wireframeColorCbk ( G3DUI *, unsigned char, 
                                                          unsigned char, 
                                                          unsigned char );
+
+void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *, 
+                                                         uint32_t );
+void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *, 
+                                                                 float );
 #endif

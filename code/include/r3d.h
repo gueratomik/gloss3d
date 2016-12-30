@@ -541,13 +541,14 @@ typedef struct _R3DMOTIONHLINE {
 typedef struct _R3DMOTIONBLUR {
     unsigned char  (*curimg)[0x03];
     uint32_t       (*blur)[0x03];
-    uint32_t       (*div);
+    uint32_t       (*div); /* number of motion drawing for each pixel */
     R3DMOTIONHLINE  *hlines;
-    double          *zBuffer; /* zBuffer */
     R3DMOTIONFACE  **faceBuffer;
+    /*double          *zBuffer;*/ /* zBuffer */
     uint32_t         width;
     uint32_t         height;
-    uint32_t         background;
+    uint32_t         nbSamples;
+    float            subSamplingRate; /* % of interpolations btwn 2 samples */
     float            strength;
     LIST            *lMotionMesh;
 } R3DMOTIONBLUR;
@@ -941,7 +942,20 @@ uint32_t          filterwriteimage_draw ( R3DFILTER *, R3DSCENE *,
 R3DFILTER        *r3dfilter_writeImage_new ( const char *, uint32_t );
 
 /******************************************************************************/
-R3DFILTER *r3dfilter_VectorMotionBlur_new ( uint32_t, uint32_t, float );
+R3DFILTER *r3dfilter_VectorMotionBlur_new ( uint32_t,
+                                            uint32_t,
+                                            float,
+                                            uint32_t,
+                                            float );
+void       filtervectormotionblur_free    ( R3DFILTER * );
+uint32_t   filtervectormotionblur_draw    ( R3DFILTER *,
+                                            R3DSCENE *,
+                                            float,
+                                            unsigned char (*)[0x03], 
+                                            uint32_t, 
+                                            uint32_t, 
+                                            uint32_t, 
+                                            uint32_t );
 
 /******************************************************************************/
 void r3dscene_addSubRender ( R3DSCENE *, R3DSCENE * );
@@ -956,5 +970,54 @@ void r3draw_to_jpg ( char *, uint32_t, uint32_t, uint32_t, char * );
 
 
 /******************************************************************************/
+void           r3dmotionblur_drawInterpolatedFrame    ( R3DMOTIONBLUR *, 
+                                                        uint32_t,
+                                                        uint32_t );
+void           r3dmotionblur_traceMesh                ( R3DMOTIONBLUR *,
+                                                        R3DMOTIONMESH *,
+                                                        uint32_t,
+                                                        uint32_t );
+void           r3dmotionblur_interpolateTriangles     ( R3DMOTIONBLUR *, 
+                                                        R3DMOTIONFACE *,
+                                                        R3DMOTIONPOINT *[0x03], 
+                                                        R3DMOTIONPOINT *[0x03],
+                                                        R3DMOTIONPOINT *[0x03] );
+void           r3dmotionblur_drawInterpolatedTriangle ( R3DMOTIONBLUR *, 
+                                                        R3DMOTIONFACE *,
+                                                        R3DMOTIONPOINT *[0x03],
+                                                        R3DMOTIONPOINT *[0x03] );
+void           r3dmotionblur_initMotionMeshes         ( R3DMOTIONBLUR  *,
+                                                        R3DSCENE *,
+                                                        uint32_t );
+
+void           r3dmotionblur_fillMotionMeshes         ( R3DMOTIONBLUR *,
+                                                        R3DSCENE *,
+                                                        uint32_t );
+R3DMOTIONMESH *r3dmotionblur_getMotionMesh            ( R3DMOTIONBLUR *, 
+                                                        R3DMESH * );
+R3DMOTIONMESH *r3dmotionmesh_new                      ( R3DMESH *,
+                                                        uint32_t );
+void           r3dmotionmesh_init                     ( R3DMOTIONMESH *,
+                                                        R3DMESH *, 
+                                                        uint32_t );
+void           r3dmotionblur_free                     ( R3DMOTIONBLUR * );
+void           r3dmotionmesh_free                     ( R3DMOTIONMESH * );
+void           r3dmotionmesh_fillGeometry             ( R3DMOTIONMESH *,
+                                                        R3DMESH *,
+                                                        uint32_t  );
+void           r3dmotionblur_blurify                  ( R3DMOTIONBLUR *,
+                                                        unsigned char (*)[0x03] );
+uint32_t       r3dmotionblur_interpolateHLine         ( R3DMOTIONBLUR *,
+                                                        int32_t y,
+                                                        R3DMOTIONFACE *,
+                                                        R3DMOTIONPOINT *[0x03] );
+void           r3dmotionblur_fillHLineBuffer          ( R3DMOTIONBLUR *,
+                                                        R3DMOTIONPOINT *,
+                                                        R3DMOTIONPOINT * );
+R3DMOTIONBLUR *r3dmotionblur_new                      ( uint32_t,
+                                                        uint32_t, 
+                                                        float,
+                                                        uint32_t,
+                                                        float );
 
 #endif
