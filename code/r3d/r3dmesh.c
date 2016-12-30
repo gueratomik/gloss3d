@@ -75,6 +75,7 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
 
     rms->curfac = rms->rfac;
 
+#ifdef VERBOSE
     printf ( "r3dvertex count: %lu\n", nbrver);
     printf ( "r3dface   count: %lu\n", nbrfac);
     printf ( "r3duvset  count: %lu\n", nbruvs);
@@ -88,6 +89,7 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
     } else {
         printf ( "R3DMESH memory: %.2f GBytes\n", ( float ) memsize / 1073741824 );
     }
+#endif
 
     if ( rms->rfac == NULL ) {
         fprintf ( stderr, "r3dmesh_allocFaces: memory allocation failed\n" );

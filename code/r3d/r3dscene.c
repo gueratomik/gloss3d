@@ -149,8 +149,9 @@ void r3dscene_free ( R3DOBJECT *rob ) {
     free ( rsce->area.rfc );
 
     r3dcamera_free ( rsce->area.rcam );
-
+#ifdef VERBOSE
     printf ("R3DSCENE Freed\n" );
+#endif
 }
 
 /******************************************************************************/
@@ -621,6 +622,7 @@ void r3dscene_render ( R3DSCENE *rsce ) {
                                  rsce->area.width );
 
     t = clock() - t;
-
+#ifdef VERBOSE
     printf ("Render took %f seconds.\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );
+#endif
 }

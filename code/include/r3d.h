@@ -512,7 +512,14 @@ typedef struct _R3DMOTIONVECTOR {
     float   ratio0,
             ratio1,
             ratio2;
-} R3DMOTIONVECTOR, R3DMOTIONPOINT, R3DMOTIONTRACKPOINT;
+} R3DMOTIONVECTOR;
+
+/******************************************************************************/
+typedef struct _R3DMOTIONPOINT {
+    int32_t  x;
+    int32_t  y;
+    double   z;
+} R3DMOTIONPOINT;
 
 /******************************************************************************/
 typedef struct _R3DMOTIONFACE {
@@ -522,6 +529,7 @@ typedef struct _R3DMOTIONFACE {
 /******************************************************************************/
 typedef struct _R3DMOTIONMESH {
     R3DMESH         *rms;
+    uint32_t         id;
     R3DMOTIONFACE   *mfac;
     R3DMOTIONPOINT **geometry; /*** geometry sample array ***/
     uint32_t         nbGeometry;
@@ -993,8 +1001,8 @@ void           r3dmotionblur_initMotionMeshes         ( R3DMOTIONBLUR  *,
 void           r3dmotionblur_fillMotionMeshes         ( R3DMOTIONBLUR *,
                                                         R3DSCENE *,
                                                         uint32_t );
-R3DMOTIONMESH *r3dmotionblur_getMotionMesh            ( R3DMOTIONBLUR *, 
-                                                        R3DMESH * );
+R3DMOTIONMESH *r3dmotionblur_getMotionMeshById        ( R3DMOTIONBLUR *, 
+                                                        uint32_t );
 R3DMOTIONMESH *r3dmotionmesh_new                      ( R3DMESH *,
                                                         uint32_t );
 void           r3dmotionmesh_init                     ( R3DMOTIONMESH *,
@@ -1013,11 +1021,14 @@ uint32_t       r3dmotionblur_interpolateHLine         ( R3DMOTIONBLUR *,
                                                         R3DMOTIONPOINT *[0x03] );
 void           r3dmotionblur_fillHLineBuffer          ( R3DMOTIONBLUR *,
                                                         R3DMOTIONPOINT *,
-                                                        R3DMOTIONPOINT * );
+                                                        float *,
+                                                        R3DMOTIONPOINT *,
+                                                        float * );
 R3DMOTIONBLUR *r3dmotionblur_new                      ( uint32_t,
                                                         uint32_t, 
                                                         float,
                                                         uint32_t,
                                                         float );
+void           r3dmotionblur_clear                    ( R3DMOTIONBLUR * );
 
 #endif

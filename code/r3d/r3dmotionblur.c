@@ -40,7 +40,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     R3DMOTIONBLUR *rmb = ( R3DMOTIONBLUR * ) fil->data;
     G3DSCENE *sce = ( G3DSCENE  * ) ((R3DOBJECT*)rsce)->obj;
     G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rsce->area.rcam)->obj;
-    LIST *lfilters = list_copy ( rsce->lfilters );
+    LIST *lfilters = /*list_copy ( rsce->lfilters )*/NULL;
     R3DFILTER *tofrm = r3dfilter_getByName ( rsce->lfilters, 
                                                  GOTOFRAMEFILTERNAME );
     float middleFrame = frameID - ( rmb->strength * 0.5f );
@@ -56,13 +56,20 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     R3DSCENE *middlersce;
     double *MVX, *PJX;
     uint32_t i;
+    R3DFILTER *toWin =  r3dfilter_getByName ( rsce->lfilters, 
+                                                 TOWINDOWFILTERNAME );
+
+    list_insert ( &lfilters, toWin );
 
     /*** dont motion-blurize the first frame ***/
     if ( rsce->curframe == rsce->startframe ) return 0x00;
 
     /*** remove motion blur from the filter list ***/
-    list_remove ( &lfilters, r3dfilter_getByName ( lfilters, fil->name  ) );
+    /*list_remove ( &lfilters, r3dfilter_getByName ( lfilters, fil->name  ) );*/
 
+    /*** remove go_to_frame as well. We keep other filters, like the ones ***/
+    /*** displaying the image to the window widget. ***/
+    /*list_remove ( &lfilters, tofrm );*/
 
     /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
     /*** to substract 1.0f ***/
@@ -91,12 +98,18 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     /** by the above call to r3dscene_new() **/
     r3dmotionblur_initMotionMeshes ( rmb, middlersce, nbSteps + 1 );
 
+    /** clear arrays that are reused between frames ***/
+    r3dmotionblur_clear ( rmb );
+
     /*** register this child renderscene in case we need to cancel it ***/
     r3dscene_addSubRender ( rsce, middlersce );
 
     /*** Render and free the middle frame ***/
     r3dscene_render ( middlersce );
 
+    list_free ( &lfilters, NULL );
+
+    /** retrieve the rendered image ***/
     rmb->curimg = middlersce->area.img;
 
     /*** unregister this child renderscene. No need to cancel it ***/
@@ -114,6 +127,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
             /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
             /*** to substract 1.0f ***/
             if ( tofrm ) {
+printf ("%f %f %f\n", fromFrame, toFrame, currentFrame );
                 tofrm->draw ( tofrm, NULL, currentFrame - 1.0f, NULL, 0x00, 0x00, 
                                                                       0x00, 0x00 );
             }
@@ -154,6 +168,8 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     }
 
     r3dmotionblur_blurify ( rmb, img );
+
+    
 
     /*** Free the current frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) middlersce );
@@ -285,7 +301,9 @@ R3DMOTIONBLUR *r3dmotionblur_new ( uint32_t width,
 /******************************************************************************/
 void r3dmotionblur_fillHLineBuffer ( R3DMOTIONBLUR   *rmb,
                                      R3DMOTIONPOINT  *srcPoint,
-                                     R3DMOTIONPOINT  *dstPoint ) {
+                                     float            srcRatio[0x03],
+                                     R3DMOTIONPOINT  *dstPoint,
+                                     float            dstRatio[0x03] ) {
     int32_t dx  = ( dstPoint->x - srcPoint->x ),
             ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
             dy  = ( dstPoint->y - srcPoint->y ),
@@ -298,12 +316,12 @@ void r3dmotionblur_fillHLineBuffer ( R3DMOTIONBLUR   *rmb,
             y = srcPoint->y;
     double  z = srcPoint->z;
     int i, cumul = 0x00;
-    float ratio0 = srcPoint->ratio0,
-          ratio1 = srcPoint->ratio1,
-          ratio2 = srcPoint->ratio2;
-    float dratio0 = dstPoint->ratio0 - srcPoint->ratio0, pratio0 = ( dratio0 / (dd+1) ),
-          dratio1 = dstPoint->ratio1 - srcPoint->ratio1, pratio1 = ( dratio1 / (dd+1) ),
-          dratio2 = dstPoint->ratio2 - srcPoint->ratio2, pratio2 = ( dratio2 / (dd+1) );
+    float ratio0 = srcRatio[0],
+          ratio1 = srcRatio[1],
+          ratio2 = srcRatio[2];
+    float dratio0 = dstRatio[0] - srcRatio[0], pratio0 = ( dratio0 / (dd+1) ),
+          dratio1 = dstRatio[1] - srcRatio[1], pratio1 = ( dratio1 / (dd+1) ),
+          dratio2 = dstRatio[2] - srcRatio[2], pratio2 = ( dratio2 / (dd+1) );
     int32_t prevy = 0x00, prevx = 0x00;
 
     if ( ddx > ddy ) {
@@ -569,6 +587,28 @@ void r3dmotionblur_free ( R3DMOTIONBLUR *rmb ) {
 }
 
 /******************************************************************************/
+void r3dmotionblur_clear ( R3DMOTIONBLUR *rmb ) {
+    LIST *ltmpmms = rmb->lMotionMesh;
+
+    memset ( rmb->div       , 0x00, rmb->width * 
+                                    rmb->height * sizeof ( uint32_t ) );
+
+    memset ( rmb->blur      , 0x00, rmb->width * 
+                                    rmb->height * sizeof ( uint32_t ) * 0x03 );
+
+    memset ( rmb->faceBuffer, 0x00, rmb->width *
+                                    rmb->height * sizeof ( R3DMOTIONFACE * ) );
+
+    while ( ltmpmms ) {
+        R3DMOTIONMESH *mms = ( R3DMOTIONMESH * ) ltmpmms->data;
+
+        memset ( mms->mfac, 0x00, mms->rms->nbrfac * sizeof ( R3DMOTIONFACE ) );
+
+        ltmpmms = ltmpmms->next;
+    }
+}
+
+/******************************************************************************/
 void r3dmotionmesh_init ( R3DMOTIONMESH *mms, R3DMESH *rms, 
                                               uint32_t nbGeometry ) {
     uint32_t ptrSize = sizeof ( R3DMOTIONPOINT * );
@@ -576,6 +616,7 @@ void r3dmotionmesh_init ( R3DMOTIONMESH *mms, R3DMESH *rms,
 
     mms->nbGeometry = nbGeometry;
     mms->rms        = rms;
+    mms->id         = ((R3DOBJECT*)rms)->id;
 
     mms->geometry = ( R3DMOTIONPOINT ** ) calloc ( nbGeometry, ptrSize );
 
@@ -613,14 +654,14 @@ R3DMOTIONMESH *r3dmotionmesh_new ( R3DMESH *rms, uint32_t nbSteps ) {
 }
 
 /******************************************************************************/
-R3DMOTIONMESH *r3dmotionblur_getMotionMesh ( R3DMOTIONBLUR *rmb, 
-                                             R3DMESH       *rms ) {
+R3DMOTIONMESH *r3dmotionblur_getMotionMeshById ( R3DMOTIONBLUR *rmb, 
+                                                 uint32_t       id ) {
     LIST *ltmpMotionMesh = rmb->lMotionMesh;
 
     while ( ltmpMotionMesh ) {
         R3DMOTIONMESH *mms = ( R3DMOTIONMESH * ) ltmpMotionMesh->data;
 
-        if ( ((R3DOBJECT*)mms->rms)->id == ((R3DOBJECT*)rms)->id ) {
+        if ( mms->id == id ) {
             return mms;
         }
 
@@ -640,7 +681,8 @@ void r3dmotionblur_fillMotionMeshes ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce,
 
         if ( rob->obj->type & MESH ) {
             R3DMESH       *rms = ( R3DMESH * ) rob;
-            R3DMOTIONMESH *mms = r3dmotionblur_getMotionMesh ( rmb, rms );
+            uint32_t       qId = ((R3DOBJECT*)rms)->id;
+            R3DMOTIONMESH *mms = r3dmotionblur_getMotionMeshById ( rmb, qId );
 
             if ( mms ) {
                 r3dmotionmesh_fillGeometry ( mms, rms, stepID );
@@ -660,9 +702,20 @@ void r3dmotionblur_initMotionMeshes ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce,
         R3DOBJECT *rob = ( R3DOBJECT * ) ltmprob->data;
         if ( rob->obj->type == G3DMESHTYPE ) {
             R3DMESH *rms = ( R3DMESH * ) rob;
-            R3DMOTIONMESH *mms = r3dmotionmesh_new ( rms, nbSteps );
+            uint32_t       qId = ((R3DOBJECT*)rms)->id;
+            R3DMOTIONMESH *mms = r3dmotionblur_getMotionMeshById ( rmb, qId );
 
-            list_insert ( &rmb->lMotionMesh, mms );
+            /* For sequence rendering, mesh are created by the first blurred */
+            /* frame and then reused for other frames */
+            if ( mms == NULL ) {
+                mms = r3dmotionmesh_new ( rms, nbSteps );
+
+                list_insert ( &rmb->lMotionMesh, mms );
+            } else {
+                /* update with valid pointer or else it contains the one */
+                /* from the previous frame */
+                mms->rms = rms; 
+            }
         }
 
         ltmprob = ltmprob->next;
@@ -670,22 +723,30 @@ void r3dmotionblur_initMotionMeshes ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce,
 }
 
 /******************************************************************************/
+#define FULLRATIO 0.9f
+#define VOIDRATIO ((1.0f-FULLRATIO)/2.0f)
 void r3dmotionblur_drawInterpolatedTriangle ( R3DMOTIONBLUR  *rmb,
                                               R3DMOTIONFACE  *mfac,
                                               R3DMOTIONPOINT *itrTri[0x03],
                                               R3DMOTIONPOINT *midTri[0x03] ) {
-    uint32_t i;
+    static float ratio[0x03][0x03] = { { 1.0f, 0.0f, 0.0f },
+                                       { 0.0f, 1.0f, 0.0f },
+                                       { 0.0f, 0.0f, 1.0f } };
     uint32_t drawn = 0x00;
+    uint32_t i;
 
     memset ( rmb->hlines, 0x00, sizeof ( R3DMOTIONHLINE ) * rmb->height );
 
     for ( i = 0x00; i < 0x03; i++ ) {
         int n = ( i + 0x01 ) % 0x03;
 
+        /* draw lines in the same X direction */
         if ( itrTri[i]->x < itrTri[n]->x ) {
-            r3dmotionblur_fillHLineBuffer ( rmb, itrTri[i], itrTri[n] );
+            r3dmotionblur_fillHLineBuffer ( rmb, itrTri[i], ratio[i],
+                                                 itrTri[n], ratio[n] );
         } else {
-            r3dmotionblur_fillHLineBuffer ( rmb, itrTri[n], itrTri[i] );
+            r3dmotionblur_fillHLineBuffer ( rmb, itrTri[n], ratio[n],
+                                                 itrTri[i], ratio[i] );
         }
     }
 
@@ -708,8 +769,6 @@ void r3dmotionblur_drawInterpolatedTriangle ( R3DMOTIONBLUR  *rmb,
 }
 
 /******************************************************************************/
-#define FULLRATIO 0.9f
-#define VOIDRATIO ((1.0f-FULLRATIO)/2.0f)
 void r3dmotionblur_interpolateTriangles ( R3DMOTIONBLUR  *rmb, 
                                           R3DMOTIONFACE  *mfac,
                                           R3DMOTIONPOINT *srcTri[0x03], 
@@ -717,22 +776,13 @@ void r3dmotionblur_interpolateTriangles ( R3DMOTIONBLUR  *rmb,
                                           R3DMOTIONPOINT *midTri[0x03] ) {
     R3DMOTIONVECTOR mvec[0x03] = { { .x = dstTri[0x00]->x - srcTri[0x00]->x,
                                      .y = dstTri[0x00]->y - srcTri[0x00]->y,
-                                     .z = dstTri[0x00]->z - srcTri[0x00]->z,
-                                     .ratio0 = FULLRATIO,
-                                     .ratio1 = VOIDRATIO,
-                                     .ratio2 = VOIDRATIO },
+                                     .z = dstTri[0x00]->z - srcTri[0x00]->z },
                                    { .x = dstTri[0x01]->x - srcTri[0x01]->x,
                                      .y = dstTri[0x01]->y - srcTri[0x01]->y,
-                                     .z = dstTri[0x01]->z - srcTri[0x01]->z,
-                                     .ratio0 = VOIDRATIO,
-                                     .ratio1 = FULLRATIO,
-                                     .ratio2 = VOIDRATIO },
+                                     .z = dstTri[0x01]->z - srcTri[0x01]->z },
                                    { .x = dstTri[0x02]->x - srcTri[0x02]->x,
                                      .y = dstTri[0x02]->y - srcTri[0x02]->y,
-                                     .z = dstTri[0x02]->z - srcTri[0x02]->z,
-                                     .ratio0 = VOIDRATIO,
-                                     .ratio1 = VOIDRATIO,
-                                     .ratio2 = FULLRATIO } };
+                                     .z = dstTri[0x02]->z - srcTri[0x02]->z } };
     G2DVECTOR vlen[0x03] = { { .x = mvec[0x00].x,
                                .y = mvec[0x00].y },
                              { .x = mvec[0x01].x,
@@ -742,7 +792,13 @@ void r3dmotionblur_interpolateTriangles ( R3DMOTIONBLUR  *rmb,
     uint32_t len[0x03] = { g2dvector_length ( &vlen[0x00] ), 
                            g2dvector_length ( &vlen[0x01] ),
                            g2dvector_length ( &vlen[0x02] ) };
-    uint32_t maxLen = ( len[0] > len[1] ) ? ( ( len[0] > len[2] ) ? len[0] : len[2] ) : ( ( len[1] > len[2] ) ? len[1] : len[2] );
+    /*** We draw as many triangles as the maximum length between source ***/
+    /*** and destination triangles (if subSamplingRate is 100%). So we ***/
+    /*** first have to get the maximum length and then we compute the ***/
+    /*** number of iterations from this length and subSamplingRate. ***/
+    uint32_t maxLen = ( len[0] > len[1] ) ? 
+                    ( ( len[0] > len[2] ) ? len[0] : len[2] ) :
+                    ( ( len[1] > len[2] ) ? len[1] : len[2] );
     uint32_t iter = maxLen * rmb->subSamplingRate;
 
     if ( maxLen ) {
@@ -750,33 +806,15 @@ void r3dmotionblur_interpolateTriangles ( R3DMOTIONBLUR  *rmb,
 
         for ( i = 0x00; i < iter; i++ ) {
             float pos = ( float ) i / iter;
-            R3DMOTIONPOINT p[0x03] = { { .x = srcTri[0x00]->x + 
-                                              ( mvec[0x00].x * pos ),
-                                         .y = srcTri[0x00]->y + 
-                                              ( mvec[0x00].y * pos ),
-                                         .z = srcTri[0x00]->z + 
-                                              ( mvec[0x00].z * pos ),
-                                         .ratio0 = mvec[0x00].ratio0,
-                                         .ratio1 = mvec[0x00].ratio1,
-                                         .ratio2 = mvec[0x00].ratio2 },
-                                       { .x = srcTri[0x01]->x + 
-                                              ( mvec[0x01].x * pos ),
-                                         .y = srcTri[0x01]->y + 
-                                              ( mvec[0x01].y * pos ),
-                                         .z = srcTri[0x01]->z + 
-                                              ( mvec[0x01].z * pos ),
-                                         .ratio0 = mvec[0x01].ratio0,
-                                         .ratio1 = mvec[0x01].ratio1,
-                                         .ratio2 = mvec[0x01].ratio2 },
-                                       { .x = srcTri[0x02]->x + 
-                                              ( mvec[0x02].x * pos ),
-                                         .y = srcTri[0x02]->y +
-                                              ( mvec[0x02].y * pos ),
-                                         .z = srcTri[0x02]->z + 
-                                              ( mvec[0x02].z * pos ),
-                                         .ratio0 = mvec[0x02].ratio0,
-                                         .ratio1 = mvec[0x02].ratio1,
-                                         .ratio2 = mvec[0x02].ratio2 } };
+            R3DMOTIONPOINT p[3] = { { .x = srcTri[0]->x + (mvec[0].x * pos),
+                                      .y = srcTri[0]->y + (mvec[0].y * pos),
+                                      .z = srcTri[0]->z + (mvec[0].z * pos) },
+                                    { .x = srcTri[1]->x + (mvec[1].x * pos),
+                                      .y = srcTri[1]->y + (mvec[1].y * pos),
+                                      .z = srcTri[1]->z + (mvec[1].z * pos) },
+                                    { .x = srcTri[2]->x + (mvec[2].x * pos),
+                                      .y = srcTri[2]->y + (mvec[2].y * pos),
+                                      .z = srcTri[2]->z + (mvec[2].z * pos) } };
             R3DMOTIONPOINT *itrTri[0x03] = { &p[0x00],
                                              &p[0x01], 
                                              &p[0x02] };
