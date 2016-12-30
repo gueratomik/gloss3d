@@ -526,7 +526,7 @@ uint32_t r3dmotionblur_interpolateHLine ( R3DMOTIONBLUR  *rmb,
         uint32_t offset = ((y)*rmb->width)+x1;
 
         if ( x1 >= 0 && x1 < rmb->width ) {
-            if ( z < ( rmb->zBuffer[offset] ) ) {
+            /*if ( z < ( rmb->zBuffer[offset] ) ) {*/
                 int32_t midTriX = ( ( float ) midTri[0x00]->x * ratio0 ) +
                                   ( ( float ) midTri[0x01]->x * ratio1 ) +
                                   ( ( float ) midTri[0x02]->x * ratio2 );
@@ -542,7 +542,7 @@ uint32_t r3dmotionblur_interpolateHLine ( R3DMOTIONBLUR  *rmb,
                 drawn = 0x01;
 
                 /*if ( rmb->faceBuffer[offset] != mfac ) {
-                    rmb->div[offset] = 0x00;
+                    rmb->div[offset] = 0x01;
                 }*/
 
                 rmb->div[offset]++;
@@ -554,7 +554,7 @@ uint32_t r3dmotionblur_interpolateHLine ( R3DMOTIONBLUR  *rmb,
                 rmb->blur[offset][0x02] += B;
 
                 rmb->zBuffer[offset] = z;
-            }
+            /*}*/
         }
 
         x1 += px;
@@ -606,8 +606,9 @@ void r3dmotionblur_blurify ( R3DMOTIONBLUR *rmb, unsigned char (*img)[0x03] ) {
 
             if ( rmb->div[offset] ) {
             /* at least 1 draw (the original image) */
-                float incFac = ( float ) rmb->div[offset] / mfac->nbDraw,
-                      decFac = 1.0f - incFac;
+                float incFac = ( float ) rmb->div[offset] / mfac->nbDraw;
+if ( incFac > 1.0f ) incFac = 1.0f;
+                float decFac = 1.0f - incFac;
 
 /*printf("nbDraw:%d\n", nbDraw);*/
                 R = ( rmb->blur[offset][0] / ( float ) rmb->div[offset] * incFac ) + ( decFac * rmb->curimg[offset][0] );
