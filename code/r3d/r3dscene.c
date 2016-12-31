@@ -77,12 +77,15 @@ void r3dscene_cancelRender ( R3DSCENE *rsce ) {
 
     r3dscene_cancel ( rsce );
 
-    #ifdef __linux__
-    pthread_join ( rsce->tid, NULL );
-    #endif
-    #ifdef __MINGW32__
-    WaitForSingleObject ( rsce->tid, INFINITE );
-    #endif
+    /*Rendering might not be started form a thread, so we have to handle that*/
+    if ( rsce->threaded ) {
+        #ifdef __linux__
+        pthread_join ( rsce->tid, NULL );
+        #endif
+        #ifdef __MINGW32__
+        WaitForSingleObject ( rsce->tid, INFINITE );
+        #endif
+    }
 
     /*** COMMENTED: this is done by the parent thread, for example ***/
     /*** r3dscene_render_frame_t ***/
@@ -118,6 +121,7 @@ void r3dscene_wait ( R3DSCENE *rsce ) {
         pthread_t tid = ( pthread_t ) ltmp->data;
 
         pthread_join ( tid, NULL );
+
         #endif
 
         #ifdef __MINGW32__
@@ -134,6 +138,8 @@ void r3dscene_wait ( R3DSCENE *rsce ) {
 /******** Wait the end of the render process, ie the end of each thread *******/
 void r3dscene_cancel ( R3DSCENE *rsce ) {
     rsce->running = 0x00;
+
+    rsce->cancelled = 0x01;
 }
 
 /******************************************************************************/
@@ -215,11 +221,13 @@ void rd3scene_filterline ( R3DSCENE *rsce, uint32_t from,
 
 /******************************************************************************/
 void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from, 
-                                                uint32_t to,
-                                                uint32_t depth, 
-                                                uint32_t width ) {
+                                            uint32_t to,
+                                            uint32_t depth, 
+                                            uint32_t width ) {
     LIST *ltmp = rsce->lfilters;
     char *img = rsce->area.img;
+
+    if ( rsce->running == 0x00 ) return;
 
     while ( ltmp ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
@@ -244,7 +252,7 @@ uint32_t rd3scene_filterbefore ( R3DSCENE *rsce, uint32_t from,
     char *img = rsce->area.img;
     uint32_t ret = 0x00;
 
-    if ( rsce->running == 0x00 ) return;
+    if ( rsce->running == 0x00 ) return 0x00;
 
     while ( ltmp ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
@@ -499,6 +507,8 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
             endframe = rsce->endframe;
     int32_t i, j;
 
+    rsce->threaded = 0x01;
+
     /*** Render the first frame ***/
     r3dscene_render ( rsce );
 
@@ -547,7 +557,6 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
     pthread_exit ( NULL );
     #endif
 
-
     return NULL;
 }
 
@@ -558,6 +567,8 @@ void *r3dscene_render_frame_t ( R3DSCENE *rsce ) {
 
     /*** clean up rsce on exit ***/
     /*pthread_cleanup_push  ( (void(*)(void*))r3dscene_render_t_cancel, rsce );*/
+
+    rsce->threaded = 0x01;
 
     /*** RENDER ! ***/
     r3dscene_render ( rsce );

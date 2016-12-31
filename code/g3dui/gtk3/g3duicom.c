@@ -61,7 +61,6 @@ static void dumpscreen ( G3DUI *gui, DUMPSCREEN *dsn ) {
 /****************** Event handler for interprocess communication **************/
 void g3duicom_handleAction ( GtkWidget *widget, gpointer ptr, 
                                                 gpointer user_data ) {
-
     G3DUIACTION *action = ( G3DUIACTION * ) ptr;
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -77,6 +76,8 @@ void g3duicom_handleAction ( GtkWidget *widget, gpointer ptr,
         default:
         break;
     }
+
+    /*action->wait = 0x00;*/
 
     /*** wake up waiting process **/
     pthread_mutex_unlock ( &action->done );
@@ -94,23 +95,29 @@ static gboolean emitAction ( G3DUIACTION *action ) {
 
 /******************************************************************************/
 void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
-    pthread_mutex_init ( &action->done, NULL );
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+
+    /* commented out: init is now done statically. See filtergotoframe_draw() */
+    /*pthread_mutex_init ( &action->done, NULL );*/
     pthread_mutex_lock ( &action->done );
 
     /*** Because OpenGL only works within the main context, we ***/
     /*** cannot call g_signal_emit_by_name() directly, we have to ***/
     /*** call g_main_context_invoke_full() that calls a wrapper to ***/
     /*** g_signal_emit_by_name() ***/
-    g_main_context_invoke_full ( NULL, 0, (GSourceFunc)emitAction,
-                                               action,
-                                               NULL );
+    g_main_context_invoke_full ( NULL,
+                                 G_PRIORITY_DEFAULT, 
+                    (GSourceFunc)emitAction,
+                                 action,
+                                 NULL );
 
     /** wait until completion **/
-    pthread_mutex_lock    ( &action->done ); 
+    pthread_mutex_lock    ( &action->done );
     pthread_mutex_unlock  ( &action->done );
 
     /** destry after the action is completed ***/
-    pthread_mutex_destroy ( &action->done );
+    /* commented out: init is now done statically. See filtergotoframe_draw() */
+    /*pthread_mutex_destroy ( &action->done );*/
 }
 
 /******************************************************************************/
@@ -122,9 +129,10 @@ uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                 uint32_t depth, 
                                                 uint32_t width ) {
     G3DUI *gui = ( G3DUI * ) fil->data;
-    static GOTOFRAME gtf;
+    static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
     /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
+    /*gtf.action.wait = 0x00;*/
     gtf.action.type = ACTION_GOTOFRAME;
     gtf.action.gui  = gui;
     gtf.frame       = frameID + 1;

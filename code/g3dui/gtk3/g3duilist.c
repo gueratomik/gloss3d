@@ -136,14 +136,13 @@ PICKEDOBJECT *selectObject_r ( GtkStyleContext *context, G3DOBJECT *obj,
     if ( obj->parent == NULL ) curheight  = yindent;
     else                       curheight += yindent;
 
-    /*** SCENE object is not pickable ***/
-    if ( obj->type != G3DSCENETYPE ) {
+    /*if ( obj->type != G3DSCENETYPE ) {*/
         pob = pickobject ( x, y, xsep, xm, ym, strwidth, obj, sce, urm, keep, engine_flags );
 
         if ( pob ) {
             return pob;
         }
-    }
+    /*}*/
 
     if ( ( obj->flags & OBJECTCOLLAPSED ) == 0x00 ) {
         /*** Pick the children ***/
@@ -590,6 +589,9 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                      /*** and the future child is not the current parent ***/
                      ( g3dobject_isChild ( obj, dst ) == 0x00 ) ) {
                     G3DOBJECT *par = obj->parent;
+
+                    /** prevent scene from becoming a child object ***/
+                    if ( obj->type == G3DSCENETYPE ) break;
 
                     /*** Perform action & record for the undo-redo manager ***/
                     g3durm_object_addChild ( urm, sce, gui->flags,

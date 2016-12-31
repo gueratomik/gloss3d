@@ -116,6 +116,12 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     /*** anymore, all threads are over after r3dscene_render().  ***/
     r3dscene_removeSubRender ( rsce, middlersce );
 
+  /** I don't know why but the below call to tofrm->draw() hangs when ***/
+  /*** the rendering is cancelled. It should not hang as we only request ***/
+  /*** a go_to_frame action. No rendering involved. So, to by pass this, ***/
+  /** I just skip the code below if the rendering is cancelled. Anyways, we ***/
+  /** dont need those geometry data when the rendering is cancelled. ***/
+  if ( rsce->cancelled == 0x00 ) {
     for ( i = 0x00; i <= nbSteps ; i++ ) {
         if ( i == ( nbSteps / 2 ) ) {
             r3dmotionblur_fillMotionMeshes ( rmb, middlersce, i );
@@ -165,8 +171,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     }
 
     r3dmotionblur_blurify ( rmb, img );
-
-    
+  }
 
     /*** Free the current frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) middlersce );

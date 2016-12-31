@@ -401,6 +401,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     LIST *lkeepfilters = NULL;
     float difstep = ( float ) 1.0f / ( fmb->steps + 1 );
     float nextframe = difstep;
+    R3DSCENE *blurrsce = rsce;
     int i, j, k;
 
     /*** dont motion-blurize the first frame ***/
@@ -423,9 +424,9 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
     /*** Build interpolated renders ***/
     for ( i = 0x01; i < fmb->steps; i++ ) {
-        R3DSCENE *blurrsce;
         float frame = ( float ) rsce->curframe - nextframe;
 
+      if ( rsce->cancelled == 0x00 ) {
         /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
         /*** to substract 1.0f ***/
         if ( tofrm ) {
@@ -502,6 +503,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         }
 
         r3dobject_free  ( ( R3DOBJECT * ) blurrsce );
+      } else { return 0x01; } /* cancel all remaining filters */
     }
 
     /*** free filters after rendering ***/

@@ -625,6 +625,17 @@ void g3dobject_drawCenter ( G3DOBJECT *obj, uint32_t flags ) {
 }
 
 /******************************************************************************/
+void g3dobject_appendChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
+    list_append ( &obj->lchildren, child );
+
+    child->parent = obj;
+
+    if ( child->type == G3DLIGHTTYPE ) {
+        g3dlight_init ( ( G3DLIGHT * ) child );
+    }
+}
+
+/******************************************************************************/
 void g3dobject_addChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
     list_insert ( &obj->lchildren, child );
 

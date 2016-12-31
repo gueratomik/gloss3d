@@ -475,6 +475,8 @@ typedef struct _R3DSCENE {
     int32_t startframe;
     int32_t endframe;
     int32_t curframe;
+    uint32_t cancelled;
+    uint32_t threaded;
     uint32_t running;/*** set to 0 to cancel rendering ***/
     LIST *lsubrsce; /*** list of render children, in case of motionblur e.g ***/
                     /*** There might be several renderthread, e.g when      ***/

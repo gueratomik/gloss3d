@@ -995,7 +995,9 @@ static void gtk_glossui_init ( GtkGlossUI *glossui ) {
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
-    g_signal_connect(G_OBJECT(widget), "action", G_CALLBACK(g3duicom_handleAction), gui );
+    g_signal_connect ( G_OBJECT(widget), 
+                       "action",
+                       G_CALLBACK ( g3duicom_handleAction ), gui );
 }
 
 /******************************************************************************/
@@ -1132,11 +1134,12 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     attributes.event_mask  |=  ( GDK_EXPOSURE_MASK     |
                                  GDK_KEY_PRESS_MASK    |
-			         GDK_KEY_RELEASE_MASK  |
-			         GDK_ENTER_NOTIFY_MASK |
-			         GDK_LEAVE_NOTIFY_MASK |
-			         GDK_STRUCTURE_MASK    |
-			         GDK_FOCUS_CHANGE_MASK );
+                                 GDK_KEY_RELEASE_MASK  |
+                                 GDK_ENTER_NOTIFY_MASK |
+                                 GDK_LEAVE_NOTIFY_MASK |
+                                 GDK_LEAVE_NOTIFY_MASK |
+                                 GDK_STRUCTURE_MASK    |
+                                 GDK_FOCUS_CHANGE_MASK );
 
     window = gdk_window_new ( parent_window, &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL );
 

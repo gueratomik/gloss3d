@@ -121,6 +121,7 @@ typedef struct _G3DUIGTK3 {
 #define ACTION_DUMPSCREEN 0x02
 
 typedef struct _G3DUIACTION {
+    uint32_t wait;
     uint32_t type;
 #ifdef __linux__
     pthread_mutex_t done;
