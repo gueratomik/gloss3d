@@ -271,7 +271,9 @@
 
 /**** Widget names for LightEdit TextField widget ***/
 #define EDITLIGHT            "Light"
+#define EDITLIGHTGENERAL     "General"
 #define EDITLIGHTINTENSITY   "Intensity"
+#define EDITLIGHTCASTSHADOWS "Cast shadows"
 #define EDITLIGHTCOLOR       "Light RGB Color"
 #define EDITLIGHTSPECULARITY "Light RGB Specularity"
 
@@ -742,6 +744,11 @@ typedef struct _PICKEDOBJECT {
     G3DTEXTURE *tex;
     uint32_t picked; 
 } PICKEDOBJECT;
+
+/******************************************************************************/
+typedef struct _OBJECTLISTPRIVATEDATA {
+    uint32_t oldWidth, oldHeight;
+} OBJECTLISTPRIVATEDATA;
 
 PICKEDOBJECT *pickobject ( uint32_t, uint32_t,
                                      uint32_t, 

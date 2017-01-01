@@ -51,6 +51,25 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI *gui, uint32_t red,
 }
 
 /******************************************************************************/
+void common_g3duilightedit_castShadowsCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
+        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+        if ( obj->flags & LIGHTCASTSHADOWS ) {
+            obj->flags &= (~LIGHTCASTSHADOWS);
+        } else {
+            obj->flags |= LIGHTCASTSHADOWS;
+        }
+    }
+}
+
+/******************************************************************************/
 void common_g3dui_lightDiffuseChangeCbk ( G3DUI *gui, uint32_t red,
                                                       uint32_t green,
                                                       uint32_t blue ) {

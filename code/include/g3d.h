@@ -301,6 +301,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MESHGEOMETRYONLY      (  1 << 21 )
 /*** Light flags ***/
 #define LIGHTON               (  1 << 17 )
+#define LIGHTCASTSHADOWS      (  1 << 18 )
 /*** UVMap flags ***/
 #define UVMAPFIXED            (  1 << 17 )
 /*** Wireframe flags ***/

@@ -516,11 +516,22 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                       0x00,
                                                       LISTINDENT,
                                                       LISTINDENT );
-
+            GtkAdjustment *vadj;
+            double vadj_value;
             LIST *lmes = NULL;
+            Widget viewport = gtk_widget_get_parent ( widget );
+            Widget scrolledWindow = gtk_widget_get_parent ( viewport );
 
-            /*** For keyboard inputs ***/
+            /*** For keyboard inputs, use gtk_widget_grab_focus          ***/
+            /*** Note, for some unknown reason, gtk_widget_grab_focus    ***/
+            /*** sets scrollbar adjustments to 0, so we have to save it  ***/
+            /*** and restore it in order to avoid the window to get      ***/
+            /*** scrolled up everytime it gains focus. Search Google for ***/
+            /*** "gtk_widget_grab_focus sets scrollbar adjustments to 0" ***/
+            vadj = gtk_scrolled_window_get_vadjustment ( scrolledWindow );
+            vadj_value = gtk_adjustment_get_value ( vadj );
             gtk_widget_grab_focus ( widget );
+            gtk_adjustment_set_value ( vadj, vadj_value );
 
             /*** .Unselect previously selected texture tags ***/
             /*** .Free the list and clear texture selection ***/
@@ -627,7 +638,10 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 }
 
 /******************************************************************************/
-void objectlistarea_draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
+void objectlistarea_draw ( GtkWidget *widget,  
+                           cairo_t   *cr,  
+                           gpointer   user_data ) {
+    OBJECTLISTPRIVATEDATA *opd = g_object_get_data ( widget, "PRIVATEDATA" );
     G3DUI    *gui = ( G3DUI * ) user_data;
     G3DSCENE *sce = gui->sce;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
@@ -666,7 +680,28 @@ void objectlistarea_draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) 
 
     /*** Adjust drawing area size. This implies draw() is called ***/
     /*** twice. We might want to change that in the future.      ***/
-    gtk_widget_set_size_request ( widget, size & 0x0000FFFF, size >> 0x10 );
+
+    width = size & 0x0000FFFF;
+    height = size >> 0x10;
+
+    if ( ( opd->oldWidth  != width  ) || 
+         ( opd->oldHeight != height ) ) {
+        gtk_widget_set_size_request ( widget, width, height );
+
+        opd->oldWidth  = width;
+        opd->oldHeight = height;
+    }
+}
+
+/******************************************************************************/
+static gboolean objectlistarea_delete ( GtkWidget *widget, 
+                                        GdkEvent  *event,
+                                        gpointer   data ) {
+    OBJECTLISTPRIVATEDATA *opd = g_object_get_data ( widget, "PRIVATEDATA" );
+
+    objectlistprivatedata_free ( opd );
+
+    return FALSE;
 }
 
 /******************************************************************************/
@@ -697,13 +732,17 @@ GtkWidget *createObjectList ( GtkWidget *parent, G3DUI *gui,
     /*** Drawing area within the Scrolled Window ***/
     drw = gtk_drawing_area_new ( );
 
+    g_object_set_data ( G_OBJECT (drw), 
+                        "PRIVATEDATA", 
+                        objectlistprivatedata_new ( ) );
+
     /*** For keyboard inputs ***/
     gtk_widget_set_can_focus ( drw, TRUE );
 
     /*** Drawing area does not receive mous events by defaults ***/
     gtk_widget_set_events ( drw, gtk_widget_get_events ( drw )  |
                                  GDK_KEY_PRESS_MASK             |
-			         GDK_KEY_RELEASE_MASK           |
+                                 GDK_KEY_RELEASE_MASK           |
                                  GDK_BUTTON_PRESS_MASK          |
                                  GDK_BUTTON_RELEASE_MASK        |
                                  GDK_POINTER_MOTION_MASK        |
@@ -712,6 +751,9 @@ GtkWidget *createObjectList ( GtkWidget *parent, G3DUI *gui,
 /*    g_signal_connect ( G_OBJECT (drw), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), view );
     g_signal_connect ( G_OBJECT (drw), "realize"             , G_CALLBACK (gtk3_initGL ), view );
 */    
+    g_signal_connect ( G_OBJECT (drw), "delete-event",
+		                               G_CALLBACK (objectlistarea_delete), gui);
+
     g_signal_connect ( G_OBJECT (drw), "draw"                ,
                                        G_CALLBACK (objectlistarea_draw ), gui );
 

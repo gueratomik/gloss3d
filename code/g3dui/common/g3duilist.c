@@ -254,3 +254,13 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
 
     return &lob;
 }
+
+/*******************************************************************************/
+void objectlistprivatedata_free ( OBJECTLISTPRIVATEDATA *opd ) {
+    free ( opd );
+}
+
+/*******************************************************************************/
+OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( ) {
+    return calloc ( 0x01, sizeof ( OBJECTLISTPRIVATEDATA ) );
+}

@@ -300,7 +300,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
     R3DCAMERA *rcam = rsce->area.rcam;
 
     while ( ltmprlt ) {
-        R3DLIGHT *rlt = ( R3DLIGHT * ) ltmprlt->data;
+        R3DLIGHT  *rlt = ( R3DLIGHT * ) ltmprlt->data;
+        R3DOBJECT *rob = ( R3DOBJECT * )rlt;
+        G3DOBJECT *objlig = rob->obj;
         R3DRAY luxray, spcray, refray, camray;
         float dot;
 
@@ -327,7 +329,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
 
         if ( dot > 0.0f ) {
             /*** first find intersection closest point ***/
-            r3dray_shoot ( &luxray, rsce, discard, nbhop, RAYQUERYHIT | RAYLUXRAY | RAYQUERYIGNOREBACKFACE );
+            r3dray_shoot ( &luxray, rsce, discard, nbhop, RAYQUERYHIT | 
+                                                          RAYLUXRAY   | 
+                                                          RAYQUERYIGNOREBACKFACE );
 
             /*** Prevents black dots (micro-shadowing) ***/
             if ( luxray.flags & INTERSECT ) {
@@ -342,7 +346,8 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                 }
             }
 
-            if ( ( luxray.flags & INTERSECT ) == 0x00 ) {
+            if ( ( ( objlig->flags & LIGHTCASTSHADOWS ) == 0x00 ) ||
+                 ( ( luxray.flags  & INTERSECT        ) == 0x00 ) ) {
                 float rate = fabs ( dot ) * rlt->lig->intensity;
 
                 col->r += ( rlt->lig->diffcol.r * rate ),

@@ -135,6 +135,40 @@ static void diffuseIntensityCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void updateLightGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    gui->lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            if ( GTK_IS_TOGGLE_BUTTON ( child ) ) {
+                if ( strcmp ( child_name, EDITLIGHTCASTSHADOWS ) == 0x00 ) {
+                    GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                    if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
 static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     G3DSCENE *sce = gui->sce;
@@ -208,6 +242,31 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
+static void castShadowsCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duilightedit_castShadowsCbk ( gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createLightGeneralPanel ( GtkWidget *parent, G3DUI *gui,
+                                                               char *name,
+                                                               gint x,
+                                                               gint y,
+                                                               gint width,
+                                                               gint height ) {
+    GtkWidget *lab, *col, *pan, *btn;
+
+    pan = createPanel ( parent, gui, name, x, y, width, height );
+
+    createToggleLabel ( pan, gui, EDITLIGHTCASTSHADOWS, 0, 0, 20, 20,
+                                                        castShadowsCbk );
+
+
+    return pan;
+}
+
+/******************************************************************************/
 void updateLightEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
@@ -221,6 +280,10 @@ void updateLightEdit ( GtkWidget *widget, G3DUI *gui ) {
 
         if ( strcmp ( child_name, EDITDIFFUSE      ) == 0x00 ) {
             updateDiffuseColorPanel ( child, gui );
+        }
+
+        if ( strcmp ( child_name, EDITLIGHTGENERAL ) == 0x00 ) {
+            updateLightGeneralPanel ( child, gui );
         }
 
         children =  g_list_next ( children );
@@ -255,6 +318,7 @@ GtkWidget *createLightEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
 
+    createLightGeneralPanel ( tab, gui, EDITLIGHTGENERAL, 0, 0, width, height );
     createDiffuseColorPanel ( tab, gui, EDITDIFFUSE     , 0, 0, width, height );
     createSpecularityPanel  ( tab, gui, EDITSPECULARITY , 0, 0, width, height );
 

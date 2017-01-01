@@ -245,9 +245,13 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                 uint32_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-    G3DMESH *commitMesh = g3dmesh_new ( commitMeshID,
-                                        commitMeshName, 
-                                        engine_flags );
+    G3DMESH *commitMesh = NULL;
+
+    if ( sdr->subdiv_preview <= 0x00 ) return NULL;
+
+    commitMesh = g3dmesh_new ( commitMeshID,
+                               commitMeshName, 
+                               engine_flags );
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
@@ -264,7 +268,6 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         uint32_t nbrtfac;
         uint32_t i;
         uint32_t quaFaces, quaEdges, quaVertices;
-
 
         g3dquad_evalSubdivision ( sdr->subdiv_preview, &quaFaces, 
                                                        &quaEdges,
@@ -532,8 +535,10 @@ void g3dsubdivider_endUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 
 /******************************************************************************/
 uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
-    g3dsubdivider_allocBuffers ( sdr, engine_flags );
-    g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+    if ( sdr->subdiv_preview > 0x00 ) {
+        g3dsubdivider_allocBuffers ( sdr, engine_flags );
+        g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+    }
 }
 
 /******************************************************************************/
@@ -733,6 +738,8 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( obj->flags & OBJECTINACTIVE ) return 0x00;
+
+    if ( sdr->subdiv_preview <= 0x00 ) return 0x00;
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;

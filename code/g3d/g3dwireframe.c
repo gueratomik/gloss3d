@@ -445,11 +445,14 @@ void g3dwireframe_deactivate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, G3DCAMERA *cam, 
                                                 uint32_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
+    uint32_t forbidden_modes = 0x00;
+
+    forbidden_modes = VIEWVERTEX | VIEWFACE | VIEWEDGE;
 
     if ( obj->flags & OBJECTINACTIVE ) {
         return 0x00;
     } else {
-        g3dmesh_draw ( wir, cam, engine_flags );
+        g3dmesh_draw ( wir, cam, engine_flags & (~forbidden_modes) );
     }
 
     return MODIFIERTAKESOVER;
