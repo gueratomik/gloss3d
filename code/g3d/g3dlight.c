@@ -30,6 +30,24 @@
 #include <g3d.h>
 
 /******************************************************************************/
+G3DOBJECT *g3dlight_copy ( G3DOBJECT *obj, uint32_t       id,
+                                           unsigned char *name,
+                                           uint32_t       engine_flags ) {
+    G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+    G3DLIGHT *ligcpy = g3dlight_new ( id, name );
+
+    ((G3DOBJECT*)ligcpy)->flags = obj->flags;
+
+    ligcpy->intensity = lig->intensity;
+
+    memcpy ( &ligcpy->diffcol, &lig->diffcol, sizeof ( G3DRGBA ) );
+    memcpy ( &ligcpy->speccol, &lig->speccol, sizeof ( G3DRGBA ) );
+    memcpy ( &ligcpy->ambicol, &lig->ambicol, sizeof ( G3DRGBA ) );
+
+    return ( G3DOBJECT * ) ligcpy;
+}
+
+/******************************************************************************/
 uint32_t g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     G3DLIGHT *lig = ( G3DLIGHT * ) obj;
     float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -157,7 +175,7 @@ G3DLIGHT *g3dlight_new ( uint32_t id, char *name ) {
                                                   g3dlight_free,
                                                   NULL,
                                                   NULL,
-                                                  NULL,
+                                                  g3dlight_copy,
                                                   NULL,
                                                   NULL,
                                                   NULL,
