@@ -245,7 +245,8 @@ void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                         G3DRTVERTEX   *rtVertices,
                                         G3DRTUV       *rtUVs,
                                         uint32_t       subdiv_level,
-                                        uint32_t       subdiv_flags ) {
+                                        uint32_t       subdiv_flags,
+                                        uint32_t       engine_flags ) {
     uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
     uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
     uint32_t nbUniqueVerticesPerEdge;
@@ -321,7 +322,7 @@ void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
             rtVertices[vid].id = dumpID;
         }
 
-        g3drtvertex_init ( &rtVertices[vid], &innerVertices[i], 0, 0 );
+        g3drtvertex_init ( &rtVertices[vid], &innerVertices[i], 0, engine_flags );
     }
 
     for ( i = 0x00; i < nbInnerFaces; i++ ) {
@@ -686,6 +687,9 @@ void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
     if ( ver->nbedg > 0x04 ) newver->ver.flags |= VERTEXMALLOCEDGES;
 
     g3dsubdivision_addVertexLookup ( sdv, ver, newver );
+
+    /*** vertex painting part ***/
+    newver->ver.weight = ver->weight;
 }
 
 /******************************************************************************/
@@ -1087,7 +1091,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                                    rtVertices,
                                                    rtUVs,
                                                    original_subdiv_level,
-                                                   subdiv_flags );
+                                                   subdiv_flags,
+                                                   engine_flags );
             }
 
             if ( subdiv_flags & SUBDIVISIONDISPLAY ) {
@@ -1155,6 +1160,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 subver->ver.nbfac  = subver->ver.nbedg = 0x00;
                 subver->ver.lfac   = subver->ver.ledg  = NULL;
 
+                /*** vertex painting part ***/
+                subver->ver.weight = curInnerVertices[i].ver.weight;
+
                 curInnerVertices[i].ver.subver = subver;
 
                 /*** prepare the subdiv from the parent vertices ***/
@@ -1189,6 +1197,10 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                         subver->ancestorEdge   = NULL;
                         subver->ancestorFace   = curInnerEdges[i].ancestorFace;
                     }
+
+                    /*** vertex painting part ***/
+                    subver->ver.weight = ( curInnerEdges[i].edg.ver[0x00]->weight + 
+                                           curInnerEdges[i].edg.ver[0x01]->weight ) * 0.5f;
 
                     curInnerEdges[i].subver = subver;
 
@@ -1306,6 +1318,18 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 subver->ver.flags  = VERTEXTOPOLOGY | VERTEXINNER;
                 subver->ver.nbfac  = subver->ver.nbedg = 0x00;
                 subver->ver.lfac   = subver->ver.ledg  = NULL;
+
+                /*** vertex painting part ***/
+                if ( fac->nbver == 0x04 ) {
+                    subver->ver.weight = ( curInnerFaces[i].fac.ver[0x00]->weight + 
+                                           curInnerFaces[i].fac.ver[0x01]->weight +
+                                           curInnerFaces[i].fac.ver[0x02]->weight +
+                                           curInnerFaces[i].fac.ver[0x03]->weight ) * 0.25f;
+                } else {
+                    subver->ver.weight = ( curInnerFaces[i].fac.ver[0x00]->weight + 
+                                           curInnerFaces[i].fac.ver[0x01]->weight +
+                                           curInnerFaces[i].fac.ver[0x02]->weight ) * 0.33f;
+                }
 
                 curInnerFaces[i].subver = subver;
 

@@ -57,24 +57,6 @@ void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
     ((G3DOBJECT*) sdr)->flags &= (~SYNCSUBDIVISION);
 }
 
-
-/*
-                if ( ( obj->flags & MESHUSEISOLINES ) ) {
-                    g3dmesh_drawSubdividedObject ( mes, engine_flags | NODRAWPOLYGON );
-                }
-*/
-
-/*
-                    if ( viewSkin == 0x00 ) {
-                        fac->flags |= FACESUBDIVIDED;
-
-                        if ( obj->flags & OBJECTSELECTED ) {
-                            g3dface_bindMaterials ( fac, mes->ltex, NULL, engine_flags );
-                        } else {
-                            g3dface_bindMaterials ( fac, mes->ltex, NULL, engine_flags & (~VIEWFACE) );
-                        }
-                    }/*
-
 /******************************************************************************/
 uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver */
                                                                  uint32_t, /* nbtris */
@@ -736,10 +718,17 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                                                   uint32_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+    uint32_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
+                          ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
 
     if ( obj->flags & OBJECTINACTIVE ) return 0x00;
 
     if ( sdr->subdiv_preview <= 0x00 ) return 0x00;
+
+    if ( viewSkin ) {
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glDisable    ( GL_LIGHTING );
+    }
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
@@ -771,23 +760,33 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                                            ( fac->typeID * sdr->nbVerticesPerQuad * mes->nbuvmap );
             }
 
-            bindMaterials ( mes, fac, rtuvmem, engine_flags );
+            if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
+                bindMaterials ( mes, fac, rtuvmem, engine_flags );
+
+                glEnableClientState ( GL_NORMAL_ARRAY );
+            }
 
             glEnableClientState ( GL_VERTEX_ARRAY );
-            glEnableClientState ( GL_NORMAL_ARRAY );
             glEnableClientState ( GL_COLOR_ARRAY  );
-            glColorPointer  ( 4, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem)      );
+            glColorPointer  ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem)      );
             glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 12 );
             glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 24 );
             glDrawElements ( GL_QUADS, nbrtfac * 4, GL_UNSIGNED_INT, rtquamem );
             glDisableClientState ( GL_VERTEX_ARRAY );
-            glDisableClientState ( GL_NORMAL_ARRAY );
             glDisableClientState ( GL_COLOR_ARRAY  );
 
-            unbindMaterials ( mes, fac, rtuvmem, engine_flags );
+            if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
+                glDisableClientState ( GL_NORMAL_ARRAY );
+
+                unbindMaterials ( mes, fac, rtuvmem, engine_flags );
+            }
 
             ltmpfac = ltmpfac->next;
         }
+    }
+
+    if ( viewSkin ) {
+        glPopAttrib ( );
     }
 
     return MODIFIERTAKESOVER;

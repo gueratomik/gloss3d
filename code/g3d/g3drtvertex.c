@@ -45,7 +45,7 @@ void g3drtvertex_init ( G3DRTVERTEX *rtver, G3DVERTEX *ver,
 
     if ( engine_flags & VIEWSKIN ) {
         rtver->r = 1.0f;
-        rtver->g = ( ver->flags & VERTEXPAINTED ) ? ver->weight : 0.0f;
+        rtver->g = /*( ver->flags & VERTEXPAINTED ) ? */ver->weight/* : 0.0f*/;
         rtver->b = 0.0f;
     } else {
         if ( ver->nbfac == 0x00 ) {

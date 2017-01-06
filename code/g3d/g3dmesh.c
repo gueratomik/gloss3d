@@ -2915,7 +2915,7 @@ void g3dmesh_paintVertices ( G3DMESH *mes,
     LIST *lselver = g3dmesh_pickVertices ( mes, curcam, visible, engine_flags );
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
     G3DWEIGHTGROUP *curgrp = mes->curgrp;
-    LIST *ltmpver = lselver;
+    LIST *ltmpver = lselver, *ltmpselver;
 
     /*** a Weightgroup must be selected first ***/
     if ( curgrp == NULL ) return;
@@ -2942,6 +2942,16 @@ void g3dmesh_paintVertices ( G3DMESH *mes,
 
         ltmpver = ltmpver->next;
     }
+
+    /*** modifier update is based on selected vertices/faces/edges ***/
+    ltmpselver   = mes->lselver;
+    mes->lselver = lselver;
+
+    g3dmesh_startUpdateModifiers_r ( mes, engine_flags );
+    g3dmesh_updateModifiers_r ( mes, engine_flags );
+    g3dmesh_endUpdateModifiers_r ( mes, engine_flags );
+
+    mes->lselver = ltmpselver;
 
     list_free ( &lselver, NULL );
 }

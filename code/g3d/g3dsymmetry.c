@@ -29,6 +29,14 @@
 #include <config.h>
 #include <g3d.h>
 
+/******************************************************************************/
+G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
+                                uint32_t     engine_flags ) {
+    G3DOBJECT *objsym = ( G3DOBJECT * ) sym;
+
+    return g3dsymmetry_new ( objsym->id, objsym->name );
+}
+
 /*****************************************************************************/
 G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym, LIST **loldobj, uint32_t flags ) {
     G3DOBJECT *symobj = ( G3DOBJECT * ) sym;
@@ -292,7 +300,7 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id, char *name ) {
                                                      g3dsymmetry_free,
                                                      NULL,
                                                      NULL,
-                                                     NULL,
+                                                     g3dsymmetry_copy,
                                                      NULL,
                                                      NULL,
                                                      NULL,

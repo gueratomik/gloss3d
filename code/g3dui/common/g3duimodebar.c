@@ -85,7 +85,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
             g3dmesh_update ( mes, NULL,
                                   NULL,
-                                  0x00, gui->flags );
+                                  RESETMODIFIERS, gui->flags );
         }
 
         /*** The below restores the face ***/
@@ -94,7 +94,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
             if ( mes->lselfac ) {
                 g3dmesh_update ( mes, NULL,
                                       NULL,
-                                      0x00, gui->flags );
+                                      RESETMODIFIERS, gui->flags );
             }
         }
     }

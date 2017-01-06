@@ -30,6 +30,24 @@
 #include <g3d.h>
 
 /******************************************************************************/
+G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
+                            uint32_t   engine_flags ) {
+    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+    G3DCAMERA *newcam = g3dcamera_new ( objcam->id, 
+                                        objcam->name, 
+                                        cam->focal, 
+                                        cam->ratio, 
+                                        cam->znear, 
+                                        cam->zfar );
+
+    memcpy ( &newcam->pivot, &cam->pivot, sizeof ( cam->pivot ) );
+
+    newcam->grid = cam->grid;
+
+    return newcam;
+}
+
+/******************************************************************************/
 /*** Copy camera position, rotation, scaling and focal ***/
 void g3dcamera_import ( G3DCAMERA *dst, G3DCAMERA *src ) {
     g3dobject_importTransformations ( ( G3DOBJECT * ) dst, 
@@ -465,7 +483,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
                                                    g3dcamera_free,
                                                    NULL,
                                                    NULL,
-                                                   NULL,
+                                                   g3dcamera_copy,
                                                    NULL,
                                                    NULL,
                                                    NULL,

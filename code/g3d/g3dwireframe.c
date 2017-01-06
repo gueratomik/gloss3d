@@ -30,6 +30,14 @@
 #include <g3d.h>
 
 /******************************************************************************/
+G3DWIREFRAME *g3dwireframe_copy ( G3DWIREFRAME *wir,
+                                  uint32_t      engine_flags ) {
+    G3DOBJECT *objwir = ( G3DOBJECT * ) wir;
+
+    return g3dwireframe_new ( objwir->id, objwir->name );
+}
+
+/******************************************************************************/
 void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
                                                     uint32_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
@@ -178,9 +186,13 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
             wir->modver[((ver->id)*2)+0].ver.pos.y = ver->pos.y + ( ver->nor.y * wir->thickness );
             wir->modver[((ver->id)*2)+0].ver.pos.z = ver->pos.z + ( ver->nor.z * wir->thickness );
 
+            wir->modver[((ver->id)*2)+0].ver.weight = ver->weight;
+
             wir->modver[((ver->id)*2)+1].ver.pos.x = ver->pos.x - ( ver->nor.x * wir->thickness );
             wir->modver[((ver->id)*2)+1].ver.pos.y = ver->pos.y - ( ver->nor.y * wir->thickness );
             wir->modver[((ver->id)*2)+1].ver.pos.z = ver->pos.z - ( ver->nor.z * wir->thickness );
+
+            wir->modver[((ver->id)*2)+1].ver.weight = ver->weight;
 
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -199,6 +211,8 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
                         wir->modver[verOffset+j].ver.pos.x = fac->ver[j]->pos.x + ( dir.x * wir->thickness );
                         wir->modver[verOffset+j].ver.pos.y = fac->ver[j]->pos.y + ( dir.y * wir->thickness );
                         wir->modver[verOffset+j].ver.pos.z = fac->ver[j]->pos.z + ( dir.z * wir->thickness );
+
+                        wir->modver[verOffset+j].ver.weight = fac->ver[j]->weight;
                     }
                 }
 
@@ -258,6 +272,8 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
             wir->modver[((ver->id)*2)+0].ver.flags |= VERTEXORIGINAL;
 
+            wir->modver[((ver->id)*2)+0].ver.weight = ver->weight;
+
             if ( ver->nbedg > SUBVERTEXMAXEDGE ) {
                 wir->modver[((ver->id)*2)+0].ver.flags |= VERTEXMALLOCEDGES;
             }
@@ -269,6 +285,8 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
             wir->modver[((ver->id)*2)+1].ver.pos.z = ver->pos.z - ( ver->nor.z * wir->thickness );
 
             wir->modver[((ver->id)*2)+1].ver.flags |= VERTEXORIGINAL;
+
+            wir->modver[((ver->id)*2)+1].ver.weight = ver->weight;
 
             if ( ver->nbedg > SUBVERTEXMAXEDGE ) {
                 wir->modver[((ver->id)*2)+1].ver.flags |= VERTEXMALLOCEDGES;
@@ -322,6 +340,8 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
                 wir->modver[verOffset+i].ver.pos.z = fac->ver[i]->pos.z + ( dir.z * wir->thickness );
 
                 wir->modver[verOffset+i].ver.flags |= VERTEXORIGINAL;
+
+                wir->modver[verOffset+i].ver.weight = fac->ver[i]->weight;
 
                 g3dmesh_addVertex ( wir, &wir->modver[verOffset+i] );
             }
@@ -480,7 +500,7 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id, char *name ) {
                                                         g3dwireframe_free,
                                                         NULL,
                                                         NULL,
-                                                        NULL,
+                                                        g3dwireframe_copy,
                                                         g3dwireframe_activate,
                                                         g3dwireframe_deactivate,
                                                         g3dmesh_copy,
