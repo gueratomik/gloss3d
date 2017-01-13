@@ -539,6 +539,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
             list_free ( &lmes, (void (*)(void *)) g3dmesh_unselectAllTextures );
 
+            g3dui_setHourGlass   ( gui );
             pob = selectObject_r ( context, ( G3DOBJECT * ) sce,
                                             0x00,
                                             0x00,
@@ -548,7 +549,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                             bev->x,
                                             bev->y,
                                             sce, urm, pick_flags, gui->flags );
-
+            g3dui_unsetHourGlass ( gui );
 
             if ( pob ) {
                 obj = pob->obj;
@@ -618,6 +619,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                         g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
 
                         g3dmesh_update ( ( G3DMESH * ) obj, NULL,
+                                              NULL,
                                               NULL,
                                               UPDATEFACEPOSITION, gui->flags );
                     }

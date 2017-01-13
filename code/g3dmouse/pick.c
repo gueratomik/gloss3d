@@ -488,7 +488,8 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dmesh_update ( mes, NULL,
                                           NULL,
-                                          0x00, flags );
+                                          NULL,
+                                          RESETMODIFIERS, flags );
                 }
             }
 

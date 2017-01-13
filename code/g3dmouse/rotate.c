@@ -336,7 +336,8 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         if ( uvwmes ) {
                             g3dmesh_update ( uvwmes, NULL,
                                                      NULL,
-                                                     0x00, flags );
+                                                     NULL,
+                                                     RESETMODIFIERS, flags );
                         }
                     }
 

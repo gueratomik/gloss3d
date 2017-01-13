@@ -84,8 +84,8 @@ void convertPrimitive_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 
     g3dscene_unselectAllObjects ( sce, flags );
 
-    g3dobject_removeChild ( parent, ( G3DOBJECT * ) mes );
-    g3dobject_addChild    ( parent, ( G3DOBJECT * ) pri );
+    g3dobject_removeChild ( parent, ( G3DOBJECT * ) mes, flags );
+    g3dobject_addChild    ( parent, ( G3DOBJECT * ) pri, flags );
 
     g3dscene_selectObject ( sce   , ( G3DOBJECT * ) pri, flags );
 }
@@ -100,8 +100,8 @@ void convertPrimitive_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 
     g3dscene_unselectAllObjects ( sce, flags );
 
-    g3dobject_removeChild ( parent, ( G3DOBJECT * ) pri );
-    g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes );
+    g3dobject_removeChild ( parent, ( G3DOBJECT * ) pri, flags );
+    g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, flags );
 
     g3dscene_selectObject ( sce   , ( G3DOBJECT * ) mes, flags );
 }

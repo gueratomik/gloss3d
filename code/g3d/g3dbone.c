@@ -60,14 +60,15 @@ LIST *g3dbone_getVertexList ( G3DBONE *bon, G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse ) {
+G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 
+                                       uint32_t engine_flags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DBONE   *cloned = g3dbone_new ( 0x00, objbon->name, bon->len );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) cloned, 
                                       ( G3DOBJECT * ) objbon );
 
-    g3dobject_addChild ( objbon->parent, ( G3DOBJECT * ) cloned );
+    g3dobject_addChild ( objbon->parent, ( G3DOBJECT * ) cloned, engine_flags );
 
     if ( recurse ) {
         LIST *ltmpchildren = objbon->lchildren;
@@ -76,10 +77,10 @@ G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
             if ( child->type == G3DBONETYPE ) {
-                G3DBONE *clokid = g3dbone_clone ( (G3DBONE *) child, recurse );
+                G3DBONE *clokid = g3dbone_clone ( (G3DBONE *) child, recurse, engine_flags );
 
                 g3dobject_addChild ( ( G3DOBJECT * ) cloned,
-                                     ( G3DOBJECT * ) clokid );
+                                     ( G3DOBJECT * ) clokid, engine_flags );
             }
 
             ltmpchildren = ltmpchildren->next;
@@ -98,9 +99,10 @@ void g3dbone_anim ( G3DOBJECT *obj, G3DKEY *prevkey,    /*** previous key ***/
 
 /******************************************************************************/
 G3DBONE *g3dbone_mirror ( G3DBONE *bon, uint32_t orientation,
-                                        uint32_t recurse ) {
+                                        uint32_t recurse,
+                                        uint32_t engine_flags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    G3DBONE   *mir = g3dbone_clone ( bon, recurse );
+    G3DBONE   *mir = g3dbone_clone ( bon, recurse, engine_flags );
     G3DOBJECT *objmir = ( G3DOBJECT * ) mir;
     double smatrix[0x10];
     double pmatrix[0x10];

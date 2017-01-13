@@ -970,14 +970,14 @@ void xmldata_free ( XMLDATA *xdt ) {
 }
 
 /******************************************************************************/
-G3DSCENE *xmldata_convert ( XMLDATA *xdt ) {
+G3DSCENE *xmldata_convert ( XMLDATA *xdt, uint32_t engine_flags ) {
     G3DSCENE *sce = g3dscene_new ( 0x00, "COLLADA" );
     LIST *ltmp = xdt->lgeometry;
 
     while ( ltmp ) {
         XMLGEOMETRY *xgeo = ( XMLGEOMETRY * ) ltmp->data;
 
-        g3dobject_addChild ( ( G3DOBJECT * ) sce, xgeo->obj );
+        g3dobject_addChild ( ( G3DOBJECT * ) sce, xgeo->obj, engine_flags );
 
         ltmp = ltmp->next;
     }
@@ -1024,7 +1024,7 @@ G3DSCENE *g3dscene_importCollada ( const char *filename, uint32_t flags ) {
 
     } while ( done == 0x00 );
 
-    sce = xmldata_convert ( xdt );
+    sce = xmldata_convert ( xdt, flags );
 
     xmldata_free ( xdt );
 

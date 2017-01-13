@@ -89,13 +89,14 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
         g3dui_redrawGLViews        ( gui );
     }
 
-    if ( obj && ( obj->type & MODIFIER ) ) {
-        G3DMESH *commitedMesh = g3dobject_commit ( obj, 
-                                                   oid, 
-                                                   obj->name, 
-                                                   gui->flags );
+    if ( obj && ( ( obj->type & MODIFIER         ) ||
+                  ( obj->type == G3DSYMMETRYTYPE ) ) ) {
+        G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
+                                                    oid, 
+                                                    obj->name, 
+                                                    gui->flags );
 
-        if ( commitedMesh ) {
+        if ( commitedObj ) {
             g3durm_object_addChild ( gui->urm, 
                                      gui->sce, 
                                      gui->flags, 
@@ -103,11 +104,11 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
                                        REDRAWLIST | REDRAWCURRENTOBJECT ),
                                      ( G3DOBJECT * ) NULL,
                                      ( G3DOBJECT * ) sce,
-                                     ( G3DOBJECT * ) commitedMesh );
+                                     ( G3DOBJECT * ) commitedObj );
 
             g3dscene_unselectAllObjects ( sce, gui->flags );
             g3dscene_selectObject ( sce,
-                    ( G3DOBJECT * ) commitedMesh, 
+                    ( G3DOBJECT * ) commitedObj, 
                                     gui->flags );
 
             g3dui_redrawGLViews ( gui );
@@ -231,9 +232,11 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
             /*** Rebuild the subdivided mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
-                                  UPDATEVERTEXNORMAL, gui->flags );
+                                  UPDATEVERTEXNORMAL |
+                                  RESETMODIFIERS, gui->flags );
         }
     }
 

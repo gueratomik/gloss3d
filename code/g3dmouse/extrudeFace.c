@@ -135,6 +135,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                     /*** regenerate subdivision buffer ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
+                                          NULL,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL |

@@ -132,6 +132,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** Rebuild the subdivided mesh ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
+                                          NULL,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL, flags );

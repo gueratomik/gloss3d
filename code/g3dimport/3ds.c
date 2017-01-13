@@ -76,7 +76,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename, uint32_t flags ) {
 
             case 0x4100 :
                 mes = g3dmesh_new ( g3dscene_getNextObjectID ( sce ), "Mesh", flags );
-                g3dobject_addChild ( ( G3DOBJECT * ) sce, ( G3DOBJECT * ) mes );
+                g3dobject_addChild ( ( G3DOBJECT * ) sce, ( G3DOBJECT * ) mes, flags );
             break;
 
             case 0x4110 : {

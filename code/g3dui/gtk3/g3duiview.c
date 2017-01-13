@@ -650,7 +650,7 @@ static void gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                 switch ( view->buttonID ) {
                     case ROTATEBUTTON : {
                         /*** pivot for rotation ***/
-                        piv = g3dpivot_new ( cam, &cam->pivot );
+                        piv = g3dpivot_new ( cam, &cam->pivot, gui->flags );
 
                         /*g3dobject_addChild ( sce, piv );*/
                     } break;

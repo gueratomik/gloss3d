@@ -1024,11 +1024,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
             if ( ltex  && ( ( engine_flags & NODISPLACEMENT ) == 0 ) ) {
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    g3dvertex_displace ( &curInnerVertices[i], ltex );
+                    g3dvertex_displace ( &curInnerVertices[i], ltex, &curInnerVertices[i].ver.pos );
                 }
 
                 for ( i = 0x00; i < nbOuterVertices; i++ ) {
-                    g3dvertex_displace ( &curOuterVertices[i], ltex );
+                    g3dvertex_displace ( &curOuterVertices[i], ltex, &curOuterVertices[i].ver.pos );
                 }
             }
 

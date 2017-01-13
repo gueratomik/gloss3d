@@ -93,6 +93,7 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
 
         g3dmesh_update ( wir, NULL,
                               NULL,
+                              NULL,
                               UPDATEFACEPOSITION |
                               UPDATEFACENORMAL   |
                               UPDATEVERTEXNORMAL |
@@ -223,6 +224,7 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
         }
 
         g3dmesh_update ( wir, NULL,
+                              NULL,
                               NULL,
                               UPDATEFACEPOSITION |
                               UPDATEFACENORMAL   |
@@ -423,8 +425,9 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
     }
 
-    g3dmesh_update ( wir, NULL, /*** Recompute vertices    ***/
-                          NULL, /*** Recompute faces       ***/
+    g3dmesh_update ( wir, NULL, /*** update vertices    ***/
+                          NULL, /*** update faces       ***/
+                          NULL, /*** update faces       ***/
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL,
@@ -472,10 +475,21 @@ uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, G3DCAMERA *cam,
     if ( obj->flags & OBJECTINACTIVE ) {
         return 0x00;
     } else {
+        G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+        uint32_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
+                              ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
+        /* quick and dirty hack to force g3dmesh_draw() */
+        /* to draw the red skinning for this modifier when its parent */
+        /* is selected */
+        if ( viewSkin ) obj->flags |= OBJECTSELECTED;
+
         g3dmesh_draw ( wir, cam, engine_flags & (~forbidden_modes) );
+
+        if ( viewSkin ) obj->flags &= (~OBJECTSELECTED);
     }
 
-    return MODIFIERTAKESOVER;
+
+    return MODIFIERTAKESOVER | MODIFIERNEEDSTRANSPARENCY;
 }
 
 /******************************************************************************/

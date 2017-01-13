@@ -274,7 +274,9 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float str = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    g3dui_setHourGlass ( gui );
     common_g3dui_materialDisplacementStrengthCbk ( gui, str );
+    g3dui_unsetHourGlass ( gui );
 }
 
 /******************************************************************************/

@@ -46,6 +46,7 @@ void g3dscene_updateBufferedMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
             /*** Rebuild mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   UPDATEVERTEXNORMAL |
                                   UPDATEFACENORMAL, engine_flags );
         }
@@ -198,7 +199,7 @@ void g3dscene_freeMaterials ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-void g3dscene_deleteSelectedObjects ( G3DSCENE *sce ) {
+void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmp = sce->lsel;
 
@@ -206,7 +207,7 @@ void g3dscene_deleteSelectedObjects ( G3DSCENE *sce ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
         /*** Remove the selected object from the list of all objects ***/
-        g3dobject_removeChild ( child->parent, child );
+        g3dobject_removeChild ( child->parent, child, engine_flags );
 
         ltmp = ltmp->next;
     }
@@ -340,6 +341,7 @@ void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
             /*** mode, we change the object selection. Our buffered mesh ***/
             /*** must be entirely rebuilt because it must change color (red)***/
             g3dmesh_update ( mes, NULL,
+                                  NULL,
                                   NULL,
                                   0x00, engine_flags );
         }

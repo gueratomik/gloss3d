@@ -897,6 +897,7 @@ printf("NB Triangles = %d\n", nbtri );
 
                         g3dmesh_update ( mes, NULL,
                                               NULL,
+                                              NULL,
                                               UPDATEVERTEXNORMAL  |
                                               UPDATEFACEPOSITION  |
                                               UPDATEFACENORMAL, flags );
@@ -935,6 +936,7 @@ printf("NB Quds = %d\n", nbqua );
                         }
 
                         g3dmesh_update ( mes, NULL,
+                                              NULL,
                                               NULL,
                                               UPDATEVERTEXNORMAL  |
                                               UPDATEFACEPOSITION  |

@@ -54,6 +54,7 @@ void g3dsphere_size ( G3DPRIMITIVE *pri, float radius ) {
     /*** update the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION, 0x00 );
 
     /*** Set bounding box dimensions ***/

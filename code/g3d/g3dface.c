@@ -705,6 +705,84 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t object_flags,
 }
 
 /******************************************************************************/
+void g3dface_draw  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
+                                               uint32_t engine_flags ) {
+    static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
+    uint32_t   nbtex = 0x00;
+    G3DVECTOR *pos[0x04];
+    G3DVECTOR  dis[0x04]; /*** displaced position ***/
+    uint32_t   i, j;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        if ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) {
+            g3dvertex_displace ( fac->ver[i], ltex, &dis[i] );
+            pos[i] = &dis[i];
+        } else {
+            pos[i] = ( fac->ver[i]->flags & VERTEXSKINNED ) ? &fac->ver[i]->skn :
+                                                              &fac->ver[i]->pos;
+        }
+    }
+
+    if ( ltex && fac->luvs && ( ( engine_flags & SELECTMODE ) == 0x00 ) ) {
+       nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, engine_flags );
+    }
+
+    ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
+                             glBegin ( GL_TRIANGLES ); 
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        G3DVERTEX *ver = fac->ver[i];
+
+        if ( engine_flags & VIEWSKIN     ) {
+            glColor3f ( 1.0f, ver->weight, 0.0f );
+        }
+
+        if ( (   fac->flags & FACESELECTED   ) && 
+             (   engine_flags & VIEWFACE     ) &&
+             ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) ) {
+            glColor3ub ( 0xFF, 0x7F, 0x00 );
+        } else {
+            glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
+        }
+
+        if ( engine_flags & VIEWSKIN ) glColor3f ( 1.0f, ver->weight, 0.0f );
+
+        for ( j = 0x00; j < nbtex; j++ ) {
+            #ifdef __linux__
+            glMultiTexCoord2fARB ( texcoord[j].tid,
+                                   texcoord[j].u[i], 
+                                   texcoord[j].v[i] ); 
+            #endif
+            #ifdef __MINGW32__
+            if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[j].tid,
+                                                                       texcoord[j].u[i], 
+                                                                       texcoord[j].v[i] ); 
+            #endif
+        }
+
+        glNormal3fv ( ( float * ) &ver->nor );
+        glVertex3fv ( ( float * )  pos[i] );
+    }
+    glEnd ( );
+
+    if ( ltex && fac->luvs && ( ( engine_flags & SELECTMODE ) == 0x00 ) ) {
+        g3dface_unbindMaterials ( fac, ltex, engine_flags );
+    }
+}
+
+/******************************************************************************/
+void g3dface_drawQuad  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
+                                                   uint32_t engine_flags ) {
+    g3dface_draw ( fac, ltex, object_flags, engine_flags );
+}
+
+/******************************************************************************/
+void g3dface_drawTriangle  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
+                                                   uint32_t engine_flags ) {
+    g3dface_draw ( fac, ltex, object_flags, engine_flags );
+}
+
+#ifdef unused
+/******************************************************************************/
 void g3dface_drawQuad  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
                                                    uint32_t engine_flags ) {
     G3DVERTEX *v0 = fac->ver[0x00],
@@ -737,11 +815,7 @@ if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
         glBegin ( GL_QUADS );
 
         for ( i = 0x00; i < fac->nbver; i++ ) {
-            if ( ver[i]->flags & VERTEXPAINTED ) {
-                glColor3f ( 1.0f, ver[i]->weight, 0.0f );
-            } else {
-                glColor3f ( 1.0f, 0.0f          , 0.0f );
-            }
+            glColor3f ( 1.0f, ver[i]->weight, 0.0f );
 
             glNormal3fv ( ( float * ) &ver[i]->nor );
 
@@ -1058,6 +1132,7 @@ if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
 }
 
 }
+#endif
 
 /******************************************************************************/
 void g3dface_drawQuadList ( LIST *lqua, LIST *ltex, uint32_t object_flags,

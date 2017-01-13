@@ -249,7 +249,7 @@ void g3dweightgroup_unpainted ( G3DWEIGHTGROUP *grp ) {
         G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmp->data;
 
         wei->ver->flags &= (~VERTEXPAINTED);
-        wei->ver->weight = wei->weight;
+        wei->ver->weight = 0.0f;
 
         ltmp = ltmp->next;
     }

@@ -98,6 +98,7 @@ void cutMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -126,6 +127,7 @@ void cutMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -146,6 +148,7 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
     g3dmesh_cut ( mes, knife, &loldfac, &lnewver, &lnewfac, restricted, flags );
 
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |

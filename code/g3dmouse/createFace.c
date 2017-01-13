@@ -306,6 +306,7 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** regenerate subdivision buffer ***/
                     g3dmesh_update ( mes, NULL,
                                           NULL,
+                                          NULL,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL, flags );

@@ -160,7 +160,7 @@ G3DSCENE *readFile ( FILE *fsrc, uint32_t engine_flags ) {
                 mes = readMesh ( str, sce, engine_flags );
 
                 g3dobject_addChild ( ( G3DOBJECT * ) sce, 
-                                     ( G3DOBJECT * ) mes );
+                                     ( G3DOBJECT * ) mes, engine_flags );
 
                 if ( vertab ) { 
                     free ( vertab ); 
@@ -183,7 +183,7 @@ G3DSCENE *readFile ( FILE *fsrc, uint32_t engine_flags ) {
                     mes = g3dmesh_new ( oid, "Mesh", engine_flags );
 
                     g3dobject_addChild ( ( G3DOBJECT * ) sce, 
-                                         ( G3DOBJECT * ) mes );
+                                         ( G3DOBJECT * ) mes, engine_flags );
                 }
 
                 ver = readVertex ( str ); 

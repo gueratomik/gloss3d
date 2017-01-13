@@ -43,6 +43,7 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm, G3DMESH *mes, int clockwise,
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |

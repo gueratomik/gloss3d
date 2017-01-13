@@ -85,6 +85,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   RESETMODIFIERS, gui->flags );
         }
 
@@ -93,6 +94,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         if ( ( newmode & VIEWFACE ) || ( oldmode & VIEWFACE ) ) {
             if ( mes->lselfac ) {
                 g3dmesh_update ( mes, NULL,
+                                      NULL,
                                       NULL,
                                       RESETMODIFIERS, gui->flags );
             }

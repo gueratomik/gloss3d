@@ -41,6 +41,7 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, uint32_t engine_flags ) {
 
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   RESETMODIFIERS, engine_flags );
         }
 

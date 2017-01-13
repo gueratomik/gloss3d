@@ -308,8 +308,9 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 
         g3dmesh_updateBbox ( commitMesh );
  
-        g3dmesh_update ( commitMesh, NULL, /*** Recompute vertices    ***/
-                                     NULL, /*** Recompute faces       ***/
+        g3dmesh_update ( commitMesh, NULL, /*** update vertices    ***/
+                                     NULL, /*** update edges       ***/
+                                     NULL, /*** update faces       ***/
                                      UPDATEFACEPOSITION |
                                      UPDATEFACENORMAL   |
                                      UPDATEVERTEXNORMAL |
@@ -487,7 +488,8 @@ void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         LIST *lver = NULL;
 
-        if ( engine_flags & VIEWVERTEX ) {
+        if ( ( engine_flags & VIEWVERTEX ) || 
+             ( engine_flags & VIEWSKIN   ) ) {
             lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
         }
 

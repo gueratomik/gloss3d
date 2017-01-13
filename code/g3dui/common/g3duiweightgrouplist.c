@@ -138,8 +138,10 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
             /*** update vertex painting ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   UPDATEVERTEXNORMAL |
-                                  UPDATEFACENORMAL, gui->flags );
+                                  UPDATEFACENORMAL |
+                                  RESETMODIFIERS, gui->flags );
 
             list_free ( &lsub, NULL );
 
@@ -160,8 +162,6 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         G3DWEIGHTGROUP *curgrp = mes->curgrp;
-/*** TODO - check if we are in buffered mode. Otherwise this is not needed ***/
-        LIST *lsub = ( curgrp ) ? g3dvertex_getFacesFromList ( curgrp->lver ) : NULL;
 
         /*** deselect previsouly selected weightgroup ***/
         if ( mes->curgrp ) {
@@ -170,21 +170,19 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
             g3dmesh_unselectWeightGroup ( mes, curgrp );
 
             /*** update vertex painting ***/
-            g3dmesh_update ( mes, NULL,
+            g3dmesh_update ( mes, curgrp->lver,
                                   NULL,
-                                  0x00, gui->flags );
-
-            list_free ( &lsub, NULL );
+                                  NULL,
+                                  UPDATEMODIFIERS, gui->flags );
         }
 
         g3dmesh_selectWeightGroup ( mes, grp );
 
         /*** update vertex painting ***/
-        g3dmesh_update ( mes, NULL,
+        g3dmesh_update ( mes, grp->lver,
                               NULL,
-                              0x00, gui->flags );
-
-        list_free ( &lsub, NULL );
+                              NULL,
+                              RESETMODIFIERS, gui->flags );
 
         g3dui_redrawGLViews ( gui );
         g3dui_updateAllCurrentEdit ( gui );

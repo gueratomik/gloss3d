@@ -122,11 +122,16 @@ void g3dvertex_renumberList ( LIST *lver, uint32_t id ) {
 }
 
 /******************************************************************************/
-void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
-    G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
-    LIST     *ltmpfac = ver->lfac;
-    LIST     *ltmptex = ltex;
-    uint32_t  nbuv = 0x00;
+void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
+    G3DVECTOR  displaced = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+    LIST      *ltmpfac = ver->lfac;
+    LIST      *ltmptex = ltex;
+    uint32_t   nbuv = 0x00;
+
+    pos->x = ( ver->flags & VERTEXSKINNED ) ? ver->skn.x : ver->pos.x;
+    pos->y = ( ver->flags & VERTEXSKINNED ) ? ver->skn.y : ver->pos.y;
+    pos->z = ( ver->flags & VERTEXSKINNED ) ? ver->skn.z : ver->pos.z;
+    pos->w = ( ver->flags & VERTEXSKINNED ) ? ver->skn.w : ver->pos.w;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -189,9 +194,9 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
 
                                 factor = gray * mat->displacement_strength * 0.001f;
   
-                                pos.x += ( ver->nor.x * factor );
-                                pos.y += ( ver->nor.y * factor );
-                                pos.z += ( ver->nor.z * factor );
+                                displaced.x += ( ver->nor.x * factor );
+                                displaced.y += ( ver->nor.y * factor );
+                                displaced.z += ( ver->nor.z * factor );
 
 
                             }
@@ -214,9 +219,9 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex ) {
 
 
     if ( nbuv ) {
-        ver->pos.x += ( pos.x / nbuv );
-        ver->pos.y += ( pos.y / nbuv );
-        ver->pos.z += ( pos.z / nbuv );
+        pos->x += ( displaced.x / nbuv );
+        pos->y += ( displaced.y / nbuv );
+        pos->z += ( displaced.z / nbuv );
     }
 }
 

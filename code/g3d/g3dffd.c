@@ -175,6 +175,7 @@ uint32_t g3dffd_modify ( G3DFFD *ffd, uint32_t engine_flags ) {
         }
 
         g3dmesh_update ( parent, ffd->lver,
+                                 NULL,
                                  ffd->lfac,
                                  UPDATEFACEPOSITION |
                                  UPDATEFACENORMAL   |

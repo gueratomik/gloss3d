@@ -165,7 +165,7 @@ void startElement ( void *, const XML_Char *, const XML_Char ** );
 void endElement ( void *, const XML_Char * );
 XMLDATA *xmldata_new ( uint32_t );
 void xmldata_free ( XMLDATA * );
-G3DSCENE *xmldata_convert ( XMLDATA * );
+G3DSCENE *xmldata_convert ( XMLDATA *, uint32_t );
 G3DSCENE *g3dscene_importCollada ( const char *, uint32_t );
 VERTEXARRAY *vertexarray_new ( char *, char * );
 

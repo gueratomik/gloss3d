@@ -91,7 +91,10 @@ void g3dpivot_orbit ( G3DPIVOT *piv, int32_t x   , int32_t y,
 /******************************************************************************/
 /*** The principle is to build a pivot that has its Zaxis parallel to the   ***/
 /*** Camera's world ZAxis, so we get nice rotation ***/
-void g3dpivot_init ( G3DPIVOT *piv, G3DCAMERA *cam, G3DVECTOR *pos ) {
+void g3dpivot_init ( G3DPIVOT  *piv, 
+                     G3DCAMERA *cam, 
+                     G3DVECTOR *pos, 
+                     uint32_t   engine_flags ) {
     G3DOBJECT *objpiv   = ( G3DOBJECT * ) piv;
     G3DOBJECT *objcam   = ( G3DOBJECT * ) cam;
     G3DOBJECT *yaxisobj = objpiv;
@@ -123,8 +126,8 @@ void g3dpivot_init ( G3DPIVOT *piv, G3DCAMERA *cam, G3DVECTOR *pos ) {
     objpiv->pos.y = pos->y;
     objpiv->pos.z = pos->z;
 
-    g3dobject_addChild ( yaxisobj, xaxisobj );
-    g3dobject_addChild ( xaxisobj, locam    );
+    g3dobject_addChild ( yaxisobj, xaxisobj, engine_flags );
+    g3dobject_addChild ( xaxisobj, locam   , engine_flags );
 
     /*** The rotation matrix helps us to determine camera orientation ***/
     /*** without being altered byt the translation values ***/
@@ -163,7 +166,9 @@ void g3dpivot_init ( G3DPIVOT *piv, G3DCAMERA *cam, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
-G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, G3DVECTOR *pos ) {
+G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
+                         G3DVECTOR *pos, 
+                         uint32_t   engine_flags ) {
     G3DPIVOT *piv = ( G3DPIVOT * ) calloc ( 0x01, sizeof ( G3DPIVOT ) );
 
     if ( piv == NULL ) {
@@ -172,7 +177,7 @@ G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, G3DVECTOR *pos ) {
         return NULL;
     }
 
-    g3dpivot_init ( piv, cam, pos );
+    g3dpivot_init ( piv, cam, pos, engine_flags );
 
 
     return piv;

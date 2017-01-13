@@ -102,7 +102,7 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
 
             g3dscene_selectObject ( sce, child, flags );
 
-            g3dobject_addChild ( child->parent, child );
+            g3dobject_addChild ( child->parent, child, flags );
 
             lselobj = lselobj->next;
         }
@@ -141,6 +141,7 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
             /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
@@ -161,7 +162,7 @@ void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
         /*** Here we cannot just replace sce->lselobj with ***/
         /*** lsel because some flags are turned on in      ***/
         /*** objects structure when added to a scene.      ***/
-        g3dscene_deleteSelectedObjects ( sce );
+        g3dscene_deleteSelectedObjects ( sce, flags );
 
         g3dscene_checkLights ( sce );
     } else {
@@ -196,6 +197,7 @@ void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
             /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
+                                  NULL,
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
@@ -214,7 +216,7 @@ void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
     loldselobj = list_copy ( sce->lsel );
 
     /*** perform action ***/
-    g3dscene_deleteSelectedObjects ( sce );
+    g3dscene_deleteSelectedObjects ( sce, flags );
 
     g3dscene_checkLights ( sce );
 

@@ -82,6 +82,7 @@ void addVertex_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -102,6 +103,7 @@ void addVertex_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |

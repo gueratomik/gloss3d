@@ -636,7 +636,9 @@ void g3dobject_appendChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
 }
 
 /******************************************************************************/
-void g3dobject_addChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
+void g3dobject_addChild ( G3DOBJECT *obj, 
+                          G3DOBJECT *child,
+                          uint32_t   engine_flags ) {
     list_insert ( &obj->lchildren, child );
 
     child->parent = obj;
@@ -644,10 +646,15 @@ void g3dobject_addChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
     if ( child->type == G3DLIGHTTYPE ) {
         g3dlight_init ( ( G3DLIGHT * ) child );
     }
+
+    if ( obj->addChild    ) obj->addChild  ( obj  , child, engine_flags );
+    if ( child->setParent ) obj->setParent ( child, obj  , engine_flags );
 }
 
 /******************************************************************************/
-void g3dobject_removeChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
+void g3dobject_removeChild ( G3DOBJECT *obj, 
+                             G3DOBJECT *child,
+                             uint32_t   engine_flags ) {
     list_remove ( &obj->lchildren, child );
 
     /*** This field is used in "deleteSelectedItems_undo()" ***/
@@ -657,6 +664,8 @@ void g3dobject_removeChild ( G3DOBJECT *obj, G3DOBJECT *child ) {
     if ( child->type == G3DLIGHTTYPE ) {
         g3dlight_zero ( ( G3DLIGHT * ) child );
     }
+
+    /*if ( child->setParent ) obj->setParent   ( child, NULL , engine_flags );*/
 }
 
 /******************************************************************************/
@@ -901,20 +910,22 @@ G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
 /*** Swap a child w/out changing its world matrix, i.e changing the child's ***/
 /*** local matrix in such a way that child_local_matrix*parent_local_matrix ***/
 /*** leaves the child's world matrix unchanged ***/
-void g3dobject_importChild ( G3DOBJECT *newparent, G3DOBJECT *child ) {
+void g3dobject_importChild ( G3DOBJECT *newparent, 
+                             G3DOBJECT *child, 
+                             uint32_t   engine_flags ) {
     double invmatrix[0x10];
     double outmatrix[0x10];
 
     g3dcore_invertMatrix ( newparent->wmatrix, invmatrix );
     g3dcore_multmatrix   ( child->wmatrix    , invmatrix, outmatrix );
 
-    if ( child->parent ) g3dobject_removeChild ( child->parent, child );
+    if ( child->parent ) g3dobject_removeChild ( child->parent, child, engine_flags );
 
     g3dcore_getMatrixScale       ( outmatrix, &child->sca );
     g3dcore_getMatrixRotation    ( outmatrix, &child->rot );
     g3dcore_getMatrixTranslation ( outmatrix, &child->pos );
 
-    g3dobject_addChild ( newparent, child );
+    g3dobject_addChild ( newparent, child, engine_flags );
 
     g3dobject_updateMatrix_r ( child, 0x00 );
 
@@ -934,7 +945,7 @@ G3DOBJECT *g3dobject_copy ( G3DOBJECT *obj, uint32_t       id,
 
         g3dobject_addChild ( cpyobj, g3dobject_copy ( child, child->id,
                                                              child->name,
-                                                             engine_flags ) );
+                                                             engine_flags ), engine_flags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -1149,6 +1160,16 @@ uint32_t g3dobject_countChildren_r ( G3DOBJECT *obj ) {
     }
 
     return nbkid;
+}
+
+/******************************************************************************/
+uint32_t g3dobject_getID ( G3DOBJECT *obj ) {
+    return obj->id;
+}
+
+/******************************************************************************/
+char *g3dobject_getName ( G3DOBJECT *obj ) {
+    return obj->name;
 }
 
 /******************************************************************************/

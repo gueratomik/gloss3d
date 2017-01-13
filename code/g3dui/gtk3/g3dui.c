@@ -715,13 +715,51 @@ void g3dui_redrawTimeline       ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void g3dui_setHourGlass         ( G3DUI *gui ) {
+static GtkWidget *getFocusedWidget_r ( GtkWidget *widget ) {
+    if ( gtk_widget_is_focus ( widget ) ) {
+        return widget;
+    } else {
+        if ( GTK_IS_CONTAINER ( widget ) ) {
+            GList *children = gtk_container_get_children ( GTK_CONTAINER (widget) );
 
+            while ( children ) {
+                GtkWidget *child = ( GtkWidget * ) children->data;
+
+                if ( getFocusedWidget_r ( child ) ) {
+                    return child;
+                }
+
+                children = g_list_next ( children );
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dui_setHourGlass ( G3DUI *gui ) {
+    G3DUIGTK3  *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkWindow  *win  = gtk_widget_get_parent(ggt->top);
+    GtkWidget  *foc  = gtk_window_get_focus ( win );
+    GdkWindow  *pwin = gtk_widget_get_parent_window ( foc );
+    GdkDisplay *dis  = gdk_window_get_display ( pwin );
+    GdkCursor  *cur  = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    /* set watch cursor */
+
+    gdk_window_set_cursor ( pwin, cur );
+    /** must flush **/
+    gdk_flush ( );
 }
 
 /******************************************************************************/
 void g3dui_unsetHourGlass       ( G3DUI *gui ) {
-
+    G3DUIGTK3 *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkWindow *win  = gtk_widget_get_parent(ggt->top);
+    GtkWidget *foc  = gtk_window_get_focus ( win );
+    GdkWindow *pwin = gtk_widget_get_parent_window ( foc );
+    /* return to normal */
+    gdk_window_set_cursor ( pwin, NULL );
 }
 
 /******************************************************************************/

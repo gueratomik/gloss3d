@@ -30,6 +30,205 @@
 #include <g3d.h>
 
 /******************************************************************************/
+G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
+                                  double  *SMX,
+                                  uint32_t engine_flags ) {
+    uint32_t structSize = sizeof ( G3DVERTEX * );
+    G3DMESH *symmes = g3dmesh_new ( 0x00, "Mesh", engine_flags );
+
+    g3dmesh_renumberVertices ( mes );
+    g3dmesh_renumberEdges    ( mes );
+    g3dmesh_renumberFaces    ( mes );
+
+    if ( mes->nbver ) {
+        /*** original vertices array ***/
+        G3DVERTEX **oriver = ( G3DVERTEX ** ) calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
+        /*** mirrored vertices array ***/
+        G3DVERTEX **symver = ( G3DVERTEX ** ) calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
+        /*** original edges array ***/
+        G3DEDGE **oriedg   = ( G3DEDGE   ** ) calloc ( mes->nbedg, sizeof ( G3DEDGE * ) );
+        /*** mirrored edges array ***/
+        G3DEDGE **symedg   = ( G3DEDGE   ** ) calloc ( mes->nbedg, sizeof ( G3DEDGE * ) );
+        LIST *lver = mes->lver;
+        LIST *ledg = mes->ledg;
+        LIST *lfac = mes->lfac;
+        uint32_t verid = 0x00;
+        uint32_t edgid = 0x00;
+        double *localMatrix = ((G3DOBJECT*)mes)->lmatrix;
+        double  localSymmix[0x10];
+
+        g3dcore_multmatrix ( localMatrix ,SMX, localSymmix );
+
+        /*** copy and mirror vertices ***/
+        while ( lver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
+            G3DVECTOR pos;
+
+            ver->id = verid++;
+
+            g3dvector_matrix ( &ver->pos, localMatrix, &pos );
+
+            oriver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
+ 
+            g3dmesh_addVertex ( symmes, oriver[ver->id] );
+
+            /*** Don't mirror vertices that are welded ***/
+            if ( ( ver->flags & VERTEXSYMYZ ) ||
+                 ( ver->flags & VERTEXSYMXY ) ||
+                 ( ver->flags & VERTEXSYMZX ) ) {
+                symver[ver->id] = oriver[ver->id];
+            } else {
+                G3DVECTOR pos;
+
+                g3dvector_matrix ( &ver->pos, localSymmix, &pos );
+
+                symver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
+
+                g3dmesh_addVertex ( symmes, symver[ver->id] );
+            }
+
+            lver = lver->next;
+        }
+
+        while ( ledg ) {
+            G3DEDGE *edg = ( G3DEDGE * ) ledg->data;
+
+            edg->id = edgid++;
+
+            oriedg[edg->id] = g3dedge_new ( oriver[edg->ver[0x00]->id],
+                                            oriver[edg->ver[0x01]->id] );
+ 
+            g3dmesh_addEdge ( symmes, oriedg[edg->id] );
+
+            /*** Don't mirror vertices that are welded ***/
+            if ( ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) ||
+                   ( edg->ver[0x00]->flags & VERTEXSYMXY ) ||
+                   ( edg->ver[0x00]->flags & VERTEXSYMZX ) ) &&
+                 ( ( edg->ver[0x01]->flags & VERTEXSYMYZ ) ||
+                   ( edg->ver[0x01]->flags & VERTEXSYMXY ) ||
+                   ( edg->ver[0x01]->flags & VERTEXSYMZX ) ) ) {
+                symedg[edg->id] = oriedg[edg->id];
+            } else {
+                symedg[edg->id] = g3dedge_new ( symver[edg->ver[0x00]->id],
+                                                symver[edg->ver[0x01]->id] );
+
+                g3dmesh_addEdge ( symmes, symedg[edg->id] );
+            }
+
+            ledg = ledg->next;
+        }
+
+        /*** copy and mirror faces ***/
+        while ( lfac ) {
+            G3DFACE *fac = ( G3DFACE * ) lfac->data;
+
+            switch ( fac->nbver ) {
+                case 0x03 : {
+                    G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
+                              *vori1 = oriver[fac->ver[0x01]->id],
+                              *vori2 = oriver[fac->ver[0x02]->id];
+                    G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
+                              *vsym1 = symver[fac->ver[0x01]->id],
+                              *vsym2 = symver[fac->ver[0x02]->id];
+
+                    G3DFACE *tri[0x02] = { g3dtriangle_new ( vori0, 
+                                                             vori1,
+                                                             vori2 ),
+                                           g3dtriangle_new ( vsym2,
+                                                             vsym1,
+                                                             vsym0 ) };
+
+                    tri[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
+                    tri[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
+                    tri[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
+
+                    g3dedge_addFace ( oriedg[fac->edg[0x00]->id], tri[0x00] );
+                    g3dedge_addFace ( oriedg[fac->edg[0x01]->id], tri[0x00] );
+                    g3dedge_addFace ( oriedg[fac->edg[0x02]->id], tri[0x00] );
+
+                    tri[0x01]->edg[0x00] = symedg[fac->edg[0x01]->id];
+                    tri[0x01]->edg[0x01] = symedg[fac->edg[0x00]->id];
+                    tri[0x01]->edg[0x02] = symedg[fac->edg[0x02]->id];
+
+                    g3dedge_addFace ( symedg[fac->edg[0x00]->id], tri[0x01] );
+                    g3dedge_addFace ( symedg[fac->edg[0x01]->id], tri[0x01] );
+                    g3dedge_addFace ( symedg[fac->edg[0x02]->id], tri[0x01] );
+
+                    g3dmesh_addFace ( symmes, tri[0x00] );
+                    g3dmesh_addFace ( symmes, tri[0x01] );
+                } break;
+
+                case 0x04 : {
+                    G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
+                              *vori1 = oriver[fac->ver[0x01]->id],
+                              *vori2 = oriver[fac->ver[0x02]->id],
+                              *vori3 = oriver[fac->ver[0x03]->id];
+                    G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
+                              *vsym1 = symver[fac->ver[0x01]->id],
+                              *vsym2 = symver[fac->ver[0x02]->id],
+                              *vsym3 = symver[fac->ver[0x03]->id];
+
+                    G3DFACE *qua[0x02] = { g3dquad_new ( vori0, vori1,
+                                                         vori2, vori3 ),
+                                           g3dquad_new ( vsym3, vsym2,
+                                                         vsym1, vsym0 ) };
+
+                    qua[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
+                    qua[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
+                    qua[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
+                    qua[0x00]->edg[0x03] = oriedg[fac->edg[0x03]->id];
+
+                    g3dedge_addFace ( oriedg[fac->edg[0x00]->id], qua[0x00] );
+                    g3dedge_addFace ( oriedg[fac->edg[0x01]->id], qua[0x00] );
+                    g3dedge_addFace ( oriedg[fac->edg[0x02]->id], qua[0x00] );
+                    g3dedge_addFace ( oriedg[fac->edg[0x03]->id], qua[0x00] );
+
+                    qua[0x01]->edg[0x00] = symedg[fac->edg[0x02]->id];
+                    qua[0x01]->edg[0x01] = symedg[fac->edg[0x01]->id];
+                    qua[0x01]->edg[0x02] = symedg[fac->edg[0x00]->id];
+                    qua[0x01]->edg[0x03] = symedg[fac->edg[0x03]->id];
+
+                    g3dedge_addFace ( symedg[fac->edg[0x02]->id], qua[0x01] );
+                    g3dedge_addFace ( symedg[fac->edg[0x01]->id], qua[0x01] );
+                    g3dedge_addFace ( symedg[fac->edg[0x00]->id], qua[0x01] );
+                    g3dedge_addFace ( symedg[fac->edg[0x03]->id], qua[0x01] );
+
+                    g3dmesh_addFace ( symmes, qua[0x00] );
+                    g3dmesh_addFace ( symmes, qua[0x01] );
+                } break;
+
+                default :
+                break;
+            }
+
+            lfac = lfac->next;
+        }
+
+        if ( oriver ) free ( oriver );
+        if ( symver ) free ( symver );
+        if ( oriedg ) free ( oriedg );
+        if ( symedg ) free ( symedg );
+    }
+
+    g3dmesh_update ( symmes, NULL, /*** update vertices    ***/
+                             NULL, /*** update edges       ***/
+                             NULL, /*** update faces       ***/
+                             UPDATEFACEPOSITION |
+                             UPDATEFACENORMAL   |
+                             UPDATEVERTEXNORMAL,
+                             engine_flags );
+
+    return symmes;
+}
+
+/******************************************************************************/
+void g3dmesh_addChild ( G3DMESH   *mes,
+                        G3DOBJECT *child, 
+                        uint32_t   engine_flags ) {
+    g3dmesh_modify_r ( mes, engine_flags );
+}
+
+/******************************************************************************/
 uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbver */
                                                                 uint32_t, /* nbtris */
                                                                 uint32_t, /* nbquads */
@@ -304,8 +503,9 @@ G3DMESH *g3dmesh_merge ( LIST *lobj, uint32_t mesID, uint32_t engine_flags ) {
         ltmpobj = ltmpobj->next;
     }
 
-    g3dmesh_update ( mrg, NULL, /*** Recompute vertices    ***/
-                          NULL, /*** Recompute faces       ***/
+    g3dmesh_update ( mrg, NULL, /*** update vertices    ***/
+                          NULL, /*** update edges       ***/
+                          NULL, /*** update faces       ***/
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -410,8 +610,9 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
 
     list_free ( &lselver, NULL );
 
-    g3dmesh_update ( mes, NULL, /*** Recompute vertices    ***/
-                          NULL, /*** Recompute faces       ***/
+    g3dmesh_update ( mes, NULL, /*** update vertices    ***/
+                          NULL, /*** update edges       ***/
+                          NULL, /*** update faces       ***/
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -419,8 +620,9 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
                           RESETMODIFIERS,
                           engine_flags );
 
-    g3dmesh_update ( spl, NULL, /*** Recompute vertices    ***/
-                          NULL, /*** Recompute faces       ***/
+    g3dmesh_update ( spl, NULL, /*** update vertices    ***/
+                          NULL, /*** update edges       ***/
+                          NULL, /*** update faces       ***/
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -611,7 +813,7 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
 
     mes->nbuvmap++; /** TODO : decrease on UVMap removal ***/
 
-    g3dobject_addChild ( ( G3DOBJECT * ) mes, ( G3DOBJECT * ) map );
+    g3dobject_addChild ( ( G3DOBJECT * ) mes, ( G3DOBJECT * ) map, engine_flags );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -626,6 +828,7 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
 
     /*** We must alloc memory for the subdivided uvsets ***/
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           0x00, engine_flags );
 
@@ -1331,6 +1534,7 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( cpymes, NULL,
                              NULL,
+                             NULL,
                              UPDATEFACEPOSITION |
                              UPDATEFACENORMAL   |
                              UPDATEVERTEXNORMAL, engine_flags );
@@ -1787,8 +1991,9 @@ void g3dmesh_allocSubPatterns ( G3DMESH *mes, uint32_t level ) {
 }
 
 /******************************************************************************/
-void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
-                                    LIST *lfac, /*** Recompute faces       ***/
+void g3dmesh_update ( G3DMESH *mes, LIST    *lver, /*** update vertices    ***/
+                                    LIST    *ledg, /*** update edges       ***/
+                                    LIST    *lfac, /*** update faces       ***/
                                     uint32_t update_flags,
                                     uint32_t engine_flags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
@@ -1861,6 +2066,26 @@ void g3dmesh_update ( G3DMESH *mes, LIST *lver, /*** Recompute vertices    ***/
         g3dmesh_renumberFaces    ( mes );
 
         g3dmesh_modify_r ( mes, engine_flags );
+    }
+
+    if ( update_flags & UPDATEMODIFIERS ) {
+        /*** modifier update is based on selected vertices/faces/edges ***/
+        LIST *ltmpselver = mes->lselver,
+             *ltmpseledg = mes->lseledg,
+             *ltmpselfac = mes->lselfac;
+
+        mes->lselver = ( lver == NULL ) ? mes->lver : lver;
+        mes->lseledg = ( ledg == NULL ) ? mes->ledg : ledg;
+        mes->lselfac = ( lfac == NULL ) ? mes->lfac : lfac;
+
+        g3dmesh_startUpdateModifiers_r ( mes, engine_flags );
+        g3dmesh_updateModifiers_r      ( mes, engine_flags );
+        g3dmesh_endUpdateModifiers_r   ( mes, engine_flags );
+
+        /*** restore selected items ***/
+        mes->lselver = ltmpselver;
+        mes->lseledg = ltmpseledg;
+        mes->lselfac = ltmpselfac;
     }
 }
 
@@ -2307,9 +2532,9 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
 
     takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
 
-    /*if ( takenOver & MODIFIERTAKESOVER ) {
+    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
         glDisable ( GL_DEPTH_TEST );
-    }*/
+    }
 
     glEnable   ( GL_COLOR_MATERIAL );
     glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
@@ -2397,9 +2622,9 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         glPopAttrib ( );
     }
 
-    /*if ( takenOver & MODIFIERTAKESOVER ) {
-        glEnable ( GL_DEPTH_TEST );
-    }*/
+    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
+        glEnable ( GL_DEPTH_TEST ); 
+    }
 
     return 0x00;
 }
@@ -2687,6 +2912,7 @@ void g3dmesh_invertFaceSelection ( G3DMESH *mes, uint32_t engine_flags ) {
 
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           0x00, engine_flags );
 }
 
@@ -2712,6 +2938,7 @@ void g3dmesh_invertEdgeSelection ( G3DMESH *mes, uint32_t engine_flags ) {
 
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           0x00, engine_flags );
 }
 
@@ -2736,6 +2963,7 @@ void g3dmesh_invertVertexSelection ( G3DMESH *mes, uint32_t engine_flags ) {
     list_free ( &lselver, NULL );
 
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           0x00, engine_flags );
 }
@@ -2943,15 +3171,11 @@ void g3dmesh_paintVertices ( G3DMESH *mes,
         ltmpver = ltmpver->next;
     }
 
-    /*** modifier update is based on selected vertices/faces/edges ***/
-    ltmpselver   = mes->lselver;
-    mes->lselver = lselver;
-
-    g3dmesh_startUpdateModifiers_r ( mes, engine_flags );
-    g3dmesh_updateModifiers_r ( mes, engine_flags );
-    g3dmesh_endUpdateModifiers_r ( mes, engine_flags );
-
-    mes->lselver = ltmpselver;
+    g3dmesh_update ( mes, lselver,
+                          NULL,
+                          NULL,
+                          UPDATEMODIFIERS,
+                          engine_flags );
 
     list_free ( &lselver, NULL );
 }
@@ -3339,6 +3563,7 @@ void g3dmesh_onGeometryMove ( G3DMESH *mes, LIST    *lver,
                                             LIST    *lfac,
                                             uint32_t engine_flags ) {
     g3dmesh_update ( mes, lver,
+                          ledg,
                           lfac,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
@@ -3361,7 +3586,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
                                                  NULL,
                                                  NULL,
                                                  NULL,
-                                                 NULL,
+                                                 g3dmesh_addChild,
                                                  NULL );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/

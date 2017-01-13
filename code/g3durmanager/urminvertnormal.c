@@ -74,6 +74,7 @@ void invertNormal_undo ( G3DURMANAGER *urm, void *data,
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -101,6 +102,7 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, G3DMESH *mes,
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |

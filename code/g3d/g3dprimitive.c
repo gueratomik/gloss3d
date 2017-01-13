@@ -73,6 +73,7 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL, engine_flags );
@@ -80,8 +81,8 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;
 
-        g3dobject_removeChild ( parent, obj );
-        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes );
+        g3dobject_removeChild ( parent, obj, engine_flags );
+        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
     }
 
     /*** Restore the default copy function ***/

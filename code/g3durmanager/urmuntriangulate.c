@@ -94,6 +94,7 @@ void unTriangulate_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -122,6 +123,7 @@ void unTriangulate_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
+                          NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
@@ -140,6 +142,7 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, G3DMESH *mes,
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
+                          NULL,
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
