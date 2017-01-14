@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
-                                  double  *SMX,
+                                  double  *MVX,
                                   uint32_t engine_flags ) {
     uint32_t structSize = sizeof ( G3DVERTEX * );
     G3DMESH *symmes = g3dmesh_new ( 0x00, "Mesh", engine_flags );
@@ -54,10 +54,13 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         LIST *lfac = mes->lfac;
         uint32_t verid = 0x00;
         uint32_t edgid = 0x00;
-        double *localMatrix = ((G3DOBJECT*)mes)->lmatrix;
+        double *localMatrix        = ((G3DOBJECT*)mes)->lmatrix;
+        double *inverseWorldMatrix = ((G3DOBJECT*)mes)->iwmatrix;
         double  localSymmix[0x10];
+        double  worldSymmix[0x10];
 
-        g3dcore_multmatrix ( localMatrix ,SMX, localSymmix );
+        g3dcore_multmatrix ( localMatrix, MVX, worldSymmix );
+        g3dcore_multmatrix ( worldSymmix, inverseWorldMatrix, localSymmix );
 
         /*** copy and mirror vertices ***/
         while ( lver ) {
@@ -66,10 +69,13 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 
             ver->id = verid++;
 
-            g3dvector_matrix ( &ver->pos, localMatrix, &pos );
+            /*g3dvector_matrix ( &ver->pos, localMatrix, &pos );
 
-            oriver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
- 
+            oriver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );*/
+            oriver[ver->id] = g3dvertex_new ( ver->pos.x, 
+                                              ver->pos.y,
+                                              ver->pos.z );
+
             g3dmesh_addVertex ( symmes, oriver[ver->id] );
 
             /*** Don't mirror vertices that are welded ***/

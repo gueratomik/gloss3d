@@ -33,50 +33,67 @@
 G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
                                 uint32_t     engine_flags ) {
     G3DOBJECT *objsym = ( G3DOBJECT * ) sym;
+    G3DSYMMETRY *newsym = g3dsymmetry_new ( objsym->id, objsym->name );
 
-    return g3dsymmetry_new ( objsym->id, objsym->name );
+    g3dsymmetry_setPlane ( newsym, sym->orientation );
+    g3dsymmetry_setMergeLimit ( newsym, sym->mergelimit );
+
+    return ;
 }
 
 /******************************************************************************/
-G3DOBJECT *g3dsymmetry_convert_r ( G3DOBJECT *obj,
-                                   double    *SMX,
-                                   uint32_t   engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
-    G3DOBJECT *symobj;
-
-    switch ( obj->type ) {
-        case G3DMESHTYPE :
-            symobj = g3dmesh_symmetricMerge ( obj, SMX, engine_flags );
-        break;
-
-        case G3DSYMMETRYTYPE :
-            symobj = g3dobject_new ( g3dobject_getID   ( obj ), 
-                                     g3dobject_getName ( obj ), 0x00 );
-        break;
-
-        default:
-            symobj = obj->copy ( obj, obj->id, obj->name, engine_flags );
-        break;
-    }
+void g3dsymmetry_convert_r ( G3DOBJECT *obj,
+                             G3DOBJECT *ori, /* original object */
+                             double    *MVX,
+                             uint32_t   engine_flags ) {
+    LIST *ltmpchildren = ori->lchildren;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+        double matrix[0x10];
+        G3DOBJECT *symobj;
 
-        g3dobject_addChild ( symobj, g3dsymmetry_convert_r ( child, 
-                                                             SMX,
-                                                             engine_flags ), engine_flags );
+        switch ( child->type ) {
+            case G3DMESHTYPE :
+                symobj = g3dmesh_symmetricMerge ( child, MVX, engine_flags );
+            break;
+   
+            default:
+                symobj = child->copy ( child, child->id, 
+                                              child->name, engine_flags );
+            break;
+        }
+
+        g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
+                                          ( G3DOBJECT * ) child );
+
+        g3dobject_addChild ( obj, symobj, engine_flags );
+
+        g3dcore_multmatrix ( child->lmatrix, MVX, matrix );
+
+        g3dsymmetry_convert_r ( symobj, child, matrix, engine_flags );
 
         ltmpchildren = ltmpchildren->next;
     }
-
-    return symobj;
 }
 
 /*****************************************************************************/
 G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, uint32_t engine_flags ) {
+    G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( sym ),
+                                     g3dobject_getName ( sym ), 0x00 );
+    double *worldMatrix = ((G3DOBJECT*)sym)->wmatrix;
+    double  matrix[0x10];
+
+    g3dcore_multmatrix ( sym->smatrix, worldMatrix, matrix );
+
+    g3dobject_importTransformations ( ( G3DOBJECT * ) obj,
+                                      ( G3DOBJECT * ) sym );
+
+    g3dsymmetry_convert_r ( obj, sym, matrix, engine_flags );
 
 
-    return g3dsymmetry_convert_r ( sym, sym->smatrix, engine_flags );;
+
+    return obj;
 }
 
 /******************************************************************************/

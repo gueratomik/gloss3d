@@ -30,6 +30,20 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dobject_renumber_r ( G3DOBJECT *obj, uint32_t *id ) {
+    LIST *ltmpchildren = obj->lchildren;
+    obj->id = (*id)++;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        g3dobject_renumber_r ( child, id );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
 G3DOBJECT *g3dobject_getActiveParentByType ( G3DOBJECT *obj, uint32_t type ) {
     G3DOBJECT *parent = obj->parent;
 

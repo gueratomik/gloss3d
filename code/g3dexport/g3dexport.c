@@ -2209,6 +2209,9 @@ void g3dscene_write ( G3DSCENE *sce, char *filename,
         return;
     }
 
+    /* get unique IDs for all objects */
+    /*g3dobject_renumber_r ( sce, &objid );*/
+
     writef ( MAGSIG, strlen ( MAGSIG ), 0x01, fdst );
 
     chunk_write ( APPSIG, app_blocksize ( version,
