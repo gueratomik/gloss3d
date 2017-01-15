@@ -523,6 +523,10 @@ uint32_t g3dvertex_isBorder ( G3DVERTEX *ver ) {
     return 0x00;
 }
 
+/******************************************************************************/
+uint32_t g3dvertex_isBoundary ( G3DVERTEX *ver ) {
+    return ( ver->nbfac != ver->nbedg );
+}
 
 /******************************************************************************/
 G3DSPLITVERTEX *g3dsplitvertex_new ( G3DVERTEX *ver ) {

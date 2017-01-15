@@ -101,24 +101,32 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 
             edg->id = edgid++;
 
-            oriedg[edg->id] = g3dedge_new ( oriver[edg->ver[0x00]->id],
-                                            oriver[edg->ver[0x01]->id] );
- 
-            g3dmesh_addEdge ( symmes, oriedg[edg->id] );
+            /** a face should not have all of its vertices mirrored ***/
+            /** or else this likely means a face will fully merge with ***/
+            /** its mirrored counterpart and this can cause some issues ***/
+            /** later on, like subdivision surfaces etc... So, skip the ***/
+            /** edges that are not needed when the fully mirrored faces ***/
+            /** are dicarded. See below. ***/
+            if ( g3dedge_hasOnlyFullyMirroredFaces ( edg ) == 0x00 ) {
+                oriedg[edg->id] = g3dedge_new ( oriver[edg->ver[0x00]->id],
+                                                oriver[edg->ver[0x01]->id] );
 
-            /*** Don't mirror vertices that are welded ***/
-            if ( ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) ||
-                   ( edg->ver[0x00]->flags & VERTEXSYMXY ) ||
-                   ( edg->ver[0x00]->flags & VERTEXSYMZX ) ) &&
-                 ( ( edg->ver[0x01]->flags & VERTEXSYMYZ ) ||
-                   ( edg->ver[0x01]->flags & VERTEXSYMXY ) ||
-                   ( edg->ver[0x01]->flags & VERTEXSYMZX ) ) ) {
-                symedg[edg->id] = oriedg[edg->id];
-            } else {
-                symedg[edg->id] = g3dedge_new ( symver[edg->ver[0x00]->id],
-                                                symver[edg->ver[0x01]->id] );
+                g3dmesh_addEdge ( symmes, oriedg[edg->id] );
 
-                g3dmesh_addEdge ( symmes, symedg[edg->id] );
+                /*** Don't mirror vertices that are welded ***/
+                if ( ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) ||
+                       ( edg->ver[0x00]->flags & VERTEXSYMXY ) ||
+                       ( edg->ver[0x00]->flags & VERTEXSYMZX ) ) &&
+                     ( ( edg->ver[0x01]->flags & VERTEXSYMYZ ) ||
+                       ( edg->ver[0x01]->flags & VERTEXSYMXY ) ||
+                       ( edg->ver[0x01]->flags & VERTEXSYMZX ) ) ) {
+                    symedg[edg->id] = oriedg[edg->id];
+                } else {
+                    symedg[edg->id] = g3dedge_new ( symver[edg->ver[0x00]->id],
+                                                    symver[edg->ver[0x01]->id] );
+
+                    g3dmesh_addEdge ( symmes, symedg[edg->id] );
+                }
             }
 
             ledg = ledg->next;
@@ -128,83 +136,90 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         while ( lfac ) {
             G3DFACE *fac = ( G3DFACE * ) lfac->data;
 
-            switch ( fac->nbver ) {
-                case 0x03 : {
-                    G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
-                              *vori1 = oriver[fac->ver[0x01]->id],
-                              *vori2 = oriver[fac->ver[0x02]->id];
-                    G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
-                              *vsym1 = symver[fac->ver[0x01]->id],
-                              *vsym2 = symver[fac->ver[0x02]->id];
+            /** a face should not have all of its vertices mirrored ***/
+            /** or else this likely means a face will fully merge with ***/
+            /** its mirrored counterpart and this can cause some issues ***/
+            /** later on, like subdivision surfaces etc... So, skip the ***/
+            /** conversion for this face if needed ***/
+            if ( g3dface_isFullyMirrored ( fac ) == 0x00 ) {
+                switch ( fac->nbver ) {
+                    case 0x03 : {
+                        G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
+                                  *vori1 = oriver[fac->ver[0x01]->id],
+                                  *vori2 = oriver[fac->ver[0x02]->id];
+                        G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
+                                  *vsym1 = symver[fac->ver[0x01]->id],
+                                  *vsym2 = symver[fac->ver[0x02]->id];
 
-                    G3DFACE *tri[0x02] = { g3dtriangle_new ( vori0, 
-                                                             vori1,
-                                                             vori2 ),
-                                           g3dtriangle_new ( vsym2,
-                                                             vsym1,
-                                                             vsym0 ) };
+                        G3DFACE *tri[0x02] = { g3dtriangle_new ( vori0, 
+                                                                 vori1,
+                                                                 vori2 ),
+                                               g3dtriangle_new ( vsym2,
+                                                                 vsym1,
+                                                                 vsym0 ) };
 
-                    tri[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
-                    tri[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
-                    tri[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
+                        tri[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
+                        tri[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
+                        tri[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
 
-                    g3dedge_addFace ( oriedg[fac->edg[0x00]->id], tri[0x00] );
-                    g3dedge_addFace ( oriedg[fac->edg[0x01]->id], tri[0x00] );
-                    g3dedge_addFace ( oriedg[fac->edg[0x02]->id], tri[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x00]->id], tri[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x01]->id], tri[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x02]->id], tri[0x00] );
 
-                    tri[0x01]->edg[0x00] = symedg[fac->edg[0x01]->id];
-                    tri[0x01]->edg[0x01] = symedg[fac->edg[0x00]->id];
-                    tri[0x01]->edg[0x02] = symedg[fac->edg[0x02]->id];
+                        tri[0x01]->edg[0x00] = symedg[fac->edg[0x01]->id];
+                        tri[0x01]->edg[0x01] = symedg[fac->edg[0x00]->id];
+                        tri[0x01]->edg[0x02] = symedg[fac->edg[0x02]->id];
 
-                    g3dedge_addFace ( symedg[fac->edg[0x00]->id], tri[0x01] );
-                    g3dedge_addFace ( symedg[fac->edg[0x01]->id], tri[0x01] );
-                    g3dedge_addFace ( symedg[fac->edg[0x02]->id], tri[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x00]->id], tri[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x01]->id], tri[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x02]->id], tri[0x01] );
 
-                    g3dmesh_addFace ( symmes, tri[0x00] );
-                    g3dmesh_addFace ( symmes, tri[0x01] );
-                } break;
+                        g3dmesh_addFace ( symmes, tri[0x00] );
+                        g3dmesh_addFace ( symmes, tri[0x01] );
+                    } break;
 
-                case 0x04 : {
-                    G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
-                              *vori1 = oriver[fac->ver[0x01]->id],
-                              *vori2 = oriver[fac->ver[0x02]->id],
-                              *vori3 = oriver[fac->ver[0x03]->id];
-                    G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
-                              *vsym1 = symver[fac->ver[0x01]->id],
-                              *vsym2 = symver[fac->ver[0x02]->id],
-                              *vsym3 = symver[fac->ver[0x03]->id];
+                    case 0x04 : {
+                        G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
+                                  *vori1 = oriver[fac->ver[0x01]->id],
+                                  *vori2 = oriver[fac->ver[0x02]->id],
+                                  *vori3 = oriver[fac->ver[0x03]->id];
+                        G3DVERTEX *vsym0 = symver[fac->ver[0x00]->id],
+                                  *vsym1 = symver[fac->ver[0x01]->id],
+                                  *vsym2 = symver[fac->ver[0x02]->id],
+                                  *vsym3 = symver[fac->ver[0x03]->id];
 
-                    G3DFACE *qua[0x02] = { g3dquad_new ( vori0, vori1,
-                                                         vori2, vori3 ),
-                                           g3dquad_new ( vsym3, vsym2,
-                                                         vsym1, vsym0 ) };
+                        G3DFACE *qua[0x02] = { g3dquad_new ( vori0, vori1,
+                                                             vori2, vori3 ),
+                                               g3dquad_new ( vsym3, vsym2,
+                                                             vsym1, vsym0 ) };
 
-                    qua[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
-                    qua[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
-                    qua[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
-                    qua[0x00]->edg[0x03] = oriedg[fac->edg[0x03]->id];
+                        qua[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
+                        qua[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
+                        qua[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
+                        qua[0x00]->edg[0x03] = oriedg[fac->edg[0x03]->id];
 
-                    g3dedge_addFace ( oriedg[fac->edg[0x00]->id], qua[0x00] );
-                    g3dedge_addFace ( oriedg[fac->edg[0x01]->id], qua[0x00] );
-                    g3dedge_addFace ( oriedg[fac->edg[0x02]->id], qua[0x00] );
-                    g3dedge_addFace ( oriedg[fac->edg[0x03]->id], qua[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x00]->id], qua[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x01]->id], qua[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x02]->id], qua[0x00] );
+                        g3dedge_addFace ( oriedg[fac->edg[0x03]->id], qua[0x00] );
 
-                    qua[0x01]->edg[0x00] = symedg[fac->edg[0x02]->id];
-                    qua[0x01]->edg[0x01] = symedg[fac->edg[0x01]->id];
-                    qua[0x01]->edg[0x02] = symedg[fac->edg[0x00]->id];
-                    qua[0x01]->edg[0x03] = symedg[fac->edg[0x03]->id];
+                        qua[0x01]->edg[0x00] = symedg[fac->edg[0x02]->id];
+                        qua[0x01]->edg[0x01] = symedg[fac->edg[0x01]->id];
+                        qua[0x01]->edg[0x02] = symedg[fac->edg[0x00]->id];
+                        qua[0x01]->edg[0x03] = symedg[fac->edg[0x03]->id];
 
-                    g3dedge_addFace ( symedg[fac->edg[0x02]->id], qua[0x01] );
-                    g3dedge_addFace ( symedg[fac->edg[0x01]->id], qua[0x01] );
-                    g3dedge_addFace ( symedg[fac->edg[0x00]->id], qua[0x01] );
-                    g3dedge_addFace ( symedg[fac->edg[0x03]->id], qua[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x02]->id], qua[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x01]->id], qua[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x00]->id], qua[0x01] );
+                        g3dedge_addFace ( symedg[fac->edg[0x03]->id], qua[0x01] );
 
-                    g3dmesh_addFace ( symmes, qua[0x00] );
-                    g3dmesh_addFace ( symmes, qua[0x01] );
-                } break;
+                        g3dmesh_addFace ( symmes, qua[0x00] );
+                        g3dmesh_addFace ( symmes, qua[0x01] );
+                    } break;
 
-                default :
-                break;
+                    default :
+                    break;
+                }
             }
 
             lfac = lfac->next;

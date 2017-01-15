@@ -1046,6 +1046,7 @@ typedef struct _G3DWIREFRAME {
     uint32_t      nbmodver;
     uint32_t      nbmodedg;
     uint32_t      nbmodfac;
+    LIST         *lupdver; /* lit of vertices to update on mesh update */
 } G3DWIREFRAME;
 
 /******************************************************************************/

@@ -144,19 +144,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
-                    lselfac = g3dvertex_getFacesFromList  ( lver    );
-                    lseledg = g3dface_getEdgesFromList    ( lselfac );
-                    lselver = g3dface_getVerticesFromList ( lselfac );
-
                     g3dmesh_startUpdateModifiers_r ( obj, flags );
-
-                    /*if ( mes->subdiv && (((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION) ) {
-                        lselsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }*/
-
-                    /*if ( ef->inner ) {
-                        g3dvertex_getAveragePositionFromList ( lver, &pivot );
-                    }*/
 
                     /*** for undo redo ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos ); 

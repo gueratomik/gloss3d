@@ -262,6 +262,7 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
     G3DVECTOR sympos;
     G3DVECTOR newpos;
 
+    if ( g3dvertex_isBoundary ( ver ) ) {
     /*** Compute parent symmetry center in child's coordinates system ***/
     g3dvector_matrix ( &zeropos    , obj->wmatrix , &symworldpos );
     g3dvector_matrix ( &symworldpos, kid->iwmatrix, &symlocalpos );
@@ -297,6 +298,7 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
         } else {
             ver->flags = ( ver->flags & (~VERTEXSYMXY) );
         }
+    }
     }
 }
 

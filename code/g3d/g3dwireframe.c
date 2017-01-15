@@ -117,18 +117,18 @@ void g3dwireframe_startUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
         LIST *lupdver = NULL, *ltmpupdver;
 
         if ( engine_flags & VIEWVERTEX ) {
-            lupdver = list_copy ( mes->lselver );
+            wir->lupdver = list_copy ( mes->lselver );
         }
 
         if ( engine_flags & VIEWEDGE ) {
-            lupdver = g3dedge_getVerticesFromList ( mes->lseledg );
+            wir->lupdver = g3dedge_getVerticesFromList ( mes->lseledg );
         }
 
         if ( engine_flags & VIEWFACE ) {
-            lupdver = g3dface_getVerticesFromList ( mes->lselfac );
+            wir->lupdver = g3dface_getVerticesFromList ( mes->lselfac );
         }
 
-        ltmpupdver = lupdver;
+        ltmpupdver = wir->lupdver;
 
         while ( ltmpupdver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpupdver->data;
@@ -154,14 +154,13 @@ void g3dwireframe_startUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
             ltmpupdver = ltmpupdver->next;
         }
-
-        list_free ( &lupdver, NULL );
     }
 }
 
 /******************************************************************************/
 void g3dwireframe_endUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     list_free ( &((G3DMESH*)wir)->lselver, NULL );
+    list_free ( &wir->lupdver, NULL );
 }
 
 /******************************************************************************/
@@ -176,7 +175,7 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
         uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12;
         uint32_t nbmodver = 0x00;
         uint32_t i;
-        LIST *ltmpver = mes->lselver;
+        LIST *ltmpver = wir->lupdver;
 
         /*** recompute original vertex split ***/
         while ( ltmpver ) {

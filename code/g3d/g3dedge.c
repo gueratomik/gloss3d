@@ -172,6 +172,24 @@ void g3dedge_addFace ( G3DEDGE *edg, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
+uint32_t g3dedge_hasOnlyFullyMirroredFaces ( G3DEDGE *edg ) {
+    LIST *ltmp = edg->lfac;
+
+    while ( ltmp ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmp->data;
+
+        if ( g3dface_isFullyMirrored ( fac ) == 0x00 ) {
+
+            return 0x00;
+        }
+
+        ltmp = ltmp->next;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 uint32_t g3dedge_hasSelectedFace ( G3DEDGE *edg ) {
     LIST *ltmp = edg->lfac;
 

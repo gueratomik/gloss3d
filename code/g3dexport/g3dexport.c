@@ -50,15 +50,16 @@ OBJECT(0x2000)
 --- IDENTITY(0x2100)
 ------- NAME(0x2110)
 ----------- Name ( char[] )
-------- TYPE(0x2120)
------------ Type ( uint32_t )
 ------- PARENT(0x2130)
 ----------- ID ( uint32_t )
+------- TYPE(0x2120)
+----------- Type ( uint32_t )
+------- ACTIVATED(0x2140)
+----------- activated ( uint32_t ) /** 1 or 0 **/
 --- ORIENTATION(0x2200)
 ------- Position ( float-float-float-float )
 ------- Rotation ( float-float-float-float )
 ------- Scale    ( float-float-float-float )
-
 --- KEYS (0x2300)
 ------- KEYPOS (0x2310)
 ----------- nbkeys ( uint32_t )
@@ -1044,6 +1045,11 @@ static uint32_t type_blocksize ( ) {
 }
 
 /******************************************************************************/
+static uint32_t active_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
 static uint32_t parentid_blocksize ( ) {
     return sizeof ( uint32_t );
 }
@@ -1063,6 +1069,10 @@ static uint32_t identity_blocksize ( G3DOBJECT *obj, uint32_t flags ) {
 
     if ( flags & IDENTITYSAVETYPE ) {
         blocksize += type_blocksize ( ) + 0x06;
+    }
+
+    if ( flags & IDENTITYSAVEACTIVE ) {
+        blocksize += active_blocksize ( ) + 0x06;
     }
 
     if ( obj->parent ) {
@@ -1302,6 +1312,11 @@ static void type_writeblock ( uint32_t type, FILE *fdst ) {
 }
 
 /******************************************************************************/
+static void active_writeblock ( uint32_t active, FILE *fdst ) {
+    writef ( &active, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
 static void parentid_writeblock ( uint32_t id, FILE *fdst ) {
     writef ( &id, sizeof ( uint32_t ), 0x01, fdst );
 }
@@ -1324,6 +1339,11 @@ static void identity_writeblock ( G3DOBJECT *obj, uint32_t flags, FILE *fdst ) {
     if ( flags & IDENTITYSAVETYPE ) {
         chunk_write ( IDTYPE, type_blocksize ( ), fdst );
         type_writeblock ( obj->type, fdst );
+    }
+
+    if ( flags & IDENTITYSAVEACTIVE ) {
+        chunk_write ( IDACTIVE, active_blocksize ( ), fdst );
+        active_writeblock ( ((obj->flags & OBJECTINACTIVE) == 0x00 ), fdst );
     }
 }
 

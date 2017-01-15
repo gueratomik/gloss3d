@@ -98,6 +98,7 @@
 #define IDENTITYSAVENAME      ( 0x00000001 )
 #define IDENTITYSAVETYPE      ( 0x00000002 )
 #define IDENTITYSAVEPARENTID  ( 0x00000004 )
+#define IDENTITYSAVEACTIVE    ( 0x00000008 )
 #define IDENTITYSAVEALL       ( 0xFFFFFFFF )
 
 #define LIGHTSAVEDIFFUSECOLOR ( 0x00000001 )
@@ -159,12 +160,22 @@
 
 #define OBJSIG             0x2000
 #define OBJIDENTITY        0x2100
+#define IDSIG              0x2100
+#define IDNAME             0x2110
+#define IDTYPE             0x2120
+#define IDPARENT           0x2130
+#define IDACTIVE           0x2140
 #define OBJORIENTATION     0x2200
 
 #define KEYSSIG            0x2300
 #define KEYSPOSSIG         0x2310
 #define KEYSFUNCSIG        0x2320
 #define KEYSLOOPSIG        0x2330
+
+#define UVMAPSIG           0x2400
+#define UVMAPINFOSIG       0x2410
+#define UVMAPCOORDSSIG     0x2420
+#define UVMAPMATERIALSSIG  0x2430
 
 #define MESHSIG            0x3000
 #define MESHSUB            0x3010
@@ -228,16 +239,6 @@
 #define SOLIDCOLORSIG      0xAAA0
 #define IMAGECOLORSIG      0xAAA1
 #define PROCEDURALSIG      0xAAA2
-
-#define IDSIG              0x2100
-#define IDNAME             0x2110
-#define IDTYPE             0x2120
-#define IDPARENT           0x2130
-
-#define UVMAPSIG           0x2400
-#define UVMAPINFOSIG       0x2410
-#define UVMAPCOORDSSIG     0x2420
-#define UVMAPMATERIALSSIG  0x2430
 
 #define CAMERASIG          0xA000
 #define CAMERAFOCALSIG     0xA100

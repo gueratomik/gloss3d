@@ -101,6 +101,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
     G3DMATERIAL **matarr = NULL;
     int32_t objid = -1, parid = 0x00;
     uint32_t objtype = 0x00;
+    uint32_t objactive = 0x00;
     G3DPRIMITIVE *pri = NULL;
     G3DSYMMETRY *sym = NULL;
     G3DVERTEX **ver = NULL;
@@ -176,7 +177,17 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                     obj = ( G3DOBJECT * ) sce;
                 }
 
-                objarr[0x00] = ( G3DOBJECT * ) sce;
+                if ( objtype == G3DOBJECTTYPE ) {
+                    obj = g3dobject_new ( objid, objname, 0x00 );
+
+                    g3dobject_appendChild ( objarr[parid], obj );
+                }
+
+                objarr[objid] = ( G3DOBJECT * ) obj;
+            } break;
+
+            case IDACTIVE : {
+                readf ( &objactive, sizeof ( uint32_t ), 0x01, fsrc );
             } break;
 
             case SCENESIG :
@@ -366,7 +377,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
 
-                g3dobject_updateMatrix_r ( obj, 0x00 );
+
             break;
 
             case UVMAPCOORDSSIG : {
@@ -535,8 +546,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case TORUSSIG : {
@@ -566,8 +575,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case CUBESIG : {
@@ -592,8 +599,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case SPHERESIG : {
@@ -617,8 +622,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case SYMSIG : {
@@ -643,13 +646,10 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 readf ( &sym->mergelimit , sizeof ( float    ), 0x01, fsrc );
 
                 g3dsymmetry_setPlane ( sym, symplane );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case MESHSIG :
                 mes = g3dmesh_new ( objid, objname, flags );
-
                 obj = ( G3DOBJECT * ) mes;
 
                 objarr[objid] = obj;
@@ -661,8 +661,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             break;
 
             case FFDSIG : {
@@ -681,8 +679,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case FFDSHAPESIG : {
@@ -841,12 +837,18 @@ printf("NB Vertices = %d\n", nbver );
                         readf ( pos, sizeof ( float ), nbver * 0x04, fsrc );
 
                         for ( i = 0x00; i < nbver; i++ ) {
+                            uint32_t vertex_flags;
+
                             ver[i] = g3dvertex_new ( pos[i][0x00], 
                                                      pos[i][0x01],
                                                      pos[i][0x02] );
 
-                            /*memcpy ( &ver[i]->flags,
-                                     &pos[i][0x03], sizeof ( uint32_t ) );*/
+                            memcpy ( &vertex_flags,
+                                     &pos[i][0x03], sizeof ( uint32_t ) );
+
+                            if ( vertex_flags & VERTEXSYMYZ ) ver[i]->flags |= VERTEXSYMYZ;
+                            if ( vertex_flags & VERTEXSYMXY ) ver[i]->flags |= VERTEXSYMXY;
+                            if ( vertex_flags & VERTEXSYMZX ) ver[i]->flags |= VERTEXSYMZX;
 
                             g3dmesh_addVertex ( mes, ver[i] );
                         }
@@ -865,9 +867,9 @@ printf("NB Vertices = %d\n", nbver );
                     }
                 }
 
-                if ( obj->parent->type & G3DSYMMETRYTYPE ) {
+                /*if ( obj->parent->type & G3DSYMMETRYTYPE ) {
                     g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) obj->parent, ( G3DMESH * ) obj );
-                }
+                }*/
             } break;
 
             case GEOTRIANGLES : {
@@ -1000,7 +1002,7 @@ printf("NB Quds = %d\n", nbqua );
 
                 readf ( &facID    , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &nbheights, sizeof ( uint32_t ), 0x01, fsrc );
-printf("%d\n", facID);
+
                 htm = g3dheightmap_new ( nbheights );
 
                 mes->nbhtm++;
@@ -1047,8 +1049,6 @@ printf("%d\n", facID);
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-                g3dobject_updateMatrix_r ( obj, 0x00 );
             } break;
 
             case BONEGEOSIG : {
@@ -1101,8 +1101,6 @@ printf("%d\n", facID);
                     readf ( &rig->bindmatrix, sizeof ( double ), 0x10, fsrc );
                     readf ( &rig->skinmatrix, sizeof ( double ), 0x10, fsrc );
                 }
-
-                g3dobject_updateMatrix_r ( ( G3DOBJECT * ) bon, 0x00 );
             } break;
 
             case WEIGHTGROUPSIG : {
@@ -1163,6 +1161,8 @@ printf("%d\n", facID);
     fclose ( fsrc );
 
     printf ( "Import finished\n" );
+
+    g3dobject_updateMatrix_r ( sce, 0x00 );
 
     g3dscene_updateBufferedMeshes ( sce, flags );
 

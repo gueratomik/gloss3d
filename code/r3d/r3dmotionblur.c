@@ -453,7 +453,7 @@ uint32_t r3dmotionblur_interpolateHLine ( R3DMOTIONBLUR  *rmb,
             /** We filter the Z axis but we want a face to overwrite itself, */
             /* hence the epsilon value (otherwise there is some Z fighting */
             /* with itself. */
-            if ( z <= ( rmb->zBuffer[offset] + 0.0001f ) ) {
+            /*if ( z <= ( rmb->zBuffer[offset] + 0.0001f ) ) {*/
                 /*** Query original pixel position ***/
                 int32_t midTriX = ( ( float ) midTri[0x00]->x * ratio0 ) +
                                   ( ( float ) midTri[0x01]->x * ratio1 ) +
@@ -482,7 +482,7 @@ uint32_t r3dmotionblur_interpolateHLine ( R3DMOTIONBLUR  *rmb,
                 }
 
                 rmb->zBuffer[offset] = z;
-            }
+            /*}*/
         }
 
         x1 += px;

@@ -150,6 +150,21 @@ void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
 }
 
 /*****************************************************************************/
+uint32_t g3dface_isFullyMirrored ( G3DFACE *fac ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        if ( ( ( fac->ver[i]->flags & VERTEXSYMYZ ) |
+               ( fac->ver[i]->flags & VERTEXSYMXY ) |
+               ( fac->ver[i]->flags & VERTEXSYMZX ) ) == 0x00 ) {
+            return 0x00;
+        }
+    }
+
+    return 0x01;
+}
+
+/*****************************************************************************/
 void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
                                          G3DHEIGHTMAP *mainheightmap,
                                          G3DVERTEX    *oriver,

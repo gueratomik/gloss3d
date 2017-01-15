@@ -1207,7 +1207,7 @@ G3DOBJECT *g3dobject_new ( uint32_t id, char *name, uint32_t object_flags ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, OBJECT, id, name, object_flags,
+    g3dobject_init ( obj, G3DOBJECTTYPE, id, name, object_flags,
                                             NULL, 
                                             NULL,
                                             NULL,

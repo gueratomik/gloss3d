@@ -767,36 +767,6 @@ void common_g3dui_deleteLoneVerticesCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_convertSymmetryCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-    G3DSCENE     *sce = gui->sce;
-    G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
-        G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-        LIST *loldobj = NULL;
-        G3DMESH *mes;
-
-        g3dui_setHourGlass ( gui );
-
-        mes = g3dsymmetry_convert ( sym, &loldobj, gui->flags );
-
-        g3durm_object_addChild ( urm, sce, gui->flags, 
-                                           ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
-                                           ( G3DOBJECT * ) NULL,
-                                           ( G3DOBJECT * ) sce,
-                                           ( G3DOBJECT * ) mes );
-
-        g3dui_unsetHourGlass ( gui );
-        g3dui_redrawGLViews ( gui );
-        g3dui_updateCoords ( gui );
-        g3dui_redrawObjectList ( gui );
-        g3dui_updateAllCurrentEdit ( gui );
-    }
-}
-
-/******************************************************************************/
 void common_g3dui_invertSelectionCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
