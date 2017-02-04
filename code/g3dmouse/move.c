@@ -187,6 +187,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                 /*** In VIEWOBJECT mode, just move the object ***/
                 if ( ( flags & VIEWOBJECT ) ||
+                     ( flags & VIEWAXIS   ) || 
                      ( flags & VIEWSKIN   ) || 
                      ( flags & VIEWUVWMAP ) ) {
 
@@ -213,7 +214,16 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         obj->pos.z += ( movvecz.z * ( objz - oriz ) );
                     }
 
-                    g3dobject_updateMatrix_r ( obj, 0x00 );
+                    g3dobject_updateMatrix_r ( obj, flags );
+
+                    /* move vertices */
+                    if ( flags & VIEWAXIS ) {
+                        if ( obj->type & MESH ) {
+                            g3dmesh_moveAxis ( obj, FINX, flags );
+
+                            memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
+                        }
+                    }
                 } else {
                     if ( obj->type & EDITABLE ) {
                         LIST *ltmp = lver;

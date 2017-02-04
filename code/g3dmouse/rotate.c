@@ -201,6 +201,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 if ( obj->type == G3DUVMAPTYPE ) retflags |= NOBUFFEREDSUBDIVISION;
 
                 if ( ( flags & VIEWOBJECT ) ||
+                     ( flags & VIEWAXIS   ) || 
                      ( flags & VIEWSKIN   ) || 
                      ( flags & VIEWUVWMAP ) ) {
                     if ( ( flags & XAXIS ) && sce->csr.axis[0x00].w ) {
@@ -229,7 +230,16 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
 
-                    g3dobject_updateMatrix_r ( obj, 0x00 );
+                    g3dobject_updateMatrix_r ( obj, flags );
+
+                    /* move vertices */
+                    if ( flags & VIEWAXIS ) {
+                        if ( obj->type & MESH ) {
+                            g3dmesh_moveAxis ( obj, FINX, flags );
+
+                            memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
+                        }
+                    }
                 } else {
                     if ( obj->type & EDITABLE ) {
                         double rmatrix[0x10];

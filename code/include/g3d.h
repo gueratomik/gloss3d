@@ -112,29 +112,30 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define VIEWSKIN           ( 1  <<  6 )
 #define VIEWUVWMAP         ( 1  <<  7 )
-#define VIEWSCULPT         ( 1  <<  8 )
+#define VIEWAXIS           ( 1  <<  8 )
+#define VIEWSCULPT         ( 1  <<  9 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
-                             VIEWVERTEX | VIEWEDGE   | VIEWFACE )
-#define SELECTMODE         ( 1  <<  9 )
-#define XAXIS              ( 1  << 10 )
-#define YAXIS              ( 1  << 11 ) 
-#define ZAXIS              ( 1  << 12 )
-#define G3DMULTITHREADING  ( 1  << 13 )
-#define KEEPVISIBLEONLY    ( 1  << 14 )
-#define SYMMETRYVIEW       ( 1  << 15 )
-#define ONGOINGANIMATION   ( 1  << 16 ) /*** This helps us to ***/
+                             VIEWVERTEX | VIEWEDGE   | VIEWFACE | VIEWAXIS )
+#define SELECTMODE         ( 1  << 10 )
+#define XAXIS              ( 1  << 11 )
+#define YAXIS              ( 1  << 12 ) 
+#define ZAXIS              ( 1  << 13 )
+#define G3DMULTITHREADING  ( 1  << 14 )
+#define KEEPVISIBLEONLY    ( 1  << 15 )
+#define SYMMETRYVIEW       ( 1  << 16 )
+#define ONGOINGANIMATION   ( 1  << 17 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES          ( 1  << 17 )
-#define HIDEGRID           ( 1  << 18 )
-#define NOLIGHTING         ( 1  << 19 )
-#define NODISPLACEMENT     ( 1  << 20 )
-#define NOTEXTURE          ( 1  << 21 )
-#define G3DNEXTSUBDIVISION ( 1  << 22 )
-#define NODRAWPOLYGON      ( 1  << 23 )
-#define FORCESUBPATTERN    ( 1  << 24 )
+#define HIDEBONES          ( 1  << 18 )
+#define HIDEGRID           ( 1  << 19 )
+#define NOLIGHTING         ( 1  << 20 )
+#define NODISPLACEMENT     ( 1  << 21 )
+#define NOTEXTURE          ( 1  << 22 )
+#define G3DNEXTSUBDIVISION ( 1  << 23 )
+#define NODRAWPOLYGON      ( 1  << 24 )
+#define FORCESUBPATTERN    ( 1  << 25 )
 
 /******************************* Object Types *********************************/
 #define OBJECT     (  1       )

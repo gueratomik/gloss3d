@@ -276,7 +276,8 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
         double TMPX[0x10];
 
         if ( selobj ) {
-            if ( engine_flags & VIEWOBJECT ) {
+            if ( ( engine_flags & VIEWOBJECT ) ||
+                 ( engine_flags & VIEWAXIS   ) ) {
                 g3dvector_matrix ( &pos, selobj->wmatrix, &cam->pivot );
             }
 

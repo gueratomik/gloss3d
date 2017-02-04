@@ -363,13 +363,16 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
         G3DOBJECT *selobj = ( G3DOBJECT * ) ltmp->data;
 
         if ( selobj && ( ( flags & VIEWOBJECT ) ||
+                         ( flags & VIEWAXIS   ) ||
                          ( flags & VIEWSKIN   ) ||
                          ( flags & VIEWUVWMAP ) ) ) {
             g3dobject_drawKeys ( selobj, flags );
 
             glPushMatrix ( );
             glMultMatrixd ( selobj->wmatrix );
-            g3dbbox_draw ( &selobj->bbox, flags );
+            if ( flags & VIEWOBJECT ) {
+                g3dbbox_draw ( &selobj->bbox, flags );
+            }
             g3dcursor_draw ( &sce->csr, curcam, flags );
             glPopMatrix ( );
         }

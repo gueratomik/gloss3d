@@ -30,6 +30,55 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dmesh_moveAxis ( G3DMESH *mes, 
+                        double  *PREVMVX, /* previous world matrix */
+                        uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpver = mes->lver;
+    double DIFFMVX[0x10];
+
+    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+        double prvChildWorldMatrix[0x10];
+        double newChildLocalMatrix[0x10];
+
+        g3dcore_multmatrix ( child->lmatrix, PREVMVX, prvChildWorldMatrix );
+        g3dcore_multmatrix ( prvChildWorldMatrix, obj->iwmatrix, newChildLocalMatrix );
+
+        g3dcore_getMatrixTranslation ( newChildLocalMatrix, &child->pos );
+        g3dcore_getMatrixRotation    ( newChildLocalMatrix, &child->rot );
+
+        g3dobject_updateMatrix_r ( child, engine_flags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DVECTOR  pos = { .x = ver->pos.x,
+                           .y = ver->pos.y,
+                           .z = ver->pos.z,
+                           .w = ver->pos.w };
+
+        g3dvector_matrix ( &pos, DIFFMVX, &ver->pos );
+
+        ltmpver = ltmpver->next;
+    }
+
+    g3dmesh_updateBbox ( mes );
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
+}
+
+/******************************************************************************/
 G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                   double  *MVX,
                                   uint32_t engine_flags ) {

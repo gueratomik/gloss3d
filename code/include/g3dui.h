@@ -202,7 +202,7 @@
 #define EDITRENDERSAVE             "Save result"
 #define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
 #define EDITRENDERWIREFRAME          "Wireframe"
-#define EDITRENDERWIREFRAMELIGHTING  "Wireframe Lighting"
+#define EDITRENDERWIREFRAMELIGHTING  "Affected by Lighting"
 #define EDITRENDERWIREFRAMETHICKNESS "Thickness"
 #define EDITRENDERWIREFRAMECOLOR     "Color"
 
@@ -354,6 +354,7 @@
 #define MODE_VIEWFACE   "Face mode"
 #define MODE_VIEWSKIN   "Skin mode"
 #define MODE_VIEWSCULPT "Sculpt mode"
+#define MODE_VIEWAXIS   "Axis mode"
 #define MODE_VIEWUVWMAP "UVW mode"
 
 #define MENU_XAXIS "X axis"
