@@ -174,7 +174,7 @@ uint32_t g3dffd_modify ( G3DFFD *ffd, uint32_t engine_flags ) {
             ltmpver = ltmpver->next;
         }
 
-        g3dmesh_update ( parent, ffd->lver,
+        g3dmesh_update ( (G3DMESH*)parent, ffd->lver,
                                  NULL,
                                  ffd->lfac,
                                  UPDATEFACEPOSITION |
@@ -518,20 +518,20 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
     }
 
     g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN | TRIANGULAR,
-                                                  g3dffd_draw,
-                                                  g3dffd_free,
+                                    DRAW_CALLBACK(g3dffd_draw),
+                                    FREE_CALLBACK(g3dffd_free),
                                                   NULL,
                                                   NULL,
                                                   NULL,
-                                                  g3dffd_activate,
-                                                  g3dffd_deactivate,
-                                                  g3dffd_commit,
+                                ACTIVATE_CALLBACK(g3dffd_activate),
+                              DEACTIVATE_CALLBACK(g3dffd_deactivate),
+                                  COMMIT_CALLBACK(g3dffd_commit),
                                                   NULL,
                                                   NULL,
-                                                  g3dffd_modify,
-                                                  g3dffd_startUpdate,
-                                                  g3dffd_update,
-                                                  g3dffd_endUpdate );
+                                  MODIFY_CALLBACK(g3dffd_modify),
+                             STARTUPDATE_CALLBACK(g3dffd_startUpdate),
+                                  UPDATE_CALLBACK(g3dffd_update),
+                               ENDUPDATE_CALLBACK(g3dffd_endUpdate) );
 
     ((G3DMESH*)mod)->onGeometryMove = g3dffd_onGeometryMove;
 

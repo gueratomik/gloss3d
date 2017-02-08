@@ -64,7 +64,7 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
     G3DMESH *mes;
 
     /*** some trick to force the creation of a Mesh, not a Primitive. ***/
-    obj->copy = g3dmesh_copy;
+    obj->copy = COPY_CALLBACK(g3dmesh_copy);
 
     mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
                                               obj->name, 
@@ -86,7 +86,7 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
     }
 
     /*** Restore the default copy function ***/
-    obj->copy = g3dprimitive_copy;
+    obj->copy = COPY_CALLBACK(g3dprimitive_copy);
 
 
     return mes;
@@ -134,18 +134,16 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
     pri->datalen = datalen;
 
     g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN,
-                                                      g3dprimitive_draw,
-                                                      g3dprimitive_free,
+                                        DRAW_CALLBACK(g3dprimitive_draw),
+                                        FREE_CALLBACK(g3dprimitive_free),
                                                       NULL,
                                                       NULL,
-                                                      g3dprimitive_copy,
+                                        COPY_CALLBACK(g3dprimitive_copy),
                                                       NULL,
                                                       NULL,
                                                       NULL,
                                                       NULL,
                                                       NULL );
-
-    obj->copy = g3dprimitive_copy;
 
     ((G3DMESH*)obj)->dump = g3dmesh_default_dump;
 }

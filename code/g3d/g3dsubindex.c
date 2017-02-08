@@ -45,48 +45,49 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
     memset ( &subedg, 0x00, sizeof ( G3DSUBEDGE   ) * 0x04 );
     memset ( &subfac, 0x00, sizeof ( G3DSUBFACE   ) );
 
-    subindexes->qua = ( G3DSUBINDEX * ) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
+    subindexes->qua = (uint32_t(*)[4]) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
 
-    subedg[0x00].edg.ver[0x00] = &subver[0x00];
-    subedg[0x00].edg.ver[0x01] = &subver[0x01];
-    subedg[0x01].edg.ver[0x00] = &subver[0x01];
-    subedg[0x01].edg.ver[0x01] = &subver[0x02];
-    subedg[0x02].edg.ver[0x00] = &subver[0x02];
-    subedg[0x02].edg.ver[0x01] = &subver[0x03];
-    subedg[0x03].edg.ver[0x00] = &subver[0x03];
-    subedg[0x03].edg.ver[0x01] = &subver[0x00];
+    subedg[0x00].edg.ver[0x00] = (G3DVERTEX*)&subver[0x00];
+    subedg[0x00].edg.ver[0x01] = (G3DVERTEX*)&subver[0x01];
+    subedg[0x01].edg.ver[0x00] = (G3DVERTEX*)&subver[0x01];
+    subedg[0x01].edg.ver[0x01] = (G3DVERTEX*)&subver[0x02];
+    subedg[0x02].edg.ver[0x00] = (G3DVERTEX*)&subver[0x02];
+    subedg[0x02].edg.ver[0x01] = (G3DVERTEX*)&subver[0x03];
+    subedg[0x03].edg.ver[0x00] = (G3DVERTEX*)&subver[0x03];
+    subedg[0x03].edg.ver[0x01] = (G3DVERTEX*)&subver[0x00];
 
-    subfac.fac.ver[0x00] = &subver[0x00];
-    subfac.fac.ver[0x01] = &subver[0x01];
-    subfac.fac.ver[0x02] = &subver[0x02];
-    subfac.fac.ver[0x03] = &subver[0x03];
-    subfac.fac.edg[0x00] = &subedg[0x00];
-    subfac.fac.edg[0x01] = &subedg[0x01];
-    subfac.fac.edg[0x02] = &subedg[0x02];
-    subfac.fac.edg[0x03] = &subedg[0x03];
+    subfac.fac.ver[0x00] = (G3DVERTEX*)&subver[0x00];
+    subfac.fac.ver[0x01] = (G3DVERTEX*)&subver[0x01];
+    subfac.fac.ver[0x02] = (G3DVERTEX*)&subver[0x02];
+    subfac.fac.ver[0x03] = (G3DVERTEX*)&subver[0x03];
+
+    subfac.fac.edg[0x00] = (G3DEDGE*)&subedg[0x00];
+    subfac.fac.edg[0x01] = (G3DEDGE*)&subedg[0x01];
+    subfac.fac.edg[0x02] = (G3DEDGE*)&subedg[0x02];
+    subfac.fac.edg[0x03] = (G3DEDGE*)&subedg[0x03];
 
     subfac.fac.nbver     = 0x04;
 
-    g3dsubvertex_addFace ( &subver[0x00], &subfac );
-    g3dsubvertex_addFace ( &subver[0x01], &subfac );
-    g3dsubvertex_addFace ( &subver[0x02], &subfac );
-    g3dsubvertex_addFace ( &subver[0x03], &subfac );
+    g3dsubvertex_addFace ( &subver[0x00], (G3DFACE*)&subfac );
+    g3dsubvertex_addFace ( &subver[0x01], (G3DFACE*)&subfac );
+    g3dsubvertex_addFace ( &subver[0x02], (G3DFACE*)&subfac );
+    g3dsubvertex_addFace ( &subver[0x03], (G3DFACE*)&subfac );
 
-    g3dsubedge_addFace ( &subedg[0x00], &subfac );
-    g3dsubedge_addFace ( &subedg[0x01], &subfac );
-    g3dsubedge_addFace ( &subedg[0x02], &subfac );
-    g3dsubedge_addFace ( &subedg[0x03], &subfac );
+    g3dsubedge_addFace ( &subedg[0x00], (G3DFACE*)&subfac );
+    g3dsubedge_addFace ( &subedg[0x01], (G3DFACE*)&subfac );
+    g3dsubedge_addFace ( &subedg[0x02], (G3DFACE*)&subfac );
+    g3dsubedge_addFace ( &subedg[0x03], (G3DFACE*)&subfac );
 
-    g3dsubvertex_addEdge ( &subver[0x00], &subedg[0x03] );
-    g3dsubvertex_addEdge ( &subver[0x00], &subedg[0x00] );
-    g3dsubvertex_addEdge ( &subver[0x01], &subedg[0x00] );
-    g3dsubvertex_addEdge ( &subver[0x01], &subedg[0x01] );
-    g3dsubvertex_addEdge ( &subver[0x02], &subedg[0x01] );
-    g3dsubvertex_addEdge ( &subver[0x02], &subedg[0x02] );
-    g3dsubvertex_addEdge ( &subver[0x03], &subedg[0x02] );
-    g3dsubvertex_addEdge ( &subver[0x03], &subedg[0x03] );
+    g3dsubvertex_addEdge ( &subver[0x00], (G3DEDGE*)&subedg[0x03] );
+    g3dsubvertex_addEdge ( &subver[0x00], (G3DEDGE*)&subedg[0x00] );
+    g3dsubvertex_addEdge ( &subver[0x01], (G3DEDGE*)&subedg[0x00] );
+    g3dsubvertex_addEdge ( &subver[0x01], (G3DEDGE*)&subedg[0x01] );
+    g3dsubvertex_addEdge ( &subver[0x02], (G3DEDGE*)&subedg[0x01] );
+    g3dsubvertex_addEdge ( &subver[0x02], (G3DEDGE*)&subedg[0x02] );
+    g3dsubvertex_addEdge ( &subver[0x03], (G3DEDGE*)&subedg[0x02] );
+    g3dsubvertex_addEdge ( &subver[0x03], (G3DEDGE*)&subedg[0x03] );
 
-    g3dsubdivisionV3_subdivide ( sdv, NULL, &subfac, NULL,
+    g3dsubdivisionV3_subdivide ( sdv, NULL, (G3DFACE*)&subfac, NULL,
                                             NULL,
                                             NULL,
                                             NULL,
@@ -118,40 +119,41 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
     memset ( &subedg, 0x00, sizeof ( G3DSUBEDGE   ) * 0x03 );
     memset ( &subfac, 0x00, sizeof ( G3DSUBFACE   ) );
 
-    subindexes->tri = ( G3DSUBINDEX * ) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
+    subindexes->tri = (uint32_t(*)[4]) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
 
-    subedg[0x00].edg.ver[0x00] = &subver[0x00];
-    subedg[0x00].edg.ver[0x01] = &subver[0x01];
-    subedg[0x01].edg.ver[0x00] = &subver[0x01];
-    subedg[0x01].edg.ver[0x01] = &subver[0x02];
-    subedg[0x02].edg.ver[0x00] = &subver[0x02];
-    subedg[0x02].edg.ver[0x01] = &subver[0x00];
+    subedg[0x00].edg.ver[0x00] = (G3DVERTEX*)&subver[0x00];
+    subedg[0x00].edg.ver[0x01] = (G3DVERTEX*)&subver[0x01];
+    subedg[0x01].edg.ver[0x00] = (G3DVERTEX*)&subver[0x01];
+    subedg[0x01].edg.ver[0x01] = (G3DVERTEX*)&subver[0x02];
+    subedg[0x02].edg.ver[0x00] = (G3DVERTEX*)&subver[0x02];
+    subedg[0x02].edg.ver[0x01] = (G3DVERTEX*)&subver[0x00];
 
-    subfac.fac.ver[0x00] = &subver[0x00];
-    subfac.fac.ver[0x01] = &subver[0x01];
-    subfac.fac.ver[0x02] = &subver[0x02];
-    subfac.fac.edg[0x00] = &subedg[0x00];
-    subfac.fac.edg[0x01] = &subedg[0x01];
-    subfac.fac.edg[0x02] = &subedg[0x02];
+    subfac.fac.ver[0x00] = (G3DVERTEX*)&subver[0x00];
+    subfac.fac.ver[0x01] = (G3DVERTEX*)&subver[0x01];
+    subfac.fac.ver[0x02] = (G3DVERTEX*)&subver[0x02];
+
+    subfac.fac.edg[0x00] = (G3DEDGE*)&subedg[0x00];
+    subfac.fac.edg[0x01] = (G3DEDGE*)&subedg[0x01];
+    subfac.fac.edg[0x02] = (G3DEDGE*)&subedg[0x02];
 
     subfac.fac.nbver     = 0x03;
 
-    g3dsubvertex_addFace ( &subver[0x00], &subfac );
-    g3dsubvertex_addFace ( &subver[0x01], &subfac );
-    g3dsubvertex_addFace ( &subver[0x02], &subfac );
+    g3dsubvertex_addFace ( &subver[0x00], (G3DFACE*)&subfac );
+    g3dsubvertex_addFace ( &subver[0x01], (G3DFACE*)&subfac );
+    g3dsubvertex_addFace ( &subver[0x02], (G3DFACE*)&subfac );
 
-    g3dsubedge_addFace ( &subedg[0x00], &subfac );
-    g3dsubedge_addFace ( &subedg[0x01], &subfac );
-    g3dsubedge_addFace ( &subedg[0x02], &subfac );
+    g3dsubedge_addFace ( &subedg[0x00], (G3DFACE*)&subfac );
+    g3dsubedge_addFace ( &subedg[0x01], (G3DFACE*)&subfac );
+    g3dsubedge_addFace ( &subedg[0x02], (G3DFACE*)&subfac );
 
-    g3dsubvertex_addEdge ( &subver[0x00], &subedg[0x02] );
-    g3dsubvertex_addEdge ( &subver[0x00], &subedg[0x00] );
-    g3dsubvertex_addEdge ( &subver[0x01], &subedg[0x00] );
-    g3dsubvertex_addEdge ( &subver[0x01], &subedg[0x01] );
-    g3dsubvertex_addEdge ( &subver[0x02], &subedg[0x01] );
-    g3dsubvertex_addEdge ( &subver[0x02], &subedg[0x02] );
+    g3dsubvertex_addEdge ( &subver[0x00], (G3DEDGE*)&subedg[0x02] );
+    g3dsubvertex_addEdge ( &subver[0x00], (G3DEDGE*)&subedg[0x00] );
+    g3dsubvertex_addEdge ( &subver[0x01], (G3DEDGE*)&subedg[0x00] );
+    g3dsubvertex_addEdge ( &subver[0x01], (G3DEDGE*)&subedg[0x01] );
+    g3dsubvertex_addEdge ( &subver[0x02], (G3DEDGE*)&subedg[0x01] );
+    g3dsubvertex_addEdge ( &subver[0x02], (G3DEDGE*)&subedg[0x02] );
 
-    g3dsubdivisionV3_subdivide ( sdv, NULL, &subfac, NULL,
+    g3dsubdivisionV3_subdivide ( sdv, NULL, (G3DFACE*)&subfac, NULL,
                                             NULL,
                                             NULL,
                                             NULL,
@@ -191,8 +193,8 @@ uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
         g3dsubindex_buildFromTriangle ( subindexes[subdiv_level], subdiv_level );
     }
 
-    if ( nbver == 0x04 ) return subindexes[subdiv_level]->qua;
-    if ( nbver == 0x03 ) return subindexes[subdiv_level]->tri;
+    if ( nbver == 0x04 ) return (uint32_t*) subindexes[subdiv_level]->qua;
+    if ( nbver == 0x03 ) return (uint32_t*) subindexes[subdiv_level]->tri;
 
     return NULL;
 }

@@ -205,10 +205,10 @@ void g3dface_initSubface ( G3DFACE *fac, G3DSUBFACE   *subfac,
             if ( ( curdiv > 1 ) ||
                  ( subdiv_flags & SUBDIVISIONCOMMIT ) ||
                  ( object_flags & MESHUSEISOLINES   ) ) {
-                subfac->fac.edg[0x00] = g3dsubedge_getSubEdge ( fac->edg[i], orivercpy, ((G3DSUBEDGE*)fac->edg[i])->subver );
+                subfac->fac.edg[0x00] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[i], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[i])->subver );
                 subfac->fac.edg[0x01] = ((G3DSUBFACE*)fac)->innedg[i];
                 subfac->fac.edg[0x02] = ((G3DSUBFACE*)fac)->innedg[p];
-                subfac->fac.edg[0x03] = g3dsubedge_getSubEdge ( fac->edg[p], orivercpy, ((G3DSUBEDGE*)fac->edg[p])->subver );
+                subfac->fac.edg[0x03] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[p], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[p])->subver );
             }
 
             /*** we need normal vector only on last subdivision ***/
@@ -1821,8 +1821,6 @@ void g3dface_init ( G3DFACE *fac, G3DVERTEX **ver, uint32_t nbver ) {
 
     /*** update normal vector and face position ***/
     g3dface_update ( fac );
-
-    return fac;
 }
 
 /******************************************************************************/

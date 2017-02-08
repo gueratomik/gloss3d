@@ -66,7 +66,7 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
 
             switch ( bpp ) {
                 case 0x18 : {
-                    unsigned char (*data)[0x03] = proc->image.data;
+                    unsigned char (*data)[0x03] = (unsigned char (*)[3])proc->image.data;
 
                     data[offset][0x00] = rgba.r;
                     data[offset][0x01] = rgba.g;
@@ -74,7 +74,7 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
                 } break;
 
                 case 0x08 : {
-                    unsigned char (*data)[0x01] = proc->image.data;
+                    unsigned char (*data)[0x01] = (unsigned char (*)[1])proc->image.data;
                     uint32_t color = ( rgba.r + rgba.g + rgba.b ) / 0x03;
 
                     data[offset][0x00] = color;

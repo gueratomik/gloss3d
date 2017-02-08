@@ -222,7 +222,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
         uint32_t i;
 
         /*** The central face is managed by g3dface_setInnerVertex() ***/
-        if ( subfac != faccmp ) {
+        if ( subfac != (G3DSUBFACE*)faccmp ) {
             subfac->subver = (*subverptr)++;
 
             memcpy ( &subfac->subver->pos, &subfac->fac.pos, sizeof ( G3DVECTOR ) );
@@ -247,14 +247,14 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
             (*subedgptr)->edg.ver[0x01] = ( G3DVERTEX * ) subfac->subver;
 
             if ( subfac->fac.nbver == 0x03 ) {
-                if ( subfac->fac.edg[0x00] == subedg ) { i = 0x00; }
-                if ( subfac->fac.edg[0x01] == subedg ) { i = 0x01; }
-                if ( subfac->fac.edg[0x02] == subedg ) { i = 0x02; }
+                if ( subfac->fac.edg[0x00] == (G3DEDGE*)subedg ) { i = 0x00; }
+                if ( subfac->fac.edg[0x01] == (G3DEDGE*)subedg ) { i = 0x01; }
+                if ( subfac->fac.edg[0x02] == (G3DEDGE*)subedg ) { i = 0x02; }
             } else {
-                if ( subfac->fac.edg[0x00] == subedg ) { i = 0x00; }
-                if ( subfac->fac.edg[0x01] == subedg ) { i = 0x01; }
-                if ( subfac->fac.edg[0x02] == subedg ) { i = 0x02; }
-                if ( subfac->fac.edg[0x03] == subedg ) { i = 0x03; }
+                if ( subfac->fac.edg[0x00] == (G3DEDGE*)subedg ) { i = 0x00; }
+                if ( subfac->fac.edg[0x01] == (G3DEDGE*)subedg ) { i = 0x01; }
+                if ( subfac->fac.edg[0x02] == (G3DEDGE*)subedg ) { i = 0x02; }
+                if ( subfac->fac.edg[0x03] == (G3DEDGE*)subedg ) { i = 0x03; }
             }
 
             /*** Whole topology is needed only when fac is the central face ***/

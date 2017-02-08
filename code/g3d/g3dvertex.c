@@ -177,7 +177,7 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
 
                                         /*** This depth part should be optimized ***/
                                         if ( disimg->depth == 0x18 ) {
-                                            unsigned char (*data)[0x03] = disimg->data;
+                                            unsigned char (*data)[0x03] = (unsigned char (*)[3]) disimg->data;
 
                                             gray = ( data[offset][0x00] +
                                                      data[offset][0x01] +
@@ -185,7 +185,7 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                         }
    
                                         if ( disimg->depth == 0x08 ) {
-                                            unsigned char (*data)[0x01] = disimg->data;
+                                            unsigned char (*data)[0x01] = (unsigned char (*)[1]) disimg->data;
 
                                             gray = data[offset][0x00];
                                         }

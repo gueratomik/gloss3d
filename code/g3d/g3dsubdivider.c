@@ -49,7 +49,7 @@
 void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
                                G3DOBJECT     *parent,
                                uint32_t       engine_flags ) {
-    if ( g3dobject_isActive ( sdr ) ) {
+    if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
         g3dsubdivider_activate ( sdr, engine_flags );
     }
 }
@@ -156,8 +156,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                         NULL,
                                                         NULL,
                                                         mes->ltex,
-                                                        g3dsubindex_get ( 0x04, sdr->subdiv_render ),
-                                                        g3dsubindex_get ( 0x03, sdr->subdiv_render ),
+                                       (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_render ),
+                                       (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_render ),
                                                         sdr->subdiv_render,
                                                         SUBDIVISIONCOMPUTE | SUBDIVISIONDUMP,
                                                         engine_flags );
@@ -286,8 +286,8 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                                         commitEdges,
                                                         commitFaces,
                                                         mes->ltex,
-                                                        g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
-                                                        g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
+                                       (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
+                                       (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
                                                         sdr->subdiv_preview,
                                                         SUBDIVISIONCOMMIT,
                                                         engine_flags );
@@ -313,7 +313,8 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
             }
         }
 
-        g3dobject_importTransformations ( commitMesh, mes );
+        g3dobject_importTransformations ( (G3DOBJECT*)commitMesh, 
+                                          (G3DOBJECT*)mes );
 
         g3dmesh_updateBbox ( commitMesh );
  
@@ -540,7 +541,7 @@ void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify_r ( parent, engine_flags );
+        g3dmesh_modify_r ( (G3DMESH*)parent, engine_flags );
     }
 
     /*g3dmesh_modify ( obj, engine_flags );*/
@@ -813,22 +814,22 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     sdr->subdiv_preview = sdr->subdiv_render = 0x02;
 
     g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN,
-                                                         g3dsubdivider_draw,
+                                           DRAW_CALLBACK(g3dsubdivider_draw),
                                                          NULL,
                                                          NULL,
                                                          NULL,
-                                                         g3dsubdivider_copy,
-                                                         g3dsubdivider_activate,
-                                                         g3dsubdivider_deactivate,
-                                                         g3dsubdivider_commit,
+                                           COPY_CALLBACK(g3dsubdivider_copy),
+                                       ACTIVATE_CALLBACK(g3dsubdivider_activate),
+                                     DEACTIVATE_CALLBACK(g3dsubdivider_deactivate),
+                                         COMMIT_CALLBACK(g3dsubdivider_commit),
                                                          NULL,
-                                                         g3dsubdivider_setParent,
-                                                         g3dsubdivider_modify,
-                                                         g3dsubdivider_startUpdate,
-                                                         g3dsubdivider_update,
-                                                         g3dsubdivider_endUpdate );
+                                      SETPARENT_CALLBACK(g3dsubdivider_setParent),
+                                         MODIFY_CALLBACK(g3dsubdivider_modify),
+                                    STARTUPDATE_CALLBACK(g3dsubdivider_startUpdate),
+                                         UPDATE_CALLBACK(g3dsubdivider_update),
+                                      ENDUPDATE_CALLBACK(g3dsubdivider_endUpdate) );
 
-    ((G3DMESH*)sdr)->dump = g3dsubdivider_dump;
+    ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
 }
 
 /******************************************************************************/

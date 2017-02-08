@@ -142,7 +142,7 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( noi, PROCEDURALNOISE, getColor );
+    g3dprocedural_init ( (G3DPROCEDURAL*)noi, PROCEDURALNOISE, getColor );
 
     noi->color1.r = noi->color1.g = noi->color1.b = 0xFF;
     noi->color2.r = noi->color2.g = noi->color2.b = 0x00;

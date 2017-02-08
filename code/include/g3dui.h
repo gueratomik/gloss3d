@@ -158,6 +158,7 @@
 #define EDITXSCALING  "EDITXSCALING"
 #define EDITYSCALING  "EDITYSCALING"
 #define EDITZSCALING  "EDITZSCALING"
+#define EDITABSOLUTE  "Absolute"
 
 /*************************** Key Edit Widget constants ************************/
 #define EDITKEYPOSITION  "Position"
@@ -1014,7 +1015,7 @@ G3DSCENE *common_g3dui_openDAEFile ( G3DUI *, char * );
 G3DSCENE *common_g3dui_openC4DFile ( G3DUI *, char * );
 
 /**************************** Coordinates Edit ********************************/
-void common_g3duicoordinatesedit_posCbk ( G3DUI *, G3DUIAXIS, float );
+void common_g3duicoordinatesedit_posCbk ( G3DUI *, G3DUIAXIS, uint32_t, float );
 void common_g3duicoordinatesedit_rotCbk ( G3DUI *, G3DUIAXIS, float );
 void common_g3duicoordinatesedit_scaCbk ( G3DUI *, G3DUIAXIS, float );
 

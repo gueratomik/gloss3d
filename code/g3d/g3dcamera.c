@@ -408,7 +408,7 @@ uint32_t g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     uint32_t i;
 
     /*** dont draw itself because the current cam is always at 0,0,0 ***/
-    if ( cam == curcam ) return;
+    if ( cam == curcam ) return 0x00;
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -483,7 +483,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
                                                    g3dcamera_free,
                                                    NULL,
                                                    NULL,
-                                                   g3dcamera_copy,
+                                     COPY_CALLBACK(g3dcamera_copy),
                                                    NULL,
                                                    NULL,
                                                    NULL,

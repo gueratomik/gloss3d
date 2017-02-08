@@ -30,21 +30,42 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+static uint32_t getAbsolute ( GtkWidget *widget ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( GTK_IS_TOGGLE_BUTTON ( child ) ) {
+            if ( strcmp ( child_name, EDITABSOLUTE ) == 0x00 ) {
+                return gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON ( child ) );
+            } 
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 static void posCbk ( GtkWidget *widget, gpointer user_data ) {
+    uint32_t absolute = getAbsolute ( gtk_widget_get_parent ( widget )  );
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     const char *name = gtk_widget_get_name ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
 
     if ( strcmp ( name, EDITXPOSITION ) == 0x00 ) {
-        common_g3duicoordinatesedit_posCbk ( gui, G3DUIXAXIS, val );
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIXAXIS, absolute, val );
     }
 
     if ( strcmp ( name, EDITYPOSITION ) == 0x00 ) {
-        common_g3duicoordinatesedit_posCbk ( gui, G3DUIYAXIS, val );
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIYAXIS, absolute, val );
     }
 
     if ( strcmp ( name, EDITZPOSITION ) == 0x00 ) {
-        common_g3duicoordinatesedit_posCbk ( gui, G3DUIZAXIS, val );
+        common_g3duicoordinatesedit_posCbk ( gui, G3DUIZAXIS, absolute, val );
     }
 }
 
@@ -87,6 +108,12 @@ static void scaCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void absoluteCbk ( GtkWidget *widget, gpointer user_data ) {
+    gboolean absolute = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+}
+
+/******************************************************************************/
 void updateCoordinatesEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     G3DSCENE *sce = gui->sce;
@@ -105,44 +132,61 @@ void updateCoordinatesEdit ( GtkWidget *widget, G3DUI *gui ) {
 
             if ( GTK_IS_SPIN_BUTTON ( child ) ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
+                G3DVECTOR pos = { .x = obj->pos.x, 
+                                  .y = obj->pos.y,
+                                  .z = obj->pos.z },
+                          rot = { .x = obj->rot.x, 
+                                  .y = obj->rot.y,
+                                  .z = obj->rot.z },
+                          sca = { .x = obj->sca.x, 
+                                  .y = obj->sca.y,
+                                  .z = obj->sca.z };
+
+                if ( obj->type == G3DMESHTYPE ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+
+                    if ( gui->flags & VIEWVERTEX ) {
+                        g3dvertex_getAveragePositionFromList ( mes->lselver, &pos );
+                    }
+                }
 
                 /****************** Position *****************/
                 if ( strcmp ( child_name, EDITXPOSITION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->pos.x );
+                    gtk_spin_button_set_value ( spb, pos.x );
                 }
 
                 if ( strcmp ( child_name, EDITYPOSITION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->pos.y );
+                    gtk_spin_button_set_value ( spb, pos.y );
                 }
 
                 if ( strcmp ( child_name, EDITZPOSITION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->pos.z );
+                    gtk_spin_button_set_value ( spb, pos.z );
                 }
 
                 /****************** Rotation *****************/
                 if ( strcmp ( child_name, EDITXROTATION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->rot.x );
+                    gtk_spin_button_set_value ( spb, rot.x );
                 }
 
                 if ( strcmp ( child_name, EDITYROTATION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->rot.y );
+                    gtk_spin_button_set_value ( spb, rot.y );
                 }
 
                 if ( strcmp ( child_name, EDITZROTATION ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->rot.z );
+                    gtk_spin_button_set_value ( spb, rot.z );
                 }
 
                 /****************** Scaling  *****************/
                 if ( strcmp ( child_name, EDITXSCALING  ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->sca.x );
+                    gtk_spin_button_set_value ( spb, sca.x );
                 }
 
                 if ( strcmp ( child_name, EDITYSCALING  ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->sca.y );
+                    gtk_spin_button_set_value ( spb, sca.y );
                 }
 
                 if ( strcmp ( child_name, EDITZSCALING  ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, obj->sca.z );
+                    gtk_spin_button_set_value ( spb, sca.z );
                 }
             }
         } else {
@@ -210,6 +254,9 @@ GtkWidget* createCoordinatesEdit ( GtkWidget *parent, G3DUI *gui,
     createFloatText   ( frm, gui, EDITXSCALING , 192, 24, 0, 48, scaCbk );
     createFloatText   ( frm, gui, EDITYSCALING , 192, 48, 0, 48, scaCbk );
     createFloatText   ( frm, gui, EDITZSCALING , 192, 72, 0, 48, scaCbk );
+
+    createToggleLabel ( frm, gui, EDITABSOLUTE,    0, 96, 96, 20, absoluteCbk );
+
 
     gui->lock = 0x00;
 

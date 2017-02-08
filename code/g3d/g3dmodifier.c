@@ -42,7 +42,7 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod, uint32_t engine_flags ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            g3dmodifier_modify_r ( child, engine_flags );
+            g3dmodifier_modify_r ( (G3DMODIFIER*) child, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -53,13 +53,12 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod, uint32_t engine_flags ) {
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod, G3DCAMERA *cam, 
                                               uint32_t   engine_flags ) {
     G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
-    uint32_t takenOver = g3dobject_drawModifiers ( mod, 
-                                                   cam, engine_flags );
+    uint32_t takenOver = g3dobject_drawModifiers ( obj, cam, engine_flags );
 
     if ( ( ( obj->type == G3DFFDTYPE ) && ( obj->flags & OBJECTSELECTED ) ) ||
          ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) ) {
         if ( obj->draw ) {
-            takenOver |= obj->draw ( mod, cam, engine_flags );
+            takenOver |= obj->draw ( obj, cam, engine_flags );
         }
     }
 
@@ -83,7 +82,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                                  uint32_t ),
                         void       (*Activate)    ( G3DOBJECT *, uint32_t ),
                         void       (*Deactivate)  ( G3DOBJECT *, uint32_t ),
-                        void       (*Commit)      ( G3DOBJECT *, uint32_t,
+                        G3DOBJECT* (*Commit)      ( G3DOBJECT *, uint32_t,
                                                                  const char *,
                                                                  uint32_t ),
                         void       (*AddChild)    ( G3DOBJECT *, G3DOBJECT *,
@@ -94,7 +93,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                         void       (*StartUpdate) ( G3DMODIFIER *, uint32_t ),
                         void       (*Update)      ( G3DMODIFIER *, uint32_t ),
                         void       (*EndUpdate)   ( G3DMODIFIER *, uint32_t ) ) {
-    g3dobject_init ( mod, type, id, name, object_flags,
+    g3dobject_init ( (G3DOBJECT*)mod, type, id, name, object_flags,
                                           Draw,
                                           Free,
                                           Pick,
@@ -111,5 +110,5 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
     mod->update      = Update;
     mod->endUpdate   = EndUpdate;
 
-    g3dobject_deactivate ( mod, 0x00 );
+    g3dobject_deactivate ( (G3DOBJECT*)mod, 0x00 );
 }

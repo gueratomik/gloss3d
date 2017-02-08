@@ -171,11 +171,11 @@ G3DLIGHT *g3dlight_new ( uint32_t id, char *name ) {
     }
 
     g3dobject_init ( obj, G3DLIGHTTYPE, id, name, DRAWBEFORECHILDREN,
-                                                  g3dlight_draw,
-                                                  g3dlight_free,
+                                    DRAW_CALLBACK(g3dlight_draw),
+                                    FREE_CALLBACK(g3dlight_free),
                                                   NULL,
                                                   NULL,
-                                                  g3dlight_copy,
+                                    COPY_CALLBACK(g3dlight_copy),
                                                   NULL,
                                                   NULL,
                                                   NULL,

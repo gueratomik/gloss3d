@@ -259,7 +259,7 @@ void g3duvmap_applyProjection ( G3DUVMAP *map ) {
 uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
-    if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return;
+    if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return 0x00;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable  ( GL_LIGHTING );

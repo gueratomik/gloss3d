@@ -30,6 +30,52 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dmesh_moveVerticesTo ( G3DMESH *mes, LIST      *lver, 
+                                            G3DVECTOR *avg,
+                                            G3DVECTOR *to,
+                                            uint32_t   absolute,
+                                            uint32_t   axis_flags,
+                                            uint32_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DVECTOR difpos;
+    LIST *ltmpver = lver;
+
+    if ( absolute == 0x00 ) {
+        difpos.x = ( to->x - avg->x );
+        difpos.y = ( to->y - avg->y );
+        difpos.z = ( to->z - avg->z );
+
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+            if ( axis_flags & XAXIS ) ver->pos.x += difpos.x;
+            if ( axis_flags & YAXIS ) ver->pos.y += difpos.y;
+            if ( axis_flags & ZAXIS ) ver->pos.z += difpos.z;
+
+            if ( obj->parent->childvertexchange ) {
+                obj->parent->childvertexchange ( obj->parent, obj, ver );
+            }
+
+            ltmpver = ltmpver->next;
+        }
+    } else {
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+            if ( axis_flags & XAXIS ) ver->pos.x = to->x;
+            if ( axis_flags & YAXIS ) ver->pos.y = to->y;
+            if ( axis_flags & ZAXIS ) ver->pos.z = to->z;
+
+            if ( obj->parent->childvertexchange ) {
+                obj->parent->childvertexchange ( obj->parent, obj, ver );
+            }
+
+            ltmpver = ltmpver->next;
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_moveAxis ( G3DMESH *mes, 
                         double  *PREVMVX, /* previous world matrix */
                         uint32_t engine_flags ) {
@@ -317,12 +363,12 @@ uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbv
         if ( child->type & MODIFIER ) {
             G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
 
-            takenOver = g3dmesh_dumpModifiers_r ( mod, Alloc, Dump, data, engine_flags );
+            takenOver = g3dmesh_dumpModifiers_r ( (G3DMESH*) mod, Alloc, Dump, data, engine_flags );
 
             if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
                 if ( g3dobject_isActive ( child ) ) {
                     if ( ((G3DMESH*)mod)->dump ) {
-                        takenOver = ((G3DMESH*)mod)->dump ( mod, Alloc, Dump, data, engine_flags );
+                        takenOver = ((G3DMESH*)mod)->dump ( (G3DMESH*) mod, Alloc, Dump, data, engine_flags );
                     }
                 }
             }
@@ -348,7 +394,7 @@ void g3dmesh_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /* nbver */
     uint32_t takenOver = g3dmesh_dumpModifiers_r ( mes, Alloc, Dump, data, engine_flags );
 
     if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
-        if ( g3dobject_isActive ( mes ) ) {
+        if ( g3dobject_isActive ( (G3DOBJECT*)mes ) ) {
             if ( mes->dump ) {
                 mes->dump ( mes, Alloc, Dump, data, engine_flags );
             }
@@ -425,7 +471,7 @@ void g3dmesh_startUpdateModifiers_r ( G3DMESH *mes, uint32_t engine_flags ) {
                 if ( mod->startUpdate ) mod->startUpdate ( mod, engine_flags );
             }
 
-            g3dmesh_startUpdateModifiers_r ( mod, engine_flags );
+            g3dmesh_startUpdateModifiers_r ( (G3DMESH*)mod, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -446,7 +492,7 @@ void g3dmesh_updateModifiers_r ( G3DMESH *mes, uint32_t engine_flags ) {
                 if ( mod->update ) mod->update ( mod, engine_flags );
             }
 
-            g3dmesh_updateModifiers_r ( mod, engine_flags );
+            g3dmesh_updateModifiers_r ( (G3DMESH*)mod, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -467,7 +513,7 @@ void g3dmesh_endUpdateModifiers_r ( G3DMESH *mes, uint32_t engine_flags ) {
                 if ( mod->endUpdate ) mod->endUpdate ( mod, engine_flags );
             }
 
-            g3dmesh_endUpdateModifiers_r ( mod, engine_flags );
+            g3dmesh_endUpdateModifiers_r ( (G3DMESH*)mod, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -489,7 +535,7 @@ void g3dmesh_modify_r ( G3DMESH *mes, uint32_t engine_flags ) {
                 if ( mod->modify ) mod->modify ( mod, engine_flags );
             }
 
-            g3dmesh_modify_r ( mod, engine_flags );
+            g3dmesh_modify_r ( (G3DMESH*)mod, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -2638,7 +2684,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
 
             /*** do not draw anything else after that, it would cause some ***/
             /*** troubles because of glLoadName still in stack ***/
-                return;
+                return 0x00;
             } else {
                 if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
                     g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
@@ -2654,7 +2700,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         if ( engine_flags & SELECTMODE ) {
             g3dmesh_drawFaces ( mes, obj->flags, engine_flags );
 
-            return;
+            return 0x00;
         } else {
             if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
                 g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
@@ -2668,7 +2714,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         if ( engine_flags & SELECTMODE ) {
             g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
 
-            return;
+            return 0x00;
         } else {
             if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
                 g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
@@ -3650,15 +3696,15 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     g3dobject_init ( obj, G3DMESHTYPE, id, name, DRAWBEFORECHILDREN,
-                                                 g3dmesh_draw,
-                                                 g3dmesh_free,
+                                   DRAW_CALLBACK(g3dmesh_draw),
+                                   FREE_CALLBACK(g3dmesh_free),
                                                  NULL,
                                                  NULL,
-                                                 g3dmesh_copy,
+                                   COPY_CALLBACK(g3dmesh_copy),
                                                  NULL,
                                                  NULL,
                                                  NULL,
-                                                 g3dmesh_addChild,
+                               ADDCHILD_CALLBACK(g3dmesh_addChild),
                                                  NULL );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/

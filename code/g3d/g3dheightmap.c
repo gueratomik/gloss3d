@@ -33,7 +33,7 @@
 void g3dheightmap_print ( G3DHEIGHTMAP *htm ) {
     uint32_t i;
 
-    printf ( "Heigthmap:%d\n", htm );
+    printf ( "Heigthmap\n" );
     for ( i = 0x00; i < htm->maxheights; i++ ) {
         printf ( "%f\n", htm->heights[i].elevation );
     }

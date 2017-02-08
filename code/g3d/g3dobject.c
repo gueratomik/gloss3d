@@ -82,7 +82,7 @@ uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, G3DCAMERA *cam,
 
         if ( child->type & MODIFIER ) {
             if ( child->draw ) {
-                ret = g3dmodifier_draw ( child, cam, engine_flags );
+                ret = g3dmodifier_draw ( (G3DMODIFIER*) child, cam, engine_flags );
             }
         }
 
@@ -951,9 +951,9 @@ void g3dobject_importChild ( G3DOBJECT *newparent,
 }
 
 /******************************************************************************/
-G3DOBJECT *g3dobject_copy ( G3DOBJECT *obj, uint32_t       id,
-                                            unsigned char *name, 
-                                            uint32_t       engine_flags ) {
+G3DOBJECT *g3dobject_copy ( G3DOBJECT *obj, uint32_t    id,
+                                            const char *name, 
+                                            uint32_t    engine_flags ) {
     G3DOBJECT *cpyobj = ( G3DOBJECT * ) obj->copy ( obj, id, name, engine_flags );
     LIST *ltmpchildren = obj->lchildren;
 
@@ -990,8 +990,8 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
-                                               uint32_t   engine_flags ) {
+uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
+                                                   uint32_t   engine_flags ) {
     printf("%s unimplemented for %s\n", __func__, obj->name );
 }
 
@@ -1013,7 +1013,7 @@ void g3dobject_default_pose ( G3DOBJECT *obj, G3DKEY *key ) {
 
 /******************************************************************************/
 G3DOBJECT* g3dobject_default_copy ( G3DOBJECT *obj, uint32_t id,
-                                                    unsigned char *name,
+                                                    const char *name,
                                                     uint32_t engine_flags ) {
     G3DOBJECT *cpy = g3dobject_new ( id, name, engine_flags );
     printf("%s unimplemented for %s\n", __func__, obj->name );
@@ -1032,10 +1032,13 @@ void g3dobject_default_deactivate ( G3DOBJECT *obj, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
-                                                unsigned char *name,
-                                                uint32_t engine_flags ) {
+G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
+                                                      const char *name,
+                                                      uint32_t engine_flags ) {
+    G3DOBJECT *com = g3dobject_new ( id, name, engine_flags );
     printf("%s unimplemented for %s\n", __func__, obj->name );
+
+    return com;
 }
 
 /******************************************************************************/
@@ -1054,7 +1057,7 @@ void g3dobject_default_setParent ( G3DOBJECT *obj, G3DOBJECT *parent,
 void g3dobject_init ( G3DOBJECT   *obj,
                       uint32_t     type,
                       uint32_t     id,
-                      char        *name,
+                      const char  *name,
                       uint32_t     object_flags,
                       uint32_t   (*Draw)      ( G3DOBJECT *, G3DCAMERA *, 
                                                              uint32_t ),
@@ -1063,11 +1066,13 @@ void g3dobject_init ( G3DOBJECT   *obj,
                                                              uint32_t ),
                       void       (*Pose)      ( G3DOBJECT *, G3DKEY * ),
                       G3DOBJECT* (*Copy)      ( G3DOBJECT *, uint32_t,
-                                                             unsigned char *,
+                                                             const char *,
                                                              uint32_t ),
                       void       (*Activate)  ( G3DOBJECT *, uint32_t ),
                       void       (*Deactivate)( G3DOBJECT *, uint32_t ),
-                      void       (*Commit)    ( G3DOBJECT *, uint32_t ),
+                      G3DOBJECT* (*Commit)    ( G3DOBJECT *, uint32_t,
+                                                             const char *,
+                                                             uint32_t ),
                       void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
                                                              uint32_t ),
                       void       (*SetParent) ( G3DOBJECT *, G3DOBJECT *, 
@@ -1203,7 +1208,7 @@ void g3dobject_name ( G3DOBJECT *obj, const char *name ) {
 }
 
 /******************************************************************************/
-G3DOBJECT *g3dobject_new ( uint32_t id, char *name, uint32_t object_flags ) {
+G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) calloc ( 0x01, sizeof ( G3DOBJECT ) );
 
     if ( obj == NULL ) {
