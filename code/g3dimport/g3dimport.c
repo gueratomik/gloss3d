@@ -118,6 +118,8 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
     G3DFFD *ffd = NULL;
     G3DCHANNEL *curchannel = NULL;
     G3DUVMAP *map = NULL;
+    G3DSUBDIVIDER *sdr = NULL;
+    G3DWIREFRAME *wrf = NULL;
     uint16_t chunksig;
     uint32_t chunklen;
     uint32_t grpid;
@@ -180,7 +182,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 if ( objtype == G3DOBJECTTYPE ) {
                     obj = g3dobject_new ( objid, objname, 0x00 );
 
-                    g3dobject_appendChild ( objarr[parid], obj );
+                    g3dobject_appendChild ( objarr[parid], obj, flags );
                 }
 
                 objarr[objid] = ( G3DOBJECT * ) obj;
@@ -444,7 +446,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -466,7 +468,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -508,7 +510,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -541,7 +543,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -570,7 +572,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -594,7 +596,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -617,7 +619,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -635,7 +637,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -656,12 +658,68 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
             break;
+
+            case SUBDIVIDERSIG : {
+                printf ( "SUBDIVIDER found\n");
+
+                sdr = g3dsubdivider_new ( objid, objname, flags );
+
+
+                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+            } break;
+
+            case SUBDIVIDERLEVELSIG : {
+                obj = ( G3DOBJECT * ) sdr;
+
+                readf ( &sdr->subdiv_preview, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &sdr->subdiv_render , sizeof ( uint32_t ), 0x01, fsrc );
+
+                objarr[objid] = obj;
+
+                if ( objactive ) {
+                    obj->flags &= (~OBJECTINACTIVE);
+                }
+
+                /* use append to sort objects in  */
+                /* the same order than when saved */
+                g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case WIREFRAMESIG : {
+                printf ( "WIREFRAME found\n");
+
+                wrf = g3dwireframe_new ( objid, objname );
+
+
+                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+            } break;
+
+            case WIREFRAMETHICKNESSSIG : {
+                obj = ( G3DOBJECT * ) wrf;
+
+                readf ( &wrf->thickness, sizeof ( float ), 0x01, fsrc );
+                readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
+
+                objarr[objid] = obj;
+
+                if ( objactive ) {
+                    obj->flags &= (~OBJECTINACTIVE);
+                }
+
+                /* use append to sort objects in  */
+                /* the same order than when saved */
+                g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
 
             case FFDSIG : {
                 printf ( "FFD found\n");
@@ -674,7 +732,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -1044,7 +1102,7 @@ printf("NB Quds = %d\n", nbqua );
 
                 /* use append to sort objects in  */
                 /* the same order than when saved */
-                g3dobject_appendChild ( objarr[parid], obj );
+                g3dobject_appendChild ( objarr[parid], obj, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -1164,7 +1222,7 @@ printf("NB Quds = %d\n", nbqua );
 
     g3dobject_updateMatrix_r ( sce, 0x00 );
 
-    g3dscene_updateBufferedMeshes ( sce, flags );
+    g3dscene_updateMeshes ( sce, flags );
 
     return sce;
 }

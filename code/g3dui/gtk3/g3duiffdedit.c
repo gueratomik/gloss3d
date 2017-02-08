@@ -40,6 +40,7 @@ static void xsliceCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/
@@ -53,6 +54,7 @@ static void ysliceCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/
@@ -66,6 +68,7 @@ static void zsliceCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/
@@ -79,6 +82,7 @@ static void xradiusCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/
@@ -92,6 +96,7 @@ static void yradiusCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/
@@ -105,6 +110,7 @@ static void zradiusCbk ( GtkWidget *widget, gpointer user_data ) {
     } else {
         updateFFDEdit ( parent, gui );
     }
+    g3dui_redrawObjectList ( gui );
 }
 
 /******************************************************************************/

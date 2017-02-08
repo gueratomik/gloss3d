@@ -225,21 +225,34 @@ OBJECT(0x2000)
                     uint32_t[WeightGroupID],
                     double[16][BindMatrix],
                     double[16][SkinMatrix] )
---- FFD(0x8000)
-------- FFDSHAPE (0x8100)
+--- FFD(0x8100)
+------- FFDSHAPE (0x8110)
 ----------- uint32_t nbx
 ----------- uint32_t nby
 ----------- uint32_t nbz
 ----------- float radx
 ----------- float rady
 ----------- float radz
-------- FFDUVW (0x8200)
+------- FFDUVW (0x8120)
 ----------- (float{x}-float{y}-float{z},
              float{u}-float{v}-float{w})[nb control points]
-------- FFDVER (0x8300)
+------- FFDVER (0x8130)
 ------------ uint32_t number of controlled vertices
 ------------ (uint32_t{verID}-float{x}-float{y}-float{z}
                               float{u}-float{v}-float{w})[controlled vertices]
+
+--- SUBDIVIDER(0x8200)
+------- SUBDIVLEVEL (0x8210)
+----------- uint32_t preview
+----------- uint32_t render
+
+--- WIREFRAME(0x8300)
+------- WIREFRAMEALGO(0x8310)
+----------- uint32_t triangulate
+------- WIREFRAMETHICKNESS(0x8320)
+----------- float thickness
+----------- float aperture
+
 --- CAMERA(0xA000)
 ------- CAMERAFOCAL (0xA100)
 ----------- float focal
@@ -266,6 +279,77 @@ static void chunk_write ( uint16_t chunkid, uint32_t chunkln, FILE *fdst ) {
     writef ( &chunkid, sizeof ( chunkid  ), 0x01, fdst );
     writef ( &chunkln, sizeof ( chunkln  ), 0x01, fdst );
 }
+
+/******************************************************************************/
+static uint32_t subdividerlevel_blocksize ( ) {
+    return sizeof ( uint32_t ) * 0x02;
+}
+
+/******************************************************************************/
+static uint32_t subdivider_blocksize ( ) {
+    uint32_t blocksize = 0x00;
+
+    blocksize += subdividerlevel_blocksize ( ) + 0x06;
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void subdividerlevel_writeblock ( G3DSUBDIVIDER *sdr, FILE *fdst ) {
+    writef ( &sdr->subdiv_preview, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &sdr->subdiv_render , sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void subdivider_writeblock ( G3DSUBDIVIDER *sdr, FILE *fdst ) {
+    chunk_write ( SUBDIVIDERLEVELSIG, subdividerlevel_blocksize ( ), fdst );
+    subdividerlevel_writeblock ( sdr, fdst );
+}
+
+
+
+/******************************************************************************/
+static uint32_t wireframealgo_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static uint32_t wireframethickness_blocksize ( ) {
+    return sizeof ( float ) * 0x02;
+}
+
+/******************************************************************************/
+static uint32_t wireframe_blocksize ( ) {
+    uint32_t blocksize = 0x00;
+
+    blocksize += wireframealgo_blocksize ( ) + 0x06;
+    blocksize += wireframethickness_blocksize ( ) + 0x06;
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void wireframealgo_writeblock ( G3DWIREFRAME *wrf, FILE *fdst ) {
+    uint32_t algo = 0x00;
+    writef ( &algo, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void wireframethickness_writeblock ( G3DWIREFRAME *wrf, FILE *fdst ) {
+    writef ( &wrf->thickness, sizeof ( float ), 0x01, fdst );
+    writef ( &wrf->aperture , sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void wireframe_writeblock ( G3DWIREFRAME *wrf, FILE *fdst ) {
+    chunk_write ( WIREFRAMEALGOSIG, wireframealgo_blocksize ( ), fdst );
+    wireframealgo_writeblock ( wrf, fdst );
+
+    chunk_write ( WIREFRAMETHICKNESSSIG, wireframethickness_blocksize ( ), fdst );
+    wireframethickness_writeblock ( wrf, fdst );
+}
+
+
 
 /******************************************************************************/
 static uint32_t camerafocal_blocksize ( G3DCAMERA *cam ) {
@@ -2184,6 +2268,22 @@ static void object_writeblock ( G3DOBJECT *obj,
 
         chunk_write ( FFDSIG, blocksize, fdst );
         ffd_writeblock ( ffd, FFDSAVEALL, fdst );
+    }
+
+    if ( ( obj->type == G3DWIREFRAMETYPE ) && ( flags & OBJECTSAVEWIREFRAME ) ) {
+        uint32_t blocksize = wireframe_blocksize ( ( G3DWIREFRAME * ) obj );
+        G3DWIREFRAME *wrf = ( G3DWIREFRAME * ) obj;
+
+        chunk_write ( WIREFRAMESIG, blocksize, fdst );
+        wireframe_writeblock ( wrf, fdst );
+    }
+
+    if ( ( obj->type == G3DSUBDIVIDERTYPE ) && ( flags & OBJECTSAVESUBDIVIDER ) ) {
+        uint32_t blocksize = subdivider_blocksize ( ( G3DSUBDIVIDER * ) obj );
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        chunk_write ( SUBDIVIDERSIG, blocksize, fdst );
+        subdivider_writeblock ( sdr, fdst );
     }
 
     if ( ( obj->type == G3DUVMAPTYPE ) && ( flags & OBJECTSAVEUVMAP ) ) {

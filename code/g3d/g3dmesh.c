@@ -2598,9 +2598,11 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
     uint32_t viewSkin = ( ( engine_flags & VIEWSKIN       ) &&
                           ( obj->flags   & OBJECTSELECTED ) ) ? 0x01: 0x00;
     G3DMESH *mes = ( G3DMESH * ) obj;
-    uint32_t takenOver;
+    uint32_t takenOver = 0x00;
 
-    takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
+    if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
+        takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
+    }
 
     if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
         glDisable ( GL_DEPTH_TEST );

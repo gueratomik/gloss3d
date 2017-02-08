@@ -41,6 +41,8 @@ void common_g3duiffdedit_radiusCbk ( G3DUI *gui, G3DUIAXIS axis,
     if ( obj && ( obj->type == G3DFFDTYPE ) ) {
         G3DFFD *ffd = ( G3DFFD * ) obj;
 
+        g3dobject_deactivate ( ffd, gui->flags );
+
         if ( axis == G3DUIXAXIS ) g3dffd_shape ( ffd, ffd->nbx,
                                                       ffd->nby,
                                                       ffd->nbz,
@@ -76,6 +78,8 @@ void common_g3duiffdedit_sliceCbk ( G3DUI *gui, G3DUIAXIS axis, int slice ) {
 
     if ( obj && ( obj->type == G3DFFDTYPE ) ) {
         G3DFFD *ffd = ( G3DFFD * ) obj;
+
+        g3dobject_deactivate ( ffd, gui->flags );
 
         if ( axis == G3DUIXAXIS ) g3dffd_shape ( ffd, slice, 
                                                       ffd->nby,

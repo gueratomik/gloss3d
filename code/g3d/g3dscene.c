@@ -30,7 +30,7 @@
 #include <g3d.h>
 
 /******************************************************************************/
-void g3dscene_updateBufferedMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
+void g3dscene_updateMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
     LIST *lmes = NULL;
     LIST *ltmpmes;
 
@@ -40,16 +40,14 @@ void g3dscene_updateBufferedMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
 
     while ( ltmpmes ) {
         G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
- 
-        if ( ((G3DOBJECT*)mes)->flags & BUFFEREDSUBDIVISION ) {
 
             /*** Rebuild mesh ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
                                   NULL,
                                   UPDATEVERTEXNORMAL |
-                                  UPDATEFACENORMAL, engine_flags );
-        }
+                                  UPDATEFACENORMAL |
+                                  RESETMODIFIERS, engine_flags );
 
         ltmpmes = ltmpmes->next;
     }
@@ -383,7 +381,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
             glMultMatrixd ( selobj->wmatrix );
 
             /*** Adjust cursor pos to selected vertices average position ***/
-            if ( selobj->type & MESH ) {
+            if ( selobj->type & EDITABLE ) {
                 double tmatrix[0x10];
                 G3DMESH *selmes = ( G3DMESH * ) selobj;
 
@@ -402,7 +400,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
             glMultMatrixd ( selobj->wmatrix );
 
             /*** Adjust cursor pos to selected vertices average position ***/
-            if ( selobj->type & MESH ) {
+            if ( selobj->type & EDITABLE ) {
                 double tmatrix[0x10];
                 G3DMESH *selmes = ( G3DMESH * ) selobj;
 
@@ -421,7 +419,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
             glMultMatrixd ( selobj->wmatrix );
 
             /*** Adjust cursor pos to selected vertices average position ***/
-            if ( selobj->type & MESH ) {
+            if ( selobj->type & EDITABLE ) {
                 double tmatrix[0x10];
                 G3DMESH *selmes = ( G3DMESH * ) selobj;
 

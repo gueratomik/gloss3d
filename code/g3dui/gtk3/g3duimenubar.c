@@ -411,6 +411,35 @@ GtkWidget *createFixBoneMenu ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
+GtkWidget *createMultipliersMenu ( GtkWidget *bar, G3DUI *gui,
+                                                   char *name,
+                                                   gint width ) {
+    GtkWidget *menu = gtk_menu_new ( );
+    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Multipliers" );
+    int height = gtk_widget_get_allocated_height ( item );
+
+    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
+
+    gtk_widget_set_size_request ( item, width, height );
+
+    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
+
+    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
+
+    g3dui_addMenuButton       ( menu, gui, MENU_ADDSYMMETRY    , width, G_CALLBACK(g3dui_addSymmetryCbk)     );
+
+/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
+*/
+    gtk_widget_show     ( item );
+
+    gtk_widget_show     ( menu );
+
+
+
+    return menu;
+}
+
+/******************************************************************************/
 GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
                                                  char *name,
                                                  gint width ) {
@@ -428,7 +457,6 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
 
     g3dui_addMenuButton       ( menu, gui, MENU_ADDWIREFRAME   , width, G_CALLBACK(g3dui_addWireframeCbk)    );
     g3dui_addMenuButton       ( menu, gui, MENU_ADDSUBDIVIDER  , width, G_CALLBACK(g3dui_addSubdividerCbk)   );
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDSYMMETRY    , width, G_CALLBACK(g3dui_addSymmetryCbk)     );
     g3dui_addMenuButton       ( menu, gui, MENU_ADDFFDBOX      , width, G_CALLBACK(g3dui_addFFDBoxCbk)    );
 
     g3dui_addMenuSeparator    ( menu );
@@ -895,13 +923,14 @@ GtkWidget *createMenuBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
 
-    createFileMenu      ( bar, gui, "FileMenu"     , 60 );
-    createEditMenu      ( bar, gui, "EditMenu"     , 60 );
-    createObjectsMenu   ( bar, gui, "ObjectsMenu"  , 90 );
-    createModifiersMenu ( bar, gui, "ModifiersMenu", 90 );
-    createFunctionsMenu ( bar, gui, "FunctionsMenu", 90 );
-    createUVMappingMenu ( bar, gui, "UVMappingMenu", 90 );
-    createRenderMenu    ( bar, gui, "RenderMenu"   , 90 );
+    createFileMenu        ( bar, gui, "FileMenu"       , 60 );
+    createEditMenu        ( bar, gui, "EditMenu"       , 60 );
+    createObjectsMenu     ( bar, gui, "ObjectsMenu"    , 90 );
+    createModifiersMenu   ( bar, gui, "ModifiersMenu"  , 90 );
+    createMultipliersMenu ( bar, gui, "MultipliersMenu", 90 );
+    createFunctionsMenu   ( bar, gui, "FunctionsMenu"  , 90 );
+    createUVMappingMenu   ( bar, gui, "UVMappingMenu"  , 90 );
+    createRenderMenu      ( bar, gui, "RenderMenu"     , 90 );
 
     gtk_widget_show ( bar );
 

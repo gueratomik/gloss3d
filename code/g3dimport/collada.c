@@ -1030,7 +1030,7 @@ G3DSCENE *g3dscene_importCollada ( const char *filename, uint32_t flags ) {
 
     fclose ( fxml );
 
-    g3dscene_updateBufferedMeshes ( sce, flags );
+    g3dscene_updateMeshes ( sce, flags );
 
     return sce;
 }

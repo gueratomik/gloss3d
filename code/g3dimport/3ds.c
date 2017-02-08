@@ -156,7 +156,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename, uint32_t flags ) {
 
     fclose ( fsrc );
 
-    g3dscene_updateBufferedMeshes ( sce, flags );
+    g3dscene_updateMeshes ( sce, flags );
 
 
     return sce;

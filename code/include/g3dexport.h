@@ -64,9 +64,11 @@
 #define OBJECTSAVEBONE        ( 1   <<   6 )
 #define OBJECTSAVESCENE       ( 1   <<   7 )
 #define OBJECTSAVEFFD         ( 1   <<   8 )
-#define OBJECTSAVEKEYS        ( 1   <<   9 )
-#define OBJECTSAVEUVMAP       ( 1   <<  10 )
-#define OBJECTSAVECAMERA      ( 1   <<  11 )
+#define OBJECTSAVESUBDIVIDER  ( 1   <<   9 )
+#define OBJECTSAVEWIREFRAME   ( 1   <<  10 )
+#define OBJECTSAVEKEYS        ( 1   <<  11 )
+#define OBJECTSAVEUVMAP       ( 1   <<  12 )
+#define OBJECTSAVECAMERA      ( 1   <<  13 )
 #define OBJECTSAVEALL         ( 0xFFFFFFFF )
 
 #define KEYSSAVEPOS           ( 0x00000001 )
@@ -113,6 +115,10 @@
 #define FFDSAVEUVW               ( 1   <<   1 )
 #define FFDSAVEVER               ( 1   <<   2 )
 #define FFDSAVEALL               ( 0xFFFFFFFF )
+
+#define SUBDIVIDERSAVEALL        ( 0xFFFFFFFF )
+
+#define WIREFRAMESAVEALL         ( 0xFFFFFFFF )
 
 #define CAMERASAVEFOCAL          ( 1          )
 #define CAMERASAVEALL            ( 0xFFFFFFFF )
@@ -213,10 +219,17 @@
 #define BONEGEOSIG         0x7100
 #define BONEWGSIG          0x7200
 
-#define FFDSIG             0x8000
-#define FFDSHAPESIG        0x8100
-#define FFDUVWSIG          0x8200
-#define FFDVERSIG          0x8300
+#define FFDSIG             0x8100
+#define FFDSHAPESIG        0x8110
+#define FFDUVWSIG          0x8120
+#define FFDVERSIG          0x8130
+
+#define SUBDIVIDERSIG      0x8200
+#define SUBDIVIDERLEVELSIG 0x8210
+
+#define WIREFRAMESIG          0x8300
+#define WIREFRAMEALGOSIG      0x8310
+#define WIREFRAMETHICKNESSSIG 0x8320
 
 #define SCENESIG           0x9000
 #define MATERIALFLAGSSIG   0x9212

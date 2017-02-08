@@ -217,7 +217,7 @@ G3DSCENE *readFile ( FILE *fsrc, uint32_t engine_flags ) {
     /*** free the buffer used by readEntry() ***/
     free ( str );
 
-    g3dscene_updateBufferedMeshes ( sce, engine_flags );
+    g3dscene_updateMeshes ( sce, engine_flags );
 
 
     return sce;

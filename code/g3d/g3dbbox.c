@@ -30,6 +30,15 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dbbox_getSize ( G3DBBOX *bbox, float *xSize, 
+                                      float *ySize,
+                                      float *zSize ) {
+    (*xSize) = ( bbox->xmax - bbox->xmin ),
+    (*ySize) = ( bbox->ymax - bbox->ymin ),
+    (*zSize) = ( bbox->zmax - bbox->zmin );
+}
+
+/******************************************************************************/
 void g3dbbox_adjust ( G3DBBOX *bbox, G3DVERTEX *ver ) {
     if ( ver->pos.x > bbox->xmax ) bbox->xmax = ver->pos.x;
     if ( ver->pos.x < bbox->xmin ) bbox->xmin = ver->pos.x;

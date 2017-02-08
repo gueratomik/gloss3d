@@ -322,10 +322,27 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
     uint32_t pid = g3dscene_getNextObjectID ( sce );
     G3DFFD *ffd = g3dffd_new ( pid, "FFD Box" );
 
-    /*** let's create a default shape ***/
-    g3dffd_shape ( ffd, 0x01, 0x01, 0x01, 3.0f, 3.0f, 3.0f );
+
 
     if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH  *mes = ( G3DMESH * ) obj;
+            float xSize, ySize, zSize;
+            G3DVECTOR pos;
+
+            g3dbbox_getSize ( &obj->bbox, &xSize, &ySize, &zSize );
+
+            g3dvertex_getAveragePositionFromList ( mes->lver, &((G3DOBJECT*)ffd)->pos );
+            g3dobject_updateMatrix_r ( ffd, gui->flags );
+
+            /*** let's adjust the shape ***/
+            g3dffd_shape ( ffd, 0x01, 0x01, 0x01, (fabs(xSize) / 2 ) + 0.1f, 
+                                                  (fabs(ySize) / 2 ) + 0.1f, 
+                                                  (fabs(zSize) / 2 ) + 0.1f );
+        } else {
+            g3dffd_shape ( ffd, 0x01, 0x01, 0x01, 1.0f, 1.0f, 1.0f );
+        }
+
         g3durm_object_addChild ( urm, sce, gui->flags, 
                                            ( REDRAWVIEW |
                                              REDRAWLIST | REDRAWCURRENTOBJECT ),
@@ -333,6 +350,9 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) ffd );
     } else { 
+        /*** let's create a default shape ***/
+        g3dffd_shape ( ffd, 0x01, 0x01, 0x01, 1.0f, 1.0f, 1.0f );
+
         g3durm_object_addChild ( urm, sce, gui->flags, 
                                            ( REDRAWVIEW |
                                              REDRAWLIST | REDRAWCURRENTOBJECT ),

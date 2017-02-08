@@ -30,6 +30,15 @@
 #include <g3d.h>
 
 /******************************************************************************/
+void g3dwireframe_setParent ( G3DWIREFRAME *wir,
+                              G3DOBJECT    *parent,
+                              uint32_t      engine_flags ) {
+    if ( g3dobject_isActive ( wir ) ) {
+        g3dwireframe_activate ( wir, engine_flags );
+    }
+}
+
+/******************************************************************************/
 G3DWIREFRAME *g3dwireframe_copy ( G3DWIREFRAME *wir,
                                   uint32_t      engine_flags ) {
     G3DOBJECT *objwir = ( G3DOBJECT * ) wir;
@@ -518,7 +527,7 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id, char *name ) {
                                                         g3dwireframe_deactivate,
                                                         g3dmesh_copy,
                                                         NULL,
-                                                        NULL,
+                                                        g3dwireframe_setParent,
                                                         g3dwireframe_modify,
                                                         g3dwireframe_startUpdate,
                                                         g3dwireframe_update,

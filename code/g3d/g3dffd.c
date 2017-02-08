@@ -356,6 +356,7 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
                     ( nbz + 0x01 ) * structsize;
 
     list_free ( &((G3DMESH*)ffd)->lver, NULL );
+    list_free ( &((G3DMESH*)ffd)->lselver, NULL );
     ((G3DMESH*)ffd)->nbver = 0x00;
 
     ffd->pnt = ( G3DVERTEX * ) realloc ( ffd->pnt, size );
@@ -424,6 +425,9 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
 
+    glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );
+
     glPointSize ( 3.0f );
 
     for ( i = 0x00; i <= ffd->nbx; i++ ) {
@@ -488,6 +492,8 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
 
         glEnd ( );
     }
+
+    glPopMatrix ( );
 
     glPopAttrib ( );
 

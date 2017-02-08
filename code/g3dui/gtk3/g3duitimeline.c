@@ -317,7 +317,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                     int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
 
                     /*** Recompute buffered subdivided Meshes ***/
-                    g3dscene_updateBufferedMeshes ( sce, gui->flags );
+                    g3dscene_updateMeshes ( sce, gui->flags );
 
                     /*** After dragging the cursor, move ***/
                     /*** the pointer to its position.    ***/

@@ -46,6 +46,15 @@
 #endif
 
 /******************************************************************************/
+void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
+                               G3DOBJECT     *parent,
+                               uint32_t       engine_flags ) {
+    if ( g3dobject_isActive ( sdr ) ) {
+        g3dsubdivider_activate ( sdr, engine_flags );
+    }
+}
+
+/******************************************************************************/
 void g3dsubdivider_setSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
     ((G3DOBJECT*) sdr)->flags |= SYNCSUBDIVISION;
 
@@ -813,7 +822,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          g3dsubdivider_deactivate,
                                                          g3dsubdivider_commit,
                                                          NULL,
-                                                         NULL,
+                                                         g3dsubdivider_setParent,
                                                          g3dsubdivider_modify,
                                                          g3dsubdivider_startUpdate,
                                                          g3dsubdivider_update,

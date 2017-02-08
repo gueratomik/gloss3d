@@ -44,7 +44,11 @@ void common_g3dui_stopCbk ( G3DUI *gui ) {
         gui->playLock     = 0x00;
         gui->playthreadid = 0x00;
 
-        g3dscene_updateBufferedMeshes ( gui->sce, gui->flags );
+        gui->flags &= (~ONGOINGANIMATION);
+
+        g3dscene_updateMeshes ( gui->sce, gui->flags );
+
+        g3dui_redrawGLViews ( gui );
     }
 }
 
@@ -61,7 +65,7 @@ void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
     gui->flags &= (~ONGOINGANIMATION);
 
     /*** Update buffered subdivided meshes ***/
-    g3dscene_updateBufferedMeshes ( gui->sce, gui->flags );
+    g3dscene_updateMeshes ( gui->sce, gui->flags );
 
     g3dui_redrawGLViews ( gui );
 }
