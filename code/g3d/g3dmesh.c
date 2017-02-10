@@ -3400,6 +3400,8 @@ LIST *g3dmesh_pickFace ( G3DMESH *mes, G3DCAMERA *curcam,
 
             if ( fac ) {
                 list_insert ( &lselfac, fac );
+
+printf("%s %d %d\n", __func__, fac->nbver, fac->id );
             }
 
             ltmp = ltmp->next;

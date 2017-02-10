@@ -709,6 +709,8 @@ void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
     newedg->edg.nbfac = 0x00;
     newedg->edg.lfac  = NULL;
 
+    if ( edg->nbfac > 0x02 ) newedg->edg.flags |= EDGEMALLOCFACES;
+
     g3dsubdivision_addEdgeLookup ( sdv, edg, newedg );
 
     newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
@@ -729,6 +731,8 @@ void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
     newedg->edg.flags = edg->flags | EDGEOUTER | EDGETOPOLOGY;
     newedg->edg.nbfac = 0x00;
     newedg->edg.lfac  = NULL;
+
+    if ( edg->nbfac > 0x02 ) newedg->edg.flags |= EDGEMALLOCFACES;
 
     g3dsubdivision_addEdgeLookup ( sdv, edg, newedg );
 
@@ -1186,6 +1190,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     subver->ver.nbfac  = subver->ver.nbedg = 0x00;
                     subver->ver.lfac   = subver->ver.ledg  = NULL;
 
+                    if ( curInnerEdges[i].edg.flags & EDGEMALLOCFACES ) subver->ver.flags |= VERTEXMALLOCFACES;
+
                     if ( curInnerEdges[i].edg.flags & EDGEORIGINAL ) {
                         subver->ver.flags |= VERTEXONEDGE;
 
@@ -1252,6 +1258,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     subver->ver.flags = VERTEXOUTER | VERTEXTOPOLOGY/*(( subdiv_flags & SUBDIVISIONELEVATE ) ? VERTEXTOPOLOGY : 0x00)*/;
                     subver->ver.nbfac = subver->ver.nbedg = 0x00;
                     subver->ver.lfac  = subver->ver.ledg  = NULL;
+
+                    if ( curOuterEdges[i].edg.flags & EDGEMALLOCFACES ) subver->ver.flags |= VERTEXMALLOCFACES;
 
                     curOuterEdges[i].subver = (G3DVERTEX*)subver;
  

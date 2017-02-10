@@ -142,6 +142,7 @@ typedef struct _URMMOVEOBJECT {
     G3DVECTOR newpos;
     G3DVECTOR newrot;
     G3DVECTOR newsca;
+    uint32_t  axis_only;
 } URMMOVEOBJECT;
 
 /******************************************************************************/
@@ -316,14 +317,17 @@ URMMOVEOBJECT *urmmoveobject_new ( G3DOBJECT *obj, G3DVECTOR *,
                                                    G3DVECTOR *,
                                                    G3DVECTOR *,
                                                    G3DVECTOR *,
-                                                   G3DVECTOR * );
+                                                   G3DVECTOR *,
+                                                   uint32_t );
 void urmmoveobject_free ( URMMOVEOBJECT * );
 void moveObject_undo ( G3DURMANAGER *, void *, uint32_t );
 void moveObject_redo ( G3DURMANAGER *, void *, uint32_t );
 void moveObject_free ( void *, uint32_t );
 void g3durm_object_move ( G3DURMANAGER *, G3DOBJECT *, G3DVECTOR *,
                                                        G3DVECTOR *,
-                                                       G3DVECTOR *, uint32_t );
+                                                       G3DVECTOR *, 
+                                                       uint32_t,
+                                                       uint32_t );
 
 /******************************************************************************/
 URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *, LIST *, LIST * );

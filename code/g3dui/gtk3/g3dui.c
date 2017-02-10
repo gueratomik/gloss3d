@@ -86,7 +86,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     list_append ( &lfilters, finalDisplay );*/
     list_append ( &lfilters, clean );
 
-
+    g3dui_setHourGlass ( gui );
 
     rps = common_g3dui_render ( gui, ( uint64_t ) ggt->curogl,
                                      0x00, 0x00,
@@ -95,6 +95,8 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                      width, 
                                      height,
                                      lfilters, 0x00 );
+
+    g3dui_unsetHourGlass ( gui );
 }
 
 /******************************************************************************/
@@ -739,27 +741,53 @@ static GtkWidget *getFocusedWidget_r ( GtkWidget *widget ) {
 
 /******************************************************************************/
 void g3dui_setHourGlass ( G3DUI *gui ) {
-    G3DUIGTK3  *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    /*G3DUIGTK3  *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkWindow  *win  = gtk_widget_get_parent(ggt->top);
     GtkWidget  *foc  = gtk_window_get_focus ( win );
     GdkWindow  *pwin = gtk_widget_get_parent_window ( foc );
-    GdkDisplay *dis  = gdk_window_get_display ( pwin );
-    GdkCursor  *cur  = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    GdkDisplay *dis  = gdk_window_get_display ( pwin );*/
+
+    GdkDisplay       *dis = gdk_display_get_default();
+    GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
+    GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
+    GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    gint x, y;
+
+    GdkWindow  *win = gdk_device_get_window_at_position ( dev, &x, &y ); 
     /* set watch cursor */
 
-    gdk_window_set_cursor ( pwin, cur );
+#ifdef unused
+    gdk_device_grab ( dev,
+                      win,
+                      GDK_OWNERSHIP_WINDOW,
+                      FALSE,
+                      0x00,
+                      cur,
+                      GDK_CURRENT_TIME );
+#endif
+    gdk_window_set_cursor ( win, cur );
+    gdk_display_sync ( dis );
+    gdk_cursor_unref ( cur );
     /** must flush **/
     gdk_flush ( );
+
 }
 
 /******************************************************************************/
 void g3dui_unsetHourGlass       ( G3DUI *gui ) {
-    G3DUIGTK3 *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkWindow *win  = gtk_widget_get_parent(ggt->top);
-    GtkWidget *foc  = gtk_window_get_focus ( win );
-    GdkWindow *pwin = gtk_widget_get_parent_window ( foc );
+    GdkDisplay       *dis = gdk_display_get_default();
+    GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
+    GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
+    GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    gint x, y;
+
+    GdkWindow  *win = gdk_device_get_window_at_position ( dev, &x, &y ); 
     /* return to normal */
-    gdk_window_set_cursor ( pwin, NULL );
+    gdk_window_set_cursor ( win, NULL );
+
+#ifdef unused
+    gdk_device_ungrab ( dev, GDK_CURRENT_TIME );
+#endif
 }
 
 /******************************************************************************/

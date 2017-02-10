@@ -58,13 +58,17 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3durm_object_move ( urm, obj, &oldpos,  
                                            &oldrot, 
-                                           &oldsca, REDRAWVIEW );
+                                           &oldsca,
+                                            ( gui->flags & VIEWAXIS ),
+                                            REDRAWVIEW );
         }
 
         if ( gui->flags & VIEWVERTEX ) {
             if ( obj->type == G3DMESHTYPE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 uint32_t axis_flags = 0x00;
+                G3DVECTOR *oldpos = NULL;
+                G3DVECTOR *newpos = NULL;
                 G3DVECTOR avg;
                 G3DVECTOR to;
 
@@ -74,7 +78,16 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
                 if ( axis == G3DUIYAXIS ) { to.y = val; axis_flags |= YAXIS; }
                 if ( axis == G3DUIZAXIS ) { to.z = val; axis_flags |= ZAXIS; }
 
+                g3dvertex_copyPositionFromList ( mes->lselver, &oldpos );
+
                 g3dmesh_moveVerticesTo ( mes, mes->lselver, &avg, &to, absolute, axis_flags, gui->flags );
+
+                g3dvertex_copyPositionFromList ( mes->lselver, &newpos );
+
+                g3durm_mesh_moveVertexList ( gui->urm, mes, mes->lselver, NULL, NULL, NULL,
+                                             oldpos, 
+                                             newpos, 
+                                             REDRAWVIEW );
             }
         }
 
@@ -112,7 +125,9 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3durm_object_move ( urm, obj, &oldpos,  
                                            &oldrot, 
-                                           &oldsca, REDRAWVIEW );
+                                           &oldsca,
+                                            ( gui->flags & VIEWAXIS ),
+                                            REDRAWVIEW );
         }
 
         g3dui_unsetHourGlass ( gui );
@@ -149,7 +164,9 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3durm_object_move ( urm, obj, &oldpos,  
                                            &oldrot, 
-                                           &oldsca, REDRAWVIEW );
+                                           &oldsca,
+                                            ( gui->flags & VIEWAXIS ),
+                                            REDRAWVIEW );
         }
 
         g3dui_unsetHourGlass ( gui );

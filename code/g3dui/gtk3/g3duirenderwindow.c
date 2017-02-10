@@ -247,6 +247,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         /*** COMMENTED - Cleaning is done when closing window ***/
         /*if ( clean ) list_append ( &lfilters, clean );*/
 
+        g3dui_setHourGlass ( gui );
+
         if ( gui->currsg->startframe != gui->currsg->endframe ) {
             /*** this filter tells the engine to go to the next frame ***/
             R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
@@ -274,6 +276,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                              rsg->height,
                                              lfilters, 0x00 );
         }
+
+        g3dui_unsetHourGlass ( gui );
     }
 }
 

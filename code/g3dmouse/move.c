@@ -314,10 +314,13 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         }
                     }
 
-                    if ( flags & VIEWOBJECT ) {
+                    if ( ( flags & VIEWOBJECT ) ||
+                         ( flags & VIEWAXIS   ) ) {
                         g3durm_object_move ( urm, obj, &objpos, 
                                                        &obj->rot,
-                                                       &obj->sca, REDRAWVIEW );
+                                                       &obj->sca,
+                                                       ( flags & VIEWAXIS ),
+                                                       REDRAWVIEW );
                     }
 
                     if ( ( flags & VIEWVERTEX ) ||
