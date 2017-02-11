@@ -811,7 +811,8 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                           uint32_t       engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
 
-    sdr->subdiv_preview = sdr->subdiv_render = 0x02;
+    sdr->subdiv_preview = 0x01;
+    sdr->subdiv_render  = 0x02;
 
     g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN,
                                            DRAW_CALLBACK(g3dsubdivider_draw),

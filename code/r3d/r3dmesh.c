@@ -271,6 +271,11 @@ static void Dump ( G3DFACE *fac, void *data ) {
 
                 rms->curfac->flags |= RFACEFROMQUAD;
 
+                /*** this flag helps us to rebuild a quad from a RFACE and ***/
+                /*** the face that follows in the array. Used for outlining ***/
+                if ( i == 0x00 ) rms->curfac->flags |= RFACEFROMQUADONE;
+                if ( i == 0x01 ) rms->curfac->flags |= RFACEFROMQUADTWO;
+
                 /** Compute the triangle center needed for face equation ***/
                 r3dface_position ( rms->curfac, rms->rver, &rfacpos );
 

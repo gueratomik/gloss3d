@@ -40,21 +40,79 @@ void r3dray_outline ( R3DRAY *ray, R3DMESH *rms,
                                    uint32_t wireframeColor,
                                    float    wireframeThickness,
                                    uint32_t query_flags ) {
+    R2DPOINT p[0x04];
+    uint32_t nbp;
     uint32_t i;
 
-    for ( i = 0x00; i < 0x03; i++ ) {
-        uint32_t n = ( i + 0x01 ) % 0x03;
-        int32_t x1 = rms->rver[rfc->rverID[i]].scr.x,
-                y1 = rms->rver[rfc->rverID[i]].scr.y,
-                x2 = rms->rver[rfc->rverID[n]].scr.x,
-                y2 = rms->rver[rfc->rverID[n]].scr.y;
+    /*** we need to rebuild the quads otherwise there are some artefacts ***/
+    if ( rfc->flags & RFACEFROMQUAD ) {
+        if ( rfc->flags & RFACEFROMQUADONE ) {
+            R3DFACE *rfcone = rfc;
+            /*** in case rfc is created from a quad that was splitted in ***/
+            /*** 2 triangles, the next triangle is the second part of ***/
+            /*** the split ***/
+            R3DFACE *rfctwo = rfc + 0x01;
+
+            p[0x00].x = rms->rver[rfcone->rverID[0x00]].scr.x;
+            p[0x00].y = rms->rver[rfcone->rverID[0x00]].scr.y;
+
+            p[0x01].x = rms->rver[rfcone->rverID[0x01]].scr.x;
+            p[0x01].y = rms->rver[rfcone->rverID[0x01]].scr.y;
+
+            p[0x02].x = rms->rver[rfctwo->rverID[0x00]].scr.x;
+            p[0x02].y = rms->rver[rfctwo->rverID[0x00]].scr.y;
+
+            p[0x03].x = rms->rver[rfctwo->rverID[0x01]].scr.x;
+            p[0x03].y = rms->rver[rfctwo->rverID[0x01]].scr.y;
+
+            nbp = 0x04;
+        } else {
+            R3DFACE *rfcone = rfc;
+            /*** in case rfc is created from a quad that was splitted in ***/
+            /*** 2 triangles, the previous triangle is the second part of ***/
+            /*** the split ***/
+            R3DFACE *rfctwo = rfc - 0x01;
+
+            p[0x00].x = rms->rver[rfcone->rverID[0x00]].scr.x;
+            p[0x00].y = rms->rver[rfcone->rverID[0x00]].scr.y;
+
+            p[0x01].x = rms->rver[rfcone->rverID[0x01]].scr.x;
+            p[0x01].y = rms->rver[rfcone->rverID[0x01]].scr.y;
+
+            p[0x02].x = rms->rver[rfctwo->rverID[0x00]].scr.x;
+            p[0x02].y = rms->rver[rfctwo->rverID[0x00]].scr.y;
+
+            p[0x03].x = rms->rver[rfctwo->rverID[0x01]].scr.x;
+            p[0x03].y = rms->rver[rfctwo->rverID[0x01]].scr.y;
+
+            nbp = 0x04;
+        }
+    } else {
+        p[0x00].x = rms->rver[rfc->rverID[0x00]].scr.x;
+        p[0x00].y = rms->rver[rfc->rverID[0x00]].scr.y;
+
+        p[0x01].x = rms->rver[rfc->rverID[0x01]].scr.x;
+        p[0x01].y = rms->rver[rfc->rverID[0x01]].scr.y;
+
+        p[0x02].x = rms->rver[rfc->rverID[0x02]].scr.x;
+        p[0x02].y = rms->rver[rfc->rverID[0x02]].scr.y;
+
+        nbp = 0x03;
+    }
+
+    for ( i = 0x00; i < nbp; i++ ) {
+        uint32_t n = ( i + 0x01 ) % nbp;
+        int32_t x1 = p[i].x,
+                y1 = p[i].y,
+                x2 = p[n].x,
+                y2 = p[n].y;
         float dist;
 
         /* skip the central edge for former quads */
-        if ( ( rfc->flags & RFACEFROMQUAD ) && 
+        /*if ( ( rfc->flags & RFACEFROMQUAD ) && 
              ( ( i == 0x02 ) && ( n == 0x00 ) ) ) {
             continue;
-        }
+        }*/
 
     /*https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line */
         dist = abs ( ( ( y2 - y1 ) * ray->x ) - 

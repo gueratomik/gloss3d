@@ -100,7 +100,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                if ( ( obj->type & MESH ) == 0x00 ) {
+                if ( ( obj->type & EDITABLE ) == 0x00 ) {
                     fprintf ( stderr, "Not a mesh\n" );
 
                     return FALSE;

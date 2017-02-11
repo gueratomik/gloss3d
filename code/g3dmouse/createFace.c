@@ -192,7 +192,7 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            if ( obj && ( bev->button == 0x01 ) && ( obj->type & MESH ) ) {
+            if ( obj && ( bev->button == 0x01 ) && ( obj->type & EDITABLE ) ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 /*** Selection rectangle ***/
                 int32_t coord[0x04] = { bev->x, VPX[0x03] - bev->y,
@@ -226,7 +226,7 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
             G3DMotionEvent *bev = ( G3DMotionEvent * ) event;
 
-            if ( obj && ( bev->state & G3DButton1Mask ) && ( obj->type & MESH ) ) {
+            if ( obj && ( bev->state & G3DButton1Mask ) && ( obj->type & EDITABLE ) ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 /*** Selection rectangle ***/
                 int32_t coord[0x04] = { bev->x, VPX[0x03] - bev->y,
@@ -258,10 +258,10 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
             /*XButtonEvent *bev = ( G3DButtonEvent * ) event;*/
 
-            if (  ( obj ) && ( obj->type & MESH ) && ( ver[0x00] &&
-                                                       ver[0x01] && 
-                                                       ver[0x02] &&
-                                                       ver[0x03] ) ) {
+            if (  ( obj ) && ( obj->type & EDITABLE ) && ( ver[0x00] &&
+                                                           ver[0x01] && 
+                                                           ver[0x02] &&
+                                                           ver[0x03] ) ) {
                 /*** Must not be the same vertices ***/
                 if ( ( ( ver[0x00] != ver[0x02] ) && 
                        ( ver[0x01] != ver[0x03] ) ) ||
@@ -309,7 +309,8 @@ int createFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                           NULL,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
-                                          UPDATEVERTEXNORMAL, flags );
+                                          UPDATEVERTEXNORMAL |
+                                          RESETMODIFIERS, flags );
 
                     /*** be ready for another bridging ***/
                     ver[0x00] = tmpver2;

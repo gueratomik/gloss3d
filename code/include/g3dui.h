@@ -1076,7 +1076,7 @@ void common_g3duirenderedit_outlineThicknessCbk ( G3DUI *, float );
 void common_g3duirenderedit_outlineColorCbk ( G3DUI *, unsigned char, 
                                                        unsigned char, 
                                                        unsigned char );
-
+void common_g3duirenderedit_wireframeThicknessCbk ( G3DUI *, float  );
 void common_g3duirenderedit_formatCbk     ( G3DUI *, const char * );
 void common_g3duirenderedit_saveCbk       ( G3DUI *, uint32_t );
 

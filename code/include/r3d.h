@@ -112,6 +112,8 @@
 #define RFACEFROMQUAD     ( 1 << 4 )
 #define RFACEMIRRORED     ( 1 << 5 )
 #define RFACEHITATSTART   ( 1 << 6 )
+#define RFACEFROMQUADONE  ( 1 << 7 )
+#define RFACEFROMQUADTWO  ( 1 << 8 )
 
 #define RAYQUERYHIT             ( 1      )
 #define RAYQUERYLIGHTING        ( 1 << 1 ) /*** create a shadow vector?     ***/
@@ -304,6 +306,11 @@ typedef struct _R2DVECTOR {
     int32_t x, y;
     float z;
 } R2DVECTOR;
+
+/******************************************************************************/
+typedef struct _R2DPOINT {
+    int32_t x, y;
+} R2DPOINT;
 
 /******************************************************************************/
 typedef enum _G3DSHADINGMODE {
