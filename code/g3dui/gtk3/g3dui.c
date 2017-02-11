@@ -741,8 +741,8 @@ static GtkWidget *getFocusedWidget_r ( GtkWidget *widget ) {
 
 /******************************************************************************/
 void g3dui_setHourGlass ( G3DUI *gui ) {
-    /*G3DUIGTK3  *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkWindow  *win  = gtk_widget_get_parent(ggt->top);
+    G3DUIGTK3  *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    /*GtkWindow  *win  = gtk_widget_get_parent(ggt->top);
     GtkWidget  *foc  = gtk_window_get_focus ( win );
     GdkWindow  *pwin = gtk_widget_get_parent_window ( foc );
     GdkDisplay *dis  = gdk_window_get_display ( pwin );*/
@@ -753,19 +753,19 @@ void g3dui_setHourGlass ( G3DUI *gui ) {
     GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
     gint x, y;
 
-    GdkWindow  *win = gdk_device_get_window_at_position ( dev, &x, &y ); 
+    ggt->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); 
     /* set watch cursor */
 
 #ifdef unused
     gdk_device_grab ( dev,
-                      win,
+                      ggt->winAtPosition,
                       GDK_OWNERSHIP_WINDOW,
                       FALSE,
                       0x00,
                       cur,
                       GDK_CURRENT_TIME );
 #endif
-    gdk_window_set_cursor ( win, cur );
+    gdk_window_set_cursor ( ggt->winAtPosition, cur );
     gdk_display_sync ( dis );
     gdk_cursor_unref ( cur );
     /** must flush **/
@@ -775,15 +775,16 @@ void g3dui_setHourGlass ( G3DUI *gui ) {
 
 /******************************************************************************/
 void g3dui_unsetHourGlass       ( G3DUI *gui ) {
+    G3DUIGTK3        *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GdkDisplay       *dis = gdk_display_get_default();
     GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
     GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
     GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
     gint x, y;
 
-    GdkWindow  *win = gdk_device_get_window_at_position ( dev, &x, &y ); 
+    ggt->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); 
     /* return to normal */
-    gdk_window_set_cursor ( win, NULL );
+    gdk_window_set_cursor ( ggt->winAtPosition, NULL );
 
 #ifdef unused
     gdk_device_ungrab ( dev, GDK_CURRENT_TIME );

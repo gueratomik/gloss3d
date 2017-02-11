@@ -1324,6 +1324,7 @@ void       g3dvertex_removeEdge ( G3DVERTEX *, G3DEDGE * );
 void       g3dvertex_free       ( G3DVERTEX * );
 void       g3dvertex_addUV      ( G3DVERTEX *, G3DUV * );
 void       g3dvertex_removeUV   ( G3DVERTEX *, G3DUV * );
+uint32_t   g3dvertex_isBoundary ( G3DVERTEX * );
 
 void       g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *, G3DVECTOR * );
 void       g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *, G3DVECTOR * );
@@ -1814,8 +1815,9 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *, float, G3DVECTOR *,
                                              G3DVECTOR *, uint32_t );
 
 /******************************************************************************/
-void g3dbbox_draw ( G3DBBOX *, uint32_t );
-void g3dbbox_adjust ( G3DBBOX *, G3DVERTEX * );
+void g3dbbox_draw    ( G3DBBOX *, uint32_t );
+void g3dbbox_adjust  ( G3DBBOX *, G3DVERTEX * );
+void g3dbbox_getSize ( G3DBBOX *, float *, float *, float * );
 
 /******************************************************************************/
 G3DOBJECT *g3dobject_new  ( uint32_t, const char *, uint32_t );
@@ -1868,6 +1870,8 @@ G3DKEY    *g3dobject_getKey                ( G3DOBJECT *, float, /* Frame num */
                                /*** key before frame ***/ LIST **,
                                /*** key after frame  ***/ LIST **,  
                                /*** key on frame     ***/ LIST ** );
+uint32_t   g3dobject_getID                 ( G3DOBJECT * );
+char      *g3dobject_getName               ( G3DOBJECT * );
 void       g3dobject_selectKey             ( G3DOBJECT *, G3DKEY * );
 void       g3dobject_selectAllKeys         ( G3DOBJECT * );
 void       g3dobject_unselectKey           ( G3DOBJECT *, G3DKEY * );
@@ -1906,6 +1910,11 @@ uint32_t   g3dobject_isActive              ( G3DOBJECT * );
 uint32_t   g3dobject_drawModifiers         ( G3DOBJECT *, G3DCAMERA *, 
                                                           uint32_t );
 void       g3dobject_deactivate            ( G3DOBJECT *, uint32_t );
+void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *, 
+                                                          uint32_t );
+void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *, 
+                                                          uint32_t );
+void       g3dobject_activate              ( G3DOBJECT *, uint32_t );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );
@@ -2203,6 +2212,14 @@ uint32_t   g3dmesh_dumpModifiers_r ( G3DMESH *, void (*Alloc)( uint32_t, /* nbve
                                                 uint32_t );
 void       g3dmesh_addChild        ( G3DMESH *, G3DOBJECT *, uint32_t );
 void       g3dmesh_clearGeometry ( G3DMESH * );
+G3DMESH   *g3dmesh_symmetricMerge ( G3DMESH * , double  *, uint32_t );
+void       g3dmesh_startUpdateModifiers_r ( G3DMESH *, uint32_t );
+void       g3dmesh_updateModifiers_r      ( G3DMESH *, uint32_t );
+void       g3dmesh_endUpdateModifiers_r   ( G3DMESH *, uint32_t );
+void       g3dmesh_moveAxis               ( G3DMESH *, double  *, uint32_t );
+void       g3dmesh_selectAllEdges         ( G3DMESH * );
+void       g3dmesh_selectAllFaces         ( G3DMESH * );
+G3DMESH   *g3dmesh_merge                  ( LIST *, uint32_t, uint32_t );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2233,6 +2250,10 @@ void       g3dscene_turnLightsOff            ( G3DSCENE * );
 void       g3dscene_selectAllObjects         ( G3DSCENE *, uint32_t );
 uint32_t   g3dscene_noLightOn                ( G3DSCENE * );
 void       g3dscene_invertSelection          ( G3DSCENE *, uint32_t );
+void       g3dscene_updateMeshes             ( G3DSCENE *, uint32_t );
+void       g3dscene_exportStlA               ( G3DSCENE *, const char *,
+                                                           const char *, 
+                                                           uint32_t );
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );
@@ -2273,6 +2294,9 @@ G3DMATERIAL *g3dmaterial_new                  ( const char * );
 void         g3dmaterial_free                 ( G3DMATERIAL * );
 void         g3dmaterial_addDisplacementImage ( G3DMATERIAL *, G3DIMAGE * );
 void         g3dmaterial_addDiffuseImage      ( G3DMATERIAL *, G3DIMAGE * );
+void         g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *, G3DPROCEDURAL * );
+void         g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *, 
+                                                     G3DPROCEDURAL * );
 void         g3dmaterial_addObject            ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_removeObject         ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_updateMeshes         ( G3DMATERIAL *, uint32_t );
@@ -2419,6 +2443,8 @@ void           g3dsubdivider_init       ( G3DSUBDIVIDER *, uint32_t,
 void           g3dsubdivider_deactivate ( G3DSUBDIVIDER *, uint32_t );
 void           g3dsubdivider_activate   ( G3DSUBDIVIDER *, uint32_t );
 G3DSUBDIVIDER *g3dsubdivider_copy       ( G3DSUBDIVIDER *, uint32_t );
+void           g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER * );
+void           g3dsubdivider_setSyncSubdivision   ( G3DSUBDIVIDER * );
 
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *,
@@ -2461,6 +2487,7 @@ void g3dmodifier_init ( G3DMODIFIER *,
                         void       (*Update)      ( G3DMODIFIER *, uint32_t ),
                         void       (*EndUpdate)   ( G3DMODIFIER *, uint32_t ) );
 uint32_t g3dmodifier_draw ( G3DMODIFIER *, G3DCAMERA *, uint32_t );
+void     g3dmodifier_modify_r ( G3DMODIFIER *, uint32_t );
 
 /******************************************************************************/
 G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
@@ -2476,5 +2503,8 @@ void          g3dwireframe_deactivate   ( G3DWIREFRAME *, uint32_t );
 
 /******************************************************************************/
 void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
+
+/******************************************************************************/
+G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );
 
 #endif

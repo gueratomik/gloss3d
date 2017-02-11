@@ -488,6 +488,16 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 readf ( &lig->intensity, sizeof ( float    ), 0x01, fsrc );
             break;
 
+            case LIGHTSHADOWCASTINGSIG : {
+                uint32_t cast_shadows;
+
+                readf ( &cast_shadows, sizeof ( uint32_t ), 0x01, fsrc );
+
+                if ( cast_shadows ) {
+                    ((G3DOBJECT*)lig)->flags |= LIGHTCASTSHADOWS;
+                }
+            } break;
+
             case PLANESIG : {
                 float radu, radv;
                 uint32_t nbu, nbv;

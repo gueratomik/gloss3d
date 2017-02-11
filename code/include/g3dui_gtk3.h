@@ -114,6 +114,7 @@ typedef struct _G3DUIGTK3 {
     GtkWidget *curmou; /*** store the current pressed toggle button      ***/
     GtkWidget *curmat; /*** current material ***/
     GtkWidget *main;
+    GdkWindow *winAtPosition; /*** window at mouse position (for hourGlass)***/
 } G3DUIGTK3;
 
 /******************************************************************************/

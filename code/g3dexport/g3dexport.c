@@ -212,6 +212,8 @@ OBJECT(0x2000)
 ----------- R-G-B-A ( uint32_t-uint32_t-uint32_t-uint32_t )
 ------- LIGHT_INTENSITY(0x6200)
 ----------- intensity ( float )
+------- LIGHT_SHADOWCASTING(0x6300)
+----------- cast_shdow ( float )
 --- BONE(0x7000)
 ------- BONEGEOMETRY(0x7100)
 ----------- Length   (float)
@@ -846,6 +848,11 @@ static uint32_t lightintensity_blocksize ( ) {
 }
 
 /******************************************************************************/
+static uint32_t lightshadowcasting_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
 static uint32_t light_blocksize ( G3DLIGHT *lig, uint32_t flags ) {
     uint32_t blocksize = 0x00;
 
@@ -855,6 +862,10 @@ static uint32_t light_blocksize ( G3DLIGHT *lig, uint32_t flags ) {
 
     if ( flags & LIGHTSAVEINTENSITY ) {
         blocksize += lightintensity_blocksize ( ) + 0x06;
+    }
+
+    if ( flags & LIGHTSAVESHADOWCASTING ) {
+        blocksize += lightshadowcasting_blocksize ( ) + 0x06;
     }
 
 
@@ -1257,6 +1268,13 @@ static void file_writeblock ( char *version,
 }
 
 /******************************************************************************/
+static void lightshadowcasting_writeblock ( G3DLIGHT *lig, FILE *fdst ) {
+    uint32_t cast_shadow = ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) ? 0x01 : 0x00;
+
+    writef ( &cast_shadow, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
 static void lightintensity_writeblock ( G3DLIGHT *lig, FILE *fdst ) {
     writef ( &lig->intensity, sizeof ( float ), 0x01, fdst );
 }
@@ -1286,6 +1304,13 @@ static void light_writeblock ( G3DLIGHT *lig, uint32_t flags, FILE *fdst ) {
 
         chunk_write ( LIGHTINTENSITYSIG, blocksize, fdst );
         lightintensity_writeblock ( lig, fdst );
+    }
+
+    if ( flags & LIGHTSAVESHADOWCASTING ) {
+        uint32_t blocksize = lightshadowcasting_blocksize ( );
+
+        chunk_write ( LIGHTSHADOWCASTINGSIG, blocksize, fdst );
+        lightshadowcasting_writeblock ( lig, fdst );
     }
 }
 
