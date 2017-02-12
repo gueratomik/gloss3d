@@ -29,6 +29,22 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+
+#define GLOSS3DLICENSE \
+"  GLOSS3D is free software: you can redistribute it and/or modify \n \
+it under the terms of the GNU General Public License as published by \n \
+the Free Software Foundation, either version 3 of the License, or \n \
+(at your option) any later version. \n \
+\n \
+  GLOSS3D is distributed in the hope that it will be useful, \n \
+but WITHOUT ANY WARRANTY; without even the implied warranty of \n \
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n \
+GNU General Public License for more details. \n \
+\n\
+  You should have received a copy of the GNU General Public License \n \
+along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
+
+
 /******************************************************************************/
 GtkWidget *g3dui_addMenuSeparator ( GtkWidget *menu ) {
     GtkWidget *item = gtk_separator_menu_item_new ( );
@@ -183,6 +199,50 @@ GtkWidget *createRenderMenu ( GtkWidget *bar, G3DUI *gui,
 
 /*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk );
 */
+    gtk_widget_show     ( item );
+
+    gtk_widget_show     ( menu );
+
+
+
+    return menu;
+}
+
+/******************************************************************************/
+void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    gchar *authors[] = { "Gary GABRIEL", NULL };
+
+    gtk_show_about_dialog ( NULL,
+                           "authors", authors,
+                           "program-name", "Gloss3D",
+                           "license", GLOSS3DLICENSE,
+                           "comments", "Graphics by a Lightweight Open-Source Software",
+                           "version", VERSION,
+                           "copyright", "2012-2017 The Gloss3D Team",
+                           "website", "http://www.gloss3d.net",
+                           "title", ("About Gloss3D"),
+                           NULL );
+}
+
+/******************************************************************************/
+GtkWidget *createHelpMenu ( GtkWidget *bar, G3DUI *gui,
+                                            char *name,
+                                            gint width ) {
+    GtkWidget *menu = gtk_menu_new ( );
+    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Help" );
+    int height = gtk_widget_get_allocated_height ( item );
+
+    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
+
+    gtk_widget_set_size_request ( item, width, height );
+
+    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
+
+    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
+
+    g3dui_addMenuButton ( menu, gui, MENU_ABOUT, width, G_CALLBACK(g3dui_aboutCbk) );
+
     gtk_widget_show     ( item );
 
     gtk_widget_show     ( menu );
@@ -931,6 +991,7 @@ GtkWidget *createMenuBar ( GtkWidget *parent, G3DUI *gui,
     createFunctionsMenu   ( bar, gui, "FunctionsMenu"  , 90 );
     createUVMappingMenu   ( bar, gui, "UVMappingMenu"  , 90 );
     createRenderMenu      ( bar, gui, "RenderMenu"     , 90 );
+    createHelpMenu        ( bar, gui, "HelpMenu"       , 90 );
 
     gtk_widget_show ( bar );
 

@@ -680,6 +680,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 sdr = g3dsubdivider_new ( objid, objname, flags );
 
+                obj = ( G3DOBJECT * ) sdr;
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -687,8 +688,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
             } break;
 
             case SUBDIVIDERLEVELSIG : {
-                obj = ( G3DOBJECT * ) sdr;
-
                 readf ( &sdr->subdiv_preview, sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &sdr->subdiv_render , sizeof ( uint32_t ), 0x01, fsrc );
 
@@ -708,6 +707,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 wrf = g3dwireframe_new ( objid, objname );
 
+                obj = ( G3DOBJECT * ) wrf;
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
@@ -715,8 +715,6 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
             } break;
 
             case WIREFRAMETHICKNESSSIG : {
-                obj = ( G3DOBJECT * ) wrf;
-
                 readf ( &wrf->thickness, sizeof ( float ), 0x01, fsrc );
                 readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
 

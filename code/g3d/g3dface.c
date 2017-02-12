@@ -508,10 +508,23 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
         while ( ltmptex ) {
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
             G3DMATERIAL *mat = tex->mat;
+            G3DIMAGE *difimg = NULL;
 
             if ( tex->map == uvs->map ) {
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
-                    if ( mat->diffuse.image ) {
+                    if ( mat->flags & DIFFUSE_ENABLED ) {
+                        if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                            difimg = mat->diffuse.image;
+                        }
+
+                        if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                            if ( mat->diffuse.proc ) {
+                                difimg = &mat->diffuse.proc->image;
+                            }
+                        }
+                    }
+
+                    if ( difimg ) {
                         #ifdef __linux__
                         glActiveTextureARB ( arbid );
                         #endif
@@ -729,13 +742,14 @@ void g3dface_draw  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
     uint32_t   i, j;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
-        if ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) {
+        /* later ...*/
+        /*if ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) {
             g3dvertex_displace ( fac->ver[i], ltex, &dis[i] );
             pos[i] = &dis[i];
-        } else {
+        } else {*/
             pos[i] = ( fac->ver[i]->flags & VERTEXSKINNED ) ? &fac->ver[i]->skn :
                                                               &fac->ver[i]->pos;
-        }
+        /*}*/
     }
 
     if ( ltex && fac->luvs && ( ( engine_flags & SELECTMODE ) == 0x00 ) ) {

@@ -46,47 +46,26 @@ void r3dray_outline ( R3DRAY *ray, R3DMESH *rms,
 
     /*** we need to rebuild the quads otherwise there are some artefacts ***/
     if ( rfc->flags & RFACEFROMQUAD ) {
-        if ( rfc->flags & RFACEFROMQUADONE ) {
-            R3DFACE *rfcone = rfc;
+        R3DFACE *rfcone = rfc;
             /*** in case rfc is created from a quad that was splitted in ***/
             /*** 2 triangles, the next triangle is the second part of ***/
             /*** the split ***/
-            R3DFACE *rfctwo = rfc + 0x01;
+        R3DFACE *rfctwo = ( rfc->flags & RFACEFROMQUADONE ) ? rfc + 0x01 :
+                                                              rfc - 0x01;
 
-            p[0x00].x = rms->rver[rfcone->rverID[0x00]].scr.x;
-            p[0x00].y = rms->rver[rfcone->rverID[0x00]].scr.y;
+        p[0x00].x = rms->rver[rfcone->rverID[0x00]].scr.x;
+        p[0x00].y = rms->rver[rfcone->rverID[0x00]].scr.y;
 
-            p[0x01].x = rms->rver[rfcone->rverID[0x01]].scr.x;
-            p[0x01].y = rms->rver[rfcone->rverID[0x01]].scr.y;
+        p[0x01].x = rms->rver[rfcone->rverID[0x01]].scr.x;
+        p[0x01].y = rms->rver[rfcone->rverID[0x01]].scr.y;
 
-            p[0x02].x = rms->rver[rfctwo->rverID[0x00]].scr.x;
-            p[0x02].y = rms->rver[rfctwo->rverID[0x00]].scr.y;
+        p[0x02].x = rms->rver[rfctwo->rverID[0x00]].scr.x;
+        p[0x02].y = rms->rver[rfctwo->rverID[0x00]].scr.y;
 
-            p[0x03].x = rms->rver[rfctwo->rverID[0x01]].scr.x;
-            p[0x03].y = rms->rver[rfctwo->rverID[0x01]].scr.y;
+        p[0x03].x = rms->rver[rfctwo->rverID[0x01]].scr.x;
+        p[0x03].y = rms->rver[rfctwo->rverID[0x01]].scr.y;
 
-            nbp = 0x04;
-        } else {
-            R3DFACE *rfcone = rfc;
-            /*** in case rfc is created from a quad that was splitted in ***/
-            /*** 2 triangles, the previous triangle is the second part of ***/
-            /*** the split ***/
-            R3DFACE *rfctwo = rfc - 0x01;
-
-            p[0x00].x = rms->rver[rfcone->rverID[0x00]].scr.x;
-            p[0x00].y = rms->rver[rfcone->rverID[0x00]].scr.y;
-
-            p[0x01].x = rms->rver[rfcone->rverID[0x01]].scr.x;
-            p[0x01].y = rms->rver[rfcone->rverID[0x01]].scr.y;
-
-            p[0x02].x = rms->rver[rfctwo->rverID[0x00]].scr.x;
-            p[0x02].y = rms->rver[rfctwo->rverID[0x00]].scr.y;
-
-            p[0x03].x = rms->rver[rfctwo->rverID[0x01]].scr.x;
-            p[0x03].y = rms->rver[rfctwo->rverID[0x01]].scr.y;
-
-            nbp = 0x04;
-        }
+        nbp = 0x04;
     } else {
         p[0x00].x = rms->rver[rfc->rverID[0x00]].scr.x;
         p[0x00].y = rms->rver[rfc->rverID[0x00]].scr.y;

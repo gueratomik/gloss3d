@@ -44,6 +44,51 @@ static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     common_g3dui_materialNameCbk ( gui, name );
 }
 
+
+/******************************************************************************/
+const char *getProdeduralTypeSelection ( GtkWidget *widget ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    const char *procTypeStr = NULL;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+                return gtk_combo_box_text_get_active_text ( cbt );
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    return procTypeStr;
+}
+
+/******************************************************************************/
+const char *getProdeduralResSelection ( GtkWidget *widget ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    const char *procTypeStr = NULL;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( strcmp ( child_name, EDITCHANNELPROCEDURALRES ) == 0x00 ) {
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+                return gtk_combo_box_text_get_active_text ( cbt );
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    return procTypeStr;
+}
+
 /******************************************************************************/
 GtkWidget *createPanel ( GtkWidget *parent, G3DUI *gui,
                                             char *name,
@@ -281,9 +326,19 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void displacementProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
+    gchar *procType = getProdeduralTypeSelection ( parent ),
+          *procRes  = getProdeduralResSelection ( parent );
 
-    common_g3dui_materialDisplacementProceduralCbk ( gui );
+    g3dui_setHourGlass ( gui );
+
+    common_g3dui_materialDisplacementProceduralCbk ( gui, procType, procRes );
+
+    g3dui_unsetHourGlass ( gui );
+
+    g_free ( procType );
+    g_free ( procRes  );
 }
 
 /******************************************************************************/
@@ -354,6 +409,16 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static void displacementProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    displacementProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static void displacementProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
+    displacementProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
 static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                                                char *name,
                                                                gint x,
@@ -388,6 +453,20 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                    btn,
                                      0, 72, 96, 18,
                                    displacementProceduralCbk );
+
+          createProceduralTypeSelection ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALTYPE,
+                                               0, 96,
+                                               104,
+                                               64,
+                                               displacementProceduralTypeCbk );
+
+          createProceduralResSelection  ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALRES,
+                                               0, 120,
+                                               104,
+                                               64,
+                                               displacementProceduralResCbk );
 
 
     return pan;
@@ -554,9 +633,19 @@ static void imageColorCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void proceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
+    gchar *procType = getProdeduralTypeSelection ( parent ),
+          *procRes  = getProdeduralResSelection ( parent );
 
-    common_g3dui_materialProceduralCbk ( gui );
+    g3dui_setHourGlass ( gui );
+
+    common_g3dui_materialProceduralCbk ( gui, procType, procRes );
+
+    g3dui_unsetHourGlass ( gui );
+
+    g_free ( procType );
+    g_free ( procRes  );
 }
 
 /******************************************************************************/
@@ -665,6 +754,16 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static void diffuseProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    proceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static void diffuseProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
+    proceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
 static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                                                char *name,
                                                                gint x,
@@ -706,6 +805,20 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                    btn,
                                      0, 48, 96, 18,
                                    proceduralCbk );
+
+          createProceduralTypeSelection ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALTYPE,
+                                               0, 72,
+                                               104,
+                                               64,
+                                               diffuseProceduralTypeCbk );
+
+          /*createProceduralResSelection  ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALRES,
+                                               0, 96,
+                                               104,
+                                               64,
+                                               diffuseProceduralResCbk );*/
 
 
     return pan;

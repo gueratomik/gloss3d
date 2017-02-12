@@ -78,10 +78,14 @@ void g3dmaterial_addDiffuseImage ( G3DMATERIAL *mat, G3DIMAGE *colimg ) {
 }
 
 /******************************************************************************/
-void g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+G3DPROCEDURAL *g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+    G3DPROCEDURAL *previous = mat->diffuse.proc;
+
     mat->diffuse.proc = proc;
 
     g3dimage_bind ( &mat->diffuse.proc->image );
+
+    return previous;
 }
 
 /******************************************************************************/
@@ -111,8 +115,13 @@ void g3dmaterial_addDisplacementImage ( G3DMATERIAL *mat, G3DIMAGE *disimg ) {
 }
 
 /******************************************************************************/
-void g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat, 
+                                                       G3DPROCEDURAL *proc ) {
+    G3DPROCEDURAL *previous = mat->diffuse.proc;
+
     mat->displacement.proc = proc;
+
+    return previous;
 }
 
 /******************************************************************************/

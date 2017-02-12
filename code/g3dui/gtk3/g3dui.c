@@ -645,6 +645,106 @@ void createOrientationSelection ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
+void createProceduralTypeSelection ( GtkWidget *parent, 
+                                     G3DUI     *gui, 
+                                     char      *name,
+                                     gint       x, 
+                                     gint       y,
+                                     gint       labwidth,
+                                     gint       txtwidth,
+                                     void     (*cbk)( GtkWidget *, 
+                                                      gpointer ) ) {
+    GtkWidget     *cmb  = gtk_combo_box_text_new ( );
+    GdkRectangle   crec = { 0x00, 0x00, txtwidth, 0x12 };
+
+    /*gtk_spin_button_set_numeric ( btn, TRUE );*/
+
+    gtk_widget_set_name ( cmb, name );
+
+    gtk_widget_size_allocate ( cmb, &crec );
+
+    /*gtk_entry_set_width_chars ( GTK_ENTRY(cmb), 18 );*/
+
+    gtk_fixed_put ( GTK_FIXED(parent), cmb, x + labwidth, y );
+
+    if ( labwidth ) {
+        GdkRectangle lrec = { 0x00, 0x00, labwidth, 0x12 };
+        GtkWidget   *lab  = gtk_label_new ( name );
+
+        gtk_widget_set_name ( lab, name );
+
+        gtk_widget_size_allocate ( lab, &lrec );
+
+        gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+
+        gtk_widget_show ( lab );
+    }
+
+    if ( cbk ) { 
+        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
+    }
+
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PERLINNOISE );
+    /*gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, XYSTR );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, YZSTR );*/
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
+
+    gtk_widget_show ( cmb );
+}
+
+/******************************************************************************/
+void createProceduralResSelection ( GtkWidget *parent, 
+                                           G3DUI     *gui, 
+                                           char      *name,
+                                           gint       x, 
+                                           gint       y,
+                                           gint       labwidth,
+                                           gint       txtwidth,
+                                           void     (*cbk)( GtkWidget *, 
+                                                            gpointer ) ) {
+    GtkWidget     *cmb  = gtk_combo_box_text_new ( );
+    GdkRectangle   crec = { 0x00, 0x00, txtwidth, 0x12 };
+
+    /*gtk_spin_button_set_numeric ( btn, TRUE );*/
+
+    gtk_widget_set_name ( cmb, name );
+
+    gtk_widget_size_allocate ( cmb, &crec );
+
+    /*gtk_entry_set_width_chars ( GTK_ENTRY(cmb), 18 );*/
+
+    gtk_fixed_put ( GTK_FIXED(parent), cmb, x + labwidth, y );
+
+    if ( labwidth ) {
+        GdkRectangle lrec = { 0x00, 0x00, labwidth, 0x12 };
+        GtkWidget   *lab  = gtk_label_new ( name );
+
+        gtk_widget_set_name ( lab, name );
+
+        gtk_widget_size_allocate ( lab, &lrec );
+
+        gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+
+        gtk_widget_show ( lab );
+    }
+
+    if ( cbk ) { 
+        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
+    }
+
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCRES128  );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCRES256  );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCRES512  );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCRES1024 );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCRES2048 );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
+
+    gtk_widget_show ( cmb );
+}
+
+/******************************************************************************/
 void g3dui_updateAllCurrentEdit ( G3DUI *gui ) {
     LIST *ltmp = gui->lcuredit;
 
@@ -776,13 +876,13 @@ void g3dui_setHourGlass ( G3DUI *gui ) {
 /******************************************************************************/
 void g3dui_unsetHourGlass       ( G3DUI *gui ) {
     G3DUIGTK3        *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GdkDisplay       *dis = gdk_display_get_default();
+    /*GdkDisplay       *dis = gdk_display_get_default();
     GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
     GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
     GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
     gint x, y;
 
-    ggt->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); 
+    ggt->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); */
     /* return to normal */
     gdk_window_set_cursor ( ggt->winAtPosition, NULL );
 

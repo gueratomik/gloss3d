@@ -40,7 +40,7 @@ void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui ) {
     if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
         G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
 
-        if ( obj->flags & SYNCSUBDIVISION ) {
+        if ( obj->flags & SYNCLEVELS ) {
             g3dsubdivider_unsetSyncSubdivision ( sdr );
         } else {
             g3dsubdivider_setSyncSubdivision   ( sdr );
@@ -88,6 +88,10 @@ void common_g3duisubdivideredit_subdivRenderCbk ( G3DUI *gui, int level ) {
 
         sdr->subdiv_render = level;
 
+        if ( obj->flags & SYNCLEVELS ) {
+            sdr->subdiv_preview = sdr->subdiv_render;
+        }
+
         g3dui_unsetHourGlass ( gui );
     }
 
@@ -109,6 +113,10 @@ void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level ) {
         g3dui_setHourGlass ( gui );
 
         sdr->subdiv_preview = level;
+
+        if ( obj->flags & SYNCLEVELS ) {
+            sdr->subdiv_render = sdr->subdiv_preview;
+        }
 
         g3dmodifier_modify_r ( sdr, gui->flags );
 

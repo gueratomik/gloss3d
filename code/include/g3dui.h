@@ -88,6 +88,13 @@
 #define OPTIONMENUNAME  "Option_Menu"
 #define SHADINGMENUNAME "Shading_Menu"
 
+#define PERLINNOISE "Perlin Noise"
+#define PROCRES128  "128x128"
+#define PROCRES256  "256x256"
+#define PROCRES512  "512x512"
+#define PROCRES1024 "1024x1024"
+#define PROCRES2048 "2048x2048"
+
 #define SHADINGMENU_GOURAUD   "Gouraud Shading"
 #define SHADINGMENU_FLAT      "Flat Shading"
 #define SHADINGMENU_WIREFRAME "Wireframe"
@@ -299,22 +306,30 @@
 #define EDITMATERIALNAME           "Material Name"
 #define EDITMATERIALCHANNELS       "Material Channels"
 
+#define EDITCHANNELCOLOR           "Color"
+#define EDITCHANNELIMAGE           "Image"
+#define EDITCHANNELPROCEDURAL      "Procedural"
+#define EDITCHANNELPROCEDURALTYPE  "Procedural Type"
+#define EDITCHANNELPROCEDURALRES   "Procedural Res"
+
 #define EDITDIFFUSE                "Diffuse"
-#define EDITDIFFUSECOLOR           "Color"
-#define EDITDIFFUSEIMAGE           "Image"
-#define EDITDIFFUSEPROCEDURAL      "Procedural"
+#define EDITDIFFUSECOLOR           EDITCHANNELCOLOR
+#define EDITDIFFUSEIMAGE           EDITCHANNELIMAGE
+#define EDITDIFFUSEPROCEDURAL      EDITCHANNELPROCEDURAL
+#define EDITDIFFUSEPROCEDURALTYPE  EDITCHANNELPROCEDURALTYPE
+#define EDITDIFFUSEPROCEDURALRES   EDITCHANNELPROCEDURALRES
 
 #define EDITSPECULARITY            "Specularity"
 #define EDITSPECULARITYSHININESS   "Shininess"
 #define EDITSPECULARITYLEVEL       "Level"
-#define EDITSPECULARITYCOLOR       "Color"
-#define EDITSPECULARITYIMAGE       "Image"
+#define EDITSPECULARITYCOLOR       EDITCHANNELCOLOR
+#define EDITSPECULARITYIMAGE       EDITCHANNELIMAGE
 
 #define EDITDISPLACEMENT           "Displacement"
 #define EDITDISPLACEMENTENABLED    "Enable Displacement Channel"
 #define EDITDISPLACEMENTCHANNEL    "Displacement Channel"
-#define EDITDISPLACEMENTIMAGE      "Image"
-#define EDITDISPLACEMENTPROCEDURAL "Procedural"
+#define EDITDISPLACEMENTIMAGE      EDITCHANNELIMAGE
+#define EDITDISPLACEMENTPROCEDURAL EDITCHANNELPROCEDURAL
 #define EDITDISPLACEMENTSTRENGTH   "Strength"
 
 #define EDITREFLECTION             "Reflection"
@@ -324,9 +339,9 @@
 #define EDITREFRACTIONTRANSPARENCY "Transparency"
 #define EDITREFRACTIONSTRENGTH     "Strength"
 
-#define EDITCOLORIMAGE             "Color Image"
-#define EDITCOLORSOLID             "Solid Color"
-#define EDITCOLORPROCEDURAL        "Procedural Texture"
+#define EDITCOLORSOLID             EDITCHANNELCOLOR
+#define EDITCOLORIMAGE             EDITCHANNELIMAGE
+#define EDITCOLORPROCEDURAL        EDITCHANNELPROCEDURAL
 
 #define EDITUVMAP             "UVMap"
 #define EDITUVMAPPROJECTION   "Projection"
@@ -427,6 +442,8 @@
 #define MENU_RENDERVIEW           "Render view"
 #define MENU_RENDERFINAL          "Render Final"
 #define MENU_RENDERSETTINGS       "Render settings"
+
+#define MENU_ABOUT                "About"
 
 #define MENU_ADDUVMAP             "Add UV Map"
 #define MENU_FITUVMAP             "Fit to object"

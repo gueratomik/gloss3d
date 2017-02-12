@@ -56,14 +56,14 @@ void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr,
 
 /******************************************************************************/
 void g3dsubdivider_setSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
-    ((G3DOBJECT*) sdr)->flags |= SYNCSUBDIVISION;
+    ((G3DOBJECT*)sdr)->flags |= SYNCLEVELS;
 
     sdr->subdiv_render = sdr->subdiv_preview;
 }
 
 /******************************************************************************/
 void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
-    ((G3DOBJECT*) sdr)->flags &= (~SYNCSUBDIVISION);
+    ((G3DOBJECT*) sdr)->flags &= (~SYNCLEVELS);
 }
 
 /******************************************************************************/
@@ -812,9 +812,10 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
 
     sdr->subdiv_preview = 0x01;
-    sdr->subdiv_render  = 0x02;
+    sdr->subdiv_render  = 0x01;
 
-    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN,
+    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN | 
+                                                         SYNCLEVELS,
                                            DRAW_CALLBACK(g3dsubdivider_draw),
                                                          NULL,
                                                          NULL,

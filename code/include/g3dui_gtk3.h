@@ -463,6 +463,24 @@ void createOrientationSelection  ( GtkWidget *, G3DUI *,
                                                 gint, gint,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
+void createProceduralResolutionSelection ( GtkWidget *, 
+                                           G3DUI     *, 
+                                           char      *,
+                                           gint       , 
+                                           gint       ,
+                                           gint       ,
+                                           gint       ,
+                                           void     (*)( GtkWidget *, 
+                                                         gpointer ) );
+void createProceduralTypeSelection ( GtkWidget *, 
+                                     G3DUI     *, 
+                                     char      *,
+                                     gint       , 
+                                     gint       ,
+                                     gint       ,
+                                     gint       ,
+                                     void     (*)( GtkWidget *, 
+                                                   gpointer ) );
 
 void dispatchMenuButton  ( G3DUI *, G3DMOUSETOOL *, uint32_t );
 

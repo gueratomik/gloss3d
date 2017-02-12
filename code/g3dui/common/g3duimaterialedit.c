@@ -263,48 +263,95 @@ void common_g3dui_materialImageColorCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_materialProceduralCbk ( G3DUI *gui ) {
+void common_g3dui_materialProceduralCbk ( G3DUI *gui, const char *procType,
+                                                      const char *procRes ) {
     G3DMATERIAL *mat = gui->selmat;
 
     /*** prevent a loop when updating widget ***/
     if ( gui->lock ) return;
 
     if ( mat ) {
-        G3DPROCEDURALNOISE *proc = g3dproceduralnoise_new ( );
-        g3dmaterial_enableDiffuseProcedural ( mat );
+        G3DPROCEDURAL *proc = NULL;
+        uint32_t type;
+        uint32_t resX = 128, resY = 128;
 
-        /*** fill preview ***/
-        g3dprocedural_fill ( proc, 256, 256, 0x18 );
-        g3dmaterial_addDiffuseProcedural ( mat, proc );
+        /*** convert string to resolution ***/
+        if ( procRes ) sscanf ( procRes, "%dx%d", &resX, &resY );
 
-        /*** Redraw Material List widget Previews ***/
-        g3dui_updateSelectedMaterialPreview ( gui );
+        if ( procType ) {
+            if ( strcmp ( procType, PERLINNOISE ) == 0x00 ) {
+                proc = g3dproceduralnoise_new ( );
+            }
+        }
 
-        g3dui_redrawGLViews      ( gui );
-        g3dui_redrawMaterialList ( gui );
+        if ( proc ) {
+            G3DPROCEDURAL *previous;
+
+            g3dmaterial_enableDiffuseProcedural ( mat );
+
+            /*** fill preview ***/
+            g3dprocedural_fill ( proc, resX, resY, 0x18 );
+
+            previous = g3dmaterial_addDiffuseProcedural ( mat, proc );
+
+            if ( previous ) {
+                printf ( "%s todo: free previous image\n", __func__ );
+            }
+
+            /*** Redraw Material List widget Previews ***/
+            g3dui_updateSelectedMaterialPreview ( gui );
+
+            g3dui_redrawGLViews      ( gui );
+            g3dui_redrawMaterialList ( gui );
+        }
     }
 }
 
 /******************************************************************************/
-void common_g3dui_materialDisplacementProceduralCbk ( G3DUI *gui ) {
+void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,
+                                                      const char *procType,
+                                                      const char *procRes ) {
     G3DMATERIAL *mat = gui->selmat;
 
     /*** prevent a loop when updating widget ***/
     if ( gui->lock ) return;
 
     if ( mat ) {
-        G3DPROCEDURALNOISE *proc = g3dproceduralnoise_new ( );
-        g3dmaterial_enableDisplacementProcedural ( mat );
+        G3DPROCEDURAL *proc = NULL;
+        uint32_t type;
+        uint32_t resX = 128, resY = 128;
 
-        /*** fill preview ***/
-        g3dprocedural_fill ( proc, 1024, 1024, 0x08 );
-        g3dmaterial_addDisplacementProcedural ( mat, proc );
+        /*** convert string to resolution ***/
+        if ( procRes ) sscanf ( procRes, "%dx%d", &resX, &resY );
 
-        /*** Redraw Material List widget Previews ***/
-        g3dui_updateSelectedMaterialPreview ( gui );
+        if ( procType ) {
+            if ( strcmp ( procType, PERLINNOISE ) == 0x00 ) {
+                proc = g3dproceduralnoise_new ( );
+            }
+        }
 
-        g3dui_redrawGLViews      ( gui );
-        g3dui_redrawMaterialList ( gui );
+        if ( proc ) {
+            G3DPROCEDURAL *previous;
+
+            g3dmaterial_enableDisplacementProcedural ( mat );
+
+            /*** fill preview ***/
+            g3dprocedural_fill ( proc, resX, resY, 0x08 );
+
+            previous = g3dmaterial_addDisplacementProcedural ( mat, proc );
+
+            if ( previous ) {
+                printf ( "%s todo: free previous image\n", __func__ );
+            }
+
+            g3dmaterial_updateMeshes ( mat, gui->flags );
+
+            /*** Redraw Material List widget Previews ***/
+            g3dui_updateSelectedMaterialPreview ( gui );
+
+            g3dui_redrawGLViews      ( gui );
+            g3dui_redrawMaterialList ( gui );
+        }
     }
 }
 

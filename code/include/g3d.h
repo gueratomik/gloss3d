@@ -295,8 +295,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** Bone flags ***/
 #define BONEFIXED             (  1 << 17 )
 /*** Mesh private flags ***/
-#define BUFFEREDSUBDIVISION   (  1 << 17 )
-#define SYNCSUBDIVISION       (  1 << 18 ) /*** edit and render levels synced ***/
 #define MESHUSEADAPTIVE       (  1 << 19 )
 #define MESHUSEISOLINES       (  1 << 20 )
 #define MESHGEOMETRYONLY      (  1 << 21 )
@@ -307,6 +305,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UVMAPFIXED            (  1 << 17 )
 /*** Wireframe flags ***/
 #define TRIANGULAR            (  1 << 17 )
+/*** Subdivider flags ***/
+#define SYNCLEVELS            (  1 << 17 ) /*** edit and render levels synced ***/
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
@@ -2294,9 +2294,10 @@ G3DMATERIAL *g3dmaterial_new                  ( const char * );
 void         g3dmaterial_free                 ( G3DMATERIAL * );
 void         g3dmaterial_addDisplacementImage ( G3DMATERIAL *, G3DIMAGE * );
 void         g3dmaterial_addDiffuseImage      ( G3DMATERIAL *, G3DIMAGE * );
-void         g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *, G3DPROCEDURAL * );
-void         g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *, 
-                                                     G3DPROCEDURAL * );
+G3DPROCEDURAL *g3dmaterial_addDiffuseProcedural      ( G3DMATERIAL *,
+                                                       G3DPROCEDURAL * );
+G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *, 
+                                                       G3DPROCEDURAL * );
 void         g3dmaterial_addObject            ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_removeObject         ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_updateMeshes         ( G3DMATERIAL *, uint32_t );

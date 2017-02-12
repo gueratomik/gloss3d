@@ -31,12 +31,11 @@
 
 static void updateSubdivisionForm ( GtkWidget *, G3DUI * );
 
-
 /******************************************************************************/
 static void subdivSyncCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    /*common_g3duimeshedit_subdivSyncCbk ( gui );*/
+    common_g3duisubdivideredit_subdivSyncCbk ( gui );
 }
 
 /******************************************************************************/
@@ -56,7 +55,7 @@ static void subdivRenderCbk  ( GtkWidget *widget, gpointer user_data ) {
         common_g3duisubdivideredit_subdivRenderCbk ( gui, level );
     }
 
-    /*updateSubdivisionForm ( parent, gui );*/
+    updateSubdivisionForm ( parent, gui );
 }
 
 /******************************************************************************/
@@ -69,7 +68,7 @@ static void subdivPreviewCbk  ( GtkWidget *widget, gpointer user_data ) {
         common_g3duisubdivideredit_subdivPreviewCbk ( gui, level );
     }
 
-    /*updateSubdivisionForm ( parent, gui );*/
+    updateSubdivisionForm ( parent, gui );
 }
 
 /******************************************************************************/
@@ -111,7 +110,7 @@ static void updateSubdivisionForm ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITSUBDIVIDERSYNC ) == 0x00 ) {
-                    if ( ((G3DOBJECT*)sdr)->flags & SYNCSUBDIVISION ) {
+                    if ( ((G3DOBJECT*)sdr)->flags & SYNCLEVELS ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -153,8 +152,8 @@ static void createSubdivisionFrame ( GtkWidget *frm, G3DUI *gui,
     createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0,  24, 128, 32,
                                                        subdivRenderCbk );
 
-    createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,
-                                                       useIsoLinesCbk );
+    /*createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,
+                                                       useIsoLinesCbk );*/
 }
 
 

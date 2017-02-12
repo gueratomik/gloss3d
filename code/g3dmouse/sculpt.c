@@ -301,14 +301,14 @@ int sculpt_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             /*** Sculpting is only available to buffer subdivided objects because ***/
             /*** we can only retrieve the Z values thanks to the coordinates stored***/
             /*** in the rtvermem buffer. ***/
-            if ( ( obj->flags & BUFFEREDSUBDIVISION ) == 0x00 ) {
+            /*if ( ( obj->flags & BUFFEREDSUBDIVISION ) == 0x00 ) {
                 printf ( stderr, "sculpt_tool: Sculpting is only available to "
                                  "buffer subdivided objects" );
 
                 obj = NULL;
 
                 return 0x00;
-            }
+            }*/
 
             /*glGetIntegerv ( GL_VIEWPORT, VPX );*/
         } break;
