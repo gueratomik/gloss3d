@@ -519,8 +519,8 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
             GtkAdjustment *vadj;
             double vadj_value;
             LIST *lmes = NULL;
-            Widget viewport = gtk_widget_get_parent ( widget );
-            Widget scrolledWindow = gtk_widget_get_parent ( viewport );
+            GtkWidget *viewport = gtk_widget_get_parent ( widget );
+            GtkWidget *scrolledWindow = gtk_widget_get_parent ( viewport );
 
             /*** For keyboard inputs, use gtk_widget_grab_focus          ***/
             /*** Note, for some unknown reason, gtk_widget_grab_focus    ***/

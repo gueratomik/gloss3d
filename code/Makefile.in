@@ -388,17 +388,32 @@ EXTRA_DIST = include/g3dexport.h \
                        include/GLwMDrawA.h \
                        include/GLwMDrawAP.h \
                        xpm/addvertex.xpm \
+                       xpm/axismode.xpm \
+                       xpm/bonico.xpm \
                        xpm/bridge.xpm \
+                       xpm/camico.xpm \
                        xpm/cube.xpm \
+                       xpm/cubico.xpm \
+                       xpm/cylico.xpm \
                        xpm/cylinder.xpm \
+                       xpm/defico.xpm \
                        xpm/delete.xpm \
+                       xpm/disico.xpm \
                        xpm/edgemode.xpm \
+                       xpm/enaico.xpm \
                        xpm/extrude.xpm \
+                       xpm/eyeopn.xpm \
+                       xpm/eyesht.xpm \
                        xpm/facemode.xpm \
+                       xpm/ffdico.xpm \
                        xpm/horz.xpm \
                        xpm/knife.xpm \
+                       xpm/ligico.xpm \
                        xpm/makeedit.xpm \
+                       xpm/mapico.xpm \
                        xpm/matedit.xpm \
+                       xpm/maximize_view.xpm \
+                       xpm/mesico.xpm \
                        xpm/move.xpm \
                        xpm/newfile.xpm \
                        xpm/nextframe.xpm \
@@ -406,52 +421,40 @@ EXTRA_DIST = include/g3dexport.h \
                        xpm/openfile.xpm \
                        xpm/pick.xpm \
                        xpm/playanim.xpm \
+                       xpm/plnico.xpm \
                        xpm/prevframe.xpm \
                        xpm/record.xpm \
                        xpm/redo.xpm \
-                       xpm/render.xpm \
                        xpm/renderw.xpm \
+                       xpm/render.xpm \
+                       xpm/rotate_view.xpm \
                        xpm/rotate.xpm \
+                       xpm/saveas.xpm \
                        xpm/save.xpm \
-                       xpm/plnico.xpm \
-                       xpm/mapico.xpm \
                        xpm/scale.xpm \
+                       xpm/scnico.xpm \
+                       xpm/sculptmode.xpm \
                        xpm/shor.xpm \
+                       xpm/skinmode.xpm \
                        xpm/sobj.xpm \
                        xpm/sphere.xpm \
+                       xpm/sphico.xpm \
                        xpm/stopanim.xpm \
                        xpm/stoprender.xpm \
+                       xpm/subico.xpm \
+                       xpm/symico.xpm \
+                       xpm/torico.xpm \
+                       xpm/translate_view.xpm \
                        xpm/undo.xpm \
                        xpm/unzoomtime.xpm \
+                       xpm/uvwmapmode.xpm \
                        xpm/vertexmode.xpm \
                        xpm/vert.xpm \
+                       xpm/wirico.xpm \
                        xpm/xaxis.xpm \
                        xpm/yaxis.xpm \
                        xpm/zaxis.xpm \
                        xpm/zoomtime.xpm \
-                       xpm/skinmode.xpm \
-                       xpm/uvwmapmode.xpm \
-                       xpm/ligico.xpm \
-                       xpm/bonico.xpm \
-                       xpm/mesico.xpm \
-                       xpm/defico.xpm \
-                       xpm/symico.xpm \
-                       xpm/cube.xpm \
-                       xpm/cubico.xpm \
-                       xpm/torico.xpm \
-                       xpm/cylico.xpm \
-                       xpm/sphico.xpm \
-                       xpm/camico.xpm \
-                       xpm/saveas.xpm \
-                       xpm/scnico.xpm \
-                       xpm/ffdico.xpm \
-                       xpm/eyeopn.xpm \
-                       xpm/eyesht.xpm \
-                       xpm/disico.xpm \
-                       xpm/enaico.xpm \
-                       xpm/translate_view.xpm \
-                       xpm/rotate_view.xpm \
-                       xpm/maximize_view.xpm \
                        xpm/zoom_view.xpm
 
 all: all-recursive

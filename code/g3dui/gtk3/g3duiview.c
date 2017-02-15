@@ -526,7 +526,7 @@ static void gtk_view_class_init ( GtkViewClass *view_class ) {
 /*** this is now set in gtk_view_new () so I can set GUI as user_data ***/
     /*widget_class->event            = gtk_view_event;*/
 
-  /* ajout de la propriété PfxFoo:active */
+  /* ajout de la propri\E9t\E9 PfxFoo:active */
   /*g_object_class_install_property (object_class, PROP_ACTIVE,
                                    g_param_spec_boolean ("active",
                                                          "Active",
@@ -534,7 +534,7 @@ static void gtk_view_class_init ( GtkViewClass *view_class ) {
                                                          FALSE,
                                                          G_PARAM_READWRITE));*/
    
-  /* ajout d'un élément privé (utilisé pour contenit les champs privés de
+  /* ajout d'un \E9l\E9ment priv\E9 (utilis\E9 pour contenit les champs priv\E9s de
    * l'objet) */
   /*g_type_class_add_private (klass, sizeof (PfxFooPrivate));*/
 }
@@ -995,6 +995,8 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*** the OpenGL Window ***/
     area = gtk_drawing_area_new ( );
+
+    gtk_widget_set_double_buffered (area, FALSE );
 
     /*** For keyboard inputs ***/
     gtk_widget_set_can_focus ( area, TRUE );

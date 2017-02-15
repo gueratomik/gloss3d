@@ -44,9 +44,11 @@
 /******************************************************************************/
 #ifdef __linux__
 #include <X11/X.h>
+#ifdef WITH_MOTIF
 #include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
+#endif
 #endif
 
 #ifdef __MINGW32__

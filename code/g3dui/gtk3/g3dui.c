@@ -1078,7 +1078,7 @@ static void gtk_glossui_class_init ( GtkGlossUIClass *glossui_class ) {
     /*widget_class->adjust_size_request   = gtkglossui_adjust_size_request;*/
     /*widget_class->show             = gtkglossui_show;*/
 
-  /* ajout de la propriété PfxFoo:active */
+  /* ajout de la propri\E9t\E9 PfxFoo:active */
   /*g_object_class_install_property (object_class, PROP_ACTIVE,
                                    g_param_spec_boolean ("active",
                                                          "Active",
@@ -1086,7 +1086,7 @@ static void gtk_glossui_class_init ( GtkGlossUIClass *glossui_class ) {
                                                          FALSE,
                                                          G_PARAM_READWRITE));*/
    
-  /* ajout d'un élément privé (utilisé pour contenit les champs privés de
+  /* ajout d'un \E9l\E9ment priv\E9 (utilis\E9 pour contenit les champs priv\E9s de
    * l'objet) */
   /*g_type_class_add_private (klass, sizeof (PfxFooPrivate));*/
 
@@ -1179,9 +1179,9 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERSETTINGS *rsg;
     GtkCssProvider *provider = gtk_css_provider_new ();
-    static const gchar *myCSS = { /*"* {                      \n"
+    static const gchar *myCSS = { "* {                      \n"
                                   "    font: Lucida Sans 8; \n"
-                                  "}                        \n"*/
+                                  "}                        \n"
                                   "GtkButton {              \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
@@ -1193,6 +1193,18 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-right:  0px; \n"
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
+                                  "}                        \n"
+                                  "GtkSpinButton {          \n"
+                                  "    border-width:   1px; \n"
+                                  "    border-radius:  0px; \n"
+                                  "    margin-top:     1px; \n"
+                                  "    margin-right:   1px; \n"
+                                  "    margin-left:    1px; \n"
+                                  "    margin-bottom:  1px; \n"
+                                  "    padding-top:    1px; \n"
+                                  "    padding-right:  1px; \n"
+                                  "    padding-left:   1px; \n"
+                                  "    padding-bottom: 1px; \n"
                                   "}                        \n"
                                   "GtkQuad {                \n"
                                   "    border-width:   1px; \n"

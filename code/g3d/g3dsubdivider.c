@@ -164,11 +164,17 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 
 
             for ( i = 0x00; i < nbrtfac; i++ ) {
+#define MAX_UV_MAPS 0x20
+                G3DUVSET   dumpUvs[MAX_UV_MAPS];
+                LIST      ldumpUvs[MAX_UV_MAPS];
                 LIST *ltmpuvs = fac->luvs;
                 uint32_t nbuvs = 0x00;
                 G3DVERTEX dumpVer[0x04];
                 G3DFACE   dumpFac;
                 uint32_t  j;
+
+                memset ( dumpUvs , 0x00, sizeof ( dumpUvs  ) );
+                memset ( ldumpUvs, 0x00, sizeof ( ldumpUvs ) );
 
                 memset ( &dumpFac, 0x00, sizeof ( G3DFACE ) );
 
@@ -194,9 +200,6 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 while ( ltmpuvs ) {
                     G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
                     uint32_t offset = ( nbuvs * nbVerticesPerFace );
-#define MAX_UV_MAPS 0x20
-                    G3DUVSET   dumpUvs[MAX_UV_MAPS];
-                    LIST      ldumpUvs[MAX_UV_MAPS];
                     uint32_t k;
 
                     dumpUvs[nbuvs].map = uvs->map;
@@ -213,7 +216,6 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 
                     ltmpuvs = ltmpuvs->next;
                 }
-
                 Dump ( &dumpFac, data );
             }
 
