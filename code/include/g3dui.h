@@ -26,7 +26,7 @@
 
 /******************************************************************************/
 #ifdef __linux__
-#include <X11/X.h>
+#include <X11/Xlib.h>
 #ifdef WITH_MOTIF
 #include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h>

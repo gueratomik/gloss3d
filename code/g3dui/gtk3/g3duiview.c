@@ -776,7 +776,7 @@ static void gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                 }
 
                 /*** while (gtk_events_pending ()) gtk_main_iteration ();***/
-while (gtk_events_pending ()) gtk_main_iteration ( );
+/*while (gtk_events_pending ()) gtk_main_iteration ( );*/
             }
 
             xold = xori;
