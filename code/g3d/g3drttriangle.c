@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 /*void g3drttriangle_getposition ( G3DRTTRIANGLE *tri, G3DVECTOR *pos ) {

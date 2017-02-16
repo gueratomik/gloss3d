@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /*******************************************************************************
 Holy Sh*** I'd never thought programming a dynamic cube creation function was so

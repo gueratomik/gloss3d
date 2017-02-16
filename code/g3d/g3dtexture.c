@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {

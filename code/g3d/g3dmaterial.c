@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, uint32_t engine_flags ) {

@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 void g3dffd_startUpdate ( G3DFFD *ffd, uint32_t engine_flags ) {

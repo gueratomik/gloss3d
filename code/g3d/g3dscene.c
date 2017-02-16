@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 void g3dscene_updateMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {

@@ -28,12 +28,26 @@
 /******************************************************************************/
 
 /**
- * @file g3drgba.h
+ * @file
  */
 
 /******************************************************************************/
+#ifndef _G3DRGBA_H_
+#define _G3DRGBA_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @struct G3DRGBA
+ * @brief A structure to store a RGBA color as four uint32 values.
+ */
 typedef struct _G3DRGBA {
-    uint32_t r, g, b, a;
+    uint32_t r; /*!< Red channel (0-255) */
+    uint32_t g; /*!< Green channel (0-255) */
+    uint32_t b; /*!< Blue channel (0-255) */
+    uint32_t a; /*!< Alpha channel (0-255) */
 } G3DRGBA;
 
 /**
@@ -69,3 +83,9 @@ void g3drgba_toColor ( G3DRGBA *rgba, G3DCOLOR *color );
  * @return the color in unsigned int 8-8-8-8 format.
  */
 uint32_t g3drgba_toLong ( G3DRGBA *rgba );
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t engine_flags ) {

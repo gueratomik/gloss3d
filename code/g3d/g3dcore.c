@@ -27,9 +27,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-/*** I cannot include setjmp in g3d.h because png.h complains about it ***/
+/*** I cannot include setjmp in g3dengine/g3dengine.h because png.h complains about it ***/
 #include <setjmp.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 #ifdef __linux__

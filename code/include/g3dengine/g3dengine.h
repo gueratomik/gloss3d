@@ -403,25 +403,12 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 	(vec)->z = (vec)->z * y;                  \
 }
 
-/******************************************************************************/
-typedef struct _G3DCOLOR {
-    float r, g, b, a;
-} G3DCOLOR;
+#include <g3dengine/g3dcolor.h>
+#include <g3dengine/g3drgba.h>
+#include <g3dengine/g2dvector.h>
+#include <g3dengine/g3dtinyvector.h>
+#include <g3dengine/g3dvector.h>
 
-/******************************************************************************/
-typedef struct _G2DVECTOR {
-    int32_t x, y;
-} G2DVECTOR, G2DPOINT;
-
-/******************************************************************************/
-typedef struct _G3DTINYVECTOR {
-    float x, y, z;
-} G3DTINYVECTOR;
-
-/******************************************************************************/
-typedef struct _G3DVECTOR {
-    float x, y, z, w;
-} G3DVECTOR, G3DPOINT, G3DQUATERNION/*, G3DTINYVECTOR*/;
 
 typedef struct _G3DVECTORCACHE {
     G3DVECTOR ref;
@@ -1269,36 +1256,15 @@ char    *g3dcore_strclone                ( char *   );
 void     g3dcore_extractRotationMatrix   ( double *, double * );
 
 /******************************************************************************/
-void g3dvector_init ( G3DVECTOR *, float x, float, float, float );
-uint32_t g3dvector_reflect ( G3DVECTOR *, G3DVECTOR *, G3DVECTOR * );
-void g3dvector_average ( G3DVECTOR *, G3DVECTOR *, G3DVECTOR * );
-void g3dvector_cross ( G3DVECTOR *, G3DVECTOR *, G3DVECTOR * );
-void g3dvector_normalize ( G3DVECTOR *, float *len );
-float g3dvector_scalar ( G3DVECTOR *, G3DVECTOR * );
-int g3dvector_sameside ( G3DVECTOR *, G3DVECTOR *, G3DVECTOR *, G3DVECTOR * );
-G3DVECTOR *g3dvector_new ( float, float, float, float );
-void g3dvector_free ( void * );
-void g3dvector_matrix ( G3DVECTOR *, double *, G3DVECTOR *);
-float g3dvector_length ( G3DVECTOR *vec );
-float g3dvector_angle ( G3DVECTOR *, G3DVECTOR * );
-void g3dtinyvector_matrix ( G3DTINYVECTOR *, double *, G3DTINYVECTOR * );
-void g3dtinyvector_normalize ( G3DTINYVECTOR *, float * );
-float g3dtinyvector_length ( G3DTINYVECTOR * );
+
+
 
 double g3ddoublevector_length ( G3DDOUBLEVECTOR * );
 double g3ddoublevector_scalar ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR * );
 void g3ddoublevector_cross ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR *, 
                                                 G3DDOUBLEVECTOR * );
 
-/******************************************************************************/
-int32_t    g2dvector_scalar    ( G2DVECTOR *, G2DVECTOR * );
-int32_t    g2dvector_cross     ( G2DVECTOR *, G2DVECTOR *, G3DVECTOR * );
-void       g2dvector_average   ( G2DVECTOR *, G2DVECTOR *, G2DVECTOR * );
-void       g2dvector_init      ( G2DVECTOR *, int32_t, int32_t );
-uint32_t   g2dvector_length    ( G2DVECTOR * );
-void       g2dvector_normalize ( G2DVECTOR * );
-void       g2dvector_free      ( void * );
-G2DVECTOR *g2dvector_new       ( int32_t, int32_t );
+
 
 /******************************************************************************/
 void g3dquaternion_multiply ( G3DQUATERNION *, G3DQUATERNION *,

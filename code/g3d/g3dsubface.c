@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,

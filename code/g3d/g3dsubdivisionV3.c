@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 G3DVERTEX *g3dsubdivision_lookVertexUp ( G3DSUBDIVISION *sdv,

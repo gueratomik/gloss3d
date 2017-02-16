@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 uint32_t g3dface_catmull_clark_drawV2 ( G3DSUBDIVISIONTHREAD *std,

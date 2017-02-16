@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 G3DSUBEDGE *g3dsubedge_getSubEdge ( G3DSUBEDGE *subedg, G3DVERTEX *v0, 

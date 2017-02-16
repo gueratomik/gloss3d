@@ -1,0 +1,218 @@
+\hypertarget{g3dvector_8h}{}\section{include/g3dengine/g3dvector.h File Reference}
+\label{g3dvector_8h}\index{include/g3dengine/g3dvector.\+h@{include/g3dengine/g3dvector.\+h}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct__G3DVECTOR}{\+\_\+\+G3\+D\+V\+E\+C\+T\+OR}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{g3dvector_8h_ad9fa10d89b10184f08c6251ead787c21}\label{g3dvector_8h_ad9fa10d89b10184f08c6251ead787c21}} 
+typedef struct \hyperlink{struct__G3DVECTOR}{\+\_\+\+G3\+D\+V\+E\+C\+T\+OR} {\bfseries G3\+D\+V\+E\+C\+T\+OR}
+\item 
+\mbox{\Hypertarget{g3dvector_8h_add23159be099b77f265890ddb4c05917}\label{g3dvector_8h_add23159be099b77f265890ddb4c05917}} 
+typedef struct \hyperlink{struct__G3DVECTOR}{\+\_\+\+G3\+D\+V\+E\+C\+T\+OR} {\bfseries G3\+D\+P\+O\+I\+NT}
+\item 
+\mbox{\Hypertarget{g3dvector_8h_ac72cd103142b724dd8cbf69f80d83f4c}\label{g3dvector_8h_ac72cd103142b724dd8cbf69f80d83f4c}} 
+typedef struct \hyperlink{struct__G3DVECTOR}{\+\_\+\+G3\+D\+V\+E\+C\+T\+OR} {\bfseries G3\+D\+Q\+U\+A\+T\+E\+R\+N\+I\+ON}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{g3dvector_8h_a81ef1f39f0fe6f11a3293623350d4989}{g3dvector\+\_\+init} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vec, float x, float y, float z, float w)
+\item 
+uint32\+\_\+t \hyperlink{g3dvector_8h_a69f404421465204f5df9fffe4fd8e942}{g3dvector\+\_\+reflect} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vec, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$nor, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vout)
+\item 
+void \hyperlink{g3dvector_8h_aa9b8b8ba4b057620b3ab2b7512def63e}{g3dvector\+\_\+average} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v1, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vout)
+\item 
+void \hyperlink{g3dvector_8h_af03928be61e28e0c87bacce71c76f2e0}{g3dvector\+\_\+cross} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$)
+\item 
+void \hyperlink{g3dvector_8h_a10fb0a038c45d83c0baac5184f4dfcd6}{g3dvector\+\_\+normalize} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vec, float $\ast$len)
+\item 
+float \hyperlink{g3dvector_8h_af8a622dcd9f2366068017fa64816ec76}{g3dvector\+\_\+scalar} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v1)
+\item 
+\mbox{\Hypertarget{g3dvector_8h_aa646aa1565e803b103ca0f091576d425}\label{g3dvector_8h_aa646aa1565e803b103ca0f091576d425}} 
+int {\bfseries g3dvector\+\_\+sameside} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$)
+\item 
+\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$ \hyperlink{g3dvector_8h_af90811aef107705136ef4a4aa07b578b}{g3dvector\+\_\+new} (float x, float y, float z, float w)
+\item 
+void \hyperlink{g3dvector_8h_a3be67981d153c68ff980a6c5cd3657fb}{g3dvector\+\_\+free} (void $\ast$)
+\item 
+void \hyperlink{g3dvector_8h_ab1880c3cb7d5d38e7127cbd25c1e5aee}{g3dvector\+\_\+matrix} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vec, double $\ast$matrix, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vout)
+\item 
+float \hyperlink{g3dvector_8h_a6d1d36f488f0add13d0908810b8bb7d5}{g3dvector\+\_\+length} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vec)
+\item 
+float \hyperlink{g3dvector_8h_a708de60ddf156c54a8ab6fa054c7a174}{g3dvector\+\_\+angle} (\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$v1)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{g3dvector_8h_a708de60ddf156c54a8ab6fa054c7a174}\label{g3dvector_8h_a708de60ddf156c54a8ab6fa054c7a174}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+angle@{g3dvector\+\_\+angle}}
+\index{g3dvector\+\_\+angle@{g3dvector\+\_\+angle}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+angle()}{g3dvector\_angle()}}
+{\footnotesize\ttfamily float g3dvector\+\_\+angle (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1 }\end{DoxyParamCaption})}
+
+Get the angle between formed by vectors (in radians). 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_aa9b8b8ba4b057620b3ab2b7512def63e}\label{g3dvector_8h_aa9b8b8ba4b057620b3ab2b7512def63e}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+average@{g3dvector\+\_\+average}}
+\index{g3dvector\+\_\+average@{g3dvector\+\_\+average}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+average()}{g3dvector\_average()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+average (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vout }\end{DoxyParamCaption})}
+
+Compute the mean value of two vectors. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_af03928be61e28e0c87bacce71c76f2e0}\label{g3dvector_8h_af03928be61e28e0c87bacce71c76f2e0}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+cross@{g3dvector\+\_\+cross}}
+\index{g3dvector\+\_\+cross@{g3dvector\+\_\+cross}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+cross()}{g3dvector\_cross()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+cross (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{ }\end{DoxyParamCaption})}
+
+Return the cross product of two vectors. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_a3be67981d153c68ff980a6c5cd3657fb}\label{g3dvector_8h_a3be67981d153c68ff980a6c5cd3657fb}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+free@{g3dvector\+\_\+free}}
+\index{g3dvector\+\_\+free@{g3dvector\+\_\+free}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+free()}{g3dvector\_free()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+free (\begin{DoxyParamCaption}\item[{void $\ast$}]{ }\end{DoxyParamCaption})}
+
+Free a 3D vector previously allocated. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_a81ef1f39f0fe6f11a3293623350d4989}\label{g3dvector_8h_a81ef1f39f0fe6f11a3293623350d4989}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+init@{g3dvector\+\_\+init}}
+\index{g3dvector\+\_\+init@{g3dvector\+\_\+init}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+init()}{g3dvector\_init()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+init (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec,  }\item[{float}]{x,  }\item[{float}]{y,  }\item[{float}]{z,  }\item[{float}]{w }\end{DoxyParamCaption})}
+
+Init a 3D vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em x} & the X coordinate. \\
+\hline
+{\em y} & the Y coordinate. \\
+\hline
+{\em y} & the Z coordinate. \\
+\hline
+{\em y} & the W coordinate. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_a6d1d36f488f0add13d0908810b8bb7d5}\label{g3dvector_8h_a6d1d36f488f0add13d0908810b8bb7d5}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+length@{g3dvector\+\_\+length}}
+\index{g3dvector\+\_\+length@{g3dvector\+\_\+length}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+length()}{g3dvector\_length()}}
+{\footnotesize\ttfamily float g3dvector\+\_\+length (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec }\end{DoxyParamCaption})}
+
+Get the length of a vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the length of the vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{g3dvector_8h_ab1880c3cb7d5d38e7127cbd25c1e5aee}\label{g3dvector_8h_ab1880c3cb7d5d38e7127cbd25c1e5aee}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+matrix@{g3dvector\+\_\+matrix}}
+\index{g3dvector\+\_\+matrix@{g3dvector\+\_\+matrix}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+matrix()}{g3dvector\_matrix()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+matrix (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec,  }\item[{double $\ast$}]{matrix,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vout }\end{DoxyParamCaption})}
+
+Multiply a vector by a matrix and store the result in vout. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em matrix} & a pointer to a 4x4 matrix. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_af90811aef107705136ef4a4aa07b578b}\label{g3dvector_8h_af90811aef107705136ef4a4aa07b578b}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+new@{g3dvector\+\_\+new}}
+\index{g3dvector\+\_\+new@{g3dvector\+\_\+new}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+new()}{g3dvector\_new()}}
+{\footnotesize\ttfamily \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR}$\ast$ g3dvector\+\_\+new (\begin{DoxyParamCaption}\item[{float}]{x,  }\item[{float}]{y,  }\item[{float}]{z,  }\item[{float}]{w }\end{DoxyParamCaption})}
+
+Allocate a 3D vector 
+\begin{DoxyParams}{Parameters}
+{\em x} & the X coordinate. \\
+\hline
+{\em y} & the Y coordinate. \\
+\hline
+{\em z} & the Z coordinate. \\
+\hline
+{\em w} & the W coordinate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a pointer to the allocated vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{g3dvector_8h_a10fb0a038c45d83c0baac5184f4dfcd6}\label{g3dvector_8h_a10fb0a038c45d83c0baac5184f4dfcd6}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+normalize@{g3dvector\+\_\+normalize}}
+\index{g3dvector\+\_\+normalize@{g3dvector\+\_\+normalize}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+normalize()}{g3dvector\_normalize()}}
+{\footnotesize\ttfamily void g3dvector\+\_\+normalize (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec,  }\item[{float $\ast$}]{len }\end{DoxyParamCaption})}
+
+Normalize a vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em len} & the returned length of the vector. Can be N\+U\+LL. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_a69f404421465204f5df9fffe4fd8e942}\label{g3dvector_8h_a69f404421465204f5df9fffe4fd8e942}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+reflect@{g3dvector\+\_\+reflect}}
+\index{g3dvector\+\_\+reflect@{g3dvector\+\_\+reflect}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+reflect()}{g3dvector\_reflect()}}
+{\footnotesize\ttfamily uint32\+\_\+t g3dvector\+\_\+reflect (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{nor,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vout }\end{DoxyParamCaption})}
+
+Reflect a vector on a flat surface (the \char`\"{}nor\char`\"{} parameter is the normal vector of that surface). 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em nor} & a pointer to the normal vector of the reflecting surface. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g3dvector_8h_af8a622dcd9f2366068017fa64816ec76}\label{g3dvector_8h_af8a622dcd9f2366068017fa64816ec76}} 
+\index{g3dvector.\+h@{g3dvector.\+h}!g3dvector\+\_\+scalar@{g3dvector\+\_\+scalar}}
+\index{g3dvector\+\_\+scalar@{g3dvector\+\_\+scalar}!g3dvector.\+h@{g3dvector.\+h}}
+\subsubsection{\texorpdfstring{g3dvector\+\_\+scalar()}{g3dvector\_scalar()}}
+{\footnotesize\ttfamily float g3dvector\+\_\+scalar (\begin{DoxyParamCaption}\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1 }\end{DoxyParamCaption})}
+
+Return the scalar product of two 2D vectors. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the scalar product. 
+\end{DoxyReturn}

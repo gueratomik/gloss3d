@@ -66,7 +66,7 @@
 
 /******************************************************************************/
 #include <list.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 #include <g3dexport.h>
 #include <r3d.h>
 

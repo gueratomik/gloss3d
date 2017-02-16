@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /*****************************************************************************/
 void g3dcursor_pick ( G3DCURSOR *csr, double *matrix, G3DCAMERA *cam,

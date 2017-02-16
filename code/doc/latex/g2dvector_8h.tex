@@ -1,0 +1,158 @@
+\hypertarget{g2dvector_8h}{}\section{include/g3dengine/g2dvector.h File Reference}
+\label{g2dvector_8h}\index{include/g3dengine/g2dvector.\+h@{include/g3dengine/g2dvector.\+h}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct__G2DVECTOR}{\+\_\+\+G2\+D\+V\+E\+C\+T\+OR}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{g2dvector_8h_a07be2204d1b975b36b3a7ec680b885ad}\label{g2dvector_8h_a07be2204d1b975b36b3a7ec680b885ad}} 
+typedef struct \hyperlink{struct__G3DVECTOR}{\+\_\+\+G3\+D\+V\+E\+C\+T\+OR} {\bfseries G3\+D\+V\+E\+C\+T\+OR}
+\item 
+\mbox{\Hypertarget{g2dvector_8h_afe11d2eae5dbc0580485ddb355eb2386}\label{g2dvector_8h_afe11d2eae5dbc0580485ddb355eb2386}} 
+typedef struct \hyperlink{struct__G2DVECTOR}{\+\_\+\+G2\+D\+V\+E\+C\+T\+OR} {\bfseries G2\+D\+V\+E\+C\+T\+OR}
+\item 
+\mbox{\Hypertarget{g2dvector_8h_add1f4f93279a9a0738ef3cb5c0f1f96d}\label{g2dvector_8h_add1f4f93279a9a0738ef3cb5c0f1f96d}} 
+typedef struct \hyperlink{struct__G2DVECTOR}{\+\_\+\+G2\+D\+V\+E\+C\+T\+OR} {\bfseries G2\+D\+P\+O\+I\+NT}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int32\+\_\+t \hyperlink{g2dvector_8h_a9ce2c2d2b655a93a532d63c6d46b6226}{g2dvector\+\_\+scalar} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v1)
+\item 
+int32\+\_\+t \hyperlink{g2dvector_8h_ae29c335e296c81ee150537fdfa8f3378}{g2dvector\+\_\+cross} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v1, \hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$vout)
+\item 
+void \hyperlink{g2dvector_8h_a02543a5f155da3dcbbd242d1350660b8}{g2dvector\+\_\+average} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v0, \hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$v1, \hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$vout)
+\item 
+void \hyperlink{g2dvector_8h_a9f9b3f3bf751d3f1649c8cef86d3c9bc}{g2dvector\+\_\+init} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$vec, int32\+\_\+t x, int32\+\_\+t y)
+\item 
+uint32\+\_\+t \hyperlink{g2dvector_8h_ab2bd5a61c4d895a485def08dd52dbb99}{g2dvector\+\_\+length} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$vec)
+\item 
+void \hyperlink{g2dvector_8h_a16a203d9afa793dafdb66ee4fd08d7e9}{g2dvector\+\_\+normalize} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$vec)
+\item 
+void \hyperlink{g2dvector_8h_ac868026f2182c838268d9ea06aa401a6}{g2dvector\+\_\+free} (\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$vec)
+\item 
+\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$ \hyperlink{g2dvector_8h_a5750a9b05b9020c45f9d23cfd19ba599}{g2dvector\+\_\+new} (int32\+\_\+t x, int32\+\_\+t y)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{g2dvector_8h_a02543a5f155da3dcbbd242d1350660b8}\label{g2dvector_8h_a02543a5f155da3dcbbd242d1350660b8}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+average@{g2dvector\+\_\+average}}
+\index{g2dvector\+\_\+average@{g2dvector\+\_\+average}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+average()}{g2dvector\_average()}}
+{\footnotesize\ttfamily void g2dvector\+\_\+average (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1,  }\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{vout }\end{DoxyParamCaption})}
+
+Compute the mean value of two 2D vectors. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g2dvector_8h_ae29c335e296c81ee150537fdfa8f3378}\label{g2dvector_8h_ae29c335e296c81ee150537fdfa8f3378}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+cross@{g2dvector\+\_\+cross}}
+\index{g2dvector\+\_\+cross@{g2dvector\+\_\+cross}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+cross()}{g2dvector\_cross()}}
+{\footnotesize\ttfamily int32\+\_\+t g2dvector\+\_\+cross (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1,  }\item[{\hyperlink{structG3DVECTOR}{G3\+D\+V\+E\+C\+T\+OR} $\ast$}]{vout }\end{DoxyParamCaption})}
+
+Return the cross product of two 2D vectors. In 2D, the cross product is a 3D vector. This functions returns the the value of the Z member and also stores the whole result in vout. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the Z member. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{g2dvector_8h_ac868026f2182c838268d9ea06aa401a6}\label{g2dvector_8h_ac868026f2182c838268d9ea06aa401a6}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+free@{g2dvector\+\_\+free}}
+\index{g2dvector\+\_\+free@{g2dvector\+\_\+free}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+free()}{g2dvector\_free()}}
+{\footnotesize\ttfamily void g2dvector\+\_\+free (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec }\end{DoxyParamCaption})}
+
+Free a 2D vector previously allocated. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g2dvector_8h_a9f9b3f3bf751d3f1649c8cef86d3c9bc}\label{g2dvector_8h_a9f9b3f3bf751d3f1649c8cef86d3c9bc}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+init@{g2dvector\+\_\+init}}
+\index{g2dvector\+\_\+init@{g2dvector\+\_\+init}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+init()}{g2dvector\_init()}}
+{\footnotesize\ttfamily void g2dvector\+\_\+init (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec,  }\item[{int32\+\_\+t}]{x,  }\item[{int32\+\_\+t}]{y }\end{DoxyParamCaption})}
+
+Init a 2D vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em x} & the X coordinate. \\
+\hline
+{\em y} & the Y coordinate. \\
+\hline
+{\em vout} & a pointer to a vector (result). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g2dvector_8h_ab2bd5a61c4d895a485def08dd52dbb99}\label{g2dvector_8h_ab2bd5a61c4d895a485def08dd52dbb99}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+length@{g2dvector\+\_\+length}}
+\index{g2dvector\+\_\+length@{g2dvector\+\_\+length}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+length()}{g2dvector\_length()}}
+{\footnotesize\ttfamily uint32\+\_\+t g2dvector\+\_\+length (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec }\end{DoxyParamCaption})}
+
+Get the length of a 2D vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+{\em the} & length of the 2D vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g2dvector_8h_a5750a9b05b9020c45f9d23cfd19ba599}\label{g2dvector_8h_a5750a9b05b9020c45f9d23cfd19ba599}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+new@{g2dvector\+\_\+new}}
+\index{g2dvector\+\_\+new@{g2dvector\+\_\+new}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+new()}{g2dvector\_new()}}
+{\footnotesize\ttfamily \hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR}$\ast$ g2dvector\+\_\+new (\begin{DoxyParamCaption}\item[{int32\+\_\+t}]{x,  }\item[{int32\+\_\+t}]{y }\end{DoxyParamCaption})}
+
+Allocate a 2D vector 
+\begin{DoxyParams}{Parameters}
+{\em x} & the X coordinate. \\
+\hline
+{\em y} & the Y coordinate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a pointer to the allocated vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{g2dvector_8h_a16a203d9afa793dafdb66ee4fd08d7e9}\label{g2dvector_8h_a16a203d9afa793dafdb66ee4fd08d7e9}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+normalize@{g2dvector\+\_\+normalize}}
+\index{g2dvector\+\_\+normalize@{g2dvector\+\_\+normalize}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+normalize()}{g2dvector\_normalize()}}
+{\footnotesize\ttfamily void g2dvector\+\_\+normalize (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{vec }\end{DoxyParamCaption})}
+
+Normalize a 2D vector. 
+\begin{DoxyParams}{Parameters}
+{\em vec} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{g2dvector_8h_a9ce2c2d2b655a93a532d63c6d46b6226}\label{g2dvector_8h_a9ce2c2d2b655a93a532d63c6d46b6226}} 
+\index{g2dvector.\+h@{g2dvector.\+h}!g2dvector\+\_\+scalar@{g2dvector\+\_\+scalar}}
+\index{g2dvector\+\_\+scalar@{g2dvector\+\_\+scalar}!g2dvector.\+h@{g2dvector.\+h}}
+\subsubsection{\texorpdfstring{g2dvector\+\_\+scalar()}{g2dvector\_scalar()}}
+{\footnotesize\ttfamily int32\+\_\+t g2dvector\+\_\+scalar (\begin{DoxyParamCaption}\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v0,  }\item[{\hyperlink{structG2DVECTOR}{G2\+D\+V\+E\+C\+T\+OR} $\ast$}]{v1 }\end{DoxyParamCaption})}
+
+Return the scalar product of two 2D vectors. 
+\begin{DoxyParams}{Parameters}
+{\em v0} & a pointer to a vector. \\
+\hline
+{\em v1} & a pointer to a vector. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the 2D scalar product. 
+\end{DoxyReturn}

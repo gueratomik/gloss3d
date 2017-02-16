@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
 int32_t g2dvector_scalar ( G2DVECTOR *v0, G2DVECTOR *v1 ) {
@@ -78,7 +78,7 @@ void g2dvector_normalize ( G2DVECTOR *vec ) {
 }
 
 /******************************************************************************/
-void g2dvector_free ( void *data ) {
+void g2dvector_free ( G2DVECTOR *data ) {
     G2DVECTOR *vec =  ( G2DVECTOR * ) data;
 
     free ( vec );

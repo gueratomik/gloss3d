@@ -637,6 +637,8 @@ MT_IM_GTK3_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+HAVE_EXPAT_FALSE
+HAVE_EXPAT_TRUE
 HAVE_WIN32_FALSE
 HAVE_WIN32_TRUE
 HAVE_GTK3_FALSE
@@ -12205,6 +12207,14 @@ else
   HAVE_WIN32_FALSE=
 fi
 
+ if false; then
+  HAVE_EXPAT_TRUE=
+  HAVE_EXPAT_FALSE='#'
+else
+  HAVE_EXPAT_TRUE='#'
+  HAVE_EXPAT_FALSE=
+fi
+
 
 if test x"$have_win32" = xyes
 then
@@ -12880,6 +12890,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_WIN32_TRUE}" && test -z "${HAVE_WIN32_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_WIN32\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_EXPAT_TRUE}" && test -z "${HAVE_EXPAT_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_EXPAT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_MOTIF_TRUE}" && test -z "${HAVE_MOTIF_FALSE}"; then

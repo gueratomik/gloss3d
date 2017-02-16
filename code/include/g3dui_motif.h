@@ -84,7 +84,7 @@
 
 /******************************************************************************/
 #include <list.h>
-#include <g3d.h>
+#include <g3dengine/g3dengine.h>
 #include <r3d.h>
 #include <r3dnet.h>
 #include <g3durmanager.h>
