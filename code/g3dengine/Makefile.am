@@ -7,8 +7,8 @@ else
 endif
 
 
-lib_LTLIBRARIES = libgloss-g3d.la
-libgloss_g3d_la_SOURCES = $(LIBGLOSSG3D_C_FILES)
+lib_LTLIBRARIES = libgloss-g3dengine.la
+libgloss_g3dengine_la_SOURCES = $(LIBGLOSSG3D_C_FILES)
 
 ##include_HEADERS = $(LIBGLOSSG3D_H_FILES)
 

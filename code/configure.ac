@@ -99,7 +99,7 @@ then
     fi
 fi
 
-AC_OUTPUT([g3d/Makefile          \
+AC_OUTPUT([g3dengine/Makefile          \
            g3dexport/Makefile    \
            g3dimport/Makefile    \
            g3dmouse/Makefile     \

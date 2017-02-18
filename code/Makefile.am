@@ -16,7 +16,7 @@ if HAVE_MOTIF
     AM_CFLAGS  = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
 endif
 
-SUBDIRS = g3d \
+SUBDIRS = g3dengine \
           g3dexport \
           g3dimport \
           g3dmouse \
@@ -30,7 +30,7 @@ if HAVE_GTK3
     bin_PROGRAMS = gloss3d-gtk3
     gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
 
-    gloss3d_gtk3_LDADD = g3d/libgloss-g3d.la \
+    gloss3d_gtk3_LDADD = g3dengine/libgloss-g3dengine.la \
                          g3dexport/libgloss-g3dexport.la \
                          g3dimport/libgloss-g3dimport.la \
                          g3dmouse/libgloss-g3dmouse.la \
@@ -48,7 +48,7 @@ if HAVE_MOTIF
     bin_PROGRAMS = gloss3d-motif
     gloss3d_motif_SOURCES = $(BINGLOSS3D_C_FILES)
 
-    gloss3d_motif_LDADD = g3d/libgloss-g3d.la \
+    gloss3d_motif_LDADD = g3dengine/libgloss-g3d.la \
                           g3dexport/libgloss-g3dexport.la \
                           g3dimport/libgloss-g3dimport.la \
                           g3dmouse/libgloss-g3dmouse.la \
@@ -68,7 +68,7 @@ if HAVE_WIN32
     bin_PROGRAMS = gloss3d-win32
     gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
 
-    gloss3d_win32_LDADD = g3d/libgloss-g3d.la \
+    gloss3d_win32_LDADD = g3dengine/libgloss-g3d.la \
                           g3dexport/libgloss-g3dexport.la \
                           g3dimport/libgloss-g3dimport.la \
                           g3dmouse/libgloss-g3dmouse.la \

@@ -3,9 +3,6 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Use expat */
-#undef HAVE_EXPAT
-
 /* Define to 1 if you have the <expat.h> header file. */
 #undef HAVE_EXPAT_H
 
