@@ -1180,7 +1180,24 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     G3DUIRENDERSETTINGS *rsg;
     GtkCssProvider *provider = gtk_css_provider_new ();
     static const gchar *myCSS = { "* {                      \n"
+    #ifdef __linux__
                                   "    font: Lucida Sans 8; \n"
+    #endif
+    #ifdef __MINGW32__
+                                  "    font: Verdana 8; \n"
+    #endif
+                                  "}                        \n"
+                                  "GtkEntry {               \n"
+                                  "    border-width:   1px; \n"
+                                  "    border-radius:  0px; \n"
+                                  "    margin-top:     0px; \n"
+                                  "    margin-right:   0px; \n"
+                                  "    margin-left:    0px; \n"
+                                  "    margin-bottom:  0px; \n"
+                                  "    padding-top:    0px; \n"
+                                  "    padding-right:  0px; \n"
+                                  "    padding-left:   0px; \n"
+                                  "    padding-bottom: 0px; \n"
                                   "}                        \n"
                                   "GtkButton {              \n"
                                   "    border-width:   1px; \n"
@@ -1219,12 +1236,12 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
                                   "GtkMenuItem#Option_Menu {\n"
-                                  "    border-width:   0px; \n"
+                                  "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
+                                  "    margin-top:     1px; \n"
+                                  "    margin-right:   1px; \n"
+                                  "    margin-left:    1px; \n"
+                                  "    margin-bottom:  1px; \n"
                                   "    padding-top:    0px; \n"
                                   "    padding-right:  0px; \n"
                                   "    padding-left:   0px; \n"

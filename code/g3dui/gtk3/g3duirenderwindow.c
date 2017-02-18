@@ -147,8 +147,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
-    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window      win      = gdk_x11_window_get_xid ( gdkwin );
+    /*Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );*/
+    /*Window      win      = gdk_x11_window_get_xid ( gdkwin );*/
     rsg->width  = gtk_widget_get_allocated_width  ( widget );
     rsg->height = gtk_widget_get_allocated_height ( widget );
 
