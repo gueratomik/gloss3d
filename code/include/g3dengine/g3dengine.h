@@ -409,12 +409,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #include <g3dengine/g3dtinyvector.h>
 #include <g3dengine/g3dvector.h>
 
-
-typedef struct _G3DVECTORCACHE {
-    G3DVECTOR ref;
-    G3DVECTOR buf;
-} G3DVECTORCACHE;
-
 /******************************************************************************/
 /**** This is NOT to be confused with the plane primitive ***/
 typedef struct _G3DPLANE {
