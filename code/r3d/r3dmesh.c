@@ -111,11 +111,18 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
     G3DMESH *mes = ( G3DMESH * ) obj;
     uint32_t maxnbrfac = 0x40 * ( /*mes->subdiv_render*/0x00 + 0x01 );
     float xmin, ymin, zmin, xmax, ymax, zmax;
+    R3DFULLOCTREE *rft;
 
     r3dface_getMinMaxFromArray ( &xmin, &ymin, &zmin,
                                  &xmax, &ymax, &zmax, rms->rfac, 
                                                       rms->rver, 
                                                       rms->nbrfac );
+
+    rft = r3dfulloctree_new ( xmin, ymin, zmin, xmax, ymax, zmax, rms->nbrfac );
+
+    r3dfulloctree_count ( rft, rms->rfac, rms->rver, rms->nbrfac );
+
+    r3dfulloctree_assignFacePointers ( rft );
 
     rob->rot = r3doctree_new ( xmin, ymin, zmin,
                                xmax, ymax, zmax,

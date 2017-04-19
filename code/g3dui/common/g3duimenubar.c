@@ -461,7 +461,13 @@ void common_g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DMESH *mes = g3dmesh_new ( pid, "Mesh", gui->flags );
+    /*G3DMESH *mes = g3dmesh_new ( pid, "Mesh", gui->flags );*/
+    G3DMESH *mes = g3dspline_new ( pid, "Mesh", CUBIC, gui->flags );
+    G3DSPLINESEGMENT *seg = g3dsplinesegment_new ( 0, 0, 0,
+                                                   0, 1, 1,
+                                                   3, 1, 2,
+                                                   0, 0, -1 );
+    g3dspline_addSegment ( mes, seg );
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |

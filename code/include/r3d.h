@@ -364,6 +364,24 @@ typedef struct _R3DOCTREE {
 } R3DOCTREE;
 
 /******************************************************************************/
+typedef struct _R3DFULLOCTREENODE {
+    uint32_t nbrfac;
+    R3DFACE *rfac;
+} R3DFULLOCTREENODE;
+
+/******************************************************************************/
+typedef struct _R3DFULLOCTREE {
+    float              xmin;
+    float              ymin;
+    float              zmin;
+    float              xmax;
+    float              ymax;
+    float              zmax; /*** boundaries ***/
+    R3DFACE          **rfactab;
+    R3DFULLOCTREENODE *nodes;
+} R3DFULLOCTREE;
+
+/******************************************************************************/
 typedef struct _R3DCONTAINERFACE {
     R3DFACE    rfc;
     R3DOCTREE *octree;
@@ -1038,4 +1056,22 @@ R3DMOTIONBLUR *r3dmotionblur_new                      ( uint32_t,
                                                         float );
 void           r3dmotionblur_clear                    ( R3DMOTIONBLUR * );
 
+uint32_t r3dfulloctreenode_count_r ( R3DFULLOCTREENODE *fon,
+                                     uint32_t           id,
+                                     float              xmin, 
+                                     float              ymin,
+                                     float              zmin,
+                                     float              xmax,
+                                     float              ymax,
+                                     float              zmax,
+                                     uint32_t           depth,
+                                     R3DFACE           *rfac,
+                                     R3DVERTEX         *rver );
+
+R3DFULLOCTREE *r3dfulloctree_new ( float xone, float yone, float zone,
+                                   float xtwo, float ytwo, float ztwo,
+                                   uint32_t nbrfac );
+void r3dfulloctree_count_r ( R3DFULLOCTREE *rft, R3DFACE   *rfac, 
+                                                 R3DVERTEX *rver,
+                                                 uint32_t   nbrfc );
 #endif

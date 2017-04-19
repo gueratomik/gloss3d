@@ -161,6 +161,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define WIREFRAME  (  1 << 20 )
 #define MULTIPLIER (  1 << 21 )
 #define EDITABLE   (  1 << 22 )
+#define SPLINE     (  1 << 23 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
@@ -183,7 +184,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSPOTTYPE       ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE      ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE      ( OBJECT | PIVOT )
-
+#define G3DSPLINETYPE     ( OBJECT | SPLINE )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -307,6 +308,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define TRIANGULAR            (  1 << 17 )
 /*** Subdivider flags ***/
 #define SYNCLEVELS            (  1 << 17 ) /*** edit and render levels synced ***/
+/*** Spline flags ***/
+#define QUADRATIC             (  1 << 17 )
+#define CUBIC                 (  1 << 18 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
@@ -401,6 +405,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 	(vec)->z = (vec)->z * y;                  \
 }
 
+/******************************************************************************/
 #include <g3dengine/g3dcolor.h>
 #include <g3dengine/g3drgba.h>
 #include <g3dengine/g2dvector.h>
@@ -408,6 +413,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #include <g3dengine/g3dvector.h>
 
 
+/******************************************************************************/
 typedef struct _G3DVECTORCACHE {
     G3DVECTOR ref;
     G3DVECTOR buf;
@@ -617,6 +623,8 @@ typedef struct _G3DOBJECT {
     LIST *lkey; /*** keyframe list ***/
     LIST *lselkey;
 } G3DOBJECT;
+
+#include <g3dengine/g3dspline.h>
 
 /******************************************************************************/
 typedef struct _G3DUVPLANE {
