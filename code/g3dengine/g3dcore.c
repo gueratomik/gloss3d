@@ -383,6 +383,8 @@ void g3dcore_keepVisibleVerticesOnly ( LIST **lselver, LIST *lfac,
         G3DVECTOR *pos = ( ver->flags & VERTEXSUBDIVIDED ) ? ( G3DVECTOR * ) &ver->rtvermem->pos :
                                                              ( G3DVECTOR * ) &ver->pos;
 
+        /*** spline handle have relative pos ***/
+      if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
         /*** draw vertex ***/
         glColor3ub ( 0xFF, 0xFF, 0xFF );
         glPointSize ( 4.0f );
@@ -410,6 +412,7 @@ void g3dcore_keepVisibleVerticesOnly ( LIST **lselver, LIST *lfac,
         glBegin ( GL_POINTS );
         glVertex3fv ( ( GLfloat * ) pos );
         glEnd ( );
+      }
 
         ltmpver = ltmpver->next;
     }

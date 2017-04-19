@@ -150,6 +150,11 @@ typedef struct _G3DCREATEFACE {
 } G3DCREATEFACE;
 
 /******************************************************************************/
+typedef struct _G3DCREATEVERTEX {
+    uint32_t dummy;
+} G3DCREATEVERTEX;
+
+/******************************************************************************/
 typedef struct _G3DEXTRUDEFACE {
     uint32_t inner; /*** true or false ***/
 } G3DEXTRUDEFACE;
@@ -233,6 +238,11 @@ int createTorus    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                      G3DURMANAGER *, uint32_t, G3DEvent * );
 int createPlane    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                      G3DURMANAGER *, uint32_t, G3DEvent * );
+/******************************************************************************/
+uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                G3DCAMERA *cam,
+                                                G3DURMANAGER *urm, 
+                                                uint32_t engine_flags );
 
 /******************************************************************************/
 G3DCREATEFACE  *createFace_new    ( );

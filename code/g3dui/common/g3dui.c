@@ -620,7 +620,7 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
     /********************************/
 
     mou = g3dmousetool_new ( ADDVERTEXTOOL, 'a', addvertex_xpm,
-                             NULL, NULL, createVertex, 0x00 );
+                             createVertex_init, NULL, createVertex, 0x00 );
 
     common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL | GLMENUTOOL );
 

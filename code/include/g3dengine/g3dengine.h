@@ -184,7 +184,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSPOTTYPE       ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE      ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE      ( OBJECT | PIVOT )
-#define G3DSPLINETYPE     ( OBJECT | SPLINE )
+#define G3DSPLINETYPE     ( OBJECT | EDITABLE | SPLINE )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -213,6 +213,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 #define VERTEXONEDGE       (  1 << 20  )
 #define VERTEXSTITCHABLE   (  1 << 21  )
+#define VERTEXHANDLE       (  1 << 22  )
 
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
@@ -624,8 +625,6 @@ typedef struct _G3DOBJECT {
     LIST *lselkey;
 } G3DOBJECT;
 
-#include <g3dengine/g3dspline.h>
-
 /******************************************************************************/
 typedef struct _G3DUVPLANE {
     float xradius;
@@ -1002,6 +1001,8 @@ struct _G3DMESH {
                                           void *data,
                                           uint32_t );
 };
+
+#include <g3dengine/g3dspline.h>
 
 /******************************************************************************/
 /**************** For Multi-Threaded Catmull-Clark implementation *************/

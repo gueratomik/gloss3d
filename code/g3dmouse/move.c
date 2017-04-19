@@ -218,7 +218,8 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     /* move vertices */
                     if ( flags & VIEWAXIS ) {
-                        if ( obj->type & MESH ) {
+                        if ( ( obj->type & MESH ) ||
+                             ( obj->type & SPLINE ) ) {
                             g3dmesh_moveAxis ( obj, FINX, flags );
 
                             memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );

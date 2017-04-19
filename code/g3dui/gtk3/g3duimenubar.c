@@ -593,6 +593,13 @@ void g3dui_addEmptyMeshCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addSplineCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addSplineCbk ( gui );
+}
+
+/******************************************************************************/
 GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
                                                char *name,
                                                gint width ) {
@@ -625,6 +632,10 @@ GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuSeparator ( menu );
 
     g3dui_addMenuButton    ( menu, gui, MENU_ADDEMPTYMESH, width, G_CALLBACK(g3dui_addEmptyMeshCbk) );
+
+    g3dui_addMenuSeparator ( menu );
+
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDSPLINE   , width, G_CALLBACK(g3dui_addSplineCbk) );
 
 
     gtk_widget_show ( item );

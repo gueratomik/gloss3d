@@ -78,6 +78,36 @@ static void createVertex_free ( void *data ) {
 }*/
 
 /******************************************************************************/
+G3DCREATEVERTEX *createVertex_new ( ) {
+    uint32_t structsize = sizeof ( G3DCREATEVERTEX );
+
+    G3DCREATEVERTEX *cv =  ( G3DCREATEVERTEX * ) calloc ( 0x04, structsize );
+
+    if ( cv == NULL ) {
+        fprintf ( stderr, "createVertex_new: Memory allocation failed\n" );
+    }
+
+    return cv;
+}
+
+/******************************************************************************/
+uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                G3DCAMERA *cam,
+                                                G3DURMANAGER *urm, 
+                                                uint32_t engine_flags ) {
+    /*** reset the vertex array ***/
+    if ( mou->data ) {
+        G3DCREATEVERTEX *cv = mou->data;
+
+        /*cv->lastAddedVertex = NULL;*/
+    } else {
+        mou->data = createVertex_new ( );
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                    G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
     /*G3DURMANAGER *urm = gdt->urm;*/
@@ -101,7 +131,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
                 if ( ( obj->type & EDITABLE ) == 0x00 ) {
-                    fprintf ( stderr, "Not a mesh\n" );
+                    fprintf ( stderr, "Not an editable object\n" );
 
                     return FALSE;
                 }
@@ -110,7 +140,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 /*** the cutting plan and find its coords, but do not ***/
                 /*** forget the current matrix is the camera transformations **/
                 glPushMatrix ( );
-                glMultMatrixd ( ((G3DOBJECT*)mes)->wmatrix );
+                glMultMatrixd ( obj->wmatrix );
 
                 glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX );
                 glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
@@ -127,7 +157,22 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 if ( /*( bev->state & G3DControlMask ) &&*/
                      ( bev->state & G3DControlMask )  ) {
                     G3DVERTEX *ver = g3dvertex_new ( objx, objy, objz );
-                    g3dmesh_addVertex ( mes, ver );
+                    G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
+
+                    g3dmesh_addSelectedVertex ( mes, ver );
+
+                    if ( obj->type == G3DSPLINETYPE ) {
+                        if ( lastver ) {
+                            G3DSPLINESEGMENT *seg;
+
+                            seg = g3dsplinesegment_new ( ver,
+                                                         lastver,
+                                                         1.0f, 0.0f, 0.0f,
+                                                         0.0f, 1.0f, 0.0f );
+
+                            g3dspline_addSegment ( mes, seg );
+                        }
+                    }
 
                     /*** Rebuild the subdivided mesh ***/
                     g3dmesh_update ( mes, NULL,

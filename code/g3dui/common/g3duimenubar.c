@@ -461,13 +461,7 @@ void common_g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    /*G3DMESH *mes = g3dmesh_new ( pid, "Mesh", gui->flags );*/
-    G3DMESH *mes = g3dspline_new ( pid, "Mesh", CUBIC, gui->flags );
-    G3DSPLINESEGMENT *seg = g3dsplinesegment_new ( 0, 0, 0,
-                                                   0, 1, 1,
-                                                   3, 1, 2,
-                                                   0, 0, -1 );
-    g3dspline_addSegment ( mes, seg );
+    G3DMESH *mes = g3dmesh_new ( pid, "Mesh", gui->flags );
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |
@@ -478,6 +472,29 @@ void common_g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
 
     g3dscene_unselectAllObjects ( sce, gui->flags );
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) mes, gui->flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addSplineCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    uint32_t pid = g3dscene_getNextObjectID ( sce );
+    G3DSPLINE *spline = g3dspline_new ( pid, "Spline", CUBIC, gui->flags );
+
+    g3durm_object_addChild ( urm, sce, gui->flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) spline );
+
+    g3dscene_unselectAllObjects ( sce, gui->flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) spline, gui->flags );
 
     g3dui_redrawGLViews ( gui );
     g3dui_updateCoords ( gui );

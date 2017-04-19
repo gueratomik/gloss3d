@@ -44,26 +44,32 @@ extern "C" {
  * @brief A structure to store a cubic bezier spline.
  */
 typedef struct _G3DSPLINE {
-    G3DOBJECT obj;
+    G3DMESH mes;
     LIST *lseg; /** list of segments ***/
+    uint32_t nbseg;
 } G3DSPLINE;
 
 /******************************************************************************/
-typedef struct _G3DSPLINEPOINT {
-    G3DVECTOR pos;
-} G3DSPLINEPOINT;
+typedef G3DVERTEX G3DSPLINEPOINT;
+
+/******************************************************************************/
+typedef struct _G3DCUBICSPLINEHANDLE {
+    G3DVERTEX ver;
+    G3DVERTEX *pt;
+} G3DCUBICSPLINEHANDLE;
 
 /******************************************************************************/
 typedef struct _G3DSPLINESEGMENT {
     uint32_t id;
-    G3DSPLINEPOINT pt[0x04];
+    G3DCUBICSPLINEHANDLE handle[0x02];
+    G3DVERTEX *pt[0x04];
 } G3DSPLINESEGMENT;
 
 /******************************************************************************/
 void g3dsplinesegment_free ( G3DSPLINESEGMENT *seg );
 void g3dsplinesegment_drawQuadratic ( G3DSPLINESEGMENT *seg,
-                                      G3DSPLINEPOINT *ori,
-                                      G3DSPLINEPOINT *end,
+                                      G3DSPLINEPOINT   *pori,
+                                      G3DSPLINEPOINT   *pend,
                                       float from, /* range 0 - 1 */
                                       float to,   /* range 0 - 1 */
                                       float maxAngle,
@@ -80,10 +86,12 @@ G3DSPLINE *g3dspline_new ( uint32_t id,
                            char    *name, 
                            uint32_t type, 
                            uint32_t engine_flags );
-G3DSPLINESEGMENT *g3dsplinesegment_new ( float  x1, float  y1, float  z1,
-                                         float  x2, float  y2, float  z2,
+G3DSPLINESEGMENT *g3dsplinesegment_new ( G3DSPLINEPOINT *pt0,
+                                         G3DSPLINEPOINT *pt1,
                                          float hx1, float hy1, float hz1,
                                          float hx2, float hy2, float hz2 );
+G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z );
+void g3dsplinepoint_free ( G3DSPLINEPOINT * );
 
 #ifdef __cplusplus
 }

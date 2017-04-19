@@ -107,10 +107,19 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
         G3DVECTOR  pos = { .x = ver->pos.x,
                            .y = ver->pos.y,
                            .z = ver->pos.z,
-                           .w = ver->pos.w };
+                           .w = 1.0f };
 
-        g3dvector_matrix ( &pos, DIFFMVX, &ver->pos );
+        if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
+            g3dvector_matrix ( &pos, DIFFMVX, &ver->pos );
+        } else {
+            double DIFFROT[0x10];
 
+            /*** spline handles are vectors, they are altered by rotation matrix **/
+            g3dcore_extractRotationMatrix ( DIFFMVX, DIFFROT );
+
+            g3dvector_matrix ( &pos, DIFFROT, &ver->pos );
+        }
+ 
         ltmpver = ltmpver->next;
     }
 
@@ -1179,9 +1188,17 @@ void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR *vout ) 
 
         if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
 
-        vout->x += pos->x;
-        vout->y += pos->y;
-        vout->z += pos->z;
+        if ( ver->flags & VERTEXHANDLE ) {
+            G3DCUBICSPLINEHANDLE *handle = ( G3DCUBICSPLINEHANDLE * ) ver;
+
+            vout->x += ( handle->pt->pos.x + handle->ver.pos.x );
+            vout->y += ( handle->pt->pos.y + handle->ver.pos.y );
+            vout->z += ( handle->pt->pos.z + handle->ver.pos.z );
+        } else {
+            vout->x += pos->x;
+            vout->y += pos->y;
+            vout->z += pos->z;
+        }
 
         nbver++;
 
@@ -2995,6 +3012,7 @@ void g3dmesh_free ( G3DOBJECT *obj ) {
     /*** memory ? I have to think ***/
     /*** about it ***/
     /*if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes, mes->subdiv );*/
+    printf("TODO: free vertices %s\n", __func__);
 }
 
 /******************************************************************************/
@@ -3249,6 +3267,7 @@ LIST *g3dmesh_pickVertices ( G3DMESH *mes, G3DCAMERA *curcam,
     list_free ( &lsel, NULL );
 
 
+printf("%d\n", list_count(lselver) );
 
     return lselver;
 }

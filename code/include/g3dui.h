@@ -413,6 +413,7 @@
 #define MENU_ADDLIGHT             "Add Light"
 #define MENU_ADDCAMERA            "Add Camera"
 #define MENU_ADDEMPTYMESH         "Add Empty Mesh"
+#define MENU_ADDSPLINE            "Add Spline"
 
 #define MENU_COMMITMODIFIER       "Commit up to modifier"
 #define MENU_ADDBONE              "Add Bone"
