@@ -138,30 +138,31 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FORCESUBPATTERN    ( 1  << 25 )
 
 /******************************* Object Types *********************************/
-#define OBJECT     (  1       )
-#define PRIMITIVE  (  1 << 1  )
-#define SPHERE     (  1 << 2  )
-#define TORUS      (  1 << 3  )
-#define MESH       (  1 << 4  )
-#define CAMERA     (  1 << 5  )
-#define SCENE      (  1 << 6  )
-#define BONE       (  1 << 7  )
-#define LIGHT      (  1 << 8  )
-#define SPOT       (  1 << 9  )
-#define CUBE       (  1 << 10 )
-#define SYMMETRY   (  1 << 11 )
-#define CYLINDER   (  1 << 12 )
-#define MODIFIER   (  1 << 13 )
-#define FFD        (  1 << 14 )
-#define PLANE      (  1 << 15 )
-#define CONE       (  1 << 16 )
-#define UVMAP      (  1 << 17 )
-#define PIVOT      (  1 << 18 )
-#define SUBDIVIDER (  1 << 19 )
-#define WIREFRAME  (  1 << 20 )
-#define MULTIPLIER (  1 << 21 )
-#define EDITABLE   (  1 << 22 )
-#define SPLINE     (  1 << 23 )
+#define OBJECT         (  1       )
+#define PRIMITIVE      (  1 << 1  )
+#define SPHERE         (  1 << 2  )
+#define TORUS          (  1 << 3  )
+#define MESH           (  1 << 4  )
+#define CAMERA         (  1 << 5  )
+#define SCENE          (  1 << 6  )
+#define BONE           (  1 << 7  )
+#define LIGHT          (  1 << 8  )
+#define SPOT           (  1 << 9  )
+#define CUBE           (  1 << 10 )
+#define SYMMETRY       (  1 << 11 )
+#define CYLINDER       (  1 << 12 )
+#define MODIFIER       (  1 << 13 )
+#define FFD            (  1 << 14 )
+#define PLANE          (  1 << 15 )
+#define CONE           (  1 << 16 )
+#define UVMAP          (  1 << 17 )
+#define PIVOT          (  1 << 18 )
+#define SUBDIVIDER     (  1 << 19 )
+#define WIREFRAME      (  1 << 20 )
+#define MULTIPLIER     (  1 << 21 )
+#define EDITABLE       (  1 << 22 )
+#define SPLINE         (  1 << 23 )
+#define SPLINEREVOLVER (  1 << 24 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
@@ -177,14 +178,15 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSCENETYPE      ( OBJECT | SCENE )
 #define G3DBONETYPE       ( OBJECT | BONE )
                     /* ffd not flagged as mesh but still inherits from mesh */
-#define G3DFFDTYPE        ( OBJECT | EDITABLE |        MODIFIER | FFD )
-#define G3DWIREFRAMETYPE  ( OBJECT | EDITABLE | MESH | MODIFIER | WIREFRAME )
-#define G3DSUBDIVIDERTYPE ( OBJECT | EDITABLE | MESH | MODIFIER | SUBDIVIDER )
-#define G3DLIGHTTYPE      ( OBJECT | LIGHT )
-#define G3DSPOTTYPE       ( OBJECT | LIGHT| SPOT )
-#define G3DUVMAPTYPE      ( OBJECT | UVMAP )
-#define G3DPIVOTTYPE      ( OBJECT | PIVOT )
-#define G3DSPLINETYPE     ( OBJECT | EDITABLE | SPLINE )
+#define G3DFFDTYPE            ( OBJECT | EDITABLE |        MODIFIER | FFD )
+#define G3DWIREFRAMETYPE      ( OBJECT | EDITABLE | MESH | MODIFIER | WIREFRAME )
+#define G3DSUBDIVIDERTYPE     ( OBJECT | EDITABLE | MESH | MODIFIER | SUBDIVIDER )
+#define G3DSPLINEREVOLVERTYPE ( OBJECT | EDITABLE | MESH | MODIFIER | SPLINEREVOLVER )
+#define G3DLIGHTTYPE          ( OBJECT | LIGHT )
+#define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
+#define G3DUVMAPTYPE          ( OBJECT | UVMAP )
+#define G3DPIVOTTYPE          ( OBJECT | PIVOT )
+#define G3DSPLINETYPE         ( OBJECT | EDITABLE | SPLINE )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -300,6 +302,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MESHUSEADAPTIVE       (  1 << 19 )
 #define MESHUSEISOLINES       (  1 << 20 )
 #define MESHGEOMETRYONLY      (  1 << 21 )
+#define MESHGEOMETRYINARRAYS  (  1 << 22 ) /* use arrays instead of lists */
 /*** Light flags ***/
 #define LIGHTON               (  1 << 17 )
 #define LIGHTCASTSHADOWS      (  1 << 18 )
@@ -1067,6 +1070,8 @@ typedef struct _G3DWIREFRAME {
     uint32_t      nbmodfac;
     LIST         *lupdver; /* lit of vertices to update on mesh update */
 } G3DWIREFRAME;
+
+#include <g3dengine/g3dsplinerevolver.h>
 
 /******************************************************************************/
 typedef struct _G3DSUBDIVIDER {

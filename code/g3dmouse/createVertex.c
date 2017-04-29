@@ -156,39 +156,50 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 /*** hitting CTRL + click creates a vertex ***/
                 if ( /*( bev->state & G3DControlMask ) &&*/
                      ( bev->state & G3DControlMask )  ) {
-                    G3DVERTEX *ver = g3dvertex_new ( objx, objy, objz );
                     G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
-
-                    g3dmesh_addSelectedVertex ( mes, ver );
+                    G3DVERTEX *ver;
 
                     if ( obj->type == G3DSPLINETYPE ) {
+                        ver = g3dsplinepoint_new ( objx, objy, objz );
+
                         if ( lastver ) {
                             G3DSPLINESEGMENT *seg;
 
                             seg = g3dsplinesegment_new ( ver,
                                                          lastver,
-                                                         1.0f, 0.0f, 0.0f,
-                                                         0.0f, 1.0f, 0.0f );
+                                                         0.0f, 0.0f, 0.0f,
+                                                         0.0f, 0.0f, 0.0f );
 
                             g3dspline_addSegment ( mes, seg );
+
+                            g3dsplinepoint_roundSegments ( lastver );
                         }
                     }
 
-                    /*** Rebuild the subdivided mesh ***/
-                    g3dmesh_update ( mes, NULL,
-                                          NULL,
-                                          NULL,
-                                          UPDATEFACEPOSITION |
-                                          UPDATEFACENORMAL   |
-                                          UPDATEVERTEXNORMAL, flags );
+                    if ( obj->type == G3DMESHTYPE ) {
+                        ver = g3dvertex_new ( objx, objy, objz );
+                    }
 
-                    /*** add this action to the undo redo stack ***/
-                    /*createVertex_push ( urm, mes, ver );*/
+                    
+                    if ( ver ) {
+                        g3dmesh_addSelectedVertex ( mes, ver );
 
-                    g3dmesh_updateBbox ( mes );
+                        /*** Rebuild the subdivided mesh ***/
+                        g3dmesh_update ( mes, NULL,
+                                              NULL,
+                                              NULL,
+                                              UPDATEFACEPOSITION |
+                                              UPDATEFACENORMAL   |
+                                              UPDATEVERTEXNORMAL, flags );
 
-                    /*** record for the undo-redo management ***/
-                    g3durm_mesh_addVertex ( urm, mes, ver, REDRAWVIEW );
+                        /*** add this action to the undo redo stack ***/
+                        /*createVertex_push ( urm, mes, ver );*/
+
+                        g3dmesh_updateBbox ( mes );
+
+                        /*** record for the undo-redo management ***/
+                        g3durm_mesh_addVertex ( urm, mes, ver, REDRAWVIEW );
+                    }
                 }
 
                 glPopMatrix ( );

@@ -30,6 +30,24 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
+                                                 uint32_t   nbver,
+                                                 G3DEDGE   *edg,
+                                                 uint32_t   nbedg,
+                                                 G3DFACE   *fac, 
+                                                 uint32_t   nbfac ) {
+    ((G3DOBJECT*)mes)->flags |= MESHGEOMETRYINARRAYS;
+
+    mes->lfac = ( LIST * ) fac;
+    mes->ledg = ( LIST * ) edg;
+    mes->lver = ( LIST * ) ver;
+
+    mes->nbfac = nbfac;
+    mes->nbedg = nbedg;
+    mes->nbver = nbver;
+}
+
+/******************************************************************************/
 void g3dmesh_moveVerticesTo ( G3DMESH *mes, LIST      *lver, 
                                             G3DVECTOR *avg,
                                             G3DVECTOR *to,
@@ -3265,9 +3283,6 @@ LIST *g3dmesh_pickVertices ( G3DMESH *mes, G3DCAMERA *curcam,
 
     /*** We don't need this anymore ***/
     list_free ( &lsel, NULL );
-
-
-printf("%d\n", list_count(lselver) );
 
     return lselver;
 }

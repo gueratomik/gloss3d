@@ -35,6 +35,91 @@ void g3dsplinepoint_free ( G3DSPLINEPOINT *pt ) {
 }
 
 /******************************************************************************/
+void g3dsplinepoint_roundSegments ( G3DSPLINEPOINT *pt ) {
+    if ( pt->nbseg == 0x02 ) {
+        G3DVECTOR avg = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+        G3DCUBICSPLINEHANDLE *han[0x02] = { NULL, NULL };
+        LIST *ltmpseg = pt->lseg;
+        G3DVECTOR segvec[0x02];
+        uint32_t nbseg = 0x00;
+        G3DVECTOR nor, hanvec[0x02];
+        float len[0x02];
+
+        while ( ltmpseg ) {
+            G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+
+            segvec[nbseg].x = seg->pt[1]->pos.x - seg->pt[0]->pos.x;
+            segvec[nbseg].y = seg->pt[1]->pos.y - seg->pt[0]->pos.y;
+            segvec[nbseg].z = seg->pt[1]->pos.z - seg->pt[0]->pos.z;
+
+            if ( seg->pt[1] == pt ) {
+                segvec[nbseg].x = -segvec[nbseg].x;
+                segvec[nbseg].y = -segvec[nbseg].y;
+                segvec[nbseg].z = -segvec[nbseg].z;
+
+                han[nbseg] = seg->pt[2];
+            } else {
+                han[nbseg] = seg->pt[3];
+            }
+
+            g3dvector_normalize ( &segvec[nbseg], &len[nbseg] );
+
+            len[nbseg] *= 0.25f;
+
+            avg.x += segvec[nbseg].x;
+            avg.y += segvec[nbseg].y;
+            avg.z += segvec[nbseg].z;
+
+            nbseg++;
+
+            ltmpseg = ltmpseg->next;
+        }
+
+        /*g3dvector_normalize ( &avg, NULL );*/
+
+        g3dvector_cross ( &segvec[0], &segvec[1], &nor );
+        g3dvector_cross ( &nor, &avg, &hanvec[0x00] );
+
+        g3dvector_normalize ( &hanvec[0x00], NULL );
+
+        hanvec[0x01].x = -hanvec[0x00].x;
+        hanvec[0x01].y = -hanvec[0x00].y;
+        hanvec[0x01].z = -hanvec[0x00].z;
+
+
+        if ( g3dvector_angle ( &hanvec[0x00], &segvec[0] ) > 1,5708 ) {
+            len[0] = -len[0];
+        }
+
+        if ( g3dvector_angle ( &hanvec[0x01], &segvec[1] ) > 1,5708 ) {
+            len[1] = -len[1];
+        }
+
+        han[0]->ver.pos.x = ( hanvec[0x00].x * len[0] );
+        han[0]->ver.pos.y = ( hanvec[0x00].y * len[0] );
+        han[0]->ver.pos.z = ( hanvec[0x00].z * len[0] );
+
+        han[1]->ver.pos.x = ( hanvec[0x01].x * len[1] );
+        han[1]->ver.pos.y = ( hanvec[0x01].y * len[1] );
+        han[1]->ver.pos.z = ( hanvec[0x01].z * len[1] );
+    }
+}
+
+/******************************************************************************/
+void g3dsplinepoint_addSegment ( G3DSPLINEPOINT *pt, G3DSPLINESEGMENT *seg ) {
+    list_insert ( &pt->lseg, seg );
+
+    pt->nbseg++;
+}
+
+/******************************************************************************/
+void g3dsplinepoint_removeSegment ( G3DSPLINEPOINT *pt, G3DSPLINESEGMENT *seg ) {
+    list_remove ( &pt->lseg, seg );
+
+    pt->nbseg--;
+}
+
+/******************************************************************************/
 G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z ) {
     uint32_t size = sizeof ( G3DSPLINEPOINT );
     G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) calloc ( 0x01, size );
@@ -45,9 +130,9 @@ G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z ) {
         return NULL;
     }
 
-    pt->pos.x = x;
-    pt->pos.y = y;
-    pt->pos.z = z;
+    pt->ver.pos.x = x;
+    pt->ver.pos.y = y;
+    pt->ver.pos.z = z;
 
     return pt;
 }
@@ -61,49 +146,51 @@ void g3dsplinesegment_free ( G3DSPLINESEGMENT *seg ) {
 void g3dsplinesegment_getPoint ( G3DSPLINESEGMENT *seg, 
                                  float             factor, /* range 0 - 1 */
                                  G3DSPLINEPOINT   *pout ) {
-    G3DSPLINEPOINT  han[0x02];
-    G3DSPLINEPOINT  mid[0x05];
+    G3DCUBICSPLINEHANDLE han[0x02];
+    G3DSPLINEPOINT mid[0x05];
     float incFac = factor;
     float decFac = 1.0f - incFac;
 
-    /*** compute absolute position of handles ***/
-    han[0].pos.x = ( seg->pt[0]->pos.x + seg->pt[3]->pos.x );
-    han[0].pos.y = ( seg->pt[0]->pos.y + seg->pt[3]->pos.y );
-    han[0].pos.z = ( seg->pt[0]->pos.z + seg->pt[3]->pos.z );
+ /* A(1 -3t +3t2 -t3)/6 + B(4 -6t2 +3t3)/6 + C(1 +3t +3t2 -3t3)/6 + D(t3)/6 */
 
-    han[1].pos.x = ( seg->pt[1]->pos.x + seg->pt[2]->pos.x );
-    han[1].pos.y = ( seg->pt[1]->pos.y + seg->pt[2]->pos.y );
-    han[1].pos.z = ( seg->pt[1]->pos.z + seg->pt[2]->pos.z );
+    /*** compute absolute position of handles ***/
+    han[0].ver.pos.x = ( seg->pt[0]->pos.x + seg->pt[3]->pos.x );
+    han[0].ver.pos.y = ( seg->pt[0]->pos.y + seg->pt[3]->pos.y );
+    han[0].ver.pos.z = ( seg->pt[0]->pos.z + seg->pt[3]->pos.z );
+
+    han[1].ver.pos.x = ( seg->pt[1]->pos.x + seg->pt[2]->pos.x );
+    han[1].ver.pos.y = ( seg->pt[1]->pos.y + seg->pt[2]->pos.y );
+    han[1].ver.pos.z = ( seg->pt[1]->pos.z + seg->pt[2]->pos.z );
 
 
     /*** mid points ***/
-    mid[0].pos.x = ( seg->pt[0]->pos.x * decFac ) + ( han[0].pos.x * incFac );
-    mid[0].pos.y = ( seg->pt[0]->pos.y * decFac ) + ( han[0].pos.y * incFac );
-    mid[0].pos.z = ( seg->pt[0]->pos.z * decFac ) + ( han[0].pos.z * incFac );
+    mid[0].ver.pos.x = ( seg->pt[0]->pos.x * decFac ) + ( han[0].ver.pos.x * incFac );
+    mid[0].ver.pos.y = ( seg->pt[0]->pos.y * decFac ) + ( han[0].ver.pos.y * incFac );
+    mid[0].ver.pos.z = ( seg->pt[0]->pos.z * decFac ) + ( han[0].ver.pos.z * incFac );
 
-    mid[1].pos.x = ( seg->pt[1]->pos.x * incFac ) + ( han[1].pos.x * decFac );
-    mid[1].pos.y = ( seg->pt[1]->pos.y * incFac ) + ( han[1].pos.y * decFac );
-    mid[1].pos.z = ( seg->pt[1]->pos.z * incFac ) + ( han[1].pos.z * decFac );
+    mid[1].ver.pos.x = ( seg->pt[1]->pos.x * incFac ) + ( han[1].ver.pos.x * decFac );
+    mid[1].ver.pos.y = ( seg->pt[1]->pos.y * incFac ) + ( han[1].ver.pos.y * decFac );
+    mid[1].ver.pos.z = ( seg->pt[1]->pos.z * incFac ) + ( han[1].ver.pos.z * decFac );
 
-    mid[2].pos.x = ( han[0].pos.x * decFac ) + ( han[1].pos.x * incFac );
-    mid[2].pos.y = ( han[0].pos.y * decFac ) + ( han[1].pos.y * incFac );
-    mid[2].pos.z = ( han[0].pos.z * decFac ) + ( han[1].pos.z * incFac );
+    mid[2].ver.pos.x = ( han[0].ver.pos.x * decFac ) + ( han[1].ver.pos.x * incFac );
+    mid[2].ver.pos.y = ( han[0].ver.pos.y * decFac ) + ( han[1].ver.pos.y * incFac );
+    mid[2].ver.pos.z = ( han[0].ver.pos.z * decFac ) + ( han[1].ver.pos.z * incFac );
 
 
     /*** mid mid points ***/
-    mid[3].pos.x = ( mid[0].pos.x * decFac ) + ( mid[2].pos.x * incFac );
-    mid[3].pos.y = ( mid[0].pos.y * decFac ) + ( mid[2].pos.y * incFac );
-    mid[3].pos.z = ( mid[0].pos.z * decFac ) + ( mid[2].pos.z * incFac );
+    mid[3].ver.pos.x = ( mid[0].ver.pos.x * decFac ) + ( mid[2].ver.pos.x * incFac );
+    mid[3].ver.pos.y = ( mid[0].ver.pos.y * decFac ) + ( mid[2].ver.pos.y * incFac );
+    mid[3].ver.pos.z = ( mid[0].ver.pos.z * decFac ) + ( mid[2].ver.pos.z * incFac );
 
-    mid[4].pos.x = ( mid[1].pos.x * incFac ) + ( mid[2].pos.x * decFac );
-    mid[4].pos.y = ( mid[1].pos.y * incFac ) + ( mid[2].pos.y * decFac );
-    mid[4].pos.z = ( mid[1].pos.z * incFac ) + ( mid[2].pos.z * decFac );
+    mid[4].ver.pos.x = ( mid[1].ver.pos.x * incFac ) + ( mid[2].ver.pos.x * decFac );
+    mid[4].ver.pos.y = ( mid[1].ver.pos.y * incFac ) + ( mid[2].ver.pos.y * decFac );
+    mid[4].ver.pos.z = ( mid[1].ver.pos.z * incFac ) + ( mid[2].ver.pos.z * decFac );
 
 
     /*** mid mid mid point ***/
-    pout->pos.x  = ( mid[3].pos.x * decFac ) + ( mid[4].pos.x * incFac );
-    pout->pos.y  = ( mid[3].pos.y * decFac ) + ( mid[4].pos.y * incFac );
-    pout->pos.z  = ( mid[3].pos.z * decFac ) + ( mid[4].pos.z * incFac );
+    pout->ver.pos.x  = ( mid[3].ver.pos.x * decFac ) + ( mid[4].ver.pos.x * incFac );
+    pout->ver.pos.y  = ( mid[3].ver.pos.y * decFac ) + ( mid[4].ver.pos.y * incFac );
+    pout->ver.pos.z  = ( mid[3].ver.pos.z * decFac ) + ( mid[4].ver.pos.z * incFac );
 }
 
 /******************************************************************************/
@@ -114,51 +201,24 @@ void g3dsplinesegment_drawQuadratic ( G3DSPLINESEGMENT *seg,
                                       float to,   /* range 0 - 1 */
                                       float maxAngle,
                                       uint32_t engine_flags) {
-    G3DVECTOR       subseg[0x02];
-    float factor = ( to - from ) / 2.0f;
+    uint32_t nbsteps = 24, i;
+    float factor = ( to - from ) / nbsteps;
     float incFactor = ( ( from + to ) / 2.0f );
-    G3DSPLINEPOINT pout;
+    G3DVECTOR subseg[0x02];
+    G3DSPLINEPOINT pone, ptwo;
     float len0, len1;
 
-    g3dsplinesegment_getPoint ( seg, incFactor, &pout );
+    memcpy ( &pone, pori, sizeof ( G3DSPLINEPOINT ) );
 
-    subseg[0x00].x = ( pout.pos.x - pori->pos.x );
-    subseg[0x00].y = ( pout.pos.y - pori->pos.y );
-    subseg[0x00].z = ( pout.pos.z - pori->pos.z );
+    for( i = 0x01; i <= nbsteps; i++ ) {
+        g3dsplinesegment_getPoint ( seg, from + ( factor * i ), &ptwo );
 
-    subseg[0x01].x = ( pend->pos.x - pout.pos.x );
-    subseg[0x01].y = ( pend->pos.y - pout.pos.y );
-    subseg[0x01].z = ( pend->pos.z - pout.pos.z );
+        glBegin ( GL_LINES );
+        glVertex3f ( pone.ver.pos.x, pone.ver.pos.y, pone.ver.pos.z );
+        glVertex3f ( ptwo.ver.pos.x, ptwo.ver.pos.y, ptwo.ver.pos.z  );
+        glEnd   ( );
 
-    g3dvector_normalize ( &subseg[0x00], &len0 );
-    g3dvector_normalize ( &subseg[0x01], &len1 );
-
-    if ( len0 && len1 ) {
-        if ( g3dvector_angle ( &subseg[0x00], &subseg[0x01] ) > 0.1f ) {
-
-            g3dsplinesegment_drawQuadratic ( seg,
-                                             pori,
-                                            &pout,
-                                             from,
-                                             from + factor,
-                                             maxAngle,
-                                             engine_flags );
-            g3dsplinesegment_drawQuadratic ( seg,
-                                            &pout,
-                                             pend,
-                                             from + factor,
-                                             to,
-                                             maxAngle,
-                                             engine_flags );
-        } else {
-            glBegin ( GL_LINES );
-            glVertex3f ( pori->pos.x, pori->pos.y, pori->pos.z );
-            glVertex3f (  pout.pos.x,  pout.pos.y, pout.pos.z  );
-
-            glVertex3f (  pout.pos.x,  pout.pos.y, pout.pos.z  );
-            glVertex3f ( pend->pos.x, pend->pos.y, pend->pos.z );
-            glEnd   ( );
-        }
+        memcpy ( &pone, &ptwo, sizeof ( G3DSPLINEPOINT ) );
     }
 }
 
@@ -270,6 +330,8 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
 
     glPopAttrib ( );
 
+    g3dobject_drawModifiers ( obj, curcam, engine_flags );
+
     return 0x00;
 }
 
@@ -290,6 +352,9 @@ void g3dspline_addSegment ( G3DSPLINE *spline, G3DSPLINESEGMENT *seg ) {
     g3dmesh_addVertex ( spline, &seg->handle[0x00] );
     g3dmesh_addVertex ( spline, &seg->handle[0x01] );
 
+    g3dsplinepoint_addSegment ( seg->pt[0x00], seg );
+    g3dsplinepoint_addSegment ( seg->pt[0x01], seg );
+
     spline->nbseg++;
 }
 
@@ -299,6 +364,9 @@ void g3dspline_removeSegment ( G3DSPLINE *spline, G3DSPLINESEGMENT *seg ) {
 
     g3dmesh_removeVertex ( spline, &seg->handle[0x00] );
     g3dmesh_removeVertex ( spline, &seg->handle[0x01] );
+
+    g3dsplinepoint_removeSegment ( seg->pt[0x00], seg );
+    g3dsplinepoint_removeSegment ( seg->pt[0x01], seg );
 
     spline->nbseg--;
 }

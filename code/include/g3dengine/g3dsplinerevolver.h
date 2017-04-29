@@ -32,70 +32,48 @@
  */
 
 /******************************************************************************/
-#ifndef _G3DSPLINE_H_
-#define _G3DSPLINE_H_
+#ifndef _G3DSPLINEREVOLVER_H_
+#define _G3DSPLINEREVOLVER_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @struct G3DSPLINE
- * @brief A structure to store a cubic bezier spline.
+ * @struct G3DSPLINEREVOLVER
+ * @brief A modifier to revolve a spline
  */
-typedef struct _G3DSPLINE {
-    G3DMESH mes;
-    LIST *lseg; /** list of segments ***/
-    uint32_t nbseg;
-} G3DSPLINE;
+typedef struct _G3DSPLINEREVOLVER {
+    G3DMODIFIER   mod;  /*** Bone inherits G3DOBJECT        ***/
+    uint32_t      nbsteps;
+    uint32_t      nbdivis;
+    LIST         *lupdver; /* lit of vertices to update on mesh update */
+} G3DSPLINEREVOLVER;
 
 /******************************************************************************/
-typedef struct _G3DSPLINEPOINT {
-    G3DVERTEX ver;
-    LIST     *lseg;
-    uint32_t  nbseg;
-} G3DSPLINEPOINT;
 
-/******************************************************************************/
-typedef struct _G3DCUBICSPLINEHANDLE {
-    G3DVERTEX ver;
-    G3DVERTEX *pt;
-} G3DCUBICSPLINEHANDLE;
-
-/******************************************************************************/
-typedef struct _G3DSPLINESEGMENT {
-    uint32_t id;
-    G3DCUBICSPLINEHANDLE handle[0x02];
-    G3DVERTEX *pt[0x04];
-} G3DSPLINESEGMENT;
-
-/******************************************************************************/
-void g3dsplinesegment_free ( G3DSPLINESEGMENT *seg );
-void g3dsplinesegment_drawQuadratic ( G3DSPLINESEGMENT *seg,
-                                      G3DSPLINEPOINT   *pori,
-                                      G3DSPLINEPOINT   *pend,
-                                      float from, /* range 0 - 1 */
-                                      float to,   /* range 0 - 1 */
-                                      float maxAngle,
-                                      uint32_t engine_flags );
-uint32_t g3dspline_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                          uint32_t   engine_flags );
-void g3dspline_free ( G3DOBJECT *obj );
-void g3dspline_addSegment ( G3DSPLINE *spline, G3DSPLINESEGMENT *seg );
-void g3dspline_init ( G3DSPLINE *spline, uint32_t id, 
-                                         char    *name,
-                                         uint32_t type,
-                                         uint32_t engine_flags );
-G3DSPLINE *g3dspline_new ( uint32_t id, 
-                           char    *name, 
-                           uint32_t type, 
-                           uint32_t engine_flags );
-G3DSPLINESEGMENT *g3dsplinesegment_new ( G3DSPLINEPOINT *pt0,
-                                         G3DSPLINEPOINT *pt1,
-                                         float hx1, float hy1, float hz1,
-                                         float hx2, float hy2, float hz2 );
-G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z );
-void g3dsplinepoint_free ( G3DSPLINEPOINT * );
+void g3dsplinerevolver_free ( G3DSPLINEREVOLVER *srv );
+uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv, 
+                                  G3DCAMERA         *cam, 
+                                  uint32_t           engine_flags );
+void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv, 
+                                    uint32_t           engine_flags );
+void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv, 
+                                  uint32_t           engine_flags );
+uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv, 
+                                    uint32_t           engine_flags );
+void g3dsplinerevolver_update ( G3DSPLINEREVOLVER *srv, 
+                                uint32_t           engine_flags );
+void g3dsplinerevolver_endUpdate ( G3DSPLINEREVOLVER *srv,
+                                   uint32_t           engine_flags );
+void g3dsplinerevolver_startUpdate ( G3DSPLINEREVOLVER *srv, 
+                                     uint32_t           engine_flags );
+G3DSPLINEREVOLVER *g3dsplinerevolver_copy ( G3DSPLINEREVOLVER *srv,
+                                            uint32_t           engine_flags );
+void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
+                                   G3DOBJECT         *parent,
+                                   uint32_t           engine_flags );
+G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name );
 
 #ifdef __cplusplus
 }
