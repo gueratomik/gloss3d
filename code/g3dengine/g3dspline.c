@@ -145,7 +145,7 @@ void g3dsplinesegment_free ( G3DSPLINESEGMENT *seg ) {
 /******************************************************************************/
 void g3dsplinesegment_getPoint ( G3DSPLINESEGMENT *seg, 
                                  float             factor, /* range 0 - 1 */
-                                 G3DSPLINEPOINT   *pout ) {
+                                 G3DVECTOR        *pout ) {
     G3DCUBICSPLINEHANDLE han[0x02];
     G3DSPLINEPOINT mid[0x05];
     float incFac = factor;
@@ -188,9 +188,9 @@ void g3dsplinesegment_getPoint ( G3DSPLINESEGMENT *seg,
 
 
     /*** mid mid mid point ***/
-    pout->ver.pos.x  = ( mid[3].ver.pos.x * decFac ) + ( mid[4].ver.pos.x * incFac );
-    pout->ver.pos.y  = ( mid[3].ver.pos.y * decFac ) + ( mid[4].ver.pos.y * incFac );
-    pout->ver.pos.z  = ( mid[3].ver.pos.z * decFac ) + ( mid[4].ver.pos.z * incFac );
+    pout->x  = ( mid[3].ver.pos.x * decFac ) + ( mid[4].ver.pos.x * incFac );
+    pout->y  = ( mid[3].ver.pos.y * decFac ) + ( mid[4].ver.pos.y * incFac );
+    pout->z  = ( mid[3].ver.pos.z * decFac ) + ( mid[4].ver.pos.z * incFac );
 }
 
 /******************************************************************************/
@@ -211,7 +211,7 @@ void g3dsplinesegment_drawQuadratic ( G3DSPLINESEGMENT *seg,
     memcpy ( &pone, pori, sizeof ( G3DSPLINEPOINT ) );
 
     for( i = 0x01; i <= nbsteps; i++ ) {
-        g3dsplinesegment_getPoint ( seg, from + ( factor * i ), &ptwo );
+        g3dsplinesegment_getPoint ( seg, from + ( factor * i ), &ptwo.ver.pos );
 
         glBegin ( GL_LINES );
         glVertex3f ( pone.ver.pos.x, pone.ver.pos.y, pone.ver.pos.z );

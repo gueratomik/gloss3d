@@ -96,6 +96,9 @@ G3DSPLINESEGMENT *g3dsplinesegment_new ( G3DSPLINEPOINT *pt0,
                                          float hx2, float hy2, float hz2 );
 G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z );
 void g3dsplinepoint_free ( G3DSPLINEPOINT * );
+void g3dsplinesegment_getPoint ( G3DSPLINESEGMENT *seg, 
+                                 float             factor, /* range 0 - 1 */
+                                 G3DVECTOR        *pout );
 
 #ifdef __cplusplus
 }
