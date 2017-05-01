@@ -673,6 +673,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
                 /*** we only render mesh objects ***/
                 if ( ( rob->obj->type == G3DMESHTYPE ) ||
+                     ( rob->obj->type  & SPLINE      ) ||
                      ( rob->obj->type  & PRIMITIVE   ) ) {
                     R3DPOINT ptin, ptout;
 
@@ -687,6 +688,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                                           &raymax,*/
                                                            discard, 
                                                            query_flags ) ) {
+
                             hitrob = rob;
                             hitrfc = ray->rfc;
                         }
@@ -700,7 +702,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         if ( ray->flags & INTERSECT ) {
             G3DRGBA diffuse, specular, bump, reflection, refraction;
             R3DOBJECT *rob = hitrob;
-            R3DMESH *rms = ( rob->obj->type & G3DMESHTYPE ) ? ( R3DMESH * ) rob : NULL;
+            R3DMESH *rms = ( rob->obj->type & MESH ) ? ( R3DMESH * ) rob : NULL;
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
 
             uint32_t nbmap = ( rms ) ? rms->nbmap : 0x00;

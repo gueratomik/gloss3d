@@ -384,6 +384,35 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define PROCEDURALCHECKERBOARD 0x02
 
 /******************************************************************************/
+#define _GETVERTEX(mes,ltmpver) \
+= (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBVERTEX * ) ltmpver : ltmpver->data;
+
+#define _NEXTVERTEX(mes,ltmpver) \
+if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
+    ((G3DSUBVERTEX*)ltmpver)++; \
+    if ( ltmpver == mes->lver + ( mes->nbver * sizeof ( G3DSUBVERTEX ) ) ) { \
+        ltmpver = NULL; \
+    } \
+} else { \
+    ltmpver = ltmpver->next; \
+}
+
+/******************************************************************************/
+#define _GETFACE(mes,ltmpfac) \
+(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBFACE * ) ltmpfac : ltmpfac->data;
+
+#define _NEXTFACE(mes,ltmpfac) \
+if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
+    G3DSUBFACE *subfac = ( G3DSUBFACE * ) ltmpfac; \
+    ltmpfac = ++subfac; \
+    if ( ltmpfac == ( ( G3DSUBFACE * ) mes->lfac + mes->nbfac ) ) { \
+        ltmpfac = NULL; \
+    } \
+} else { \
+    ltmpfac = ltmpfac->next; \
+}
+
+/******************************************************************************/
 #define _FASTLENGTH(vec) ( sqrt ( ( vec.x * vec.x ) + \
                                   ( vec.y * vec.y ) + \
                                   ( vec.z * vec.z ) ) )

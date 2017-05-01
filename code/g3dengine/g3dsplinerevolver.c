@@ -110,6 +110,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                                               NULL,
                                               0,
                                               srvmes->lfac,
+                                              0x00,
                                               nbRevolvedFaces );
 
         if ( doTopology ) {

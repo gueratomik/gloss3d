@@ -34,15 +34,18 @@ void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
                                                  uint32_t   nbver,
                                                  G3DEDGE   *edg,
                                                  uint32_t   nbedg,
-                                                 G3DFACE   *fac, 
-                                                 uint32_t   nbfac ) {
+                                                 G3DFACE   *fac,
+                                                 uint32_t   nbtri,
+                                                 uint32_t   nbqua ) {
     ((G3DOBJECT*)mes)->flags |= MESHGEOMETRYINARRAYS;
 
     mes->lfac = ( LIST * ) fac;
     mes->ledg = ( LIST * ) edg;
     mes->lver = ( LIST * ) ver;
 
-    mes->nbfac = nbfac;
+    mes->nbfac = nbtri + nbqua;
+    mes->nbtri = nbtri;
+    mes->nbqua = nbqua;
     mes->nbedg = nbedg;
     mes->nbver = nbver;
 }
@@ -440,15 +443,18 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes, void (*Alloc)( uint32_t, /*nbver *
                                               void *data,
                                               uint32_t engine_flags ) {
     LIST *ltmpfac = mes->lfac;
+    uint32_t i, verID = 0x00;
 
     if ( Alloc ) Alloc ( mes->nbver, mes->nbtri, mes->nbqua, 0x00, data );
 
+    g3dmesh_renumberVertices ( mes );
+
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        G3DFACE *fac = _GETFACE(mes,ltmpfac);
 
         if ( Dump ) Dump ( fac, data );
 
-        ltmpfac = ltmpfac->next;
+        _NEXTFACE(mes,ltmpfac);
     }
 
     return MODIFIERTAKESOVER;
@@ -2962,7 +2968,11 @@ void g3dmesh_assignFaceUVSets ( G3DMESH *mes, G3DFACE *fac ) {
 
 /******************************************************************************/
 void g3dmesh_renumberVertices ( G3DMESH *mes ) {
-    g3dvertex_renumberList ( mes->lver, 0x00 );
+    if ( ((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) {
+        g3dsubvertex_renumberArray ( mes->lver, mes->nbver );
+    } else {
+        g3dvertex_renumberList ( mes->lver, 0x00 );
+    }
 }
 
 /******************************************************************************/

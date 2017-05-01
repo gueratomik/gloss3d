@@ -178,5 +178,5 @@ backup:
 .PHONY: backup
 
 count:
-	cloc * --exclude-lang=m4,make,Bourne\ Shell,Bourne\ Again\ Shell
+	cloc * --exclude-lang=CSS,Javascript,HTML,m4,make,Bourne\ Shell,Bourne\ Again\ Shell
 .PHONY: count

@@ -30,6 +30,16 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, uint32_t nbver ) {
+    uint32_t vertexID = 0x00;
+    uint32_t i;
+
+    for ( i = 0x00; i < nbver; i++ ) {
+        subver[i].ver.id = vertexID++;
+    }
+}
+
+/******************************************************************************/
 void g3dsubvertex_elevate ( G3DSUBVERTEX *subver, uint32_t (*qua_indexes)[0x04],
                                                   uint32_t (*tri_indexes)[0x04] ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };

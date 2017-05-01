@@ -83,6 +83,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         g3dcore_transposeMatrix ( tmpmatrix   , childwnormix );
 
         if ( ( child->type == G3DMESHTYPE ) ||
+             ( child->type &  SPLINE      ) ||
              ( child->type &  PRIMITIVE   ) ) {
             G3DMESH *mes = ( G3DMESH * ) child;
         /*** Force the flag in case our mesh does not need displacement ***/

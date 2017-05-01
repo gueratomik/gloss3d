@@ -237,6 +237,7 @@ void r3doctree_divide_r ( R3DOCTREE *rot, R3DVERTEX *rver ) {
             /*** then subdivide octree if needed ***/
             if ( child->nbrfc > child->maxnbrfc ) {
                 r3doctree_divide_r ( child, rver );
+
             }
         }
     }
