@@ -702,7 +702,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         if ( ray->flags & INTERSECT ) {
             G3DRGBA diffuse, specular, bump, reflection, refraction;
             R3DOBJECT *rob = hitrob;
-            R3DMESH *rms = ( rob->obj->type & MESH ) ? ( R3DMESH * ) rob : NULL;
+            R3DMESH *rms = ( rob->obj->type & EDITABLE ) ? ( R3DMESH * ) rob : NULL;
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
 
             uint32_t nbmap = ( rms ) ? rms->nbmap : 0x00;

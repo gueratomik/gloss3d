@@ -358,6 +358,10 @@
 #define EDITSUBDIVIDERRENDER   "Subdivision (render)"
 #define EDITMESHISOLINES       "Use isoparms (Slower)"
 
+#define EDITSPLINEREVOLVER      "Spline Revolver"
+#define EDITSPLINEREVOLVERSTEPS "Steps"
+#define EDITSPLINEREVOLVERDIVIS "Divisions"
+
 #define EDITWIREFRAME          "Wireframe"
 #define EDITWIREFRAMETHICKNESS "Thickness"
 

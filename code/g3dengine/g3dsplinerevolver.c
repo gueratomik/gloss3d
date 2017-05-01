@@ -82,8 +82,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     /*g3dmesh_clearGeometry ( (G3DMESH*) wir );*/
-    srv->nbsteps = 24;
-    srv->nbdivis = 24;
+
 
     if ( parent ) {
         G3DSPLINE *spl    = ( G3DSPLINE * ) parent;
@@ -367,6 +366,9 @@ G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name ) {
                                                              g3dsplinerevolver_update,
                                                              g3dsplinerevolver_endUpdate );
 
+
+    srv->nbsteps = 24;
+    srv->nbdivis = 6;
 
     ((G3DMESH*)srv)->dump = g3dmesh_default_dump;
 

@@ -35,6 +35,7 @@ if HAVE_GTK3
                             common/g3duirendersettings.c \
                             common/g3duirenderwindow.c \
                             common/g3duisphereedit.c \
+                            common/g3duisplinerevolveredit.c \
                             common/g3duisubdivideredit.c \
                             common/g3duisymmetryedit.c \
                             common/g3duitextureedit.c \
@@ -77,6 +78,7 @@ if HAVE_GTK3
                             gtk3/g3duirenderprocess.c \
                             gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
+                            gtk3/g3duisplinerevolveredit.c \
                             gtk3/g3duisubdivideredit.c \
                             gtk3/g3duisymmetryedit.c \
                             gtk3/g3duitextureedit.c \

@@ -146,12 +146,12 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiquad.c common/g3duirenderedit.c \
 	common/g3duirenderprocess.c common/g3duirendersettings.c \
 	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
-	common/g3duitextureedit.c common/g3duitimeboard.c \
-	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duiuvmapedit.c \
-	common/g3duiview.c common/g3duiweightgrouplist.c \
-	common/g3duiwireframeedit.c \
+	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
+	common/g3duisymmetryedit.c common/g3duitextureedit.c \
+	common/g3duitimeboard.c common/g3duitimeline.c \
+	common/g3duitoolbar.c common/g3duitorusedit.c \
+	common/g3duiuvmapedit.c common/g3duiview.c \
+	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -167,10 +167,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
 	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
-	gtk3/g3duisymmetryedit.c gtk3/g3duitextureedit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisplinerevolveredit.c \
+	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
+	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
 	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -199,6 +200,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duirendersettings.lo \
 @HAVE_GTK3_TRUE@	common/g3duirenderwindow.lo \
 @HAVE_GTK3_TRUE@	common/g3duisphereedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duisplinerevolveredit.lo \
 @HAVE_GTK3_TRUE@	common/g3duisubdivideredit.lo \
 @HAVE_GTK3_TRUE@	common/g3duisymmetryedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duitextureedit.lo \
@@ -229,6 +231,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderprocess.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duisplinerevolveredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisubdivideredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisymmetryedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitextureedit.lo \
@@ -467,6 +470,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duirendersettings.c \
 @HAVE_GTK3_TRUE@                            common/g3duirenderwindow.c \
 @HAVE_GTK3_TRUE@                            common/g3duisphereedit.c \
+@HAVE_GTK3_TRUE@                            common/g3duisplinerevolveredit.c \
 @HAVE_GTK3_TRUE@                            common/g3duisubdivideredit.c \
 @HAVE_GTK3_TRUE@                            common/g3duisymmetryedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duitextureedit.c \
@@ -509,6 +513,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderprocess.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duisplinerevolveredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisubdivideredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisymmetryedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitextureedit.c \
@@ -654,6 +659,8 @@ common/g3duirenderwindow.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duisphereedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duisplinerevolveredit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duisubdivideredit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duisymmetryedit.lo: common/$(am__dirstamp) \
@@ -750,6 +757,8 @@ gtk3/g3duirenderwindow.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duisplinerevolveredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisubdivideredit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisymmetryedit.lo: gtk3/$(am__dirstamp) \
@@ -834,6 +843,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duirendersettings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duisphereedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duisplinerevolveredit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duisubdivideredit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duisymmetryedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitextureedit.Plo@am__quote@
@@ -876,6 +886,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderprocess.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisphereedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisubdivideredit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisymmetryedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitextureedit.Plo@am__quote@
