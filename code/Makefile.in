@@ -409,11 +409,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-@HAVE_GTK3_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 -ljpeg -lpng -lm -lpthread -lc
-@HAVE_MOTIF_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 -ljpeg -lpng -lm -lpthread -lc
+@HAVE_GTK3_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
+@HAVE_MOTIF_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
 @HAVE_WIN32_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lGL -lGLU -ljpeg -lpng -lm
-@HAVE_GTK3_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
-@HAVE_MOTIF_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
+@HAVE_GTK3_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
+@HAVE_MOTIF_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
 @HAVE_WIN32_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -I/usr/src/tarball/libjpg-win32/include -Wimplicit-function-declaration -Wformat 
 SUBDIRS = g3dengine \
           g3dexport \

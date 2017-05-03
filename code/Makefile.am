@@ -7,13 +7,13 @@ if HAVE_WIN32
 endif
 
 if HAVE_GTK3
-    AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 -ljpeg -lpng -lm -lpthread -lc
-    AM_CFLAGS  = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
+    AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
+    AM_CFLAGS  = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
 endif
 
 if HAVE_MOTIF
-    AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 -ljpeg -lpng -lm -lpthread -lc
-    AM_CFLAGS  = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wimplicit-function-declaration -Wformat 
+    AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
+    AM_CFLAGS  = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
 endif
 
 SUBDIRS = g3dengine \

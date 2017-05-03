@@ -486,8 +486,13 @@ void common_g3dui_addSplineCbk ( G3DUI *gui ) {
     uint32_t pid = g3dscene_getNextObjectID ( sce );
     G3DSPLINE *spline = g3dspline_new ( pid, "Spline", CUBIC, gui->flags );
     G3DSPLINEREVOLVER *srv = g3dsplinerevolver_new ( pid, "Revolver" );
+    G3DTEXT *txt = g3dtext_new ( pid, "Text", gui->flags  );
+
 
     g3dobject_addChild ( spline, srv, gui->flags );
+    g3dobject_addChild ( sce, txt, gui->flags );
+
+
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |

@@ -82,6 +82,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #endif
 #include <jpeglib.h>
 
+/******************************** FreeType ************************************/
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 /******************************************************************************/
 #include <list.h>
 
@@ -163,6 +167,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDITABLE       (  1 << 22 )
 #define SPLINE         (  1 << 23 )
 #define SPLINEREVOLVER (  1 << 24 )
+#define TEXT           (  1 << 25 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
@@ -186,7 +191,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
-#define G3DSPLINETYPE         ( OBJECT | EDITABLE | SPLINE )
+#define G3DSPLINETYPE         ( OBJECT | EDITABLE | MESH | SPLINE )
+#define G3DTEXTTYPE           ( OBJECT | EDITABLE | MESH | TEXT )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -947,7 +953,8 @@ typedef struct _G3DSUBDIVISION {
 } G3DSUBDIVISION;
 
 /******************************************************************************/
-typedef struct _G3DSYSINFO { 
+typedef struct _G3DSYSINFO {
+    FT_Library ftlib;
     uint32_t nbcpu;
     G3DSUBDIVISION **subdivisions; /*** one per core ***/
 } G3DSYSINFO;
@@ -1035,6 +1042,7 @@ struct _G3DMESH {
 };
 
 #include <g3dengine/g3dspline.h>
+#include <g3dengine/g3dtext.h>
 
 /******************************************************************************/
 /**************** For Multi-Threaded Catmull-Clark implementation *************/
