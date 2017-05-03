@@ -83,6 +83,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         g3dcore_transposeMatrix ( tmpmatrix   , childwnormix );
 
         if ( ( child->type == G3DMESHTYPE ) ||
+             ( child->type &  TEXT        ) ||
              ( child->type &  SPLINE      ) ||
              ( child->type &  PRIMITIVE   ) ) {
             G3DMESH *mes = ( G3DMESH * ) child;

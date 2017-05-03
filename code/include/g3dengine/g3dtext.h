@@ -48,6 +48,9 @@ typedef struct _G3DTEXT {
     FT_Face face;
     char *fontFaceName;
     char *text;
+    GLenum triangleTesselationType;
+    int vertexCount;
+    G3DVERTEX *verTab[0x03];
 } G3DTEXT;
 
 /******************************************************************************/

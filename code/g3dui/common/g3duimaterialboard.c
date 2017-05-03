@@ -37,6 +37,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
 
     if ( obj && mat ) {
         if ( ( obj->type == G3DMESHTYPE ) ||
+           ( ( obj->type &  G3DTEXTTYPE ) == G3DTEXTTYPE ) ||
            ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH  *mes = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3dmesh_getLastUVMap ( mes );

@@ -38,12 +38,74 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
                                                             vertex_data[2] );
 
     if ( ( ver == NULL ) ) {
-        G3DVERTEX *ver = g3dvertex_new ( vertex_data[0], 
-                                         vertex_data[1], 
-                                         vertex_data[2] );
+        ver = g3dvertex_new ( vertex_data[0],
+                              vertex_data[1],
+                              vertex_data[2] );
 
         g3dmesh_addVertex ( txtmes, ver );
     }
+
+    txt->verTab[txt->vertexCount++] = ver;
+
+    if ( txt->vertexCount == 0x03 ) {
+        G3DFACE *fac = g3dtriangle_new ( txt->verTab[0],
+                                         txt->verTab[1],
+                                         txt->verTab[2] );
+
+        /*** Make sure all faces are oriented the same side ***/
+        g3dface_normal ( fac );
+        if ( fac->nor.z < 0.0f ) {
+            fac->ver[0] = txt->verTab[2];
+            fac->ver[1] = txt->verTab[1];
+            fac->ver[2] = txt->verTab[0];
+        }
+
+        g3dmesh_addFace ( txtmes, fac );
+
+        if ( txt->triangleTesselationType == GL_TRIANGLE_FAN ) {
+            txt->verTab[0] = txt->verTab[0];
+            txt->verTab[1] = txt->verTab[2];
+            txt->verTab[2] = NULL;
+
+            txt->vertexCount = 0x02;
+        }
+
+        if ( txt->triangleTesselationType == GL_TRIANGLE_STRIP ) {
+            txt->verTab[0] = txt->verTab[1];
+            txt->verTab[1] = txt->verTab[2];
+            txt->verTab[2] = NULL;
+
+            txt->vertexCount = 0x02;
+        }
+
+        if ( txt->triangleTesselationType == GL_TRIANGLES ) {
+            txt->verTab[0] = txt->verTab[1] = txt->verTab[2] = NULL;
+
+            txt->vertexCount = 0x00;
+        }
+    }
+}
+
+/******************************************************************************/
+static void g3dtext_begin( GLenum type, void *object_data ) {
+    G3DTEXT *txt    = ( G3DTEXT * ) object_data;
+    G3DMESH *txtmes = ( G3DMESH * ) txt;
+
+    txt->triangleTesselationType = type;
+
+    txt->verTab[0] = txt->verTab[1] = txt->verTab[2] = NULL;
+
+    txt->vertexCount = 0x00;
+}
+
+/******************************************************************************/
+static void g3dtext_end( void *object_data ) {
+    G3DTEXT *txt    = ( G3DTEXT * ) object_data;
+    G3DMESH *txtmes = ( G3DMESH * ) txt;
+
+    txt->verTab[0] = txt->verTab[1] = txt->verTab[2] = NULL;
+
+    txt->vertexCount = 0x00;
 }
 
 /******************************************************************************/
@@ -55,61 +117,81 @@ void g3dtext_generate ( G3DOBJECT *obj, uint32_t   engine_flags ) {
     G3DVECTOR pos = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     double (*tessData)[0x03] = NULL;
 
+    g3dmesh_clearGeometry ( text );
+
     if ( text->text ) {
         GLUtesselator *tobj = gluNewTess();
 
-        gluTessCallback( tobj, GLU_TESS_BEGIN, glBegin);
-        gluTessCallback( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv);
-        gluTessCallback( tobj, GLU_TESS_END, glEnd);
+        gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
+        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_begin     );
+        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv );
+        gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_end       );
 
         /*gluTessCallback( tobj, GLenum(GLU_ERROR), (glu_callback) gltt_polygonizer_error );*/
 
         for ( i = 0x00; i < strlen ( text->text ); i++ ) {
             uint32_t e = 0x00;
-            glyph_index = FT_Get_Char_Index ( text->face, text->text[i] );
 
-            FT_Load_Glyph ( text->face, glyph_index, FT_LOAD_DEFAULT );
+            switch ( text->text[i] ) {
+                case '\n' : {
+                    pos.x  = 0.0f;
+                    pos.y -= ( float ) text->face->glyph->metrics.width / 1000;
+                } break;
 
-            contours = text->face->glyph->outline.contours;
-            FT_Vector *points = text->face->glyph->outline.points;
+                default : {
+                    glyph_index = FT_Get_Char_Index ( text->face, text->text[i] );
 
-            tessData = realloc ( tessData, sizeof ( double ) * 3 * text->face->glyph->outline.n_points );
+                    FT_Load_Glyph ( text->face, glyph_index, FT_LOAD_DEFAULT );
 
-            gluTessBeginPolygon(tobj, text);
-            /*gluNextContour( tobj, GLU_EXTERIOR );*/
-            gluTessBeginContour(tobj);
+                    contours = text->face->glyph->outline.contours;
+                    FT_Vector *points = text->face->glyph->outline.points;
 
-            /*glBegin ( GL_LINES );*/
-            for ( j = 0x00; j < text->face->glyph->outline.n_points; j++ ) {
-                uint32_t n = ( j + 0x01 ) % text->face->glyph->outline.n_points;
+                    tessData = realloc ( tessData, sizeof ( double ) * 3 * text->face->glyph->outline.n_points );
 
-                tessData[j][0x00] = ( double ) points[j].x / 1000 + pos.x;
-                tessData[j][0x01] = ( double ) points[j].y / 1000 + pos.y;
-                tessData[j][0x02] = 0.0f;
-                gluTessVertex ( tobj, tessData[j], tessData[j]);
-
-                /*printf ( "%d %d\n", (int32_t)points[j].x, (int32_t)points[j].y);*/
-                if ( j == *contours ) {
-                    gluTessEndContour(tobj);
-                    /*break;*/
+                    gluTessBeginPolygon(tobj, text);
+                    /*gluNextContour( tobj, GLU_EXTERIOR );*/
                     gluTessBeginContour(tobj);
-                    n = e; e = j + 0x01;
-                    /*gluNextContour(tobj, GLU_INTERIOR);*/
-                    contours++;
-                }
 
-                /*glVertex3dv ( tessData[j] );
-                glVertex3dv ( tessData[n] );*/
+                    /*glBegin ( GL_LINES );*/
+                    for ( j = 0x00; j < text->face->glyph->outline.n_points; j++ ) {
+                        uint32_t n = ( j + 0x01 ) % text->face->glyph->outline.n_points;
+
+                        tessData[j][0x00] = ( double ) points[j].x / 1000 + pos.x;
+                        tessData[j][0x01] = ( double ) points[j].y / 1000 + pos.y;
+                        tessData[j][0x02] = 0.0f;
+                        gluTessVertex ( tobj, tessData[j], tessData[j]);
+
+                        /*printf ( "%d %d\n", (int32_t)points[j].x, (int32_t)points[j].y);*/
+                        if ( j == *contours ) {
+                            gluTessEndContour(tobj);
+                            /*break;*/
+                            gluTessBeginContour(tobj);
+                            n = e; e = j + 0x01;
+                            /*gluNextContour(tobj, GLU_INTERIOR);*/
+                            contours++;
+                        }
+
+                        /*glVertex3dv ( tessData[j] );
+                        glVertex3dv ( tessData[n] );*/
+                    }
+                    /*glEnd ( );
+                    printf("%d\n", j);*/
+                    gluTessEndPolygon(tobj);
+
+                    pos.x += ( float ) text->face->glyph->metrics.width / 1000;
+                } break;
             }
-            /*glEnd ( );
-            printf("%d\n", j);*/
-            gluTessEndPolygon(tobj);
-
-            pos.x += ( float ) text->face->glyph->metrics.width / 1000;
         }
         if ( tessData ) free ( tessData );
         gluDeleteTess(tobj);
     }
+
+    g3dmesh_update ( text, NULL,
+                             NULL,
+                             NULL,
+                             UPDATEFACEPOSITION |
+                             UPDATEFACENORMAL   |
+                             UPDATEVERTEXNORMAL, engine_flags );
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
@@ -155,7 +237,9 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
                                  ADDCHILD_CALLBACK(NULL),
                                                    NULL );
 
-    text->text = "Gloss3D";
+    ((G3DMESH*)text)->dump = g3dmesh_default_dump;
+
+    text->text = "Gloss3D\nIs Nice";
 
     g3dtext_generate ( text, engine_flags );
 

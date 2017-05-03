@@ -673,6 +673,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
                 /*** we only render mesh objects ***/
                 if ( ( rob->obj->type == G3DMESHTYPE ) ||
+                     ( rob->obj->type  & TEXT        ) ||
                      ( rob->obj->type  & SPLINE      ) ||
                      ( rob->obj->type  & PRIMITIVE   ) ) {
                     R3DPOINT ptin, ptout;

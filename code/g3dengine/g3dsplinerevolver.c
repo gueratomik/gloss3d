@@ -161,7 +161,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                     G3DVECTOR  vertexLocalPos;
                     G3DVECTOR  verpos;
 
-                    g3dsplinesegment_getPoint ( seg, factor, &verpos );
+                    g3dcubicsegment_getPoint ( seg, factor, &verpos );
 
                     factor += incrementFactor;
 
@@ -183,7 +183,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
             uint32_t segmentID = 0x00;
 
             while ( ltmpseg ) {
-                G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+                G3DCUBICSEGMENT *seg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
                 G3DSUBVERTEX *quadVertices[0x04] = { &srvVertices[(i*nbSplineVertices) + seg->pt[0]->id], 
                                                      &srvVertices[(n*nbSplineVertices) + seg->pt[0]->id],
                                                      NULL,

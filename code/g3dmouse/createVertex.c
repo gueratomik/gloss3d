@@ -165,14 +165,14 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                         if ( lastver ) {
                             G3DSPLINESEGMENT *seg;
 
-                            seg = g3dsplinesegment_new ( ver,
+                            seg = g3dcubicsegment_new ( ver,
                                                          lastver,
                                                          0.0f, 0.0f, 0.0f,
                                                          0.0f, 0.0f, 0.0f );
 
                             g3dspline_addSegment ( mes, seg );
 
-                            g3dsplinepoint_roundSegments ( lastver );
+                            g3dsplinepoint_roundCubicSegments ( lastver );
                         }
                     }
 
