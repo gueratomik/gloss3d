@@ -39,6 +39,9 @@
 extern "C" {
 #endif
 
+/************************** Spline drawing flags ******************************/
+#define DRAW_FOR_TESSELLATION ( 1 << 0 )
+
 /**
  * @struct G3DSPLINE
  * @brief A structure to store a cubic bezier spline.
@@ -50,7 +53,13 @@ typedef struct _G3DSPLINE {
 } G3DSPLINE;
 
 /******************************************************************************/
-typedef struct _G3DSPLINESEGMENT G3DSPLINESEGMENT;
+typedef struct _G3DSPLINESEGMENT {
+    uint32_t id;
+    void (*getPoint)( struct _G3DSPLINESEGMENT *seg, 
+                             float              factor, 
+                             G3DVECTOR         *pout );
+    G3DVERTEX *pt[0x04];
+} G3DSPLINESEGMENT;
 
 /******************************************************************************/
 typedef struct _G3DSPLINEPOINT {
@@ -67,9 +76,8 @@ typedef struct _G3DCUBICHANDLE {
 
 /******************************************************************************/
 typedef struct _G3DCUBICSEGMENT {
-    uint32_t id;
+    G3DSPLINESEGMENT seg; /*** OOP part ***/
     G3DCUBICHANDLE handle[0x02];
-    G3DVERTEX *pt[0x04];
 } G3DCUBICSEGMENT;
 
 /******************************************************************************/
@@ -80,41 +88,76 @@ typedef struct _G3DQUADRATICHANDLE {
 
 /******************************************************************************/
 typedef struct _G3DQUADRATICSEGMENT {
-    uint32_t id;
+    G3DSPLINESEGMENT seg; /*** OOP part***/
     G3DQUADRATICHANDLE handle;
-    G3DVERTEX *pt[0x03];
 } G3DQUADRATICSEGMENT;
 
 /******************************************************************************/
-void g3dcubicsegment_free ( G3DCUBICSEGMENT *seg );
-void g3dcubicsegment_draw ( G3DCUBICSEGMENT *seg,
-                            G3DSPLINEPOINT   *pori,
-                            G3DSPLINEPOINT   *pend,
-                            float from, /* range 0 - 1 */
-                            float to,   /* range 0 - 1 */
-                            float maxAngle,
-                            uint32_t engine_flags );
-uint32_t g3dspline_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                          uint32_t   engine_flags );
+
+void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
+                             float             from, /* range 0 - 1 */
+                             float             to,   /* range 0 - 1 */
+                             float             maxAngle,
+                             GLUtesselator    *tobj,
+                             double          (*coords)[0x03],
+                             /* prevent overflowing the array of coords */
+                             uint32_t          maxSteps,
+                             uint32_t          spline_flags,
+                             uint32_t          engine_flags );
+
+uint32_t g3dspline_draw ( G3DOBJECT *obj, 
+                          G3DCAMERA *curcam,
+                          uint32_t   engine_flags );
+
 void g3dspline_free ( G3DOBJECT *obj );
-void g3dspline_addSegment ( G3DSPLINE *spline, G3DSPLINESEGMENT *seg );
-void g3dspline_init ( G3DSPLINE *spline, uint32_t id, 
-                                         char    *name,
-                                         uint32_t type,
-                                         uint32_t engine_flags );
+
+void g3dspline_addSegment ( G3DSPLINE        *spline, 
+                            G3DSPLINESEGMENT *seg );
+
+void g3dspline_init ( G3DSPLINE *spline, 
+                      uint32_t   id, 
+                      char      *name,
+                      uint32_t   type,
+                      uint32_t   engine_flags );
+
 G3DSPLINE *g3dspline_new ( uint32_t id, 
                            char    *name, 
                            uint32_t type, 
                            uint32_t engine_flags );
+
+void g3dquadraticsegment_free ( G3DQUADRATICSEGMENT *csg );
+
+void g3dquadraticsegment_getPoint ( G3DQUADRATICSEGMENT *qsg, 
+                                    float                factor, /* range 0 - 1 */
+                                    G3DVECTOR           *pout );
+
+G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
+                                               G3DSPLINEPOINT *pt1,
+                                               float           hx, 
+                                               float           hy,
+                                               float           hz );
+
+void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *seg, 
+                                float            factor, /* range 0 - 1 */
+                                G3DVECTOR       *pout );
+
+void g3dcubicsegment_free ( G3DCUBICSEGMENT *seg );
+
 G3DCUBICSEGMENT *g3dcubicsegment_new ( G3DSPLINEPOINT *pt0,
                                        G3DSPLINEPOINT *pt1,
-                                       float hx1, float hy1, float hz1,
-                                       float hx2, float hy2, float hz2 );
-G3DSPLINEPOINT *g3dsplinepoint_new ( float x, float y, float z );
+                                       float           hx1, 
+                                       float           hy1,
+                                       float           hz1,
+                                       float           hx2,
+                                       float           hy2,
+                                       float           hz2 );
+
+G3DSPLINEPOINT *g3dsplinepoint_new ( float x, 
+                                     float y, 
+                                     float z );
+
 void g3dsplinepoint_free ( G3DSPLINEPOINT * );
-void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *seg, 
-                                float             factor, /* range 0 - 1 */
-                                G3DVECTOR        *pout );
+
 
 #ifdef __cplusplus
 }

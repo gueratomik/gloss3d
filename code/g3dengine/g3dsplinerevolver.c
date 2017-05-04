@@ -183,16 +183,16 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
             uint32_t segmentID = 0x00;
 
             while ( ltmpseg ) {
-                G3DCUBICSEGMENT *seg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
-                G3DSUBVERTEX *quadVertices[0x04] = { &srvVertices[(i*nbSplineVertices) + seg->pt[0]->id], 
-                                                     &srvVertices[(n*nbSplineVertices) + seg->pt[0]->id],
+                G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
+                G3DSUBVERTEX *quadVertices[0x04] = { &srvVertices[(i*nbSplineVertices) + csg->seg.pt[0]->id], 
+                                                     &srvVertices[(n*nbSplineVertices) + csg->seg.pt[0]->id],
                                                      NULL,
                                                      NULL };
 
                 for ( j = 0x00; j <= srv->nbdivis; j++ ) {
                     if ( j == srv->nbdivis ) {
-                        quadVertices[2] = &srvVertices[(n*nbSplineVertices) + seg->pt[1]->id];
-                        quadVertices[3] = &srvVertices[(i*nbSplineVertices) + seg->pt[1]->id];
+                        quadVertices[2] = &srvVertices[(n*nbSplineVertices) + csg->seg.pt[1]->id];
+                        quadVertices[3] = &srvVertices[(i*nbSplineVertices) + csg->seg.pt[1]->id];
                     } else {
                         quadVertices[2] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * n ) + ( segmentID * srv->nbdivis ) + j];
                         quadVertices[3] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * i ) + ( segmentID * srv->nbdivis ) + j];
