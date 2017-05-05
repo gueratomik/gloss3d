@@ -50,6 +50,7 @@ typedef struct _G3DSPLINE {
     G3DMESH mes;
     LIST *lseg; /** list of segments ***/
     uint32_t nbseg;
+    uint32_t nbStepsPerSegment;
 } G3DSPLINE;
 
 /******************************************************************************/
@@ -97,11 +98,9 @@ typedef struct _G3DQUADRATICSEGMENT {
 void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
                              float             from, /* range 0 - 1 */
                              float             to,   /* range 0 - 1 */
-                             float             maxAngle,
+                             float             nbSteps,
                              GLUtesselator    *tobj,
                              double          (*coords)[0x03],
-                             /* prevent overflowing the array of coords */
-                             uint32_t          maxSteps,
                              uint32_t          spline_flags,
                              uint32_t          engine_flags );
 
@@ -130,6 +129,13 @@ void g3dquadraticsegment_free ( G3DQUADRATICSEGMENT *csg );
 void g3dquadraticsegment_getPoint ( G3DQUADRATICSEGMENT *qsg, 
                                     float                factor, /* range 0 - 1 */
                                     G3DVECTOR           *pout );
+
+void g3dquadraticsegment_init ( G3DQUADRATICSEGMENT *csg,
+                                G3DSPLINEPOINT      *pt0,
+                                G3DSPLINEPOINT      *pt1,
+                                float                hx, 
+                                float                hy,
+                                float                hz );
 
 G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
                                                G3DSPLINEPOINT *pt1,

@@ -199,19 +199,17 @@ void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *csg,
 void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
                              float             from, /* range 0 - 1 */
                              float             to,   /* range 0 - 1 */
-                             float             maxAngle,
+                             float             nbSteps,
                              GLUtesselator    *tobj,
                              double          (*coords)[0x03],
-                             /* prevent overflowing the array of coords */
-                             uint32_t          maxSteps,
                              uint32_t          spline_flags,
                              uint32_t          engine_flags ) {
-    uint32_t nbsteps = 24, i;
-    float factor = ( to - from ) / nbsteps;
+    float factor = ( to - from ) / nbSteps;
     float incFactor = ( ( from + to ) / 2.0f );
+    uint32_t i;
 
     if ( spline_flags & DRAW_FOR_TESSELLATION ) {
-        for( i = 0x00; i < nbsteps, i < maxSteps; i++ ) {
+        for( i = 0x01; i < nbSteps - 1; i++ ) {
             G3DVECTOR pout;
 
             seg->getPoint ( seg, from + ( factor * i ), &pout );
@@ -219,15 +217,16 @@ void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
             coords[i][0x00] = pout.x;
             coords[i][0x01] = pout.y;
             coords[i][0x02] = pout.z;
-
-            gluTessVertex ( tobj, &coords[i], &coords[i] );
+/*printf("%f %f %f\n", pout.x, pout.y, pout.z);*/
+            gluTessVertex ( tobj, coords[i], coords[i] );
+            /*glVertex3dv ( coords[i] );*/
         }
     } else {
         G3DVECTOR pone, ptwo;
 
         memcpy ( &pone, &seg->pt[0x00]->pos, sizeof ( G3DVECTOR ) );
 
-        for( i = 0x01; i <= nbsteps; i++ ) {
+        for( i = 0x01; i <= nbSteps; i++ ) {
             seg->getPoint ( seg, from + ( factor * i ), &ptwo );
 
             glBegin ( GL_LINES );
@@ -308,14 +307,12 @@ void g3dquadraticsegment_free ( G3DQUADRATICSEGMENT *csg ) {
 }
 
 /******************************************************************************/
-G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
-                                               G3DSPLINEPOINT *pt1,
-                                               float           hx, 
-                                               float           hy,
-                                               float           hz ) {
-    uint32_t size = sizeof ( G3DQUADRATICSEGMENT );
-    G3DQUADRATICSEGMENT *qsg = ( G3DQUADRATICSEGMENT * ) calloc ( 0x01, size );
-
+void g3dquadraticsegment_init ( G3DQUADRATICSEGMENT *qsg,
+                                G3DSPLINEPOINT      *pt0,
+                                G3DSPLINEPOINT      *pt1,
+                                float                hx, 
+                                float                hy,
+                                float                hz ) {
     qsg->seg.getPoint = g3dquadraticsegment_getPoint;
 
     qsg->seg.pt[0x00] = pt0;
@@ -330,6 +327,18 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
     qsg->seg.pt[0x02]->pos.y  = hy;
     qsg->seg.pt[0x02]->pos.z  = hz;
     qsg->seg.pt[0x02]->flags |= VERTEXHANDLE;
+}
+
+/******************************************************************************/
+G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
+                                               G3DSPLINEPOINT *pt1,
+                                               float           hx, 
+                                               float           hy,
+                                               float           hz ) {
+    uint32_t size = sizeof ( G3DQUADRATICSEGMENT );
+    G3DQUADRATICSEGMENT *qsg = ( G3DQUADRATICSEGMENT * ) calloc ( 0x01, size );
+
+    g3dquadraticsegment_init ( qsg, pt0, pt1, hx, hy, hz );
 
     return qsg;
 }
@@ -378,10 +387,9 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
                 g3dsplinesegment_draw ( seg,
                                         0.0f, 
                                         1.0f,
-                                        0.0f,
+                                        spline->nbStepsPerSegment,
                                         NULL, /* to tessellation object */
                                         NULL, /* no tessellation data **/
-                                        0x00, /* no tesselation max steps **/
                                         0x00,
                                         engine_flags );
             }
@@ -491,6 +499,8 @@ void g3dspline_init ( G3DSPLINE *spline,
                                                    NULL,
                                  ADDCHILD_CALLBACK(NULL),
                                                    NULL );
+
+    spline->nbStepsPerSegment = 12;
 
 }
 
