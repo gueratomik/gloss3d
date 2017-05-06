@@ -1421,6 +1421,7 @@ void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 int g3dvertex_applyCatmullScheme ( G3DVERTEX *, G3DVERTEX * );
+G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float );
 
 /******************************************************************************/
 void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );

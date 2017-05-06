@@ -209,6 +209,8 @@ void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
     uint32_t i;
 
     if ( spline_flags & DRAW_FOR_TESSELLATION ) {
+        /*** We skip the first and last points. They are drawn already 
+             by points lying on the curve ***/
         for( i = 0x01; i < nbSteps - 1; i++ ) {
             G3DVECTOR pout;
 

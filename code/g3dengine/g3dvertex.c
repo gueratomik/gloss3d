@@ -30,6 +30,29 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *lver, float x,
+                                                        float y,
+                                                        float z ) {
+    LIST *ltmp = lver;
+    float epsilon = 0.01f;
+
+    while ( ltmp ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
+
+        if ( ( ver->pos.x >= x - epsilon ) && ( ver->pos.x <= x + epsilon ) &&
+             ( ver->pos.y >= y - epsilon ) && ( ver->pos.y <= y + epsilon ) && 
+             ( ver->pos.z >= z - epsilon ) && ( ver->pos.z <= z + epsilon ) ) {
+
+            return ver;
+        }
+
+        ltmp = ltmp->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void vertex_elevate ( G3DVERTEX *ver ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
     LIST *ltmpfac = ver->lfac;

@@ -1092,22 +1092,7 @@ G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID ( G3DMESH *mes, uint32_t grpid ) {
 G3DVERTEX *g3dmesh_seekVertexByPosition ( G3DMESH *mes, float x,
                                                         float y,
                                                         float z ) {
-    LIST *ltmp = mes->lver;
-
-    while ( ltmp ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-
-        if ( ( ver->pos.x == x ) && 
-             ( ver->pos.y == y ) && 
-             ( ver->pos.z == z ) ) {
-
-            return ver;
-        }
-
-        ltmp = ltmp->next;
-    }
-
-    return NULL;
+    return g3dvertex_seekVertexByPosition ( mes->lver, x, y, z );
 }
 
 /******************************************************************************/

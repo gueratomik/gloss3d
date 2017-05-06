@@ -51,6 +51,7 @@ typedef struct _G3DTEXT {
     GLenum triangleTesselationType;
     int vertexCount;
     G3DVERTEX *verTab[0x03];
+    LIST *lcurVertices;
 } G3DTEXT;
 
 /******************************************************************************/

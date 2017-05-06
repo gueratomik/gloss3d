@@ -33,9 +33,10 @@
 static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
     G3DTEXT *txt    = ( G3DTEXT * ) object_data;
     G3DMESH *txtmes = ( G3DMESH * ) txt;
-    G3DVERTEX *ver = g3dmesh_seekVertexByPosition ( txtmes, vertex_data[0], 
-                                                            vertex_data[1], 
-                                                            vertex_data[2] );
+    G3DVERTEX *ver = g3dvertex_seekVertexByPosition ( txt->lcurVertices, 
+                                                      vertex_data[0], 
+                                                      vertex_data[1], 
+                                                      vertex_data[2] );
 
     if ( ( ver == NULL ) ) {
         ver = g3dvertex_new ( vertex_data[0],
@@ -43,6 +44,9 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
                               vertex_data[2] );
 
         g3dmesh_addVertex ( txtmes, ver );
+
+        /*** for faster searching ***/
+        list_insert ( &txt->lcurVertices, ver );
     }
 
     txt->verTab[txt->vertexCount++] = ver;
@@ -87,7 +91,7 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
 }
 
 /******************************************************************************/
-static void g3dtext_begin( GLenum type, void *object_data ) {
+static void g3dtext_beginGroup( GLenum type, void *object_data ) {
     G3DTEXT *txt    = ( G3DTEXT * ) object_data;
     G3DMESH *txtmes = ( G3DMESH * ) txt;
 
@@ -99,7 +103,7 @@ static void g3dtext_begin( GLenum type, void *object_data ) {
 }
 
 /******************************************************************************/
-static void g3dtext_end( void *object_data ) {
+static void g3dtext_endGroup( void *object_data ) {
     G3DTEXT *txt    = ( G3DTEXT * ) object_data;
     G3DMESH *txtmes = ( G3DMESH * ) txt;
 
@@ -123,7 +127,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
     uint32_t i, j;
     G3DVECTOR pos = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     double (*tessData)[0x03] = NULL;
-#define COORD_ARRAY_COUNT 0x200
+#define COORD_ARRAY_COUNT 0x800
     static double coords[COORD_ARRAY_COUNT][0x03] = { 0 };
 
     g3dmesh_clearGeometry ( text );
@@ -132,15 +136,15 @@ void g3dtext_generate ( G3DOBJECT *obj,
         GLUtesselator *tobj = gluNewTess();
 
         gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
-        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_begin     );
-        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv );
-        gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_end       );
+        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_beginGroup );
+        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv  );
+        gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_endGroup   );
 
         /*gluTessCallback( tobj, GLenum(GLU_ERROR), (glu_callback) gltt_polygonizer_error );*/
 
         for ( i = 0x00; i < strlen ( text->text ); i++ ) {
             uint32_t maxSteps = COORD_ARRAY_COUNT;
-            uint32_t nbStepsPerSegment = 6;
+            uint32_t nbStepsPerSegment = 12;
             uint32_t handleID = 0x00;
 
             switch ( text->text[i] ) {
@@ -189,7 +193,6 @@ void g3dtext_generate ( G3DOBJECT *obj,
 
                         switch ( jtag ) {
                             case FT_CURVE_TAG_CONIC :
-printf("FT_CURVE_TAG_CONIC: %d %d\n", h, n);
                                 if ( htag == FT_CURVE_TAG_ON ) {
                                     pt0.ver.pos.x = ( double ) points[h].x;
                                     pt0.ver.pos.y = ( double ) points[h].y;
@@ -216,7 +219,6 @@ printf("FT_CURVE_TAG_CONIC: %d %d\n", h, n);
 
                                 /*** if it's the last point of the curve ***/
                                 if ( j == *contours ) {
-printf("using firstPointID %d\n", firstPointID);
                                     pt1.ver.pos.x = ( ( double ) points[firstPointID].x + tessData[j][0x00] ) * 0.5f;
                                     pt1.ver.pos.y = ( ( double ) points[firstPointID].y + tessData[j][0x01] ) * 0.5f;
                                     pt1.ver.pos.z = 0.0f;
@@ -247,7 +249,7 @@ g3dvector_print ( &pt1.ver.pos );*/
                                 g3dsplinesegment_draw ( &qsg, 
                                                          0.0f, 
                                                          1.0f, 
-                                                         1,
+                                                         nbStepsPerSegment,
                                                          tobj,
                                                          coords[nbStepsPerSegment*handleID++],
                                                          DRAW_FOR_TESSELLATION,
@@ -271,7 +273,7 @@ g3dvector_print ( &pt1.ver.pos );*/
                                     tessData[j][0] = ( tessData[j][0] / 1000 ) + pos.x;
                                     tessData[j][1] = ( tessData[j][1] / 1000 ) + pos.y;
                                     tessData[j][2] = 0.0f;
-printf("FT_CURVE_TAG_ON: %d %d\n", h, n);
+
                                     gluTessVertex ( tobj, tessData[j], 
                                                           tessData[j] );
                                     /*glVertex3dv ( tessData[j] );*/
@@ -285,8 +287,8 @@ printf("FT_CURVE_TAG_ON: %d %d\n", h, n);
                         if ( j == *contours ) {
                             firstPoint = 0x01;
                             firstPointID = j + 1;
-printf("firstPoint:%d\n", firstPoint );
-                            gluTessEndContour ( tobj ); break; /*glEnd ();*/
+
+                            gluTessEndContour ( tobj ); /*glEnd ();*/
                             gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
                             contours++;
                         } else {
@@ -299,7 +301,11 @@ printf("firstPoint:%d\n", firstPoint );
                 } break;
             }
         }
+
         if ( tessData ) free ( tessData );
+
+        list_free ( &text->lcurVertices, NULL );
+
         gluDeleteTess(tobj);
     }
 
@@ -329,7 +335,7 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
 
     if ( text->face == NULL ) {
         if ( FT_New_Face( sysinfo->ftlib,
-                          "/usr/share/fonts/X11/TTF/arial.ttf",
+                          "/usr/share/fonts/X11/TTF/verdana.ttf",
                           0,
                          &text->face ) ) {
             fprintf ( stderr, "FreeType font loading failed\n" );
@@ -356,8 +362,7 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
 
     ((G3DMESH*)text)->dump = g3dmesh_default_dump;
 
-    text->text = "AeA" /*"ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
-                 "abcdefghijklmnopqrstuvwxyz"*/;
+    text->text = "Gloss3D";
 
     g3dtext_generate ( text, engine_flags );
 
