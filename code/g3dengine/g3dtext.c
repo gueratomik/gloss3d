@@ -43,6 +43,9 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
                               vertex_data[1],
                               vertex_data[2] );
 
+        ver->nor.x = ver->nor.y = 0.0f;
+        ver->nor.z = 1.0f;
+
         g3dmesh_addVertex ( txtmes, ver );
 
         /*** for faster searching ***/
@@ -113,10 +116,112 @@ static void g3dtext_endGroup( void *object_data ) {
 }
 
 /******************************************************************************/
-void g3dtext_generate_draw ( G3DOBJECT *obj, 
+/*void g3dtext_generate_draw ( G3DOBJECT *obj, 
                              G3DCAMERA *curcma,
                              uint32_t engine_flags ) {
     g3dtext_generate ( obj, engine_flags );
+}*/
+
+/******************************************************************************/
+void g3dtext_generateThickness ( G3DOBJECT *obj, 
+                                 uint32_t engine_flags ) {
+    G3DTEXT *txt = ( G3DTEXT * ) obj;
+    G3DMESH *txtmes = ( G3DMESH * ) txt;
+    uint32_t nbOriginalVertices = txtmes->nbver;
+    uint32_t nbOriginalEdges = txtmes->nbedg;
+
+    if ( nbOriginalVertices ) {
+        LIST *ltmpfac = txtmes->lfac;
+        LIST *ltmpedg = txtmes->ledg;
+        LIST *ltmpver = txtmes->lver;
+        G3DVERTEX **vertab = NULL;
+        G3DEDGE   **edgtab = NULL;
+        uint32_t vertexID = 0x00;
+        uint32_t edgeID = 0x00;
+
+        vertab = calloc ( nbOriginalVertices, sizeof ( G3DVERTEX * ) );
+        edgtab = calloc ( nbOriginalEdges +
+                          nbOriginalVertices, sizeof ( G3DEDGE * ) );
+
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            float thickness = 1.0f;
+
+            ver->id = vertexID++;
+
+            ver->pos.z = thickness / 2;
+
+            vertab[ver->id] = g3dvertex_new ( ver->pos.x, ver->pos.y, -ver->pos.z );
+
+            vertab[ver->id]->nor.x = -ver->nor.x;
+            vertab[ver->id]->nor.y = -ver->nor.y;
+            vertab[ver->id]->nor.z = -ver->nor.z;
+
+            edgtab[nbOriginalEdges + ver->id] = g3dedge_new ( ver, vertab[ver->id] );
+
+            g3dmesh_addVertex ( txtmes, vertab[ver->id] );
+            g3dmesh_addEdge ( txtmes, edgtab[nbOriginalEdges + ver->id] );
+
+            ltmpver = ltmpver->next;
+        }
+
+        /*** Note: although txtmes->ledg has received new edges, ltmpedg has
+        the previous value, which is harmless because new items are inserted
+        to the list and not added. ***/
+        while ( ltmpedg ) {
+            G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+            G3DVERTEX *v[0x04];
+            G3DEDGE *e[0x04];
+
+            edg->id = edgeID++;
+
+            edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id], 
+                                            vertab[edg->ver[1]->id] );
+
+            g3dmesh_addEdge ( txtmes, edgtab[edg->id] );
+
+            if ( edg->nbfac == 0x01 ) {
+                v[0x00] = edg->ver[1];
+                v[0x01] = edg->ver[0];
+                v[0x02] = vertab[edg->ver[0]->id];
+                v[0x03] = vertab[edg->ver[1]->id];
+
+                e[0x00] = edg;
+                e[0x01] = edgtab[nbOriginalEdges + edg->ver[0]->id];
+                e[0x02] = edgtab[edg->id];
+                e[0x03] = edgtab[nbOriginalEdges + edg->ver[1]->id];
+
+                G3DFACE *newfac = g3dface_newWithEdges ( v, e, 0x04 );
+
+                g3dmesh_addFace ( txtmes, newfac );
+            }
+
+            ltmpedg = ltmpedg->next;
+        }
+
+        /*** Note: although txtmes->lfac has received new faces, ltmpfac has
+        the previous value, which is harmless because new items are inserted
+        to the list and not added. ***/
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE *newfac;
+            G3DVERTEX *v[0x03] = { vertab[fac->ver[0x02]->id],
+                                   vertab[fac->ver[0x01]->id],
+                                   vertab[fac->ver[0x00]->id] };
+            G3DEDGE *e[0x03] = { edgtab[fac->edg[0x02]->id],
+                                 edgtab[fac->edg[0x01]->id],
+                                 edgtab[fac->edg[0x00]->id] };
+
+            newfac = g3dface_newWithEdges ( v, e, 0x03 );
+
+            g3dmesh_addFace ( txtmes, newfac );
+
+            ltmpfac = ltmpfac->next;
+        }
+
+        free ( vertab );
+        free ( edgtab );
+    }
 }
 
 /******************************************************************************/
@@ -309,12 +414,14 @@ g3dvector_print ( &pt1.ver.pos );*/
         gluDeleteTess(tobj);
     }
 
-    g3dmesh_update ( text, NULL,
+    g3dtext_generateThickness ( text, engine_flags );
+
+    /*g3dmesh_update ( text, NULL,
                              NULL,
                              NULL,
                              UPDATEFACEPOSITION |
                              UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL, engine_flags );
+                             UPDATEVERTEXNORMAL, engine_flags );*/
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
@@ -335,7 +442,7 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
 
     if ( text->face == NULL ) {
         if ( FT_New_Face( sysinfo->ftlib,
-                          "/usr/share/fonts/X11/TTF/verdana.ttf",
+                          "/usr/share/fonts/X11/TTF/arial.ttf",
                           0,
                          &text->face ) ) {
             fprintf ( stderr, "FreeType font loading failed\n" );
@@ -356,13 +463,15 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
                                      COPY_CALLBACK(NULL),
                                                    NULL,
                                                    NULL,
-                                                   NULL,
+                                   COMMIT_CALLBACK(g3dmesh_copy),
                                  ADDCHILD_CALLBACK(NULL),
                                                    NULL );
 
     ((G3DMESH*)text)->dump = g3dmesh_default_dump;
 
-    text->text = "Gloss3D";
+    text->text = "T";
+    text->text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
+                 "abcdefghijklmnopqrstuvwxyz";
 
     g3dtext_generate ( text, engine_flags );
 

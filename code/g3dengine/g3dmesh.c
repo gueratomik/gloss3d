@@ -2389,7 +2389,7 @@ void g3dmesh_drawFaceNormal ( G3DMESH *mes, uint32_t flags ) {
     glBegin ( GL_LINES );
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
-        float nratio = fac->surface * 0.075f;
+        float nratio = 0.025f;
 
         glVertex3f ( fac->pos.x, fac->pos.y, fac->pos.z );
         glVertex3f ( ( fac->pos.x + fac->nor.x * nratio ),
@@ -2536,7 +2536,7 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes, uint32_t flags ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
         G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                           &ver->pos;
-        float nratio = ver->surface * 0.075f;
+        float nratio = 0.025f;
 
         glVertex3fv ( ( GLfloat * ) pos );
         glVertex3f  ( ( pos->x + ver->nor.x * nratio ),

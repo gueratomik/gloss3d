@@ -90,6 +90,7 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
+                  ( obj->type & TEXT             ) ||
                   ( obj->type == G3DSYMMETRYTYPE ) ) ) {
         G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
                                                     oid, 
