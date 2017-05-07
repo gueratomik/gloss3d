@@ -39,6 +39,18 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+typedef struct _G3DCHARACTER {
+    uint32_t code;
+    LIST    *lver;
+    LIST    *ledg;
+    LIST    *lfac;
+    uint32_t nbver;
+    uint32_t nbedg;
+    uint32_t nbfac;
+    float    width;
+} G3DCHARACTER;
+
 /**
  * @struct G3DTEXT
  * @brief A structure to store a 3D text.
@@ -47,11 +59,14 @@ typedef struct _G3DTEXT {
     G3DMESH mes;
     FT_Face face;
     char *fontFaceName;
+    uint32_t fontFaceSize;
     char *text;
     GLenum triangleTesselationType;
     int vertexCount;
     G3DVERTEX *verTab[0x03];
-    LIST *lcurVertices;
+    LIST *lcharacters; /*** list of characters for the current font ***/
+    G3DCHARACTER *currentCharacter; /*** current character being generated ***/
+    float height;
 } G3DTEXT;
 
 /******************************************************************************/

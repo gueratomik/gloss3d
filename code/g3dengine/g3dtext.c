@@ -30,65 +30,391 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
-    G3DTEXT *txt    = ( G3DTEXT * ) object_data;
-    G3DMESH *txtmes = ( G3DMESH * ) txt;
-    G3DVERTEX *ver = g3dvertex_seekVertexByPosition ( txt->lcurVertices, 
-                                                      vertex_data[0], 
-                                                      vertex_data[1], 
-                                                      vertex_data[2] );
+G3DCHARACTER *g3dcharacter_new ( uint32_t code ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+    uint32_t structSize = sizeof ( G3DCHARACTER );
+    G3DCHARACTER *chr = ( G3DCHARACTER * ) calloc ( 0x01, structSize );
 
-    if ( ( ver == NULL ) ) {
-        ver = g3dvertex_new ( vertex_data[0],
-                              vertex_data[1],
-                              vertex_data[2] );
+    if ( chr == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
 
-        ver->nor.x = ver->nor.y = 0.0f;
-        ver->nor.z = 1.0f;
-
-        g3dmesh_addVertex ( txtmes, ver );
-
-        /*** for faster searching ***/
-        list_insert ( &txt->lcurVertices, ver );
+        return NULL;
     }
 
-    txt->verTab[txt->vertexCount++] = ver;
+    chr->code = code;
 
-    if ( txt->vertexCount == 0x03 ) {
-        G3DFACE *fac = g3dtriangle_new ( txt->verTab[0],
-                                         txt->verTab[1],
-                                         txt->verTab[2] );
+    return chr;
+}
 
-        /*** Make sure all faces are oriented the same side ***/
-        g3dface_normal ( fac );
-        if ( fac->nor.z < 0.0f ) {
-            fac->ver[0] = txt->verTab[2];
-            fac->ver[1] = txt->verTab[1];
-            fac->ver[2] = txt->verTab[0];
+/******************************************************************************/
+void g3dcharacter_empty ( G3DCHARACTER *chr ) {
+    list_free ( &chr->lver, g3dvertex_free );
+    list_free ( &chr->ledg, g3dedge_free   );
+    list_free ( &chr->lfac, g3dface_free   );
+}
+
+/******************************************************************************/
+void g3dcharacter_free ( G3DCHARACTER *chr ) {
+    g3dcharacter_empty ( chr );
+
+    free ( chr );
+}
+
+/******************************************************************************/
+void g3dcharacter_addVertex ( G3DCHARACTER *chr, G3DVERTEX *ver ) {
+    list_insert ( &chr->lver, ver );
+
+    chr->nbver++;
+}
+
+/******************************************************************************/
+void g3dcharacter_addEdge ( G3DCHARACTER *chr, G3DEDGE *edg ) {
+    list_insert ( &chr->ledg, edg );
+
+    chr->nbedg++;
+}
+
+/******************************************************************************/
+void g3dcharacter_addFace ( G3DCHARACTER *chr, G3DFACE *fac ) {
+    list_insert ( &chr->lfac, fac );
+
+    chr->nbfac++;
+}
+
+/******************************************************************************/
+G3DCHARACTER *g3dtext_getCharacterByCode ( uint32_t code ) {
+    while ( ltmpchr ) {
+        G3DCHARACTER *chr = ( G3DCHARACTER * ) ltmpchr->data;
+
+        if ( chr->code == code ) return chr;
+
+        ltmpchr = ltmpchr->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dtext_mergeCharacter ( G3DTEXT      *txt, 
+                              G3DCHARACTER *chr,
+                              G3DVECTOR    *pos ) {
+    LIST *ltmpver = chr->lver;
+    LIST *ltmpedg = chr->ledg;
+    LIST *ltmpfac = chr->lfac;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
+void g3dtext_empty ( G3DTEXT *txt ) {
+    list_free ( &txt->lcharacters, g3dcharacter_free );
+}
+
+/******************************************************************************/
+void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
+    if ( txt->text ) {
+        free ( txt->text );
+    }
+
+    txt->text = strdup ( text );
+
+    g3dtext_generate ( txt, engine_flags );
+}
+
+/******************************************************************************/
+void g3dtext_setFont ( G3DTEXT *txt,
+                       char    *fontFaceName,
+                       char    *fontFaceFile,
+                       uint32_t fontFaceSize,
+                       uint32_t engine_flags ) {
+    char *searchPath[] = { "/usr/share/fonts/X11/TTF",
+                           "/usr/share/fonts/TrueType" };
+    uint32_t nbSearchPath = sizeof ( searchPath ) / sizeof ( char * );
+    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+    char fontPath[0x100] = { 0 };
+    uint32_t fontFound = 0x00;
+    uint32_t i;
+
+    g3dtext_empty ( txt );
+    
+    if ( txt->fontFaceName ) {
+        free ( txt->fontFaceName );
+    }
+
+    txt->fontFaceName = strdup ( fontFaceName );
+    txt->fontFaceSize = fontFaceSize;
+
+    for ( i = 0x00; i < nbSearchPath; i++ ) {
+        FILE *f = NULL;
+
+        strcpy ( fontPath, searchPath[i] );
+        strcat ( fontPath, "/" );
+        strcat ( fontPath, fontFaceFile );
+
+        if ( f = fopen ( fontPath, "r" ) ) {
+            fontFound = 0x01;
+
+            fclose ( f );
+            break;
+        }
+    }
+
+    if ( fontFound ) {
+        if ( txt->face == NULL ) {
+            if ( FT_New_Face( sysinfo->ftlib,
+                              fontPath,
+                              0,
+                             &txt->face ) ) {
+                fprintf ( stderr, "FreeType font loading failed\n" );
+            }
         }
 
-        g3dmesh_addFace ( txtmes, fac );
+        FT_Set_Char_Size( txt->face,       /* handle to face object           */
+                          0,               /* char_width in 1/64th of points  */
+                          fontFaceSize*64, /* char_height in 1/64th of points */
+                          300,             /* horizontal device resolution    */
+                          300 );
 
-        if ( txt->triangleTesselationType == GL_TRIANGLE_FAN ) {
-            txt->verTab[0] = txt->verTab[0];
-            txt->verTab[1] = txt->verTab[2];
-            txt->verTab[2] = NULL;
+        txt->height = ( float ) txt->face->size->metrics.height / 1000;
+    }
+}
 
-            txt->vertexCount = 0x02;
+/******************************************************************************/
+G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
+                                          uint32_t       code,
+                                          GLUtesselator *tobj ) {
+    G3DCHARACTER *chr = g3dtext_getCharacterByCode ( code );
+    uint32_t   verDataSize = sizeof ( double ) * 0x03;
+    uint32_t   n_points;
+    FT_Vector *points;
+    short     *contours;
+    uint32_t   firstPoint = 0x01;
+    uint32_t   firstPointID = 0x00;
+    double   (*tessData)[0x03] = NULL;
+#define COORD_ARRAY_COUNT 0x800
+    static double coords[COORD_ARRAY_COUNT][0x03] = { 0 };
+    uint32_t maxSteps = COORD_ARRAY_COUNT;
+    uint32_t nbStepsPerSegment = 6;
+    uint32_t handleID = 0x00;
+    FT_UInt  glyph_index;
+    uint32_t j;
+
+    if ( chr == NULL ) {
+        chr = g3dcharacter_new ( code );
+
+        glyph_index = FT_Get_Char_Index ( txt->face, code );
+
+        FT_Load_Glyph ( txt->face, glyph_index, FT_LOAD_DEFAULT );
+
+        chr->width = txt->face->glyph->metrics.width / 1000;
+
+        contours = txt->face->glyph->outline.contours;
+        n_points = txt->face->glyph->outline.n_points;
+        points   = txt->face->glyph->outline.points;
+
+        tessData = realloc ( tessData, verDataSize * n_points );
+
+        gluTessBeginPolygon ( tobj, text );
+        gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
+
+        for ( j = 0x00; j < txt->face->glyph->outline.n_points; j++ ) {
+            FT_Outline *outline = &txt->face->glyph->outline;
+            uint32_t h = ( ( j - 0x01 + n_points ) % n_points );
+            uint32_t n = ( ( j + 0x01 ) % n_points );
+            char htag = FT_CURVE_TAG ( outline->tags[h] ),
+                 jtag = FT_CURVE_TAG ( outline->tags[j] ),
+                 ntag = FT_CURVE_TAG ( outline->tags[n] );
+            G3DQUADRATICSEGMENT qsg;
+            G3DSPLINEPOINT pt0, pt1;
+
+            tessData[j][0x00] = ( double ) points[j].x;
+            tessData[j][0x01] = ( double ) points[j].y;
+            tessData[j][0x02] = 0.0f;
+
+            switch ( jtag ) {
+                case FT_CURVE_TAG_CONIC :
+                    if ( htag == FT_CURVE_TAG_ON ) {
+                        pt0.ver.pos.x = ( double ) points[h].x;
+                        pt0.ver.pos.y = ( double ) points[h].y;
+                        pt0.ver.pos.z = 0.0f;
+                    }
+
+                    if ( ntag == FT_CURVE_TAG_ON ) {
+                        pt1.ver.pos.x = ( double ) points[n].x;
+                        pt1.ver.pos.y = ( double ) points[n].y;
+                        pt1.ver.pos.z = 0.0f;
+                    }
+
+                    if ( htag == FT_CURVE_TAG_CONIC ) {
+                        pt0.ver.pos.x = ( ( double ) points[h].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                        pt0.ver.pos.y = ( ( double ) points[h].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                        pt0.ver.pos.z = 0.0f;
+                    }
+
+                    if ( ntag == FT_CURVE_TAG_CONIC ) {
+                        pt1.ver.pos.x = ( ( double ) points[n].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                        pt1.ver.pos.y = ( ( double ) points[n].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                        pt1.ver.pos.z = 0.0f;
+                    }
+
+                    /*** if it's the last point of the curve ***/
+                    if ( j == *contours ) {
+                        pt1.ver.pos.x = ( ( double ) points[firstPointID].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                        pt1.ver.pos.y = ( ( double ) points[firstPointID].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                        pt1.ver.pos.z = 0.0f;
+                    }
+
+                    pt0.ver.pos.x = ( pt0.ver.pos.x / 1000 );
+                    pt0.ver.pos.y = ( pt0.ver.pos.y / 1000 );
+                    pt0.ver.pos.z = 0.0f;
+
+                    pt1.ver.pos.x = ( pt1.ver.pos.x / 1000 );
+                    pt1.ver.pos.y = ( pt1.ver.pos.y / 1000 );
+                    pt1.ver.pos.z = 0.0f;
+
+                    tessData[j][0] = ( tessData[j][0] / 1000 );
+                    tessData[j][1] = ( tessData[j][1] / 1000 );
+                    tessData[j][2] = 0.0f;
+
+                    g3dquadraticsegment_init ( &qsg, 
+                                               &pt0,
+                                               &pt1,
+                                                tessData[j][0],
+                                                tessData[j][1],
+                                                tessData[j][2] );
+
+                    g3dsplinesegment_draw ( &qsg, 
+                                             0.0f, 
+                                             1.0f, 
+                                             nbStepsPerSegment,
+                                             tobj,
+                                             coords[nbStepsPerSegment*handleID++],
+                                             DRAW_FOR_TESSELLATION,
+                                             engine_flags );
+
+                    if ( maxSteps > nbStepsPerSegment ) {
+                        maxSteps -= nbStepsPerSegment;
+                    } else {
+                        maxSteps = 0x00;
+                    }
+                break;
+
+                case FT_CURVE_TAG_CUBIC :
+                    fprintf ( stderr, "cubic fonts are unsupported!\n");
+                break;
+
+                case FT_CURVE_TAG_ON : {
+                    if ( ( firstPoint              ) ||
+                         ( htag == FT_CURVE_TAG_ON ) ||
+                         ( ntag == FT_CURVE_TAG_ON ) ) {
+                        tessData[j][0] = ( tessData[j][0] / 1000 );
+                        tessData[j][1] = ( tessData[j][1] / 1000 );
+                        tessData[j][2] = 0.0f;
+
+                        gluTessVertex ( tobj, tessData[j], 
+                                              tessData[j] );
+                    }
+                } break;
+
+                default :
+                break;
+            }
+
+            if ( j == *contours ) {
+                firstPoint = 0x01;
+                firstPointID = j + 1;
+
+                gluTessEndContour ( tobj );
+                gluTessBeginContour ( tobj );
+                contours++;
+            } else {
+                firstPoint = 0x00;
+            }
         }
 
-        if ( txt->triangleTesselationType == GL_TRIANGLE_STRIP ) {
-            txt->verTab[0] = txt->verTab[1];
-            txt->verTab[1] = txt->verTab[2];
-            txt->verTab[2] = NULL;
+        txt->currentCharacter = chr;
 
-            txt->vertexCount = 0x02;
+        gluTessEndPolygon ( tobj );
+
+        txt->currentCharacter = NULL;
+
+        if ( tessData ) free ( tessData );
+    }
+
+    return chr;
+}
+
+/******************************************************************************/
+static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
+    G3DTEXT *txt      = ( G3DTEXT * ) object_data;
+    G3DCHARACTER *chr = txt->currentCharacter;
+
+    if ( chr ) {
+        G3DMESH *txtmes = ( G3DMESH * ) txt;
+        G3DVERTEX *ver  = g3dvertex_seekVertexByPosition ( chr->lver, 
+                                                           vertex_data[0], 
+                                                           vertex_data[1], 
+                                                           vertex_data[2] );
+
+        if ( ( ver == NULL ) ) {
+            ver = g3dvertex_new ( vertex_data[0],
+                                  vertex_data[1],
+                                  vertex_data[2] );
+
+            ver->nor.x = ver->nor.y = 0.0f;
+            ver->nor.z = 1.0f;
+
+            g3dcharacter_addVertex ( chr, ver );
         }
 
-        if ( txt->triangleTesselationType == GL_TRIANGLES ) {
-            txt->verTab[0] = txt->verTab[1] = txt->verTab[2] = NULL;
+        txt->verTab[txt->vertexCount++] = ver;
 
-            txt->vertexCount = 0x00;
+        if ( txt->vertexCount == 0x03 ) {
+            G3DFACE *fac = g3dtriangle_new ( txt->verTab[0],
+                                             txt->verTab[1],
+                                             txt->verTab[2] );
+
+            /*** Make sure all faces are oriented the same side ***/
+            g3dface_normal ( fac );
+            if ( fac->nor.z < 0.0f ) {
+                fac->ver[0] = txt->verTab[2];
+                fac->ver[1] = txt->verTab[1];
+                fac->ver[2] = txt->verTab[0];
+            }
+
+            g3dcharacter_addFace ( chr, fac );
+
+            if ( txt->triangleTesselationType == GL_TRIANGLE_FAN ) {
+                txt->verTab[0] = txt->verTab[0];
+                txt->verTab[1] = txt->verTab[2];
+                txt->verTab[2] = NULL;
+
+                txt->vertexCount = 0x02;
+            }
+
+            if ( txt->triangleTesselationType == GL_TRIANGLE_STRIP ) {
+                txt->verTab[0] = txt->verTab[1];
+                txt->verTab[1] = txt->verTab[2];
+                txt->verTab[2] = NULL;
+
+                txt->vertexCount = 0x02;
+            }
+
+            if ( txt->triangleTesselationType == GL_TRIANGLES ) {
+                txt->verTab[0] = txt->verTab[1] = txt->verTab[2] = NULL;
+
+                txt->vertexCount = 0x00;
+            }
         }
     }
 }
@@ -227,13 +553,9 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dtext_generate ( G3DOBJECT *obj, 
                         uint32_t engine_flags ) {
-    G3DTEXT *text = ( G3DTEXT * ) obj;
-    FT_UInt  glyph_index;
-    uint32_t i, j;
     G3DVECTOR pos = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
-    double (*tessData)[0x03] = NULL;
-#define COORD_ARRAY_COUNT 0x800
-    static double coords[COORD_ARRAY_COUNT][0x03] = { 0 };
+    G3DTEXT *text = ( G3DTEXT * ) obj;
+    uint32_t i, j;
 
     g3dmesh_clearGeometry ( text );
 
@@ -247,169 +569,53 @@ void g3dtext_generate ( G3DOBJECT *obj,
 
         /*gluTessCallback( tobj, GLenum(GLU_ERROR), (glu_callback) gltt_polygonizer_error );*/
 
-        for ( i = 0x00; i < strlen ( text->text ); i++ ) {
-            uint32_t maxSteps = COORD_ARRAY_COUNT;
-            uint32_t nbStepsPerSegment = 12;
-            uint32_t handleID = 0x00;
+        for ( i = 0x00; i < strlen ( txt->text ); i++ ) {
+            uint32_t characterCode;
 
-            switch ( text->text[i] ) {
-                case '\n' : {
-                    pos.x  = 0.0f;
-                    pos.y -= ( float ) text->face->glyph->metrics.width / 1000;
+            /*** UTF-8 : https://fr.wikipedia.org/wiki/UTF-8#Exemples ***/
+            switch ( txt->text[i] & 0xF00000000 ) {
+                case 0xC0000000 : {
+                    uint32_t c0 = txt->text[i],
+                             c1 = txt->text[i+0x01];
+
+                    characterCode = ( ( c0 & 0x1F ) << 0x06 ) | 
+                                      ( c1 & 0x3F );
+                    i += 0x1; /* skip next char */
                 } break;
 
-                default : {
-                    uint32_t verDataSize = sizeof ( double ) * 0x03;
-                    uint32_t n_points;
-                    FT_Vector *points;
-                    short *contours;
-                    uint32_t firstPoint = 0x01;
-                    uint32_t firstPointID = 0x00;
+                case 0xE0000000 : {
+                    uint32_t c0 = txt->text[i],
+                             c1 = txt->text[i+0x01],
+                             c2 = txt->text[i+0x02];
 
-                    glyph_index = FT_Get_Char_Index ( text->face, text->text[i] );
+                    characterCode = ( ( c0 & 0x0F ) << 0x0C ) | 
+                                    ( ( c1 & 0x3F ) << 0x06 ) |
+                                      ( c2 & 0x3F );
+                    i += 0x2; /* skip next 2 chars */
+                } break;
 
-                    FT_Load_Glyph ( text->face, glyph_index, FT_LOAD_DEFAULT );
+                case 0xF0000000 : {
+                    uint32_t c0 = txt->text[i],
+                             c1 = txt->text[i+0x01],
+                             c2 = txt->text[i+0x02],
+                             c3 = txt->text[i+0x03];
 
-                    contours = text->face->glyph->outline.contours;
-                    n_points = text->face->glyph->outline.n_points;
-                    points   = text->face->glyph->outline.points;
-
-                    tessData = realloc ( tessData, verDataSize * n_points );
-
-                    gluTessBeginPolygon ( tobj, text );
-                    gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
-
-                    for ( j = 0x00; j < text->face->glyph->outline.n_points; j++ ) {
-                        FT_Outline *outline = &text->face->glyph->outline;
-                        uint32_t h = ( ( j - 0x01 + n_points ) % n_points );
-                        uint32_t n = ( ( j + 0x01 ) % n_points );
-                        char htag = FT_CURVE_TAG ( outline->tags[h] ),
-                             jtag = FT_CURVE_TAG ( outline->tags[j] ),
-                             ntag = FT_CURVE_TAG ( outline->tags[n] );
-                        G3DQUADRATICSEGMENT qsg;
-                        G3DSPLINEPOINT pt0, pt1;
-
-                        /*if ( h == 0x00 ) h = firstPoint;
-                        if ( n == 0x00 ) n = firstPoint;*/
-
-                        tessData[j][0x00] = ( double ) points[j].x;
-                        tessData[j][0x01] = ( double ) points[j].y;
-                        tessData[j][0x02] = 0.0f;
-
-                        switch ( jtag ) {
-                            case FT_CURVE_TAG_CONIC :
-                                if ( htag == FT_CURVE_TAG_ON ) {
-                                    pt0.ver.pos.x = ( double ) points[h].x;
-                                    pt0.ver.pos.y = ( double ) points[h].y;
-                                    pt0.ver.pos.z = 0.0f;
-                                }
-
-                                if ( ntag == FT_CURVE_TAG_ON ) {
-                                    pt1.ver.pos.x = ( double ) points[n].x;
-                                    pt1.ver.pos.y = ( double ) points[n].y;
-                                    pt1.ver.pos.z = 0.0f;
-                                }
-
-                                if ( htag == FT_CURVE_TAG_CONIC ) {
-                                    pt0.ver.pos.x = ( ( double ) points[h].x + tessData[j][0x00] ) * 0.5f;
-                                    pt0.ver.pos.y = ( ( double ) points[h].y + tessData[j][0x01] ) * 0.5f;
-                                    pt0.ver.pos.z = 0.0f;
-                                }
-
-                                if ( ntag == FT_CURVE_TAG_CONIC ) {
-                                    pt1.ver.pos.x = ( ( double ) points[n].x + tessData[j][0x00] ) * 0.5f;
-                                    pt1.ver.pos.y = ( ( double ) points[n].y + tessData[j][0x01] ) * 0.5f;
-                                    pt1.ver.pos.z = 0.0f;
-                                }
-
-                                /*** if it's the last point of the curve ***/
-                                if ( j == *contours ) {
-                                    pt1.ver.pos.x = ( ( double ) points[firstPointID].x + tessData[j][0x00] ) * 0.5f;
-                                    pt1.ver.pos.y = ( ( double ) points[firstPointID].y + tessData[j][0x01] ) * 0.5f;
-                                    pt1.ver.pos.z = 0.0f;
-                                }
-
-                                pt0.ver.pos.x = ( pt0.ver.pos.x / 1000 ) + pos.x;
-                                pt0.ver.pos.y = ( pt0.ver.pos.y / 1000 ) + pos.y;
-                                pt0.ver.pos.z = 0.0f;
-
-                                pt1.ver.pos.x = ( pt1.ver.pos.x / 1000 ) + pos.x;
-                                pt1.ver.pos.y = ( pt1.ver.pos.y / 1000 ) + pos.y;
-                                pt1.ver.pos.z = 0.0f;
-
-                                tessData[j][0] = ( tessData[j][0] / 1000 ) + pos.x;
-                                tessData[j][1] = ( tessData[j][1] / 1000 ) + pos.y;
-                                tessData[j][2] = 0.0f;
-
-/*g3dvector_print ( &pt0.ver.pos );
-g3dvector_print ( &pt1.ver.pos );*/
-
-                                g3dquadraticsegment_init ( &qsg, 
-                                                           &pt0,
-                                                           &pt1,
-                                                            tessData[j][0],
-                                                            tessData[j][1],
-                                                            tessData[j][2] );
-
-                                g3dsplinesegment_draw ( &qsg, 
-                                                         0.0f, 
-                                                         1.0f, 
-                                                         nbStepsPerSegment,
-                                                         tobj,
-                                                         coords[nbStepsPerSegment*handleID++],
-                                                         DRAW_FOR_TESSELLATION,
-                                                         engine_flags );
-
-                                if ( maxSteps > nbStepsPerSegment ) {
-                                    maxSteps -= nbStepsPerSegment;
-                                } else {
-                                    maxSteps = 0x00;
-                                }
-                            break;
-
-                            case FT_CURVE_TAG_CUBIC :
-                                fprintf ( stderr, "cubic fonts are unsupported!\n");
-                            break;
-
-                            case FT_CURVE_TAG_ON : {
-                                if ( ( firstPoint              ) ||
-                                     ( htag == FT_CURVE_TAG_ON ) ||
-                                     ( ntag == FT_CURVE_TAG_ON ) ) {
-                                    tessData[j][0] = ( tessData[j][0] / 1000 ) + pos.x;
-                                    tessData[j][1] = ( tessData[j][1] / 1000 ) + pos.y;
-                                    tessData[j][2] = 0.0f;
-
-                                    gluTessVertex ( tobj, tessData[j], 
-                                                          tessData[j] );
-                                    /*glVertex3dv ( tessData[j] );*/
-                                }
-                            } break;
-
-                            default :
-                            break;
-                        }
-
-                        if ( j == *contours ) {
-                            firstPoint = 0x01;
-                            firstPointID = j + 1;
-
-                            gluTessEndContour ( tobj ); /*glEnd ();*/
-                            gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
-                            contours++;
-                        } else {
-                            firstPoint = 0x00;
-                        }
-                    }
-                    gluTessEndPolygon ( tobj ); /*glEnd ( );*/
-
-                    pos.x += ( float ) text->face->glyph->metrics.width / 1000;
+                    characterCode = ( ( c0 & 0x07 ) << 0x0C ) | 
+                                    ( ( c1 & 0x3F ) << 0x06 ) |
+                                    ( ( c2 & 0x3F ) << 0x06 ) |
+                                      ( c3 & 0x3F );
+                    i += 0x3; /* skip next 3 chars */
                 } break;
             }
+
+            switch ( characterCode ) {
+                 default :
+                     G3DCHARACTER *chr = g3dtext_generateCharacter ( txt,
+                                                                     characterCode,
+                                                                     tobj );
+                 break;
+            }
         }
-
-        if ( tessData ) free ( tessData );
-
-        list_free ( &text->lcurVertices, NULL );
 
         gluDeleteTess(tobj);
     }
@@ -434,26 +640,20 @@ void g3dtext_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dtext_init ( G3DTEXT *text, uint32_t id, 
-                                   char    *name,
-                                   uint32_t engine_flags ) {
-    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+void g3dtext_init ( G3DTEXT *txt, uint32_t id, 
+                                  char    *name,
+                                  char    *fontFaceName,
+                                  char    *fontFaceFile,
+                                  uint32_t fontFaceSize,
+                                  uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) text;
 
-    if ( text->face == NULL ) {
-        if ( FT_New_Face( sysinfo->ftlib,
-                          "/usr/share/fonts/X11/TTF/arial.ttf",
-                          0,
-                         &text->face ) ) {
-            fprintf ( stderr, "FreeType font loading failed\n" );
-        }
-    }
-
-    FT_Set_Char_Size( text->face, /* handle to face object           */
-                      0,          /* char_width in 1/64th of points  */
-                      16*64,      /* char_height in 1/64th of points */
-                      300,        /* horizontal device resolution    */
-                      300 );
+    g3dtext_setFont ( txt, 
+                      fontFaceName, 
+                      fontFaceFile,
+                      fontFaceSize, 
+                      engine_flags );
+    g3dtext_setText ( txt, "Text", engine_flags );
 
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, DRAWBEFORECHILDREN,
                                      DRAW_CALLBACK(g3dmesh_draw),
@@ -467,24 +667,20 @@ void g3dtext_init ( G3DTEXT *text, uint32_t id,
                                  ADDCHILD_CALLBACK(NULL),
                                                    NULL );
 
-    ((G3DMESH*)text)->dump = g3dmesh_default_dump;
-
-    text->text = "T";
-    text->text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
-                 "abcdefghijklmnopqrstuvwxyz";
-
-    g3dtext_generate ( text, engine_flags );
-
+    ((G3DMESH*)txt)->dump = g3dmesh_default_dump;
 }
 
 /******************************************************************************/
 G3DTEXT *g3dtext_new ( uint32_t id, 
                        char    *name,
+                       char    *fontFaceName,
+                       char    *fontFaceFile,
+                       uint32_t fontFaceSize,
                        uint32_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
-    G3DTEXT *text = ( G3DTEXT * ) calloc ( 0x01, sizeof ( G3DTEXT ) );
+    G3DTEXT *txt = ( G3DTEXT * ) calloc ( 0x01, sizeof ( G3DTEXT ) );
 
-    if ( text == NULL ) {
+    if ( txt == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__);
 
         return NULL;
@@ -497,8 +693,14 @@ G3DTEXT *g3dtext_new ( uint32_t id,
     }
 
     /** type is CUBIC or QUADRATIC **/
-    g3dtext_init ( text, id, name, engine_flags );
+    g3dtext_init ( txt, 
+                   id,
+                   name,
+                   fontFaceName,
+                   fontFaceFile,
+                   fontFaceSize,
+                   engine_flags );
 
-    return text;
+    return txt;
 }
 
