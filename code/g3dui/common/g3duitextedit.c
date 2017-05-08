@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitextedit_setTextCbk ( G3DUI *gui, char *text ) {
+void common_g3duitextedit_setTextCbk ( G3DUI *gui, char *newText ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
@@ -39,13 +39,22 @@ void common_g3duitextedit_setTextCbk ( G3DUI *gui, char *text ) {
 
     if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
         G3DTEXT *txt = ( G3DTEXT * ) obj;
-        g3dui_setHourGlass ( gui );
 
-        g3dtext_setText ( txt, text, gui->flags );
+        if ( txt->text && newText ) {
+            char *firstOccurence = strstr ( newText, txt->text );
 
-        g3dui_unsetHourGlass ( gui );
+            g3dui_setHourGlass ( gui );
 
-        g3dui_redrawGLViews ( gui );
+            if ( firstOccurence == newText ) {
+                g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->flags );
+            } else {
+                g3dtext_setText ( txt, newText, gui->flags );
+            }
+
+            g3dui_unsetHourGlass ( gui );
+
+            g3dui_redrawGLViews ( gui );
+        }
     }
 }
 

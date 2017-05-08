@@ -504,6 +504,7 @@ void createTextField ( GtkWidget *parent,
     gtk_container_add(GTK_CONTAINER(win), txt);
 
     gtk_widget_set_name ( win, name );
+    gtk_widget_set_name ( txt, name );
 
     gtk_widget_set_size_request ( win, textWidth, textHeight );
 

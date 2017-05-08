@@ -231,9 +231,10 @@ void g3dtext_mergeCharacter ( G3DTEXT      *txt,
 
                 free ( vertab );
                 free ( edgtab );
-
-                txt->nextCharacterPosition.x += chr->width;
             }
+
+            /*** space does not have polys, and yet has a width ***/
+            txt->nextCharacterPosition.x += chr->width;
         } break;
     }
 }
@@ -253,17 +254,48 @@ void g3dtext_empty ( G3DTEXT *txt ) {
 
 /******************************************************************************/
 void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
+    uint32_t textLen = 0x00;
+
     if ( txt->text ) {
         free ( txt->text );
     }
 
     if ( text ) {
         txt->text = strdup ( text );
+
+        textLen = strlen ( text );
     }
 
     g3dtext_empty ( txt );
 
-    g3dtext_generate ( txt, engine_flags );
+    g3dtext_generate ( txt, 0x00, textLen, engine_flags );
+}
+
+/******************************************************************************/
+void g3dtext_addText ( G3DTEXT *txt, 
+                       char    *addedString,
+                       uint32_t engine_flags ) {
+    char *newString = malloc ( strlen ( txt->text ) + strlen ( addedString ) + 0x01 );
+    uint32_t fromCharacter = 0x00;
+    uint32_t textLen = 0x00;
+
+    if ( txt->text ) {
+        strcpy ( newString, txt->text );
+
+        fromCharacter = strlen ( txt->text );
+    }
+
+    strcat ( newString, addedString );
+
+    if ( txt->text ) {
+        free ( txt->text );
+    }
+
+    txt->text = newString;
+
+    textLen = strlen ( txt->text );
+
+    g3dtext_generate ( txt, fromCharacter, textLen, engine_flags );
 }
 
 /******************************************************************************/
@@ -278,6 +310,7 @@ void g3dtext_setFont ( G3DTEXT *txt,
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     char fontPath[0x100] = { 0 };
     uint32_t fontFound = 0x00;
+    FILE *f = NULL;
     uint32_t i;
 
     g3dtext_empty ( txt );
@@ -289,30 +322,46 @@ void g3dtext_setFont ( G3DTEXT *txt,
     txt->fontFaceName = strdup ( fontFaceName );
     txt->fontFaceSize = fontFaceSize;
 
-    for ( i = 0x00; i < nbSearchPath; i++ ) {
-        FILE *f = NULL;
+    if ( f = fopen ( fontFaceFile, "r" ) ) {
+        fontFound = 0x01;
 
-        strcpy ( fontPath, searchPath[i] );
-        strcat ( fontPath, "/" );
-        strcat ( fontPath, fontFaceFile );
+        strcpy ( fontPath, fontFaceFile );
 
-        if ( f = fopen ( fontPath, "r" ) ) {
-            fontFound = 0x01;
+        fclose ( f );
+    } else {
+        for ( i = 0x00; i < nbSearchPath; i++ ) {
+            strcpy ( fontPath, searchPath[i] );
+            strcat ( fontPath, "/" );
+            strcat ( fontPath, fontFaceFile );
 
-            fclose ( f );
-            break;
+            if ( f = fopen ( fontPath, "r" ) ) {
+                fontFound = 0x01;
+
+                fclose ( f );
+                break;
+            }
         }
     }
 
     if ( fontFound ) {
-        if ( txt->face == NULL ) {
-            if ( FT_New_Face( sysinfo->ftlib,
-                              fontPath,
-                              0,
-                             &txt->face ) ) {
-                fprintf ( stderr, "FreeType font loading failed\n" );
-            }
+        printf("using font file %s\n", fontPath);
+
+        if ( txt->face ) {
+            FT_Done_Face ( txt->face );
         }
+
+        if ( FT_New_Face( sysinfo->ftlib,
+                          fontPath,
+                          0,
+                         &txt->face ) ) {
+            fprintf ( stderr, "FreeType font loading failed\n" );
+
+            txt->face = NULL;
+
+            return;
+        }
+
+        printf("font file %s loaded successfully!\n", fontPath);
 
         FT_Set_Char_Size( txt->face,       /* handle to face object           */
                           0,               /* char_width in 1/64th of points  */
@@ -322,7 +371,9 @@ void g3dtext_setFont ( G3DTEXT *txt,
 
         txt->height = ( float ) txt->face->size->metrics.height / 1000;
 
-        g3dtext_generate ( txt, engine_flags );
+        if ( txt->text ) {
+            g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
+        }
     }
 }
 
@@ -337,7 +388,9 @@ void g3dtext_setRoundness ( G3DTEXT *txt,
 
     txt->roundness = roundness;
 
-    g3dtext_generate ( txt, engine_flags );
+    if ( txt->text ) {
+        g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
+    }
 }
 
 /******************************************************************************/
@@ -353,7 +406,9 @@ void g3dtext_setThickness ( G3DTEXT *txt,
          ( ( newThickness == 0.0f ) && ( oldThickness ) ) ) {
         g3dtext_empty ( txt );
 
-        g3dtext_generate ( txt, engine_flags );
+        if ( txt->text ) {
+            g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
+        }
     } else {
         if ( newThickness ) {
             G3DMESH *txtmes = ( G3DMESH * ) txt;
@@ -400,14 +455,14 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
     FT_UInt  glyph_index;
     uint32_t j;
 
-    if ( chr == NULL ) {
+    if ( ( chr == NULL ) && txt->face ) {
         chr = g3dcharacter_new ( code );
 
         glyph_index = FT_Get_Char_Index ( txt->face, code );
 
         FT_Load_Glyph ( txt->face, glyph_index, FT_LOAD_DEFAULT );
 
-        chr->width = txt->face->glyph->metrics.width / 1000;
+        chr->width = ( float ) txt->face->glyph->metrics.horiAdvance / 1000;
 
         contours = txt->face->glyph->outline.contours;
         n_points = txt->face->glyph->outline.n_points;
@@ -753,8 +808,10 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
 }
 
 /******************************************************************************/
-void g3dtext_generate ( G3DOBJECT *obj, 
-                        uint32_t engine_flags ) {
+void g3dtext_generate ( G3DOBJECT *obj,
+                        uint32_t  fromCharacter,
+                        uint32_t  toCharacter,
+                        uint32_t  engine_flags ) {
     G3DTEXT *txt = ( G3DTEXT * ) obj;
     uint32_t i, j;
 
@@ -768,7 +825,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
 
         /*gluTessCallback( tobj, GLenum(GLU_ERROR), (glu_callback) gltt_polygonizer_error );*/
 
-        for ( i = 0x00; i < strlen ( txt->text ); i++ ) {
+        for ( i = fromCharacter; i < strlen ( txt->text ), i < toCharacter; i++ ) {
             uint32_t characterCode;
 
             /*** UTF-8 : https://fr.wikipedia.org/wiki/UTF-8#Exemples ***/
