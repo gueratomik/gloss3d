@@ -38,6 +38,7 @@ if HAVE_GTK3
                             common/g3duisplinerevolveredit.c \
                             common/g3duisubdivideredit.c \
                             common/g3duisymmetryedit.c \
+                            common/g3duitextedit.c \
                             common/g3duitextureedit.c \
                             common/g3duitimeboard.c \
                             common/g3duitimeline.c \
@@ -81,6 +82,7 @@ if HAVE_GTK3
                             gtk3/g3duisplinerevolveredit.c \
                             gtk3/g3duisubdivideredit.c \
                             gtk3/g3duisymmetryedit.c \
+                            gtk3/g3duitextedit.c \
                             gtk3/g3duitextureedit.c \
                             gtk3/g3duitimeboard.c \
                             gtk3/g3duitimeline.c \

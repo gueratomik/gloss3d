@@ -1421,7 +1421,7 @@ void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 int g3dvertex_applyCatmullScheme ( G3DVERTEX *, G3DVERTEX * );
-G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float );
+G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
 
 /******************************************************************************/
 void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
@@ -2125,7 +2125,7 @@ void       g3dmesh_removeWeightGroup             ( G3DMESH *, G3DWEIGHTGROUP * )
 void       g3dmesh_unselectWeightGroup           ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_selectWeightGroup             ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_paintVertices                 ( G3DMESH *, G3DCAMERA *, float, uint32_t, uint32_t );
-G3DVERTEX *g3dmesh_seekVertexByPosition          ( G3DMESH *, float, float, float );
+G3DVERTEX *g3dmesh_seekVertexByPosition          ( G3DMESH *, float, float, float, float );
 void       g3dmesh_setSubdivisionLevel           ( G3DMESH *, uint32_t, uint32_t );
 void       g3dmesh_freeSubdivisionBuffer         ( G3DMESH * );
 void       g3dmesh_freeFaceSubdivisionBuffer     ( G3DMESH * );

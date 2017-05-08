@@ -485,6 +485,57 @@ void createCharText ( GtkWidget *parent, G3DUI *gui,
     gtk_widget_show ( ent );
 }
 
+/********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
+void createTextField ( GtkWidget *parent, 
+                       G3DUI     *gui,
+                       char      *name,
+                       gint       x, 
+                       gint       y,
+                       gint       textWidth,
+                       gint       textHeight,
+                       void     (*cbk)( GtkTextBuffer *,
+                                        gpointer ) ) {
+    GtkWidget   *win = gtk_scrolled_window_new ( NULL, NULL );
+    GdkRectangle brec = { 0x00, 0x00, textWidth, textHeight };
+    GtkWidget   *txt = gtk_text_view_new ( );
+    GtkTextBuffer *buf = gtk_text_view_get_buffer(txt);
+
+
+    gtk_container_add(GTK_CONTAINER(win), txt);
+
+    gtk_widget_set_name ( win, name );
+
+    gtk_widget_set_size_request ( win, textWidth, textHeight );
+
+    gtk_widget_size_allocate ( win, &brec );
+
+    gtk_fixed_put ( GTK_FIXED(parent), win, x, y );
+
+    if ( cbk ) {
+        g_signal_connect ( buf, "changed", G_CALLBACK(cbk), gui );
+    }
+
+    gtk_widget_show ( win );
+
+/*
+    gtk_widget_set_name ( txt, name );
+
+    gtk_widget_size_allocate ( txt, &brec );
+
+    gtk_widget_set_size_request ( txt, textWidth, textHeight );
+
+    gtk_fixed_put ( GTK_FIXED(parent), txt, x, y );
+
+    if ( cbk ) {
+        g_signal_connect ( txt, "insert-at-cursor", G_CALLBACK(cbk), gui );
+    }
+
+
+    gtk_widget_show ( txt ); */
+
+
+}
+
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
 GtkWidget *createNumericText ( GtkWidget *parent, G3DUI *gui,

@@ -78,17 +78,23 @@ void g3dcharacter_addEdge ( G3DCHARACTER *chr, G3DEDGE *edg ) {
 void g3dcharacter_addFace ( G3DCHARACTER *chr, G3DFACE *fac ) {
     uint32_t i;
 
-    for ( i = 0x00; i < 0x03; i++ ) {
-        uint32_t n = ( i + 0x01 ) % 0x03;
-        G3DEDGE *edg = g3dedge_seek ( chr->ledg, fac->ver[i], fac->ver[n] );
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        uint32_t n = ( i + 0x01 ) % fac->nbver;
+        G3DEDGE *edg = fac->edg[i];
 
         if ( edg == NULL ) {
-            edg = g3dedge_new ( fac->ver[i], fac->ver[n] );
+            if ( ( edg = g3dedge_seek ( chr->ledg, fac->ver[i], 
+                                                   fac->ver[n] ) ) == NULL ) {
 
-            g3dcharacter_addEdge ( chr, edg );
+                edg = g3dedge_new ( fac->ver[i], fac->ver[n] );
+
+                g3dcharacter_addEdge ( chr, edg );
+            }
+
+            fac->edg[i] = edg;
         }
 
-        fac->edg[i] = edg;
+        g3dedge_addFace ( edg, fac );
     }
 
     list_insert ( &chr->lfac, fac );
@@ -122,77 +128,113 @@ void g3dtext_addCharacter ( G3DTEXT      *txt,
 /******************************************************************************/
 void g3dtext_mergeCharacter ( G3DTEXT      *txt, 
                               G3DCHARACTER *chr,
-                              G3DVECTOR    *pos,
                               uint32_t      invert, /* 0 or 1 */
                               uint32_t      engine_flags ) {
     G3DMESH *txtmes = ( G3DMESH * ) txt;
-    LIST *ltmpver = chr->lver;
-    LIST *ltmpedg = chr->ledg;
-    LIST *ltmpfac = chr->lfac;
-    G3DVERTEX **vertab = NULL;
-    G3DEDGE   **edgtab = NULL;
 
-    if ( chr->nbver && chr->nbedg && chr->nbfac ) {
-        vertab = calloc ( chr->nbver, sizeof ( G3DVERTEX * ) );
-        edgtab = calloc ( chr->nbedg, sizeof ( G3DEDGE   * ) );
 
-        while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+    switch ( chr->code ) {
+        case '\n' :
+            txt->nextCharacterPosition.x  = 0.0f;
+            txt->nextCharacterPosition.y -= txt->height;
+        break;
 
-            vertab[ver->id] = g3dvertex_new ( ver->pos.x + pos->x,
-                                              ver->pos.y + pos->y,
-                                              ver->pos.z + pos->z );
+        default : {
+            LIST *ltmpver = chr->lver;
+            LIST *ltmpedg = chr->ledg;
+            LIST *ltmpfac = chr->lfac;
+            G3DVERTEX **vertab = NULL;
+            G3DEDGE   **edgtab = NULL;
 
-            g3dmesh_addVertex ( txtmes, vertab[ver->id] );
+            if ( chr->nbver && chr->nbedg && chr->nbfac ) {
+                uint32_t vertexID = 0x00;
+                uint32_t edgeID = 0x00;
 
-            vertab[ver->id]->nor.x = ver->nor.x;
-            vertab[ver->id]->nor.y = ver->nor.y;
-            vertab[ver->id]->nor.z = ver->nor.z;
+                vertab = calloc ( chr->nbver, sizeof ( G3DVERTEX * ) );
+                edgtab = calloc ( chr->nbedg, sizeof ( G3DEDGE   * ) );
 
-            ltmpver = ltmpver->next;
-        }
+                while ( ltmpver ) {
+                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-        while ( ltmpedg ) {
-            G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+                    ver->id = vertexID++;
 
-            edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id],
-                                            vertab[edg->ver[1]->id] );
+                    vertab[ver->id] = g3dvertex_new ( ver->pos.x + txt->nextCharacterPosition.x,
+                                                      ver->pos.y + txt->nextCharacterPosition.y,
+                                                      ver->pos.z + txt->nextCharacterPosition.z );
 
-            g3dmesh_addEdge ( txtmes, edgtab[edg->id] );
+                    g3dmesh_addVertex ( txtmes, vertab[ver->id] );
 
-            ltmpedg = ltmpedg->next;
-        }
+                    vertab[ver->id]->nor.x = ver->nor.x;
+                    vertab[ver->id]->nor.y = ver->nor.y;
+                    vertab[ver->id]->nor.z = ver->nor.z;
 
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DVERTEX *v[0x03];
-            G3DEDGE   *e[0x03];
+                    ltmpver = ltmpver->next;
+                }
 
-            if ( invert ) {
-                v[0x00] = vertab[fac->ver[0x02]->id],
-                v[0x01] = vertab[fac->ver[0x01]->id],
-                v[0x02] = vertab[fac->ver[0x00]->id];
+                while ( ltmpedg ) {
+                    G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
 
-                e[0x00] = edgtab[fac->edg[0x02]->id],
-                e[0x01] = edgtab[fac->edg[0x01]->id],
-                e[0x02] = edgtab[fac->edg[0x00]->id];
-            } else {
-                v[0x00] = vertab[fac->ver[0x00]->id],
-                v[0x01] = vertab[fac->ver[0x01]->id],
-                v[0x02] = vertab[fac->ver[0x02]->id];
+                    edg->id = edgeID++;
 
-                e[0x00] = edgtab[fac->edg[0x00]->id],
-                e[0x01] = edgtab[fac->edg[0x01]->id],
-                e[0x02] = edgtab[fac->edg[0x02]->id];
+                    edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id],
+                                                    vertab[edg->ver[1]->id] );
+
+                    g3dmesh_addEdge ( txtmes, edgtab[edg->id] );
+
+                    ltmpedg = ltmpedg->next;
+                }
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    G3DVERTEX *v[0x04];
+                    G3DEDGE   *e[0x04];
+
+                    v[0x00] = vertab[fac->ver[0x00]->id],
+                    v[0x01] = vertab[fac->ver[0x01]->id],
+                    v[0x02] = vertab[fac->ver[0x02]->id];
+
+                    e[0x00] = edgtab[fac->edg[0x00]->id],
+                    e[0x01] = edgtab[fac->edg[0x01]->id],
+                    e[0x02] = edgtab[fac->edg[0x02]->id];
+
+                    if ( fac->nbver == 0x04 ) {
+                        v[0x03] = vertab[fac->ver[0x03]->id];
+                        e[0x03] = edgtab[fac->edg[0x03]->id];
+                    }
+
+                    if ( invert ) {
+                        if ( fac->nbver == 0x03 ) {
+                            v[0x00] = vertab[fac->ver[0x02]->id],
+                            v[0x01] = vertab[fac->ver[0x01]->id],
+                            v[0x02] = vertab[fac->ver[0x00]->id];
+
+                            e[0x00] = edgtab[fac->edg[0x02]->id],
+                            e[0x01] = edgtab[fac->edg[0x01]->id],
+                            e[0x02] = edgtab[fac->edg[0x00]->id];
+                        } else {
+                            v[0x00] = vertab[fac->ver[0x03]->id],
+                            v[0x01] = vertab[fac->ver[0x02]->id],
+                            v[0x02] = vertab[fac->ver[0x01]->id];
+                            v[0x03] = vertab[fac->ver[0x00]->id];
+
+                            e[0x00] = edgtab[fac->edg[0x03]->id],
+                            e[0x01] = edgtab[fac->edg[0x02]->id],
+                            e[0x02] = edgtab[fac->edg[0x01]->id];
+                            e[0x03] = edgtab[fac->edg[0x00]->id];
+                        }
+                    }
+
+                    g3dmesh_addFace ( txtmes, g3dface_newWithEdges ( v, e, fac->nbver ) );
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                free ( vertab );
+                free ( edgtab );
+
+                txt->nextCharacterPosition.x += chr->width;
             }
-
-            g3dmesh_addFace ( txtmes, g3dface_newWithEdges ( v, e, 0x03 ) );
-
-            ltmpfac = ltmpfac->next;
-        }
-
-        free ( vertab );
-        free ( edgtab );
+        } break;
     }
 }
 
@@ -201,6 +243,10 @@ void g3dtext_empty ( G3DTEXT *txt ) {
     list_free ( &txt->lchr, g3dcharacter_free );
 
     txt->nbchr = 0x00;
+
+    txt->nextCharacterPosition.x = 0.0f;
+    txt->nextCharacterPosition.y = 0.0f;
+    txt->nextCharacterPosition.z = 0.0f;
 
     g3dmesh_empty ( txt );
 }
@@ -214,6 +260,8 @@ void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
     if ( text ) {
         txt->text = strdup ( text );
     }
+
+    g3dtext_empty ( txt );
 
     g3dtext_generate ( txt, engine_flags );
 }
@@ -279,6 +327,59 @@ void g3dtext_setFont ( G3DTEXT *txt,
 }
 
 /******************************************************************************/
+void g3dtext_setRoundness ( G3DTEXT *txt,
+                            uint32_t roundness,
+                            uint32_t engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+
+    /*** when roundess is changed, we need to recreate the whole mesh ***/
+    g3dtext_empty ( txt );
+
+    txt->roundness = roundness;
+
+    g3dtext_generate ( txt, engine_flags );
+}
+
+/******************************************************************************/
+void g3dtext_setThickness ( G3DTEXT *txt,
+                            float    newThickness,
+                            uint32_t engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+    float oldThickness = txt->thickness;
+
+    txt->thickness = newThickness;
+
+    if ( ( ( oldThickness == 0.0f ) && ( newThickness ) ) ||
+         ( ( newThickness == 0.0f ) && ( oldThickness ) ) ) {
+        g3dtext_empty ( txt );
+
+        g3dtext_generate ( txt, engine_flags );
+    } else {
+        if ( newThickness ) {
+            G3DMESH *txtmes = ( G3DMESH * ) txt;
+            LIST *ltmpver = txtmes->lver;
+
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+                if ( ver->pos.z > 0.0f ) {
+                    ver->pos.z =   ( newThickness / 2.0f );
+                } else {
+                    ver->pos.z = - ( newThickness / 2.0f );
+                }
+
+                ltmpver = ltmpver->next;
+            }
+        }
+    }
+
+    g3dmesh_update ( txt, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION, engine_flags );
+}
+
+/******************************************************************************/
 G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                           uint32_t       code,
                                           GLUtesselator *tobj,
@@ -294,7 +395,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
 #define COORD_ARRAY_COUNT 0x800
     static double coords[COORD_ARRAY_COUNT][0x03] = { 0 };
     uint32_t maxSteps = COORD_ARRAY_COUNT;
-    uint32_t nbStepsPerSegment = 6;
+    uint32_t nbStepsPerSegment = txt->roundness;
     uint32_t handleID = 0x00;
     FT_UInt  glyph_index;
     uint32_t j;
@@ -441,6 +542,10 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
         txt->currentCharacter = chr;
 
         gluTessEndPolygon ( tobj );
+ 
+        if ( txt->thickness ) {
+            g3dcharacter_generateThickness ( chr, txt->thickness, engine_flags );
+        }
 
         txt->currentCharacter = NULL;
 
@@ -460,7 +565,8 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
         G3DVERTEX *ver  = g3dvertex_seekVertexByPosition ( chr->lver, 
                                                            vertex_data[0], 
                                                            vertex_data[1], 
-                                                           vertex_data[2] );
+                                                           vertex_data[2],
+                                                           0.0001f );
 
         if ( ( ver == NULL ) ) {
             ver = g3dvertex_new ( vertex_data[0],
@@ -545,17 +651,16 @@ static void g3dtext_endGroup( void *object_data ) {
 }*/
 
 /******************************************************************************/
-void g3dtext_generateThickness ( G3DOBJECT *obj, 
-                                 uint32_t engine_flags ) {
-    G3DTEXT *txt = ( G3DTEXT * ) obj;
-    G3DMESH *txtmes = ( G3DMESH * ) txt;
-    uint32_t nbOriginalVertices = txtmes->nbver;
-    uint32_t nbOriginalEdges = txtmes->nbedg;
+void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
+                                      float         thickness,
+                                      uint32_t      engine_flags ) {
+    uint32_t nbOriginalVertices = chr->nbver;
+    uint32_t nbOriginalEdges = chr->nbedg;
 
-    if ( nbOriginalVertices ) {
-        LIST *ltmpfac = txtmes->lfac;
-        LIST *ltmpedg = txtmes->ledg;
-        LIST *ltmpver = txtmes->lver;
+    if ( thickness && nbOriginalVertices ) {
+        LIST *ltmpfac = chr->lfac;
+        LIST *ltmpedg = chr->ledg;
+        LIST *ltmpver = chr->lver;
         G3DVERTEX **vertab = NULL;
         G3DEDGE   **edgtab = NULL;
         uint32_t vertexID = 0x00;
@@ -567,22 +672,23 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-            float thickness = 1.0f;
 
             ver->id = vertexID++;
 
             ver->pos.z = thickness / 2;
 
-            vertab[ver->id] = g3dvertex_new ( ver->pos.x, ver->pos.y, -ver->pos.z );
+            vertab[ver->id] = g3dvertex_new ( ver->pos.x, 
+                                              ver->pos.y, 
+                                             -ver->pos.z );
 
-            vertab[ver->id]->nor.x = -ver->nor.x;
-            vertab[ver->id]->nor.y = -ver->nor.y;
+            vertab[ver->id]->nor.x =  ver->nor.x;
+            vertab[ver->id]->nor.y =  ver->nor.y;
             vertab[ver->id]->nor.z = -ver->nor.z;
 
             edgtab[nbOriginalEdges + ver->id] = g3dedge_new ( ver, vertab[ver->id] );
 
-            g3dmesh_addVertex ( txtmes, vertab[ver->id] );
-            g3dmesh_addEdge ( txtmes, edgtab[nbOriginalEdges + ver->id] );
+            g3dcharacter_addVertex ( chr, vertab[ver->id] );
+            g3dcharacter_addEdge   ( chr, edgtab[nbOriginalEdges + ver->id] );
 
             ltmpver = ltmpver->next;
         }
@@ -600,7 +706,7 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
             edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id], 
                                             vertab[edg->ver[1]->id] );
 
-            g3dmesh_addEdge ( txtmes, edgtab[edg->id] );
+            g3dcharacter_addEdge ( chr, edgtab[edg->id] );
 
             if ( edg->nbfac == 0x01 ) {
                 v[0x00] = edg->ver[1];
@@ -615,7 +721,7 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
 
                 G3DFACE *newfac = g3dface_newWithEdges ( v, e, 0x04 );
 
-                g3dmesh_addFace ( txtmes, newfac );
+                g3dcharacter_addFace ( chr, newfac );
             }
 
             ltmpedg = ltmpedg->next;
@@ -636,7 +742,7 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
 
             newfac = g3dface_newWithEdges ( v, e, 0x03 );
 
-            g3dmesh_addFace ( txtmes, newfac );
+            g3dcharacter_addFace ( chr, newfac );
 
             ltmpfac = ltmpfac->next;
         }
@@ -649,7 +755,6 @@ void g3dtext_generateThickness ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dtext_generate ( G3DOBJECT *obj, 
                         uint32_t engine_flags ) {
-    G3DVECTOR pos = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     G3DTEXT *txt = ( G3DTEXT * ) obj;
     uint32_t i, j;
 
@@ -708,10 +813,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
             }
 
             switch ( characterCode ) {
-                 case '\n' :
-                     pos.x  = 0.0f;
-                     pos.y -= txt->height;
-                 break;
+
 
                  default : {
                      G3DCHARACTER *chr;
@@ -722,13 +824,12 @@ void g3dtext_generate ( G3DOBJECT *obj,
                                                        engine_flags );
 
                      if ( chr ) {
+
                          g3dtext_mergeCharacter ( txt, 
                                                   chr,
-                                                 &pos,
                                                   0x00, /* 0 or 1 */
                                                   engine_flags );
 
-                         pos.x += chr->width;
                      }
                  } break;
             }
@@ -737,9 +838,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
         gluDeleteTess(tobj);
     }
 
-    g3dtext_generateThickness ( txt, engine_flags );
-
-    /*g3dmesh_update ( text, NULL,
+    /*g3dmesh_update ( txt, NULL,
                              NULL,
                              NULL,
                              UPDATEFACEPOSITION |
@@ -763,8 +862,13 @@ void g3dtext_init ( G3DTEXT *txt, uint32_t id,
                                   char    *fontFaceName,
                                   char    *fontFaceFile,
                                   uint32_t fontFaceSize,
+                                  float    thickness,
+                                  uint32_t roundness,
                                   uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) txt;
+
+    txt->roundness = roundness;
+    txt->thickness = thickness;
 
     g3dtext_setFont ( txt, 
                       fontFaceName, 
@@ -796,6 +900,8 @@ G3DTEXT *g3dtext_new ( uint32_t id,
                        char    *fontFaceName,
                        char    *fontFaceFile,
                        uint32_t fontFaceSize,
+                       float    thickness,
+                       uint32_t roundness,
                        uint32_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     G3DTEXT *txt = ( G3DTEXT * ) calloc ( 0x01, sizeof ( G3DTEXT ) );
@@ -820,6 +926,8 @@ G3DTEXT *g3dtext_new ( uint32_t id,
                    fontFaceName,
                    fontFaceFile,
                    fontFaceSize,
+                   thickness,
+                   roundness,
                    engine_flags );
 
     return txt;

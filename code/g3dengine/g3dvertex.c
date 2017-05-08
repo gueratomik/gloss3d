@@ -32,9 +32,9 @@
 /******************************************************************************/
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *lver, float x,
                                                         float y,
-                                                        float z ) {
+                                                        float z,
+                                                        float epsilon ) {
     LIST *ltmp = lver;
-    float epsilon = 0.01f;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;

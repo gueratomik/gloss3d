@@ -407,6 +407,13 @@ void g3dui_addSubdividerCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addSplineRevolverCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addSplineRevolverCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_addFFDBoxCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -515,15 +522,19 @@ GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDWIREFRAME   , width, G_CALLBACK(g3dui_addWireframeCbk)    );
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDSUBDIVIDER  , width, G_CALLBACK(g3dui_addSubdividerCbk)   );
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDFFDBOX      , width, G_CALLBACK(g3dui_addFFDBoxCbk)    );
+    g3dui_addMenuButton ( menu, gui, MENU_ADDWIREFRAME , width, G_CALLBACK(g3dui_addWireframeCbk) );
+    g3dui_addMenuButton ( menu, gui, MENU_ADDSUBDIVIDER, width, G_CALLBACK(g3dui_addSubdividerCbk) );
+    g3dui_addMenuButton ( menu, gui, MENU_ADDFFDBOX    , width, G_CALLBACK(g3dui_addFFDBoxCbk) );
 
-    g3dui_addMenuSeparator    ( menu );
+    g3dui_addMenuSeparator ( menu );
 
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDBONE  , width, G_CALLBACK(g3dui_addBoneCbk)      );
+    g3dui_addMenuButton ( menu, gui, MENU_ADDBONE  , width, G_CALLBACK(g3dui_addBoneCbk)      );
     createFixBoneMenu   ( menu, gui, MENU_FIXBONE  , width );
     createResetBoneMenu ( menu, gui, MENU_RESETBONE, width );
+
+    g3dui_addMenuSeparator ( menu );
+    g3dui_addMenuButton ( menu, gui, MENU_ADDSPLINEREVOLVER , width, G_CALLBACK(g3dui_addSplineRevolverCbk));
+
 
 /*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
 */
@@ -600,6 +611,13 @@ void g3dui_addSplineCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addTextCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addTextCbk ( gui );
+}
+
+/******************************************************************************/
 GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
                                                char *name,
                                                gint width ) {
@@ -615,11 +633,12 @@ GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDPLANE    , width, G_CALLBACK(g3dui_addPlaneCbk)     );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDCUBE     , width, G_CALLBACK(g3dui_addCubeCbk)      );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDSPHERE   , width, G_CALLBACK(g3dui_addSphereCbk)    );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDTORUS    , width, G_CALLBACK(g3dui_addTorusCbk)     );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDCYLINDER , width, G_CALLBACK(g3dui_addCylinderCbk)  );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDPLANE    , width, G_CALLBACK(g3dui_addPlaneCbk)    );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDCUBE     , width, G_CALLBACK(g3dui_addCubeCbk)     );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDSPHERE   , width, G_CALLBACK(g3dui_addSphereCbk)   );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDTORUS    , width, G_CALLBACK(g3dui_addTorusCbk)    );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDCYLINDER , width, G_CALLBACK(g3dui_addCylinderCbk) );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDTEXT     , width, G_CALLBACK(g3dui_addTextCbk)     );
 
     g3dui_addMenuSeparator ( menu );
 

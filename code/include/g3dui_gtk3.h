@@ -343,6 +343,10 @@ void       updateMaterialEdit     ( GtkWidget *, G3DUI * );
 GtkWidget *createMaterialEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
+void       updateTextEdit         ( GtkWidget *, G3DUI * );
+GtkWidget *createTextEdit         ( GtkWidget *, G3DUI *, char *, gint, gint, 
+                                                                  gint, gint );
+
 void       updateCoordinatesEdit  ( GtkWidget *, G3DUI * );
 GtkWidget *createCoordinatesEdit  ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
@@ -378,6 +382,8 @@ GtkWidget *createCurrentMouseTool ( GtkWidget *, G3DUI *, char *, gint, gint,
 void       updateCutMeshToolEdit  ( GtkWidget *, G3DUI * );
 GtkWidget *createCutMeshToolEdit  ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
+
+
 
 /******************************************************************************/
 GtkWidget *createHorizontalScale ( GtkWidget *, G3DUI *,
@@ -454,6 +460,16 @@ void       createCharText        ( GtkWidget *, G3DUI *,
                                                 void (*)( GtkWidget *, 
                                                           GdkEvent  *,
                                                           gpointer ) );
+
+void createTextField ( GtkWidget *parent, 
+                       G3DUI     *gui,
+                       char      *name,
+                       gint       x, 
+                       gint       y,
+                       gint       textWidth,
+                       gint       textHeight,
+                       void     (*cbk)( GtkTextBuffer *,
+                                        gpointer ) );
 
 void createOrientationSelection  ( GtkWidget *, G3DUI *,
                                                 char *,

@@ -52,6 +52,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( obj->type == G3DSUBDIVIDERTYPE     ) wname = EDITSUBDIVIDER;
         if ( obj->type == G3DSPLINEREVOLVERTYPE ) wname = EDITSPLINEREVOLVER;
         if ( obj->type == G3DWIREFRAMETYPE      ) wname = EDITWIREFRAME;
+        if ( obj->type == G3DTEXTTYPE           ) wname = EDITTEXT;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
@@ -77,6 +78,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                     if ( obj->type == G3DSUBDIVIDERTYPE     ) updateSubdividerEdit     ( child, gui );
                     if ( obj->type == G3DSPLINEREVOLVERTYPE ) updateSplineRevolverEdit ( child, gui );
                     if ( obj->type == G3DWIREFRAMETYPE      ) updateWireframeEdit      ( child, gui );
+                    if ( obj->type == G3DTEXTTYPE           ) updateTextEdit           ( child, gui );
 
                     gtk_widget_show ( child );
                 } else {
@@ -163,6 +165,8 @@ GtkWidget *createCurrentEdit ( GtkWidget *parent, G3DUI *gui,
     createLightEdit          ( frm, gui, EDITLIGHT         , 0, 32, 296,  96 );
     createUVMapEdit          ( frm, gui, EDITUVMAP         , 0, 32, 296,  96 );
     createWireframeEdit      ( frm, gui, EDITWIREFRAME     , 0, 32, 296,  96 );
+    createTextEdit           ( frm, gui, EDITTEXT          , 0, 32, 296,  96 );
+
 
     list_insert ( &gui->lcuredit, frm );
 

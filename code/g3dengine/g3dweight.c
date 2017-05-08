@@ -119,19 +119,22 @@ G3DWEIGHTGROUP *g3dweightgroup_mirror ( G3DWEIGHTGROUP *grp,
             case ORIENTATIONZX :
                 mirver = g3dmesh_seekVertexByPosition ( mes,  ver->pos.x,
                                                              -ver->pos.y,
-                                                              ver->pos.z );
+                                                              ver->pos.z,
+                                                              0.0001f );
             break;
 
             case ORIENTATIONXY :
                 mirver = g3dmesh_seekVertexByPosition ( mes,  ver->pos.x,
                                                               ver->pos.y,
-                                                             -ver->pos.z );
+                                                             -ver->pos.z,
+                                                              0.0001f );
             break;
 
             case ORIENTATIONYZ :
                 mirver = g3dmesh_seekVertexByPosition ( mes, -ver->pos.x,
                                                               ver->pos.y,
-                                                              ver->pos.z );
+                                                              ver->pos.z,
+                                                              0.0001f );
             break;
 
             default :

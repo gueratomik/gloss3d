@@ -485,14 +485,6 @@ void common_g3dui_addSplineCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
     G3DSPLINE *spline = g3dspline_new ( pid, "Spline", CUBIC, gui->flags );
-    G3DSPLINEREVOLVER *srv = g3dsplinerevolver_new ( pid, "Revolver" );
-    G3DTEXT *txt = g3dtext_new ( pid, "Text", "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz", "Arial", "cour.ttf", 16, gui->flags  );
-
-
-    g3dobject_addChild ( spline, srv, gui->flags );
-    g3dobject_addChild ( sce, txt, gui->flags );
-
-
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |
@@ -503,6 +495,70 @@ void common_g3dui_addSplineCbk ( G3DUI *gui ) {
 
     g3dscene_unselectAllObjects ( sce, gui->flags );
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) spline, gui->flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addSplineRevolverCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
+    uint32_t      oid = g3dscene_getNextObjectID ( sce );
+    G3DSPLINEREVOLVER *srv = g3dsplinerevolver_new ( oid, "Revolver" );
+
+    if ( obj ) {
+        g3durm_object_addChild ( urm, sce, gui->flags, 
+                                           ( REDRAWVIEW |
+                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                           ( G3DOBJECT * ) NULL,
+                                           ( G3DOBJECT * ) obj,
+                                           ( G3DOBJECT * ) srv );
+    } else {
+        g3durm_object_addChild ( urm, sce, gui->flags, 
+                                           ( REDRAWVIEW |
+                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                           ( G3DOBJECT * ) NULL,
+                                           ( G3DOBJECT * ) sce,
+                                           ( G3DOBJECT * ) srv );
+    }
+
+    g3dscene_unselectAllObjects ( sce, gui->flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) srv, gui->flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addTextCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    uint32_t pid = g3dscene_getNextObjectID ( sce );
+    G3DTEXT *txt = g3dtext_new ( pid, 
+                                 "Text",     /* object name    */
+                                 "Text",     /* font face name */
+                                 "Arial",    /* font face file */
+                                 "arial.ttf",/* font file name */
+                                 16,         /* font face size */
+                                 0.0f,
+                                 12,
+                                 gui->flags  );
+
+    g3durm_object_addChild ( urm, sce, gui->flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) txt );
+
+    g3dscene_unselectAllObjects ( sce, gui->flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) txt, gui->flags );
 
     g3dui_redrawGLViews ( gui );
     g3dui_updateCoords ( gui );

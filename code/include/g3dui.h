@@ -362,6 +362,12 @@
 #define EDITSPLINEREVOLVERSTEPS "Steps"
 #define EDITSPLINEREVOLVERDIVIS "Divisions"
 
+#define EDITTEXT               "Text Editor"
+#define EDITTEXTTEXT           "Text"
+#define EDITTEXTFONT           "Font"
+#define EDITTEXTROUNDNESS      "Roundness"
+#define EDITTEXTTHICKNESS      "Thickness"
+
 #define EDITWIREFRAME          "Wireframe"
 #define EDITWIREFRAMETHICKNESS "Thickness"
 
@@ -418,11 +424,13 @@
 #define MENU_ADDCAMERA            "Add Camera"
 #define MENU_ADDEMPTYMESH         "Add Empty Mesh"
 #define MENU_ADDSPLINE            "Add Spline"
+#define MENU_ADDTEXT              "Add Text"
 
 #define MENU_COMMITMODIFIER       "Commit up to modifier"
 #define MENU_ADDBONE              "Add Bone"
 #define MENU_ADDSYMMETRY          "Add Symmetry"
 #define MENU_ADDWIREFRAME         "Add Wireframe"
+#define MENU_ADDSPLINEREVOLVER    "Add Spline Revolver"
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
 #define MENU_ADDFFDBOX            "Add FFD Box"
 #define MENU_ASSIGNFFD            "Assign FFD"
@@ -1001,6 +1009,11 @@ void common_g3duimeshedit_useIsoLinesCbk      ( G3DUI * );
 void common_g3duimeshedit_useAdaptiveCbk      ( G3DUI * );
 void common_g3duimeshedit_setAdaptiveAngleCbk ( G3DUI *, float );
 void common_g3duimeshedit_subdivSyncCbk       ( G3DUI * );
+
+/****************************** Text Edit *************************************/
+void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness );
+void common_g3duitextedit_thicknessCbk ( G3DUI *gui, float thickness );
+void common_g3duitextedit_setTextCbk   ( G3DUI *gui, char *text );
 
 /****************************** Sphere Edit ***********************************/
 void common_g3duisphereedit_radiusCbk ( G3DUI *, float );

@@ -1091,8 +1091,9 @@ G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID ( G3DMESH *mes, uint32_t grpid ) {
 /******************************************************************************/
 G3DVERTEX *g3dmesh_seekVertexByPosition ( G3DMESH *mes, float x,
                                                         float y,
-                                                        float z ) {
-    return g3dvertex_seekVertexByPosition ( mes->lver, x, y, z );
+                                                        float z,
+                                                        float epsilon ) {
+    return g3dvertex_seekVertexByPosition ( mes->lver, x, y, z, epsilon );
 }
 
 /******************************************************************************/
