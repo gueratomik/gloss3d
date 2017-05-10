@@ -29,6 +29,15 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/*
+ffprobe -v error -of flat=s=_ -select_streams v:0 -show_entries stream=height,width capture.avi 
+streams_stream_0_width=640
+streams_stream_0_height=480
+
+
+ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb24 pipe:1
+*/
+
 /******************************************************************************/
 /*void g3dimage_bind ( G3DIMAGE *img ) {
 
