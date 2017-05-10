@@ -31,6 +31,64 @@
 #include <fontconfig/fontconfig.h>
 
 /******************************************************************************/
+/*** https://gist.github.com/CallumDev/7c66b3f9cf7a876ef75f ***/
+/*** http://stackoverflow.com/questions/10542832/how-to-use-fontconfig-to-get-font-list-c-c ***/
+static char *getFontFileNameFromFamily ( const char *fontFamilyName ) {
+    FcConfig* config = FcInitLoadConfigAndFonts ( );
+    FcPattern* pat = FcNameParse ( ( const FcChar8* ) fontFamilyName );
+    FcConfigSubstitute ( config, pat, FcMatchPattern );
+    FcDefaultSubstitute ( pat );
+    FcResult result;
+    FcPattern* font = FcFontMatch ( config, pat, &result );
+
+    if ( font ) {
+	    FcChar8* file = NULL;
+	    if ( FcPatternGetString ( font, FC_FILE, 0, &file ) == FcResultMatch ) {
+		    return ( char* ) file;
+	    }
+    }
+    FcPatternDestroy ( pat );
+
+    return NULL;
+}
+
+/******************************************************************************/
+static char *getFontFormatFromFamily ( const char *fontFamilyName ) {
+    FcConfig* config = FcInitLoadConfigAndFonts ( );
+    FcPattern* pat = FcNameParse ( ( const FcChar8* ) fontFamilyName );
+    FcConfigSubstitute ( config, pat, FcMatchPattern );
+    FcDefaultSubstitute ( pat );
+    FcResult result;
+    FcPattern* font = FcFontMatch ( config, pat, &result );
+
+    if ( font ) {
+	    FcChar8* file = NULL;
+	    if ( FcPatternGetString ( font, FC_FONTFORMAT, 0, &file ) == FcResultMatch ) {
+		    return ( char* ) file;
+	    }
+    }
+    FcPatternDestroy ( pat );
+
+    return NULL;
+}
+
+/******************************************************************************/
+gboolean filterFont ( const PangoFontFamily *family,
+                      const PangoFontFace *face,
+                      gpointer data ) {
+    char *fontFamilyName = pango_font_family_get_name ( family );
+    char *fontFile = getFontFormatFromFamily ( fontFamilyName );
+
+    if ( fontFile ) {
+        if ( strcmp ( fontFile, "TrueType" ) == 0x00 ) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 static void pickFontCbk ( GtkFontChooser *self,
                           gchar          *fontname,
                           gpointer        user_data ) {
@@ -43,40 +101,52 @@ static void pickFontCbk ( GtkFontChooser *self,
         int32_t fontSize = gtk_font_chooser_get_font_size ( self );
         /*** Note: This string is owned by the family object. Must not be freed. **/
         char *fontFamilyName = pango_font_family_get_name ( family );
-        /*** https://gist.github.com/CallumDev/7c66b3f9cf7a876ef75f ***/
-        /*** http://stackoverflow.com/questions/10542832/how-to-use-fontconfig-to-get-font-list-c-c ***/
-        FcConfig* config = FcInitLoadConfigAndFonts ( );
-        FcPattern* pat = FcNameParse ( ( const FcChar8* ) fontFamilyName );
-        FcConfigSubstitute ( config, pat, FcMatchPattern );
-        FcDefaultSubstitute ( pat );
-        char* fontFile;
+        char* fontFile = getFontFileNameFromFamily ( fontFamilyName );
 
-        FcResult result;
-        FcPattern* font = FcFontMatch ( config, pat, &result );
+        if ( fontFile ) {
+            if ( fontSize == -1 ) fontSize = txt->fontFaceSize;
 
-        if ( font ) {
-	        FcChar8* file = NULL;
-	        if ( FcPatternGetString ( font, FC_FILE, 0, &file ) == FcResultMatch) {
-		        fontFile = ( char* ) file;
-		        printf("%s\n", fontFile );
-	        }
+            /*** I dont know why this is scaled x1000. It's not in the GTK doc ***/
+            fontSize /= 1000;
+
+            /*** responseCbk is called after a double-click, so is
+                 pickFontCbk. So this ends up with a double-call of 
+                 g3dtext_setFont ( ... ). That's why we first get sure the 
+                 chosen font is different from the already selected one ***/
+            if ( ( txt->fontFaceName == NULL ) ||
+                 ( strcmp ( txt->fontFaceName, fontFamilyName ) != 0 ) ||
+                 ( fontSize != txt->fontFaceSize ) ) {
+                g3dtext_setFont ( txt, fontFamilyName,
+                                       fontFile,
+                                       fontSize,
+                                       gui->flags );
+            }
+
+            g3dui_redrawGLViews ( gui );
+            /*** update font button label ***/
+            g3dui_updateAllCurrentEdit ( gui );
+        } else {
+            fprintf ( stderr, "font not found !!!\n" );
         }
-        FcPatternDestroy ( pat );
-
-        if ( fontSize == -1 ) fontSize = txt->fontFaceSize;
-
-        /*** I dont know why this is scaled x1000. It's not in the GTK doc ***/
-        fontSize /= 1000;
-
-        g3dtext_setFont ( txt, fontFamilyName,
-                               fontFile,
-                               fontSize,
-                               gui->flags );
-
-        g3dui_redrawGLViews ( gui );
-        /*** update font button label ***/
-        g3dui_updateAllCurrentEdit ( gui );
     }
+}
+
+/******************************************************************************/
+void responseCbk ( GtkDialog *dialog,
+                   gint       response_id,
+                   gpointer   user_data ) {
+    switch ( response_id ) {
+        case GTK_RESPONSE_OK : {
+            gchar *fontname = gtk_font_chooser_get_font (dialog);
+
+            pickFontCbk ( dialog, fontname, user_data );
+        } break;
+
+        default :
+        break;
+    }
+
+    gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
@@ -93,8 +163,13 @@ static void chooseFontCbk ( GtkWidget *widget, gpointer user_data ) {
                                                     txt->fontFaceSize );
 
         gtk_font_chooser_set_font ( dialog, currentFontName );
+        /*gtk_font_chooser_set_filter_func ( dialog,
+                                           filterFont, user_data, NULL ); */
 
         g_signal_connect ( dialog, "font-activated", G_CALLBACK ( pickFontCbk ), gui );
+        /*g_signal_connect ( dialog, "close", deactivate_cb, 0);*/
+        g_signal_connect ( dialog, "response", responseCbk, gui );
+
 
         gtk_widget_show ( dialog );
     }
@@ -118,6 +193,19 @@ static void textCbk ( GtkTextBuffer *textBuf, gpointer user_data ) {
     g_free ( str );
 
     /*common_g3duiobjectedit_nameCbk ( gui, object_name );*/
+}
+
+/******************************************************************************/
+static void sizeCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    int size = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( size > 3 ) {
+        common_g3duitextedit_sizeCbk ( gui, size );
+    } else {
+        updateTextEdit ( parent, gui );
+    }
 }
 
 /******************************************************************************/
@@ -221,9 +309,9 @@ void updateTextEdit ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_SPIN_BUTTON ( child ) ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON ( child );
 
-                /*if ( strcmp ( name, EDITSPHERECAPS   ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, sds->cap );
-                }*/
+                if ( strcmp ( name, EDITTEXTSIZE ) == 0x00 ) {
+                    gtk_spin_button_set_value ( spb, txt->fontFaceSize );
+                }
 
                 if ( strcmp ( name, EDITTEXTROUNDNESS ) == 0x00 ) {
                     gtk_spin_button_set_value ( spb, txt->roundness );
@@ -262,17 +350,20 @@ GtkWidget *createTextEdit ( GtkWidget *parent, G3DUI *gui,
     createSimpleLabel ( frm, gui, EDITTEXTFONT     , 0,  0,
                                                     96, 18 );
 
-    createPushButton  ( frm, gui, EDITTEXTFONT     ,96, 0,
+    createPushButton  ( frm, gui, EDITTEXTFONT     ,96,  0,
                                                     96, 18, chooseFontCbk );
 
-    createIntegerText ( frm, gui, EDITTEXTROUNDNESS, 0, 24, 
+    createIntegerText ( frm, gui, EDITTEXTSIZE     , 0, 28,
+                                                    96, 18, sizeCbk );
+
+    createIntegerText ( frm, gui, EDITTEXTROUNDNESS, 0, 52, 
                                                     96, 96, roundnessCbk  );
 
-    createFloatText   ( frm, gui, EDITTEXTTHICKNESS, 0, 48,
+    createFloatText   ( frm, gui, EDITTEXTTHICKNESS, 0, 76,
                                                     96, 96, thicknessCbk );
 
-    createTextField   ( frm, gui, EDITTEXTTEXT     , 0, 72, 
-                                                    width, height - 60, textCbk );
+    createTextField   ( frm, gui, EDITTEXTTEXT     , 0,100, 
+                                                    width - 32, height - 60, textCbk );
 
     gtk_widget_show ( frm );
 

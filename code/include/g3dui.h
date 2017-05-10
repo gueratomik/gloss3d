@@ -272,8 +272,10 @@
 #define EDITCUTMESHTOOLRESTRICT    "Restrict to selection"
 
 /**** Widget names for MeshEdit TextField widget ***/
-#define EDITMESH            "Mesh"
-#define EDITMESHWEIGHTGROUP "Weight Groups"
+#define EDITMESH             "Mesh"
+#define EDITMESHWEIGHTGROUP  "Weight Groups"
+#define EDITMESHGOURAUDLIMIT "Gouraud Shading limit"
+#define EDITMESHISOLINES     "Use isoparms (Slower)"
 
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
@@ -356,7 +358,7 @@
 #define EDITSUBDIVIDERPREVIEW  "Subdivision (preview)"
 #define EDITSUBDIVIDERSYNC     "Sync"
 #define EDITSUBDIVIDERRENDER   "Subdivision (render)"
-#define EDITMESHISOLINES       "Use isoparms (Slower)"
+
 
 #define EDITSPLINEREVOLVER      "Spline Revolver"
 #define EDITSPLINEREVOLVERSTEPS "Steps"
@@ -364,6 +366,7 @@
 
 #define EDITTEXT               "Text Editor"
 #define EDITTEXTTEXT           "Text"
+#define EDITTEXTSIZE           "Size"
 #define EDITTEXTFONT           "Font"
 #define EDITTEXTROUNDNESS      "Roundness"
 #define EDITTEXTTHICKNESS      "Thickness"
@@ -531,7 +534,9 @@ typedef struct _G3DUICONF {
 #define WIREFRAMELIGHTING  ( 1 << 6 )
 
 typedef struct _G3DUIRENDERSETTINGS {
-    uint32_t background;
+    uint32_t  backgroundMode;
+    uint32_t  backgroundColor;
+    G3DIMAGE *backgroundImage;
     uint32_t flags;
     uint32_t fps; /*** frame per second ***/
     uint32_t depth;
@@ -1009,6 +1014,7 @@ void common_g3duimeshedit_useIsoLinesCbk      ( G3DUI * );
 void common_g3duimeshedit_useAdaptiveCbk      ( G3DUI * );
 void common_g3duimeshedit_setAdaptiveAngleCbk ( G3DUI *, float );
 void common_g3duimeshedit_subdivSyncCbk       ( G3DUI * );
+void common_g3duimeshedit_gouraudCbk          ( G3DUI *, float );
 
 /****************************** Text Edit *************************************/
 void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness );

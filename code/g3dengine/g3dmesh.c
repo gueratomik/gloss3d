@@ -2092,11 +2092,13 @@ static void g3dmesh_drawFaceList ( G3DMESH *mes, LIST *lis, uint32_t flags ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
 
         if ( fac->nbver == 0x03 ) {
-            g3dface_drawTriangle ( fac, mes->ltex, obj->flags, flags );
+            g3dface_drawTriangle ( fac, mes->gouraudScalarLimit,
+                                        mes->ltex, obj->flags, flags );
         }
 
         if ( fac->nbver == 0x04 ) {
-            g3dface_drawQuad  ( fac,  mes->ltex, obj->flags, flags );
+            g3dface_drawQuad  ( fac, mes->gouraudScalarLimit,
+                                     mes->ltex, obj->flags, flags );
         }
 
         ltmp = ltmp->next;
@@ -2299,11 +2301,11 @@ void g3dmesh_drawObject ( G3DMESH *mes, uint32_t engine_flags ) {
     }
 
     if ( obj->flags & OBJECTSELECTED ) {
-        g3dface_drawTriangleList ( mes->ltri, mes->ltex, object_flags, engine_flags );
-        g3dface_drawQuadList     ( mes->lqua, mes->ltex, object_flags, engine_flags );
+        g3dface_drawTriangleList ( mes->ltri, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags );
+        g3dface_drawQuadList     ( mes->lqua, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags );
     } else {
-        g3dface_drawTriangleList ( mes->ltri, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
-        g3dface_drawQuadList     ( mes->lqua, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
+        g3dface_drawTriangleList ( mes->ltri, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
+        g3dface_drawQuadList     ( mes->lqua, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
     }
 }
 
@@ -2363,10 +2365,12 @@ void g3dmesh_drawFaces ( G3DMESH *mes, uint32_t object_flags,
             }
 
             if ( fac->nbver == 0x03 ) {
-                g3dface_drawTriangle ( fac, mes->ltex, object_flags, 
+                g3dface_drawTriangle ( fac, mes->gouraudScalarLimit, 
+                                            mes->ltex, object_flags, 
                                                        engine_flags );
             } else {
-                g3dface_drawQuad ( fac, mes->ltex, object_flags, 
+                g3dface_drawQuad ( fac, mes->gouraudScalarLimit, 
+                                        mes->ltex, object_flags, 
                                                    engine_flags );
             }
 
@@ -3742,6 +3746,8 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
                        /*** allocated vertex with ID 0  ***/
     mes->edgid = 0x00;
     mes->facid = 0x00;
+
+    mes->gouraudScalarLimit = cos ( 10.0f * M_PI / 180 );
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
     mes->dump           = g3dmesh_default_dump;

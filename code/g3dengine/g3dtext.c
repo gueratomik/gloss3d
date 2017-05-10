@@ -346,6 +346,12 @@ void g3dtext_setFont ( G3DTEXT *txt,
     if ( fontFound ) {
         printf("using font file %s\n", fontPath);
 
+        if ( txt->fontFaceFile ) {
+            free ( txt->fontFaceFile );
+        }
+
+        txt->fontFaceFile = strdup ( fontPath );
+
         if ( txt->face ) {
             FT_Done_Face ( txt->face );
         }
@@ -374,6 +380,30 @@ void g3dtext_setFont ( G3DTEXT *txt,
         if ( txt->text ) {
             g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
         }
+    }
+}
+
+/******************************************************************************/
+void g3dtext_setSize ( G3DTEXT *txt,
+                       uint32_t fontFaceSize,
+                       uint32_t engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get();
+
+    /*** when size is changed, we need to recreate the whole mesh ***/
+    g3dtext_empty ( txt );
+
+    txt->fontFaceSize = fontFaceSize;
+
+    FT_Set_Char_Size( txt->face,       /* handle to face object           */
+                      0,               /* char_width in 1/64th of points  */
+                      fontFaceSize*64, /* char_height in 1/64th of points */
+                      300,             /* horizontal device resolution    */
+                      300 );
+
+    txt->height = ( float ) txt->face->size->metrics.height / 1000;
+
+    if ( txt->text ) {
+        g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
     }
 }
 
@@ -617,11 +647,12 @@ static void g3dtext_vertex3dv ( double vertex_data[3], void *object_data ) {
 
     if ( chr ) {
         G3DMESH *txtmes = ( G3DMESH * ) txt;
+        float epsilon = ( float ) txt->fontFaceSize / 100000;
         G3DVERTEX *ver  = g3dvertex_seekVertexByPosition ( chr->lver, 
                                                            vertex_data[0], 
                                                            vertex_data[1], 
                                                            vertex_data[2],
-                                                           0.0001f );
+                                                           epsilon );
 
         if ( ( ver == NULL ) ) {
             ver = g3dvertex_new ( vertex_data[0],
@@ -895,12 +926,12 @@ void g3dtext_generate ( G3DOBJECT *obj,
         gluDeleteTess(tobj);
     }
 
-    /*g3dmesh_update ( txt, NULL,
+    g3dmesh_update ( txt, NULL,
                              NULL,
                              NULL,
                              UPDATEFACEPOSITION |
                              UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL, engine_flags );*/
+                             UPDATEVERTEXNORMAL, engine_flags );
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
@@ -934,6 +965,10 @@ void g3dtext_init ( G3DTEXT *txt, uint32_t id,
                       engine_flags );
 
     g3dtext_setText ( txt, text, engine_flags );
+
+    /*** TODO: add more parameters (function pointers) to g3dmesh_init ***/
+    /*** and remove the call to g3dobject_init ***/
+    g3dmesh_init ( txt, id, name, engine_flags );
 
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, DRAWBEFORECHILDREN,
                                      DRAW_CALLBACK(g3dmesh_draw),

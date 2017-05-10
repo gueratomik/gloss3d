@@ -59,6 +59,7 @@ typedef struct _G3DTEXT {
     G3DMESH       mes;
     FT_Face       face;
     char         *fontFaceName;
+    char         *fontFaceFile;
     uint32_t      fontFaceSize;
     char         *text;
     GLenum        triangleTesselationType;

@@ -399,7 +399,9 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          uint32_t   y2,
                          uint32_t   width, 
                          uint32_t   height,
-                         uint32_t   background,
+                         uint32_t   backgroundMode,
+                         uint32_t   backgroundColor,
+                         char      *backgroundImage,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,
@@ -440,7 +442,23 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     }
 
     /*** default background color ***/
-    rsce->background = background;
+    rsce->backgroundMode  = backgroundMode;
+    rsce->backgroundColor = backgroundColor;
+
+    backgroundImage = "/root/Desktop/starfield.jpg";
+    rsce->backgroundMode |= BACKGROUND_IMAGE;
+
+    if ( rsce->backgroundMode & BACKGROUND_IMAGE ) {
+        if ( backgroundImage ) {
+            rsce->backgroundImage.filename = strdup ( backgroundImage );
+
+            g3dcore_loadJpeg ( backgroundImage, 
+                              &rsce->backgroundImage.width,
+                              &rsce->backgroundImage.height,
+                              &rsce->backgroundImage.depth, 
+                              &rsce->backgroundImage.data );
+        }
+    }
 
     /*** viewing camera ***/
     rsce->area.rcam = r3dcamera_new ( cam, width, height );
@@ -502,7 +520,6 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
              y2 = rsce->area.y2;
     uint32_t width  = rsce->area.width,
              height = rsce->area.height;
-    uint32_t background = rsce->background;
     LIST *lfilters = rsce->lfilters;
     int32_t startframe = rsce->startframe,
             endframe = rsce->endframe;
@@ -523,8 +540,10 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
                                            x2,
                                            y2,
                                            width,
-                                           height, 
-                                           background,
+                                           height,
+                                           rsce->backgroundMode, 
+                                           rsce->backgroundColor,
+                                           rsce->backgroundImage.filename,
                                            startframe,
                                            endframe,
                                            rsce->wireframe,

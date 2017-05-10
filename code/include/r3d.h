@@ -101,6 +101,10 @@
 #define OUTLINED  ( 1 << 3 )
 #define BACKFACED ( 1 << 4 )
 
+/*** background modes ***/
+#define BACKGROUND_IMAGE     ( 1      )
+#define BACKGROUND_STRETCHED ( 1 << 1 )
+
 /******************************************************************************/
 #define RFACESMOOTH       ( 1      )
 #define RFACEFLAT         ( 1 << 1 )
@@ -486,11 +490,22 @@ typedef struct _R3DAREA {
 } R3DAREA;
 
 /******************************************************************************/
+typedef struct _R3DIMAGE {
+    char          *filename;
+    unsigned char *data;
+    uint32_t       depth;
+    uint32_t       width;
+    uint32_t       height;
+} R3DIMAGE;
+
+/******************************************************************************/
 typedef struct _R3DSCENE {
     R3DOBJECT robj;
     LIST *lrob; /*** list of render objects ***/
     LIST *lrlt; /*** list of render lights  ***/
-    uint32_t background;
+    uint32_t backgroundMode;
+    uint32_t backgroundColor;
+    R3DIMAGE backgroundImage;
     LIST *lthread; /*** list of render areas thread***/
     R3DAREA area;
     LIST *lfilters;
@@ -830,21 +845,24 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( G3DSCENE *, G3DCAMERA *,
-                                     uint32_t, 
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     int32_t,
-                                     int32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     float,
-                                     LIST * );
+R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
+                         G3DCAMERA *cam,
+                         uint32_t   x1, 
+                         uint32_t   y1,
+                         uint32_t   x2,
+                         uint32_t   y2,
+                         uint32_t   width, 
+                         uint32_t   height,
+                         uint32_t   backgroundMode,
+                         uint32_t   backgroundColor,
+                         char      *backgroundImage,
+                         int32_t    startframe,
+                         int32_t    endframe,
+                         uint32_t   outline,
+                         uint32_t   wireframeLighting,
+                         uint32_t   wireframeColor,
+                         float      wireframeThickness,
+                         LIST      *lfilters );
 
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );

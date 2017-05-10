@@ -150,11 +150,7 @@ G3DIMAGE *g3dimage_new ( const char *filename ) {
     }
 
     if ( filename ) {
-        uint32_t len = strlen ( filename ) + 0x01;
-
-        img->name = calloc ( len, 0x01 );
-
-        memcpy ( img->name, filename, len );
+        img->name = strdup ( filename );
     }
 
     return img;

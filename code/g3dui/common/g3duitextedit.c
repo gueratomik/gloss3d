@@ -98,3 +98,24 @@ void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness ) {
         g3dui_redrawGLViews ( gui );
     }
 }
+
+/******************************************************************************/
+void common_g3duitextedit_sizeCbk ( G3DUI *gui, uint32_t size ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevent useless primitive building when XmTextSetString is called ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
+        G3DTEXT *txt = ( G3DTEXT * ) obj;
+
+        g3dui_setHourGlass ( gui );
+
+        g3dtext_setSize ( txt, size, gui->flags );
+
+        g3dui_unsetHourGlass ( gui );
+
+        g3dui_redrawGLViews ( gui );
+    }
+}

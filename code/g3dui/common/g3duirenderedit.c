@@ -291,6 +291,6 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI *gui, unsigned char R,
     if ( rsg ) {
         LIST *ltmp = gui->lmatlist;
 
-        rsg->background = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+        rsg->backgroundColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
     }
 }

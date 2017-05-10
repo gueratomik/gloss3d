@@ -44,6 +44,21 @@ static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void gouraudCbk ( GtkWidget *widget, 
+                         GdkEvent  *event,
+                         gpointer   user_data ) {
+    float gouraud = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( ( gouraud > 0.0f ) && ( gouraud < 90.0f ) ) {
+        common_g3duimeshedit_gouraudCbk ( gui, gouraud * M_PI / 180 );
+    } else {
+        updateMeshEdit ( parent, gui );
+    }
+} 
+
+/******************************************************************************/
 static void nameCbk  ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -122,24 +137,40 @@ static void createWeightgroupFrame ( GtkWidget *frm, G3DUI *gui,
 /******************************************************************************/
 void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
 
-        if ( strcmp ( child_name, EDITMESHWEIGHTGROUP ) == 0x00 ) {
-            updateWeightgroupFrame ( child, gui );
+        while ( children ) {
+            GtkWidget *child = ( GtkWidget * ) children->data;
+            const char *child_name = gtk_widget_get_name ( child );
+
+            if ( strcmp ( child_name, EDITMESHWEIGHTGROUP ) == 0x00 ) {
+                updateWeightgroupFrame ( child, gui );
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                GtkSpinButton *spb = GTK_SPIN_BUTTON ( child );
+
+                if ( strcmp ( child_name, EDITMESHGOURAUDLIMIT ) == 0x00 ) {
+                    double angle = acos ( mes->gouraudScalarLimit );
+
+                    gtk_spin_button_set_value ( child, angle * 180 / M_PI );
+                }
+            }
+
+            children =  g_list_next ( children );
         }
 
-        children =  g_list_next ( children );
+        /*** It's not the best place for that but I don't ***/
+        /*** have time to figure out a better solution. ***/
+        g3dui_redrawAllWeightGroupList ( gui );
     }
-
-    /*** It's not the best place for that but I don't ***/
-    /*** have time to figure out a better solution. ***/
-    g3dui_redrawAllWeightGroupList ( gui );
 
 
     gui->lock = 0x00;
@@ -172,7 +203,10 @@ GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createWeightgroupFrame ( frm, gui,   0, 0, 286, 140 );
+    createFloatText   ( frm, gui, EDITMESHGOURAUDLIMIT, 0,  0,
+                                                      160, 64, gouraudCbk );
+
+    createWeightgroupFrame ( frm, gui,   0, 24, 286, 140 );
 
     gtk_widget_show ( frm );
 

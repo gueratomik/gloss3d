@@ -391,7 +391,6 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
              x2 = rsce->area.x2,
              y2 = rsce->area.y2;
     uint32_t height = rsce->area.height;
-    uint32_t background = rsce->background;
     int32_t startframe = rsce->startframe,
             endframe = rsce->endframe;
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
@@ -446,7 +445,9 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                        y2,
                                        width,
                                        height, 
-                                       background,
+                                       rsce->backgroundMode, 
+                                       rsce->backgroundColor,
+                                       rsce->backgroundImage.filename,
                                        startframe,
                                        endframe,
                                        rsce->wireframe,

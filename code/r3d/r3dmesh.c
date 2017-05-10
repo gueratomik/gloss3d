@@ -149,6 +149,7 @@ static void Alloc ( uint32_t nbver,
 static void Dump ( G3DFACE *fac, void *data ) {
     R3DDUMP *rdump = ( R3DDUMP * ) data;
     R3DMESH *rms = rdump->rmes;
+    G3DMESH *mes = ( G3DMESH * ) ((R3DOBJECT*)rdump->rmes)->obj;
     double MVX[0x10];
 
     g3dcore_multmatrix ( rdump->wmatrix, rdump->cmatrix, MVX );
@@ -167,9 +168,13 @@ static void Dump ( G3DFACE *fac, void *data ) {
 
             for ( i = 0x00; i < 0x03; i++ ) {
                 G3DVERTEX *ver = fac->ver[i];
+                float scalar = fabs ( g3dvector_scalar ( &ver->nor,
+                                                         &fac->nor ) );
+                float gouraudScalarLimit = mes->gouraudScalarLimit;
                 G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                   &ver->pos,
-                          *nor = &ver->nor;
+                          *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
+                                                                   &ver->nor;
                 double sx, sy, sz;
                 /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/
                 R3DVERTEX *rver = &rms->rver[rms->curfac->rverID[i]];

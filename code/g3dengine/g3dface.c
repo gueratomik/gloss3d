@@ -733,8 +733,10 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t object_flags,
 }
 
 /******************************************************************************/
-void g3dface_draw  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
-                                               uint32_t engine_flags ) {
+void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
+                                   LIST    *ltex, 
+                                   uint32_t object_flags,
+                                   uint32_t engine_flags ) {
     static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
     uint32_t   nbtex = 0x00;
     G3DVECTOR *pos[0x04];
@@ -788,7 +790,14 @@ void g3dface_draw  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
             #endif
         }
 
-        glNormal3fv ( ( float * ) &ver->nor );
+/*printf("%f\n", fabs ( g3dvector_scalar ( &ver->nor, &fac->nor ) ) );*/
+        if ( fabs ( g3dvector_scalar ( &ver->nor, 
+                                       &fac->nor ) ) < gouraudScalarLimit ) {
+            glNormal3fv ( ( float * ) &fac->nor );
+        } else {
+            glNormal3fv ( ( float * ) &ver->nor );
+        }
+
         glVertex3fv ( ( float * )  pos[i] );
     }
     glEnd ( );
@@ -799,15 +808,21 @@ void g3dface_draw  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
 }
 
 /******************************************************************************/
-void g3dface_drawQuad  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
-                                                   uint32_t engine_flags ) {
-    g3dface_draw ( fac, ltex, object_flags, engine_flags );
+void g3dface_drawQuad ( G3DFACE *fac,
+                        float    gouraudScalarLimit,
+                        LIST    *ltex, 
+                        uint32_t object_flags,
+                        uint32_t engine_flags ) {
+    g3dface_draw ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
 }
 
 /******************************************************************************/
-void g3dface_drawTriangle  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
-                                                   uint32_t engine_flags ) {
-    g3dface_draw ( fac, ltex, object_flags, engine_flags );
+void g3dface_drawTriangle  ( G3DFACE *fac,
+                             float    gouraudScalarLimit,
+                             LIST    *ltex, 
+                             uint32_t object_flags,
+                             uint32_t engine_flags ) {
+    g3dface_draw ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
 }
 
 #ifdef unused
@@ -1164,13 +1179,16 @@ if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
 #endif
 
 /******************************************************************************/
-void g3dface_drawQuadList ( LIST *lqua, LIST *ltex, uint32_t object_flags,
-                                                    uint32_t engine_flags ) {
+void g3dface_drawQuadList ( LIST    *lqua,
+                            float    gouraudScalarLimit, 
+                            LIST    *ltex, 
+                            uint32_t object_flags,
+                            uint32_t engine_flags ) {
 
     while ( lqua ) {
         G3DFACE *fac = ( G3DFACE * ) lqua->data;
 
-        g3dface_drawQuad        ( fac, ltex, object_flags, engine_flags );
+        g3dface_drawQuad ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
 
 
         lqua = lqua->next;
@@ -1178,13 +1196,16 @@ void g3dface_drawQuadList ( LIST *lqua, LIST *ltex, uint32_t object_flags,
 }
 
 /******************************************************************************/
-void g3dface_drawTriangleList ( LIST *ltri, LIST *ltex, uint32_t object_flags,
-                                                        uint32_t engine_flags ) {
+void g3dface_drawTriangleList ( LIST    *ltri,
+                                float    gouraudScalarLimit, 
+                                LIST    *ltex, 
+                                uint32_t object_flags,
+                                uint32_t engine_flags ) {
 
     while ( ltri ) {
         G3DFACE *fac = ( G3DFACE * ) ltri->data;
 
-        g3dface_drawTriangle    ( fac, ltex, object_flags, engine_flags );
+        g3dface_drawTriangle ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
 
 
         ltri = ltri->next;

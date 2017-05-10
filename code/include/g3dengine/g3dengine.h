@@ -1022,6 +1022,7 @@ struct _G3DMESH {
     uint32_t nbseltex;
     uint32_t nbtex;
     uint32_t nbuvmap;
+    float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
     G3DFACE **faceindex; /*** Face index array in sculpt mode ***/
@@ -1538,7 +1539,7 @@ G3DFACE *g3dquad_new              ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX *,
                                                               G3DVERTEX * );
 G3DFACE *g3dtriangle_new          ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX * );
 void     g3dface_normal           ( G3DFACE * );
-void     g3dface_draw             ( G3DFACE *, LIST *, uint32_t, uint32_t );
+void     g3dface_draw             ( G3DFACE *, float, LIST *, uint32_t, uint32_t );
 uint32_t g3dface_intersect        ( G3DFACE *, G3DVECTOR *, G3DVECTOR *,
                                                             G3DVECTOR * );
 void     g3dface_free             ( G3DFACE * );
@@ -1624,10 +1625,10 @@ uint32_t g3dface_initsubmem       ( G3DFACE *, G3DSUBVERTEX **,
                                                G3DSUBFACE   **,
                                                G3DSUBUVSET  ** );
 LIST    *g3dface_getEdgesFromList ( LIST * );
-void     g3dface_drawTriangleList ( LIST *, LIST *, uint32_t, uint32_t );
-void     g3dface_drawQuadList     ( LIST *, LIST *, uint32_t, uint32_t );
-void     g3dface_drawTriangle     ( G3DFACE *, LIST *, uint32_t, uint32_t );
-void     g3dface_drawQuad         ( G3DFACE *, LIST *, uint32_t, uint32_t );
+void     g3dface_drawTriangleList ( LIST *, float, LIST *, uint32_t, uint32_t );
+void     g3dface_drawQuadList     ( LIST *, float, LIST *, uint32_t, uint32_t );
+void     g3dface_drawTriangle     ( G3DFACE *, float, LIST *, uint32_t, uint32_t );
+void     g3dface_drawQuad         ( G3DFACE *, float, LIST *, uint32_t, uint32_t );
 void     g3dface_updateBufferedSubdivision ( G3DFACE *, G3DSUBDIVISION *,
                                                         uint32_t, 
                                                         float, 

@@ -82,6 +82,28 @@ void common_g3duimeshedit_subdivRenderCbk ( G3DUI *gui, int level ) {
     g3dui_redrawGLViews ( gui );
 }
 
+/******************************************************************************/
+void common_g3duimeshedit_gouraudCbk ( G3DUI *gui, float scalarLimit ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    g3dui_setHourGlass ( gui );
+
+    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+
+        mes->gouraudScalarLimit = cos ( scalarLimit );
+    }
+
+    g3dui_unsetHourGlass ( gui );
+
+    g3dui_redrawGLViews ( gui );
+}
+
+
 
 /******************************************************************************/
 void common_g3duimeshedit_subdivLevelCbk ( G3DUI *gui, int level ) {

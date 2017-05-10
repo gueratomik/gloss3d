@@ -860,7 +860,31 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         }
     }
 
-    return rsce->background;
+    if ( rsce->backgroundMode & BACKGROUND_IMAGE ) {
+        float x = ( rsce->area.width  ) ? ( float ) ray->x / rsce->area.width  : 0.0f,
+              y = ( rsce->area.height ) ? ( float ) ray->y / rsce->area.height : 0.0f;
+        uint32_t inty = ( y * rsce->backgroundImage.height ),
+                 intx = ( x * rsce->backgroundImage.width  );
+        uint32_t offset =  ( inty * rsce->backgroundImage.width ) + intx;
+
+        switch ( rsce->backgroundImage.depth ) {
+            case 0x03 : {
+                char (*imgdata)[0x03] = rsce->backgroundImage.data;
+                uint32_t R = ( uint32_t ) imgdata[offset][0x00],
+                         G = ( uint32_t ) imgdata[offset][0x01],
+                         B = ( uint32_t ) imgdata[offset][0x02];
+
+                return ( R  << 0x10 ) | ( G  << 0x08 ) | B ;
+            } break;
+
+            default :
+            break;
+        }
+
+        return 0x00;
+    }
+
+    return rsce->backgroundColor;
 }
 
 

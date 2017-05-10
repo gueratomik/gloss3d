@@ -119,7 +119,7 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
     rsg->width       = 640;
     rsg->height      = 480;
     rsg->ratio       = (float) rsg->width / rsg->height;
-    rsg->background  = 0x00404040;
+    rsg->backgroundColor  = 0x00404040;
     rsg->mblur       = 5;
     rsg->mblurStrength = 75;
 

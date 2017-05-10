@@ -159,7 +159,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->width, 
                                                     rsg->height, 
                                                     rsg->depth, 
-                                                    rsg->background );
+                                                    rsg->backgroundColor );
         /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
         /*R3DFILTER *clean = r3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
                                            NULL, 

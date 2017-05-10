@@ -789,9 +789,9 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                 GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
 
                 if ( strcmp ( child_name, EDITRENDERBACKGROUND ) == 0x00 ) {
-                    unsigned char R = ( rsg->background & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->background & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->background & 0x000000FF );
+                    unsigned char R = ( rsg->backgroundColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( rsg->backgroundColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( rsg->backgroundColor & 0x000000FF );
                     GdkRGBA rgba = { .red   = ( float ) R / 255,
                                      .green = ( float ) G / 255,
                                      .blue  = ( float ) B / 255,
