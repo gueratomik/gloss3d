@@ -170,7 +170,7 @@ static void renderSettingsCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
     gui->lock = 0x01;
 
-    createRenderEdit ( dial, gui, "RENDEREDIT", 0, 0, 256, 348 );
+    createRenderEdit ( dial, gui, "RENDEREDIT", 0, 0, 480, 340 );
 
     gtk_widget_show ( dial );
 

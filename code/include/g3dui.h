@@ -189,6 +189,9 @@
 #define EDITKEYLOOPFRAME "EDITKEYLOOPFRAME"
 
 /******************************************************************************/
+#define EDITRENDERGENERAL          "General"
+#define EDITRENDEREFFECTS          "Effects"
+#define EDITRENDERSETTINGS         "Settings"
 #define EDITRENDERSTART            "From Frame"
 #define EDITRENDEREND              "To Frame"
 #define EDITRENDERFPS              "Framerate"
@@ -205,7 +208,11 @@
 #define EDITRENDERSCENEMOTIONBLUR  "Scene Motion Blur"
 #define EDITRENDERSCENEMOTIONBLURITERATION "Iterations:"
 #define EDITRENDERENABLEMOTIONBLUR "Enable Motion Blur"
-#define EDITRENDERBACKGROUND       "Background"
+#define EDITRENDERBACKGROUNDFRAME        "Background settings"
+#define EDITRENDERBACKGROUNDCOLOR        "Background Color"
+#define EDITRENDERBACKGROUNDIMAGE        "Background Image"
+#define EDITRENDERBACKGROUNDSTRETCHIMAGE "Stretch Image"
+
 #define EDITRENDERPREVIEW          "Make preview"
 #define EDITRENDERRUN              "Run render"
 #define EDITRENDERSAVEOUTPUTFRAME  "Output"

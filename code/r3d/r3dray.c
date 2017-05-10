@@ -869,7 +869,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
         switch ( rsce->backgroundImage.depth ) {
             case 0x03 : {
-                char (*imgdata)[0x03] = rsce->backgroundImage.data;
+                unsigned char (*imgdata)[0x03] = rsce->backgroundImage.data;
                 uint32_t R = ( uint32_t ) imgdata[offset][0x00],
                          G = ( uint32_t ) imgdata[offset][0x01],
                          B = ( uint32_t ) imgdata[offset][0x02];

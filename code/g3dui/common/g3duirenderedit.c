@@ -289,8 +289,40 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI *gui, unsigned char R,
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     if ( rsg ) {
-        LIST *ltmp = gui->lmatlist;
-
         rsg->backgroundColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( rsg ) {
+        rsg->backgroundMode &= (~BACKGROUND_IMAGE);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( rsg ) {
+        rsg->backgroundMode |= BACKGROUND_IMAGE;
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
+                                                    char  *filename ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( rsg ) {
+        if ( rsg->backgroundImage ) {
+            g3dimage_free ( rsg->backgroundImage );
+        }
+
+        rsg->backgroundImage = g3dimage_newFromJpeg ( filename, 1 );
+        /*** make it an opengl texture. We'll use it for the opengl views ***/
+        /*g3dimage_bind ( rsg->backgroundImage );*/
     }
 }

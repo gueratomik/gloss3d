@@ -110,8 +110,6 @@ GtkWidget *createPanel ( GtkWidget *parent, G3DUI *gui,
     /*gtk_fixed_put ( parent, pan, x, y );*/
     gtk_notebook_append_page ( GTK_NOTEBOOK(parent), pan, lab );
 
-
-
     /*gtk_widget_show ( lab );*/
     gtk_widget_show ( pan );
 
@@ -366,7 +364,7 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                             if ( mat->displacement.image->name ) {
                                 char *imgpath, *imgname;
 
-                                imgpath = g3dcore_strclone ( mat->displacement.image->name );
+                                imgpath = strdup ( mat->displacement.image->name );
 
                                 /*** We just keep the image name, not the whole ***/
                                 /*** path and display it as the button label.   ***/

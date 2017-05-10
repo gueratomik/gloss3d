@@ -141,7 +141,7 @@ static void startFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_startFrameCbk ( gui, frame );
 
-    updateRenderEdit ( parent, gui );
+    updateGeneralPanel ( parent, gui );
 }
 
 /******************************************************************************/
@@ -160,7 +160,7 @@ static void endFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_endFrameCbk ( gui, frame );
 
-    updateRenderEdit ( parent, gui );
+    updateGeneralPanel ( parent, gui );
 }
 
 /******************************************************************************/
@@ -171,7 +171,7 @@ static void ratioCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_ratioCbk ( gui, ratio );
 
-    updateRenderEdit ( parent, gui );
+    updateGeneralPanel ( parent, gui );
 }
 
 /******************************************************************************/
@@ -182,7 +182,7 @@ static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_widthCbk ( gui, ( uint32_t ) width );
 
-    updateRenderEdit ( parent, gui );
+    updateGeneralPanel ( parent, gui );
 }
 
 /******************************************************************************/
@@ -193,7 +193,7 @@ static void heightCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_heightCbk ( gui, ( uint32_t ) height );
 
-    updateRenderEdit ( parent, gui );
+    updateGeneralPanel ( parent, gui );
 }
 
 /******************************************************************************/
@@ -720,8 +720,9 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
     return frm;
 }
 
+
 /******************************************************************************/
-void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
@@ -731,16 +732,173 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( gui->currsg ) {
             G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
-            if ( strcmp ( child_name, EDITRENDERMOTIONBLURFRAME ) == 0x00 ) {
-                updateMotionBlurFrame ( child, gui );
+            if ( GTK_IS_RADIO_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
+                    if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
+                        gtk_toggle_button_set_active ( tbn, FALSE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, TRUE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
+                    if ( ( rsg->backgroundMode & BACKGROUND_IMAGE ) ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
             }
+
+            if ( GTK_IS_BUTTON(child) && (GTK_IS_RADIO_BUTTON(child) == FALSE) ) {
+                if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
+                    if ( rsg->backgroundImage && 
+                         rsg->backgroundImage->name ) {
+                        char *imgpath, *imgname;
+
+                        imgpath = strdup ( rsg->backgroundImage->name );
+
+                        /*** We just keep the image name, not the whole ***/
+                        /*** path and display it as the button label.   ***/
+                        imgname = basename ( imgpath );
+
+                        gtk_button_set_label ( child, imgname );
+
+                        free ( imgpath );
+                    }
+                }
+            }
+
+            if ( GTK_IS_COLOR_BUTTON(child) ) {
+                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
+
+                if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
+                    unsigned char R = ( rsg->backgroundColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( rsg->backgroundColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( rsg->backgroundColor & 0x000000FF );
+                    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                                     .green = ( float ) G / 255,
+                                     .blue  = ( float ) B / 255,
+                                     .alpha = 1.0f };
+
+                    gtk_color_chooser_set_rgba ( ccr, &rgba );
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+}
+
+/******************************************************************************/
+static void updateBackgroundFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateBackgroundForm ( frm, gui );
+}
+
+/******************************************************************************/
+static void setBackgroundImageCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+
+        common_g3duirenderedit_setBackgroundImageCbk ( gui, filename );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    updateBackgroundForm ( gtk_widget_get_parent ( widget ), gui );
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+static void setBackgroundColorModeCbk ( GtkWidget *widget, 
+                                        gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setBackgroundColorModeCbk ( gui );
+}
+
+/******************************************************************************/
+static void setBackgroundImageModeCbk ( GtkWidget *widget, 
+                                        gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setBackgroundImageModeCbk ( gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
+                                                            char *name,
+                                                            gint x,
+                                                            gint y,
+                                                            gint width,
+                                                            gint height ) {
+    GtkWidget *vbr, *col, *frm, *btn;
+
+    frm = createFrame ( parent, gui, name, x, y, width, height );
+
+    btn = createRadioLabel ( frm, gui,
+                             EDITRENDERBACKGROUNDCOLOR,
+                             NULL,
+                               0,  0, 96, 18,
+                             setBackgroundColorModeCbk );
+
+          createRadioLabel ( frm, gui,
+                                  EDITRENDERBACKGROUNDIMAGE,
+                                  btn,
+                                    0, 24, 96, 18,
+                                  setBackgroundImageModeCbk );
+
+          createColorButton ( frm, gui, EDITRENDERBACKGROUNDCOLOR,
+                                   160, 0, 96, 18, backgroundCbk );
+
+          createPushButton   ( frm, gui, EDITRENDERBACKGROUNDIMAGE,
+                                   160, 24, 
+                                     96,  18, setBackgroundImageCbk );
+
+
+    return frm;
+}
+
+/******************************************************************************/
+void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
             if ( strcmp ( child_name, EDITRENDERSAVEOUTPUTFRAME ) == 0x00 ) {
                 updateSaveOutputFrame ( child, gui );
             }
 
-            if ( strcmp ( child_name, EDITRENDERWIREFRAMEFRAME ) == 0x00 ) {
-                updateWireframeFrame ( child, gui );
+            if ( strcmp ( child_name, EDITRENDERBACKGROUNDFRAME ) == 0x00 ) {
+                updateBackgroundFrame ( child, gui );
             }
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
@@ -781,24 +939,113 @@ void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
                 if ( strcmp ( child_name, EDITRENDERHEIGHT ) == 0x00 ) {
                     gtk_spin_button_set_value ( sbn, rsg->height );
                 }
+            }
+        }
 
+        children =  g_list_next ( children );
+    }
+}
 
+/******************************************************************************/
+void createGeneralPanel ( GtkWidget *parent, 
+                          G3DUI     *gui,
+                          char      *name,
+                          gint       x,
+                          gint       y,
+                          gint       width,
+                          gint       height ) {
+    GtkWidget *pan;
+
+    pan = createPanel ( parent, gui, name, x, y, width, height );
+
+    createToggleLabel ( pan, gui, EDITRENDERPREVIEW,
+                               0,  0, 104, 20, previewCbk );
+
+    createIntegerText ( pan, gui, EDITRENDERSTART,
+                               0,  24, 96,  32, startFrameCbk );
+
+    createIntegerText ( pan, gui, EDITRENDEREND,
+                               0,  48, 96,  32, endFrameCbk );
+
+    createIntegerText ( pan, gui, EDITRENDERFPS,
+                               0,  72, 96,  32, fpsCbk );
+
+    createIntegerText ( pan, gui, EDITRENDERWIDTH,
+                               0,  96, 96,  32, widthCbk );
+
+    createIntegerText ( pan, gui, EDITRENDERHEIGHT,
+                               0, 120, 96,  32, heightCbk );
+
+    createFloatText   ( pan, gui, EDITRENDERRATIO,
+                               0, 144, 96,  64, ratioCbk );
+
+    createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
+                               0, 168, 256,  96 );
+
+    createBackgroundForm ( pan, gui, EDITRENDERBACKGROUNDFRAME,
+                               0, 264, 256,  96 );
+}
+
+/******************************************************************************/
+void updateEffectsPanel ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( strcmp ( child_name, EDITRENDERMOTIONBLURFRAME ) == 0x00 ) {
+                updateMotionBlurFrame ( child, gui );
             }
 
-            if ( GTK_IS_COLOR_BUTTON(child) ) {
-                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
+            if ( strcmp ( child_name, EDITRENDERWIREFRAMEFRAME ) == 0x00 ) {
+                updateWireframeFrame ( child, gui );
+            }
+        }
 
-                if ( strcmp ( child_name, EDITRENDERBACKGROUND ) == 0x00 ) {
-                    unsigned char R = ( rsg->backgroundColor & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->backgroundColor & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->backgroundColor & 0x000000FF );
-                    GdkRGBA rgba = { .red   = ( float ) R / 255,
-                                     .green = ( float ) G / 255,
-                                     .blue  = ( float ) B / 255,
-                                     .alpha = 1.0f };
+        children =  g_list_next ( children );
+    }
+}
 
-                    gtk_color_chooser_set_rgba ( ccr, &rgba );
-                }
+/******************************************************************************/
+void createEffectsPanel ( GtkWidget *parent, 
+                          G3DUI     *gui,
+                          char      *name,
+                          gint       x,
+                          gint       y,
+                          gint       width,
+                          gint       height ) {
+    GtkWidget *pan;
+
+    pan = createPanel ( parent, gui, name, x, y, width, height );
+
+    createMotionBlurForm ( pan, gui, EDITRENDERMOTIONBLURFRAME,
+                               0,   0, 256,  96 );
+
+    createWireframeForm ( pan, gui, EDITRENDERWIREFRAMEFRAME,
+                               0, 128, 256,  96 );
+}
+
+/******************************************************************************/
+void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( strcmp ( child_name, EDITRENDEREFFECTS ) == 0x00 ) {
+                updateEffectsPanel ( child, gui );
+            }
+
+            if ( strcmp ( child_name, EDITRENDERGENERAL ) == 0x00 ) {
+                updateGeneralPanel ( child, gui );
             }
         }
 
@@ -818,74 +1065,52 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget* createRenderEdit ( GtkWidget *parent, G3DUI *gui,
-                                                 char *name,
-                                                 gint x,
-                                                 gint y,
-                                                 gint width,
-                                                 gint height ) {
-    GdkRectangle gdkrec = { 0, 0, width, height };
-    GtkWidget *frm = gtk_fixed_new ( );
+GtkWidget* createRenderEdit ( GtkWidget *parent, 
+                              G3DUI     *gui,
+                              char      *name,
+                              gint       x,
+                              gint       y,
+                              gint       width,
+                              gint       height ) {
+    GdkRectangle frmrec = { 0x00, 0x00, width, height };
+    GdkRectangle gdkrec = { 0x00, 0x20, width, height - 0x20 };
+    GtkWidget * frm = gtk_fixed_new ( );
+    GtkWidget *tab;
 
     gtk_widget_set_name ( frm, name );
 
-    /*gtk_widget_size_allocate ( frm, &gdkrec );*/
+    gtk_widget_set_size_request ( frm, frmrec.width, frmrec.height );
 
-    gtk_widget_set_size_request ( frm, gdkrec.width, gdkrec.height );
-
-    /*** For some reason, GtkSpinButtons calls its callbacks ***/
-    /*** when being realized. With this trick I bypass that. ***/
-    /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
-    /*gui->lock = 0x01;*/
-
-    createToggleLabel ( frm, gui, EDITRENDERPREVIEW,
-                               0,  0, 104, 20, previewCbk );
-
-    createIntegerText ( frm, gui, EDITRENDERSTART,
-                               0,  24, 96,  32, startFrameCbk );
-
-    createIntegerText ( frm, gui, EDITRENDEREND,
-                               0,  48, 96,  32, endFrameCbk );
-
-    createIntegerText ( frm, gui, EDITRENDERFPS,
-                               0,  72, 96,  32, fpsCbk );
-
-    createIntegerText ( frm, gui, EDITRENDERWIDTH,
-                               0,  96, 96,  32, widthCbk );
-
-    createIntegerText ( frm, gui, EDITRENDERHEIGHT,
-                               0, 120, 96,  32, heightCbk );
-
-    createFloatText   ( frm, gui, EDITRENDERRATIO,
-                               0, 144, 96,  64, ratioCbk );
-
-    createSaveOutputForm ( frm, gui, EDITRENDERSAVEOUTPUTFRAME,
-                               0, 168, 256,  96 );
-
-    createMotionBlurForm ( frm, gui, EDITRENDERMOTIONBLURFRAME,
-                               0, 264, 256,  96 );
-
-    createWireframeForm ( frm, gui, EDITRENDERWIREFRAMEFRAME,
-                               0, 384, 256,  96 );
-
-    createSimpleLabel ( frm, gui, EDITRENDERBACKGROUND,
-                               0, 504, 96, 20 );
-
-    createColorButton ( frm, gui, EDITRENDERBACKGROUND,
-                              96, 504, 96, 18, backgroundCbk );
+    /*** Because this is an independent window ***/
+    gtk_container_add (GTK_CONTAINER (parent), frm);
 
     createPushButton  ( frm, gui, EDITRENDERRUN,
-                              96, 536, 48, 20, g3dui_runRenderCbk );
+                         (width / 2 ) - 48, 4, 48, 20, g3dui_runRenderCbk );
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
-    g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), gui );
+    /********************/
+    tab = gtk_notebook_new ( );
 
-    gtk_container_add ( GTK_CONTAINER(parent), frm );
+    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
 
-    gtk_widget_show_all ( frm );
+    gtk_widget_set_name ( tab, EDITRENDERSETTINGS );
 
-    /*gui->lock = 0x00;*/
+    gtk_widget_size_allocate ( tab, &gdkrec );
+    /*gtk_widget_set_size_request ( tab, width, height );*/
+
+    gtk_fixed_put ( GTK_FIXED(frm), tab, gdkrec.x, gdkrec.y );
+
+    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
+    g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), gui );
+
+    createGeneralPanel ( tab, gui, EDITRENDERGENERAL, 0, 0, width, height );
+    createEffectsPanel ( tab, gui, EDITRENDEREFFECTS, 0, 0, width, height );
+
+    gtk_widget_show ( tab );
+
+
+    gtk_widget_show ( frm );
+
+    /*list_insert ( &gui->lmatedit, frm );*/
 
     return frm;
 }
-

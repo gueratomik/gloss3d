@@ -154,6 +154,10 @@ void r3dscene_free ( R3DOBJECT *rob ) {
     free ( rsce->area.img );
     free ( rsce->area.rfc );
 
+    if ( rsce->backgroundImage.data ) {
+        free ( rsce->backgroundImage.data );
+    }
+
     r3dcamera_free ( rsce->area.rcam );
 #ifdef VERBOSE
     printf ("R3DSCENE Freed\n" );
@@ -444,9 +448,6 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     /*** default background color ***/
     rsce->backgroundMode  = backgroundMode;
     rsce->backgroundColor = backgroundColor;
-
-    backgroundImage = "/root/Desktop/starfield.jpg";
-    rsce->backgroundMode |= BACKGROUND_IMAGE;
 
     if ( rsce->backgroundMode & BACKGROUND_IMAGE ) {
         if ( backgroundImage ) {
