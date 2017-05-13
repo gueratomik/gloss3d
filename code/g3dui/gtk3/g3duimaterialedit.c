@@ -361,10 +361,10 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 if ( strcmp ( child_name, EDITDISPLACEMENTIMAGE ) == 0x00 ) {
                     if ( mat->displacement.flags & USEIMAGECOLOR ) {
                         if ( mat->displacement.image ) {
-                            if ( mat->displacement.image->name ) {
+                            if ( mat->displacement.image->filename ) {
                                 char *imgpath, *imgname;
 
-                                imgpath = strdup ( mat->displacement.image->name );
+                                imgpath = strdup ( mat->displacement.image->filename );
 
                                 /*** We just keep the image name, not the whole ***/
                                 /*** path and display it as the button label.   ***/
@@ -693,14 +693,14 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 if ( strcmp ( child_name, EDITDIFFUSEIMAGE ) == 0x00 ) {
                     if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         if ( mat->diffuse.image ) {
-                            if ( mat->diffuse.image->name ) {
+                            if ( mat->diffuse.image->filename ) {
                                 char *imgpath, *imgname;
 
-                                imgpath = g3dcore_strclone ( mat->diffuse.image->name );
+                                imgpath = g3dcore_strclone ( mat->diffuse.image->filename );
 
                                 /*** We just keep the image name, not the whole ***/
                                /*** path and display it as the button label.   ***/
-                                 imgname = basename ( imgpath );
+                                imgname = basename ( imgpath );
 
                                 gtk_button_set_label ( btn, imgname );
 

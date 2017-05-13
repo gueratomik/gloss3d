@@ -141,6 +141,7 @@ R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget ) {
 
 /******************************************************************************/
 static void Map ( GtkWidget *widget, gpointer user_data ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
@@ -211,8 +212,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                        rsg->depth,
                                                        rsg->fps,
                                                        buf,
-                                                       rsg->ffmpegpath,
-                                                       rsg->ffplaypath );
+                                                       sysinfo->ffmpegPath,
+                                                       sysinfo->ffplayPath );
 
                 /*** ffmpg is NULL is ffmpeg is not found ***/
                 if ( ffmpg ) {

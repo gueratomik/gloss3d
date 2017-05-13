@@ -29,6 +29,12 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/******************************** Static MACROS *******************************/
+#define BUFFERLEN 0x200
+
+/**************************** Static declarations *****************************/
+static G3DIMAGE *g3dimage_new ( const char * );
+
 /*
 ffprobe -v error -of flat=s=_ -select_streams v:0 -show_entries stream=height,width capture.avi 
 streams_stream_0_width=640
@@ -39,9 +45,87 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 */
 
 /******************************************************************************/
-/*void g3dimage_bind ( G3DIMAGE *img ) {
+void g3dimage_getVideoSize ( G3DIMAGE *image,
+                             uint32_t  engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    char commandLine[BUFFERLEN];
 
-}*/
+    snprintf ( commandLine, BUFFERLEN, "%s"
+                                       " -v error"
+                                       " -of flat=s=_"
+                                       " -select_streams v:0"
+                                       " -show_entries"
+                                       " stream=height,width"
+                                       " %s", sysinfo->ffprobePath,
+                                              image->filename );
+
+    #ifdef __linux__
+    FILE *fp = popen (commandLine, "r" );
+
+    if ( fp ) {
+        char line[BUFFERLEN];
+
+        while ( ( fgets ( line, BUFFERLEN, fp ) ) != NULL ) {
+            sscanf ( line, "streams_stream_0_width=%d", &image->width );
+            sscanf ( line, "streams_stream_0_height=%d", &image->height );
+        }
+        pclose ( fp );
+    }
+    #endif
+    #ifdef __MINGW32__
+    fprintf ( stderr, "%s not implemented for Windows systems!\n", __func__ );
+    #endif
+
+    image->depth         = 24;
+    image->bytesperpixel =  3;
+    image->bytesperline  = image->bytesperpixel * image->width;
+}
+
+/******************************************************************************/
+void g3dimage_animate ( G3DIMAGE *image,
+                        float     startFrame, 
+                        float     currentFrame,
+                        float     endFrame,
+                        float     frameRate,
+                        uint32_t  engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    float    millis  = ( currentFrame - startFrame ) / frameRate * 1000;
+    uint32_t seconds = millis  / 1000,
+             minutes = seconds / 60,
+             hours   = minutes / 60;
+    uint32_t deltaMillis  = millis  - ( seconds * 1000 ),
+             deltaSeconds = seconds - ( minutes * 60 ),
+             deltaMinutes = minutes - ( hours * 60 ),
+             deltaHours   = hours;
+
+    char commandLine[BUFFERLEN];
+
+    snprintf ( commandLine, BUFFERLEN, "%s"
+                                       " -ss %02d:%02d:%02d.%03d"
+                                       " -i %s"
+                                       " -frames:v 1"
+                                       " -f rawvideo"
+                                       " -pix_fmt rgb24"
+                                       " pipe:1", sysinfo->ffmpegPath,
+                                                  deltaHours, 
+                                                  deltaMinutes,
+                                                  deltaSeconds,
+                                                  deltaMillis,
+                                                  image->filename );
+
+    #ifdef __linux__
+    FILE *fp = popen (commandLine, "r" );
+
+    if ( fp ) {
+        fread ( image->data, image->height, image->bytesperline, fp );
+
+        pclose ( fp );
+    }
+    #endif
+    #ifdef __MINGW32__
+    fprintf ( stderr, "%s not implemented for Windows systems!\n", __func__ );
+    #endif
+}
 
 /******************************************************************************/
 void g3dimage_bind ( G3DIMAGE *img ) {
@@ -73,6 +157,17 @@ void g3dimage_bind ( G3DIMAGE *img ) {
     #endif
 
     glDisable ( GL_TEXTURE_2D );
+}
+
+/******************************************************************************/
+G3DIMAGE *g3dimage_newFromVideo ( const char *filename, uint32_t poweroftwo ) {
+    G3DIMAGE *img = g3dimage_new ( filename );
+
+    g3dimage_getVideoSize ( img, 0x00 );
+
+    img->data = malloc ( img->height * img->bytesperline );
+
+    return img;
 }
 
 /******************************************************************************/
@@ -149,7 +244,7 @@ G3DIMAGE *g3dimage_newFromJpeg ( const char *filename, uint32_t poweroftwo ) {
 }
 
 /******************************************************************************/
-G3DIMAGE *g3dimage_new ( const char *filename ) {
+static G3DIMAGE *g3dimage_new ( const char *filename ) {
     G3DIMAGE *img = ( G3DIMAGE * ) calloc ( 0x01, sizeof ( G3DIMAGE ) );
 
     if ( img == NULL ) {
@@ -159,7 +254,7 @@ G3DIMAGE *g3dimage_new ( const char *filename ) {
     }
 
     if ( filename ) {
-        img->name = strdup ( filename );
+        img->filename = strdup ( filename );
     }
 
     return img;

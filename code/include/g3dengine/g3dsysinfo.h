@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -26,42 +26,54 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#include <config.h>
-#include <g3dui.h>
+
+/**
+ * @file
+ */
 
 /******************************************************************************/
-G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
-    G3DUIRENDERSETTINGS *rsg = calloc ( 0x01, sizeof ( G3DUIRENDERSETTINGS ) );
+#ifndef _G3DSYSINFO_H_
+#define _G3DSYSINFO_H_
 
-    if ( rsg == NULL ) {
-        fprintf ( stderr, "g3duirendersettings_new: memory allocation failed\n" );
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-        return NULL;
-    }
+/**
+ * @struct G3DSYSINFO
+ * @brief A structure to store system-type info (number of CPUs, etc...).
+ */
+typedef struct _G3DSYSINFO {
+    FT_Library       ftlib;
+    uint32_t         nbcpu;
+    char            *ffmpegPath;
+    char            *ffplayPath;
+    char            *ffprobePath;
+    G3DSUBDIVISION **subdivisions; /*** one per core ***/
+} G3DSYSINFO;
 
-    rsg->flags       = VECTORMOTIONBLUR;
-    rsg->fps         = 0x18;
-    rsg->depth       = 0x18;
-    rsg->startframe  = 0x00;
-    rsg->endframe    = 0x00;
-    rsg->outfile     = strdup("Untitled");
-    rsg->format      = RENDERTOIMAGE;
-    rsg->width       = 640;
-    rsg->height      = 480;
-    rsg->ratio       = (float) rsg->width / rsg->height;
-    rsg->backgroundColor  = 0x00404040;
-    rsg->mblur       = 5;
-    rsg->mblurStrength = 75;
+/******************************************************************************/
 
-    rsg->wireframeThickness = 1.0f;
-    rsg->wireframeColor     = 0x00A40000; /* some red */
+/**
+ * Get a pointer to a G3DSUBDIVISION  structure. The structure is used for
+ * per-core catmull-clark subdivisions. It contains the array used by the
+ * subdivision algorithm. The structure must not be freed.
+ * @param a pointer to the G3DSYSINFO structure.
+ * @param the ID of the CPU for which holds the structure (one per CPU).
+ * @return the allocated G3DSUBDIVISION. Must not be freed.
+ */
+G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, 
+                                            uint32_t    cpuID );
 
-    rsg->vMotionBlurSamples = 0x01;
-    rsg->vMotionBlurSubSamplingRate = 1.0f;
+/**
+ * Get a pointer to the G3DSYSINFO structure. The structure is allocated 
+ * at the first call of this function and must not be freed.
+ * @return a pointer to the G3DSYSINFO structure that MUST NOT be freed.
+ */
+G3DSYSINFO *g3dsysinfo_get ( );
 
-    rsg->lfilter     = NULL;
-
-
-    return rsg;
+#ifdef __cplusplus
 }
+#endif
 
+#endif

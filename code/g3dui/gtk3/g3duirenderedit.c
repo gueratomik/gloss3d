@@ -755,10 +755,10 @@ static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_BUTTON(child) && (GTK_IS_RADIO_BUTTON(child) == FALSE) ) {
                 if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
                     if ( rsg->backgroundImage && 
-                         rsg->backgroundImage->name ) {
+                         rsg->backgroundImage->filename ) {
                         char *imgpath, *imgname;
 
-                        imgpath = strdup ( rsg->backgroundImage->name );
+                        imgpath = strdup ( rsg->backgroundImage->filename );
 
                         /*** We just keep the image name, not the whole ***/
                         /*** path and display it as the button label.   ***/

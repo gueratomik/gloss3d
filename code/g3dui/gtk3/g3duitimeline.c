@@ -285,6 +285,8 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                     if ( oncursor ) {
                         gui->curframe += ( xacc / ( int32_t ) tdata->nbpix );
 
+                        common_g3dui_processAnimatedImages ( gui );
+
                         g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
                                                                 gui->flags );
 

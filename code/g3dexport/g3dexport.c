@@ -545,7 +545,7 @@ static uint32_t materialinfo_blocksize ( G3DMATERIAL *mat, uint32_t save_flags )
 
 /******************************************************************************/
 static uint32_t imagecolor_blocksize ( G3DIMAGE *img ) {
-    return strlen ( img->name );
+    return strlen ( img->filename );
 }
 
 /******************************************************************************/
@@ -1820,7 +1820,7 @@ static void solidcolor_writeblock ( G3DCOLOR *col, FILE *fdst ) {
 
 /******************************************************************************/
 static void imagecolor_writeblock ( G3DIMAGE *img, FILE *fdst ) {
-    writef ( img->name, strlen ( img->name ), 0x01, fdst );
+    writef ( img->filename, strlen ( img->filename ), 0x01, fdst );
 }
 
 /******************************************************************************/

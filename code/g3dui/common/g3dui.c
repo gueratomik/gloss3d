@@ -39,6 +39,27 @@
 #include <xpm/extrude.xpm>
 
 /******************************************************************************/
+void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
+    LIST *ltmpAnimatedImages = gui->lanimatedImages;
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( rsg ) {
+        while ( ltmpAnimatedImages ) {
+            G3DIMAGE *img = ( G3DIMAGE * ) ltmpAnimatedImages->data;
+
+            g3dimage_animate ( img,
+                               rsg->startframe, 
+                               gui->curframe,
+                               rsg->endframe,
+                               rsg->fps,
+                               gui->flags );
+
+            ltmpAnimatedImages = ltmpAnimatedImages->next;
+        }
+    }
+}
+
+/******************************************************************************/
 G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
                                                       uint32_t x1, uint32_t y1,
                                                       uint32_t x2, uint32_t y2,
@@ -71,7 +92,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
                                         width, height,
                                         rsg->backgroundMode,
                                         rsg->backgroundColor,
-             ( rsg->backgroundImage ) ? rsg->backgroundImage->name :
+             ( rsg->backgroundImage ) ? rsg->backgroundImage->filename :
                                         NULL,
                                         rsg->startframe,
                                         rsg->endframe,

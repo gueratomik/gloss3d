@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2013         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -477,19 +477,7 @@ typedef struct _G3DBBOX {   /*** Bounding box   ***/
     float xmax, ymax, zmax; /*** Maximum coords ***/
 } G3DBBOX;
 
-/******************************************************************************/
-typedef struct _G3DIMAGE {
-    char    *name;
-    uint32_t width;
-    uint32_t height;
-    uint32_t depth;
-    uint32_t bytesperpixel;
-    uint32_t bytesperline;
-    unsigned char *data;
-    float wratio;   /*** Used when the image dimension must be a power of 2 ***/
-    float hratio;   /*** Used when the image dimension must be a power of 2 ***/
-    GLuint id;
-} G3DIMAGE;
+#include <g3dengine/g3dimage.h>
 
 /******************************************************************************/
 typedef struct _G3DPROCEDURAL {
@@ -952,12 +940,7 @@ typedef struct _G3DSUBDIVISION {
     uint32_t       nbOuterUVSets;
 } G3DSUBDIVISION;
 
-/******************************************************************************/
-typedef struct _G3DSYSINFO {
-    FT_Library ftlib;
-    uint32_t nbcpu;
-    G3DSUBDIVISION **subdivisions; /*** one per core ***/
-} G3DSYSINFO;
+#include <g3dengine/g3dsysinfo.h>
 
 /******************************************************************************/
 typedef struct _G3DWEIGHT {
@@ -2390,12 +2373,6 @@ void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP *, G3DFACEGROUP * );
 G3DTEXTURE *g3dtexture_getFromUVMap  ( LIST *, G3DUVMAP * );
 void        g3dtexture_unsetSelected ( G3DTEXTURE * );
-
-/******************************************************************************/
-G3DIMAGE *g3dimage_new         ( const char * );
-void      g3dimage_free        ( G3DIMAGE * );
-G3DIMAGE *g3dimage_newFromJpeg ( const char *, uint32_t );
-void      g3dimage_bind        ( G3DIMAGE * );
 
 /******************************************************************************/
 G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );

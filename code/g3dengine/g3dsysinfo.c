@@ -29,9 +29,107 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/****************************** Private Macros ********************************/
+#define FFMPEGPATHLEN 0x200
+
+/******************************************************************************/
+static char *getFfmpegPath ( ) {
+    char *path = calloc ( FFMPEGPATHLEN, sizeof ( char ) );
+
+    #ifdef __linux__
+    FILE *fp = popen ("which ffmpeg", "r" );
+
+    if ( fp ) {
+        fgets ( path, FFMPEGPATHLEN, fp );
+
+        if ( strlen ( path ) == 0x00 ) return NULL;
+
+        pclose ( fp );
+    }
+    #endif
+    #ifdef __MINGW32__
+    /* get current folder name */
+    GetModuleFileName ( GetModuleHandle ( NULL ), path, FFMPEGPATHLEN );
+
+    /* extract the dirname */
+    *(strrchr ( path, '\\' )) = 0;
+
+    strncat ( path, "\\ffmpeg.exe", FFMPEGPATHLEN);
+    #endif
+
+    /* trim final newline */
+    path[strcspn(path, "\n")] = 0;
+
+    return path;
+}
+
+/******************************************************************************/
+static char *getFfplayPath ( ) {
+    char *path = calloc ( FFMPEGPATHLEN, sizeof ( char ) );
+
+    #ifdef __linux__
+    FILE *fp = popen ("which ffplay", "r" );
+
+    if ( fp ) {
+        fgets ( path, FFMPEGPATHLEN, fp );
+
+        if ( strlen ( path ) == 0x00 ) return NULL;
+
+        pclose ( fp );
+    }
+    #endif
+    #ifdef __MINGW32__
+    /* get current folder name */
+    GetModuleFileName ( GetModuleHandle ( NULL ), path, FFMPEGPATHLEN );
+
+    /* extract the dirname */
+    *(strrchr ( path, '\\' )) = 0;
+
+    strncat ( path, "\\ffplay.exe", FFMPEGPATHLEN);
+    #endif
+
+    /* trim final newline */
+    path[strcspn(path, "\n")] = 0;
+
+    return path;
+}
+
+/******************************************************************************/
+static char *getFfprobePath ( ) {
+    char *path = calloc ( FFMPEGPATHLEN, sizeof ( char ) );
+
+    #ifdef __linux__
+    FILE *fp = popen ("which ffprobe", "r" );
+
+    if ( fp ) {
+        fgets ( path, FFMPEGPATHLEN, fp );
+
+        if ( strlen ( path ) == 0x00 ) return NULL;
+
+        pclose ( fp );
+    }
+    #endif
+    #ifdef __MINGW32__
+    /* get current folder name */
+    GetModuleFileName ( GetModuleHandle ( NULL ), path, FFMPEGPATHLEN );
+
+    /* extract the dirname */
+    *(strrchr ( path, '\\' )) = 0;
+
+    strncat ( path, "\\ffprobe.exe", FFMPEGPATHLEN);
+    #endif
+
+    /* trim final newline */
+    path[strcspn(path, "\n")] = 0;
+
+    return path;
+}
+
 /******************************************************************************/
 static G3DSYSINFO *g3dsysinfo_new ( ) {
-    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, sizeof ( G3DSYSINFO ) );
+    uint32_t structSize = sizeof ( G3DSYSINFO );
+    uint32_t ptrSize = sizeof ( void * );
+    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, structSize );
     uint32_t i;
 
     if ( sif == NULL ) {
@@ -41,9 +139,13 @@ static G3DSYSINFO *g3dsysinfo_new ( ) {
     }
 
 
+    sif->ffmpegPath  = getFfmpegPath  ( );
+    sif->ffplayPath  = getFfplayPath  ( );
+    sif->ffprobePath = getFfprobePath ( );
+
     sif->nbcpu = g3dcore_getNumberOfCPUs ( );
 
-    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, sizeof ( G3DSUBDIVISION * ) );
+    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, ptrSize );
 
     for ( i = 0x00; i < sif->nbcpu; i++ ) {
         sif->subdivisions[i] = g3dsubdivisionV3_new ( );

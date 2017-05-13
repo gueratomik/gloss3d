@@ -529,8 +529,6 @@ typedef struct _G3DUICONF {
 #define RENDERTOIMAGENAME "Render to image"
 #define RENDERTOVIDEONAME "Render to video"
 
-#define FFMPEGPATHLEN 0x200
-
 /*** G3DUIRENDERSETTINGS flags ***/
 #define RENDERPREVIEW    ( 1      )
 #define RENDERSAVE       ( 1 << 1 )
@@ -554,8 +552,6 @@ typedef struct _G3DUIRENDERSETTINGS {
     uint32_t format;
     uint32_t width, height;
     float    ratio;
-    char     ffmpegpath[FFMPEGPATHLEN];
-    char     ffplaypath[FFMPEGPATHLEN];
     LIST    *lfilter;
     int      pipefd[0x02];
     uint32_t mblurStrength;
@@ -667,6 +663,7 @@ typedef struct _G3DUI {
     float endframe;
     int32_t fps;
     uint32_t playLock;
+    LIST *lanimatedImages;
 } GuiPart, G3DUI;
 
 /********************************* g3dui.c ************************************/
