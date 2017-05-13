@@ -292,7 +292,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
 
                 readf ( imgname, chunklen, 0x01, fsrc );
 
-                curchannel->image = g3dimage_newFromJpeg ( imgname, powerOfTwo );
+                curchannel->image = g3dimage_new ( imgname, powerOfTwo );
 
                 /*** Search the image in the current path if not found ***/
                 if ( curchannel->image == NULL ) {
@@ -325,7 +325,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                     strcat ( imgname, "/"  );
                     strcat ( imgname, workimg );
 
-                    curchannel->image = g3dimage_newFromJpeg ( imgname, 0x01 );
+                    curchannel->image = g3dimage_new ( imgname, 0x01 );
 
                     free ( workdirmem );
                     free ( workimgmem );

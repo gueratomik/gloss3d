@@ -40,23 +40,16 @@
 
 /******************************************************************************/
 void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
-    LIST *ltmpAnimatedImages = gui->lanimatedImages;
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     if ( rsg ) {
-        while ( ltmpAnimatedImages ) {
-            G3DIMAGE *img = ( G3DIMAGE * ) ltmpAnimatedImages->data;
-
-            g3dimage_animate ( img,
-                               rsg->startframe, 
-                               gui->curframe,
-                               rsg->endframe,
-                               rsg->fps,
-                               gui->flags );
-            g3dimage_bind ( img );
-
-            ltmpAnimatedImages = ltmpAnimatedImages->next;
-        }
+        g3dsysinfo_processAnimatedImages ( sysinfo, 
+                                           rsg->startframe,
+                                           gui->curframe,
+                                           rsg->endframe,
+                                           rsg->fps,
+                                           gui->flags );
     }
 }
 

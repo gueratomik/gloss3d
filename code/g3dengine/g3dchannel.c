@@ -42,8 +42,8 @@ void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
             if ( imgx < 0x00 ) imgx = colimg->width  - imgx;
             if ( imgy < 0x00 ) imgy = colimg->height - imgy;
 
-            uint32_t offset = ( imgy * colimg->bytesperline  ) +
-                              ( imgx * colimg->bytesperpixel );
+            uint32_t offset = ( imgy * colimg->bytesPerLine  ) +
+                              ( imgx * colimg->bytesPerPixel );
 
             rgba->r = colimg->data[offset+0x00];
             rgba->g = colimg->data[offset+0x01];

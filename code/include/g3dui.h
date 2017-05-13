@@ -663,7 +663,6 @@ typedef struct _G3DUI {
     float endframe;
     int32_t fps;
     uint32_t playLock;
-    LIST *lanimatedImages;
 } GuiPart, G3DUI;
 
 /********************************* g3dui.c ************************************/

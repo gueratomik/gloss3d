@@ -33,6 +33,31 @@
 #define FFMPEGPATHLEN 0x200
 
 /******************************************************************************/
+void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info, 
+                                        float       sceneStartFrame,
+                                        float       sceneCurrentFrame,
+                                        float       sceneEndFrame,
+                                        float       sceneFramesPerSecond,
+                                        uint32_t    engine_flags ) {
+    LIST *ltmpAnimatedImages = info->lanimatedImages;
+
+    while ( ltmpAnimatedImages ) {
+        G3DIMAGE *img = ( G3DIMAGE * ) ltmpAnimatedImages->data;
+
+        g3dimage_animate ( img,
+                           sceneStartFrame, 
+                           sceneCurrentFrame,
+                           sceneEndFrame,
+                           sceneFramesPerSecond,
+                           engine_flags );
+
+        g3dimage_bind ( img );
+
+        ltmpAnimatedImages = ltmpAnimatedImages->next;
+    }
+}
+
+/******************************************************************************/
 static char *getFfmpegPath ( ) {
     char *path = calloc ( FFMPEGPATHLEN, sizeof ( char ) );
 

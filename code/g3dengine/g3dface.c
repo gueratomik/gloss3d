@@ -779,7 +779,6 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
 
         for ( j = 0x00; j < nbtex; j++ ) {
             #ifdef __linux__
-            glTexCoord2f(texcoord[j].u[i], texcoord[j].v[i]); 
             glMultiTexCoord2fARB ( texcoord[j].tid,
                                    texcoord[j].u[i], 
                                    texcoord[j].v[i] );

@@ -122,7 +122,7 @@ void common_g3dui_materialDisplacementImageCbk ( G3DUI *gui,
     if ( mat ) {
         G3DIMAGE *disimg;
 
-        disimg = g3dimage_newFromJpeg ( filename, 0x01 );
+        disimg = g3dimage_new ( filename, 0x01 );
 
         if ( disimg ) {
             g3dmaterial_addDisplacementImage ( mat, disimg );
@@ -200,12 +200,9 @@ void common_g3dui_materialChooseImageCbk ( G3DUI *gui, char *filename ) {
     if ( gui->lock ) return;
 
     if ( mat ) {
-        /*G3DIMAGE *colimg = g3dimage_newFromJpeg ( filename, 0x01 );*/
-        G3DIMAGE *colimg = g3dimage_newFromVideo ( filename, 0x01 );
+        G3DIMAGE *colimg = g3dimage_new ( filename, 0x01 );
 
         g3dimage_bind ( colimg );
-
-        list_insert ( &gui->lanimatedImages, colimg );
 
         if ( colimg ) {
             LIST *ltmpmat = gui->lmatlist;

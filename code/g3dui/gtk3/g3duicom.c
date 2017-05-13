@@ -44,6 +44,8 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
 
     gui->curframe = gtf->frame;
 
+    common_g3dui_processAnimatedImages ( gui );
+
     /*** Re-enable real time subdivision ***/
     gui->flags &= (~ONGOINGANIMATION);
 }

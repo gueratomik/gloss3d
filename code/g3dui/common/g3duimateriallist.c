@@ -205,7 +205,7 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                         uint32_t offset = ( imgy * colimg->width  ) + imgx;
 
                         /*** This depth part should be optimized ***/
-                        if ( colimg->depth == 0x18 ) {
+                        if ( colimg->bytesPerPixel == 0x03 ) {
                             unsigned char (*data)[0x03] = colimg->data;
 
                             R = data[offset][0x00];
@@ -213,7 +213,7 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                             B = data[offset][0x02];
                         }
 
-                        if ( colimg->depth == 0x08 ) {
+                        if ( colimg->bytesPerPixel == 0x01 ) {
                             unsigned char (*data)[0x01] = colimg->data;
 
                             R = G = B = data[offset][0x00];

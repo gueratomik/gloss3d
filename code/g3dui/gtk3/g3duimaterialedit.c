@@ -285,6 +285,7 @@ static void displacementToggleCbk ( GtkWidget *widget, gpointer user_data ) {
 static void displacementImageCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkFileFilter *filter = gtk_file_filter_new ();
     GtkWidget *dialog;
     gint       res;
 
@@ -297,6 +298,16 @@ static void displacementImageCbk ( GtkWidget *widget, gpointer user_data ) {
                                            "_Open", 
                                            GTK_RESPONSE_OK,
                                            NULL );
+
+    /* extension filters */
+    gtk_file_filter_add_pattern ( filter, "*.jpg" );
+    gtk_file_filter_add_pattern ( filter, "*.png" );
+    gtk_file_filter_add_pattern ( filter, "*.avi" );
+    gtk_file_filter_add_pattern ( filter, "*.mkv" );
+    gtk_file_filter_add_pattern ( filter, "*.flv" );
+    gtk_file_filter_add_pattern ( filter, "*.gif" );
+    gtk_file_filter_add_pattern ( filter, "*.mp4" );
+    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 

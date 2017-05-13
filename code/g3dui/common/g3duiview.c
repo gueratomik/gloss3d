@@ -260,8 +260,40 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
 
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    glMatrixMode ( GL_MODELVIEW );
+    glLoadIdentity ( );
+
+    glMatrixMode ( GL_PROJECTION );
+    glLoadIdentity ( );
+
+    glDepthMask ( GL_FALSE );
+    /*glDisable ( GL_DEPTH_TEST );*/
+
+    if ( rsg ) {
+        if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
+            if ( rsg->backgroundImage ) {
+                glEnable      ( GL_TEXTURE_2D );
+                glBindTexture ( GL_TEXTURE_2D, rsg->backgroundImage->id );
+                glBegin ( GL_QUADS );
+                glTexCoord2f ( 1.0f, 0.0f ); 
+                glVertex3f ( 1.0f,  1.0f, 0.0f );
+                glTexCoord2f ( 1.0f, 1.0f ); 
+                glVertex3f ( 1.0f, -1.0f, 0.0f );
+                glTexCoord2f ( 0.0f, 1.0f ); 
+                glVertex3f (-1.0f, -1.0f, 0.0f );
+                glTexCoord2f ( 0.0f, 0.0f ); 
+                glVertex3f (-1.0f,  1.0f, 0.0f );
+                glEnd ( );
+                glDisable     ( GL_TEXTURE_2D );
+            }
+        }
+    }
+
+    glDepthMask ( GL_TRUE );
 
     glMatrixMode ( GL_PROJECTION );
     glLoadIdentity ( );

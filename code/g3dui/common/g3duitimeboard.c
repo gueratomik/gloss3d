@@ -67,6 +67,8 @@ void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
     /*** Update buffered subdivided meshes ***/
     g3dscene_updateMeshes ( gui->sce, gui->flags );
 
+    common_g3dui_processAnimatedImages ( gui );
+
     g3dui_redrawGLViews ( gui );
 }
 

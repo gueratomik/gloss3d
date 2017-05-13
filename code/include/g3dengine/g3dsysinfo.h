@@ -50,6 +50,7 @@ typedef struct _G3DSYSINFO {
     char            *ffplayPath;
     char            *ffprobePath;
     G3DSUBDIVISION **subdivisions; /*** one per core ***/
+    LIST            *lanimatedImages;
 } G3DSYSINFO;
 
 /******************************************************************************/
@@ -71,6 +72,22 @@ G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif,
  * @return a pointer to the G3DSYSINFO structure that MUST NOT be freed.
  */
 G3DSYSINFO *g3dsysinfo_get ( );
+
+/**
+ * Animated animated textures.
+ * @param a pointer to the G3DSYSINFO structure.
+ * @param the start frame of the 3D animation.
+ * @param the current frame of the 3D animation.
+ * @param the last frame of the 3D animation.
+ * @param the frame rate of the 3D animation.
+ * @param 3D engine flags.
+ */
+void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info, 
+                                        float       sceneStartFrame,
+                                        float       sceneCurrentFrame,
+                                        float       sceneEndFrame,
+                                        float       sceneFramesPerSecond,
+                                        uint32_t    engine_flags );
 
 #ifdef __cplusplus
 }

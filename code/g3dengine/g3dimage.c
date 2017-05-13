@@ -31,9 +31,8 @@
 
 /******************************** Static MACROS *******************************/
 #define BUFFERLEN 0x200
-
-/**************************** Static declarations *****************************/
-static G3DIMAGE *g3dimage_new ( const char * );
+#define NBPREVIEWS 24
+#define PREVIEWSIZE 128
 
 /*
 ffprobe -v error -of flat=s=_ -select_streams v:0 -show_entries stream=height,width capture.avi 
@@ -76,23 +75,25 @@ void g3dimage_getVideoSize ( G3DIMAGE *image,
     fprintf ( stderr, "%s not implemented for Windows systems!\n", __func__ );
     #endif
 
-    image->depth         = 24;
-    image->bytesperpixel =  3;
-    image->bytesperline  = image->bytesperpixel * image->width;
+    image->bytesPerPixel = image->previewBytesPerPixel = 3;
+    image->bytesPerLine  = image->bytesPerPixel * image->width;
 }
 
 /******************************************************************************/
-static void loadFrame ( uint32_t  width,
+static void loadFrame ( char     *animationFileName,
+                        uint32_t  width,
                         uint32_t  height,
                         uint32_t  bytesPerPixel,
                         char     *data,
-                        float     startFrame, 
-                        float     currentFrame,
-                        float     endFrame,
-                        float     frameRate,
+                        uint32_t  startFrame, 
+                        uint32_t  previewFromFrame,
+                        uint32_t  previewToFrame,
+                        uint32_t  endFrame,
+                        uint32_t  frameRate,
                         uint32_t  engine_flags ) {
+    uint32_t nbRequestedFrames = previewToFrame - previewFromFrame;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    float    millis  = ( currentFrame - startFrame ) / frameRate * 1000;
+    float    millis  = ( 1000 * ( previewFromFrame - startFrame ) ) / frameRate;
     uint32_t seconds = millis  / 1000,
              minutes = seconds / 60,
              hours   = minutes / 60;
@@ -101,26 +102,32 @@ static void loadFrame ( uint32_t  width,
              deltaMinutes = minutes - ( hours * 60 ),
              deltaHours   = hours;
 
+
     char commandLine[BUFFERLEN];
 
     snprintf ( commandLine, BUFFERLEN, "\"%s\""
                                        " -ss %02d:%02d:%02d.%03d"
+                                       " -hide_banner"
+                                       " -loglevel panic"
                                        " -i \"%s\""
-                                       " -frames:v 1"
+                                       " -frames:v %d"
                                        " -f rawvideo"
                                        " -pix_fmt rgb24"
+                                       " -vf scale=%d:%d"
                                        " pipe:1", sysinfo->ffmpegPath,
                                                   deltaHours, 
                                                   deltaMinutes,
                                                   deltaSeconds,
                                                   deltaMillis,
-                                                  image->filename );
+                                                  animationFileName,
+                                                  nbRequestedFrames,
+                                                  width, height );
 
     #ifdef __linux__
-    FILE *fp = popen (commandLine, "r" );
+    FILE *fp = popen ( commandLine, "r" );
 
     if ( fp ) {
-        fread ( image->data, image->height, image->bytesperline, fp );
+        fread ( data, height, ( bytesPerPixel * width ) * NBPREVIEWS, fp );
 
         pclose ( fp );
     }
@@ -131,12 +138,12 @@ static void loadFrame ( uint32_t  width,
 }
 
 /******************************************************************************/
-void g3dimage_bind ( G3DIMAGE *img ) {
+void g3dimage_bind ( G3DIMAGE *image ) {
     glEnable ( GL_TEXTURE_2D );
 
     /*glActiveTextureARB ( GL_TEXTURE0 );*/
 
-    glBindTexture ( GL_TEXTURE_2D, img->id );
+    glBindTexture ( GL_TEXTURE_2D, image->id );
 
     /* 
      * Both line are mandatory or else OpenGL will expect MipMapping.
@@ -148,105 +155,152 @@ void g3dimage_bind ( G3DIMAGE *img ) {
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-    glTexImage2D ( GL_TEXTURE_2D, 0x00,
-                                  0x03,
-                                  img->width,
-                                  img->height,
-                                  0x00,
-                                  GL_RGB,
-                                  GL_UNSIGNED_BYTE,
-                                  img->data );
+    if ( image->previewData ) {
+        uint32_t bytesPerPreview = ( image->previewHeight * 
+                                     image->previewWidth  * 
+                                     image->previewBytesPerPixel );
+        uint32_t offset = ( image->previewId * bytesPerPreview );
 
-    /*#ifdef __linux__
-    glGenerateMipmap ( GL_TEXTURE_2D );
-    #endif
-    #ifdef __MINGW32__
-    if ( ext_glGenerateMipmap ) ext_glGenerateMipmap ( GL_TEXTURE_2D );
-    #endif*/
+        glTexImage2D ( GL_TEXTURE_2D, 0x00,
+                                      0x03,
+                                      image->previewWidth,
+                                      image->previewHeight,
+                                      0x00,
+                                      GL_RGB,
+                                      GL_UNSIGNED_BYTE,
+                                     &image->previewData[offset] );
+    } else {
+        glTexImage2D ( GL_TEXTURE_2D, 0x00,
+                                      0x03,
+                                      image->width,
+                                      image->height,
+                                      0x00,
+                                      GL_RGB,
+                                      GL_UNSIGNED_BYTE,
+                                      image->data );
+
+    }
 
     glDisable ( GL_TEXTURE_2D );
 }
 
 /******************************************************************************/
 void g3dimage_loadPreviews ( G3DIMAGE *image,
-                             uint32_t  previewWidth, 
-                             uint32_t  previewHeight,
-                             uint32_t  previewBytesPerPixel,
-                             float     previewFromFrame,
-                             float     previewToFrame,
-                             float     sceneStartFrame,
-                             float     sceneEndFrame,
+                             uint32_t  previewFromFrame,
+                             uint32_t  previewToFrame,
+                             uint32_t  sceneStartFrame,
+                             uint32_t  sceneEndFrame,
                              uint32_t  sceneFramesPerSecond,
                              uint32_t  engine_flags ) {
-    uint32_t bytesPerPreview = ( previewHeight * 
-                                 previewWidth  * 
-                                 previewBytesPerPixel );
-    unsigned char *previewData = image->previewData;
+    uint32_t bytesPerPreview = ( image->previewHeight * 
+                                 image->previewWidth  * 
+                                 image->previewBytesPerPixel );
+    uint32_t nbPreviews = previewToFrame - previewFromFrame;
+    unsigned char *previewData;
     uint32_t i;
 
-    image->previewWidth         = previewWidth;
-    image->previewHeight        = previewHeight;
-    image->previewBytesPerPixel = previewBytesPerPixel;
-    image->previewFromFrame     = previewFromFrame;
-    image->previewToFrame       = previewToFrame;
+    image->previewFromFrame = previewFromFrame;
+    image->previewToFrame   = previewToFrame;
 
-    for ( i = previewFromFrame; i < previewToFrame; i++ ) {
-        /* Load the first frame */
-        loadFrame ( image->previewWidth, 
-                    image->previewHeight,
-                    image->previewBytesPerPixel,
-                    previewData,
-                    sceneStartFrame,     /* startFrame   */
-                    i,                   /* currentFrame */
-                    sceneEndFrame,       /* endFrame     */
-                    sceneFramesPerSecond,/* 3D scene FPS */
-                    engine_flags );
+    image->previewData = realloc ( image->previewData, ( bytesPerPreview * 
+                                                         nbPreviews ) );
+    previewData = image->previewData;
 
-        previewData += bytesPerPreview;
-    }
+    loadFrame ( image->filename,
+                image->previewWidth, 
+                image->previewHeight,
+                image->previewBytesPerPixel,
+                previewData,
+                sceneStartFrame,     /* startFrame       */
+                previewFromFrame,    /* previewFromFrame */
+                previewToFrame,      /* previewFromFrame */
+                sceneEndFrame,       /* endFrame         */
+                sceneFramesPerSecond,/* 3D scene FPS     */
+                engine_flags );
+
+    previewData += bytesPerPreview;
 
 }
 
 /******************************************************************************/
 void g3dimage_animate ( G3DIMAGE *image,
-                        float     startFrame, 
+                        float     sceneStartFrame, 
                         float     currentFrame,
-                        float     endFrame,
-                        float     frameRate,
+                        float     sceneEndFrame,
+                        float     sceneFramesPerSecond,
                         uint32_t  engine_flags ) {
-}
+    uint32_t deltaFrame = ( currentFrame - sceneStartFrame );
+    uint32_t bytesPerPreview = ( image->previewHeight * 
+                                 image->previewWidth  * 
+                                 image->previewBytesPerPixel );
+    uint32_t deltaPreview = ( deltaFrame / NBPREVIEWS );
+    uint32_t previewFromFrame = sceneStartFrame + ( deltaPreview * NBPREVIEWS );
+    /* We want one second of previews */
+    uint32_t previewToFrame = previewFromFrame + NBPREVIEWS;
 
-/******************************************************************************/
-G3DIMAGE *g3dimage_newFromVideo ( const char *filename, uint32_t poweroftwo ) {
-    G3DIMAGE *img = g3dimage_new ( filename );
-
-    g3dimage_getVideoSize ( img, 0x00 );
-
-    if ( img->height && img->width ) {
-        img->data = malloc ( img->height * img->bytesperline );
-
-        /* Load the first frame */
-        loadFrame ( img->previewWidth, 
-                    img->previewHeight,
-                    img->previewBytesPerPixel,
-                    img->data,
-                    0, /* startFrame   */
-                    0, /* currentFrame */
-                    0, /* endFrame     */
-                    24,/* 3D scene FPS */
-                    0x00 );
+    /* 
+     * If the current set of previews does not match the required time segments
+     * generate a new set.
+     */
+    if ( ( previewFromFrame != image->previewFromFrame ) ||
+         ( previewToFrame   != image->previewToFrame ) ) {
+        g3dimage_loadPreviews ( image,
+                                previewFromFrame,
+                                previewToFrame,
+                                sceneStartFrame,
+                                sceneEndFrame,
+                                sceneFramesPerSecond,
+                                engine_flags );
     }
 
-    return img;
+    image->previewId = deltaFrame % NBPREVIEWS;
 }
 
 /******************************************************************************/
-G3DIMAGE *g3dimage_newFromJpeg ( const char *filename, uint32_t poweroftwo ) {
+void g3dimage_initFromVideo ( G3DIMAGE   *image, 
+                              const char *filename, 
+                              uint32_t    poweroftwo ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+
+    g3dimage_getVideoSize ( image, 0x00 );
+
+    image->bytesPerLine = ( image->width * image->bytesPerPixel );
+    image->data = malloc ( image->height * image->bytesPerLine );
+
+    /* Adjust video size so for faster processing */
+    if ( image->height && image->width ) {
+        float ratio = ( float ) image->width / image->height;
+
+        /* width > height */
+        if ( ratio > 1.0f ) {
+            if ( image->width > PREVIEWSIZE ) {
+                image->previewWidth = PREVIEWSIZE;
+                image->previewHeight = ( float ) image->previewWidth / ratio;
+            }
+        } else {
+            if ( image->height > PREVIEWSIZE ) {
+                image->previewHeight = PREVIEWSIZE;
+                image->previewWidth  = ( float ) image->previewHeight * ratio;
+            }
+        }
+    }
+
+    /* Load a first set of previews */
+    g3dimage_loadPreviews ( image, 0, NBPREVIEWS, 0, 24, 24, 0x00 );
+
+    list_insert ( &sysinfo->lanimatedImages, image );
+
+    return image;
+}
+
+/******************************************************************************/
+void g3dimage_initFromJpeg ( G3DIMAGE   *img,
+                             const char *filename,
+                             uint32_t    poweroftwo ) {
     unsigned char *jpgdata = NULL;
     uint32_t jpgwidth,
              jpgheight,
              jpgdepth;
-    G3DIMAGE *img;
     GLint max;
 
     g3dcore_loadJpeg ( filename, &jpgwidth,
@@ -257,14 +311,10 @@ G3DIMAGE *g3dimage_newFromJpeg ( const char *filename, uint32_t poweroftwo ) {
     if ( jpgdata == NULL ) {
         fprintf ( stderr, "Could not load image %s!\n", filename );
 
-        return NULL;
+        return;
     }
 
-    img = g3dimage_new ( filename );
-
-    img->depth  = jpgdepth * 0x08;
-
-    img->bytesperpixel = jpgdepth;
+    img->bytesPerPixel = jpgdepth;
 
     if ( poweroftwo ) {
         uint32_t imgwidth  = g3dcore_getNextPowerOfTwo ( jpgwidth  ),
@@ -298,7 +348,7 @@ G3DIMAGE *g3dimage_newFromJpeg ( const char *filename, uint32_t poweroftwo ) {
                      &jpgdata[jpgoffset], jpgbytesperline );
         }*/
 
-        img->bytesperline  = imgbytesperline;
+        img->bytesPerLine  = imgbytesperline;
 
         free ( jpgdata );
     } else {
@@ -307,15 +357,16 @@ G3DIMAGE *g3dimage_newFromJpeg ( const char *filename, uint32_t poweroftwo ) {
 
         img->data   = jpgdata;
 
-        img->bytesperline  = img->bytesperpixel * img->width;
+        img->bytesPerLine  = img->bytesPerPixel * img->width;
     }
 
     return img;
 }
 
 /******************************************************************************/
-static G3DIMAGE *g3dimage_new ( const char *filename ) {
+G3DIMAGE *g3dimage_new ( const char *filename, uint32_t poweroftwo ) {
     G3DIMAGE *img = ( G3DIMAGE * ) calloc ( 0x01, sizeof ( G3DIMAGE ) );
+    char *extension = strrchr ( filename, '.' );
 
     if ( img == NULL ) {
         fprintf ( stderr, "g3dimage_new(): calloc failed\n" );
@@ -329,12 +380,28 @@ static G3DIMAGE *g3dimage_new ( const char *filename ) {
 
     glGenTextures ( 0x01, &img->id );
 
+    if ( extension ) {
+        if ( ( strcasecmp ( extension, ".jpg"  ) == 0x00 ) ||
+             ( strcasecmp ( extension, ".jpeg" ) == 0x00 ) ) {
+            g3dimage_initFromJpeg ( img, filename, poweroftwo );
+        }
+
+        if ( ( strcasecmp ( extension, ".avi" ) == 0x00 ) ||
+             ( strcasecmp ( extension, ".mkv" ) == 0x00 ) ||
+             ( strcasecmp ( extension, ".gif" ) == 0x00 ) ||
+             ( strcasecmp ( extension, ".mp4" ) == 0x00 ) ||
+             ( strcasecmp ( extension, ".flv" ) == 0x00 ) ) {
+            g3dimage_initFromVideo ( img, filename, poweroftwo );
+        }
+    }
+
     return img;
 }
 
 /******************************************************************************/
 void g3dimage_free ( G3DIMAGE *img ) {
-    if ( img->data ) free ( img->data );
+    if ( img->data        ) free ( img->data        );
+    if ( img->previewData ) free ( img->previewData );
 
     free ( img );
 }

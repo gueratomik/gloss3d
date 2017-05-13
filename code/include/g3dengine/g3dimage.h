@@ -54,7 +54,8 @@ typedef struct _G3DIMAGE {
     float    wratio; /* Used when the image dimension must be a power of 2 */
     float    hratio; /* Used when the image dimension must be a power of 2 */
     GLuint   id; /* texture ID */
-    char   **previewData;
+    uint32_t previewId;
+    char    *previewData;
     uint32_t previewWidth;
     uint32_t previewHeight;
     uint32_t previewBytesPerPixel;
@@ -104,6 +105,15 @@ void g3dimage_animate ( G3DIMAGE *image,
                         float     endFrame,
                         float     frameRate,
                         uint32_t  engine_flags );
+
+/**
+ * Create a G3DIMAGE depending on the file extension.
+ * @param the media file name (image or video).
+ * @param the 3D engine flags.
+ * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
+ */
+G3DIMAGE *g3dimage_new ( const char *filename,
+                         uint32_t    poweroftwo );
 
 #ifdef __cplusplus
 }
