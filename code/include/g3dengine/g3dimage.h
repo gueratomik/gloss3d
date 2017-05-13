@@ -46,16 +46,20 @@ extern "C" {
 /******************************************************************************/
 typedef struct _G3DIMAGE {
     char    *filename;
-    uint32_t animated;
     uint32_t width;
     uint32_t height;
-    uint32_t depth;
-    uint32_t bytesperpixel;
-    uint32_t bytesperline;
+    uint32_t bytesPerPixel;
+    uint32_t bytesPerLine;
     unsigned char *data;
-    float wratio;   /*** Used when the image dimension must be a power of 2 ***/
-    float hratio;   /*** Used when the image dimension must be a power of 2 ***/
-    GLuint id;
+    float    wratio; /* Used when the image dimension must be a power of 2 */
+    float    hratio; /* Used when the image dimension must be a power of 2 */
+    GLuint   id; /* texture ID */
+    char   **previewData;
+    uint32_t previewWidth;
+    uint32_t previewHeight;
+    uint32_t previewBytesPerPixel;
+    float    previewFromFrame;
+    float    previewToFrame;
 } G3DIMAGE;
 
 /******************************************************************************/

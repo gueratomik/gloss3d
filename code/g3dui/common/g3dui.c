@@ -53,6 +53,7 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
                                rsg->endframe,
                                rsg->fps,
                                gui->flags );
+            g3dimage_bind ( img );
 
             ltmpAnimatedImages = ltmpAnimatedImages->next;
         }

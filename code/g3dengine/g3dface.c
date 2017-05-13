@@ -628,13 +628,13 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         }
                     }
 
-                    if ( difimg ) {
+                    /*if ( difimg ) {
                         glBindTexture ( GL_TEXTURE_2D, difimg->id );
                         glEnable      ( GL_TEXTURE_2D );
 
                         glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
                                                     GL_COMBINE_EXT );
-                    }
+                    }*/
 
                     glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
                     glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR , ( GLfloat * ) &specular );
@@ -779,9 +779,10 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
 
         for ( j = 0x00; j < nbtex; j++ ) {
             #ifdef __linux__
+            glTexCoord2f(texcoord[j].u[i], texcoord[j].v[i]); 
             glMultiTexCoord2fARB ( texcoord[j].tid,
                                    texcoord[j].u[i], 
-                                   texcoord[j].v[i] ); 
+                                   texcoord[j].v[i] );
             #endif
             #ifdef __MINGW32__
             if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[j].tid,

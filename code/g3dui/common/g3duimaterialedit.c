@@ -203,6 +203,8 @@ void common_g3dui_materialChooseImageCbk ( G3DUI *gui, char *filename ) {
         /*G3DIMAGE *colimg = g3dimage_newFromJpeg ( filename, 0x01 );*/
         G3DIMAGE *colimg = g3dimage_newFromVideo ( filename, 0x01 );
 
+        g3dimage_bind ( colimg );
+
         list_insert ( &gui->lanimatedImages, colimg );
 
         if ( colimg ) {

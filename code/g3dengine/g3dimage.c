@@ -50,14 +50,14 @@ void g3dimage_getVideoSize ( G3DIMAGE *image,
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     char commandLine[BUFFERLEN];
 
-    snprintf ( commandLine, BUFFERLEN, "%s"
+    snprintf ( commandLine, BUFFERLEN, "\"%s\""
                                        " -v error"
                                        " -of flat=s=_"
                                        " -select_streams v:0"
                                        " -show_entries"
                                        " stream=height,width"
-                                       " %s", sysinfo->ffprobePath,
-                                              image->filename );
+                                       " \"%s\"", sysinfo->ffprobePath,
+                                                  image->filename );
 
     #ifdef __linux__
     FILE *fp = popen (commandLine, "r" );
@@ -82,7 +82,10 @@ void g3dimage_getVideoSize ( G3DIMAGE *image,
 }
 
 /******************************************************************************/
-void g3dimage_animate ( G3DIMAGE *image,
+static void loadFrame ( uint32_t  width,
+                        uint32_t  height,
+                        uint32_t  bytesPerPixel,
+                        char     *data,
                         float     startFrame, 
                         float     currentFrame,
                         float     endFrame,
@@ -100,9 +103,9 @@ void g3dimage_animate ( G3DIMAGE *image,
 
     char commandLine[BUFFERLEN];
 
-    snprintf ( commandLine, BUFFERLEN, "%s"
+    snprintf ( commandLine, BUFFERLEN, "\"%s\""
                                        " -ss %02d:%02d:%02d.%03d"
-                                       " -i %s"
+                                       " -i \"%s\""
                                        " -frames:v 1"
                                        " -f rawvideo"
                                        " -pix_fmt rgb24"
@@ -131,11 +134,16 @@ void g3dimage_animate ( G3DIMAGE *image,
 void g3dimage_bind ( G3DIMAGE *img ) {
     glEnable ( GL_TEXTURE_2D );
 
-    glGenTextures ( 0x01, &img->id );
-
     /*glActiveTextureARB ( GL_TEXTURE0 );*/
 
     glBindTexture ( GL_TEXTURE_2D, img->id );
+
+    /* 
+     * Both line are mandatory or else OpenGL will expect MipMapping.
+     * https://www.khronos.org/opengl/wiki/Common_Mistakes#Creating_a_complete_texture
+     */
+    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0 );
+    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0 );
 
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -149,14 +157,63 @@ void g3dimage_bind ( G3DIMAGE *img ) {
                                   GL_UNSIGNED_BYTE,
                                   img->data );
 
-    #ifdef __linux__
+    /*#ifdef __linux__
     glGenerateMipmap ( GL_TEXTURE_2D );
     #endif
     #ifdef __MINGW32__
     if ( ext_glGenerateMipmap ) ext_glGenerateMipmap ( GL_TEXTURE_2D );
-    #endif
+    #endif*/
 
     glDisable ( GL_TEXTURE_2D );
+}
+
+/******************************************************************************/
+void g3dimage_loadPreviews ( G3DIMAGE *image,
+                             uint32_t  previewWidth, 
+                             uint32_t  previewHeight,
+                             uint32_t  previewBytesPerPixel,
+                             float     previewFromFrame,
+                             float     previewToFrame,
+                             float     sceneStartFrame,
+                             float     sceneEndFrame,
+                             uint32_t  sceneFramesPerSecond,
+                             uint32_t  engine_flags ) {
+    uint32_t bytesPerPreview = ( previewHeight * 
+                                 previewWidth  * 
+                                 previewBytesPerPixel );
+    unsigned char *previewData = image->previewData;
+    uint32_t i;
+
+    image->previewWidth         = previewWidth;
+    image->previewHeight        = previewHeight;
+    image->previewBytesPerPixel = previewBytesPerPixel;
+    image->previewFromFrame     = previewFromFrame;
+    image->previewToFrame       = previewToFrame;
+
+    for ( i = previewFromFrame; i < previewToFrame; i++ ) {
+        /* Load the first frame */
+        loadFrame ( image->previewWidth, 
+                    image->previewHeight,
+                    image->previewBytesPerPixel,
+                    previewData,
+                    sceneStartFrame,     /* startFrame   */
+                    i,                   /* currentFrame */
+                    sceneEndFrame,       /* endFrame     */
+                    sceneFramesPerSecond,/* 3D scene FPS */
+                    engine_flags );
+
+        previewData += bytesPerPreview;
+    }
+
+}
+
+/******************************************************************************/
+void g3dimage_animate ( G3DIMAGE *image,
+                        float     startFrame, 
+                        float     currentFrame,
+                        float     endFrame,
+                        float     frameRate,
+                        uint32_t  engine_flags ) {
 }
 
 /******************************************************************************/
@@ -165,7 +222,20 @@ G3DIMAGE *g3dimage_newFromVideo ( const char *filename, uint32_t poweroftwo ) {
 
     g3dimage_getVideoSize ( img, 0x00 );
 
-    img->data = malloc ( img->height * img->bytesperline );
+    if ( img->height && img->width ) {
+        img->data = malloc ( img->height * img->bytesperline );
+
+        /* Load the first frame */
+        loadFrame ( img->previewWidth, 
+                    img->previewHeight,
+                    img->previewBytesPerPixel,
+                    img->data,
+                    0, /* startFrame   */
+                    0, /* currentFrame */
+                    0, /* endFrame     */
+                    24,/* 3D scene FPS */
+                    0x00 );
+    }
 
     return img;
 }
@@ -256,6 +326,8 @@ static G3DIMAGE *g3dimage_new ( const char *filename ) {
     if ( filename ) {
         img->filename = strdup ( filename );
     }
+
+    glGenTextures ( 0x01, &img->id );
 
     return img;
 }
