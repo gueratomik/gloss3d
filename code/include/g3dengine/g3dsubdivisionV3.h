@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2013         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -101,8 +101,8 @@ G3DSUBDIVISION *g3dsubdivisionV3_new ( );
  * @param a pointer to the G3DMESH owning the face.
  * @param a pointer to the G3DFACE to subdivide.
  * @param output G3DRTTRIANGLE array. Filled only if subdivision level is 0.
- * @param output G3DRTQUAD array.
- * @param output G3DRTEDGE array. Stores the vertex Ids;
+ * @param output G3DRTQUAD array. Indexes vertices by Id.
+ * @param output G3DRTEDGE array. Indexes vertices by Id.
  * @param output G3DRTVERTEX array.
  * @param output G3DRTUVS array.
  * @param output G3DVERTEX array.
@@ -116,7 +116,7 @@ G3DSUBDIVISION *g3dsubdivisionV3_new ( );
  * @param subdivision level.
  * @param subdivision flags.
  * @param 3D engine flags.
- * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
+ * @return the number of faces created by the subdivision process.
  */
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DMESH        *mes,
@@ -135,11 +135,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       uint32_t        subdiv_level,
                                       uint32_t        subdiv_flags,
                                       uint32_t        engine_flags );
-
-/**
- * Multithreaded version of g3dsubdivisionV3_subdivide()
- */
-void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt );
 
 #ifdef __cplusplus
 }

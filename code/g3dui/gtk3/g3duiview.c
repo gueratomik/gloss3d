@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -1127,7 +1127,7 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
         return;
     }
 
-    gui->curcam = view->cam;
+    gui->currentCamera = view->cam;
 
     switch ( gdkev->type ) {
         case GDK_KEY_PRESS : {

@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -209,7 +209,7 @@ void common_g3duirenderedit_outputCbk ( G3DUI *gui, const char *outfile ) {
 void common_g3duirenderedit_renderCbk ( G3DUI *gui ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
     G3DSCENE *sce = gui->sce;
-    G3DCAMERA *cam = gui->curcam;
+    G3DCAMERA *cam = gui->currentCamera;
 
     /*if ( rsg->endframe == rsg->startframe ) {
         g3duirendersettings_rendertoimage ( rsg, sce, cam, gui->flags, NULL );
@@ -314,15 +314,16 @@ void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    /*G3DUIRENDERSETTINGS *rsg = gui->currsg;*/
 
-    if ( rsg ) {
-        if ( rsg->backgroundImage ) {
-            g3dimage_free ( rsg->backgroundImage );
+    if ( sysinfo ) {
+        if ( sysinfo->backgroundImage ) {
+            g3dimage_free ( sysinfo->backgroundImage );
         }
 
-        rsg->backgroundImage = g3dimage_new ( filename, 1 );
+        sysinfo->backgroundImage = g3dimage_new ( filename, 1 );
         /*** make it an opengl texture. We'll use it for the opengl views ***/
-        g3dimage_bind ( rsg->backgroundImage );
+        g3dimage_bind ( sysinfo->backgroundImage );
     }
 }

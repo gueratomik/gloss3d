@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -62,13 +62,14 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
                                                       uint32_t sequence ) {
 
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
-    G3DCAMERA *cam = gui->curcam;
+    G3DCAMERA *cam = gui->currentCamera;
     G3DSCENE *sce = gui->sce;
 
     /*** Don't start a new render before the current one has finished ***/
     /*if ( rpc == NULL ) {*/
         G3DUIRENDERPROCESS *rps;
         R3DSCENE *rsce  = NULL;
+        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
         #ifdef __linux__
         pthread_attr_t attr;
         pthread_t tid;
@@ -86,7 +87,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
                                         width, height,
                                         rsg->backgroundMode,
                                         rsg->backgroundColor,
-             ( rsg->backgroundImage ) ? rsg->backgroundImage->filename :
+         ( sysinfo->backgroundImage ) ? sysinfo->backgroundImage->filename :
                                         NULL,
                                         rsg->startframe,
                                         rsg->endframe,
@@ -490,7 +491,7 @@ void common_g3dui_setMouseTool ( G3DUI *gui, G3DMOUSETOOL *mou ) {
     /*** can be used by this function to initialize some values ***/
     if ( mou->init ) {
         uint32_t msk = mou->init ( mou, gui->sce, 
-                                        gui->curcam, 
+                                        gui->currentCamera, 
                                         gui->urm, gui->flags );
 			
         common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
@@ -769,7 +770,7 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
-        G3DOBJECT *objcam = ( G3DOBJECT * ) cam[i];
+        G3DOBJECT *objcam = ( G3DOBJECT * ) gui->defaultCameras[i];
 
         gui->defaultCameras[i]->focal =  camfoc[i];
         gui->defaultCameras[i]->grid  = camgrid[i];
@@ -778,13 +779,8 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
         memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR ) );
         memcpy ( &objcam->sca, &camsca[i], sizeof ( G3DVECTOR ) );
 
-        /*** OpenGL is nto initalized at this step, matrix computation wont ***/
-        /*** work, this is why the line below is commented. Camera matrix ***/
-        /*** is updated in G3DUIVIEW widget (Motif and Gtk)
-        /*g3dobject_updateMatrix ( objcam );*/
+        g3dobject_updateMatrix ( objcam );
     }
-
-    return cam;
 }
 
 /******************************************************************************/

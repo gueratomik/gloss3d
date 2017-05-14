@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -569,7 +569,7 @@ void common_g3dui_addTextCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3dui_addCameraCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
-    G3DCAMERA *curcam = gui->curcam;
+    G3DCAMERA *curcam = gui->currentCamera;
     G3DURMANAGER *urm = gui->urm;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
     G3DCAMERA *cam = g3dcamera_new ( oid, "Camera", curcam->focal,
@@ -580,7 +580,7 @@ void common_g3dui_addCameraCbk ( G3DUI *gui ) {
     g3dcamera_setGrid ( cam, g3dcamera_grid3D );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) cam, 
-                                      ( G3DOBJECT * ) gui->curcam );
+                                      ( G3DOBJECT * ) gui->currentCamera );
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |

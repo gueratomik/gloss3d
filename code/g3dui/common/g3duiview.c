@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -260,6 +260,7 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
 
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -275,9 +276,9 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
 
     if ( rsg ) {
         if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
-            if ( rsg->backgroundImage ) {
+            if ( sysinfo->backgroundImage ) {
                 glEnable      ( GL_TEXTURE_2D );
-                glBindTexture ( GL_TEXTURE_2D, rsg->backgroundImage->id );
+                glBindTexture ( GL_TEXTURE_2D, sysinfo->backgroundImage->id );
                 glBegin ( GL_QUADS );
                 glTexCoord2f ( 1.0f, 0.0f ); 
                 glVertex3f ( 1.0f,  1.0f, 0.0f );

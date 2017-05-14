@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -486,10 +486,11 @@ void g3dsubdivisionV3_free ( G3DSUBDIVISION *sdv ) {
     if ( sdv->innerVertices ) free ( sdv->innerVertices ); 
     if ( sdv->outerVertices ) free ( sdv->outerVertices ); 
     if ( sdv->innerUVSets   ) free ( sdv->innerUVSets   ); 
-    if ( sdv->outerUVSets   ) free ( sdv->outerUVSets   ); 
-    if ( sdv->vertexLookup  ) free ( sdv->vertexLookup  );
-    if ( sdv->edgeLookup    ) free ( sdv->edgeLookup    );
-    if ( sdv->faceLookup    ) free ( sdv->faceLookup    );
+    if ( sdv->outerUVSets   ) free ( sdv->outerUVSets   );
+
+    g3dlookup_freeTable ( &sdv->vertexLookup  );
+    g3dlookup_freeTable ( &sdv->edgeLookup    );
+    g3dlookup_freeTable ( &sdv->faceLookup    );
 
     sdv->nbEdgeLookup    = 0;
     sdv->nbVertexLookup  = 0;
@@ -1633,56 +1634,4 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 /*init = 0x01;
 old_level = subdiv_level;*/
     return nbInnerFaces;
-}
-
-/******************************************************************************/
-void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
-    G3DSYSINFO *sif = g3dsysinfo_get ( );
-    G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, sdt->cpuID );
-    G3DMESH *mes = sdt->mes;
-    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DFACE *fac;
-
-    while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
-        G3DRTUV     *rtuvmem  = NULL;
-        G3DRTVERTEX *rtvermem = NULL;
-        G3DRTEDGE   *rtedgmem = NULL;
-        G3DRTQUAD   *rtquamem = NULL;
-
-        uint32_t nbpos = 0x00;
-
-        if ( fac->nbver == 0x03 ) {
-            rtvermem = sdt->rtvermem + ( fac->typeID * sdt->nbVerticesPerTriangle );
-            rtquamem = sdt->rtquamem + ( fac->typeID * sdt->nbFacesPerTriangle );
-            rtuvmem  = sdt->rtuvmem  + ( fac->typeID * sdt->nbVerticesPerTriangle * mes->nbuvmap );
-        } else {
-            rtvermem = sdt->rtvermem + ( mes->nbtri  * sdt->nbVerticesPerTriangle ) + 
-                                       ( fac->typeID * sdt->nbVerticesPerQuad );
-            rtquamem = sdt->rtquamem + ( mes->nbtri  * sdt->nbFacesPerTriangle ) + 
-                                       ( fac->typeID * sdt->nbFacesPerQuad );
-            rtuvmem  = sdt->rtuvmem  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * mes->nbuvmap ) +
-                                       ( fac->typeID * sdt->nbVerticesPerQuad * mes->nbuvmap );
-
-        }
-
-        g3dsubdivisionV3_subdivide ( sdv, mes,
-                                          fac,
-                                          NULL,
-                                          rtquamem,
-                                          rtedgmem,
-                                          rtvermem,
-                                          rtuvmem,
-                                          NULL,
-                                          NULL,
-                                          NULL,
-                                          mes->ltex,
-                         (uint32_t (*)[4])sdt->qua_indexes,
-                         (uint32_t (*)[4])sdt->tri_indexes,
-                                          sdt->subdiv_level,
-                                          SUBDIVISIONCOMPUTE,
-                                          sdt->engine_flags );
-    }
-
-    /** COMMENTED OUT - now done by the caller ***/
-    /*g3dsubdivisionthread_free ( sdt );*/
 }

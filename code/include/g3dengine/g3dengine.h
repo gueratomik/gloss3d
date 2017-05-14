@@ -909,12 +909,8 @@ typedef struct _G3DSUBINDEX {
 } G3DSUBINDEX;
 
 /******************************************************************************/
-typedef struct _G3DLOOKUP {
-    void *(*table)[0x02];
-    uint32_t rank;
-    uint32_t size;
-} G3DLOOKUP;
 
+#include <g3dengine/g3dlookup.h>
 #include <g3dengine/g3dsubdivisionV3.h>
 #include <g3dengine/g3dsysinfo.h>
 
@@ -1001,6 +997,7 @@ struct _G3DMESH {
                                           uint32_t );
 };
 
+#include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
 
@@ -1358,7 +1355,6 @@ void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR * );
 void g3drtvertex_init ( G3DRTVERTEX *, G3DVERTEX *, uint32_t, uint32_t );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
-int g3dvertex_applyCatmullScheme ( G3DVERTEX *, G3DVERTEX * );
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
 
 
@@ -2255,13 +2251,6 @@ G3DRTTRIANGLEUVW *g3drttriangleuvw_new ( float, float,
                                          float, float, G3DUVMAP * );
 void g3drttriangle_addUVW ( G3DRTTRIANGLE *, G3DRTTRIANGLEUVW * );
 void g3drttriangleuvw_free ( G3DRTTRIANGLEUVW * );
-
-/******************************************************************************/
-void     g3dlookup_add     ( G3DLOOKUP *, void *, void * );
-void    *g3dlookup_get     ( G3DLOOKUP *, void * );
-void     g3dlookup_reset   ( G3DLOOKUP * );
-void     g3dlookup_realloc ( G3DLOOKUP *, uint32_t );
-uint32_t g3dlookup_getSize ( G3DLOOKUP * );
 
 /******************************************************************************/
 G3DSUBDIVIDER *g3dsubdivider_new        ( uint32_t, char *, uint32_t );

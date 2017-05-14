@@ -26,44 +26,77 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#include <config.h>
-#include <g3dengine/g3dengine.h>
+
+/**
+ * @file
+ */
 
 /******************************************************************************/
-void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
-                                            float    v,
-                                            G3DRGBA *rgba ) {
-    if ( cha->flags & USEIMAGECOLOR ) {
-        G3DIMAGE *colimg = cha->image;
-        if ( colimg ) {
-            int32_t imgx = ((int32_t)((float)u * colimg->width  )) % colimg->width;
-            int32_t imgy = ((int32_t)((float)v * colimg->height )) % colimg->height;
+#ifndef _G3DLOOKUP_H_
+#define _G3DLOOKUP_H_
 
-            if ( imgx < 0x00 ) imgx = colimg->width  - imgx;
-            if ( imgy < 0x00 ) imgy = colimg->height - imgy;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-            uint32_t offset = ( imgy * colimg->bytesPerLine  ) +
-                              ( imgx * colimg->bytesPerPixel );
+/**
+ * @struct G3DLOOKUP
+ * @brief A structure to store a lookup table.
+ */
+typedef struct _G3DLOOKUP {
+    void *(*table)[0x02];
+    uint32_t rank;
+    uint32_t size;
+} G3DLOOKUP;
 
-            rgba->r = colimg->data[offset+0x00];
-            rgba->g = colimg->data[offset+0x01];
-            rgba->b = colimg->data[offset+0x02];
-        } else {
-            g3dcolor_toRGBA ( &cha->solid, rgba );
-        }
-    }
+/******************************************************************************/
+/**
+ * Free the memory used by the lookup table.
+ * @param a pointer to the G3DLOOKUP structure.
+ */
+void g3dlookup_freeTable ( G3DLOOKUP *lookup );
 
-    if ( cha->flags & USESOLIDCOLOR ) {
-        g3dcolor_toRGBA ( &cha->solid, rgba );
-    }
+/**
+ * Add a record to the  lookup table.
+ * @param a pointer to the G3DLOOKUP structure.
+ * @param a pointer to a source object.
+ * @param a pointer to a destination object.
+ */
+void g3dlookup_add ( G3DLOOKUP *lookup, 
+                     void      *src, 
+                     void      *dst );
 
-    if ( cha->flags & USEPROCEDURAL ) {
-        G3DPROCEDURAL *proc = cha->proc;
+/**
+ * Get the destination record to the source record.
+ * @param a pointer to the G3DLOOKUP structure.
+ * @param a pointer to a source object.
+ */
+void *g3dlookup_get ( G3DLOOKUP *lookup, 
+                      void      *src );
 
-        if ( proc ) {
-            proc->getColor ( proc, u, v, 0.0f, rgba );
-        } else {
-            g3dcolor_toRGBA ( &cha->solid, rgba );
-        }
-    }
+/**
+ * Reset the lookup table (fill with 0). The size of the table stays unchanged.
+ * @param a pointer to the G3DLOOKUP structure.
+ */
+void g3dlookup_reset ( G3DLOOKUP *lookup );
+
+/**
+ * Realloc memory for the lookup table.
+ * @param a pointer to the G3DLOOKUP structure.
+ * @param the desired number of record couples.
+ */
+void g3dlookup_realloc ( G3DLOOKUP *lookup, 
+                         uint32_t   size );
+
+/**
+ * Get the size of the lookup table (number of src/dst couples).
+ * @param a pointer to the G3DLOOKUP structure.
+ * @return the size of the lookup table (number of src/dst couples).
+ */
+uint32_t g3dlookup_getSize ( G3DLOOKUP *lookup );
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

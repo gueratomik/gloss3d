@@ -562,6 +562,7 @@ typedef struct _G3DUIRENDERSETTINGS {
 
 /****************************** g3duirendersettings.c *************************/
 G3DUIRENDERSETTINGS *g3duirendersettings_new ( );
+void g3duirendersettings_free ( G3DUIRENDERSETTINGS *rsg );
 
 /******************************************************************************/
 /*** this structure is passed to the Drawing Area widget, so we can save the***/
@@ -666,7 +667,7 @@ typedef struct _G3DUI {
 } GuiPart, G3DUI;
 
 /********************************* g3dui.c ************************************/
-G3DCAMERA   **common_g3dui_createDefaultCameras ( G3DUI * );
+void          common_g3dui_createDefaultCameras ( G3DUI * );
 void          common_g3dui_initDefaultMouseTools ( G3DUI * );
 void          common_g3dui_addMouseTool ( G3DUI *, G3DMOUSETOOL *, uint32_t );
 G3DMOUSETOOL *common_g3dui_getMouseTool ( G3DUI *, const char * );

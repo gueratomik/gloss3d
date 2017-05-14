@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -28,6 +28,13 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dengine/g3dengine.h>
+
+/******************************************************************************/
+void g3dlookup_freeTable ( G3DLOOKUP *lookup ) {
+    if ( lookup->table ) {
+        free ( lookup->table );
+    }
+}
 
 /******************************************************************************/
 void g3dlookup_add ( G3DLOOKUP *lookup, void *src, void *dst ) {

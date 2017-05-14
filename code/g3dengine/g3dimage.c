@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -289,8 +289,6 @@ void g3dimage_initFromVideo ( G3DIMAGE   *image,
     g3dimage_loadPreviews ( image, 0, NBPREVIEWS, 0, 24, 24, 0x00 );
 
     list_insert ( &sysinfo->lanimatedImages, image );
-
-    return image;
 }
 
 /******************************************************************************/
@@ -359,8 +357,6 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 
         img->bytesPerLine  = img->bytesPerPixel * img->width;
     }
-
-    return img;
 }
 
 /******************************************************************************/

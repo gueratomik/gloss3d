@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -233,7 +233,10 @@ static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
                            vwidth,
                            vheight );
 
-        if ( gui->curcam == NULL ) gui->curcam = gui->defaultCameras[i];
+        if ( gui->currentCamera == NULL ) {
+            gui->currentCamera = gui->defaultCameras[i];
+        }
+
         if ( ggt->curogl == NULL ) ggt->curogl = gvw;
 
         gtk_fixed_put ( GTK_FIXED(widget), 

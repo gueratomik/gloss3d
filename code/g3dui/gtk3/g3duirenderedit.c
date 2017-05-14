@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2015         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -246,21 +246,24 @@ static void Configure ( GtkWidget *widget, GdkEvent *event,
 
 /******************************************************************************/
 void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
-    float ratio = ( rsg->ratio ) ? rsg->ratio : gui->curcam->ratio;
-    uint32_t rsgwidth  = rsg->height * ratio;
-    uint32_t rsgheight = rsg->height;
 
-    gtk_widget_add_events(GTK_WIDGET(dial), GDK_CONFIGURE);
+    if ( gui->currentCamera ) {
+        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+        float ratio = ( rsg->ratio ) ? rsg->ratio : gui->currentCamera->ratio;
+        uint32_t rsgwidth  = rsg->height * ratio;
+        uint32_t rsgheight = rsg->height;
 
-    g_signal_connect ( G_OBJECT (dial), "configure-event", G_CALLBACK (Configure), gui );
+        gtk_widget_add_events(GTK_WIDGET(dial), GDK_CONFIGURE);
 
-    createRenderWindow ( dial, gui, "RENDER WINDOW", 0, 0, rsgwidth,
-                                                           rsgheight );
+        g_signal_connect ( G_OBJECT (dial), "configure-event", G_CALLBACK (Configure), gui );
 
-    gtk_widget_show ( dial );
+        createRenderWindow ( dial, gui, "RENDER WINDOW", 0, 0, rsgwidth,
+                                                               rsgheight );
+
+        gtk_widget_show ( dial );
+    }
 }
 
 /******************************************************************************/
@@ -731,6 +734,7 @@ static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
 
         if ( gui->currsg ) {
             G3DUIRENDERSETTINGS *rsg = gui->currsg;
+            G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
             if ( GTK_IS_RADIO_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
@@ -754,11 +758,11 @@ static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
 
             if ( GTK_IS_BUTTON(child) && (GTK_IS_RADIO_BUTTON(child) == FALSE) ) {
                 if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
-                    if ( rsg->backgroundImage && 
-                         rsg->backgroundImage->filename ) {
+                    if ( sysinfo->backgroundImage && 
+                         sysinfo->backgroundImage->filename ) {
                         char *imgpath, *imgname;
 
-                        imgpath = strdup ( rsg->backgroundImage->filename );
+                        imgpath = strdup ( sysinfo->backgroundImage->filename );
 
                         /*** We just keep the image name, not the whole ***/
                         /*** path and display it as the button label.   ***/
