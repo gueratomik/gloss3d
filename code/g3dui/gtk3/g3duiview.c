@@ -1415,7 +1415,14 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     /*** GUI Toolkit Independent part ****/
     /*************************************/
-    common_g3duiview_showGL ( gui, sce, cam, mou, current, gui->flags | view->flags );
+    if ( sce ) {
+        common_g3duiview_showGL ( gui, 
+                                  sce, 
+                                  cam, 
+                                  mou, 
+                                  current,
+                                  gui->flags | view->flags );
+    }
     /*************************************/
 
     glXSwapBuffers ( dpy, win );
@@ -1429,7 +1436,14 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     /*** GUI Toolkit Independent part ****/
     /*************************************/
-    common_g3duiview_showGL ( gui, sce, cam, mou, current, gui->flags | view->flags );
+    if ( sce ) {
+        common_g3duiview_showGL ( gui, 
+                                  sce, 
+                                  cam, 
+                                  mou, 
+                                  current,
+                                  gui->flags | view->flags );
+    }
     /*************************************/
 
     SwapBuffers ( dc );

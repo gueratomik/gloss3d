@@ -151,33 +151,62 @@ static char *getFfprobePath ( ) {
 }
 
 /******************************************************************************/
+void g3dsysinfo_reset ( G3DSYSINFO *sysinfo ) {
+    uint32_t nbCpus = g3dcore_getNumberOfCPUs ( );
+    uint32_t ptrSize = sizeof ( void * );
+    uint32_t i;
+
+    if ( sysinfo->ffmpegPath  ) free ( sysinfo->ffmpegPath  );
+    if ( sysinfo->ffplayPath  ) free ( sysinfo->ffplayPath  );
+    if ( sysinfo->ffprobePath ) free ( sysinfo->ffprobePath );
+
+    sysinfo->ffmpegPath  = getFfmpegPath  ( );
+    sysinfo->ffplayPath  = getFfplayPath  ( );
+    sysinfo->ffprobePath = getFfprobePath ( );
+
+    sysinfo->nbcpu = nbCpus;
+
+    if ( sysinfo->subdivisions ) {
+        for ( i = 0x00; i < sysinfo->nbcpu; i++ ) {
+            if ( sysinfo->subdivisions[i] ) {
+                g3dsubdivisionV3_free ( sysinfo->subdivisions[i] );
+            }
+        }
+
+        free ( sysinfo->subdivisions );
+    }
+
+    sysinfo->subdivisions = ( G3DSUBDIVISION ** ) calloc ( nbCpus, ptrSize );
+
+    for ( i = 0x00; i < sysinfo->nbcpu; i++ ) {
+        sysinfo->subdivisions[i] = g3dsubdivisionV3_new ( );
+    }
+
+    if ( sysinfo->backgroundImage ) {
+        g3dimage_free ( sysinfo->backgroundImage );
+
+        sysinfo->backgroundImage = NULL;
+    }
+}
+
+/******************************************************************************/
 static G3DSYSINFO *g3dsysinfo_new ( ) {
     uint32_t structSize = sizeof ( G3DSYSINFO );
     uint32_t ptrSize = sizeof ( void * );
-    G3DSYSINFO *sif = ( G3DSYSINFO * ) calloc ( 0x01, structSize );
+    G3DSYSINFO *sysinfo = ( G3DSYSINFO * ) calloc ( 0x01, structSize );
     uint32_t i;
 
-    if ( sif == NULL ) {
+    if ( sysinfo == NULL ) {
         fprintf ( stderr, "g3dsysinfo_new: calloc failed\n" );
 
         return NULL;
     }
 
+    g3dsysinfo_reset ( sysinfo );
 
-    sif->ffmpegPath  = getFfmpegPath  ( );
-    sif->ffplayPath  = getFfplayPath  ( );
-    sif->ffprobePath = getFfprobePath ( );
-
-    sif->nbcpu = g3dcore_getNumberOfCPUs ( );
-
-    sif->subdivisions = ( G3DSUBDIVISION ** ) calloc ( sif->nbcpu, ptrSize );
-
-    for ( i = 0x00; i < sif->nbcpu; i++ ) {
-        sif->subdivisions[i] = g3dsubdivisionV3_new ( );
-    }
-
-    return sif;
+    return sysinfo;
 }
+
 /******************************************************************************/
 G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, uint32_t cpuID ) {
     return sif->subdivisions[cpuID];
@@ -188,9 +217,9 @@ G3DSYSINFO *g3dsysinfo_get ( ) {
     /*** This way we don't need a sysinfo global variable or pass it as an ***/
     /*** argument. The first call to g3dsysinfo_get create the sysinfo     ***/
     /*** structure and later calls can retrieve it.                        ***/
-    static G3DSYSINFO *sif = NULL;
+    static G3DSYSINFO *sysinfo = NULL;
 
-    if ( sif == NULL ) sif = g3dsysinfo_new ( );
+    if ( sysinfo == NULL ) sysinfo = g3dsysinfo_new ( );
 
-    return sif;
+    return sysinfo;
 }

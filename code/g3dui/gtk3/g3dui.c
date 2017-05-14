@@ -1353,6 +1353,8 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     common_g3dui_loadConfiguration ( gui, configFileName );
 
+    common_g3dui_createDefaultCameras ( gui );
+
     /*** undo redo manager ***/
     gui->urm = g3durmanager_new ( gui->conf.undolevel );
 
@@ -1365,7 +1367,11 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     gui->flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
-    gui->currsg = g3duirendersettings_new ( ); /*** default render settings ***/
+    rsg = g3duirendersettings_new ( ); /*** default render settings ***/
+
+    list_insert ( &gui->lrsg, rsg );
+
+    gui->currsg = rsg; 
 
     /******************/
 

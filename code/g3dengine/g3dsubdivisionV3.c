@@ -29,66 +29,175 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/**************************** Static declarations *****************************/
+static G3DVERTEX *g3dsubdivision_lookVertexUp ( G3DSUBDIVISION *sdv,
+                                                G3DVERTEX      *ver );
+static void g3dsubdivision_addVertexLookup ( G3DSUBDIVISION *sdv,
+                                             G3DVERTEX      *ver,
+                                             G3DSUBVERTEX   *newver );
+static G3DEDGE *g3dsubdivision_lookEdgeUp ( G3DSUBDIVISION *sdv,
+                                            G3DEDGE        *edg );
+static void g3dsubdivision_addEdgeLookup ( G3DSUBDIVISION *sdv,
+                                           G3DEDGE        *edg,
+                                           G3DSUBEDGE     *newedg );
+static G3DFACE *g3dsubdivision_lookFaceUp ( G3DSUBDIVISION *sdv,
+                                            G3DFACE        *fac );
+static void g3dsubdivision_addFaceLookup ( G3DSUBDIVISION *sdv,
+                                           G3DFACE        *fac,
+                                           G3DSUBFACE     *newfac );
+static void g3dsubdivision_resetLookupTables ( G3DSUBDIVISION *sdv );
+static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
+                                      G3DFACE       *ancestorFace,
+                                      G3DSUBVERTEX  *innerVertices,
+                                      uint32_t       nbInnerVertices,
+                                      G3DSUBEDGE    *innerEdges,
+                                      uint32_t       nbInnerEdges,
+                                      G3DSUBFACE    *innerFaces,
+                                      uint32_t       nbInnerFaces,
+                                      /****************************/
+                                      G3DVERTEX    **commitVertices,
+                                      G3DEDGE      **commitEdges,
+                                      G3DFACE      **commitFaces,
+                                      uint32_t       subdiv_level );
+static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
+                                               G3DFACE       *ancestorFace,
+                                               G3DSUBVERTEX  *innerVertices,
+                                               uint32_t       nbInnerVertices,
+                                               G3DSUBEDGE    *innerEdges,
+                                               uint32_t       nbInnerEdges,
+                                               G3DSUBFACE    *innerFaces,
+                                               uint32_t       nbInnerFaces,
+                                               G3DRTTRIANGLE *rtTriangles,
+                                               G3DRTQUAD     *rtQuads,
+                                               G3DRTEDGE     *rtEdges,
+                                               G3DRTVERTEX   *rtVertices,
+                                               G3DRTUV       *rtUVs,
+                                               uint32_t       subdiv_level,
+                                               uint32_t       subdiv_flags,
+                                               uint32_t       engine_flags );
+static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv, 
+                                       G3DMESH        *mes,
+                                       G3DFACE        *fac,
+                                       uint32_t        subdiv_level );
+static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, 
+                                          G3DVERTEX *orivercpy );
+static void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
+                                              uint32_t    nbInnerFaces,
+                                              G3DSUBFACE *outerFaces,
+                                              uint32_t    nbOuterFaces,
+                                              uint32_t    subdiv_level,
+                                              uint32_t    subdiv_flags );
+static void g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *innerEdges,
+                                              uint32_t    nbInnerEdges,
+                                              G3DSUBEDGE *outerEdges,
+                                              uint32_t    nbOuterEdges,
+                                              uint32_t    topo_flags );
+static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
+                                           G3DFACE  *fac,
+                                           uint32_t *totalInnerFaces,
+                                           uint32_t *totalOuterFaces,
+                                           uint32_t *totalInnerEdges,
+                                           uint32_t *totalOuterEdges,
+                                           uint32_t *totalInnerVertices,
+                                           uint32_t *totalOuterVertices,
+                                           uint32_t *totalInnerUVSets,
+                                           uint32_t *totalOuterUVSets,
+                                           uint32_t  level );
+static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
+                                               G3DVERTEX      *ver, 
+                                               G3DSUBVERTEX   *newver,
+                                               uint32_t        id );
+static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
+                                             G3DMESH        *mes,
+                                             G3DEDGE        *edg, 
+                                             G3DSUBEDGE     *newedg,
+                                             uint32_t        id );
+static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
+                                             G3DEDGE        *edg, 
+                                             G3DSUBEDGE     *newedg );
+static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
+                                             G3DFACE        *fac, 
+                                             G3DSUBFACE     *newfac );
+static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
+                                             G3DFACE        *fac, 
+                                             G3DSUBFACE     *newfac );
+static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
+                                            G3DMESH        *mes,
+                                            G3DFACE        *fac,
+                                            G3DSUBFACE     *innerFace,
+                                            G3DSUBFACE     *outerFaces,
+                                            uint32_t       *nbOuterFaces,
+                                            G3DSUBEDGE     *innerEdges,
+                                            G3DSUBEDGE     *outerEdges,
+                                            uint32_t       *nbOuterEdges,
+                                            G3DSUBVERTEX   *innerVertices,
+                                            G3DSUBVERTEX   *outerVertices,
+                                            uint32_t       *nbOuterVertices,
+                                            uint32_t        curdiv,
+                                            uint32_t        subdiv_flags,
+                                            uint32_t        engine_flags );
+
 /******************************************************************************/
-G3DVERTEX *g3dsubdivision_lookVertexUp ( G3DSUBDIVISION *sdv,
-                                         G3DVERTEX      *ver ) {
+/******************************************************************************/
+static G3DVERTEX *g3dsubdivision_lookVertexUp ( G3DSUBDIVISION *sdv,
+                                                G3DVERTEX      *ver ) {
     return g3dlookup_get ( &sdv->vertexLookup, ver );
 }
 
 /******************************************************************************/
-void g3dsubdivision_addVertexLookup ( G3DSUBDIVISION *sdv,
-                                      G3DVERTEX      *ver,
-                                      G3DSUBVERTEX   *newver ) {
+static void g3dsubdivision_addVertexLookup ( G3DSUBDIVISION *sdv,
+                                             G3DVERTEX      *ver,
+                                             G3DSUBVERTEX   *newver ) {
     g3dlookup_add ( &sdv->vertexLookup, ver, newver );
 }
 
 /******************************************************************************/
-G3DEDGE *g3dsubdivision_lookEdgeUp ( G3DSUBDIVISION *sdv,
-                                     G3DEDGE        *edg ) {
+static G3DEDGE *g3dsubdivision_lookEdgeUp ( G3DSUBDIVISION *sdv,
+                                            G3DEDGE        *edg ) {
     return g3dlookup_get ( &sdv->edgeLookup, edg );
 }
 
 /******************************************************************************/
-void g3dsubdivision_addEdgeLookup ( G3DSUBDIVISION *sdv,
-                                    G3DEDGE        *edg,
-                                    G3DSUBEDGE     *newedg ) {
+static void g3dsubdivision_addEdgeLookup ( G3DSUBDIVISION *sdv,
+                                           G3DEDGE        *edg,
+                                           G3DSUBEDGE     *newedg ) {
     g3dlookup_add ( &sdv->edgeLookup, edg, newedg );
 }
 
 /******************************************************************************/
-G3DFACE *g3dsubdivision_lookFaceUp ( G3DSUBDIVISION *sdv,
-                                     G3DFACE        *fac ) {
+static G3DFACE *g3dsubdivision_lookFaceUp ( G3DSUBDIVISION *sdv,
+                                            G3DFACE        *fac ) {
     return g3dlookup_get ( &sdv->faceLookup, fac );
 }
 
 /******************************************************************************/
-void g3dsubdivision_addFaceLookup ( G3DSUBDIVISION *sdv,
-                                    G3DFACE        *fac,
-                                    G3DSUBFACE     *newfac ) {
+static void g3dsubdivision_addFaceLookup ( G3DSUBDIVISION *sdv,
+                                            G3DFACE        *fac,
+                                           G3DSUBFACE     *newfac ) {
     g3dlookup_add ( &sdv->faceLookup, fac, newfac );
 }
 
 /******************************************************************************/
-void g3dsubdivision_resetLookupTables ( G3DSUBDIVISION *sdv ) {
+static void g3dsubdivision_resetLookupTables ( G3DSUBDIVISION *sdv ) {
     g3dlookup_reset ( &sdv->vertexLookup );
     g3dlookup_reset ( &sdv->edgeLookup   );
     g3dlookup_reset ( &sdv->faceLookup   );
 }
 
 /******************************************************************************/
-void g3dsubdivisionV3_commit ( G3DMESH       *mes,
-                               G3DFACE       *ancestorFace,
-                               G3DSUBVERTEX  *innerVertices,
-                               uint32_t       nbInnerVertices,
-                               G3DSUBEDGE    *innerEdges,
-                               uint32_t       nbInnerEdges,
-                               G3DSUBFACE    *innerFaces,
-                               uint32_t       nbInnerFaces,
-                               /****************************/
-                               G3DVERTEX    **commitVertices,
-                               G3DEDGE      **commitEdges,
-                               G3DFACE      **commitFaces,
-                               uint32_t       subdiv_level ) {
+static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
+                                      G3DFACE       *ancestorFace,
+                                      G3DSUBVERTEX  *innerVertices,
+                                      uint32_t       nbInnerVertices,
+                                      G3DSUBEDGE    *innerEdges,
+                                      uint32_t       nbInnerEdges,
+                                      G3DSUBFACE    *innerFaces,
+                                      uint32_t       nbInnerFaces,
+                                      /****************************/
+                                      G3DVERTEX    **commitVertices,
+                                      G3DEDGE      **commitEdges,
+                                      G3DFACE      **commitFaces,
+                                      uint32_t       subdiv_level ) {
     uint32_t nbCommittedFaces, nbCommittedEdges, nbCommittedVertices;
     uint32_t backupVertexID[0x04];
     uint32_t backupEdgeID[0x04];
@@ -231,22 +340,22 @@ void g3dsubdivisionV3_commit ( G3DMESH       *mes,
 }
 
 /******************************************************************************/
-void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
-                                        G3DFACE       *ancestorFace,
-                                        G3DSUBVERTEX  *innerVertices,
-                                        uint32_t       nbInnerVertices,
-                                        G3DSUBEDGE    *innerEdges,
-                                        uint32_t       nbInnerEdges,
-                                        G3DSUBFACE    *innerFaces,
-                                        uint32_t       nbInnerFaces,
-                                        G3DRTTRIANGLE *rtTriangles,
-                                        G3DRTQUAD     *rtQuads,
-                                        G3DRTEDGE     *rtEdges,
-                                        G3DRTVERTEX   *rtVertices,
-                                        G3DRTUV       *rtUVs,
-                                        uint32_t       subdiv_level,
-                                        uint32_t       subdiv_flags,
-                                        uint32_t       engine_flags ) {
+static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
+                                               G3DFACE       *ancestorFace,
+                                               G3DSUBVERTEX  *innerVertices,
+                                               uint32_t       nbInnerVertices,
+                                               G3DSUBEDGE    *innerEdges,
+                                               uint32_t       nbInnerEdges,
+                                               G3DSUBFACE    *innerFaces,
+                                               uint32_t       nbInnerFaces,
+                                               G3DRTTRIANGLE *rtTriangles,
+                                               G3DRTQUAD     *rtQuads,
+                                               G3DRTEDGE     *rtEdges,
+                                               G3DRTVERTEX   *rtVertices,
+                                               G3DRTUV       *rtUVs,
+                                               uint32_t       subdiv_level,
+                                               uint32_t       subdiv_flags,
+                                               uint32_t       engine_flags ) {
     uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
     uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
     uint32_t nbUniqueVerticesPerEdge;
@@ -369,6 +478,34 @@ void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
 }
 
 /******************************************************************************/
+void g3dsubdivisionV3_free ( G3DSUBDIVISION *sdv ) {
+    if ( sdv->innerFaces    ) free ( sdv->innerFaces    ); 
+    if ( sdv->outerFaces    ) free ( sdv->outerFaces    ); 
+    if ( sdv->innerEdges    ) free ( sdv->innerEdges    ); 
+    if ( sdv->outerEdges    ) free ( sdv->outerEdges    ); 
+    if ( sdv->innerVertices ) free ( sdv->innerVertices ); 
+    if ( sdv->outerVertices ) free ( sdv->outerVertices ); 
+    if ( sdv->innerUVSets   ) free ( sdv->innerUVSets   ); 
+    if ( sdv->outerUVSets   ) free ( sdv->outerUVSets   ); 
+    if ( sdv->vertexLookup  ) free ( sdv->vertexLookup  );
+    if ( sdv->edgeLookup    ) free ( sdv->edgeLookup    );
+    if ( sdv->faceLookup    ) free ( sdv->faceLookup    );
+
+    sdv->nbEdgeLookup    = 0;
+    sdv->nbVertexLookup  = 0;
+    sdv->nbInnerFaces    = 0;
+    sdv->nbOuterFaces    = 0;
+    sdv->nbInnerEdges    = 0;
+    sdv->nbOuterEdges    = 0;
+    sdv->nbInnerVertices = 0;
+    sdv->nbOuterVertices = 0;
+    sdv->nbInnerUVSets   = 0;
+    sdv->nbOuterUVSets   = 0;
+
+    free ( sdv );
+}
+
+/******************************************************************************/
 G3DSUBDIVISION *g3dsubdivisionV3_new ( ) {
     uint32_t structsize = sizeof ( G3DSUBDIVISION );
     G3DSUBDIVISION *sdv = ( G3DSUBDIVISION * ) calloc ( 0x01, structsize );
@@ -383,9 +520,10 @@ G3DSUBDIVISION *g3dsubdivisionV3_new ( ) {
 }
 
 /******************************************************************************/
-void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv, G3DMESH *mes,
-                                                     G3DFACE *fac,
-                                                     uint32_t subdiv_level ) {
+static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv, 
+                                       G3DMESH        *mes,
+                                       G3DFACE        *fac,
+                                       uint32_t        subdiv_level ) {
     static uint32_t facsize = sizeof ( G3DSUBFACE   );
     static uint32_t edgsize = sizeof ( G3DSUBEDGE   );
     static uint32_t versize = sizeof ( G3DSUBVERTEX );
@@ -486,7 +624,8 @@ void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv, G3DMESH *mes,
 }
 
 /******************************************************************************/
-int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, G3DVERTEX *orivercpy ) {
+static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, 
+                                          G3DVERTEX *orivercpy ) {
     /*** number of edges connected to this vertex = vertex valence ***/
     uint32_t valence = ver->nbedg;
     /*** temporay values, hence static ***/
@@ -551,12 +690,12 @@ int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, G3DVERTEX *orivercpy ) {
 }
 
 /******************************************************************************/
-void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
-                                       uint32_t    nbInnerFaces,
-                                       G3DSUBFACE *outerFaces,
-                                       uint32_t    nbOuterFaces,
-                                       uint32_t    subdiv_level,
-                                       uint32_t    subdiv_flags ) {
+static void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
+                                              uint32_t    nbInnerFaces,
+                                              G3DSUBFACE *outerFaces,
+                                              uint32_t    nbOuterFaces,
+                                              uint32_t    subdiv_level,
+                                              uint32_t    subdiv_flags ) {
     uint32_t i;
 
     for ( i = 0x00; i < nbInnerFaces; i++ ) {
@@ -581,11 +720,11 @@ void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
 }
 
 /******************************************************************************/
-void g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *innerEdges,
-                                       uint32_t    nbInnerEdges,
-                                       G3DSUBEDGE *outerEdges,
-                                       uint32_t    nbOuterEdges,
-                                       uint32_t    topo_flags ) {
+static void g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *innerEdges,
+                                              uint32_t    nbInnerEdges,
+                                              G3DSUBEDGE *outerEdges,
+                                              uint32_t    nbOuterEdges,
+                                              uint32_t    topo_flags ) {
     uint32_t i;
 
     for ( i = 0x00; i < nbInnerEdges; i++ ) {
@@ -611,17 +750,17 @@ void g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *innerEdges,
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
-                                    G3DFACE  *fac,
-                                    uint32_t *totalInnerFaces,
-                                    uint32_t *totalOuterFaces,
-                                    uint32_t *totalInnerEdges,
-                                    uint32_t *totalOuterEdges,
-                                    uint32_t *totalInnerVertices,
-                                    uint32_t *totalOuterVertices,
-                                    uint32_t *totalInnerUVSets,
-                                    uint32_t *totalOuterUVSets,
-                                    uint32_t  level ) {
+static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
+                                           G3DFACE  *fac,
+                                           uint32_t *totalInnerFaces,
+                                           uint32_t *totalOuterFaces,
+                                           uint32_t *totalInnerEdges,
+                                           uint32_t *totalOuterEdges,
+                                           uint32_t *totalInnerVertices,
+                                           uint32_t *totalOuterVertices,
+                                           uint32_t *totalInnerUVSets,
+                                           uint32_t *totalOuterUVSets,
+                                           uint32_t  level ) {
     uint32_t i;
     /* Note: For the outer objects, we don't need top precision. */
     /* The biggest evaluation will suffice. */
@@ -661,10 +800,10 @@ uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
 }
 
 /******************************************************************************/
-void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
-                                        G3DVERTEX      *ver, 
-                                        G3DSUBVERTEX   *newver,
-                                        uint32_t        id ) {
+static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
+                                               G3DVERTEX      *ver, 
+                                               G3DSUBVERTEX   *newver,
+                                               uint32_t        id ) {
     G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn : &ver->pos;
 
     newver->ancestorVertex = ver;
@@ -693,11 +832,11 @@ void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
 }
 
 /******************************************************************************/
-void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
-                                      G3DMESH        *mes,
-                                      G3DEDGE        *edg, 
-                                      G3DSUBEDGE     *newedg,
-                                      uint32_t        id ) {
+static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
+                                             G3DMESH        *mes,
+                                             G3DEDGE        *edg, 
+                                             G3DSUBEDGE     *newedg,
+                                             uint32_t        id ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
 
     newedg->ancestorEdge   = edg;
@@ -721,9 +860,9 @@ void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
 }
 
 /******************************************************************************/
-void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
-                                      G3DEDGE        *edg, 
-                                      G3DSUBEDGE     *newedg ) {
+static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
+                                             G3DEDGE        *edg, 
+                                             G3DSUBEDGE     *newedg ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
 
     /*** copy edges ***/
@@ -744,9 +883,9 @@ void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 }
 
 /******************************************************************************/
-void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
-                                      G3DFACE        *fac, 
-                                      G3DSUBFACE     *newfac ) {
+static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
+                                             G3DFACE        *fac, 
+                                             G3DSUBFACE     *newfac ) {
     /*** reset only the struct but don't lose time reseting the  ***/
     /*** embedded linked list at the end of the G3DSUBFACE structure **/
     memset ( newfac, 0x00, sizeof ( G3DSUBFACE ) );
@@ -772,9 +911,9 @@ void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
 }
 
 /******************************************************************************/
-void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
-                                      G3DFACE        *fac, 
-                                      G3DSUBFACE     *newfac ) {
+static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
+                                             G3DFACE        *fac, 
+                                             G3DSUBFACE     *newfac ) {
     G3DVERTEX *newver;
     G3DEDGE   *newedg;
     uint32_t i;
@@ -808,21 +947,21 @@ void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
 /*** The first pass handles the first subdivision. It will fit every object ***/
 /*** into arrays. The second pass will then use these arrays, as it is more ***/
 /*** convenient to deal with arrays. ***/
-uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
-                                     G3DMESH        *mes,
-                                     G3DFACE        *fac,
-                                     G3DSUBFACE     *innerFace,
-                                     G3DSUBFACE     *outerFaces,
-                                     uint32_t       *nbOuterFaces,
-                                     G3DSUBEDGE     *innerEdges,
-                                     G3DSUBEDGE     *outerEdges,
-                                     uint32_t       *nbOuterEdges,
-                                     G3DSUBVERTEX   *innerVertices,
-                                     G3DSUBVERTEX   *outerVertices,
-                                     uint32_t       *nbOuterVertices,
-                                     uint32_t        curdiv,
-                                     uint32_t        subdiv_flags,
-                                     uint32_t        engine_flags ) {
+static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
+                                            G3DMESH        *mes,
+                                            G3DFACE        *fac,
+                                            G3DSUBFACE     *innerFace,
+                                            G3DSUBFACE     *outerFaces,
+                                            uint32_t       *nbOuterFaces,
+                                            G3DSUBEDGE     *innerEdges,
+                                            G3DSUBEDGE     *outerEdges,
+                                            uint32_t       *nbOuterEdges,
+                                            G3DSUBVERTEX   *innerVertices,
+                                            G3DSUBVERTEX   *outerVertices,
+                                            uint32_t       *nbOuterVertices,
+                                            uint32_t        curdiv,
+                                            uint32_t        subdiv_flags,
+                                            uint32_t        engine_flags ) {
     G3DFACE *oldadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DFACE *newadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DSUBFACE *memOuterFaces = outerFaces;

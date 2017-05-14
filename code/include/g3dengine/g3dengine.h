@@ -915,31 +915,7 @@ typedef struct _G3DLOOKUP {
     uint32_t size;
 } G3DLOOKUP;
 
-/******************************************************************************/
-typedef struct _G3DSUBDIVISION {
-    G3DSUBFACE    *innerFaces; 
-    G3DSUBFACE    *outerFaces; 
-    G3DSUBEDGE    *innerEdges; 
-    G3DSUBEDGE    *outerEdges; 
-    G3DSUBVERTEX  *innerVertices; 
-    G3DSUBVERTEX  *outerVertices; 
-    G3DSUBUVSET   *innerUVSets; 
-    G3DSUBUVSET   *outerUVSets; 
-    G3DLOOKUP      vertexLookup;
-    G3DLOOKUP      edgeLookup;
-    G3DLOOKUP      faceLookup;
-    uint32_t       nbEdgeLookup;
-    uint32_t       nbVertexLookup;
-    uint32_t       nbInnerFaces;
-    uint32_t       nbOuterFaces;
-    uint32_t       nbInnerEdges;
-    uint32_t       nbOuterEdges;
-    uint32_t       nbInnerVertices;
-    uint32_t       nbOuterVertices;
-    uint32_t       nbInnerUVSets;
-    uint32_t       nbOuterUVSets;
-} G3DSUBDIVISION;
-
+#include <g3dengine/g3dsubdivisionV3.h>
 #include <g3dengine/g3dsysinfo.h>
 
 /******************************************************************************/
@@ -1029,29 +1005,7 @@ struct _G3DMESH {
 #include <g3dengine/g3dtext.h>
 
 /******************************************************************************/
-/**************** For Multi-Threaded Catmull-Clark implementation *************/
-typedef struct _G3DSUBDIVISIONTHREAD {
-    G3DMESH     *mes;
-    G3DRTVERTEX *rtvermem;
-    uint32_t     nbrtver;
-    G3DRTEDGE   *rtedgmem;
-    uint32_t     nbrtedg;
-    G3DRTQUAD   *rtquamem;
-    uint32_t     nbrtfac;
-    G3DRTUV     *rtuvmem;
-    uint32_t     nbrtuv;
-    uint32_t     nbVerticesPerTriangle;
-    uint32_t     nbVerticesPerQuad;
-    uint32_t     nbEdgesPerTriangle;
-    uint32_t     nbEdgesPerQuad;
-    uint32_t     nbFacesPerTriangle;
-    uint32_t     nbFacesPerQuad;
-    uint32_t     cpuID;
-    uint32_t     subdiv_level;
-    uint32_t     engine_flags;
-    uint32_t    *qua_indexes; /*** Quad subindexes - used for sculpting ***/
-    uint32_t    *tri_indexes; /*** Triangles subindexes  - used for sculpting ***/
-} G3DSUBDIVISIONTHREAD;
+
 
 #define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*,uint32_t))f)
 #define STARTUPDATE_CALLBACK(f)  ((void(*)     (G3DMODIFIER*,uint32_t))f)
@@ -1407,46 +1361,6 @@ void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 int g3dvertex_applyCatmullScheme ( G3DVERTEX *, G3DVERTEX * );
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
 
-/******************************************************************************/
-void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
-void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *,
-                                 G3DMESH              *,
-                                 G3DRTVERTEX          *,
-                                 uint32_t              ,
-                                 G3DRTEDGE            *,
-                                 uint32_t              ,
-                                 G3DRTQUAD            *,
-                                 uint32_t              ,
-                                 G3DRTUV              *,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t              ,
-                                 uint32_t,
-                                 uint32_t               );
-G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH *,
-                                                 G3DRTVERTEX *,
-                                                 uint32_t,
-                                                 G3DRTEDGE *,
-                                                 uint32_t ,
-                                                 G3DRTQUAD *,
-                                                 uint32_t ,
-                                                 G3DRTUV  *,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t,
-                                                 uint32_t );
-
 
 /******************************************************************************/
 G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *, G3DVERTEX * );
@@ -1691,78 +1605,6 @@ void g3dsubface_importUVSets ( G3DSUBFACE *, G3DFACE   *,
                                              uint32_t  ,
                                              G3DUVSET *,
                                              uint32_t  );
-
-/******************************************************************************/
-uint32_t g3dsubdivisionV3EvalSize ( G3DMESH *, 
-                                    G3DFACE *,
-                                    uint32_t *, uint32_t *,
-                                    uint32_t *, uint32_t *,
-                                    uint32_t *, uint32_t *,
-                                    uint32_t *, uint32_t *,
-                                    uint32_t );
-uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *,
-                                     G3DMESH      *,
-                                     G3DFACE      *, 
-                                     G3DSUBFACE   *,
-                                     G3DSUBFACE   *,
-                                     uint32_t     *,
-                                     G3DSUBEDGE   *,
-                                     G3DSUBEDGE   *,
-                                     uint32_t     *,
-                                     G3DSUBVERTEX *,
-                                     G3DSUBVERTEX *,
-                                     uint32_t     *,
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t );
-uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *, G3DMESH *,
-                                                        G3DFACE *, 
-                                                        G3DRTTRIANGLE *,
-                                                        G3DRTQUAD *,
-                                   /*** get edges  ***/ G3DRTEDGE  *,
-                                /*** get vertices  ***/ G3DRTVERTEX  *,
-                                                        G3DRTUV *,
-                                                        G3DVERTEX **,
-                                                        G3DEDGE   **,
-                                                        G3DFACE   **,
-                                                        LIST *,
-                                                        uint32_t (*)[0x04],
-                                                        uint32_t (*)[0x04],
-                                                        uint32_t      ,
-                                                        uint32_t      ,
-                                                        uint32_t       );
-void  g3dsubdivisionV3_prepare      ( G3DSUBDIVISION *, G3DMESH *, 
-                                                        G3DFACE *, 
-                                                        uint32_t );
-void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD * );
-void  g3dsubdivision_makeEdgeTopology ( G3DSUBEDGE *,
-                                        uint32_t    ,
-                                        G3DSUBEDGE *,
-                                        uint32_t    ,
-                                        uint32_t );
-void  g3dsubdivision_makeFaceTopology ( G3DSUBFACE *,
-                                        uint32_t    ,
-                                        G3DSUBFACE *,
-                                        uint32_t    ,
-                                        uint32_t    ,
-                                        uint32_t );
-G3DSUBDIVISION *g3dsubdivisionV3_new ( );
-void g3dsubdivisionV3_convertToRTQUAD ( G3DSUBFACE   *,
-                                        uint32_t      ,
-                                        G3DSUBVERTEX *,
-                                        uint32_t      ,
-                                        G3DRTQUAD    *,
-                                        G3DRTVERTEX  * );
-void       g3dsubdivision_resetLookupTables ( G3DSUBDIVISION * );
-void       g3dsubdivision_addFaceLookup     ( G3DSUBDIVISION *, G3DFACE *, 
-                                                                G3DSUBFACE * );
-G3DFACE   *g3dsubdivision_lookFaceUp        ( G3DSUBDIVISION *, G3DFACE * );
-void       g3dsubdivision_addEdgeLookup     ( G3DSUBDIVISION *, G3DEDGE *,
-                                                                G3DSUBEDGE * );
-G3DEDGE   *g3dsubdivision_lookEdgeUp        ( G3DSUBDIVISION *, G3DEDGE * );
-void       g3dsubdivision_addVertexLookup   ( G3DSUBDIVISION *, G3DVERTEX *,
-                                                                G3DSUBVERTEX * );
-G3DVERTEX *g3dsubdivision_lookVertexUp      ( G3DSUBDIVISION *, G3DVERTEX * );
 
 /******************************************************************************/
 G3DCUTFACE *g3dcutface_new ( G3DFACE *, G3DCUTEDGE *[0x04] );

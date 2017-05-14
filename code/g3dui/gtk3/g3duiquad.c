@@ -208,8 +208,9 @@ static void gtk_quad_init ( GtkQuad *gqw ) {
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
-    common_g3duiquad_init ( &gqw->quad, gtk_widget_get_allocated_width  ( widget ), 
-                                 gtk_widget_get_allocated_height ( widget ) );
+    common_g3duiquad_init ( &gqw->quad, 
+                             gtk_widget_get_allocated_width  ( widget ), 
+                             gtk_widget_get_allocated_height ( widget ) );
 }
 
 /******************************************************************************/
@@ -217,12 +218,7 @@ static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;;
     GtkQuad *gqw = ( GtkQuad * ) widget;
     G3DUIQUAD *quad = &gqw->quad;
-    G3DCAMERA **cam;
     uint32_t i;
-
-    /*gui->defcam = gui->curcam = cam[0x00];*/
-
-    cam = common_g3dui_createDefaultCameras ( gui );
 
     for ( i = 0x00; i < 0x04; i++ ) {
         uint32_t vwidth  = ( quad->seg[i].x2 - quad->seg[i].x1 ),
@@ -230,13 +226,20 @@ static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
         GtkWidget *gvw;
 
         /*** Create OpenGL Views ***/
-        gvw = createView ( widget, gui, "View", cam[i], vwidth, vheight );
+        gvw = createView ( widget,
+                           gui,
+                           "View",
+                           gui->defaultCameras[i],
+                           vwidth,
+                           vheight );
 
-        if ( gui->curcam == NULL ) gui->curcam = cam[i];
+        if ( gui->curcam == NULL ) gui->curcam = gui->defaultCameras[i];
         if ( ggt->curogl == NULL ) ggt->curogl = gvw;
 
-        gtk_fixed_put ( GTK_FIXED(widget), gvw, quad->seg[i].x1, quad->seg[i].y1 );
-
+        gtk_fixed_put ( GTK_FIXED(widget), 
+                        gvw, 
+                        quad->seg[i].x1, 
+                        quad->seg[i].y1 );
 
         gtk_widget_show ( gvw );
     }

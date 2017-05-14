@@ -152,6 +152,10 @@ void g3dui_newscenecbk ( GtkWidget *widget, gpointer user_data ) {
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
+        common_g3dui_closeScene ( gui );
+
+        g3dui_clearMaterials ( gui );
+
         gui->sce = g3dscene_new ( 0x00, "SCENE" );
     }
 

@@ -51,6 +51,12 @@ typedef struct _G3DSYSINFO {
     char            *ffprobePath;
     G3DSUBDIVISION **subdivisions; /*** one per core ***/
     LIST            *lanimatedImages;
+     /* 
+      * Although it doesnt make much sense, backgroundImage is located in 
+      * G3DSYSINFO because we need to be able to access it for texture mapping.
+      * with "background" projection. 
+      */
+    G3DIMAGE        *backgroundImage;
 } G3DSYSINFO;
 
 /******************************************************************************/
@@ -88,6 +94,12 @@ void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info,
                                         float       sceneEndFrame,
                                         float       sceneFramesPerSecond,
                                         uint32_t    engine_flags );
+
+/**
+ * Reset the g3dsysinfo structure to its default values.
+ * @param a pointer to the G3DSYSINFO structure.
+ */
+void g3dsysinfo_reset ( G3DSYSINFO *sysinfo );
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,13 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void g3duirendersettings_free ( G3DUIRENDERSETTINGS *rsg ) {
+    if ( rsg->outfile ) free ( rsg->outfile );
+
+    free ( rsg );
+}
+
+/******************************************************************************/
 G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
     G3DUIRENDERSETTINGS *rsg = calloc ( 0x01, sizeof ( G3DUIRENDERSETTINGS ) );
 

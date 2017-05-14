@@ -539,9 +539,8 @@ typedef struct _G3DUICONF {
 #define WIREFRAMELIGHTING  ( 1 << 6 )
 
 typedef struct _G3DUIRENDERSETTINGS {
-    uint32_t  backgroundMode;
-    uint32_t  backgroundColor;
-    G3DIMAGE *backgroundImage;
+    uint32_t backgroundMode;
+    uint32_t backgroundColor;
     uint32_t flags;
     uint32_t fps; /*** frame per second ***/
     uint32_t depth;
@@ -635,16 +634,17 @@ typedef struct _G3DUI {
     G3DURMANAGER  *urm;
     /*R3DNETSERVER  *srv;
     R3DNETCLIENT  *clt;*/
-    G3DUIRECTANGLE menurec;
-    G3DUIRECTANGLE tbarrec;
-    G3DUIRECTANGLE mbarrec;
-    G3DUIRECTANGLE mbrdrec;
-    G3DUIRECTANGLE proprec;
-    G3DUIRECTANGLE quadrec;
-    G3DUIRECTANGLE timerec;
-    G3DUIRECTANGLE inforec;
-    G3DCAMERA     *defcam;
-    G3DCAMERA     *curcam;
+    G3DUIRECTANGLE  menurec;
+    G3DUIRECTANGLE  tbarrec;
+    G3DUIRECTANGLE  mbarrec;
+    G3DUIRECTANGLE  mbrdrec;
+    G3DUIRECTANGLE  proprec;
+    G3DUIRECTANGLE  quadrec;
+    G3DUIRECTANGLE  timerec;
+    G3DUIRECTANGLE  inforec;
+    G3DCAMERA     **defaultCameras;
+    G3DCAMERA      *mainCamera;
+    G3DCAMERA      *currentCamera;
 #ifdef __linux__
     pthread_t      playthreadid;
 #endif

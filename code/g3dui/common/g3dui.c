@@ -748,9 +748,7 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-/*** Create the 4 defgault cameras ***/
-G3DCAMERA **common_g3dui_createDefaultCameras ( G3DUI *gui ) {
-    static G3DCAMERA *cam[0x04]; /*** static, so the local variable doesnot die ***/
+void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
     void (*camgrid[0x04])(G3DCAMERA *,uint32_t) = { g3dcamera_grid3D,
                                                     g3dcamera_gridXY,
                                                     g3dcamera_gridZX,
@@ -770,16 +768,11 @@ G3DCAMERA **common_g3dui_createDefaultCameras ( G3DUI *gui ) {
     float camfoc[0x04] = { 45.0f, 2.0f, 2.0f, 2.0f };
     uint32_t i;
 
-    cam[0x00] = g3dcamera_new ( 0x00, "Camera",  0.0f, 1.0f,     0.1f, 1000.0f );
-    cam[0x01] = g3dcamera_new ( 0x01, "Camera",  0.0f, 1.0f, -1000.0f, 1000.0f );
-    cam[0x02] = g3dcamera_new ( 0x02, "Camera",  0.0f, 1.0f, -1000.0f, 1000.0f );
-    cam[0x03] = g3dcamera_new ( 0x03, "Camera",  0.0f, 1.0f, -1000.0f, 1000.0f );
-
     for ( i = 0x00; i < 0x04; i++ ) {
         G3DOBJECT *objcam = ( G3DOBJECT * ) cam[i];
 
-        cam[i]->focal =  camfoc[i];
-        cam[i]->grid  = camgrid[i];
+        gui->defaultCameras[i]->focal =  camfoc[i];
+        gui->defaultCameras[i]->grid  = camgrid[i];
 
         memcpy ( &objcam->pos, &campos[i], sizeof ( G3DVECTOR ) );
         memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR ) );
@@ -792,6 +785,44 @@ G3DCAMERA **common_g3dui_createDefaultCameras ( G3DUI *gui ) {
     }
 
     return cam;
+}
+
+/******************************************************************************/
+/*** Create the 4 default cameras ***/
+void common_g3dui_createDefaultCameras ( G3DUI *gui ) {
+    uint32_t ptrSize = sizeof ( G3DCAMERA * );
+
+    gui->defaultCameras = ( G3DCAMERA ** ) calloc ( 0x04, ptrSize );
+
+    gui->defaultCameras[0x00] = g3dcamera_new ( 0x00, 
+                                                "Camera",
+                                                0.0f,
+                                                1.0f,
+                                                0.1f,
+                                                1000.0f );
+
+    gui->defaultCameras[0x01] = g3dcamera_new ( 0x01, 
+                                                "Camera",
+                                                0.0f,
+                                                1.0f,
+                                               -1000.0f,
+                                                1000.0f );
+
+    gui->defaultCameras[0x02] = g3dcamera_new ( 0x02,
+                                                "Camera",
+                                                0.0f,
+                                                1.0f,
+                                               -1000.0f,
+                                                1000.0f );
+
+    gui->defaultCameras[0x03] = g3dcamera_new ( 0x03,
+                                                "Camera",
+                                                0.0f,
+                                                1.0f,
+                                               -1000.0f,
+                                                1000.0f );
+
+    common_g3dui_resetDefaultCameras ( gui );
 }
 
 /******************************************************************************/
@@ -838,4 +869,22 @@ void common_g3dui_resizeWidget ( G3DUI *gui, uint32_t width,
     gui->inforec.y      = gui->timerec.y + gui->timerec.height;
     gui->inforec.width  = gui->quadrec.width;
     gui->inforec.height = 0x12;
+}
+
+/******************************************************************************/
+void common_g3dui_closeScene ( G3DUI *gui ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+
+    /* reset background image and system values */
+    g3dsysinfo_reset ( sysinfo );
+
+    if ( gui->sce ) g3dobject_free ( gui->sce );
+
+    gui->sce = NULL;
+
+    if ( gui->lrsg ) list_free ( &gui->lrsg, g3duirendersettings_free );
+
+    gui->currsg = g3duirendersettings_new ( );
+
+    common_g3dui_resetDefaultCameras ( gui );
 }
