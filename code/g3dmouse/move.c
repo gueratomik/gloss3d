@@ -223,6 +223,10 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             g3dmesh_moveAxis ( obj, FINX, flags );
 
                             memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
+                        } else {
+                            g3dobject_moveAxis ( obj, FINX, flags );
+
+                            memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
                         }
                     }
                 } else {

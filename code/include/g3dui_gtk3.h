@@ -110,6 +110,7 @@ GtkWidget *gtk_form_new ( );
 /****************************** Toolkit Data **********************************/
 typedef struct _G3DUIGTK3 {
     GtkWidget *top;
+    GtkWidget *mainView; /*** Main OpenGL View ***/
     GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
     GtkWidget *curmou; /*** store the current pressed toggle button      ***/
     GtkWidget *curmat; /*** current material ***/
@@ -574,6 +575,9 @@ GtkWidget *g3dui_addMenuButton    ( GtkWidget *, G3DUI *,
                                                  const gchar *,
                                                  gint,
                                                  GCallback );
+
+G3DCAMERA *g3dui_getCurrentViewCamera ( G3DUI *gui );
+G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui );
 
 void g3duicom_handleAction ( GtkWidget *, gpointer, gpointer );
 void g3duicom_gotoframe    ( G3DUI *, GOTOFRAME  * );

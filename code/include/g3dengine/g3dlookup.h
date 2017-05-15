@@ -58,9 +58,9 @@ void g3dlookup_freeTable ( G3DLOOKUP *lookup );
 
 /**
  * Add a record to the  lookup table.
- * @param a pointer to the G3DLOOKUP structure.
- * @param a pointer to a source object.
- * @param a pointer to a destination object.
+ * @param lookup a pointer to the G3DLOOKUP structure.
+ * @param src a pointer to a source object.
+ * @param dst a pointer to a destination object.
  */
 void g3dlookup_add ( G3DLOOKUP *lookup, 
                      void      *src, 
@@ -68,29 +68,29 @@ void g3dlookup_add ( G3DLOOKUP *lookup,
 
 /**
  * Get the destination record to the source record.
- * @param a pointer to the G3DLOOKUP structure.
- * @param a pointer to a source object.
+ * @param lookup a pointer to the G3DLOOKUP structure.
+ * @param src a pointer to a source object.
  */
 void *g3dlookup_get ( G3DLOOKUP *lookup, 
                       void      *src );
 
 /**
  * Reset the lookup table (fill with 0). The size of the table stays unchanged.
- * @param a pointer to the G3DLOOKUP structure.
+ * @param lookup a pointer to the G3DLOOKUP structure.
  */
 void g3dlookup_reset ( G3DLOOKUP *lookup );
 
 /**
  * Realloc memory for the lookup table.
- * @param a pointer to the G3DLOOKUP structure.
- * @param the desired number of record couples.
+ * @param lookup a pointer to the G3DLOOKUP structure.
+ * @param size the desired number of record couples.
  */
 void g3dlookup_realloc ( G3DLOOKUP *lookup, 
                          uint32_t   size );
 
 /**
  * Get the size of the lookup table (number of src/dst couples).
- * @param a pointer to the G3DLOOKUP structure.
+ * @param lookup a pointer to the G3DLOOKUP structure.
  * @return the size of the lookup table (number of src/dst couples).
  */
 uint32_t g3dlookup_getSize ( G3DLOOKUP *lookup );

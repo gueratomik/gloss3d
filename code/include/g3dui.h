@@ -360,6 +360,7 @@
 #define CYLINDRICALPROJECTION "Cylindrical"
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
+#define BACKGROUNDPROJECTION  "Background"
 
 #define EDITSUBDIVIDER         "Subdivider"
 #define EDITSUBDIVIDERPREVIEW  "Subdivision (preview)"
@@ -435,6 +436,7 @@
 #define MENU_ADDEMPTYMESH         "Add Empty Mesh"
 #define MENU_ADDSPLINE            "Add Spline"
 #define MENU_ADDTEXT              "Add Text"
+#define MENU_ADDNULL              "Add Null Object"
 
 #define MENU_COMMITMODIFIER       "Commit up to modifier"
 #define MENU_ADDBONE              "Add Bone"
@@ -644,8 +646,6 @@ typedef struct _G3DUI {
     G3DUIRECTANGLE  timerec;
     G3DUIRECTANGLE  inforec;
     G3DCAMERA     **defaultCameras;
-    G3DCAMERA      *mainCamera;
-    G3DCAMERA      *currentCamera;
 #ifdef __linux__
     pthread_t      playthreadid;
 #endif
@@ -668,7 +668,8 @@ typedef struct _G3DUI {
 
 /********************************* g3dui.c ************************************/
 void          common_g3dui_createDefaultCameras ( G3DUI * );
-void          common_g3dui_initDefaultMouseTools ( G3DUI * );
+void          common_g3dui_initDefaultMouseTools ( G3DUI     *gui, 
+                                                   G3DCAMERA *cam );
 void          common_g3dui_addMouseTool ( G3DUI *, G3DMOUSETOOL *, uint32_t );
 G3DMOUSETOOL *common_g3dui_getMouseTool ( G3DUI *, const char * );
 
@@ -920,7 +921,9 @@ void            g3duiclipboard_copyKey    ( G3DUICLIPBOARD *, G3DSCENE *,
 
 /******************************************************************************/
 G3DSCENE *common_g3dui_openG3DFile          ( G3DUI *, const char * );
-void      common_g3dui_setMouseTool         ( G3DUI *, G3DMOUSETOOL * );
+void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
+                                              G3DCAMERA    *cam,
+                                              G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
 void      common_g3dui_setFileName          ( G3DUI *, const char * );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
@@ -945,7 +948,8 @@ void      common_g3dui_exitokcbk              ( G3DUI * );
 void      common_g3dui_triangulateCbk         ( G3DUI *, const char * );
 void      common_g3dui_selectTreeCbk          ( G3DUI *, const char * );
 void      common_g3dui_addEmptyMeshCbk        ( G3DUI * );
-void      common_g3dui_addCameraCbk           ( G3DUI * );
+void      common_g3dui_addCameraCbk           ( G3DUI     *gui,
+                                                G3DCAMERA *currentCamera );
 void      common_g3dui_addLightCbk            ( G3DUI * );
 void      common_g3dui_addCylinderCbk         ( G3DUI * );
 void      common_g3dui_addTorusCbk            ( G3DUI * );
@@ -1146,7 +1150,6 @@ void common_g3dui_addFFDBoxCbk          ( G3DUI * );
 void common_g3dui_convertSymmetryCbk    ( G3DUI * );
 void common_g3dui_addSymmetryCbk        ( G3DUI * );
 void common_g3dui_addEmptyMeshCbk       ( G3DUI * );
-void common_g3dui_addCameraCbk          ( G3DUI * );
 void common_g3dui_addLightCbk           ( G3DUI * );
 void common_g3dui_addCylinderCbk        ( G3DUI * );
 void common_g3dui_addTorusCbk           ( G3DUI * );
@@ -1211,4 +1214,16 @@ void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *,
                                                          uint32_t );
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *, 
                                                                  float );
+
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui, 
+                                          G3DCAMERA *cam,
+                                          uint64_t   id,
+                                          uint32_t   x1,
+                                          uint32_t   y1,
+                                          uint32_t   x2,
+                                          uint32_t   y2,
+                                          uint32_t   width,
+                                          uint32_t   height,
+                                          LIST      *lfilters,
+                                          uint32_t   sequence );
 #endif

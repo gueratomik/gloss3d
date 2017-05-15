@@ -206,19 +206,6 @@ void common_g3duirenderedit_outputCbk ( G3DUI *gui, const char *outfile ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_renderCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
-    G3DSCENE *sce = gui->sce;
-    G3DCAMERA *cam = gui->currentCamera;
-
-    /*if ( rsg->endframe == rsg->startframe ) {
-        g3duirendersettings_rendertoimage ( rsg, sce, cam, gui->flags, NULL );
-    } else {
-        g3duirendersettings_rendertovideo ( rsg, sce, cam, gui->flags, NULL );
-    }*/
-}
-
-/******************************************************************************/
 void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
 
@@ -251,7 +238,6 @@ void common_g3duirenderedit_widthCbk ( G3DUI *gui, uint32_t width ) {
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->width  = width;
-    rsg->height = width / rsg->ratio;
 
     /*updateRenderHeight ( parent );*/
 }
@@ -263,7 +249,6 @@ void common_g3duirenderedit_heightCbk ( G3DUI *gui, uint32_t height ) {
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->height = height;
-    rsg->width  = height * rsg->ratio;
 
 
     /*updateRenderWidth ( parent );*/
@@ -276,8 +261,6 @@ void common_g3duirenderedit_ratioCbk ( G3DUI *gui, float ratio ) {
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->ratio = ratio;
-
-    rsg->width = rsg->height * rsg->ratio;
 
     /*updateRenderWidth ( parent );*/
 }

@@ -67,8 +67,8 @@ typedef struct _G3DIMAGE {
 
 /**
  * Create a G3DIMAGE from a jpeg file.
- * @param the jpeg file name.
- * @param the 3D engine flags.
+ * @param filename the jpeg file name.
+ * @param engine_flags the 3D engine flags.
  * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
  */
 G3DIMAGE *g3dimage_newFromJpeg ( const char *filename,
@@ -77,14 +77,14 @@ G3DIMAGE *g3dimage_newFromJpeg ( const char *filename,
 
 /**
  * Free an image (along with its pixel data)
- * @param a pointer to a previously allocated G3DIMAGE.
+ * @param image a pointer to a previously allocated G3DIMAGE.
  */
 void g3dimage_free ( G3DIMAGE *image );
 
 
 /**
  * Generate OpenGL GLU MipMaps.
- * @param a pointer to a previously allocated G3DIMAGE.
+ * @param image a pointer to a previously allocated G3DIMAGE.
  */
 void g3dimage_bind ( G3DIMAGE *image );
 
@@ -92,12 +92,12 @@ void g3dimage_bind ( G3DIMAGE *image );
  * For animated texture: load the requested image at frame "currentFrame".
  * This function uses startFrame as its starting time, which does not have
  * to be zero. The animated image renders at its own framerate.
- * @param a pointer to a previously allocated G3DIMAGE.
- * @param the starting frame
- * @param the current frame that must be loaded.
- * @param the ending frame
- * @param the frame rate of the 3D engine (not of the animated image).
- * @param the 3D engine flags.
+ * @param image a pointer to a previously allocated G3DIMAGE.
+ * @param startFrame the starting frame
+ * @param currentFrame the current frame that must be loaded.
+ * @param endFrame the ending frame
+ * @param frameRate the frame rate of the 3D engine (not of the animated image).
+ * @param engine_flags the 3D engine flags.
  */
 void g3dimage_animate ( G3DIMAGE *image,
                         float     startFrame,
@@ -108,8 +108,8 @@ void g3dimage_animate ( G3DIMAGE *image,
 
 /**
  * Create a G3DIMAGE depending on the file extension.
- * @param the media file name (image or video).
- * @param the 3D engine flags.
+ * @param filename the media file name (image or video).
+ * @param poweroftwo.
  * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
  */
 G3DIMAGE *g3dimage_new ( const char *filename,

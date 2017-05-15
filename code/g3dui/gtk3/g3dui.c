@@ -88,7 +88,8 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     g3dui_setHourGlass ( gui );
 
-    rps = common_g3dui_render ( gui, ( uint64_t ) ggt->curogl,
+    rps = common_g3dui_render ( gui, g3dui_getCurrentViewCamera ( gui ),
+                                     ( uint64_t ) ggt->curogl,
                                      0x00, 0x00,
                                      width - 1, 
                                      height - 1,
@@ -1036,16 +1037,33 @@ void g3dui_redrawGLViews ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui ) {
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkView   *gvw = ( GtkView * ) ggt->mainView;
+
+    return gvw->view.cam;
+}
+
+/******************************************************************************/
+G3DCAMERA *g3dui_getCurrentViewCamera ( G3DUI *gui ) {
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    return gvw->view.cam;
+}
+
+/******************************************************************************/
 void g3dui_setMouseTool ( GtkWidget *widget, gpointer user_data ) {
     G3DUI        *gui = ( G3DUI        * ) user_data;
     G3DUIGTK3    *ggt = ( G3DUIGTK3    * ) gui->toolkit_data;
     const char  *name = gtk_widget_get_name ( widget );
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, name );
+    G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
 
     if ( gui->lock ) return;
 
     if ( mou ) {
-        common_g3dui_setMouseTool ( gui, mou );
+        common_g3dui_setMouseTool ( gui, cam, mou );
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
             /*** Remember that widget ID, for example to be unset when a toggle button 
@@ -1369,9 +1387,8 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     rsg = g3duirendersettings_new ( ); /*** default render settings ***/
 
-    list_insert ( &gui->lrsg, rsg );
-
-    gui->currsg = rsg; 
+    common_g3dui_addRenderSettings ( gui, rsg );
+    common_g3dui_useRenderSettings ( gui, rsg );
 
     /******************/
 
@@ -1435,7 +1452,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                                   gui->timerec.height );
 
     /*** Add mouse tools AFTER GLViews creation ***/
-    common_g3dui_initDefaultMouseTools ( gui );
+    common_g3dui_initDefaultMouseTools ( gui, g3dui_getMainViewCamera ( gui ) );
 
     /*** File loading must be done AFTER OpenGL init ***/
     gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );

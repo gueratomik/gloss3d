@@ -257,7 +257,7 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
                                            G3DMOUSETOOL *mou,
                                            uint32_t current,
                                            uint32_t engine_flags ) {
-
+    int VPX[0x04];
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
@@ -265,10 +265,14 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    glMatrixMode ( GL_MODELVIEW );
-    glLoadIdentity ( );
+    glGetIntegerv ( GL_VIEWPORT, VPX );
 
     glMatrixMode ( GL_PROJECTION );
+    glLoadIdentity ( );
+
+    glOrtho ( VPX[0], VPX[2], VPX[3], VPX[1], 0.0f, 1.0f );
+
+    glMatrixMode ( GL_MODELVIEW );
     glLoadIdentity ( );
 
     glDepthMask ( GL_FALSE );
@@ -277,17 +281,43 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
     if ( rsg ) {
         if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
             if ( sysinfo->backgroundImage ) {
+                float widthRatio  = ( float ) rsg->width  / VPX[0x02],
+                      heightRatio = ( float ) rsg->height / VPX[0x03];
+                float deltaWidth  = 1.0f - widthRatio,
+                      deltaHeight = 1.0f - heightRatio;
+                float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
+                G3DVECTOR uv[0x04] = { { .x =  1.0f, .y =  1.0f, .z = 0.0f },
+                                       { .x =  1.0f, .y =     0, .z = 0.0f },
+                                       { .x =     0, .y =     0, .z = 0.0f },
+                                       { .x =     0, .y =  1.0f, .z = 0.0f } }; 
+                G3DVECTOR qps[0x04] = { { .x =  VPX[2], .y =  VPX[3], .z = 0.0f },
+                                        { .x =  VPX[2], .y =       0, .z = 0.0f },
+                                        { .x =       0, .y =       0, .z = 0.0f },
+                                        { .x =       0, .y =  VPX[3], .z = 0.0f } };
+                double MVX[0x10], PJX[0x10];
+                int VPX[0x04], i;
+
+                /*glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX );*/
+                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                g3dcore_identityMatrix ( MVX );
+                /*g3dcore_identityMatrix ( PJX );*/
+
                 glEnable      ( GL_TEXTURE_2D );
                 glBindTexture ( GL_TEXTURE_2D, sysinfo->backgroundImage->id );
+
+                glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+                glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
+
                 glBegin ( GL_QUADS );
-                glTexCoord2f ( 1.0f, 0.0f ); 
-                glVertex3f ( 1.0f,  1.0f, 0.0f );
-                glTexCoord2f ( 1.0f, 1.0f ); 
-                glVertex3f ( 1.0f, -1.0f, 0.0f );
-                glTexCoord2f ( 0.0f, 1.0f ); 
-                glVertex3f (-1.0f, -1.0f, 0.0f );
-                glTexCoord2f ( 0.0f, 0.0f ); 
-                glVertex3f (-1.0f,  1.0f, 0.0f );
+
+                for ( i = 0x00; i < 0x04; i++ ) {
+                    glTexCoord2f ( ( uv[i].x * ( widthRatio  / 2 )) + ( widthRatio  / 2 ), 
+                                   ( uv[i].y * ( heightRatio / 2 )) + ( heightRatio / 2 ) );
+                    glVertex3f ( qps[i].x, qps[i].y, qps[i].z );
+                }
                 glEnd ( );
                 glDisable     ( GL_TEXTURE_2D );
             }

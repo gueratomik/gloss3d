@@ -54,15 +54,19 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI *gui, uint64_t id,
-                                                      uint32_t x1, uint32_t y1,
-                                                      uint32_t x2, uint32_t y2,
-                                                      uint32_t width, uint32_t height,
-                                                      LIST *lfilters,
-                                                      uint32_t sequence ) {
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui, 
+                                          G3DCAMERA *cam,
+                                          uint64_t   id,
+                                          uint32_t   x1,
+                                          uint32_t   y1,
+                                          uint32_t   x2,
+                                          uint32_t   y2,
+                                          uint32_t   width,
+                                          uint32_t   height,
+                                          LIST      *lfilters,
+                                          uint32_t   sequence ) {
 
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
-    G3DCAMERA *cam = gui->currentCamera;
     G3DSCENE *sce = gui->sce;
 
     /*** Don't start a new render before the current one has finished ***/
@@ -231,6 +235,20 @@ uint64_t getTotalMemory ( ) {
     #endif
 }
 
+/******************************************************************************/
+void common_g3dui_useRenderSettings ( G3DUI *gui, G3DUIRENDERSETTINGS *rsg ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+
+    gui->currsg = rsg;
+
+    sysinfo->currentRenderWidth  = &rsg->width;
+    sysinfo->currentRenderHeight = &rsg->height;
+}
+
+/******************************************************************************/
+void common_g3dui_addRenderSettings ( G3DUI *gui, G3DUIRENDERSETTINGS *rsg ) {
+    list_insert ( &gui->lrsg, rsg );
+}
 
 /******************************************************************************/
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID ( G3DUI *gui, uint64_t id ) {
@@ -486,12 +504,14 @@ void common_g3dui_dispatchGLMenuButton ( G3DUI *gui, G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-void common_g3dui_setMouseTool ( G3DUI *gui, G3DMOUSETOOL *mou ) {
+void common_g3dui_setMouseTool ( G3DUI        *gui, 
+                                 G3DCAMERA    *cam, 
+                                 G3DMOUSETOOL *mou ) {
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou->init ) {
         uint32_t msk = mou->init ( mou, gui->sce, 
-                                        gui->currentCamera, 
+                                        cam, 
                                         gui->urm, gui->flags );
 			
         common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
@@ -570,7 +590,7 @@ void common_g3dui_addMouseTool ( G3DUI *gui, G3DMOUSETOOL *mou,
 
 
 /******************************************************************************/
-void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
+void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     G3DMOUSETOOL *mou;
 
     /********************************/
@@ -581,7 +601,7 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui ) {
     common_g3dui_addMouseTool ( gui, mou, 0x00 );
 
     /*** Pick is the default mouse tool ***/
-    common_g3dui_setMouseTool ( gui, mou );
+    common_g3dui_setMouseTool ( gui, cam, mou );
 
     /********************************/
 
@@ -787,6 +807,7 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
 /*** Create the 4 default cameras ***/
 void common_g3dui_createDefaultCameras ( G3DUI *gui ) {
     uint32_t ptrSize = sizeof ( G3DCAMERA * );
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     gui->defaultCameras = ( G3DCAMERA ** ) calloc ( 0x04, ptrSize );
 
@@ -819,6 +840,8 @@ void common_g3dui_createDefaultCameras ( G3DUI *gui ) {
                                                 1000.0f );
 
     common_g3dui_resetDefaultCameras ( gui );
+
+    sysinfo->defaultCamera = gui->defaultCameras[0x00];
 }
 
 /******************************************************************************/
@@ -870,6 +893,7 @@ void common_g3dui_resizeWidget ( G3DUI *gui, uint32_t width,
 /******************************************************************************/
 void common_g3dui_closeScene ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    G3DUIRENDERSETTINGS *rsg;
 
     /* reset background image and system values */
     g3dsysinfo_reset ( sysinfo );
@@ -880,7 +904,10 @@ void common_g3dui_closeScene ( G3DUI *gui ) {
 
     if ( gui->lrsg ) list_free ( &gui->lrsg, g3duirendersettings_free );
 
-    gui->currsg = g3duirendersettings_new ( );
+    rsg = g3duirendersettings_new ( );
+
+    common_g3dui_addRenderSettings ( gui, rsg );
+    common_g3dui_useRenderSettings ( gui, rsg );
 
     common_g3dui_resetDefaultCameras ( gui );
 }

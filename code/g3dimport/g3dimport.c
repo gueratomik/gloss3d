@@ -154,6 +154,7 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
         switch ( chunksig ) {
 
             case OBJSIG :
+                obj = NULL;
                 printf ( "Object found\n" );
                 objid++;
             break;
@@ -358,6 +359,12 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 readf ( &objsca.y, sizeof ( float ), 0x01, fsrc );
                 readf ( &objsca.z, sizeof ( float ), 0x01, fsrc );
                 readf ( &objsca.w, sizeof ( float ), 0x01, fsrc );
+
+                if ( obj ) {
+                    memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                    memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                    memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+                }
             break;
 
             case IDPARENT :

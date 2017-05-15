@@ -370,6 +370,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UVMAPFLAT        0x00  /*** default projection ***/
 #define UVMAPSPHERICAL   0x01
 #define UVMAPCYLINDRICAL 0x02
+#define UVMAPBACKGROUND  0x03
 
 /****************************** Material Flags ********************************/
 #define DIFFUSE_ENABLED      ( 1       )
@@ -1750,6 +1751,9 @@ void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *,
 void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *, 
                                                           uint32_t );
 void       g3dobject_activate              ( G3DOBJECT *, uint32_t );
+void g3dobject_moveAxis ( G3DOBJECT *obj, 
+                          double    *PREVMVX, /* previous world matrix */
+                          uint32_t   engine_flags );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );
@@ -2237,9 +2241,6 @@ G3DPIVOT *g3dpivot_new  ( G3DCAMERA *, G3DVECTOR *, uint32_t );
 void      g3dpivot_orbit ( G3DPIVOT *, int32_t, int32_t, int32_t, int32_t );
 
 /******************************************************************************/
-G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *, uint32_t );
-G3DSYSINFO     *g3dsysinfo_get ( );
-
 void          g3dheightmap_realloc ( G3DHEIGHTMAP *, uint32_t );
 G3DHEIGHTMAP *g3dheightmap_new     ( uint32_t );
 

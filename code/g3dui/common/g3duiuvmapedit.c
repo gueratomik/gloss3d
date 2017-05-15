@@ -52,6 +52,11 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
             map->projection = UVMAPCYLINDRICAL;
         }
 
+        /*** 2 ***/
+        if ( strcmp ( projection, BACKGROUNDPROJECTION ) == 0x00 ) {
+            map->projection = UVMAPBACKGROUND;
+        }
+
         g3dobject_updateMatrix_r ( ( G3DOBJECT * ) map, gui->flags );
         /*g3duvmap_applyProjection ( map );*/
 

@@ -86,6 +86,7 @@ void createProjectionSelection ( GtkWidget *parent, G3DUI *gui,
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, FLATPROJECTION        );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, SPHERICALPROJECTION   );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, CYLINDRICALPROJECTION );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, BACKGROUNDPROJECTION );
 
     gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
 

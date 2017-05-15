@@ -567,20 +567,19 @@ void common_g3dui_addTextCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_addCameraCbk ( G3DUI *gui ) {
+void common_g3dui_addCameraCbk ( G3DUI *gui, G3DCAMERA *currentCamera ) {
     G3DSCENE *sce = gui->sce;
-    G3DCAMERA *curcam = gui->currentCamera;
     G3DURMANAGER *urm = gui->urm;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
-    G3DCAMERA *cam = g3dcamera_new ( oid, "Camera", curcam->focal,
-                                                    curcam->ratio,
-                                                    curcam->znear,
-                                                    curcam->zfar );
+    G3DCAMERA *cam = g3dcamera_new ( oid, "Camera", currentCamera->focal,
+                                                    currentCamera->ratio,
+                                                    currentCamera->znear,
+                                                    currentCamera->zfar );
 
     g3dcamera_setGrid ( cam, g3dcamera_grid3D );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) cam, 
-                                      ( G3DOBJECT * ) gui->currentCamera );
+                                      ( G3DOBJECT * ) currentCamera );
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |
@@ -589,7 +588,7 @@ void common_g3dui_addCameraCbk ( G3DUI *gui ) {
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) cam );
 
-    memcpy ( &cam->pivot, &curcam->pivot, sizeof ( G3DVECTOR ) );
+    memcpy ( &cam->pivot, &currentCamera->pivot, sizeof ( G3DVECTOR ) );
 
     /*g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam );*/
 
@@ -735,6 +734,28 @@ void common_g3dui_addPlaneCbk ( G3DUI *gui ) {
                                        ( G3DOBJECT * ) pri );
     g3dscene_unselectAllObjects ( sce, gui->flags );
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addNullCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    uint32_t pid = g3dscene_getNextObjectID ( sce );
+    G3DOBJECT *obj = g3dobject_new ( pid, "Null", gui->flags );
+
+    g3durm_object_addChild ( urm, sce, gui->flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) obj );
+    g3dscene_unselectAllObjects ( sce, gui->flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) obj, gui->flags );
 
     g3dui_redrawGLViews ( gui );
     g3dui_updateCoords ( gui );

@@ -1127,8 +1127,6 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
         return;
     }
 
-    gui->currentCamera = view->cam;
-
     switch ( gdkev->type ) {
         case GDK_KEY_PRESS : {
             GdkEventKey *kev = ( GdkEventKey * ) gdkev;

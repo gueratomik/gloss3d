@@ -78,7 +78,7 @@ G3DUIRENDERPROCESS *g3dui_rendertoarea ( G3DUI *gui, uint32_t x1, uint32_t y1,
                                                      uint32_t free_after ) {
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
     G3DUIMOTIF *gmt = ( G3DUIMOTIF * ) gui->toolkit_data;
-    G3DCAMERA *cam = gui->curcam;
+    G3DCAMERA *cam = gui->mainCamera;
     Dimension width, height;
     G3DSCENE *sce = gui->sce;
     Display *dis = XtDisplay ( area );

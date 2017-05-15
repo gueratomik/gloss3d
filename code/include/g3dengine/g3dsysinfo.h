@@ -57,6 +57,9 @@ typedef struct _G3DSYSINFO {
       * with "background" projection. 
       */
     G3DIMAGE        *backgroundImage;
+    uint32_t        *currentRenderWidth;
+    uint32_t        *currentRenderHeight;
+    G3DCAMERA       *defaultCamera; /* used for backgroung uvw mapping */
 } G3DSYSINFO;
 
 /******************************************************************************/
@@ -65,11 +68,11 @@ typedef struct _G3DSYSINFO {
  * Get a pointer to a G3DSUBDIVISION  structure. The structure is used for
  * per-core catmull-clark subdivisions. It contains the array used by the
  * subdivision algorithm. The structure must not be freed.
- * @param a pointer to the G3DSYSINFO structure.
- * @param the ID of the CPU for which holds the structure (one per CPU).
+ * @param sysinfo a pointer to the G3DSYSINFO structure.
+ * @param cpuID the ID of the CPU for which holds the structure (one per CPU).
  * @return the allocated G3DSUBDIVISION. Must not be freed.
  */
-G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sif, 
+G3DSUBDIVISION *g3dsysinfo_getSubdivision ( G3DSYSINFO *sysinfo, 
                                             uint32_t    cpuID );
 
 /**
@@ -81,14 +84,14 @@ G3DSYSINFO *g3dsysinfo_get ( );
 
 /**
  * Animated animated textures.
- * @param a pointer to the G3DSYSINFO structure.
- * @param the start frame of the 3D animation.
- * @param the current frame of the 3D animation.
- * @param the last frame of the 3D animation.
- * @param the frame rate of the 3D animation.
- * @param 3D engine flags.
+ * @param sysinfo a pointer to the G3DSYSINFO structure.
+ * @param sceneStartFrame the start frame of the 3D animation.
+ * @param sceneCurrentFrame the current frame of the 3D animation.
+ * @param sceneEndFrame the last frame of the 3D animation.
+ * @param tsceneFramesPerSecond he frame rate of the 3D animation.
+ * @param engine_flags 3D engine flags.
  */
-void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info, 
+void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *sysinfo, 
                                         float       sceneStartFrame,
                                         float       sceneCurrentFrame,
                                         float       sceneEndFrame,
@@ -97,7 +100,7 @@ void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info,
 
 /**
  * Reset the g3dsysinfo structure to its default values.
- * @param a pointer to the G3DSYSINFO structure.
+ * @param sysinfo a pointer to the G3DSYSINFO structure.
  */
 void g3dsysinfo_reset ( G3DSYSINFO *sysinfo );
 

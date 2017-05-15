@@ -593,7 +593,7 @@ void g3dui_addLightCbk ( GtkWidget *widget, gpointer user_data ) {
 void g3dui_addCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3dui_addCameraCbk ( gui );
+    common_g3dui_addCameraCbk ( gui, g3dui_getCurrentViewCamera ( gui ) );
 }
 
 /******************************************************************************/
@@ -618,6 +618,13 @@ void g3dui_addTextCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addNullCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addNullCbk ( gui );
+}
+
+/******************************************************************************/
 GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
                                                char *name,
                                                gint width ) {
@@ -639,6 +646,7 @@ GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton    ( menu, gui, MENU_ADDTORUS    , width, G_CALLBACK(g3dui_addTorusCbk)    );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDCYLINDER , width, G_CALLBACK(g3dui_addCylinderCbk) );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDTEXT     , width, G_CALLBACK(g3dui_addTextCbk)     );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDNULL     , width, G_CALLBACK(g3dui_addNullCbk)     );
 
     g3dui_addMenuSeparator ( menu );
 

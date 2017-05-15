@@ -48,6 +48,15 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
             uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
                      height = gtk_widget_get_allocated_height ( widget );
             uint32_t x = 0, y = 0;
+
+            /* 
+             * fill the background. We don't let the double buffering doing it
+             * because it causes some flickering, I don't know why.
+             */
+            cairo_rectangle ( cr, 0, 0, width, height  );
+            cairo_fill ( cr );
+            /*cairo_paint ( cr );*/
+
             #ifdef __linux__
             Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
             Window      win      = gdk_x11_window_get_xid ( gdkwin );
@@ -150,8 +159,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
     /*Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );*/
     /*Window      win      = gdk_x11_window_get_xid ( gdkwin );*/
-    rsg->width  = gtk_widget_get_allocated_width  ( widget );
-    rsg->height = gtk_widget_get_allocated_height ( widget );
+    /*rsg->width  = gtk_widget_get_allocated_width  ( widget );
+    rsg->height = gtk_widget_get_allocated_height ( widget );*/
+    G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
 
     if ( rps == NULL ) {
         /*** this filter is used for displaying ***/
@@ -261,7 +271,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*** this should probably be changed ***/
             tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );
 
-            rps = common_g3dui_render ( gui, ( uint64_t ) widget,
+            rps = common_g3dui_render ( gui, cam,
+                                             ( uint64_t ) widget,
                                              0x00, 0x00,
                                              rsg->width  - 0x01,
                                              rsg->height - 0x01,
@@ -269,7 +280,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                              rsg->height,
                                              lfilters, 0x01 );
         } else {
-            rps = common_g3dui_render ( gui, ( uint64_t ) widget,
+            rps = common_g3dui_render ( gui, cam,
+                                             ( uint64_t ) widget,
                                              0x00, 0x00,
                                              rsg->width  - 0x01,
                                              rsg->height - 0x01,
@@ -345,6 +357,10 @@ GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
 
     /*** For keyboard inputs ***/
     gtk_widget_set_can_focus ( drw, TRUE );
+
+    /*** prevents erasing the background ***/
+    gtk_widget_set_double_buffered (GTK_WIDGET (drw), FALSE);
+    gtk_widget_set_app_paintable (GTK_WIDGET (drw), TRUE);
 
     /*** Drawing area does not receive mous events by defaults ***/
     gtk_widget_set_events ( drw, gtk_widget_get_events ( drw )  |

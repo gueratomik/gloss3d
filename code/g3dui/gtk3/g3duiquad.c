@@ -233,11 +233,11 @@ static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
                            vwidth,
                            vheight );
 
-        if ( gui->currentCamera == NULL ) {
-            gui->currentCamera = gui->defaultCameras[i];
+        if ( i == 0x00 ) {
+            ggt->mainView = gvw;
         }
 
-        if ( ggt->curogl == NULL ) ggt->curogl = gvw;
+        /*if ( ggt->curogl == NULL ) ggt->curogl = gvw;*/
 
         gtk_fixed_put ( GTK_FIXED(widget), 
                         gvw, 

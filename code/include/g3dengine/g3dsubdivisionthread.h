@@ -76,25 +76,25 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
 
 /**
  * Init a G3DSUBDIVISIONTHREAD structure.
- * @param a pointer to the G3DSUBDIVISIONTHREAD structure.
- * @param a pointer to the G3DMESH.
- * @param G3DRTVERTEX array to fill.
- * @param number of vertices in the array.
- * @param G3DRTEDGE array to fill. Indexes vertices by Id.
- * @param number of edges in the array.
- * @param G3DRTQUAD array to fill. Indexes vertices by Id.
- * @param number of quads in the array.
- * @param G3DRTUV array to fill.
- * @param number of uvs in the array.
- * @param number of vertices per triangle.
- * @param number of vertices per quad.
- * @param number of edges per triangle.
- * @param number of edges per quad.
- * @param number of faces per triangle.
- * @param number of faces per quad.
- * @param ID of the CPU where to run the thread.
- * @param subdivision level.
- * @param 3D engine flags.
+ * @param std a pointer to the G3DSUBDIVISIONTHREAD structure.
+ * @param mes a pointer to the G3DMESH.
+ * @param rtvermem G3DRTVERTEX array to fill.
+ * @param nbrtver number of vertices in the array.
+ * @param rtedgmem G3DRTEDGE array to fill. Indexes vertices by Id.
+ * @param nbrtedg number of edges in the array.
+ * @param rtquamem G3DRTQUAD array to fill. Indexes vertices by Id.
+ * @param nbrtfac number of quads in the array.
+ * @param rtuvmem G3DRTUV array to fill.
+ * @param nbrtuv number of uvs in the array.
+ * @param nbVerticesPerTriangle number of vertices per triangle.
+ * @param nbVerticesPerQuad number of vertices per quad.
+ * @param nbEdgesPerTriangle number of edges per triangle.
+ * @param nbEdgesPerQuad number of edges per quad.
+ * @param nbFacesPerTriangle number of faces per triangle.
+ * @param nbFacesPerQuad number of faces per quad.
+ * @param cpuID ID of the CPU where to run the thread.
+ * @param subdiv_level subdivision level.
+ * @param engine_flags 3D engine flags.
  */
 void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
@@ -117,25 +117,25 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              engine_flags );
 
 /**
- * Create a new G3DSUBDIVISIONTHREAD structure.
- * @param a pointer to the G3DMESH.
- * @param G3DRTVERTEX array to fill.
- * @param number of vertices in the array.
- * @param G3DRTEDGE array to fill. Indexes vertices by Id.
- * @param number of edges in the array.
- * @param G3DRTQUAD array to fill. Indexes vertices by Id.
- * @param number of quads in the array.
- * @param G3DRTUV array to fill.
- * @param number of uvs in the array.
- * @param number of vertices per triangle.
- * @param number of vertices per quad.
- * @param number of edges per triangle.
- * @param number of edges per quad.
- * @param number of faces per triangle.
- * @param number of faces per quad.
- * @param ID of the CPU where to run the thread.
- * @param subdivision level.
- * @param 3D engine flags.
+ * Create mesa new G3DSUBDIVISIONTHREAD structure.
+ * @param mes a pointer to the G3DMESH.
+ * @param rtvermem G3DRTVERTEX array to fill.
+ * @param nbrtver number of vertices in the array.
+ * @param rtedgmem G3DRTEDGE array to fill. Indexes vertices by Id.
+ * @param nbrtedg number of edges in the array.
+ * @param rtquamem G3DRTQUAD array to fill. Indexes vertices by Id.
+ * @param nbrtfac number of quads in the array.
+ * @param rtuvmem G3DRTUV array to fill.
+ * @param nbrtuv number of uvs in the array.
+ * @param nbVerticesPerTriangle number of vertices per triangle.
+ * @param nbVerticesPerQuad number of vertices per quad.
+ * @param nbEdgesPerTriangle number of edges per triangle.
+ * @param nbEdgesPerQuad number of edges per quad.
+ * @param nbFacesPerTriangle number of faces per triangle.
+ * @param nbFacesPerQuad number of faces per quad.
+ * @param cpuID ID of the CPU where to run the thread.
+ * @param subdiv_level subdivision level.
+ * @param engine_flags 3D engine flags.
  * @return the allocated G3DSUBDIVISIONTHREAD structure.
  */
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
@@ -159,8 +159,9 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
 
 /**
  * Multithreaded version of g3dsubdivisionV3_subdivide()
+ * @param std a pointer to the G3DSUBDIVISIONTHREAD structure.
  */
-void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt );
+void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *std );
 
 #ifdef __cplusplus
 }

@@ -1208,6 +1208,32 @@ void g3dobject_name ( G3DOBJECT *obj, const char *name ) {
 }
 
 /******************************************************************************/
+void g3dobject_moveAxis ( G3DOBJECT *obj, 
+                          double    *PREVMVX, /* previous world matrix */
+                          uint32_t   engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    double DIFFMVX[0x10];
+
+    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+        double prvChildWorldMatrix[0x10];
+        double newChildLocalMatrix[0x10];
+
+        g3dcore_multmatrix ( child->lmatrix, PREVMVX, prvChildWorldMatrix );
+        g3dcore_multmatrix ( prvChildWorldMatrix, obj->iwmatrix, newChildLocalMatrix );
+
+        g3dcore_getMatrixTranslation ( newChildLocalMatrix, &child->pos );
+        g3dcore_getMatrixRotation    ( newChildLocalMatrix, &child->rot );
+
+        g3dobject_updateMatrix_r ( child, engine_flags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
 G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) calloc ( 0x01, sizeof ( G3DOBJECT ) );
 

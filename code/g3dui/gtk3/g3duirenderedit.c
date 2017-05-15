@@ -248,11 +248,11 @@ static void Configure ( GtkWidget *widget, GdkEvent *event,
 void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
+    G3DCAMERA *mainCamera = g3dui_getMainViewCamera ( gui );
 
-    if ( gui->currentCamera ) {
+    if ( mainCamera ) {
         GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-        float ratio = ( rsg->ratio ) ? rsg->ratio : gui->currentCamera->ratio;
-        uint32_t rsgwidth  = rsg->height * ratio;
+        uint32_t rsgwidth  = rsg->width;
         uint32_t rsgheight = rsg->height;
 
         gtk_widget_add_events(GTK_WIDGET(dial), GDK_CONFIGURE);
@@ -980,8 +980,8 @@ void createGeneralPanel ( GtkWidget *parent,
     createIntegerText ( pan, gui, EDITRENDERHEIGHT,
                                0, 120, 96,  32, heightCbk );
 
-    createFloatText   ( pan, gui, EDITRENDERRATIO,
-                               0, 144, 96,  64, ratioCbk );
+    /*createFloatText   ( pan, gui, EDITRENDERRATIO,
+                               0, 144, 96,  64, ratioCbk );*/
 
     createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
                                0, 168, 256,  96 );
