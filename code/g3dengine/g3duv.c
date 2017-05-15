@@ -174,30 +174,32 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
                 double MVX[0x10], PJX[0x10];
                 int    VPX[0x04] = { 0 };
 
-                /*glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
+                glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
                 glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                glGetIntegerv ( GL_VIEWPORT         , VPX );*/
+                glGetIntegerv ( GL_VIEWPORT         , VPX );
 
                 /*if ( sysinfo->backgroundImage ) {*/
                     double winX, winY, winZ;
                     float xratio, yratio;
+                    float renderRatio = ( float ) *sysinfo->currentRenderWidth / 
+                                                  *sysinfo->currentRenderHeight;
 /*
                     float renderWidthRatio  = ( float ) *sysinfo->currentRenderWidth  / VPX[0x02],
                           renderHeightRatio = ( float ) *sysinfo->currentRenderHeight / VPX[0x03];
 */
-                    VPX[0x02] = *sysinfo->currentRenderWidth;
-                    VPX[0x03] = *sysinfo->currentRenderHeight;
+                    /*VPX[0x02] = *sysinfo->currentRenderWidth;
+                    VPX[0x03] = *sysinfo->currentRenderHeight;*/
 
                     
-                    glMatrixMode ( GL_PROJECTION );
+                    /*glMatrixMode ( GL_PROJECTION );
                     glPushMatrix ( );
                     glLoadIdentity ( );
                     gluPerspective ( sysinfo->defaultCamera->focal, 
                                      ( float ) VPX[0x02] / VPX[0x03], 
                                      sysinfo->defaultCamera->znear, 
-                                     sysinfo->defaultCamera->zfar );
+                                     sysinfo->defaultCamera->zfar );*/
                     glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                    glPopMatrix ( );
+                    /*glPopMatrix ( );*/
 
                     glMatrixMode ( GL_MODELVIEW );
                     glPushMatrix ( );
@@ -225,8 +227,8 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
                     xratio = ( float ) winX / VPX[0x02];
                     yratio = ( float ) ( VPX[0x03] - winY ) / VPX[0x03];
 
-                    uvs->veruv[i].u = xratio;
-                    uvs->veruv[i].v = yratio;
+                    uvs->veruv[i].u = xratio * renderRatio;
+                    uvs->veruv[i].v = yratio * renderRatio;
                 /*}*/
             } break;
 

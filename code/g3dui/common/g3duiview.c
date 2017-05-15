@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3dui.h>
 
+#define CLEARCOLOR 100
+
 /******************************************************************************/
 void common_g3duiview_orbit ( G3DUIVIEW *view, G3DPIVOT *piv,
                                                int32_t x   , int32_t y, 
@@ -230,14 +232,15 @@ void common_g3duiview_sizeGL ( G3DUIVIEW *view, uint32_t width,
 
 /******************************************************************************/
 void common_g3duiview_initGL ( G3DUIVIEW *view ) {
-    G3DCAMERA       *cam = view->cam;
+    G3DCAMERA *cam = view->cam;
+    float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
     /*** we need to update the camera's matrix here because we need and ***/
     /*** OpenGL context for matrix operations ***/
     g3dobject_updateMatrix_r (  cam, 0x00 );
 
     /*** Set clear color for the OpenGL Window ***/
-    glClearColor ( 0.40f, 0.40f, 0.40f, 1.0f );
+    glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );
 
     /*if ( vi->depth < 0x20 ) {
         glEnable ( GL_DITHER );
@@ -252,11 +255,50 @@ void common_g3duiview_initGL ( G3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
-void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
-                                           G3DCAMERA *cam,
-                                           G3DMOUSETOOL *mou,
-                                           uint32_t current,
-                                           uint32_t engine_flags ) {
+void common_g3duiview_showRenderingArea ( G3DUI   *gui,
+                                          uint32_t engine_flags ) {
+    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    float renderRatio = ( float ) rsg->width / rsg->height;
+    G2DVECTOR renderSquare[0x04];
+    int32_t deltaWidth;
+    int VPX[0x04], i;
+
+    glGetIntegerv ( GL_VIEWPORT, VPX );
+
+    deltaWidth = ( VPX[0x02] - ( VPX[0x03] * renderRatio ) ) / 2;
+
+    renderSquare[0x00].x = 0x00 + deltaWidth;
+    renderSquare[0x00].y = 0x00;
+
+    renderSquare[0x01].x = VPX[0x03] * renderRatio + deltaWidth;
+    renderSquare[0x01].y = 0x00;
+
+    renderSquare[0x02].x = VPX[0x03] * renderRatio + deltaWidth;
+    renderSquare[0x02].y = VPX[0x03];
+
+    renderSquare[0x03].x = 0x00 + deltaWidth;
+    renderSquare[0x03].y = VPX[0x03];
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glDisable ( GL_LIGHTING );
+    glColor3ub ( CLEARCOLOR + 0x08, 
+                 CLEARCOLOR + 0x08, 
+                 CLEARCOLOR + 0x08 );
+    glBegin ( GL_LINE_LOOP );
+    for ( i = 0x00; i < 0x04; i++ ) {
+        glVertex3f ( renderSquare[i].x, renderSquare[i].y, 0.0f );
+    }
+    glEnd ( );
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void common_g3duiview_showGL ( G3DUI        *gui, 
+                               G3DSCENE     *sce,
+                               G3DCAMERA    *cam,
+                               G3DMOUSETOOL *mou,
+                               uint32_t      current,
+                               uint32_t      engine_flags ) {
     int VPX[0x04];
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
@@ -275,34 +317,28 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
     glMatrixMode ( GL_MODELVIEW );
     glLoadIdentity ( );
 
+    common_g3duiview_showRenderingArea ( gui, engine_flags );
+
     glDepthMask ( GL_FALSE );
     /*glDisable ( GL_DEPTH_TEST );*/
 
     if ( rsg ) {
         if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
             if ( sysinfo->backgroundImage ) {
-                float widthRatio  = ( float ) rsg->width  / VPX[0x02],
-                      heightRatio = ( float ) rsg->height / VPX[0x03];
-                float deltaWidth  = 1.0f - widthRatio,
-                      deltaHeight = 1.0f - heightRatio;
+                float renderRatio  = ( float ) rsg->width / rsg->height;
+                /*float deltaWidth  = 1.0f - widthRatio,
+                      deltaHeight = 1.0f - heightRatio;*/
                 float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-                G3DVECTOR uv[0x04] = { { .x =  1.0f, .y =  1.0f, .z = 0.0f },
+                G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
                                        { .x =  1.0f, .y =     0, .z = 0.0f },
-                                       { .x =     0, .y =     0, .z = 0.0f },
+                                       { .x =  1.0f, .y =  1.0f, .z = 0.0f },
                                        { .x =     0, .y =  1.0f, .z = 0.0f } }; 
-                G3DVECTOR qps[0x04] = { { .x =  VPX[2], .y =  VPX[3], .z = 0.0f },
-                                        { .x =  VPX[2], .y =       0, .z = 0.0f },
-                                        { .x =       0, .y =       0, .z = 0.0f },
-                                        { .x =       0, .y =  VPX[3], .z = 0.0f } };
+                G2DVECTOR qps[0x04];
                 double MVX[0x10], PJX[0x10];
+                float deltaWidth;
                 int VPX[0x04], i;
 
-                /*glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX );*/
-                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
                 glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                g3dcore_identityMatrix ( MVX );
-                /*g3dcore_identityMatrix ( PJX );*/
 
                 glEnable      ( GL_TEXTURE_2D );
                 glBindTexture ( GL_TEXTURE_2D, sysinfo->backgroundImage->id );
@@ -311,15 +347,27 @@ void common_g3duiview_showGL ( G3DUI *gui, G3DSCENE *sce,
                 glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
                 glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
 
-                glBegin ( GL_QUADS );
+                deltaWidth = ( VPX[0x02] - ( VPX[0x03] * renderRatio ) ) / 2;
 
+                qps[0x00].x = 0x00 + deltaWidth;
+                qps[0x00].y = 0x00;
+
+                qps[0x01].x = VPX[0x03] * renderRatio + deltaWidth;
+                qps[0x01].y = 0x00;
+
+                qps[0x02].x = VPX[0x03] * renderRatio + deltaWidth;
+                qps[0x02].y = VPX[0x03];
+
+                qps[0x03].x = 0x00 + deltaWidth;
+                qps[0x03].y = VPX[3];
+
+                glBegin ( GL_QUADS );
                 for ( i = 0x00; i < 0x04; i++ ) {
-                    glTexCoord2f ( ( uv[i].x * ( widthRatio  / 2 )) + ( widthRatio  / 2 ), 
-                                   ( uv[i].y * ( heightRatio / 2 )) + ( heightRatio / 2 ) );
-                    glVertex3f ( qps[i].x, qps[i].y, qps[i].z );
+                    glTexCoord2f ( uv[i].x,  uv[i].y );
+                    glVertex3f  ( qps[i].x, qps[i].y, 0.0f );
                 }
                 glEnd ( );
-                glDisable     ( GL_TEXTURE_2D );
+                glDisable ( GL_TEXTURE_2D );
             }
         }
     }
