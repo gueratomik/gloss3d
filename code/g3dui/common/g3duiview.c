@@ -259,7 +259,7 @@ void common_g3duiview_showRenderingArea ( G3DUI   *gui,
                                           uint32_t engine_flags ) {
     G3DUIRENDERSETTINGS *rsg = gui->currsg;
     float renderRatio = ( float ) rsg->width / rsg->height;
-    G2DVECTOR renderSquare[0x04];
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     int32_t deltaWidth;
     int VPX[0x04], i;
 
@@ -267,17 +267,17 @@ void common_g3duiview_showRenderingArea ( G3DUI   *gui,
 
     deltaWidth = ( VPX[0x02] - ( VPX[0x03] * renderRatio ) ) / 2;
 
-    renderSquare[0x00].x = 0x00 + deltaWidth;
-    renderSquare[0x00].y = 0x00;
+    sysinfo->renderRectangle[0x00].x = 0x00 + deltaWidth;
+    sysinfo->renderRectangle[0x00].y = 0x00;
 
-    renderSquare[0x01].x = VPX[0x03] * renderRatio + deltaWidth;
-    renderSquare[0x01].y = 0x00;
+    sysinfo->renderRectangle[0x01].x = VPX[0x03] * renderRatio + deltaWidth;
+    sysinfo->renderRectangle[0x01].y = 0x00;
 
-    renderSquare[0x02].x = VPX[0x03] * renderRatio + deltaWidth;
-    renderSquare[0x02].y = VPX[0x03];
+    sysinfo->renderRectangle[0x02].x = VPX[0x03] * renderRatio + deltaWidth;
+    sysinfo->renderRectangle[0x02].y = VPX[0x03];
 
-    renderSquare[0x03].x = 0x00 + deltaWidth;
-    renderSquare[0x03].y = VPX[0x03];
+    sysinfo->renderRectangle[0x03].x = 0x00 + deltaWidth;
+    sysinfo->renderRectangle[0x03].y = VPX[0x03];
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
@@ -286,7 +286,8 @@ void common_g3duiview_showRenderingArea ( G3DUI   *gui,
                  CLEARCOLOR + 0x08 );
     glBegin ( GL_LINE_LOOP );
     for ( i = 0x00; i < 0x04; i++ ) {
-        glVertex3f ( renderSquare[i].x, renderSquare[i].y, 0.0f );
+        glVertex3f ( sysinfo->renderRectangle[i].x, 
+                     sysinfo->renderRectangle[i].y, 0.0f );
     }
     glEnd ( );
     glPopAttrib ( );
@@ -320,7 +321,10 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     common_g3duiview_showRenderingArea ( gui, engine_flags );
 
     glDepthMask ( GL_FALSE );
-    /*glDisable ( GL_DEPTH_TEST );*/
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glDisable ( GL_LIGHTING );
+    glEnable ( GL_COLOR_MATERIAL );
 
     if ( rsg ) {
         if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
@@ -333,9 +337,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
                                        { .x =  1.0f, .y =     0, .z = 0.0f },
                                        { .x =  1.0f, .y =  1.0f, .z = 0.0f },
                                        { .x =     0, .y =  1.0f, .z = 0.0f } }; 
-                G2DVECTOR qps[0x04];
                 double MVX[0x10], PJX[0x10];
-                float deltaWidth;
                 int VPX[0x04], i;
 
                 glGetIntegerv ( GL_VIEWPORT, VPX );
@@ -347,31 +349,18 @@ void common_g3duiview_showGL ( G3DUI        *gui,
                 glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
                 glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
 
-                deltaWidth = ( VPX[0x02] - ( VPX[0x03] * renderRatio ) ) / 2;
-
-                qps[0x00].x = 0x00 + deltaWidth;
-                qps[0x00].y = 0x00;
-
-                qps[0x01].x = VPX[0x03] * renderRatio + deltaWidth;
-                qps[0x01].y = 0x00;
-
-                qps[0x02].x = VPX[0x03] * renderRatio + deltaWidth;
-                qps[0x02].y = VPX[0x03];
-
-                qps[0x03].x = 0x00 + deltaWidth;
-                qps[0x03].y = VPX[3];
-
                 glBegin ( GL_QUADS );
                 for ( i = 0x00; i < 0x04; i++ ) {
                     glTexCoord2f ( uv[i].x,  uv[i].y );
-                    glVertex3f  ( qps[i].x, qps[i].y, 0.0f );
+                    glVertex3f  ( sysinfo->renderRectangle[i].x, 
+                                  sysinfo->renderRectangle[i].y, 0.0f );
                 }
                 glEnd ( );
                 glDisable ( GL_TEXTURE_2D );
             }
         }
     }
-
+    glPopAttrib ( );
     glDepthMask ( GL_TRUE );
 
     glMatrixMode ( GL_PROJECTION );

@@ -240,9 +240,6 @@ void common_g3dui_useRenderSettings ( G3DUI *gui, G3DUIRENDERSETTINGS *rsg ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     gui->currsg = rsg;
-
-    sysinfo->currentRenderWidth  = &rsg->width;
-    sysinfo->currentRenderHeight = &rsg->height;
 }
 
 /******************************************************************************/

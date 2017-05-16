@@ -57,8 +57,7 @@ typedef struct _G3DSYSINFO {
       * with "background" projection. 
       */
     G3DIMAGE        *backgroundImage;
-    uint32_t        *currentRenderWidth;
-    uint32_t        *currentRenderHeight;
+    G2DVECTOR        renderRectangle[0x04];
     G3DCAMERA       *defaultCamera; /* used for backgroung uvw mapping */
 } G3DSYSINFO;
 

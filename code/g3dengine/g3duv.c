@@ -150,6 +150,52 @@ void g3duvmap_insertFace ( G3DUVMAP *map, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
+/* this is done in realtime, hence called directly by g3dface_bindMaterials */
+void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
+                                                G3DFACE  *fac,
+                                                uint32_t  engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    uint32_t renderRectangleWidth  = sysinfo->renderRectangle[0x02].x -
+                                     sysinfo->renderRectangle[0x00].x,
+             renderRectangleHeight = sysinfo->renderRectangle[0x02].y -
+                                     sysinfo->renderRectangle[0x00].y;
+    double MVX[0x10], PJX[0x10];
+    int    VPX[0x04] = { 0 }, i;
+
+    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
+    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+    glGetIntegerv ( GL_VIEWPORT         , VPX );
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        G3DVERTEX *ver = fac->ver[i];
+        double winX, winY, winZ;
+        G3DVECTOR verwpos;
+        G3DVECTOR locpos;
+
+        /*
+         * we could use the VPX and PJX of the final render camera
+         * but we don't have access to the current camera. So I use
+         * this tricks.
+         */
+        gluProject ( ver->pos.x, 
+                     ver->pos.y, 
+                     ver->pos.z,
+                     MVX,
+                     PJX,
+                     VPX, 
+                    &winX,
+                    &winY,
+                    &winZ );
+
+        winX =             winX - sysinfo->renderRectangle[0x00].x;
+        winY = VPX[0x03] - winY - sysinfo->renderRectangle[0x00].y;
+
+        uvs->veruv[i].u = winX / renderRectangleWidth;
+        uvs->veruv[i].v = winY / renderRectangleHeight;
+    }
+}
+
+/******************************************************************************/
 void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
     G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
@@ -169,69 +215,6 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
         g3dvector_matrix ( &verwpos , objmap->iwmatrix, &locpos );
 
         switch ( map->projection ) {
-            case UVMAPBACKGROUND : {
-                G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-                double MVX[0x10], PJX[0x10];
-                int    VPX[0x04] = { 0 };
-
-                glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-                /*if ( sysinfo->backgroundImage ) {*/
-                    double winX, winY, winZ;
-                    float xratio, yratio;
-                    float renderRatio = ( float ) *sysinfo->currentRenderWidth / 
-                                                  *sysinfo->currentRenderHeight;
-/*
-                    float renderWidthRatio  = ( float ) *sysinfo->currentRenderWidth  / VPX[0x02],
-                          renderHeightRatio = ( float ) *sysinfo->currentRenderHeight / VPX[0x03];
-*/
-                    /*VPX[0x02] = *sysinfo->currentRenderWidth;
-                    VPX[0x03] = *sysinfo->currentRenderHeight;*/
-
-                    
-                    /*glMatrixMode ( GL_PROJECTION );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    gluPerspective ( sysinfo->defaultCamera->focal, 
-                                     ( float ) VPX[0x02] / VPX[0x03], 
-                                     sysinfo->defaultCamera->znear, 
-                                     sysinfo->defaultCamera->zfar );*/
-                    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                    /*glPopMatrix ( );*/
-
-                    glMatrixMode ( GL_MODELVIEW );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    glLoadMatrixd ( ((G3DOBJECT*)sysinfo->defaultCamera)->iwmatrix );
-                    glMultMatrixd ( parent->wmatrix );
-                    glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX );
-                    glPopMatrix ( );
-
-                    /*
-                     * we could use the VPX and PJX of the final render camera
-                     * but we don't have access to the current camera. So I use
-                     * this tricks.
-                     */
-                    gluProject ( verwpos.x, 
-                                 verwpos.y, 
-                                 verwpos.z,
-                                 MVX,
-                                 PJX,
-                                 VPX, 
-                                &winX,
-                                &winY,
-                                &winZ );
-
-                    xratio = ( float ) winX / VPX[0x02];
-                    yratio = ( float ) ( VPX[0x03] - winY ) / VPX[0x03];
-
-                    uvs->veruv[i].u = xratio * renderRatio;
-                    uvs->veruv[i].v = yratio * renderRatio;
-                /*}*/
-            } break;
-
             case UVMAPSPHERICAL : {
                 G3DVECTOR locnor;
 

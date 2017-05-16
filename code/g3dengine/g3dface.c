@@ -665,18 +665,45 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         glBindTexture ( GL_TEXTURE_2D, difimg->id );
                         glEnable      ( GL_TEXTURE_2D );
 
-                        glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-                                                    GL_COMBINE_EXT );
+                        switch ( tex->map->projection ) {
+                            case UVMAPBACKGROUND : {
+                                glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                                            GL_COMBINE_EXT );
 
-                        texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
-                        texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
-                        texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
-                        texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
-                        texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
-                        texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
-                        texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
-                        texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
-                        texcoord[nbtex].tid = arbid;
+                                g3duvset_mapFaceWithBackgroundProjection ( uvs, fac, engine_flags );
+
+                                texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
+                                texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
+
+                                texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
+                                texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
+
+                                texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
+                                texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
+
+                                texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
+                                texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
+                                texcoord[nbtex].tid = arbid;
+                            } break;
+
+                            default : {
+                                glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                                            GL_COMBINE_EXT );
+
+                                texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
+                                texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
+
+                                texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
+                                texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
+
+                                texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
+                                texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
+
+                                texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
+                                texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
+                                texcoord[nbtex].tid = arbid;
+                            } break;
+                        }
                     }
 
                     /*glEnable ( GL_COLOR_MATERIAL );*/
