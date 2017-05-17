@@ -118,28 +118,6 @@ typedef struct _G3DUIGTK3 {
     GdkWindow *winAtPosition; /*** window at mouse position (for hourGlass)***/
 } G3DUIGTK3;
 
-/******************************************************************************/
-#define ACTION_GOTOFRAME  0x01
-#define ACTION_DUMPSCREEN 0x02
-
-typedef struct _G3DUIACTION {
-    uint32_t wait;
-    uint32_t type;
-    pthread_mutex_t done;
-    G3DUI *gui;
-} G3DUIACTION;
-
-typedef struct _GOTOFRAME {
-    G3DUIACTION action;
-    float frame;
-} GOTOFRAME;
-
-typedef struct _DUMPSCREEN {
-    G3DUIACTION action;
-    uint32_t x, y, width, height;
-    unsigned char (*buffer)[4];
-} DUMPSCREEN;
-
 /***************************** Main Window Widget *****************************/
 typedef struct _GtkGlossUI {
     GtkFixed parent_instance;

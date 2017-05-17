@@ -567,26 +567,6 @@ G3DUIRENDERSETTINGS *g3duirendersettings_new ( );
 void g3duirendersettings_free ( G3DUIRENDERSETTINGS *rsg );
 
 /******************************************************************************/
-/*** this structure is passed to the Drawing Area widget, so we can save the***/
-/*** render as jpeg reading the data stored in the filter or stopping the ***/
-/*** render thread ***/
-typedef struct _G3DUIRENDERPROCESS {
-    uint64_t id;
-    R3DSCENE  *rsce;
-    /*R3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
-    /*R3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
-    char  *filename;
-} G3DUIRENDERPROCESS;
-
-/****************************** g3duirenderprocess.c **************************/
-G3DUIRENDERPROCESS *g3duirenderprocess_new      ( uint64_t, R3DSCENE *,
-                                                            R3DFILTER *,
-                                                            R3DFILTER * );
-void                g3duirenderprocess_free     ( G3DUIRENDERPROCESS * );
-void                g3duirenderprocess_filename ( G3DUIRENDERPROCESS *, char * );
-void                g3duirenderprocess_savejpg  ( G3DUIRENDERPROCESS *, char * );
-
-/******************************************************************************/
 /*** This structure is passed when confirming the subdivision level after a ***/
 /*** warning window has been raised against the amount of required memory   ***/
 typedef struct _G3DUICONFIRMSUBDIV {
@@ -672,6 +652,56 @@ void          common_g3dui_initDefaultMouseTools ( G3DUI     *gui,
                                                    G3DCAMERA *cam );
 void          common_g3dui_addMouseTool ( G3DUI *, G3DMOUSETOOL *, uint32_t );
 G3DMOUSETOOL *common_g3dui_getMouseTool ( G3DUI *, const char * );
+
+
+/******************************************************************************/
+#define ACTION_GOTOFRAME  0x01
+#define ACTION_DUMPSCREEN 0x02
+
+typedef struct _G3DUIACTION {
+    uint32_t wait;
+    uint32_t type;
+    pthread_mutex_t done;
+    G3DUI *gui;
+} G3DUIACTION;
+
+typedef struct _GOTOFRAME {
+    G3DUIACTION action;
+    float frame;
+} GOTOFRAME;
+
+typedef struct _DUMPSCREEN {
+    G3DUIACTION action;
+    uint32_t x, y, width, height;
+    unsigned char (*buffer)[4];
+} DUMPSCREEN;
+
+
+
+/******************************************************************************/
+/*** this structure is passed to the Drawing Area widget, so we can save the***/
+/*** render as jpeg reading the data stored in the filter or stopping the ***/
+/*** render thread ***/
+typedef struct _G3DUIRENDERPROCESS {
+    uint64_t   id;
+    R3DSCENE  *rsce;
+    G3DUI     *gui;
+    /*R3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
+    /*R3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
+    char      *filename;
+} G3DUIRENDERPROCESS;
+
+/****************************** g3duirenderprocess.c **************************/
+G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t   id,
+                                             G3DUI     *gui,
+                                             R3DSCENE  *rsce,
+                                             R3DFILTER *filter_to_window,
+                                             R3DFILTER *filter_to_buffer );
+void g3duirenderprocess_free     ( G3DUIRENDERPROCESS * );
+void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *, char * );
+void g3duirenderprocess_savejpg  ( G3DUIRENDERPROCESS *, char * );
+void g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps );
+void g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps );
 
 /*************************** Quad Widget Structure ****************************/
 typedef struct _G3DUIQUAD {

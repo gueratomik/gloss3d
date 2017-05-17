@@ -269,7 +269,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*** force starting at the first frame. **/
             /*** -1 is because the gotoframe filter will add 1 further. ***/
             /*** this should probably be changed ***/
-            tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );
+           /* COMMENTED OUT: now done by g3drenderprocess */
+            /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
 
             rps = common_g3dui_render ( gui, cam,
                                              ( uint64_t ) widget,
@@ -280,6 +281,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                              rsg->height,
                                              lfilters, 0x01 );
         } else {
+printf("%s\n", __func__);
             rps = common_g3dui_render ( gui, cam,
                                              ( uint64_t ) widget,
                                              0x00, 0x00,

@@ -46,8 +46,9 @@ void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t id,
-                                             R3DSCENE *rsce,
+G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
+                                             G3DUI     *gui,
+                                             R3DSCENE  *rsce,
                                              R3DFILTER *filter_to_window,
                                              R3DFILTER *filter_to_buffer ) {
     uint32_t size = sizeof ( G3DUIRENDERPROCESS );
@@ -62,10 +63,52 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t id,
     rps->id   = id;
     rps->rsce = rsce;
 
+    rps->gui = gui;
+
     /*rps->filter_to_window = filter_to_window;
     rps->filter_to_buffer = filter_to_buffer;*/
 
     return rps;
+}
+
+/******************************************************************************/
+void g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
+    static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
+
+    rps->gui->flags |= LOADFULLRESIMAGES;
+
+    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
+    /*gtf.action.wait = 0x00;*/
+    gtf.action.type = ACTION_GOTOFRAME;
+    gtf.action.gui  = rps->gui;
+    gtf.frame       = rps->gui->curframe;
+
+    g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
+
+    rps->rsce->tid = rps->id;
+    r3dscene_render_frame_t ( rps->rsce );
+
+    rps->gui->flags &= (~LOADFULLRESIMAGES);
+}
+
+/******************************************************************************/
+void g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
+    static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
+
+    rps->gui->flags |= LOADFULLRESIMAGES;
+
+    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
+    /*gtf.action.wait = 0x00;*/
+    gtf.action.type = ACTION_GOTOFRAME;
+    gtf.action.gui  = rps->gui;
+    gtf.frame       = rps->gui->curframe;
+
+    g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
+
+    rps->rsce->tid = rps->id;
+    r3dscene_render_sequence_t ( rps->rsce );
+
+    rps->gui->flags &= (~LOADFULLRESIMAGES);
 }
 
 /******************************************************************************/

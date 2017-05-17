@@ -137,7 +137,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NOLIGHTING         ( 1  << 20 )
 #define NODISPLACEMENT     ( 1  << 21 )
 #define NOTEXTURE          ( 1  << 22 )
-#define G3DNEXTSUBDIVISION ( 1  << 23 )
+#define LOADFULLRESIMAGES  ( 1  << 23 ) /* used by the renderer especially for animated textures */
 #define NODRAWPOLYGON      ( 1  << 24 )
 #define FORCESUBPATTERN    ( 1  << 25 )
 

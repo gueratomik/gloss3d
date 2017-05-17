@@ -490,22 +490,13 @@ typedef struct _R3DAREA {
 } R3DAREA;
 
 /******************************************************************************/
-typedef struct _R3DIMAGE {
-    char          *filename;
-    unsigned char *data;
-    uint32_t       depth;
-    uint32_t       width;
-    uint32_t       height;
-} R3DIMAGE;
-
-/******************************************************************************/
 typedef struct _R3DSCENE {
     R3DOBJECT robj;
     LIST *lrob; /*** list of render objects ***/
     LIST *lrlt; /*** list of render lights  ***/
-    uint32_t backgroundMode;
-    uint32_t backgroundColor;
-    R3DIMAGE backgroundImage;
+    uint32_t  backgroundMode;
+    uint32_t  backgroundColor;
+    G3DIMAGE *backgroundImage;
     LIST *lthread; /*** list of render areas thread***/
     R3DAREA area;
     LIST *lfilters;
@@ -855,7 +846,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          uint32_t   height,
                          uint32_t   backgroundMode,
                          uint32_t   backgroundColor,
-                         char      *backgroundImage,
+                         G3DIMAGE  *backgroundImage,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,

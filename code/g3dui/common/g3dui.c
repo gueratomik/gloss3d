@@ -91,8 +91,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui,
                                         width, height,
                                         rsg->backgroundMode,
                                         rsg->backgroundColor,
-         ( sysinfo->backgroundImage ) ? sysinfo->backgroundImage->filename :
-                                        NULL,
+                                        sysinfo->backgroundImage,
                                         rsg->startframe,
                                         rsg->endframe,
                                         rsg->flags & RENDERWIREFRAME,
@@ -101,38 +100,38 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui,
                                         rsg->wireframeThickness,
                                         lfilters );
 
+        /*** Remember the thread id for cancelling on mouse input e.g ***/
+        /*** We use the widget as an ID ***/
+        rps = g3duirenderprocess_new ( id, gui, rsce, NULL/*towin*/, NULL/*tobuf*/ );
+
         /*** launch rays in a thread ***/
         if ( sequence ) {
             #ifdef __linux__
-            pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_sequence_t, rsce );
+            pthread_create ( &rps->rsce->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
             #endif
 
             #ifdef __MINGW32__
-            rsce->tid = CreateThread ( NULL, 
+            rps->rsce->tid = CreateThread ( NULL, 
                                        0,
-                                       (LPTHREAD_START_ROUTINE) r3dscene_render_sequence_t, 
-                                       rsce,
+                                       (LPTHREAD_START_ROUTINE) g3duirenderprocess_render_sequence_t, 
+                                       rps,
                                        0,
                                        NULL );
             #endif
         } else {
             #ifdef __linux__
-            pthread_create ( &rsce->tid, &attr, (void*(*)(void*))r3dscene_render_frame_t, rsce );
+            pthread_create ( &rps->rsce->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
             #endif
 
             #ifdef __MINGW32__
-            rsce->tid = CreateThread ( NULL, 
+            rps->rsce->tid = CreateThread ( NULL, 
                                        0,
-                                       (LPTHREAD_START_ROUTINE) r3dscene_render_frame_t, 
-                                       rsce,
+                                       (LPTHREAD_START_ROUTINE) g3duirenderprocess_render_frame_t, 
+                                       rps,
                                        0,
                                        NULL );
             #endif
         }
-
-        /*** Remember the thread id for cancelling on mouse input e.g ***/
-        /*** We use the widget as an ID ***/
-        rps = g3duirenderprocess_new ( id, rsce, NULL/*towin*/, NULL/*tobuf*/ );
 
         /*** register the renderprocess so that we can cancel it ***/
         list_insert ( &gui->lrps, rps );

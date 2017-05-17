@@ -325,6 +325,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
     glEnable ( GL_COLOR_MATERIAL );
+    glColor3ub ( 0xFF, 0xFF, 0xFF );
 
     if ( rsg ) {
         if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {

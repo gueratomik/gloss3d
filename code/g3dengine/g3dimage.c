@@ -238,6 +238,20 @@ void g3dimage_animate ( G3DIMAGE *image,
     /* We want one second of previews */
     uint32_t previewToFrame = previewFromFrame + NBPREVIEWS;
 
+    if ( engine_flags & LOADFULLRESIMAGES ) {
+        loadFrame ( image->filename,
+                    image->width,
+                    image->height,
+                    image->bytesPerPixel,
+                    image->data,
+                    sceneStartFrame, 
+                    currentFrame,
+                    currentFrame + 1,
+                    sceneEndFrame,
+                    sceneFramesPerSecond,
+                    engine_flags );
+    }
+
     /* 
      * If the current set of previews does not match the required time segments
      * generate a new set.

@@ -154,10 +154,6 @@ void r3dscene_free ( R3DOBJECT *rob ) {
     free ( rsce->area.img );
     free ( rsce->area.rfc );
 
-    if ( rsce->backgroundImage.data ) {
-        free ( rsce->backgroundImage.data );
-    }
-
     r3dcamera_free ( rsce->area.rcam );
 #ifdef VERBOSE
     printf ("R3DSCENE Freed\n" );
@@ -405,7 +401,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          uint32_t   height,
                          uint32_t   backgroundMode,
                          uint32_t   backgroundColor,
-                         char      *backgroundImage,
+                         G3DIMAGE  *backgroundImage,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,
@@ -448,18 +444,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     /*** default background color ***/
     rsce->backgroundMode  = backgroundMode;
     rsce->backgroundColor = backgroundColor;
-
-    if ( rsce->backgroundMode & BACKGROUND_IMAGE ) {
-        if ( backgroundImage ) {
-            rsce->backgroundImage.filename = strdup ( backgroundImage );
-
-            g3dcore_loadJpeg ( backgroundImage, 
-                              &rsce->backgroundImage.width,
-                              &rsce->backgroundImage.height,
-                              &rsce->backgroundImage.depth, 
-                              &rsce->backgroundImage.data );
-        }
-    }
+    rsce->backgroundImage = backgroundImage;
 
     /*** viewing camera ***/
     rsce->area.rcam = r3dcamera_new ( cam, width, height );
@@ -544,7 +529,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
                                            height,
                                            rsce->backgroundMode, 
                                            rsce->backgroundColor,
-                                           rsce->backgroundImage.filename,
+                                           rsce->backgroundImage,
                                            startframe,
                                            endframe,
                                            rsce->wireframe,
