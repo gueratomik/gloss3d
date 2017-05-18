@@ -497,6 +497,7 @@ typedef struct _R3DSCENE {
     uint32_t  backgroundMode;
     uint32_t  backgroundColor;
     G3DIMAGE *backgroundImage;
+    float     backgroundImageWidthRatio;
     LIST *lthread; /*** list of render areas thread***/
     R3DAREA area;
     LIST *lfilters;
@@ -847,6 +848,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          uint32_t   backgroundMode,
                          uint32_t   backgroundColor,
                          G3DIMAGE  *backgroundImage,
+                         float      backgroundImageWidthRatio,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,

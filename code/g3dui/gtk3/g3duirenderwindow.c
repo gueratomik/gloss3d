@@ -279,9 +279,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                              rsg->height - 0x01,
                                              rsg->width,
                                              rsg->height,
+                                             1.0f,
                                              lfilters, 0x01 );
         } else {
-printf("%s\n", __func__);
             rps = common_g3dui_render ( gui, cam,
                                              ( uint64_t ) widget,
                                              0x00, 0x00,
@@ -289,6 +289,7 @@ printf("%s\n", __func__);
                                              rsg->height - 0x01,
                                              rsg->width,
                                              rsg->height,
+                                             1.0f,
                                              lfilters, 0x00 );
         }
 

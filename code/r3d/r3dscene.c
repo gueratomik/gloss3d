@@ -402,6 +402,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
                          uint32_t   backgroundMode,
                          uint32_t   backgroundColor,
                          G3DIMAGE  *backgroundImage,
+                         float      backgroundImageWidthRatio,
                          int32_t    startframe,
                          int32_t    endframe,
                          uint32_t   outline,
@@ -442,9 +443,10 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     }
 
     /*** default background color ***/
-    rsce->backgroundMode  = backgroundMode;
-    rsce->backgroundColor = backgroundColor;
-    rsce->backgroundImage = backgroundImage;
+    rsce->backgroundMode            = backgroundMode;
+    rsce->backgroundColor           = backgroundColor;
+    rsce->backgroundImage           = backgroundImage;
+    rsce->backgroundImageWidthRatio = backgroundImageWidthRatio;
 
     /*** viewing camera ***/
     rsce->area.rcam = r3dcamera_new ( cam, width, height );
@@ -530,6 +532,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
                                            rsce->backgroundMode, 
                                            rsce->backgroundColor,
                                            rsce->backgroundImage,
+                                           rsce->backgroundImageWidthRatio,
                                            startframe,
                                            endframe,
                                            rsce->wireframe,

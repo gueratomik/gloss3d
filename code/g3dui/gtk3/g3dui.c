@@ -80,6 +80,9 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                        gui );
     LIST *lfilters = NULL;
     G3DUIRENDERPROCESS *rps;
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
+                                             sysinfo->renderRectangle[0x00].x ) / width;
 
     list_append ( &lfilters, progressiveDisplay );
     /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
@@ -95,6 +98,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                      height - 1,
                                      width, 
                                      height,
+                                     backgroundWidthRatio,
                                      lfilters, 0x00 );
 
     g3dui_unsetHourGlass ( gui );

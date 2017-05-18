@@ -1254,6 +1254,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui,
                                           uint32_t   y2,
                                           uint32_t   width,
                                           uint32_t   height,
+                                          float      backgroundImageWidthRatio,
                                           LIST      *lfilters,
                                           uint32_t   sequence );
 #endif
