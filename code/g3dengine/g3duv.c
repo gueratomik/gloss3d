@@ -192,6 +192,7 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
 
         uvs->veruv[i].u = winX / renderRectangleWidth;
         uvs->veruv[i].v = winY / renderRectangleHeight;
+        /*uvs->veruv[i].q = 0.0f;*/
     }
 }
 

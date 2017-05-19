@@ -72,7 +72,7 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 }
 
 /******************************************************************************/
-void g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
+void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
     rps->gui->flags |= LOADFULLRESIMAGES;
@@ -85,14 +85,15 @@ void g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 
-    rps->rsce->tid = rps->id;
     r3dscene_render_frame_t ( rps->rsce );
 
     rps->gui->flags &= (~LOADFULLRESIMAGES);
+
+    return NULL;
 }
 
 /******************************************************************************/
-void g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
+void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
     rps->gui->flags |= LOADFULLRESIMAGES;
@@ -105,10 +106,11 @@ void g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 
-    rps->rsce->tid = rps->id;
     r3dscene_render_sequence_t ( rps->rsce );
 
     rps->gui->flags &= (~LOADFULLRESIMAGES);
+
+    return NULL;
 }
 
 /******************************************************************************/

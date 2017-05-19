@@ -129,15 +129,18 @@ void r3dray_outline ( R3DRAY *ray, R3DMESH *rms,
 }
 
 /******************************************************************************/
-void r3dray_getHitFaceColor ( R3DRAY *ray, R3DMESH *rms,
-                                           R3DFACE *rfc,
-                                           R3DRGBA *diffuse,
-                                           R3DRGBA *specular,
-                                           R3DRGBA *bump,
-                                           R3DRGBA *reflection,
-                                           R3DRGBA *refraction,
-                                           LIST    *ltex,
-                                           uint32_t query_flags ) {
+void r3dray_getHitFaceColor ( R3DRAY  *ray,
+                              R3DMESH *rms,
+                              R3DFACE *rfc,
+                              R3DAREA *area,
+                              float    backgroundImageWidthRatio,
+                              R3DRGBA *diffuse,
+                              R3DRGBA *specular,
+                              R3DRGBA *bump,
+                              R3DRGBA *reflection,
+                              R3DRGBA *refraction,
+                              LIST    *ltex,
+                              uint32_t query_flags ) {
     uint32_t divDiffuse    = 0x00;
     uint32_t divSpecular   = 0x00;
     uint32_t divBump       = 0x00;
@@ -162,77 +165,91 @@ void r3dray_getHitFaceColor ( R3DRAY *ray, R3DMESH *rms,
 
         if ( tex->map && rfc->ruvs ) {
             uint32_t mapID = tex->map->mapID;
+            float avgu, avgv;
             R3DRGBA retval;
 
             switch ( tex->map->projection ) {
-                /*case UVMAPBACKGROUND : {
+                /*
+                 * In background mapping mode, we don't want any perspective
+                 * distorsion applied to the texture. That's why we retrieve
+                 * the UV coordinates from the screen.
+                 */
+                case UVMAPBACKGROUND : {
+                    uint32_t backgroundWidth = ( area->width * 
+                                                 backgroundImageWidthRatio );
+                    int32_t deltaWidth = ( int32_t ) ( area->width - backgroundWidth ) / 2;
 
-                } break; */
-
-                default: {
-                    float avgu = ( ( rfc->ruvs[mapID].uv[0x00].u * ray->ratio[0x00] ) +
-                                   ( rfc->ruvs[mapID].uv[0x01].u * ray->ratio[0x01] ) +
-                                   ( rfc->ruvs[mapID].uv[0x02].u * ray->ratio[0x02] ) ),
-                          avgv = ( ( rfc->ruvs[mapID].uv[0x00].v * ray->ratio[0x00] ) +
-                                   ( rfc->ruvs[mapID].uv[0x01].v * ray->ratio[0x01] ) +
-                                   ( rfc->ruvs[mapID].uv[0x02].v * ray->ratio[0x02] ) );
-
-                    if ( mat->flags & DIFFUSE_ENABLED ) {
-                        g3dchannel_getColor ( &mat->diffuse   , avgu, avgv, &retval );
-
-                        diffuse->r += retval.r;
-                        diffuse->g += retval.g;
-                        diffuse->b += retval.b;
-                        diffuse->a += retval.a;
-
-                        divDiffuse++;
-                    }
-
-                    if ( mat->flags & SPECULAR_ENABLED ) {
-                        g3dchannel_getColor ( &mat->specular  , avgu, avgv, &retval );
-
-                        specular->r += retval.r;
-                        specular->g += retval.g;
-                        specular->b += retval.b;
-                        specular->a += retval.a;
-
-                        divSpecular++;
-                    }
-
-                    if ( mat->flags & BUMP_ENABLED ) {
-                        g3dchannel_getColor ( &mat->bump      , avgu, avgv, &retval );
-
-                        bump->r += retval.r;
-                        bump->g += retval.g;
-                        bump->b += retval.b;
-                        bump->a += retval.a;
-
-                        divBump++;
-                    }
-
-                    if ( mat->flags & REFLECTION_ENABLED ) {
-                        g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval );
-
-                        reflection->r += retval.r;
-                        reflection->g += retval.g;
-                        reflection->b += retval.b;
-                        reflection->a += retval.a;
-
-                        divReflection++;
-                    }
-
-                    if ( mat->flags & REFRACTION_ENABLED ) {
-                        g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval );
-
-                        refraction->r += retval.r;
-                        refraction->g += retval.g;
-                        refraction->b += retval.b;
-                        refraction->a += retval.a;
-
-                        divRefraction++;
+                    if ( ( ray->x > deltaWidth ) && 
+                         ( ray->x < ( area->width - deltaWidth ) ) ) {
+                        avgu = ( backgroundWidth   ) ? ( float ) ( ray->x - deltaWidth ) / backgroundWidth : 0.0f,
+                        avgv = ( area->height ) ? ( float ) ray->y / area->height : 0.0f;
                     }
                 } break;
-            }    
+
+                default: {
+                    avgu = ( ( rfc->ruvs[mapID].uv[0x00].u * ray->ratio[0x00] ) +
+                             ( rfc->ruvs[mapID].uv[0x01].u * ray->ratio[0x01] ) +
+                             ( rfc->ruvs[mapID].uv[0x02].u * ray->ratio[0x02] ) ),
+                    avgv = ( ( rfc->ruvs[mapID].uv[0x00].v * ray->ratio[0x00] ) +
+                             ( rfc->ruvs[mapID].uv[0x01].v * ray->ratio[0x01] ) +
+                             ( rfc->ruvs[mapID].uv[0x02].v * ray->ratio[0x02] ) );
+                } break;
+            }
+
+            if ( mat->flags & DIFFUSE_ENABLED ) {
+                g3dchannel_getColor ( &mat->diffuse   , avgu, avgv, &retval );
+
+                diffuse->r += retval.r;
+                diffuse->g += retval.g;
+                diffuse->b += retval.b;
+                diffuse->a += retval.a;
+
+                divDiffuse++;
+            }
+
+            if ( mat->flags & SPECULAR_ENABLED ) {
+                g3dchannel_getColor ( &mat->specular  , avgu, avgv, &retval );
+
+                specular->r += retval.r;
+                specular->g += retval.g;
+                specular->b += retval.b;
+                specular->a += retval.a;
+
+                divSpecular++;
+            }
+
+            if ( mat->flags & BUMP_ENABLED ) {
+                g3dchannel_getColor ( &mat->bump      , avgu, avgv, &retval );
+
+                bump->r += retval.r;
+                bump->g += retval.g;
+                bump->b += retval.b;
+                bump->a += retval.a;
+
+                divBump++;
+            }
+
+            if ( mat->flags & REFLECTION_ENABLED ) {
+                g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval );
+
+                reflection->r += retval.r;
+                reflection->g += retval.g;
+                reflection->b += retval.b;
+                reflection->a += retval.a;
+
+                divReflection++;
+            }
+
+            if ( mat->flags & REFRACTION_ENABLED ) {
+                g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval );
+
+                refraction->r += retval.r;
+                refraction->g += retval.g;
+                refraction->b += retval.b;
+                refraction->a += retval.a;
+
+                divRefraction++;
+            }
         }
 
         ltmptex = ltmptex->next;
@@ -724,6 +741,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             r3dray_getHitFaceColor ( ray, rms,
                                           hitrfc,
+                                         &rsce->area,
+                                          rsce->backgroundImageWidthRatio,
                                          &diffuse,
                                          &specular,
                                          &bump,

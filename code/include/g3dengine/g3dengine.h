@@ -685,12 +685,14 @@ typedef struct _G3DUV {
     G3DUVSET *set;
     float u;
     float v;
+    /*float q;*/
 } G3DUV, G3DSUBUV;
 
 /******************************************************************************/
 typedef struct _G3DARBTEXCOORD {
     float u[0x04];
     float v[0x04];
+    float q[0x04];
     /*G3DUVSET *uvs;*/ /*** Texture coords ***/
     GLint     tid; /*** OpenGL ARB texture ID ***/
 } G3DARBTEXCOORD;

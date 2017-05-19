@@ -346,6 +346,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
                 glEnable      ( GL_TEXTURE_2D );
                 glBindTexture ( GL_TEXTURE_2D, sysinfo->backgroundImage->id );
 
+
                 glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
                 glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
                 glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );

@@ -102,6 +102,8 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui,
                                         rsg->wireframeThickness,
                                         lfilters );
 
+        
+
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
         rps = g3duirenderprocess_new ( id, gui, rsce, NULL/*towin*/, NULL/*tobuf*/ );

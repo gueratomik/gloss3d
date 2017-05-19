@@ -632,7 +632,6 @@ typedef struct _G3DUI {
 #ifdef __MINGW32__
     HANDLE         playthreadid;
 #endif
-    LIST *lrsce;
     LIST *lrsg; /*** list of render settings ***/
     G3DUIRENDERSETTINGS *currsg; /*** current render settings ***/
     char *filename;
@@ -700,8 +699,8 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t   id,
 void g3duirenderprocess_free     ( G3DUIRENDERPROCESS * );
 void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *, char * );
 void g3duirenderprocess_savejpg  ( G3DUIRENDERPROCESS *, char * );
-void g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps );
-void g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps );
+void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps );
+void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps );
 
 /*************************** Quad Widget Structure ****************************/
 typedef struct _G3DUIQUAD {
