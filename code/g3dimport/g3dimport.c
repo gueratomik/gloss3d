@@ -91,7 +91,9 @@ uint32_t g3dimport_detectFormat ( char *filename ) {
 }
 
 /******************************************************************************/
-G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
+G3DSCENE *g3dscene_open ( const char *filename,
+                          G3DSCENE   *mergedScene,
+                          uint32_t    flags ) {
     char sign[0x05] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
     unsigned char objname[0x100];
     unsigned char grpname[0x100];
@@ -175,7 +177,8 @@ G3DSCENE *g3dscene_open ( const char *filename, uint32_t flags ) {
                 readf ( &objtype, sizeof ( uint32_t ), 0x01, fsrc );
 
                 if ( objtype == G3DSCENETYPE ) {
-                    sce = g3dscene_new ( objid, objname );
+                    sce = ( mergedScene ) ? mergedScene : 
+                                            g3dscene_new ( objid, objname );
 
                     obj = ( G3DOBJECT * ) sce;
                 }

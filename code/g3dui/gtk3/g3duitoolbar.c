@@ -197,6 +197,39 @@ void g3dui_openfilecbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_mergeSceneCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Merge File",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+
+        if ( filename ) {
+            common_g3dui_mergeG3DFile ( gui, filename );
+
+            g_free    ( filename );
+        }
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
 void g3dui_undoCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 

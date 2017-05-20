@@ -193,6 +193,14 @@ static void Dump ( G3DFACE *fac, void *data ) {
 
                 r3dtinyvector_matrix ( pos, rdump->wmatrix, &rver->pos );
                 r3dtinyvector_matrix ( nor, rdump->wnormix, &rver->nor );
+
+                /* 
+                 * Normal vector must be normalized because the scaling component
+                 * of the object's matrix may not be equal to 1.0f. So, after
+                 * transformation, the normal vector would not be normalized
+                 * if we don't perform this final step.
+                 */
+                r3dtinyvector_normalize ( &rver->nor, NULL );
             }
 
             rms->curfac->flags |= RFACEFROMTRIANGLE;
@@ -272,6 +280,14 @@ static void Dump ( G3DFACE *fac, void *data ) {
 
                     r3dtinyvector_matrix ( pos, rdump->wmatrix, &rver->pos );
                     r3dtinyvector_matrix ( nor, rdump->wnormix, &rver->nor );
+
+                    /* 
+                     * Normal vector must be normalized because the scaling component
+                     * of the object's matrix may not be equal to 1.0f. So, after
+                     * transformation, the normal vector would not be normalized
+                     * if we don't perform this final step.
+                     */
+                    r3dtinyvector_normalize ( &rver->nor, NULL );
                 }
 
                 rms->curfac->flags |= RFACEFROMQUAD;

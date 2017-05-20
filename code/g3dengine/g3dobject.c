@@ -820,6 +820,12 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
+    if ( ( obj->sca.x != 1.0f ) ||
+         ( obj->sca.y != 1.0f ) ||
+         ( obj->sca.z != 1.0f ) ) {
+        glEnable ( GL_RESCALE_NORMAL );
+    }
+
     glPushMatrix ( );
 
     glMultMatrixd ( obj->lmatrix );
@@ -875,6 +881,12 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
 
     glPopMatrix ( );
+
+    if ( ( obj->sca.x != 1.0f ) ||
+         ( obj->sca.y != 1.0f ) ||
+         ( obj->sca.z != 1.0f ) ) {
+        glDisable ( GL_RESCALE_NORMAL );
+    }
 
     return 0x00;
 }

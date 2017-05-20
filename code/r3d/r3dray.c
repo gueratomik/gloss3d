@@ -129,18 +129,18 @@ void r3dray_outline ( R3DRAY *ray, R3DMESH *rms,
 }
 
 /******************************************************************************/
-void r3dray_getHitFaceColor ( R3DRAY  *ray,
-                              R3DMESH *rms,
-                              R3DFACE *rfc,
-                              R3DAREA *area,
-                              float    backgroundImageWidthRatio,
-                              R3DRGBA *diffuse,
-                              R3DRGBA *specular,
-                              R3DRGBA *bump,
-                              R3DRGBA *reflection,
-                              R3DRGBA *refraction,
-                              LIST    *ltex,
-                              uint32_t query_flags ) {
+uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
+                                  R3DMESH *rms,
+                                  R3DFACE *rfc,
+                                  R3DAREA *area,
+                                  float    backgroundImageWidthRatio,
+                                  R3DRGBA *diffuse,
+                                  R3DRGBA *specular,
+                                  R3DRGBA *bump,
+                                  R3DRGBA *reflection,
+                                  R3DRGBA *refraction,
+                                  LIST    *ltex,
+                                  uint32_t query_flags ) {
     uint32_t divDiffuse    = 0x00;
     uint32_t divSpecular   = 0x00;
     uint32_t divBump       = 0x00;
@@ -165,7 +165,7 @@ void r3dray_getHitFaceColor ( R3DRAY  *ray,
 
         if ( tex->map && rfc->ruvs ) {
             uint32_t mapID = tex->map->mapID;
-            float avgu, avgv;
+            float avgu = 0.0f, avgv = 0.0f;
             R3DRGBA retval;
 
             switch ( tex->map->projection ) {
@@ -182,7 +182,7 @@ void r3dray_getHitFaceColor ( R3DRAY  *ray,
                     if ( ( ray->x > deltaWidth ) && 
                          ( ray->x < ( area->width - deltaWidth ) ) ) {
                         avgu = ( backgroundWidth   ) ? ( float ) ( ray->x - deltaWidth ) / backgroundWidth : 0.0f,
-                        avgv = ( area->height ) ? ( float ) ray->y / area->height : 0.0f;
+                        avgv = ( area->height      ) ? ( float )   ray->y / area->height : 0.0f;
                     }
                 } break;
 
@@ -194,6 +194,11 @@ void r3dray_getHitFaceColor ( R3DRAY  *ray,
                              ( rfc->ruvs[mapID].uv[0x01].v * ray->ratio[0x01] ) +
                              ( rfc->ruvs[mapID].uv[0x02].v * ray->ratio[0x02] ) );
                 } break;
+            }
+
+            if ( ( avgu < 0.0f ) || ( avgu > 1.0f ) ||
+                 ( avgv < 0.0f ) || ( avgv > 1.0f ) ) {
+                return 0x01;
             }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
@@ -289,6 +294,8 @@ void r3dray_getHitFaceColor ( R3DRAY  *ray,
         refraction->b /= divRefraction;
         refraction->a /= divRefraction;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -739,7 +746,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                 rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
             }
 
-            r3dray_getHitFaceColor ( ray, rms,
+            if ( r3dray_getHitFaceColor ( ray, 
+                                          rms,
                                           hitrfc,
                                          &rsce->area,
                                           rsce->backgroundImageWidthRatio,
@@ -749,7 +757,9 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                          &reflection,
                                          &refraction,
                                           ltex, 
-                                          query_flags );
+                                          query_flags ) ) {
+                return rsce->backgroundColor;
+            }
 
             /*** if outline lighting is enabled, we draw the outline before ***/
             /*** lighting computation ***/

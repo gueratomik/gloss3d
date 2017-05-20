@@ -719,7 +719,7 @@ uint32_t r3dray_inOctreeZXmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT *
 uint32_t r3dray_inOctreeZXpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYmPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
 uint32_t r3dray_inOctreeXYpPlane ( const R3DRAY *, const R3DOCTREE *, R3DPOINT * );
-void r3dray_getHitFaceColor ( R3DRAY  *ray,
+uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                               R3DMESH *rms,
                               R3DFACE *rfc,
                               R3DAREA *area,

@@ -402,6 +402,7 @@
 
 #define MENU_NEWSCENE    "New scene"
 #define MENU_OPENFILE    "Open file"
+#define MENU_MERGESCENE  "Merge scene"
 #define MENU_IMPORTFILE  "_Import"
 #define MENU_SAVEFILE    "Save"
 #define MENU_SAVEFILEAS  "Save as"

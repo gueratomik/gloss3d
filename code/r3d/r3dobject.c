@@ -113,8 +113,23 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
             g3dcore_multmatrix ( sym->smatrix, childwmatrix, swmatrix );
 
-            r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, cmatrix, pmatrix, vmatrix, lrob,
-                                                              lrlt, SYMMETRYVIEW );
+            if ( g3dobject_isActive ( child ) ) {
+                uint32_t new_engine_flags = engine_flags;
+                /* Alternate symmety flags in case of nested symmetry objects */
+                if ( engine_flags & SYMMETRYVIEW ) {
+                    new_engine_flags &= (~SYMMETRYVIEW);
+                } else {
+                    new_engine_flags |=   SYMMETRYVIEW;
+                }
+
+                r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, 
+                                                                  cmatrix,
+                                                                  pmatrix,
+                                                                  vmatrix,
+                                                                  lrob,
+                                                                  lrlt,
+                                                                  new_engine_flags );
+            }
 
             /*** Add this rendermesh to our list of renderobjects ***/
             /*** We now have an Object in World coordinates ***/
@@ -130,7 +145,15 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
             list_insert ( lrlt, rlt );
         }
 
-        r3dobject_import ( child, nextId++, childwmatrix, cmatrix, pmatrix, vmatrix, lrob, lrlt, engine_flags );
+        r3dobject_import ( child, 
+                           nextId++, 
+                           childwmatrix, 
+                           cmatrix, 
+                           pmatrix, 
+                           vmatrix, 
+                           lrob, 
+                           lrlt, 
+                           engine_flags );
 
         ltmp = ltmp->next;
     }

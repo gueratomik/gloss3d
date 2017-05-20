@@ -984,6 +984,7 @@ GtkWidget *createFileMenu ( GtkWidget *bar, G3DUI *gui,
 
     g3dui_addMenuButton    ( menu, gui, MENU_NEWSCENE   , width, G_CALLBACK(g3dui_newscenecbk) );
     g3dui_addMenuButton    ( menu, gui, MENU_OPENFILE   , width, G_CALLBACK(g3dui_openfilecbk) );
+    g3dui_addMenuButton    ( menu, gui, MENU_MERGESCENE , width, G_CALLBACK(g3dui_mergeSceneCbk) );
     createImportMenu       ( menu, gui, MENU_IMPORTFILE , width );
 
     g3dui_addMenuSeparator ( menu );

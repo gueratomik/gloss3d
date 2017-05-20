@@ -464,7 +464,7 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
 
         g3dui_setHourGlass ( gui );
 
-        gui->sce = g3dscene_open ( filename, gui->flags );
+        gui->sce = g3dscene_open ( filename, NULL, gui->flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -482,6 +482,35 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         } else {
             return g3dscene_new ( 0x00, "Gloss3D scene" );
         }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
+#ifdef __linux__
+    if ( access( filename, F_OK ) == 0x00 ) {
+#endif
+#ifdef __MINGW32__
+    if ( PathFileExists ( filename ) ) {
+#endif
+        printf ( "Opening %s ...\n", filename );
+
+        g3durmanager_clear ( gui->urm );
+
+        g3dui_setHourGlass ( gui );
+
+        g3dscene_open ( filename, gui->sce, gui->flags );
+
+        g3dui_unsetHourGlass ( gui );
+
+        g3dui_clearMaterials ( gui );
+        g3dui_redrawGLViews (  gui );
+        g3dui_importMaterials ( gui );
+        g3dui_redrawObjectList ( gui );
+
+        printf ( "...Done!\n" );
     }
 
     return NULL;

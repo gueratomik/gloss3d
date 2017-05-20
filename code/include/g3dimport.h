@@ -191,7 +191,9 @@ G3DSCENE *g3dscene_importC4D ( const char * );
 /*****************************< Gloss3D .G3D FILES >***************************/
 
 /******************************************************************************/
-G3DSCENE *g3dscene_open ( const char *, uint32_t );
+G3DSCENE *g3dscene_open ( const char *filename,
+                          G3DSCENE   *mergedScene,
+                          uint32_t    flags );
 
 /*****************************< 3DStudio .3ds FILES >**************************/
 G3DSCENE *g3dscene_import3ds ( const char *, uint32_t );

@@ -490,6 +490,7 @@ void g3dui_renderViewCbk      ( GtkWidget *, gpointer );
 void g3dui_stopCbk            ( GtkWidget *, gpointer );
 void g3dui_playCbk            ( GtkWidget *, gpointer );
 void g3dui_runRenderCbk       ( GtkWidget *, gpointer );
+void g3dui_mergeSceneCbk ( GtkWidget *widget, gpointer user_data );
 
 uint32_t g3dui_cancelRenderByScene ( G3DUI *, R3DSCENE * );
 uint32_t g3dui_cancelRenderByID    ( G3DUI *, uint64_t   );
