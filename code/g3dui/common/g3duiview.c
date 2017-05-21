@@ -257,8 +257,8 @@ void common_g3duiview_initGL ( G3DUIVIEW *view ) {
 /******************************************************************************/
 void common_g3duiview_showRenderingArea ( G3DUI   *gui,
                                           uint32_t engine_flags ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
-    float renderRatio = ( float ) rsg->width / rsg->height;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+    float renderRatio = ( float ) rsg->output.width / rsg->output.height;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     int32_t deltaWidth;
     int VPX[0x04], i;
@@ -304,7 +304,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -328,11 +328,10 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
     if ( rsg ) {
-        if ( rsg->backgroundMode & BACKGROUND_IMAGE ) {
+        if ( rsg->background.mode & BACKGROUND_IMAGE ) {
             if ( sysinfo->backgroundImage ) {
-                float renderRatio  = ( float ) rsg->width / rsg->height;
-                /*float deltaWidth  = 1.0f - widthRatio,
-                      deltaHeight = 1.0f - heightRatio;*/
+                float renderRatio  = ( float ) rsg->output.width / 
+                                               rsg->output.height;
                 float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
                 G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
                                        { .x =  1.0f, .y =     0, .z = 0.0f },

@@ -154,7 +154,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
     /*Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );*/
@@ -167,10 +167,10 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         /*** this filter is used for displaying ***/
         R3DFILTER *towin = r3dfilter_toGtkWidget_new ( widget, 0x00 );
         /*** This filter is used for saving images ***/
-        R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->width, 
-                                                    rsg->height, 
-                                                    rsg->depth, 
-                                                    rsg->backgroundColor );
+        R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
+                                                    rsg->output.height, 
+                                                    rsg->output.depth, 
+                                                    rsg->background.color );
         /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
         /*R3DFILTER *clean = r3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
                                            NULL, 
@@ -183,19 +183,19 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             R3DFILTER *blur;
 
             if ( rsg->flags & VECTORMOTIONBLUR ) {
-                blur = r3dfilter_VectorMotionBlur_new ( rsg->width, 
-                                                        rsg->height,
-                                                        ( float ) rsg->mblurStrength / 100,
-                                                        rsg->vMotionBlurSamples,
-                                                        rsg->vMotionBlurSubSamplingRate );
+                blur = r3dfilter_VectorMotionBlur_new ( rsg->output.width, 
+                                                        rsg->output.height,
+                                              ( float ) rsg->motionBlur.strength / 100,
+                                                        rsg->motionBlur.vMotionBlurSamples,
+                                                        rsg->motionBlur.vMotionBlurSubSamplingRate );
 
             }
 
             if ( rsg->flags & SCENEMOTIONBLUR ) {
-                blur = r3dfilter_MotionBlur_new ( rsg->width, 
-                                                  rsg->height,
-                                                  rsg->depth, 
-                                                  rsg->mblur );
+                blur = r3dfilter_MotionBlur_new ( rsg->output.width, 
+                                                  rsg->output.height,
+                                                  rsg->output.depth, 
+                                                  rsg->motionBlur.iterations );
             }
 
             if ( blur ) list_append ( &lfilters, blur );
@@ -211,16 +211,16 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         list_append ( &lfilters, towin );
 
         if ( rsg->flags & RENDERSAVE ) {
-            if ( rsg->format == RENDERTOVIDEO ) {
+            if ( rsg->output.format == RENDERTOVIDEO ) {
                 R3DFILTER *ffmpg;
                 char buf[0x100];
 
-                snprintf ( buf, 0x100, "%s.avi", rsg->outfile );
+                snprintf ( buf, 0x100, "%s.avi", rsg->output.outfile );
 
-                ffmpg = r3dfilter_toFfmpeg_new ( 0x00, rsg->width,
-                                                       rsg->height,
-                                                       rsg->depth,
-                                                       rsg->fps,
+                ffmpg = r3dfilter_toFfmpeg_new ( 0x00, rsg->output.width,
+                                                       rsg->output.height,
+                                                       rsg->output.depth,
+                                                       rsg->output.fps,
                                                        buf,
                                                        sysinfo->ffmpegPath,
                                                        sysinfo->ffplayPath );
@@ -239,13 +239,13 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                 }
             }
 
-            if ( rsg->format == RENDERTOIMAGE ) {
+            if ( rsg->output.format == RENDERTOIMAGE ) {
                 R3DFILTER *toimg;
                 char buf[0x100];
 
-                snprintf ( buf, 0x100, "%s.jpg", rsg->outfile );
+                snprintf ( buf, 0x100, "%s.jpg", rsg->output.outfile );
 
-                if ( gui->currsg->startframe != gui->currsg->endframe ) {
+                if ( rsg->output.startframe != rsg->output.endframe ) {
                     toimg = r3dfilter_writeImage_new ( buf, 0x01 );
                 } else {
                     toimg = r3dfilter_writeImage_new ( buf, 0x00 );
@@ -258,9 +258,21 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         /*** COMMENTED - Cleaning is done when closing window ***/
         /*if ( clean ) list_append ( &lfilters, clean );*/
 
+        rsg->input.sce      = gui->sce;
+        rsg->input.cam      = cam;
+        rsg->input.lfilters = lfilters;
+
+        rsg->background.widthRatio = 1.0f;
+
+        rsg->output.x1 = 0x00;
+        rsg->output.x2 = rsg->output.width  - 0x01;
+        rsg->output.y1 = 0x00;
+        rsg->output.y2 = rsg->output.height  - 0x01;
+        rsg->background.image = sysinfo->backgroundImage;
+
         g3dui_setHourGlass ( gui );
 
-        if ( gui->currsg->startframe != gui->currsg->endframe ) {
+        if ( rsg->output.startframe != rsg->output.endframe ) {
             /*** this filter tells the engine to go to the next frame ***/
             R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
 
@@ -272,25 +284,13 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
            /* COMMENTED OUT: now done by g3drenderprocess */
             /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
 
-            rps = common_g3dui_render ( gui, cam,
+            rps = common_g3dui_render ( gui, rsg,
                                              ( uint64_t ) widget,
-                                             0x00, 0x00,
-                                             rsg->width  - 0x01,
-                                             rsg->height - 0x01,
-                                             rsg->width,
-                                             rsg->height,
-                                             1.0f,
-                                             lfilters, 0x01 );
+                                             0x01 );
         } else {
-            rps = common_g3dui_render ( gui, cam,
+            rps = common_g3dui_render ( gui, rsg,
                                              ( uint64_t ) widget,
-                                             0x00, 0x00,
-                                             rsg->width  - 0x01,
-                                             rsg->height - 0x01,
-                                             rsg->width,
-                                             rsg->height,
-                                             1.0f,
-                                             lfilters, 0x00 );
+                                             0x00 );
         }
 
         g3dui_unsetHourGlass ( gui );
@@ -388,8 +388,8 @@ GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
     g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (objectlistarea_input), gui );
     g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (objectlistarea_input), gui );*/
 
-    gtk_widget_set_size_request ( drw, gui->currsg->width, 
-                                       gui->currsg->height );
+    gtk_widget_set_size_request ( drw, gui->currsg->output.width, 
+                                       gui->currsg->output.height );
 
 #if GTK_CHECK_VERSION(3,8,0)
     gtk_container_add ( GTK_CONTAINER(scr), drw );

@@ -525,47 +525,8 @@ typedef struct _G3DUICONF {
     uint32_t undolevel;
 } G3DUICONF;
 
-/******************************************************************************/
-#define RENDERTOIMAGE 0x00
-#define RENDERTOVIDEO 0x01
-
 #define RENDERTOIMAGENAME "Render to image"
 #define RENDERTOVIDEONAME "Render to video"
-
-/*** G3DUIRENDERSETTINGS flags ***/
-#define RENDERPREVIEW    ( 1      )
-#define RENDERSAVE       ( 1 << 1 )
-#define ENABLEMOTIONBLUR ( 1 << 2 )
-#define SCENEMOTIONBLUR  ( 1 << 3 )
-#define VECTORMOTIONBLUR ( 1 << 4 )
-#define RENDERWIREFRAME    ( 1 << 5 )
-#define WIREFRAMELIGHTING  ( 1 << 6 )
-
-typedef struct _G3DUIRENDERSETTINGS {
-    uint32_t backgroundMode;
-    uint32_t backgroundColor;
-    uint32_t flags;
-    uint32_t fps; /*** frame per second ***/
-    uint32_t depth;
-    uint32_t mblur; /*** motion blur iterations ***/
-    float    startframe;
-    float    endframe;
-    char    *outfile;
-    uint32_t format;
-    uint32_t width, height;
-    float    ratio;
-    LIST    *lfilter;
-    int      pipefd[0x02];
-    uint32_t mblurStrength;
-    uint32_t wireframeColor;
-    float    wireframeThickness;
-    uint32_t vMotionBlurSamples;
-    float    vMotionBlurSubSamplingRate;
-} G3DUIRENDERSETTINGS;
-
-/****************************** g3duirendersettings.c *************************/
-G3DUIRENDERSETTINGS *g3duirendersettings_new ( );
-void g3duirendersettings_free ( G3DUIRENDERSETTINGS *rsg );
 
 /******************************************************************************/
 /*** This structure is passed when confirming the subdivision level after a ***/
@@ -634,7 +595,7 @@ typedef struct _G3DUI {
     HANDLE         playthreadid;
 #endif
     LIST *lrsg; /*** list of render settings ***/
-    G3DUIRENDERSETTINGS *currsg; /*** current render settings ***/
+    R3DRENDERSETTINGS *currsg; /*** current render settings ***/
     char *filename;
     int lock; /*** I use this for preventing loops on XmText fields ***/
     char *loadFile;
@@ -1245,16 +1206,8 @@ void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *,
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *, 
                                                                  float );
 
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui, 
-                                          G3DCAMERA *cam,
-                                          uint64_t   id,
-                                          uint32_t   x1,
-                                          uint32_t   y1,
-                                          uint32_t   x2,
-                                          uint32_t   y2,
-                                          uint32_t   width,
-                                          uint32_t   height,
-                                          float      backgroundImageWidthRatio,
-                                          LIST      *lfilters,
-                                          uint32_t   sequence );
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
+                                          R3DRENDERSETTINGS *rsg,
+                                          uint64_t           id,
+                                          uint32_t           sequence );
 #endif

@@ -391,12 +391,12 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
              x2 = rsce->area.x2,
              y2 = rsce->area.y2;
     uint32_t height = rsce->area.height;
-    int32_t startframe = rsce->startframe,
-            endframe = rsce->endframe;
+    int32_t startframe = rsce->rsg->output.startframe,
+            endframe = rsce->rsg->output.endframe;
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERMOTIONBLUR *fmb = ( FILTERMOTIONBLUR * ) fil->data;
-    R3DFILTER *towin = r3dfilter_getByName ( rsce->lfilters, TOWINDOWFILTERNAME  );
-    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->lfilters, GOTOFRAMEFILTERNAME );
+    R3DFILTER *towin = r3dfilter_getByName ( rsce->rsg->input.lfilters, TOWINDOWFILTERNAME  );
+    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->rsg->input.lfilters, GOTOFRAMEFILTERNAME );
     LIST *lkeepfilters = NULL;
     float difstep = ( float ) 1.0f / ( fmb->steps + 1 );
     float nextframe = difstep;
@@ -404,7 +404,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     int i, j, k;
 
     /*** dont motion-blurize the first frame ***/
-    if ( rsce->curframe == rsce->startframe ) return 0x00;
+    if ( rsce->curframe == rsce->rsg->output.startframe ) return 0x00;
 
     /*** init our buffer with the first image ***/
     for ( j = from; j < to; j++ ) {
@@ -438,24 +438,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         nextframe += difstep;
 
         /*** Prepare the scene ***/
-        blurrsce = r3dscene_new ( sce, cam,
-                                       x1,
-                                       y1,
-                                       x2,
-                                       y2,
-                                       width,
-                                       height, 
-                                       rsce->backgroundMode, 
-                                       rsce->backgroundColor,
-                                       rsce->backgroundImage,
-                                       rsce->backgroundImageWidthRatio,
-                                       startframe,
-                                       endframe,
-                                       rsce->wireframe,
-                                       rsce->wireframeLighting,
-                                       rsce->wireframeColor,
-                                       rsce->wireframeThickness,
-                                       lkeepfilters );
+        blurrsce = r3dscene_new ( rsce->rsg );
 
         /*** register this child renderscene in case we need to cancel it ***/
         r3dscene_addSubRender ( rsce, blurrsce );

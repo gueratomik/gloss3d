@@ -32,7 +32,6 @@ if HAVE_GTK3
                             common/g3duiquad.c \
                             common/g3duirenderedit.c \
                             common/g3duirenderprocess.c \
-                            common/g3duirendersettings.c \
                             common/g3duirenderwindow.c \
                             common/g3duisphereedit.c \
                             common/g3duisplinerevolveredit.c \
@@ -127,7 +126,6 @@ endif
 #                            common/g3duiquad.c \
 #                            common/g3duirenderedit.c \
 #                            common/g3duirenderprocess.c \
-#                            common/g3duirendersettings.c \
 #                            common/g3duirenderwindow.c \
 #                            common/g3duisphereedit.c \
 #                            common/g3duisymmetryedit.c \

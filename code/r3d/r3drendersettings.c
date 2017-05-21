@@ -27,44 +27,52 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui.h>
+#include <r3d.h>
 
 /******************************************************************************/
-void g3duirendersettings_free ( G3DUIRENDERSETTINGS *rsg ) {
-    if ( rsg->outfile ) free ( rsg->outfile );
+void r3drendersettings_copy ( R3DRENDERSETTINGS *dst,
+                              R3DRENDERSETTINGS *src ) {
+    memcpy ( dst, src, sizeof ( R3DRENDERSETTINGS ) );
+}
+
+/******************************************************************************/
+void r3drendersettings_free ( R3DRENDERSETTINGS *rsg ) {
+    if ( rsg->output.outfile ) free ( rsg->output.outfile );
 
     free ( rsg );
 }
 
 /******************************************************************************/
-G3DUIRENDERSETTINGS *g3duirendersettings_new ( ) {
-    G3DUIRENDERSETTINGS *rsg = calloc ( 0x01, sizeof ( G3DUIRENDERSETTINGS ) );
+R3DRENDERSETTINGS *r3drendersettings_new ( ) {
+    R3DRENDERSETTINGS *rsg = calloc ( 0x01, sizeof ( R3DRENDERSETTINGS ) );
 
     if ( rsg == NULL ) {
-        fprintf ( stderr, "g3duirendersettings_new: memory allocation failed\n" );
+        fprintf ( stderr, "r3drendersettings_new: memory allocation failed\n" );
 
         return NULL;
     }
 
-    rsg->flags       = VECTORMOTIONBLUR;
-    rsg->fps         = 0x18;
-    rsg->depth       = 0x18;
-    rsg->startframe  = 0x00;
-    rsg->endframe    = 0x00;
-    rsg->outfile     = strdup("Untitled");
-    rsg->format      = RENDERTOIMAGE;
-    rsg->width       = 640;
-    rsg->height      = 480;
-    rsg->ratio       = (float) rsg->width / rsg->height;
-    rsg->backgroundColor  = 0x00404040;
-    rsg->mblur       = 5;
-    rsg->mblurStrength = 75;
+    rsg->flags = VECTORMOTIONBLUR;
 
-    rsg->wireframeThickness = 1.0f;
-    rsg->wireframeColor     = 0x00A40000; /* some red */
+    rsg->output.fps         = 0x18;
+    rsg->output.depth       = 0x18;
+    rsg->output.startframe  = 0x00;
+    rsg->output.endframe    = 0x00;
+    rsg->output.outfile     = strdup("Untitled");
+    rsg->output.format      = RENDERTOIMAGE;
+    rsg->output.width       = 640;
+    rsg->output.height      = 480;
+    rsg->output.ratio       = (float) rsg->output.width / rsg->output.height;
 
-    rsg->vMotionBlurSamples = 0x01;
-    rsg->vMotionBlurSubSamplingRate = 1.0f;
+    rsg->background.color   = 0x00404040;
+
+    rsg->wireframe.thickness = 1.0f;
+    rsg->wireframe.color     = 0x00A40000; /* some red */
+
+    rsg->motionBlur.iterations = 5;
+    rsg->motionBlur.strength   = 75;
+    rsg->motionBlur.vMotionBlurSamples = 0x01;
+    rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 
     rsg->lfilter     = NULL;
 

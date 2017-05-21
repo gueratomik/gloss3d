@@ -31,48 +31,48 @@
 
 /******************************************************************************/
 void common_g3duirenderedit_formatCbk ( G3DUI *gui, const char *format ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     if ( strcmp ( format, RENDERTOIMAGENAME ) == 0x00 ) {
-        rsg->format = RENDERTOIMAGE;
+        rsg->output.format = RENDERTOIMAGE;
     }
 
     if ( strcmp ( format, RENDERTOVIDEONAME ) == 0x00 ) {
-        rsg->format = RENDERTOVIDEO;
+        rsg->output.format = RENDERTOVIDEO;
     }
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_startFrameCbk ( G3DUI *gui, float frame ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->startframe = frame;
+    rsg->output.startframe = frame;
 
-    if ( rsg->endframe < rsg->startframe ) {
-        rsg->endframe = rsg->startframe;
+    if ( rsg->output.endframe < rsg->output.startframe ) {
+        rsg->output.endframe = rsg->output.startframe;
     }
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_endFrameCbk ( G3DUI *gui, float frame ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->endframe = frame;
+    rsg->output.endframe = frame;
 
-    if ( rsg->startframe > rsg->endframe ) {
-        rsg->startframe = rsg->endframe;
+    if ( rsg->output.startframe > rsg->output.endframe ) {
+        rsg->output.startframe = rsg->output.endframe;
     }
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -85,7 +85,7 @@ void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -98,7 +98,7 @@ void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -110,28 +110,30 @@ void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_wireframeThicknessCbk ( G3DUI *gui, float wireframeThickness ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_wireframeThicknessCbk ( G3DUI *gui,
+                                                    float  thickness ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->wireframeThickness = wireframeThickness;
+    rsg->wireframe.thickness = thickness;
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_wireframeColorCbk ( G3DUI *gui, unsigned char R, 
-                                                            unsigned char G, 
-                                                            unsigned char B ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_wireframeColorCbk ( G3DUI        *gui, 
+                                                unsigned char R, 
+                                                unsigned char G, 
+                                                unsigned char B ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->wireframeColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+    rsg->wireframe.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -140,7 +142,7 @@ void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -149,65 +151,66 @@ void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI *gui, uint32_t nbstep ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->mblur = nbstep;
+    rsg->motionBlur.iterations = nbstep;
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, float strength ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->mblurStrength = strength;
+    rsg->motionBlur.strength = strength;
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *gui, 
+void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI   *gui, 
                                                          uint32_t nbSamples ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->vMotionBlurSamples = nbSamples;
+    rsg->motionBlur.vMotionBlurSamples = nbSamples;
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *gui, 
                                                                  float subSamplingRate ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->vMotionBlurSubSamplingRate = subSamplingRate;
+    rsg->motionBlur.vMotionBlurSubSamplingRate = subSamplingRate;
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_fpsCbk ( G3DUI *gui, uint32_t fps ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->fps = fps;
+    rsg->output.fps = fps;
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_outputCbk ( G3DUI *gui, const char *outfile ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_outputCbk ( G3DUI      *gui, 
+                                        const char *outfile ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( rsg->outfile ) free ( rsg->outfile );
+    if ( rsg->output.outfile ) free ( rsg->output.outfile );
 
-    rsg->outfile = strdup ( outfile );
+    rsg->output.outfile = strdup ( outfile );
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -220,7 +223,7 @@ void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -232,65 +235,69 @@ void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_widthCbk ( G3DUI *gui, uint32_t width ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_widthCbk ( G3DUI   *gui, 
+                                       uint32_t width ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->width  = width;
+    rsg->output.width  = width;
 
     /*updateRenderHeight ( parent );*/
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_heightCbk ( G3DUI *gui, uint32_t height ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_heightCbk ( G3DUI   *gui,
+                                        uint32_t height ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->height = height;
+    rsg->output.height = height;
 
 
     /*updateRenderWidth ( parent );*/
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_ratioCbk ( G3DUI *gui, float ratio ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_ratioCbk ( G3DUI *gui, 
+                                       float  ratio ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->ratio = ratio;
+    rsg->output.ratio = ratio;
 
     /*updateRenderWidth ( parent );*/
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_backgroundCbk ( G3DUI *gui, unsigned char R, 
-                                                        unsigned char G, 
-                                                        unsigned char B ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+void common_g3duirenderedit_backgroundCbk ( G3DUI        *gui, 
+                                            unsigned char R, 
+                                            unsigned char G, 
+                                            unsigned char B ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( rsg ) {
-        rsg->backgroundColor = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+        rsg->background.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
     }
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( rsg ) {
-        rsg->backgroundMode &= (~BACKGROUND_IMAGE);
+        rsg->background.mode &= (~BACKGROUND_IMAGE);
     }
 }
 
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( rsg ) {
-        rsg->backgroundMode |= BACKGROUND_IMAGE;
+        rsg->background.mode |= BACKGROUND_IMAGE;
     }
 }
 
@@ -298,7 +305,7 @@ void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
 void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    /*G3DUIRENDERSETTINGS *rsg = gui->currsg;*/
+    /*R3DRENDERSETTINGS *rsg = gui->currsg;*/
 
     if ( sysinfo ) {
         if ( sysinfo->backgroundImage ) {

@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 R3DFILTER *r3dscene_getFilter ( R3DSCENE *rsce, const char *filtername ) {
-    LIST *ltmpfilters = rsce->lfilters;
+    LIST *ltmpfilters = rsce->rsg->input.lfilters;
 
     while ( ltmpfilters ) {
         R3DFILTER *fil = ( R3DFILTER * ) ltmpfilters->data;
@@ -200,7 +200,7 @@ void rd3scene_filterline ( R3DSCENE *rsce, uint32_t from,
                                                uint32_t to,
                                                uint32_t depth, 
                                                uint32_t width ) {
-    LIST *ltmp = rsce->lfilters;
+    LIST *ltmp = rsce->rsg->input.lfilters;
     char *img = rsce->area.img;
 
     if ( rsce->running == 0x00 ) return;
@@ -224,7 +224,7 @@ void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from,
                                             uint32_t to,
                                             uint32_t depth, 
                                             uint32_t width ) {
-    LIST *ltmp = rsce->lfilters;
+    LIST *ltmp = rsce->rsg->input.lfilters;
     char *img = rsce->area.img;
 
     /*** COMMENTED OUT - Filter "CLEAN" must be run no matter what ***/
@@ -249,7 +249,7 @@ uint32_t rd3scene_filterbefore ( R3DSCENE *rsce, uint32_t from,
                                                  uint32_t to,
                                                  uint32_t depth, 
                                                  uint32_t width ) {
-    LIST *ltmp = rsce->lfilters;
+    LIST *ltmp = rsce->rsg->input.lfilters;
     char *img = rsce->area.img;
     uint32_t ret = 0x00;
 
@@ -282,7 +282,7 @@ void *r3dscene_raytrace ( void *ptr ) {
     uint32_t width  = ( area->x2 - area->x1 ) + 0x01;
     uint32_t height = ( area->y2 - area->y1 ) + 0x01;
     uint32_t bytesperline = ( width * 0x03 );
-    uint32_t outlineFlag = ( rsce->wireframe ) ? RAYQUERYOUTLINE : 0x00;
+    uint32_t outlineFlag = ( rsce->rsg->flags & RENDERWIREFRAME ) ? RAYQUERYOUTLINE : 0x00;
     int i;
 
     /*** return immediately when canceled ***/
@@ -391,28 +391,10 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
-                         G3DCAMERA *cam,
-                         uint32_t   x1, 
-                         uint32_t   y1,
-                         uint32_t   x2,
-                         uint32_t   y2,
-                         uint32_t   width, 
-                         uint32_t   height,
-                         uint32_t   backgroundMode,
-                         uint32_t   backgroundColor,
-                         G3DIMAGE  *backgroundImage,
-                         float      backgroundImageWidthRatio,
-                         int32_t    startframe,
-                         int32_t    endframe,
-                         uint32_t   outline,
-                         uint32_t   wireframeLighting,
-                         uint32_t   wireframeColor,
-                         float      wireframeThickness,
-                         LIST      *lfilters ) {
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg ) {
     uint32_t structsize = sizeof ( R3DSCENE );
-    uint32_t bytesperline = ( width * 0x03 );
-    G3DOBJECT *obj = ( G3DOBJECT * ) sce;
+    uint32_t bytesperline = ( rsg->output.width * 0x03 );
+    G3DOBJECT *obj = ( G3DOBJECT * ) rsg->input.sce;
     R3DSCENE *rsce;
 
     if ( ( rsce = ( R3DSCENE * ) calloc ( 0x01, structsize ) ) == NULL ) {
@@ -421,10 +403,12 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
         return NULL;
     }
 
+    rsce->rsg = rsg;
+
     ((R3DOBJECT*)rsce)->obj = obj;
 
     /*** This 24bpp buffer will receive the raytraced pixel values ***/
-    if ( ( rsce->area.img = calloc ( height, bytesperline ) ) == NULL ) {
+    if ( ( rsce->area.img = calloc ( rsg->output.height, bytesperline ) ) == NULL ) {
         fprintf ( stderr, "r3dscene_new: image memory allocation failed\n" );
 
         free ( rsce );
@@ -433,7 +417,8 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     }
 
     /*** This fce buffer for storing face-pixel information ***/
-    if ( ( rsce->area.rfc = ( R3DFACE ** ) calloc ( width * height, sizeof ( R3DFACE * ) ) ) == NULL ) {
+    if ( ( rsce->area.rfc = ( R3DFACE ** ) calloc ( rsg->output.width * 
+                                                    rsg->output.height, sizeof ( R3DFACE * ) ) ) == NULL ) {
         fprintf ( stderr, "r3dscene_new: fac memory allocation failed\n" );
 
         free ( rsce->area.img );
@@ -443,48 +428,51 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
     }
 
     /*** default background color ***/
-    rsce->backgroundMode            = backgroundMode;
+    /*rsce->backgroundMode            = backgroundMode;
     rsce->backgroundColor           = backgroundColor;
     rsce->backgroundImage           = backgroundImage;
-    rsce->backgroundImageWidthRatio = backgroundImageWidthRatio;
+    rsce->backgroundImageWidthRatio = backgroundImageWidthRatio;*/
 
     /*** viewing camera ***/
-    rsce->area.rcam = r3dcamera_new ( cam, width, height );
+    rsce->area.rcam = r3dcamera_new ( rsg->input.cam, 
+                                      rsg->output.width,
+                                      rsg->output.height );
 
-    rsce->startframe = startframe;
-    rsce->curframe   = startframe;
-    rsce->endframe   = endframe;
+    /*rsce->startframe = startframe;
+    rsce->endframe   = endframe;*/
+    rsce->curframe   = rsg->output.startframe;
 
     /*** render square area ***/
-    rsce->area.x1     = x1;
-    rsce->area.x2     = x2;
-    rsce->area.y1     = y1;
-    rsce->area.y2     = y2;
-    rsce->area.width  = width;
-    rsce->area.height = height;
+    rsce->area.x1     = rsg->output.x1;
+    rsce->area.x2     = rsg->output.x2;
+    rsce->area.y1     = rsg->output.y1;
+    rsce->area.y2     = rsg->output.y2;
+    rsce->area.width  = rsg->output.width;
+    rsce->area.height = rsg->output.height;
     rsce->area.depth  = 0x18;
 
     /*** first scan line ***/
-    rsce->area.scanline = y1;
+    rsce->area.scanline = rsg->output.y1;
 
-    rsce->wireframe          = outline;
+    /*rsce->wireframe          = outline;
     rsce->wireframeLighting  = wireframeLighting;
     rsce->wireframeColor     = wireframeColor;
-    rsce->wireframeThickness = wireframeThickness;
+    rsce->wireframeThickness = wireframeThickness;*/
 
     rsce->running = 0x01;
 
-    /*** filters ***/
-    rsce->lfilters = lfilters;
-
     /*** Compute the interpolation factors for rays ***/
-    r3darea_viewport ( &rsce->area, x1, y1, x2, y2, width, height );
+    r3darea_viewport ( &rsce->area, rsg->output.x1, 
+                                    rsg->output.y1, 
+                                    rsg->output.x2, 
+                                    rsg->output.y2, 
+                                    rsg->output.width,
+                                    rsg->output.height );
 
     r3dobject_init ( ( R3DOBJECT * ) rsce, 0, obj->type, obj->flags, r3dscene_free );
 
     /*** Convert objects into world oriented objects ***/
     r3dscene_import ( rsce, 0x00 );
-
 
     return rsce;
 }
@@ -492,7 +480,7 @@ R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
 /******************************************************************************/
 void r3dscene_render_t_free ( R3DSCENE *rsce ) {
     /*** free filters after rendering ***/
-    list_free ( &rsce->lfilters, (void(*)(void*)) r3dfilter_free );
+    list_free ( &rsce->rsg->input.lfilters, (void(*)(void*)) r3dfilter_free );
 
     /*** free the first frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) rsce );
@@ -508,9 +496,9 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
              y2 = rsce->area.y2;
     uint32_t width  = rsce->area.width,
              height = rsce->area.height;
-    LIST *lfilters = rsce->lfilters;
-    int32_t startframe = rsce->startframe,
-            endframe = rsce->endframe;
+    LIST *lfilters = rsce->rsg->input.lfilters;
+    int32_t startframe = rsce->rsg->output.startframe,
+            endframe = rsce->rsg->output.endframe;
     int32_t i, j;
 
     rsce->threaded = 0x01;
@@ -522,24 +510,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            nextrsce = r3dscene_new ( sce, cam, 
-                                           x1,
-                                           y1,
-                                           x2,
-                                           y2,
-                                           width,
-                                           height,
-                                           rsce->backgroundMode, 
-                                           rsce->backgroundColor,
-                                           rsce->backgroundImage,
-                                           rsce->backgroundImageWidthRatio,
-                                           startframe,
-                                           endframe,
-                                           rsce->wireframe,
-                                           rsce->wireframeLighting,
-                                           rsce->wireframeColor,
-                                           rsce->wireframeThickness,
-                                           lfilters );
+            nextrsce = r3dscene_new ( rsce->rsg );
 
             nextrsce->curframe = i;
 

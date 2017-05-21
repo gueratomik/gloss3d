@@ -40,34 +40,24 @@
 
 /******************************************************************************/
 void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
-    G3DUIRENDERSETTINGS *rsg = gui->currsg;
+    R3DRENDERSETTINGS *rsg = gui->currsg;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     if ( rsg ) {
         g3dsysinfo_processAnimatedImages ( sysinfo, 
-                                           rsg->startframe,
+                                           rsg->output.startframe,
                                            gui->curframe,
-                                           rsg->endframe,
-                                           rsg->fps,
+                                           rsg->output.endframe,
+                                           rsg->output.fps,
                                            gui->flags );
     }
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui, 
-                                          G3DCAMERA *cam,
-                                          uint64_t   id,
-                                          uint32_t   x1,
-                                          uint32_t   y1,
-                                          uint32_t   x2,
-                                          uint32_t   y2,
-                                          uint32_t   width,
-                                          uint32_t   height,
-                                          float      backgroundImageWidthRatio,
-                                          LIST      *lfilters,
-                                          uint32_t   sequence ) {
-
-    G3DUIRENDERSETTINGS *rsg = ( G3DUIRENDERSETTINGS * ) gui->currsg;
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
+                                          R3DRENDERSETTINGS *rsg,
+                                          uint64_t           id,
+                                          uint32_t           sequence ) {
     G3DSCENE *sce = gui->sce;
 
     /*** Don't start a new render before the current one has finished ***/
@@ -87,22 +77,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI     *gui,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        rsce = r3dscene_new ( sce, cam, x1, y1,
-                                        x2, y2,
-                                        width, height,
-                                        rsg->backgroundMode,
-                                        rsg->backgroundColor,
-                                        sysinfo->backgroundImage,
-                                        backgroundImageWidthRatio,
-                                        rsg->startframe,
-                                        rsg->endframe,
-                                        rsg->flags & RENDERWIREFRAME,
-                                        rsg->flags & WIREFRAMELIGHTING,
-                                        rsg->wireframeColor,
-                                        rsg->wireframeThickness,
-                                        lfilters );
-
-        
+        rsce = r3dscene_new ( rsg );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
@@ -239,14 +214,12 @@ uint64_t getTotalMemory ( ) {
 }
 
 /******************************************************************************/
-void common_g3dui_useRenderSettings ( G3DUI *gui, G3DUIRENDERSETTINGS *rsg ) {
-    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-
+void common_g3dui_useRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg ) {
     gui->currsg = rsg;
 }
 
 /******************************************************************************/
-void common_g3dui_addRenderSettings ( G3DUI *gui, G3DUIRENDERSETTINGS *rsg ) {
+void common_g3dui_addRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg ) {
     list_insert ( &gui->lrsg, rsg );
 }
 
@@ -922,7 +895,7 @@ void common_g3dui_resizeWidget ( G3DUI *gui, uint32_t width,
 /******************************************************************************/
 void common_g3dui_closeScene ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DUIRENDERSETTINGS *rsg;
+    R3DRENDERSETTINGS *rsg;
 
     /* reset background image and system values */
     g3dsysinfo_reset ( sysinfo );
@@ -931,9 +904,9 @@ void common_g3dui_closeScene ( G3DUI *gui ) {
 
     gui->sce = NULL;
 
-    if ( gui->lrsg ) list_free ( &gui->lrsg, g3duirendersettings_free );
+    if ( gui->lrsg ) list_free ( &gui->lrsg, r3drendersettings_free );
 
-    rsg = g3duirendersettings_new ( );
+    rsg = r3drendersettings_new ( );
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );

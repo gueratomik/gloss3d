@@ -392,6 +392,12 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
             break;
 
+
+            case UVMAPINFOSIG : {
+                readf ( &map->projection, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &map->fixed, sizeof ( uint32_t ), 0x01, fsrc );
+            } break;
+
             case UVMAPCOORDSSIG : {
                 G3DMESH  *parmes = ( G3DMESH * ) ((G3DOBJECT*)map)->parent;
                 G3DFACE **mesfac = ( G3DFACE ** ) list_to_array ( parmes->lfac );

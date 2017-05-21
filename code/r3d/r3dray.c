@@ -750,7 +750,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                           rms,
                                           hitrfc,
                                          &rsce->area,
-                                          rsce->backgroundImageWidthRatio,
+                                          rsce->rsg->background.widthRatio,
                                          &diffuse,
                                          &specular,
                                          &bump,
@@ -758,19 +758,19 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                          &refraction,
                                           ltex, 
                                           query_flags ) ) {
-                return rsce->backgroundColor;
+                return rsce->rsg->background.color;
             }
 
             /*** if outline lighting is enabled, we draw the outline before ***/
             /*** lighting computation ***/
             if ( query_flags & RAYQUERYOUTLINE ) {
                 if ( query_flags & RAYSTART ) {
-                    if ( rsce->wireframeLighting ) {
+                    if ( rsce->rsg->flags & WIREFRAMELIGHTING ) {
                         r3dray_outline ( ray, rms, 
                                               hitrfc, 
                                              &diffuse,
-                                              rsce->wireframeColor,
-                                              rsce->wireframeThickness,
+                                              rsce->rsg->wireframe.color,
+                                              rsce->rsg->wireframe.thickness,
                                               query_flags );
                     }
                 }
@@ -875,12 +875,12 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
             /*** lighting computation ***/
             if ( query_flags & RAYQUERYOUTLINE ) {
                 if ( query_flags & RAYSTART ) {
-                    if ( rsce->wireframeLighting == 0x00 ) {
+                    if ( ( rsce->rsg->flags & WIREFRAMELIGHTING ) == 0x00 ) {
                         r3dray_outline ( ray, rms, 
                                               hitrfc, 
                                              &diffuse,
-                                              rsce->wireframeColor,
-                                              rsce->wireframeThickness,
+                                              rsce->rsg->wireframe.color,
+                                              rsce->rsg->wireframe.thickness,
                                               query_flags );
                     }
                 }
@@ -897,22 +897,22 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         }
     }
 
-    if ( rsce->backgroundMode & BACKGROUND_IMAGE ) {
+    if ( rsce->rsg->background.mode & BACKGROUND_IMAGE ) {
         uint32_t backgroundWidth = ( rsce->area.width * 
-                                     rsce->backgroundImageWidthRatio );
+                                     rsce->rsg->background.widthRatio );
         int32_t deltaWidth = ( int32_t ) ( rsce->area.width - backgroundWidth ) / 2;
 
         if ( ( ray->x > deltaWidth ) && 
              ( ray->x < ( rsce->area.width - deltaWidth ) ) ) {
             float x = ( backgroundWidth   ) ? ( float ) ( ray->x - deltaWidth ) / backgroundWidth : 0.0f,
                   y = ( rsce->area.height ) ? ( float ) ray->y / rsce->area.height : 0.0f;
-            uint32_t inty = ( y * rsce->backgroundImage->height ),
-                     intx = ( x * rsce->backgroundImage->width  );
-            uint32_t offset =  ( inty * rsce->backgroundImage->width ) + intx;
+            uint32_t inty = ( y * rsce->rsg->background.image->height ),
+                     intx = ( x * rsce->rsg->background.image->width  );
+            uint32_t offset =  ( inty * rsce->rsg->background.image->width ) + intx;
 
-            switch ( rsce->backgroundImage->bytesPerPixel ) {
+            switch ( rsce->rsg->background.image->bytesPerPixel ) {
                 case 0x03 : {
-                    unsigned char (*imgdata)[0x03] = rsce->backgroundImage->data;
+                    unsigned char (*imgdata)[0x03] = rsce->rsg->background.image->data;
                     uint32_t R = ( uint32_t ) imgdata[offset][0x00],
                              G = ( uint32_t ) imgdata[offset][0x01],
                              B = ( uint32_t ) imgdata[offset][0x02];
@@ -926,7 +926,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         }
     }
 
-    return rsce->backgroundColor;
+    return rsce->rsg->background.color;
 }
 
 

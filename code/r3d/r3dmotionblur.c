@@ -41,7 +41,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     G3DSCENE *sce = ( G3DSCENE  * ) ((R3DOBJECT*)rsce)->obj;
     G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rsce->area.rcam)->obj;
     LIST *lfilters = /*list_copy ( rsce->lfilters )*/NULL;
-    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->lfilters, 
+    R3DFILTER *tofrm = r3dfilter_getByName ( rsce->rsg->input.lfilters, 
                                                  GOTOFRAMEFILTERNAME );
     float middleFrame = frameID - ( rmb->strength * 0.5f );
     float fromFrame = middleFrame - ( rmb->strength * 0.5f );
@@ -56,13 +56,13 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     R3DSCENE *middlersce;
     double *MVX, *PJX;
     uint32_t i;
-    R3DFILTER *toWin =  r3dfilter_getByName ( rsce->lfilters, 
+    R3DFILTER *toWin =  r3dfilter_getByName ( rsce->rsg->input.lfilters, 
                                                  TOWINDOWFILTERNAME );
 
     list_insert ( &lfilters, toWin );
 
     /*** dont motion-blurize the first frame ***/
-    if ( rsce->curframe == rsce->startframe ) return 0x00;
+    if ( rsce->curframe == rsce->rsg->output.startframe ) return 0x00;
 
     /*** remove motion blur from the filter list ***/
     /*list_remove ( &lfilters, r3dfilter_getByName ( lfilters, fil->name  ) );*/
@@ -79,23 +79,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     }
 
     /*** Prepare the scene ***/
-    middlersce = r3dscene_new ( sce, cam, rsce->area.x1,
-                                          rsce->area.y1,
-                                          rsce->area.x2,
-                                          rsce->area.y2,
-                                          rsce->area.width,
-                                          rsce->area.height, 
-                                          rsce->backgroundMode,
-                                          rsce->backgroundColor,
-                                          rsce->backgroundImage,
-                                          rsce->backgroundImageWidthRatio,
-                                          rsce->startframe, 
-                                          rsce->endframe,
-                                          rsce->wireframe,
-                                          rsce->wireframeLighting,
-                                          rsce->wireframeColor,
-                                          rsce->wireframeThickness,
-                                          lfilters );
+    middlersce = r3dscene_new ( rsce->rsg );
 
     /** create motion blur meshes from the meshes calculated in middle frame **/
     /** by the above call to r3dscene_new() **/
@@ -141,24 +125,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
             }
 
             /*** Prepare the scene ***/
-            steprsce = r3dscene_new ( sce, cam, 
-                                           rsce->area.x1,
-                                           rsce->area.y1,
-                                           rsce->area.x2,
-                                           rsce->area.y2,
-                                           rsce->area.width,
-                                           rsce->area.height, 
-                                           rsce->backgroundMode,
-                                           rsce->backgroundColor,
-                                           rsce->backgroundImage,
-                                           rsce->backgroundImageWidthRatio,
-                                           rsce->startframe, 
-                                           rsce->endframe,
-                                           rsce->wireframe,
-                                           rsce->wireframeLighting,
-                                           rsce->wireframeColor,
-                                           rsce->wireframeThickness,
-                                           NULL );
+            steprsce = r3dscene_new ( rsce->rsg );
 
             /*** create another set of geometry data ***/
             r3dmotionblur_fillMotionMeshes ( rmb, steprsce, i );

@@ -281,6 +281,100 @@ typedef G3DRTTRIANGLEUVW R3DRTUVSET;
 typedef G3DDOUBLEVECTOR  R3DDOUBLEVECTOR;
 typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 
+/*** G3DUIRENDERSETTINGS flags ***/
+#define RENDERPREVIEW     ( 1      )
+#define RENDERSAVE        ( 1 << 1 )
+#define ENABLEMOTIONBLUR  ( 1 << 2 )
+#define SCENEMOTIONBLUR   ( 1 << 3 )
+#define VECTORMOTIONBLUR  ( 1 << 4 )
+#define RENDERWIREFRAME   ( 1 << 5 )
+#define WIREFRAMELIGHTING ( 1 << 6 )
+#define ENABLEFOG         ( 1 << 7 )
+#define ENABLEDOF         ( 1 << 8 )
+
+/******************************************************************************/
+#define RENDERTOIMAGE 0x00
+#define RENDERTOVIDEO 0x01
+
+/******************************************************************************/
+typedef struct _R3DFOGSETTINGS {
+    float    near;
+    float    far;
+    uint32_t color;
+    uint32_t affectsBackground;
+} R3DFOGSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DDOFSETTINGS {
+    uint32_t dummy;
+} R3DDOFSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DBACKGROUNDSETTINGS {
+    uint32_t   mode;
+    uint32_t   color;
+    G3DIMAGE  *image;
+    float      widthRatio;
+} R3DBACKGROUNDSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DWIREFRAMESETTINGS {
+    uint32_t color;
+    float    thickness;
+} R3DWIREFRAMESETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DINPUTSETTINGS {
+    G3DSCENE  *sce;
+    G3DCAMERA *cam;
+    LIST      *lfilters;
+} R3DINPUTSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DOUTPUTSETTINGS {
+    uint32_t fps; /*** frame per second ***/
+    uint32_t x1; 
+    uint32_t y1;
+    uint32_t x2;
+    uint32_t y2;
+    uint32_t width; 
+    uint32_t height;
+    uint32_t depth;
+    float    startframe;
+    float    endframe;
+    char    *outfile;
+    uint32_t format;
+    float    ratio;
+} R3DOUTPUTSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DMOTIONBLURSETTINGS {
+    uint32_t strength;   /*** motion blur strength ***/
+    uint32_t iterations; /*** motion blur iterations ( for scene mode ) ***/
+    uint32_t vMotionBlurSamples; /* vector mode sampling */
+    float    vMotionBlurSubSamplingRate; /* vector mode sampling */
+} R3DMOTIONBLURSETTINGS;
+
+/******************************************************************************/
+typedef struct _R3DRENDERSETTINGS {
+    uint32_t              flags;
+    R3DINPUTSETTINGS      input;
+    R3DOUTPUTSETTINGS     output;
+    R3DBACKGROUNDSETTINGS background;
+    R3DWIREFRAMESETTINGS  wireframe;
+    R3DMOTIONBLURSETTINGS motionBlur;
+    R3DFOGSETTINGS        fog;
+    R3DDOFSETTINGS        dof;
+    LIST    *lfilter;
+    /*int      pipefd[0x02];*/
+} R3DRENDERSETTINGS;
+
+/****************************** r3drendersettings.c *************************/
+R3DRENDERSETTINGS *r3drendersettings_new ( );
+void r3drendersettings_free ( R3DRENDERSETTINGS *rsg );
+void r3drendersettings_copy ( R3DRENDERSETTINGS *dst,
+                              R3DRENDERSETTINGS *src );
+
 /******************************************************************************/
 #ifdef __MINGW32__
 typedef struct _WImage {
@@ -491,18 +585,12 @@ typedef struct _R3DAREA {
 
 /******************************************************************************/
 typedef struct _R3DSCENE {
-    R3DOBJECT robj;
+    R3DOBJECT robj; /* Must be first for OOP */
+    R3DRENDERSETTINGS *rsg;
     LIST *lrob; /*** list of render objects ***/
     LIST *lrlt; /*** list of render lights  ***/
-    uint32_t  backgroundMode;
-    uint32_t  backgroundColor;
-    G3DIMAGE *backgroundImage;
-    float     backgroundImageWidthRatio;
     LIST *lthread; /*** list of render areas thread***/
     R3DAREA area;
-    LIST *lfilters;
-    int32_t startframe;
-    int32_t endframe;
     int32_t curframe;
     uint32_t cancelled;
     uint32_t threaded;
@@ -518,10 +606,6 @@ typedef struct _R3DSCENE {
     #ifdef __MINGW32__
     HANDLE tid;
     #endif
-    uint32_t wireframe;
-    uint32_t wireframeLighting;
-    uint32_t wireframeColor;
-    float    wireframeThickness;
 } R3DSCENE;
 
 /******************************************************************************/
@@ -840,25 +924,7 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( G3DSCENE  *sce,
-                         G3DCAMERA *cam,
-                         uint32_t   x1, 
-                         uint32_t   y1,
-                         uint32_t   x2,
-                         uint32_t   y2,
-                         uint32_t   width, 
-                         uint32_t   height,
-                         uint32_t   backgroundMode,
-                         uint32_t   backgroundColor,
-                         G3DIMAGE  *backgroundImage,
-                         float      backgroundImageWidthRatio,
-                         int32_t    startframe,
-                         int32_t    endframe,
-                         uint32_t   outline,
-                         uint32_t   wireframeLighting,
-                         uint32_t   wireframeColor,
-                         float      wireframeThickness,
-                         LIST      *lfilters );
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg );
 
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );

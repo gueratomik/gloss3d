@@ -83,23 +83,35 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
+    /* declared static because must survive */
+    static R3DRENDERSETTINGS viewRsg;
+
+    r3drendersettings_copy ( &viewRsg, gui->currsg );
 
     list_append ( &lfilters, progressiveDisplay );
     /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
     list_append ( &lfilters, finalDisplay );*/
     list_append ( &lfilters, clean );
 
+    viewRsg.input.sce      = gui->sce;
+    viewRsg.input.cam      = g3dui_getMainViewCamera ( gui );
+    viewRsg.input.lfilters = lfilters;
+
+    viewRsg.background.widthRatio = backgroundWidthRatio;
+
+    viewRsg.output.x1 = 0x00;
+    viewRsg.output.x2 = width - 1;
+    viewRsg.output.y1 = 0x00;
+    viewRsg.output.y2 = height - 1;
+    viewRsg.output.width = width;
+    viewRsg.output.height = height;
+    viewRsg.background.image = sysinfo->backgroundImage;
+
     g3dui_setHourGlass ( gui );
 
-    rps = common_g3dui_render ( gui, g3dui_getCurrentViewCamera ( gui ),
-                                     ( uint64_t ) ggt->curogl,
-                                     0x00, 0x00,
-                                     width - 1, 
-                                     height - 1,
-                                     width, 
-                                     height,
-                                     backgroundWidthRatio,
-                                     lfilters, 0x00 );
+    rps = common_g3dui_render ( gui, &viewRsg,
+                        ( uint64_t ) ggt->curogl,
+                                     0x00 );
 
     g3dui_unsetHourGlass ( gui );
 }
@@ -1251,7 +1263,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     GtkGlossUI *glossui = ( GtkGlossUI * ) widget;
     G3DUI *gui = &glossui->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    G3DUIRENDERSETTINGS *rsg;
+    R3DRENDERSETTINGS *rsg;
     GtkCssProvider *provider = gtk_css_provider_new ();
     static const gchar *myCSS = { "* {                      \n"
     #ifdef __linux__
@@ -1389,7 +1401,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     gui->flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
-    rsg = g3duirendersettings_new ( ); /*** default render settings ***/
+    rsg = r3drendersettings_new ( ); /*** default render settings ***/
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );
