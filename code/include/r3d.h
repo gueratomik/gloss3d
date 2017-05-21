@@ -289,8 +289,8 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 #define VECTORMOTIONBLUR  ( 1 << 4 )
 #define RENDERWIREFRAME   ( 1 << 5 )
 #define WIREFRAMELIGHTING ( 1 << 6 )
-#define ENABLEFOG         ( 1 << 7 )
-#define ENABLEDOF         ( 1 << 8 )
+#define RENDERFOG         ( 1 << 7 )
+#define RENDERDOF         ( 1 << 8 )
 
 /******************************************************************************/
 #define RENDERTOIMAGE 0x00

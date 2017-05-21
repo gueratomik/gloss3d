@@ -721,6 +721,166 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
     return frm;
 }
 
+/******************************************************************************/
+static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->currsg ) {
+            R3DRENDERSETTINGS *rsg = gui->currsg;
+
+            if ( GTK_IS_CHECK_BUTTON(child) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERFOG ) == 0x00 ) {
+                    if ( rsg->flags & RENDERFOG ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON(child) ) {
+                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITRENDERFOGNEAR ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERFOG ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->fog.near );
+                }
+
+                if ( strcmp ( child_name, EDITRENDERFOGFAR ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERFOG ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->fog.far );
+                }
+            }
+
+            if ( GTK_IS_COLOR_BUTTON(child) ) {
+                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
+
+                if ( ( rsg->flags & RENDERFOG ) ) {
+                    gtk_widget_set_sensitive ( child, TRUE );
+                } else {
+                    gtk_widget_set_sensitive ( child, FALSE );
+                }
+
+                if ( strcmp ( child_name, EDITRENDERFOGCOLOR ) == 0x00 ) {
+                    unsigned char R = ( rsg->fog.color & 0x00FF0000 ) >> 0x10,
+                                  G = ( rsg->fog.color & 0x0000FF00 ) >> 0x08,
+                                  B = ( rsg->fog.color & 0x000000FF );
+                    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                                     .green = ( float ) G / 255,
+                                     .blue  = ( float ) B / 255,
+                                     .alpha = 1.0f };
+
+                    gtk_color_chooser_set_rgba ( ccr, &rgba );
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+}
+
+/******************************************************************************/
+static void updateFogFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateFogForm ( frm, gui );
+}
+
+/******************************************************************************/
+static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setFogCbk ( gui );
+
+    updateFogForm ( gtk_widget_get_parent ( widget ), gui );
+}
+
+/******************************************************************************/
+static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float near = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_fogNearCbk ( gui, near );
+}
+
+/******************************************************************************/
+static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float far = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_fogFarCbk ( gui, far );
+}
+
+/******************************************************************************/
+static void fogColorCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    GdkRGBA color;
+
+    gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
+
+    common_g3duirenderedit_fogColorCbk ( gui, ( color.red   * 255 ), 
+                                              ( color.green * 255 ),
+                                              ( color.blue  * 255 ) );
+}
+
+/******************************************************************************/
+static GtkWidget *createFogForm ( GtkWidget *parent, 
+                                  G3DUI     *gui,
+                                  char      *name,
+                                  gint       x,
+                                  gint       y,
+                                  gint       width,
+                                  gint       height ) {
+    GtkWidget *vbr, *col, *frm, *btn;
+
+    frm = createFrame ( parent, gui, name, x, y, width, height );
+
+          createToggleLabel ( frm, gui,
+                                   EDITRENDERFOG,
+                                     0,  0, 96, 18,
+                                   setFogCbk );
+
+          /*createToggleLabel ( frm, gui,
+                                   EDITRENDERWIREFRAMELIGHTING,
+                                     0, 24, 96, 18,
+                                   setWireframeLightingCbk );*/
+
+          createFloatText ( frm, gui, EDITRENDERFOGNEAR,
+                                     0, 48, 96,  48,
+                                   fogNearCbk );
+
+          createFloatText ( frm, gui, EDITRENDERFOGFAR,
+                                     0, 72, 96,  48,
+                                   fogFarCbk );
+
+          createSimpleLabel ( frm, gui, EDITRENDERFOGCOLOR,
+                                     0, 96, 96, 20 );
+
+          createColorButton ( frm, gui, EDITRENDERFOGCOLOR,
+                                    96, 96, 96, 18, fogColorCbk );
+
+
+    return frm;
+}
+
 
 /******************************************************************************/
 static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
@@ -1004,6 +1164,10 @@ void updateEffectsPanel ( GtkWidget *widget, G3DUI *gui ) {
             if ( strcmp ( child_name, EDITRENDERWIREFRAMEFRAME ) == 0x00 ) {
                 updateWireframeFrame ( child, gui );
             }
+
+            if ( strcmp ( child_name, EDITRENDERFOGFRAME ) == 0x00 ) {
+                updateFogFrame ( child, gui );
+            }
         }
 
         children =  g_list_next ( children );
@@ -1027,6 +1191,9 @@ void createEffectsPanel ( GtkWidget *parent,
 
     createWireframeForm ( pan, gui, EDITRENDERWIREFRAMEFRAME,
                                0, 128, 256,  96 );
+
+    createFogForm ( pan, gui, EDITRENDERFOGFRAME,
+                               0, 256, 256,  96 );
 }
 
 /******************************************************************************/

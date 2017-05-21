@@ -132,6 +132,51 @@ void common_g3duirenderedit_wireframeColorCbk ( G3DUI        *gui,
 }
 
 /******************************************************************************/
+void common_g3duirenderedit_setFogCbk ( G3DUI *gui ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & RENDERFOG ) {
+        rsg->flags = (rsg->flags & ~RENDERFOG);
+    } else {
+        rsg->flags = (rsg->flags | RENDERFOG);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
+                                        float  far ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->fog.far = far;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_fogNearCbk ( G3DUI *gui,
+                                         float  near ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->fog.near = near;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_fogColorCbk ( G3DUI        *gui, 
+                                          unsigned char R, 
+                                          unsigned char G, 
+                                          unsigned char B ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->fog.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
+}
+
+/******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 

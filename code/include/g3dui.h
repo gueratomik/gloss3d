@@ -217,11 +217,18 @@
 #define EDITRENDERRUN              "Run render"
 #define EDITRENDERSAVEOUTPUTFRAME  "Output"
 #define EDITRENDERSAVE             "Save result"
+
 #define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
 #define EDITRENDERWIREFRAME          "Wireframe"
 #define EDITRENDERWIREFRAMELIGHTING  "Affected by Lighting"
 #define EDITRENDERWIREFRAMETHICKNESS "Thickness"
 #define EDITRENDERWIREFRAMECOLOR     "Color"
+
+#define EDITRENDERFOGFRAME  "Fog Settings"
+#define EDITRENDERFOG       "Enable Fog"
+#define EDITRENDERFOGNEAR   "Near"
+#define EDITRENDERFOGFAR    "Far"
+#define EDITRENDERFOGCOLOR  "Color"
 
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
@@ -1196,10 +1203,23 @@ uint32_t            common_g3dui_cancelRenderByScene     ( G3DUI *, R3DSCENE * )
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
 
+/******************************************************************************/
 void common_g3duiwireframeedit_thicknessCbk ( G3DUI *, float );
 void common_g3duirenderedit_wireframeColorCbk ( G3DUI *, unsigned char, 
                                                          unsigned char, 
                                                          unsigned char );
+
+/******************************************************************************/
+void common_g3duirenderedit_fogNearCbk ( G3DUI *gui,
+                                         float  near );
+void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
+                                        float  far );
+void common_g3duirenderedit_setFogCbk ( G3DUI *gui );
+void common_g3duirenderedit_fogColorCbk ( G3DUI        *gui, 
+                                          unsigned char R, 
+                                          unsigned char G, 
+                                          unsigned char B );
+
 
 void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *, 
                                                          uint32_t );
