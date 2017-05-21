@@ -297,7 +297,9 @@ void *r3dscene_raytrace ( void *ptr ) {
 
         for ( i = area->x1; ( i <= area->x2 ) && rsce->running; i++ ) {
             uint32_t color;
+            G3DVECTOR intersectionPointToSource;
             R3DRAY ray;
+            float viewingDistance;
 
             /*** Ray building ***/
             /*** First, reset the ray ***/
@@ -323,7 +325,7 @@ void *r3dscene_raytrace ( void *ptr ) {
             ray.distance = INFINITY;
 
             /*** but don't forget to normalize the latter **/
-            r3dtinyvector_normalize ( &ray.dir, NULL );
+            r3dtinyvector_normalize ( &ray.dir, &viewingDistance );
 
             /*** shoot the ray ***/
             color = r3dray_shoot ( &ray, rsce, 
@@ -339,6 +341,26 @@ void *r3dscene_raytrace ( void *ptr ) {
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
             imgptr[0x02] = ( color & 0x000000FF );
+
+            intersectionPointToSource.x = ray.pnt.x - pone.src.x;
+            intersectionPointToSource.y = ray.pnt.y - pone.src.y;
+            intersectionPointToSource.z = ray.pnt.z - pone.src.z;
+
+            float fogDistance = g3dvector_length ( &intersectionPointToSource );
+
+            float fogRatio = fogDistance / viewingDistance * 50;
+
+            uint32_t R = imgptr[0x00] + ( ( ( rsce->rsg->fog.color & 0x00FF0000 ) >> 0x10 ) * fogRatio );
+            uint32_t G = imgptr[0x01] + ( ( ( rsce->rsg->fog.color & 0x0000FF00 ) >> 0x08 ) * fogRatio );
+            uint32_t B = imgptr[0x02] + ( ( ( rsce->rsg->fog.color & 0x000000FF ) >> 0x00 ) * fogRatio );
+
+            if ( R > 0xFF ) R = 0xFF;
+            if ( G > 0xFF ) G = 0xFF;
+            if ( B > 0xFF ) B = 0xFF;
+
+            imgptr[0x00] = R;
+            imgptr[0x01] = G;
+            imgptr[0x02] = B;
 
             imgptr += 0x03;
 

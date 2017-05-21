@@ -74,6 +74,10 @@ R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     rsg->motionBlur.vMotionBlurSamples = 0x01;
     rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 
+    rsg->fog.near  = 0.0f;
+    rsg->fog.far   = 1.0f;
+    rsg->fog.color = 0x00FFFFFF;
+
     rsg->lfilter     = NULL;
 
 
