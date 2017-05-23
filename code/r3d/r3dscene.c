@@ -353,10 +353,22 @@ void *r3dscene_raytrace ( void *ptr ) {
                     intersectionPointToSource.z = ray.pnt.z - pone.src.z;
 
                     float fogDistance = g3dvector_length ( &intersectionPointToSource );
-
-                    float incFogRatio = rsce->rsg->fog.near + ( fogDistance / viewingDistance ) * rsce->rsg->fog.far;
+                    float deltaFog = ( rsce->rsg->fog.far - 
+                                       rsce->rsg->fog.near );
+                    float incFogRatio = ( fogDistance - 
+                                          rsce->rsg->fog.near ) / deltaFog;
                     float decFogRatio = 1.0f - incFogRatio;
- 
+
+                    if ( incFogRatio > 1.0f ) {
+                        incFogRatio = 1.0f;
+                        decFogRatio = 0.0f;
+                    }
+
+                    if ( incFogRatio < 0.0f ) {
+                        incFogRatio = 0.0f;
+                        decFogRatio = 1.0f;
+                    }
+
                     uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
                     uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
                     uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
@@ -369,10 +381,15 @@ void *r3dscene_raytrace ( void *ptr ) {
                     imgptr[0x01] = G;
                     imgptr[0x02] = B;
                 } else {
-                    imgptr[0x00] = fogR;
-                    imgptr[0x01] = fogG;
-                    imgptr[0x02] = fogB;
-
+                    /* 
+                     * if no polygon impact, apply fog to the background only
+                     * if requested.
+                     */
+                    if ( rsce->rsg->fog.affectsBackground ) {
+                        imgptr[0x00] = fogR;
+                        imgptr[0x01] = fogG;
+                        imgptr[0x02] = fogB;
+                    }
                 }
             }
 

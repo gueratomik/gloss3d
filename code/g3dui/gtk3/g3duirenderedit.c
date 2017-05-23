@@ -742,6 +742,20 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_toggle_button_set_active ( tbn, FALSE );
                     }
                 }
+
+                if ( strcmp ( child_name, EDITRENDERFOGAFFECTSBACKGROUND ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERFOG ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    if ( rsg->fog.affectsBackground ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
             }
 
             if ( GTK_IS_SPIN_BUTTON(child) ) {
@@ -803,6 +817,13 @@ static void updateFogFrame ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static void setFogAffectsBackgroundCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duirenderedit_setFogAffectsBackgroundCbk ( gui );
+}
+
+/******************************************************************************/
 static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -858,10 +879,10 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
                                      0,  0, 96, 18,
                                    setFogCbk );
 
-          /*createToggleLabel ( frm, gui,
-                                   EDITRENDERWIREFRAMELIGHTING,
+          createToggleLabel ( frm, gui,
+                                   EDITRENDERFOGAFFECTSBACKGROUND,
                                      0, 24, 96, 18,
-                                   setWireframeLightingCbk );*/
+                                   setFogAffectsBackgroundCbk );
 
           createFloatText ( frm, gui, EDITRENDERFOGNEAR,
                                      0, 48, 96,  48,

@@ -145,6 +145,19 @@ void common_g3duirenderedit_setFogCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->fog.affectsBackground ) {
+        rsg->fog.affectsBackground = 0;
+    } else {
+        rsg->fog.affectsBackground = 1;
+    }
+}
+
+/******************************************************************************/
 void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
                                         float  far ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;

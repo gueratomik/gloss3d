@@ -224,11 +224,12 @@
 #define EDITRENDERWIREFRAMETHICKNESS "Thickness"
 #define EDITRENDERWIREFRAMECOLOR     "Color"
 
-#define EDITRENDERFOGFRAME  "Fog Settings"
-#define EDITRENDERFOG       "Enable Fog"
-#define EDITRENDERFOGNEAR   "Near"
-#define EDITRENDERFOGFAR    "Far"
-#define EDITRENDERFOGCOLOR  "Color"
+#define EDITRENDERFOGFRAME             "Fog Settings"
+#define EDITRENDERFOGAFFECTSBACKGROUND "Affects background"
+#define EDITRENDERFOG                  "Enable Fog"
+#define EDITRENDERFOGNEAR              "Near distance"
+#define EDITRENDERFOGFAR               "Far distance"
+#define EDITRENDERFOGCOLOR             "Color"
 
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
