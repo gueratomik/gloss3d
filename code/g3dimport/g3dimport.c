@@ -494,10 +494,10 @@ G3DSCENE *g3dscene_open ( const char *filename,
             break;
 
             case LIGHTDIFFCOLSIG :
-                readf ( &lig->diffcol.r, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &lig->diffcol.g, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &lig->diffcol.b, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &lig->diffcol.a, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &lig->diffuseColor.r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &lig->diffuseColor.g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &lig->diffuseColor.b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &lig->diffuseColor.a, sizeof ( uint32_t ), 0x01, fsrc );
             break;
 
             case LIGHTINTENSITYSIG :

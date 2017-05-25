@@ -61,10 +61,10 @@ static void updateSpecularityPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
 
                 if ( strcmp ( child_name, EDITDIFFUSECOLOR ) == 0x00 ) {
-                    GdkRGBA rgba = { .red   = ( float ) lig->speccol.r / 255.0f,
-                                     .green = ( float ) lig->speccol.g / 255.0f,
-                                     .blue  = ( float ) lig->speccol.b / 255.0f,
-                                     .alpha = ( float ) lig->speccol.a / 255.0f };
+                    GdkRGBA rgba = { .red   = ( float ) lig->specularColor.r / 255.0f,
+                                     .green = ( float ) lig->specularColor.g / 255.0f,
+                                     .blue  = ( float ) lig->specularColor.b / 255.0f,
+                                     .alpha = ( float ) lig->specularColor.a / 255.0f };
 
                     gtk_color_chooser_set_rgba ( ccr, &rgba );
                 }
@@ -195,10 +195,10 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
 
                 if ( strcmp ( child_name, EDITDIFFUSECOLOR ) == 0x00 ) {
-                    GdkRGBA rgba = { .red   = ( float ) lig->diffcol.r / 255.0f,
-                                     .green = ( float ) lig->diffcol.g / 255.0f,
-                                     .blue  = ( float ) lig->diffcol.b / 255.0f,
-                                     .alpha = ( float ) lig->diffcol.a / 255.0f };
+                    GdkRGBA rgba = { .red   = ( float ) lig->diffuseColor.r / 255.0f,
+                                     .green = ( float ) lig->diffuseColor.g / 255.0f,
+                                     .blue  = ( float ) lig->diffuseColor.b / 255.0f,
+                                     .alpha = ( float ) lig->diffuseColor.a / 255.0f };
 
                     gtk_color_chooser_set_rgba ( ccr, &rgba );
                 }

@@ -30,42 +30,51 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-G3DOBJECT *g3dlight_copy ( G3DOBJECT *obj, uint32_t       id,
-                                           unsigned char *name,
-                                           uint32_t       engine_flags ) {
-    G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-    G3DLIGHT *ligcpy = g3dlight_new ( id, name );
+G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
+                          uint32_t       id,
+                          unsigned char *name,
+                          uint32_t       engine_flags ) {
+    G3DOBJECT *obj    = ( G3DOBJECT * ) lig;
+    G3DLIGHT  *ligcpy = g3dlight_new ( id, name );
 
     ((G3DOBJECT*)ligcpy)->flags = obj->flags;
 
     ligcpy->intensity = lig->intensity;
 
-    memcpy ( &ligcpy->diffcol, &lig->diffcol, sizeof ( G3DRGBA ) );
-    memcpy ( &ligcpy->speccol, &lig->speccol, sizeof ( G3DRGBA ) );
-    memcpy ( &ligcpy->ambicol, &lig->ambicol, sizeof ( G3DRGBA ) );
+    memcpy ( &ligcpy->diffuseColor , &lig->diffuseColor , sizeof ( G3DRGBA ) );
+    memcpy ( &ligcpy->specularColor, &lig->specularColor, sizeof ( G3DRGBA ) );
+    memcpy ( &ligcpy->ambientColor , &lig->ambientColor , sizeof ( G3DRGBA ) );
 
-    return ( G3DOBJECT * ) ligcpy;
+    return ligcpy;
 }
 
 /******************************************************************************/
-uint32_t g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
-    G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+uint32_t g3dlight_draw ( G3DLIGHT  *lig,
+                         G3DCAMERA *cam, 
+                         uint32_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
     float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    float diffcol[0x04] = { ( lig->diffcol.r * lig->intensity ) / 256.0f, 
-                            ( lig->diffcol.g * lig->intensity ) / 256.0f,
-                            ( lig->diffcol.b * lig->intensity ) / 256.0f, 1.0f };
-    float speccol[0x04] = { ( lig->speccol.r * lig->intensity ) / 256.0f, 
-                            ( lig->speccol.g * lig->intensity ) / 256.0f,
-                            ( lig->speccol.b * lig->intensity ) / 256.0f, 1.0f };
-    float ambicol[0x04] = { ( lig->ambicol.r * lig->intensity ) / 256.0f, 
-                            ( lig->ambicol.g * lig->intensity ) / 256.0f,
-                            ( lig->ambicol.b * lig->intensity ) / 256.0f, 1.0f };
-
+    float intensity = lig->intensity;
+    float diffuseColor[0x04] = { ( lig->diffuseColor.r * intensity ) / 256.0f, 
+                                 ( lig->diffuseColor.g * intensity ) / 256.0f,
+                                 ( lig->diffuseColor.b * intensity ) / 256.0f,
+                                 ( 1.0f ) };
+    float specularColor[0x04] = { ( lig->specularColor.r * intensity ) / 256.0f, 
+                                  ( lig->specularColor.g * intensity ) / 256.0f,
+                                  ( lig->specularColor.b * intensity ) / 256.0f,
+                                  ( 1.0f ) };
+    float ambientColor[0x04] = { ( lig->ambientColor.r * intensity ) / 256.0f, 
+                                 ( lig->ambientColor.g * intensity ) / 256.0f,
+                                 ( lig->ambientColor.b * intensity ) / 256.0f, 
+                                 ( 1.0f ) };
+ 
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
     /*glDisable ( GL_DEPTH_TEST );*/
-    glColor3ub  ( lig->diffcol.r, lig->diffcol.g, lig->diffcol.b );
+    glColor3ub  ( lig->diffuseColor.r, 
+                  lig->diffuseColor.g, 
+                  lig->diffuseColor.b );
     glPointSize ( 3.0f );
 
     glBegin ( GL_LINES );
@@ -104,18 +113,16 @@ uint32_t g3dlight_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
 
     glPopAttrib ( );
 
-    glLightfv ( lig->lid, GL_AMBIENT , ( const float * ) &ambicol );
-    glLightfv ( lig->lid, GL_DIFFUSE , ( const float * ) &diffcol );
-    glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &speccol );
+    glLightfv ( lig->lid, GL_AMBIENT , ( const float * ) &ambientColor  );
+    glLightfv ( lig->lid, GL_DIFFUSE , ( const float * ) &diffuseColor  );
+    glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &specularColor );
     glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos      );
 
     return 0x00;
 }
 
 /******************************************************************************/
-void g3dlight_free ( G3DOBJECT *obj ) {
-    G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
+void g3dlight_free ( G3DLIGHT *lig ) {
     g3dlight_zero ( lig );
 }
 
@@ -153,13 +160,14 @@ void g3dlight_init ( G3DLIGHT *lig ) {
     glEnable ( lig->lid );
 
     /*glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos );
-    glLightiv ( lig->lid, GL_DIFFUSE , ( const GLint * ) &lig->diffcol );
-    glLightiv ( lig->lid, GL_SPECULAR, ( const GLint * ) &lig->speccol );
-    glLightiv ( lig->lid, GL_AMBIENT , ( const GLint * ) &lig->ambicol );*/
+    glLightiv ( lig->lid, GL_DIFFUSE , ( const GLint * ) &lig->diffuseColor );
+    glLightiv ( lig->lid, GL_SPECULAR, ( const GLint * ) &lig->specularColor );
+    glLightiv ( lig->lid, GL_AMBIENT , ( const GLint * ) &lig->ambientColor );*/
 }
 
 /******************************************************************************/
-G3DLIGHT *g3dlight_new ( uint32_t id, char *name ) {
+G3DLIGHT *g3dlight_new ( uint32_t  id, 
+                         char     *name ) {
     G3DLIGHT *lig = ( G3DLIGHT * ) calloc ( 0x01, sizeof ( G3DLIGHT ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
     static GLint lid = 0x00;
@@ -189,9 +197,10 @@ G3DLIGHT *g3dlight_new ( uint32_t id, char *name ) {
 
     lig->intensity = 1.0f;
 
-    g3drgba_init ( &lig->diffcol, 0xFF, 0xFF, 0xFF, 0xFF );
-    g3drgba_init ( &lig->speccol, 0xFF, 0xFF, 0xFF, 0xFF );
-    g3drgba_init ( &lig->ambicol, 0x00, 0x00, 0x00, 0xFF );
+    g3drgba_init ( &lig->shadowColor  , 0x00, 0x00, 0x00, 0x00 );
+    g3drgba_init ( &lig->diffuseColor , 0xFF, 0xFF, 0xFF, 0xFF );
+    g3drgba_init ( &lig->specularColor, 0xFF, 0xFF, 0xFF, 0xFF );
+    g3drgba_init ( &lig->ambientColor , 0x00, 0x00, 0x00, 0xFF );
 
     obj->flags |= LIGHTON;
 

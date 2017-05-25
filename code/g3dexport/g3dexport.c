@@ -1281,10 +1281,10 @@ static void lightintensity_writeblock ( G3DLIGHT *lig, FILE *fdst ) {
 
 /******************************************************************************/
 static void lightdiffusecolor_writeblock ( G3DLIGHT *lig, FILE *fdst ) {
-    uint32_t col[0x04] = { lig->diffcol.r,
-                           lig->diffcol.g,
-                           lig->diffcol.b,
-                           lig->diffcol.a };
+    uint32_t col[0x04] = { lig->diffuseColor.r,
+                           lig->diffuseColor.g,
+                           lig->diffuseColor.b,
+                           lig->diffuseColor.a };
 
     writef ( col, sizeof ( col ), 0x01, fdst );
 }

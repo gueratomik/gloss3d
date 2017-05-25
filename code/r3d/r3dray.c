@@ -419,9 +419,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                  ( ( luxray.flags  & INTERSECT        ) == 0x00 ) ) {
                 float rate = fabs ( dot ) * rlt->lig->intensity;
 
-                col->r += ( rlt->lig->diffcol.r * rate ),
-                col->g += ( rlt->lig->diffcol.g * rate ),
-                col->b += ( rlt->lig->diffcol.b * rate );
+                col->r += ( rlt->lig->diffuseColor.r * rate ),
+                col->g += ( rlt->lig->diffuseColor.g * rate ),
+                col->b += ( rlt->lig->diffuseColor.b * rate );
             }
         }
 
@@ -458,9 +458,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
 
                     if ( dot > 0.0f ) {
                         float specularCoefficient = pow ( dot, mat->shininess );
-                            uint32_t R = ( rlt->lig->speccol.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
-                                     G = ( rlt->lig->speccol.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
-                                     B = ( rlt->lig->speccol.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
+                            uint32_t R = ( rlt->lig->specularColor.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
+                                     G = ( rlt->lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
+                                     B = ( rlt->lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
 
                         spc->r += R;
                         spc->g += G,

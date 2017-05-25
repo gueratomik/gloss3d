@@ -72,6 +72,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     uint32_t width  = gtk_widget_get_allocated_width  ( ggt->curogl ),
              height = gtk_widget_get_allocated_height ( ggt->curogl );
+    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) ggt->curogl );
     R3DFILTER *progressiveDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
     /*R3DFILTER *finalDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01, 0x00 );*/
     /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
@@ -79,12 +80,16 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                        NULL, 
                                        gui );
     LIST *lfilters = NULL;
-    G3DUIRENDERPROCESS *rps;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
     static R3DRENDERSETTINGS viewRsg;
+
+    /* First cancel running render on that window  if any */
+    if ( rps ) {
+        r3dscene_cancelRender ( rps->rsce );
+    }
 
     r3drendersettings_copy ( &viewRsg, gui->currsg );
 

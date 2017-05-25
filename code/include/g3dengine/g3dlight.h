@@ -26,66 +26,86 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#include <config.h>
-#include <g3dui.h>
+
+/**
+ * @file
+ */
 
 /******************************************************************************/
-void common_g3dui_lightSpecularityChangeCbk ( G3DUI *gui, uint32_t red,
-                                                          uint32_t green,
-                                                          uint32_t blue ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+#ifndef _G3DLIGHT_H_
+#define _G3DLIGHT_H_
 
-    /*** prevent a loop when updating widget ***/
-    if ( gui->lock ) return;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        lig->specularColor.r = red;
-        lig->specularColor.g = green;
-        lig->specularColor.b = blue;
-
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duilightedit_castShadowsCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        if ( obj->flags & LIGHTCASTSHADOWS ) {
-            obj->flags &= (~LIGHTCASTSHADOWS);
-        } else {
-            obj->flags |= LIGHTCASTSHADOWS;
-        }
-    }
-}
+/**
+ * @struct G3DLIGHT
+ * @brief A structure to store a 3D Light.
+ */
+typedef struct _G3DLIGHT {
+    G3DOBJECT obj;            /* Light inherits G3DOBJECT */
+    float     intensity;      /* Light intensity          */
+    uint32_t  lid;            /* OpenGL Light ID          */
+    G3DRGBA   shadowColor;    /* R-G-B-A                  */
+    G3DRGBA   diffuseColor;
+    G3DRGBA   specularColor;
+    G3DRGBA   ambientColor;
+} G3DLIGHT;
 
 /******************************************************************************/
-void common_g3dui_lightDiffuseChangeCbk ( G3DUI *gui, uint32_t red,
-                                                      uint32_t green,
-                                                      uint32_t blue ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+/**
+ * create a new light.
+ * @param id the object's ID.
+ * @param name the object's name.
+ * @return the allocated G3DLIGHT.
+ */
+G3DLIGHT *g3dlight_new ( uint32_t id, 
+                         char    *name );
 
-    /*** prevent a loop when updating widget ***/
-    if ( gui->lock ) return;
+/**
+ * Turn on a light in the OpenGL view. It basically calls glEnable(lightID);
+ * @param lig a pointer to a light.
+ */
+void g3dlight_init ( G3DLIGHT *lig );
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+/**
+ * Turn a light off in the OpenGL view.
+ * @param lig a pointer to a light.
+ */
+void g3dlight_zero ( G3DLIGHT *lig );
 
-        lig->diffuseColor.r = red;
-        lig->diffuseColor.g = green;
-        lig->diffuseColor.b = blue;
+/**
+ * Free a previously allocated light.
+ * @param lig a pointer to the previously allocated light.
+ */
+void g3dlight_free ( G3DLIGHT *lig );
 
-        g3dui_redrawGLViews ( gui );
-    }
+/**
+ * Draw a light.
+ * @param lig a pointer to a light.
+ * @param cam a pointer to the view's camera.
+ * @param engine_flags the 3D engine flags.
+ * @return the allocated G3DLIGHT.
+ */
+uint32_t g3dlight_draw ( G3DLIGHT  *lig, 
+                         G3DCAMERA *cam,
+                         uint32_t   engine_flags );
+
+/**
+ * Create a new light from an existing one.
+ * @param id the object's ID.
+ * @param name the object's name.
+ * @param engine_flags the 3D engine flags.
+ * @return the cloned G3DLIGHT.
+ */
+G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
+                          uint32_t       id,
+                          unsigned char *name,
+                          uint32_t       engine_flags );
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

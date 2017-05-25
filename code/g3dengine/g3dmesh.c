@@ -879,9 +879,9 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *lfac ) {
     #endif
 
     if ( ltmpfac ) {
-        fac = ( G3DFACE * ) ltmpfac->data;
+        fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
-        ltmpfac = ltmpfac->next;
+        _NEXTFACE(mes,ltmpfac);
     }
 
     #ifdef __linux__
@@ -891,7 +891,7 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *lfac ) {
     #ifdef __MINGW32__
     ReleaseMutex( lock );
     #endif
-
+printf("%08X\n", fac);
 
     return fac;
 }
@@ -1590,10 +1590,10 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
     uint32_t nbfac  = mes->nbfac;
     LIST *ltmpver   = mes->lver;
     LIST *ltmpedg   = mes->ledg;
+    LIST *ltmpfac   = mes->lfac;
     uint32_t verid = 0x00, edgid = 0x00;
     G3DVERTEX **vertab = (G3DVERTEX **) calloc ( nbver, sizeof (G3DVERTEX *) );
     G3DEDGE   **edgtab = (G3DEDGE   **) calloc ( nbedg, sizeof (G3DEDGE   *) );
-    G3DFACE   **factab = (G3DFACE   **) list_to_array ( mes->lfac );
     uint32_t i;
 
     /** duplicated in by g3dobject_copy() */
@@ -1607,7 +1607,7 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
              &((G3DOBJECT*)mes)->bbox, sizeof ( G3DBBOX ) );*/
 
     while ( ltmpver ) {
-        G3DVERTEX *oriver = ( G3DVERTEX * ) ltmpver->data;
+        G3DVERTEX *oriver = _GETVERTEX(mes,ltmpver);
         G3DVERTEX *cpyver = g3dvertex_copy ( oriver, SETPOSITION | SETNORMAL );
 
         g3dmesh_addVertex ( cpymes, cpyver );
@@ -1617,11 +1617,11 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
         /*** indexing ***/
         oriver->id = verid++;
 
-        ltmpver = ltmpver->next;
+        _NEXTVERTEX(mes,ltmpver);
     }
 
     while ( ltmpedg ) {
-        G3DEDGE *oriedg = ( G3DEDGE * ) ltmpedg->data;
+        G3DEDGE *oriedg = ( G3DEDGE * ) _GETEDGE(mes,ltmpedg);
         G3DEDGE *cpyedg = g3dedge_new ( vertab[oriedg->ver[0x00]->id],
                                         vertab[oriedg->ver[0x01]->id] );
 
@@ -1632,12 +1632,12 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
         /*** indexing ***/
         oriedg->id = edgid++;
 
-        ltmpedg = ltmpedg->next;
+        _NEXTEDGE(mes,ltmpedg);
     }
 
     /*** Create faces ***/
-    for ( i = 0x00; i < nbfac; i++ ) {
-        G3DFACE *fac = factab[i];
+    while ( ltmpfac ) {
+        G3DFACE *fac = _GETFACE(mes,ltmpfac);
         G3DVERTEX *ver[0x04] = { vertab[fac->ver[0x00]->id],
                                  vertab[fac->ver[0x01]->id],
                                  vertab[fac->ver[0x02]->id], NULL };
@@ -1650,13 +1650,14 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
         if ( fac->nbver == 0x04 ) edg[0x03] = edgtab[fac->edg[0x03]->id];
 
         g3dmesh_addFace ( cpymes, g3dface_newWithEdges ( ver, edg, fac->nbver ) );
+
+        _NEXTFACE(mes,ltmpfac);
     }
 
     /*** watch out, original mesh could be empty. ***/
     /*** First check mesh is not empty, then free temp data ***/
     if ( vertab ) free ( vertab );
     if ( edgtab ) free ( edgtab );
-    if ( factab ) free ( factab );
 
     g3dmesh_updateBbox ( cpymes );
 

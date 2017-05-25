@@ -430,6 +430,7 @@
 #define MENU_WELDVERTICES         "Weld Selected Vertices"
 #define MENU_DELETELONEVERTICES   "Delete Lone Vertices"
 #define MENU_CONVERTSYMMETRY      "Convert Symmetry"
+#define MENU_SELECTALL            "Select All"
 #define MENU_SELECTTREE           "Select Tree"
 #define MENU_OPTION_ALLTYPES      "All Types"
 #define MENU_OPTION_SAMETYPE      "Same Type"

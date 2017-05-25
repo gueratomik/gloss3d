@@ -392,16 +392,32 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /******************************************************************************/
 #define _GETVERTEX(mes,ltmpver) \
-= (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBVERTEX * ) ltmpver : ltmpver->data;
+(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBVERTEX * ) ltmpver : ltmpver->data;
 
 #define _NEXTVERTEX(mes,ltmpver) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
-    ((G3DSUBVERTEX*)ltmpver)++; \
-    if ( ltmpver == mes->lver + ( mes->nbver * sizeof ( G3DSUBVERTEX ) ) ) { \
+    G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) ltmpver; \
+    ltmpver = ++subver; \
+    if ( ltmpver == ( ( G3DSUBVERTEX * ) mes->lver + mes->nbver ) ) { \
         ltmpver = NULL; \
     } \
 } else { \
     ltmpver = ltmpver->next; \
+}
+
+/******************************************************************************/
+#define _GETEDGE(mes,ltmpedg) \
+(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBEDGE * ) ltmpedg : ltmpedg->data;
+
+#define _NEXTEDGE(mes,ltmpedg) \
+if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
+    G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) ltmpedg; \
+    ltmpedg = ++subedg; \
+    if ( ltmpedg == ( ( G3DSUBEDGE * ) mes->ledg + mes->nbedg ) ) { \
+        ltmpedg = NULL; \
+    } \
+} else { \
+    ltmpedg = ltmpedg->next; \
 }
 
 /******************************************************************************/
@@ -881,14 +897,7 @@ typedef struct _G3DCUTFACE {
 } G3DCUTFACE;
 
 /******************************************************************************/
-typedef struct _G3DLIGHT {
-    G3DOBJECT obj;       /*** Light inherits G3DOBJECT ***/
-    float intensity;  /*** Light intensity          ***/
-    uint32_t lid;        /*** Light ID ***/
-    G3DRGBA diffcol;
-    G3DRGBA speccol;
-    G3DRGBA ambicol;
-} G3DLIGHT;
+#include <g3dengine/g3dlight.h>
 
 /******************************************************************************/
 typedef struct _G3DCATMULLSCHEME {
@@ -1766,13 +1775,6 @@ G3DMESH     *g3dsymmetry_convert  ( G3DSYMMETRY *, LIST **, uint32_t  );
 void         g3dsymmetry_meshChildChange ( G3DSYMMETRY *, G3DMESH * );
 void         g3dsymmetry_childVertexChange ( G3DOBJECT *, G3DOBJECT *, G3DVERTEX * );
 void         g3dsymmetry_setMergeLimit ( G3DSYMMETRY *, float );
-
-/******************************************************************************/
-G3DLIGHT *g3dlight_new  ( uint32_t, char * );
-void      g3dlight_free ( G3DOBJECT * );
-uint32_t  g3dlight_draw ( G3DOBJECT *, G3DCAMERA *, uint32_t );
-void      g3dlight_zero ( G3DLIGHT * );
-void      g3dlight_init ( G3DLIGHT * );
 
 /******************************************************************************/
 G3DPRIMITIVE *g3dprimitive_new     ( uint32_t, char *, void *, uint32_t );

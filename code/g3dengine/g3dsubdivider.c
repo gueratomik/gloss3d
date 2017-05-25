@@ -126,7 +126,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         }
 
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
             uint32_t nbv = fac->nbver;
             uint32_t nbVerticesPerFace = ( nbv == 3 ) ? nbVerticesPerTriangle :
                                                         nbVerticesPerQuad;
@@ -219,7 +219,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 Dump ( &dumpFac, data );
             }
 
-            ltmpfac = ltmpfac->next;
+            _NEXTFACE(mes,ltmpfac);
         }
 
         if ( rtvermem ) free ( rtvermem );
@@ -275,7 +275,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         commitFaces    = ( G3DFACE   ** ) calloc ( nbCommitFac, sizeof ( G3DFACE   * ) );
 
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
             nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
                                                         fac,
@@ -294,7 +294,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                                         SUBDIVISIONCOMMIT,
                                                         engine_flags );
 
-            ltmpfac = ltmpfac->next;
+            _NEXTFACE(mes,ltmpfac);
         }
 
         for ( i = 0x00; i < nbCommitVer; i++ ) {
@@ -749,7 +749,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
         LIST *ltmpfac = mes->lfac;
 
         while ( ltmpfac ) {
-            G3DFACE     *fac      = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE     *fac      = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
             G3DRTVERTEX *rtvermem = NULL;
             G3DRTEDGE   *rtedgmem = NULL;
             G3DRTQUAD   *rtquamem = NULL;
@@ -795,7 +795,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                 unbindMaterials ( mes, fac, rtuvmem, engine_flags );
             }
 
-            ltmpfac = ltmpfac->next;
+            _NEXTFACE(mes,ltmpfac);
         }
     }
 

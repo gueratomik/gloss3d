@@ -63,7 +63,7 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
 
         /*** recompute original vertex split ***/
         while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            G3DVERTEX *ver = _GETVERTEX(mes,ltmpver);
             LIST *ltmpfac = ver->lfac;
 
             wir->modver[((ver->id)*2)+0].ver.pos.x = ver->pos.x + ( ver->nor.x * wir->thickness );
@@ -97,7 +97,7 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
                 ltmpfac = ltmpfac->next;
             }
 
-            ltmpver = ltmpver->next;
+            _NEXTVERTEX(mes,ltmpver);
         }
 
         g3dmesh_update ( (G3DMESH*)wir, NULL,
@@ -257,6 +257,9 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
         LIST *ltmpver = mes->lver;
         LIST *ltmpedg = mes->ledg;
         LIST *ltmpfac = mes->lfac;
+        uint32_t vertexId = 0x00;
+        uint32_t edgeId = 0x00;
+        uint32_t faceId = 0x00;
 
         wir->nbmodver = ( mes->nbver * 0x02 ) +
                         ( mes->nbfac * nbVerPerFace );
@@ -274,7 +277,9 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
         /*** original vertex split ***/
         while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            G3DVERTEX *ver = _GETVERTEX(mes,ltmpver);
+
+            ver->id = vertexId++;
 
             wir->modver[((ver->id)*2)+0].ver.pos.x = ver->pos.x + ( ver->nor.x * wir->thickness );
             wir->modver[((ver->id)*2)+0].ver.pos.y = ver->pos.y + ( ver->nor.y * wir->thickness );
@@ -304,15 +309,17 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
             g3dmesh_addVertex ( (G3DMESH*)wir, (G3DVERTEX*)&wir->modver[((ver->id)*2)+1] );
 
-            ltmpver = ltmpver->next;
+            _NEXTVERTEX(mes,ltmpver);
         }
 
         /*** original edges split ***/
 
         while ( ltmpedg ) {
-            G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+            G3DEDGE *edg = _GETEDGE(mes,ltmpedg);
             uint32_t v0ID = edg->ver[0x00]->id,
                      v1ID = edg->ver[0x01]->id;
+
+            edg->id = edgeId++;
 
             wir->modedg[((edg->id)*2)+0].edg.flags |= EDGEORIGINAL;
             g3dsubedge_init ( &wir->modedg[((edg->id)*2)+0], (G3DVERTEX*)&wir->modver[(v0ID*2)],
@@ -326,13 +333,15 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 
             g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[((edg->id)*2)+1] );
 
-            ltmpedg = ltmpedg->next;
+            _NEXTEDGE(mes,ltmpedg);
         }
 
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE *fac = _GETFACE(mes,ltmpfac);
             uint32_t verOffset, edgOffset, facOffset;
             uint32_t i;
+
+            fac->id = faceId++;
 
             verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
 
@@ -428,7 +437,7 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
                 g3dmesh_addFace ( wir, &modfac[facOffset+(i*0x03)+0] );*/
             }
 
-            ltmpfac = ltmpfac->next;
+            _NEXTFACE(mes,ltmpfac);
         }
 
     }
