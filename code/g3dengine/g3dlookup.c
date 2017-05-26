@@ -63,6 +63,12 @@ void g3dlookup_reset ( G3DLOOKUP *lookup ) {
 }
 
 /******************************************************************************/
+void g3dlookup_init ( G3DLOOKUP *lookup ) {
+    lookup->table = NULL;
+    lookup->rank = 0x00;
+}
+
+/******************************************************************************/
 void g3dlookup_realloc ( G3DLOOKUP *lookup, uint32_t size ) {
     lookup->table = realloc ( lookup->table, size * sizeof ( void * ) * 0x02 );
     lookup->size = size;

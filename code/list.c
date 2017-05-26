@@ -64,18 +64,22 @@ void list_execargdata ( LIST *lis, void (*func) (void *, void *), void *arg ) {
 
 /******************************************************************************/
 void **list_to_array ( LIST *lis ) {
-    int nbnod = list_count ( lis );
-    void **ptr = ( void ** ) calloc ( nbnod, sizeof ( void * ) );
-    int i = 0x00;
+    int    nbnod = list_count ( lis );
+    void **ptr = NULL;
 
-    if ( ptr == NULL ) {
-        fprintf ( stderr, "list_to_array: memory allocation failed\n" );
-    }
+    if ( nbnod ) {
+        ptr = ( void ** ) calloc ( nbnod, sizeof ( void * ) );
+        int i = 0x00;
 
-    while ( lis ) {
-        ptr[i++] = lis->data;
+        if ( ptr == NULL ) {
+            fprintf ( stderr, "list_to_array: memory allocation failed\n" );
+        }
 
-        lis = lis->next;
+        while ( lis ) {
+            ptr[i++] = lis->data;
+
+            lis = lis->next;
+        }
     }
 
     return ptr;   

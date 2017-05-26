@@ -199,6 +199,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
         k = 0x00;
         uint32_t faceID = 0x00;
+        uint32_t edgeID = 0x00;
 
         for ( i = 0x00; i < srv->nbsteps; i++ ) {
             uint32_t n = ( i + 0x01 ) % srv->nbsteps;
@@ -239,9 +240,12 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                             subedg->edg.ver[0x00] = quadVertices[x];
                             subedg->edg.ver[0x01] = quadVertices[y];
+                            subedg->edg.id = edgeID++;
 
-                            g3dsubvertex_addEdge ( subedg->edg.ver[0x00], subedg );
-                            g3dsubvertex_addEdge ( subedg->edg.ver[0x01], subedg );
+                            if ( doTopology ) {
+                                g3dsubvertex_addEdge ( subedg->edg.ver[0x00], subedg );
+                                g3dsubvertex_addEdge ( subedg->edg.ver[0x01], subedg );
+                            }
                         }
 
                         srvFaces[faceID].fac.edg[x] = subedg;
@@ -269,7 +273,8 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                     g3dface_update ( &srvFaces[faceID].fac );
 
-                    faceID++;
+                    srvFaces[faceID].fac.id = 
+                    srvFaces[faceID].fac.typeID = faceID++;
 
                     quadVertices[0] = quadVertices[3];
                     quadVertices[1] = quadVertices[2];

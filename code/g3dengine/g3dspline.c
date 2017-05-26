@@ -346,6 +346,71 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DSPLINEPOINT *pt0,
 }
 
 /******************************************************************************/
+G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline, 
+                            uint32_t       id, 
+                            char          *name, 
+                            uint32_t       engine_flags ) {
+    G3DOBJECT *obj       = ( G3DOBJECT * ) spline;
+    G3DSPLINE *newSpline = g3dspline_new ( id, name, obj->flags, engine_flags );
+    G3DMESH   *mes = ( G3DMESH * ) spline;
+    G3DLOOKUP  pointLookup;
+
+    if ( mes->nbver ) {
+        LIST *ltmpseg = spline->lseg;
+        LIST *ltmpver = mes->lver;
+
+        g3dlookup_init    ( &pointLookup );
+        g3dlookup_realloc ( &pointLookup, mes->nbver );
+
+        while ( ltmpver ) {
+            G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpver->data;
+
+            if ( ( pt->ver.flags & VERTEXHANDLE ) == 0x00 ) {
+                G3DSPLINEPOINT *newPt = g3dsplinepoint_new ( pt->ver.pos.x, 
+                                                             pt->ver.pos.y,
+                                                             pt->ver.pos.z );
+
+                g3dlookup_add ( &pointLookup, pt, newPt );
+
+                g3dmesh_addVertex ( newSpline, newPt );
+            }
+
+            ltmpver = ltmpver->next;
+        }
+
+        while ( ltmpseg ) {
+            G3DSPLINESEGMENT *oriSeg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+            G3DSPLINEPOINT   *oriPt0 = oriSeg->pt[0x00],
+                             *oriPt1 = oriSeg->pt[0x01];
+            G3DCUBICHANDLE   *oriHd0 = oriSeg->pt[0x03]; /* handle 0 */
+            G3DCUBICHANDLE   *oriHd1 = oriSeg->pt[0x02]; /* handle 1 */
+            G3DSPLINEPOINT   *newPt0 = g3dlookup_get( &pointLookup, oriPt0 );
+            G3DSPLINEPOINT   *newPt1 = g3dlookup_get( &pointLookup, oriPt1 );
+            G3DCUBICSEGMENT  *newSeg = g3dcubicsegment_new ( newPt0,
+                                                             newPt1,
+                                                             oriHd0->ver.pos.x,
+                                                             oriHd0->ver.pos.y,
+                                                             oriHd0->ver.pos.z,
+                                                             oriHd1->ver.pos.x,
+                                                             oriHd1->ver.pos.y,
+                                                             oriHd1->ver.pos.z );
+
+
+
+            g3dspline_addSegment ( newSpline, newSeg );
+
+            ltmpseg = ltmpseg->next;
+        }
+
+        newSpline->nbStepsPerSegment = spline->nbStepsPerSegment;
+
+        g3dlookup_freeTable ( &pointLookup );
+    }
+
+    return newSpline;
+}
+
+/******************************************************************************/
 uint32_t g3dspline_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint32_t   engine_flags ) {
@@ -495,7 +560,7 @@ void g3dspline_init ( G3DSPLINE *spline,
                                      FREE_CALLBACK(g3dspline_free),
                                                    NULL,
                                                    NULL,
-                                     COPY_CALLBACK(NULL),
+                                     COPY_CALLBACK(g3dspline_copy),
                                                    NULL,
                                                    NULL,
                                                    NULL,

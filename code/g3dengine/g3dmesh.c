@@ -891,7 +891,6 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *lfac ) {
     #ifdef __MINGW32__
     ReleaseMutex( lock );
     #endif
-printf("%08X\n", fac);
 
     return fac;
 }
@@ -2960,12 +2959,12 @@ void g3dmesh_renumberFaces ( G3DMESH *mes ) {
     uint32_t nb = 0x00, triID = 0x00, quaID = 0x00;
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
         fac->id = nb++;
         fac->typeID = ( fac->nbver == 0x03 ) ? triID++ : quaID++;
 
-        ltmpfac = ltmpfac->next;
+        _NEXTFACE(mes,ltmpfac);
     }
 }
 
@@ -2975,11 +2974,11 @@ void g3dmesh_renumberEdges ( G3DMESH *mes ) {
     uint32_t nb = 0x00;
 
     while ( ltmpedg ) {
-        G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+        G3DEDGE *edg = ( G3DEDGE * ) _GETEDGE(mes,ltmpedg);
 
         edg->id = nb++;
 
-        ltmpedg = ltmpedg->next;
+        _NEXTEDGE(mes,ltmpedg);
     }
 }
 
