@@ -122,6 +122,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
     G3DUVMAP *map = NULL;
     G3DSUBDIVIDER *sdr = NULL;
     G3DWIREFRAME *wrf = NULL;
+    G3DSPLINEREVOLVER *srv = NULL;
     uint16_t chunksig;
     uint32_t chunklen;
     uint32_t grpid;
@@ -701,11 +702,6 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-            } break;
-
-            case SUBDIVIDERLEVELSIG : {
-                readf ( &sdr->subdiv_preview, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &sdr->subdiv_render , sizeof ( uint32_t ), 0x01, fsrc );
 
                 objarr[objid] = obj;
 
@@ -716,6 +712,11 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 /* use append to sort objects in  */
                 /* the same order than when saved */
                 g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case SUBDIVIDERLEVELSIG : {
+                readf ( &sdr->subdiv_preview, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &sdr->subdiv_render , sizeof ( uint32_t ), 0x01, fsrc );
             } break;
 
             case WIREFRAMESIG : {
@@ -728,11 +729,6 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-            } break;
-
-            case WIREFRAMETHICKNESSSIG : {
-                readf ( &wrf->thickness, sizeof ( float ), 0x01, fsrc );
-                readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
 
                 objarr[objid] = obj;
 
@@ -743,6 +739,41 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 /* use append to sort objects in  */
                 /* the same order than when saved */
                 g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case WIREFRAMETHICKNESSSIG : {
+                readf ( &wrf->thickness, sizeof ( float ), 0x01, fsrc );
+                readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
+            } break;
+
+            case SPLINEREVOLVERSIG : {
+                printf ( "SPLINEREVOLVER found\n");
+
+                srv = g3dsplinerevolver_new ( objid, objname );
+
+                obj = ( G3DOBJECT * ) srv;
+
+                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+
+                objarr[objid] = obj;
+
+                if ( objactive ) {
+                    obj->flags &= (~OBJECTINACTIVE);
+                }
+
+                /* use append to sort objects in  */
+                /* the same order than when saved */
+                g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case SPLINEREVOLVERSTEPSSIG : {
+                readf ( &srv->nbsteps, sizeof ( uint32_t ), 0x01, fsrc );
+            } break;
+
+            case SPLINEREVOLVERDIVISSIG : {
+                readf ( &srv->nbdivis, sizeof ( uint32_t ), 0x01, fsrc );
             } break;
 
             case FFDSIG : {

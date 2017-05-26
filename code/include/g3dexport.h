@@ -55,21 +55,23 @@
 #define FILESAVECOMMENT       ( 0x00000002 )
 #define FILESAVEALL           ( 0xFFFFFFFF )
 
-#define OBJECTSAVEIDENTITY    ( 1          )
-#define OBJECTSAVEORIENTATION ( 1   <<   1 )
-#define OBJECTSAVEMESH        ( 1   <<   2 )
-#define OBJECTSAVEPRIMITIVE   ( 1   <<   3 )
-#define OBJECTSAVESYMMETRY    ( 1   <<   4 )
-#define OBJECTSAVELIGHT       ( 1   <<   5 )
-#define OBJECTSAVEBONE        ( 1   <<   6 )
-#define OBJECTSAVESCENE       ( 1   <<   7 )
-#define OBJECTSAVEFFD         ( 1   <<   8 )
-#define OBJECTSAVESUBDIVIDER  ( 1   <<   9 )
-#define OBJECTSAVEWIREFRAME   ( 1   <<  10 )
-#define OBJECTSAVEKEYS        ( 1   <<  11 )
-#define OBJECTSAVEUVMAP       ( 1   <<  12 )
-#define OBJECTSAVECAMERA      ( 1   <<  13 )
-#define OBJECTSAVEALL         ( 0xFFFFFFFF )
+#define OBJECTSAVEIDENTITY        ( 1          )
+#define OBJECTSAVEORIENTATION     ( 1   <<   1 )
+#define OBJECTSAVEMESH            ( 1   <<   2 )
+#define OBJECTSAVEPRIMITIVE       ( 1   <<   3 )
+#define OBJECTSAVESYMMETRY        ( 1   <<   4 )
+#define OBJECTSAVELIGHT           ( 1   <<   5 )
+#define OBJECTSAVEBONE            ( 1   <<   6 )
+#define OBJECTSAVESCENE           ( 1   <<   7 )
+#define OBJECTSAVEFFD             ( 1   <<   8 )
+#define OBJECTSAVESUBDIVIDER      ( 1   <<   9 )
+#define OBJECTSAVEWIREFRAME       ( 1   <<  10 )
+#define OBJECTSAVEKEYS            ( 1   <<  11 )
+#define OBJECTSAVEUVMAP           ( 1   <<  12 )
+#define OBJECTSAVECAMERA          ( 1   <<  13 )
+#define OBJECTSAVESPLINEREVOLVER  ( 1   <<  14 )
+#define OBJECTSAVESPLINE          ( 1   <<  15 )
+#define OBJECTSAVEALL             ( 0xFFFFFFFF )
 
 #define KEYSSAVEPOS           ( 0x00000001 )
 #define KEYSSAVEFUNC          ( 0x00000002 )
@@ -86,6 +88,11 @@
 #define MESHSAVEWEIGHTGROUPS  ( 0x00000004 )
 #define MESHSAVEHEIGHTMAPS    ( 0x00000008 )
 #define MESHSAVEALL           ( 0xFFFFFFFF )
+
+#define SPLINESAVEGEOMETRY    ( 0x00000001 )
+#define SPLINESAVEVERTICES    ( 0x00000002 )
+#define SPLINESAVESEGMENTS    ( 0x00000004 )
+#define SPLINESAVEALL         ( 0xFFFFFFFF )
 
 #define SYMMETRYSAVEALL       ( 0xFFFFFFFF ) /*** not used ***/
 
@@ -202,6 +209,11 @@
 #define GEOTRIANGLES       0x3120
 #define GEOQUADS           0x3130
 
+#define SPLINESIG          0x9000
+#define SPLINEGEOSIG       0x9100
+#define SPLINEVERTICESSIG  0x9110
+#define SPLINESEGMENTSSIG  0x9120
+
 #define PRIMSIG            0x4000
 #define SPHERESIG          0x4100
 #define TORUSSIG           0x4200
@@ -228,6 +240,10 @@
 
 #define SUBDIVIDERSIG      0x8200
 #define SUBDIVIDERLEVELSIG 0x8210
+
+#define SPLINEREVOLVERSIG      0x8400
+#define SPLINEREVOLVERSTEPSSIG 0x8420
+#define SPLINEREVOLVERDIVISSIG 0x8430
 
 #define WIREFRAMESIG          0x8300
 #define WIREFRAMEALGOSIG      0x8310

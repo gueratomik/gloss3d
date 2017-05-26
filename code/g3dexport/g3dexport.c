@@ -227,6 +227,15 @@ OBJECT(0x2000)
                     uint32_t[WeightGroupID],
                     double[16][BindMatrix],
                     double[16][SkinMatrix] )
+--- SPLINE(0x9000)
+------- SPLINEGEOMETRY(0x9100)
+----------- SPLINEVERTICES(0x9110)
+--------------- Number of Vertices  ( uint32_t )
+--------------- Array ( float-float-float-uint32_t )
+----------- SPLINESEGMENTS(0x9120)
+--------------- Number of Segments ( uint32_t )
+--------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
+
 --- FFD(0x8100)
 ------- FFDSHAPE (0x8110)
 ----------- uint32_t nbx
@@ -254,6 +263,12 @@ OBJECT(0x2000)
 ------- WIREFRAMETHICKNESS(0x8320)
 ----------- float thickness
 ----------- float aperture
+
+--- SPLINEREVOLVER(0x8400)
+------- STEPS (0x8410)
+----------- uint32_t steps
+------- DIVIS (0x8420)
+----------- uint32_t divis
 
 --- CAMERA(0xA000)
 ------- CAMERAFOCAL (0xA100)
@@ -310,6 +325,53 @@ static void subdivider_writeblock ( G3DSUBDIVIDER *sdr, FILE *fdst ) {
 
 
 
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+static void splinerevolversteps_writeblock ( G3DSPLINEREVOLVER *srv, 
+                                             FILE              *fdst ) {
+    writef ( &srv->nbsteps, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void splinerevolverdivis_writeblock ( G3DSPLINEREVOLVER *srv, 
+                                             FILE              *fdst ) {
+    writef ( &srv->nbdivis, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t splinerevolversteps_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static uint32_t splinerevolverdivis_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static void splinerevolver_writeblock ( G3DSPLINEREVOLVER *srv, FILE *fdst ) {
+    chunk_write ( SPLINEREVOLVERSTEPSSIG, splinerevolversteps_blocksize ( ), fdst );
+    splinerevolversteps_writeblock ( srv, fdst );
+
+    chunk_write ( SPLINEREVOLVERDIVISSIG, splinerevolverdivis_blocksize ( ), fdst );
+    splinerevolverdivis_writeblock ( srv, fdst );
+}
+
+/******************************************************************************/
+static uint32_t splinerevolver_blocksize ( ) {
+    uint32_t blocksize = 0x00;
+
+    blocksize += splinerevolversteps_blocksize ( ) + 0x06;
+    blocksize += splinerevolverdivis_blocksize ( ) + 0x06;
+
+    return blocksize;
+}
+
+
+
+/******************************************************************************/
+/******************************************************************************/
 /******************************************************************************/
 static uint32_t wireframealgo_blocksize ( ) {
     return sizeof ( uint32_t );
@@ -2037,6 +2099,100 @@ static void bone_writeblock ( G3DBONE *bon, uint32_t flags, FILE *fdst ) {
 }
 
 /******************************************************************************/
+static uint32_t segments_blocksize ( uint32_t nbseg ) {
+    return sizeof ( uint32_t ) * 0x04;
+}
+
+/******************************************************************************/
+static void segments_writeblock ( uint32_t nbseg, 
+                                          LIST    *lseg, 
+                                          FILE    *fdst ) {
+    LIST *ltmpseg = lseg;
+
+    writef ( &nbseg, sizeof ( uint32_t ), 0x01, fdst );
+
+    while ( ltmpseg ) {
+        G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+
+        /* points */
+        writef ( &seg->pt[0x00]->id, sizeof ( uint32_t ), 0x01, fdst );
+        writef ( &seg->pt[0x01]->id, sizeof ( uint32_t ), 0x01, fdst );
+ 
+        /* handles */
+        writef ( &seg->pt[0x03]->id, sizeof ( uint32_t ), 0x01, fdst );
+        writef ( &seg->pt[0x02]->id, sizeof ( uint32_t ), 0x01, fdst );
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+static uint32_t splinegeometry_blocksize ( G3DSPLINE *spline, 
+                                           uint32_t   flags ) {
+    G3DMESH *mes = ( G3DMESH * ) spline;
+    uint32_t blocksize = 0x00;
+
+    if ( flags & SPLINESAVEVERTICES ) {
+        blocksize += vertices_blocksize ( mes->nbver ) + 0x06;
+    }
+
+    if ( flags & SPLINESAVESEGMENTS ) {
+        blocksize += segments_blocksize ( spline->nbseg ) + 0x06;
+    }
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static uint32_t spline_blocksize ( G3DSPLINE *spline, 
+                                   uint32_t   flags ) {
+    uint32_t blocksize = 0x00;
+
+    if ( flags & SPLINESAVEGEOMETRY ) {
+        blocksize += splinegeometry_blocksize ( spline, flags ) + 0x06;
+    }
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void splinegeometry_writeblock ( G3DSPLINE *spline, 
+                                        uint32_t   flags, 
+                                        FILE      *fdst ) {
+    if ( flags & SPLINESAVEVERTICES ) {
+        G3DMESH *mes = ( G3DMESH * ) spline;
+        uint32_t blocksize = vertices_blocksize ( mes->nbver );
+
+        chunk_write ( SPLINEVERTICESSIG, blocksize, fdst );
+
+        vertices_writeblock ( mes->nbver, mes->lver, fdst );
+    }
+
+    if ( flags & SPLINESAVESEGMENTS ) {
+        G3DMESH *mes = ( G3DMESH * ) spline;
+        uint32_t blocksize = segments_blocksize ( spline->nbseg );
+
+        chunk_write ( SPLINESEGMENTSSIG, blocksize, fdst );
+
+        segments_writeblock ( spline->nbseg, spline->lseg, fdst );
+    }
+}
+
+/******************************************************************************/
+static void spline_writeblock ( G3DSPLINE *spline, 
+                                uint32_t   flags, 
+                                FILE      *fdst ) {
+    if ( flags & SPLINESAVEGEOMETRY ) {
+        G3DMESH *mes = ( G3DMESH * ) spline;
+        uint32_t blocksize = splinegeometry_blocksize ( spline, flags );
+
+        chunk_write ( SPLINEGEOSIG, blocksize, fdst );
+
+        splinegeometry_writeblock ( spline, flags, fdst );
+    }
+}
+
+/******************************************************************************/
 static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
     /*g3dmesh_renumberFaces ( mes );*/
 
@@ -2309,6 +2465,22 @@ static void object_writeblock ( G3DOBJECT *obj,
 
         chunk_write ( SUBDIVIDERSIG, blocksize, fdst );
         subdivider_writeblock ( sdr, fdst );
+    }
+
+    if ( ( obj->type == G3DSPLINEREVOLVERTYPE ) && ( flags & OBJECTSAVESPLINEREVOLVER ) ) {
+        uint32_t blocksize = splinerevolver_blocksize ( ( G3DSPLINEREVOLVER * ) obj );
+        G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) obj;
+
+        chunk_write ( SPLINEREVOLVERSIG, blocksize, fdst );
+        splinerevolver_writeblock ( srv, fdst );
+    }
+
+    if ( ( obj->type == G3DSPLINETYPE ) && ( flags & OBJECTSAVESPLINE ) ) {
+        uint32_t blocksize = spline_blocksize ( ( G3DSPLINE * ) obj, SPLINESAVEALL );
+        G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+
+        chunk_write ( SPLINESIG, blocksize, fdst );
+        spline_writeblock ( spline, SPLINESAVEALL, fdst );
     }
 
     if ( ( obj->type == G3DUVMAPTYPE ) && ( flags & OBJECTSAVEUVMAP ) ) {
