@@ -227,14 +227,16 @@ OBJECT(0x2000)
                     uint32_t[WeightGroupID],
                     double[16][BindMatrix],
                     double[16][SkinMatrix] )
---- SPLINE(0x9000)
-------- SPLINEGEOMETRY(0x9100)
------------ SPLINEVERTICES(0x9110)
+--- SPLINE(0xB100)
+------- SPLINEGEOMETRY(0xB110)
+----------- SPLINEVERTICES(0xB111)
 --------------- Number of Vertices  ( uint32_t )
 --------------- Array ( float-float-float-uint32_t )
------------ SPLINESEGMENTS(0x9120)
+----------- SPLINESEGMENTS(0xB112)
 --------------- Number of Segments ( uint32_t )
---------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
+--------------- Array ( uint32_t-uint32_t ) /* vertex refs */
+--------------- Array ( float-float-float ) /* handle 1 */
+--------------- Array ( float-float-float ) /* handle 2 */
 
 --- FFD(0x8100)
 ------- FFDSHAPE (0x8110)
@@ -1602,6 +1604,28 @@ static void vertices_writeblock ( uint32_t nbver, LIST *lver, FILE *fdst ) {
 }
 
 /******************************************************************************/
+static void splinevertices_writeblock ( uint32_t nbver, LIST *lver, FILE *fdst ) {
+    uint32_t vid = 0x00;
+
+    writef ( &nbver, sizeof ( uint32_t ), 0x01, fdst );
+
+    while ( lver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
+  
+        if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
+            ver->id = vid++;
+
+            writef ( &ver->pos.x, sizeof ( float    ), 0x01, fdst );
+            writef ( &ver->pos.y, sizeof ( float    ), 0x01, fdst );
+            writef ( &ver->pos.z, sizeof ( float    ), 0x01, fdst );
+            writef ( &ver->flags, sizeof ( uint32_t ), 0x01, fdst );
+        }
+
+        lver = lver->next;
+    }
+}
+
+/******************************************************************************/
 static void geometry_writeblock ( uint32_t nbver,
                                   uint32_t nbtri,
                                   uint32_t nbqua,
@@ -2119,8 +2143,13 @@ static void segments_writeblock ( uint32_t nbseg,
         writef ( &seg->pt[0x01]->id, sizeof ( uint32_t ), 0x01, fdst );
  
         /* handles */
-        writef ( &seg->pt[0x03]->id, sizeof ( uint32_t ), 0x01, fdst );
-        writef ( &seg->pt[0x02]->id, sizeof ( uint32_t ), 0x01, fdst );
+        writef ( &seg->pt[0x03]->pos.x, sizeof ( float ), 0x01, fdst );
+        writef ( &seg->pt[0x03]->pos.y, sizeof ( float ), 0x01, fdst );
+        writef ( &seg->pt[0x03]->pos.z, sizeof ( float ), 0x01, fdst );
+
+        writef ( &seg->pt[0x02]->pos.x, sizeof ( float ), 0x01, fdst );
+        writef ( &seg->pt[0x02]->pos.y, sizeof ( float ), 0x01, fdst );
+        writef ( &seg->pt[0x02]->pos.z, sizeof ( float ), 0x01, fdst );
 
         ltmpseg = ltmpseg->next;
     }
@@ -2161,11 +2190,12 @@ static void splinegeometry_writeblock ( G3DSPLINE *spline,
                                         FILE      *fdst ) {
     if ( flags & SPLINESAVEVERTICES ) {
         G3DMESH *mes = ( G3DMESH * ) spline;
-        uint32_t blocksize = vertices_blocksize ( mes->nbver );
+        uint32_t nbver = mes->nbver - ( spline->nbseg * 2 );
+        uint32_t blocksize = vertices_blocksize ( nbver );
 
         chunk_write ( SPLINEVERTICESSIG, blocksize, fdst );
 
-        vertices_writeblock ( mes->nbver, mes->lver, fdst );
+        splinevertices_writeblock ( nbver, mes->lver, fdst );
     }
 
     if ( flags & SPLINESAVESEGMENTS ) {

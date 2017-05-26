@@ -209,10 +209,10 @@
 #define GEOTRIANGLES       0x3120
 #define GEOQUADS           0x3130
 
-#define SPLINESIG          0x9000
-#define SPLINEGEOSIG       0x9100
-#define SPLINEVERTICESSIG  0x9110
-#define SPLINESEGMENTSSIG  0x9120
+#define SPLINESIG          0xB100
+#define SPLINEGEOSIG       0xB110
+#define SPLINEVERTICESSIG  0xB111
+#define SPLINESEGMENTSSIG  0xB112
 
 #define PRIMSIG            0x4000
 #define SPHERESIG          0x4100

@@ -31,28 +31,7 @@
 
 /******************************************************************************/
 void g3dscene_updateMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
-    LIST *lmes = NULL;
-    LIST *ltmpmes;
-
-    g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, G3DMESHTYPE, &lmes );
-
-    ltmpmes = lmes;
-
-    while ( ltmpmes ) {
-        G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
-
-            /*** Rebuild mesh ***/
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  UPDATEVERTEXNORMAL |
-                                  UPDATEFACENORMAL |
-                                  RESETMODIFIERS, engine_flags );
-
-        ltmpmes = ltmpmes->next;
-    }
-
-    list_free ( &lmes, NULL );
+    g3dobject_updateMeshes_r ( sce, engine_flags );
 }
 
 /******************************************************************************/

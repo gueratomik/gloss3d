@@ -123,6 +123,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
     G3DSUBDIVIDER *sdr = NULL;
     G3DWIREFRAME *wrf = NULL;
     G3DSPLINEREVOLVER *srv = NULL;
+    G3DSPLINE *spline = NULL;
     uint16_t chunksig;
     uint32_t chunklen;
     uint32_t grpid;
@@ -746,6 +747,104 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
             } break;
 
+            case SPLINESIG : {
+                printf ( "SPLINE found\n");
+
+                spline = g3dspline_new ( objid, objname, CUBIC, flags );
+
+                obj = ( G3DOBJECT * ) spline;
+
+                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+
+                objarr[objid] = obj;
+
+                if ( objactive ) {
+                    obj->flags &= (~OBJECTINACTIVE);
+                }
+
+                /* use append to sort objects in  */
+                /* the same order than when saved */
+                g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case SPLINEGEOSIG : {
+                printf ( "SPLINE geometry found\n");
+            } break;
+
+            case SPLINEVERTICESSIG : {
+                uint32_t nbver;
+                uint32_t i;
+
+                printf ( "SPLINE vertices found\n");
+
+                readf ( &nbver, sizeof ( uint32_t ), 0x01, fsrc );
+
+                printf("NB Vertices = %d\n", nbver );
+
+                if ( nbver ) {
+                    float (*pos)[4] = (float(*)[4]) calloc ( nbver * 0x04,
+                                                             sizeof ( float ) );
+
+                    ver = ( G3DVERTEX ** ) realloc ( ver, nbver * 
+                                                     sizeof ( G3DVERTEX * ) );
+
+                    if ( pos ) {
+                        uint32_t vertex_flags;
+
+                        readf ( pos, sizeof ( float ), nbver * 0x04, fsrc );
+
+                        for ( i = 0x00; i < nbver; i++ ) {
+                            ver[i] = g3dsplinepoint_new ( pos[i][0x00], 
+                                                          pos[i][0x01],
+                                                          pos[i][0x02]);
+                            g3dmesh_addVertex ( spline, ver[i] );
+                        }
+
+                        free ( pos );
+                    }
+                }
+            } break;
+
+            case SPLINESEGMENTSSIG : {
+                uint32_t nbseg;
+                uint32_t i;
+
+                printf ( "SPLINE segments found\n");
+
+                readf ( &nbseg, sizeof ( uint32_t ), 0x01, fsrc );
+
+                printf("NB Segments = %d\n", nbseg );
+
+                if ( nbseg ) {
+                    for ( i = 0x00; i < nbseg; i++ ) {
+                        float posHandle[0x02][0x03];
+                        G3DCUBICSEGMENT *seg;
+                        uint32_t v0id, v1id;
+
+                        readf ( &v0id, sizeof ( uint32_t ), 1, fsrc );
+                        readf ( &v1id, sizeof ( uint32_t ), 1, fsrc );
+
+                        readf ( posHandle, sizeof ( posHandle ), 1, fsrc );
+
+                        seg = g3dcubicsegment_new ( ver[v0id], 
+                                                    ver[v1id],
+                                                    posHandle[0x00][0x00],
+                                                    posHandle[0x00][0x01],
+                                                    posHandle[0x00][0x02],
+                                                    posHandle[0x01][0x00],
+                                                    posHandle[0x01][0x01],
+                                                    posHandle[0x01][0x02] );
+
+                        g3dspline_addSegment ( spline, seg );
+                    }
+                }
+
+                if ( ver ) free ( ver );
+                ver = NULL;
+            } break;
+
             case SPLINEREVOLVERSIG : {
                 printf ( "SPLINEREVOLVER found\n");
 
@@ -1275,9 +1374,16 @@ printf("NB Quds = %d\n", nbqua );
 
     printf ( "Import finished\n" );
 
+    /* apply modifiers, compute normals */
+    g3dobject_updateMeshes_r ( sce, flags );
+
+    /*
+     * Placing g3dobject_updateMatrix_r might result in some func called twice
+     * like g3dsplinerevolver_shape(), which is called during the transform
+     * and the g3dscene_updateMeshes() operation 
+     */
     g3dobject_updateMatrix_r ( sce, 0x00 );
 
-    g3dscene_updateMeshes ( sce, flags );
 
     return sce;
 }

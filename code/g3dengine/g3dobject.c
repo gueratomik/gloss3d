@@ -30,6 +30,30 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( ( child->type == G3DMESHTYPE   ) ||
+             ( child->type == G3DSPLINETYPE ) ) {
+            G3DMESH *mes = ( G3DMESH * ) child;
+
+            /*** Rebuild mesh ***/
+            g3dmesh_update ( mes, NULL,
+                                  NULL,
+                                  NULL,
+                                  UPDATEVERTEXNORMAL |
+                                  UPDATEFACENORMAL |
+                                  RESETMODIFIERS, engine_flags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
 void g3dobject_renumber_r ( G3DOBJECT *obj, uint32_t *id ) {
     LIST *ltmpchildren = obj->lchildren;
     obj->id = (*id)++;

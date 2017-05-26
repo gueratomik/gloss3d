@@ -110,183 +110,185 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         static G3DSUBEDGE *edgeLookupTable[0x400][0x400];
         uint32_t uniqueVertexId = 0x00;
 
-        /* 
-         * The simpliest solution for finding edges is to go with a lookup 
-         * table.
-         */
-        memset ( edgeLookupTable, 0x00, sizeof ( edgeLookupTable ) );
+        if ( nbRevolvedVertices && nbRevolvedEdges && nbRevolvedFaces ) {
+            /* 
+             * The simpliest solution for finding edges is to go with a lookup 
+             * table.
+             */
+            memset ( edgeLookupTable, 0x00, sizeof ( edgeLookupTable ) );
 
-        srvVertices = srvmes->lver = realloc ( srvmes->lver, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
-        srvEdges    = srvmes->ledg = realloc ( srvmes->ledg, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
-        srvFaces    = srvmes->lfac = realloc ( srvmes->lfac, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
+            srvVertices = srvmes->lver = realloc ( srvmes->lver, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
+            srvEdges    = srvmes->ledg = realloc ( srvmes->ledg, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
+            srvFaces    = srvmes->lfac = realloc ( srvmes->lfac, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
 
-        g3dmesh_setGeometryInArrays ( srvmes, srvmes->lver, 
-                                              nbRevolvedVertices,
-                                              srvmes->ledg,
-                                              nbRevolvedEdges,
-                                              srvmes->lfac,
-                                              0x00,
-                                              nbRevolvedFaces );
+            g3dmesh_setGeometryInArrays ( srvmes, srvmes->lver, 
+                                                  nbRevolvedVertices,
+                                                  srvmes->ledg,
+                                                  nbRevolvedEdges,
+                                                  srvmes->lfac,
+                                                  0x00,
+                                                  nbRevolvedFaces );
 
-        if ( doTopology ) {
-            memset ( srvVertices, 0x00, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
-            memset ( srvEdges   , 0x00, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
-            memset ( srvFaces   , 0x00, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
-        }
-
-        for ( i = 0x00; i < srv->nbsteps; i++ ) {
-            uint32_t n = ( i + 0x01 ) % srv->nbsteps;
-            double RMX[0x10];
-
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            glRotatef ( (float ) 360 / srv->nbsteps * i, 0.0f, 1.0f, 0.0f );
-            /*glRotatef ( rot.y, 0.0f, 1.0f, 0.0f );
-            glRotatef ( rot.z, 0.0f, 0.0f, 1.0f );*/
-            glGetDoublev ( GL_MODELVIEW_MATRIX, RMX );
-            glPopMatrix ( );
-
-            LIST *ltmpver = splmes->lver;
-            uint32_t vertexID = 0x00;
-            while ( ltmpver ) {
-                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-                if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
-                    uint32_t offset = ( i * nbSplineVertices ) + vertexID;
-                    G3DVECTOR  vertexLocalPos;
-
-                    g3dvector_matrix ( &ver->pos, srvobj->lmatrix, &vertexLocalPos );
-                    g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
-
-                    srvVertices[offset].ver.id = uniqueVertexId++;
-                    srvVertices[offset].ver.flags |= VERTEXORIGINAL;
-
-                    ver->id = vertexID++;
-                }
-
-                ltmpver = ltmpver->next;
+            if ( doTopology ) {
+                memset ( srvVertices, 0x00, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
+                memset ( srvEdges   , 0x00, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
+                memset ( srvFaces   , 0x00, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
             }
 
-            LIST *ltmpseg = spl->lseg;
-            uint32_t segmentID = 0x00;
-            while ( ltmpseg ) {
-                G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
-                float incrementFactor = 1.0f / ( srv->nbdivis + 1 );
-                float factor = incrementFactor;
+            for ( i = 0x00; i < srv->nbsteps; i++ ) {
+                uint32_t n = ( i + 0x01 ) % srv->nbsteps;
+                double RMX[0x10];
 
-                for ( j = 0x00; j < srv->nbdivis; j++ ) {
-                    uint32_t offset = ( nbSplineVertices * srv->nbsteps ) +
-                                      ( nbSplineSegments * srv->nbdivis * i ) +
-                                      ( segmentID        * srv->nbdivis ) + j;
-                    G3DVECTOR  vertexLocalPos;
-                    G3DVECTOR  verpos;
+                glPushMatrix ( );
+                glLoadIdentity ( );
+                glRotatef ( (float ) 360 / srv->nbsteps * i, 0.0f, 1.0f, 0.0f );
+                /*glRotatef ( rot.y, 0.0f, 1.0f, 0.0f );
+                glRotatef ( rot.z, 0.0f, 0.0f, 1.0f );*/
+                glGetDoublev ( GL_MODELVIEW_MATRIX, RMX );
+                glPopMatrix ( );
 
-                    g3dcubicsegment_getPoint ( seg, factor, &verpos );
+                LIST *ltmpver = splmes->lver;
+                uint32_t vertexID = 0x00;
+                while ( ltmpver ) {
+                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                    factor += incrementFactor;
+                    if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
+                        uint32_t offset = ( i * nbSplineVertices ) + vertexID;
+                        G3DVECTOR  vertexLocalPos;
 
-                    g3dvector_matrix ( &verpos, srvobj->lmatrix, &vertexLocalPos );
-                    g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
+                        g3dvector_matrix ( &ver->pos, srvobj->lmatrix, &vertexLocalPos );
+                        g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
 
-                    srvVertices[offset].ver.id = uniqueVertexId++;
-                    srvVertices[offset].ver.flags |= VERTEXORIGINAL;
-                }
+                        srvVertices[offset].ver.id = uniqueVertexId++;
+                        srvVertices[offset].ver.flags |= VERTEXORIGINAL;
 
-                segmentID++;
-                ltmpseg = ltmpseg->next;
-            }
-        }
-
-        k = 0x00;
-        uint32_t faceID = 0x00;
-        uint32_t edgeID = 0x00;
-
-        for ( i = 0x00; i < srv->nbsteps; i++ ) {
-            uint32_t n = ( i + 0x01 ) % srv->nbsteps;
-            LIST *ltmpseg = spl->lseg;
-            uint32_t segmentID = 0x00;
-
-            while ( ltmpseg ) {
-                G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
-                G3DSUBVERTEX *quadVertices[0x04] = { &srvVertices[(i*nbSplineVertices) + csg->seg.pt[0]->id], 
-                                                     &srvVertices[(n*nbSplineVertices) + csg->seg.pt[0]->id],
-                                                      NULL,
-                                                      NULL };
-
-                for ( j = 0x00; j <= srv->nbdivis; j++ ) {
-                    uint32_t x;
-
-                    if ( j == srv->nbdivis ) {
-                        quadVertices[2] = &srvVertices[(n*nbSplineVertices) + csg->seg.pt[1]->id];
-                        quadVertices[3] = &srvVertices[(i*nbSplineVertices) + csg->seg.pt[1]->id];
-                    } else {
-                        quadVertices[2] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * n ) + ( segmentID * srv->nbdivis ) + j];
-                        quadVertices[3] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * i ) + ( segmentID * srv->nbdivis ) + j];
+                        ver->id = vertexID++;
                     }
 
-                    for ( x = 0x00; x < 0x04; x++ ) {
-                        uint32_t y = ( x + 0x01 ) % 0x04;
-                        uint32_t voneId = quadVertices[x]->ver.id,
-                                 vtwoId = quadVertices[y]->ver.id;
-                        G3DSUBEDGE *subedg = edgeLookupTable[voneId][vtwoId];
+                    ltmpver = ltmpver->next;
+                }
 
-                        if ( subedg == NULL ) {
-                            subedg = srvEdges++;
+                LIST *ltmpseg = spl->lseg;
+                uint32_t segmentID = 0x00;
+                while ( ltmpseg ) {
+                    G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+                    float incrementFactor = 1.0f / ( srv->nbdivis + 1 );
+                    float factor = incrementFactor;
 
-                            edgeLookupTable[quadVertices[x]->ver.id]
-                                           [quadVertices[y]->ver.id] = 
-                            edgeLookupTable[quadVertices[y]->ver.id]
-                                           [quadVertices[x]->ver.id] = subedg;
+                    for ( j = 0x00; j < srv->nbdivis; j++ ) {
+                        uint32_t offset = ( nbSplineVertices * srv->nbsteps ) +
+                                          ( nbSplineSegments * srv->nbdivis * i ) +
+                                          ( segmentID        * srv->nbdivis ) + j;
+                        G3DVECTOR  vertexLocalPos;
+                        G3DVECTOR  verpos;
 
-                            subedg->edg.ver[0x00] = quadVertices[x];
-                            subedg->edg.ver[0x01] = quadVertices[y];
-                            subedg->edg.id = edgeID++;
+                        g3dcubicsegment_getPoint ( seg, factor, &verpos );
 
-                            if ( doTopology ) {
-                                g3dsubvertex_addEdge ( subedg->edg.ver[0x00], subedg );
-                                g3dsubvertex_addEdge ( subedg->edg.ver[0x01], subedg );
-                            }
+                        factor += incrementFactor;
+
+                        g3dvector_matrix ( &verpos, srvobj->lmatrix, &vertexLocalPos );
+                        g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
+
+                        srvVertices[offset].ver.id = uniqueVertexId++;
+                        srvVertices[offset].ver.flags |= VERTEXORIGINAL;
+                    }
+
+                    segmentID++;
+                    ltmpseg = ltmpseg->next;
+                }
+            }
+
+            k = 0x00;
+            uint32_t faceID = 0x00;
+            uint32_t edgeID = 0x00;
+
+            for ( i = 0x00; i < srv->nbsteps; i++ ) {
+                uint32_t n = ( i + 0x01 ) % srv->nbsteps;
+                LIST *ltmpseg = spl->lseg;
+                uint32_t segmentID = 0x00;
+
+                while ( ltmpseg ) {
+                    G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
+                    G3DSUBVERTEX *quadVertices[0x04] = { &srvVertices[(i*nbSplineVertices) + csg->seg.pt[0]->id], 
+                                                         &srvVertices[(n*nbSplineVertices) + csg->seg.pt[0]->id],
+                                                          NULL,
+                                                          NULL };
+
+                    for ( j = 0x00; j <= srv->nbdivis; j++ ) {
+                        uint32_t x;
+
+                        if ( j == srv->nbdivis ) {
+                            quadVertices[2] = &srvVertices[(n*nbSplineVertices) + csg->seg.pt[1]->id];
+                            quadVertices[3] = &srvVertices[(i*nbSplineVertices) + csg->seg.pt[1]->id];
+                        } else {
+                            quadVertices[2] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * n ) + ( segmentID * srv->nbdivis ) + j];
+                            quadVertices[3] = &srvVertices[(srv->nbsteps*nbSplineVertices) + ( nbSplineSegments * srv->nbdivis * i ) + ( segmentID * srv->nbdivis ) + j];
                         }
 
-                        srvFaces[faceID].fac.edg[x] = subedg;
+                        for ( x = 0x00; x < 0x04; x++ ) {
+                            uint32_t y = ( x + 0x01 ) % 0x04;
+                            uint32_t voneId = quadVertices[x]->ver.id,
+                                     vtwoId = quadVertices[y]->ver.id;
+                            G3DSUBEDGE *subedg = edgeLookupTable[voneId][vtwoId];
+
+                            if ( subedg == NULL ) {
+                                subedg = srvEdges++;
+
+                                edgeLookupTable[quadVertices[x]->ver.id]
+                                               [quadVertices[y]->ver.id] = 
+                                edgeLookupTable[quadVertices[y]->ver.id]
+                                               [quadVertices[x]->ver.id] = subedg;
+
+                                subedg->edg.ver[0x00] = quadVertices[x];
+                                subedg->edg.ver[0x01] = quadVertices[y];
+                                subedg->edg.id = edgeID++;
+
+                                if ( doTopology ) {
+                                    g3dsubvertex_addEdge ( subedg->edg.ver[0x00], subedg );
+                                    g3dsubvertex_addEdge ( subedg->edg.ver[0x01], subedg );
+                                }
+                            }
+
+                            srvFaces[faceID].fac.edg[x] = subedg;
+                        }
+
+                        srvFaces[faceID].fac.ver[0x00] = quadVertices[0x00];
+                        srvFaces[faceID].fac.ver[0x01] = quadVertices[0x01];
+                        srvFaces[faceID].fac.ver[0x02] = quadVertices[0x02];
+                        srvFaces[faceID].fac.ver[0x03] = quadVertices[0x03];
+
+                        if ( doTopology ) {
+                            g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x00], &srvFaces[faceID].fac );
+                            g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x01], &srvFaces[faceID].fac );
+                            g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x02], &srvFaces[faceID].fac );
+                            g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x03], &srvFaces[faceID].fac );
+
+
+                            g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x00], &srvFaces[faceID].fac );
+                            g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x01], &srvFaces[faceID].fac );
+                            g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x02], &srvFaces[faceID].fac );
+                            g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x03], &srvFaces[faceID].fac );
+                        }
+
+                        srvFaces[faceID].fac.nbver = 0x04;
+
+                        g3dface_update ( &srvFaces[faceID].fac );
+
+                        srvFaces[faceID].fac.id = 
+                        srvFaces[faceID].fac.typeID = faceID++;
+
+                        quadVertices[0] = quadVertices[3];
+                        quadVertices[1] = quadVertices[2];
                     }
 
-                    srvFaces[faceID].fac.ver[0x00] = quadVertices[0x00];
-                    srvFaces[faceID].fac.ver[0x01] = quadVertices[0x01];
-                    srvFaces[faceID].fac.ver[0x02] = quadVertices[0x02];
-                    srvFaces[faceID].fac.ver[0x03] = quadVertices[0x03];
-
-                    if ( doTopology ) {
-                        g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x00], &srvFaces[faceID].fac );
-                        g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x01], &srvFaces[faceID].fac );
-                        g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x02], &srvFaces[faceID].fac );
-                        g3dsubvertex_addFace ( srvFaces[faceID].fac.ver[0x03], &srvFaces[faceID].fac );
-
-
-                        g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x00], &srvFaces[faceID].fac );
-                        g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x01], &srvFaces[faceID].fac );
-                        g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x02], &srvFaces[faceID].fac );
-                        g3dsubedge_addFace ( srvFaces[faceID].fac.edg[0x03], &srvFaces[faceID].fac );
-                    }
-
-                    srvFaces[faceID].fac.nbver = 0x04;
-
-                    g3dface_update ( &srvFaces[faceID].fac );
-
-                    srvFaces[faceID].fac.id = 
-                    srvFaces[faceID].fac.typeID = faceID++;
-
-                    quadVertices[0] = quadVertices[3];
-                    quadVertices[1] = quadVertices[2];
+                    segmentID++;
+                    ltmpseg = ltmpseg->next;
                 }
-
-                segmentID++;
-                ltmpseg = ltmpseg->next;
             }
-        }
 
-        for ( i = 0x00; i < srvmes->nbver; i++ ) {
-            g3dvertex_normal ( &srvVertices[i].ver, COMPUTEEDGEPOINT | COMPUTEFACEPOINT );
+            for ( i = 0x00; i < srvmes->nbver; i++ ) {
+                g3dvertex_normal ( &srvVertices[i].ver, 0x00 );
+            }
         }
     }
 }
