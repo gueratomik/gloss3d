@@ -71,6 +71,7 @@
 #define OBJECTSAVECAMERA          ( 1   <<  13 )
 #define OBJECTSAVESPLINEREVOLVER  ( 1   <<  14 )
 #define OBJECTSAVESPLINE          ( 1   <<  15 )
+#define OBJECTSAVETEXT            ( 1   <<  16 )
 #define OBJECTSAVEALL             ( 0xFFFFFFFF )
 
 #define KEYSSAVEPOS           ( 0x00000001 )
@@ -93,6 +94,12 @@
 #define SPLINESAVEVERTICES    ( 0x00000002 )
 #define SPLINESAVESEGMENTS    ( 0x00000004 )
 #define SPLINESAVEALL         ( 0xFFFFFFFF )
+
+#define TEXTSAVEFONT          ( 0x00000001 )
+#define TEXTSAVETHICKNESS     ( 0x00000002 )
+#define TEXTSAVEROUNDNESS     ( 0x00000004 )
+#define TEXTSAVETEXT          ( 0x00000080 )
+#define TEXTSAVEALL           ( 0xFFFFFFFF )
 
 #define SYMMETRYSAVEALL       ( 0xFFFFFFFF ) /*** not used ***/
 
@@ -213,6 +220,12 @@
 #define SPLINEGEOSIG       0xB110
 #define SPLINEVERTICESSIG  0xB111
 #define SPLINESEGMENTSSIG  0xB112
+
+#define TEXTSIG            0xB200 
+#define TEXTFONTSIG        0xB210 
+#define TEXTTHICKNESSSIG   0xB220
+#define TEXTROUNDNESSSIG   0xB230
+#define TEXTTEXTSIG        0xB240
 
 #define PRIMSIG            0x4000
 #define SPHERESIG          0x4100

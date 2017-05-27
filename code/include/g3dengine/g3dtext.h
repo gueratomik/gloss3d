@@ -111,15 +111,18 @@ void g3dtext_generate ( G3DOBJECT *obj,
                         uint32_t  toCharacter,
                         uint32_t  engine_flags );
 void g3dtext_free ( G3DOBJECT *obj );
-void g3dtext_init ( G3DTEXT *txt, uint32_t id, 
-                                  char    *name,
-                                  char    *text,
-                                  char    *fontFaceName,
-                                  char    *fontFaceFile,
-                                  uint32_t fontFaceSize,
-                                  float    thickness,
-                                  uint32_t roundness,
-                                  uint32_t engine_flags );
+
+void g3dtext_init ( G3DTEXT *txt, 
+                    uint32_t id, 
+                    char    *name,
+                    uint32_t engine_flags );
+void g3dtext_configure ( G3DTEXT *txt, 
+                         char    *fontFaceName,
+                         char    *fontFaceFile,
+                         uint32_t fontFaceSize,
+                         float    thickness,
+                         uint32_t roundness,
+                         uint32_t engine_flags );
 
 void g3dtext_setRoundness ( G3DTEXT *txt,
                             uint32_t roundness,
@@ -131,12 +134,6 @@ void g3dtext_setThickness ( G3DTEXT *txt,
 
 G3DTEXT *g3dtext_new ( uint32_t id, 
                        char    *name,
-                       char    *text,
-                       char    *fontFaceName,
-                       char    *fontFaceFile,
-                       uint32_t fontFaceSize,
-                       float    thickness,
-                       uint32_t roundness,
                        uint32_t engine_flags );
 
 

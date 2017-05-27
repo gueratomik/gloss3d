@@ -183,6 +183,11 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                          ( ray->x < ( area->width - deltaWidth ) ) ) {
                         avgu = ( backgroundWidth   ) ? ( float ) ( ray->x - deltaWidth ) / backgroundWidth : 0.0f,
                         avgv = ( area->height      ) ? ( float )   ray->y / area->height : 0.0f;
+
+                        if ( ( avgu < 0.0f ) || ( avgu > 1.0f ) ||
+                             ( avgv < 0.0f ) || ( avgv > 1.0f ) ) {
+                            return 0x01;
+                        }
                     }
                 } break;
 
@@ -194,11 +199,6 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                              ( rfc->ruvs[mapID].uv[0x01].v * ray->ratio[0x01] ) +
                              ( rfc->ruvs[mapID].uv[0x02].v * ray->ratio[0x02] ) );
                 } break;
-            }
-
-            if ( ( avgu < 0.0f ) || ( avgu > 1.0f ) ||
-                 ( avgv < 0.0f ) || ( avgv > 1.0f ) ) {
-                return 0x01;
             }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
@@ -417,11 +417,12 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
 
             if ( ( ( objlig->flags & LIGHTCASTSHADOWS ) == 0x00 ) ||
                  ( ( luxray.flags  & INTERSECT        ) == 0x00 ) ) {
-                float rate = fabs ( dot ) * rlt->lig->intensity;
+                G3DLIGHT *lig = ((R3DOBJECT*)rlt)->obj;
+                float rate = fabs ( dot ) * lig->intensity;
 
-                col->r += ( rlt->lig->diffuseColor.r * rate ),
-                col->g += ( rlt->lig->diffuseColor.g * rate ),
-                col->b += ( rlt->lig->diffuseColor.b * rate );
+                col->r += ( lig->diffuseColor.r * rate ),
+                col->g += ( lig->diffuseColor.g * rate ),
+                col->b += ( lig->diffuseColor.b * rate );
             }
         }
 
@@ -457,10 +458,11 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                                              ( G3DVECTOR * ) &camray );
 
                     if ( dot > 0.0f ) {
+                        G3DLIGHT *lig = ((R3DOBJECT*)rlt)->obj;
                         float specularCoefficient = pow ( dot, mat->shininess );
-                            uint32_t R = ( rlt->lig->specularColor.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
-                                     G = ( rlt->lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
-                                     B = ( rlt->lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
+                            uint32_t R = ( lig->specularColor.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
+                                     G = ( lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
+                                     B = ( lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
 
                         spc->r += R;
                         spc->g += G,

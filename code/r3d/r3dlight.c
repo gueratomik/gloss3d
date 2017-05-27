@@ -49,7 +49,6 @@ R3DLIGHT *r3dlight_new ( G3DLIGHT *lig, uint32_t id ) {
     }
 
     rob->obj = obj;
-    rlt->lig = lig;
 
     g3dvector_init ( &pos, 0.0f, 0.0f, 0.0f, 1.0f );
     g3dvector_matrix ( &pos, ((G3DOBJECT*)lig)->wmatrix, &rlt->pos );

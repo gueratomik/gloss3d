@@ -124,6 +124,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
     G3DWIREFRAME *wrf = NULL;
     G3DSPLINEREVOLVER *srv = NULL;
     G3DSPLINE *spline = NULL;
+    G3DTEXT *txt = NULL;
     uint16_t chunksig;
     uint32_t chunklen;
     uint32_t grpid;
@@ -745,6 +746,80 @@ G3DSCENE *g3dscene_open ( const char *filename,
             case WIREFRAMETHICKNESSSIG : {
                 readf ( &wrf->thickness, sizeof ( float ), 0x01, fsrc );
                 readf ( &wrf->aperture , sizeof ( float ), 0x01, fsrc );
+            } break;
+
+            case TEXTSIG : {
+                printf ( "TEXT found\n");
+
+                txt = g3dtext_new ( objid, objname, flags );
+
+                obj = ( G3DOBJECT * ) txt;
+
+                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+
+                objarr[objid] = obj;
+
+                if ( objactive ) {
+                    obj->flags &= (~OBJECTINACTIVE);
+                }
+
+                /* use append to sort objects in  */
+                /* the same order than when saved */
+                g3dobject_appendChild ( objarr[parid], obj, flags );
+            } break;
+
+            case TEXTFONTSIG : {
+                uint32_t fontFaceFileLen;
+                uint32_t fontFaceNameLen;
+                char *fontFaceFile = NULL;
+                char *fontFaceName = NULL;
+                uint32_t fontSize = 0x00;
+
+                readf ( &fontFaceFileLen, sizeof ( uint32_t ), 0x01, fsrc );
+                if ( fontFaceFileLen ) {
+                    fontFaceFile = calloc ( 0x01, fontFaceFileLen + 1 );
+                    readf ( fontFaceFile, fontFaceFileLen, 0x01, fsrc );
+                }
+
+                readf ( &fontFaceNameLen, sizeof ( uint32_t ), 0x01, fsrc );
+                if ( fontFaceNameLen ) {
+                    fontFaceName = calloc ( 0x01, fontFaceNameLen + 1 );
+                    readf ( fontFaceName, fontFaceNameLen, 0x01, fsrc );
+                }
+
+                readf ( &fontSize, sizeof ( uint32_t ), 0x01, fsrc );
+
+                g3dtext_setFont ( txt,
+                                  fontFaceName,
+                                  fontFaceFile,
+                                  fontSize,
+                                  flags );
+
+                if ( fontFaceFile ) free ( fontFaceFile );
+                if ( fontFaceName ) free ( fontFaceName );
+            } break;
+
+            case TEXTTHICKNESSSIG : {
+                readf ( &txt->thickness, sizeof ( float ), 0x01, fsrc );
+            } break;
+
+            case TEXTROUNDNESSSIG : {
+                readf ( &txt->roundness, sizeof ( uint32_t ), 0x01, fsrc );
+            } break;
+
+            case TEXTTEXTSIG : {
+                char    *text = NULL;
+
+                if ( chunklen ) {
+                    text = calloc ( 0x01, chunklen + 1 );
+                    readf ( text, chunklen, 0x01, fsrc );
+
+                    g3dtext_setText ( txt, text, flags );
+
+                    free ( text );
+                }
             } break;
 
             case SPLINESIG : {

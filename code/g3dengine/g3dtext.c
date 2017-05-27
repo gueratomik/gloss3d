@@ -322,23 +322,30 @@ void g3dtext_setFont ( G3DTEXT *txt,
     txt->fontFaceName = strdup ( fontFaceName );
     txt->fontFaceSize = fontFaceSize;
 
-    if ( f = fopen ( fontFaceFile, "r" ) ) {
-        fontFound = 0x01;
+    if ( fontFaceFile ) {
+        if ( f = fopen ( fontFaceFile, "r" ) ) {
+            fontFound = 0x01;
 
-        strcpy ( fontPath, fontFaceFile );
+            strcpy ( fontPath, fontFaceFile );
 
-        fclose ( f );
-    } else {
-        for ( i = 0x00; i < nbSearchPath; i++ ) {
-            strcpy ( fontPath, searchPath[i] );
-            strcat ( fontPath, "/" );
-            strcat ( fontPath, fontFaceFile );
+            fclose ( f );
+        } else {
+            for ( i = 0x00; i < nbSearchPath; i++ ) {
+                /* basename must work with copies. RTFM */
+                char *filenameCopy = strdup ( fontFaceFile );
 
-            if ( f = fopen ( fontPath, "r" ) ) {
-                fontFound = 0x01;
+                strcpy ( fontPath, searchPath[i] );
+                strcat ( fontPath, "/" );
+                strcat ( fontPath, basename ( filenameCopy ) );
 
-                fclose ( f );
-                break;
+                if ( f = fopen ( fontPath, "r" ) ) {
+                    fontFound = 0x01;
+
+                    fclose ( f );
+                    break;
+                }
+
+                free ( filenameCopy );
             }
         }
     }
@@ -439,6 +446,12 @@ void g3dtext_setThickness ( G3DTEXT *txt,
         if ( txt->text ) {
             g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
         }
+
+        /*g3dmesh_update ( txt, NULL,
+                              NULL,
+                              NULL,
+                              UPDATEFACEPOSITION |
+                              RESETMODIFIERS, engine_flags );*/
     } else {
         if ( newThickness ) {
             G3DMESH *txtmes = ( G3DMESH * ) txt;
@@ -455,13 +468,14 @@ void g3dtext_setThickness ( G3DTEXT *txt,
 
                 ltmpver = ltmpver->next;
             }
+
+            /*g3dmesh_update ( txt, NULL,
+                                  NULL,
+                                  NULL,
+                                  UPDATEFACEPOSITION |
+                                  UPDATEMODIFIERS, engine_flags );*/
         }
     }
-
-    g3dmesh_update ( txt, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION, engine_flags );
 }
 
 /******************************************************************************/
@@ -931,7 +945,8 @@ void g3dtext_generate ( G3DOBJECT *obj,
                              NULL,
                              UPDATEFACEPOSITION |
                              UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL, engine_flags );
+                             UPDATEVERTEXNORMAL | 
+                             RESETMODIFIERS, engine_flags );
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
@@ -944,17 +959,13 @@ void g3dtext_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dtext_init ( G3DTEXT *txt, uint32_t id, 
-                                  char    *name,
-                                  char    *text,
-                                  char    *fontFaceName,
-                                  char    *fontFaceFile,
-                                  uint32_t fontFaceSize,
-                                  float    thickness,
-                                  uint32_t roundness,
-                                  uint32_t engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) txt;
-
+void g3dtext_configure ( G3DTEXT *txt, 
+                         char    *fontFaceName,
+                         char    *fontFaceFile,
+                         uint32_t fontFaceSize,
+                         float    thickness,
+                         uint32_t roundness,
+                         uint32_t engine_flags ) {
     txt->roundness = roundness;
     txt->thickness = thickness;
 
@@ -963,8 +974,14 @@ void g3dtext_init ( G3DTEXT *txt, uint32_t id,
                       fontFaceFile,
                       fontFaceSize, 
                       engine_flags );
+}
 
-    g3dtext_setText ( txt, text, engine_flags );
+/******************************************************************************/
+void g3dtext_init ( G3DTEXT *txt, 
+                    uint32_t id, 
+                    char    *name,
+                    uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) txt;
 
     /*** TODO: add more parameters (function pointers) to g3dmesh_init ***/
     /*** and remove the call to g3dobject_init ***/
@@ -988,12 +1005,6 @@ void g3dtext_init ( G3DTEXT *txt, uint32_t id,
 /******************************************************************************/
 G3DTEXT *g3dtext_new ( uint32_t id, 
                        char    *name,
-                       char    *text,
-                       char    *fontFaceName,
-                       char    *fontFaceFile,
-                       uint32_t fontFaceSize,
-                       float    thickness,
-                       uint32_t roundness,
                        uint32_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     G3DTEXT *txt = ( G3DTEXT * ) calloc ( 0x01, sizeof ( G3DTEXT ) );
@@ -1010,17 +1021,7 @@ G3DTEXT *g3dtext_new ( uint32_t id,
         }
     }
 
-    /** type is CUBIC or QUADRATIC **/
-    g3dtext_init ( txt, 
-                   id,
-                   name,
-                   text,
-                   fontFaceName,
-                   fontFaceFile,
-                   fontFaceSize,
-                   thickness,
-                   roundness,
-                   engine_flags );
+    g3dtext_init ( txt, id, name, engine_flags );
 
     return txt;
 }

@@ -55,6 +55,7 @@
 #include <xpm/wirico.xpm>
 #include <xpm/splico.xpm>
 #include <xpm/srvico.xpm>
+#include <xpm/txtico.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -311,7 +312,8 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
                      *sphico, *torico, *conico,
                      *plnico, *ffdico, *cylico,
                      *camico, *scnico, *mapico, 
-                     *objico, *subico, *wirico, *splico, *srvico;
+                     *objico, *subico, *wirico, 
+                     *splico, *srvico, *txtico;
 
     /*********************** Inited once and for all **************************/
     if ( bonico == NULL ) bonico = gdk_pixbuf_new_from_xpm_data ( bonico_xpm );
@@ -333,6 +335,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
     if ( wirico == NULL ) wirico = gdk_pixbuf_new_from_xpm_data ( wirico_xpm );
     if ( splico == NULL ) splico = gdk_pixbuf_new_from_xpm_data ( splico_xpm );
     if ( srvico == NULL ) srvico = gdk_pixbuf_new_from_xpm_data ( srvico_xpm );
+    if ( txtico == NULL ) txtico = gdk_pixbuf_new_from_xpm_data ( txtico_xpm );
    /***************************************************************************/
 
     switch ( obj->type ) {
@@ -354,6 +357,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
         case G3DWIREFRAMETYPE      : objico = wirico; break;
         case G3DSPLINETYPE         : objico = splico; break;
         case G3DSPLINEREVOLVERTYPE : objico = srvico; break;
+        case G3DTEXTTYPE           : objico = txtico; break;
         default                    : objico = defico; break;
     }
 

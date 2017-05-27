@@ -547,7 +547,6 @@ typedef struct _R3DCAMERA {
 typedef struct _R3DLIGHT {
     R3DOBJECT robj;
     G3DVECTOR pos; /*** Face position in World coord ***/
-    G3DLIGHT *lig;
 } R3DLIGHT;
 
 /******************************************************************************/

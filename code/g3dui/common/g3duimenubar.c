@@ -542,13 +542,17 @@ void common_g3dui_addTextCbk ( G3DUI *gui ) {
     uint32_t pid = g3dscene_getNextObjectID ( sce );
     G3DTEXT *txt = g3dtext_new ( pid, 
                                  "Text",     /* object name    */
-                                 "Text",     /* font face name */
-                                 "Arial",    /* font face file */
-                                 "arial.ttf",/* font file name */
-                                 16,         /* font face size */
-                                 0.0f,
-                                 12,
                                  gui->flags  );
+
+    g3dtext_configure ( txt,
+                        "Arial",    /* font face name */
+                        "arial.ttf",/* font file name */
+                        16,         /* font face size */
+                        0.0f,
+                        12,
+                        gui->flags );
+
+    g3dtext_setText ( txt, "Text", gui->flags  );
 
     g3durm_object_addChild ( urm, sce, gui->flags, 
                                        ( REDRAWVIEW |

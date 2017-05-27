@@ -125,7 +125,7 @@ uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                   uint32_t width ) {
     GtkWidget *widget = ( GtkWidget * ) fil->data;
     guint cont = gtk_statusbar_get_context_id ( widget, "context" );
-    char str[100];
+    static char str[100];
 
     if ( from == 0x00 && to == 0x00 ) {
         snprintf ( str, 100, "Rendering frame %.2f", frameID );

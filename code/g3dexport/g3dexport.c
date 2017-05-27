@@ -213,7 +213,7 @@ OBJECT(0x2000)
 ------- LIGHT_INTENSITY(0x6200)
 ----------- intensity ( float )
 ------- LIGHT_SHADOWCASTING(0x6300)
------------ cast_shdow ( float )
+----------- cast_shadow ( float )
 --- BONE(0x7000)
 ------- BONEGEOMETRY(0x7100)
 ----------- Length   (float)
@@ -237,6 +237,20 @@ OBJECT(0x2000)
 --------------- Array ( uint32_t-uint32_t ) /* vertex refs */
 --------------- Array ( float-float-float ) /* handle 1 */
 --------------- Array ( float-float-float ) /* handle 2 */
+
+--- TEXT(0xB200)
+------- TEXTFONT(0xB210)
+----------- uint32_t fontFileName
+----------- Name ( char[] )
+----------- uint32_t fontFaceName
+----------- Name ( char[] )
+----------- uint32_t fontSize
+------- TEXTTHICKNESS(0xB220)
+----------- float
+------- TEXTROUNDNESS(0xB230)
+----------- uint32_t
+------- TEXTTEXT(0xB240)
+----------- Name ( char[] )
 
 --- FFD(0x8100)
 ------- FFDSHAPE (0x8110)
@@ -2156,6 +2170,136 @@ static void segments_writeblock ( uint32_t nbseg,
 }
 
 /******************************************************************************/
+static uint32_t textfont_blocksize ( G3DTEXT *txt ) {
+    uint32_t fontFaceFileLen = ( txt->fontFaceFile ) ? strlen ( txt->fontFaceFile ) : 0x00;
+    uint32_t fontFaceNameLen = ( txt->fontFaceName ) ? strlen ( txt->fontFaceName ) : 0x00;
+    uint32_t blocksize = 0x00;
+
+    blocksize += sizeof ( uint32_t );
+    blocksize += fontFaceFileLen;
+    blocksize += sizeof ( uint32_t );
+    blocksize += fontFaceNameLen;
+    blocksize += sizeof ( uint32_t );
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void textfont_writeblock ( G3DTEXT *txt, FILE *fdst ) {
+    uint32_t fontFaceFileLen = ( txt->fontFaceFile ) ? strlen ( txt->fontFaceFile ) : 0x00;
+    uint32_t fontFaceNameLen = ( txt->fontFaceName ) ? strlen ( txt->fontFaceName ) : 0x00;
+
+    if ( fontFaceFileLen ) {
+        writef ( &fontFaceFileLen, sizeof ( uint32_t ), 0x01, fdst );
+        writef ( txt->fontFaceFile, fontFaceFileLen, 0x01, fdst );
+    }
+
+    if ( fontFaceNameLen ) {
+        writef ( &fontFaceNameLen, sizeof ( uint32_t ), 0x01, fdst );
+        writef ( txt->fontFaceName, fontFaceNameLen, 0x01, fdst );
+    }
+
+    writef ( &txt->fontFaceSize, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t texttext_blocksize ( G3DTEXT *txt ) {
+    uint32_t len = ( txt->text ) ? strlen ( txt->text ) : 0x00;
+
+    return len;
+}
+
+/******************************************************************************/
+static void texttext_writeblock ( G3DTEXT *txt, FILE *fdst ) {
+    uint32_t len = texttext_blocksize ( txt );
+
+    if ( len ) {
+        writef ( txt->text, len, 0x01, fdst );
+    }
+}
+
+/******************************************************************************/
+static uint32_t textthickness_blocksize ( ) {
+    return sizeof ( float );
+}
+
+/******************************************************************************/
+static uint32_t textroundness_blocksize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static void textthickness_writeblock ( G3DTEXT *txt, FILE *fdst ) {
+    writef ( &txt->thickness, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static void textroundness_writeblock ( G3DTEXT *txt, FILE *fdst ) {
+    writef ( &txt->roundness, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t text_blocksize ( G3DTEXT *txt, uint32_t   flags ) {
+    uint32_t blocksize = 0x00;
+
+    if ( flags & TEXTSAVEFONT ) {
+        blocksize += textfont_blocksize ( txt ) + 0x06;
+    }
+
+    if ( flags & TEXTSAVETHICKNESS ) {
+        blocksize += textthickness_blocksize ( ) + 0x06;
+    }
+
+    if ( flags & TEXTSAVEROUNDNESS ) {
+        blocksize += textroundness_blocksize ( ) + 0x06;
+    }
+
+    if ( flags & TEXTSAVETEXT ) {
+        blocksize += texttext_blocksize ( txt ) + 0x06;
+    }
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void text_writeblock ( G3DTEXT *txt, 
+                              uint32_t flags, 
+                              FILE    *fdst ) {
+    if ( flags & TEXTSAVEFONT ) {
+        uint32_t blocksize = textfont_blocksize ( txt );
+
+        chunk_write ( TEXTFONTSIG, blocksize, fdst );
+
+        textfont_writeblock ( txt, fdst );
+    }
+
+    if ( flags & TEXTSAVETHICKNESS ) {
+        uint32_t blocksize = textthickness_blocksize ( );
+
+        chunk_write ( TEXTTHICKNESSSIG, blocksize, fdst );
+
+        textthickness_writeblock ( txt, fdst );
+    }
+
+    if ( flags & TEXTSAVEROUNDNESS ) {
+        uint32_t blocksize = textroundness_blocksize ( );
+
+        chunk_write ( TEXTROUNDNESSSIG, blocksize, fdst );
+
+        textroundness_writeblock ( txt, fdst );
+    }
+
+    /* must be written last to ease text generation when reading */
+    if ( flags & TEXTSAVETEXT ) {
+        uint32_t blocksize = texttext_blocksize ( txt );
+
+        chunk_write ( TEXTTEXTSIG, blocksize, fdst );
+
+        texttext_writeblock ( txt, fdst );
+    }
+}
+
+/******************************************************************************/
 static uint32_t splinegeometry_blocksize ( G3DSPLINE *spline, 
                                            uint32_t   flags ) {
     G3DMESH *mes = ( G3DMESH * ) spline;
@@ -2511,6 +2655,14 @@ static void object_writeblock ( G3DOBJECT *obj,
 
         chunk_write ( SPLINESIG, blocksize, fdst );
         spline_writeblock ( spline, SPLINESAVEALL, fdst );
+    }
+
+    if ( ( obj->type == G3DTEXTTYPE ) && ( flags & OBJECTSAVETEXT ) ) {
+        uint32_t blocksize = spline_blocksize ( ( G3DTEXT * ) obj, TEXTSAVEALL );
+        G3DTEXT *txt = ( G3DSPLINE * ) obj;
+
+        chunk_write ( TEXTSIG, blocksize, fdst );
+        text_writeblock ( txt, TEXTSAVEALL, fdst );
     }
 
     if ( ( obj->type == G3DUVMAPTYPE ) && ( flags & OBJECTSAVEUVMAP ) ) {
