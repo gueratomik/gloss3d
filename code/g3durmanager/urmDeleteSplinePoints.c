@@ -64,11 +64,11 @@ void deleteSplinePoints_free ( void    *data,
 
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
-        list_free ( &dsp->lremovedPoints  , g3dsplinepoint_free  );
-        list_free ( &dsp->lremovedSegments, g3dcubicsegment_free );
-    } else {
-        list_free ( &dsp->lremovedPoints  , NULL );
         list_free ( &dsp->lremovedSegments, NULL );
+        list_free ( &dsp->lremovedPoints  , NULL );
+    } else {
+        list_free ( &dsp->lremovedSegments, g3dcubicsegment_free );
+        list_free ( &dsp->lremovedPoints  , g3dsplinepoint_free  );
     }
 
     urmDeleteSplinePoints_free ( dsp );
