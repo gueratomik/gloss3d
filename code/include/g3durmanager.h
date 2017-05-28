@@ -172,6 +172,13 @@ typedef struct _URMADDVERTEX {
 } URMADDVERTEX;
 
 /******************************************************************************/
+typedef struct _URMDELETESPLINEPOINTS {
+    G3DSPLINE *spline;
+    LIST      *lremovedPoints;
+    LIST      *lremovedSegments;
+} URMDELETESPLINEPOINTS;
+
+/******************************************************************************/
 typedef struct _G3DURMANAGER {
     LIST *lprocs;
     LIST *lcurprocs;
@@ -385,5 +392,26 @@ void invertNormal_free ( void *, uint32_t  );
 void invertNormal_undo ( G3DURMANAGER *, void *, uint32_t );
 void invertNormal_redo ( G3DURMANAGER *, void *, uint32_t );
 void g3durm_mesh_invertNormal ( G3DURMANAGER *, G3DMESH *, uint32_t, uint32_t );
+
+/******************************************************************************/
+void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
+                                  G3DSPLINE    *spline, 
+                                  LIST         *lremovedPoints,
+                                  uint32_t      engine_flags,
+                                  uint32_t      return_flags );
+void deleteSplinePoints_redo ( G3DURMANAGER *urm, 
+                               void         *data, 
+                               uint32_t      engine_flags );
+void deleteSplinePoints_undo ( G3DURMANAGER *urm, 
+                               void         *data, 
+                               uint32_t      engine_flags );
+void deleteSplinePoints_free ( void    *data, 
+                               uint32_t commit );
+void urmDeleteSplinePoints_free ( URMDELETESPLINEPOINTS *dsp );
+URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline, 
+                                                   LIST      *lremovedPoints,
+                                                   LIST      *lremovedSegments );
+
+
 
 #endif

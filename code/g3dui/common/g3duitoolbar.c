@@ -185,6 +185,21 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
         g3dui_updateCoords         ( gui );
         g3dui_redrawObjectList     ( gui );
     } else {
+        if ( obj && ( obj->type == G3DSPLINETYPE ) ) {
+            G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+            if ( gui->flags & VIEWVERTEX ) {
+                LIST *lremovedPoints   = g3dspline_getSelectedPoints ( spline );
+
+                g3durm_spline_deletePoints ( urm,
+                                             spline, 
+                                             lremovedPoints, 
+                                             gui->flags,
+                                             REDRAWVIEW );
+
+                g3dmesh_unselectAllVertices ( spline );
+            }
+        }
+
         if ( obj && ( obj->type == G3DMESHTYPE ) ) {
             if ( gui->flags & VIEWVERTEX ) {
                 loldselver = list_copy ( mes->lselver );

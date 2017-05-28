@@ -164,6 +164,12 @@ G3DSPLINEPOINT *g3dsplinepoint_new ( float x,
 
 void g3dsplinepoint_free ( G3DSPLINEPOINT * );
 
+void g3dspline_deletePoints ( G3DSPLINE *spline,
+                              LIST      *lremovedPoints,
+                              LIST     **lremovedSegments,
+                              uint32_t   engine_flags );
+LIST *g3dspline_getSelectedPoints ( G3DSPLINE *spline );
+
 
 #ifdef __cplusplus
 }

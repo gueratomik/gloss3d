@@ -105,8 +105,12 @@ uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, G3DCAMERA *cam,
         G3DOBJECT *child = ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            if ( child->draw ) {
-                ret = g3dmodifier_draw ( (G3DMODIFIER*) child, cam, engine_flags );
+            if ( ( child->flags & OBJECTINVISIBLE ) == 0x00 ) {
+                if ( child->draw ) {
+                    G3DMODIFIER *modChild = ( G3DMODIFIER * ) child;
+
+                    ret = g3dmodifier_draw ( modChild, cam, engine_flags );
+                }
             }
         }
 
@@ -860,7 +864,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
 
     /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dobject_drawModifiers_r() ***/
+    /*** by using g3dobject_drawModifiers() ***/
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWBEFORECHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
@@ -891,7 +895,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
 
     /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dobject_drawModifiers_r() ***/
+    /*** by using g3dmesh_drawModifiers_r() ***/
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWAFTERCHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {

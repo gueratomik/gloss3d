@@ -30,6 +30,65 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+LIST *g3dspline_getSelectedPoints ( G3DSPLINE *spline ) {
+    LIST *lselectedPoints = NULL;
+    LIST *ltmpver = ((G3DMESH*)spline)->lselver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+        if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
+            list_insert ( &lselectedPoints, ver );
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    return lselectedPoints;
+}
+
+/******************************************************************************/
+void g3dspline_deletePoints ( G3DSPLINE *spline,
+                              LIST      *lremovedPoints,
+                              LIST     **lremovedSegments,
+                              uint32_t   engine_flags ) {
+    LIST *lcpyseg = list_copy ( spline->lseg );
+    LIST *ltmpseg = lcpyseg;
+    LIST *ltmpver = lremovedPoints;
+
+    while ( ltmpseg ) {
+        G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+        uint32_t nbRemovedPoints = 0x00;
+
+        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[0] ) ? 1 : 0;
+        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[1] ) ? 1 : 0;
+
+        if ( nbRemovedPoints > 0x00 ) {
+            g3dspline_removeSegment ( spline, seg ); 
+
+            list_insert ( lremovedSegments, seg );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+
+    while ( ltmpver ) {
+        G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpver->data;
+
+        g3dmesh_removeVertex ( spline, pt );
+
+        ltmpver = ltmpver->next;
+    }
+
+    list_free ( &lcpyseg, NULL );
+
+    g3dmesh_update ( (G3DMESH*)spline, NULL,
+                                       NULL,
+                                       NULL,
+                                       RESETMODIFIERS, engine_flags );
+}
+
+/******************************************************************************/
 void g3dspline_revert ( G3DSPLINE *spline,
                         uint32_t   engine_flags ) {
     LIST *ltmpseg = spline->lseg;
@@ -56,6 +115,8 @@ void g3dspline_revert ( G3DSPLINE *spline,
 
 /******************************************************************************/
 void g3dsplinepoint_free ( G3DSPLINEPOINT *pt ) {
+    list_free ( &pt->lseg, NULL );
+
     free ( pt );
 }
 

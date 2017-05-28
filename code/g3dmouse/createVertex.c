@@ -160,17 +160,18 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     G3DVERTEX *ver;
 
                     if ( obj->type == G3DSPLINETYPE ) {
+                        G3DSPLINE *spline = ( G3DSPLINE * ) obj;
                         ver = g3dsplinepoint_new ( objx, objy, objz );
 
                         if ( lastver ) {
                             G3DSPLINESEGMENT *seg;
 
                             seg = g3dcubicsegment_new ( ver,
-                                                         lastver,
-                                                         0.0f, 0.0f, 0.0f,
-                                                         0.0f, 0.0f, 0.0f );
+                                                        lastver,
+                                                        0.0f, 0.0f, 0.0f,
+                                                        0.0f, 0.0f, 0.0f );
 
-                            g3dspline_addSegment ( mes, seg );
+                            g3dspline_addSegment ( spline, seg );
 
                             g3dsplinepoint_roundCubicSegments ( lastver );
                         }
@@ -184,13 +185,14 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     if ( ver ) {
                         g3dmesh_addSelectedVertex ( mes, ver );
 
-                        /*** Rebuild the subdivided mesh ***/
+                        /*** Rebuild the mesh or spline ***/
                         g3dmesh_update ( mes, NULL,
                                               NULL,
                                               NULL,
                                               UPDATEFACEPOSITION |
                                               UPDATEFACENORMAL   |
-                                              UPDATEVERTEXNORMAL, flags );
+                                              UPDATEVERTEXNORMAL |
+                                              RESETMODIFIERS, flags );
 
                         /*** add this action to the undo redo stack ***/
                         /*createVertex_push ( urm, mes, ver );*/

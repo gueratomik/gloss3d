@@ -90,6 +90,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         G3DOBJECT *splobj = ( G3DOBJECT * ) spl;
         G3DMESH   *srvmes = ( G3DMESH   * ) srv;
         G3DOBJECT *srvobj = ( G3DOBJECT * ) srv;
+
         uint32_t   nbSplineVertices = splmes->nbver - ( spl->nbseg * 0x02 );
         uint32_t   nbSplineSegments = spl->nbseg;
         uint32_t   nbVerticesPerStep  = nbSplineVertices + ( nbSplineSegments * srv->nbdivis );
@@ -100,7 +101,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                                         ( nbSplineSegments *   srv->nbdivis       * srv->nbsteps ) +
                                         ( nbSplineSegments * ( srv->nbdivis + 1 ) * srv->nbsteps );
 
-        uint32_t   nbRevolvedFaces    = ( nbSplineVertices + ( srv->nbdivis * nbSplineSegments ) - 1 ) * ( srv->nbsteps );
+        uint32_t   nbRevolvedFaces    = ( nbSplineSegments + ( srv->nbdivis * nbSplineSegments ) ) * ( srv->nbsteps );
         LIST *ltmpver = splmes->lver;
         G3DSUBVERTEX *srvVertices;
         G3DSUBEDGE   *srvEdges;
