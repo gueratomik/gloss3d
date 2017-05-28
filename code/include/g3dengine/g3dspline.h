@@ -112,7 +112,7 @@ void g3dspline_free ( G3DOBJECT *obj );
 
 void g3dspline_addSegment ( G3DSPLINE        *spline, 
                             G3DSPLINESEGMENT *seg );
-
+void g3dspline_revert ( G3DSPLINE *spline, uint32_t engine_flags );
 void g3dspline_init ( G3DSPLINE *spline, 
                       uint32_t   id, 
                       char      *name,

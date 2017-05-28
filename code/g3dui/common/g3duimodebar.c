@@ -102,5 +102,8 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         }
     }
 
+    /* unset the mouse tool */
+    common_g3dui_setMouseTool ( gui, NULL, NULL );
+
     g3dui_updateAllCurrentMouseTools ( gui );
 }

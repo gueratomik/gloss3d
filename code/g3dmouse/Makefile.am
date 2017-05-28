@@ -16,6 +16,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            cutMesh.c        \
                            triangulate.c    \
                            untriangulate.c  \
+                           revertSpline.c   \
                            paintWeight.c    \
                            invertNormal.c   \
                            empty.c          \

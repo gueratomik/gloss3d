@@ -82,11 +82,15 @@
 #define FILEDESC_STA "Ascii STL .stl"
 #define FILEDESC_POV "Povray Scene .pov"
 
-#define OBJECTMENUNAME  "Object Menu"
-#define VERTEXMENUNAME  "Vertex Menu"
-#define EDGEMENUNAME    "Edge Menu"
-#define FACEMENUNAME    "Face Menu"
-#define SCULPTMENUNAME  "Sculpt Menu"
+#define OBJECTMENUNAME          "Object Menu"
+
+#define VERTEXMODEMESHMENUNAME  "Vertex_Mode_Mesh_Menu"
+#define EDGEMODEMESHMENUNAME    "Edge_Mode_Mesh_Menu"
+#define FACEMODEMESHMENUNAME    "Face_Mode_Mesh_Menu"
+#define SCULPTMODEMESHMENUNAME  "Sculpt_Mode_Mesh_Menu"
+
+#define VERTEXMODESPLINEMENUNAME  "Vertex_Mode_Spline_Menu"
+
 #define OPTIONMENUNAME  "Option_Menu"
 #define SHADINGMENUNAME "Shading_Menu"
 
@@ -150,6 +154,8 @@
 #define EDGEMODETOOL   ( 1 << 3 )
 #define GLMENUTOOL     ( 1 << 4 )
 #define SCULPTMODETOOL ( 1 << 5 )
+#define MESHTOOL       ( 1 << 6 )
+#define SPLINETOOL     ( 1 << 7 )
 
 #define EDITGLVIEWMODE   "Display Mode"
 #define EDITGLVIEWCAMERA "Use camera"
@@ -564,11 +570,16 @@ typedef struct _G3DUI {
     G3DSCENE     *sce;
     G3DUICONF     conf;
     uint32_t      flags;
-    LIST         *lobjmenu;
-    LIST         *lvermenu;
-    LIST         *ledgmenu;
-    LIST         *lfacmenu;
-    LIST         *lscpmenu;
+    /* context menus for all objects */
+    LIST         *lObjectModeMenu;
+    /* context menus for meshes */
+    LIST         *lVertexModeMeshMenu;
+    LIST         *lEdgeModeMeshMenu;
+    LIST         *lFaceModeMeshMenu;
+    LIST         *lSculptModeMeshMenu;
+    /* context menu for splines */
+    LIST         *lVertexModeSplineMenu;
+    /**********************/
     LIST         *lmtools; /*** list of mousetools widget ***/
     LIST         *lglview;
     LIST         *lobjlist;

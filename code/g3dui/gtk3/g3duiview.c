@@ -353,7 +353,7 @@ static void createObjectMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *menu = createViewMenu ( widget, gui, OBJECTMENUNAME );
     G3DUIVIEW *view = &gvw->view;
 
-    list_insert ( &gui->lobjmenu, menu );
+    list_insert ( &gui->lObjectModeMenu, menu );
 
     list_insert ( &view->lmenu  , menu );
 
@@ -362,43 +362,53 @@ static void createObjectMenu ( GtkWidget *widget, G3DUI *gui ) {
 */}
 
 /******************************************************************************/
-static void createVertexMenu ( GtkWidget *widget, G3DUI *gui ) {
+static void createVertexModeSplineMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMENUNAME );
+    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODESPLINEMENUNAME );
     G3DUIVIEW *view = &gvw->view;
 
-    list_insert ( &gui->lvermenu, menu );
+    list_insert ( &gui->lVertexModeSplineMenu, menu );
     list_insert ( &view->lmenu  , menu );
 }
 
 /******************************************************************************/
-static void createEdgeMenu ( GtkWidget *widget, G3DUI *gui ) {
+static void createVertexModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, EDGEMENUNAME );
+    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODEMESHMENUNAME );
     G3DUIVIEW *view = &gvw->view;
 
-    list_insert ( &gui->ledgmenu, menu );
+    list_insert ( &gui->lVertexModeMeshMenu, menu );
+    list_insert ( &view->lmenu  , menu );
+}
+
+/******************************************************************************/
+static void createEdgeModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
+    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
+    GtkWidget *menu = createViewMenu ( widget, gui, EDGEMODEMESHMENUNAME );
+    G3DUIVIEW *view = &gvw->view;
+
+    list_insert ( &gui->lEdgeModeMeshMenu, menu );
     list_insert ( &view->lmenu  , menu );
 }
 
 
 /******************************************************************************/
-static void createFaceMenu ( GtkWidget *widget, G3DUI *gui ) {
+static void createFaceModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, FACEMENUNAME );
+    GtkWidget *menu = createViewMenu ( widget, gui, FACEMODEMESHMENUNAME );
     G3DUIVIEW *view = &gvw->view;
 
-    list_insert ( &gui->lfacmenu, menu );
+    list_insert ( &gui->lFaceModeMeshMenu, menu );
     list_insert ( &view->lmenu  , menu );
 }
 
 /******************************************************************************/
-static void createSculptMenu ( GtkWidget *widget, G3DUI *gui ) {
+static void createSculptModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, SCULPTMENUNAME );
+    GtkWidget *menu = createViewMenu ( widget, gui, SCULPTMODEMESHMENUNAME );
     G3DUIVIEW *view = &gvw->view;
 
-    list_insert ( &gui->lscpmenu, menu );
+    list_insert ( &gui->lSculptModeMeshMenu, menu );
     list_insert ( &view->lmenu  , menu );
 }
 
@@ -439,6 +449,7 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
     G3DUIVIEW      *view     = &gvw->view;
     GtkWidget      *curmenu  = NULL;
     LIST           *ltmpmenu = view->lmenu;
+    G3DOBJECT      *selObj   = g3dscene_getSelectedObject ( gui->sce );
 
     while ( ltmpmenu ) {
         GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
@@ -447,21 +458,35 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
             if ( strcmp ( gtk_widget_get_name ( menu ), OBJECTMENUNAME ) == 0x00 ) curmenu = menu;
         }
 
-        if ( gui->flags & VIEWVERTEX ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMENUNAME ) == 0x00 ) curmenu = menu;
-        }
+        if ( selObj ) {
+            if ( gui->flags & VIEWVERTEX ) {
+                if ( selObj->type == G3DSPLINETYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODESPLINEMENUNAME ) == 0x00 ) curmenu = menu;
+                }
 
-        if ( gui->flags & VIEWEDGE ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMENUNAME   ) == 0x00 ) curmenu = menu;
-        }
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMESHMENUNAME ) == 0x00 ) curmenu = menu;
+                }
+            }
 
-        if ( gui->flags & VIEWFACE ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), FACEMENUNAME   ) == 0x00 ) curmenu = menu;
-        }
+            if ( gui->flags & VIEWEDGE ) {
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
 
-        if ( gui->flags & VIEWSCULPT ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMENUNAME   ) == 0x00 ) curmenu = menu;
-        }
+            if ( gui->flags & VIEWFACE ) {
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), FACEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
+
+            if ( gui->flags & VIEWSCULPT ) {
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
+        } 
 
         ltmpmenu = ltmpmenu->next;
     }
@@ -1022,11 +1047,12 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*gdk_window_add_filter ( gtk_widget_get_window ( area ), gtk_area_filter, gui );*/
 
-    createObjectMenu ( area, gui );
-    createVertexMenu ( area, gui );
-    createEdgeMenu   ( area, gui );
-    createFaceMenu   ( area, gui );
-    createSculptMenu ( area, gui );
+    createObjectMenu           ( area, gui );
+    createVertexModeSplineMenu ( area, gui );
+    createVertexModeMeshMenu   ( area, gui );
+    createEdgeModeMeshMenu     ( area, gui );
+    createFaceModeMeshMenu     ( area, gui );
+    createSculptModeMeshMenu   ( area, gui );
 
     g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), gui );
     g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (gtk3_initGL ), gui );

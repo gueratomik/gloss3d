@@ -358,6 +358,8 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
         }
         glEnd();*/
 
+        glEnable   ( GL_COLOR_MATERIAL );
+        glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
         glBegin ( GL_QUADS );
         for ( i = 0x00; i < srvmes->nbfac; i++ ) {
             G3DSUBFACE *subfac = ( G3DSUBFACE * ) srvmes->lfac;

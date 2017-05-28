@@ -14,6 +14,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmextrudemesh.c \
                                urminvertnormal.c \
                                urmmoveobject.c \
+                               urmRevertSpline.c \
                                urmselectitem.c \
                                urmcutmesh.c \
                                urmuntriangulate.c \

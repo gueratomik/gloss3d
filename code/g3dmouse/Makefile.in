@@ -135,9 +135,9 @@ libgloss_g3dmouse_la_LIBADD =
 am__objects_1 = createCube.lo createCylinder.lo createFace.lo \
 	createPlane.lo createSphere.lo createVertex.lo createBone.lo \
 	createTorus.lo cutMesh.lo triangulate.lo untriangulate.lo \
-	paintWeight.lo invertNormal.lo empty.lo extrudeFace.lo \
-	g3dmousetool.lo weldvertices.lo move.lo pick.lo rotate.lo \
-	sculpt.lo scale.lo
+	revertSpline.lo paintWeight.lo invertNormal.lo empty.lo \
+	extrudeFace.lo g3dmousetool.lo weldvertices.lo move.lo pick.lo \
+	rotate.lo sculpt.lo scale.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -344,6 +344,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            cutMesh.c        \
                            triangulate.c    \
                            untriangulate.c  \
+                           revertSpline.c   \
                            paintWeight.c    \
                            invertNormal.c   \
                            empty.c          \
@@ -450,6 +451,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/move.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/paintWeight.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pick.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revertSpline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scale.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sculpt.Plo@am__quote@

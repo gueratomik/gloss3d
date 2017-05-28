@@ -55,6 +55,7 @@
 #define CREATEPLANETOOL    "Create Plane"
 #define CUTMESHTOOL        "Cutter"
 #define ADDVERTEXTOOL      "Add Vertex"
+#define REVERTSPLINETOOL   "Revert Spline"
 #define BRIDGETOOL         "Bridge"
 #define PAINTWEIGHTTOOL    "Paint Weight"
 #define UNTRIANGULATETOOL  "Untriangulate"
@@ -354,5 +355,12 @@ uint32_t weldvertices_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
 uint32_t invertNormal_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
                                                          G3DURMANAGER *, 
                                                          uint32_t );
+
+/******************************************************************************/
+uint32_t revertSpline_init  ( G3DMOUSETOOL *mou, 
+                              G3DSCENE     *sce, 
+                              G3DCAMERA    *cam,
+                              G3DURMANAGER *urm, 
+                              uint32_t      engine_flags );
 
 #endif

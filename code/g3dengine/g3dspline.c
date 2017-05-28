@@ -30,6 +30,31 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dspline_revert ( G3DSPLINE *spline,
+                        uint32_t   engine_flags ) {
+    LIST *ltmpseg = spline->lseg;
+
+    while ( ltmpseg ) {
+        G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
+        G3DVERTEX *swappedVertex = csg->seg.pt[0x00];
+        G3DVERTEX *swappedHandle = csg->seg.pt[0x02];
+
+        csg->seg.pt[0x00] = csg->seg.pt[0x01];
+        csg->seg.pt[0x01] = swappedVertex;
+
+        csg->seg.pt[0x02] = csg->seg.pt[0x03];
+        csg->seg.pt[0x03] = swappedHandle;
+
+        ltmpseg = ltmpseg->next;
+    }
+
+    g3dmesh_update ( (G3DMESH*)spline, NULL,
+                                       NULL,
+                                       NULL,
+                                       RESETMODIFIERS, engine_flags );
+}
+
+/******************************************************************************/
 void g3dsplinepoint_free ( G3DSPLINEPOINT *pt ) {
     free ( pt );
 }

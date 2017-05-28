@@ -222,7 +222,7 @@ static void roundnessCbk ( GtkWidget *widget, gpointer user_data ) {
     int roundness = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( roundness < 32 ) {
+    if ( ( roundness >= 0 ) && ( roundness < 32 ) ) {
         common_g3duitextedit_roundnessCbk ( gui, roundness );
     } else {
         updateTextEdit ( parent, gui );
