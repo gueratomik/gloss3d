@@ -116,6 +116,14 @@ typedef struct _URMCUTMESH {
 } URMCUTMESH;
 
 /******************************************************************************/
+typedef struct _URMCUTSPLINE {
+    G3DSPLINE *spline;
+    LIST      *laddedPoints;
+    LIST      *laddedSegments;
+    LIST      *lremovedSegments;
+} URMCUTSPLINE;
+
+/******************************************************************************/
 typedef struct _URMUNTRIANGULATE {
     G3DMESH *mes;
     LIST *loldfac;
@@ -412,6 +420,25 @@ URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline,
                                                    LIST      *lremovedPoints,
                                                    LIST      *lremovedSegments );
 
+/******************************************************************************/
+void g3durm_spline_cut ( G3DURMANAGER *urm,
+                         G3DSPLINE    *spline, 
+                         G3DFACE      *knife,
+                         uint32_t      engine_flags,
+                         uint32_t      return_flags );
+void cutSpline_redo ( G3DURMANAGER *urm, 
+                      void         *data, 
+                      uint32_t      engine_flags );
+void cutSpline_undo ( G3DURMANAGER *urm, 
+                      void         *data, 
+                      uint32_t      engine_flags );
+void cutSpline_free ( void    *data, 
+                      uint32_t commit );
+void urmCutSpline_free ( URMCUTSPLINE *csp );
+URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline, 
+                                 LIST      *laddedPoints,
+                                 LIST      *laddedSegments,
+                                 LIST      *lremovedSegments );
 
 
 #endif

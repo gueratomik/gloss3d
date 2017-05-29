@@ -30,6 +30,79 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dspline_cut ( G3DSPLINE *spline, 
+                     G3DFACE   *knife, 
+                     LIST     **laddedPoints,
+                     LIST     **laddedSegments,
+                     LIST     **lremovedSegments,
+                     uint32_t   engine_flags ) {
+    LIST *ltmpseg = spline->lseg;
+
+    while ( ltmpseg ) {
+        G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+        /*
+         * copy here because this LIST element 
+         * might be deleted from the spline.
+         */
+        LIST *ltmpsegnext = ltmpseg->next;
+        float factor = 1.0f / spline->nbStepsPerSegment;
+        G3DVECTOR pone, ptwo;
+        uint32_t i;
+
+        memcpy ( &pone, &seg->pt[0x00]->pos, sizeof ( G3DVECTOR ) );
+
+        for( i = 0x01; i <= spline->nbStepsPerSegment; i++ ) {
+            G3DVECTOR vout;
+
+            seg->getPoint ( seg, ( factor * i ), &ptwo );
+
+            if ( g3dface_intersect ( knife, &pone, &ptwo, &vout ) ) {
+                G3DSPLINEPOINT *newPt = g3dsplinepoint_new ( vout.x, 
+                                                             vout.y, 
+                                                             vout.z );
+                G3DSPLINESEGMENT *newSeg[0x02];
+
+                newSeg[0x00] = g3dcubicsegment_new ( seg->pt[0x00],
+                                                     newPt,
+                                                     seg->pt[0x03]->pos.x,
+                                                     seg->pt[0x03]->pos.y,
+                                                     seg->pt[0x03]->pos.z,
+                                                     0.0f,
+                                                     0.0f,
+                                                     0.0f );
+
+                newSeg[0x01] = g3dcubicsegment_new ( newPt,
+                                                     seg->pt[0x01],
+                                                     0.0f,
+                                                     0.0f,
+                                                     0.0f,
+                                                     seg->pt[0x02]->pos.x,
+                                                     seg->pt[0x02]->pos.y,
+                                                     seg->pt[0x02]->pos.z );
+
+                g3dspline_removeSegment ( spline, seg );
+                list_insert ( lremovedSegments, seg );
+ 
+                g3dmesh_addVertex    ( spline, newPt );
+                g3dspline_addSegment ( spline, newSeg[0x00] );
+                g3dspline_addSegment ( spline, newSeg[0x01] );
+
+                g3dsplinepoint_roundCubicSegments ( newPt );
+
+                list_insert ( laddedPoints, newPt );
+                list_insert ( laddedSegments, newSeg[0x00] );
+                list_insert ( laddedSegments, newSeg[0x01] );
+            }
+
+            /* prepare jumping to the next sub segment */
+            memcpy ( &pone, &ptwo, sizeof ( G3DVECTOR ) );
+        }
+
+        ltmpseg = ltmpsegnext;
+    }
+}
+
+/******************************************************************************/
 LIST *g3dspline_getSelectedPoints ( G3DSPLINE *spline ) {
     LIST *lselectedPoints = NULL;
     LIST *ltmpver = ((G3DMESH*)spline)->lselver;
@@ -52,12 +125,16 @@ void g3dspline_deletePoints ( G3DSPLINE *spline,
                               LIST      *lremovedPoints,
                               LIST     **lremovedSegments,
                               uint32_t   engine_flags ) {
-    LIST *lcpyseg = list_copy ( spline->lseg );
-    LIST *ltmpseg = lcpyseg;
+    LIST *ltmpseg = spline->lseg;
     LIST *ltmpver = lremovedPoints;
 
     while ( ltmpseg ) {
         G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+        /*
+         * copy here because this LIST element 
+         * might be deleted from the spline.
+         */
+        LIST *ltmpsegnext = ltmpseg->next;
         uint32_t nbRemovedPoints = 0x00;
 
         nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[0] ) ? 1 : 0;
@@ -69,7 +146,7 @@ void g3dspline_deletePoints ( G3DSPLINE *spline,
             list_insert ( lremovedSegments, seg );
         }
 
-        ltmpseg = ltmpseg->next;
+        ltmpseg = ltmpsegnext;
     }
 
     while ( ltmpver ) {
@@ -79,8 +156,6 @@ void g3dspline_deletePoints ( G3DSPLINE *spline,
 
         ltmpver = ltmpver->next;
     }
-
-    list_free ( &lcpyseg, NULL );
 
     g3dmesh_update ( (G3DMESH*)spline, NULL,
                                        NULL,
@@ -291,7 +366,6 @@ void g3dsplinesegment_draw ( G3DSPLINESEGMENT *seg,
                              uint32_t          spline_flags,
                              uint32_t          engine_flags ) {
     float factor = ( to - from ) / nbSteps;
-    float incFactor = ( ( from + to ) / 2.0f );
     uint32_t i;
 
     if ( spline_flags & DRAW_FOR_TESSELLATION ) {

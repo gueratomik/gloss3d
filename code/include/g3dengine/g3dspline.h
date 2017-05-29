@@ -112,6 +112,8 @@ void g3dspline_free ( G3DOBJECT *obj );
 
 void g3dspline_addSegment ( G3DSPLINE        *spline, 
                             G3DSPLINESEGMENT *seg );
+void g3dspline_removeSegment ( G3DSPLINE        *spline, 
+                               G3DSPLINESEGMENT *seg );
 void g3dspline_revert ( G3DSPLINE *spline, uint32_t engine_flags );
 void g3dspline_init ( G3DSPLINE *spline, 
                       uint32_t   id, 
@@ -169,6 +171,13 @@ void g3dspline_deletePoints ( G3DSPLINE *spline,
                               LIST     **lremovedSegments,
                               uint32_t   engine_flags );
 LIST *g3dspline_getSelectedPoints ( G3DSPLINE *spline );
+
+void g3dspline_cut ( G3DSPLINE *spline, 
+                     G3DFACE   *knife, 
+                     LIST     **laddedVertices,
+                     LIST     **laddedSegments,
+                     LIST     **lremovedSegments,
+                     uint32_t   engine_flags );
 
 
 #ifdef __cplusplus

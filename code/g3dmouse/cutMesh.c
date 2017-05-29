@@ -111,7 +111,8 @@ int cutMesh_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             if ( ( flags & VIEWVERTEX ) ||
                  ( flags & VIEWEDGE   ) ||
                  ( flags & VIEWFACE   ) ) {
-                if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+                if ( obj && ( ( obj->type == G3DMESHTYPE   ) ||
+                              ( obj->type == G3DSPLINETYPE ) ) ) {
                     mes = ( G3DMESH * ) obj;
                     /*** We need the selected object matrix in order to create ***/
                     /*** the cutting plan and find its coords, but do not ***/
@@ -191,7 +192,24 @@ int cutMesh_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     knife = g3dquad_new ( ver[0x00], ver[0x01],
                                           ver[0x03], ver[0x02] );
 
-                    g3durm_mesh_cut ( urm, mes, knife, cm->restrict_to_selection, flags, REDRAWVIEW );
+                    if ( obj->type == G3DMESHTYPE ) {
+                        g3durm_mesh_cut ( urm, 
+                                          mes, 
+                                          knife,   
+                                          cm->restrict_to_selection, 
+                                          flags, 
+                                          REDRAWVIEW );
+                    }
+
+                    if ( obj->type == G3DSPLINETYPE ) {
+                        G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+
+                        g3durm_spline_cut ( urm,
+                                            spline, 
+                                            knife,
+                                            flags,
+                                            REDRAWVIEW );
+                    }
 
                     free ( ver[0x00] );
                     free ( ver[0x01] );
