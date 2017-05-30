@@ -180,6 +180,13 @@ typedef struct _URMADDVERTEX {
 } URMADDVERTEX;
 
 /******************************************************************************/
+typedef struct _URMADDSPLINEPOINT {
+    G3DSPLINE        *spline;
+    G3DSPLINEPOINT   *pt;
+    G3DSPLINESEGMENT *seg;
+} URMADDSPLINEPOINT;
+
+/******************************************************************************/
 typedef struct _URMDELETESPLINEPOINTS {
     G3DSPLINE *spline;
     LIST      *lremovedPoints;
@@ -440,5 +447,23 @@ URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline,
                                  LIST      *laddedSegments,
                                  LIST      *lremovedSegments );
 
+/******************************************************************************/
+URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline, 
+                                           G3DSPLINEPOINT   *pt,
+                                           G3DSPLINESEGMENT *seg );
+void urmAddSplinePoint_free ( URMADDSPLINEPOINT *asp );
+void addSplinePoint_free ( void *data, uint32_t commit );
+void addSplinePoint_undo ( G3DURMANAGER *urm, 
+                           void         *data,
+                           uint32_t      engine_flags );
+void addSplinePoint_redo ( G3DURMANAGER *urm, 
+                           void         *data,
+                           uint32_t      engine_flags );
+void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
+                              G3DSPLINE        *spline, 
+                              G3DSPLINEPOINT   *pt,
+                              G3DSPLINESEGMENT *seg,
+                              uint32_t          engine_flags,
+                              uint32_t          return_flags );
 
 #endif

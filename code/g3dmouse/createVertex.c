@@ -157,32 +157,32 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 if ( /*( bev->state & G3DControlMask ) &&*/
                      ( bev->state & G3DControlMask )  ) {
                     G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
-                    G3DVERTEX *ver;
 
                     if ( obj->type == G3DSPLINETYPE ) {
                         G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-                        ver = g3dsplinepoint_new ( objx, objy, objz );
+                        G3DSPLINESEGMENT *seg = NULL;
+                        G3DSPLINEPOINT *pt = g3dsplinepoint_new ( objx, 
+                                                                  objy,
+                                                                  objz );
 
                         if ( lastver ) {
-                            G3DSPLINESEGMENT *seg;
-
-                            seg = g3dcubicsegment_new ( ver,
+                            seg = g3dcubicsegment_new ( pt,
                                                         lastver,
                                                         0.0f, 0.0f, 0.0f,
                                                         0.0f, 0.0f, 0.0f );
-
-                            g3dspline_addSegment ( spline, seg );
-
-                            g3dsplinepoint_roundCubicSegments ( lastver );
                         }
+
+                        g3durm_spline_addPoint ( urm,
+                                                 spline,
+                                                 pt,
+                                                 seg,
+                                                 flags,
+                                                 REDRAWVIEW );
                     }
 
                     if ( obj->type == G3DMESHTYPE ) {
-                        ver = g3dvertex_new ( objx, objy, objz );
-                    }
-
-                    
-                    if ( ver ) {
+                        G3DVERTEX *ver = g3dvertex_new ( objx, objy, objz );
+ 
                         g3dmesh_addSelectedVertex ( mes, ver );
 
                         /*** Rebuild the mesh or spline ***/

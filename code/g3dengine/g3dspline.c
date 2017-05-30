@@ -585,48 +585,51 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
     glDisable ( GL_LIGHTING );
 
-    while ( ltmpseg ) {
-        G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+        while ( ltmpseg ) {
+            G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
 
-        if ( obj->flags & CUBIC ) {
-            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+            if ( obj->flags & CUBIC ) {
+                G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-            if ( engine_flags & VIEWVERTEX ) {
-                glColor3ub ( 0xFF, 0x7F, 0x00 );
-                glBegin ( GL_LINES );
-                glVertex3f (  csg->seg.pt[0x00]->pos.x, 
-                              csg->seg.pt[0x00]->pos.y, 
-                              csg->seg.pt[0x00]->pos.z );
-                glVertex3f (  csg->seg.pt[0x00]->pos.x + csg->seg.pt[0x03]->pos.x, 
-                              csg->seg.pt[0x00]->pos.y + csg->seg.pt[0x03]->pos.y, 
-                              csg->seg.pt[0x00]->pos.z + csg->seg.pt[0x03]->pos.z );
-                glVertex3f (  csg->seg.pt[0x01]->pos.x, 
-                              csg->seg.pt[0x01]->pos.y, 
-                              csg->seg.pt[0x01]->pos.z );
-                glVertex3f (  csg->seg.pt[0x01]->pos.x + csg->seg.pt[0x02]->pos.x, 
-                              csg->seg.pt[0x01]->pos.y + csg->seg.pt[0x02]->pos.y, 
-                              csg->seg.pt[0x01]->pos.z + csg->seg.pt[0x02]->pos.z );
-                glEnd   ( );
+                /* draw line to the handle */
+                if ( engine_flags & VIEWVERTEX ) {
+                    glColor3ub ( 0xFF, 0x7F, 0x00 );
+                    glBegin ( GL_LINES );
+                    glVertex3f (  csg->seg.pt[0x00]->pos.x, 
+                                  csg->seg.pt[0x00]->pos.y, 
+                                  csg->seg.pt[0x00]->pos.z );
+                    glVertex3f (  csg->seg.pt[0x00]->pos.x + csg->seg.pt[0x03]->pos.x, 
+                                  csg->seg.pt[0x00]->pos.y + csg->seg.pt[0x03]->pos.y, 
+                                  csg->seg.pt[0x00]->pos.z + csg->seg.pt[0x03]->pos.z );
+                    glVertex3f (  csg->seg.pt[0x01]->pos.x, 
+                                  csg->seg.pt[0x01]->pos.y, 
+                                  csg->seg.pt[0x01]->pos.z );
+                    glVertex3f (  csg->seg.pt[0x01]->pos.x + csg->seg.pt[0x02]->pos.x, 
+                                  csg->seg.pt[0x01]->pos.y + csg->seg.pt[0x02]->pos.y, 
+                                  csg->seg.pt[0x01]->pos.z + csg->seg.pt[0x02]->pos.z );
+                    glEnd   ( );
+                }
+
+                if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+                    glColor3ub ( 0xFF, 0x7F, 0x7F );
+                    g3dsplinesegment_draw ( seg,
+                                            0.0f, 
+                                            1.0f,
+                                            spline->nbStepsPerSegment,
+                                            NULL, /* to tessellation object */
+                                            NULL, /* no tessellation data **/
+                                            0x00,
+                                            engine_flags );
+                }
             }
 
-            if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-                glColor3ub ( 0xFF, 0x7F, 0x7F );
-                g3dsplinesegment_draw ( seg,
-                                        0.0f, 
-                                        1.0f,
-                                        spline->nbStepsPerSegment,
-                                        NULL, /* to tessellation object */
-                                        NULL, /* no tessellation data **/
-                                        0x00,
-                                        engine_flags );
-            }
+            ltmpseg = ltmpseg->next;
         }
-
-        ltmpseg = ltmpseg->next;
     }
 
     if ( engine_flags & VIEWVERTEX ) {
-
+        glDisable ( GL_DEPTH_TEST );
         while ( ltmpver ) {
             G3DVERTEX * ver = ( G3DVERTEX * ) ltmpver->data;
 
@@ -639,13 +642,22 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
                 if ( obj->flags & CUBIC ) {
                     G3DCUBICHANDLE *han = ( G3DCUBICHANDLE * ) ver;
 
-                    glColor3ub ( 0x00, 0xFF, 0x00 );
+                    if ( ver->flags & VERTEXSELECTED ) {
+                        glColor3ub ( 0xFF, 0x00, 0xFF );
+                    } else {
+                        glColor3ub ( 0x00, 0xFF, 0x00 );
+                    }
                     glVertex3f (  han->ver.pos.x + han->pt->pos.x, 
                                   han->ver.pos.y + han->pt->pos.y, 
                                   han->ver.pos.z + han->pt->pos.z );
                 }
             } else {
-                glColor3ub ( 0x00, 0x00, 0xFF );
+                if ( ver->flags & VERTEXSELECTED ) {
+                    glColor3ub ( 0xFF, 0x00, 0x00 );
+                } else {
+                    glColor3ub ( 0x00, 0x00, 0xFF );
+                }
+
                 glVertex3f (  ver->pos.x, ver->pos.y, ver->pos.z );
             }
             glEnd ( );
@@ -656,7 +668,11 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
     glPopAttrib ( );
 
-    g3dobject_drawModifiers ( obj, curcam, engine_flags );
+    if ( ( ( obj->flags & OBJECTSELECTED ) == 0x00 ) ||
+         ( ( obj->flags & OBJECTSELECTED ) &&
+           ( engine_flags & SELECTMODE ) == 0x00 ) ) {
+        g3dobject_drawModifiers ( obj, curcam, engine_flags );
+    }
 
     return 0x00;
 }

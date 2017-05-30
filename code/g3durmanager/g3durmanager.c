@@ -34,6 +34,8 @@
 void g3durmanager_clearFrom ( G3DURMANAGER *urm, LIST **lprocs ) {
     LIST *ltmpprocs = (*lprocs);
     LIST *lprev     = (*lprocs) ? (*lprocs)->prev : NULL;
+    /*** Initalize undoredo items by pushing one element in the list ***/
+    /*** then we know we have hit the end of the list ***/
     LIST *lnew      = list_new ( NULL );
 
     while ( ltmpprocs ) {
@@ -68,10 +70,6 @@ void g3durmanager_clear ( G3DURMANAGER *urm ) {
 
 /******************************************************************************/
 void g3durmanager_init ( G3DURMANAGER *urm, uint32_t level ) {
-    /*** Initalize undoredo items by pushing one element in the list ***/
-    /*** then we know we have hit the end of the list ***/
-    /*list_insert ( &urm->lprocs, NULL );*/
-
     urm->level = level;
 
     g3durmanager_clear ( urm );
@@ -97,6 +95,7 @@ G3DURMANAGER *g3durmanager_new ( uint32_t level ) {
 /******************************************************************************/
 uint32_t g3durmanager_undo ( G3DURMANAGER *urm, uint32_t flags ) {
     G3DURITEM *uri = urm->lcurprocs->data;
+
 
     if ( uri == NULL ) {
         fprintf ( stderr, "g3durmanager_undo: hit the end of the list\n" );
@@ -151,8 +150,13 @@ void g3durmanager_push ( G3DURMANAGER *urm,
 
     list_freeprev ( urm->lcurprocs, (void(*)(void*))g3duritem_free );
 
+    printf("B: %d %d %d\n", list_count ( urm->lcurprocs ), urm->lprocs, urm->lcurprocs );
+
+
     /*** set this item as the current item ***/
     urm->lprocs = list_insert ( &urm->lcurprocs, uri );
+
+    printf("A: %d %d %d\n", list_count ( urm->lcurprocs ), urm->lprocs, urm->lcurprocs );
 
     if ( urm->level ) {
         LIST *lclear = list_forward ( urm->lprocs, urm->level );
