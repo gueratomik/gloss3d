@@ -122,7 +122,9 @@ static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_saveCbk ( gui, save );
 
+    gui->lock = 0x01;
     updateSaveOutputForm ( parent, gui );
+    gui->lock = 0x00;
 }
 
 
@@ -141,7 +143,9 @@ static void startFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_startFrameCbk ( gui, frame );
 
+    gui->lock = 1;
     updateGeneralPanel ( parent, gui );
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -283,7 +287,9 @@ static void setMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_setMotionBlurCbk ( gui );
 
+    gui->lock = 0x01;
     updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -395,7 +401,9 @@ void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
 void updateSaveOutputFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
+    gui->lock = 0x01;
     if ( frm ) updateSaveOutputForm ( frm, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -531,7 +539,9 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
 void updateMotionBlurFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
+    gui->lock = 0x01;
     if ( frm ) updateMotionBlurForm ( frm, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -664,7 +674,9 @@ static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
 static void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
+    gui->lock = 0x01;
     if ( frm ) updateWireframeForm ( frm, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -673,7 +685,9 @@ static void setWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_setWireframeCbk ( gui );
 
+    gui->lock = 0x01;
     updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -682,7 +696,9 @@ static void setWireframeLightingCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_setWireframeLightingCbk ( gui );
 
+    gui->lock = 0x01;
     updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -705,6 +721,8 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
 
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
+    gui->lock = 0x01;
+
           createToggleLabel ( frm, gui,
                                    EDITRENDERWIREFRAME,
                                      0,  0, 96, 18,
@@ -725,6 +743,7 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
           createColorButton ( frm, gui, EDITRENDERWIREFRAMECOLOR,
                                      96, 72, 96, 18, wireframeColorCbk );
 
+    gui->lock = 0x00;
 
     return frm;
 }
@@ -821,7 +840,9 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
 static void updateFogFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
+    gui->lock = 0x01;
     if ( frm ) updateFogForm ( frm, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -837,7 +858,9 @@ static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_setFogCbk ( gui );
 
+    gui->lock = 0x01;
     updateFogForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -987,7 +1010,9 @@ static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
 static void updateBackgroundFrame ( GtkWidget *widget, G3DUI *gui ) {
     GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
 
+    gui->lock = 0x01;
     if ( frm ) updateBackgroundForm ( frm, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -1018,7 +1043,9 @@ static void setBackgroundImageCbk ( GtkWidget *widget, gpointer user_data ) {
         g_free    ( ( gpointer ) filename );
     }
 
+    gui->lock = 0x01;
     updateBackgroundForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 
     gtk_widget_destroy ( dialog );
 }
@@ -1252,9 +1279,7 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     gui->lock = 1;
-
     updateRenderEdit ( widget, gui );
-
     gui->lock = 0;
 }
 

@@ -333,6 +333,8 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI        *gui,
                                             unsigned char B ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
     if ( rsg ) {
         rsg->background.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
     }
@@ -342,6 +344,8 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI        *gui,
 void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
     if ( rsg ) {
         rsg->background.mode &= (~BACKGROUND_IMAGE);
     }
@@ -350,6 +354,8 @@ void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
 
     if ( rsg ) {
         rsg->background.mode |= BACKGROUND_IMAGE;
@@ -361,6 +367,8 @@ void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     /*R3DRENDERSETTINGS *rsg = gui->currsg;*/
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
 
     if ( sysinfo ) {
         if ( sysinfo->backgroundImage ) {
