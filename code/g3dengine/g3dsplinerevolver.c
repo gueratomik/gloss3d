@@ -150,6 +150,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                 LIST *ltmpver = splmes->lver;
                 uint32_t vertexID = 0x00;
+                uint32_t handleID = nbSplineVertices;
                 while ( ltmpver ) {
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
@@ -164,6 +165,14 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                         srvVertices[offset].ver.flags |= VERTEXORIGINAL;
 
                         ver->id = vertexID++;
+                    } else {
+                        /* 
+                         * ensure vertices have unique IDs, or else spline point
+                         * picking won't work vey well. We could also restore
+                         * vertices ID to their original values after shaping
+                         * the spline revolver. I guess it's faster this way.
+                         */
+                        ver->id = handleID++;
                     }
 
                     ltmpver = ltmpver->next;

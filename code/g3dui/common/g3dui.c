@@ -56,6 +56,7 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
 /******************************************************************************/
 G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
                                           R3DRENDERSETTINGS *rsg,
+                                          float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence ) {
     G3DSCENE *sce = gui->sce;
@@ -76,6 +77,11 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
         /*** start thread son all CPUs ***/
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
+
+        /* Eventually reset object position at the first frame */
+        if ( gui->curframe != resetFrame ) {
+            g3dobject_anim_r ( sce, resetFrame, gui->flags );
+        }
 
         rsce = r3dscene_new ( rsg );
 

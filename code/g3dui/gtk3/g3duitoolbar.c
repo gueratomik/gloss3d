@@ -187,7 +187,13 @@ void g3dui_openfilecbk ( GtkWidget *widget, gpointer user_data ) {
         char           *filename = gtk_file_chooser_get_filename ( chooser );
 
         if ( filename ) {
+            common_g3dui_closeScene ( gui );
+
             gui->sce = common_g3dui_openG3DFile ( gui, filename );
+
+            if ( gui->sce == NULL ) {
+                gui->sce = g3dscene_new ( 0x00, "SCENE" );
+            }
 
             g_free    ( filename );
         }

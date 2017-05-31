@@ -271,6 +271,7 @@ uint32_t r3dface_intersectRay ( R3DFACE *rfc, R3DVERTEX *rver,
     /*G3DMATERIAL *mat = rfc->fac->mat;*/
     uint32_t ret;
     double t;
+    float invert = 1.0f;
 
     if ( vd == 0.0f ) return 0x00;
 
@@ -280,6 +281,11 @@ uint32_t r3dface_intersectRay ( R3DFACE *rfc, R3DVERTEX *rver,
         R3DDOUBLEPOINT pnt = { .x = ray->ori.x + ( ray->dir.x * t ),
                                .y = ray->ori.y + ( ray->dir.y * t ),
                                .z = ray->ori.z + ( ray->dir.z * t ) };
+
+        /* when we render backface as well */
+        if ( ( vd > 0.0f ) && ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
+            invert = -1.0f;
+        }
 
         if ( ( vd < 0.0f ) || ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
 
@@ -303,17 +309,17 @@ uint32_t r3dface_intersectRay ( R3DFACE *rfc, R3DVERTEX *rver,
                     ray->flags |= INTERSECT;
 
                     /*if ( rfc->flags & R3DFACESMOOTH ) {*/
-                        ray->nor.x = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.x ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.x ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.x ) );
+                        ray->nor.x = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.x * invert ) + 
+                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.x * invert ) + 
+                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.x * invert ) );
 
-                        ray->nor.y = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.y ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.y ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.y ) );
+                        ray->nor.y = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.y * invert ) + 
+                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.y * invert ) + 
+                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.y * invert ) );
 
-                        ray->nor.z = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.z ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.z ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.z ) );
+                        ray->nor.z = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.z * invert ) + 
+                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.z * invert ) + 
+                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.z * invert ) );
 
                         /* Vertices normals are already normalized, I guess ***/
                         /* the function call below is unneeded ***/

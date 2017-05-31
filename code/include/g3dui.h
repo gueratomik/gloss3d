@@ -1241,6 +1241,7 @@ void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *,
 
 G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
                                           R3DRENDERSETTINGS *rsg,
+                                          float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence );
 #endif

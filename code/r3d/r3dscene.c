@@ -331,11 +331,12 @@ void *r3dscene_raytrace ( void *ptr ) {
             color = r3dray_shoot ( &ray, rsce, 
                                          NULL, 
                                          0x00, 
-                                         RAYSTART           |
-                                         RAYQUERYHIT        | 
-                                         RAYQUERYLIGHTING   |
-                                         RAYQUERYREFLECTION |
-                                         RAYQUERYREFRACTION |
+                                         RAYSTART               |
+                                         RAYQUERYHIT            | 
+                                         RAYQUERYLIGHTING       |
+                                         RAYQUERYREFLECTION     |
+                                         RAYQUERYREFRACTION     |
+                                         RAYQUERYIGNOREBACKFACE |
                                          outlineFlag );
 
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;

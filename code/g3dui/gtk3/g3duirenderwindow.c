@@ -285,10 +285,12 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
 
             rps = common_g3dui_render ( gui, rsg,
+                                             rsg->output.startframe,
                                              ( uint64_t ) widget,
                                              0x01 );
         } else {
             rps = common_g3dui_render ( gui, rsg,
+                                             rsg->output.startframe,
                                              ( uint64_t ) widget,
                                              0x00 );
         }

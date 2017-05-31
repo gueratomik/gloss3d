@@ -115,6 +115,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     g3dui_setHourGlass ( gui );
 
     rps = common_g3dui_render ( gui, &viewRsg,
+                                     gui->curframe,
                         ( uint64_t ) ggt->curogl,
                                      0x00 );
 

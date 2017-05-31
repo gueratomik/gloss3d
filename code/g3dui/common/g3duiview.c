@@ -308,6 +308,8 @@ void common_g3duiview_showGL ( G3DUI        *gui,
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
     glMatrixMode ( GL_PROJECTION );
