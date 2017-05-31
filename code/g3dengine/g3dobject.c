@@ -33,21 +33,23 @@
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
 
+    if ( ( obj->type == G3DMESHTYPE   ) ||
+         ( obj->type == G3DSPLINETYPE ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+
+        /*** Rebuild mesh ***/
+        g3dmesh_update ( mes, NULL,
+                              NULL,
+                              NULL,
+                              UPDATEVERTEXNORMAL |
+                              UPDATEFACENORMAL |
+                              RESETMODIFIERS, engine_flags );
+    }
+
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        if ( ( child->type == G3DMESHTYPE   ) ||
-             ( child->type == G3DSPLINETYPE ) ) {
-            G3DMESH *mes = ( G3DMESH * ) child;
-
-            /*** Rebuild mesh ***/
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  UPDATEVERTEXNORMAL |
-                                  UPDATEFACENORMAL |
-                                  RESETMODIFIERS, engine_flags );
-        }
+        g3dobject_updateMeshes_r ( child, engine_flags );
 
         ltmpchildren = ltmpchildren->next;
     }

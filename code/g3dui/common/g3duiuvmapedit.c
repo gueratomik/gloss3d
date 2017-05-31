@@ -59,6 +59,7 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
 
         g3dobject_updateMatrix_r ( ( G3DOBJECT * ) map, gui->flags );
         /*g3duvmap_applyProjection ( map );*/
+        g3dobject_updateMeshes_r ( obj->parent, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }

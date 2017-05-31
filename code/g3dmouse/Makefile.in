@@ -132,7 +132,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dmouse_la_LIBADD =
-am__objects_1 = createCube.lo createCylinder.lo createFace.lo \
+am__objects_1 = createCube.lo createCylinder.lo bridge.lo \
 	createPlane.lo createSphere.lo createVertex.lo createBone.lo \
 	createTorus.lo cutMesh.lo triangulate.lo untriangulate.lo \
 	revertSpline.lo paintWeight.lo invertNormal.lo empty.lo \
@@ -335,7 +335,7 @@ lib_LTLIBRARIES = libgloss-g3dmouse.la
 libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)
 LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createCylinder.c \
-                           createFace.c     \
+                           bridge.c         \
                            createPlane.c    \
                            createSphere.c   \
                            createVertex.c   \
@@ -435,10 +435,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bridge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createBone.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCube.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCylinder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createFace.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createPlane.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createSphere.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createTorus.Plo@am__quote@

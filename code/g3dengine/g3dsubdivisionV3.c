@@ -1326,7 +1326,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                     /*memset ( subver, 0x00, sizeof ( G3DSUBVERTEX ) );*/
                     subver->ver.id     = nbInnerVertices++;
-                    subver->ver.flags  = VERTEXTOPOLOGY | VERTEXINNER;
+                    subver->ver.flags  = VERTEXTOPOLOGY | 
+                                         VERTEXINNER    | 
+                                      /* both original vertices must be flagged as symmetric, hence the & */
+                                      ( curInnerEdges[i].edg.ver[0x00]->flags & VERTEXSYMALL ) &
+                                      ( curInnerEdges[i].edg.ver[0x01]->flags & VERTEXSYMALL );
                     subver->ver.nbfac  = subver->ver.nbedg = 0x00;
                     subver->ver.lfac   = subver->ver.ledg  = NULL;
 
@@ -1353,7 +1357,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     memcpy ( &curInnerEdges[i].subver->pos,
                              &curInnerEdges[i].pos, sizeof ( G3DVECTOR ) );
 
-                    if ( ( curInnerEdges[i].edg.ver[0x00]->flags & VERTEXSYMYZ ) ||
+                    /*if ( ( curInnerEdges[i].edg.ver[0x00]->flags & VERTEXSYMYZ ) ||
                          ( curInnerEdges[i].edg.ver[0x01]->flags & VERTEXSYMYZ ) ) {
                         subver->ver.flags  |= VERTEXSYMYZ;
                     }
@@ -1366,7 +1370,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     if ( ( curInnerEdges[i].edg.ver[0x00]->flags & VERTEXSYMXY ) ||
                          ( curInnerEdges[i].edg.ver[0x01]->flags & VERTEXSYMXY ) ) {
                         subver->ver.flags  |= VERTEXSYMXY;
-                    }
+                    }*/
 
                     /*if ( fac->heightmap ) {*/
                         memcpy ( &curInnerEdges[i].subver->nor,
@@ -1395,7 +1399,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                     /*memset ( subver, 0x00, sizeof ( G3DSUBVERTEX ) );*/
                                                       /* todo: topology is needed for both elevation and displacement */
-                    subver->ver.flags = VERTEXOUTER | VERTEXTOPOLOGY/*(( subdiv_flags & SUBDIVISIONELEVATE ) ? VERTEXTOPOLOGY : 0x00)*/;
+                    subver->ver.flags = VERTEXOUTER    | 
+                                        VERTEXTOPOLOGY | /*(( subdiv_flags & SUBDIVISIONELEVATE ) ? VERTEXTOPOLOGY : 0x00)*/
+                                      /* both original vertices must be flagged as symmetric, hence the & */
+                                      ( curOuterEdges[i].edg.ver[0x00]->flags & VERTEXSYMALL ) |
+                                      ( curOuterEdges[i].edg.ver[0x01]->flags & VERTEXSYMALL );
                     subver->ver.nbfac = subver->ver.nbedg = 0x00;
                     subver->ver.lfac  = subver->ver.ledg  = NULL;
 

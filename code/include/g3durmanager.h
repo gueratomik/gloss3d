@@ -187,6 +187,12 @@ typedef struct _URMADDSPLINEPOINT {
 } URMADDSPLINEPOINT;
 
 /******************************************************************************/
+typedef struct _URMADDSPLINESEGMENT {
+    G3DSPLINE        *spline;
+    G3DSPLINESEGMENT *seg;
+} URMADDSPLINESEGMENT;
+
+/******************************************************************************/
 typedef struct _URMDELETESPLINEPOINTS {
     G3DSPLINE *spline;
     LIST      *lremovedPoints;
@@ -465,5 +471,22 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
                               G3DSPLINESEGMENT *seg,
                               uint32_t          engine_flags,
                               uint32_t          return_flags );
+
+/******************************************************************************/
+void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
+                                G3DSPLINE        *spline,
+                                G3DSPLINESEGMENT *seg,
+                                uint32_t          engine_flags,
+                                uint32_t          return_flags );
+void addSplineSegment_redo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void addSplineSegment_undo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void addSplineSegment_free ( void *data, uint32_t commit );
+void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass );
+URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
+                                               G3DSPLINESEGMENT *seg );
 
 #endif

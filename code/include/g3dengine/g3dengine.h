@@ -201,7 +201,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VERTEXSYMYZ        (  1 << 1  )
 #define VERTEXSYMXY        (  1 << 2  )
 #define VERTEXSYMZX        (  1 << 3  )
-#define SYMALL             ( SYMYZ | SYMXY | SYMZX )
+#define VERTEXSYMALL       ( VERTEXSYMYZ | VERTEXSYMXY | VERTEXSYMZX )
 #define VERTEXTOPOLOGY     (  1 << 4  ) /*** Subdivision: set topology ? ***/
 /*#define VERTEXFACETOPOLOGY (  1 << 5  ) *//*** Subdivision: set topology ? ***/
 /*#define VERTEXEDGETOPOLOGY (  1 << 6  ) *//*** Subdivision: set topology ? ***/

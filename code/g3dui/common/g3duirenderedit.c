@@ -300,8 +300,7 @@ void common_g3duirenderedit_widthCbk ( G3DUI   *gui,
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->output.width  = width;
-
-    /*updateRenderHeight ( parent );*/
+    rsg->output.height = round ( ( float ) width / rsg->output.ratio );
 }
 
 /******************************************************************************/
@@ -312,9 +311,7 @@ void common_g3duirenderedit_heightCbk ( G3DUI   *gui,
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->output.height = height;
-
-
-    /*updateRenderWidth ( parent );*/
+    rsg->output.width  = round ( ( float ) height * rsg->output.ratio );
 }
 
 /******************************************************************************/
@@ -325,8 +322,8 @@ void common_g3duirenderedit_ratioCbk ( G3DUI *gui,
     if ( gui->lock ) return; /*** prevent a loop ***/
 
     rsg->output.ratio = ratio;
-
-    /*updateRenderWidth ( parent );*/
+    rsg->output.width = round ( ( float ) rsg->output.height * 
+                                          rsg->output.ratio );
 }
 
 /******************************************************************************/

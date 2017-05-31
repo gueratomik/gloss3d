@@ -711,11 +711,12 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     /********************************/
 
     mou = g3dmousetool_new ( BRIDGETOOL, 'a', bridge_xpm,
-                             createFace_init,
-                             createFace_draw, createFace_tool, 0x00 );
+                             bridge_init,
+                             bridge_draw, bridge_tool, 0x00 );
 
     common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL |
                                           MESHTOOL       |
+                                          SPLINETOOL     |
                                           GLMENUTOOL );
 
     /********************************/

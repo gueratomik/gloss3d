@@ -160,7 +160,9 @@ static void endFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_endFrameCbk ( gui, frame );
 
+    gui->lock = 1;
     updateGeneralPanel ( parent, gui );
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -171,7 +173,9 @@ static void ratioCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_ratioCbk ( gui, ratio );
 
+    gui->lock = 1;
     updateGeneralPanel ( parent, gui );
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -182,7 +186,9 @@ static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_widthCbk ( gui, ( uint32_t ) width );
 
+    gui->lock = 1;
     updateGeneralPanel ( parent, gui );
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -193,7 +199,9 @@ static void heightCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3duirenderedit_heightCbk ( gui, ( uint32_t ) height );
 
+    gui->lock = 1;
     updateGeneralPanel ( parent, gui );
+    gui->lock = 0;
 }
 
 /******************************************************************************/
@@ -1159,8 +1167,8 @@ void createGeneralPanel ( GtkWidget *parent,
     createIntegerText ( pan, gui, EDITRENDERHEIGHT,
                                0, 120, 96,  32, heightCbk );
 
-    /*createFloatText   ( pan, gui, EDITRENDERRATIO,
-                               0, 144, 96,  64, ratioCbk );*/
+    createFloatText   ( pan, gui, EDITRENDERRATIO,
+                               0, 144, 96,  64, ratioCbk );
 
     createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
                                0, 168, 256,  96 );

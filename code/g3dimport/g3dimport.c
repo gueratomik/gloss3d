@@ -91,6 +91,18 @@ uint32_t g3dimport_detectFormat ( char *filename ) {
 }
 
 /******************************************************************************/
+/*static char *checkTexturePath ( char *G3DFileFolder, char *textureName ) {
+    char *defaultFolders[] = { ".", "tex" };
+    FILE *fp;
+
+    if ( fp = fopen ( filename, "r" ) ) {
+        fclose ( fp );
+
+        return strdup ( filename );
+    }
+}*/
+
+/******************************************************************************/
 G3DSCENE *g3dscene_open ( const char *filename,
                           G3DSCENE   *mergedScene,
                           uint32_t    flags ) {

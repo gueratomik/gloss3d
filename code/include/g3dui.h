@@ -205,7 +205,7 @@
 #define EDITRENDERFORMAT           "Format"
 #define EDITRENDERWIDTH            "Render width"
 #define EDITRENDERHEIGHT           "Render height"
-#define EDITRENDERRATIO            "Aspect ratio"
+#define EDITRENDERRATIO            "W/H ratio"
 #define EDITRENDERMOTIONBLURFRAME  "Motion Blur Settings"
 #define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur"
 #define EDITRENDERVECTORMOTIONBLURSAMPLES "Samples"

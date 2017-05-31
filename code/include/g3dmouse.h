@@ -144,11 +144,11 @@ typedef struct _G3DMOUSETOOL {
 } G3DMOUSETOOL;
 
 /******************************************************************************/
-typedef struct _G3DCREATEFACE {
+typedef struct _G3DBRIDGETOOL {
     uint32_t draw; /*** true or false ***/
     G3DVERTEX *ver[0x04];
     G3DMESH *mes; /*** the mesh that gest the new face ****/
-} G3DCREATEFACE;
+} G3DBRIDGETOOL;
 
 /******************************************************************************/
 typedef struct _G3DCREATEVERTEX {
@@ -246,12 +246,12 @@ uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                                                 uint32_t engine_flags );
 
 /******************************************************************************/
-G3DCREATEFACE  *createFace_new    ( );
-uint32_t        createFace_init   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+G3DBRIDGETOOL  *bridge_new    ( );
+uint32_t        bridge_init   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
                                                                 uint32_t );
-void            createFace_draw   ( G3DMOUSETOOL *, G3DSCENE *, uint32_t );
-int             createFace_tool   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
+void            bridge_draw   ( G3DMOUSETOOL *, G3DSCENE *, uint32_t );
+int             bridge_tool   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
                                                                 G3DURMANAGER *, 
                                                                 uint32_t, 
                                                                 G3DEvent * );

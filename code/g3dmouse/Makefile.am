@@ -7,7 +7,7 @@ libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)
 
 LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createCylinder.c \
-                           createFace.c     \
+                           bridge.c         \
                            createPlane.c    \
                            createSphere.c   \
                            createVertex.c   \
