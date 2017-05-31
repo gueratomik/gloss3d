@@ -299,6 +299,12 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
             for ( i = 0x00; i < srvmes->nbver; i++ ) {
                 g3dvertex_normal ( &srvVertices[i].ver, 0x00 );
             }
+
+            /* 
+             * TODO: not the fastest way to recalculate the BBOX 
+             * BBOX sizing must be done when shaping the splinerevolver.
+             */
+            g3dmesh_updateBbox ( srvmes );
         }
     }
 }
@@ -373,7 +379,7 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
         glBegin ( GL_QUADS );
         for ( i = 0x00; i < srvmes->nbfac; i++ ) {
             G3DSUBFACE *subfac = ( G3DSUBFACE * ) srvmes->lfac;
-            glNormal3f ( subfac[i].fac.ver[0x00]->nor.x, 
+            /*glNormal3f ( subfac[i].fac.ver[0x00]->nor.x, 
                          subfac[i].fac.ver[0x00]->nor.y, 
                          subfac[i].fac.ver[0x00]->nor.z );
             glVertex3f ( subfac[i].fac.ver[0x00]->pos.x, 
@@ -399,7 +405,11 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
                          subfac[i].fac.ver[0x03]->nor.z );
             glVertex3f ( subfac[i].fac.ver[0x03]->pos.x, 
                          subfac[i].fac.ver[0x03]->pos.y, 
-                         subfac[i].fac.ver[0x03]->pos.z );
+                         subfac[i].fac.ver[0x03]->pos.z );*/
+            g3dface_draw  ( &subfac[i].fac, M_PI,
+                                            srvmes->ltex, 
+                                            0x00 /* object_flags */,
+                                            engine_flags );
         }
         glEnd();
     }

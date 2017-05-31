@@ -438,7 +438,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         nextframe += difstep;
 
         /*** Prepare the scene ***/
-        blurrsce = r3dscene_new ( rsce->rsg );
+        blurrsce = r3dscene_new ( rsce->rsg, 0x00 );
 
         /*** register this child renderscene in case we need to cancel it ***/
         r3dscene_addSubRender ( rsce, blurrsce );

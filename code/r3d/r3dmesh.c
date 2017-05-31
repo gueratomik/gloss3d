@@ -226,20 +226,26 @@ static void Dump ( G3DFACE *fac, void *data ) {
                                  ( rms->curfac->nor.y * rfacpos.y ) + 
                                  ( rms->curfac->nor.z * rfacpos.z ) );
 
-            while ( ltmpuvs ) {
-                G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-                uint32_t uvmapID = uvs->map->mapID;
+            /* 
+             * no need uv coords when using, let's say,
+             * the vector motion blur
+             */
+            if ( ( rdump->dump_flags & GEOMETRYONLY ) == 0x00 ) {
+                while ( ltmpuvs ) {
+                    G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                    uint32_t uvmapID = uvs->map->mapID;
 
-                rms->curfac->ruvs[uvmapID].uv[0x00].u = uvs->veruv[0x00].u;
-                rms->curfac->ruvs[uvmapID].uv[0x00].v = uvs->veruv[0x00].v;
+                    rms->curfac->ruvs[uvmapID].uv[0x00].u = uvs->veruv[0x00].u;
+                    rms->curfac->ruvs[uvmapID].uv[0x00].v = uvs->veruv[0x00].v;
 
-                rms->curfac->ruvs[uvmapID].uv[0x01].u = uvs->veruv[0x01].u;
-                rms->curfac->ruvs[uvmapID].uv[0x01].v = uvs->veruv[0x01].v;
+                    rms->curfac->ruvs[uvmapID].uv[0x01].u = uvs->veruv[0x01].u;
+                    rms->curfac->ruvs[uvmapID].uv[0x01].v = uvs->veruv[0x01].v;
 
-                rms->curfac->ruvs[uvmapID].uv[0x02].u = uvs->veruv[0x02].u;
-                rms->curfac->ruvs[uvmapID].uv[0x02].v = uvs->veruv[0x02].v;
+                    rms->curfac->ruvs[uvmapID].uv[0x02].u = uvs->veruv[0x02].u;
+                    rms->curfac->ruvs[uvmapID].uv[0x02].v = uvs->veruv[0x02].v;
 
-                ltmpuvs = ltmpuvs->next;
+                    ltmpuvs = ltmpuvs->next;
+                }
             }
 
             rms->curfac++;
@@ -318,20 +324,26 @@ static void Dump ( G3DFACE *fac, void *data ) {
                                      ( rms->curfac->nor.y * rfacpos.y ) + 
                                      ( rms->curfac->nor.z * rfacpos.z ) );
 
-                while ( ltmpuvs ) {
-                    G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-                    uint32_t uvmapID = uvs->map->mapID;
+                /* 
+                 * no need uv coords when using, let's say,
+                 * the vector motion blur
+                 */
+                if ( ( rdump->dump_flags & GEOMETRYONLY ) == 0x00 ) {
+                    while ( ltmpuvs ) {
+                        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                        uint32_t uvmapID = uvs->map->mapID;
 
-                    rms->curfac->ruvs[uvmapID].uv[0x00].u = uvs->veruv[idx[i][0x00]].u;
-                    rms->curfac->ruvs[uvmapID].uv[0x00].v = uvs->veruv[idx[i][0x00]].v;
+                        rms->curfac->ruvs[uvmapID].uv[0x00].u = uvs->veruv[idx[i][0x00]].u;
+                        rms->curfac->ruvs[uvmapID].uv[0x00].v = uvs->veruv[idx[i][0x00]].v;
 
-                    rms->curfac->ruvs[uvmapID].uv[0x01].u = uvs->veruv[idx[i][0x01]].u;
-                    rms->curfac->ruvs[uvmapID].uv[0x01].v = uvs->veruv[idx[i][0x01]].v;
+                        rms->curfac->ruvs[uvmapID].uv[0x01].u = uvs->veruv[idx[i][0x01]].u;
+                        rms->curfac->ruvs[uvmapID].uv[0x01].v = uvs->veruv[idx[i][0x01]].v;
 
-                    rms->curfac->ruvs[uvmapID].uv[0x02].u = uvs->veruv[idx[i][0x02]].u;
-                    rms->curfac->ruvs[uvmapID].uv[0x02].v = uvs->veruv[idx[i][0x02]].v;
+                        rms->curfac->ruvs[uvmapID].uv[0x02].u = uvs->veruv[idx[i][0x02]].u;
+                        rms->curfac->ruvs[uvmapID].uv[0x02].v = uvs->veruv[idx[i][0x02]].v;
 
-                    ltmpuvs = ltmpuvs->next;
+                        ltmpuvs = ltmpuvs->next;
+                    }
                 }
 
                 rms->curfac++;
@@ -347,6 +359,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
                                      double  *wnormix,
                                      double  *pmatrix, /* camera proj matrix */
                                      int     *vmatrix, /* camera viewport */
+                                     uint32_t dump_flags,
                                      uint32_t engine_flags ) {
 
     uint32_t structsize = sizeof ( R3DMESH );
@@ -371,6 +384,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
     rdump.wmatrix = wmatrix;
     rdump.wnormix = wnormix;
     rdump.vmatrix = vmatrix;
+    rdump.dump_flags = dump_flags;
     rdump.engine_flags = engine_flags;
 
     g3dmesh_dump ( mes, Alloc, Dump, &rdump, engine_flags );
@@ -389,7 +403,10 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
         rfcarray[i] = &rms->rfac[i];
     }
 
-    r3dmesh_createOctree ( rms, wmatrix, rfcarray, rms->nbrfac );
+    /* no need for octrees when using, let's say, the vector motion blur */
+    if ( ( dump_flags & GEOMETRYONLY ) == 0x00 ) {
+        r3dmesh_createOctree ( rms, wmatrix, rfcarray, rms->nbrfac );
+    }
 
     r3dobject_init ( rob, id, obj->type, obj->flags, r3dmesh_free );
 

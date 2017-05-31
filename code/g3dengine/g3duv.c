@@ -286,19 +286,35 @@ void g3duvmap_applyProjection ( G3DUVMAP *map ) {
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DOBJECT *parent  = objmap->parent;
     G3DMESH   *parmes  = ( G3DMESH * ) parent;
-    LIST      *ltmpfac = ( map->facgrp ) ? map->facgrp->lfac : parmes->lfac;
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
 
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+    if ( map->facgrp ) {
+        LIST *ltmpfac = map->facgrp->lfac;
 
-        /*** This function assigns a UVSet to the face if needed and ***/
-        /*** maps the UV coordinates to the face ***/
-        g3duvmap_insertFace ( map, fac );
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+            /*** This function assigns a UVSet to the face if needed and ***/
+            /*** maps the UV coordinates to the face ***/
+            g3duvmap_insertFace ( map, fac );
 
 
-        ltmpfac = ltmpfac->next;
+            ltmpfac = ltmpfac->next;
+        }
+    } else {
+        LIST *ltmpfac = parmes->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) _GETFACE(parmes,ltmpfac);
+
+            /*** This function assigns a UVSet to the face if needed and ***/
+            /*** maps the UV coordinates to the face ***/
+            g3duvmap_insertFace ( map, fac );
+
+
+            _NEXTFACE(parmes,ltmpfac);
+        }
     }
 }
 

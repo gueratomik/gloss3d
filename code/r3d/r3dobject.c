@@ -64,6 +64,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                         int    *vmatrix, /*** camera viewport ****/
                         LIST **lrob,    /*** List of Render Objects ***/
                         LIST **lrlt, 
+                        uint32_t dump_flags,
                         uint32_t engine_flags ) { /*** List of lights         ***/
     LIST *ltmp = obj->lchildren;
 
@@ -94,7 +95,9 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                                               cmatrix,
                                               childwnormix,
                                               pmatrix,
-                                              vmatrix, engine_flags | ( g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT ) );
+                                              vmatrix, 
+                                              dump_flags,
+                                              engine_flags | ( g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT ) );
 
             /* uncomment the line below to visualize the octree **/
             /*g3dobject_addChild ( rsce->sce, ((R3DOBJECT*)rms)->rot );*/
@@ -128,6 +131,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                                                                   vmatrix,
                                                                   lrob,
                                                                   lrlt,
+                                                                  dump_flags,
                                                                   new_engine_flags );
             }
 
@@ -153,6 +157,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                            vmatrix, 
                            lrob, 
                            lrlt, 
+                           dump_flags,
                            engine_flags );
 
         ltmp = ltmp->next;

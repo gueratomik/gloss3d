@@ -86,6 +86,10 @@
 
 #define R3DVERSION "0.1"
 
+/******************************* Dump flags ***********************************/
+#define GEOMETRYONLY ( 1      )
+
+/******************************************************************************/
 #define FILTERLINE   ( 1      )
 #define FILTERIMAGE  ( 1 << 1 )
 #define FILTERBEFORE ( 1 << 2 )
@@ -615,6 +619,7 @@ typedef struct _R3DDUMP {
     double  *wmatrix; /* object modelview  */
     double  *wnormix; /* object normal matrix (invert modelview)  */
     int     *vmatrix; /* camera viewport   */
+    uint32_t dump_flags;
     uint32_t engine_flags;
 } R3DDUMP;
 
@@ -829,6 +834,7 @@ void r3dobject_import ( G3DOBJECT *, uint32_t,
                                      int *, 
                                      LIST **, 
                                      LIST **, 
+                                     uint32_t,
                                      uint32_t );
 
 /******************************************************************************/
@@ -891,6 +897,7 @@ R3DMESH *r3dmesh_new ( G3DMESH *, uint32_t,
                                   double *,
                                   double *,
                                   int *,
+                                  uint32_t,
                                   uint32_t );
 R3DMESH *r3dmesh_newFromPrimitive ( G3DPRIMITIVE *, double *, double * );
 void r3dmesh_free ( R3DOBJECT * );
@@ -923,12 +930,12 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg );
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags );
 
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );
 void  r3dscene_render            ( R3DSCENE * );
-void r3dscene_import ( R3DSCENE *, uint32_t );
+void r3dscene_import ( R3DSCENE *, uint32_t, uint32_t );
 
 /******************************************************************************/
 LIST **r3dbbox_getList ( R3DBBOX *, uint32_t, uint32_t, uint32_t );

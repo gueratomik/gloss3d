@@ -950,14 +950,14 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
     g3dobject_addChild ( ( G3DOBJECT * ) mes, ( G3DOBJECT * ) map, engine_flags );
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
         G3DUVSET *uvs = g3duvset_new ( map );
         uint32_t i;
 
         g3dface_addUVSet ( fac, uvs );
 
 
-        ltmpfac = ltmpfac->next;
+        _NEXTFACE(mes,ltmpfac);
     }
 
     /*** We must alloc memory for the subdivided uvsets ***/
@@ -2224,12 +2224,12 @@ void g3dmesh_update ( G3DMESH *mes, LIST    *lver, /*** update vertices    ***/
 /******************************************************************************/
 void g3dmesh_updateBbox ( G3DMESH *mes ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmp = mes->lver;
+    LIST *ltmpver = mes->lver;
 
-    while ( ltmp ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) _GETVERTEX(mes,ltmpver);
 
-        if ( ltmp->prev == NULL ) {
+        if ( ltmpver->prev == NULL ) {
             obj->bbox.xmin = obj->bbox.xmax = ver->pos.x;
             obj->bbox.ymin = obj->bbox.ymax = ver->pos.y;
             obj->bbox.zmin = obj->bbox.zmax = ver->pos.z;
@@ -2237,7 +2237,7 @@ void g3dmesh_updateBbox ( G3DMESH *mes ) {
             g3dbbox_adjust ( &obj->bbox, ver );
         }
 
-        ltmp = ltmp->next;
+        _NEXTVERTEX(mes,ltmpver);
     }
 }
 

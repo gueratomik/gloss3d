@@ -94,7 +94,9 @@ void r3dscene_cancelRender ( R3DSCENE *rsce ) {
 }
 
 /******************************************************************************/
-void r3dscene_import ( R3DSCENE *rsce, uint32_t engine_flags ) {
+void r3dscene_import ( R3DSCENE *rsce, 
+                       uint32_t  dump_flags,
+                       uint32_t  engine_flags ) {
     LIST *ltmp = ((R3DOBJECT*)rsce)->obj->lchildren;
     static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
                                 0.0f, 1.0f, 0.0f, 0.0f,
@@ -106,8 +108,10 @@ void r3dscene_import ( R3DSCENE *rsce, uint32_t engine_flags ) {
                                                 rsce->area.rcam->MVX, 
                                                 rsce->area.rcam->PJX,
                                                 rsce->area.rcam->VPX,
-                                                &rsce->lrob, 
-                                                &rsce->lrlt, engine_flags );
+                                               &rsce->lrob, 
+                                               &rsce->lrlt,
+                                                dump_flags, 
+                                                engine_flags );
 
 }
 
@@ -445,7 +449,7 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg ) {
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags ) {
     uint32_t structsize = sizeof ( R3DSCENE );
     uint32_t bytesperline = ( rsg->output.width * 0x03 );
     G3DOBJECT *obj = ( G3DOBJECT * ) rsg->input.sce;
@@ -526,7 +530,7 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg ) {
     r3dobject_init ( ( R3DOBJECT * ) rsce, 0, obj->type, obj->flags, r3dscene_free );
 
     /*** Convert objects into world oriented objects ***/
-    r3dscene_import ( rsce, 0x00 );
+    r3dscene_import ( rsce, dump_flags, 0x00 );
 
     return rsce;
 }
@@ -564,7 +568,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            nextrsce = r3dscene_new ( rsce->rsg );
+            nextrsce = r3dscene_new ( rsce->rsg, 0x00 );
 
             nextrsce->curframe = i;
 
