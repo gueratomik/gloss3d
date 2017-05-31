@@ -58,8 +58,12 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
         lselnew = list_copy ( sce->lsel );
 
         /*** remember selection ***/
+        /*
+         * Note: force the VIEWOBJECT flags because object can be picked from
+         * the object list even if we are in sub-object edition mode.
+         */
         g3durm_scene_pickObject  ( urm, sce, lselold, 
-                                             lselnew, engine_flags, REDRAWVIEW | REDRAWLIST );
+                                             lselnew, VIEWOBJECT, REDRAWVIEW | REDRAWLIST );
     }
 
     /*** If we clicked [+] or [-], develop or collapse ***/

@@ -136,6 +136,12 @@ void g3durm_spline_cut ( G3DURMANAGER *urm,
                    &lremovedSegments, 
                     engine_flags );
 
+    /*** Rebuild the spline modifiers ***/
+    g3dmesh_update ( spline, NULL,
+                             NULL,
+                             NULL,
+                             RESETMODIFIERS, engine_flags );
+
     csp = urmCutSpline_new ( spline,
                              laddedPoints,
                              laddedSegments,

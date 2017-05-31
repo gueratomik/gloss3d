@@ -150,13 +150,8 @@ void g3durmanager_push ( G3DURMANAGER *urm,
 
     list_freeprev ( urm->lcurprocs, (void(*)(void*))g3duritem_free );
 
-    printf("B: %d %d %d\n", list_count ( urm->lcurprocs ), urm->lprocs, urm->lcurprocs );
-
-
     /*** set this item as the current item ***/
     urm->lprocs = list_insert ( &urm->lcurprocs, uri );
-
-    printf("A: %d %d %d\n", list_count ( urm->lcurprocs ), urm->lprocs, urm->lcurprocs );
 
     if ( urm->level ) {
         LIST *lclear = list_forward ( urm->lprocs, urm->level );

@@ -79,6 +79,7 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
 
     if ( asp->seg ) g3dspline_removeSegment ( asp->spline, asp->seg );
 
+    g3dmesh_unselectVertex ( asp->spline, asp->pt );
     g3dmesh_removeVertex ( asp->spline, asp->pt );
 
     /*** Rebuild the subdivided mesh ***/
@@ -96,6 +97,8 @@ void addSplinePoint_redo ( G3DURMANAGER *urm,
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     g3dmesh_addVertex ( asp->spline, asp->pt );
+    g3dmesh_unselectAllVertices ( asp->spline );
+    g3dmesh_selectVertex ( asp->spline, asp->pt );
 
     if ( asp->seg ) g3dspline_addSegment ( asp->spline, asp->seg );
 
@@ -127,6 +130,12 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
 
         g3dsplinepoint_roundCubicSegments ( previousPoint );
     }
+
+    /*** Rebuild the spline modifiers ***/
+    g3dmesh_update ( spline, NULL,
+                             NULL,
+                             NULL,
+                             RESETMODIFIERS, engine_flags );
 
     /* remember it for undoing */
     asp = urmAddSplinePoint_new ( spline, pt, seg );

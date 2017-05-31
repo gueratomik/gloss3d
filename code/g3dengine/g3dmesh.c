@@ -2131,6 +2131,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST    *lver, /*** update vertices    ***/
 
     if ( ( update_flags & UPDATEFACEPOSITION ) ||
          ( update_flags & UPDATEFACENORMAL   ) ) {
+
         LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
         /*** Always update face first. Vertices normals are computed from it***/
         while ( ltmpfac ) {

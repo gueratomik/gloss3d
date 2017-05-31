@@ -156,6 +156,12 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                             &lremovedSegments, 
                              engine_flags );
 
+    /*** Rebuild the spline modifiers ***/
+    g3dmesh_update ( spline, NULL,
+                             NULL,
+                             NULL,
+                             RESETMODIFIERS, engine_flags );
+
     dsp = urmDeleteSplinePoints_new ( spline, 
                                       lremovedPoints, 
                                       lremovedSegments );

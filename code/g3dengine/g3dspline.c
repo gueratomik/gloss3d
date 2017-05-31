@@ -30,6 +30,25 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DSPLINEPOINT *g3dspline_getConnectablePoint ( G3DSPLINE *spline ) {
+    LIST *ltmppt = ((G3DMESH*)spline)->lver;
+
+    while ( ltmppt ) {
+        G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmppt->data;
+
+        if ( ( pt->ver.flags & VERTEXHANDLE ) == 0x00 ) {
+            if ( pt->nbseg < 0x02 ) {
+                return pt;
+            }
+        }
+
+        ltmppt = ltmppt->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dspline_cut ( G3DSPLINE *spline, 
                      G3DFACE   *knife, 
                      LIST     **laddedPoints,
@@ -156,11 +175,6 @@ void g3dspline_deletePoints ( G3DSPLINE *spline,
 
         ltmpver = ltmpver->next;
     }
-
-    g3dmesh_update ( (G3DMESH*)spline, NULL,
-                                       NULL,
-                                       NULL,
-                                       RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -181,11 +195,6 @@ void g3dspline_revert ( G3DSPLINE *spline,
 
         ltmpseg = ltmpseg->next;
     }
-
-    g3dmesh_update ( (G3DMESH*)spline, NULL,
-                                       NULL,
-                                       NULL,
-                                       RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -668,9 +677,9 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
     glPopAttrib ( );
 
-    if ( ( ( obj->flags & OBJECTSELECTED ) == 0x00 ) ||
-         ( ( obj->flags & OBJECTSELECTED ) &&
-           ( engine_flags & SELECTMODE ) == 0x00 ) ) {
+    if ( ( ( obj->flags   & OBJECTSELECTED ) == 0x00 ) ||
+         ( ( obj->flags   & OBJECTSELECTED ) &&
+           ( engine_flags & SELECTMODE     ) == 0x00 ) ) {
         g3dobject_drawModifiers ( obj, curcam, engine_flags );
     }
 

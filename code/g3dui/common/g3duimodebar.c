@@ -103,7 +103,12 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
     }
 
     /* unset the mouse tool */
-    common_g3dui_setMouseTool ( gui, NULL, NULL );
+    /* 
+     * COMMENTED OUT: not sure if that's wise. Some tools are compatible with
+     * several edition modes. This forces the user to reselect the tool
+     *  (let's say the move tool), which does not make sense.
+     */
+    /* common_g3dui_setMouseTool ( gui, NULL, NULL ); */
 
     g3dui_updateAllCurrentMouseTools ( gui );
 }

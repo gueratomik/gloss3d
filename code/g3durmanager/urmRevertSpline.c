@@ -60,6 +60,11 @@ void g3durm_spline_revert ( G3DURMANAGER *urm,
                             uint32_t      return_flags ) {
     g3dspline_revert ( spline, engine_flags );
 
+    g3dmesh_update ( (G3DMESH*)spline, NULL,
+                                       NULL,
+                                       NULL,
+                                       RESETMODIFIERS, engine_flags );
+
     g3durmanager_push ( urm, revertSpline_undo,
                              revertSpline_redo,
                              revertSpline_free, spline, return_flags );

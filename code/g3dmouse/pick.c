@@ -505,15 +505,18 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                 pick_Item ( pt, obj, cam, pt->coord, unselectIfSelected, flags );
 
+
                 /*** copy list for undo/redo manager ***/
                 lselnew = list_copy ( sce->lsel );
 
-                /*** remember selection ***/
-                g3durm_scene_pickObject  ( urm, sce,
-                                                lselold,
-                                                lselnew,
-                                                flags,
-                                                REDRAWVIEW );
+                if ( lselold || lselnew ) {
+                    /*** remember selection ***/
+                    g3durm_scene_pickObject  ( urm, sce,
+                                                    lselold,
+                                                    lselnew,
+                                                    flags,
+                                                    REDRAWVIEW );
+                }
             }
 
             /*** Push our selected items into the undo/redo stack ***/

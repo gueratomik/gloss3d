@@ -264,27 +264,32 @@ void selectItem_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
 
-    if ( sit->engine_flags & VIEWVERTEX ) {
-        selectVertices_undo ( sit, engine_flags );
-    }
-
-    if ( sit->engine_flags & VIEWFACE ) {
-        selectFaces_undo ( sit, engine_flags );
-    }
-
     if ( sit->engine_flags & VIEWOBJECT ) {
         selectObjects_undo ( sit, engine_flags );
     }
 
-    if ( ( sit->engine_flags & VIEWVERTEX ) || 
-         ( sit->engine_flags & VIEWFACE   ) ) {
-        /*** Rebuild the subdivided mesh ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              UPDATEFACEPOSITION |
-                              UPDATEFACENORMAL   |
-                              UPDATEVERTEXNORMAL, engine_flags );
+    if ( ( obj->type == G3DMESHTYPE   ) ||
+         ( obj->type == G3DSPLINETYPE ) ) {
+        if ( sit->engine_flags & VIEWVERTEX ) {
+            selectVertices_undo ( sit, engine_flags );
+        }
+
+        if ( sit->engine_flags & VIEWFACE ) {
+            selectFaces_undo ( sit, engine_flags );
+        }
+
+        if ( ( sit->engine_flags & VIEWVERTEX ) || 
+             ( sit->engine_flags & VIEWFACE   ) ) {
+            if ( obj->type & MESH ) {
+                /*** Rebuild the subdivided mesh ***/
+                g3dmesh_update ( mes, NULL,
+                                      NULL,
+                                      NULL,
+                                      UPDATEFACEPOSITION |
+                                      UPDATEFACENORMAL   |
+                                      UPDATEVERTEXNORMAL, engine_flags );
+            }
+        }
     }
 }
 
@@ -294,28 +299,31 @@ void selectItem_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
 
-    /*** restore former vertex selection ***/
-    if ( sit->engine_flags & VIEWVERTEX ) {
-        selectVertices_redo ( sit, engine_flags );
-    }
-
-    if ( sit->engine_flags & VIEWFACE ) {
-        selectFaces_redo ( sit, engine_flags );
-    }
-
     if ( sit->engine_flags & VIEWOBJECT ) {
         selectObjects_redo ( sit, engine_flags );
     }
 
-    if ( ( sit->engine_flags & VIEWVERTEX ) || 
-         ( sit->engine_flags & VIEWFACE   ) ) {
-        /*** Rebuild the subdivided mesh ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              UPDATEFACEPOSITION |
-                              UPDATEFACENORMAL   |
-                              UPDATEVERTEXNORMAL, engine_flags );
+    /*** Rebuild the subdivided mesh ***/
+    if ( ( obj->type == G3DMESHTYPE   ) ||
+         ( obj->type == G3DSPLINETYPE ) ) {
+        /*** restore former vertex selection ***/
+        if ( sit->engine_flags & VIEWVERTEX ) {
+            selectVertices_redo ( sit, engine_flags );
+        }
+
+        if ( sit->engine_flags & VIEWFACE ) {
+            selectFaces_redo ( sit, engine_flags );
+        }
+
+        if ( ( sit->engine_flags & VIEWVERTEX ) || 
+             ( sit->engine_flags & VIEWFACE   ) ) {
+            g3dmesh_update ( mes, NULL,
+                                  NULL,
+                                  NULL,
+                                  UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL, engine_flags );
+        }
     }
 }
 
