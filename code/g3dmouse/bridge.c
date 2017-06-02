@@ -205,21 +205,25 @@ int bridge_tool  ( G3DMOUSETOOL *mou,
             if ( obj ) {
                 if ( obj->type == G3DSPLINETYPE ) {
                     if ( ver[0x00] && ver[0x01] ) {
+                        G3DSPLINEPOINT *pt[0x02] = { ver[0x00], ver[0x01] };
                         /*** Must not be the same vertices ***/
-                        if ( ver[0x00] != ver[0x01] ) {
-                            G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-                            G3DCUBICSEGMENT *seg;
+                        if ( pt[0x00] != pt[0x01] ) {
+                            if ( ( pt[0x00]->nbseg != 0x02 ) &&
+                                 ( pt[0x01]->nbseg != 0x02 ) ) { 
+                                G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+                                G3DCUBICSEGMENT *seg;
 
-                            seg = g3dcubicsegment_new ( ver[0x00],
-                                                        ver[0x01],
-                                                        0.0f, 0.0f, 0.0f,
-                                                        0.0f, 0.0f, 0.0f );
+                                seg = g3dcubicsegment_new ( ver[0x00],
+                                                            ver[0x01],
+                                                            0.0f, 0.0f, 0.0f,
+                                                            0.0f, 0.0f, 0.0f );
 
-                            g3durm_spline_addSegment ( urm,
-                                                       spline,
-                                                       seg,
-                                                       flags,
-                                                       REDRAWVIEW );
+                                g3durm_spline_addSegment ( urm,
+                                                           spline,
+                                                           seg,
+                                                           flags,
+                                                           REDRAWVIEW );
+                            }
                         }
                     }
 
