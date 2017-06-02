@@ -187,6 +187,14 @@ typedef struct _URMADDSPLINEPOINT {
 } URMADDSPLINEPOINT;
 
 /******************************************************************************/
+typedef struct _URMROUNDSPLINEPOINT {
+    G3DSPLINE  *spline;
+    LIST       *lselectedPoints;
+    LIST       *lsegments;
+    G3DVECTOR (*pos)[0x02];
+} URMROUNDSPLINEPOINT;
+
+/******************************************************************************/
 typedef struct _URMADDSPLINESEGMENT {
     G3DSPLINE        *spline;
     G3DSPLINESEGMENT *seg;
@@ -489,4 +497,21 @@ void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass );
 URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
                                                G3DSPLINESEGMENT *seg );
 
+/******************************************************************************/
+void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
+                                         G3DSPLINE        *spline,
+                                         uint32_t          engine_flags,
+                                         uint32_t          return_flags );
+void roundSplinePoint_redo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void roundSplinePoint_undo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void roundSplinePoint_free ( void *data, uint32_t commit );
+void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp );
+URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
+                                               LIST       *lselectedPoints,
+                                               LIST       *lsegments,
+                                               G3DVECTOR (*pos)[0x02] );
 #endif

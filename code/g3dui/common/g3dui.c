@@ -794,6 +794,16 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
+    mou = g3dmousetool_new ( ROUNDSPLINEPOINTTOOL, 'a', NULL,
+                             roundSplinePoint_init,
+                             NULL, NULL, MOUSETOOLNOCURRENT );
+
+    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL | 
+                                          SPLINETOOL     |
+                                          GLMENUTOOL );
+
+    /********************************/
+
     mou = g3dmousetool_new ( WELDVERTICESTOOL, 'a', NULL,
                              weldvertices_init,
                              NULL, NULL, MOUSETOOLNOCURRENT );

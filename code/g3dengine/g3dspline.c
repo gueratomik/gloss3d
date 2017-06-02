@@ -122,6 +122,90 @@ void g3dspline_cut ( G3DSPLINE *spline,
 }
 
 /******************************************************************************/
+void g3dspline_roundSelectedPoints ( G3DSPLINE *spline ) {
+    LIST *lselectedPoints = NULL;
+    LIST *ltmpver = ((G3DMESH*)spline)->lselver;
+
+    while ( ltmpver ) {
+        G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpver->data;
+
+        if ( ( pt->ver.flags & VERTEXHANDLE ) == 0x00 ) {
+            if ( pt->nbseg == 0x02 ) {
+                g3dsplinepoint_roundCubicSegments ( pt );
+            }
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcubicsegment_getHandlePositionFromList ( LIST *lseg, 
+                                                 G3DVECTOR (*pos)[0x02] ) {
+    LIST *ltmpseg = lseg;
+    uint32_t segmentID = 0x00;
+
+    while ( ltmpseg ) {
+        G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
+        uint32_t size = sizeof ( G3DVECTOR );
+
+        memcpy ( &pos[segmentID][0x00], &csg->handle[0x00].ver.pos, size );
+        memcpy ( &pos[segmentID][0x01], &csg->handle[0x01].ver.pos, size );
+
+        segmentID++;
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcubicsegment_setHandlePositionFromList ( LIST *lseg, 
+                                                 G3DVECTOR (*pos)[0x02] ) {
+    LIST *ltmpseg = lseg;
+    uint32_t segmentID = 0x00;
+
+    while ( ltmpseg ) {
+        G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
+        uint32_t size = sizeof ( G3DVECTOR );
+
+        memcpy ( &csg->handle[0x00].ver.pos, &pos[segmentID][0x00], size );
+        memcpy ( &csg->handle[0x01].ver.pos, &pos[segmentID][0x01], size );
+
+        segmentID++;
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+LIST *g3dspline_getSegmentsFromSelectedPoints ( G3DSPLINE *spline ) {
+    LIST *lsegments = NULL;
+    LIST *ltmpver = ((G3DMESH*)spline)->lselver;
+
+    while ( ltmpver ) {
+        G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpver->data;
+
+        if ( ( pt->ver.flags & VERTEXHANDLE ) == 0x00 ) {
+            LIST *ltmpseg = pt->lseg;
+
+            while ( ltmpseg ) {
+                G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+
+                if ( list_seek ( lsegments, seg ) == NULL ) {
+                    list_insert ( &lsegments, seg );
+                }
+
+                ltmpseg = ltmpseg->next;
+            }
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    return lsegments;
+}
+
+/******************************************************************************/
 LIST *g3dspline_getSelectedPoints ( G3DSPLINE *spline ) {
     LIST *lselectedPoints = NULL;
     LIST *ltmpver = ((G3DMESH*)spline)->lselver;

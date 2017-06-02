@@ -39,29 +39,30 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-#define PICKTOOL           "Pick"
-#define SCULPTTOOL         "Sculpt"
-#define SMOOTHTOOL         "Smooth"
-#define MOVETOOL           "Move"
-#define ROTATETOOL         "Rotate"
-#define SCALETOOL          "Scale"
-#define EXTRUDETOOL        "Extrude"
-#define EXTRUDINNERTOOL    "Extrude Inner"
-#define CREATESPHERETOOL   "Create Sphere"
-#define CREATECUBETOOL     "Create Cube"
-#define CREATECYLINDERTOOL "Create Cylinder"
-#define CREATETORUSTOOL    "Create Torus"
-#define CREATEBONETOOL     "Create Bone"
-#define CREATEPLANETOOL    "Create Plane"
-#define CUTMESHTOOL        "Cutter"
-#define ADDVERTEXTOOL      "Add Vertex"
-#define REVERTSPLINETOOL   "Revert Spline"
-#define BRIDGETOOL         "Bridge"
-#define PAINTWEIGHTTOOL    "Paint Weight"
-#define UNTRIANGULATETOOL  "Untriangulate"
-#define TRIANGULATETOOL    "Triangulate"
-#define WELDVERTICESTOOL   "Weld Vertices"
-#define INVERTNORMALTOOL   "Invert Normal"
+#define PICKTOOL             "Pick"
+#define SCULPTTOOL           "Sculpt"
+#define SMOOTHTOOL           "Smooth"
+#define MOVETOOL             "Move"
+#define ROTATETOOL           "Rotate"
+#define SCALETOOL            "Scale"
+#define EXTRUDETOOL          "Extrude"
+#define EXTRUDINNERTOOL      "Extrude Inner"
+#define CREATESPHERETOOL     "Create Sphere"
+#define CREATECUBETOOL       "Create Cube"
+#define CREATECYLINDERTOOL   "Create Cylinder"
+#define CREATETORUSTOOL      "Create Torus"
+#define CREATEBONETOOL       "Create Bone"
+#define CREATEPLANETOOL      "Create Plane"
+#define CUTMESHTOOL          "Cutter"
+#define ADDVERTEXTOOL        "Add Vertex"
+#define REVERTSPLINETOOL     "Revert Spline"
+#define BRIDGETOOL           "Bridge"
+#define PAINTWEIGHTTOOL      "Paint Weight"
+#define UNTRIANGULATETOOL    "Untriangulate"
+#define TRIANGULATETOOL      "Triangulate"
+#define WELDVERTICESTOOL     "Weld Vertices"
+#define INVERTNORMALTOOL     "Invert Normal"
+#define ROUNDSPLINEPOINTTOOL "Round selection"
 
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
@@ -335,6 +336,13 @@ int scale_tool ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, G3DURMANAGER *,
 int rotate_tool ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, G3DURMANAGER *, 
                                                            uint32_t,
                                                            G3DEvent * );
+
+/******************************************************************************/
+uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
+                                  G3DSCENE     *sce, 
+                                  G3DCAMERA    *cam,
+                                  G3DURMANAGER *urm, 
+                                  uint32_t      engine_flags );
 
 /******************************************************************************/
 uint32_t untriangulate_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 

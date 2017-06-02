@@ -179,6 +179,12 @@ void g3dspline_cut ( G3DSPLINE *spline,
                      LIST     **lremovedSegments,
                      uint32_t   engine_flags );
 
+void g3dspline_roundSelectedPoints ( G3DSPLINE *spline );
+void g3dcubicsegment_getHandlePositionFromList ( LIST *lseg, 
+                                                 G3DVECTOR (*pos)[0x02] );
+void g3dcubicsegment_setHandlePositionFromList ( LIST *lseg, 
+                                                 G3DVECTOR (*pos)[0x02] );
+LIST *g3dspline_getSegmentsFromSelectedPoints ( G3DSPLINE *spline );
 
 #ifdef __cplusplus
 }
