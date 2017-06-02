@@ -28,6 +28,7 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dengine/g3dengine.h>
+#include <glib.h>
 
 /******************************************************************************/
 G3DCHARACTER *g3dcharacter_new ( uint32_t code ) {
@@ -262,9 +263,9 @@ void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
 
     if ( text ) {
         txt->text = strdup ( text );
-
-        textLen = strlen ( text );
     }
+
+    textLen = strlen ( text );
 
     g3dtext_empty ( txt );
 
@@ -375,6 +376,8 @@ void g3dtext_setFont ( G3DTEXT *txt,
         }
 
         printf("font file %s loaded successfully!\n", fontPath);
+
+        FT_Select_Charmap ( txt->face, FT_ENCODING_UNICODE );
 
         FT_Set_Char_Size( txt->face,       /* handle to face object           */
                           0,               /* char_width in 1/64th of points  */
@@ -499,156 +502,159 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
     FT_UInt  glyph_index;
     uint32_t j;
 
+
     if ( ( chr == NULL ) && txt->face ) {
         chr = g3dcharacter_new ( code );
 
-        glyph_index = FT_Get_Char_Index ( txt->face, code );
+        if ( chr->code != '\n' ) {
+            glyph_index = FT_Get_Char_Index ( txt->face, code );
 
-        FT_Load_Glyph ( txt->face, glyph_index, FT_LOAD_DEFAULT );
+            FT_Load_Glyph ( txt->face, glyph_index, FT_LOAD_DEFAULT );
 
-        chr->width = ( float ) txt->face->glyph->metrics.horiAdvance / 1000;
+            chr->width = ( float ) txt->face->glyph->metrics.horiAdvance / 1000;
 
-        contours = txt->face->glyph->outline.contours;
-        n_points = txt->face->glyph->outline.n_points;
-        points   = txt->face->glyph->outline.points;
+            contours = txt->face->glyph->outline.contours;
+            n_points = txt->face->glyph->outline.n_points;
+            points   = txt->face->glyph->outline.points;
 
-        tessData = realloc ( tessData, verDataSize * n_points );
+            tessData = realloc ( tessData, verDataSize * n_points );
 
-        gluTessBeginPolygon ( tobj, txt );
-        gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
+            gluTessBeginPolygon ( tobj, txt );
+            gluTessBeginContour ( tobj ); /*glBegin ( GL_LINE_LOOP );*/
 
-        for ( j = 0x00; j < txt->face->glyph->outline.n_points; j++ ) {
-            FT_Outline *outline = &txt->face->glyph->outline;
-            uint32_t h = ( ( j - 0x01 + n_points ) % n_points );
-            uint32_t n = ( ( j + 0x01 ) % n_points );
-            char htag = FT_CURVE_TAG ( outline->tags[h] ),
-                 jtag = FT_CURVE_TAG ( outline->tags[j] ),
-                 ntag = FT_CURVE_TAG ( outline->tags[n] );
-            G3DQUADRATICSEGMENT qsg;
-            G3DSPLINEPOINT pt0, pt1;
+            for ( j = 0x00; j < txt->face->glyph->outline.n_points; j++ ) {
+                FT_Outline *outline = &txt->face->glyph->outline;
+                uint32_t h = ( ( j - 0x01 + n_points ) % n_points );
+                uint32_t n = ( ( j + 0x01 ) % n_points );
+                char htag = FT_CURVE_TAG ( outline->tags[h] ),
+                     jtag = FT_CURVE_TAG ( outline->tags[j] ),
+                     ntag = FT_CURVE_TAG ( outline->tags[n] );
+                G3DQUADRATICSEGMENT qsg;
+                G3DSPLINEPOINT pt0, pt1;
 
-            tessData[j][0x00] = ( double ) points[j].x;
-            tessData[j][0x01] = ( double ) points[j].y;
-            tessData[j][0x02] = 0.0f;
+                tessData[j][0x00] = ( double ) points[j].x;
+                tessData[j][0x01] = ( double ) points[j].y;
+                tessData[j][0x02] = 0.0f;
 
-            switch ( jtag ) {
-                case FT_CURVE_TAG_CONIC :
-                    if ( htag == FT_CURVE_TAG_ON ) {
-                        pt0.ver.pos.x = ( double ) points[h].x;
-                        pt0.ver.pos.y = ( double ) points[h].y;
+                switch ( jtag ) {
+                    case FT_CURVE_TAG_CONIC :
+                        if ( htag == FT_CURVE_TAG_ON ) {
+                            pt0.ver.pos.x = ( double ) points[h].x;
+                            pt0.ver.pos.y = ( double ) points[h].y;
+                            pt0.ver.pos.z = 0.0f;
+                        }
+
+                        if ( ntag == FT_CURVE_TAG_ON ) {
+                            pt1.ver.pos.x = ( double ) points[n].x;
+                            pt1.ver.pos.y = ( double ) points[n].y;
+                            pt1.ver.pos.z = 0.0f;
+                        }
+
+                        if ( htag == FT_CURVE_TAG_CONIC ) {
+                            pt0.ver.pos.x = ( ( double ) points[h].x + 
+                                              ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt0.ver.pos.y = ( ( double ) points[h].y + 
+                                              ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt0.ver.pos.z = 0.0f;
+                        }
+
+                        if ( ntag == FT_CURVE_TAG_CONIC ) {
+                            pt1.ver.pos.x = ( ( double ) points[n].x + 
+                                              ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt1.ver.pos.y = ( ( double ) points[n].y + 
+                                              ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt1.ver.pos.z = 0.0f;
+                        }
+
+                        /*** if it's the last point of the curve ***/
+                        if ( j == *contours ) {
+                            pt1.ver.pos.x = ( ( double ) points[firstPointID].x + 
+                                              ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt1.ver.pos.y = ( ( double ) points[firstPointID].y + 
+                                              ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt1.ver.pos.z = 0.0f;
+                        }
+
+                        pt0.ver.pos.x = ( pt0.ver.pos.x / 1000 );
+                        pt0.ver.pos.y = ( pt0.ver.pos.y / 1000 );
                         pt0.ver.pos.z = 0.0f;
-                    }
 
-                    if ( ntag == FT_CURVE_TAG_ON ) {
-                        pt1.ver.pos.x = ( double ) points[n].x;
-                        pt1.ver.pos.y = ( double ) points[n].y;
+                        pt1.ver.pos.x = ( pt1.ver.pos.x / 1000 );
+                        pt1.ver.pos.y = ( pt1.ver.pos.y / 1000 );
                         pt1.ver.pos.z = 0.0f;
-                    }
 
-                    if ( htag == FT_CURVE_TAG_CONIC ) {
-                        pt0.ver.pos.x = ( ( double ) points[h].x + 
-                                          ( double ) tessData[j][0x00] ) * 0.5f;
-                        pt0.ver.pos.y = ( ( double ) points[h].y + 
-                                          ( double ) tessData[j][0x01] ) * 0.5f;
-                        pt0.ver.pos.z = 0.0f;
-                    }
-
-                    if ( ntag == FT_CURVE_TAG_CONIC ) {
-                        pt1.ver.pos.x = ( ( double ) points[n].x + 
-                                          ( double ) tessData[j][0x00] ) * 0.5f;
-                        pt1.ver.pos.y = ( ( double ) points[n].y + 
-                                          ( double ) tessData[j][0x01] ) * 0.5f;
-                        pt1.ver.pos.z = 0.0f;
-                    }
-
-                    /*** if it's the last point of the curve ***/
-                    if ( j == *contours ) {
-                        pt1.ver.pos.x = ( ( double ) points[firstPointID].x + 
-                                          ( double ) tessData[j][0x00] ) * 0.5f;
-                        pt1.ver.pos.y = ( ( double ) points[firstPointID].y + 
-                                          ( double ) tessData[j][0x01] ) * 0.5f;
-                        pt1.ver.pos.z = 0.0f;
-                    }
-
-                    pt0.ver.pos.x = ( pt0.ver.pos.x / 1000 );
-                    pt0.ver.pos.y = ( pt0.ver.pos.y / 1000 );
-                    pt0.ver.pos.z = 0.0f;
-
-                    pt1.ver.pos.x = ( pt1.ver.pos.x / 1000 );
-                    pt1.ver.pos.y = ( pt1.ver.pos.y / 1000 );
-                    pt1.ver.pos.z = 0.0f;
-
-                    tessData[j][0] = ( tessData[j][0] / 1000 );
-                    tessData[j][1] = ( tessData[j][1] / 1000 );
-                    tessData[j][2] = 0.0f;
-
-                    g3dquadraticsegment_init ( &qsg, 
-                                               &pt0,
-                                               &pt1,
-                                                tessData[j][0],
-                                                tessData[j][1],
-                                                tessData[j][2] );
-
-                    g3dsplinesegment_draw ( &qsg, 
-                                             0.0f, 
-                                             1.0f, 
-                                             nbStepsPerSegment,
-                                             tobj,
-                                             coords[nbStepsPerSegment*handleID++],
-                                             DRAW_FOR_TESSELLATION,
-                                             engine_flags );
-
-                    if ( maxSteps > nbStepsPerSegment ) {
-                        maxSteps -= nbStepsPerSegment;
-                    } else {
-                        maxSteps = 0x00;
-                    }
-                break;
-
-                case FT_CURVE_TAG_CUBIC :
-                    fprintf ( stderr, "cubic fonts are unsupported!\n");
-                break;
-
-                case FT_CURVE_TAG_ON : {
-                    if ( ( firstPoint              ) ||
-                         ( htag == FT_CURVE_TAG_ON ) ||
-                         ( ntag == FT_CURVE_TAG_ON ) ) {
                         tessData[j][0] = ( tessData[j][0] / 1000 );
                         tessData[j][1] = ( tessData[j][1] / 1000 );
                         tessData[j][2] = 0.0f;
 
-                        gluTessVertex ( tobj, tessData[j], 
-                                              tessData[j] );
-                    }
-                } break;
+                        g3dquadraticsegment_init ( &qsg, 
+                                                   &pt0,
+                                                   &pt1,
+                                                    tessData[j][0],
+                                                    tessData[j][1],
+                                                    tessData[j][2] );
 
-                default :
-                break;
+                        g3dsplinesegment_draw ( &qsg, 
+                                                 0.0f, 
+                                                 1.0f, 
+                                                 nbStepsPerSegment,
+                                                 tobj,
+                                                 coords[nbStepsPerSegment*handleID++],
+                                                 DRAW_FOR_TESSELLATION,
+                                                 engine_flags );
+
+                        if ( maxSteps > nbStepsPerSegment ) {
+                            maxSteps -= nbStepsPerSegment;
+                        } else {
+                            maxSteps = 0x00;
+                        }
+                    break;
+
+                    case FT_CURVE_TAG_CUBIC :
+                        fprintf ( stderr, "cubic fonts are unsupported!\n");
+                    break;
+
+                    case FT_CURVE_TAG_ON : {
+                        if ( ( firstPoint              ) ||
+                             ( htag == FT_CURVE_TAG_ON ) ||
+                             ( ntag == FT_CURVE_TAG_ON ) ) {
+                            tessData[j][0] = ( tessData[j][0] / 1000 );
+                            tessData[j][1] = ( tessData[j][1] / 1000 );
+                            tessData[j][2] = 0.0f;
+
+                            gluTessVertex ( tobj, tessData[j], 
+                                                  tessData[j] );
+                        }
+                    } break;
+
+                    default :
+                    break;
+                }
+
+                if ( j == *contours ) {
+                    firstPoint = 0x01;
+                    firstPointID = j + 1;
+
+                    gluTessEndContour ( tobj );
+                    gluTessBeginContour ( tobj );
+                    contours++;
+                } else {
+                    firstPoint = 0x00;
+                }
             }
 
-            if ( j == *contours ) {
-                firstPoint = 0x01;
-                firstPointID = j + 1;
+            txt->currentCharacter = chr;
 
-                gluTessEndContour ( tobj );
-                gluTessBeginContour ( tobj );
-                contours++;
-            } else {
-                firstPoint = 0x00;
+            gluTessEndPolygon ( tobj );
+
+            if ( txt->thickness ) {
+                g3dcharacter_generateThickness ( chr, txt->thickness, engine_flags );
             }
+
+            txt->currentCharacter = NULL;
+
+            if ( tessData ) free ( tessData );
         }
-
-        txt->currentCharacter = chr;
-
-        gluTessEndPolygon ( tobj );
- 
-        if ( txt->thickness ) {
-            g3dcharacter_generateThickness ( chr, txt->thickness, engine_flags );
-        }
-
-        txt->currentCharacter = NULL;
-
-        if ( tessData ) free ( tessData );
     }
 
     return chr;
@@ -858,84 +864,41 @@ void g3dtext_generate ( G3DOBJECT *obj,
                         uint32_t  toCharacter,
                         uint32_t  engine_flags ) {
     G3DTEXT *txt = ( G3DTEXT * ) obj;
-    uint32_t i, j;
+    uint32_t i;
 
     if ( txt->text ) {
         GLUtesselator *tobj = gluNewTess();
+        uint32_t items_written, 
+                 items_read;
+        gunichar2 *str = g_utf8_to_utf16 ( &txt->text[fromCharacter],
+                                            toCharacter - fromCharacter,
+                                           &items_read,
+                                           &items_written,
+                                            NULL );
 
         gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
         gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_beginGroup );
         gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv  );
         gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_endGroup   );
 
-        /*gluTessCallback( tobj, GLenum(GLU_ERROR), (glu_callback) gltt_polygonizer_error );*/
 
-        for ( i = fromCharacter; i < strlen ( txt->text ), i < toCharacter; i++ ) {
-            uint32_t characterCode;
+        for ( i = 0; i < items_written; i++ ) {
+            uint32_t characterCode = str[i];
+printf("%d\n", characterCode);
+            G3DCHARACTER *chr = g3dtext_generateCharacter ( txt,
+                                                            characterCode,
+                                                            tobj,
+                                                            engine_flags );
 
-            /*** UTF-8 : https://fr.wikipedia.org/wiki/UTF-8#Exemples ***/
-            switch ( txt->text[i] & 0xF00000000 ) {
-                /*** Standard ascii ***/
-                case 0x00000000 :
-                    characterCode = txt->text[i];
-                break;
-
-                case 0xC0000000 : {
-                    uint32_t c0 = txt->text[i],
-                             c1 = txt->text[i+0x01];
-
-                    characterCode = ( ( c0 & 0x1F ) << 0x06 ) | 
-                                      ( c1 & 0x3F );
-                    i += 0x1; /* skip next char */
-                } break;
-
-                case 0xE0000000 : {
-                    uint32_t c0 = txt->text[i],
-                             c1 = txt->text[i+0x01],
-                             c2 = txt->text[i+0x02];
-
-                    characterCode = ( ( c0 & 0x0F ) << 0x0C ) | 
-                                    ( ( c1 & 0x3F ) << 0x06 ) |
-                                      ( c2 & 0x3F );
-                    i += 0x2; /* skip next 2 chars */
-                } break;
-
-                case 0xF0000000 : {
-                    uint32_t c0 = txt->text[i],
-                             c1 = txt->text[i+0x01],
-                             c2 = txt->text[i+0x02],
-                             c3 = txt->text[i+0x03];
-
-                    characterCode = ( ( c0 & 0x07 ) << 0x0C ) | 
-                                    ( ( c1 & 0x3F ) << 0x06 ) |
-                                    ( ( c2 & 0x3F ) << 0x06 ) |
-                                      ( c3 & 0x3F );
-                    i += 0x3; /* skip next 3 chars */
-                } break;
-            }
-
-            switch ( characterCode ) {
-
-
-                 default : {
-                     G3DCHARACTER *chr;
-
-                     chr = g3dtext_generateCharacter ( txt,
-                                                       characterCode,
-                                                       tobj,
-                                                       engine_flags );
-
-                     if ( chr ) {
-
-                         g3dtext_mergeCharacter ( txt, 
-                                                  chr,
-                                                  0x00, /* 0 or 1 */
-                                                  engine_flags );
-
-                     }
-                 } break;
+            if ( chr ) {
+                g3dtext_mergeCharacter ( txt, 
+                                         chr,
+                                         0x00,
+                                         engine_flags );
             }
         }
+
+        g_free ( str ); 
 
         gluDeleteTess(tobj);
     }
