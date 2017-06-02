@@ -57,15 +57,15 @@ void r3dobject_init ( R3DOBJECT *rob, uint32_t id,
 
 /******************************************************************************/
 void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
-                        uint32_t nextId,
-                        double *wmatrix, /*** world matrix           ***/
-                        double *cmatrix, /* camera world matrix */
-                        double *pmatrix, /*** world matrix           ***/
-                        int    *vmatrix, /*** camera viewport ****/
-                        LIST **lrob,    /*** List of Render Objects ***/
-                        LIST **lrlt, 
-                        uint32_t dump_flags,
-                        uint32_t engine_flags ) { /*** List of lights         ***/
+                        uint32_t  *nextId,
+                        double    *wmatrix, /*** world matrix           ***/
+                        double    *cmatrix, /* camera world matrix */
+                        double    *pmatrix, /*** world matrix           ***/
+                        int       *vmatrix, /*** camera viewport ****/
+                        LIST     **lrob,    /*** List of Render Objects ***/
+                        LIST     **lrlt, 
+                        uint32_t   dump_flags,
+                        uint32_t   engine_flags ) { /*** List of lights         ***/
     LIST *ltmp = obj->lchildren;
 
     while ( ltmp ) {
@@ -90,14 +90,14 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
             G3DMESH *mes = ( G3DMESH * ) child;
         /*** Force the flag in case our mesh does not need displacement ***/
 
-            R3DMESH *rms = r3dmesh_new ( mes, nextId++,
-                                              childwmatrix,
-                                              cmatrix,
-                                              childwnormix,
-                                              pmatrix,
-                                              vmatrix, 
-                                              dump_flags,
-                                              engine_flags | ( g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT ) );
+            R3DMESH *rms = r3dmesh_new ( mes, (*nextId)++,
+                                                childwmatrix,
+                                                cmatrix,
+                                                childwnormix,
+                                                pmatrix,
+                                                vmatrix, 
+                                                dump_flags,
+                                                engine_flags | ( g3dmesh_isDisplaced ( mes, engine_flags ) ? 0x00 : NODISPLACEMENT ) );
 
             /* uncomment the line below to visualize the octree **/
             /*g3dobject_addChild ( rsce->sce, ((R3DOBJECT*)rms)->rot );*/
@@ -125,14 +125,16 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                     new_engine_flags |=   SYMMETRYVIEW;
                 }
 
-                r3dobject_import ( ( G3DOBJECT * ) sym, nextId++, swmatrix, 
-                                                                  cmatrix,
-                                                                  pmatrix,
-                                                                  vmatrix,
-                                                                  lrob,
-                                                                  lrlt,
-                                                                  dump_flags,
-                                                                  new_engine_flags );
+                r3dobject_import ( ( G3DOBJECT * ) sym, 
+                                     nextId,
+                                     swmatrix, 
+                                     cmatrix,
+                                     pmatrix,
+                                     vmatrix,
+                                     lrob,
+                                     lrlt,
+                                     dump_flags,
+                                     new_engine_flags );
             }
 
             /*** Add this rendermesh to our list of renderobjects ***/
@@ -142,7 +144,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
         if ( child->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) child;
-            R3DLIGHT *rlt = r3dlight_new ( lig, nextId++ );
+            R3DLIGHT *rlt = r3dlight_new ( lig, (*nextId)++ );
 
             /*** Add this renderlight to our list of renderlights ***/
             /*** We now have a Light in World coordinates ***/
@@ -150,7 +152,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         }
 
         r3dobject_import ( child, 
-                           nextId++, 
+                           nextId, 
                            childwmatrix, 
                            cmatrix, 
                            pmatrix, 

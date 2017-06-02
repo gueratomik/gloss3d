@@ -490,10 +490,11 @@ void r3dmotionblur_blurify ( R3DMOTIONBLUR *rmb, unsigned char (*img)[0x03] ) {
     for ( y = 0x00; y < rmb->height; y++ ) {
         for ( x = 0x00; x < rmb->width; x++ ) {
             uint32_t offset = ((y)*rmb->width)+x;
+
             R3DMOTIONFACE *mfac = rmb->faceBuffer[offset];
             uint32_t R = 0, G = 0, B = 0;
 
-            if ( rmb->div[offset] ) {
+            if ( rmb->div[offset] && mfac->nbDraw ) {
                 float incFactor = ( float ) rmb->div[offset] / mfac->nbDraw;
                 float decFactor;
 
@@ -507,6 +508,7 @@ void r3dmotionblur_blurify ( R3DMOTIONBLUR *rmb, unsigned char (*img)[0x03] ) {
                 R = ( rmb->blur[offset][0] / ( float ) rmb->div[offset] * incFactor ) + ( decFactor * rmb->curimg[offset][0] );
                 G = ( rmb->blur[offset][1] / ( float ) rmb->div[offset] * incFactor ) + ( decFactor * rmb->curimg[offset][1] );
                 B = ( rmb->blur[offset][2] / ( float ) rmb->div[offset] * incFactor ) + ( decFactor * rmb->curimg[offset][2] ); 
+
             } else {
                 R = ( rmb->curimg[offset][0] );
                 G = ( rmb->curimg[offset][1] );
@@ -587,6 +589,7 @@ void r3dmotionblur_clear ( R3DMOTIONBLUR *rmb ) {
 
         ltmpmms = ltmpmms->next;
     }
+
 }
 
 /******************************************************************************/

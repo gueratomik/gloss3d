@@ -844,7 +844,9 @@ void g3dobject_drawKeys ( G3DOBJECT *obj, uint32_t flags ) {
 
 #define PIOVER180 0.01745329252
 /******************************************************************************/
-uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dobject_draw ( G3DOBJECT *obj, 
+                          G3DCAMERA *curcam, 
+                          uint32_t   engine_flags ) {
     LIST *ltmp = obj->lchildren;
 
     /*** default color for all objects ***/
@@ -860,9 +862,12 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
 
     glMultMatrixd ( obj->lmatrix );
 
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    else                               glFrontFace(  GL_CCW );
+
     /*** draw a single dot, then draw the object ***/
-    if ( ( flags & SELECTMODE ) == 0x00 ) {
-        g3dobject_drawCenter ( obj, flags );
+    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+        g3dobject_drawCenter ( obj, engine_flags );
     }
 
     /*** Modifiers must be explicitely drawn by their parent object ***/
@@ -870,11 +875,11 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWBEFORECHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-               if ( flags & SELECTMODE ) {
+               if ( engine_flags & SELECTMODE ) {
                     glLoadName ( ( GLuint ) obj->id );
                 }
 
-                obj->draw ( obj, curcam, flags );
+                obj->draw ( obj, curcam, engine_flags );
             }
         }
     }
@@ -883,14 +888,14 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     while ( ltmp ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmp->data;
 
-        if ( flags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
+        if ( engine_flags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
             /*** Do not draw objects that are not     ***/
             /*** concerned by symmetry, e.g modifiers ***/
             if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
-                g3dobject_draw ( sub, curcam, flags );
+                g3dobject_draw ( sub, curcam, engine_flags );
             }
         } else {
-            g3dobject_draw ( sub, curcam, flags );
+            g3dobject_draw ( sub, curcam, engine_flags );
         }
 
         ltmp = ltmp->next;
@@ -901,14 +906,17 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWAFTERCHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-               if ( flags & SELECTMODE ) {
+               if ( engine_flags & SELECTMODE ) {
                     glLoadName ( ( GLuint ) obj->id );
                 }
 
-                obj->draw ( obj, curcam, flags );
+                obj->draw ( obj, curcam, engine_flags );
             }
         }
     }
+
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    else                               glFrontFace(  GL_CW  );
 
     glPopMatrix ( );
 

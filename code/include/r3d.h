@@ -827,15 +827,16 @@ uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,
 /******************************************************************************/
 void r3dobject_init   ( R3DOBJECT *, uint32_t, uint32_t, uint32_t, void (*)(R3DOBJECT *) );
 void r3dobject_free   ( R3DOBJECT * );
-void r3dobject_import ( G3DOBJECT *, uint32_t, 
-                                     double *, 
-                                     double *, 
-                                     double *, 
-                                     int *, 
-                                     LIST **, 
-                                     LIST **, 
-                                     uint32_t,
-                                     uint32_t );
+void r3dobject_import ( G3DOBJECT *obj,
+                        uint32_t  *nextId,
+                        double    *wmatrix,
+                        double    *cmatrix,
+                        double    *pmatrix,
+                        int       *vmatrix,
+                        LIST     **lrob,
+                        LIST     **lrlt, 
+                        uint32_t   dump_flags,
+                        uint32_t   engine_flags );
 
 /******************************************************************************/
 void r3dinterpolation_build ( R3DINTERPOLATION *,

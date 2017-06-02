@@ -102,17 +102,17 @@ void r3dscene_import ( R3DSCENE *rsce,
                                 0.0f, 1.0f, 0.0f, 0.0f,
                                 0.0f, 0.0f, 1.0f, 0.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f };
+    uint32_t robjID = ((R3DOBJECT*)rsce)->id++;
 
-    r3dobject_import ( ((R3DOBJECT*)rsce)->obj, ++((R3DOBJECT*)rsce)->id,
-                                                IDX,
-                                                rsce->area.rcam->MVX, 
-                                                rsce->area.rcam->PJX,
-                                                rsce->area.rcam->VPX,
-                                               &rsce->lrob, 
-                                               &rsce->lrlt,
-                                                dump_flags, 
-                                                engine_flags );
-
+    r3dobject_import ( ((R3DOBJECT*)rsce)->obj, &robjID,
+                                                 IDX,
+                                                 rsce->area.rcam->MVX, 
+                                                 rsce->area.rcam->PJX,
+                                                 rsce->area.rcam->VPX,
+                                                &rsce->lrob, 
+                                                &rsce->lrlt,
+                                                 dump_flags, 
+                                                 engine_flags );
 }
 
 /******************************************************************************/

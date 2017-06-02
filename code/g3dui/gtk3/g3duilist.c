@@ -639,6 +639,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                 }
 
             g3dui_redrawObjectList ( gui );
+            g3dui_updateCoords ( gui );
             g3dui_redrawGLViews ( gui );
             g3dui_redrawTimeline ( gui );
 

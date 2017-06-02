@@ -304,21 +304,29 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 
 /*****************************************************************************/
 uint32_t g3dsymmetry_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                            uint32_t   flags ) {
+                                            uint32_t   engine_flags ) {
+    uint32_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
     LIST *ltmp = obj->lchildren;
+
+    /* Alternate symmety flags in case of nested symmetry objects */
+    if ( engine_flags & SYMMETRYVIEW ) {
+        next_engine_flags &= (~SYMMETRYVIEW);
+    } else {
+        next_engine_flags |=   SYMMETRYVIEW;
+    }
 
     if ( g3dobject_isActive ( obj ) ) {
         glPushMatrix ( );
 
         glMultMatrixd ( sym->smatrix );
 
-        flags = flags & (~VIEWDETAILS);
+        next_engine_flags = next_engine_flags & (~VIEWDETAILS);
 
         while ( ltmp ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-            g3dobject_draw ( child, curcam, flags | SYMMETRYVIEW );
+            g3dobject_draw ( child, curcam, next_engine_flags );
 
             ltmp = ltmp->next;
         }
