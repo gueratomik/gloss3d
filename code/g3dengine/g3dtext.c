@@ -276,7 +276,8 @@ void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
 void g3dtext_addText ( G3DTEXT *txt, 
                        char    *addedString,
                        uint32_t engine_flags ) {
-    char *newString = malloc ( strlen ( txt->text ) + strlen ( addedString ) + 0x01 );
+    char *newString = malloc ( strlen ( txt->text ) + 
+                               strlen ( addedString ) + 0x01 );
     uint32_t fromCharacter = 0x00;
     uint32_t textLen = 0x00;
 
@@ -654,6 +655,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
             txt->currentCharacter = NULL;
 
             if ( tessData ) free ( tessData );
+
         }
     }
 
@@ -860,16 +862,16 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
 
 /******************************************************************************/
 void g3dtext_generate ( G3DOBJECT *obj,
-                        uint32_t  fromCharacter,
-                        uint32_t  toCharacter,
-                        uint32_t  engine_flags ) {
+                        uint32_t   fromCharacter,
+                        uint32_t   toCharacter,
+                        uint32_t   engine_flags ) {
     G3DTEXT *txt = ( G3DTEXT * ) obj;
     uint32_t i;
 
     if ( txt->text ) {
         GLUtesselator *tobj = gluNewTess();
-        uint32_t items_written, 
-                 items_read;
+        glong items_written = 0, 
+              items_read = 0;
         gunichar2 *str = g_utf8_to_utf16 ( &txt->text[fromCharacter],
                                             toCharacter - fromCharacter,
                                            &items_read,
@@ -884,7 +886,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
 
         for ( i = 0; i < items_written; i++ ) {
             uint32_t characterCode = str[i];
-printf("%d\n", characterCode);
+
             G3DCHARACTER *chr = g3dtext_generateCharacter ( txt,
                                                             characterCode,
                                                             tobj,
@@ -898,7 +900,7 @@ printf("%d\n", characterCode);
             }
         }
 
-        g_free ( str ); 
+        g_free ( str );
 
         gluDeleteTess(tobj);
     }

@@ -185,6 +185,7 @@ void g3dcubicsegment_getHandlePositionFromList ( LIST *lseg,
 void g3dcubicsegment_setHandlePositionFromList ( LIST *lseg, 
                                                  G3DVECTOR (*pos)[0x02] );
 LIST *g3dspline_getSegmentsFromSelectedPoints ( G3DSPLINE *spline );
+void g3dsplinepoint_roundCubicSegments ( G3DSPLINEPOINT *pt );
 
 #ifdef __cplusplus
 }

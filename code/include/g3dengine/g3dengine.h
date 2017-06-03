@@ -1298,6 +1298,8 @@ void       g3dvertex_createSubEdge ( G3DVERTEX *, G3DSUBVERTEX *, G3DFACE *,
                                      G3DEDGE *, G3DSUBVERTEX *,
                                      G3DEDGE *, G3DSUBVERTEX * );
 void       g3dsubvertex_addEdge ( G3DSUBVERTEX *, G3DEDGE * );
+void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, 
+                                  uint32_t nbver );
 void       g3dsubvertex_elevate ( G3DSUBVERTEX *, uint32_t (*)[0x04],
                                                   uint32_t (*)[0x04] );
 uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
@@ -1660,6 +1662,7 @@ void     g3dkey_setUseScalingFromList     ( LIST * );
 G3DKEY *g3dobject_pose ( G3DOBJECT *, float, G3DVECTOR *,
                                              G3DVECTOR *,
                                              G3DVECTOR *, uint32_t );
+void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags );
 
 /******************************************************************************/
 void g3dbbox_draw    ( G3DBBOX *, uint32_t );
@@ -1851,6 +1854,13 @@ void       g3dmesh_cut                  ( G3DMESH *, G3DFACE *,
                                                      LIST **,
                                                      uint32_t,
                                                      uint32_t );
+void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
+                                                 uint32_t   nbver,
+                                                 G3DEDGE   *edg,
+                                                 uint32_t   nbedg,
+                                                 G3DFACE   *fac,
+                                                 uint32_t   nbtri,
+                                                 uint32_t   nbqua );
 uint32_t   g3dmesh_draw                 ( G3DOBJECT *, G3DCAMERA *, 
                                                        uint32_t );
 void       g3dmesh_drawEdges            ( G3DMESH *, uint32_t,
@@ -2222,6 +2232,9 @@ void        g3dtexture_unsetSelected ( G3DTEXTURE * );
 
 /******************************************************************************/
 G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );
+void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
+                                                G3DFACE  *fac,
+                                                uint32_t  engine_flags );
 void       g3duvmap_mapFace              ( G3DUVMAP *, G3DFACE * );
 void       g3duvmap_adjustFlatProjection ( G3DUVMAP * );
 void       g3duvmap_applyProjection      ( G3DUVMAP * );

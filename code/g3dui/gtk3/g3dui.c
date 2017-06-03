@@ -1485,8 +1485,6 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                                   gui->mbrdrec.width,
                                                   gui->mbrdrec.height );
 
-
-
     /*gui->sce = g3dscene_import3ds ( "../SKULL.3DS", gui->flags );*/
 
     /*gui->sce = g3dscene_open ( "../models/T-Rex_60_Animated_Textured.g3d", gui->flags );*/

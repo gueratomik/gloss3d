@@ -95,6 +95,8 @@ void g3dlookup_realloc ( G3DLOOKUP *lookup,
  */
 uint32_t g3dlookup_getSize ( G3DLOOKUP *lookup );
 
+void g3dlookup_init ( G3DLOOKUP *lookup );
+
 #ifdef __cplusplus
 }
 #endif
