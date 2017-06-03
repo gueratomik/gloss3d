@@ -287,8 +287,8 @@
 #define CAMERASIG          0xA000
 #define CAMERAFOCALSIG     0xA100
 
-#define EXTENSIONSIG       0xF000
-#define EXTENSIONNAMESIG   0xF100
+#define EXTENSIONSIG       0xFFF0
+#define EXTENSIONNAMESIG   0xFFF1
 #define EXTENSIONENDSIG    0xFFFF
 
 /******************** Wavefront .OBJ Exporter Module **************************/

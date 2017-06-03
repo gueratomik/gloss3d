@@ -290,8 +290,8 @@ OBJECT(0x2000)
 ------- CAMERAFOCAL (0xA100)
 ----------- float focal
 
---- EXTENSION(0xF000)
-------- EXTENSIONNAME (0xF100)
+--- EXTENSION(0xFFF0)
+------- EXTENSIONNAME (0xFFF1)
 ----------- char[] name
 ------- EXTENSIONCHUNK (XXXXXX)
 ----------- extension data
