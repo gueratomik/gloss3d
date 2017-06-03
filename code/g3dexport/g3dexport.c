@@ -290,6 +290,13 @@ OBJECT(0x2000)
 ------- CAMERAFOCAL (0xA100)
 ----------- float focal
 
+--- EXTENSION(0xF000)
+------- EXTENSIONNAME (0xF100)
+----------- char[] name
+------- EXTENSIONCHUNK (XXXXXX)
+----------- extension data
+------- EXTENSIONEND (0xFFFF)
+
 
 [...]
 OBJECT(0x2000)
@@ -2693,6 +2700,15 @@ static void object_writeblock ( G3DOBJECT *obj,
     }
 }
 
+/******************************************************************************/
+static void extensionname_writeBlock ( G3DEXPORTEXTENSION *ext, 
+                                       FILE               *fdst ) {
+    chunk_write ( EXTENSIONNAMESIG, 
+                  strlen ( ext->name ),
+                  fdst );
+
+    writef ( ext->name, strlen ( ext->name ), 0x01, fdst );
+}
 
 /******************************************************************************/
 void g3dscene_write ( G3DSCENE *sce, 
@@ -2704,6 +2720,7 @@ void g3dscene_write ( G3DSCENE *sce,
     uint32_t objid = 0x00;
     FILE *fdst;
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
+    LIST *ltmpext = lextension;
 
     if ( ( fdst = fopen ( filename, "wb" ) ) == NULL ) {
         fprintf ( stderr, "g3dscene_export: cannot write destination file\n" );
@@ -2721,8 +2738,27 @@ void g3dscene_write ( G3DSCENE *sce,
     app_writeblock ( version, comment, APPSAVEALL, fdst );
 
     chunk_write ( OBJSIG, object_blocksize ( obj, OBJECTSAVEALL ), fdst );
+
     object_writeblock ( obj, &objid, OBJECTSAVEALL, fdst );
 
+    while ( ltmpext ) {
+        G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) ltmpext->data;
+
+
+        chunk_write ( EXTENSIONSIG, ext->blockSize(ext->data) +
+        /* we add +0x06 + name length for the EXTENSIONNAME chunk */
+                                    0x06 + strlen ( ext->name ) +
+        /* we add +0x06 for the EXTENSIONEND chunk */
+                                    0x06, fdst );
+
+        extensionname_writeBlock ( ext, fdst );
+
+        ext->writeBlock ( ext->data, fdst );
+
+        chunk_write ( EXTENSIONENDSIG, 0x00, fdst );
+
+        ltmpext = ltmpext->next;
+    }
 
     fclose ( fdst );
 }

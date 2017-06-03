@@ -1161,4 +1161,9 @@ R3DFULLOCTREE *r3dfulloctree_new ( float xone, float yone, float zone,
 void r3dfulloctree_count_r ( R3DFULLOCTREE *rft, R3DFACE   *rfac, 
                                                  R3DVERTEX *rver,
                                                  uint32_t   nbrfc );
+
+void r3drendersettings_writeBlockFromList ( LIST *lrsg, 
+                                            FILE *fdst );
+uint32_t r3drendersettings_blockSizeFromList ( LIST *lrsg );
+
 #endif

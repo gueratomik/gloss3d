@@ -625,6 +625,7 @@ typedef struct _G3DUI {
     float endframe;
     int32_t fps;
     uint32_t playLock;
+    LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
 } GuiPart, G3DUI;
 
 /********************************* g3dui.c ************************************/

@@ -1375,6 +1375,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     #endif
     char configFileName[0x100];
     GtkWidget *tab;
+    G3DEXPORTEXTENSION *exportExtension;
 
     #ifdef __linux__
     snprintf ( configFileName, 0x100, "%s/.gloss3d/gloss3d.conf", home );
@@ -1411,6 +1412,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );
+
 
     /******************/
 

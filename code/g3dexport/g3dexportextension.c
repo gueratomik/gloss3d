@@ -33,11 +33,13 @@
 G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
                                              uint32_t (*blockSize)(void *data),
                                              void     (*writeBlock)(void *data, 
-                                                                    FILE *fdst)) {
+                                                                    FILE *fdst),
+                                             void      *data) {
+    uint32_t size = sizeof ( G3DEXPORTEXTENSION );
     G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) calloc ( 0x01, size );
 
     if ( ext == NULL ) {
-        fprintf ("g3dexportextension_new: calloc failed\n");
+        fprintf ( stderr, "g3dexportextension_new: calloc failed\n");
 
         return NULL;
     }
@@ -45,6 +47,13 @@ G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
     ext->name = strdup ( name );
     ext->blockSize = blockSize;
     ext->writeBlock = writeBlock;
+    ext->data = data;
 
     return ext;
 }
+
+/******************************************************************************/
+void g3dexportextension_free ( G3DEXPORTEXTENSION *ext ) {
+    free ( ext );
+}
+

@@ -402,6 +402,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     float nextframe = difstep;
     R3DSCENE *blurrsce = rsce;
     int i, j, k;
+    LIST *lbackupOriginalFilters = rsce->rsg->input.lfilters;
 
     /*** dont motion-blurize the first frame ***/
     if ( rsce->curframe == rsce->rsg->output.startframe ) return 0x00;
@@ -446,7 +447,7 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         /*** Render and free the current frame ***/
         blurrsce->rsg->input.lfilters = lkeepfilters;
         r3dscene_render ( blurrsce );
-        blurrsce->rsg->input.lfilters = lbackupOriginalfilters;
+        blurrsce->rsg->input.lfilters = lbackupOriginalFilters;
 
         /*** unregister this child renderscene. No need to cancel it ***/
         /*** anymore, all threads are over after r3dscene_render().  ***/

@@ -391,9 +391,30 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
 
 /******************************************************************************/
 void common_g3dui_saveG3DFile ( G3DUI *gui ) {
+    G3DEXPORTEXTENSION *ext;
     G3DSCENE *sce = gui->sce;
+    LIST *lext = NULL;
 
-    g3dscene_write ( sce, gui->filename, "Made with GLOSS-3D", 0x00 );
+    /*
+     * we put this here and not in gloss3d initialization because the pointer
+     * gui->lrsg is going to heck when we add a new set of render settings.
+     */
+    ext = g3dexportextension_new ( "R3DRENDERSETTINGS",
+                                   r3drendersettings_blockSizeFromList,
+                                   r3drendersettings_writeBlockFromList,
+                                   gui->lrsg );
+
+    list_insert ( &lext, ext );
+
+    g3dscene_write ( sce,
+                     gui->filename, 
+                     "Made with GLOSS-3D", 
+                     lext,
+                     0x00 );
+
+    g3dexportextension_free ( ext );
+
+    list_free ( &lext, NULL );
 }
 
 /******************************************************************************/

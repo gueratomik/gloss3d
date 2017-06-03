@@ -287,6 +287,10 @@
 #define CAMERASIG          0xA000
 #define CAMERAFOCALSIG     0xA100
 
+#define EXTENSIONSIG       0xF000
+#define EXTENSIONNAMESIG   0xF100
+#define EXTENSIONENDSIG    0xFFFF
+
 /******************** Wavefront .OBJ Exporter Module **************************/
 #define EXPORTOBJTRIANGULATE ( 1 << 1 )
 
@@ -295,6 +299,7 @@ typedef struct _G3DEXPORTEXTENSION {
     char      *name;
     uint32_t (*blockSize)(void *data);
     void     (*writeBlock)(void *data, FILE *fdst);
+    void      *data;
 } G3DEXPORTEXTENSION;
 
 /******************************************************************************/
@@ -306,7 +311,12 @@ void g3dscene_write ( G3DSCENE *sce,
 
 void g3dscene_exportObj ( G3DSCENE *, const char *, const char *,  uint32_t );
 void g3dscene_exportPov ( G3DSCENE *, const char *, const char *,  uint32_t );
-void writef ( void *, size_t, size_t, FILE * );
+
+G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
+                                             uint32_t (*blockSize)(void *data),
+                                             void     (*writeBlock)(void *data, 
+                                                                    FILE *fdst),
+                                             void      *data);
 
 #endif
 
