@@ -819,8 +819,11 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                     }
                 }
             }
-#ifdef unused
+
             if ( query_flags & RAYQUERYREFRACTION ) {
+                float refractionStrength = ( ( reflection.r + 
+                                               reflection.g + 
+                                               reflection.b ) / 0x03 ) / 255.0f;
                 uint32_t i;
 
                 for ( i = 0x00; i < nbmap; i++ ) {
@@ -838,23 +841,32 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                 R3DRAY frcray;
 
                                 /*** build the reflexion ray from the current ray ***/
-                                r3dray_refract ( ray, &frcray, mat->refraction_strength );
+                                r3dray_refract ( ray, 
+                                                &frcray, 
+                                                 refractionStrength );
 
-                                retcol = r3dray_shoot ( &frcray, rsce, hitrfc, nbhop + 0x01, RAYQUERYALL );
+                                retcol = r3dray_shoot ( &frcray, 
+                                                         rsce, 
+                                                         hitrfc, 
+                                                         nbhop + 0x01,
+                                                         RAYQUERYHIT        | 
+                                                         RAYQUERYLIGHTING   |
+                                                         RAYQUERYREFLECTION |
+                                                         RAYQUERYREFRACTION );
 
                                 if ( mat->transparency_strength == 1.0f ) {
-                                    rgba.r = ( retcol & 0x00FF0000 ) >> 0x10;
-                                    rgba.g = ( retcol & 0x0000FF00 ) >> 0x08;
-                                    rgba.b = ( retcol & 0x000000FF );
+                                    diffuse.r = ( retcol & 0x00FF0000 ) >> 0x10;
+                                    diffuse.g = ( retcol & 0x0000FF00 ) >> 0x08;
+                                    diffuse.b = ( retcol & 0x000000FF );
                                 } else {
                                     float sub = ( 1.0f - mat->transparency_strength );
                                     uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
                                              REFG = ( retcol & 0x0000FF00 ) >> 0x08,
                                              REFB = ( retcol & 0x000000FF );
 
-                                    rgba.r = ( REFR * mat->transparency_strength ) + ( rgba.r * sub );
-                                    rgba.g = ( REFG * mat->transparency_strength ) + ( rgba.g * sub );
-                                    rgba.b = ( REFB * mat->transparency_strength ) + ( rgba.b * sub );
+                                    diffuse.r = ( REFR * mat->transparency_strength ) + ( diffuse.r * sub );
+                                    diffuse.g = ( REFG * mat->transparency_strength ) + ( diffuse.g * sub );
+                                    diffuse.b = ( REFB * mat->transparency_strength ) + ( diffuse.b * sub );
                                 }
                             }
                             ltmpuvs = ltmpuvs->next;
@@ -864,7 +876,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                     }
                 }
             }
-#endif
+
             if ( query_flags & RAYQUERYLIGHTING ) {
                 r3dray_illumination ( ray, rsce, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
             }

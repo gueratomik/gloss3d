@@ -297,7 +297,7 @@ OBJECT(0x2000)
 #endif
 
 /******************************************************************************/
-void writef ( void *ptr, size_t size, size_t count, FILE *stream ) {
+static void writef ( void *ptr, size_t size, size_t count, FILE *stream ) {
     size_t result;
 
     result = fwrite ( ptr, size, count, stream );
@@ -2695,8 +2695,11 @@ static void object_writeblock ( G3DOBJECT *obj,
 
 
 /******************************************************************************/
-void g3dscene_write ( G3DSCENE *sce, char *filename,
-                                     char *comment,  uint32_t flags ) {
+void g3dscene_write ( G3DSCENE *sce, 
+                      char     *filename,
+                      char     *comment,
+                      LIST     *lextension, 
+                      uint32_t  flags ) {
     char *version = VERSION;
     uint32_t objid = 0x00;
     FILE *fdst;

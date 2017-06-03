@@ -872,6 +872,11 @@ void g3dtext_generate ( G3DOBJECT *obj,
         GLUtesselator *tobj = gluNewTess();
         glong items_written = 0, 
               items_read = 0;
+        /* 
+         *  this should be put outside the g3dengine lib because it introduces
+         * a dependency to glib (or shoud be rewritten). We could have a 16bit
+         * text string in the G3DTEXT structure like wchar_t.
+         */
         gunichar2 *str = g_utf8_to_utf16 ( &txt->text[fromCharacter],
                                             toCharacter - fromCharacter,
                                            &items_read,

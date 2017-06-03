@@ -41,6 +41,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     G3DSCENE *sce = ( G3DSCENE  * ) ((R3DOBJECT*)rsce)->obj;
     G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)rsce->area.rcam)->obj;
     LIST *lfilters = /*list_copy ( rsce->lfilters )*/NULL;
+    LIST *lbackupOriginalFilters = rsce->rsg->input.lfilters;
     R3DFILTER *tofrm = r3dfilter_getByName ( rsce->rsg->input.lfilters, 
                                                  GOTOFRAMEFILTERNAME );
     float middleFrame = frameID - ( rmb->strength * 0.5f );
@@ -92,7 +93,9 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     r3dscene_addSubRender ( rsce, middlersce );
 
     /*** Render and free the middle frame ***/
+    middlersce->rsg->input.lfilters = lfilters;
     r3dscene_render ( middlersce );
+    middlersce->rsg->input.lfilters = lbackupOriginalFilters;
 
     list_free ( &lfilters, NULL );
 

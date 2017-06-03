@@ -444,7 +444,9 @@ uint32_t filtermotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
         r3dscene_addSubRender ( rsce, blurrsce );
 
         /*** Render and free the current frame ***/
+        blurrsce->rsg->input.lfilters = lkeepfilters;
         r3dscene_render ( blurrsce );
+        blurrsce->rsg->input.lfilters = lbackupOriginalfilters;
 
         /*** unregister this child renderscene. No need to cancel it ***/
         /*** anymore, all threads are over after r3dscene_render().  ***/

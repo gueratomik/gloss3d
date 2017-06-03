@@ -263,6 +263,7 @@ uint32_t rd3scene_filterbefore ( R3DSCENE *rsce, uint32_t from,
         R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
 
         if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERBEFORE ) ) {
+
             if ( ret = fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return ret;
@@ -538,7 +539,7 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags ) {
 /******************************************************************************/
 void r3dscene_render_t_free ( R3DSCENE *rsce ) {
     /*** free filters after rendering ***/
-    list_free ( &rsce->rsg->input.lfilters, (void(*)(void*)) r3dfilter_free );
+    list_free ( &rsce->rsg->input.lfilters, NULL );
 
     /*** free the first frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) rsce );
