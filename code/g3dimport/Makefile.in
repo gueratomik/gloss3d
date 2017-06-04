@@ -132,7 +132,8 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dimport_la_LIBADD =
-am__objects_1 = g3dimport.lo collada.lo 3ds.lo obj.lo
+am__objects_1 = g3dimport.lo g3dimportextension.lo collada.lo 3ds.lo \
+	obj.lo
 am_libgloss_g3dimport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dimport_la_OBJECTS = $(am_libgloss_g3dimport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -329,6 +330,7 @@ AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dimport.la
 libgloss_g3dimport_la_SOURCES = $(LIBGLOSSG3DIMPORT_C_FILES)
 LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
+                            g3dimportextension.c \
                             collada.c \
                             3ds.c \
                             obj.c \
@@ -415,6 +417,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3ds.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collada.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dimport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dimportextension.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj.Plo@am__quote@
 
 .c.o:

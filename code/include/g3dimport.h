@@ -128,6 +128,13 @@ typedef struct _XMLDATA {
 } XMLDATA;
 
 /******************************************************************************/
+typedef struct _G3DIMPORTEXTENSION {
+    char      *name;
+    void     (*readBlock)(void *data, G3DSCENE *sce, FILE *fsrc);
+    void      *data;
+} G3DIMPORTEXTENSION;
+
+/******************************************************************************/
 void readf ( void *, size_t, size_t, FILE * );
 
 /******************************************************************************/
@@ -193,6 +200,7 @@ G3DSCENE *g3dscene_importC4D ( const char * );
 /******************************************************************************/
 G3DSCENE *g3dscene_open ( const char *filename,
                           G3DSCENE   *mergedScene,
+                          LIST       *lextensions,
                           uint32_t    flags );
 
 /*****************************< 3DStudio .3ds FILES >**************************/
@@ -206,5 +214,14 @@ G3DVERTEX  *readVertex         ( const char * );
 G3DFACE    *readFace           ( const char *, G3DVERTEX **, uint32_t );
 G3DVERTEX **vertab_realloc     ( G3DVERTEX **, uint32_t * );
 G3DSCENE   *readFile           ( FILE *, uint32_t );
+
+G3DIMPORTEXTENSION *g3dimportextension_new ( char      *name,
+                                             void     (*readBlock)(void     *data,
+                                                                   G3DSCENE *sce, 
+                                                                   FILE     *fsrc),
+                                             void      *data);
+void g3dimportextension_free ( G3DIMPORTEXTENSION *ext );
+G3DIMPORTEXTENSION *g3dimportextension_getFromList ( LIST *lext,
+                                                     char *name );
 
 #endif

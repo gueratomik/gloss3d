@@ -366,17 +366,19 @@ void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
 void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    /*R3DRENDERSETTINGS *rsg = gui->currsg;*/
+    R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( sysinfo ) {
-        if ( sysinfo->backgroundImage ) {
-            g3dimage_free ( sysinfo->backgroundImage );
+    if ( rsg && sysinfo ) {
+        if ( rsg->background.image ) {
+            g3dimage_free ( rsg->background.image );
         }
 
-        sysinfo->backgroundImage = g3dimage_new ( filename, 1 );
+        rsg->background.image = g3dimage_new ( filename, 1 );
         /*** make it an opengl texture. We'll use it for the opengl views ***/
-        g3dimage_bind ( sysinfo->backgroundImage );
+        g3dimage_bind ( rsg->background.image );
+
+        sysinfo->backgroundImage = rsg->background.image;
     }
 }

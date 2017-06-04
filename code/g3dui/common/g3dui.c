@@ -394,6 +394,7 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
     G3DEXPORTEXTENSION *ext;
     G3DSCENE *sce = gui->sce;
     LIST *lext = NULL;
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     /*
      * we put this here and not in gloss3d initialization because the pointer
@@ -447,6 +448,18 @@ void common_g3dui_setFileName ( G3DUI *gui, const char *filename ) {
 
 /******************************************************************************/
 G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
+    LIST *limportExtensions = NULL;
+    G3DIMPORTEXTENSION *r3dext;
+
+    list_free ( &gui->lrsg, r3drendersettings_free );
+
+    /* import render settings module */
+    r3dext = g3dimportextension_new ( "R3DRENDERSETTINGS",
+                                      r3drendersettings_readBlockToList,
+                                     &gui->lrsg );
+
+    list_insert ( &limportExtensions, r3dext );
+
 #ifdef __linux__
     if ( access( filename, F_OK ) == 0x00 ) {
 #endif
@@ -464,7 +477,10 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
 
         g3dui_setHourGlass ( gui );
 
-        gui->sce = g3dscene_open ( filename, NULL, gui->flags );
+        gui->sce = g3dscene_open ( filename, 
+                                   NULL, 
+                                   limportExtensions, 
+                                   gui->flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -484,11 +500,45 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         }
     }
 
+    if ( gui->lrsg ) {
+        LIST *ltmprsg = gui->lrsg;
+
+        while ( ltmprsg ) {
+            R3DRENDERSETTINGS *rsg = ( R3DRENDERSETTINGS * ) ltmprsg->data;
+
+            /*if ( rsg->flags & RENDERDEFAULT ) {*/
+                gui->currsg = rsg;
+            /*}*/
+
+            ltmprsg = ltmprsg->next;
+        }
+    } else {
+        R3DRENDERSETTINGS *defaultRsg = r3drendersettings_new ( );
+
+        list_insert ( gui->lrsg, defaultRsg );
+
+        gui->currsg = defaultRsg;
+    }
+
+    g3dimportextension_free ( r3dext );
+
+    list_free ( &limportExtensions, NULL );
+
     return NULL;
 }
 
 /******************************************************************************/
 G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
+    LIST *limportExtensions = NULL;
+    G3DIMPORTEXTENSION *r3dext;
+
+    /* import render settings module */
+    r3dext = g3dimportextension_new ( "R3DRENDERSETTINGS",
+                                      r3drendersettings_readBlockToList,
+                                     &gui->lrsg );
+
+    list_insert ( &limportExtensions, r3dext );
+
 #ifdef __linux__
     if ( access( filename, F_OK ) == 0x00 ) {
 #endif
@@ -501,7 +551,7 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dscene_open ( filename, gui->sce, gui->flags );
+        g3dscene_open ( filename, gui->sce, limportExtensions, gui->flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -512,6 +562,10 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 
         printf ( "...Done!\n" );
     }
+
+    g3dimportextension_free ( r3dext );
+
+    list_free ( &limportExtensions, NULL );
 
     return NULL;
 }

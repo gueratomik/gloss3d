@@ -105,6 +105,7 @@ uint32_t g3dimport_detectFormat ( char *filename ) {
 /******************************************************************************/
 G3DSCENE *g3dscene_open ( const char *filename,
                           G3DSCENE   *mergedScene,
+                          LIST       *lextensions,
                           uint32_t    flags ) {
     char sign[0x05] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
     unsigned char objname[0x100];
@@ -1438,6 +1439,24 @@ printf("NB Quds = %d\n", nbqua );
                 }
             } break;
 
+            case EXTENSIONSIG :
+            break;
+
+            case EXTENSIONNAMESIG : {
+                char buf[0x200] = { 0 };
+                G3DIMPORTEXTENSION *ext;
+
+                readf ( buf, chunklen, 0x01, fsrc );
+
+                if ( ext = g3dimportextension_getFromList ( lextensions, buf ) ) {
+                    printf ( "using extension %s\n", buf );
+                    if ( ext->readBlock ) {
+                        ext->readBlock ( ext->data, sce, fsrc );
+                    }
+                } else {
+                     fprintf ( stderr, "could not find extension %s\n", buf );
+                }
+            } break;
 
             default :
                 fseek ( fsrc, chunklen, SEEK_CUR );

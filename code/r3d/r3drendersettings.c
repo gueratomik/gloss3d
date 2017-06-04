@@ -29,32 +29,19 @@
 #include <config.h>
 #include <r3d.h>
 
-#define R3DRENDERSETTINGSSIG          0x1000
-#define R3DOUTPUTSETTINGSSIG              0x1200
-#define R3DOUTPUTFPSSIG                       0x1210 /* uint32_t */
-#define R3DOUTPUTSIZESIG                      0x1220 /* uint32_t, uint32_t */
-#define R3DOUTPUTFRAMESIG                     0x1230 /* float, float */
-#define R3DOUTPUTOUTFILESIG                   0x1240 /* char[]   */
-#define R3DOUTPUTFORMATSIG                    0x1250 /* uint32_t */
-#define R3DOUTPUTRATIOSIG                     0x1260 /* float    */
-#define R3DBACKGROUNDSETTINGSSIG          0x1300
-#define R3DBACKGROUNDMODESIG                  0x1310 /* uint32_t */
-#define R3DBACKGROUNDCOLORSIG                 0x1320 /* uint32_t */
-#define R3DBACKGROUNDIMAGESIG                 0x1330 /* char[]   */
-#define R3DWIREFRAMESETTINGSSIG           0x1400
-#define R3DWIREFRAMECOLORSIG                  0x1410 /* uint32_t */
-#define R3DWIREFRAMETHICKNESSSIG              0x1420 /* float    */
-#define R3DMOTIONBLURSETTINGSSIG          0x1500
-#define R3DMOTIONBLURSTRENGTHSIG              0x1510
-#define R3DMOTIONBLURITERATIONSSIG            0x1520
-#define R3DMOTIONBLURSAMPLESSIG               0x1530
-#define R3DMOTIONBLURSUBSAMPLINGRATESIG       0x1540
-#define R3DFOGSIG                         0x1600
-#define R3DFOGNEARSIG                         0x1610 /* float    */
-#define R3DFOGFARSIG                          0x1620 /* float    */
-#define R3DFOGCOLORSIG                        0x1630 /* uint32_t */
-#define R3DFOGAFFECTSBACKGROUNDSIG            0x1640 /* uint32_t */
-#define R3DDOFSIG                         0x1700
+/******************************************************************************/
+static void readf ( void  *ptr, 
+                    size_t size, 
+                    size_t count, 
+                    FILE *stream ) {
+    size_t result;
+
+    result = fread ( ptr , size, count, stream );
+
+    if ( result != ( count ) ) {
+        fprintf ( stderr, "Read error\n" );
+    }
+}
 
 /******************************************************************************/
 static void writef ( void   *ptr,
@@ -494,6 +481,163 @@ void r3drendersettings_writeBlockFromList ( LIST *lrsg,
 
         ltmprsg = ltmprsg->next;
     }
+}
+
+/******************************************************************************/
+void r3drendersettings_readBlockToList ( LIST    **lrsg,
+                                         G3DSCENE *sce,
+                                         FILE     *fsrc ) {
+    R3DRENDERSETTINGS *rsg = NULL;
+    LIST *ltmprsg = lrsg;
+    uint16_t chunksig;
+    uint32_t chunklen;
+    
+    readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
+    readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        switch ( chunksig ) {
+            case R3DRENDERSETTINGSSIG :
+                rsg = r3drendersettings_new ( );
+
+                list_append ( lrsg, rsg );
+            break;
+
+            case R3DOUTPUTSETTINGSSIG :
+                printf ( "render output settings found\n" );
+            break;
+
+            case R3DOUTPUTFPSSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->output.fps, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DOUTPUTSIZESIG : {
+                if ( rsg ) {
+                    readf ( &rsg->output.width , sizeof ( uint32_t ), 1, fsrc );
+                    readf ( &rsg->output.height, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DOUTPUTFRAMESIG : {
+                if ( rsg ) {
+                    readf ( &rsg->output.startframe, sizeof ( float ), 1, fsrc );
+                    readf ( &rsg->output.endframe  , sizeof ( float ), 1, fsrc );
+                }
+            } break;
+
+            case R3DOUTPUTOUTFILESIG : {
+                if ( rsg ) {
+                    char buffer[0x200] = { 0 };
+
+                    readf ( buffer, chunklen, 1, fsrc );
+
+                    rsg->output.outfile = strdup ( buffer );
+                }
+            } break;
+
+            case R3DOUTPUTFORMATSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->output.format, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DOUTPUTRATIOSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->output.ratio, sizeof ( float ), 1, fsrc );
+                }
+            } break;
+
+            case R3DBACKGROUNDSETTINGSSIG : {
+                printf ( "render background settings found\n" );
+            } break;
+
+            case R3DBACKGROUNDMODESIG : {
+                if ( rsg ) {
+                    readf ( &rsg->background.mode, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DBACKGROUNDCOLORSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->background.color, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DBACKGROUNDIMAGESIG : {
+                if ( rsg ) {
+                    char buffer[0x200] = { 0 };
+
+                    readf ( buffer, chunklen, 1, fsrc );
+
+                    rsg->background.image = g3dimage_new ( buffer, 1 );
+                    /* 
+                     * make it an opengl texture. We'll use it
+                     * for the opengl views 
+                     */
+                    if ( rsg->background.image ) {
+                        g3dimage_bind ( rsg->background.image );
+                    }
+                }
+            } break;
+
+            case R3DWIREFRAMESETTINGSSIG : {
+                printf ( "render wireframe settings found\n" );
+            } break;
+
+            case R3DWIREFRAMECOLORSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->wireframe.color, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DWIREFRAMETHICKNESSSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->wireframe.thickness, sizeof ( float ), 1, fsrc );
+                }
+            } break;
+
+            case R3DMOTIONBLURSETTINGSSIG : {
+                printf ( "render motion blur settings found\n" );
+            } break;
+
+            case R3DMOTIONBLURSTRENGTHSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->motionBlur.strength, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DMOTIONBLURITERATIONSSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->motionBlur.iterations, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DMOTIONBLURSAMPLESSIG : {
+                if ( rsg ) {
+                    readf ( &rsg->motionBlur.vMotionBlurSamples, sizeof ( uint32_t ), 1, fsrc );
+                }
+            } break;
+
+            case R3DMOTIONBLURSUBSAMPLINGRATESIG : {
+                if ( rsg ) {
+                    readf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, sizeof ( float ), 1, fsrc );
+                }
+            } break;
+
+            case 0xFFFF: /* EXTENSIONENDSIG */
+                return;
+            break;
+
+            default :
+                fseek ( fsrc, chunklen, SEEK_CUR );
+            break;
+        }
+
+        readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
+        readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
 }
 
 
