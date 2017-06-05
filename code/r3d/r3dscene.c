@@ -391,7 +391,7 @@ void *r3dscene_raytrace ( void *ptr ) {
                      * if no polygon impact, apply fog to the background only
                      * if requested.
                      */
-                    if ( rsce->rsg->fog.affectsBackground ) {
+                    if ( rsce->rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
                         imgptr[0x00] = fogR;
                         imgptr[0x01] = fogG;
                         imgptr[0x02] = fogB;

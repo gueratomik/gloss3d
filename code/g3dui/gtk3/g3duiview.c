@@ -1066,7 +1066,8 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*** Add the widget to the list of opengl views, allowing us to ***/
     /*** refresh all of them when an action was done.               ***/
-    list_insert ( &gui->lglview, gvw );
+    list_insert ( &gui->lglview,  gvw );
+    list_insert ( &gui->lview  , &((GtkView*)gvw)->view );
 
     gtk_widget_show ( area );
 

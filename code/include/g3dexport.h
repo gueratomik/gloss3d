@@ -318,5 +318,13 @@ G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
                                                                     FILE *fdst),
                                              void      *data);
 
+void chunk_write ( uint16_t  chunkid,
+                   uint32_t  chunkln, 
+                   FILE     *fdst );
+void writef ( void   *ptr,
+              size_t  size,
+              size_t  count,
+              FILE   *stream );
+
 #endif
 

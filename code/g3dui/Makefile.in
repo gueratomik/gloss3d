@@ -133,24 +133,25 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dui_gtk3_la_LIBADD =
 am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
-	common/g3duiboneedit.c common/g3duibonelinker.c \
-	common/g3duiclipboard.c common/g3duiconf.c \
-	common/g3duicoordinatesedit.c common/g3duicubeedit.c \
-	common/g3duicurrentedit.c common/g3duicylinderedit.c \
-	common/g3duiffdedit.c common/g3duikeyedit.c \
-	common/g3duilightedit.c common/g3duilist.c \
-	common/g3duimaterialboard.c common/g3duimaterialedit.c \
-	common/g3duimateriallist.c common/g3duimenubar.c \
-	common/g3duimeshedit.c common/g3duimodebar.c \
-	common/g3duiobjectedit.c common/g3duiplaneedit.c \
-	common/g3duiquad.c common/g3duirenderedit.c \
-	common/g3duirenderprocess.c common/g3duirenderwindow.c \
-	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
-	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
-	common/g3duitextedit.c common/g3duitextureedit.c \
-	common/g3duitimeboard.c common/g3duitimeline.c \
-	common/g3duitoolbar.c common/g3duitorusedit.c \
-	common/g3duiuvmapedit.c common/g3duiview.c \
+	common/g3duiexport.c common/g3duiboneedit.c \
+	common/g3duibonelinker.c common/g3duiclipboard.c \
+	common/g3duiconf.c common/g3duicoordinatesedit.c \
+	common/g3duicubeedit.c common/g3duicurrentedit.c \
+	common/g3duicylinderedit.c common/g3duiffdedit.c \
+	common/g3duikeyedit.c common/g3duilightedit.c \
+	common/g3duilist.c common/g3duimaterialboard.c \
+	common/g3duimaterialedit.c common/g3duimateriallist.c \
+	common/g3duimenubar.c common/g3duimeshedit.c \
+	common/g3duimodebar.c common/g3duiobjectedit.c \
+	common/g3duiplaneedit.c common/g3duiquad.c \
+	common/g3duirenderedit.c common/g3duirenderprocess.c \
+	common/g3duirenderwindow.c common/g3duisphereedit.c \
+	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
+	common/g3duisymmetryedit.c common/g3duitextedit.c \
+	common/g3duitextureedit.c common/g3duitimeboard.c \
+	common/g3duitimeline.c common/g3duitoolbar.c \
+	common/g3duitorusedit.c common/g3duiuvmapedit.c \
+	common/g3duiview.c common/g3duiviewexport.c \
 	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
@@ -178,7 +179,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c
 am__dirstamp = $(am__leading_dot)dirstamp
-@HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo \
+@HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiexport.lo \
 @HAVE_GTK3_TRUE@	common/g3duiboneedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duibonelinker.lo \
 @HAVE_GTK3_TRUE@	common/g3duiclipboard.lo common/g3duiconf.lo \
@@ -208,6 +209,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duitimeline.lo common/g3duitoolbar.lo \
 @HAVE_GTK3_TRUE@	common/g3duitorusedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo common/g3duiview.lo \
+@HAVE_GTK3_TRUE@	common/g3duiviewexport.lo \
 @HAVE_GTK3_TRUE@	common/g3duiweightgrouplist.lo \
 @HAVE_GTK3_TRUE@	common/g3duiwireframeedit.lo \
 @HAVE_GTK3_TRUE@	common/mousetool/g3duicurrentmousetool.lo \
@@ -444,6 +446,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
 @HAVE_GTK3_TRUE@libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 @HAVE_GTK3_TRUE@LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+@HAVE_GTK3_TRUE@                            common/g3duiexport.c \
 @HAVE_GTK3_TRUE@                            common/g3duiboneedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duibonelinker.c \
 @HAVE_GTK3_TRUE@                            common/g3duiclipboard.c \
@@ -480,6 +483,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duitorusedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiuvmapedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiview.c \
+@HAVE_GTK3_TRUE@                            common/g3duiviewexport.c \
 @HAVE_GTK3_TRUE@                            common/g3duiweightgrouplist.c \
 @HAVE_GTK3_TRUE@                            common/g3duiwireframeedit.c \
 @HAVE_GTK3_TRUE@                            common/mousetool/g3duicurrentmousetool.c \
@@ -608,6 +612,8 @@ common/$(DEPDIR)/$(am__dirstamp):
 	@: > common/$(DEPDIR)/$(am__dirstamp)
 common/g3dui.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiexport.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiboneedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duibonelinker.lo: common/$(am__dirstamp) \
@@ -679,6 +685,8 @@ common/g3duitorusedit.lo: common/$(am__dirstamp) \
 common/g3duiuvmapedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiview.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiviewexport.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiweightgrouplist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
@@ -828,6 +836,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duicubeedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duicurrentedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duicylinderedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiexport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiffdedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duikeyedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duilightedit.Plo@am__quote@
@@ -856,6 +865,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitorusedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiview.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiviewexport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duicurrentmousetool.Plo@am__quote@

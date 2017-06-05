@@ -30,42 +30,6 @@
 #include <r3d.h>
 
 /******************************************************************************/
-static void readf ( void  *ptr, 
-                    size_t size, 
-                    size_t count, 
-                    FILE *stream ) {
-    size_t result;
-
-    result = fread ( ptr , size, count, stream );
-
-    if ( result != ( count ) ) {
-        fprintf ( stderr, "Read error\n" );
-    }
-}
-
-/******************************************************************************/
-static void writef ( void   *ptr,
-                     size_t  size,
-                     size_t  count,
-                     FILE   *stream ) {
-    size_t result;
-
-    result = fwrite ( ptr, size, count, stream );
-
-    if ( result != ( count ) ) {
-        fprintf ( stderr, "Write error\n" );
-    }
-}
-
-/******************************************************************************/
-static void chunk_write ( uint16_t chunkid, 
-                          uint32_t chunkln, 
-                          FILE    *fdst ) {
-    writef ( &chunkid, sizeof ( chunkid  ), 0x01, fdst );
-    writef ( &chunkln, sizeof ( chunkln  ), 0x01, fdst );
-}
-
-/******************************************************************************/
 /********************************** Output ************************************/
 /******************************************************************************/
 static uint32_t r3doutputfps_blockSize ( ) {
@@ -335,13 +299,6 @@ static void r3dwireframesettings_writeBlock ( R3DWIREFRAMESETTINGS *rws,
 /******************************************************************************/
 /******************************** Motion Blur *********************************/
 /******************************************************************************/
-#define R3DMOTIONBLURSIG                  0x1500
-#define R3DMOTIONBLURSTRENGTHSIG              0x1510
-#define R3DMOTIONBLURITERATIONSSIG            0x1520
-#define R3DMOTIONBLURSAMPLESSIG               0x1530
-#define R3DMOTIONBLURSUBSAMPLINGRATESIG       0x1540
-
-/******************************************************************************/
 static uint32_t r3dmotionblurstrength_blockSize ( ) {
     return sizeof ( uint32_t );
 }
@@ -420,22 +377,126 @@ static void r3dmotionblursettings_writeBlock ( R3DMOTIONBLURSETTINGS *rms,
                   r3dmotionblursettings_blockSize ( rms ),
                   fdst );
 
-    r3dmotionblurstrength_blockSize ( rms->strength, fdst );
-    r3dmotionbluriterations_blockSize ( rms->iterations, fdst );
-    r3dmotionblursamples_blockSize ( rms->vMotionBlurSamples, fdst );
-    r3dmotionblursubsamplingrate_blockSize ( rms->vMotionBlurSubSamplingRate, fdst );
+    r3dmotionblurstrength_writeBlock ( rms->strength, fdst );
+    r3dmotionbluriterations_writeBlock ( rms->iterations, fdst );
+    r3dmotionblursamples_writeBlock ( rms->vMotionBlurSamples, fdst );
+    r3dmotionblursubsamplingrate_writeBlock ( rms->vMotionBlurSubSamplingRate, fdst );
+}
+
+/******************************************************************************/
+/************************************* FOG ************************************/
+/******************************************************************************/
+static uint32_t r3dfogfar_blockSize ( ) {
+    return sizeof ( float );
+}
+
+/******************************************************************************/
+static void r3dfogfar_writeBlock ( float  far, 
+                                   FILE  *fdst ) {
+    chunk_write ( R3DFOGFARSIG, 
+                  r3dfogfar_blockSize ( ),
+                  fdst );
+
+    writef ( &far, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t r3dfognear_blockSize ( ) {
+    return sizeof ( float );
+}
+
+/******************************************************************************/
+static void r3dfognear_writeBlock ( float  near, 
+                                    FILE  *fdst ) {
+    chunk_write ( R3DFOGNEARSIG, 
+                  r3dfognear_blockSize ( ),
+                  fdst );
+
+    writef ( &near, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t r3dfogcolor_blockSize ( ) {
+    return sizeof ( uint32_t );
+}
+
+/******************************************************************************/
+static void r3dfogcolor_writeBlock ( uint32_t  color, 
+                                     FILE     *fdst ) {
+    chunk_write ( R3DFOGCOLORSIG, 
+                  r3dfogcolor_blockSize ( ),
+                  fdst );
+
+    writef ( &color, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t r3dfogflags_blockSize ( ) {
+    return sizeof ( uint64_t );
+}
+
+/******************************************************************************/
+static void r3dfogflags_writeBlock ( uint64_t flags, 
+                                     FILE    *fdst ) {
+    chunk_write ( R3DFOGFLAGSSIG, 
+                  r3dfogflags_blockSize ( ),
+                  fdst );
+
+    writef ( &flags, sizeof ( uint64_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t r3dfogsettings_blockSize ( R3DFOGSETTINGS *rfs ) {
+    uint32_t blocksize = 0x00;
+
+    blocksize += r3dfogflags_blockSize ( ) + 0x06;
+    blocksize += r3dfogcolor_blockSize ( ) + 0x06;
+    blocksize += r3dfognear_blockSize ( ) + 0x06;
+    blocksize += r3dfogfar_blockSize ( ) + 0x06;
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void r3dfogsettings_writeBlock ( R3DFOGSETTINGS *rfs, 
+                                        FILE           *fdst ) {
+    chunk_write ( R3DFOGSETTINGSSIG, 
+                  r3dfogsettings_blockSize ( rfs ),
+                  fdst );
+
+    r3dfogflags_writeBlock ( rfs->flags, fdst );
+    r3dfogcolor_writeBlock ( rfs->color, fdst );
+    r3dfognear_writeBlock ( rfs->near, fdst );
+    r3dfogfar_writeBlock ( rfs->far, fdst );
 }
 
 /******************************************************************************/
 /***************************** Render settings ********************************/
 /******************************************************************************/
+static uint32_t r3drenderflags_blockSize ( ) {
+    return sizeof ( uint64_t );
+}
+
+/******************************************************************************/
+static void r3drenderflags_writeBlock ( uint64_t  flags,
+                                        FILE     *fdst ) {
+    chunk_write ( R3DRENDERFLAGSSIG, 
+                  r3drenderflags_blockSize ( ),
+                  fdst );
+
+    writef ( &flags, sizeof ( uint64_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
 static uint32_t r3drendersettings_blockSize ( R3DRENDERSETTINGS *rsg ) {
     uint32_t blocksize = 0x00;
 
+    blocksize += r3drenderflags_blockSize ( ) + 0x06;
     blocksize += r3doutputsettings_blockSize     ( &rsg->output     ) + 0x06;
     blocksize += r3dbackgroundsettings_blockSize ( &rsg->background ) + 0x06;
     blocksize += r3dmotionblursettings_blockSize ( &rsg->motionBlur ) + 0x06;
     blocksize += r3dwireframesettings_blockSize  ( &rsg->wireframe  ) + 0x06;
+    blocksize += r3dfogsettings_blockSize        ( &rsg->fog        ) + 0x06;
 
     return blocksize;
 }
@@ -447,10 +508,12 @@ static void r3drendersettings_writeBlock ( R3DRENDERSETTINGS *rsg,
                   r3drendersettings_blockSize ( rsg ),
                   fdst );
 
+    r3drenderflags_writeBlock        (  rsg->flags     , fdst );
     r3doutputsettings_writeBlock     ( &rsg->output    , fdst );
     r3dbackgroundsettings_writeBlock ( &rsg->background, fdst );
     r3dmotionblursettings_writeBlock ( &rsg->motionBlur, fdst );
     r3dwireframesettings_writeBlock  ( &rsg->wireframe , fdst );
+    r3dfogsettings_writeBlock        ( &rsg->fog       , fdst );
 }
 
 /******************************************************************************/
@@ -503,6 +566,12 @@ void r3drendersettings_readBlockToList ( LIST    **lrsg,
                 list_append ( lrsg, rsg );
             break;
 
+            case R3DRENDERFLAGSSIG :
+                if ( rsg ) {
+                    readf ( &rsg->flags, sizeof ( uint64_t ), 1, fsrc );
+                }
+            break;
+
             case R3DOUTPUTSETTINGSSIG :
                 printf ( "render output settings found\n" );
             break;
@@ -518,6 +587,7 @@ void r3drendersettings_readBlockToList ( LIST    **lrsg,
                     readf ( &rsg->output.width , sizeof ( uint32_t ), 1, fsrc );
                     readf ( &rsg->output.height, sizeof ( uint32_t ), 1, fsrc );
                 }
+
             } break;
 
             case R3DOUTPUTFRAMESIG : {
@@ -687,9 +757,9 @@ R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     rsg->motionBlur.vMotionBlurSamples = 0x01;
     rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 
+    rsg->fog.flags = FOGAFFECTSBACKGROUND;
     rsg->fog.near  = 0.0f;
     rsg->fog.far   = 100.0f;
-    rsg->fog.affectsBackground = 1;
     rsg->fog.color = 0x00FFFFFF;
 
     rsg->lfilter     = NULL;

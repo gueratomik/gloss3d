@@ -331,7 +331,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
 
     if ( rsg ) {
         if ( rsg->background.mode & BACKGROUND_IMAGE ) {
-            if ( sysinfo->backgroundImage ) {
+            if ( rsg->background.image ) {
                 float renderRatio  = ( float ) rsg->output.width / 
                                                rsg->output.height;
                 float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
@@ -345,7 +345,7 @@ void common_g3duiview_showGL ( G3DUI        *gui,
                 glGetIntegerv ( GL_VIEWPORT, VPX );
 
                 glEnable      ( GL_TEXTURE_2D );
-                glBindTexture ( GL_TEXTURE_2D, sysinfo->backgroundImage->id );
+                glBindTexture ( GL_TEXTURE_2D, rsg->background.image->id );
 
 
                 glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );

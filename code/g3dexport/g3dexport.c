@@ -304,7 +304,10 @@ OBJECT(0x2000)
 #endif
 
 /******************************************************************************/
-static void writef ( void *ptr, size_t size, size_t count, FILE *stream ) {
+void writef ( void   *ptr,
+              size_t  size,
+              size_t  count,
+              FILE   *stream ) {
     size_t result;
 
     result = fwrite ( ptr, size, count, stream );
@@ -315,7 +318,9 @@ static void writef ( void *ptr, size_t size, size_t count, FILE *stream ) {
 }
 
 /******************************************************************************/
-static void chunk_write ( uint16_t chunkid, uint32_t chunkln, FILE *fdst ) {
+void chunk_write ( uint16_t  chunkid,
+                   uint32_t  chunkln, 
+                   FILE     *fdst ) {
     writef ( &chunkid, sizeof ( chunkid  ), 0x01, fdst );
     writef ( &chunkln, sizeof ( chunkln  ), 0x01, fdst );
 }

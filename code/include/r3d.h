@@ -304,6 +304,7 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 
 /*********************** Export to g3d file ***********************************/
 #define R3DRENDERSETTINGSSIG          0x1000
+#define R3DRENDERFLAGSSIG                     0x1010 /* uint64_t */
 #define R3DOUTPUTSETTINGSSIG              0x1200
 #define R3DOUTPUTFPSSIG                       0x1210 /* uint32_t */
 #define R3DOUTPUTSIZESIG                      0x1220 /* uint32_t, uint32_t */
@@ -323,19 +324,23 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 #define R3DMOTIONBLURITERATIONSSIG            0x1520
 #define R3DMOTIONBLURSAMPLESSIG               0x1530
 #define R3DMOTIONBLURSUBSAMPLINGRATESIG       0x1540
-#define R3DFOGSIG                         0x1600
-#define R3DFOGNEARSIG                         0x1610 /* float    */
-#define R3DFOGFARSIG                          0x1620 /* float    */
-#define R3DFOGCOLORSIG                        0x1630 /* uint32_t */
-#define R3DFOGAFFECTSBACKGROUNDSIG            0x1640 /* uint32_t */
+#define R3DFOGSETTINGSSIG                 0x1600
+#define R3DFOGFLAGSSIG                        0x1610 /* uint64_t */
+#define R3DFOGNEARSIG                         0x1620 /* float    */
+#define R3DFOGFARSIG                          0x1630 /* float    */
+#define R3DFOGCOLORSIG                        0x1640 /* uint32_t */
 #define R3DDOFSIG                         0x1700
 
 /******************************************************************************/
+
+/* R3DFOGSETTINGS flags */
+#define FOGAFFECTSBACKGROUND     ( 1       )
+
 typedef struct _R3DFOGSETTINGS {
+    uint64_t flags;
     float    near;
     float    far;
     uint32_t color;
-    uint32_t affectsBackground;
 } R3DFOGSETTINGS;
 
 /******************************************************************************/
@@ -391,7 +396,7 @@ typedef struct _R3DMOTIONBLURSETTINGS {
 
 /******************************************************************************/
 typedef struct _R3DRENDERSETTINGS {
-    uint32_t              flags;
+    uint64_t              flags;
     R3DINPUTSETTINGS      input;
     R3DOUTPUTSETTINGS     output;
     R3DBACKGROUNDSETTINGS background;

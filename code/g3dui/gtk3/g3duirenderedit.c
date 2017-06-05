@@ -777,7 +777,7 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    if ( rsg->fog.affectsBackground ) {
+                    if ( rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -905,6 +905,8 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
 
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
+    gui->lock = 0x01;
+
           createToggleLabel ( frm, gui,
                                    EDITRENDERFOG,
                                      0,  0, 96, 18,
@@ -929,6 +931,7 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
           createColorButton ( frm, gui, EDITRENDERFOGCOLOR,
                                     96, 96, 96, 18, fogColorCbk );
 
+    gui->lock = 0x00;
 
     return frm;
 }
@@ -1077,6 +1080,8 @@ static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
 
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
+    gui->lock = 0x01;
+
     btn = createRadioLabel ( frm, gui,
                              EDITRENDERBACKGROUNDCOLOR,
                              NULL,
@@ -1096,6 +1101,7 @@ static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
                                    160, 24, 
                                      96,  18, setBackgroundImageCbk );
 
+    gui->lock = 0x00;
 
     return frm;
 }

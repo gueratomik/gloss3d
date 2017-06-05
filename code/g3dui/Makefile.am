@@ -9,6 +9,7 @@ if HAVE_GTK3
     libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 
     LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+                            common/g3duiexport.c \
                             common/g3duiboneedit.c \
                             common/g3duibonelinker.c \
                             common/g3duiclipboard.c \
@@ -45,6 +46,7 @@ if HAVE_GTK3
                             common/g3duitorusedit.c \
                             common/g3duiuvmapedit.c \
                             common/g3duiview.c \
+                            common/g3duiviewexport.c \
                             common/g3duiweightgrouplist.c \
                             common/g3duiwireframeedit.c \
                             common/mousetool/g3duicurrentmousetool.c \

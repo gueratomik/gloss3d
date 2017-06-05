@@ -150,10 +150,10 @@ void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui ) {
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    if ( rsg->fog.affectsBackground ) {
-        rsg->fog.affectsBackground = 0;
+    if ( rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
+        rsg->fog.flags = rsg->fog.flags & (~FOGAFFECTSBACKGROUND);
     } else {
-        rsg->fog.affectsBackground = 1;
+        rsg->fog.flags = rsg->fog.flags |   FOGAFFECTSBACKGROUND;
     }
 }
 

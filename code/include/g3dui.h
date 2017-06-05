@@ -72,6 +72,15 @@
 #include <g3dexport.h>
 #include <g3dimport.h>
 
+/*********************** Export to g3d file ***********************************/
+#define G3DUISETTINGSSIG                  0x1000
+#define G3DUIVIEWSIG                          0x1100 /* uint64_t */
+#define G3DUIVIEWDEFAULTCAMERAPOSITIONSIG         0x1110 /* float-float-float */
+#define G3DUIVIEWDEFAULTCAMERAROTATIONSIG         0x1120 /* float-float-float */
+#define G3DUIVIEWDEFAULTCAMERASCALINGSIG          0x1130 /* float-float-float */
+#define G3DUIVIEWDEFAULTCAMERAFOCALSIG            0x1140 /* float */
+#define G3DUIVIEWUSECAMERASIG                     0x1150 /* uint32_t */
+
 /******************************************************************************/
 #define G3DUIAPPNAME "Gloss3D"
 
@@ -581,6 +590,7 @@ typedef struct _G3DUI {
     LIST         *lVertexModeSplineMenu;
     /**********************/
     LIST         *lmtools; /*** list of mousetools widget ***/
+    LIST         *lview;
     LIST         *lglview;
     LIST         *lobjlist;
     LIST         *lmatlist;
@@ -1245,4 +1255,12 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
                                           float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence );
+
+/******************************************************************************/
+uint32_t g3duisettings_blockSize ( G3DUI *gui );
+void g3duisettings_readBlock ( G3DUI    *gui, 
+                               G3DSCENE *sce,
+                               FILE     *fdst );
+void g3duisettings_writeBlock ( G3DUI *gui, 
+                                FILE  *fdst );
 #endif
