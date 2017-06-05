@@ -103,6 +103,31 @@ uint32_t g3dimport_detectFormat ( char *filename ) {
 }*/
 
 /******************************************************************************/
+void readUnknownExtension ( void *data, G3DSCENE *sce, FILE *fsrc ) {
+    uint16_t chunksig;
+    uint32_t chunklen;
+
+    readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
+    readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        switch ( chunksig ) {
+            case 0xFFFF :
+
+                return;
+            break;
+
+            default :
+                fseek ( fsrc, chunklen, SEEK_CUR );
+            break;
+        }
+
+        readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
+        readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+}
+
+/******************************************************************************/
 G3DSCENE *g3dscene_open ( const char *filename,
                           G3DSCENE   *mergedScene,
                           LIST       *lextensions,
@@ -1448,13 +1473,17 @@ printf("NB Quds = %d\n", nbqua );
 
                 readf ( buf, chunklen, 0x01, fsrc );
 
-                if ( ext = g3dimportextension_getFromList ( lextensions, buf ) ) {
+                ext = g3dimportextension_getFromList ( lextensions, buf );
+
+                if ( ext ) {
                     printf ( "using extension %s\n", buf );
                     if ( ext->readBlock ) {
                         ext->readBlock ( ext->data, sce, fsrc );
                     }
                 } else {
                      fprintf ( stderr, "could not find extension %s\n", buf );
+
+                    readUnknownExtension ( NULL, sce, fsrc );
                 }
             } break;
 

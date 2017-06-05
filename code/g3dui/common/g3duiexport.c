@@ -37,7 +37,7 @@ uint32_t g3duisettings_blockSize ( G3DUI *gui ) {
     while ( ltmpview ) {
         G3DUIVIEW *view = ( G3DUIVIEW * ) ltmpview->data;
 
-        blocksize += common_g3duiview_blockSize ( view ) + 0x06;
+        blocksize += ( common_g3duiview_blockSize ( view ) + 0x06 );
 
         ltmpview = ltmpview->next;
     }

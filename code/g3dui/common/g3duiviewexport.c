@@ -118,7 +118,10 @@ uint32_t common_g3duiview_blockSize ( G3DUIVIEW *view ) {
     blocksize += g3duiviewdefaultcamerarotation_blockSize ( ) + 0x06;
     blocksize += g3duiviewdefaultcamerascaling_blockSize ( ) + 0x06;
     blocksize += g3duiviewdefaultcamerafocal_blockSize ( ) + 0x06;
-    blocksize += g3duiviewusecamera_blockSize ( ) + 0x06;
+
+    if ( view->cam != view->defcam ) {
+        blocksize += g3duiviewusecamera_blockSize ( ) + 0x06;
+    }
 
     return blocksize;
 }

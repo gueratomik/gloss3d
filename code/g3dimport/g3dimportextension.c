@@ -62,8 +62,8 @@ G3DIMPORTEXTENSION *g3dimportextension_getFromList ( LIST *lext,
     LIST *ltmpext = lext;
 
     while ( ltmpext ) {
-        G3DIMPORTEXTENSION *ext = ( G3DIMPORTEXTENSION * ) lext->data;
-printf("%s\n", ext->name );
+        G3DIMPORTEXTENSION *ext = ( G3DIMPORTEXTENSION * ) ltmpext->data;
+
         if ( strcmp ( ext->name, name ) == 0x00 ) {
             return ext;
         }
