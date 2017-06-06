@@ -687,7 +687,7 @@ void r3dmotionblur_initMotionMeshes ( R3DMOTIONBLUR *rmb, R3DSCENE *rsce,
 
     while ( ltmprob ) {
         R3DOBJECT *rob = ( R3DOBJECT * ) ltmprob->data;
-        if ( rob->obj->type == G3DMESHTYPE ) {
+        if ( rob->obj->type & MESH ) {
             R3DMESH *rms = ( R3DMESH * ) rob;
             uint32_t       qId = ((R3DOBJECT*)rms)->id;
             R3DMOTIONMESH *mms = r3dmotionblur_getMotionMeshById ( rmb, qId );

@@ -929,4 +929,29 @@ void common_g3dui_invertSelectionCbk ( G3DUI *gui ) {
     }
 }
 
+/******************************************************************************/
+void common_g3dui_getObjectStatsCbk ( G3DUI   *gui, 
+                                      char    *buffer, 
+                                      uint32_t bufferlen ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE     *sce = gui->sce;
+    G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
 
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            snprintf ( buffer, bufferlen, "Object name\t: %s\n"
+                                          "Vertex count\t: %lu\n"
+                                          "Edge count\t: %lu\n"
+                                          "Face count\t: %lu\n",
+                                          obj->name,
+                                          mes->nbver,
+                                          mes->nbedg,
+                                          mes->nbfac );
+        } else {
+            snprintf ( buffer, bufferlen, "Object name  : %s\n",
+                                          obj->name );
+        }
+    }
+}

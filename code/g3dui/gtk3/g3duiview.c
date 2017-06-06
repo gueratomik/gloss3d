@@ -189,6 +189,37 @@ void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
     gtk_widget_queue_draw ( ggt->curogl );
 }
 
+/******************************************************************************/
+void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    if ( gvw->view.flags & NOTEXTURE ) {
+        gvw->view.flags &= (~NOTEXTURE);
+    } else {
+        gvw->view.flags |= NOTEXTURE;
+    }
+
+    gtk_widget_queue_draw ( ggt->curogl );
+}
+
+/******************************************************************************/
+void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget, 
+                                          gpointer user_data ) {
+    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    if ( gvw->view.flags & NOBACKGROUNDIMAGE ) {
+        gvw->view.flags &= (~NOBACKGROUNDIMAGE);
+    } else {
+        gvw->view.flags |= NOBACKGROUNDIMAGE;
+    }
+
+    gtk_widget_queue_draw ( ggt->curogl );
+}
+
 
 /******************************************************************************/
 void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -240,6 +271,8 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
     g3dui_addMenuButton ( menu, gui,  "Show / Hide normals" , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
     g3dui_addMenuButton ( menu, gui,  "Show / Hide bones"   , width, G_CALLBACK(g3duiview_toggleBonesCbk)       );
     g3dui_addMenuButton ( menu, gui,  "Show / Hide grid"    , width, G_CALLBACK(g3duiview_toggleGridCbk)        );
+    g3dui_addMenuButton ( menu, gui,  "Show / Hide textures", width, G_CALLBACK(g3duiview_toggleTexturesCbk)    );
+    g3dui_addMenuButton ( menu, gui,  "Show / Hide background image", width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
     g3dui_addMenuButton ( menu, gui,  "Turn on/off lighting", width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
     g3dui_addMenuButton ( menu, gui,  "Reset view"          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
 

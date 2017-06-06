@@ -324,46 +324,50 @@ void common_g3duiview_showGL ( G3DUI        *gui,
 
     glDepthMask ( GL_FALSE );
 
-    glPushAttrib ( GL_ALL_ATTRIB_BITS );
-    glDisable ( GL_LIGHTING );
-    glEnable ( GL_COLOR_MATERIAL );
-    glColor3ub ( 0xFF, 0xFF, 0xFF );
+    if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glDisable ( GL_LIGHTING );
+        glEnable ( GL_COLOR_MATERIAL );
+        glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-    if ( rsg ) {
-        if ( rsg->background.mode & BACKGROUND_IMAGE ) {
-            if ( rsg->background.image ) {
-                float renderRatio  = ( float ) rsg->output.width / 
-                                               rsg->output.height;
-                float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-                G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
-                                       { .x =  1.0f, .y =     0, .z = 0.0f },
-                                       { .x =  1.0f, .y =  1.0f, .z = 0.0f },
-                                       { .x =     0, .y =  1.0f, .z = 0.0f } }; 
-                double MVX[0x10], PJX[0x10];
-                int VPX[0x04], i;
+        if ( rsg ) {
+            if ( rsg->background.mode & BACKGROUND_IMAGE ) {
+                if ( rsg->background.image ) {
+                    float renderRatio  = ( float ) rsg->output.width / 
+                                                   rsg->output.height;
+                    float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
+                    G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
+                                           { .x =  1.0f, .y =     0, .z = 0.0f },
+                                           { .x =  1.0f, .y =  1.0f, .z = 0.0f },
+                                           { .x =     0, .y =  1.0f, .z = 0.0f } }; 
+                    double MVX[0x10], PJX[0x10];
+                    int VPX[0x04], i;
 
-                glGetIntegerv ( GL_VIEWPORT, VPX );
+                    glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                glEnable      ( GL_TEXTURE_2D );
-                glBindTexture ( GL_TEXTURE_2D, rsg->background.image->id );
+                    glEnable      ( GL_TEXTURE_2D );
+                    glBindTexture ( GL_TEXTURE_2D, rsg->background.image->id );
 
 
-                glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
+                    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+                    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                    glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
 
-                glBegin ( GL_QUADS );
-                for ( i = 0x00; i < 0x04; i++ ) {
-                    glTexCoord2f ( uv[i].x,  uv[i].y );
-                    glVertex3f  ( sysinfo->renderRectangle[i].x, 
-                                  sysinfo->renderRectangle[i].y, 0.0f );
+                    glBegin ( GL_QUADS );
+                    for ( i = 0x00; i < 0x04; i++ ) {
+                        glTexCoord2f ( uv[i].x,  uv[i].y );
+                        glVertex3f  ( sysinfo->renderRectangle[i].x, 
+                                      sysinfo->renderRectangle[i].y, 0.0f );
+                    }
+                    glEnd ( );
+                    glDisable ( GL_TEXTURE_2D );
                 }
-                glEnd ( );
-                glDisable ( GL_TEXTURE_2D );
             }
         }
+
+        glPopAttrib ( );
     }
-    glPopAttrib ( );
+
     glDepthMask ( GL_TRUE );
 
     glMatrixMode ( GL_PROJECTION );

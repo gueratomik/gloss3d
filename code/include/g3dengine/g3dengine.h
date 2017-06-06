@@ -139,7 +139,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NOTEXTURE          ( 1  << 22 )
 #define LOADFULLRESIMAGES  ( 1  << 23 ) /* used by the renderer especially for animated textures */
 #define NODRAWPOLYGON      ( 1  << 24 )
-#define FORCESUBPATTERN    ( 1  << 25 )
+#define NOBACKGROUNDIMAGE  ( 1  << 25 )
 
 /******************************* Object Types *********************************/
 #define OBJECT         (  1       )
@@ -292,15 +292,21 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define KEYROTATION  ( 1 << 3 )
 #define KEYSCALING   ( 1 << 4 )
 
-/**** Object flags - first 16 bits are public ***/
-/**** next 12 bits are object defined ***/
-/*** Last 4 bits are user defined ***/
+/****************************** Object flags **********************************/
+/*
+ * first 16 bits are public
+ * next 12 bits are object defined
+ * Last 4 bits are user defined
+ */
 #define OBJECTSELECTED          (  1       )
 #define OBJECTNOSYMMETRY        (  1 << 1  )
 #define OBJECTINVISIBLE         (  1 << 2  )
 #define OBJECTINACTIVE          (  1 << 3  )
 #define DRAWBEFORECHILDREN      (  1 << 4  )
 #define DRAWAFTERCHILDREN       (  1 << 5  )
+#define OBJECTNOTRANSLATION     (  1 << 6  )
+#define OBJECTNOROTATION        (  1 << 7  )
+#define OBJECTNOSCALING         (  1 << 8  )
 /*** Private flags ***/
 /*** Bone flags ***/
 #define BONEFIXED             (  1 << 17 )

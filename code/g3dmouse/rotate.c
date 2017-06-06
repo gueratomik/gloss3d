@@ -102,7 +102,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 }
             }
 
-            if ( obj ) {
+            if ( obj && ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                 memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
 
                 /*** save status ***/
@@ -196,7 +196,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
-            if ( obj ) {
+            if ( obj && ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
 
                 if ( obj->type == G3DUVMAPTYPE ) retflags |= NOBUFFEREDSUBDIVISION;
 
@@ -340,7 +340,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                 mou->data = olddata;
             } else {
-                if ( obj ) {
+                if ( obj && ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                     if ( obj->type == G3DUVMAPTYPE ) {
                         G3DMESH *uvwmes = ( G3DMESH * ) obj->parent;
 

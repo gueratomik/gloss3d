@@ -111,7 +111,12 @@ uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, G3DCAMERA *cam,
                 if ( child->draw ) {
                     G3DMODIFIER *modChild = ( G3DMODIFIER * ) child;
 
+                    glPushMatrix ( );
+                    glMultMatrixd ( child->lmatrix );
+
                     ret = g3dmodifier_draw ( modChild, cam, engine_flags );
+
+                    glPopMatrix ( );
                 }
             }
         }

@@ -1769,7 +1769,7 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
 
         ltmpfac = ltmpfac->next;
     }
-    g3dmesh_stats ( mes );
+
     /*** create the new faces ***/
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -1798,8 +1798,6 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
     list_free ( &lbndver, NULL );
     list_free ( &lbndedg, NULL );
     list_free ( &ldelfac, NULL );
-
-    g3dmesh_stats ( mes );
 }
 
 /******************************************************************************/

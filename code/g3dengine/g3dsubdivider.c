@@ -775,8 +775,10 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             }
 
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
-                bindMaterials ( mes, fac, rtuvmem, engine_flags );
-
+                if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
+                    bindMaterials ( mes, fac, rtuvmem, engine_flags );
+                }
+ 
                 glEnableClientState ( GL_NORMAL_ARRAY );
             }
 
@@ -792,7 +794,9 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
                 glDisableClientState ( GL_NORMAL_ARRAY );
 
-                unbindMaterials ( mes, fac, rtuvmem, engine_flags );
+                if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
+                    unbindMaterials ( mes, fac, rtuvmem, engine_flags );
+                }
             }
 
             _NEXTFACE(mes,ltmpfac);

@@ -732,6 +732,27 @@ void g3dui_invertSelectionCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_getObjectStatsCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    char buffer[0x200] = { 0 };
+    GtkWidget *dialog;
+
+    common_g3dui_getObjectStatsCbk ( gui, buffer, 0x200 );
+
+    if ( strlen ( buffer ) ) {
+        dialog = gtk_message_dialog_new ( NULL,
+                                          GTK_DIALOG_MODAL,
+                                          GTK_MESSAGE_INFO,
+                                          GTK_BUTTONS_NONE,
+                                          buffer,
+                                          NULL );
+
+        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+        gtk_widget_destroy ( dialog );
+    }
+}
+
+/******************************************************************************/
 void g3dui_selectTreeCbk ( GtkWidget *widget, gpointer user_data ) {
     /*const gchar *option = gtk_menu_item_get_label  ( widget );*/
     const gchar *option = gtk_widget_get_name  ( widget );
@@ -817,7 +838,7 @@ GtkWidget *createEditMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton   ( menu, gui, MENU_SELECTALL         , width, G_CALLBACK(g3dui_selectAllCbk)          );
     createSelectTreeMenu  ( menu, gui, MENU_SELECTTREE        , width );
     g3dui_addMenuButton   ( menu, gui, MENU_INVERTSELECTION   , width, G_CALLBACK(g3dui_invertSelectionCbk)    );
-
+    g3dui_addMenuButton   ( menu, gui, MENU_GETOBJECTSTATS    , width, G_CALLBACK(g3dui_getObjectStatsCbk)     );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

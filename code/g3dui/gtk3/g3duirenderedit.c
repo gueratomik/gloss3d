@@ -297,6 +297,10 @@ static void sceneMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3duirenderedit_sceneMotionBlurCbk ( gui );
+
+    gui->lock = 0x01;
+    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -312,6 +316,10 @@ static void vectorMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3duirenderedit_vectorMotionBlurCbk ( gui );
+
+    gui->lock = 0x01;
+    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -490,7 +498,8 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
                 GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITRENDERSCENEMOTIONBLURITERATION ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) && 
+                         ( rsg->flags & SCENEMOTIONBLUR  ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
                     } else {
                         gtk_widget_set_sensitive ( child, FALSE );
@@ -510,7 +519,8 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSAMPLES ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) &&
+                         ( rsg->flags & VECTORMOTIONBLUR ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
                     } else {
                         gtk_widget_set_sensitive ( child, FALSE );
@@ -520,7 +530,8 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
+                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) &&
+                         ( rsg->flags & VECTORMOTIONBLUR ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
                     } else {
                         gtk_widget_set_sensitive ( child, FALSE );

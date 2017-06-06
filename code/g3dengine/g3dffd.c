@@ -425,9 +425,6 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
 
-    glPushMatrix ( );
-    glMultMatrixd ( obj->lmatrix );
-
     glPointSize ( 3.0f );
 
     for ( i = 0x00; i <= ffd->nbx; i++ ) {
@@ -493,8 +490,6 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
         glEnd ( );
     }
 
-    glPopMatrix ( );
-
     glPopAttrib ( );
 
     return /*MODIFIERTAKESOVER*/0x00;
@@ -517,7 +512,9 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN | TRIANGULAR,
+    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN | 
+                                                  OBJECTNOROTATION   |
+                                                  OBJECTNOSCALING,
                                     DRAW_CALLBACK(g3dffd_draw),
                                     FREE_CALLBACK(g3dffd_free),
                                                   NULL,

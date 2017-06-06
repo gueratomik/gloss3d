@@ -450,6 +450,7 @@
 #define MENU_OPTION_ALLTYPES      "All Types"
 #define MENU_OPTION_SAMETYPE      "Same Type"
 #define MENU_INVERTSELECTION      "Invert Selection"
+#define MENU_GETOBJECTSTATS       "Object statistics"
 
 #define MENU_ADDPLANE             "Add Plane"
 #define MENU_ADDCUBE              "Add Cube"
@@ -1187,6 +1188,9 @@ void common_g3dui_weldVerticesCbk       ( G3DUI * );
 void common_g3dui_deleteLoneVerticesCbk ( G3DUI * );
 void common_g3dui_invertSelectionCbk    ( G3DUI * );
 void common_g3dui_selectAllCbk          ( G3DUI * );
+void common_g3dui_getObjectStatsCbk     ( G3DUI   *gui, 
+                                          char    *buffer, 
+                                          uint32_t bufferlen );
 
 void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *, float );
 
