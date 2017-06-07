@@ -406,7 +406,7 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
             glVertex3f ( subfac[i].fac.ver[0x03]->pos.x, 
                          subfac[i].fac.ver[0x03]->pos.y, 
                          subfac[i].fac.ver[0x03]->pos.z );*/
-            g3dface_draw  ( &subfac[i].fac, M_PI,
+            g3dface_draw  ( &subfac[i].fac, srvmes->gouraudScalarLimit,
                                             srvmes->ltex, 
                                             0x00 /* object_flags */,
                                             engine_flags );
