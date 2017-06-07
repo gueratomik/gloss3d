@@ -720,22 +720,26 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
         LIST *ltmpfac = lselfac;
         LIST *ltmpver = lselver;
 
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+            if ( g3dvertex_belongsToSelectedFacesOnly ( ver ) ) {
+                g3dmesh_removeVertex ( mes, ver );
+
+                list_insert ( loldver, ver );
+            }
+
+            ltmpver = ltmpver->next;
+        }
+
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
             g3dmesh_removeFace ( mes, fac );
 
+            list_insert ( loldfac, fac );
+
             ltmpfac = ltmpfac->next;
-        }
-
-        while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-            if ( g3dvertex_isBorder ( ver ) == 0x00 ) {
-                g3dmesh_removeVertex ( mes, ver );
-            }
-
-            ltmpver = ltmpver->next;
         }
 
         g3dmesh_unselectAllFaces ( mes );
@@ -744,26 +748,6 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, uint32_t splID,
     }
 
     list_free ( &lselver, NULL );
-
-    g3dmesh_update ( mes, NULL, /*** update vertices    ***/
-                          NULL, /*** update edges       ***/
-                          NULL, /*** update faces       ***/
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING   |
-                          RESETMODIFIERS,
-                          engine_flags );
-
-    g3dmesh_update ( spl, NULL, /*** update vertices    ***/
-                          NULL, /*** update edges       ***/
-                          NULL, /*** update faces       ***/
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING   |
-                          RESETMODIFIERS,
-                          engine_flags );
 
     g3dmesh_updateBbox ( spl );
 
@@ -3734,7 +3718,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     mes->edgid = 0x00;
     mes->facid = 0x00;
 
-    mes->gouraudScalarLimit = cos ( 45.0 * M_PI / 180 );
+    mes->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
     mes->dump           = g3dmesh_default_dump;

@@ -57,10 +57,6 @@ URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, LIST *loldver,
 
 /******************************************************************************/
 void urmweldvertices_free ( URMWELDVERTICES *wvs ) {
-    list_free ( &wvs->loldver, NULL );
-    list_free ( &wvs->loldfac, NULL );
-    list_free ( &wvs->lnewfac, NULL );
-
     free ( wvs );
 }
 
@@ -71,9 +67,12 @@ void weldVertices_free ( void *data, uint32_t commit ) {
     if ( commit ) {
         list_exec ( wvs->loldver, (void(*)(void*)) g3dvertex_free );
         list_exec ( wvs->loldfac, (void(*)(void*)) g3dface_free   );
+        list_free ( &wvs->lnewfac, NULL );
     } else {
         g3dvertex_free ( wvs->newver );
-        list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_free   );
+        list_exec ( wvs->loldver, NULL );
+        list_exec ( wvs->loldfac, NULL );
+        list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_free );
     }
 
     urmweldvertices_free ( wvs );

@@ -174,28 +174,24 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
 
             if ( mes->lselfac ) {
                 G3DMESH *spl;
+                LIST *loldfac = NULL;
+                LIST *loldver = NULL;
+                uint32_t keep;
 
                 if ( strcmp ( option, MENU_SPLITANDKEEP ) == 0x00 ) {
-                    spl = g3dmesh_splitSelectedFaces ( mes, objID,
-                                                            0x01,
-                                                            NULL, 
-                                                            NULL,
-                                                            gui->flags );
+                    keep = 0x01;
                 } else {
-                    spl = g3dmesh_splitSelectedFaces ( mes, objID,
-                                                            0x00,
-                                                            NULL, 
-                                                            NULL,
-                                                            gui->flags );
+                    keep = 0x00;
                 }
 
-                g3durm_object_addChild ( urm, sce, gui->flags, 
-                                           ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
-                                           ( G3DOBJECT * ) NULL,
-                                           ( G3DOBJECT * ) parent,
-                                           ( G3DOBJECT * ) spl );
-
+                g3durm_mesh_split ( urm,
+                                    mes,
+                                    objID,
+                                    keep,
+                                    gui->flags,
+                                    REDRAWVIEW |
+                                    REDRAWLIST | 
+                                    REDRAWCURRENTOBJECT );
             }
         }
     }

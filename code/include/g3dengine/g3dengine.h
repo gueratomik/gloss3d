@@ -1353,6 +1353,7 @@ void  g3dvertex_updateFaces ( G3DVERTEX * );
 G3DEXTRUDEVERTEX *g3dvertex_extrude ( G3DVERTEX * );
 G3DUV *g3dvertex_getUV ( G3DVERTEX *, G3DUVMAP * );
 void g3dvertex_displace ( G3DVERTEX *, LIST *, G3DVECTOR * );
+uint32_t g3dvertex_belongsToSelectedFacesOnly ( G3DVERTEX *ver );
 uint32_t g3dvertex_setSubFaces ( G3DVERTEX *, G3DFACE       *,
                                               G3DSUBVERTEX  *,
                                               G3DSUBVERTEX **,

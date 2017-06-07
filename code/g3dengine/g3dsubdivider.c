@@ -196,6 +196,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 dumpFac.ver[0x02] = &dumpVer[0x02];
                 dumpFac.ver[0x03] = &dumpVer[0x03];
 
+                g3dface_normal ( &dumpFac );
+
                 /*** rebuild uvmaps ***/
                 while ( ltmpuvs ) {
                     G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -216,6 +218,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 
                     ltmpuvs = ltmpuvs->next;
                 }
+
                 Dump ( &dumpFac, data );
             }
 

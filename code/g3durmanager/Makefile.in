@@ -135,8 +135,8 @@ libgloss_g3durmanager_la_LIBADD =
 am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmdelselitems.lo urmweldvertices.lo urmmovevertices.lo \
 	urmextrudemesh.lo urminvertnormal.lo urmmoveobject.lo \
-	urmRevertSpline.lo urmRoundSplinePoint.lo urmAddSplinePoint.lo \
-	urmAddSplineSegment.lo urmCutSpline.lo \
+	urmSplitMesh.lo urmRevertSpline.lo urmRoundSplinePoint.lo \
+	urmAddSplinePoint.lo urmAddSplineSegment.lo urmCutSpline.lo \
 	urmDeleteSplinePoints.lo urmselectitem.lo urmcutmesh.lo \
 	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
 	urmtriangulate.lo
@@ -345,6 +345,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmextrudemesh.c \
                                urminvertnormal.c \
                                urmmoveobject.c \
+                               urmSplitMesh.c \
                                urmRevertSpline.c \
                                urmRoundSplinePoint.c \
                                urmAddSplinePoint.c \
@@ -443,6 +444,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmDeleteSplinePoints.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRevertSpline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRoundSplinePoint.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmSplitMesh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmaddobject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmaddvertex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmconvertprimitive.Plo@am__quote@

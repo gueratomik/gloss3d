@@ -30,6 +30,23 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+uint32_t g3dvertex_belongsToSelectedFacesOnly ( G3DVERTEX *ver ) {
+    LIST *ltmpfac = ver->lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
+            return 0x00;
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *lver, float x,
                                                         float y,
                                                         float z,
