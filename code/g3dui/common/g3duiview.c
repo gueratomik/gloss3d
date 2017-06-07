@@ -255,6 +255,14 @@ void common_g3duiview_initGL ( G3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
+void common_g3duiview_useSelectedCamera ( G3DUIVIEW *view, 
+                                          G3DCAMERA *cam ) {
+    cam->ratio = view->cam->ratio;
+
+    view->cam = cam;
+}
+
+/******************************************************************************/
 void common_g3duiview_showRenderingArea ( G3DUI   *gui,
                                           uint32_t engine_flags ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;

@@ -553,17 +553,17 @@ typedef struct _R3DRAY {
 } R3DRAY;
 
 /******************************************************************************/
+#define NOFREEFILTERS ( 1 << 15 )
 typedef struct _R3DOBJECT {
     uint32_t id;
+    uint64_t flags;
     uint32_t type; /*** inherited from G3DOBJECT ***/
-    uint32_t flags; /*** inherited from G3DOBJECT ***/
     void (*free) (struct _R3DOBJECT *);
     R3DBBOX   *rbx;
     R3DOCTREE *rot;
     G3DOBJECT *obj; /*** reference object ***/
     G3DEXTENSION *extension;
 } R3DOBJECT;
-
 
 /******************************************************************************/
 typedef struct _R3DINTERPOLATION {
@@ -966,7 +966,8 @@ void r3dinterpolation_build ( R3DINTERPOLATION *,
 void rd3scene_filterimage  ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 uint32_t rd3scene_filterbefore ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
 void rd3scene_filterline   ( R3DSCENE *, uint32_t, uint32_t, uint32_t, uint32_t);
-R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags );
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags,
+                                                 uint64_t robj_flags );
 
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );

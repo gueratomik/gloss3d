@@ -117,9 +117,7 @@ void g3duiview_useSelectedCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( obj && obj->type == G3DCAMERATYPE ) {
         G3DCAMERA *cam = ( G3DCAMERA * ) obj;
 
-        cam->ratio = gvw->view.cam->ratio;
-
-        gvw->view.cam = cam;
+        common_g3duiview_useSelectedCamera ( &gvw->view, cam );
     }
 
     gtk_widget_queue_draw ( ggt->curogl );

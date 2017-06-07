@@ -80,7 +80,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     }
 
     /*** Prepare the scene ***/
-    middlersce = r3dscene_new ( rsce->rsg, 0x00 );
+    middlersce = r3dscene_new ( rsce->rsg, 0x00, NOFREEFILTERS );
 
     /** create motion blur meshes from the meshes calculated in middle frame **/
     /** by the above call to r3dscene_new() **/
@@ -131,7 +131,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
              * Prepare the scene. We only need geometry coords
              * no texture or octrees
              */
-            steprsce = r3dscene_new ( rsce->rsg, GEOMETRYONLY );
+            steprsce = r3dscene_new ( rsce->rsg, GEOMETRYONLY, NOFREEFILTERS );
 
             /*** create another set of geometry data ***/
             r3dmotionblur_fillMotionMeshes ( rmb, steprsce, i );

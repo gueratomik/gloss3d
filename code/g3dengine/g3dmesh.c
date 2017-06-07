@@ -3734,7 +3734,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     mes->edgid = 0x00;
     mes->facid = 0x00;
 
-    mes->gouraudScalarLimit = cos ( 10.0f * M_PI / 180 );
+    mes->gouraudScalarLimit = cos ( 45.0 * M_PI / 180 );
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
     mes->dump           = g3dmesh_default_dump;

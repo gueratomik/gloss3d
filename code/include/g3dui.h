@@ -1191,6 +1191,8 @@ void common_g3dui_selectAllCbk          ( G3DUI * );
 void common_g3dui_getObjectStatsCbk     ( G3DUI   *gui, 
                                           char    *buffer, 
                                           uint32_t bufferlen );
+void common_g3duiview_useSelectedCamera ( G3DUIVIEW *view, 
+                                          G3DCAMERA *cam );
 
 void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *, float );
 

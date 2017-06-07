@@ -67,10 +67,7 @@ void r3dscene_cancelRender ( R3DSCENE *rsce ) {
         R3DSCENE *subrsce = ( R3DSCENE * ) ltmpsubrsce->data;
 
         /*** wait for raytracing scanlines to finish ***/
-        r3dscene_cancel ( subrsce ); /*** calls pthread_cancel ***/
-
-        /*list_free ( &subrsce->lfilters, r3dfilter_free );
-        r3dobject_free ( subrsce );*/
+        r3dscene_cancel ( subrsce );
 
         ltmpsubrsce = ltmpsubrsce->next;
     }
@@ -231,20 +228,35 @@ void rd3scene_filterimage ( R3DSCENE *rsce, uint32_t from,
     LIST *ltmp = rsce->rsg->input.lfilters;
     char *img = rsce->area.img;
 
-    /*** COMMENTED OUT - Filter "CLEAN" must be run no matter what ***/
-    /*if ( rsce->running == 0x00 ) return;*/
+    /*** Filter "CLEAN" must be run no matter what ***/
+    if ( rsce->running == 0x00 ) {
+        while ( ltmp ) {
+            R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
 
-    while ( ltmp ) {
-        R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
-
-        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERIMAGE ) ) {
-            if ( fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
-                /*** stop processing filters if 1 is returned ***/
-                return;
+            if ( ( fil->flags & ENABLEFILTER ) && 
+                 ( fil->type  & FILTERIMAGE  ) &&
+                 ( strcmp ( fil->name, "CLEAN" ) == 0x00 ) ) {
+                if ( fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
+                    /*** stop processing filters if 1 is returned ***/
+                    return;
+                }
             }
-        }
 
-        ltmp = ltmp->next;
+            ltmp = ltmp->next;
+        }
+    } else {
+        while ( ltmp ) {
+            R3DFILTER *fil = ( R3DFILTER * ) ltmp->data;
+
+            if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERIMAGE ) ) {
+                if ( fil->draw ( fil, rsce, rsce->curframe, img, from, to, depth, width ) ) {
+                    /*** stop processing filters if 1 is returned ***/
+                    return;
+                }
+            }
+
+            ltmp = ltmp->next;
+        }
     }
 }
 
@@ -450,7 +462,8 @@ void r3dscene_createRenderThread ( R3DSCENE *rsce ) {
 #endif
 
 /******************************************************************************/
-R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags ) {
+R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags,
+                                                 uint64_t robj_flags ) {
     uint32_t structsize = sizeof ( R3DSCENE );
     uint32_t bytesperline = ( rsg->output.width * 0x03 );
     G3DOBJECT *obj = ( G3DOBJECT * ) rsg->input.sce;
@@ -528,7 +541,7 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags ) {
                                     rsg->output.width,
                                     rsg->output.height );
 
-    r3dobject_init ( ( R3DOBJECT * ) rsce, 0, obj->type, obj->flags, r3dscene_free );
+    r3dobject_init ( ( R3DOBJECT * ) rsce, 0, obj->type, robj_flags, r3dscene_free );
 
     /*** Convert objects into world oriented objects ***/
     r3dscene_import ( rsce, dump_flags, 0x00 );
@@ -539,7 +552,9 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags ) {
 /******************************************************************************/
 void r3dscene_render_t_free ( R3DSCENE *rsce ) {
     /*** free filters after rendering ***/
-    list_free ( &rsce->rsg->input.lfilters, NULL );
+    if ( ( ((R3DOBJECT*)rsce)->flags & NOFREEFILTERS ) == 0x00 ) {
+        list_free ( &rsce->rsg->input.lfilters, r3dfilter_free );
+    }
 
     /*** free the first frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) rsce );
@@ -569,7 +584,7 @@ void *r3dscene_render_sequence_t ( R3DSCENE *rsce ) {
         if ( rsce->running ) {
             R3DSCENE *nextrsce;
 
-            nextrsce = r3dscene_new ( rsce->rsg, 0x00 );
+            nextrsce = r3dscene_new ( rsce->rsg, 0x00, NOFREEFILTERS );
 
             nextrsce->curframe = i;
 

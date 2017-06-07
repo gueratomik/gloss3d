@@ -264,9 +264,13 @@ static void Dump ( G3DFACE *fac, void *data ) {
 
                 for ( j = 0x00; j < 0x03; j++ ) {
                     G3DVERTEX *ver = fac->ver[idx[i][j]];
+                    float scalar = fabs ( g3dvector_scalar ( &ver->nor,
+                                                             &fac->nor ) );
+                    float gouraudScalarLimit = mes->gouraudScalarLimit;
                     G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
                                                                       &ver->pos,
-                              *nor = &ver->nor;
+                              *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
+                                                                       &ver->nor;
                     double sx, sy, sz;
                     R3DVERTEX *rver = &rms->rver[rms->curfac->rverID[j]];
                     /*memcpy ( &rms->curfac->rver[i].ori, &fac->ver[i]->pos, sizeof ( R3DVECTOR ) );*/

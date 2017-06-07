@@ -132,7 +132,7 @@ void g3duisettings_readBlock ( G3DUI    *gui,
                         G3DCAMERA *cam = ( G3DCAMERA * ) ltmpcam->data;
 
                         if ( ((G3DOBJECT*)cam)->id == useCameraID ) {
-                            view->cam = cam;
+                            common_g3duiview_useSelectedCamera ( view, cam );
                         }
 
                         ltmpcam = ltmpcam->next;

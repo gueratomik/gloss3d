@@ -83,7 +83,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
             g3dobject_anim_r ( sce, resetFrame, gui->flags );
         }
 
-        rsce = r3dscene_new ( rsg, 0x00 );
+        rsce = r3dscene_new ( rsg, 0x00, 0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
