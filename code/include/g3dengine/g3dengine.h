@@ -994,7 +994,6 @@ struct _G3DMESH {
     uint32_t nbselgrp;
     uint32_t nbseltex;
     uint32_t nbtex;
-    uint32_t nbuvmap;
     float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
@@ -1847,6 +1846,7 @@ void       g3dmesh_addUVMap             ( G3DMESH *, G3DUVMAP *,
 void       g3dmesh_addWeightGroup       ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_alignNormals         ( G3DMESH * );
 void       g3dmesh_alignFaces           ( G3DMESH * );
+uint32_t   g3dmesh_getUVMapCount        ( G3DMESH *mes );
 void       g3dmesh_allocSubdivisionBuffers       ( G3DMESH *, uint32_t );
 void       g3dmesh_allocFaceSubdivisionBuffer    ( G3DMESH *, uint32_t,
                                                               uint32_t );

@@ -55,7 +55,8 @@ uint32_t g3dmesh_evalRenderFacesCount ( G3DMESH *mes, uint32_t subdiv ) {
 void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
     G3DOBJECT *obj = ((R3DOBJECT*)rms)->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
-    uint32_t nbruvs  = ( nbrfac * mes->nbuvmap );
+    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
+    uint32_t nbruvs  = ( nbrfac * nbuvmap );
     uint32_t memsize = ( nbrver * sizeof ( R3DVERTEX ) ) +
                        ( nbrfac * sizeof ( R3DFACE   ) ) + 
                        ( nbruvs * sizeof ( R3DUVSET  ) );
@@ -69,7 +70,7 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
         rms->ruvs = ( R3DUVSET * ) calloc ( nbruvs, sizeof ( R3DUVSET ) );
 
         for ( i = 0x00; i < nbrfac; i++ ) {
-            rms->rfac[i].ruvs = &rms->ruvs[(i * mes->nbuvmap)];
+            rms->rfac[i].ruvs = &rms->ruvs[(i * nbuvmap)];
         }
     }
 

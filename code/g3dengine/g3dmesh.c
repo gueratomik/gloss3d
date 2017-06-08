@@ -926,10 +926,26 @@ G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
 }
 
 /******************************************************************************/
+uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
+    LIST *ltmpchildren = ((G3DOBJECT*)mes)->lchildren;
+    uint32_t nbuvmap;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type == G3DUVMAPTYPE ) {
+            nbuvmap++;
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    return nbuvmap;
+}
+
+/******************************************************************************/
 void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
     LIST *ltmpfac = ( map->facgrp ) ? map->facgrp->lfac : mes->lfac;
-
-    mes->nbuvmap++; /** TODO : decrease on UVMap removal ***/
 
     g3dobject_addChild ( ( G3DOBJECT * ) mes, ( G3DOBJECT * ) map, engine_flags );
 

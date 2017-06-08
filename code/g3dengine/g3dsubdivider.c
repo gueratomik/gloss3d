@@ -96,6 +96,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
         LIST *ltmpfac = mes->lfac;
+        uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
 
         g3dtriangle_evalSubdivision ( sdr->subdiv_render, 
                                       &nbFacesPerTriangle, 
@@ -116,8 +117,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                              ( mes->nbqua * nbUniqueVerticesPerQuad ), /* nbver */
                              ( 0x00 ),                                 /* nbtri = 0 */
                              ( mes->nbtri * nbFacesPerTriangle ) +
-                             ( mes->nbqua * nbFacesPerQuad ),          /* nb quads */
-                             ( mes->nbuvmap ),                         /* nbuvmaps */
+                             ( mes->nbqua * nbFacesPerQuad ),      /* nb quads */
+                             ( nbuvmap ),                          /* nbuvmaps */
                               data );
 
         if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
@@ -140,9 +141,9 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
             rtedgmem = realloc ( rtedgmem, nbEdgesPerFace    * sizeof ( G3DRTEDGE   ) );
             rtquamem = realloc ( rtquamem, nbFacesPerFace    * sizeof ( G3DRTQUAD   ) );
 
-            if ( mes->nbuvmap ) {
+            if ( nbuvmap ) {
                 rtuvmem  = realloc ( rtuvmem , nbVerticesPerFace * 
-                                               mes->nbuvmap      * sizeof ( G3DRTUV ) );
+                                               nbuvmap           * sizeof ( G3DRTUV ) );
             }
 
             nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
@@ -436,6 +437,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
+        uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
         g3dtriangle_evalSubdivision ( sdr->subdiv_preview, 
                                       &sdr->nbFacesPerTriangle, 
                                       &sdr->nbEdgesPerTriangle,
@@ -452,7 +454,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
         sdr->nbrtver = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
                        ( mes->nbqua * sdr->nbVerticesPerQuad     );
         sdr->nbrtuv  = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
-                       ( mes->nbqua * sdr->nbVerticesPerQuad     )  * mes->nbuvmap;
+                       ( mes->nbqua * sdr->nbVerticesPerQuad     )  * nbuvmap;
 
         sdr->rtquamem = realloc ( sdr->rtquamem, ( sdr->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
         sdr->rtedgmem = realloc ( sdr->rtedgmem, ( sdr->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
@@ -749,6 +751,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
+        uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
         LIST *ltmpfac = mes->lfac;
 
         while ( ltmpfac ) {
@@ -766,15 +769,15 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
                 nbrtfac  = sdr->nbFacesPerTriangle;
                 rtvermem = sdr->rtvermem + ( fac->typeID * sdr->nbVerticesPerTriangle );
                 rtquamem = sdr->rtquamem + ( fac->typeID * sdr->nbFacesPerTriangle );
-                rtuvmem  = sdr->rtuvmem  + ( fac->typeID * sdr->nbVerticesPerTriangle * mes->nbuvmap );
+                rtuvmem  = sdr->rtuvmem  + ( fac->typeID * sdr->nbVerticesPerTriangle * nbuvmap );
             } else {
                 nbrtfac  = sdr->nbFacesPerQuad;
                 rtvermem = sdr->rtvermem + ( mes->nbtri  * sdr->nbVerticesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbVerticesPerQuad );
                 rtquamem = sdr->rtquamem + ( mes->nbtri  * sdr->nbFacesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbFacesPerQuad );
-                rtuvmem  = sdr->rtuvmem  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * mes->nbuvmap ) +
-                                           ( fac->typeID * sdr->nbVerticesPerQuad * mes->nbuvmap );
+                rtuvmem  = sdr->rtuvmem  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
+                                           ( fac->typeID * sdr->nbVerticesPerQuad * nbuvmap );
             }
 
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {

@@ -47,6 +47,7 @@ typedef struct _G3DSPLINEREVOLVER {
     G3DMODIFIER   mod;  /*** Bone inherits G3DOBJECT        ***/
     uint32_t      nbsteps;
     uint32_t      nbdivis;
+    G3DUVSET     *uvs;
 } G3DSPLINEREVOLVER;
 
 /******************************************************************************/

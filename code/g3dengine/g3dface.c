@@ -769,6 +769,7 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && 
          ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->luvs ) {
+
        nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, engine_flags );
     }
 

@@ -37,6 +37,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
 
     if ( obj && mat ) {
         if ( ( obj->type == G3DMESHTYPE ) ||
+             ( obj->type == G3DSPLINETYPE ) ||
              ( obj->type == G3DTEXTTYPE ) ||
            ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH  *mes = ( G3DMESH * ) obj;
@@ -51,12 +52,24 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
             }
 
             g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, NULL, map );
+
+            g3dmesh_update ( mes, 
+                             NULL,
+                             NULL,
+                             NULL,
+                             RESETMODIFIERS, gui->flags );
         } else {
             if ( obj->type == G3DUVMAPTYPE ){
                 G3DMESH  *mes = ( G3DMESH * ) obj->parent;
                 G3DUVMAP *map = ( G3DUVMAP* ) obj;
 
                 g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, NULL, map );
+
+                g3dmesh_update ( mes, 
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 RESETMODIFIERS, gui->flags );
             } else {
                 fprintf ( stderr, "No material selected\n" );
             }

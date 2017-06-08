@@ -112,6 +112,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         uint32_t uniqueVertexId = 0x00;
 
         if ( nbRevolvedVertices && nbRevolvedEdges && nbRevolvedFaces ) {
+            uint32_t nbuvmap = g3dmesh_getUVMapCount ( splmes );
             /* 
              * The simpliest solution for finding edges is to go with a lookup 
              * table.
@@ -134,6 +135,34 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                 memset ( srvVertices, 0x00, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
                 memset ( srvEdges   , 0x00, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
                 memset ( srvFaces   , 0x00, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
+            }
+
+
+            if ( nbuvmap < SUBFACEUVSETBUFFER ) {
+                LIST *ltmpchildren = ((G3DOBJECT*)splmes)->lchildren;
+                G3DUVSET *uvs;
+
+                uvs = srv->uvs = realloc ( srv->uvs, sizeof ( G3DUVSET ) * nbuvmap * nbRevolvedFaces );
+
+                while ( ltmpchildren ) {
+                    G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+                    if ( child->type == G3DUVMAPTYPE ) {
+                        G3DUVMAP *map = ( G3DUVMAP * ) child;
+
+                        for ( i = 0x00; i < nbRevolvedFaces; i++ ) {
+                            srv->uvs[i].map = map;
+                            g3dsubface_addUVSet ( &srvFaces[i], 
+                                                  &uvs[i], 0x00 );
+
+                            g3duvmap_mapFace ( map, &srvFaces[i] );
+                        }
+
+                        uvs += nbRevolvedFaces;
+                    }
+
+                    ltmpchildren = ltmpchildren->next;
+                }
             }
 
             for ( i = 0x00; i < srv->nbsteps; i++ ) {
@@ -359,59 +388,65 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
         return 0x00;
     }
 
-    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-        /*glPointSize ( 3.0f );
-        glBegin ( GL_POINTS );
-        for ( i = 0x00; i < srvmes->nbver; i++ ) {
-            G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) srvmes->lver;
+    if ( srvobj->parent ) {
+        G3DSPLINE *spl    = ( G3DSPLINE * ) srvobj->parent;
+        G3DMESH   *splmes = ( G3DMESH   * ) spl;
+        G3DOBJECT *splobj = ( G3DOBJECT * ) spl;
 
-            glNormal3f ( subver[i].ver.nor.x, 
-                         subver[i].ver.nor.y, 
-                         subver[i].ver.nor.z );
-            glVertex3f ( subver[i].ver.pos.x, 
-                         subver[i].ver.pos.y, 
-                         subver[i].ver.pos.z );
+        if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+            /*glPointSize ( 3.0f );
+            glBegin ( GL_POINTS );
+            for ( i = 0x00; i < srvmes->nbver; i++ ) {
+                G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) srvmes->lver;
+
+                glNormal3f ( subver[i].ver.nor.x, 
+                             subver[i].ver.nor.y, 
+                             subver[i].ver.nor.z );
+                glVertex3f ( subver[i].ver.pos.x, 
+                             subver[i].ver.pos.y, 
+                             subver[i].ver.pos.z );
+            }
+            glEnd();*/
+
+            glEnable   ( GL_COLOR_MATERIAL );
+            glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
+            glBegin ( GL_QUADS );
+            for ( i = 0x00; i < srvmes->nbfac; i++ ) {
+                G3DSUBFACE *subfac = ( G3DSUBFACE * ) srvmes->lfac;
+                /*glNormal3f ( subfac[i].fac.ver[0x00]->nor.x, 
+                             subfac[i].fac.ver[0x00]->nor.y, 
+                             subfac[i].fac.ver[0x00]->nor.z );
+                glVertex3f ( subfac[i].fac.ver[0x00]->pos.x, 
+                             subfac[i].fac.ver[0x00]->pos.y, 
+                             subfac[i].fac.ver[0x00]->pos.z );
+
+                glNormal3f ( subfac[i].fac.ver[0x01]->nor.x, 
+                             subfac[i].fac.ver[0x01]->nor.y, 
+                             subfac[i].fac.ver[0x01]->nor.z );
+                glVertex3f ( subfac[i].fac.ver[0x01]->pos.x, 
+                             subfac[i].fac.ver[0x01]->pos.y, 
+                             subfac[i].fac.ver[0x01]->pos.z );
+
+                glNormal3f ( subfac[i].fac.ver[0x02]->nor.x, 
+                             subfac[i].fac.ver[0x02]->nor.y, 
+                             subfac[i].fac.ver[0x02]->nor.z );
+                glVertex3f ( subfac[i].fac.ver[0x02]->pos.x, 
+                             subfac[i].fac.ver[0x02]->pos.y, 
+                             subfac[i].fac.ver[0x02]->pos.z );
+
+                glNormal3f ( subfac[i].fac.ver[0x03]->nor.x, 
+                             subfac[i].fac.ver[0x03]->nor.y, 
+                             subfac[i].fac.ver[0x03]->nor.z );
+                glVertex3f ( subfac[i].fac.ver[0x03]->pos.x, 
+                             subfac[i].fac.ver[0x03]->pos.y, 
+                             subfac[i].fac.ver[0x03]->pos.z );*/
+                g3dface_draw  ( &subfac[i].fac, srvmes->gouraudScalarLimit,
+                                                splmes->ltex, 
+                                                0x00 /* object_flags */,
+                                                engine_flags );
+            }
+            glEnd();
         }
-        glEnd();*/
-
-        glEnable   ( GL_COLOR_MATERIAL );
-        glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
-        glBegin ( GL_QUADS );
-        for ( i = 0x00; i < srvmes->nbfac; i++ ) {
-            G3DSUBFACE *subfac = ( G3DSUBFACE * ) srvmes->lfac;
-            /*glNormal3f ( subfac[i].fac.ver[0x00]->nor.x, 
-                         subfac[i].fac.ver[0x00]->nor.y, 
-                         subfac[i].fac.ver[0x00]->nor.z );
-            glVertex3f ( subfac[i].fac.ver[0x00]->pos.x, 
-                         subfac[i].fac.ver[0x00]->pos.y, 
-                         subfac[i].fac.ver[0x00]->pos.z );
-
-            glNormal3f ( subfac[i].fac.ver[0x01]->nor.x, 
-                         subfac[i].fac.ver[0x01]->nor.y, 
-                         subfac[i].fac.ver[0x01]->nor.z );
-            glVertex3f ( subfac[i].fac.ver[0x01]->pos.x, 
-                         subfac[i].fac.ver[0x01]->pos.y, 
-                         subfac[i].fac.ver[0x01]->pos.z );
-
-            glNormal3f ( subfac[i].fac.ver[0x02]->nor.x, 
-                         subfac[i].fac.ver[0x02]->nor.y, 
-                         subfac[i].fac.ver[0x02]->nor.z );
-            glVertex3f ( subfac[i].fac.ver[0x02]->pos.x, 
-                         subfac[i].fac.ver[0x02]->pos.y, 
-                         subfac[i].fac.ver[0x02]->pos.z );
-
-            glNormal3f ( subfac[i].fac.ver[0x03]->nor.x, 
-                         subfac[i].fac.ver[0x03]->nor.y, 
-                         subfac[i].fac.ver[0x03]->nor.z );
-            glVertex3f ( subfac[i].fac.ver[0x03]->pos.x, 
-                         subfac[i].fac.ver[0x03]->pos.y, 
-                         subfac[i].fac.ver[0x03]->pos.z );*/
-            g3dface_draw  ( &subfac[i].fac, srvmes->gouraudScalarLimit,
-                                            srvmes->ltex, 
-                                            0x00 /* object_flags */,
-                                            engine_flags );
-        }
-        glEnd();
     }
 
     return MODIFIERTAKESOVER;

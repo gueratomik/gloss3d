@@ -762,6 +762,7 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
                                            uint32_t *totalInnerUVSets,
                                            uint32_t *totalOuterUVSets,
                                            uint32_t  level ) {
+    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
     uint32_t i;
     /* Note: For the outer objects, we don't need top precision. */
     /* The biggest evaluation will suffice. */
@@ -797,7 +798,7 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
 
     (*totalInnerUVSets)   += ( (*totalInnerFaces) * fac->nbuvs   );
     /* biggest evaluation */
-    (*totalOuterUVSets)   += ( (*totalOuterFaces) * ((mes) ? mes->nbuvmap : 0) );
+    (*totalOuterUVSets)   += ( (*totalOuterFaces) * ((mes) ? nbuvmap : 0) );
 }
 
 /******************************************************************************/

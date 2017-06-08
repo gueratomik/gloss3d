@@ -137,6 +137,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
     G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, sdt->cpuID );
     G3DMESH *mes = sdt->mes;
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
     G3DFACE *fac;
 
     while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
@@ -150,14 +151,14 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         if ( fac->nbver == 0x03 ) {
             rtvermem = sdt->rtvermem + ( fac->typeID * sdt->nbVerticesPerTriangle );
             rtquamem = sdt->rtquamem + ( fac->typeID * sdt->nbFacesPerTriangle );
-            rtuvmem  = sdt->rtuvmem  + ( fac->typeID * sdt->nbVerticesPerTriangle * mes->nbuvmap );
+            rtuvmem  = sdt->rtuvmem  + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
         } else {
             rtvermem = sdt->rtvermem + ( mes->nbtri  * sdt->nbVerticesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbVerticesPerQuad );
             rtquamem = sdt->rtquamem + ( mes->nbtri  * sdt->nbFacesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbFacesPerQuad );
-            rtuvmem  = sdt->rtuvmem  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * mes->nbuvmap ) +
-                                       ( fac->typeID * sdt->nbVerticesPerQuad * mes->nbuvmap );
+            rtuvmem  = sdt->rtuvmem  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
+                                       ( fac->typeID * sdt->nbVerticesPerQuad * nbuvmap );
 
         }
 
