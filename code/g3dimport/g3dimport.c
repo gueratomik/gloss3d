@@ -417,6 +417,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
             case UVMAPSIG :
                 map = g3duvmap_new ( /*objid,*/ objname, 0x00, 0x00 );
+                mes = objarr[parid];
 
                 obj = ( G3DOBJECT * ) map;
 
@@ -429,8 +430,6 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
-
-
             break;
 
 
@@ -440,7 +439,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
             } break;
 
             case UVMAPCOORDSSIG : {
-                G3DMESH  *parmes = ( G3DMESH * ) ((G3DOBJECT*)map)->parent;
+                G3DMESH  *parmes = ( G3DMESH * ) mes;
                 G3DFACE **mesfac = ( G3DFACE ** ) list_to_array ( parmes->lfac );
                 uint32_t nbuvs, i, faceID;
 
@@ -474,7 +473,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
             } break;
 
             case UVMAPMATERIALSSIG : {
-                G3DMESH  *parmes = ( G3DMESH * ) ((G3DOBJECT*)map)->parent;
+                G3DMESH  *parmes = mes;
                 uint32_t nbmat, matID, grpID, i;
                 uint32_t totMat = list_count ( sce->lmat );
 

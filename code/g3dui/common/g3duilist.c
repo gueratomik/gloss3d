@@ -145,7 +145,7 @@ PICKEDOBJECT *pickobject ( uint32_t x, uint32_t y,
     if ( inRectangle ( &lob->active , xm, ym ) ) pob.picked = ACTIVERECTHIT;
     if ( inRectangle ( &lob->visible, xm, ym ) ) pob.picked = VISIBLERECTHIT;
 
-    if ( obj->type == G3DMESHTYPE ) {
+    if ( obj->type & MESH ) {
         G3DMESH *mes  = ( G3DMESH * ) obj;
         LIST *ltmptex = mes->ltex;
 
@@ -234,7 +234,7 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
     lob.endx           = lob.visible.x + lob.visible.height;
 
     /*** Otherwise, the widget width is the last texture tag boundary **/
-    if ( obj->type == G3DMESHTYPE ) {
+    if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         LIST *ltmptex = mes->ltex;
         uint32_t nbtex = 0x00;

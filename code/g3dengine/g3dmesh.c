@@ -882,19 +882,11 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *lfac ) {
 /******************************************************************************/
 /*** Return the first uvmap ***/
 G3DUVMAP *g3dmesh_getLastUVMap ( G3DMESH *mes ) {
-    LIST *lmap = g3dobject_getChildrenByType ( ( G3DOBJECT * ) mes, G3DUVMAPTYPE );
-    LIST *ltmpmap = lmap;
-
-    if ( ltmpmap ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
-
-        list_free ( &lmap, NULL );
+    if ( mes->luvmap ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) mes->luvmap->data;
 
         return map;
     }
-
-    list_free ( &lmap, NULL );
-
 
     return NULL;
 }
@@ -927,27 +919,15 @@ G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
 
 /******************************************************************************/
 uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
-    LIST *ltmpchildren = ((G3DOBJECT*)mes)->lchildren;
-    uint32_t nbuvmap;
-
-    while ( ltmpchildren ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-
-        if ( child->type == G3DUVMAPTYPE ) {
-            nbuvmap++;
-        }
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    return nbuvmap;
+    return mes->nbuvmap;
 }
 
 /******************************************************************************/
 void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
     LIST *ltmpfac = ( map->facgrp ) ? map->facgrp->lfac : mes->lfac;
 
-    g3dobject_addChild ( ( G3DOBJECT * ) mes, ( G3DOBJECT * ) map, engine_flags );
+    list_insert ( &mes->luvmap, map );
+    mes->nbuvmap++;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
@@ -966,14 +946,14 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
                           NULL,
                           0x00, engine_flags );
 
-    g3duvmap_adjustFlatProjection ( map );
+    g3duvmap_adjustFlatProjection ( map, mes );
 
     /*** init some size for our uvwmap ***/
     switch ( map->projection ) {
         case UVMAPFLAT :
 
  /*** Actually I would just have to update G3DUVMAP object's matrix  to trigger this ***/
-            g3duvmap_applyProjection  ( map );
+            g3duvmap_applyProjection  ( map, mes );
         break;
 
         default :
@@ -2177,7 +2157,7 @@ void g3dmesh_update ( G3DMESH *mes, LIST    *lver, /*** update vertices    ***/
     /*** TODO - Remap if non-existent even if UVMAPFIXED ***/
                 if ( ( objmap->flags & UVMAPFIXED ) == 0x00 ) {
                     if ( fac->luvs ) {
-                        g3duvmap_mapFace ( map, fac );
+                        g3duvmap_mapFace ( map, mes, fac );
                     }
                 }
 
@@ -2928,12 +2908,12 @@ void g3dmesh_assignFaceUVSets ( G3DMESH *mes, G3DFACE *fac ) {
         /*** if the UVMAP is not limited to a facegroup, then the UVMAP ***/
         /*** maps all faces, so the FACE must be mapped by this UVMAP ***/ 
         if ( facgrp == NULL ) {
-            g3duvmap_insertFace ( map, fac );
+            g3duvmap_insertFace ( map, mes, fac );
         } else {
         /*** Else, we check if the face belongs to the facegroup, in this ***/
         /*** case we map it ***/
             if ( list_seek ( facgrp->lfac, fac ) ) {
-                g3duvmap_insertFace ( map, fac );
+                g3duvmap_insertFace ( map, mes, fac );
             }
         }
 
@@ -3711,6 +3691,19 @@ void g3dmesh_onGeometryMove ( G3DMESH *mes, LIST    *lver,
 }
 
 /******************************************************************************/
+void g3dmesh_transform ( G3DMESH *mes, uint32_t flags ) {
+    LIST *ltmpuvmap = mes->luvmap;
+
+    while ( ltmpuvmap ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        g3duvmap_applyProjection ( map, mes );
+
+        ltmpuvmap = ltmpuvmap->next;
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_init ( G3DMESH *mes, uint32_t id, 
                                   char    *name,
                                   uint32_t engine_flags ) {
@@ -3727,6 +3720,9 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
                                                  NULL,
                                ADDCHILD_CALLBACK(g3dmesh_addChild),
                                                  NULL );
+
+
+    obj->transform = g3dmesh_transform;
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/

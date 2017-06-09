@@ -762,7 +762,11 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
                                            uint32_t *totalInnerUVSets,
                                            uint32_t *totalOuterUVSets,
                                            uint32_t  level ) {
-    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
+    /* 
+     * check value of mes because this func is also used by the g3dsubindex
+     * type, which passes NULL as mes
+     */
+    uint32_t nbuvmap = ( mes ) ? g3dmesh_getUVMapCount ( mes ) : 0x00;
     uint32_t i;
     /* Note: For the outer objects, we don't need top precision. */
     /* The biggest evaluation will suffice. */

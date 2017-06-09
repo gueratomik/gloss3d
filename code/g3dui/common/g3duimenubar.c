@@ -37,6 +37,7 @@ void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
 
     if ( obj ){ 
         if ( ( obj->type == G3DMESHTYPE ) ||
+           ( ( obj->type &  G3DSPLINETYPE ) == G3DSPLINETYPE ) ||
            ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3duvmap_new ( "UVMap", 0x00, UVMAPFLAT );

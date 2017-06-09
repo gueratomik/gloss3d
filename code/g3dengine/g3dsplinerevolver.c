@@ -137,34 +137,6 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                 memset ( srvFaces   , 0x00, nbRevolvedFaces    * sizeof ( G3DSUBFACE   ) );
             }
 
-
-            if ( nbuvmap < SUBFACEUVSETBUFFER ) {
-                LIST *ltmpchildren = ((G3DOBJECT*)splmes)->lchildren;
-                G3DUVSET *uvs;
-
-                uvs = srv->uvs = realloc ( srv->uvs, sizeof ( G3DUVSET ) * nbuvmap * nbRevolvedFaces );
-
-                while ( ltmpchildren ) {
-                    G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-
-                    if ( child->type == G3DUVMAPTYPE ) {
-                        G3DUVMAP *map = ( G3DUVMAP * ) child;
-
-                        for ( i = 0x00; i < nbRevolvedFaces; i++ ) {
-                            srv->uvs[i].map = map;
-                            g3dsubface_addUVSet ( &srvFaces[i], 
-                                                  &uvs[i], 0x00 );
-
-                            g3duvmap_mapFace ( map, &srvFaces[i] );
-                        }
-
-                        uvs += nbRevolvedFaces;
-                    }
-
-                    ltmpchildren = ltmpchildren->next;
-                }
-            }
-
             for ( i = 0x00; i < srv->nbsteps; i++ ) {
                 uint32_t n = ( i + 0x01 ) % srv->nbsteps;
                 double RMX[0x10];
@@ -334,6 +306,38 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
              * BBOX sizing must be done when shaping the splinerevolver.
              */
             g3dmesh_updateBbox ( srvmes );
+
+            /** bbox is needed for uvmap to map correctly */
+            if ( doTopology ) {
+                if ( nbuvmap < SUBFACEUVSETBUFFER ) {
+                    LIST *ltmpuvmap = splmes->luvmap;
+                    G3DUVSET *uvs;
+
+                    srvmes->luvmap  = splmes->luvmap;
+                    srvmes->nbuvmap = splmes->nbuvmap;
+                    srvmes->ltex    = splmes->ltex;
+                    srvmes->nbtex   = splmes->nbtex;
+
+                    uvs = srv->uvs = realloc ( srv->uvs, sizeof ( G3DUVSET ) * nbuvmap * nbRevolvedFaces );
+
+                    while ( ltmpuvmap ) {
+                        G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
+
+                        for ( i = 0x00; i < nbRevolvedFaces; i++ ) {
+                            srv->uvs[i].map = map;
+
+                            g3dsubface_addUVSet ( &srvFaces[i], 
+                                                  &uvs[i], 0x00 );
+
+                            g3duvmap_mapFace ( map, srv, &srvFaces[i] );
+                        }
+
+                        uvs += nbRevolvedFaces;
+
+                        ltmpuvmap = ltmpuvmap->next;
+                    }
+                }
+            }
         }
     }
 }

@@ -111,7 +111,7 @@ void g3duvset_subdivide ( G3DUVSET *uvs, G3DFACE *fac ) {
 /******************************************************************************/
 /*** Map a face when the UVMAP is fixed. This implies that the face is ***/
 /*** surrounded by faces whose UVSets are set ***/
-void g3duvmap_insertFace ( G3DUVMAP *map, G3DFACE *fac ) {
+void g3duvmap_insertFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DUVSET *uvs;
     uint32_t i;
@@ -145,7 +145,7 @@ void g3duvmap_insertFace ( G3DUVMAP *map, G3DFACE *fac ) {
     } else {
         if ( adduvs ) g3dface_addUVSet ( fac, uvs );
 
-        g3duvmap_mapFace ( map, fac );
+        g3duvmap_mapFace ( map, mes, fac );
     }
 }
 
@@ -197,10 +197,10 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
 }
 
 /******************************************************************************/
-void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
+void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
     G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
-    G3DOBJECT *parent  = objmap->parent;
+    G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
     uint32_t i;
@@ -266,26 +266,25 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-void g3duvmap_adjustFlatProjection ( G3DUVMAP *map ) {
+void g3duvmap_adjustFlatProjection ( G3DUVMAP *map, G3DMESH *mes ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
-    G3DOBJECT *parent = objmap->parent;
-    float parx = ( parent->bbox.xmax + parent->bbox.xmin ) / 2.0f,
-          pary = ( parent->bbox.ymax + parent->bbox.ymin ) / 2.0f;
+    G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
+    float parx = ( objmes->bbox.xmax + objmes->bbox.xmin ) / 2.0f,
+          pary = ( objmes->bbox.ymax + objmes->bbox.ymin ) / 2.0f;
 
-    map->pln.xradius = ( parent->bbox.xmax - parent->bbox.xmin ) / 2.0f;
-    map->pln.yradius = ( parent->bbox.ymax - parent->bbox.ymin ) / 2.0f;
+    map->pln.xradius = ( objmes->bbox.xmax - objmes->bbox.xmin ) / 2.0f;
+    map->pln.yradius = ( objmes->bbox.ymax - objmes->bbox.ymin ) / 2.0f;
 
     objmap->pos.x = parx;
     objmap->pos.y = pary;
 
-    g3dobject_updateMatrix_r ( objmap, 0x00 );
+    g3dobject_updateMatrix ( objmap );
 }
 
 /******************************************************************************/
-void g3duvmap_applyProjection ( G3DUVMAP *map ) {
+void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
-    G3DOBJECT *parent  = objmap->parent;
-    G3DMESH   *parmes  = ( G3DMESH * ) parent;
+    G3DMESH   *parmes  = mes;
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
 
@@ -297,7 +296,7 @@ void g3duvmap_applyProjection ( G3DUVMAP *map ) {
 
             /*** This function assigns a UVSet to the face if needed and ***/
             /*** maps the UV coordinates to the face ***/
-            g3duvmap_insertFace ( map, fac );
+            g3duvmap_insertFace ( map, mes, fac );
 
 
             ltmpfac = ltmpfac->next;
@@ -310,7 +309,7 @@ void g3duvmap_applyProjection ( G3DUVMAP *map ) {
 
             /*** This function assigns a UVSet to the face if needed and ***/
             /*** maps the UV coordinates to the face ***/
-            g3duvmap_insertFace ( map, fac );
+            g3duvmap_insertFace ( map, mes, fac );
 
 
             _NEXTFACE(parmes,ltmpfac);
@@ -365,11 +364,11 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
 }
 
 /******************************************************************************/
-void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
+/*void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
     g3duvmap_applyProjection ( map );
-}
+}*/
 
 /******************************************************************************/
 void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t policy,
@@ -387,8 +386,6 @@ void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t policy,
                                                        NULL,
                                                        NULL,
                                                        NULL );
-
-    objmap->transform = g3duvmap_transform;
 
     /*obj->copy = g3dprimitive_copy;*/
 

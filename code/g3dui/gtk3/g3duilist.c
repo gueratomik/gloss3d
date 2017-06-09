@@ -230,7 +230,7 @@ static void drawTextures ( GtkStyleContext *context, cairo_t *cr,
     if ( matmap == NULL ) matmap = common_g3duimaterialmap_new ( LISTINDENT,
                                                                  LISTINDENT );
 
-    if ( obj->type & MESH ) {
+    if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
         G3DMESH *mes =  ( G3DMESH * ) obj;
         LIST *ltmptex = mes->ltex;
         uint32_t nbtex = 0x00;

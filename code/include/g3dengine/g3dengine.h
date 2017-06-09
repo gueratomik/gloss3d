@@ -977,6 +977,8 @@ struct _G3DMESH {
     LIST *lselgrp;
     LIST *lseltex;
     LIST *ltex;    /*** list of textures ***/
+    LIST *luvmap;
+    LIST *lseluvmap;
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
@@ -993,7 +995,9 @@ struct _G3DMESH {
     uint32_t nbselfac;
     uint32_t nbselgrp;
     uint32_t nbseltex;
+    uint32_t nbseluvmap;
     uint32_t nbtex;
+    uint32_t nbuvmap;
     float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
@@ -2242,9 +2246,9 @@ G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );
 void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
                                                 G3DFACE  *fac,
                                                 uint32_t  engine_flags );
-void       g3duvmap_mapFace              ( G3DUVMAP *, G3DFACE * );
-void       g3duvmap_adjustFlatProjection ( G3DUVMAP * );
-void       g3duvmap_applyProjection      ( G3DUVMAP * );
+void       g3duvmap_mapFace              ( G3DUVMAP *, G3DMESH *, G3DFACE * );
+void       g3duvmap_adjustFlatProjection ( G3DUVMAP *, G3DMESH *mes );
+void       g3duvmap_applyProjection      ( G3DUVMAP *, G3DMESH *mes );
 uint32_t   g3duvmap_draw                 ( G3DOBJECT *, G3DCAMERA *, uint32_t );
 void       g3duvmap_init                 ( G3DUVMAP *, char *, uint32_t, uint32_t );
 G3DUVMAP  *g3duvmap_new                  ( char *, uint32_t, uint32_t );
@@ -2253,7 +2257,7 @@ G3DUV     *g3duv_new                     ( G3DUVSET * );
 void       g3duvmap_unfix                ( G3DUVMAP * );
 void       g3duvmap_fix                  ( G3DUVMAP * );
 void       g3duvset_subdivide            ( G3DUVSET *, G3DFACE * );
-void       g3duvmap_insertFace           ( G3DUVMAP *, G3DFACE * );
+void       g3duvmap_insertFace           ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_addMaterial          ( G3DUVMAP *, G3DMATERIAL * );
 void       g3duvmap_removeMaterial       ( G3DUVMAP *, G3DMATERIAL * );
 
