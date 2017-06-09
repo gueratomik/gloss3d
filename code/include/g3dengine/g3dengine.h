@@ -1836,6 +1836,9 @@ void       g3dmesh_init                 ( G3DMESH *, uint32_t,
 void       g3dmesh_free                 ( G3DOBJECT * );
 /******************************** Mesh API ************************************/
 void       g3dmesh_addEdge              ( G3DMESH *, G3DEDGE * );
+G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
+void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
+void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );
 void       g3dmesh_addFace              ( G3DMESH *, G3DFACE * );
 void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
@@ -1880,7 +1883,7 @@ void       g3dmesh_drawFace             ( G3DMESH *, uint32_t );
 void       g3dmesh_drawFaces            ( G3DMESH *, uint32_t,
                                                      uint32_t );
 void       g3dmesh_drawFaceNormal       ( G3DMESH *, uint32_t );
-void       g3dmesh_drawObject           ( G3DMESH *, uint32_t );
+void       g3dmesh_drawObject           ( G3DMESH *, G3DCAMERA *, uint32_t );
 void       g3dmesh_drawSelectedVertices ( G3DMESH *, uint32_t  );
 void       g3dmesh_drawVertexNormal     ( G3DMESH *, uint32_t );
 void       g3dmesh_drawVertices         ( G3DMESH *, uint32_t );

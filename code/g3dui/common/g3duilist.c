@@ -41,29 +41,36 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
                                                     uint32_t pick_flags,
                                                     uint32_t engine_flags ) {
     G3DOBJECT *obj = pob->obj;
+    G3DOBJECT *oldobj = g3dscene_getLastSelected ( sce );
     LIST *lselold, *lselnew;
 
     /*** When using this function during mouse motion, we pass NULL as urm ***/
     /*** so we need to check the value ***/
     if ( urm ) {
-        lselold = list_copy ( sce->lsel );
+        /*** only pick once ***/
+        if (  obj != oldobj ) {
+            lselold = list_copy ( sce->lsel );
 
-        /*** Press CTRL to select multiple objects ***/
-        if ( ( pick_flags & PICKEOBJECTKEEPALL ) == 0x00 ) {
-            g3dscene_unselectAllObjects ( sce, engine_flags );
+            /*** Press CTRL to select multiple objects ***/
+            if ( ( pick_flags & PICKEOBJECTKEEPALL ) == 0x00 ) {
+                g3dscene_unselectAllObjects ( sce, engine_flags );
+            }
+
+            g3dscene_selectObject ( sce, obj, engine_flags );
+
+            lselnew = list_copy ( sce->lsel );
+
+            /*** remember selection ***/
+            /*
+             * Note: force the VIEWOBJECT flags because object can be picked from
+             * the object list even if we are in sub-object edition mode.
+             */
+            g3durm_scene_pickObject  ( urm, sce, lselold, 
+                                                 lselnew, 
+                                                 VIEWOBJECT, 
+                                                 REDRAWVIEW | 
+                                                 REDRAWLIST );
         }
-
-        g3dscene_selectObject ( sce, obj, engine_flags );
-
-        lselnew = list_copy ( sce->lsel );
-
-        /*** remember selection ***/
-        /*
-         * Note: force the VIEWOBJECT flags because object can be picked from
-         * the object list even if we are in sub-object edition mode.
-         */
-        g3durm_scene_pickObject  ( urm, sce, lselold, 
-                                             lselnew, VIEWOBJECT, REDRAWVIEW | REDRAWLIST );
     }
 
     /*** If we clicked [+] or [-], develop or collapse ***/
@@ -144,6 +151,25 @@ PICKEDOBJECT *pickobject ( uint32_t x, uint32_t y,
     if ( inRectangle ( &lob->name   , xm, ym ) ) pob.picked = NAMERECTHIT;
     if ( inRectangle ( &lob->active , xm, ym ) ) pob.picked = ACTIVERECTHIT;
     if ( inRectangle ( &lob->visible, xm, ym ) ) pob.picked = VISIBLERECTHIT;
+
+    if ( obj->type & MESH ) {
+        G3DMESH *mes  = ( G3DMESH * ) obj;
+        LIST *ltmpuvmap = mes->luvmap;
+        uint32_t nbuvmap = 0x00;
+
+        while ( ltmpuvmap ) {
+            G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+            if ( inRectangle ( &lob->uvmap[nbuvmap], xm, ym ) ) {
+                pob.uvmap  = uvmap;
+                pob.picked = UVMAPRECTHIT;
+            }
+
+            nbuvmap++;
+
+            ltmpuvmap = ltmpuvmap->next;
+        }
+    }
 
     if ( obj->type & MESH ) {
         G3DMESH *mes  = ( G3DMESH * ) obj;
@@ -233,6 +259,28 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
 
     lob.endx           = lob.visible.x + lob.visible.height;
 
+    /*** Otherwise, the widget width is the last uvmap tag boundary **/
+    if ( obj->type & MESH ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+        LIST *ltmpuvmap = mes->luvmap;
+        uint32_t nbuvmap = 0x00;
+
+        while ( ltmpuvmap && ( nbuvmap < MAXUVMAPS ) ) {
+            G3DUVMAP *uvmap  = ( G3DUVMAP * ) ltmpuvmap->data;
+
+            lob.uvmap[nbuvmap].x      = lob.endx;
+            lob.uvmap[nbuvmap].y      = y;
+            lob.uvmap[nbuvmap].width  = LISTINDENT;
+            lob.uvmap[nbuvmap].height = LISTINDENT;
+
+            lob.endx += ( LISTINDENT + 0x02 );
+
+            nbuvmap++;
+
+            ltmpuvmap = ltmpuvmap->next;
+        }
+    }
+
     /*** Otherwise, the widget width is the last texture tag boundary **/
     if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -241,7 +289,6 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
 
         while ( ltmptex && ( nbtex < MAXTEXTURES ) ) {
             G3DTEXTURE *tex  = ( G3DTEXTURE * ) ltmptex->data;
-            G3DMATERIAL *mat = tex->mat;
 
             lob.texture[nbtex].x      = lob.endx;
             lob.texture[nbtex].y      = y;

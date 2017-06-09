@@ -561,7 +561,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &nbv        , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
-                pri = g3dplane_new ( objid, objname,
+                mes = pri = g3dplane_new ( objid, objname,
                                      orientation,
                                      nbu, nbv, 
                                      radu, radv );
@@ -594,7 +594,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &closed     , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
-                pri = g3dcylinder_new ( objid, objname,
+                mes = pri = g3dcylinder_new ( objid, objname,
                                         slice,
                                         capx, capy, 
                                         radius, length );
@@ -623,7 +623,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &cap        , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
-                pri = g3dtorus_new ( objid, objname,
+                mes = pri = g3dtorus_new ( objid, objname,
                                      orientation,
                                      slice, cap,
                                      extrad, intrad );
@@ -650,7 +650,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &nby   , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &nbz   , sizeof ( uint32_t ), 0x01, fsrc );
 
-                pri = g3dcube_new ( objid, objname, nbx, nby, nbz, radius );
+                mes = pri = g3dcube_new ( objid, objname, nbx, nby, nbz, radius );
 
                 obj = ( G3DOBJECT * ) pri;
 
@@ -673,7 +673,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &slice , sizeof ( uint32_t ), 0x01, fsrc );
                 readf ( &cap   , sizeof ( uint32_t ), 0x01, fsrc );
 
-                pri = g3dsphere_new ( objid, objname, slice, cap, radius );
+                mes = pri = g3dsphere_new ( objid, objname, slice, cap, radius );
 
                 obj = ( G3DOBJECT * ) pri;
 
@@ -858,7 +858,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
             case SPLINESIG : {
                 printf ( "SPLINE found\n");
 
-                spline = g3dspline_new ( objid, objname, CUBIC, flags );
+                mes = spline = g3dspline_new ( objid, objname, CUBIC, flags );
 
                 obj = ( G3DOBJECT * ) spline;
 

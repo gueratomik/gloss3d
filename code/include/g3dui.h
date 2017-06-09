@@ -786,8 +786,10 @@ void common_g3duiview_orbit        ( G3DUIVIEW *, G3DPIVOT *,
 #define ACTIVERECTHIT  0x04
 #define VISIBLERECTHIT 0x05
 #define TEXTURERECTHIT 0x06
+#define UVMAPRECTHIT   0x07
 
 #define MAXTEXTURES    0x20 /*** 32 textures at most - will be improved ***/
+#define MAXUVMAPS      0x20 /*** 32 uvmaps at most - will be improved ***/
 
 #define PICKEDOBJECTNOPARSE (  1         )
 #define PICKEOBJECTKEEPALL  (  1  <<  1  )
@@ -802,6 +804,7 @@ typedef struct _LISTEDOBJECT {
     G3DOBJECT     *obj;
     uint32_t       hit;
     uint32_t       endx;
+    G3DUIRECTANGLE uvmap[MAXUVMAPS];
     G3DUIRECTANGLE texture[MAXTEXTURES];
 } LISTEDOBJECT;
 
@@ -809,6 +812,7 @@ typedef struct _LISTEDOBJECT {
 typedef struct _PICKEDOBJECT {
     G3DOBJECT  *obj;
     G3DTEXTURE *tex;
+    G3DUVMAP   *uvmap;
     uint32_t picked; 
 } PICKEDOBJECT;
 

@@ -30,6 +30,29 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DUVMAP *g3dmesh_getSelectedUVMap ( G3DMESH *mes ) {
+    if ( mes->lseluvmap ) return mes->lseluvmap->data;
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dmesh_selectUVMap ( G3DMESH *mes, G3DUVMAP *map ) {
+    if ( list_seek ( mes->lseluvmap, map ) == NULL ) {
+        list_insert ( &mes->lseluvmap, map );
+
+        mes->nbseluvmap++;
+
+        ((G3DOBJECT*)map)->flags |= OBJECTSELECTED;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_unselectAllUVMaps ( G3DMESH *mes ) {
+    list_free ( &mes->lseluvmap, g3dobject_unsetSelected );
+}
+
+/******************************************************************************/
 void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
                                                  uint32_t   nbver,
                                                  G3DEDGE   *edg,
@@ -920,6 +943,11 @@ G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
 /******************************************************************************/
 uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
     return mes->nbuvmap;
+}
+
+/******************************************************************************/
+void g3dmesh_removeUVMap ( ) {
+    printf("not implemented yet");
 }
 
 /******************************************************************************/
@@ -2239,7 +2267,9 @@ void g3dmesh_color ( G3DMESH *mes, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dmesh_drawObject ( G3DMESH *mes, uint32_t engine_flags ) {
+void g3dmesh_drawObject ( G3DMESH *mes, 
+                          G3DCAMERA *curcam, 
+                          uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     uint32_t object_flags = obj->flags;
 
@@ -2272,6 +2302,8 @@ void g3dmesh_drawObject ( G3DMESH *mes, uint32_t engine_flags ) {
         g3dface_drawTriangleList ( mes->ltri, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
         g3dface_drawQuadList     ( mes->lqua, mes->gouraudScalarLimit, mes->ltex, object_flags, engine_flags & (~VIEWFACE) );
     }
+
+    g3dmesh_drawSelectedUVMap ( mes, curcam, engine_flags );
 }
 
 /******************************************************************************/
@@ -2637,6 +2669,19 @@ uint32_t g3dmesh_isDisplaced ( G3DMESH *mes, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
+void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
+                                 G3DCAMERA *curcam,
+                                 uint32_t   engine_flags ) {
+    if ( engine_flags & VIEWUVWMAP ) {
+        if ( mes->lseluvmap ) {
+            G3DUVMAP *uvmap = ( G3DUVMAP * ) mes->lseluvmap->data;
+
+            g3dobject_draw ( uvmap, curcam, engine_flags );
+        }
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
                                         uint32_t   engine_flags ) {
     uint32_t viewSkin = ( ( engine_flags & VIEWSKIN       ) &&
@@ -2731,7 +2776,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
     }
 
     if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
-        g3dmesh_drawObject ( mes, engine_flags );
+        g3dmesh_drawObject ( mes, curcam, engine_flags );
     }
 
     if ( viewSkin ) {

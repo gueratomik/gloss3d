@@ -44,6 +44,9 @@ void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
 
             g3dmesh_addUVMap ( mes, map, gui->flags );
 
+            g3dmesh_unselectAllUVMaps ( mes );
+            g3dmesh_selectUVMap ( mes, map );
+
             g3dui_redrawObjectList ( gui );
         }
     }

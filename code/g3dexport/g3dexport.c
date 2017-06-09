@@ -306,6 +306,7 @@ OBJECT(0x2000)
 static uint32_t orientation_blocksize ( );
 static void orientation_writeblock ( G3DOBJECT *obj, FILE *fdst );
 static uint32_t meshuvmaps_blocksize ( G3DMESH *mes );
+static void mesh_writeUVMaps ( G3DMESH *mes, FILE *fdst );
 
 /******************************************************************************/
 void writef ( void   *ptr,
@@ -1228,6 +1229,12 @@ static uint32_t primitive_blocksize ( G3DPRIMITIVE *pri, uint32_t flags ) {
     if ( ( obj->type == G3DPLANETYPE  ) &&
          ( flags & PRIMITIVESAVEPLANE ) ) {
         blocksize += plane_blocksize  ( ) + 0x06;
+    }
+
+    if ( flags & PRIMITIVESAVEUVMAPS ) {
+        G3DMESH *mes = ( G3DMESH * ) pri;
+
+        blocksize += meshuvmaps_blocksize ( pri ) + ( 0x06 * mes->nbuvmap );
     }
 
 
@@ -2358,6 +2365,10 @@ static uint32_t spline_blocksize ( G3DSPLINE *spline,
         blocksize += splinegeometry_blocksize ( spline, flags ) + 0x06;
     }
 
+    if ( flags & SPLINESAVEUVMAPS ) {
+        blocksize += meshuvmaps_blocksize ( spline ) + ( 0x06 * ((G3DMESH*)spline)->nbuvmap );
+    }
+
     return blocksize;
 }
 
@@ -2389,13 +2400,18 @@ static void splinegeometry_writeblock ( G3DSPLINE *spline,
 static void spline_writeblock ( G3DSPLINE *spline, 
                                 uint32_t   flags, 
                                 FILE      *fdst ) {
+    G3DMESH *mes = ( G3DMESH * ) spline;
+
     if ( flags & SPLINESAVEGEOMETRY ) {
-        G3DMESH *mes = ( G3DMESH * ) spline;
         uint32_t blocksize = splinegeometry_blocksize ( spline, flags );
 
         chunk_write ( SPLINEGEOSIG, blocksize, fdst );
 
         splinegeometry_writeblock ( spline, flags, fdst );
+    }
+
+    if ( flags & SPLINESAVEUVMAPS ) {
+        mesh_writeUVMaps ( mes, fdst );
     }
 }
 
@@ -2588,6 +2604,9 @@ static void primitive_writeblock ( G3DPRIMITIVE *pri, uint32_t flags,
         chunk_write ( CONESIG, blocksize, fdst );
     }
 */
+    if ( flags & PRIMITIVESAVEUVMAPS ) {
+        mesh_writeUVMaps ( pri, fdst );
+    }
 }
 
 /******************************************************************************/

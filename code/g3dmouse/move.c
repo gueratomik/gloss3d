@@ -71,9 +71,9 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             /*** are in viewmap mode, we move its uvwmap. ***/
             if ( obj && ( flags & VIEWUVWMAP ) ) {
                 if ( obj->type == G3DMESHTYPE ) {
-                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    mes = ( G3DMESH * ) obj;
 
-                    obj = ( G3DOBJECT * ) g3dmesh_getLastUVMap ( mes );
+                    obj = ( G3DOBJECT * ) g3dmesh_getSelectedUVMap ( mes );
                 }
             }
 
@@ -228,6 +228,10 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                             memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
                         }
+                    }
+
+                    if ( obj->type == G3DUVMAPTYPE ) {
+                        g3duvmap_applyProjection ( obj, mes );
                     }
                 } else {
                     if ( obj->type & EDITABLE ) {

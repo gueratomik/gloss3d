@@ -77,17 +77,17 @@ static void createUVMapSelector ( GtkWidget *parent, G3DUI *gui,
         g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
     }
 
-    if ( obj ) {
-        LIST *lmap = g3dobject_getChildrenByType ( obj, G3DUVMAPTYPE );
-        LIST *ltmpmap = lmap;
+    if ( obj && ( obj->type & MESH ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+        LIST *ltmpuvmap = mes->luvmap;
 
-        while ( ltmpmap ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
+        while ( ltmpuvmap ) {
+            G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
             char *mapname = ((G3DOBJECT*)map)->name;
 
             gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, mapname        );
  
-            ltmpmap = ltmpmap->next;
+            ltmpuvmap = ltmpuvmap->next;
         }
     }
 

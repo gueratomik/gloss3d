@@ -66,9 +66,9 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             /*** are in viewmap mode, we move its uvwmap. ***/
             if ( obj && ( flags & VIEWUVWMAP ) ) {
                 if ( obj->type == G3DMESHTYPE ) {
-                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    mes = ( G3DMESH * ) obj;
 
-                    obj = ( G3DOBJECT * ) g3dmesh_getLastUVMap ( mes );
+                    obj = ( G3DOBJECT * ) g3dmesh_getSelectedUVMap ( mes );
                 }
             }
 
@@ -195,6 +195,10 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     xold = mev->x;
                     yold = mev->y;
+
+                    if ( obj->type == G3DUVMAPTYPE ) {
+                        g3duvmap_applyProjection ( obj, mes );
+                    }
                 } else {
 
                     LIST *ltmp = lver;

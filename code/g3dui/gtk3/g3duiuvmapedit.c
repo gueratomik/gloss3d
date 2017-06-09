@@ -146,15 +146,16 @@ GtkWidget *createUVMapEdit ( GtkWidget *parent, G3DUI *gui,
                                                 gint width,
                                                 gint height ) {
     GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget * frm;
-
-    frm = gtk_fixed_new ( );
+    GtkWidget *frm = gtk_fixed_new ( );
 
     gtk_widget_set_name ( frm, name );
 
-    gtk_widget_size_allocate ( frm, &gdkrec );
+    gtk_widget_set_size_request ( frm, gdkrec.width, gdkrec.height );
 
-    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
+    /*** For some reason, GtkSpinButtons calls its callbacks ***/
+    /*** when being realized. With this trick I bypass that. ***/
+    /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
+    gui->lock = 0x01;
 
     createToggleLabel         ( frm, gui, EDITUVMAPFIXED,
                                 0,  0, 200, 20, lockUVMapCbk );
@@ -162,6 +163,9 @@ GtkWidget *createUVMapEdit ( GtkWidget *parent, G3DUI *gui,
     createProjectionSelection ( frm, gui, EDITUVMAPPROJECTION, 
                                 0, 24, 96, 96, projectionCbk );
 
+    gui->lock = 0x00;
+
+    gtk_container_add ( GTK_CONTAINER(parent), frm );
 
     gtk_widget_show ( frm );
 

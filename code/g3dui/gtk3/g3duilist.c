@@ -263,7 +263,8 @@ static void drawTextures ( GtkStyleContext *context, cairo_t *cr,
                                                 mpv->img->width,
                                                 mpv->img->height );*/
 
-            if ( tex->flags & TEXTURESELECTED ) {
+            if ( ( obj->flags & OBJECTSELECTED  ) &&
+                 ( tex->flags & TEXTURESELECTED ) ) {
                 cairo_set_source_rgb ( cr, 1.0f, 0.0f, 0.0f );
                 cairo_set_line_width ( cr, 0.5f );
                 cairo_rectangle      ( cr, rec->x, rec->y, rec->width,
@@ -274,6 +275,88 @@ static void drawTextures ( GtkStyleContext *context, cairo_t *cr,
             nbtex++; rec++;
 
             ltmptex = ltmptex->next;
+        }
+    }
+}
+
+/******************************************************************************/
+static void drawUVMaps ( GtkStyleContext *context, cairo_t *cr,
+                                                   G3DOBJECT *obj, 
+                                                   G3DUIRECTANGLE *rec ) {
+    static G3DUIMATERIALMAP *matmap;
+    static unsigned char pixel[0x10][0x10][0x03];
+    static int init;
+
+    if ( init == 0x00 ) {
+        unsigned char color = 0x00;
+        uint32_t i, j;
+        init = 0x01;
+
+        for ( i = 0x00; i < 0x10; i++ ) {
+            for ( j = 0x00; j < 0x10; j++ ) {
+                pixel[i][j][0x00] = 
+                pixel[i][j][0x01] = 
+                pixel[i][j][0x02] = color;
+
+                if ( ( j % 0x04 ) == 0x00 ) {
+                    color = (~color);
+                }
+            }
+
+            if ( ( i % 0x04 ) == 0x00 ) {
+                color = (~color);
+            }
+        }
+    }
+
+
+    /*** Init once and for all ***/
+    if ( matmap == NULL ) matmap = common_g3duimaterialmap_new ( LISTINDENT,
+                                                                 LISTINDENT );
+
+    if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
+        G3DMESH *mes =  ( G3DMESH * ) obj;
+        LIST *ltmpuvmap = mes->luvmap;
+        uint32_t nbuvmap = 0x00;
+
+        while ( ltmpuvmap ) {
+            G3DUVMAP  *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+            GdkPixbuf *pixbuf; 
+
+            /*** This is very inefficient: creating a pixbuf at each     ***/
+            /*** exposure. I don't know how to fill directly a GdkPixbuf.***/
+            pixbuf = gdk_pixbuf_new_from_data ( (const guchar *) pixel, 
+                                                GDK_COLORSPACE_RGB, 
+                                                FALSE,
+                                                0x08, 
+                                                0x10,
+                                                0x10,
+                                                0x03 * 0x10,
+                                                NULL, NULL );
+
+            gdk_cairo_set_source_pixbuf ( cr, pixbuf, rec->x, rec->y );
+            cairo_paint ( cr );
+
+            g_object_unref ( G_OBJECT(pixbuf) );
+
+            /*XPutImage ( dis, win, gc, mpv->img, 0x00, 0x00,
+                                                lob->texture[nbtex].x + 0x01,
+                                                lob->texture[nbtex].y + 0x01, 
+                                                mpv->img->width,
+                                                mpv->img->height );*/
+
+            if ( ( obj->flags & OBJECTSELECTED ) &&
+                 ( ((G3DOBJECT*)uvmap)->flags & OBJECTSELECTED ) ) {
+                cairo_set_source_rgb ( cr, 1.0f, 0.0f, 1.0f );
+                cairo_set_line_width ( cr, 0.5f );
+                cairo_rectangle      ( cr, rec->x, rec->y, rec->width,
+                                                           rec->height );
+                cairo_stroke         ( cr );
+            }
+
+            nbuvmap++; rec++;
+
+            ltmpuvmap = ltmpuvmap->next;
         }
     }
 }
@@ -411,6 +494,7 @@ uint32_t printObject_r ( GtkStyleContext *context, cairo_t *cr,
     drawActive     ( context, cr, obj,  lob->active.x , lob->active.y  );
     drawVisible    ( context, cr, obj,  lob->visible.x, lob->visible.y );
     drawTextures   ( context, cr, obj,  lob->texture                   );
+    drawUVMaps     ( context, cr, obj,  lob->uvmap                     );
 
     /*** Recurse ***/
     if ( ( obj->flags & OBJECTCOLLAPSED ) == 0x00 ) {
@@ -451,8 +535,14 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                 case GDK_KEY_Delete: {
                     uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
 
-                    if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
-                        g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
+                    if ( pob ) {
+                        if ( pob->picked == TEXTURERECTHIT ) {
+                            g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
+                        }
+
+                        if ( pob->picked == UVMAPRECTHIT ) {
+                            g3dmesh_removeUVMap ( ( G3DMESH * ) pob->obj, pob->uvmap );
+                        }
                     } else {
                         g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
                     }
@@ -513,6 +603,14 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                 GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
 
                 createTextureEdit ( dial, gui, "TEXTUREEDIT", 0, 0, 264, 48 );
+
+                gtk_widget_show ( dial );
+            }
+
+            if ( pob && ( pob->picked == UVMAPRECTHIT ) ) {
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+                createUVMapEdit ( dial, gui, "UVMAPEDIT", 0, 0, 264, 48 );
 
                 gtk_widget_show ( dial );
             }

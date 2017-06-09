@@ -49,6 +49,9 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                 map = g3duvmap_new ( "UVMap", 0x00, UVMAPFLAT );
 
                 g3dmesh_addUVMap ( mes, map, gui->flags );
+
+                g3dmesh_unselectAllUVMaps ( mes );
+                g3dmesh_selectUVMap ( mes, map );
             }
 
             g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, NULL, map );
@@ -58,21 +61,6 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                              NULL,
                              NULL,
                              RESETMODIFIERS, gui->flags );
-        } else {
-            if ( obj->type == G3DUVMAPTYPE ){
-                G3DMESH  *mes = ( G3DMESH * ) obj->parent;
-                G3DUVMAP *map = ( G3DUVMAP* ) obj;
-
-                g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, NULL, map );
-
-                g3dmesh_update ( mes, 
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 RESETMODIFIERS, gui->flags );
-            } else {
-                fprintf ( stderr, "No material selected\n" );
-            }
         }
     }
 

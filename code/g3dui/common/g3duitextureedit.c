@@ -37,14 +37,25 @@ void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t mapID ) {
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes  = ( G3DMESH * ) obj;
-            G3DUVMAP *map = g3dmesh_getUVMapByID ( mes, mapID );
             LIST *ltmpseltex = mes->lseltex;
 
             while ( ltmpseltex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmpseltex->data;
+                uint32_t curmap = 0x00;
+                LIST *ltmpuvmap = mes->luvmap;
 
-                tex->map = map;
- 
+                while ( ltmpuvmap ) {
+                    G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+                    if ( curmap == mapID ) {
+                        tex->map = uvmap;
+                    }
+
+                    curmap++;
+
+                    ltmpuvmap = ltmpuvmap->next;
+                }
+
                 ltmpseltex = ltmpseltex->next;
             }
         }
