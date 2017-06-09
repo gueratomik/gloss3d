@@ -386,6 +386,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 free ( imgname );
             } break;
 
+            case UVMAPORIENTATIONSIG :
             case OBJORIENTATION :
                 printf ( "Object Orientation\n" );
 
@@ -417,15 +418,10 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
             case UVMAPSIG :
                 map = g3duvmap_new ( /*objid,*/ objname, 0x00, 0x00 );
-                mes = objarr[parid];
 
                 obj = ( G3DOBJECT * ) map;
 
-                objarr[objid] = obj;
-
-                /*g3dobject_addChild ( objarr[parid], obj );*/
-
-                g3dmesh_addUVMap ( ( G3DMESH * ) objarr[parid], map, flags );
+                g3dmesh_addUVMap ( ( G3DMESH * ) mes, map, flags );
 
                 memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );

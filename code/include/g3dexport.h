@@ -88,6 +88,7 @@
 #define MESHSAVESUBDIVISION   ( 0x00000002 )
 #define MESHSAVEWEIGHTGROUPS  ( 0x00000004 )
 #define MESHSAVEHEIGHTMAPS    ( 0x00000008 )
+#define MESHSAVEUVMAPS        ( 0x00000010 )
 #define MESHSAVEALL           ( 0xFFFFFFFF )
 
 #define SPLINESAVEGEOMETRY    ( 0x00000001 )
@@ -160,8 +161,9 @@
 #define SPECULARSAVEALL          ( 0xFFFFFFFF )
 
 #define UVMAPSAVEINFO            ( 1          )
-#define UVMAPSAVECOORDS          ( 1   <<   1 )
-#define UVMAPSAVEMATERIALS       ( 1   <<   2 )
+#define UVMAPSAVEORIENTATION     ( 1   <<   1 )
+#define UVMAPSAVECOORDS          ( 1   <<   2 )
+#define UVMAPSAVEMATERIALS       ( 1   <<   3 )
 #define UVMAPSAVEALL             ( 0xFFFFFFFF )
 
 #define SCENESAVEMATERIALS       ( 1          )
@@ -193,10 +195,11 @@
 #define KEYSFUNCSIG        0x2320
 #define KEYSLOOPSIG        0x2330
 
-#define UVMAPSIG           0x2400
-#define UVMAPINFOSIG       0x2410
-#define UVMAPCOORDSSIG     0x2420
-#define UVMAPMATERIALSSIG  0x2430
+#define UVMAPSIG            0x2400
+#define UVMAPINFOSIG        0x2410
+#define UVMAPCOORDSSIG      0x2420
+#define UVMAPMATERIALSSIG   0x2430
+#define UVMAPORIENTATIONSIG 0x2440
 
 #define MESHSIG            0x3000
 #define MESHSUB            0x3010

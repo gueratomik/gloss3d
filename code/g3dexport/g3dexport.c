@@ -72,16 +72,6 @@ OBJECT(0x2000)
 ----------- nbkeys ( uint32_t )
 -----------   Key ID ( uint32_t )
 -----------   LoopFrame ( float )
---- UVMAP(0x2400)
-------- UVMAPINFO (0x2410)
------------ Projection (uint32_t)
------------ Fixed      (uint32_t) /*** UVMap locked ? ***/
-------- UVMAPCOORDS(0x2420)
----------- nbface (uint32_t)
----------- Array[] (faceID,uv[0x04]), (uint32_t,float[0x08])
-------- UVMAPMATERIALS (0x2430)
------------ nbmaterials (uint32_t) /*** UVMap locked ? ***/
------------ Array[] materialID,facegroupID (uint32_t,uint32_t)
 --- SCENE(0x9000)
 ------- MATERIAL(0x9200) ( X number of materials)
 ----------- MATERIALINFO(0x9210)
@@ -163,6 +153,16 @@ OBJECT(0x2000)
 --------------- FaceID ( uint32_t )
 --------------- Number of heights ( uint32_t )
 --------------- Array( uint32_t flags, float elevation)
+------- UVMAP(0x2400)
+----------- UVMAPINFO (0x2410)
+--------------- Projection (uint32_t)
+--------------- Fixed      (uint32_t) /*** UVMap locked ? ***/
+----------- UVMAPCOORDS(0x2420)
+-------------- nbface (uint32_t)
+-------------- Array[] (faceID,uv[0x04]), (uint32_t,float[0x08])
+----------- UVMAPMATERIALS (0x2430)
+--------------- nbmaterials (uint32_t) /*** UVMap locked ? ***/
+--------------- Array[] materialID,facegroupID (uint32_t,uint32_t)
 ------- UVSETS(0x3400)
 /*** a UVSet should be saved only if the UVMAP is fixed (locked) ***/
 --------------- Number of uvsets ( uint32_t )
@@ -302,6 +302,10 @@ OBJECT(0x2000)
 OBJECT(0x2000)
 
 #endif
+
+static uint32_t orientation_blocksize ( );
+static void orientation_writeblock ( G3DOBJECT *obj, FILE *fdst );
+static uint32_t meshuvmaps_blocksize ( G3DMESH *mes );
 
 /******************************************************************************/
 void writef ( void   *ptr,
@@ -486,16 +490,22 @@ static uint32_t uvmapmaterials_blocksize ( G3DUVMAP *map ) {
 }
 
 /******************************************************************************/
-static uint32_t uvmapcoords_blocksize ( G3DUVMAP *map ) {
+static uint32_t uvmapcoords_blocksize ( G3DUVMAP *map, G3DMESH *mes ) {
     uint32_t coordsize = sizeof ( uint32_t ) + ( sizeof ( float ) * 0x08 );
-    G3DMESH *parmes = ( G3DMESH * ) ((G3DOBJECT*)map)->parent;
+    G3DMESH *parmes = mes;
 
     return ( sizeof ( uint32_t ) + ( coordsize * parmes->nbfac ) );
 }
 
 /******************************************************************************/
-static uint32_t uvmap_blocksize ( G3DUVMAP *map, uint32_t save_flags ) {
+static uint32_t uvmap_blocksize ( G3DUVMAP *map, 
+                                  G3DMESH  *mes, 
+                                  uint32_t  save_flags ) {
     uint32_t blocksize = 0x00;
+
+    if ( save_flags & UVMAPSAVEORIENTATION ) {
+        blocksize += orientation_blocksize ( ) + 0x06;
+    }
 
     if ( save_flags & UVMAPSAVEINFO ) {
         blocksize += uvmapinfo_blocksize ( ) + 0x06;
@@ -506,9 +516,7 @@ static uint32_t uvmap_blocksize ( G3DUVMAP *map, uint32_t save_flags ) {
     }
 
     if ( save_flags & UVMAPSAVECOORDS ) {
-        
-
-        blocksize += uvmapcoords_blocksize ( map ) + 0x06;
+        blocksize += uvmapcoords_blocksize ( map, mes ) + 0x06;
     }
 
 
@@ -530,8 +538,8 @@ static void uvmapinfo_writeblock ( G3DUVMAP *map, FILE *fdst ) {
 }
 
 /******************************************************************************/
-static void uvmapcoords_writeblock ( G3DUVMAP *map, FILE *fdst ) {
-    G3DMESH *parmes = ( G3DMESH * ) ((G3DOBJECT*)map)->parent;
+static void uvmapcoords_writeblock ( G3DUVMAP *map, G3DMESH *mes, FILE *fdst ) {
+    G3DMESH *parmes = mes;
     LIST *ltmpfac = parmes->lfac;
 
     writef ( &parmes->nbfac, sizeof ( uint32_t  ), 0x01, fdst );
@@ -574,7 +582,16 @@ static void uvmapmaterials_writeblock ( G3DUVMAP *map, FILE *fdst ) {
 }
 
 /******************************************************************************/
-static void uvmap_writeblock ( G3DUVMAP *map, uint32_t flags, FILE *fdst ) {
+static void uvmap_writeblock ( G3DUVMAP *map, 
+                               G3DMESH  *mes,
+                               uint32_t  flags, 
+                               FILE     *fdst ) {
+    if ( flags & UVMAPSAVEORIENTATION ) {
+        chunk_write ( UVMAPORIENTATIONSIG, orientation_blocksize ( ), fdst );
+
+        orientation_writeblock ( map, fdst );
+    }
+
     if ( flags & UVMAPSAVEINFO ) {
         chunk_write ( UVMAPINFOSIG, uvmapinfo_blocksize ( ), fdst );
 
@@ -588,9 +605,9 @@ static void uvmap_writeblock ( G3DUVMAP *map, uint32_t flags, FILE *fdst ) {
     }
 
     if ( flags & UVMAPSAVECOORDS ) {
-        chunk_write ( UVMAPCOORDSSIG, uvmapcoords_blocksize ( map ), fdst );
+        chunk_write ( UVMAPCOORDSSIG, uvmapcoords_blocksize ( map, mes ), fdst );
 
-        uvmapcoords_writeblock ( map, fdst );
+        uvmapcoords_writeblock ( map, mes, fdst );
     }
 }
 
@@ -1114,6 +1131,10 @@ static uint32_t mesh_blocksize ( G3DMESH * mes, uint32_t flags ) {
 
     if ( flags & MESHSAVEHEIGHTMAPS ) {
         blocksize += heightmaps_blocksize ( mes ) + 0x06;
+    }
+
+    if ( flags & MESHSAVEUVMAPS ) {
+        blocksize += meshuvmaps_blocksize ( mes ) + ( 0x06 * mes->nbuvmap );
     }
 
 
@@ -2379,6 +2400,42 @@ static void spline_writeblock ( G3DSPLINE *spline,
 }
 
 /******************************************************************************/
+static uint32_t meshuvmaps_blocksize ( G3DMESH *mes ) {
+    LIST *ltmpuvmap = mes->luvmap;
+    uint32_t blocksize = 0x00;
+
+    while ( ltmpuvmap ) {
+        G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        /*if ( flags & OBJECTSAVEUVMAP ) {*/
+            blocksize += uvmap_blocksize ( uvmap, mes, UVMAPSAVEALL );
+        /*}*/
+
+        ltmpuvmap = ltmpuvmap->next;
+    }
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void mesh_writeUVMaps ( G3DMESH *mes, FILE *fdst ) {
+    LIST *ltmpuvmap = mes->luvmap;
+
+    while ( ltmpuvmap ) {
+        G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        /*if ( flags & OBJECTSAVEUVMAP ) {*/
+            uint32_t blocksize = uvmap_blocksize ( uvmap, mes, UVMAPSAVEALL );
+
+            chunk_write ( UVMAPSIG, blocksize, fdst );
+            uvmap_writeblock ( uvmap, mes, UVMAPSAVEALL, fdst );
+        /*}*/
+
+        ltmpuvmap = ltmpuvmap->next;
+    }
+}
+
+/******************************************************************************/
 static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
     /*g3dmesh_renumberFaces ( mes );*/
 
@@ -2419,6 +2476,10 @@ static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
             chunk_write ( HEIGHTMAPSSIG, blocksize, fdst );
             heightmaps_writeblock ( mes, fdst );
         }
+    }
+
+    if ( flags & MESHSAVEUVMAPS ) {
+        mesh_writeUVMaps ( mes, fdst );
     }
 }
 
@@ -2675,14 +2736,6 @@ static void object_writeblock ( G3DOBJECT *obj,
 
         chunk_write ( TEXTSIG, blocksize, fdst );
         text_writeblock ( txt, TEXTSAVEALL, fdst );
-    }
-
-    if ( ( obj->type == G3DUVMAPTYPE ) && ( flags & OBJECTSAVEUVMAP ) ) {
-        uint32_t blocksize = uvmap_blocksize ( ( G3DUVMAP * ) obj, UVMAPSAVEALL );
-        G3DUVMAP *map = ( G3DUVMAP * ) obj;
-
-        chunk_write ( UVMAPSIG, blocksize, fdst );
-        uvmap_writeblock ( map, UVMAPSAVEALL, fdst );
     }
 
     /*** write keys only after all kind of objects are created ***/
