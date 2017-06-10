@@ -151,8 +151,9 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duitextureedit.c common/g3duitimeboard.c \
 	common/g3duitimeline.c common/g3duitoolbar.c \
 	common/g3duitorusedit.c common/g3duiuvmapedit.c \
-	common/g3duiview.c common/g3duiviewexport.c \
-	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
+	common/g3duiuvmapeditor.c common/g3duiview.c \
+	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -172,7 +173,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
 	gtk3/g3duitextedit.c gtk3/g3duitextureedit.c \
 	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c \
+	gtk3/g3duiuvmapeditor.c gtk3/g3duiview.c \
 	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
 	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -208,7 +210,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duitimeboard.lo \
 @HAVE_GTK3_TRUE@	common/g3duitimeline.lo common/g3duitoolbar.lo \
 @HAVE_GTK3_TRUE@	common/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo common/g3duiview.lo \
+@HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duiuvmapeditor.lo common/g3duiview.lo \
 @HAVE_GTK3_TRUE@	common/g3duiviewexport.lo \
 @HAVE_GTK3_TRUE@	common/g3duiweightgrouplist.lo \
 @HAVE_GTK3_TRUE@	common/g3duiwireframeedit.lo \
@@ -239,7 +242,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duitextedit.lo gtk3/g3duitextureedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiuvmapedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiuvmapeditor.lo gtk3/g3duiview.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiweightgrouplist.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiwireframeedit.lo gtk3/r3dpreview.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duicurrentmousetool.lo \
@@ -482,6 +486,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            common/g3duitorusedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiuvmapedit.c \
+@HAVE_GTK3_TRUE@                            common/g3duiuvmapeditor.c \
 @HAVE_GTK3_TRUE@                            common/g3duiview.c \
 @HAVE_GTK3_TRUE@                            common/g3duiviewexport.c \
 @HAVE_GTK3_TRUE@                            common/g3duiweightgrouplist.c \
@@ -527,6 +532,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapeditor.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiweightgrouplist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiwireframeedit.c \
@@ -684,6 +690,8 @@ common/g3duitorusedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiuvmapedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiuvmapeditor.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiview.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiviewexport.lo: common/$(am__dirstamp) \
@@ -786,6 +794,8 @@ gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiuvmapedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiuvmapeditor.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiview.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiweightgrouplist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -864,6 +874,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitoolbar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitorusedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiuvmapeditor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiview.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiviewexport.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@
@@ -909,6 +920,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitorusedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiview.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@

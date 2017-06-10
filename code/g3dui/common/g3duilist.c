@@ -109,6 +109,19 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
             g3dmesh_selectTexture ( mes, tex );
         }
     }
+
+    if ( pob->picked == UVMAPRECTHIT ) {
+        G3DMESH  *mes = ( G3DMESH * ) pob->obj;
+        G3DUVMAP *uvmap = pob->uvmap;
+
+        /*** we check the texture does not already belong to the list of ***/
+        /*** selected texture. We could also check the "selected" flag,  ***/
+        /*** but I think it is less reliable ***/
+        /*if ( list_seek ( mes->lseluvmap, uvmap ) == NULL ) {*/
+            g3dmesh_unselectAllUVMaps ( mes );
+            g3dmesh_selectUVMap ( mes, uvmap );
+        /*}*/
+    }
 }
 
 /******************************************************************************/

@@ -380,6 +380,7 @@
 #define EDITUVMAP             "UVMap"
 #define EDITUVMAPPROJECTION   "Projection"
 #define EDITUVMAPFIXED        "Fixed"
+#define EDITUVMAPEDITOR       "Edit UV Map"
 #define CYLINDRICALPROJECTION "Cylindrical"
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
@@ -603,6 +604,7 @@ typedef struct _G3DUI {
     LIST         *ltexedit;
     LIST         *lligedit;
     LIST         *lweightgroup;
+    LIST         *luvmapeditor;
     LIST         *limg; /*** List of images (among them are textures) ***/
     LIST         *lrps; /*** list of render process ***/
     LIST *lmou; /*** list of mousetools ***/
@@ -752,6 +754,21 @@ typedef struct _G3DUIVIEW {
     HANDLE         render_tid;
 #endif
 } G3DUIVIEW;
+
+/******************************************************************************/
+#define NBUVMAPBUTTON   0x02
+#define BUTTONSIZE      0x10 /*** 16x16 ***/
+
+#define UVMAPTRANSLATEBUTTON 0x00
+#define UVMAPZOOMBUTTON      0x01
+
+typedef struct _G3DUIUVMAPEDITOR {
+    G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
+    G3DUIRECTANGLE arearec;
+    int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
+    LIST          *lmenu;
+    uint32_t       mode;
+} G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/
 void common_g3duiview_resize ( G3DUIVIEW *, uint32_t, uint32_t );

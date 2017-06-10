@@ -186,6 +186,27 @@ GtkWidget *gtk_view_getGLArea ( GtkWidget *widget );
 /******************************************************************************/
 /******************************************************************************/
 
+/******************************************************************************/
+/************************** GTK UVMap Editor Widget ***************************/
+typedef struct _GtkUVMapEditor {
+    GtkFixed  parent_instance;
+    G3DUIUVMAPEDITOR uvmapeditor;
+    cairo_surface_t *surface;
+} GtkUVMapEditor;
+
+/******************************************************************************/
+typedef struct _GtkUVMapEditorClass {
+    GtkFixedClass parent_class;
+    GdkPixbuf *icon[NBUVMAPBUTTON];
+} GtkUVMapEditorClass;
+
+/******************************************************************************/
+GType      gtk_uvmapeditor_get_type       (void) G_GNUC_CONST;
+GtkWidget *gtk_uvmapeditor_new            ( );
+GtkWidget *gtk_uvmapeditor_getDrawingArea ( GtkWidget *widget );
+/******************************************************************************/
+/******************************************************************************/
+
 
 /******************************************************************************/
 /************************** GTK MaterialList Widget ***************************/
@@ -226,6 +247,12 @@ GtkWidget *createQuad             ( GtkWidget *, G3DUI *, char *, gint, gint,
 
 GtkWidget *createView             ( GtkWidget *, G3DUI *, char *, G3DCAMERA *,
                                                                   gint, gint );
+
+GtkWidget *createUVMapEditor ( GtkWidget *parent,
+                               G3DUI     *gui,
+                               char      *name,
+                               gint       width,
+                               gint       height );
 
 GtkWidget *createMainBoard        ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );

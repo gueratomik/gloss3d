@@ -38,13 +38,11 @@ G3DUVMAP *g3dmesh_getSelectedUVMap ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_selectUVMap ( G3DMESH *mes, G3DUVMAP *map ) {
-    if ( list_seek ( mes->lseluvmap, map ) == NULL ) {
-        list_insert ( &mes->lseluvmap, map );
+    list_insert ( &mes->lseluvmap, map );
 
-        mes->nbseluvmap++;
+    mes->nbseluvmap++;
 
-        ((G3DOBJECT*)map)->flags |= OBJECTSELECTED;
-    }
+    ((G3DOBJECT*)map)->flags |= OBJECTSELECTED;
 }
 
 /******************************************************************************/

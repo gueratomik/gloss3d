@@ -46,6 +46,17 @@ static void lockUVMapCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void uvmapEditorCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+
+    createUVMapEditor ( dial, gui, "UVMAPEDITOR", 640, 480 );
+
+    gtk_widget_show ( dial );
+}
+
+/******************************************************************************/
 void createProjectionSelection ( GtkWidget *parent, G3DUI *gui, 
                                                     char *name,
                                                     gint x, gint y,
@@ -162,6 +173,12 @@ GtkWidget *createUVMapEdit ( GtkWidget *parent, G3DUI *gui,
 
     createProjectionSelection ( frm, gui, EDITUVMAPPROJECTION, 
                                 0, 24, 96, 96, projectionCbk );
+
+
+    createPushButton  ( frm, gui, 
+                             EDITUVMAPEDITOR,
+                              0, 48, 96, 18,
+                             uvmapEditorCbk );
 
     gui->lock = 0x00;
 
