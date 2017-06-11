@@ -763,11 +763,21 @@ typedef struct _G3DUIVIEW {
 #define UVMAPZOOMBUTTON      0x01
 
 typedef struct _G3DUIUVMAPEDITOR {
+    uint32_t flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
     int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
     LIST          *lmenu;
     uint32_t       mode;
+    LIST          *lseluv;
+    LIST          *lseluvset;
+    G3DMOUSETOOL  *mou;
+#ifdef __linux__
+    GLXContext     glctx;
+#endif
+#ifdef __MINGW32__
+    HGLRC          glctx;
+#endif
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/
@@ -1290,4 +1300,39 @@ void g3duisettings_readBlock ( G3DUI    *gui,
                                FILE     *fdst );
 void g3duisettings_writeBlock ( G3DUI *gui, 
                                 FILE  *fdst );
+
+/******************************************************************************/
+LIST *common_g3duiuvmapeditor_getUV ( G3DUIUVMAPEDITOR *uvme, 
+                                      G3DUI            *gui,
+                                      int32_t           xm,
+                                      int32_t           ym,
+                                      uint32_t          width,
+                                      uint32_t          height );
+void common_g3duiuvmapeditor_plotUVSet ( G3DUIUVMAPEDITOR *uvme, 
+                                         G3DUVSET         *uvset );
+void common_g3duiuvmapeditor_plotUV ( G3DUIUVMAPEDITOR *uvme, 
+                                      G3DUV            *uv );
+void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
+                                      G3DUI            *gui );
+void common_g3duiuvmapeditor_initGL ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_sizeGL ( G3DUIUVMAPEDITOR *uvme, 
+                                      uint32_t          width, 
+                                      uint32_t          height );
+void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme, 
+                                      uint32_t          width, 
+                                      uint32_t          height );
+void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme, 
+                                    uint32_t          width,
+                                    uint32_t          height );
+int common_g3duiuvmapeditor_getCurrentButton ( G3DUIUVMAPEDITOR *uvme,
+                                               int x,
+                                               int y );
+void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
+                                           int32_t           x, 
+                                           int32_t           xold );
+void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme, 
+                                            int32_t           x, 
+                                            int32_t           y, 
+                                            int32_t           xold, 
+                                            int32_t           yold );
 #endif

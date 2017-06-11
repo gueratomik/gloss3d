@@ -54,6 +54,7 @@ static void uvmapEditorCbk ( GtkWidget *widget, gpointer user_data ) {
     createUVMapEditor ( dial, gui, "UVMAPEDITOR", 640, 480 );
 
     gtk_widget_show ( dial );
+    gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
 }
 
 /******************************************************************************/

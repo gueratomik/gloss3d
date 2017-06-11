@@ -190,7 +190,7 @@ GtkWidget *gtk_view_getGLArea ( GtkWidget *widget );
 /************************** GTK UVMap Editor Widget ***************************/
 typedef struct _GtkUVMapEditor {
     GtkFixed  parent_instance;
-    G3DUIUVMAPEDITOR uvmapeditor;
+    G3DUIUVMAPEDITOR uvme;
     cairo_surface_t *surface;
 } GtkUVMapEditor;
 

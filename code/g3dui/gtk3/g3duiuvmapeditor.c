@@ -197,7 +197,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
                                                 gpointer user_data ) {
     static int xmid, ymid, xori, yori;
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    G3DUIUVMAPEDITOR *uvme = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
     static int xold, yold, grabbing;
     uint32_t width, height;
     static G3DPIVOT *piv;
@@ -328,7 +328,7 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
 
-    common_g3duiuvmapeditor_resize ( &guv->uvmapeditor, 
+    common_g3duiuvmapeditor_resize ( &guv->uvme, 
                                       allocation->width, 
                                       allocation->height );
 
@@ -401,9 +401,9 @@ static gboolean gtk_area_filter ( GdkXEvent *xevent,
 
 /******************************************************************************/
 static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
-    GtkUVMapEditorClass *uvme_class = ( GtkUVMapEditorClass * ) G_OBJECT_GET_CLASS ( widget);
+    GtkUVMapEditorClass *guv_class = ( GtkUVMapEditorClass * ) G_OBJECT_GET_CLASS ( widget);
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    G3DUIUVMAPEDITOR *uvme = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
 
     if ( gtk_widget_is_drawable ( widget ) ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( widget );
@@ -415,7 +415,7 @@ static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
         gtk_render_background ( context, cr, 0x00, 0x00, width, height );
 
         for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
-            GdkPixbuf *icon = uvme_class->icon[i];
+            GdkPixbuf *icon = guv_class->icon[i];
 
             if ( i == uvme->buttonID ) {
                 cairo_set_source_rgb ( cr, 0.25f, 0.25f, 0.25f );
@@ -439,7 +439,7 @@ static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
 /******************************************************************************/
 static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
     GtkWidget *widget = ( GtkWidget * ) guv;
-    G3DUIUVMAPEDITOR *uvme   = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
 
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
@@ -453,7 +453,7 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
     GdkWindow *parent_window = gtk_widget_get_parent_window ( widget );
     GtkStyleContext  *style  = gtk_widget_get_style_context ( widget );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    G3DUIUVMAPEDITOR *uvme = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
     GdkWindowAttr attributes;
     GtkAllocation allocation;
     GdkWindow *window;
@@ -497,7 +497,7 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
 GtkWidget *gtk_uvmapeditor_new ( ) {
     GObject *gob = g_object_new ( gtk_uvmapeditor_get_type ( ), NULL );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) gob;
-    G3DUIUVMAPEDITOR *uvme = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
 
     return ( GtkWidget * ) gob;
 }
@@ -551,10 +551,9 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     createEdgeModeMeshMenu     ( area, gui );
     createFaceModeMeshMenu     ( area, gui );
     createSculptModeMeshMenu   ( area, gui );*/
-/*
+
     g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (g3duiuvmapeditor_sizeGL ), gui );
     g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (g3duiuvmapeditor_initGL ), gui );
-*/
     g_signal_connect ( G_OBJECT (area), "draw"                , G_CALLBACK (g3duiuvmapeditor_showGL ), gui );
 
     g_signal_connect ( G_OBJECT (area), "motion_notify_event" , G_CALLBACK (g3duiuvmapeditor_inputGL), gui );
@@ -585,8 +584,9 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
     G3DUI            *gui  = ( G3DUI * ) user_data;
     GdkEventButton   *bev  = ( GdkEventButton * ) gdkev;
     GtkUVMapEditor   *guv  = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
-    G3DUIUVMAPEDITOR *uvme = &guv->uvmapeditor;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
     G3DUIGTK3      *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    static int32_t xold, yold;
 
     if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
          ( bev->button == 3 ) ) {
@@ -601,7 +601,45 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
         } break;
 
         case GDK_BUTTON_PRESS : {
+            if ( gui->flags & VIEWVERTEX ) {
+                list_free ( &uvme->lseluv, NULL );
 
+                uvme->lseluv = common_g3duiuvmapeditor_getUV ( uvme,
+                                                               gui, 
+                                                               bev->x - 4, 
+                                                               bev->y - 4,
+                                                               0x08,
+                                                               0x08 );
+            }
+
+            xold = bev->x;
+            yold = bev->y;
+        } break;
+
+        case GDK_MOTION_NOTIFY : {
+            if ( gui->flags & VIEWVERTEX ) {
+                LIST *ltmpseluv = uvme->lseluv;
+
+                while ( ltmpseluv ) {
+                    G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
+/*printf("%d\n", ( bev->x - xold ) );*/
+                    uv->u += ( ( float ) ( bev->x - xold ) / uvme->arearec.width  );
+                    uv->v += ( ( float ) ( bev->y - yold ) / uvme->arearec.height );
+
+                    ltmpseluv = ltmpseluv->next;
+                }
+
+                gtk_widget_queue_draw ( widget );
+            }
+
+            xold = bev->x;
+            yold = bev->y;
+        } break;
+
+        case GDK_BUTTON_RELEASE : {
+            g3dui_redrawGLViews ( gui );
+
+            list_free ( &uvme->lseluv, NULL );
         } break;
 
         default :
@@ -613,38 +651,204 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
 void g3duiuvmapeditor_sizeGL ( GtkWidget    *widget, 
                                GdkRectangle *allocation, 
                                gpointer      user_data ) {
+    GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
+    G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
+    GdkDisplay       *gdkdpy = gtk_widget_get_display ( widget );
+    GdkWindow        *gdkwin = gtk_widget_get_window  ( widget );
+    G3DUI            *gui    = ( G3DUI * ) user_data;
 
+    /* 
+     * when the top level window is created, the opengl window might not
+     * be valid yet. We must check the pointer.
+     */
+    if ( gdkwin ) {
+    #ifdef __linux__
+        Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
+        Window      win    = gdk_x11_window_get_xid       ( gdkwin );
+
+        glXMakeCurrent ( dpy, win, uvme->glctx );
+    #endif
+
+    #ifdef __MINGW32__
+        HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+        HDC dc = GetDC ( hWnd );
+
+        wglMakeCurrent ( dc, uvme->glctx );
+
+        ReleaseDC ( hWnd, dc );
+    #endif
+        common_g3duiuvmapeditor_sizeGL ( uvme, allocation->width, 
+                                               allocation->height );
+
+        gtk_widget_queue_draw ( widget );
+    }
 }
 
 /******************************************************************************/
 void g3duiuvmapeditor_initGL ( GtkWidget *widget, 
                                gpointer   user_data ) {
+    GtkUVMapEditor   *guv      = ( GtkView * ) gtk_widget_get_parent ( widget );
+    G3DUIUVMAPEDITOR *uvme     = &guv->uvme;
+    GdkWindow        *p_window = gtk_widget_get_parent_window ( widget );
+    GdkDisplay       *gdkdpy   = gtk_widget_get_display ( widget );
+    GdkWindow        *gdkwin   = gtk_widget_get_window  ( widget );
 
+#ifdef __linux__
+    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      root     = DefaultRootWindow ( dis );
+    GLint       glattr[] = { GLX_RGBA,
+                             GLX_RED_SIZE,    8,
+                             GLX_BLUE_SIZE,   8,
+                             GLX_GREEN_SIZE,  8,
+                             GLX_ALPHA_SIZE,  8,
+                             GLX_DEPTH_SIZE, 24,
+                             GLX_DOUBLEBUFFER,
+                             None };
+    static GLXContext shared = NULL;
+    G3DUI *gui = ( G3DUI * ) user_data;
+    GtkAllocation allocation;
+    GdkWindowAttr attr;
+    GdkScreen *gdkscr;
+    XVisualInfo *vi;
+    Window win;
+    
+    vi = glXChooseVisual ( dis, 0, glattr );
+
+    if ( vi == 0x00 ) {
+        fprintf ( stderr, "Could not create GL Visual\n" );
+
+        return;
+    }
+
+/**********************/
+    gdkscr   = gtk_widget_get_screen  ( widget );
+
+    attr.title       = "OpenGL Window";
+    attr.event_mask  = gtk_widget_get_events ( widget ) | GDK_EXPOSURE_MASK       |
+                                                          GDK_STRUCTURE_MASK      |
+                                                          GDK_BUTTON_PRESS_MASK   | 
+                                                          GDK_BUTTON_RELEASE_MASK | 
+                                                          GDK_POINTER_MOTION_MASK |
+                                                          GDK_POINTER_MOTION_HINT_MASK;
+
+    gtk_widget_get_allocation ( widget, &allocation );
+
+    attr.x           = allocation.x;
+    attr.y           = allocation.y;
+    attr.width       = allocation.width;
+    attr.height      = allocation.height;
+    attr.wclass      = GDK_INPUT_OUTPUT;
+    attr.window_type = GDK_WINDOW_CHILD;
+    attr.visual      = gdk_x11_screen_lookup_visual ( gdkscr, vi->visualid );
+
+    gdkwin = gdk_window_new ( p_window, &attr, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL );
+
+    gtk_widget_set_window   ( widget, gdkwin );
+
+    gdk_window_set_user_data ( gdkwin, widget );
+/*************************/
+
+    win = gdk_x11_window_get_xid ( gdkwin );
+
+    /*** Create OpenGL Context ***/
+    uvme->glctx = glXCreateContext( dis, vi, shared, True );
+
+    if ( shared == NULL ) shared = uvme->glctx;
+
+    /*** Set Context as the current context ***/
+    glXMakeCurrent ( dis, win, uvme->glctx );
+
+    common_g3duiuvmapeditor_initGL ( uvme );
+
+    /*** Free the memory assigned for GLwNvisualInfo ***/
+    free ( vi );
+#endif
+
+#ifdef __MINGW32__
+    PIXELFORMATDESCRIPTOR pfd;
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+    int pxf;
+    
+    /*** prevents erasing the background ***/
+    gtk_widget_set_double_buffered (GTK_WIDGET (widget), FALSE);
+    gtk_widget_set_app_paintable (GTK_WIDGET (widget), TRUE);
+
+    memset ( &pfd, 0x00, sizeof ( PIXELFORMATDESCRIPTOR ) );
+
+    pfd.nSize        = sizeof ( PIXELFORMATDESCRIPTOR );
+    pfd.nVersion     = 0x01;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType   = PFD_TYPE_RGBA;
+    pfd.cDepthBits   = 0x18;
+    pfd.cColorBits   = 0x20;
+
+    if ( ( pxf = ChoosePixelFormat ( dc, &pfd ) ) == 0x00 ) {
+        fprintf ( stderr, "ChoosePixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    if ( SetPixelFormat ( dc, pxf, &pfd ) == 0x00 ) {
+        fprintf ( stderr, "SetPixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    uvme->glctx = wglCreateContext ( dc );
+
+    wglMakeCurrent ( dc,  uvme->glctx );
+
+    common_g3duiuvmapeditor_initGL ( uvme );
+
+    ReleaseDC ( hWnd, dc );
+#endif
 }
 
 /******************************************************************************/
 gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget, 
                                    cairo_t   *cr,
                                    gpointer   user_data ) {
-    GtkStyleContext *context = gtk_widget_get_style_context ( widget );
-    GtkAllocation allocation;
+    GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
+    G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
+    GdkDisplay       *gdkdpy = gtk_widget_get_display       ( widget );
+    GdkWindow        *gdkwin = gtk_widget_get_window        ( widget );
+    G3DUI            *gui    = ( G3DUI * ) user_data;
+    G3DUIGTK3        *ggt    = ( G3DUIGTK3 * ) gui->toolkit_data;;
+    G3DMOUSETOOL     *mou    = uvme->mou;
+    uint32_t current;
 
-    gtk_widget_get_allocation ( widget, &allocation );
+#ifdef __linux__
+    Display      *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window        win    = gdk_x11_window_get_xid       ( gdkwin );
+#endif
 
-    cairo_set_source_rgb ( cr, 1.0f, 1.0f, 1.0f );
-    gtk_render_background ( context, cr,
-                                     0x00,
-                                     0x00,
-                                     allocation.width,
-                                     allocation.height );
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+#endif
 
-    cairo_set_source_rgb ( cr, 0.0f, 0.0f, 0.0f );
-    cairo_set_line_width ( cr, 0.5f );
-    cairo_rectangle      ( cr, 0x00, 
-                               0x00,
-                               allocation.width,
-                               allocation.height );
-    cairo_stroke         ( cr );
+#ifdef __linux__
+    /*** Set Context as the current context ***/
+    glXMakeCurrent ( dpy, win, uvme->glctx );
+
+    common_g3duiuvmapeditor_showGL ( uvme, gui );
+
+    glXSwapBuffers ( dpy, win );
+
+    XSync ( dpy, False );
+#endif
+
+#ifdef __MINGW32__
+    /*** Set Context as the current context ***/
+    wglMakeCurrent ( dc, uvme->glctx );
+
+    common_g3duiuvmapeditor_showGL ( uvme, gui );
+
+    SwapBuffers ( dc );
+
+    ReleaseDC ( hWnd, dc );
+#endif
+
+    return 0x01;
 }
-
-
