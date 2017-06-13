@@ -30,6 +30,13 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes ) {
+    if ( mes->lseltex ) return mes->lseltex->data;
+
+    return NULL;
+}
+
+/******************************************************************************/
 G3DUVMAP *g3dmesh_getSelectedUVMap ( G3DMESH *mes ) {
     if ( mes->lseluvmap ) return mes->lseluvmap->data;
 
@@ -954,6 +961,8 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t engine_flags ) {
 
     list_insert ( &mes->luvmap, map );
     mes->nbuvmap++;
+
+    ((G3DOBJECT*)map)->parent = mes;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);

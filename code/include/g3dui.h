@@ -622,9 +622,11 @@ typedef struct _G3DUI {
     G3DUIRECTANGLE  inforec;
     G3DCAMERA     **defaultCameras;
 #ifdef __linux__
+    GLXContext     sharedCtx; /* shared context for textures */
     pthread_t      playthreadid;
 #endif
 #ifdef __MINGW32__
+    HGLRC          sharedCtx; /* shared context for textures */
     HANDLE         playthreadid;
 #endif
     LIST *lrsg; /*** list of render settings ***/
@@ -778,6 +780,10 @@ typedef struct _G3DUIUVMAPEDITOR {
 #ifdef __MINGW32__
     HGLRC          glctx;
 #endif
+    G3DUIRECTANGLE canevas;
+    float zoom;
+    float xpos;
+    float ypos;
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/

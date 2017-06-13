@@ -229,8 +229,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             xori = xold = bev->x;
             yori = yold = bev->y;
 
-            /*** we exlude the maximize button (ID=0) from grabbing ***/
-            if ( ( uvme->buttonID > 0 ) && ( grabbing == 0x00 ) ) { 
+            if ( grabbing == 0x00 ) { 
                 gdk_window_set_cursor ( gtk_widget_get_window ( ggt->top ), 
                                         gdk_cursor_new ( GDK_BLANK_CURSOR ) );
 
@@ -275,23 +274,25 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
                 switch ( uvme->buttonID ) {
                     case UVMAPZOOMBUTTON : {
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_moveForward ( uvme, 
-                                                           mev->x,
-                                                           xold );
+                            common_g3duiuvmapeditor_moveForward ( uvme, 
+                                                                  mev->x, 
+                                                                  xold );
                         }
                     } break;
 
                     case UVMAPTRANSLATEBUTTON : {
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_moveSideward ( uvme,
-                                                            mev->x,
-                                                            mev->y, 
-                                                            xold, 
-                                                            yold );
+                            common_g3duiuvmapeditor_moveSideward ( uvme,
+                                                                   mev->x,
+                                                                   mev->y, 
+                                                                   xold, 
+                                                                   yold );
                         }
 
                         if ( mev->state & GDK_BUTTON3_MASK ) {
-                            common_g3duiview_moveForward ( uvme, mev->x, xold );
+                            common_g3duiuvmapeditor_moveForward ( uvme, 
+                                                                  mev->x, 
+                                                                  xold );
                         }
                     } break;
 
@@ -352,28 +353,19 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
             gdkrec.y += allocation->y;
         }
 
-        if ( strcmp ( child_name, OPTIONMENUNAME ) == 0x00 ) {
+        if ( strcmp ( child_name, "MODEBAR" ) == 0x00 ) {
             gdkrec.x      += 0;
             gdkrec.y      += 0;
-            gdkrec.width   = 96;
-            gdkrec.height  = BUTTONSIZE;
-
-            gtk_widget_size_allocate ( child, &gdkrec );
-        }
-
-        if ( strcmp ( child_name, SHADINGMENUNAME ) == 0x00 ) {
-            gdkrec.x      += 96;
-            gdkrec.y      += 0;
-            gdkrec.width   = 112;
-            gdkrec.height  = BUTTONSIZE;
+            gdkrec.width   = MODEBARBUTTONSIZE;
+            gdkrec.height  = allocation->height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
         if ( GTK_IS_DRAWING_AREA(child) ) {
-            gdkrec.x      += 0;
+            gdkrec.x      += MODEBARBUTTONSIZE;
             gdkrec.y      += BUTTONSIZE;
-            gdkrec.width   = allocation->width;
+            gdkrec.width   = allocation->width - MODEBARBUTTONSIZE;
             gdkrec.height  = allocation->height - BUTTONSIZE;
 
             gtk_widget_size_allocate ( child, &gdkrec );
@@ -473,6 +465,8 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
     attributes.wclass       = GDK_INPUT_OUTPUT;
     attributes.event_mask   = gtk_widget_get_events (widget);
 
+    common_g3duiuvmapeditor_init ( uvme, allocation.width, allocation.height );
+
     attributes.event_mask  |=  ( GDK_EXPOSURE_MASK            |
                                  GDK_KEY_PRESS_MASK           |
 			                     GDK_KEY_RELEASE_MASK         |
@@ -511,6 +505,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     GdkRectangle gdkrec = { 0x00, 0x00, width, height };
     GtkWidget *guv = gtk_uvmapeditor_new ( );
     GtkWidget *area/* = gtk_uvmapeditor_getGLArea ( guv )*/;
+    GtkWidget *mbar;
 
     gtk_widget_set_name ( guv, name );
 
@@ -569,6 +564,14 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     gtk_widget_show ( area );
 
 
+    mbar = createUVMapEditorModeBar ( guv, 
+                                      gui,
+                                      "MODEBAR",
+                                      0,
+                                      0,
+                                      MODEBARBUTTONSIZE,
+                                      height );
+
     gtk_widget_show ( guv );
 
     gtk_container_add ( GTK_CONTAINER(parent), guv );
@@ -586,7 +589,7 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
     GtkUVMapEditor   *guv  = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
     G3DUIUVMAPEDITOR *uvme = &guv->uvme;
     G3DUIGTK3      *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
-    static int32_t xold, yold;
+    static double xold, yold;
 
     if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
          ( bev->button == 3 ) ) {
@@ -622,9 +625,11 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
 
                 while ( ltmpseluv ) {
                     G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
-/*printf("%d\n", ( bev->x - xold ) );*/
-                    uv->u += ( ( float ) ( bev->x - xold ) / uvme->arearec.width  );
-                    uv->v += ( ( float ) ( bev->y - yold ) / uvme->arearec.height );
+
+                    if ( uvme->canevas.width && uvme->canevas.height ) {
+                        uv->u += ( ( float ) ( bev->x - xold ) / uvme->canevas.width  );
+                        uv->v += ( ( float ) ( bev->y - yold ) / uvme->canevas.height );
+                    }
 
                     ltmpseluv = ltmpseluv->next;
                 }
@@ -751,9 +756,9 @@ void g3duiuvmapeditor_initGL ( GtkWidget *widget,
     win = gdk_x11_window_get_xid ( gdkwin );
 
     /*** Create OpenGL Context ***/
-    uvme->glctx = glXCreateContext( dis, vi, shared, True );
+    uvme->glctx = glXCreateContext( dis, vi, gui->sharedCtx, True );
 
-    if ( shared == NULL ) shared = uvme->glctx;
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = uvme->glctx;
 
     /*** Set Context as the current context ***/
     glXMakeCurrent ( dis, win, uvme->glctx );

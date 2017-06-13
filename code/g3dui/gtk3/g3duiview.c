@@ -1312,7 +1312,6 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
                              GLX_DEPTH_SIZE, 24,
                              GLX_DOUBLEBUFFER,
                              None };
-    static GLXContext shared = NULL;
     G3DUI *gui = ( G3DUI * ) user_data;
     GtkAllocation allocation;
     GdkWindowAttr attr;
@@ -1359,9 +1358,9 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     win = gdk_x11_window_get_xid ( gdkwin );
 
     /*** Create OpenGL Context ***/
-    view->glctx = glXCreateContext( dis, vi, shared, True );
+    view->glctx = glXCreateContext( dis, vi, gui->sharedCtx, True );
 
-    if ( shared == NULL ) shared = view->glctx;
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = view->glctx;
 
     /*** Set Context as the current context ***/
     glXMakeCurrent ( dis, win, view->glctx );

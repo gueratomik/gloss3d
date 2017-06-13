@@ -136,3 +136,37 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
 
     return bar;
 }
+
+/******************************************************************************/
+GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent, 
+                                      G3DUI     *gui,
+                                      char      *name,
+                                      gint       x,
+                                      gint       y,
+                                      gint       width,
+                                      gint       height ) {
+    GdkRectangle gdkrec = { x, y, width, height };
+    GtkWidget *bar = gtk_toolbar_new ( );
+    GtkWidget *grp;
+
+    gtk_widget_set_name ( bar, name );
+
+    gtk_widget_size_allocate ( bar, &gdkrec );
+
+    gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
+
+    gtk_orientable_set_orientation ( GTK_ORIENTABLE(bar), GTK_ORIENTATION_VERTICAL );
+
+    grp = addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
+
+    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
+
+    gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
+
+    gtk_widget_show ( bar );
+
+
+
+    return bar;
+}
