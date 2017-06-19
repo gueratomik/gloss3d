@@ -116,30 +116,31 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define VIEWSKIN           ( 1  <<  6 )
 #define VIEWUVWMAP         ( 1  <<  7 )
-#define VIEWAXIS           ( 1  <<  8 )
-#define VIEWSCULPT         ( 1  <<  9 )
+#define EDITUVWMAP         ( 1  <<  8 )
+#define VIEWAXIS           ( 1  <<  9 )
+#define VIEWSCULPT         ( 1  << 10 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE   | VIEWFACE | VIEWAXIS )
-#define SELECTMODE         ( 1  << 10 )
-#define XAXIS              ( 1  << 11 )
-#define YAXIS              ( 1  << 12 ) 
-#define ZAXIS              ( 1  << 13 )
-#define G3DMULTITHREADING  ( 1  << 14 )
-#define KEEPVISIBLEONLY    ( 1  << 15 )
-#define SYMMETRYVIEW       ( 1  << 16 )
-#define ONGOINGANIMATION   ( 1  << 17 ) /*** This helps us to ***/
+#define SELECTMODE         ( 1  << 11 )
+#define XAXIS              ( 1  << 12 )
+#define YAXIS              ( 1  << 13 ) 
+#define ZAXIS              ( 1  << 14 )
+#define G3DMULTITHREADING  ( 1  << 15 )
+#define KEEPVISIBLEONLY    ( 1  << 16 )
+#define SYMMETRYVIEW       ( 1  << 17 )
+#define ONGOINGANIMATION   ( 1  << 18 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES          ( 1  << 18 )
-#define HIDEGRID           ( 1  << 19 )
-#define NOLIGHTING         ( 1  << 20 )
-#define NODISPLACEMENT     ( 1  << 21 )
-#define NOTEXTURE          ( 1  << 22 )
-#define LOADFULLRESIMAGES  ( 1  << 23 ) /* used by the renderer especially for animated textures */
-#define NODRAWPOLYGON      ( 1  << 24 )
-#define NOBACKGROUNDIMAGE  ( 1  << 25 )
+#define HIDEBONES          ( 1  << 19 )
+#define HIDEGRID           ( 1  << 20 )
+#define NOLIGHTING         ( 1  << 21 )
+#define NODISPLACEMENT     ( 1  << 22 )
+#define NOTEXTURE          ( 1  << 23 )
+#define LOADFULLRESIMAGES  ( 1  << 24 ) /* used by the renderer especially for animated textures */
+#define NODRAWPOLYGON      ( 1  << 25 )
+#define NOBACKGROUNDIMAGE  ( 1  << 26 )
 
 /******************************* Object Types *********************************/
 #define OBJECT         (  1       )
@@ -327,6 +328,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** Spline flags ***/
 #define QUADRATIC             (  1 << 17 )
 #define CUBIC                 (  1 << 18 )
+/**** CAMERA flags ***/
+#define CAMERAORTHO           (  1 << 17 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
@@ -707,6 +710,8 @@ typedef struct _G3DUV {
     G3DUVSET *set;
     float u;
     float v;
+    float x; /* needed for picking */
+    float y; /* needed for picking */
     /*float q;*/
 } G3DUV, G3DSUBUV;
 
@@ -1204,6 +1209,8 @@ struct _G3DCAMERA {
     double pmatrix[0x10]; /*** 4x4 projection matrix ***/
     GLint  vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
     void (*grid)(struct _G3DCAMERA *, uint32_t );
+    uint32_t width;
+    uint32_t height;
 };
 
 /******************************************************************************/

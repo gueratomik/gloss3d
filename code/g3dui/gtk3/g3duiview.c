@@ -1112,7 +1112,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-static void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
+void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
     memset ( g3dev, 0x00, sizeof ( G3DEvent ) );
 
     switch ( gdkev->type ) {
@@ -1170,11 +1170,28 @@ static void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
 /******************************************************************************/
 void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev, 
                                        gpointer user_data ) {
-    G3DUI           *gui = ( G3DUI * ) user_data;
-    GdkEventButton *bev  = ( GdkEventButton * ) gdkev;
-    GtkView        *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    G3DUIVIEW      *view = &gvw->view;
-    G3DUIGTK3      *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
+    G3DUI          *gui    = ( G3DUI * ) user_data;
+    GdkEventButton *bev    = ( GdkEventButton * ) gdkev;
+    GtkView        *gvw    = ( GtkView * ) gtk_widget_get_parent ( widget );
+    G3DUIVIEW      *view   = &gvw->view;
+    G3DUIGTK3      *ggt    = ( G3DUIGTK3 * ) gui->toolkit_data;
+    GdkDisplay     *gdkdpy = gtk_widget_get_display ( widget );
+    GdkWindow      *gdkwin = gtk_widget_get_window  ( widget );
+#ifdef __linux__
+    Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      win    = gdk_x11_window_get_xid       ( gdkwin );
+
+    glXMakeCurrent ( dpy, win, view->glctx );
+#endif
+
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+
+    wglMakeCurrent ( dc, view->glctx );
+
+    ReleaseDC ( hWnd, dc );
+#endif
 
     ggt->curogl = widget;
 

@@ -349,27 +349,32 @@ void g3dcamera_view ( G3DCAMERA *cam, uint32_t flags ) {
 
 /******************************************************************************/
 void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
-    if ( cam->focal == 2.0f ) {
-        static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, camwpos;
-        G3DOBJECT *camobj = ( G3DOBJECT * ) cam;
-        int PJX[0x10];
-        float dist;
-
-        glGetIntegerv ( GL_VIEWPORT, PJX );
-
-        g3dvector_matrix ( &origin, camobj->wmatrix, &camwpos );
-
-        if ( cam->grid == g3dcamera_gridXY ) dist = camwpos.z;
-        if ( cam->grid == g3dcamera_gridYZ ) dist = camwpos.x;
-        if ( cam->grid == g3dcamera_gridZX ) dist = camwpos.y;
-
-
-        glOrtho ( -PJX[0x02] * 0.00125f * dist,
-                   PJX[0x02] * 0.00125f * dist,
-                  -PJX[0x03] * 0.00125f * dist,
-                   PJX[0x03] * 0.00125f * dist, cam->znear, cam->zfar );
+    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHO ) {
+        glOrtho ( 0.0f, cam->width, 
+                        cam->height, 0.0f, 0.0f, 1.0f );
     } else {
-        gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
+        if ( cam->focal == 2.0f ) {
+            static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, camwpos;
+            G3DOBJECT *camobj = ( G3DOBJECT * ) cam;
+            int PJX[0x10];
+            float dist;
+
+            glGetIntegerv ( GL_VIEWPORT, PJX );
+
+            g3dvector_matrix ( &origin, camobj->wmatrix, &camwpos );
+
+            if ( cam->grid == g3dcamera_gridXY ) dist = camwpos.z;
+            if ( cam->grid == g3dcamera_gridYZ ) dist = camwpos.x;
+            if ( cam->grid == g3dcamera_gridZX ) dist = camwpos.y;
+
+
+            glOrtho ( -PJX[0x02] * 0.00125f * dist,
+                       PJX[0x02] * 0.00125f * dist,
+                      -PJX[0x03] * 0.00125f * dist,
+                       PJX[0x03] * 0.00125f * dist, cam->znear, cam->zfar );
+        } else {
+            gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
+        }
     }
 
     glGetDoublev  ( GL_PROJECTION_MATRIX, cam->pmatrix );
@@ -462,6 +467,16 @@ void g3dcamera_pick ( G3DOBJECT *obj,  G3DCAMERA *curcam, uint32_t flags ) {
 /******************************************************************************/
 void g3dcamera_setGrid ( G3DCAMERA *cam, void (*grid)(G3DCAMERA *, uint32_t) ){
     cam->grid  = grid;
+}
+
+/******************************************************************************/
+void g3dcamera_setOrtho ( G3DCAMERA *cam,
+                          uint32_t   width, 
+                          uint32_t   height ) {
+    ((G3DOBJECT*)cam)->flags |= CAMERAORTHO;
+
+    cam->width  = width;
+    cam->height = height;
 }
 
 /******************************************************************************/

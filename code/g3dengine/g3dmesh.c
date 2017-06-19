@@ -30,6 +30,86 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+LIST *g3dmesh_pickUVs ( G3DMESH   *mes,
+                        G3DCAMERA *cam, 
+                        uint32_t   only_visible, 
+                        uint32_t   engine_flags ) {
+#define SELECTBUFFERSIZE 0xFFFF
+    GLuint buffer[SELECTBUFFERSIZE];
+    LIST *luv = NULL;
+    GLint hits;
+
+    glSelectBuffer ( SELECTBUFFERSIZE, buffer );
+    glRenderMode   ( GL_SELECT );
+
+    glInitNames (   );
+    glPushName  ( 0 );
+
+    if ( mes->lfac ) {
+        uint32_t nbuveval = ( mes->nbtri * 0x03 ) + 
+                            ( mes->nbqua * 0x04 );
+        G3DUV   **uvtab = ( G3DUV * ) calloc ( nbuveval, sizeof ( G3DUV * ) ) ;
+        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+        uint32_t  uvID  = 0x00;
+
+        if ( uvmap ) {
+             LIST *ltmpfac = ( uvmap->facgrp ) ? uvmap->facgrp->lfac :
+                                                 mes->lfac;
+
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+                if ( uvs ) {
+                    uint32_t i;
+
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        uvtab[uvID] = &uvs->veruv[i];
+
+                        glLoadName ( uvID );
+                        glBegin ( GL_POINTS );
+                        glVertex2f ( uvs->veruv[i].x, 
+                                     uvs->veruv[i].y );
+                        glEnd ( );
+
+                        uvID++;
+                    }
+                }
+
+                ltmpfac = ltmpfac->next;
+            }
+        }
+
+        hits = glRenderMode ( GL_RENDER );
+
+        if ( hits > 0x00 ) {
+            GLuint *ptr = buffer;
+            LIST *lis = NULL;
+            GLint min, max;
+            GLuint i, j;
+
+            for ( i = 0x00; i < hits; i++ ) {
+                GLuint nbname = (*ptr++);
+
+                min = *(ptr++); /** D0 NOT  COMMENT THIS ***/
+                max = *(ptr++); /** D0 NOT  COMMENT THIS ***/
+
+                for ( j = 0x00; j < nbname; j++ ) {
+                    GLuint name = (*ptr++);
+                    uint64_t cname = ( uint64_t ) name;
+
+                    list_insert ( &luv, uvtab[cname] );
+                }
+            }
+        }
+
+        free ( uvtab );
+    }
+
+    return luv;
+}
+
+/******************************************************************************/
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes ) {
     if ( mes->lseltex ) return mes->lseltex->data;
 

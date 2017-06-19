@@ -774,6 +774,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     LIST          *lseluv;
     LIST          *lseluvset;
     G3DMOUSETOOL  *mou;
+    G3DCAMERA     *cam;
 #ifdef __linux__
     GLXContext     glctx;
 #endif
@@ -1308,8 +1309,7 @@ void g3duisettings_writeBlock ( G3DUI *gui,
                                 FILE  *fdst );
 
 /******************************************************************************/
-LIST *common_g3duiuvmapeditor_getUV ( G3DUIUVMAPEDITOR *uvme, 
-                                      G3DUI            *gui,
+LIST *common_g3duiuvmapeditor_getUV ( G3DSCENE *sce,
                                       int32_t           xm,
                                       int32_t           ym,
                                       uint32_t          width,
@@ -1319,7 +1319,9 @@ void common_g3duiuvmapeditor_plotUVSet ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_plotUV ( G3DUIUVMAPEDITOR *uvme, 
                                       G3DUV            *uv );
 void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
-                                      G3DUI            *gui );
+                                      G3DUI            *gui,
+                                      G3DMOUSETOOL     *mou,
+                                      uint32_t          engine_flags );
 void common_g3duiuvmapeditor_initGL ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_sizeGL ( G3DUIUVMAPEDITOR *uvme, 
                                       uint32_t          width, 

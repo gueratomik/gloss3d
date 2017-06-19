@@ -92,6 +92,7 @@ if HAVE_GTK3
                             gtk3/g3duitorusedit.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiuvmapeditor.c \
+                            gtk3/g3duiuvmapeditortoolbar.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/g3duiwireframeedit.c \

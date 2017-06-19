@@ -265,13 +265,13 @@ void g3dui_deleteSelectionCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static GtkWidget *addToolBarRadioButton ( GtkWidget *bar,
-                                          GtkWidget *grp,
-                                          G3DUI *gui,
-                                          char *name,
-                                          const char **xpm_data,
-                                          void ( *cbk ) ( GtkWidget *, 
-                                                          gpointer ) ) {
+GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
+                                   GtkWidget   *grp,
+                                   G3DUI       *gui,
+                                   char        *name,
+                                   const char **xpm_data,
+                                   void      ( *cbk ) ( GtkWidget *, 
+                                                        gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) gtk_radio_tool_button_new_from_widget ( GTK_RADIO_TOOL_BUTTON(grp) );
 
@@ -310,12 +310,12 @@ static GtkWidget *addToolBarRadioButton ( GtkWidget *bar,
 }
 
 /******************************************************************************/
-static GtkWidget *addToolBarToggleButton ( GtkWidget *bar,
-                                           G3DUI *gui,
-                                           char *name,
-                                           const char **xpm_data,
-                                           void (*cbk) ( GtkWidget *, 
-                                                         gpointer ) ) {
+GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
+                                    G3DUI       *gui,
+                                    char        *name,
+                                    const char **xpm_data,
+                                    void       (*cbk) ( GtkWidget *, 
+                                                        gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) gtk_toggle_tool_button_new ( );
 
@@ -356,11 +356,12 @@ static GtkWidget *addToolBarToggleButton ( GtkWidget *bar,
 }
 
 /******************************************************************************/
-static GtkWidget *addToolBarPushButton ( GtkWidget *bar, G3DUI *gui,
-                                                         char *name,
-                                                         const char **xpm_data,
-                                                         void (*cbk) ( GtkWidget *,
-                                                                       gpointer ) ) {
+GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
+                                  G3DUI       *gui,
+                                  char        *name,
+                                  const char **xpm_data,
+                                  void       (*cbk) ( GtkWidget *,
+                                                      gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) gtk_tool_button_new ( NULL, NULL );
 

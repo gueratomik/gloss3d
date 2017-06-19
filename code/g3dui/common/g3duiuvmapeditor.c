@@ -106,6 +106,11 @@ int common_g3duiuvmapeditor_getCurrentButton ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
+void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme ) {
+    g3dobject_free ( uvme->cam );
+}
+
+/******************************************************************************/
 void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme, 
                                     uint32_t          width,
                                     uint32_t          height ) {
@@ -116,6 +121,11 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
     uvme->ypos = 0.0f;
 
     common_g3duiuvmapeditor_resize ( uvme, width, height );
+
+    uvme->cam = g3dcamera_new ( 0x00, "CAM", 0, 0, 0, 0 );
+
+    g3dcamera_setGrid  ( uvme->cam, NULL );
+    g3dcamera_setOrtho ( uvme->cam, width, height );
 }
 
 /******************************************************************************/
@@ -127,9 +137,9 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
     /*** set rectangle position for each button ***/
     for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
         uvme->rec[i].x      = xpos;
-        uvme->rec[i].y      = 0x00;
+        uvme->rec[i].y      = TOOLBARBUTTONSIZE;
         uvme->rec[i].width  = BUTTONSIZE;
-        uvme->rec[i].height = BUTTONSIZE;
+        uvme->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE;
     }
 
     uvme->arearec.x      = MODEBARBUTTONSIZE;
@@ -141,62 +151,17 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-LIST *common_g3duiuvmapeditor_getUV ( G3DUIUVMAPEDITOR *uvme,
-                                      G3DUI            *gui,
-                                      int32_t           xm,
-                                      int32_t           ym,
-                                      uint32_t          width,
-                                      uint32_t          height ) {
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
-    LIST *luv = NULL;
-    int32_t x, y;
-
-    if ( obj && ( obj->type & MESH ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
-
-        if ( uvmap ) {
-             LIST *ltmpfac = ( uvmap->facgrp ) ? uvmap->facgrp->lfac :
-                                                 mes->lfac;
-
-            while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
-
-                if ( uvs ) {
-                    uint32_t i;
-
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        int32_t xi = ( uvs->veruv[i].u * uvme->canevas.width  ) + uvme->canevas.x,
-                                yi = ( uvs->veruv[i].v * uvme->canevas.height ) + uvme->canevas.y;
-
-                        if ( ( xi >= xm ) && ( xi <= ( xm + width  ) ) &&
-                             ( yi >= ym ) && ( yi <= ( ym + height ) ) ) {
-                            list_insert ( &luv, &uvs->veruv[i] );
-                        }
-                    }
-                }
-
-                ltmpfac = ltmpfac->next;
-            }
-        }
-    }
-
-    return luv;
-}
-
-/******************************************************************************/
 void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
-                                      G3DUI            *gui ) {
+                                      G3DUI            *gui,
+                                      G3DMOUSETOOL     *mou,
+                                      uint32_t          engine_flags ) {
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho ( 0.0f, uvme->arearec.width, 
-                    uvme->arearec.height, 0.0f, 0.0f, 1.0f );
-
+    g3dcamera_project ( uvme->cam, gui->flags );
     glMatrixMode ( GL_MODELVIEW );
     glLoadIdentity ( );
 
@@ -292,6 +257,10 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                 ltmpfac = ltmpfac->next;
             }
         }
+    }
+
+    if ( mou && mou->draw ) {
+        mou->draw ( mou, gui->sce, engine_flags );
     }
 }
 
