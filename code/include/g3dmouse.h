@@ -80,14 +80,16 @@
 #define G3DButton3Mask   ( 1  << 4  )
 
 #define REDRAWVIEW            ( 1      )
-#define REDRAWLIST            ( 1 << 1 )
-#define REDRAWCOORDS          ( 1 << 2 )
-#define REDRAWPARAMS          ( 1 << 3 )
-#define REDRAWCURRENTOBJECT   ( 1 << 4 )
-#define REDRAWTIMELINE        ( 1 << 5 )
-#define NOBUFFEREDSUBDIVISION ( 1 << 6 )
-#define BUFFEREDSUBDIVISIONOK ( 1 << 7 )
+#define REDRAWUVMAPEDITOR     ( 1 << 1 )
+#define REDRAWLIST            ( 1 << 2 )
+#define REDRAWCOORDS          ( 1 << 3 )
+#define REDRAWPARAMS          ( 1 << 4 )
+#define REDRAWCURRENTOBJECT   ( 1 << 5 )
+#define REDRAWTIMELINE        ( 1 << 6 )
+#define NOBUFFEREDSUBDIVISION ( 1 << 7 )
+#define BUFFEREDSUBDIVISIONOK ( 1 << 8 )
 #define REDRAWALL             ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
+                                REDRAWUVMAPEDITOR |\
                                 REDRAWPARAMS | REDRAWCURRENTOBJECT | \
                                 REDRAWTIMELINE )
 

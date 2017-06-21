@@ -178,6 +178,7 @@ void g3dspline_cut ( G3DSPLINE *spline,
                      LIST     **laddedSegments,
                      LIST     **lremovedSegments,
                      uint32_t   engine_flags );
+G3DSPLINEPOINT *g3dspline_getConnectablePoint ( G3DSPLINE *spline );
 
 void g3dspline_roundSelectedPoints ( G3DSPLINE *spline );
 void g3dcubicsegment_getHandlePositionFromList ( LIST *lseg, 

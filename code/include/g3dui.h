@@ -1343,4 +1343,59 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
                                             int32_t           y, 
                                             int32_t           xold, 
                                             int32_t           yold );
+
+void common_g3duilightedit_castShadowsCbk ( G3DUI *gui );
+
+
+void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,
+                                                      const char *procType,
+                                                      const char *procRes );
+void common_g3dui_materialProceduralCbk ( G3DUI *gui, const char *procType,
+                                                      const char *procRes );
+
+void common_g3dui_addWireframeCbk ( G3DUI *gui );
+void common_g3dui_addSubdividerCbk ( G3DUI *gui );
+void common_g3dui_addSplineRevolverCbk ( G3DUI *gui );
+void common_g3dui_addSplineCbk ( G3DUI *gui );
+void common_g3dui_addTextCbk ( G3DUI *gui );
+void common_g3dui_addNullCbk ( G3DUI *gui );
+
+void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui );
+void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui );
+void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI *gui, 
+                                                          uint32_t nbstep );
+void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui );
+
+void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui );
+void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui );
+void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui );
+void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
+                                                    char  *filename );
+void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui );
+void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui );
+
+void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui );
+void common_g3duisubdivideredit_subdivRenderCbk ( G3DUI *gui, int level );
+void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level );
+
+void common_g3duitextedit_sizeCbk ( G3DUI *gui, uint32_t size );
+void common_g3dui_closeScene ( G3DUI *gui );
+G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename );
+
+void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,  
+                                                             int    level );
+void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
+                                                             int    level );
+void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme );
+
+/******************************************************************************/
+void common_g3dui_addRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg );
+void common_g3dui_useRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg );
+void common_g3dui_processAnimatedImages ( G3DUI *gui );
+
+/******************************************************************************/
+uint32_t common_g3duiview_blockSize ( G3DUIVIEW *view );
+void common_g3duiview_writeBlock ( G3DUIVIEW *view, FILE *fdst );
+
 #endif

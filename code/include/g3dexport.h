@@ -331,5 +331,7 @@ void writef ( void   *ptr,
               size_t  count,
               FILE   *stream );
 
+void g3dexportextension_free ( G3DEXPORTEXTENSION *ext );
+
 #endif
 

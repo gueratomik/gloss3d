@@ -257,6 +257,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEFROMQUAD          (  1 << 13 ) /*** subface ancestor is a quad ***/
 #define FACEFROMTRIANGLE      (  1 << 14 ) /*** subface ancestor is a triangle ***/
 
+/********************************** UV Flags **********************************/
+#define UVSELECTED            (  1       )
+
 /******************************** height Flags ********************************/
 #define HEIGHTSET (  1       )
 
@@ -712,7 +715,7 @@ typedef struct _G3DUV {
     float v;
     float x; /* needed for picking */
     float y; /* needed for picking */
-    /*float q;*/
+    uint32_t flags;
 } G3DUV, G3DSUBUV;
 
 /******************************************************************************/
@@ -1868,6 +1871,9 @@ void       g3dmesh_allocEdgeSubdivisionBuffer    ( G3DMESH *, uint32_t,
                                                               uint32_t );
 void       g3dmesh_allocVertexSubdivisionBuffer  ( G3DMESH *, uint32_t,
                                                               uint32_t );
+void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
+                                 G3DCAMERA *curcam,
+                                 uint32_t   engine_flags );
 void       g3dmesh_assignFaceEdges      ( G3DMESH *, G3DFACE * );
 void       g3dmesh_cut                  ( G3DMESH *, G3DFACE *,
                                                      LIST **, 
@@ -2094,6 +2100,8 @@ void       g3dmesh_moveAxis               ( G3DMESH *, double  *, uint32_t );
 void       g3dmesh_selectAllEdges         ( G3DMESH * );
 void       g3dmesh_selectAllFaces         ( G3DMESH * );
 G3DMESH   *g3dmesh_merge                  ( LIST *, uint32_t, uint32_t );
+G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes );
+void g3dmesh_removeUVMap ( );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2144,6 +2152,9 @@ void       g3dcamera_gridZX   ( G3DCAMERA *, uint32_t );
 void       g3dcamera_setPivot ( G3DCAMERA *, float, float, float );
 void       g3dcamera_updateViewingMatrix ( G3DCAMERA *, uint32_t );
 void       g3dcamera_import   ( G3DCAMERA *, G3DCAMERA * );
+void g3dcamera_setOrtho ( G3DCAMERA *cam,
+                          uint32_t   width, 
+                          uint32_t   height );
 
 /******************************************************************************/
 void g3dcursor_draw  ( G3DCURSOR *, G3DCAMERA *, uint32_t );

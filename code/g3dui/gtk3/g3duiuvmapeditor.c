@@ -55,12 +55,31 @@ void g3duiuvmapeditor_initGL ( GtkWidget *widget,
 void g3duiuvmapeditor_sizeGL ( GtkWidget    *widget, 
                                GdkRectangle *allocation, 
                                gpointer      user_data );
-void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
-                                GdkEvent  *gdkev, 
-                                gpointer   user_data );
-void g3duiuvmapeditor_destroyGL ( GtkWidget *widget, 
-                                  GdkEvent  *event, 
-                                  gpointer   user_data );
+static gboolean g3duiuvmapeditor_inputGL ( GtkWidget *widget,
+                                           GdkEvent  *gdkev, 
+                                           gpointer   user_data );
+gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget, 
+                                     GdkEvent  *event, 
+                                     gpointer   user_data );
+
+/******************************************************************************/
+GtkWidget *gtk_uvmapeditor_getGLArea ( GtkWidget *widget ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+
+        if ( GTK_IS_DRAWING_AREA(child) ) {
+
+            return child;
+        }
+
+        children = g_list_next ( children );
+    }
+
+
+    return NULL;
+}
 
 /******************************************************************************/
 GtkWidget *createUVMapMenu ( GtkWidget *widget, G3DUI *gui, char *menuname ) {
@@ -603,10 +622,12 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
 }
 
 /******************************************************************************/
-void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
-                                GdkEvent  *gdkev, 
-                                gpointer   user_data ) {
+static gboolean g3duiuvmapeditor_inputGL ( GtkWidget *widget,
+                                           GdkEvent  *gdkev, 
+                                           gpointer   user_data ) {
+    static int i;
     G3DUI            *gui  = ( G3DUI * ) user_data;
+
     GdkEventButton   *bev  = ( GdkEventButton * ) gdkev;
     GtkUVMapEditor   *guv  = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
     G3DUIUVMAPEDITOR *uvme = &guv->uvme;
@@ -614,6 +635,7 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
     static double xold, yold;
     GdkDisplay     *gdkdpy = gtk_widget_get_display ( widget );
     GdkWindow      *gdkwin = gtk_widget_get_window  ( widget );
+
 #ifdef __linux__
     Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      win    = gdk_x11_window_get_xid       ( gdkwin );
@@ -676,16 +698,18 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
         } break;
 
         case GDK_BUTTON_PRESS : {
+/*
             G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
+*/
             /*** If there was a running render, cancel it and dont go further ***/
-            if ( rps ) {
+            /*if ( rps ) {
                 r3dscene_cancelRender ( rps->rsce );
 
                 return;
-            }
+            }*/
 
             /*** For keyboard inputs ***/
-            gtk_widget_grab_focus ( widget );
+            /*gtk_widget_grab_focus ( widget );*/
         } break;
 
         default :
@@ -712,12 +736,14 @@ void g3duiuvmapeditor_inputGL ( GtkWidget *widget,
             }
         }
     }
+
+    return TRUE;
 }
 
 /******************************************************************************/
-void g3duiuvmapeditor_destroyGL ( GtkWidget *widget, 
-                                  GdkEvent  *event, 
-                                  gpointer   user_data ) {
+gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget, 
+                                      GdkEvent  *event, 
+                                      gpointer   user_data ) {
     GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
     G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
     GdkDisplay       *gdkdpy = gtk_widget_get_display ( widget );
@@ -725,6 +751,8 @@ void g3duiuvmapeditor_destroyGL ( GtkWidget *widget,
     G3DUI            *gui    = ( G3DUI * ) user_data;
 
     common_g3duiuvmapeditor_destroyGL ( uvme );
+
+    return FALSE;
 }
 
 /******************************************************************************/
@@ -930,5 +958,5 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     ReleaseDC ( hWnd, dc );
 #endif
 
-    return 0x01;
+    return TRUE;
 }

@@ -208,7 +208,8 @@ void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI *gui, uint32_t nbstep ) {
+void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI   *gui, 
+                                                          uint32_t nbstep ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
@@ -217,7 +218,8 @@ void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI *gui, uint32_t n
 }
 
 /******************************************************************************/
-void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, float strength ) {
+void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, 
+                                                    float strength ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/

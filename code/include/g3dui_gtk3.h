@@ -232,6 +232,8 @@ void       g3duigtk3_free ( G3DUIGTK3 * );
 void   g3dui_init  ( G3DUI *, G3DSCENE * );
 G3DUI *g3dui_new   ( G3DSCENE * );
 
+void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev );
+
 /******************************************************************************/
 GtkWidget *createModeBar          ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
@@ -389,6 +391,39 @@ void       updateCutMeshToolEdit  ( GtkWidget *, G3DUI * );
 GtkWidget *createCutMeshToolEdit  ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
+void updateSubdividerEdit ( GtkWidget *widget, G3DUI *gui );
+GtkWidget *createSubdividerEdit ( GtkWidget *parent, G3DUI *gui,
+                                                     char *name,
+                                                     gint x,
+                                                     gint y,
+                                                     gint width,
+                                                     gint height );
+
+void updateSplineRevolverEdit ( GtkWidget *widget, G3DUI *gui );
+GtkWidget *createSplineRevolverEdit ( GtkWidget *parent, G3DUI *gui,
+                                                     char *name,
+                                                     gint x,
+                                                     gint y,
+                                                     gint width,
+                                                     gint height );
+
+void updateWireframeEdit ( GtkWidget *widget, G3DUI *gui );
+GtkWidget *createWireframeEdit ( GtkWidget *parent, G3DUI *gui,
+                                                     char *name,
+                                                     gint x,
+                                                     gint y,
+                                                     gint width,
+                                                     gint height );
+
+void createProceduralResSelection ( GtkWidget *parent, 
+                                           G3DUI     *gui, 
+                                           char      *name,
+                                           gint       x, 
+                                           gint       y,
+                                           gint       labwidth,
+                                           gint       txtwidth,
+                                           void     (*cbk)( GtkWidget *, 
+                                                            gpointer ) );
 
 
 /******************************************************************************/
@@ -541,7 +576,10 @@ void g3dui_setMouseTool ( GtkWidget *, gpointer );
 gboolean gtk3_showGL    ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL        ( GtkWidget *, gpointer );
 void gtk3_sizeGL        ( GtkWidget *, GdkRectangle *, gpointer );
-void gtk3_inputGL       ( GtkWidget *, GdkEvent *, gpointer );
+gboolean gtk3_inputGL   ( GtkWidget *, GdkEvent *, gpointer );
+
+void g3dui_redrawUVMapEditors ( G3DUI *gui );
+GtkWidget *gtk_uvmapeditor_getGLArea ( GtkWidget *widget );
 
 void g3dui_updateAllCurrentEdit          ( G3DUI * );
 void g3dui_updateCoords                  ( G3DUI * );
@@ -588,6 +626,7 @@ G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui );
 void g3duicom_handleAction ( GtkWidget *, gpointer, gpointer );
 void g3duicom_gotoframe    ( G3DUI *, GOTOFRAME  * );
 void g3duicom_dumpscreen   ( G3DUI *, DUMPSCREEN * );
+void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action );
 
 /******************************************************************************/
 #define TOGDKWINDOWFILTERNAME "TOGDKWINDOWFILTERNAME"
@@ -605,5 +644,10 @@ void       filtertogdkwindow_draw ( void *, R3DSCENE *, unsigned char *,
                                                         uint32_t, 
                                                         uint32_t );
 FILTERTOGDKWINDOW *filtertogdkwindow_new ( GdkWindow * );
+
+/******************************************************************************/
+void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
+void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
+void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
 #endif

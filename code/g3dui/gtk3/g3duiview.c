@@ -45,7 +45,7 @@ static void     gtk_view_size_request  ( GtkWidget *, GtkRequisition * );
 static gboolean gtk_view_expose        ( GtkWidget *, cairo_t * );
 static gboolean gtk_view_configure     ( GtkWidget *, GdkEvent *, gpointer );
 static void     gtk_view_size_allocate ( GtkWidget *, GtkAllocation * );
-static void     gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
+static gboolean gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
 
 /******************************************************************************/
 static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
@@ -661,7 +661,7 @@ static void gtk_view_redraw_menu ( GtkWidget *widget ) {
 }
 
 /******************************************************************************/
-static void gtk_view_event ( GtkWidget *widget, GdkEvent *event,
+static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                                                 gpointer user_data ) {
     static int xmid, ymid, xori, yori;
     GtkView *gvw = ( GtkView * ) widget;
@@ -842,6 +842,8 @@ static void gtk_view_event ( GtkWidget *widget, GdkEvent *event,
         default:
         break;
     }
+
+    return TRUE;
 }
 
 /******************************************************************************/
@@ -1128,9 +1130,11 @@ void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
 
             if ( gdkbev->state & GDK_CONTROL_MASK ) g3dbev->state |= G3DControlMask;
             if ( gdkbev->state & GDK_SHIFT_MASK   ) g3dbev->state |= G3DShiftMask;
+
             /*if ( gdkbev->state & GDK_BUTTON1_MASK ) g3dbev->state |= G3DButton1Mask;
             if ( gdkbev->state & GDK_BUTTON2_MASK ) g3dbev->state |= G3DButton2Mask;
             if ( gdkbev->state & GDK_BUTTON3_MASK ) g3dbev->state |= G3DButton3Mask;*/
+
         } break;
 
         case GDK_BUTTON_RELEASE : {
@@ -1165,11 +1169,13 @@ void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
             if ( gdkmev->state & GDK_BUTTON3_MASK ) g3dmev->state |= G3DButton3Mask;
         } break;
     }
+
 }
 
 /******************************************************************************/
-void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev, 
-                                       gpointer user_data ) {
+gboolean gtk3_inputGL ( GtkWidget *widget, 
+                               GdkEvent *gdkev, 
+                               gpointer user_data ) {
     G3DUI          *gui    = ( G3DUI * ) user_data;
     GdkEventButton *bev    = ( GdkEventButton * ) gdkev;
     GtkView        *gvw    = ( GtkView * ) gtk_widget_get_parent ( widget );
@@ -1199,7 +1205,7 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
          ( bev->button == 3 ) ) {
         PostMenu ( widget, gdkev, user_data );
 
-        return;
+        return TRUE;
     }
 
     switch ( gdkev->type ) {
@@ -1245,7 +1251,7 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
             if ( rps ) {
                 r3dscene_cancelRender ( rps->rsce );
 
-                return;
+                return TRUE;
             }
 
             /*** For keyboard inputs ***/
@@ -1276,6 +1282,8 @@ void gtk3_inputGL ( GtkWidget *widget, GdkEvent *gdkev,
             }
         }
     }
+
+    return TRUE;
 }
 
 /******************************************************************************/

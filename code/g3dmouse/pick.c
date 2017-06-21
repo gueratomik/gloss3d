@@ -174,43 +174,51 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
     g3dcamera_view ( cam, 0x00 );
 
     if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type & EDITABLE ) ) {
+        if ( flags & VIEWVERTEX ) {
+            if ( flags & EDITUVWMAP ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                LIST *lseluv = g3dmesh_pickUVs ( mes, cam, pt->only_visible, flags );
+
+            }
+        }
+
+        if ( flags & VIEWVERTEX ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            LIST *lfac;
+            LIST *loldselver = list_copy ( mes->lselver );
+
         glMultMatrixd ( obj->wmatrix );
         glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
-        if ( flags & VIEWVERTEX ) {
-            if ( flags & EDITUVWMAP ) {
+            LIST *lnewselver = g3dmesh_pickVertices ( mes, cam, pt->only_visible, flags );
 
-            } else {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                LIST *lfac;
-                LIST *loldselver = list_copy ( mes->lselver );
+            LIST *ltmp = lnewselver;
 
-                LIST *lnewselver = g3dmesh_pickVertices ( mes, cam, pt->only_visible, flags );
+            while ( ltmp ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
 
-                LIST *ltmp = lnewselver;
-
-                while ( ltmp ) {
-                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-
-                    if ( list_seek ( mes->lselver, ver ) == NULL ) {
-                        g3dmesh_selectVertex   ( mes, ver );
-                    } else {
-                        if ( unselectIfSelected ) {
-                            g3dmesh_unselectVertex ( mes, ver );
-                        }
+                if ( list_seek ( mes->lselver, ver ) == NULL ) {
+                    g3dmesh_selectVertex   ( mes, ver );
+                } else {
+                    if ( unselectIfSelected ) {
+                        g3dmesh_unselectVertex ( mes, ver );
                     }
-
-                    ltmp = ltmp->next;
                 }
 
-                list_free ( &loldselver, NULL );
-                list_free ( &lnewselver, NULL );
+                ltmp = ltmp->next;
             }
+
+            list_free ( &loldselver, NULL );
+            list_free ( &lnewselver, NULL );
         }
 
         if ( flags & VIEWFACE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             LIST *loldselfac = list_copy ( mes->lselfac );
+
+        glMultMatrixd ( obj->wmatrix );
+        glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+
             LIST *lnewselfac = g3dmesh_pickFace ( mes, cam, MX, MY, pt->only_visible, flags | SELECTMODE );
             LIST *ltmpfac = lnewselfac;
 
@@ -237,6 +245,10 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
         if ( flags & VIEWEDGE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             LIST *loldseledg = list_copy ( mes->lseledg );
+
+        glMultMatrixd ( obj->wmatrix );
+        glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+
             LIST *lnewseledg = g3dmesh_pickEdge ( mes, cam, MX, MY, pt->only_visible, flags | SELECTMODE );
             LIST *ltmpedg = lnewseledg;
 
@@ -410,7 +422,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                 shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
 
-                return REDRAWVIEW;
+                return REDRAWVIEW | REDRAWUVMAPEDITOR;
             }
         } return 0x00;
 

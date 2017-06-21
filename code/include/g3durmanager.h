@@ -539,6 +539,11 @@ URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes,
                                  LIST    *loldver,
                                  LIST    *loldfac );
 
+/******************************************************************************/
+void g3durm_spline_revert ( G3DURMANAGER *urm, 
+                            G3DSPLINE    *spline,
+                            uint32_t      engine_flags,
+                            uint32_t      return_flags );
 
 
 

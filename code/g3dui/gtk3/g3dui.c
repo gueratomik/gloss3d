@@ -1040,6 +1040,25 @@ void g3dui_importMaterials      ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_redrawUVMapEditors ( G3DUI *gui ) {
+    LIST *ltmp = gui->luvmapeditor;
+
+    while ( ltmp ) {
+        GtkWidget *guv = ( GtkWidget * ) ltmp->data;
+        GtkWidget *area   = gtk_uvmapeditor_getGLArea ( guv );
+        GdkRectangle arec;
+
+        arec.x = arec.y = 0x00;
+        arec.width = arec.height = 0x01;
+
+        gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
+
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
 void g3dui_redrawGLViews ( G3DUI *gui ) {
     LIST *ltmp = gui->lglview;
 

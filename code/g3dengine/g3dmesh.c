@@ -98,6 +98,8 @@ LIST *g3dmesh_pickUVs ( G3DMESH   *mes,
                     GLuint name = (*ptr++);
                     uint64_t cname = ( uint64_t ) name;
 
+                    uvtab[cname]->flags |= UVSELECTED;
+
                     list_insert ( &luv, uvtab[cname] );
                 }
             }

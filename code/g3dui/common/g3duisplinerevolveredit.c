@@ -30,7 +30,8 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui, int level ) {
+void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
+                                                             int    level ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
@@ -54,7 +55,8 @@ void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui, int lev
 
 
 /******************************************************************************/
-void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui, int level ) {
+void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,  
+                                                             int    level ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 

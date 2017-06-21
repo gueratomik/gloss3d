@@ -135,6 +135,9 @@ void g3dtext_setThickness ( G3DTEXT *txt,
 G3DTEXT *g3dtext_new ( uint32_t id, 
                        char    *name,
                        uint32_t engine_flags );
+void g3dtext_setSize ( G3DTEXT *txt,
+                       uint32_t fontFaceSize,
+                       uint32_t engine_flags );
 
 
 #ifdef __cplusplus

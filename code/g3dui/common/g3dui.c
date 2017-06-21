@@ -648,6 +648,10 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
         g3dui_redrawGLViews ( gui );
     }
 
+    if ( msk & REDRAWUVMAPEDITOR ) {
+        g3dui_redrawUVMapEditors ( gui );
+    }
+
     if ( msk & REDRAWLIST ) {
         g3dui_redrawObjectList ( gui );
     }

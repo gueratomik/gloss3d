@@ -425,8 +425,8 @@ void common_g3duiview_showGL ( G3DUI        *gui,
 
     /*** draw the mouse tool only in the current workspace window ***/
     if ( current ) {
-        if ( mou && mou->draw ) {
+        /*if ( mou && mou->draw ) {
             mou->draw ( mou, sce, engine_flags );
-        }
+        }*/
     }
 }

@@ -126,6 +126,8 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
 
     g3dcamera_setGrid  ( uvme->cam, NULL );
     g3dcamera_setOrtho ( uvme->cam, width, height );
+
+    g3dobject_updateMatrix ( uvme->cam );
 }
 
 /******************************************************************************/
@@ -241,11 +243,20 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
                     if ( gui->flags & VIEWVERTEX ) { 
                         glPointSize ( 3.0f );
-                        glColor3ub ( 0x00, 0x00, 0xFF );
+
                         glBegin ( GL_POINTS );
                         for ( i = 0x00; i < fac->nbver; i++ ) {
                             int32_t xi = uvs->veruv[i].u * uvme->canevas.width,
                                     yi = uvs->veruv[i].v * uvme->canevas.height;
+
+                            uvs->veruv[i].x = xi; /* for picking */
+                            uvs->veruv[i].y = yi; /* for picking */
+
+                            if ( uvs->veruv[i].flags & UVSELECTED ) {
+                                glColor3ub ( 0xFF, 0x00, 0x00 );
+                            } else {
+                                glColor3ub ( 0x00, 0x00, 0xFF );
+                            }
 
                             glVertex2f ( uvme->canevas.x + xi, 
                                          uvme->canevas.y + yi );
