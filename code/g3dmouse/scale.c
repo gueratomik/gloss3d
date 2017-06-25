@@ -48,6 +48,8 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     static LIST *lori, *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx; /*** list of rail vectors ***/
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
+    static G3DUV     *olduv;
+    static G3DUV      avguv;
     static G3DVECTOR objsca;
     uint32_t retflags = REDRAWVIEW | REDRAWCOORDS;
 
@@ -69,6 +71,15 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     mes = ( G3DMESH * ) obj;
 
                     obj = ( G3DOBJECT * ) g3dmesh_getSelectedUVMap ( mes );
+                }
+            }
+
+            if ( obj ) {
+                if ( ( flags & VIEWVERTEX ) &&
+                     ( flags & EDITUVWMAP ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    olduv = g3duv_copyUVFromList ( mes->lseluv );
+                    g3duv_getAverageFromList ( mes->lseluv, &avguv );
                 }
             }
 
@@ -171,6 +182,32 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+            if ( obj ) {
+                if ( ( flags & VIEWVERTEX ) &&
+                     ( flags & EDITUVWMAP ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    LIST *ltmpseluv = mes->lseluv;
+                    float x = ( float ) ( mev->x - xold ) / cam->canevas.width,
+                          y = ( float ) x;
+                    uint32_t i = 0x00;
+
+                    while ( ltmpseluv ) {
+                        G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
+
+                        uv->u += ( ( olduv[i].u - avguv.u ) * x );
+                        uv->v += ( ( olduv[i].v - avguv.v ) * y );
+
+                        i++;
+
+                        ltmpseluv = ltmpseluv->next;
+                    }
+
+                    retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
+
+                    xold = mev->x;
+                }
+            }
 
             if ( obj && ( obj->flags & OBJECTNOSCALING ) == 0x00 ) {
 
@@ -320,7 +357,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             mes  = NULL;
             obj  = NULL;
 
-            oldpos = newpos = NULL;
+            oldpos = newpos = olduv = NULL;
 
             /*** free the temporary list and vectors ***/
             if ( lori ) {

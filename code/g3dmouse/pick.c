@@ -174,15 +174,15 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
     g3dcamera_view ( cam, 0x00 );
 
     if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type & EDITABLE ) ) {
-        if ( flags & VIEWVERTEX ) {
-            if ( flags & EDITUVWMAP ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                LIST *lseluv = g3dmesh_pickUVs ( mes, cam, pt->only_visible, flags );
+        if ( ( flags & VIEWVERTEX ) &&
+             ( flags & EDITUVWMAP ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            mes->lseluv = g3dmesh_pickUVs ( mes, cam, pt->only_visible, flags );
 
-            }
         }
 
-        if ( flags & VIEWVERTEX ) {
+        if (   ( flags & VIEWVERTEX ) &&
+             ( ( flags & EDITUVWMAP ) == 0x00 ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             LIST *lfac;
             LIST *loldselver = list_copy ( mes->lselver );

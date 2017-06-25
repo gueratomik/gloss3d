@@ -563,10 +563,7 @@ typedef struct _G3DUICONFIRMSUBDIV {
 } G3DUICONFIRMSUBDIV;
 
 /********************* a "portable" version of XRectangle *********************/
-typedef struct _G3DUIRECTANGLE {
-    short x, y;
-    unsigned short width, height; 
-} G3DUIRECTANGLE; 
+typedef G2DRECTANGLE G3DUIRECTANGLE;
 
 /********************* a "portable" version of XSegment *********************/
 typedef struct _G3DUISEGMENT {
@@ -781,10 +778,6 @@ typedef struct _G3DUIUVMAPEDITOR {
 #ifdef __MINGW32__
     HGLRC          glctx;
 #endif
-    G3DUIRECTANGLE canevas;
-    float zoom;
-    float xpos;
-    float ypos;
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/

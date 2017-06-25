@@ -37,8 +37,8 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
                                             int32_t           y, 
                                             int32_t           xold, 
                                             int32_t           yold ) {
-    uvme->xpos += ( ( float ) ( x - xold ) * 0.01f );
-    uvme->ypos += ( ( float ) ( y - yold ) * 0.01f );
+    ((G3DOBJECT*)uvme->cam)->pos.x += ( ( float ) ( x - xold ) * 0.01f );
+    ((G3DOBJECT*)uvme->cam)->pos.y += ( ( float ) ( y - yold ) * 0.01f );
 
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }
@@ -48,9 +48,11 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
                                            int32_t           x, 
                                            int32_t           xold ) {
-    uvme->zoom -= ( ( float ) ( x - xold ) * 0.01f );
+    ((G3DOBJECT*)uvme->cam)->pos.z -= ( ( float ) ( x - xold ) * 0.01f );
 
-    if ( uvme->zoom < 0.0f ) uvme->zoom = 0.0f;
+    if ( ((G3DOBJECT*)uvme->cam)->pos.z < 0.0f ) {
+        ((G3DOBJECT*)uvme->cam)->pos.z = 0.0f;
+    }
 
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }
@@ -63,21 +65,26 @@ void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme ) {
             y1 = uvme->arearec.y,
             x2 = uvme->arearec.x + uvme->arearec.width  - 0x01,
             y2 = uvme->arearec.y + uvme->arearec.height - 0x01;
+    int32_t x, y;
     G2DVECTOR vec = { x1 - midx,
                       y1 - midy };
+    if ( uvme->cam ) {
+        G3DVECTOR *pos = &((G3DOBJECT*)uvme->cam)->pos;
 
-    x1 = ( ( float )  vec.x * uvme->zoom );
-    y1 = ( ( float )  vec.y * uvme->zoom );
-    x2 = ( ( float ) -vec.x * uvme->zoom );
-    y2 = ( ( float ) -vec.y * uvme->zoom );
+        x1 = ( ( float )  vec.x * pos->z );
+        y1 = ( ( float )  vec.y * pos->z );
+        x2 = ( ( float ) -vec.x * pos->z );
+        y2 = ( ( float ) -vec.y * pos->z );
 
-    uvme->canevas.width  = x2 - x1;
-    uvme->canevas.height = y2 - y1;
+        uvme->cam->canevas.width  = x2 - x1;
+        uvme->cam->canevas.height = y2 - y1;
 
-    uvme->canevas.x = ( int32_t ) ( uvme->canevas.width - 
-                                    uvme->arearec.width )  * ( uvme->xpos + 0.5f );
-    uvme->canevas.y = ( int32_t ) ( uvme->canevas.height - 
-                                    uvme->arearec.height ) * ( uvme->ypos + 0.5f );
+        x = ( uvme->cam->canevas.width  - uvme->arearec.width  ) * ( pos->x + 0.5f );
+        y = ( uvme->cam->canevas.height - uvme->arearec.height ) * ( pos->y + 0.5f );
+
+        uvme->cam->canevas.x = x;
+        uvme->cam->canevas.y = y;
+    }
 }
 
 
@@ -116,13 +123,13 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
                                     uint32_t          height ) {
     uvme->buttonID = -1;
 
-    uvme->zoom = 1.0f;
-    uvme->xpos = 0.0f;
-    uvme->ypos = 0.0f;
+    uvme->cam = g3dcamera_new ( 0x00, "CAM", 0, 0, 0, 0 );
+
+    ((G3DOBJECT*)uvme->cam)->pos.z = 1.0f;
+    ((G3DOBJECT*)uvme->cam)->pos.x = 0.0f;
+    ((G3DOBJECT*)uvme->cam)->pos.y = 0.0f;
 
     common_g3duiuvmapeditor_resize ( uvme, width, height );
-
-    uvme->cam = g3dcamera_new ( 0x00, "CAM", 0, 0, 0, 0 );
 
     g3dcamera_setGrid  ( uvme->cam, NULL );
     g3dcamera_setOrtho ( uvme->cam, width, height );
@@ -185,10 +192,12 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                     if ( chn->image ) {
                         float imgratio = chn->image->width / 
                                          chn->image->height;
-                        float x1 = uvme->canevas.x,
-                              y1 = uvme->canevas.y,
-                              x2 = uvme->canevas.x + uvme->canevas.width,
-                              y2 = uvme->canevas.y + uvme->canevas.height;
+                        float x1 =   uvme->cam->canevas.x,
+                              y1 =   uvme->cam->canevas.y,
+                              x2 = ( uvme->cam->canevas.x + 
+                                     uvme->cam->canevas.width ),
+                              y2 = ( uvme->cam->canevas.y + 
+                                     uvme->cam->canevas.height );
 
                         glEnable      ( GL_TEXTURE_2D );
                         glBindTexture ( GL_TEXTURE_2D, chn->image->id );
@@ -228,15 +237,15 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                     glBegin ( GL_LINES );
                     for ( i = 0x00; i < fac->nbver; i++ ) {
                         uint32_t n = ( i + 0x01 ) % fac->nbver;
-                        int32_t xi = uvs->veruv[i].u * uvme->canevas.width,
-                                yi = uvs->veruv[i].v * uvme->canevas.height;
-                        int32_t xn = uvs->veruv[n].u * uvme->canevas.width,
-                                yn = uvs->veruv[n].v * uvme->canevas.height;
+                        int32_t xi = uvs->veruv[i].u * uvme->cam->canevas.width,
+                                yi = uvs->veruv[i].v * uvme->cam->canevas.height;
+                        int32_t xn = uvs->veruv[n].u * uvme->cam->canevas.width,
+                                yn = uvs->veruv[n].v * uvme->cam->canevas.height;
 
-                        glVertex2f ( uvme->canevas.x + xi, 
-                                     uvme->canevas.y + yi );
-                        glVertex2f ( uvme->canevas.x + xn, 
-                                     uvme->canevas.y + yn );
+                        glVertex2f ( uvme->cam->canevas.x + xi, 
+                                     uvme->cam->canevas.y + yi );
+                        glVertex2f ( uvme->cam->canevas.x + xn, 
+                                     uvme->cam->canevas.y + yn );
 
                     }
                     glEnd ( );
@@ -246,8 +255,8 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
                         glBegin ( GL_POINTS );
                         for ( i = 0x00; i < fac->nbver; i++ ) {
-                            int32_t xi = uvs->veruv[i].u * uvme->canevas.width,
-                                    yi = uvs->veruv[i].v * uvme->canevas.height;
+                            int32_t xi = uvs->veruv[i].u * uvme->cam->canevas.width,
+                                    yi = uvs->veruv[i].v * uvme->cam->canevas.height;
 
                             uvs->veruv[i].x = xi; /* for picking */
                             uvs->veruv[i].y = yi; /* for picking */
@@ -258,8 +267,8 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                                 glColor3ub ( 0x00, 0x00, 0xFF );
                             }
 
-                            glVertex2f ( uvme->canevas.x + xi, 
-                                         uvme->canevas.y + yi );
+                            glVertex2f ( uvme->cam->canevas.x + xi, 
+                                         uvme->cam->canevas.y + yi );
                         }
                         glEnd ( );
                     }

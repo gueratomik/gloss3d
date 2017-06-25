@@ -30,6 +30,53 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
+    uint32_t nbuv = 0x00;
+    LIST *ltmpuv = luv;
+
+    uvout->u = 0.0f;
+    uvout->v = 0.0f;
+
+    while ( ltmpuv ) {
+        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+
+        uvout->u += uv->u;
+        uvout->v += uv->v;
+
+        ltmpuv = ltmpuv->next;
+
+        nbuv++;
+    }
+
+    if ( nbuv ) {
+        uvout->u /= nbuv;
+        uvout->v /= nbuv;
+    }
+}
+
+/******************************************************************************/
+G3DUV *g3duv_copyUVFromList ( LIST *luv ) {
+    G3DUV *uvcpy = NULL;
+
+    if ( luv ) {
+        LIST *ltmpuv = luv;
+        uint32_t i = 0x00;
+
+        uvcpy = calloc ( list_count ( luv ), sizeof ( G3DUV ) );
+
+        while ( ltmpuv ) {
+            G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+
+            memcpy ( &uvcpy[i++], uv, sizeof ( G3DUV ) );
+
+            ltmpuv = ltmpuv->next;
+        }
+    }
+
+    return uvcpy;
+}
+
+/******************************************************************************/
 G3DUV *g3duv_new ( G3DUVSET *uvs ) {
     G3DUV *uv = ( G3DUV * ) calloc ( 0x01, sizeof ( G3DUV ) ) ;
 

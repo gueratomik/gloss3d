@@ -350,8 +350,8 @@ void g3dcamera_view ( G3DCAMERA *cam, uint32_t flags ) {
 /******************************************************************************/
 void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
     if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHO ) {
-        glOrtho ( 0.0f, cam->width, 
-                        cam->height, 0.0f, 0.0f, 1.0f );
+        glOrtho ( 0.0f, cam->canevas.width, 
+                        cam->canevas.height, 0.0f, 0.0f, 1.0f );
     } else {
         if ( cam->focal == 2.0f ) {
             static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, camwpos;
@@ -475,8 +475,8 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
                           uint32_t   height ) {
     ((G3DOBJECT*)cam)->flags |= CAMERAORTHO;
 
-    cam->width  = width;
-    cam->height = height;
+    cam->canevas.width  = width;
+    cam->canevas.height = height;
 }
 
 /******************************************************************************/

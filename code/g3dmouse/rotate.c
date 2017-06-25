@@ -75,7 +75,8 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
     static G3DVECTOR objrot;
-
+    static G3DUV     *olduv;
+    static G3DUV      avguv;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
     static uint32_t nbmsf;
     static float objlocx, objlocy, objlocz;
@@ -99,6 +100,15 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     mes = ( G3DMESH * ) obj;
 
                     obj = ( G3DOBJECT * ) g3dmesh_getSelectedUVMap ( mes );
+                }
+            }
+
+            if ( obj ) {
+                if ( ( flags & VIEWVERTEX ) &&
+                     ( flags & EDITUVWMAP ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    olduv = g3duv_copyUVFromList ( mes->lseluv );
+                    g3duv_getAverageFromList ( mes->lseluv, &avguv );
                 }
             }
 
@@ -195,6 +205,36 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+            if ( obj ) {
+                if ( ( flags & VIEWVERTEX ) &&
+                     ( flags & EDITUVWMAP ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    LIST *ltmpseluv = mes->lseluv;
+                    float x = ( float ) ( mev->x - xold );
+                    float radx = ( float ) x * M_PI / 180;
+                    float cosangle = cos ( radx ),
+                          sinangle = sin ( radx );
+                    uint32_t i = 0x00;
+
+                    while ( ltmpseluv ) {
+                        G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
+                        float u = ( uv->u - avguv.u ),
+                              v = ( uv->v - avguv.v );
+
+                        uv->u  = ( ( u * cosangle ) - ( v * sinangle ) + avguv.u );
+                        uv->v  = ( ( u * sinangle ) + ( v * cosangle ) + avguv.v );
+
+                        i++;
+
+                        ltmpseluv = ltmpseluv->next;
+                    }
+
+                    retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
+
+                    xold = mev->x;
+                }
+            }
 
             if ( obj && ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
 
@@ -304,11 +344,11 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                                        lfac, 
                                                        flags );
                         }
+
+                        xold = mev->x;
+                        yold = mev->y;
                     }
                 }
-
-                xold = mev->x;
-                yold = mev->y;
 
                 orix = objx;
                 oriy = objy;

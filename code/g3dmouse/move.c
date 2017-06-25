@@ -175,6 +175,29 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
+            if ( obj ) {
+                if ( ( flags & VIEWVERTEX ) &&
+                     ( flags & EDITUVWMAP ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    LIST *ltmpseluv = mes->lseluv;
+                    float x = ( float ) ( mev->x - xold ) / cam->canevas.width,
+                          y = ( float ) ( mev->y - yold ) / cam->canevas.height;
+                    while ( ltmpseluv ) {
+                        G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
+
+                        uv->u += x;
+                        uv->v += y;
+
+                        ltmpseluv = ltmpseluv->next;
+                    }
+
+                    retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
+                }
+
+                xold = mev->x;
+                yold = mev->y;
+            }
+
             if ( obj && ( obj->flags & OBJECTNOTRANSLATION ) == 0x00 ) {
                 gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
                 gluUnProject ( ( GLdouble ) mev->x,
@@ -375,7 +398,11 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             obj  = NULL;
 
             oldpos = newpos = NULL;
-        } return REDRAWVIEW | REDRAWCOORDS | BUFFEREDSUBDIVISIONOK | REDRAWCURRENTOBJECT;
+        } return REDRAWVIEW            | 
+                 REDRAWCOORDS          | 
+                 BUFFEREDSUBDIVISIONOK | 
+                 REDRAWCURRENTOBJECT   | 
+                 REDRAWUVMAPEDITOR;
 
         default :
         break;

@@ -984,6 +984,7 @@ struct _G3DMESH {
     LIST *lselfac;
     LIST *lselgrp;
     LIST *lseltex;
+    LIST *lseluv;
     LIST *ltex;    /*** list of textures ***/
     LIST *luvmap;
     LIST *lseluvmap;
@@ -1201,6 +1202,12 @@ typedef struct _G3DSCENE {
     G3DCURSOR csr;
 } G3DSCENE;
 
+/********************* a "portable" version of XRectangle *********************/
+typedef struct _G2DRECTANGLE {
+    short x, y;
+    unsigned short width, height; 
+} G2DRECTANGLE; 
+
 /******************************************************************************/
 struct _G3DCAMERA {
     G3DOBJECT obj;                   /*** Camera inherits G3DOBJECT ***/
@@ -1212,8 +1219,7 @@ struct _G3DCAMERA {
     double pmatrix[0x10]; /*** 4x4 projection matrix ***/
     GLint  vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
     void (*grid)(struct _G3DCAMERA *, uint32_t );
-    uint32_t width;
-    uint32_t height;
+    G2DRECTANGLE canevas;
 };
 
 /******************************************************************************/
