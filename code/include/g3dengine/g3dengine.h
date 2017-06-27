@@ -1220,6 +1220,8 @@ struct _G3DCAMERA {
     GLint  vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
     void (*grid)(struct _G3DCAMERA *, uint32_t );
     G2DRECTANGLE canevas;
+    uint32_t width;
+    uint32_t height;
 };
 
 /******************************************************************************/
