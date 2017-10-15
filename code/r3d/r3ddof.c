@@ -131,26 +131,26 @@ void r3ddof_blurifyPixel ( R3DDOF  *rdf,
 
     if ( ( zBuffer[offset] > rdf->near ) && ( zBuffer[offset] < rdf->far ) ) {
         radius = rdf->radius * ( ( zBuffer[offset] - rdf->near ) / ( rdf->far - rdf->near ) ); 
+    }
 
-   }
-
-
-    for ( i  = ( (int) y - radius ); 
-          i <= ( (int) y + radius ); i++ ) {
-        for ( j  = ( (int) x - radius ); 
-              j <= ( (int) x + radius ); j++ ) {
-                uint32_t doffset = ( i * rdf->width ) + j;
+    for ( i  =  (int) y - (int) radius ; 
+          i <=  (int) y + (int) radius ; i++ ) {
+        for ( j  = ( (int) x - (int) radius ); 
+              j <= ( (int) x + (int) radius ); j++ ) {
 
             if ( ( i >= 0 ) && ( i < rdf->height ) &&
-                 ( j >= 0 ) && ( j < rdf->width  ) &&
-                 ( zBuffer[doffset] >= zBuffer[offset] )  ) {
+                 ( j >= 0 ) && ( j < rdf->width  ) ) {
+                uint32_t doffset = ( i * rdf->width ) + j;
+
+                if ( zBuffer[doffset] >= zBuffer[offset] ) {
 
 
-                R += imgptr[doffset][0];
-                G += imgptr[doffset][1];
-                B += imgptr[doffset][2];
+                    R += imgptr[doffset][0];
+                    G += imgptr[doffset][1];
+                    B += imgptr[doffset][2];
 
-                nbdof++;
+                    nbdof++;
+                }
             }
         }
     }
