@@ -319,6 +319,14 @@
 #define EDITLIGHTCOLOR       "Light RGB Color"
 #define EDITLIGHTSPECULARITY "Light RGB Specularity"
 
+#define EDITCAMERA            "Camera"
+#define EDITCAMERADOF         "Depth of field"
+#define EDITCAMERADOFENABLE   "Enable"
+#define EDITCAMERADOFNEARBLUR "Near blur"
+#define EDITCAMERADOFNOBLUR   "No blur"
+#define EDITCAMERADOFFARBLUR  "Far blur"
+#define EDITCAMERADOFRADIUS   "Radius"
+
 #define EDITSYMMETRY      "Symmetry"
 #define EDITSYMMETRYPLANE "Symmetry Plane"
 #define EDITSYMMETRYLIMIT "Merge limit"
@@ -1381,6 +1389,13 @@ void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
                                                              int    level );
 void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme );
+
+/******************************************************************************/
+void common_g3duicameraedit_dofEnableCbk ( G3DUI *gui );
+void common_g3duicameraedit_dofFarBlurCbk ( G3DUI *gui, float farBlur );
+void common_g3duicameraedit_dofNoBlurCbk ( G3DUI *gui, float noBlur );
+void common_g3duicameraedit_dofNearBlurCbk ( G3DUI *gui, float nearBlur );
+void common_g3duicameraedit_dofRadiusCbk ( G3DUI *gui, uint32_t radius );
 
 /******************************************************************************/
 void common_g3dui_addRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg );

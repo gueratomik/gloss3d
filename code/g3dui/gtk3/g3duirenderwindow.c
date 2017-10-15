@@ -201,6 +201,15 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             if ( blur ) list_append ( &lfilters, blur );
         }
 
+        if ( ((G3DOBJECT*)cam)->flags & CAMERADOF ) {
+            R3DFILTER *rdf = r3dfilter_dof_new ( rsg->output.width, 
+                                                 rsg->output.height, 
+                                                 cam->dof.noBlur, 
+                                                 cam->dof.farBlur,
+                                                 cam->dof.radius );
+            list_append ( &lfilters, rdf );
+        }
+
         list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME)) );
 
         if ( rsg->flags & RENDERPREVIEW ) {

@@ -96,7 +96,7 @@ void updateCubeEdit ( GtkWidget *widget, G3DUI *gui ) {
             const char *name = gtk_widget_get_name ( child );
             const char *type = G_OBJECT_TYPE_NAME ( child );
 
-            if ( strcmp ( type, "GtkSpinButton" ) == 0x00 ) {
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( name, EDITCUBEXSLICES   ) == 0x00 ) {

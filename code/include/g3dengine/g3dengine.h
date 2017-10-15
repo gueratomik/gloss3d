@@ -333,6 +333,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define CUBIC                 (  1 << 18 )
 /**** CAMERA flags ***/
 #define CAMERAORTHO           (  1 << 17 )
+#define CAMERADOF             (  1 << 18 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
@@ -1209,6 +1210,14 @@ typedef struct _G2DRECTANGLE {
 } G2DRECTANGLE; 
 
 /******************************************************************************/
+typedef struct _G3DCAMERADOF {
+    float nearBlur;
+    float noBlur;
+    float farBlur;
+    uint32_t radius;
+} G3DCAMERADOF;
+
+/******************************************************************************/
 struct _G3DCAMERA {
     G3DOBJECT obj;                   /*** Camera inherits G3DOBJECT ***/
     G3DOBJECT *target;               /*** Camera's target           ***/
@@ -1222,6 +1231,7 @@ struct _G3DCAMERA {
     G2DRECTANGLE canevas;
     uint32_t width;
     uint32_t height;
+    G3DCAMERADOF dof;
 };
 
 /******************************************************************************/

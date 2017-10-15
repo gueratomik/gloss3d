@@ -12,6 +12,7 @@ if HAVE_GTK3
                             common/g3duiexport.c \
                             common/g3duiboneedit.c \
                             common/g3duibonelinker.c \
+                            common/g3duicameraedit.c \
                             common/g3duiclipboard.c \
                             common/g3duiconf.c \
                             common/g3duicoordinatesedit.c \
@@ -57,6 +58,7 @@ if HAVE_GTK3
                             gtk3/g3dui.c \
                             gtk3/g3duiboneedit.c \
                             gtk3/g3duibonelinker.c \
+                            gtk3/g3duicameraedit.c \
                             gtk3/g3duicom.c \
                             gtk3/g3duicoordinatesedit.c \
                             gtk3/g3duicubeedit.c \

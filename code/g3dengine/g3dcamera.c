@@ -439,6 +439,55 @@ uint32_t g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     }
     glEnd ( );
 
+    if ( obj->flags & CAMERADOF ) {
+        G3DVECTOR vec[0x04] = { { .x =  1.0f, .y =  1.0f, .z = -cam->dof.farBlur },
+                                { .x =  1.0f, .y = -1.0f, .z = -cam->dof.farBlur },
+                                { .x = -1.0f, .y = -1.0f, .z = -cam->dof.farBlur },
+                                { .x = -1.0f, .y =  1.0f, .z = -cam->dof.farBlur } };
+
+        float noBlurFactor   = ( cam->dof.farBlur ) ? cam->dof.noBlur   / cam->dof.farBlur : 0.0f,
+              nearBlurFactor = ( cam->dof.farBlur ) ? cam->dof.nearBlur / cam->dof.farBlur : 0.0f;
+
+        glBegin ( GL_QUADS );
+
+        glColor3ub ( 0xFF, 0x00, 0xFF );
+        glVertex3f (  vec[0].x * nearBlurFactor,  vec[0].y * nearBlurFactor, vec[0].z * nearBlurFactor );
+        glVertex3f (  vec[1].x * nearBlurFactor,  vec[1].y * nearBlurFactor, vec[1].z * nearBlurFactor );
+        glVertex3f (  vec[2].x * nearBlurFactor,  vec[2].y * nearBlurFactor, vec[2].z * nearBlurFactor );
+        glVertex3f (  vec[3].x * nearBlurFactor,  vec[3].y * nearBlurFactor, vec[3].z * nearBlurFactor );
+
+        glColor3ub ( 0x7F, 0x00, 0xFF );
+        glVertex3f (  vec[0].x * noBlurFactor,  vec[0].y * noBlurFactor, vec[0].z * noBlurFactor );
+        glVertex3f (  vec[1].x * noBlurFactor,  vec[1].y * noBlurFactor, vec[1].z * noBlurFactor );
+        glVertex3f (  vec[2].x * noBlurFactor,  vec[2].y * noBlurFactor, vec[2].z * noBlurFactor );
+        glVertex3f (  vec[3].x * noBlurFactor,  vec[3].y * noBlurFactor, vec[3].z * noBlurFactor );
+
+        glColor3ub ( 0xFF, 0x00, 0xFF );
+        glVertex3f (  vec[0].x,  vec[0].y, vec[0].z );
+        glVertex3f (  vec[1].x,  vec[1].y, vec[1].z );
+        glVertex3f (  vec[2].x,  vec[2].y, vec[2].z );
+        glVertex3f (  vec[3].x,  vec[3].y, vec[3].z );
+
+        glEnd ( );
+
+        glBegin ( GL_LINES );
+
+        glColor3ub ( 0xFF, 0x00, 0xFF );
+        glVertex3f (     0.0f,     0.0f,     0.0f );
+        glVertex3f ( vec[0].x, vec[0].y, vec[0].z );
+
+        glVertex3f (     0.0f,     0.0f,     0.0f );
+        glVertex3f ( vec[1].x, vec[1].y, vec[1].z );
+
+        glVertex3f (     0.0f,     0.0f,     0.0f );
+        glVertex3f ( vec[2].x, vec[2].y, vec[2].z );
+
+        glVertex3f (     0.0f,     0.0f,     0.0f );
+        glVertex3f ( vec[3].x, vec[3].y, vec[3].z );
+
+        glEnd ( );
+    }
+
     glPopAttrib ( );
 
     return 0x00;
@@ -509,6 +558,11 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
     cam->ratio = ratio;
     cam->znear = znear;
     cam->zfar  = zfar;
+
+    cam->dof.nearBlur =  0.0f;
+    cam->dof.noBlur   =  6.0f;
+    cam->dof.farBlur  = 12.0f;
+    cam->dof.radius   =    10;
 
     g3dvector_init ( &cam->pivot, 0.0f, 0.0f, 0.0f, 1.0f );
 

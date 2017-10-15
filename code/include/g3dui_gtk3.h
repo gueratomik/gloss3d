@@ -347,6 +347,10 @@ void       updateLightEdit        ( GtkWidget *, G3DUI * );
 GtkWidget *createLightEdit        ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
+void       updateCameraEdit       ( GtkWidget *, G3DUI * );
+GtkWidget *createCameraEdit       ( GtkWidget *, G3DUI *, char *, gint, gint, 
+                                                                  gint, gint );
+
 void       updateMaterialEdit     ( GtkWidget *, G3DUI * );
 GtkWidget *createMaterialEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );

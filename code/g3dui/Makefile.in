@@ -134,31 +134,32 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dui_gtk3_la_LIBADD =
 am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiexport.c common/g3duiboneedit.c \
-	common/g3duibonelinker.c common/g3duiclipboard.c \
-	common/g3duiconf.c common/g3duicoordinatesedit.c \
-	common/g3duicubeedit.c common/g3duicurrentedit.c \
-	common/g3duicylinderedit.c common/g3duiffdedit.c \
-	common/g3duikeyedit.c common/g3duilightedit.c \
-	common/g3duilist.c common/g3duimaterialboard.c \
-	common/g3duimaterialedit.c common/g3duimateriallist.c \
-	common/g3duimenubar.c common/g3duimeshedit.c \
-	common/g3duimodebar.c common/g3duiobjectedit.c \
-	common/g3duiplaneedit.c common/g3duiquad.c \
-	common/g3duirenderedit.c common/g3duirenderprocess.c \
-	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
-	common/g3duisymmetryedit.c common/g3duitextedit.c \
-	common/g3duitextureedit.c common/g3duitimeboard.c \
-	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duiuvmapedit.c \
-	common/g3duiuvmapeditor.c common/g3duiview.c \
-	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
-	common/g3duiwireframeedit.c \
+	common/g3duibonelinker.c common/g3duicameraedit.c \
+	common/g3duiclipboard.c common/g3duiconf.c \
+	common/g3duicoordinatesedit.c common/g3duicubeedit.c \
+	common/g3duicurrentedit.c common/g3duicylinderedit.c \
+	common/g3duiffdedit.c common/g3duikeyedit.c \
+	common/g3duilightedit.c common/g3duilist.c \
+	common/g3duimaterialboard.c common/g3duimaterialedit.c \
+	common/g3duimateriallist.c common/g3duimenubar.c \
+	common/g3duimeshedit.c common/g3duimodebar.c \
+	common/g3duiobjectedit.c common/g3duiplaneedit.c \
+	common/g3duiquad.c common/g3duirenderedit.c \
+	common/g3duirenderprocess.c common/g3duirenderwindow.c \
+	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextedit.c common/g3duitextureedit.c \
+	common/g3duitimeboard.c common/g3duitimeline.c \
+	common/g3duitoolbar.c common/g3duitorusedit.c \
+	common/g3duiuvmapedit.c common/g3duiuvmapeditor.c \
+	common/g3duiview.c common/g3duiviewexport.c \
+	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
 	common/mousetool/g3duisculpttooledit.c gtk3/g3dui.c \
-	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c gtk3/g3duicom.c \
+	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c \
+	gtk3/g3duicameraedit.c gtk3/g3duicom.c \
 	gtk3/g3duicoordinatesedit.c gtk3/g3duicubeedit.c \
 	gtk3/g3duicurrentedit.c gtk3/g3duicylinderedit.c \
 	gtk3/g3duiffdedit.c gtk3/g3duikeyedit.c gtk3/g3duilightedit.c \
@@ -185,6 +186,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiexport.lo \
 @HAVE_GTK3_TRUE@	common/g3duiboneedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duibonelinker.lo \
+@HAVE_GTK3_TRUE@	common/g3duicameraedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duiclipboard.lo common/g3duiconf.lo \
 @HAVE_GTK3_TRUE@	common/g3duicoordinatesedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duicubeedit.lo \
@@ -221,7 +223,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/mousetool/g3duipicktooledit.lo \
 @HAVE_GTK3_TRUE@	common/mousetool/g3duisculpttooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duibonelinker.lo gtk3/g3duicom.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duibonelinker.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duicameraedit.lo gtk3/g3duicom.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duicoordinatesedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duicubeedit.lo gtk3/g3duicurrentedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
@@ -455,6 +458,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duiexport.c \
 @HAVE_GTK3_TRUE@                            common/g3duiboneedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duibonelinker.c \
+@HAVE_GTK3_TRUE@                            common/g3duicameraedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiclipboard.c \
 @HAVE_GTK3_TRUE@                            common/g3duiconf.c \
 @HAVE_GTK3_TRUE@                            common/g3duicoordinatesedit.c \
@@ -500,6 +504,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiboneedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duibonelinker.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duicameraedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicom.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicoordinatesedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicubeedit.c \
@@ -627,6 +632,8 @@ common/g3duiboneedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duibonelinker.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duicameraedit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiclipboard.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiconf.lo: common/$(am__dirstamp) \
@@ -731,6 +738,8 @@ gtk3/g3dui.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiboneedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duibonelinker.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duicameraedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duicom.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duicoordinatesedit.lo: gtk3/$(am__dirstamp) \
@@ -845,6 +854,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3dui.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiboneedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duibonelinker.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duicameraedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiclipboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiconf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duicoordinatesedit.Plo@am__quote@
@@ -891,6 +901,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3dui.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiboneedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duibonelinker.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicameraedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicom.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicoordinatesedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicubeedit.Plo@am__quote@
