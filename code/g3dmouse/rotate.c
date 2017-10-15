@@ -231,8 +231,6 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     }
 
                     retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
-
-                    xold = mev->x;
                 }
             }
 
@@ -344,11 +342,11 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                                        lfac, 
                                                        flags );
                         }
-
-                        xold = mev->x;
-                        yold = mev->y;
                     }
                 }
+
+                xold = mev->x;
+                yold = mev->y;
 
                 orix = objx;
                 oriy = objy;

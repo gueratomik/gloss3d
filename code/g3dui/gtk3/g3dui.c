@@ -85,6 +85,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
     static R3DRENDERSETTINGS viewRsg;
+    R3DFILTER *rdf = r3dfilter_dof_new ( width, height, 6, 15, 10 );
 
     /* First cancel running render on that window  if any */
     if ( rps ) {
@@ -93,10 +94,12 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     r3drendersettings_copy ( &viewRsg, gui->currsg );
 
+    list_append ( &lfilters, rdf );
     list_append ( &lfilters, progressiveDisplay );
     /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
     list_append ( &lfilters, finalDisplay );*/
     list_append ( &lfilters, clean );
+
 
     viewRsg.input.sce      = gui->sce;
     viewRsg.input.cam      = g3dui_getMainViewCamera ( gui );

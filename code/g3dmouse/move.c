@@ -43,7 +43,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                   winx, winy, winz;
     static G3DMESH *mes;
     static G3DOBJECT *obj;
-    static int32_t xold, yold;
+    static int32_t xold, yold, xori, yori;
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
@@ -62,8 +62,8 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             /*G3DVECTOR vec = { 0.f, 0.f, 0.f, 1.0f };*/
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            xold = bev->x;
-            yold = bev->y;
+            xold = xori = bev->x;
+            yold = xori = bev->y;
 
             obj = g3dscene_getLastSelected ( sce );
 
@@ -193,9 +193,6 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
                 }
-
-                xold = mev->x;
-                yold = mev->y;
             }
 
             if ( obj && ( obj->flags & OBJECTNOTRANSLATION ) == 0x00 ) {
@@ -304,6 +301,9 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     oriz = objz;
                 }
 
+                xold = mev->x;
+                yold = mev->y;
+
                 return retflags;
             }
         } return 0x00;
@@ -311,7 +311,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( ( bev->x == xold ) && ( bev->y == yold ) ) {
+            if ( ( bev->x == xori ) && ( bev->y == yori ) ) {
                 G3DPICKTOOL pt;
                 void *olddata = mou->data;
                 GLint polygonMode;

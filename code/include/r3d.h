@@ -141,6 +141,7 @@
 #define WRITEIMAGEFILTERNAME "Write Image"
 #define GOTOFRAMEFILTERNAME  "Go to Frame" /*** This is toolkit dependent ***/
 #define PREVIEWFILTERNAME    "Preview"
+#define DOFFILTERNAME        "Depth of field"
 
 #define r3dtinyvector_normalize g3dtinyvector_normalize
 #define r3dtinyvector_length    g3dtinyvector_length
@@ -345,7 +346,10 @@ typedef struct _R3DFOGSETTINGS {
 
 /******************************************************************************/
 typedef struct _R3DDOFSETTINGS {
-    uint32_t dummy;
+    uint64_t flags;
+    float    near;
+    float    far;
+    uint32_t radius;
 } R3DDOFSETTINGS;
 
 /******************************************************************************/
@@ -605,6 +609,7 @@ typedef struct _R3DMESH {
 typedef struct _R3DAREA {
     R3DCAMERA *rcam;
     unsigned char *img;
+    float         *zBuffer;
     R3DFACE **rfc;
     uint32_t x1, y1;
     uint32_t x2, y2;
@@ -657,6 +662,16 @@ typedef struct _R3DDUMP {
     uint32_t dump_flags;
     uint32_t engine_flags;
 } R3DDUMP;
+
+/******************************************************************************/
+typedef struct _R3DDOF {
+    unsigned char (*dofimg)[0x03];
+    uint32_t        width;
+    uint32_t        height;
+    float           near;
+    float           far;
+    uint32_t        radius;
+} R3DDOF;
 
 /******************************************************************************/
 typedef struct _R3DMOTIONVECTOR {
@@ -1112,6 +1127,33 @@ uint32_t   filtervectormotionblur_draw    ( R3DFILTER *,
                                             uint32_t, 
                                             uint32_t, 
                                             uint32_t );
+
+/******************************************************************************/
+uint32_t filterdof_draw ( R3DFILTER *fil,
+                          R3DSCENE *rsce,
+                          float frameID,
+                          unsigned char (*img)[0x03], 
+                          uint32_t from, 
+                          uint32_t to, 
+                          uint32_t depth, 
+                          uint32_t width );
+void filterdof_free ( R3DFILTER *fil );
+R3DFILTER *r3dfilter_dof_new ( uint32_t width,
+                               uint32_t height,
+                               float    near,
+                               float    far,
+                               uint32_t radius );
+R3DDOF *r3ddof_new ( uint32_t width,
+                     uint32_t height,
+                     float    near,
+                     float    far,
+                     uint32_t radius );
+void r3ddof_blurifyPixel ( R3DDOF  *rdf,
+                           uint32_t x,
+                           uint32_t y,
+                           unsigned char (*imgptr)[0x03],
+                           float *zBuffer );
+void r3ddof_free ( R3DDOF *rdf );
 
 /******************************************************************************/
 void r3dscene_addSubRender ( R3DSCENE *, R3DSCENE * );

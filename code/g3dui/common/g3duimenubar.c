@@ -58,11 +58,13 @@ void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
 void common_g3duimenubar_fitUVMapCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
 
-    if ( obj ){ 
-        if ( obj->type == G3DUVMAPTYPE ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) obj;
+    if ( objmes && ( objmes->type & MESH ) ){ 
+        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( objmes );
+
+        if ( map ) {
+            G3DOBJECT *obj = map;
             G3DOBJECT *parent = obj->parent;
             G3DVECTOR vec, minpos, maxpos, locminpos, locmaxpos;
             float parx = ( parent->bbox.xmax + parent->bbox.xmin ) / 2.0f,
@@ -108,11 +110,14 @@ void common_g3duimenubar_fitUVMapCbk ( G3DUI *gui ) {
 void common_g3duimenubar_alignUVMapCbk ( G3DUI *gui, const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
 
-    if ( obj ){ 
-        if ( obj->type == G3DUVMAPTYPE ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) obj;
+    if ( objmes && ( objmes->type & MESH ) ){ 
+        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( objmes );
+
+        if ( map ) {
+            G3DOBJECT *obj = map;
+            G3DOBJECT *parent = obj->parent;
 
             if ( strcmp ( option, MENU_ALIGNUVMAPXY ) == 0x00 ) {
                 obj->rot.x =  0.0f;

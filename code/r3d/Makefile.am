@@ -8,6 +8,7 @@ libgloss_r3d_la_SOURCES = $(LIBGLOSSR3D_C_FILES)
 LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3d.c \
                       r3dcamera.c \
+                      r3ddof.c \
                       r3dface.c \
                       r3dinterpolation.c \
                       r3dlight.c \

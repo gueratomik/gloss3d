@@ -743,9 +743,11 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
             uint32_t nbmap = ( rms ) ? rms->nbmap : 0x00;
 
             if ( query_flags & RAYSTART ) {
+                uint32_t offset = ( ray->y * rsce->area.width ) + ray->x;
+
                 hitrfc->flags |= RFACEHITATSTART;
 
-                rsce->area.rfc[(ray->y*rsce->area.width)+ray->x] = hitrfc;
+                rsce->area.rfc[offset] = hitrfc;
             }
 
             if ( r3dray_getHitFaceColor ( ray, 

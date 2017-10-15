@@ -132,7 +132,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_r3d_la_LIBADD =
-am__objects_1 = r3darea.lo r3d.lo r3dcamera.lo r3dface.lo \
+am__objects_1 = r3darea.lo r3d.lo r3dcamera.lo r3ddof.lo r3dface.lo \
 	r3dinterpolation.lo r3dlight.lo r3dmesh.lo r3dmotionblur.lo \
 	r3dobject.lo r3doctree.lo r3dplane.lo r3dray.lo \
 	r3drendersettings.lo r3dscene.lo r3dfilter.lo
@@ -334,6 +334,7 @@ libgloss_r3d_la_SOURCES = $(LIBGLOSSR3D_C_FILES)
 LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3d.c \
                       r3dcamera.c \
+                      r3ddof.c \
                       r3dface.c \
                       r3dinterpolation.c \
                       r3dlight.c \
@@ -428,6 +429,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3d.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3darea.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dcamera.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3ddof.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dfilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dinterpolation.Plo@am__quote@

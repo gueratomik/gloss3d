@@ -153,6 +153,7 @@ void r3dscene_free ( R3DOBJECT *rob ) {
     list_free ( &rsce->lrob, (void(*)(void*))r3dobject_free );
 
     free ( rsce->area.img );
+    free ( rsce->area.zBuffer );
     free ( rsce->area.rfc );
 
     r3dcamera_free ( rsce->area.rcam );
@@ -317,6 +318,7 @@ void *r3dscene_raytrace ( void *ptr ) {
             G3DVECTOR intersectionPointToSource;
             R3DRAY ray;
             float viewingDistance;
+            uint32_t offset = ( scanline * area->width ) + i;
 
             /*** Ray building ***/
             /*** First, reset the ray ***/
@@ -360,17 +362,23 @@ void *r3dscene_raytrace ( void *ptr ) {
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
             imgptr[0x02] = ( color & 0x000000FF );
 
+            if ( ray.flags & INTERSECT ) {
+                intersectionPointToSource.x = ray.pnt.x - pone.src.x;
+                intersectionPointToSource.y = ray.pnt.y - pone.src.y;
+                intersectionPointToSource.z = ray.pnt.z - pone.src.z;
+
+                area->zBuffer[offset] = g3dvector_length ( &intersectionPointToSource );
+            } else {
+                area->zBuffer[offset] = INFINITY;
+            }
+
             if ( rsce->rsg->flags & RENDERFOG ) {
                 uint32_t fogR = ( ( rsce->rsg->fog.color & 0x00FF0000 ) >> 0x10 ),
                          fogG = ( ( rsce->rsg->fog.color & 0x0000FF00 ) >> 0x08 ),
                          fogB =   ( rsce->rsg->fog.color & 0x000000FF );
 
                 if ( ray.flags & INTERSECT ) {
-                    intersectionPointToSource.x = ray.pnt.x - pone.src.x;
-                    intersectionPointToSource.y = ray.pnt.y - pone.src.y;
-                    intersectionPointToSource.z = ray.pnt.z - pone.src.z;
-
-                    float fogDistance = g3dvector_length ( &intersectionPointToSource );
+                    float fogDistance = area->zBuffer[offset];
                     float deltaFog = ( rsce->rsg->fog.far - 
                                        rsce->rsg->fog.near );
                     float incFogRatio = ( fogDistance - 
@@ -468,6 +476,7 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags,
     uint32_t bytesperline = ( rsg->output.width * 0x03 );
     G3DOBJECT *obj = ( G3DOBJECT * ) rsg->input.sce;
     R3DSCENE *rsce;
+    int i;
 
     if ( ( rsce = ( R3DSCENE * ) calloc ( 0x01, structsize ) ) == NULL ) {
         fprintf ( stderr, "r3dscene_new: memory allocation failed\n" );
@@ -488,12 +497,28 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags,
         return NULL;
     }
 
+    /*** This 24bpp buffer will receive the raytraced pixel values ***/
+    if ( ( rsce->area.zBuffer = calloc ( rsg->output.width * 
+                                         rsg->output.height, sizeof ( float ) ) ) == NULL ) {
+        fprintf ( stderr, "r3dscene_new: ZBuffer memory allocation failed\n" );
+
+        free ( rsce->area.img );
+        free ( rsce );
+
+        return NULL;
+    }
+
+    for ( i = 0; i < rsg->output.width * rsg->output.height; i++ ) {
+        rsce->area.zBuffer[i] = INFINITY;
+    }
+
     /*** This fce buffer for storing face-pixel information ***/
     if ( ( rsce->area.rfc = ( R3DFACE ** ) calloc ( rsg->output.width * 
                                                     rsg->output.height, sizeof ( R3DFACE * ) ) ) == NULL ) {
         fprintf ( stderr, "r3dscene_new: fac memory allocation failed\n" );
 
         free ( rsce->area.img );
+        free ( rsce->area.zBuffer );
         free ( rsce );
 
         return NULL;
