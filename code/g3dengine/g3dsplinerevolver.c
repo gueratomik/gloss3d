@@ -75,6 +75,38 @@ void g3dsplinerevolver_update ( G3DSPLINEREVOLVER *srv,
 }
 
 /******************************************************************************/
+static void recordEdge ( G3DEDGE *edgeLookupTable[0x04], G3DEDGE *edg ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        if ( edgeLookupTable[i] == NULL ) {
+            edgeLookupTable[i] = edg;
+
+            return;
+        }
+    }
+}
+
+/******************************************************************************/
+static G3DEDGE *findEdge ( G3DEDGE *edgeLookupTable[0x04], G3DVERTEX *v0, 
+                                                           G3DVERTEX *v1 ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        if ( edgeLookupTable[i] ) {
+            if ( ( ( edgeLookupTable[i]->ver[0x00] == v0 ) && 
+                   ( edgeLookupTable[i]->ver[0x01] == v1 ) ) ||
+                 ( ( edgeLookupTable[i]->ver[0x00] == v1 ) && 
+                   ( edgeLookupTable[i]->ver[0x01] == v0 ) ) ) {
+                return edgeLookupTable[i];
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                                    uint32_t           doTopology,
                                    uint32_t           engine_flags ) {
@@ -106,10 +138,10 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         G3DSUBVERTEX *srvVertices;
         G3DSUBEDGE   *srvEdges;
         G3DSUBFACE   *srvFaces;
-        uint32_t i, j, k = 0x00;
-        uint32_t revolvedVertexId = 0x00;
-        static G3DSUBEDGE *edgeLookupTable[0x400][0x400];
-        uint32_t uniqueVertexId = 0x00;
+        uint32_t     i, j, k = 0x00;
+        uint32_t     revolvedVertexId = 0x00;
+        G3DEDGE   *(*edgeLookupTable)[0x04];
+        uint32_t     uniqueVertexId = 0x00;
 
         if ( nbRevolvedVertices && nbRevolvedEdges && nbRevolvedFaces ) {
             uint32_t nbuvmap = g3dmesh_getUVMapCount ( splmes );
@@ -117,7 +149,8 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
              * The simpliest solution for finding edges is to go with a lookup 
              * table.
              */
-            memset ( edgeLookupTable, 0x00, sizeof ( edgeLookupTable ) );
+
+            edgeLookupTable = calloc ( nbRevolvedVertices, sizeof ( G3DEDGE * ) * 0x04 );
 
             srvVertices = srvmes->lver = realloc ( srvmes->lver, nbRevolvedVertices * sizeof ( G3DSUBVERTEX ) );
             srvEdges    = srvmes->ledg = realloc ( srvmes->ledg, nbRevolvedEdges    * sizeof ( G3DSUBEDGE   ) );
@@ -240,15 +273,25 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                             uint32_t y = ( x + 0x01 ) % 0x04;
                             uint32_t voneId = quadVertices[x]->ver.id,
                                      vtwoId = quadVertices[y]->ver.id;
-                            G3DSUBEDGE *subedg = edgeLookupTable[voneId][vtwoId];
+                            /* edge lookup is recorded for the smallest vertex id */
+                            G3DSUBEDGE *subedg = ( quadVertices[x]->ver.id < 
+                                                   quadVertices[y]->ver.id ) ? findEdge ( edgeLookupTable[quadVertices[x]->ver.id],
+                                                                                         &quadVertices[x]->ver, 
+                                                                                         &quadVertices[y]->ver ) :
+                                                                               findEdge ( edgeLookupTable[quadVertices[y]->ver.id],
+                                                                                         &quadVertices[x]->ver, 
+                                                                                         &quadVertices[y]->ver );
+
 
                             if ( subedg == NULL ) {
                                 subedg = srvEdges++;
 
-                                edgeLookupTable[quadVertices[x]->ver.id]
-                                               [quadVertices[y]->ver.id] = 
-                                edgeLookupTable[quadVertices[y]->ver.id]
-                                               [quadVertices[x]->ver.id] = subedg;
+                                /* edge lookup is recorded for the smallest vertex id */
+                                if ( quadVertices[x]->ver.id < quadVertices[y]->ver.id ) {
+                                    recordEdge ( edgeLookupTable[quadVertices[x]->ver.id], subedg );
+                                } else {
+                                    recordEdge ( edgeLookupTable[quadVertices[y]->ver.id], subedg );
+                                }
 
                                 subedg->edg.ver[0x00] = quadVertices[x];
                                 subedg->edg.ver[0x01] = quadVertices[y];
@@ -338,6 +381,8 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                     }
                 }
             }
+
+            if ( edgeLookupTable ) free ( edgeLookupTable );
         }
     }
 }

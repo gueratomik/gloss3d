@@ -98,7 +98,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     XtVaCreateManagedWidget ( "UI", guiWidgetClass, top,
                               XtNwidth , 1024,
-                              XtNheight, 768,
+                              XtNheight, 576,
                               XtNloadFile, loadFile,
                               /*XmNforeground, gui->foreground.pixel,*/
        /*  Does not work */   /*XmNfontList, gui->fontlist,*/
