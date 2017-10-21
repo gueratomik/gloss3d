@@ -409,6 +409,8 @@ G3DSCENE *g3dscene_open ( const char *filename,
                     memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                     memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
                     memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+
+                    g3dobject_updateMatrix_r ( obj, 0x00 );
                 }
             break;
 
@@ -423,9 +425,9 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
                 g3dmesh_addUVMap ( ( G3DMESH * ) mes, map, flags );
 
-                memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
+                /*memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
-                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );
+                memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );*/
             break;
 
 

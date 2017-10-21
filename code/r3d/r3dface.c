@@ -309,17 +309,17 @@ uint32_t r3dface_intersectRay ( R3DFACE *rfc, R3DVERTEX *rver,
                     ray->flags |= INTERSECT;
 
                     /*if ( rfc->flags & R3DFACESMOOTH ) {*/
-                        ray->nor.x = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.x * invert ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.x * invert ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.x * invert ) );
+                        ray->nor.x = ( ( RAT0 * rfc->rvernor[0].x * invert ) + 
+                                       ( RAT1 * rfc->rvernor[1].x * invert ) + 
+                                       ( RAT2 * rfc->rvernor[2].x * invert ) );
 
-                        ray->nor.y = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.y * invert ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.y * invert ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.y * invert ) );
+                        ray->nor.y = ( ( RAT0 * rfc->rvernor[0].y * invert ) + 
+                                       ( RAT1 * rfc->rvernor[1].y * invert ) + 
+                                       ( RAT2 * rfc->rvernor[2].y * invert ) );
 
-                        ray->nor.z = ( ( RAT0 * rver[rfc->rverID[0x00]].nor.z * invert ) + 
-                                       ( RAT1 * rver[rfc->rverID[0x01]].nor.z * invert ) + 
-                                       ( RAT2 * rver[rfc->rverID[0x02]].nor.z * invert ) );
+                        ray->nor.z = ( ( RAT0 * rfc->rvernor[0].z * invert ) + 
+                                       ( RAT1 * rfc->rvernor[1].z * invert ) + 
+                                       ( RAT2 * rfc->rvernor[2].z * invert ) );
 
                         /* Vertices normals are already normalized, I guess ***/
                         /* the function call below is unneeded ***/

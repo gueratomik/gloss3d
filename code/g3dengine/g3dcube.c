@@ -306,6 +306,8 @@ G3DPRIMITIVE *g3dcube_new ( uint32_t id, char *name,
 
     g3dcube_build ( pri, nbx, nby, nbz, radius );
 
+    ((G3DMESH*)pri)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );;
+
     return pri;
 }
 

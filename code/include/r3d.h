@@ -108,6 +108,7 @@
 /*** background modes ***/
 #define BACKGROUND_IMAGE     ( 1      )
 #define BACKGROUND_STRETCHED ( 1 << 1 )
+#define CLEARCOLOR 0x64
 
 /******************************************************************************/
 #define RFACESMOOTH       ( 1      )
@@ -460,7 +461,7 @@ typedef enum _G3DSHADINGMODE {
 typedef struct _R3DVERTEX {
     R2DVECTOR scr; /*** screen position ***/
     R3DVECTOR pos; /*** Vertex position in World coord      ***/
-    R3DVECTOR nor; /*** Vertex normals in World coord       ***/
+    /*R3DVECTOR nor;*/ /*** Vertex normals in World coord       ***/
 } R3DVERTEX;
 
 /******************************************************************************/
@@ -487,6 +488,7 @@ typedef struct _R3DFACE {
     uint32_t   flags;
     uint32_t   rverID[0x03]; /* Use IDs to save memory (for arch >= 64 bits) */
     R3DVECTOR  nor;          /*** face normal in world coord ***/
+    R3DVECTOR  rvernor[0x03];
     float      d;
     float      surface;
     R3DUVSET  *ruvs;
@@ -867,6 +869,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                               R3DRGBA *bump,
                               R3DRGBA *reflection,
                               R3DRGBA *refraction,
+                              float   *transparencyStrength,
                               LIST    *ltex,
                               uint32_t query_flags );
 uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,

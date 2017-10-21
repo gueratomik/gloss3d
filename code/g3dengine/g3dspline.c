@@ -686,7 +686,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
                 G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
                 /* draw line to the handle */
-                if ( engine_flags & VIEWVERTEX ) {
+                if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
                     glColor3ub ( 0xFF, 0x7F, 0x00 );
                     glBegin ( GL_LINES );
                     glVertex3f (  csg->seg.pt[0x00]->pos.x, 
@@ -721,7 +721,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
         }
     }
 
-    if ( engine_flags & VIEWVERTEX ) {
+    if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
         glDisable ( GL_DEPTH_TEST );
         while ( ltmpver ) {
             G3DVERTEX * ver = ( G3DVERTEX * ) ltmpver->data;

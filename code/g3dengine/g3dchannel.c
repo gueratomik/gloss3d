@@ -35,7 +35,7 @@ void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
                                             G3DRGBA *rgba ) {
     if ( cha->flags & USEIMAGECOLOR ) {
         G3DIMAGE *colimg = cha->image;
-        if ( colimg ) {
+        if ( colimg && colimg->width && colimg->height ) {
             int32_t imgx = ((int32_t)((float)u * colimg->width  )) % colimg->width;
             int32_t imgy = ((int32_t)((float)v * colimg->height )) % colimg->height;
 

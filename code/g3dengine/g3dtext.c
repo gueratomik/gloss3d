@@ -970,6 +970,8 @@ void g3dtext_init ( G3DTEXT *txt,
                                                    NULL );
 
     ((G3DMESH*)txt)->dump = g3dmesh_default_dump;
+
+    ((G3DMESH*)txt)->gouraudScalarLimit = 1.0f;
 }
 
 /******************************************************************************/

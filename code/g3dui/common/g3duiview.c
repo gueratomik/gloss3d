@@ -29,8 +29,6 @@
 #include <config.h>
 #include <g3dui.h>
 
-#define CLEARCOLOR 100
-
 /******************************************************************************/
 void common_g3duiview_orbit ( G3DUIVIEW *view, G3DPIVOT *piv,
                                                int32_t x   , int32_t y, 
@@ -313,6 +311,14 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     R3DRENDERSETTINGS *rsg = gui->currsg;
+    G3DRGBA backgroundRGBA;
+
+    g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );
+
+    /*** Set clear color for the OpenGL Window ***/
+    glClearColor ( ( float ) backgroundRGBA.r / 255.0f, 
+                   ( float ) backgroundRGBA.g / 255.0f,
+                   ( float ) backgroundRGBA.b / 255.0f, 1.0f );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 

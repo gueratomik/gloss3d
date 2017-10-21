@@ -83,6 +83,22 @@ if HAVE_WIN32
 endif
 
 EXTRA_DIST   = include/g3dexport.h \
+                       include/g3dengine/g2dvector.h \
+                       include/g3dengine/g3dcolor.h \
+                       include/g3dengine/g3dengine.h \
+                       include/g3dengine/g3dimage.h \
+                       include/g3dengine/g3dlight.h \
+                       include/g3dengine/g3dlookup.h \
+                       include/g3dengine/g3dmesh.h \
+                       include/g3dengine/g3drgba.h \
+                       include/g3dengine/g3dspline.h \
+                       include/g3dengine/g3dsplinerevolver.h \
+                       include/g3dengine/g3dsubdivisionthread.h \
+                       include/g3dengine/g3dsubdivisionV3.h \
+                       include/g3dengine/g3dsysinfo.h \
+                       include/g3dengine/g3dtext.h \
+                       include/g3dengine/g3dtinyvector.h \
+                       include/g3dengine/g3dvector.h \
                        include/g3d.h \
                        include/g3dimport.h \
                        include/g3dmouse.h \
@@ -153,12 +169,15 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/sobj.xpm \
                        xpm/sphere.xpm \
                        xpm/sphico.xpm \
+                       xpm/splico.xpm \
+                       xpm/srvico.xpm \
                        xpm/stopanim.xpm \
                        xpm/stoprender.xpm \
                        xpm/subico.xpm \
                        xpm/symico.xpm \
                        xpm/torico.xpm \
                        xpm/translate_view.xpm \
+                       xpm/txtico.xpm \
                        xpm/undo.xpm \
                        xpm/unzoomtime.xpm \
                        xpm/uvwmapmode.xpm \
@@ -170,6 +189,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/zaxis.xpm \
                        xpm/zoomtime.xpm \
                        xpm/zoom_view.xpm
+
 
 backup:
 	tar -cvzf ../Motif-`date +%Y%m%d`.tar.gz `find . -type f | grep -v "\.o"` && \

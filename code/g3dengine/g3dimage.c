@@ -328,7 +328,7 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 
     img->bytesPerPixel = jpgdepth;
 
-    if ( poweroftwo ) {
+    if ( poweroftwo && ( jpgdepth == 0x03 ) ) {
         uint32_t imgwidth  = g3dcore_getNextPowerOfTwo ( jpgwidth  ),
                  imgheight = g3dcore_getNextPowerOfTwo ( jpgheight );
         uint32_t jpgbytesperline = jpgwidth * jpgdepth,

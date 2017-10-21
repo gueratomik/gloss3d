@@ -163,6 +163,10 @@ OBJECT(0x2000)
 ----------- UVMAPMATERIALS (0x2430)
 --------------- nbmaterials (uint32_t) /*** UVMap locked ? ***/
 --------------- Array[] materialID,facegroupID (uint32_t,uint32_t)
+----------- UVMAPORIENTATION(0x2440)
+--------------- Position ( float-float-float-float )
+--------------- Rotation ( float-float-float-float )
+--------------- Scale    ( float-float-float-float )
 ------- UVSETS(0x3400)
 /*** a UVSet should be saved only if the UVMAP is fixed (locked) ***/
 --------------- Number of uvsets ( uint32_t )

@@ -51,7 +51,7 @@ static void gouraudCbk ( GtkWidget *widget,
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( ( gouraud > 0.0f ) && ( gouraud < 90.0f ) ) {
+    if ( ( gouraud >= 0.0f ) && ( gouraud <= 90.0f ) ) {
         common_g3duimeshedit_gouraudCbk ( gui, gouraud * M_PI / 180 );
     } else {
         updateMeshEdit ( parent, gui );

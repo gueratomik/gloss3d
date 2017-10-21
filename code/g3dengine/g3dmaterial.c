@@ -167,7 +167,7 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     if ( name ) g3dmaterial_name ( mat, name );
 
-    mat->flags = DIFFUSE_ENABLED | SPECULAR_ENABLED | REFLECTION_ENABLED;
+    mat->flags = DIFFUSE_ENABLED | SPECULAR_ENABLED | REFLECTION_ENABLED | REFRACTION_ENABLED;
 
     mat->transparency_strength = 0.0f;
 
@@ -210,10 +210,10 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->reflection.solid.a    = 0.0f;
 
     mat->refraction.flags      = USESOLIDCOLOR;
-    mat->refraction.solid.r    = 0.0f;
-    mat->refraction.solid.g    = 0.0f;
-    mat->refraction.solid.b    = 0.0f;
-    mat->refraction.solid.a    = 0.0f;
+    mat->refraction.solid.r    = 1.0f;
+    mat->refraction.solid.g    = 1.0f;
+    mat->refraction.solid.b    = 1.0f;
+    mat->refraction.solid.a    = 1.0f;
 
     /*** Default specularity factor ***/
     mat->specular_level    = 0.25f;

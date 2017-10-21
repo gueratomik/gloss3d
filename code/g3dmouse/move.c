@@ -63,7 +63,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             xold = xori = bev->x;
-            yold = xori = bev->y;
+            yold = yori = bev->y;
 
             obj = g3dscene_getLastSelected ( sce );
 

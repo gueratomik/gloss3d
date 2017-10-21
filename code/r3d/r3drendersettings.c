@@ -728,6 +728,9 @@ void r3drendersettings_free ( R3DRENDERSETTINGS *rsg ) {
 /******************************************************************************/
 R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     R3DRENDERSETTINGS *rsg = calloc ( 0x01, sizeof ( R3DRENDERSETTINGS ) );
+    G3DRGBA clearColorRGBA = { .r = CLEARCOLOR, 
+                               .g = CLEARCOLOR,
+                               .b = CLEARCOLOR };
 
     if ( rsg == NULL ) {
         fprintf ( stderr, "r3drendersettings_new: memory allocation failed\n" );
@@ -747,7 +750,7 @@ R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     rsg->output.height      = 480;
     rsg->output.ratio       = (float) rsg->output.width / rsg->output.height;
 
-    rsg->background.color   = 0x00404040;
+    rsg->background.color   = g3drgba_toLong ( &clearColorRGBA );
 
     rsg->wireframe.thickness = 1.0f;
     rsg->wireframe.color     = 0x00A40000; /* some red */

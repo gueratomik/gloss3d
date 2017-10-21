@@ -185,15 +185,15 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DBONETYPE       ( OBJECT | BONE )
                     /* ffd not flagged as mesh but still inherits from mesh */
 #define G3DFFDTYPE            ( OBJECT | EDITABLE |        MODIFIER | FFD )
-#define G3DWIREFRAMETYPE      ( OBJECT | EDITABLE | MESH | MODIFIER | WIREFRAME )
-#define G3DSUBDIVIDERTYPE     ( OBJECT | EDITABLE | MESH | MODIFIER | SUBDIVIDER )
-#define G3DSPLINEREVOLVERTYPE ( OBJECT | EDITABLE | MESH | MODIFIER | SPLINEREVOLVER )
+#define G3DWIREFRAMETYPE      ( OBJECT | MESH | MODIFIER | WIREFRAME )
+#define G3DSUBDIVIDERTYPE     ( OBJECT | MESH | MODIFIER | SUBDIVIDER )
+#define G3DSPLINEREVOLVERTYPE ( OBJECT | MESH | MODIFIER | SPLINEREVOLVER )
 #define G3DLIGHTTYPE          ( OBJECT | LIGHT )
 #define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
 #define G3DSPLINETYPE         ( OBJECT | EDITABLE | MESH | SPLINE )
-#define G3DTEXTTYPE           ( OBJECT | EDITABLE | MESH | TEXT )
+#define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
 
 /******************************************************************************/
 /** symmetry orientation ***/

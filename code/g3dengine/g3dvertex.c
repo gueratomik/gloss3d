@@ -206,7 +206,7 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                         disimg = &mat->displacement.proc->image;
                                     }
 
-                                    if ( disimg ) {
+                                    if ( disimg && disimg->width && disimg->height ) {
                                         uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
                                         uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
 

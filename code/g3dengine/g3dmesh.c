@@ -1750,6 +1750,8 @@ void g3dmesh_clone ( G3DMESH *mes, G3DMESH *cpymes, uint32_t engine_flags ) {
         _NEXTFACE(mes,ltmpfac);
     }
 
+    cpymes->gouraudScalarLimit = mes->gouraudScalarLimit;
+
     /*** watch out, original mesh could be empty. ***/
     /*** First check mesh is not empty, then free temp data ***/
     if ( vertab ) free ( vertab );
@@ -2773,8 +2775,7 @@ void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
 /******************************************************************************/
 uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
                                         uint32_t   engine_flags ) {
-    uint32_t viewSkin = ( ( engine_flags & VIEWSKIN       ) &&
-                          ( obj->flags   & OBJECTSELECTED ) ) ? 0x01: 0x00;
+    uint32_t viewSkin = 0x00;
     G3DMESH *mes = ( G3DMESH * ) obj;
     uint32_t takenOver = 0x00;
 
@@ -2792,10 +2793,17 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
     /*** VIEWSKIN mode applied only to selected objects ***/
     if ( ( obj->flags & OBJECTSELECTED ) == 0x00 ) engine_flags &= (~VIEWSKIN);
 
+    if ( ( obj->type  & EDITABLE ) == 0x00 ) engine_flags &= (~VIEWSKIN);
+
     /**** Dont use the red-color on the symmetried objects ***/
     if ( ( engine_flags & SYMMETRYVIEW )         ) engine_flags &= (~VIEWSKIN);
 
+
+
     /*g3dmesh_color ( mes, engine_flags );*/
+
+    viewSkin = ( ( engine_flags & VIEWSKIN       ) &&
+                 ( obj->flags   & OBJECTSELECTED ) ) ? 0x01: 0x00;
 
     if ( viewSkin ) {
         glPushAttrib ( GL_ALL_ATTRIB_BITS );
@@ -2809,7 +2817,8 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         engine_flags |= NODISPLACEMENT;
     }
 
-    if ( obj->flags & OBJECTSELECTED ) {
+    if ( ( obj->flags & OBJECTSELECTED ) && 
+         ( obj->type  & EDITABLE       ) ) {
         if ( ( engine_flags & VIEWVERTEX ) || ( engine_flags & VIEWSKIN ) ) {
             if ( engine_flags & SELECTMODE ) {
                 g3dmesh_drawVertices ( mes, engine_flags );
@@ -2826,7 +2835,8 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         }
     }
 
-    if ( ( obj->flags & OBJECTSELECTED ) && ( engine_flags & VIEWFACE ) ) {
+    if ( ( obj->flags & OBJECTSELECTED ) && 
+         ( obj->type  & EDITABLE       ) && ( engine_flags & VIEWFACE ) ) {
         /*** do not draw anything else after that, it would cause some ***/
         /*** troubles because of glLoadName still in stack ***/
         if ( engine_flags & SELECTMODE ) {
@@ -2840,7 +2850,8 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
         }
     }
 
-    if ( ( obj->flags & OBJECTSELECTED ) && ( engine_flags & VIEWEDGE ) ) {
+    if ( ( obj->flags & OBJECTSELECTED ) && 
+         ( obj->type  & EDITABLE       ) && ( engine_flags & VIEWEDGE ) ) {
         /*** do not draw anything else after that, it would cause some ***/
         /*** troubles because of glLoadName still in stack ***/
         if ( engine_flags & SELECTMODE ) {
@@ -3864,7 +3875,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     mes->edgid = 0x00;
     mes->facid = 0x00;
 
-    mes->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
+    mes->gouraudScalarLimit = cos ( 90 * M_PI / 180 );
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
     mes->dump           = g3dmesh_default_dump;

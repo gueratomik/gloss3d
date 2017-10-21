@@ -35,6 +35,13 @@ uint32_t g3drgba_toLong ( G3DRGBA *rgba ) {
 }
 
 /******************************************************************************/
+void g3drgba_fromLong ( G3DRGBA *rgba, uint32_t color ) {
+    rgba->r = ( color >> 0x10 ) & 0x000000FF;
+    rgba->g = ( color >> 0x08 ) & 0x000000FF;
+    rgba->b = ( color         ) & 0x000000FF;
+}
+
+/******************************************************************************/
 void g3drgba_init ( G3DRGBA *rgb, uint32_t r, 
                                   uint32_t g,
                                   uint32_t b, 
