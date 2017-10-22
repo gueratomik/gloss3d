@@ -63,7 +63,7 @@ void g3dimage_getVideoSize ( G3DIMAGE *image,
                                            " -show_entries"
                                            " stream=height,width"
     #ifdef __linux__
-                                           " \"%s\""
+                                           " \"%s\"",
     #endif
     #ifdef __MINGW32__
                                            " \"%s\"\"",
