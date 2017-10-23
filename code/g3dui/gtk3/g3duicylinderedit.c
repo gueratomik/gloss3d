@@ -156,17 +156,21 @@ GtkWidget *createCylinderEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    createIntegerText ( frm, gui, EDITCYLINDERXCAPS , 0x00, 0x00,
+    createIntegerText ( frm, gui, EDITCYLINDERXCAPS , 1, 100,
+                                                      0x00, 0x00,
                                                       0x60, 0x20, xcapCbk   );
 
     /*createIntegerText ( frm, EDITCYLINDERYCAPS , 0, 20, 32, capycbk );*/
-    createIntegerText ( frm, gui, EDITCYLINDERSLICES, 0x00, 0x14, 
+    createIntegerText ( frm, gui, EDITCYLINDERSLICES, 1, 100,
+                                                      0x00, 0x14, 
                                                       0x60, 0x20, sliceCbk  );
 
-    createFloatText   ( frm, gui, EDITCYLINDERLENGTH, 0x00, 0x28, 
+    createFloatText   ( frm, gui, EDITCYLINDERLENGTH, 0.0f, FLT_MAX,
+                                                      0x00, 0x28, 
                                                       0x60, 0x60, lengthCbk );
 
-    createFloatText   ( frm, gui, EDITCYLINDERRADIUS, 0x00, 0x3C, 
+    createFloatText   ( frm, gui, EDITCYLINDERRADIUS, 0.0f, FLT_MAX,
+                                                      0x00, 0x3C, 
                                                       0x60, 0x60, radiusCbk );
 
     gtk_widget_show ( frm );

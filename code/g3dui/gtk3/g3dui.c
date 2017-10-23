@@ -460,16 +460,6 @@ GtkWidget *createFrame ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-static gboolean grabCbk ( GtkWidget *widget, GdkEvent  *event, 
-                                             gpointer user_data ) {
-    /*** Take keyboard input when clicked-in ***/
-    gtk_widget_grab_focus ( widget );
-
-    /*** keep processing ***/
-    return FALSE;
-}
-
-/******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
 void createCharText ( GtkWidget *parent, G3DUI *gui,
                                                char *name,
@@ -562,6 +552,17 @@ void createTextField ( GtkWidget *parent,
 
 }
 
+
+/******************************************************************************/
+static gboolean grabCbk ( GtkWidget *widget, GdkEvent  *event, 
+                                             gpointer user_data ) {
+    /*** Take keyboard input when clicked-in ***/
+    gtk_widget_grab_focus ( widget );
+
+    /*** keep processing ***/
+    return FALSE;
+}
+
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
 GtkWidget *createNumericText ( GtkWidget *parent, G3DUI *gui,
@@ -624,15 +625,18 @@ GtkWidget *createNumericText ( GtkWidget *parent, G3DUI *gui,
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
 void createIntegerText ( GtkWidget *parent, G3DUI *gui, 
-                                            char *name,
-                                            gint x, gint y,
-                                            gint labwidth,
-                                            gint txtwidth,
+                                            char  *name,
+                                            gint   min, 
+                                            gint   max,
+                                            gint   x, 
+                                            gint   y,
+                                            gint   labwidth,
+                                            gint   txtwidth,
                                             void (*cbk)( GtkWidget *, 
                                                          gpointer ) ) {
     GtkAdjustment *adj = gtk_adjustment_new ( 0.0, 
-                                             -INT_MAX, 
-                                              INT_MAX,
+                                              min, 
+                                              max,
                                               1.0,
                                               1.0,
                                               5.0 );
@@ -648,16 +652,19 @@ void createIntegerText ( GtkWidget *parent, G3DUI *gui,
 
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
-void createFloatText ( GtkWidget *parent, G3DUI *gui, 
-                                          char *name,
-                                          gint x, gint y,
-                                          gint labwidth,
-                                          gint txtwidth,
-                                          void (*cbk)( GtkWidget *, 
-                                                       gpointer ) ) {
+void createFloatText ( GtkWidget *parent, G3DUI  *gui, 
+                                          char   *name,
+                                          gdouble min, 
+                                          gdouble max,
+                                          gint    x, 
+                                          gint    y,
+                                          gint    labwidth,
+                                          gint    txtwidth,
+                                          void  (*cbk)( GtkWidget *, 
+                                                        gpointer ) ) {
     GtkAdjustment *adj = gtk_adjustment_new ( 0.0, 
-                                             -FLT_MAX, 
-                                              FLT_MAX,
+                                              min, 
+                                              max,
                                               0.1,
                                               1.0,
                                               5.0 );

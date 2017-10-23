@@ -234,6 +234,7 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
 
           createFloatText   ( pan, gui,
                                    EDITLIGHTINTENSITY,
+                                   0.0f, FLT_MAX,
                                    0, 48, 96, 96,
                                    diffuseIntensityCbk );
 

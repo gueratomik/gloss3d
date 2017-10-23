@@ -112,7 +112,8 @@ GtkWidget *createSymmetryEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createFloatText            ( frm, gui, EDITSYMMETRYLIMIT, 0,  0,
+    createFloatText            ( frm, gui, EDITSYMMETRYLIMIT, 0.0f, FLT_MAX,
+                                                              0,  0,
                                                              96, 96, limitCbk );
     createOrientationSelection ( frm, gui, EDITSYMMETRYPLANE, 0, 32,
                                                              96, 32, planeCbk );

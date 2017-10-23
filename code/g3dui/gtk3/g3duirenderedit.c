@@ -572,6 +572,7 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
                                    setMotionBlurCbk );
 
           createIntegerText ( frm, gui, EDITRENDERMOTIONBLURSTRENGTH,
+                                      0, 100,
                                     160, 0, 96,  32,
                                    motionBlurStrengthCbk );
 
@@ -582,10 +583,12 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
                                    vectorMotionBlurCbk );
 
           createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSAMPLES,
+                                      0, 100,
                                     160, 24, 96,  32,
                                    vectorMotionBlurSamplesCbk );
 
           createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE,
+                                      0, 100,
                                     160, 48, 96,  32,
                                    vectorMotionBlurSubSamplingRateCbk );
 
@@ -596,6 +599,7 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
                                    sceneMotionBlurCbk );
 
           createIntegerText ( frm, gui, EDITRENDERSCENEMOTIONBLURITERATION,
+                                      5, 31,
                                     160, 72, 96,  32,
                                    sceneMotionBlurIterationCbk );
 
@@ -745,6 +749,7 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
                                    setWireframeLightingCbk );
 
           createFloatText ( frm, gui, EDITRENDERWIREFRAMETHICKNESS,
+                                     0.0f, FLT_MAX,
                                      0, 48, 96,  48,
                                    wireframeThicknessCbk );
 
@@ -929,10 +934,12 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
                                    setFogAffectsBackgroundCbk );
 
           createFloatText ( frm, gui, EDITRENDERFOGNEAR,
+                                     0.0f, FLT_MAX,
                                      0, 48, 96,  48,
                                    fogNearCbk );
 
           createFloatText ( frm, gui, EDITRENDERFOGFAR,
+                                     0.0f, FLT_MAX,
                                      0, 72, 96,  48,
                                    fogFarCbk );
 
@@ -1197,21 +1204,27 @@ void createGeneralPanel ( GtkWidget *parent,
                                0,  0, 104, 20, previewCbk );
 
     createIntegerText ( pan, gui, EDITRENDERSTART,
+                               INT_MIN, INT_MAX,
                                0,  24, 96,  32, startFrameCbk );
 
     createIntegerText ( pan, gui, EDITRENDEREND,
+                               INT_MIN, INT_MAX,
                                0,  48, 96,  32, endFrameCbk );
 
     createIntegerText ( pan, gui, EDITRENDERFPS,
+                               0, INT_MAX,
                                0,  72, 96,  32, fpsCbk );
 
     createIntegerText ( pan, gui, EDITRENDERWIDTH,
+                               0, INT_MAX,
                                0,  96, 96,  32, widthCbk );
 
     createIntegerText ( pan, gui, EDITRENDERHEIGHT,
+                               0, INT_MAX,
                                0, 120, 96,  32, heightCbk );
 
     createFloatText   ( pan, gui, EDITRENDERRATIO,
+                               0.0f, FLT_MAX,
                                0, 144, 96,  64, ratioCbk );
 
     createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,

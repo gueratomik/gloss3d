@@ -191,12 +191,12 @@ GtkWidget *createFFDEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createIntegerText ( frm, gui, EDITFFDXSLICES, 0,   0, 96, 32, xsliceCbk  );
-    createIntegerText ( frm, gui, EDITFFDYSLICES, 0,  24, 96, 32, ysliceCbk  );
-    createIntegerText ( frm, gui, EDITFFDZSLICES, 0,  48, 96, 32, zsliceCbk  );
-    createFloatText   ( frm, gui, EDITFFDXRADIUS, 0,  72, 96, 32, xradiusCbk );
-    createFloatText   ( frm, gui, EDITFFDYRADIUS, 0,  96, 96, 32, yradiusCbk );
-    createFloatText   ( frm, gui, EDITFFDZRADIUS, 0, 120, 96, 32, zradiusCbk );
+    createIntegerText ( frm, gui, EDITFFDXSLICES, 1, 100,        0,   0, 96, 32, xsliceCbk  );
+    createIntegerText ( frm, gui, EDITFFDYSLICES, 1, 100,        0,  24, 96, 32, ysliceCbk  );
+    createIntegerText ( frm, gui, EDITFFDZSLICES, 1, 100,        0,  48, 96, 32, zsliceCbk  );
+    createFloatText   ( frm, gui, EDITFFDXRADIUS, 0.0f, FLT_MAX, 0,  72, 96, 32, xradiusCbk );
+    createFloatText   ( frm, gui, EDITFFDYRADIUS, 0.0f, FLT_MAX, 0,  96, 96, 32, yradiusCbk );
+    createFloatText   ( frm, gui, EDITFFDZRADIUS, 0.0f, FLT_MAX, 0, 120, 96, 32, zradiusCbk );
 
     gtk_widget_show ( frm );
 

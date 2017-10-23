@@ -203,7 +203,8 @@ GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
-    createFloatText   ( frm, gui, EDITMESHGOURAUDLIMIT, 0,  0,
+    createFloatText   ( frm, gui, EDITMESHGOURAUDLIMIT, 0.0f, 90.0f,
+                                                        0,  0,
                                                       160, 64, gouraudCbk );
 
     createWeightgroupFrame ( frm, gui,   0, 24, 286, 140 );

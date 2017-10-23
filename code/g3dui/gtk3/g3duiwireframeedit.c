@@ -90,7 +90,8 @@ static void createWireframeFrame ( GtkWidget *frm, G3DUI *gui,
 
     wrf = createFrame ( frm, gui, EDITWIREFRAME       , x,   y, width, height );
 
-    createFloatText ( wrf, gui, EDITWIREFRAMETHICKNESS , 0,  24, 128, 32,
+    createFloatText ( wrf, gui, EDITWIREFRAMETHICKNESS ,  0.0f, FLT_MAX,
+                                                          0,  24, 128, 32,
                                                          thicknessCbk );
 }
 

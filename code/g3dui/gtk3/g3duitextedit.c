@@ -371,13 +371,16 @@ GtkWidget *createTextEdit ( GtkWidget *parent, G3DUI *gui,
     createPushButton  ( frm, gui, EDITTEXTFONT     ,96,  0,
                                                     96, 18, chooseFontCbk );
 
-    createIntegerText ( frm, gui, EDITTEXTSIZE     , 0, 28,
+    createIntegerText ( frm, gui, EDITTEXTSIZE     , 0, 256,
+                                                     0, 28,
                                                     96, 18, sizeCbk );
 
-    createIntegerText ( frm, gui, EDITTEXTROUNDNESS, 0, 52, 
+    createIntegerText ( frm, gui, EDITTEXTROUNDNESS, 0, 256,
+                                                     0, 52, 
                                                     96, 96, roundnessCbk  );
 
-    createFloatText   ( frm, gui, EDITTEXTTHICKNESS, 0, 76,
+    createFloatText   ( frm, gui, EDITTEXTTHICKNESS, 0.0f, FLT_MAX,
+                                                     0, 76,
                                                     96, 96, thicknessCbk );
 
     createTextField   ( frm, gui, EDITTEXTTEXT     , 0,100, 

@@ -167,16 +167,20 @@ GtkWidget *createPlaneEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    createIntegerText ( frm, gui, EDITPLANEDIVU, 0x00, 0x00,
+    createIntegerText ( frm, gui, EDITPLANEDIVU, 1, 100,
+                                                 0x00, 0x00,
                                                  0x60, 0x20, divuCbk );
 
-    createIntegerText ( frm, gui, EDITPLANEDIVV, 0x00, 0x14, 
+    createIntegerText ( frm, gui, EDITPLANEDIVV, 1, 100,
+                                                 0x00, 0x14, 
                                                  0x60, 0x20, divvCbk );
 
-    createFloatText   ( frm, gui, EDITPLANERADU, 0x00, 0x28, 
+    createFloatText   ( frm, gui, EDITPLANERADU, 0.0f, FLT_MAX,
+                                                 0x00, 0x28, 
                                                  0x60, 0x60, raduCbk );
 
-    createFloatText   ( frm, gui, EDITPLANERADV, 0x00, 0x3C, 
+    createFloatText   ( frm, gui, EDITPLANERADV, 0.0f, FLT_MAX,
+                                                 0x00, 0x3C, 
                                                  0x60, 0x60, radvCbk );
 
     createOrientationSelection ( frm, gui, EDITPLANEORIENTATION, 0x00, 0x50, 

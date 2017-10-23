@@ -109,10 +109,12 @@ static void createSplineRevolverFrame ( GtkWidget *frm, G3DUI *gui,
 
     sdf = createFrame ( frm, gui, EDITSPLINEREVOLVER, x,   y, width, height );
 
-    createIntegerText ( sdf, gui, EDITSPLINEREVOLVERSTEPS, 0,   0, 128, 32,
+    createIntegerText ( sdf, gui, EDITSPLINEREVOLVERSTEPS, 3, 256,
+                                                           0,   0, 128, 32,
                                                        splineRevolverStepsCbk );
 
-    createIntegerText ( sdf, gui, EDITSPLINEREVOLVERDIVIS, 0,  24, 128, 32,
+    createIntegerText ( sdf, gui, EDITSPLINEREVOLVERDIVIS, 0, 256,
+                                                           0,  24, 128, 32,
                                                        splineRevolverDivisCbk );
 
     /*createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,

@@ -144,16 +144,20 @@ static GtkWidget *createCameraDOFPanel ( GtkWidget *parent, G3DUI *gui,
     createToggleLabel ( pan, gui, EDITCAMERADOFENABLE, 0x00, 0x00, 20, 20,
                                                       dofEnableCbk );
 
-    createFloatText   ( pan, gui, EDITCAMERADOFNEARBLUR, 0x00, 0x14, 
+    createFloatText   ( pan, gui, EDITCAMERADOFNEARBLUR, 0.0f, FLT_MAX,
+                                                         0x00, 0x14, 
                                                          0x60, 0x40, dofNearBlurCbk );
 
-    createFloatText   ( pan, gui, EDITCAMERADOFNOBLUR  , 0x00, 0x28, 
+    createFloatText   ( pan, gui, EDITCAMERADOFNOBLUR  , 0.0f, FLT_MAX,
+                                                         0x00, 0x28, 
                                                          0x60, 0x40, dofNoBlurCbk );
 
-    createFloatText   ( pan, gui, EDITCAMERADOFFARBLUR , 0x00, 0x3C, 
+    createFloatText   ( pan, gui, EDITCAMERADOFFARBLUR , 0.0f, FLT_MAX,
+                                                         0x00, 0x3C, 
                                                          0x60, 0x40, dofFarBlurCbk );
 
-    createIntegerText ( pan, gui, EDITCAMERADOFRADIUS  , 0x00, 0x50, 
+    createIntegerText ( pan, gui, EDITCAMERADOFRADIUS  , 0, 128,
+                                                         0x00, 0x50, 
                                                          0x60, 0x20, dofRadiusCbk );
 
     return pan;

@@ -444,6 +444,7 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
 
 
     createFloatText    ( pan, gui, EDITDISPLACEMENTSTRENGTH,
+                               0.0f, FLT_MAX,
                                 0,  24,
                                96,
                                48, displacementStrengthCbk );

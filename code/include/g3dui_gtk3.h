@@ -488,11 +488,13 @@ void       createIntegerText     ( GtkWidget *, G3DUI *,
                                                 char *,
                                                 gint, gint,
                                                 gint, gint,
+                                                gint, gint,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
 
 void       createFloatText       ( GtkWidget *, G3DUI *,
                                                 char *,
+                                                double, double,
                                                 gint, gint,
                                                 gint, gint,
                                                 void (*)( GtkWidget *, 

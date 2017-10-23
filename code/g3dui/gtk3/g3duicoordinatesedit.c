@@ -241,19 +241,19 @@ GtkWidget* createCoordinatesEdit ( GtkWidget *parent, G3DUI *gui,
     gui->lock = 0x01;
 
     createSimpleLabel ( frm, gui, "Position"   ,   0,  0, 0, 48 );
-    createFloatText   ( frm, gui, EDITXPOSITION,   0, 24, 0, 48, posCbk );
-    createFloatText   ( frm, gui, EDITYPOSITION,   0, 48, 0, 48, posCbk );
-    createFloatText   ( frm, gui, EDITZPOSITION,   0, 72, 0, 48, posCbk );
+    createFloatText   ( frm, gui, EDITXPOSITION,   DBL_MIN, DBL_MAX, 0, 24, 0, 48, posCbk );
+    createFloatText   ( frm, gui, EDITYPOSITION,   DBL_MIN, DBL_MAX, 0, 48, 0, 48, posCbk );
+    createFloatText   ( frm, gui, EDITZPOSITION,   DBL_MIN, DBL_MAX, 0, 72, 0, 48, posCbk );
 
     createSimpleLabel ( frm, gui, "Rotation"   ,  96,  0, 0, 48 );
-    createFloatText   ( frm, gui, EDITXROTATION,  96, 24, 0, 48, rotCbk );
-    createFloatText   ( frm, gui, EDITYROTATION,  96, 48, 0, 48, rotCbk );
-    createFloatText   ( frm, gui, EDITZROTATION,  96, 72, 0, 48, rotCbk );
+    createFloatText   ( frm, gui, EDITXROTATION,  DBL_MIN, DBL_MAX, 96, 24, 0, 48, rotCbk );
+    createFloatText   ( frm, gui, EDITYROTATION,  DBL_MIN, DBL_MAX, 96, 48, 0, 48, rotCbk );
+    createFloatText   ( frm, gui, EDITZROTATION,  DBL_MIN, DBL_MAX, 96, 72, 0, 48, rotCbk );
 
     createSimpleLabel ( frm, gui, "Scaling"    , 192,  0, 0, 48 );
-    createFloatText   ( frm, gui, EDITXSCALING , 192, 24, 0, 48, scaCbk );
-    createFloatText   ( frm, gui, EDITYSCALING , 192, 48, 0, 48, scaCbk );
-    createFloatText   ( frm, gui, EDITZSCALING , 192, 72, 0, 48, scaCbk );
+    createFloatText   ( frm, gui, EDITXSCALING , DBL_MIN, DBL_MAX, 192, 24, 0, 48, scaCbk );
+    createFloatText   ( frm, gui, EDITYSCALING , DBL_MIN, DBL_MAX, 192, 48, 0, 48, scaCbk );
+    createFloatText   ( frm, gui, EDITZSCALING , DBL_MIN, DBL_MAX, 192, 72, 0, 48, scaCbk );
 
     createToggleLabel ( frm, gui, EDITABSOLUTE,    0, 96, 96, 20, absoluteCbk );
 

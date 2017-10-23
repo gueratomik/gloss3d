@@ -142,16 +142,20 @@ GtkWidget *createCubeEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    createIntegerText ( frm, gui, EDITCUBEXSLICES, 0x00, 0x00, 
+    createIntegerText ( frm, gui, EDITCUBEXSLICES, 1, 100,
+                                                   0x00, 0x00, 
                                                    0x60, 0x20, xsliceCbk );
 
-    createIntegerText ( frm, gui, EDITCUBEYSLICES, 0x00, 0x14, 
+    createIntegerText ( frm, gui, EDITCUBEYSLICES, 1, 100,
+                                                   0x00, 0x14, 
                                                    0x60, 0x20, ysliceCbk );
 
-    createIntegerText ( frm, gui, EDITCUBEZSLICES, 0x00, 0x28, 
+    createIntegerText ( frm, gui, EDITCUBEZSLICES, 1, 100,
+                                                   0x00, 0x28, 
                                                    0x60, 0x20, zsliceCbk );
 
-    createFloatText   ( frm, gui, EDITCUBERADIUS , 0x00, 0x3C, 
+    createFloatText   ( frm, gui, EDITCUBERADIUS , 0.0f, FLT_MAX,
+                                                   0x00, 0x3C, 
                                                    0x60, 0x60, radiusCbk );
 
     gtk_widget_show ( frm );

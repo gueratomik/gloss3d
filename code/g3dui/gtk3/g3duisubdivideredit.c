@@ -143,13 +143,15 @@ static void createSubdivisionFrame ( GtkWidget *frm, G3DUI *gui,
 
     sdf = createFrame ( frm, gui, EDITSUBDIVIDER       , x,   y, width, height );
 
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0,   0, 128, 32,
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0, 12,
+                                                         0,   0, 128, 32,
                                                        subdivPreviewCbk );
 
     createToggleLabel ( sdf, gui, EDITSUBDIVIDERSYNC   , 230,  12,  20, 20,
                                                        subdivSyncCbk );
 
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0,  24, 128, 32,
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0, 8,
+                                                         0,  24, 128, 32,
                                                        subdivRenderCbk );
 
     /*createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,

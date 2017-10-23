@@ -44,7 +44,7 @@ static void capCbk ( GtkWidget *widget, gpointer user_data ) {
     int cap = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( cap >= 0x02 ) {
+    if ( (cap >= 0x02) && (cap <= 0x200) ) {
         common_g3duisphereedit_capCbk ( gui, cap );
     } else {
         updateSphereEdit ( parent, gui );
@@ -57,7 +57,7 @@ static void sliceCbk ( GtkWidget *widget, gpointer user_data ) {
     int slice = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( slice >= 0x03 ) {
+    if ( (slice >= 0x03) && (slice <= 0x200) ) {
         common_g3duisphereedit_sliceCbk ( gui, slice );
     } else {
         updateSphereEdit ( parent, gui );
@@ -124,13 +124,16 @@ GtkWidget *createSphereEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    createIntegerText ( frm, gui, EDITSPHERECAPS  , 0, 0,
+    createIntegerText ( frm, gui, EDITSPHERECAPS  , 3, 256,
+                                                    0, 0,
                                                     96, 32, capCbk    );
 
-    createIntegerText ( frm, gui, EDITSPHERESLICES, 0, 20, 
+    createIntegerText ( frm, gui, EDITSPHERESLICES, 3, 256,
+                                                    0, 20, 
                                                     96, 32, sliceCbk  );
 
-    createFloatText   ( frm, gui, EDITSPHERERADIUS, 0, 40,
+    createFloatText   ( frm, gui, EDITSPHERERADIUS, 0.0f, FLT_MAX,
+                                                    0, 40,
                                                     96, 64, radiusCbk );
 
     gtk_widget_show ( frm );

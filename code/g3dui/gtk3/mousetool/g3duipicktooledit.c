@@ -180,6 +180,7 @@ GtkWidget *createPickToolEdit ( GtkWidget *parent, G3DUI *gui,
                                  0.0f, 100.0f, 1.0f, setWeightCbk );
 
     createIntegerText     ( ptf, gui, EDITPICKTOOLWEIGHTRADIUS, 
+                                  0, 256,
                                   0, 32,   96,  32, paintRadiusCbk );
 
 
