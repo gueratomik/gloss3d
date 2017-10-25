@@ -595,6 +595,8 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
         key = g3dkey_new ( frame, pos, rot, sca, key_flags );
         /*** if list was NULL ***/
         list_insert ( &obj->lkey, key );
+
+        memcpy ( &key->posCurvePoint.ver.pos, pos, sizeof ( G3DVECTOR ) );
     } else {
         key = g3dobject_getKey ( obj, frame, &lbeg, &lend, &lequ );
 
@@ -602,6 +604,8 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
         if ( key ) {
             /*** overwrite key values ***/
             g3dkey_init ( key, frame, pos, rot, sca, key_flags );
+
+            memcpy ( &key->posCurvePoint.ver.pos, pos, sizeof ( G3DVECTOR ) );
         } else {
             G3DKEY *beg = ( lbeg ) ? ( G3DKEY * ) lbeg->data : NULL;
             G3DKEY *end = ( lend ) ? ( G3DKEY * ) lend->data : NULL;
@@ -645,8 +649,8 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
             }
 
             if ( lend ) {
-                G3DCUBICSEGMENT *csg = g3dcubicsegment_new ( &end->posCurvePoint,
-                                                             &key->posCurvePoint,
+                G3DCUBICSEGMENT *csg = g3dcubicsegment_new ( &key->posCurvePoint,
+                                                             &end->posCurvePoint,
                                                              0.0f, 
                                                              0.0f,
                                                              0.0f,
