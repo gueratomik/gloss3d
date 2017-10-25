@@ -146,13 +146,6 @@ OBJECT(0x2000)
 ------------------- Number of weights
 ------------------- Array( uint32_t[VERTEXID], float[Weight] )
 ------- FACEGROUPS(0x3300)
-------- HEIGHTMAPS(0x3400)
------------ NBHEIGHTMAPS(0x3410)
---------------- Number of heightmaps ( uint32_t )
------------ HEIGHTMAP(0x3420)
---------------- FaceID ( uint32_t )
---------------- Number of heights ( uint32_t )
---------------- Array( uint32_t flags, float elevation)
 ------- UVMAP(0x2400)
 ----------- UVMAPINFO (0x2410)
 --------------- Projection (uint32_t)
@@ -171,6 +164,17 @@ OBJECT(0x2000)
 /*** a UVSet should be saved only if the UVMAP is fixed (locked) ***/
 --------------- Number of uvsets ( uint32_t )
 --------------- Array (uint32_t-uint32_t-float[0x08]) /*** uvmapID, faceID, float UV[0x08] ***/
+------- HEIGHTMAPS(0x3500)
+----------- NBHEIGHTMAPS(0x3510)
+--------------- Number of heightmaps ( uint32_t )
+----------- HEIGHTMAP(0x3520)
+--------------- FaceID ( uint32_t )
+--------------- Number of heights ( uint32_t )
+--------------- Array( uint32_t flags, float elevation)
+------- MESHDETAILS(0x3600)
+----------- SHADINGLIMIT(0x3610)
+--------------- angle ( float )
+
 --- PRIMITIVE(0x4000)
 ------- SPHERE(0x4100)
 ----------- Radius ( float    )
@@ -995,8 +999,29 @@ static uint32_t nbobjects_blocksize ( ) {
 }
 
 /******************************************************************************/
-static uint32_t subdivision_blocksize ( ) {
-    return ( ( sizeof ( uint16_t ) * 0x02 ) + sizeof ( uint32_t ) );
+static uint32_t shadinglimit_blocksize ( ) {
+    return sizeof ( float );
+}
+
+/******************************************************************************/
+static void shadinglimit_writeblock ( G3DMESH *mes, FILE *fdst ) {
+    writef ( &mes->gouraudScalarLimit, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t meshdetails_blocksize ( G3DMESH *mes ) {
+    uint32_t blocksize = 0x00;
+
+    blocksize += shadinglimit_blocksize ( mes ) + 0x06;
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void meshdetails_writeblock ( G3DMESH *mes, FILE *fdst ) {
+    chunk_write ( SHADINGLIMITSIG, shadinglimit_blocksize ( ), fdst );
+
+    shadinglimit_writeblock ( mes, fdst );
 }
 
 /******************************************************************************/
@@ -1126,9 +1151,9 @@ static uint32_t mesh_blocksize ( G3DMESH * mes, uint32_t flags ) {
                                           mes->nbqua, GEOMETRYSAVEALL ) + 0x06;
     }
 
-    if ( flags & MESHSAVESUBDIVISION ) {
-        blocksize += subdivision_blocksize ( ) + 0x06;
-    }
+    /*** Mesh Details ***/
+    blocksize += meshdetails_blocksize ( mes ) + 0x06;
+
 
     if ( flags & MESHSAVEWEIGHTGROUPS ) {
         blocksize += weightgroups_blocksize ( mes ) + 0x06;
@@ -2354,7 +2379,7 @@ static uint32_t splinegeometry_blocksize ( G3DSPLINE *spline,
     }
 
     if ( flags & SPLINESAVESEGMENTS ) {
-        blocksize += segments_blocksize ( spline->nbseg ) + 0x06;
+        blocksize += segments_blocksize ( spline->curve->nbseg ) + 0x06;
     }
 
     return blocksize;
@@ -2382,7 +2407,7 @@ static void splinegeometry_writeblock ( G3DSPLINE *spline,
                                         FILE      *fdst ) {
     if ( flags & SPLINESAVEVERTICES ) {
         G3DMESH *mes = ( G3DMESH * ) spline;
-        uint32_t nbver = mes->nbver - ( spline->nbseg * 2 );
+        uint32_t nbver = mes->nbver - ( spline->curve->nbseg * 2 );
         uint32_t blocksize = vertices_blocksize ( nbver );
 
         chunk_write ( SPLINEVERTICESSIG, blocksize, fdst );
@@ -2392,11 +2417,11 @@ static void splinegeometry_writeblock ( G3DSPLINE *spline,
 
     if ( flags & SPLINESAVESEGMENTS ) {
         G3DMESH *mes = ( G3DMESH * ) spline;
-        uint32_t blocksize = segments_blocksize ( spline->nbseg );
+        uint32_t blocksize = segments_blocksize ( spline->curve->nbseg );
 
         chunk_write ( SPLINESEGMENTSSIG, blocksize, fdst );
 
-        segments_writeblock ( spline->nbseg, spline->lseg, fdst );
+        segments_writeblock ( spline->curve->nbseg, spline->curve->lseg, fdst );
     }
 }
 
@@ -2474,14 +2499,11 @@ static void mesh_writeblock ( G3DMESH *mes, uint32_t flags, FILE *fdst ) {
                               GEOMETRYSAVEALL, fdst );
     }
 
-    /*if ( flags & MESHSAVESUBDIVISION ) {
-        uint32_t blocksize = subdivision_blocksize ( );
+    /**** MESH DETAILS ***/
+    chunk_write ( MESHDETAILSSIG, meshdetails_blocksize ( mes ), fdst );
+    meshdetails_writeblock ( mes, fdst );
 
-        chunk_write ( MESHSUB, blocksize, fdst );
-        subdivision_writeblock ( mes->subdiv,
-                                 mes->subdiv_render, mes->subalg, fdst );
-    }*/
-
+    /*** WEIGHT GROUPS ***/
     if ( flags & MESHSAVEWEIGHTGROUPS ) {
         uint32_t blocksize = weightgroups_blocksize ( mes );
 

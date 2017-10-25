@@ -63,7 +63,7 @@ void addSplinePoint_free ( void *data, uint32_t commit ) {
 
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
-        g3dsplinepoint_free ( asp->pt );
+        g3dcurvepoint_free ( asp->pt );
 
         if ( asp->seg ) g3dcubicsegment_free ( asp->seg );
     }
@@ -77,7 +77,7 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
                            uint32_t      engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
-    if ( asp->seg ) g3dspline_removeSegment ( asp->spline, asp->seg );
+    if ( asp->seg ) g3dcurve_removeSegment ( asp->spline->curve, asp->seg );
 
     g3dmesh_unselectVertex ( asp->spline, asp->pt );
     g3dmesh_removeVertex ( asp->spline, asp->pt );
@@ -100,7 +100,7 @@ void addSplinePoint_redo ( G3DURMANAGER *urm,
     g3dmesh_unselectAllVertices ( asp->spline );
     g3dmesh_selectVertex ( asp->spline, asp->pt );
 
-    if ( asp->seg ) g3dspline_addSegment ( asp->spline, asp->seg );
+    if ( asp->seg ) g3dcurve_addSegment ( asp->spline->curve, asp->seg );
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( asp->spline, 
@@ -126,9 +126,9 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
         G3DSPLINEPOINT *previousPoint = ( seg->pt[0] == pt ) ? seg->pt[1] :
                                                                seg->pt[0];
 
-        g3dspline_addSegment ( spline, seg );
+        g3dcurve_addSegment ( spline->curve, seg );
 
-        g3dsplinepoint_roundCubicSegments ( previousPoint );
+        g3dcurvepoint_roundCubicSegments ( previousPoint );
     }
 
     /*** Rebuild the spline modifiers ***/

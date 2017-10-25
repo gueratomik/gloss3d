@@ -20,6 +20,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dcore.c \
                       g3dcube.c \
                       g3dcursor.c \
+                      g3dcurve.c \
                       g3dcutface.c \
                       g3dcylinder.c \
                       g3dedge.c \

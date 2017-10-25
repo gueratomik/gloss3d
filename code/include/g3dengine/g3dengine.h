@@ -192,7 +192,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
-#define G3DSPLINETYPE         ( OBJECT | EDITABLE | MESH | SPLINE )
+#define G3DSPLINETYPE         ( OBJECT | EDITABLE | SPLINE )
 #define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
 
 /******************************************************************************/
@@ -560,18 +560,6 @@ typedef struct _G3DFACEGROUP {
 } G3DFACEGROUP;
 
 /******************************************************************************/
-typedef struct _G3DKEY {
-    uint32_t id;    /*** should NEVER be trusted ***/
-    uint32_t flags;
-    float frame;
-    G3DVECTOR pos;
-    G3DVECTOR rot;
-    G3DVECTOR sca;
-    float loopFrame;
-    void *data; /*** private datas ***/
-} G3DKEY;
-
-/******************************************************************************/
 typedef struct _G3DEXTENSION {
     uint32_t name; /* extension name */
     struct _G3DEXTENSION *next;
@@ -619,7 +607,9 @@ typedef struct _G3DSPLITVERTEX {
 /******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
 typedef struct _G3DMESH   G3DMESH;
-
+typedef struct _G3DSPLINE G3DSPLINE;
+typedef struct _G3DKEY    G3DKEY;
+typedef struct _G3DCURVE  G3DCURVE;
 
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint32_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
@@ -679,6 +669,9 @@ typedef struct _G3DOBJECT {
     G3DQUATERNION rotation;
     LIST *lkey; /*** keyframe list ***/
     LIST *lselkey;
+    G3DCURVE *posCurve; /* translation dynamics */
+    G3DCURVE *rotCurve; /* roation dynamics */
+    G3DCURVE *scaCurve; /* scale dynamics */
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -863,6 +856,8 @@ typedef struct _G3DFACE {
     G3DHEIGHTMAP    *heightmap;
 } G3DFACE;
 
+#include <g3dengine/g3dcurve.h>
+
 /******************************************************************************/
 typedef struct _G3DSUBEDGE {
     G3DEDGE     edg;
@@ -1031,6 +1026,19 @@ struct _G3DMESH {
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
+
+/******************************************************************************/
+struct _G3DKEY {
+    uint32_t id;    /*** should NEVER be trusted ***/
+    uint32_t flags;
+    float frame;
+    G3DVECTOR pos;
+    G3DVECTOR rot;
+    G3DVECTOR sca;
+    float loopFrame;
+    G3DCURVEPOINT posCurvePoint;
+    void *data; /*** private datas ***/
+};
 
 /******************************************************************************/
 
@@ -1749,7 +1757,8 @@ void       g3dobject_unsetSelected         ( G3DOBJECT * );
 void       g3dobject_setSelected           ( G3DOBJECT * );
 void       g3dobject_anim_r                ( G3DOBJECT *, float, uint32_t );
 void       g3dobject_updateMatrix          ( G3DOBJECT * );
-void       g3dobject_drawKeys              ( G3DOBJECT *, uint32_t );
+void       g3dobject_drawKeys              ( G3DOBJECT *, G3DCAMERA *, 
+                                                          uint32_t );
 uint32_t   g3dobject_countChildren_r       ( G3DOBJECT * );
 G3DOBJECT *g3dobject_getSelectedChild      ( G3DOBJECT * );
 void       g3dobject_name                  ( G3DOBJECT *, const char * );

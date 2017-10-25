@@ -73,7 +73,7 @@ void addSplineSegment_undo ( G3DURMANAGER *urm,
                              uint32_t      engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
-    g3dspline_removeSegment ( ass->spline, ass->seg );
+    g3dcurve_removeSegment ( ass->spline->curve, ass->seg );
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( ass->spline, 
@@ -89,7 +89,7 @@ void addSplineSegment_redo ( G3DURMANAGER *urm,
                              uint32_t      engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
-    g3dspline_addSegment ( ass->spline, ass->seg );
+    g3dcurve_addSegment ( ass->spline->curve, ass->seg );
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( ass->spline, 
@@ -107,10 +107,10 @@ void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
                                 uint32_t          return_flags ) {
     URMADDSPLINESEGMENT *ass; /* hehe */
 
-    g3dspline_addSegment ( spline, seg );
+    g3dcurve_addSegment ( spline->curve, seg );
 
-    g3dsplinepoint_roundCubicSegments ( seg->pt[0x00] );
-    g3dsplinepoint_roundCubicSegments ( seg->pt[0x01] );
+    g3dcurvepoint_roundCubicSegments ( seg->pt[0x00] );
+    g3dcurvepoint_roundCubicSegments ( seg->pt[0x01] );
 
     /*** Rebuild the spline modifiers ***/
     g3dmesh_update ( spline, NULL,

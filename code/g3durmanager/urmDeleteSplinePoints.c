@@ -68,7 +68,7 @@ void deleteSplinePoints_free ( void    *data,
         list_free ( &dsp->lremovedPoints  , NULL );
     } else {
         list_free ( &dsp->lremovedSegments, g3dcubicsegment_free );
-        list_free ( &dsp->lremovedPoints  , g3dsplinepoint_free  );
+        list_free ( &dsp->lremovedPoints  , g3dcurvepoint_free  );
     }
 
     urmDeleteSplinePoints_free ( dsp );
@@ -87,7 +87,7 @@ void deleteSplinePoints_undo ( G3DURMANAGER *urm,
     while ( ltmpRemovedPoints ) {
         G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpRemovedPoints->data;
 
-        g3dmesh_addVertex ( ( G3DMESH * ) spline, pt );
+        g3dcurve_addPoint ( spline->curve, pt );
 
         ltmpRemovedPoints = ltmpRemovedPoints->next;
     }
@@ -96,7 +96,7 @@ void deleteSplinePoints_undo ( G3DURMANAGER *urm,
     while ( ltmpRemovedSegments ) {
         G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpRemovedSegments->data;
 
-        g3dspline_addSegment ( spline, seg );
+        g3dcurve_addSegment ( spline->curve, seg );
 
         ltmpRemovedSegments = ltmpRemovedSegments->next;
     }
@@ -121,7 +121,7 @@ void deleteSplinePoints_redo ( G3DURMANAGER *urm,
     while ( ltmpRemovedPoints ) {
         G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpRemovedPoints->data;
 
-        g3dmesh_removeVertex ( ( G3DMESH * ) spline, pt );
+        g3dcurve_removePoint ( spline->curve, pt );
 
         ltmpRemovedPoints = ltmpRemovedPoints->next;
     }
@@ -130,7 +130,7 @@ void deleteSplinePoints_redo ( G3DURMANAGER *urm,
     while ( ltmpRemovedSegments ) {
         G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpRemovedSegments->data;
 
-        g3dspline_removeSegment ( spline, seg );
+        g3dcurve_removeSegment ( spline->curve, seg );
 
         ltmpRemovedSegments = ltmpRemovedSegments->next;
     }
@@ -151,7 +151,7 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
     URMDELETESPLINEPOINTS *dsp;
     LIST *lremovedSegments = NULL;
 
-    g3dspline_deletePoints ( spline, 
+    g3dcurve_deletePoints ( spline->curve, 
                              lremovedPoints, 
                             &lremovedSegments, 
                              engine_flags );

@@ -343,7 +343,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
                          ( flags & VIEWAXIS   ) ||
                          ( flags & VIEWSKIN   ) ||
                          ( flags & VIEWUVWMAP ) ) ) {
-            g3dobject_drawKeys ( selobj, flags );
+            g3dobject_drawKeys ( selobj, curcam, flags );
 
             glPushMatrix ( );
             glMultMatrixd ( selobj->wmatrix );

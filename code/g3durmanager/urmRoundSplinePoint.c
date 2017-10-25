@@ -94,7 +94,7 @@ void roundSplinePoint_redo ( G3DURMANAGER *urm,
 
     ((G3DMESH*)rsp->spline)->lselver = rsp->lselectedPoints;
 
-    g3dspline_roundSelectedPoints ( rsp->spline );
+    g3dcurve_roundSelectedPoints ( rsp->spline->curve );
 
     ((G3DMESH*)rsp->spline)->lselver = lbackupSelectedPoints;
 
@@ -111,19 +111,19 @@ void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
                                          G3DSPLINE        *spline,
                                          uint32_t          engine_flags,
                                          uint32_t          return_flags ) {
-    LIST *lsegments = g3dspline_getSegmentsFromSelectedPoints ( spline );
+    LIST *lsegments = g3dcurve_getSegmentsFromSelectedPoints ( spline->curve );
     uint32_t nbseg = list_count ( lsegments );
 
     if ( nbseg ) {
         G3DVECTOR (*pos)[0x02] = calloc ( nbseg, sizeof ( G3DVECTOR ) * 0x02 );
-        LIST *lselectedPoints = g3dspline_getSelectedPoints ( spline );
+        LIST *lselectedPoints = g3dcurve_getSelectedPoints ( spline->curve );
         URMROUNDSPLINEPOINT *rsp;
 
         /* backup handles position */
         g3dcubicsegment_getHandlePositionFromList ( lsegments, pos );
 
         /* then perform the operation */
-        g3dspline_roundSelectedPoints  ( spline );
+        g3dcurve_roundSelectedPoints  ( spline->curve );
 
 
 

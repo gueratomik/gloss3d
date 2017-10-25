@@ -163,7 +163,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     if ( obj->type == G3DSPLINETYPE ) {
                         G3DSPLINE *spline = ( G3DSPLINE * ) obj;
                         G3DSPLINESEGMENT *seg = NULL;
-                        G3DSPLINEPOINT *pt = g3dsplinepoint_new ( objx, 
+                        G3DSPLINEPOINT *pt = g3dcurvepoint_new ( objx, 
                                                                   objy,
                                                                   objz );
 
@@ -172,10 +172,10 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                          * i.e does not belong to more than 1 segment.
                          */
                         if ( lastver == NULL ) {
-                            lastver = g3dspline_getConnectablePoint ( spline );
+                            lastver = g3dcurve_getConnectablePoint ( spline->curve );
                         } else {
                             if ( ((G3DSPLINEPOINT*)lastver)->nbseg > 0x01 ) {
-                                lastver = g3dspline_getConnectablePoint ( spline );
+                                lastver = g3dcurve_getConnectablePoint ( spline->curve );
                             }
                         }
 

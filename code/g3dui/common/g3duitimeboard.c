@@ -94,4 +94,5 @@ void common_g3dui_recordFrameCbk ( G3DUI *gui, uint32_t key_flags ) {
 
     g3dui_updateKeyEdit  ( gui );
     g3dui_redrawTimeline ( gui );
+    g3dui_redrawGLViews ( gui );
 }

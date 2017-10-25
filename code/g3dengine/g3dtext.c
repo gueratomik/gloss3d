@@ -608,7 +608,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                                     tessData[j][1],
                                                     tessData[j][2] );
 
-                        g3dsplinesegment_draw ( &qsg, 
+                        g3dcurvesegment_draw ( &qsg, 
                                                  0.0f, 
                                                  1.0f, 
                                                  nbStepsPerSegment,

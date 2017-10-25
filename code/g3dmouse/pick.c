@@ -173,7 +173,7 @@ void pick_Item ( G3DPICKTOOL *pt, G3DOBJECT *obj, G3DCAMERA *cam,
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
 
-    if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type & EDITABLE ) ) {
+    if ( ( ( flags & VIEWOBJECT ) == 0x00 ) && ( obj->type == G3DMESHTYPE ) ) {
         if ( ( flags & VIEWVERTEX ) &&
              ( flags & EDITUVWMAP ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;

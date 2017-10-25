@@ -65,7 +65,7 @@ void cutSpline_free ( void    *data,
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
         list_free ( &csp->laddedSegments  , g3dcubicsegment_free );
-        list_free ( &csp->laddedPoints    , g3dsplinepoint_free  );
+        list_free ( &csp->laddedPoints    , g3dcurvepoint_free  );
         list_free ( &csp->lremovedSegments, NULL  );
     } else {
         list_free ( &csp->laddedSegments  , NULL  );
@@ -84,11 +84,11 @@ void cutSpline_undo ( G3DURMANAGER *urm,
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
     /* remove deleted segments */
-    list_execargdata ( csp->laddedSegments  , g3dspline_removeSegment, spline );
+    list_execargdata ( csp->laddedSegments  , g3dcurve_removeSegment, spline->curve );
     /* remove added points */
-    list_execargdata ( csp->laddedPoints    , g3dmesh_removeVertex   , spline );
+    list_execargdata ( csp->laddedPoints    , g3dcurve_removePoint  , spline->curve );
     /* restore deleted segments */
-    list_execargdata ( csp->lremovedSegments, g3dspline_addSegment   , spline );
+    list_execargdata ( csp->lremovedSegments, g3dcurve_addSegment   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
     g3dmesh_update ( spline, NULL,
@@ -105,11 +105,11 @@ void cutSpline_redo ( G3DURMANAGER *urm,
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
     /* remove deleted segments */
-    list_execargdata ( csp->lremovedSegments, g3dspline_removeSegment, spline );
+    list_execargdata ( csp->lremovedSegments, g3dcurve_removeSegment, spline->curve );
     /* re-add new points */
-    list_execargdata ( csp->laddedPoints    , g3dmesh_addVertex      , spline );
+    list_execargdata ( csp->laddedPoints    , g3dcurve_addPoint     , spline->curve );
     /* re-add new segments */
-    list_execargdata ( csp->laddedSegments  , g3dspline_addSegment   , spline );
+    list_execargdata ( csp->laddedSegments  , g3dcurve_addSegment   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
     g3dmesh_update ( spline, NULL,
@@ -129,7 +129,7 @@ void g3durm_spline_cut ( G3DURMANAGER *urm,
     LIST *laddedSegments = NULL;
     LIST *lremovedSegments = NULL;
 
-    g3dspline_cut ( spline, 
+    g3dcurve_cut ( spline->curve, 
                     knife,
                    &laddedPoints,
                    &laddedSegments,

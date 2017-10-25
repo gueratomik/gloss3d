@@ -188,7 +188,7 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
         if ( obj && ( obj->type == G3DSPLINETYPE ) ) {
             G3DSPLINE *spline = ( G3DSPLINE * ) obj;
             if ( gui->flags & VIEWVERTEX ) {
-                LIST *lremovedPoints   = g3dspline_getSelectedPoints ( spline );
+                LIST *lremovedPoints   = g3dcurve_getSelectedPoints ( spline->curve );
 
                 g3durm_spline_deletePoints ( urm,
                                              spline, 

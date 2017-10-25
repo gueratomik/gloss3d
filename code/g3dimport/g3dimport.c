@@ -906,10 +906,10 @@ G3DSCENE *g3dscene_open ( const char *filename,
                         readf ( pos, sizeof ( float ), nbver * 0x04, fsrc );
 
                         for ( i = 0x00; i < nbver; i++ ) {
-                            ver[i] = g3dsplinepoint_new ( pos[i][0x00], 
+                            ver[i] = g3dcurvepoint_new ( pos[i][0x00], 
                                                           pos[i][0x01],
                                                           pos[i][0x02]);
-                            g3dmesh_addVertex ( spline, ver[i] );
+                            g3dcurve_addPoint ( spline->curve, ver[i] );
                         }
 
                         free ( pos );
@@ -947,7 +947,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                                                     posHandle[0x01][0x01],
                                                     posHandle[0x01][0x02] );
 
-                        g3dspline_addSegment ( spline, seg );
+                        g3dcurve_addSegment ( spline->curve, seg );
                     }
                 }
 
@@ -1138,6 +1138,16 @@ G3DSCENE *g3dscene_open ( const char *filename,
                     g3dkey_setLoop ( keyarr[keyid] );
                     g3dkey_setLoopFrame ( keyarr[keyid], loopFrame );
                 }
+            } break;
+
+            case MESHDETAILSSIG : {
+                printf("mesh details chunk found\n");
+            } break;
+
+            case SHADINGLIMITSIG : {
+                printf("shading limit chunk found\n");
+
+                readf ( &mes->gouraudScalarLimit, sizeof ( float ), 0x01, fsrc );
             } break;
 
             case GEOVERTICES : {

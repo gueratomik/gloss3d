@@ -123,8 +123,8 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         G3DMESH   *srvmes = ( G3DMESH   * ) srv;
         G3DOBJECT *srvobj = ( G3DOBJECT * ) srv;
 
-        uint32_t   nbSplineVertices = splmes->nbver - ( spl->nbseg * 0x02 );
-        uint32_t   nbSplineSegments = spl->nbseg;
+        uint32_t   nbSplineVertices = splmes->nbver - ( spl->curve->nbseg * 0x02 );
+        uint32_t   nbSplineSegments = spl->curve->nbseg;
         uint32_t   nbVerticesPerStep  = nbSplineVertices + ( nbSplineSegments * srv->nbdivis );
         uint32_t   nbRevolvedVertices = ( nbSplineVertices * srv->nbsteps ) + 
                                         ( nbSplineSegments * srv->nbdivis * srv->nbsteps );
@@ -212,10 +212,10 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                     ltmpver = ltmpver->next;
                 }
 
-                LIST *ltmpseg = spl->lseg;
+                LIST *ltmpseg = spl->curve->lseg;
                 uint32_t segmentID = 0x00;
                 while ( ltmpseg ) {
-                    G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
+                    G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
                     float incrementFactor = 1.0f / ( srv->nbdivis + 1 );
                     float factor = incrementFactor;
 
@@ -248,7 +248,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
             for ( i = 0x00; i < srv->nbsteps; i++ ) {
                 uint32_t n = ( i + 0x01 ) % srv->nbsteps;
-                LIST *ltmpseg = spl->lseg;
+                LIST *ltmpseg = spl->curve->lseg;
                 uint32_t segmentID = 0x00;
 
                 while ( ltmpseg ) {

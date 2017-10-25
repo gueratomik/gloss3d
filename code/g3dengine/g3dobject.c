@@ -401,16 +401,13 @@ void g3dobject_anim_position ( G3DOBJECT *obj, float frame, uint32_t flags ) {
             obj->pos.y = prevkey->pos.y;
             obj->pos.z = prevkey->pos.z;
         } else {
+            G3DCUBICSEGMENT *csg = g3dcurve_seekSegment ( obj->posCurve, 
+                                                         &prevkey->posCurvePoint,
+                                                         &nextkey->posCurvePoint );
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
 
-            float difposx = ( nextkey->pos.x - prevkey->pos.x ),
-                  difposy = ( nextkey->pos.y - prevkey->pos.y ),
-                  difposz = ( nextkey->pos.z - prevkey->pos.z );
-
-            obj->pos.x = prevkey->pos.x + ( difposx * ratio );
-            obj->pos.y = prevkey->pos.y + ( difposy * ratio );
-            obj->pos.z = prevkey->pos.z + ( difposz * ratio );
+            g3dcubicsegment_getPoint ( csg, ratio, &obj->pos );
         }
     }
 }
@@ -553,16 +550,16 @@ G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
                *prevkey = ( ltmp->prev ) ? ( G3DKEY *) lprev->data : NULL,
                *nextkey = ( ltmp->next ) ? ( G3DKEY *) lnext->data : NULL;
  
-        if ( ( frame > key->frame && nextkey == NULL ) ||
-             ( frame > key->frame && frame < nextkey->frame ) ) {
+        if ( ( ( frame > key->frame ) && ( nextkey == NULL        ) ) ||
+             ( ( frame > key->frame ) && ( frame < nextkey->frame ) ) ) {
             (*lbeg) = ltmp;
             (*lend) = ltmp->next;
 
             return NULL;
         }
 
-        if ( ( frame < key->frame && prevkey == NULL ) ||
-             ( frame < key->frame && frame > prevkey->frame ) ) {
+        if ( ( ( frame < key->frame ) && ( prevkey == NULL        ) ) ||
+             ( ( frame < key->frame ) && ( frame > prevkey->frame ) ) ) {
             (*lbeg) = ltmp->prev;
             (*lend) = ltmp;
 
@@ -606,6 +603,9 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
             /*** overwrite key values ***/
             g3dkey_init ( key, frame, pos, rot, sca, key_flags );
         } else {
+            G3DKEY *beg = ( lbeg ) ? ( G3DKEY * ) lbeg->data : NULL;
+            G3DKEY *end = ( lend ) ? ( G3DKEY * ) lend->data : NULL;
+
             /*** Here we assume g3dobject_getKey has returned some ***/
             /***  non-NULL value for either lbeg or lend or both. ***/
             key  = g3dkey_new ( frame, pos, rot, sca, key_flags );
@@ -616,6 +616,51 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
             } else {
                 lbeg->next = lnew;
             }
+
+            memcpy ( &key->posCurvePoint.ver.pos, pos, sizeof ( G3DVECTOR ) );
+
+            g3dcurve_addPoint ( obj->posCurve, &key->posCurvePoint.ver );
+
+            if ( lbeg && lend ) {
+                G3DCURVESEGMENT *seg = g3dcurve_seekSegment ( obj->posCurve,
+                                                             &beg->posCurvePoint,
+                                                             &end->posCurvePoint );
+
+                g3dcurve_removeSegment ( obj->posCurve, seg );
+            }
+
+            if ( lbeg ) {
+                G3DCUBICSEGMENT *csg = g3dcubicsegment_new ( &beg->posCurvePoint,
+                                                             &key->posCurvePoint,
+                                                             0.0f, 
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f );
+
+                g3dcurve_addSegment ( obj->posCurve, csg );
+
+                g3dcurvepoint_roundCubicSegments ( &beg->posCurvePoint );
+            }
+
+            if ( lend ) {
+                G3DCUBICSEGMENT *csg = g3dcubicsegment_new ( &end->posCurvePoint,
+                                                             &key->posCurvePoint,
+                                                             0.0f, 
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f,
+                                                             0.0f );
+
+                g3dcurve_addSegment ( obj->posCurve, csg );
+
+                g3dcurvepoint_roundCubicSegments ( &end->posCurvePoint );
+            }
+
+            g3dcurvepoint_roundCubicSegments ( &key->posCurvePoint );
+
 
             lnew->prev = lbeg;
             lnew->next = lend;
@@ -818,7 +863,7 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dobject_drawKeys ( G3DOBJECT *obj, uint32_t flags ) {
+void g3dobject_drawKeys ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
     LIST *ltmp = obj->lkey;
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
@@ -832,7 +877,9 @@ void g3dobject_drawKeys ( G3DOBJECT *obj, uint32_t flags ) {
         glMultMatrixd ( obj->parent->wmatrix );
     }
 
-    glBegin ( GL_LINE_STRIP );
+    g3dcurve_draw ( obj->posCurve, cam, flags );
+
+    /*glBegin ( GL_LINE_STRIP );
     while ( ltmp ) {
         G3DKEY *key = ( G3DKEY * ) ltmp->data;
 
@@ -840,7 +887,7 @@ void g3dobject_drawKeys ( G3DOBJECT *obj, uint32_t flags ) {
 
         ltmp = ltmp->next;
     } 
-    glEnd ( );
+    glEnd ( );*/
  
     glPopMatrix ( );
 
@@ -1164,6 +1211,10 @@ void g3dobject_init ( G3DOBJECT   *obj,
     g3dvector_init ( &obj->sca, 1.0f, 1.0f, 1.0f, 1.0f );
 
     g3dobject_initMatrices ( obj );
+
+    obj->posCurve = g3dcurve_new ( CUBIC, 0x00 );
+    obj->rotCurve = g3dcurve_new ( CUBIC, 0x00 );
+    obj->scaCurve = g3dcurve_new ( CUBIC, 0x00 );
 
     /*** COMMENTED: Because this maybe called before OpenGL initialization ***/
     /*** we dont use OpenGL functions. Instead, we use some home-made func ***/
