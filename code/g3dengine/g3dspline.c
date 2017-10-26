@@ -99,7 +99,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
         }
     }
 
-    if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
+    /*if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
         glDisable ( GL_DEPTH_TEST );
         while ( ltmpver ) {
             G3DVERTEX * ver = ( G3DVERTEX * ) ltmpver->data;
@@ -118,9 +118,9 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
                     } else {
                         glColor3ub ( 0x00, 0xFF, 0x00 );
                     }
-                    glVertex3f (  han->ver.pos.x + han->pt->pos.x, 
-                                  han->ver.pos.y + han->pt->pos.y, 
-                                  han->ver.pos.z + han->pt->pos.z );
+                    glVertex3f (  han->pos.x + han->pt->pos.x, 
+                                  han->pos.y + han->pt->pos.y, 
+                                  han->pos.z + han->pt->pos.z );
                 }
             } else {
                 if ( ver->flags & VERTEXSELECTED ) {
@@ -135,7 +135,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
             ltmpver = ltmpver->next;
         }
-    }
+    }*/
 
     glPopAttrib ( );
 

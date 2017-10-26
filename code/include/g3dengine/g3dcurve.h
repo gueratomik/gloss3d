@@ -56,26 +56,26 @@ typedef struct _G3DCURVE {
 } G3DCURVE;
 
 /******************************************************************************/
+typedef struct _G3DCURVEPOINT {
+    G3DVECTOR pos;
+    uint32_t  id;
+    LIST     *lseg;
+    uint32_t  nbseg;
+} G3DCURVEPOINT, G3DCUBICHANDLE, G3DQUADRATICHANDLE;
+
+/******************************************************************************/
 typedef struct _G3DCURVESEGMENT {
     uint32_t id;
     void (*getPoint)( struct _G3DCURVESEGMENT *seg, 
                              float             factor, 
                              G3DVECTOR        *pout );
-    G3DVERTEX *pt[0x04];
+    G3DCURVEPOINT *pt[0x04];
 } G3DCURVESEGMENT;
 
 /******************************************************************************/
-typedef struct _G3DCURVEPOINT {
-    G3DVERTEX ver;
-    LIST     *lseg;
-    uint32_t  nbseg;
-} G3DCURVEPOINT;
-
-/******************************************************************************/
-typedef struct _G3DCUBICHANDLE {
-    G3DVERTEX ver;
-    G3DVERTEX *pt;
-} G3DCUBICHANDLE;
+/*typedef struct _G3DCUBICHANDLE {
+    G3DCURVEPOINT pt;
+} G3DCUBICHANDLE;*/
 
 /******************************************************************************/
 typedef struct _G3DCUBICSEGMENT {
@@ -84,10 +84,9 @@ typedef struct _G3DCUBICSEGMENT {
 } G3DCUBICSEGMENT;
 
 /******************************************************************************/
-typedef struct _G3DQUADRATICHANDLE {
-    G3DVERTEX ver;
-    G3DVERTEX *pt[0x02];
-} G3DQUADRATICHANDLE;
+/*typedef struct _G3DQUADRATICHANDLE {
+    G3DCURVEPOINT pt;
+} G3DQUADRATICHANDLE;*/
 
 /******************************************************************************/
 typedef struct _G3DQUADRATICSEGMENT {

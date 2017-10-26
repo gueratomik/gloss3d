@@ -1280,17 +1280,17 @@ void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR *vout ) 
 
         if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
 
-        if ( ver->flags & VERTEXHANDLE ) {
+        /*if ( ver->flags & VERTEXHANDLE ) {
             G3DCUBICHANDLE *handle = ( G3DCUBICHANDLE * ) ver;
 
             vout->x += ( handle->pt->pos.x + handle->ver.pos.x );
             vout->y += ( handle->pt->pos.y + handle->ver.pos.y );
             vout->z += ( handle->pt->pos.z + handle->ver.pos.z );
-        } else {
+        } else {*/
             vout->x += pos->x;
             vout->y += pos->y;
             vout->z += pos->z;
-        }
+        /*}*/
 
         nbver++;
 

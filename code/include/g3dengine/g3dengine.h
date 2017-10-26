@@ -670,8 +670,8 @@ typedef struct _G3DOBJECT {
     LIST *lkey; /*** keyframe list ***/
     LIST *lselkey;
     G3DCURVE *posCurve; /* translation dynamics */
-    G3DCURVE *rotCurve; /* roation dynamics */
-    G3DCURVE *scaCurve; /* scale dynamics */
+    G3DCURVE *rotCurve; /* X rotation dynamics */
+    G3DCURVE *scaCurve; /* X scale dynamics */
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1037,6 +1037,8 @@ struct _G3DKEY {
     G3DVECTOR sca;
     float loopFrame;
     G3DCURVEPOINT posCurvePoint;
+    G3DCURVEPOINT rotCurvePoint;
+    G3DCURVEPOINT scaCurvePoint;
     void *data; /*** private datas ***/
 };
 

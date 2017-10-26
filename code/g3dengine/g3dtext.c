@@ -544,7 +544,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                      jtag = FT_CURVE_TAG ( outline->tags[j] ),
                      ntag = FT_CURVE_TAG ( outline->tags[n] );
                 G3DQUADRATICSEGMENT qsg;
-                G3DSPLINEPOINT pt0, pt1;
+                G3DCURVEPOINT pt0, pt1;
 
                 tessData[j][0x00] = ( double ) points[j].x;
                 tessData[j][0x01] = ( double ) points[j].y;
@@ -553,49 +553,49 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                 switch ( jtag ) {
                     case FT_CURVE_TAG_CONIC :
                         if ( htag == FT_CURVE_TAG_ON ) {
-                            pt0.ver.pos.x = ( double ) points[h].x;
-                            pt0.ver.pos.y = ( double ) points[h].y;
-                            pt0.ver.pos.z = 0.0f;
+                            pt0.pos.x = ( double ) points[h].x;
+                            pt0.pos.y = ( double ) points[h].y;
+                            pt0.pos.z = 0.0f;
                         }
 
                         if ( ntag == FT_CURVE_TAG_ON ) {
-                            pt1.ver.pos.x = ( double ) points[n].x;
-                            pt1.ver.pos.y = ( double ) points[n].y;
-                            pt1.ver.pos.z = 0.0f;
+                            pt1.pos.x = ( double ) points[n].x;
+                            pt1.pos.y = ( double ) points[n].y;
+                            pt1.pos.z = 0.0f;
                         }
 
                         if ( htag == FT_CURVE_TAG_CONIC ) {
-                            pt0.ver.pos.x = ( ( double ) points[h].x + 
-                                              ( double ) tessData[j][0x00] ) * 0.5f;
-                            pt0.ver.pos.y = ( ( double ) points[h].y + 
-                                              ( double ) tessData[j][0x01] ) * 0.5f;
-                            pt0.ver.pos.z = 0.0f;
+                            pt0.pos.x = ( ( double ) points[h].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt0.pos.y = ( ( double ) points[h].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt0.pos.z = 0.0f;
                         }
 
                         if ( ntag == FT_CURVE_TAG_CONIC ) {
-                            pt1.ver.pos.x = ( ( double ) points[n].x + 
-                                              ( double ) tessData[j][0x00] ) * 0.5f;
-                            pt1.ver.pos.y = ( ( double ) points[n].y + 
-                                              ( double ) tessData[j][0x01] ) * 0.5f;
-                            pt1.ver.pos.z = 0.0f;
+                            pt1.pos.x = ( ( double ) points[n].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt1.pos.y = ( ( double ) points[n].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt1.pos.z = 0.0f;
                         }
 
                         /*** if it's the last point of the curve ***/
                         if ( j == *contours ) {
-                            pt1.ver.pos.x = ( ( double ) points[firstPointID].x + 
-                                              ( double ) tessData[j][0x00] ) * 0.5f;
-                            pt1.ver.pos.y = ( ( double ) points[firstPointID].y + 
-                                              ( double ) tessData[j][0x01] ) * 0.5f;
-                            pt1.ver.pos.z = 0.0f;
+                            pt1.pos.x = ( ( double ) points[firstPointID].x + 
+                                          ( double ) tessData[j][0x00] ) * 0.5f;
+                            pt1.pos.y = ( ( double ) points[firstPointID].y + 
+                                          ( double ) tessData[j][0x01] ) * 0.5f;
+                            pt1.pos.z = 0.0f;
                         }
 
-                        pt0.ver.pos.x = ( pt0.ver.pos.x / divFactor );
-                        pt0.ver.pos.y = ( pt0.ver.pos.y / divFactor );
-                        pt0.ver.pos.z = 0.0f;
+                        pt0.pos.x = ( pt0.pos.x / divFactor );
+                        pt0.pos.y = ( pt0.pos.y / divFactor );
+                        pt0.pos.z = 0.0f;
 
-                        pt1.ver.pos.x = ( pt1.ver.pos.x / divFactor );
-                        pt1.ver.pos.y = ( pt1.ver.pos.y / divFactor );
-                        pt1.ver.pos.z = 0.0f;
+                        pt1.pos.x = ( pt1.pos.x / divFactor );
+                        pt1.pos.y = ( pt1.pos.y / divFactor );
+                        pt1.pos.z = 0.0f;
 
                         tessData[j][0] = ( tessData[j][0] / divFactor );
                         tessData[j][1] = ( tessData[j][1] / divFactor );

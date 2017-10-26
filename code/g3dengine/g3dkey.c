@@ -30,6 +30,31 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dkey_recordPosCurvePoint ( G3DKEY *key, G3DVECTOR *pos ) {
+    memcpy ( &key->posCurvePoint.pos, pos, sizeof ( G3DVECTOR ) );
+}
+
+/******************************************************************************/
+void g3dkey_recordRotCurvePoint ( G3DKEY *key, G3DVECTOR *rot ) {
+    memcpy ( &key->rotCurvePoint.pos, rot, sizeof ( G3DVECTOR ) );
+}
+
+/******************************************************************************/
+void g3dkey_recordScaCurvePoint ( G3DKEY *key, G3DVECTOR *sca ) {
+    memcpy ( &key->scaCurvePoint.pos, sca, sizeof ( G3DVECTOR ) );
+}
+
+/******************************************************************************/
+void g3dkey_recordAllCurvePoint ( G3DKEY    *key, 
+                                  G3DVECTOR *pos, 
+                                  G3DVECTOR *rot, 
+                                  G3DVECTOR *sca ) {
+    if ( pos ) g3dkey_recordPosCurvePoint ( key, pos );
+    if ( rot ) g3dkey_recordRotCurvePoint ( key, rot );
+    if ( sca ) g3dkey_recordScaCurvePoint ( key, sca );
+}
+
+/******************************************************************************/
 void g3dkey_setLoopFrame ( G3DKEY *key, float loopFrame ) {
     key->loopFrame = loopFrame;
 }

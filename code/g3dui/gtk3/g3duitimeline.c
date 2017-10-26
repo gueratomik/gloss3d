@@ -199,6 +199,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                     common_timelinedata_deleteKey ( tdata, sce->lsel );
 
                     g3dui_redrawTimeline ( gui );
+                    g3dui_redrawGLViews ( gui );
                 } break;
             }
         } break;
