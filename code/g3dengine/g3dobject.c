@@ -731,10 +731,12 @@ G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
 /*** but this is more convenient to do it that way, especially when reading ***/
 /*** the keys from a file. This way I dont have to order the way keys are ***/
 /*** aved into the file. g3dobject_pose does the ordering by itself ***/
-G3DKEY *g3dobject_pose ( G3DOBJECT *obj, float frame,
-                                         G3DVECTOR *pos,
-                                         G3DVECTOR *rot,
-                                         G3DVECTOR *sca, uint32_t key_flags ) {
+G3DKEY *g3dobject_pose ( G3DOBJECT *obj, 
+                         float      frame,
+                         G3DVECTOR *pos,
+                         G3DVECTOR *rot,
+                         G3DVECTOR *sca, 
+                         uint32_t   key_flags ) {
     LIST *lbeg, *lend, *lequ;
     LIST *lnew = NULL;
     G3DKEY *key = NULL;

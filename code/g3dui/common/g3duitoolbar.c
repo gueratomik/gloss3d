@@ -36,7 +36,9 @@ void common_g3dui_undoCbk ( G3DUI *gui ) {
 
     return_value = g3durmanager_undo ( urm, gui->flags );
 
-    if ( return_value & REDRAWVIEW ) {
+    common_g3dui_interpretMouseToolReturnFlags ( gui, return_value );
+
+    /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
     }
 
@@ -46,7 +48,7 @@ void common_g3dui_undoCbk ( G3DUI *gui ) {
 
     if ( return_value & REDRAWCURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
-    }
+    }*/
 }
 
 /******************************************************************************/
@@ -56,7 +58,9 @@ void common_g3dui_redoCbk ( G3DUI *gui ) {
 
     return_value = g3durmanager_redo ( urm, gui->flags );
 
-    if ( return_value & REDRAWVIEW ) {
+    common_g3dui_interpretMouseToolReturnFlags ( gui, return_value );
+
+    /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
     }
 
@@ -66,7 +70,7 @@ void common_g3dui_redoCbk ( G3DUI *gui ) {
 
     if ( return_value & REDRAWCURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
-    }
+    }*/
 }
 
 /******************************************************************************/

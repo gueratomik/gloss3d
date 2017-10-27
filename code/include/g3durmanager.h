@@ -188,6 +188,16 @@ typedef struct _URMADDVERTEX {
 } URMADDVERTEX;
 
 /******************************************************************************/
+typedef struct _URMOBJECTPOSE {
+    G3DOBJECT *obj;
+    float      frame;
+    G3DKEY    *key;
+    G3DVECTOR  keypos;
+    G3DVECTOR  keyrot;
+    G3DVECTOR  keysca;
+} URMOBJECTPOSE;
+
+/******************************************************************************/
 typedef struct _URMADDSPLINEPOINT {
     G3DSPLINE        *spline;
     G3DSPLINEPOINT   *pt;
@@ -545,6 +555,26 @@ void g3durm_spline_revert ( G3DURMANAGER *urm,
                             uint32_t      engine_flags,
                             uint32_t      return_flags );
 
-
+/******************************************************************************/
+URMOBJECTPOSE *urmObjectPose_new ( G3DOBJECT *obj, 
+                                   float      frame,
+                                   G3DKEY    *key );
+void urmObjectPose_free ( URMOBJECTPOSE *op );
+void objectPose_free ( void *data, uint32_t commit );
+void objectPose_undo ( G3DURMANAGER *urm, 
+                       void         *data,
+                       uint32_t      engine_flags );
+void objectPose_redo ( G3DURMANAGER *urm, 
+                       void         *data,
+                       uint32_t      engine_flags );
+void g3durm_object_pose ( G3DURMANAGER     *urm,
+                          G3DOBJECT        *obj,
+                          float             frame,
+                          G3DVECTOR        *pos,
+                          G3DVECTOR        *rot,
+                          G3DVECTOR        *sca,
+                          uint32_t          key_flags,
+                          uint32_t          engine_flags,
+                          uint32_t          return_flags );
 
 #endif

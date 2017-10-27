@@ -343,31 +343,46 @@ void g3dcurvepoint_roundCubicSegments ( G3DCURVEPOINT *pt ) {
 
         /*g3dvector_normalize ( &avg, NULL );*/
 
+        /*float segAngle = fabs ( g3dvector_angle ( &segvec[0], &segvec[1] ) );
+
+if ( segAngle == NAN ) printf (" NaN\n");*/
+
         g3dvector_cross ( &segvec[0], &segvec[1], &nor );
-        g3dvector_cross ( &nor, &avg, &hanvec[0x00] );
 
-        g3dvector_normalize ( &hanvec[0x00], NULL );
+        /*if ( ( nor.x == 0.0f ) && ( nor.y == 0.0f ) && ( nor.z == 0.0f ) ) {
+            han[0]->pos.x = hanvec[0x00].x;
+            han[0]->pos.y = hanvec[0x00].y;
+            han[0]->pos.z = hanvec[0x00].z;
 
-        hanvec[0x01].x = -hanvec[0x00].x;
-        hanvec[0x01].y = -hanvec[0x00].y;
-        hanvec[0x01].z = -hanvec[0x00].z;
+            han[1]->pos.x = hanvec[0x01].x;
+            han[1]->pos.y = hanvec[0x01].y;
+            han[1]->pos.z = hanvec[0x01].z;
+        } else {*/
+            g3dvector_cross ( &nor, &avg, &hanvec[0x00] );
+
+            g3dvector_normalize ( &hanvec[0x00], NULL );
+
+            hanvec[0x01].x = -hanvec[0x00].x;
+            hanvec[0x01].y = -hanvec[0x00].y;
+            hanvec[0x01].z = -hanvec[0x00].z;
 
 
-        if ( g3dvector_angle ( &hanvec[0x00], &segvec[0] ) > 1,5708 ) {
-            len[0] = -len[0];
-        }
+            if ( g3dvector_angle ( &hanvec[0x00], &segvec[0] ) > 1.5708f ) {
+                len[0] = -len[0];
+            }
 
-        if ( g3dvector_angle ( &hanvec[0x01], &segvec[1] ) > 1,5708 ) {
-            len[1] = -len[1];
-        }
+            if ( g3dvector_angle ( &hanvec[0x01], &segvec[1] ) > 1.5708f ) {
+                len[1] = -len[1];
+            }
 
-        han[0]->pos.x = ( hanvec[0x00].x * len[0] );
-        han[0]->pos.y = ( hanvec[0x00].y * len[0] );
-        han[0]->pos.z = ( hanvec[0x00].z * len[0] );
+            han[0]->pos.x = ( hanvec[0x00].x * len[0] /** sin ( segAngle * 0.5f )*/ );
+            han[0]->pos.y = ( hanvec[0x00].y * len[0] /** sin ( segAngle * 0.5f )*/ );
+            han[0]->pos.z = ( hanvec[0x00].z * len[0] /** sin ( segAngle * 0.5f )*/ );
 
-        han[1]->pos.x = ( hanvec[0x01].x * len[1] );
-        han[1]->pos.y = ( hanvec[0x01].y * len[1] );
-        han[1]->pos.z = ( hanvec[0x01].z * len[1] );
+            han[1]->pos.x = ( hanvec[0x01].x * len[1] /** sin ( segAngle * 0.5f )*/ );
+            han[1]->pos.y = ( hanvec[0x01].y * len[1] /** sin ( segAngle * 0.5f )*/ );
+            han[1]->pos.z = ( hanvec[0x01].z * len[1] /** sin ( segAngle * 0.5f )*/ );
+        /*}*/
     }
 }
 

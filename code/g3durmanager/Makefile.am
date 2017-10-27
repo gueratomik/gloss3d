@@ -20,6 +20,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmAddSplinePoint.c \
                                urmAddSplineSegment.c \
                                urmCutSpline.c \
+                               urmObjectPose.c \
                                urmDeleteSplinePoints.c \
                                urmselectitem.c \
                                urmcutmesh.c \

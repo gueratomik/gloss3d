@@ -1707,9 +1707,12 @@ void     g3dkey_setUseRotationFromList    ( LIST * );
 void     g3dkey_setUseScalingFromList     ( LIST * );
 
 /******************************************************************************/
-G3DKEY *g3dobject_pose ( G3DOBJECT *, float, G3DVECTOR *,
-                                             G3DVECTOR *,
-                                             G3DVECTOR *, uint32_t );
+G3DKEY *g3dobject_pose ( G3DOBJECT *obj, 
+                         float      frame,
+                         G3DVECTOR *pos,
+                         G3DVECTOR *rot,
+                         G3DVECTOR *sca, 
+                         uint32_t   key_flags );
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags );
 
 /******************************************************************************/
