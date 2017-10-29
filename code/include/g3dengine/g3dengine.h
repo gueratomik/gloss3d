@@ -668,6 +668,7 @@ typedef struct _G3DOBJECT {
     G3DBBOX bbox;
     G3DQUATERNION rotation;
     LIST *lkey; /*** keyframe list ***/
+    uint32_t nbkey;
     LIST *lselkey;
     G3DCURVE *posCurve; /* translation dynamics */
     G3DCURVE *rotCurve; /* X rotation dynamics */
@@ -1712,7 +1713,10 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj,
                          G3DVECTOR *pos,
                          G3DVECTOR *rot,
                          G3DVECTOR *sca, 
+                         G3DKEY   **overwrittenKey,
                          uint32_t   key_flags );
+G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key );
+
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags );
 
 /******************************************************************************/
@@ -1820,6 +1824,11 @@ void       g3dobject_activate              ( G3DOBJECT *, uint32_t );
 void g3dobject_moveAxis ( G3DOBJECT *obj, 
                           double    *PREVMVX, /* previous world matrix */
                           uint32_t   engine_flags );
+void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
+                                    G3DKEY    *key,
+                                    G3DKEY   **prevKey,
+                                    G3DKEY   **nextKey,
+                                    uint32_t   key_flags );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );

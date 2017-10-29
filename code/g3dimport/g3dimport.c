@@ -1091,6 +1091,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                                                  nbkey * sizeof ( G3DKEY * ) );
 
                 for ( i = 0x00; i < nbkey; i++ ) {
+                    G3DKEY *dummyKeyArg;
                     uint32_t usepos, userot, usesca, key_flags = 0x00;
                     G3DVECTOR pos, rot, sca;
                     float frame;
@@ -1118,7 +1119,9 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
                     keyarr[i] = g3dobject_pose ( obj, frame, &pos, 
                                                              &rot, 
-                                                             &sca, key_flags );
+                                                             &sca,
+                                                             &dummyKeyArg,
+                                                              key_flags );
                 }
 
             } break;

@@ -310,6 +310,8 @@ void g3dkey_init ( G3DKEY *key, float frame,
     memcpy ( &key->pos, pos, sizeof ( G3DVECTOR ) );
     memcpy ( &key->rot, rot, sizeof ( G3DVECTOR ) );
     memcpy ( &key->sca, sca, sizeof ( G3DVECTOR ) );
+
+    g3dkey_recordAllCurvePoint ( key, pos, rot, sca );
 }
 
 /******************************************************************************/

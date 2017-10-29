@@ -221,6 +221,7 @@ void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     uint32_t   key_flags ) {
     LIST *ltmpkey = obj->lkey;
 
+
     (*prevKey) = NULL;
     (*nextKey) = NULL;
 
@@ -250,7 +251,7 @@ void g3dobject_removePositionCurveSegmentsFromKey ( G3DOBJECT *obj,
 
     g3dobject_getSurroundingKeys ( obj, key, &prevKey, 
                                              &nextKey, KEYPOSITION );
-/*printf("%f %f\n", prevKey, nextKey);*/
+
     if ( prevKey ) {
         G3DCURVESEGMENT *seg = g3dcurve_seekSegment ( obj->posCurve,
                                                      &prevKey->posCurvePoint,
@@ -370,6 +371,8 @@ void g3dobject_removeKey ( G3DOBJECT *obj, G3DKEY *key ) {
     g3dobject_removeScalingCurveSegmentsFromKey  ( obj, key );
 
     list_remove ( &obj->lkey, key );
+
+    obj->nbkey--;
 }
 
 /******************************************************************************/
@@ -715,7 +718,9 @@ G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
         }
 
         if ( key->frame == frame ) {
+            (*lbeg) = ltmp->prev;
             (*lequ) = ltmp;
+            (*lend) = ltmp->next;
 
             return key;
         }
@@ -727,152 +732,145 @@ G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key ) {
+    LIST *lbeg, *lend, *lequ, *lnew;
+    G3DKEY *overwrittenKey = g3dobject_getKey ( obj, key->frame, &lbeg, 
+                                                                 &lend, 
+                                                                 &lequ );
+    G3DKEY *beg = ( lbeg ) ? ( G3DKEY * ) lbeg->data : NULL;
+    G3DKEY *end = ( lend ) ? ( G3DKEY * ) lend->data : NULL;
+
+    if ( overwrittenKey ) {
+        g3dobject_removeKey ( obj, overwrittenKey );
+    }
+
+    lnew = list_new ( key );
+
+    if ( lbeg == NULL ) {
+        obj->lkey = lnew;
+    } else {
+        lbeg->next = lnew;
+    }
+
+    g3dcurve_addPoint ( obj->posCurve, &key->posCurvePoint );
+    g3dcurve_addPoint ( obj->rotCurve, &key->rotCurvePoint );
+    g3dcurve_addPoint ( obj->scaCurve, &key->scaCurvePoint );
+
+    if ( lbeg && lend ) {
+        G3DCURVESEGMENT *posSeg = g3dcurve_seekSegment ( obj->posCurve,
+                                                        &beg->posCurvePoint,
+                                                        &end->posCurvePoint ),
+                        *rotSeg = g3dcurve_seekSegment ( obj->rotCurve,
+                                                        &beg->rotCurvePoint,
+                                                        &end->rotCurvePoint ),
+                        *scaSeg = g3dcurve_seekSegment ( obj->scaCurve,
+                                                        &beg->scaCurvePoint,
+                                                        &end->scaCurvePoint );
+
+        g3dcurve_removeSegment ( obj->posCurve, posSeg );
+        g3dcurve_removeSegment ( obj->rotCurve, rotSeg );
+        g3dcurve_removeSegment ( obj->scaCurve, scaSeg );
+    }
+
+    if ( lbeg ) {
+        G3DCUBICSEGMENT *posCsg = g3dcubicsegment_new ( &beg->posCurvePoint,
+                                                        &key->posCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f ),
+                        *rotCsg = g3dcubicsegment_new ( &beg->rotCurvePoint,
+                                                        &key->rotCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f ),
+                        *scaCsg = g3dcubicsegment_new ( &beg->scaCurvePoint,
+                                                        &key->scaCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f );
+
+        g3dcurve_addSegment ( obj->posCurve, posCsg );
+        g3dcurve_addSegment ( obj->rotCurve, rotCsg );
+        g3dcurve_addSegment ( obj->scaCurve, scaCsg );
+
+        g3dcurvepoint_roundCubicSegments ( &beg->posCurvePoint );
+        g3dcurvepoint_roundCubicSegments ( &beg->rotCurvePoint );
+        g3dcurvepoint_roundCubicSegments ( &beg->scaCurvePoint );
+    }
+
+    if ( lend ) {
+        G3DCUBICSEGMENT *posCsg = g3dcubicsegment_new ( &key->posCurvePoint,
+                                                        &end->posCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f ),
+                        *rotCsg = g3dcubicsegment_new ( &key->rotCurvePoint,
+                                                        &end->rotCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f ),
+                        *scaCsg = g3dcubicsegment_new ( &key->scaCurvePoint,
+                                                        &end->scaCurvePoint,
+                                                        0.0f, 
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f,
+                                                        0.0f );
+
+        g3dcurve_addSegment ( obj->posCurve, posCsg );
+        g3dcurve_addSegment ( obj->rotCurve, rotCsg );
+        g3dcurve_addSegment ( obj->scaCurve, scaCsg );
+
+        g3dcurvepoint_roundCubicSegments ( &end->posCurvePoint );
+        g3dcurvepoint_roundCubicSegments ( &end->rotCurvePoint );
+        g3dcurvepoint_roundCubicSegments ( &end->scaCurvePoint );
+    }
+
+    g3dcurvepoint_roundCubicSegments ( &key->posCurvePoint );
+    g3dcurvepoint_roundCubicSegments ( &key->rotCurvePoint );
+    g3dcurvepoint_roundCubicSegments ( &key->scaCurvePoint );
+
+    lnew->prev = lbeg;
+    lnew->next = lend;
+
+    if ( lend ) lend->prev = lnew;
+
+    obj->nbkey++;
+
+    return overwrittenKey;
+}
+
+/******************************************************************************/
 /*** Sure, we could read  Position/Rotation/Scale values from the object, ***/
 /*** but this is more convenient to do it that way, especially when reading ***/
 /*** the keys from a file. This way I dont have to order the way keys are ***/
 /*** aved into the file. g3dobject_pose does the ordering by itself ***/
-G3DKEY *g3dobject_pose ( G3DOBJECT *obj, 
-                         float      frame,
-                         G3DVECTOR *pos,
-                         G3DVECTOR *rot,
-                         G3DVECTOR *sca, 
-                         uint32_t   key_flags ) {
-    LIST *lbeg, *lend, *lequ;
-    LIST *lnew = NULL;
-    G3DKEY *key = NULL;
+G3DKEY *g3dobject_pose ( G3DOBJECT  *obj, 
+                         float       frame,
+                         G3DVECTOR  *pos,
+                         G3DVECTOR  *rot,
+                         G3DVECTOR  *sca, 
+                         G3DKEY    **overwrittenKey,
+                         uint32_t    key_flags ) {
+    G3DKEY *key = g3dkey_new ( frame, pos, rot, sca, key_flags );
 
-    if ( obj->lkey == NULL ) {
-        key = g3dkey_new ( frame, pos, rot, sca, key_flags );
-        /*** if list was NULL ***/
-        list_insert ( &obj->lkey, key );
-
-        g3dkey_recordAllCurvePoint ( key, pos, rot, sca );
-    } else {
-        key = g3dobject_getKey ( obj, frame, &lbeg, &lend, &lequ );
-
-        /*** We are on the frame, don't create a new one ***/
-        if ( key ) {
-            /*** overwrite key values ***/
-            g3dkey_init ( key, frame, pos, rot, sca, key_flags );
-
-            g3dkey_recordAllCurvePoint ( key, pos, rot, sca );
-        } else {
-            G3DKEY *beg = ( lbeg ) ? ( G3DKEY * ) lbeg->data : NULL;
-            G3DKEY *end = ( lend ) ? ( G3DKEY * ) lend->data : NULL;
-
-            /*** Here we assume g3dobject_getKey has returned some ***/
-            /***  non-NULL value for either lbeg or lend or both. ***/
-            key  = g3dkey_new ( frame, pos, rot, sca, key_flags );
-            lnew = list_new ( key );
-
-            if ( lbeg == NULL ) {
-                obj->lkey = lnew;
-            } else {
-                lbeg->next = lnew;
-            }
-
-            g3dkey_recordAllCurvePoint ( key, pos, rot, sca );
-
-            g3dcurve_addPoint ( obj->posCurve, &key->posCurvePoint );
-            g3dcurve_addPoint ( obj->rotCurve, &key->rotCurvePoint );
-            g3dcurve_addPoint ( obj->scaCurve, &key->scaCurvePoint );
-
-            if ( lbeg && lend ) {
-                G3DCURVESEGMENT *posSeg = g3dcurve_seekSegment ( obj->posCurve,
-                                                                &beg->posCurvePoint,
-                                                                &end->posCurvePoint ),
-                                *rotSeg = g3dcurve_seekSegment ( obj->rotCurve,
-                                                                &beg->rotCurvePoint,
-                                                                &end->rotCurvePoint ),
-                                *scaSeg = g3dcurve_seekSegment ( obj->scaCurve,
-                                                                &beg->scaCurvePoint,
-                                                                &end->scaCurvePoint );
-
-                g3dcurve_removeSegment ( obj->posCurve, posSeg );
-                g3dcurve_removeSegment ( obj->rotCurve, rotSeg );
-                g3dcurve_removeSegment ( obj->scaCurve, scaSeg );
-            }
-
-            if ( lbeg ) {
-                G3DCUBICSEGMENT *posCsg = g3dcubicsegment_new ( &beg->posCurvePoint,
-                                                                &key->posCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f ),
-                                *rotCsg = g3dcubicsegment_new ( &beg->rotCurvePoint,
-                                                                &key->rotCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f ),
-                                *scaCsg = g3dcubicsegment_new ( &beg->scaCurvePoint,
-                                                                &key->scaCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f );
-
-                g3dcurve_addSegment ( obj->posCurve, posCsg );
-                g3dcurve_addSegment ( obj->rotCurve, rotCsg );
-                g3dcurve_addSegment ( obj->scaCurve, scaCsg );
-
-                g3dcurvepoint_roundCubicSegments ( &beg->posCurvePoint );
-                g3dcurvepoint_roundCubicSegments ( &beg->rotCurvePoint );
-                g3dcurvepoint_roundCubicSegments ( &beg->scaCurvePoint );
-            }
-
-            if ( lend ) {
-                G3DCUBICSEGMENT *posCsg = g3dcubicsegment_new ( &key->posCurvePoint,
-                                                                &end->posCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f ),
-                                *rotCsg = g3dcubicsegment_new ( &key->rotCurvePoint,
-                                                                &end->rotCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f ),
-                                *scaCsg = g3dcubicsegment_new ( &key->scaCurvePoint,
-                                                                &end->scaCurvePoint,
-                                                                0.0f, 
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f,
-                                                                0.0f );
-
-                g3dcurve_addSegment ( obj->posCurve, posCsg );
-                g3dcurve_addSegment ( obj->rotCurve, rotCsg );
-                g3dcurve_addSegment ( obj->scaCurve, scaCsg );
-
-                g3dcurvepoint_roundCubicSegments ( &beg->posCurvePoint );
-                g3dcurvepoint_roundCubicSegments ( &beg->rotCurvePoint );
-                g3dcurvepoint_roundCubicSegments ( &beg->scaCurvePoint );
-            }
-
-            g3dcurvepoint_roundCubicSegments ( &key->posCurvePoint );
-            g3dcurvepoint_roundCubicSegments ( &key->rotCurvePoint );
-            g3dcurvepoint_roundCubicSegments ( &key->scaCurvePoint );
-
-            lnew->prev = lbeg;
-            lnew->next = lend;
-
-            if ( lend ) lend->prev = lnew;
-        }
-    }
+    (*overwrittenKey) = g3dobject_addKey ( obj, key );
 
     /*** allow objects to set their private datas ***/
     if ( obj->pose ) obj->pose ( obj, key );

@@ -33,7 +33,8 @@
 /******************************************************************************/
 URMOBJECTPOSE *urmObjectPose_new ( G3DOBJECT *obj, 
                                    float      frame,
-                                   G3DKEY    *key ) {
+                                   G3DKEY    *key,
+                                   G3DKEY    *overwrittenKey ) {
     uint32_t size = sizeof ( URMOBJECTPOSE );
 
     URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) calloc ( 0x01, size );
@@ -47,6 +48,7 @@ URMOBJECTPOSE *urmObjectPose_new ( G3DOBJECT *obj,
     op->obj   = obj;
     op->frame = frame;
     op->key   = key;
+    op->overwrittenKey = overwrittenKey;
 
     memcpy ( &op->keypos, &obj->pos, sizeof ( G3DVECTOR ) );
     memcpy ( &op->keyrot, &obj->rot, sizeof ( G3DVECTOR ) );
@@ -67,6 +69,8 @@ void objectPose_free ( void *data, uint32_t commit ) {
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
         g3dkey_free ( op->key );
+    } else {
+        g3dkey_free ( op->overwrittenKey );
     }
 
     urmObjectPose_free ( op );
@@ -80,6 +84,10 @@ void objectPose_undo ( G3DURMANAGER *urm,
 
     g3dobject_removeKey ( op->obj, 
                           op->key );
+
+    if ( op->overwrittenKey ) {
+        g3dobject_addKey ( op->obj, op->overwrittenKey );
+    }
 }
 
 /******************************************************************************/
@@ -87,11 +95,13 @@ void objectPose_redo ( G3DURMANAGER *urm,
                        void         *data,
                        uint32_t      engine_flags ) {
     URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) data;
+
     op->key = g3dobject_pose ( op->obj, 
                                op->frame, 
                               &op->keypos, 
                               &op->keyrot, 
-                              &op->keysca, 
+                              &op->keysca,
+                              &op->overwrittenKey,
                                op->key->flags );
 }
 
@@ -106,13 +116,15 @@ void g3durm_object_pose ( G3DURMANAGER     *urm,
                           uint32_t          engine_flags,
                           uint32_t          return_flags ) {
     URMOBJECTPOSE *op;
-    G3DKEY *key;
+    G3DKEY *key, *overwrittenKey = NULL;
 
     /* perform the operation */
-    key = g3dobject_pose ( obj, frame, pos, rot, sca, key_flags );
+    key = g3dobject_pose ( obj, frame, pos, 
+                                       rot, 
+                                       sca, &overwrittenKey, key_flags );
 
     /* remember it for undoing */
-    op = urmObjectPose_new ( obj, frame, key );
+    op = urmObjectPose_new ( obj, frame, key, overwrittenKey );
 
     g3durmanager_push ( urm, objectPose_undo,
                              objectPose_redo,

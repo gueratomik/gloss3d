@@ -956,11 +956,13 @@ uint32_t      common_timelinedata_onFrame     ( TIMELINEDATA *, float,
                                                                 int );
 int32_t       common_timelinedata_getFrame    ( TIMELINEDATA *, int, int, int );
 int32_t       common_timelinedata_getFramePos ( TIMELINEDATA *, float, int );
-void          common_timelinedata_deleteKey   ( TIMELINEDATA *, LIST * );
-uint32_t      common_timelinedata_selectKey   ( TIMELINEDATA *, LIST *, 
-                                                                int,
-                                                                int,
-                                                                int );
+void          common_timelinedata_deleteKey   ( G3DUI*, 
+                                                TIMELINEDATA * );
+uint32_t      common_timelinedata_selectKey   ( G3DUI*, 
+                                                TIMELINEDATA *,
+                                                int,
+                                                int,
+                                                int );
 
 /******************************************************************************/
 /******************************************************************************/

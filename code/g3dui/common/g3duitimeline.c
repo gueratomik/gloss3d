@@ -30,25 +30,25 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_timelinedata_deleteKey ( TIMELINEDATA *tdata, LIST *lobj ) {
-    LIST *ltmpobj = lobj;
+void common_timelinedata_deleteKey ( G3DUI *gui, TIMELINEDATA *tdata ) {
+    g3durm_objectList_removeSelectedKeys ( gui->urm, 
+                                           gui->sce->lsel, 
+                                           gui->flags,
+                                           REDRAWTIMELINE | REDRAWVIEW );
 
-    while ( ltmpobj ) {
-        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        g3dobject_removeSelectedKeys ( obj );
-
-        ltmpobj = ltmpobj->next;
-    }
+    g3dui_redrawTimeline ( gui );
+    g3dui_redrawGLViews ( gui );
 }
 
 /******************************************************************************/
-uint32_t common_timelinedata_selectKey ( TIMELINEDATA *tdata, LIST *lobj,
-                                                              int   frame,
-                                                              int   keep,
-                                                              int   width ) {
+uint32_t common_timelinedata_selectKey ( G3DUI        *gui, 
+                                         TIMELINEDATA *tdata,
+                                         int           frame,
+                                         int           keep,
+                                         int           width ) {
     uint32_t selected = 0x00; /*** No key selected yet ***/
-    LIST *ltmpobj = lobj;
+    LIST *ltmpobj = gui->sce->lsel;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
@@ -69,6 +69,7 @@ uint32_t common_timelinedata_selectKey ( TIMELINEDATA *tdata, LIST *lobj,
         ltmpobj = ltmpobj->next;
     }
 
+    g3dui_redrawTimeline ( gui );
 
     return selected;
 }

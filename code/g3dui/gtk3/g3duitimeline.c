@@ -196,10 +196,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    common_timelinedata_deleteKey ( tdata, sce->lsel );
-
-                    g3dui_redrawTimeline ( gui );
-                    g3dui_redrawGLViews ( gui );
+                    common_timelinedata_deleteKey ( gui, tdata );
                 } break;
             }
         } break;
@@ -212,10 +209,11 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                                                                   bev->y,
                                                                   width );
 
-            onkey = common_timelinedata_selectKey ( tdata, sce->lsel, 
-                                                           pressed_frame,
-                                                           keep,
-                                                           width );
+            onkey = common_timelinedata_selectKey ( gui, 
+                                                    tdata, 
+                                                    pressed_frame,
+                                                    keep,
+                                                    width );
 
             if ( onkey ) {
                 GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
@@ -248,10 +246,11 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                 oncursor = 0x01;
             } else {
                 /*** else check whether or not we clicked a key ***/
-                onkey = common_timelinedata_selectKey ( tdata, sce->lsel, 
-                                                               pressed_frame,
-                                                               keep,
-                                                               width );
+                onkey = common_timelinedata_selectKey ( gui, 
+                                                        tdata, 
+                                                        pressed_frame,
+                                                        keep,
+                                                        width );
             }
 
             /*** Move the whole timeline indefinitely. For so, we hide the ***/

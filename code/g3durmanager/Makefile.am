@@ -16,6 +16,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmmoveobject.c \
                                urmSplitMesh.c \
                                urmRevertSpline.c \
+                               urmObjectRemoveKeys.c \
                                urmRoundSplinePoint.c \
                                urmAddSplinePoint.c \
                                urmAddSplineSegment.c \

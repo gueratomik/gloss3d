@@ -192,10 +192,17 @@ typedef struct _URMOBJECTPOSE {
     G3DOBJECT *obj;
     float      frame;
     G3DKEY    *key;
+    G3DKEY    *overwrittenKey;
     G3DVECTOR  keypos;
     G3DVECTOR  keyrot;
     G3DVECTOR  keysca;
 } URMOBJECTPOSE;
+
+/******************************************************************************/
+typedef struct _URMOBJECTREMOVEKEYS {
+    G3DOBJECT *obj;
+    LIST      *lkey;
+} URMOBJECTREMOVEKEYS;
 
 /******************************************************************************/
 typedef struct _URMADDSPLINEPOINT {
@@ -558,7 +565,8 @@ void g3durm_spline_revert ( G3DURMANAGER *urm,
 /******************************************************************************/
 URMOBJECTPOSE *urmObjectPose_new ( G3DOBJECT *obj, 
                                    float      frame,
-                                   G3DKEY    *key );
+                                   G3DKEY    *key,
+                                   G3DKEY    *overwrittenKey );
 void urmObjectPose_free ( URMOBJECTPOSE *op );
 void objectPose_free ( void *data, uint32_t commit );
 void objectPose_undo ( G3DURMANAGER *urm, 
@@ -576,5 +584,21 @@ void g3durm_object_pose ( G3DURMANAGER     *urm,
                           uint32_t          key_flags,
                           uint32_t          engine_flags,
                           uint32_t          return_flags );
+
+/******************************************************************************/
+URMOBJECTREMOVEKEYS *urmObjectRemoveKeys_new ( G3DOBJECT *obj );
+void urmObjectRemoveKeys_free ( URMOBJECTREMOVEKEYS *ork );
+void objectRemoveKeys_free ( void *data, uint32_t commit );
+void objectRemoveKeys_undo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void objectRemoveKeys_redo ( G3DURMANAGER *urm, 
+                             void         *data,
+                             uint32_t      engine_flags );
+void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
+                                            LIST         *lobj,
+                                            uint32_t      engine_flags,
+                                            uint32_t      return_flags );
+
 
 #endif
