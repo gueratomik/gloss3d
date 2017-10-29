@@ -64,29 +64,41 @@ void urmObjectPose_free ( URMOBJECTPOSE *op ) {
 
 /******************************************************************************/
 void objectPose_free ( void *data, uint32_t commit ) {
-    URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) data;
+    LIST *ltmpop = ( LIST * ) data;
 
-    /*** Discard changes ***/
-    if ( commit == 0x00 ) {
-        g3dkey_free ( op->key );
-    } else {
-        g3dkey_free ( op->overwrittenKey );
+    while ( ltmpop ) {
+        URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
+
+        /*** Discard changes ***/
+        if ( commit == 0x00 ) {
+            g3dkey_free ( op->key );
+        } else {
+            g3dkey_free ( op->overwrittenKey );
+        }
+
+        ltmpop = ltmpop->next;
     }
 
-    urmObjectPose_free ( op );
+    list_free ( &ltmpop, urmObjectPose_free );
 }
 
 /******************************************************************************/
 void objectPose_undo ( G3DURMANAGER *urm, 
                        void         *data,
                        uint32_t      engine_flags ) {
-    URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) data;
+    LIST *ltmpop = ( LIST * ) data;
 
-    g3dobject_removeKey ( op->obj, 
-                          op->key );
+    while ( ltmpop ) {
+        URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
-    if ( op->overwrittenKey ) {
-        g3dobject_addKey ( op->obj, op->overwrittenKey );
+        g3dobject_removeKey ( op->obj, 
+                              op->key );
+
+        if ( op->overwrittenKey ) {
+            g3dobject_addKey ( op->obj, op->overwrittenKey );
+        }
+
+        ltmpop = ltmpop->next;
     }
 }
 
@@ -94,39 +106,52 @@ void objectPose_undo ( G3DURMANAGER *urm,
 void objectPose_redo ( G3DURMANAGER *urm, 
                        void         *data,
                        uint32_t      engine_flags ) {
-    URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) data;
+    LIST *ltmpop = ( LIST * ) data;
 
-    op->key = g3dobject_pose ( op->obj, 
-                               op->frame, 
-                              &op->keypos, 
-                              &op->keyrot, 
-                              &op->keysca,
-                              &op->overwrittenKey,
-                               op->key->flags );
+    while ( ltmpop ) {
+        URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
+
+        op->key = g3dobject_pose ( op->obj, 
+                                   op->frame, 
+                                  &op->keypos, 
+                                  &op->keyrot, 
+                                  &op->keysca,
+                                  &op->overwrittenKey,
+                                   op->key->flags );
+
+        ltmpop = ltmpop->next;
+    }
 }
 
 /******************************************************************************/
-void g3durm_object_pose ( G3DURMANAGER     *urm,
-                          G3DOBJECT        *obj,
-                          float             frame,
-                          G3DVECTOR        *pos,
-                          G3DVECTOR        *rot,
-                          G3DVECTOR        *sca,
-                          uint32_t          key_flags,
-                          uint32_t          engine_flags,
-                          uint32_t          return_flags ) {
-    URMOBJECTPOSE *op;
-    G3DKEY *key, *overwrittenKey = NULL;
+void g3durm_object_pose ( G3DURMANAGER *urm,
+                          LIST         *lobj,
+                          float         frame,
+                          uint32_t      key_flags,
+                          uint32_t      engine_flags,
+                          uint32_t      return_flags ) {
+    LIST *ltmpobj = lobj;
+    LIST *lop = NULL;
 
-    /* perform the operation */
-    key = g3dobject_pose ( obj, frame, pos, 
-                                       rot, 
-                                       sca, &overwrittenKey, key_flags );
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        G3DKEY *key, *overwrittenKey = NULL;
+        URMOBJECTPOSE *op;
 
-    /* remember it for undoing */
-    op = urmObjectPose_new ( obj, frame, key, overwrittenKey );
+        /* perform the operation */
+        key = g3dobject_pose ( obj, frame, &obj->pos, 
+                                           &obj->rot, 
+                                           &obj->sca, &overwrittenKey, key_flags );
+
+        /* remember it for undoing */
+        op = urmObjectPose_new ( obj, frame, key, overwrittenKey );
+
+        list_insert ( &lop, op );
+
+        ltmpobj = ltmpobj->next;
+    }
 
     g3durmanager_push ( urm, objectPose_undo,
                              objectPose_redo,
-                             objectPose_free, op, return_flags );
+                             objectPose_free, lop, return_flags );
 }

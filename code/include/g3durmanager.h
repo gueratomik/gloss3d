@@ -575,15 +575,12 @@ void objectPose_undo ( G3DURMANAGER *urm,
 void objectPose_redo ( G3DURMANAGER *urm, 
                        void         *data,
                        uint32_t      engine_flags );
-void g3durm_object_pose ( G3DURMANAGER     *urm,
-                          G3DOBJECT        *obj,
-                          float             frame,
-                          G3DVECTOR        *pos,
-                          G3DVECTOR        *rot,
-                          G3DVECTOR        *sca,
-                          uint32_t          key_flags,
-                          uint32_t          engine_flags,
-                          uint32_t          return_flags );
+void g3durm_object_pose ( G3DURMANAGER *urm,
+                          LIST         *lobj,
+                          float         frame,
+                          uint32_t      key_flags,
+                          uint32_t      engine_flags,
+                          uint32_t      return_flags );
 
 /******************************************************************************/
 URMOBJECTREMOVEKEYS *urmObjectRemoveKeys_new ( G3DOBJECT *obj );

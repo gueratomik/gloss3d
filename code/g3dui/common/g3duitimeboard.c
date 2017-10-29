@@ -75,28 +75,19 @@ void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3dui_recordFrameCbk ( G3DUI *gui, uint32_t key_flags ) {
     G3DSCENE *sce = gui->sce;
-    LIST *ltmpobj = sce->lsel;
 
-    while ( ltmpobj ) {
-        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+    g3durm_object_pose ( gui->urm,
+                         sce->lsel,
+                         gui->curframe,
+                         /*&obj->pos,
+                         &obj->rot,
+                         &obj->sca,*/
+                         key_flags,
+                         gui->flags,
+                         REDRAWTIMELINE | REDRAWVIEW );
 
-        g3durm_object_pose ( gui->urm,
-                             obj,
-                             gui->curframe,
-                             &obj->pos,
-                             &obj->rot,
-                             &obj->sca,
-                             key_flags,
-                             gui->flags,
-                             REDRAWTIMELINE | REDRAWVIEW );
-
-        printf("Keying at frame %d for %s\n", ( int32_t ) gui->curframe, obj->name );
-
-        if ( gui->curframe > gui->endframe   ) gui->endframe   = gui->curframe;
-        if ( gui->curframe < gui->startframe ) gui->startframe = gui->curframe;
-
-        ltmpobj = ltmpobj->next;
-    }
+    if ( gui->curframe > gui->endframe   ) gui->endframe   = gui->curframe;
+    if ( gui->curframe < gui->startframe ) gui->startframe = gui->curframe;
 
     g3dui_updateKeyEdit  ( gui );
     g3dui_redrawTimeline ( gui );
