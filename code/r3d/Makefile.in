@@ -135,7 +135,7 @@ libgloss_r3d_la_LIBADD =
 am__objects_1 = r3darea.lo r3d.lo r3dcamera.lo r3ddof.lo r3dface.lo \
 	r3dinterpolation.lo r3dlight.lo r3dmesh.lo r3dmotionblur.lo \
 	r3dobject.lo r3doctree.lo r3dplane.lo r3dray.lo \
-	r3drendersettings.lo r3dscene.lo r3dfilter.lo
+	r3drendersettings.lo r3dscene.lo r3dvoxtree.lo r3dfilter.lo
 am_libgloss_r3d_la_OBJECTS = $(am__objects_1)
 libgloss_r3d_la_OBJECTS = $(am_libgloss_r3d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -346,6 +346,7 @@ LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3dray.c \
                       r3drendersettings.c \
                       r3dscene.c \
+                      r3dvoxtree.c \
                       r3dfilter.c
 
 all: all-am
@@ -442,6 +443,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dray.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3drendersettings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dscene.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r3dvoxtree.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

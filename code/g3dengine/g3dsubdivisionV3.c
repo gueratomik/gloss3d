@@ -321,14 +321,13 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
                                  commitVertices[v1ID],
                                  commitVertices[v2ID],
                                  commitVertices[v3ID] };
+        G3DEDGE *edg[0x04] = { commitEdges[e0ID],
+                               commitEdges[e1ID],
+                               commitEdges[e2ID],
+                               commitEdges[e3ID] };
         uint32_t commitID = ancestorFace->id++;
 
-        commitFaces[commitID] = g3dface_new ( ver, 0x04 );
-
-        commitFaces[commitID]->edg[0x00] = commitEdges[e0ID];
-        commitFaces[commitID]->edg[0x01] = commitEdges[e1ID];
-        commitFaces[commitID]->edg[0x02] = commitEdges[e2ID];
-        commitFaces[commitID]->edg[0x03] = commitEdges[e3ID];
+        commitFaces[commitID] = g3dface_newWithEdges ( ver, edg, 0x04 );
     }
 
     /*** Restore IDs ***/

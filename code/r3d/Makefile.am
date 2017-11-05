@@ -20,4 +20,5 @@ LIBGLOSSR3D_C_FILES = r3darea.c \
                       r3dray.c \
                       r3drendersettings.c \
                       r3dscene.c \
+                      r3dvoxtree.c \
                       r3dfilter.c
