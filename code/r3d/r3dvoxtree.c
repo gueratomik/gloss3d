@@ -29,42 +29,48 @@
 #include <config.h>
 #include <r3d.h>
 
-#define VOXTREESIZE  0x08
+#define VOXTREESIZE  0x40
 #define VOXTREEDEPTH 0x02
 
-#define VOXEL_HAS_1_FACE  ( 1 << 0 )
-#define VOXEL_HAS_2_FACES ( 1 << 1 )
-#define VOXEL_HAS_VOXTREE ( 1 << 2 )
-#define VOXEL_HAS_LIST    ( 1 << 3 )
+#define VOXEL_CELL_FACES   0x04
+#define VOXEL_IS_EMPTY     0x00
+#define VOXEL_HAS_1_FACE   0x01
+#define VOXEL_HAS_2_FACES  0x02
+#define VOXEL_HAS_3_FACES  0x03
+#define VOXEL_HAS_4_FACES  0x04
+#define VOXEL_HAS_VOXTREE  0xFF
+
+#define MARKXY  ( 1 << 0 )
+#define MARKYZ  ( 1 << 1 )
+#define MARKZX  ( 1 << 2 )
+#define MARKALL ( MARKXY | MARKYZ | MARKZX )
 
 typedef struct _R3DVOXTREE R3DVOXTREE;
 
 /******************************************************************************/
-typedef struct _R3DVOXPOINT {
-    int32_t u, v;
-    float w;
-} R3DVOXPOINT;
+typedef struct _R3DUVPOINT {
+   int32_t u, v;
+   float w;
+} R3DUVPOINT;
 
 /******************************************************************************/
-typedef struct _R3DVOXHLINE {
+typedef struct _R3DUVHLINE {
     uint32_t inited;
-    int32_t u1, u2;
+    float u1, u2;
     float w1, w2;
-} R3DVOXHLINE;
+} R3DUVHLINE;
 
 /******************************************************************************/
 typedef struct _R3DVOXEL {
-    uint16_t flags;
-    uint16_t nbrfc;
+    uint32_t type;
     union {
-        uint32_t rfcID[0x02];
+        uint32_t    rfcID[VOXEL_CELL_FACES];
         R3DVOXTREE *voxtree;
     } cell;
 } R3DVOXEL;
 
 /******************************************************************************/
 struct _R3DVOXTREE {
-    G3DOBJECT obj;
     uint32_t depth;
     float xmin;
     float xmax;
@@ -73,8 +79,13 @@ struct _R3DVOXTREE {
     float zmin;
     float zmax;
     R3DVOXEL voxel[VOXTREESIZE][VOXTREESIZE][VOXTREESIZE];
-    R3DVOXHLINE hlines[VOXTREESIZE];
 };
+
+/******************************************************************************/
+typedef struct _G3DVOXTREE {
+    G3DOBJECT obj;
+    R3DVOXTREE *voxtree;
+} G3DVOXTREE;
 
 R3DVOXTREE *r3dvoxtree_new ( uint32_t, float xmin, float xmax,
                              float ymin, float ymax,
@@ -85,27 +96,28 @@ void r3dvoxtree_importFace ( R3DVOXTREE *vxt,
                              R3DFACE    *rfc, 
                              uint32_t    rfcID );
 
-void r3dvoxtree_importFaceSinglePlane ( R3DVOXTREE *vxt,
-                                        R3DVERTEX  *rver,
-                                        R3DFACE    *rfc, 
-                                        uint32_t    rfcID,
-                                        uint32_t    plane );
+/*
+ax + by + cz + d = 0
+cz = -d - ax - by
+z = ( -d - ax - by ) / c
+*/
 
 /******************************************************************************/
-void r3dvoxtree_fillHLine ( R3DVOXTREE  *vxt,
-                            R3DVOXPOINT *srcPoint,
-                            R3DVOXPOINT *dstPoint ) {
+void r3duvharray_init ( R3DUVHLINE  *hlines,
+                        R3DUVPOINT *srcPoint,
+                        R3DUVPOINT *dstPoint ) {
     int32_t du  = ( dstPoint->u - srcPoint->u ),
             ddu = ( du == 0x00 ) ? 0x01 : abs ( du ),
             dv  = ( dstPoint->v - srcPoint->v ),
             ddv = ( dv == 0x00 ) ? 0x01 : abs ( dv ),
             dd  = ( ddu > ddv ) ? ddu : ddv;
-    float dw  = dstPoint->w  - srcPoint->w, pw = ( float ) dw / dd;
+    float dw  = ( dstPoint->w - srcPoint->w );
+    float stepw = ( float ) dw / dd;
     int pu = ( du > 0x00 ) ? 1 : -1, 
         pv = ( dv > 0x00 ) ? 1 : -1;
     int32_t u = srcPoint->u, 
             v = srcPoint->v;
-    float w = srcPoint->w;
+    float   w = srcPoint->w;
     int i, cumul = 0x00;
 
     if ( ddu > ddv ) {
@@ -116,30 +128,29 @@ void r3dvoxtree_fillHLine ( R3DVOXTREE  *vxt,
             }
 
             if ( ( v >= 0 ) && ( v < VOXTREESIZE ) ) {
-                if ( vxt->hlines[v].inited == 0x00 ) {
-                    vxt->hlines[v].inited = 0x01;
+                if ( hlines[v].inited == 0x00 ) {
+                    hlines[v].inited = 0x01;
 
-                    vxt->hlines[v].u1 = vxt->hlines[v].u2 = u;
-                    vxt->hlines[v].w1 = vxt->hlines[v].w2 = w;
+                    hlines[v].u1 = hlines[v].u2 = u;
+                    hlines[v].w1 = hlines[v].w2 = w;
                 } else {
-                    if ( u < vxt->hlines[v].u1 ) {
-                        vxt->hlines[v].u1 = u;
-                        vxt->hlines[v].w1 = w;
+                    if ( u < hlines[v].u1 ) {
+                        hlines[v].u1 = u;
+                        hlines[v].w1 = w;
                     }
 
-                    if ( u > vxt->hlines[v].u2 ) {
-                        vxt->hlines[v].u2 = u;
-                        vxt->hlines[v].w2 = w;
+                    if ( u > hlines[v].u2 ) {
+                        hlines[v].u2 = u;
+                        hlines[v].w2 = w;
                     }
 
-                    vxt->hlines[v].inited = 0x02;
+                    hlines[v].inited = 0x02;
         	    }
             }
 
             cumul += ddv;
             u     += pu;
-
-            w     += pw;
+            w     += stepw;
         }
     } else {
         for ( i = 0x00; i <= ddv; i++ ) {
@@ -149,208 +160,143 @@ void r3dvoxtree_fillHLine ( R3DVOXTREE  *vxt,
             }
 
             if ( ( v >= 0 ) && ( v < VOXTREESIZE ) ) {
-                if ( vxt->hlines[v].inited == 0x00 ) {
-                    vxt->hlines[v].inited = 0x01;
+                if ( hlines[v].inited == 0x00 ) {
+                    hlines[v].inited = 0x01;
 
-                    vxt->hlines[v].u1 = vxt->hlines[v].u2 = u;
-                    vxt->hlines[v].w1 = vxt->hlines[v].w2 = w;
+                    hlines[v].u1 = hlines[v].u2 = u;
+                    hlines[v].w1 = hlines[v].w2 = w;
                 } else {
-                    if ( u < vxt->hlines[v].u1 ) {
-                        vxt->hlines[v].u1 = u;
-                        vxt->hlines[v].w1 = w;
+                    if ( u < hlines[v].u1 ) {
+                        hlines[v].u1 = u;
+                        hlines[v].w1 = w;
                     }
 
-                    if ( u > vxt->hlines[v].u2 ) {
-                        vxt->hlines[v].u2 = u;
-                        vxt->hlines[v].w2 = w;
+                    if ( u > hlines[v].u2 ) {
+                        hlines[v].u2 = u;
+                        hlines[v].w2 = w;
                     }
 
-                    vxt->hlines[v].inited = 0x02;
+                    hlines[v].inited = 0x02;
                 }
             }
 
             cumul += ddu;
             v     += pv;
-
-            w     += pw;
+            w     += stepw;
         }
-    }
-}
-
-/****************************************************************************/
-void r3dvoxtree_interpolateHLine ( R3DVOXTREE *vxt,
-                                   R3DVERTEX  *rver,
-                                   R3DFACE    *rfc,
-                                   uint32_t    rfcID,
-                                   int32_t     v,
-                                   int32_t     plane ) {
-    R3DVOXHLINE *hline = &vxt->hlines[v];
-    int32_t u1 = hline->u1, u2 = hline->u2;
-    int32_t w1 = hline->w1, w2 = hline->w2;
-    int32_t du = u2 - u1, ddu = ( du == 0x00 ) ? 0x01 : abs ( du );
-    float dw = w2 - w1, pw = ( float ) dw / ddu;
-    long  pu = ( du > 0x00 ) ? 1 : -1;
-    float w = w1;
-    int i;
-
-    for ( i = 0x00; i < ddu; i++ ) {
-        if ( u1 >= 0 && u1 < VOXTREESIZE ) {
-            if ( w >= 0 && w < VOXTREESIZE ) {
-                float xmin, ymin, zmin, xmax, ymax, zmax;
-                float xstep = ( vxt->xmax - vxt->xmin ) / VOXTREESIZE,
-                      ystep = ( vxt->ymax - vxt->ymin ) / VOXTREESIZE,
-                      zstep = ( vxt->zmax - vxt->zmin ) / VOXTREESIZE;
-                R3DVOXEL *voxel = NULL;
-
-                switch ( plane ) {
-                    case 0x00 : /* XY */
-                        voxel = &vxt->voxel[u1][v][(int)w];
-
-                        xmin = ((int)u1) * xstep;
-                        ymin = ((int)v ) * ystep;
-                        zmin = ((int)w ) * zstep;
-                    break;
-
-                    case 0x01 : /* YZ */
-                        voxel = &vxt->voxel[(int)w][u1][v];
-
-                        xmin = ((int)w ) * xstep;
-                        ymin = ((int)u1) * ystep;
-                        zmin = ((int)v ) * zstep;
-                    break;
-
-                    case 0x02 : /* ZX */
-                        voxel = &vxt->voxel[v][(int)w][u1];
-
-                        xmin = ((int)v ) * xstep;
-                        ymin = ((int)w ) * ystep;
-                        zmin = ((int)u1) * zstep;
-                    break;
-
-                    default :
-                    break;
-                }
-
-                if ( voxel ) {
-                    if ( voxel->flags == VOXEL_HAS_2_FACES ) {
-                        if ( vxt->depth < VOXTREEDEPTH ) {
-                            R3DVOXTREE *voxtree = r3dvoxtree_new ( vxt->depth + 1,
-                                                                   xmin, xmin + xstep,
-                                                                   ymin, ymin + ystep,
-                                                                   zmin, zmin + zstep );
-printf("%f %f %f %f %f %f\n", xmin, ymin, zmin, xmin + xstep, ymin + ystep, zmin + zstep);
-                            r3dvoxtree_importFace ( voxtree,
-                                                    rver,
-                                                    rfc,
-                                                    voxel->cell.rfcID[0] );
-
-                            r3dvoxtree_importFace ( voxtree,
-                                                    rver,
-                                                    rfc,
-                                                    voxel->cell.rfcID[1] );
-
-                            /* voxel already has 2 faces, subdivide */
-                            voxel->cell.voxtree = voxtree;
-
-                            voxel->flags = VOXEL_HAS_VOXTREE;
-                        }
-                    }
-
-                    if ( voxel->flags == VOXEL_HAS_VOXTREE ) {
-                        r3dvoxtree_importFaceSinglePlane ( voxel->cell.voxtree, 
-                                                           rver,
-                                                           rfc,
-                                                           rfcID,
-                                                           plane );
-                    }
-
-                    if ( voxel->flags == VOXEL_HAS_1_FACE ) {
-                        /* Face mybe drawm multiple times at the same voxel */
-                        /* because it is drawn on each 2D plane (XY,YZ, ZX) */
-                        if ( voxel->cell.rfcID[0x00] != rfcID ) {
-                            voxel->cell.rfcID[0x01] = rfcID;
-
-                            voxel->flags = VOXEL_HAS_2_FACES;
-                        }
-                    }
-
-                    if ( voxel->flags == 0x00 ) {
-                        voxel->cell.rfcID[0x00] = rfcID;
-
-                        voxel->flags = VOXEL_HAS_1_FACE;
-                    }
-                }
-            }
-        }
-
-        u1 += pu;
-
-        w  += pw;
     }
 }
 
 /******************************************************************************/
-void r3dvoxtree_importFaceSinglePlane ( R3DVOXTREE *vxt,
-                                        R3DVERTEX  *rver,
-                                        R3DFACE    *rfc, 
-                                        uint32_t    rfcID,
-                                        uint32_t    plane ) {
-    float xdiff = ( vxt->xmax - vxt->xmin ),
-          ydiff = ( vxt->ymax - vxt->ymin ),
-          zdiff = ( vxt->zmax - vxt->zmin );
-    R3DINTVECTOR pt[0x03] = { { .x = ( ( rver[rfc[rfcID].rverID[0]].pos.x - vxt->xmin ) / xdiff ) * VOXTREESIZE,
-                                .y = ( ( rver[rfc[rfcID].rverID[0]].pos.y - vxt->ymin ) / ydiff ) * VOXTREESIZE,
-                                .z = ( ( rver[rfc[rfcID].rverID[0]].pos.z - vxt->zmin ) / zdiff ) * VOXTREESIZE },
-                              { .x = ( ( rver[rfc[rfcID].rverID[1]].pos.x - vxt->xmin ) / xdiff ) * VOXTREESIZE,
-                                .y = ( ( rver[rfc[rfcID].rverID[1]].pos.y - vxt->ymin ) / ydiff ) * VOXTREESIZE,
-                                .z = ( ( rver[rfc[rfcID].rverID[1]].pos.z - vxt->zmin ) / zdiff ) * VOXTREESIZE },
-                              { .x = ( ( rver[rfc[rfcID].rverID[2]].pos.x - vxt->xmin ) / xdiff ) * VOXTREESIZE,
-                                .y = ( ( rver[rfc[rfcID].rverID[2]].pos.y - vxt->ymin ) / ydiff ) * VOXTREESIZE,
-                                .z = ( ( rver[rfc[rfcID].rverID[2]].pos.z - vxt->zmin ) / zdiff ) * VOXTREESIZE } };
-    R3DVOXPOINT srcPoint, dstPoint;
-    uint32_t i;
+void r3dvoxtree_fillCell ( R3DVOXTREE *vxt,
+                           uint32_t    x, 
+                           uint32_t    y, 
+                           uint32_t    z,
+                           uint32_t    rfcID ) {
+    
+    vxt->voxel[x][y][z].type = VOXEL_HAS_1_FACE;
+    vxt->voxel[x][y][z].cell.rfcID[0] = rfcID;
+}
 
-    memset ( vxt->hlines, 0x00, sizeof ( vxt->hlines ) );
+/******************************************************************************/
+void r3dvoxtree_fill ( R3DVOXTREE *vxt,
+                       R3DUVHLINE  harray[0x03][VOXTREESIZE],
+                       float xdiff, float ydiff, float zdiff, 
+                       uint32_t    rfcID ) {
+    uint32_t i, x, y, z;
+    static int tmp[VOXTREESIZE][VOXTREESIZE][VOXTREESIZE] = { 0 };
+
+    memset ( tmp, 0x00, sizeof ( tmp ) );
 
     for ( i = 0x00; i < 0x03; i++ ) {
-        uint32_t n = ( i + 0x01 ) % 0x03;
+        switch ( i ) {
+            case 0x00 : { /* XY */
+                for ( y = 0x00; y < VOXTREESIZE; y++ ) {
+                    if ( harray[i][y].inited == 0x02 ) {
+                        int32_t ddu = ( harray[i][y].u2 - harray[i][y].u1 );
+                        float   ddw = ( harray[i][y].w2 - harray[i][y].w1 );
+                        float stepz = ( float ) ddw / ddu;
+                        float zf = harray[i][y].w1;
+/*
+printf("%d u1:%f u2:%f w1:%f w2:%f\n", y, harray[i][y].u1, harray[i][y].u2, harray[i][y].w1, harray[i][y].w2 );
+*/
+                        for ( x = harray[i][y].u1; x <= harray[i][y].u2; x++ ) {
+                            z = zf / zdiff * VOXTREESIZE;
+/*
+printf("%d\n", z );
+*/
+                            tmp[x][y][z] |= MARKXY;
 
-        if ( plane == 0x00 ) {
-           srcPoint.u = pt[i].x;
-           srcPoint.v = pt[i].y;
-           srcPoint.w = pt[i].z;
+                            if ( tmp[x][y][z] & MARKXY ) {
+                                vxt->voxel[x][y][z].type = VOXEL_HAS_1_FACE;
+                                vxt->voxel[x][y][z].cell.rfcID[0] = rfcID;
+                            }
 
-           dstPoint.u = pt[n].x;
-           dstPoint.v = pt[n].y;
-           dstPoint.w = pt[n].z;
-        }
+                            zf += stepz;
+                        }
+                    }
+                }
+            } break;
 
-        if ( plane == 0x01 ) {
-           srcPoint.u = pt[i].y;
-           srcPoint.v = pt[i].z;
-           srcPoint.w = pt[i].x;
+            case 0x01 : { /* YZ */
+                for ( z = 0x00; z < VOXTREESIZE; z++ ) {
+                    if ( harray[i][z].inited == 0x02 ) {
+                        int32_t ddu = ( harray[i][z].u2 - harray[i][z].u1 );
+                        float   ddw = ( harray[i][z].w2 - harray[i][z].w1 );
+                        float stepx = ( float ) ddw / ddu;
+                        float xf = harray[i][z].w1;
+/*
+printf("%d u1:%f u2:%f w1:%f w2:%f\n", y, harray[i][y].u1, harray[i][y].u2, harray[i][y].w1, harray[i][y].w2 );
+*/
+                        for ( y = harray[i][z].u1; y <= harray[i][z].u2; y++ ) {
+                            x = xf / xdiff * VOXTREESIZE;
+/*
+printf("%d\n", z );
+*/
+                            tmp[x][y][z] |= MARKYZ;
 
-           dstPoint.u = pt[n].y;
-           dstPoint.v = pt[n].z;
-           dstPoint.w = pt[n].x;
-        }
+                            if ( tmp[x][y][z] & MARKYZ ) {
+                                vxt->voxel[x][y][z].type = VOXEL_HAS_1_FACE;
+                                vxt->voxel[x][y][z].cell.rfcID[0] = rfcID;
+                            }
 
-        if ( plane == 0x02 ) {
-           srcPoint.u = pt[i].z;
-           srcPoint.v = pt[i].x;
-           srcPoint.w = pt[i].y;
+                            xf += stepx;
+                        }
+                    }
+                }
+            } break;
 
-           dstPoint.u = pt[n].z;
-           dstPoint.v = pt[n].x;
-           dstPoint.w = pt[n].y;
-        }
+            case 0x02 : { /* ZX */
+                for ( x = 0x00; x < VOXTREESIZE; x++ ) {
+                    if ( harray[i][x].inited == 0x02 ) {
+                        int32_t ddu = ( harray[i][x].u2 - harray[i][x].u1 );
+                        float   ddw = ( harray[i][x].w2 - harray[i][x].w1 );
+                        float stepy = ( float ) ddw / ddu;
+                        float yf = harray[i][x].w1;
+/*
+printf("%d u1:%f u2:%f w1:%f w2:%f\n", y, harray[i][y].u1, harray[i][y].u2, harray[i][y].w1, harray[i][y].w2 );
+*/
+                        for ( z = harray[i][x].u1; z <= harray[i][x].u2; z++ ) {
+                            y = yf / ydiff * VOXTREESIZE;
+/*
+printf("%d\n", z );
+*/
+                            tmp[x][y][z] |= MARKZX;
 
-        r3dvoxtree_fillHLine ( vxt, &srcPoint, &dstPoint );
-    }
+                            if ( tmp[x][y][z] & MARKZX ) {
+                                vxt->voxel[x][y][z].type = VOXEL_HAS_1_FACE;
+                                vxt->voxel[x][y][z].cell.rfcID[0] = rfcID;
+                            }
 
-    for ( i = 0x00; i < VOXTREESIZE; i++ ) {
-        if ( vxt->hlines[i].inited == 0x02 ){
-            r3dvoxtree_interpolateHLine ( vxt, rver, rfc, rfcID, i, plane );
+                            yf += stepy;
+                        }
+                    }
+                }
+            } break;
+
+            default :
+
+            break;
         }
     }
 }
@@ -360,11 +306,65 @@ void r3dvoxtree_importFace ( R3DVOXTREE *vxt,
                              R3DVERTEX  *rver,
                              R3DFACE    *rfc, 
                              uint32_t    rfcID ) {
-    uint32_t j;
+    float xdiff = ( vxt->xmax - vxt->xmin ),
+          ydiff = ( vxt->ymax - vxt->ymin ),
+          zdiff = ( vxt->zmax - vxt->zmin );
+    float xscale = 1.0f / xdiff * VOXTREESIZE,
+          yscale = 1.0f / ydiff * VOXTREESIZE,
+          zscale = 1.0f / zdiff * VOXTREESIZE;
+    R3DVECTOR pt[0x03] = { { .x = ( rver[rfc[rfcID].rverID[0]].pos.x - vxt->xmin ),
+                             .y = ( rver[rfc[rfcID].rverID[0]].pos.y - vxt->ymin ),
+                             .z = ( rver[rfc[rfcID].rverID[0]].pos.z - vxt->zmin ) },
+                           { .x = ( rver[rfc[rfcID].rverID[1]].pos.x - vxt->xmin ),
+                             .y = ( rver[rfc[rfcID].rverID[1]].pos.y - vxt->ymin ),
+                             .z = ( rver[rfc[rfcID].rverID[1]].pos.z - vxt->zmin ) },
+                           { .x = ( rver[rfc[rfcID].rverID[2]].pos.x - vxt->xmin ),
+                             .y = ( rver[rfc[rfcID].rverID[2]].pos.y - vxt->ymin ),
+                             .z = ( rver[rfc[rfcID].rverID[2]].pos.z - vxt->zmin ) } };
+    static R3DUVHLINE harray[0x03][VOXTREESIZE];
+    R3DUVPOINT srcPoint, dstPoint;
+    uint32_t i, j;
 
-    for ( j = 0x00; j < /*0x03*/0x03; j++ ) {
-        r3dvoxtree_importFaceSinglePlane ( vxt, rver, rfc, rfcID, j );
+    memset ( harray, 0x00, sizeof ( harray ) );
+
+    for ( i = 0x00; i < 0x03; i++ ) {
+        for ( j = 0x00; j < 0x03; j++ ) {
+            uint32_t n = ( j + 0x01 ) % 0x03;
+
+            switch ( i ) {
+                case 0x00 : {
+                    srcPoint.u = pt[j].x * xscale;
+                    srcPoint.v = pt[j].y * yscale;
+                    srcPoint.w = pt[j].z;
+                    dstPoint.u = pt[n].x * xscale;
+                    dstPoint.v = pt[n].y * yscale;
+                    dstPoint.w = pt[n].z;
+                } break;
+
+                case 0x01 : {
+                    srcPoint.u = pt[j].y * yscale;
+                    srcPoint.v = pt[j].z * zscale;
+                    srcPoint.w = pt[j].x;
+                    dstPoint.u = pt[n].y * yscale;
+                    dstPoint.v = pt[n].z * zscale;
+                    dstPoint.w = pt[n].x;
+                } break;
+
+                case 0x02 : {
+                    srcPoint.u = pt[j].z * zscale;
+                    srcPoint.v = pt[j].x * xscale;
+                    srcPoint.w = pt[j].y;
+                    dstPoint.u = pt[n].z * zscale;
+                    dstPoint.v = pt[n].x * xscale;
+                    dstPoint.w = pt[n].y;
+                } break;
+            }
+
+            r3duvharray_init ( harray[i], &srcPoint, &dstPoint );
+        }
     }
+
+    r3dvoxtree_fill ( vxt, harray, xdiff, ydiff, zdiff, rfcID );
 }
 
 /******************************************************************************/
@@ -404,10 +404,9 @@ static void drawCube ( float xmin, float ymin, float zmin,
 }
 
 /******************************************************************************/
-uint32_t g3dvoxtree_draw ( G3DOBJECT *obj, 
-                           G3DCAMERA *curcam, 
-                           uint32_t flags ) {
-    R3DVOXTREE *vxt = ( R3DVOXTREE * ) obj;
+uint32_t r3dvoxtree_draw ( R3DVOXTREE *vxt, 
+                           G3DCAMERA  *curcam, 
+                           uint32_t    flags ) {
     float xdiff = ( vxt->xmax - vxt->xmin ),
           ydiff = ( vxt->ymax - vxt->ymin ),
           zdiff = ( vxt->zmax - vxt->zmin );
@@ -421,31 +420,53 @@ uint32_t g3dvoxtree_draw ( G3DOBJECT *obj,
         for ( j = 0x00; j < VOXTREESIZE; j++ ) {
             for ( k = 0x00; k < VOXTREESIZE; k++ ) {
                 R3DVOXEL *voxel = &vxt->voxel[i][j][k];
+                int voxel_has_voxtree = 0, voxel_has_faces = 0;
 
-                if ( voxel->flags ) {
-                    if ( voxel->flags == VOXEL_HAS_VOXTREE ) {
-                        g3dvoxtree_draw ( voxel->cell.voxtree, curcam, flags );
-                    }
-
-                    if ( voxel->flags == VOXEL_HAS_1_FACE ) {
+                switch ( voxel->type ) {
+                    case VOXEL_HAS_1_FACE :
                         glColor3ub ( voxel->cell.rfcID[0] * 32,
                                      voxel->cell.rfcID[0] * 32,
                                      voxel->cell.rfcID[0] * 32 );
-                    }
 
-                    if ( voxel->flags == VOXEL_HAS_2_FACES ) {
+                        voxel_has_faces = 1;
+                    break;
+
+                    case VOXEL_HAS_2_FACES :
                         glColor3ub ( 0xFF, 0x00, 0x00 );
-                    }
 
-                    if ( ( voxel->flags == VOXEL_HAS_1_FACE  ) ||
-                         ( voxel->flags == VOXEL_HAS_2_FACES ) ) {
-                        drawCube ( vxt->xmin + ( (i+0) * xstep ),
-                                   vxt->ymin + ( (j+0) * ystep ),
-                                   vxt->zmin + ( (k+0) * zstep ),
-                                   vxt->xmin + ( (i+1) * xstep ),
-                                   vxt->ymin + ( (j+1) * ystep ),
-                                   vxt->zmin + ( (k+1) * zstep ) );
-                    }
+                        voxel_has_faces = 1;
+                    break;
+
+                    case VOXEL_IS_EMPTY :
+                    break;
+
+                    case VOXEL_HAS_VOXTREE :
+                        voxel_has_voxtree = 1;
+                    break;
+
+                    default :
+                    break;
+                }
+
+                if ( voxel_has_voxtree ) {
+                    R3DVOXTREE *voxtree = voxel->cell.voxtree;
+
+                    r3dvoxtree_draw ( voxtree, curcam, flags );
+
+                    /*glBegin ( GL_LINES );
+printf("%f %f %f\n", voxtree->xmin, voxtree->ymin, voxtree->zmin );
+                    glVertex3f ( voxtree->xmin, voxtree->ymin, voxtree->zmin );
+                    glVertex3f ( voxtree->xmax, voxtree->ymax, voxtree->zmax );
+                    glEnd ( );*/
+                }
+
+                if ( voxel_has_faces ) {
+                    drawCube ( vxt->xmin + ( (i+0) * xstep ),
+                               vxt->ymin + ( (j+0) * ystep ),
+                               vxt->zmin + ( (k+0) * zstep ),
+                               vxt->xmin + ( (i+1) * xstep ),
+                               vxt->ymin + ( (j+1) * ystep ),
+                               vxt->zmin + ( (k+1) * zstep ) );
                 }
             }
         }
@@ -455,18 +476,30 @@ uint32_t g3dvoxtree_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+uint32_t g3dvoxtree_draw ( G3DOBJECT *obj, 
+                           G3DCAMERA *curcam, 
+                           uint32_t flags ) {
+    G3DVOXTREE *vxt = ( G3DVOXTREE * ) obj;
+
+    r3dvoxtree_draw ( vxt->voxtree, curcam, flags );
+
+    return 0x00;
+}
+
+
+/******************************************************************************/
 R3DVOXTREE *r3dvoxtree_new ( uint32_t depth,
                              float xmin, float xmax,
                              float ymin, float ymax,
                              float zmin, float zmax ) {
     R3DVOXTREE *vxt = ( R3DVOXTREE * ) calloc ( 0x01, sizeof ( R3DVOXTREE ) );
-
+static int p;
     if ( vxt == NULL ) {
         fprintf ( stderr, "r3dvoxtree_new: calloc failed\n" );
 
         return NULL;
     }
-
+printf("%d\n", ++p * sizeof ( R3DVOXTREE ) );
     vxt->depth = depth;
     vxt->xmin = xmin;
     vxt->xmax = xmax;
@@ -474,6 +507,34 @@ R3DVOXTREE *r3dvoxtree_new ( uint32_t depth,
     vxt->ymax = ymax;
     vxt->zmin = zmin;
     vxt->zmax = zmax;
+
+    return vxt;
+}
+
+/******************************************************************************/
+void g3dvoxtree_importFace ( G3DVOXTREE *vxt,
+                             R3DVERTEX  *rver,
+                             R3DFACE    *rfc, 
+                             uint32_t    rfcID ) {
+    r3dvoxtree_importFace ( vxt->voxtree, rver, rfc, rfcID );
+}
+
+/******************************************************************************/
+G3DVOXTREE *g3dvoxtree_new ( uint32_t depth,
+                             float xmin, float xmax,
+                             float ymin, float ymax,
+                             float zmin, float zmax ) {
+    G3DVOXTREE *vxt = ( G3DVOXTREE * ) calloc ( 0x01, sizeof ( G3DVOXTREE ) );
+
+    if ( vxt == NULL ) {
+        fprintf ( stderr, "g3dvoxtree_new: calloc failed\n" );
+
+        return NULL;
+    }
+
+    vxt->voxtree = r3dvoxtree_new ( depth, xmin, xmax,
+                                           ymin, ymax, 
+                                           zmin, zmax );
 
     g3dobject_init ( &vxt->obj, G3DOBJECTTYPE, 0x00, "Vox", DRAWBEFORECHILDREN,
                                                    g3dvoxtree_draw,

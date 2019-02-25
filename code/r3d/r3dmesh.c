@@ -103,7 +103,7 @@ void r3dmesh_allocArrays ( R3DMESH *rms, uint32_t nbrver, uint32_t nbrfac ) {
     rms->nbruvs = nbruvs;
 }
 
-void *r3dvoxtree_new ( uint32_t depth, float xmin, float xmax,
+void *g3dvoxtree_new ( uint32_t depth, float xmin, float xmax,
                              float ymin, float ymax,
                              float zmin, float zmax );
 
@@ -136,14 +136,14 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
 /*g3dobject_addChild ( ((R3DOBJECT*)rms)->obj->parent, rob->rot );*/
 
     uint32_t i;
-    void *vxt = r3dvoxtree_new ( 0x00, xmin - 0.01f, xmax + 0.01f, 
-                                       ymin - 0.01f, ymax + 0.01f, 
-                                       zmin - 0.01f, zmax + 0.01f );
+    void *vxt = g3dvoxtree_new ( 0x01, xmin - 0.001f, xmax + 0.001f, 
+                                       ymin - 0.001f, ymax + 0.001f, 
+                                       zmin - 0.001f, zmax + 0.001f );
 
     g3dobject_addChild ( ((R3DOBJECT*)rms)->obj->parent, vxt, 0x00 );
 
     for ( i = 0x00; i < rms->nbrfac; i++ ) {
-        r3dvoxtree_importFace ( vxt, rms->rver, rms->rfac, i );
+        g3dvoxtree_importFace ( vxt, rms->rver, rms->rfac, i );
     }
 }
 
