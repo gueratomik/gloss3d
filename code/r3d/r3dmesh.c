@@ -135,16 +135,16 @@ void r3dmesh_createOctree ( R3DMESH *rms, double   *wmatrix,
 /* If uncommented, please uncomment r3doctree.c:g3dobject_init call ***/
 /*g3dobject_addChild ( ((R3DOBJECT*)rms)->obj->parent, rob->rot );*/
 
-    uint32_t i;
-    void *vxt = g3dvoxtree_new ( 0x01, xmin - 0.001f, xmax + 0.001f, 
-                                       ymin - 0.001f, ymax + 0.001f, 
-                                       zmin - 0.001f, zmax + 0.001f );
+    /*uint32_t i;
+    void *vxt = g3dvoxtree_new ( 0x01, xmin, xmax, 
+                                       ymin, ymax, 
+                                       zmin, zmax );
 
     g3dobject_addChild ( ((R3DOBJECT*)rms)->obj->parent, vxt, 0x00 );
 
     for ( i = 0x00; i < rms->nbrfac; i++ ) {
         g3dvoxtree_importFace ( vxt, rms->rver, rms->rfac, i );
-    }
+    }*/
 }
 
 /******************************************************************************/
