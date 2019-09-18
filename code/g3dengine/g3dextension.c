@@ -30,3 +30,58 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dobjectextension_init ( G3DOBJECTEXTENSION *ext,
+                               uint16_t            name, 
+                               uint16_t            unit ) {
+    ext->id = ( name << 16 ) | unit;
+}
+
+/******************************************************************************/
+G3DMESHMORPHEXTENSION *g3dmeshmorphextension_new ( ) {
+    uint32_t size = sizeof ( G3DMESHMORPHEXTENSION );
+    G3DMESHMORPHEXTENSION *ext = ( G3DMESHMORPHEXTENSION * ) calloc ( 0x01, 
+                                                                      size );
+
+    if ( ext == NULL ) {
+        fprintf ( stderr, "g3dmeshmorphextension_new: calloc failed\n");
+
+        return NULL;
+    }
+
+    g3dobjectextension_init ( ( G3DOBJECTEXTENSION * ) ext,
+                                                       MESHMORPHEXTENSION, 
+                                                       0 );
+
+
+    return ext;
+}
+
+/******************************************************************************/
+void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
+                               uint16_t            name, 
+                               uint16_t            unit ) {
+    ext->id = ( name << 16 ) | unit;
+
+
+    return ext;
+}
+
+/******************************************************************************/
+G3DVERTEXMORPHEXTENSION *g3dvertexmorphextension_new ( uint16_t unit ) {
+    uint32_t size = sizeof ( G3DVERTEXMORPHEXTENSION );
+    G3DVERTEXMORPHEXTENSION *ext = ( G3DVERTEXMORPHEXTENSION * ) calloc ( 0x01, 
+                                                                          size );
+
+    if ( ext == NULL ) {
+        fprintf ( stderr, "g3dvertexmorphextension_new: calloc failed\n");
+
+        return NULL;
+    }
+
+    g3dvertexextension_init ( ( G3DVERTEXEXTENSION * ) ext,
+                                                       VERRTEXMORPHEXTENSION, 
+                                                       unit );
+
+
+    return ext;
+}

@@ -3879,6 +3879,10 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
     mes->dump           = g3dmesh_default_dump;
+
+    /*** mesh have morph capacities ***/
+    g3dobject_addExtension ( ( G3DOBJECT* ) mes, 
+                                            g3dmeshmorphextension_new ( ) );
 }
 
 /******************************************************************************/

@@ -119,28 +119,30 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDITUVWMAP         ( 1  <<  8 )
 #define VIEWAXIS           ( 1  <<  9 )
 #define VIEWSCULPT         ( 1  << 10 )
+#define VIEWMORPH          ( 1  << 11 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
-                             VIEWVERTEX | VIEWEDGE   | VIEWFACE | VIEWAXIS )
-#define SELECTMODE         ( 1  << 11 )
-#define XAXIS              ( 1  << 12 )
-#define YAXIS              ( 1  << 13 ) 
-#define ZAXIS              ( 1  << 14 )
-#define G3DMULTITHREADING  ( 1  << 15 )
-#define KEEPVISIBLEONLY    ( 1  << 16 )
-#define SYMMETRYVIEW       ( 1  << 17 )
-#define ONGOINGANIMATION   ( 1  << 18 ) /*** This helps us to ***/
+                             VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
+                             VIEWMORPH  | VIEWAXIS )
+#define SELECTMODE         ( 1  << 12 )
+#define XAXIS              ( 1  << 13 )
+#define YAXIS              ( 1  << 14 ) 
+#define ZAXIS              ( 1  << 15 )
+#define G3DMULTITHREADING  ( 1  << 16 )
+#define KEEPVISIBLEONLY    ( 1  << 17 )
+#define SYMMETRYVIEW       ( 1  << 18 )
+#define ONGOINGANIMATION   ( 1  << 19 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES          ( 1  << 19 )
-#define HIDEGRID           ( 1  << 20 )
-#define NOLIGHTING         ( 1  << 21 )
-#define NODISPLACEMENT     ( 1  << 22 )
-#define NOTEXTURE          ( 1  << 23 )
-#define LOADFULLRESIMAGES  ( 1  << 24 ) /* used by the renderer especially for animated textures */
-#define NODRAWPOLYGON      ( 1  << 25 )
-#define NOBACKGROUNDIMAGE  ( 1  << 26 )
+#define HIDEBONES          ( 1  << 20 )
+#define HIDEGRID           ( 1  << 21 )
+#define NOLIGHTING         ( 1  << 22 )
+#define NODISPLACEMENT     ( 1  << 23 )
+#define NOTEXTURE          ( 1  << 24 )
+#define LOADFULLRESIMAGES  ( 1  << 25 ) /* used by the renderer especially for animated textures */
+#define NODRAWPOLYGON      ( 1  << 26 )
+#define NOBACKGROUNDIMAGE  ( 1  << 27 )
 
 /******************************* Object Types *********************************/
 #define OBJECT         (  1       )
@@ -560,12 +562,6 @@ typedef struct _G3DFACEGROUP {
 } G3DFACEGROUP;
 
 /******************************************************************************/
-typedef struct _G3DEXTENSION {
-    uint32_t name; /* extension name */
-    struct _G3DEXTENSION *next;
-} G3DEXTENSION;
-
-/******************************************************************************/
 typedef struct _G3DRTVERTEX {
     float         r, g, b;
     G3DTINYVECTOR nor;
@@ -576,25 +572,25 @@ typedef struct _G3DRTVERTEX {
 
 /******************************************************************************/
 typedef struct _G3DVERTEX {
-    uint32_t flags;
-    uint32_t id;      /*** Vertex ID - Should never be trusted !        ***/
-    uint32_t geoID;   /*** geomtry ID, all types included               ***/
-    G3DVECTOR  pos;   /*** Vertex position                              ***/
-    G3DVECTOR  skn;   /*** Vertex Skinned position                      ***/
-    G3DVECTOR  nor;   /*** Vertex normal vector                         ***/
-    LIST *lfac;       /*** list of faces connected to this vertex       ***/
-    LIST *ledg;       /*** list of connected edges                      ***/
-    LIST *lwei;       /*** List of weight                               ***/
-    uint32_t nbfac;   /*** number of connected faces                    ***/
-    uint32_t nbedg;   /*** number of connected edges                    ***/
-    uint32_t nbwei;   /*** number of weights                            ***/
-    float weight;     /*** weight value used when editing weight groups ***/
-    G3DVECTOR facpnt; /*** precompute subdivision average face point    ***/
-    G3DVECTOR edgpnt; /*** precompute subdivision average edge point    ***/
-    float surface;    /*** average surface of connected faces. Used for ***/
-                      /*** scaling normal vector when showing normals ***/
-    G3DRTVERTEX     *rtvermem; /*** Vertex buffer in buffered mode ***/
-    G3DEXTENSION    *extension;
+    uint32_t     flags;
+    uint32_t     id;      /*** Vertex ID - Should never be trusted !        ***/
+    uint32_t     geoID;   /*** geomtry ID, all types included               ***/
+    G3DVECTOR    pos;     /*** Vertex position                              ***/
+    G3DVECTOR    skn;     /*** Vertex Skinned position                      ***/
+    G3DVECTOR    nor;     /*** Vertex normal vector                         ***/
+    LIST        *lfac;    /*** list of faces connected to this vertex       ***/
+    LIST        *ledg;    /*** list of connected edges                      ***/
+    LIST        *lwei;    /*** List of weight                               ***/
+    uint32_t     nbfac;   /*** number of connected faces                    ***/
+    uint32_t     nbedg;   /*** number of connected edges                    ***/
+    uint32_t     nbwei;   /*** number of weights                            ***/
+    float        weight;  /*** weight value used when editing weight groups ***/
+    G3DVECTOR    facpnt;  /*** precompute subdivision average face point    ***/
+    G3DVECTOR    edgpnt;  /*** precompute subdivision average edge point    ***/
+    float        surface; /*** average surface of connected faces. Used for ***/
+                          /*** scaling normal vector when showing normals   ***/
+    G3DRTVERTEX *rtvermem;/*** Vertex buffer in buffered mode               ***/
+    LIST        *lext;    /*** list of vertex extensions                    ***/
     struct _G3DSUBVERTEX *subver;
 } G3DVERTEX;
 
@@ -673,6 +669,7 @@ typedef struct _G3DOBJECT {
     G3DCURVE *posCurve; /* translation dynamics */
     G3DCURVE *rotCurve; /* X rotation dynamics */
     G3DCURVE *scaCurve; /* X scale dynamics */
+    LIST     *lext; /* list of object extensions */
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1027,6 +1024,62 @@ struct _G3DMESH {
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
+
+/******************************************************************************/
+#define MESHMORPHEXTENSION 0x01
+
+/******************************************************************************/
+typedef struct _G3DOBJECTEXTENSION {
+    uint32_t   id; /* extension ( name + unit ) */
+    void     (*transform) ( G3DOBJECT *obj,
+                            uint32_t engine_flags );
+    uint32_t (*draw)      ( G3DOBJECT *obj,
+                            G3DCAMERA *cam,
+                            uint32_t engine_flags );
+} G3DOBJECTEXTENSION;
+
+/******************************************************************************/
+typedef struct _G3DMESHMORPHEXTENSION {
+    G3DOBJECTEXTENSION ext;
+    LIST              *lmps;
+} G3DMESHMORPHEXTENSION;
+
+/******************************************************************************/
+#define VERTEXMORPHEXTENSION 0x01
+
+/******************************************************************************/
+typedef struct _G3DVERTEXEXTENSION {
+    uint32_t id; /* extension id ( name + unit ) */
+} G3DVERTEXEXTENSION;
+
+/******************************************************************************/
+typedef struct _G3DVERTEXMORPHEXTENSION {
+    G3DVERTEXEXTENSION ext;
+    LIST             *lvps;
+} G3DVERTEXMORPHEXTENSION;
+
+/******************************************************************************/
+void g3dobjectextension_init ( G3DOBJECTEXTENSION *ext,
+                               uint16_t            name, 
+                               uint16_t            unit );
+G3DMESHMORPHEXTENSION *g3dmeshmorphextension_new ( );
+
+void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
+                               uint16_t            name, 
+                               uint16_t            unit );
+G3DVERTEXMORPHEXTENSION *g3dvertexmorphextension_new ( uint16_t unit );
+
+/******************************************************************************/
+typedef struct _G3DMESHPOSE {
+    char *name;
+    uint32_t id;
+} G3DMESHPOSE;
+
+/******************************************************************************/
+typedef struct _G3DVERTEXPOSE {
+    G3DMESHPOSE *mps; /* mesh pose */
+    G3DVECTOR    pos; /* vertex position */
+} G3DVERTEXPOSE;
 
 /******************************************************************************/
 struct _G3DKEY {
@@ -1829,6 +1882,10 @@ void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     G3DKEY   **prevKey,
                                     G3DKEY   **nextKey,
                                     uint32_t   key_flags );
+void g3dobject_addExtension ( G3DOBJECT          *obj, 
+                              G3DOBJECTEXTENSION *ext );
+void g3dobject_removeExtension ( G3DOBJECT          *obj, 
+                                 G3DOBJECTEXTENSION *ext );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );

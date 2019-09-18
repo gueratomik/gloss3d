@@ -669,6 +669,34 @@ void g3dobject_anim_r ( G3DOBJECT *obj, float frame, uint32_t flags ) {
 }
 
 /******************************************************************************/
+G3DOBJECTEXTENSION *g3dobject_getExtensionByName ( G3DOBJECT *obj, 
+                                                   uint32_t   name ) {
+    LIST *ltmpext = obj->lext;
+
+    while ( ltmpext ) {
+        G3DOBJECTEXTENSION *ext = ( G3DOBJECTEXTENSION * ) ltmpext->data;
+
+        if ( ext->name == name ) return ext;
+
+        ltmpext = ltmpext->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dobject_addExtension ( G3DOBJECT          *obj, 
+                              G3DOBJECTEXTENSION *ext ) {
+    list_insert ( &obj->lext, ext );
+}
+
+/******************************************************************************/
+void g3dobject_removeExtension ( G3DOBJECT          *obj, 
+                                 G3DOBJECTEXTENSION *ext ) {
+    list_remove ( &obj->lext, ext );
+}
+
+/******************************************************************************/
 G3DKEY *g3dobject_getKeyByFrame ( G3DOBJECT *obj, float frame ) {
     LIST *ltmpkey = obj->lkey;
 

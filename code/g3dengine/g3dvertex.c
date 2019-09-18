@@ -104,13 +104,17 @@ void vertex_elevate ( G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-void g3dvertex_addExtension ( G3DVERTEX *ver, G3DEXTENSION *extension ) {
-    extension->next = ver->extension;
-    ver->extension = extension;
+void g3dvertex_addExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
+    list_insert ( &ver->lext, ext );
 }
 
 /******************************************************************************/
-G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
+void g3dobject_removeExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
+    list_remove ( &ver->lext, ext );
+}
+
+/******************************************************************************/
+/*G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
     G3DEXTENSION *extension = ver->extension;
 
     while ( extension ) {
@@ -122,10 +126,10 @@ G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver, uint32_t extensionName ) 
     }
 
     return NULL;
-}
+}*/
 
 /******************************************************************************/
-G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
+/*G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
     G3DEXTENSION *extension = ver->extension;
     G3DEXTENSION *previousExtension = NULL;
     G3DEXTENSION *removedExtension = NULL;
@@ -146,7 +150,7 @@ G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *ver, uint32_t extensionName
     }
 
     return removedExtension;
-}
+}*/
 
 /******************************************************************************/
 void g3dvertex_renumberList ( LIST *lver, uint32_t id ) {
