@@ -484,6 +484,13 @@ GtkWidget *createRadioLabel     ( GtkWidget *, G3DUI *,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
 
+GtkWidget *createMeshPoseList ( GtkWidget *parent, G3DUI *gui,
+                                                   char *name,
+                                                   gint x,
+                                                   gint y,
+                                                   gint width,
+                                                   gint height );
+
 void       createIntegerText     ( GtkWidget *, G3DUI *,
                                                 char *,
                                                 gint, gint,
@@ -599,6 +606,7 @@ void g3dui_updateMaterialEdit            ( G3DUI * );
 void g3dui_redrawTimeline                ( G3DUI * );
 void g3dui_updateKeyEdit                 ( G3DUI * );
 void g3dui_redrawAllWeightGroupList      ( G3DUI * );
+void g3dui_redrawAllMeshPoseList         ( G3DUI * );
 
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );

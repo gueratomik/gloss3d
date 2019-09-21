@@ -28,6 +28,7 @@ if HAVE_GTK3
                             common/g3duimateriallist.c \
                             common/g3duimenubar.c \
                             common/g3duimeshedit.c \
+                            common/g3duimeshposelist.c \
                             common/g3duimodebar.c \
                             common/g3duiobjectedit.c \
                             common/g3duiplaneedit.c \
@@ -74,6 +75,7 @@ if HAVE_GTK3
                             gtk3/g3duimateriallist.c \
                             gtk3/g3duimenubar.c \
                             gtk3/g3duimeshedit.c \
+                            gtk3/g3duimeshposelist.c \
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \
                             gtk3/g3duiobjectedit.c \

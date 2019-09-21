@@ -878,6 +878,11 @@ void g3dui_redrawAllWeightGroupList ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_redrawAllMeshPoseList ( G3DUI *gui ) {
+    g3dui_redrawWidgetList ( gui, gui->lmeshpose );
+}
+
+/******************************************************************************/
 void g3dui_updateMaterialEdit ( G3DUI *gui ) {
     LIST *ltmpmatedit = gui->lmatedit;
 

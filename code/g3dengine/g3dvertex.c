@@ -109,7 +109,7 @@ void g3dvertex_addExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
 }
 
 /******************************************************************************/
-void g3dobject_removeExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
+void g3dvertex_removeExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
     list_remove ( &ver->lext, ext );
 }
 

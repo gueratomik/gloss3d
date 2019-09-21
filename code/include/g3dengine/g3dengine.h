@@ -119,13 +119,13 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDITUVWMAP         ( 1  <<  8 )
 #define VIEWAXIS           ( 1  <<  9 )
 #define VIEWSCULPT         ( 1  << 10 )
-#define VIEWMORPH          ( 1  << 11 )
+#define VIEWPOSE          ( 1  << 11 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
-                             VIEWMORPH  | VIEWAXIS )
+                             VIEWPOSE  | VIEWAXIS )
 #define SELECTMODE         ( 1  << 12 )
 #define XAXIS              ( 1  << 13 )
 #define YAXIS              ( 1  << 14 ) 
@@ -290,6 +290,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /***************************** Weightgroup Flags ******************************/
 #define WEIGHTGROUPSELECTED   ( 1      )
+
+/***************************** Meshpose Flags ******************************/
+#define MESHPOSESELECTED      ( 1      )
 
 /******************************* Keyframe Flags *******************************/
 #define KEYSELECTED  ( 1      )
@@ -1026,7 +1029,20 @@ struct _G3DMESH {
 #include <g3dengine/g3dtext.h>
 
 /******************************************************************************/
-#define MESHMORPHEXTENSION 0x01
+#define MESHPOSEEXTENSION 0x01
+
+/******************************************************************************/
+typedef struct _G3DMESHPOSE {
+    char    *name;
+    uint32_t id;
+    uint32_t flags;
+} G3DMESHPOSE;
+
+/******************************************************************************/
+typedef struct _G3DVERTEXPOSE {
+    G3DMESHPOSE *mps;
+    G3DVECTOR    pos; /* vertex position */
+} G3DVERTEXPOSE;
 
 /******************************************************************************/
 typedef struct _G3DOBJECTEXTENSION {
@@ -1039,13 +1055,16 @@ typedef struct _G3DOBJECTEXTENSION {
 } G3DOBJECTEXTENSION;
 
 /******************************************************************************/
-typedef struct _G3DMESHMORPHEXTENSION {
+typedef struct _G3DMESHPOSEEXTENSION {
     G3DOBJECTEXTENSION ext;
     LIST              *lmps;
-} G3DMESHMORPHEXTENSION;
+    uint32_t           nbmps;
+    uint32_t           mpsid;
+    G3DMESHPOSE       *curmps; /*** current selected mesh pose ***/
+} G3DMESHPOSEEXTENSION;
 
 /******************************************************************************/
-#define VERTEXMORPHEXTENSION 0x01
+#define VERTEXPOSEEXTENSION 0x01
 
 /******************************************************************************/
 typedef struct _G3DVERTEXEXTENSION {
@@ -1053,33 +1072,30 @@ typedef struct _G3DVERTEXEXTENSION {
 } G3DVERTEXEXTENSION;
 
 /******************************************************************************/
-typedef struct _G3DVERTEXMORPHEXTENSION {
+typedef struct _G3DVERTEXPOSEEXTENSION {
     G3DVERTEXEXTENSION ext;
     LIST             *lvps;
-} G3DVERTEXMORPHEXTENSION;
+} G3DVERTEXPOSEEXTENSION;
 
 /******************************************************************************/
 void g3dobjectextension_init ( G3DOBJECTEXTENSION *ext,
                                uint16_t            name, 
                                uint16_t            unit );
-G3DMESHMORPHEXTENSION *g3dmeshmorphextension_new ( );
+G3DMESHPOSEEXTENSION *g3dmeshposeextension_new ( );
+G3DMESHPOSE *g3dmeshposeextension_createPose ( G3DMESHPOSEEXTENSION *ext,
+                                               char                 *name );
+void *g3dmeshposeextension_removePose ( G3DMESHPOSEEXTENSION *ext,
+                                        G3DMESHPOSE          *mps );
+void g3dmeshposeextension_selectPose ( G3DMESHPOSEEXTENSION *ext, 
+                                       G3DMESHPOSE *mps );
+void g3dmeshposeextension_unselectPose ( G3DMESHPOSEEXTENSION *ext, 
+                                         G3DMESHPOSE *mps );
 
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
                                uint16_t            name, 
                                uint16_t            unit );
-G3DVERTEXMORPHEXTENSION *g3dvertexmorphextension_new ( uint16_t unit );
+G3DVERTEXPOSEEXTENSION *g3dvertexposeextension_new ( uint16_t unit );
 
-/******************************************************************************/
-typedef struct _G3DMESHPOSE {
-    char *name;
-    uint32_t id;
-} G3DMESHPOSE;
-
-/******************************************************************************/
-typedef struct _G3DVERTEXPOSE {
-    G3DMESHPOSE *mps; /* mesh pose */
-    G3DVECTOR    pos; /* vertex position */
-} G3DVERTEXPOSE;
 
 /******************************************************************************/
 struct _G3DKEY {
@@ -1373,9 +1389,9 @@ void g3dquaternion_init ( G3DQUATERNION *, float, float, float, float );
 
 /******************************************************************************/
 G3DVERTEX *g3dvertex_new        ( float, float, float );
-G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
-void g3dvertex_addExtension ( G3DVERTEX *, G3DEXTENSION * );
-G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *, uint32_t );
+G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
+void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
+void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void       g3dvertex_normal     ( G3DVERTEX *, uint32_t );
 void       g3dvertex_addFace    ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_removeFace ( G3DVERTEX *, G3DFACE * );
@@ -1886,6 +1902,9 @@ void g3dobject_addExtension ( G3DOBJECT          *obj,
                               G3DOBJECTEXTENSION *ext );
 void g3dobject_removeExtension ( G3DOBJECT          *obj, 
                                  G3DOBJECTEXTENSION *ext );
+G3DOBJECTEXTENSION *g3dobject_getExtensionByID ( G3DOBJECT *obj, 
+                                                 uint32_t   name,
+                                                 uint32_t   unit );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );

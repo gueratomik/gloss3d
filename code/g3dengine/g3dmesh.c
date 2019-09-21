@@ -3853,6 +3853,7 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
                                   char    *name,
                                   uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );
 
     g3dobject_init ( obj, G3DMESHTYPE, id, name, DRAWBEFORECHILDREN,
                                    DRAW_CALLBACK(g3dmesh_draw),
@@ -3881,8 +3882,9 @@ void g3dmesh_init ( G3DMESH *mes, uint32_t id,
     mes->dump           = g3dmesh_default_dump;
 
     /*** mesh have morph capacities ***/
-    g3dobject_addExtension ( ( G3DOBJECT* ) mes, 
-                                            g3dmeshmorphextension_new ( ) );
+    g3dobject_addExtension ( ( G3DOBJECT* ) mes, ext );
+
+    g3dmeshposeextension_createPose ( ext, "test" );
 }
 
 /******************************************************************************/

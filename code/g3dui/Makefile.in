@@ -142,18 +142,19 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duilightedit.c common/g3duilist.c \
 	common/g3duimaterialboard.c common/g3duimaterialedit.c \
 	common/g3duimateriallist.c common/g3duimenubar.c \
-	common/g3duimeshedit.c common/g3duimodebar.c \
-	common/g3duiobjectedit.c common/g3duiplaneedit.c \
-	common/g3duiquad.c common/g3duirenderedit.c \
-	common/g3duirenderprocess.c common/g3duirenderwindow.c \
-	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
-	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
-	common/g3duitextedit.c common/g3duitextureedit.c \
-	common/g3duitimeboard.c common/g3duitimeline.c \
-	common/g3duitoolbar.c common/g3duitorusedit.c \
-	common/g3duiuvmapedit.c common/g3duiuvmapeditor.c \
-	common/g3duiview.c common/g3duiviewexport.c \
-	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
+	common/g3duimeshedit.c common/g3duimeshposelist.c \
+	common/g3duimodebar.c common/g3duiobjectedit.c \
+	common/g3duiplaneedit.c common/g3duiquad.c \
+	common/g3duirenderedit.c common/g3duirenderprocess.c \
+	common/g3duirenderwindow.c common/g3duisphereedit.c \
+	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
+	common/g3duisymmetryedit.c common/g3duitextedit.c \
+	common/g3duitextureedit.c common/g3duitimeboard.c \
+	common/g3duitimeline.c common/g3duitoolbar.c \
+	common/g3duitorusedit.c common/g3duiuvmapedit.c \
+	common/g3duiuvmapeditor.c common/g3duiview.c \
+	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -166,19 +167,19 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duilist.c gtk3/g3duimainboard.c \
 	gtk3/g3duimaterialboard.c gtk3/g3duimaterialedit.c \
 	gtk3/g3duimateriallist.c gtk3/g3duimenubar.c \
-	gtk3/g3duimeshedit.c gtk3/g3duimodebar.c \
-	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
-	gtk3/g3duiplaneedit.c gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
-	gtk3/g3duirenderprocess.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisplinerevolveredit.c \
-	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
-	gtk3/g3duitextedit.c gtk3/g3duitextureedit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duiuvmapedit.c \
-	gtk3/g3duiuvmapeditor.c gtk3/g3duiuvmapeditortoolbar.c \
-	gtk3/g3duiview.c gtk3/g3duiweightgrouplist.c \
-	gtk3/g3duiwireframeedit.c gtk3/r3dpreview.c \
-	gtk3/mousetool/g3duicurrentmousetool.c \
+	gtk3/g3duimeshedit.c gtk3/g3duimeshposelist.c \
+	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
+	gtk3/g3duiobjectedit.c gtk3/g3duiplaneedit.c gtk3/g3duiquad.c \
+	gtk3/g3duirenderedit.c gtk3/g3duirenderprocess.c \
+	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
+	gtk3/g3duisplinerevolveredit.c gtk3/g3duisubdivideredit.c \
+	gtk3/g3duisymmetryedit.c gtk3/g3duitextedit.c \
+	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiuvmapeditor.c \
+	gtk3/g3duiuvmapeditortoolbar.c gtk3/g3duiview.c \
+	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
+	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c
@@ -198,6 +199,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duimateriallist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimenubar.lo common/g3duimeshedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duimeshposelist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duiplaneedit.lo common/g3duiquad.lo \
@@ -233,7 +235,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimateriallist.lo gtk3/g3duimenubar.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimeshedit.lo gtk3/g3duimodebar.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duimeshedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duimeshposelist.lo gtk3/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo gtk3/g3duiplaneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
@@ -474,6 +477,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duimateriallist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimenubar.c \
 @HAVE_GTK3_TRUE@                            common/g3duimeshedit.c \
+@HAVE_GTK3_TRUE@                            common/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            common/g3duiobjectedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiplaneedit.c \
@@ -520,6 +524,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimateriallist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimeshedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectboard.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectedit.c \
@@ -664,6 +669,8 @@ common/g3duimenubar.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duimeshedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duimeshposelist.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duimodebar.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiobjectedit.lo: common/$(am__dirstamp) \
@@ -769,6 +776,8 @@ gtk3/g3duimenubar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimeshedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duimeshposelist.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimodebar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiobjectboard.lo: gtk3/$(am__dirstamp) \
@@ -871,6 +880,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimateriallist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimenubar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimodebar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiplaneedit.Plo@am__quote@
@@ -917,6 +927,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimateriallist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimenubar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimeshedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimodebar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@

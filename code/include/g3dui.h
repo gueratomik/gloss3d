@@ -304,6 +304,7 @@
 /**** Widget names for MeshEdit TextField widget ***/
 #define EDITMESH             "Mesh"
 #define EDITMESHWEIGHTGROUP  "Weight Groups"
+#define EDITMESHPOSE         "Poses"
 #define EDITMESHGOURAUDLIMIT "Gouraud Shading limit"
 #define EDITMESHISOLINES     "Use isoparms (Slower)"
 
@@ -333,6 +334,9 @@
 
 #define EDITWEIGHTGROUPNAME "Group name"
 #define EDITWEIGHTGROUPLIST "Group list"
+
+#define EDITMESHPOSENAME    "Pose name"
+#define EDITMESHPOSELIST    "Pose list"
 
 /**** Widget names for MaterialColorEdit widget ***/
 #define MATERIALCOLOREDITFORMNAME "Material Color Edit Form"
@@ -609,6 +613,7 @@ typedef struct _G3DUI {
     LIST         *ltexedit;
     LIST         *lligedit;
     LIST         *lweightgroup;
+    LIST         *lmeshpose;
     LIST         *luvmapeditor;
     LIST         *limg; /*** List of images (among them are textures) ***/
     LIST         *lrps; /*** list of render process ***/
@@ -1412,5 +1417,17 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui );
 /******************************************************************************/
 uint32_t common_g3duiview_blockSize ( G3DUIVIEW *view );
 void common_g3duiview_writeBlock ( G3DUIVIEW *view, FILE *fdst );
+
+/******************************************************************************/
+G3DMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
+                                                    float  mouse_x,
+                                                    float  mouse_y );
+void common_g3duimeshposelist_deleteCurrentPoseCbk ( G3DUI *gui );
+void common_g3duimeshposelist_createPoseCbk ( G3DUI *gui );
+void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
+                                                     char  *mpsname );
+void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui );
+void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps );
+
 
 #endif

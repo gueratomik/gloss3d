@@ -568,7 +568,6 @@ typedef struct _R3DOBJECT {
     R3DBBOX   *rbx;
     R3DOCTREE *rot;
     G3DOBJECT *obj; /*** reference object ***/
-    G3DEXTENSION *extension;
 } R3DOBJECT;
 
 /******************************************************************************/

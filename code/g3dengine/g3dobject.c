@@ -669,14 +669,15 @@ void g3dobject_anim_r ( G3DOBJECT *obj, float frame, uint32_t flags ) {
 }
 
 /******************************************************************************/
-G3DOBJECTEXTENSION *g3dobject_getExtensionByName ( G3DOBJECT *obj, 
-                                                   uint32_t   name ) {
+G3DOBJECTEXTENSION *g3dobject_getExtensionByID ( G3DOBJECT *obj, 
+                                                 uint32_t   name,
+                                                 uint32_t   unit ) {
     LIST *ltmpext = obj->lext;
 
     while ( ltmpext ) {
         G3DOBJECTEXTENSION *ext = ( G3DOBJECTEXTENSION * ) ltmpext->data;
 
-        if ( ext->name == name ) return ext;
+        if ( ext->id == ( ( name << 16 ) | unit ) ) return ext;
 
         ltmpext = ltmpext->next;
     }

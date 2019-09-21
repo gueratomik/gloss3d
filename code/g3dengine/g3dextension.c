@@ -37,23 +37,58 @@ void g3dobjectextension_init ( G3DOBJECTEXTENSION *ext,
 }
 
 /******************************************************************************/
-G3DMESHMORPHEXTENSION *g3dmeshmorphextension_new ( ) {
-    uint32_t size = sizeof ( G3DMESHMORPHEXTENSION );
-    G3DMESHMORPHEXTENSION *ext = ( G3DMESHMORPHEXTENSION * ) calloc ( 0x01, 
+G3DMESHPOSEEXTENSION *g3dmeshposeextension_new ( ) {
+    uint32_t size = sizeof ( G3DMESHPOSEEXTENSION );
+    G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) calloc ( 0x01, 
                                                                       size );
 
     if ( ext == NULL ) {
-        fprintf ( stderr, "g3dmeshmorphextension_new: calloc failed\n");
+        fprintf ( stderr, "g3dmeshposeextension_new: calloc failed\n");
 
         return NULL;
     }
 
     g3dobjectextension_init ( ( G3DOBJECTEXTENSION * ) ext,
-                                                       MESHMORPHEXTENSION, 
-                                                       0 );
-
+                                                       MESHPOSEEXTENSION, 
+                                                       0x00 );
 
     return ext;
+}
+
+/******************************************************************************/
+void g3dmeshposeextension_selectPose ( G3DMESHPOSEEXTENSION *ext, 
+                                       G3DMESHPOSE *mps ) {
+    mps->flags |= MESHPOSESELECTED;
+
+    ext->curmps = mps;
+}
+
+/******************************************************************************/
+void g3dmeshposeextension_unselectPose ( G3DMESHPOSEEXTENSION *ext, 
+                                         G3DMESHPOSE *mps ) {
+    mps->flags &= (~MESHPOSESELECTED);
+
+    ext->curmps = NULL;
+}
+
+/******************************************************************************/
+G3DMESHPOSE *g3dmeshposeextension_createPose ( G3DMESHPOSEEXTENSION *ext,
+                                               char                 *name ) {
+    G3DMESHPOSE *mps = g3dmeshpose_new ( name, ext->mpsid++ );
+
+    list_insert ( &ext->lmps, mps );
+
+    ext->nbmps++;
+
+    return mps;
+}
+
+/******************************************************************************/
+void *g3dmeshposeextension_removePose ( G3DMESHPOSEEXTENSION *ext,
+                                        G3DMESHPOSE          *mps ) {
+    list_remove ( &ext->lmps, mps );
+
+    ext->nbmps--;
 }
 
 /******************************************************************************/
@@ -67,19 +102,19 @@ void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
 }
 
 /******************************************************************************/
-G3DVERTEXMORPHEXTENSION *g3dvertexmorphextension_new ( uint16_t unit ) {
-    uint32_t size = sizeof ( G3DVERTEXMORPHEXTENSION );
-    G3DVERTEXMORPHEXTENSION *ext = ( G3DVERTEXMORPHEXTENSION * ) calloc ( 0x01, 
+G3DVERTEXPOSEEXTENSION *g3dvertexposeextension_new ( uint16_t unit ) {
+    uint32_t size = sizeof ( G3DVERTEXPOSEEXTENSION );
+    G3DVERTEXPOSEEXTENSION *ext = ( G3DVERTEXPOSEEXTENSION * ) calloc ( 0x01, 
                                                                           size );
 
     if ( ext == NULL ) {
-        fprintf ( stderr, "g3dvertexmorphextension_new: calloc failed\n");
+        fprintf ( stderr, "g3dvertexposeextension_new: calloc failed\n");
 
         return NULL;
     }
 
     g3dvertexextension_init ( ( G3DVERTEXEXTENSION * ) ext,
-                                                       VERRTEXMORPHEXTENSION, 
+                                                       VERTEXPOSEEXTENSION, 
                                                        unit );
 
 

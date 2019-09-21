@@ -44,6 +44,20 @@ static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duimeshposelist_deleteSelectedPoseCbk ( gui );
+}
+
+/******************************************************************************/
+static void addMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duimeshposelist_createPoseCbk ( gui );
+}
+
+/******************************************************************************/
 static void gouraudCbk ( GtkWidget *widget, 
                          GdkEvent  *event,
                          gpointer   user_data ) {
@@ -59,11 +73,23 @@ static void gouraudCbk ( GtkWidget *widget,
 } 
 
 /******************************************************************************/
-static void nameCbk  ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
+static void nameWeightGroupCbk  ( GtkWidget *widget, 
+                                  GdkEvent  *event, 
+                                  gpointer   user_data ) {
     const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3duiweightgrouplist_nameCbk ( gui, grpname );
+}
+
+/******************************************************************************/
+static void nameMeshPoseCbk  ( GtkWidget *widget, 
+                               GdkEvent  *event, 
+                               gpointer   user_data ) {
+    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duimeshposelist_renameCurrentPoseCbk ( gui, grpname );
 }
 
 /******************************************************************************/
@@ -122,16 +148,71 @@ static void createWeightgroupFrame ( GtkWidget *frm, G3DUI *gui,
 
     wgf = createFrame ( frm, gui, EDITMESHWEIGHTGROUP,  x, y, width, height );
 
-    /*** We have to encapsulate widget into a bulletin board widget because ***/
-    /*** XmFrame always wants to resize itself. This way, it does not resize***/
-    /*brd = createBoard ( sdf, gui, EDITMESHVERTEXGROUP,  4,   20, 278, 120 );*/
-
-    createCharText ( wgf, gui, EDITWEIGHTGROUPNAME, 0, 0, 96, 132, nameCbk );
+    createCharText ( wgf, gui, EDITWEIGHTGROUPNAME, 0, 0, 96, 132, nameWeightGroupCbk );
 
     createWeightgroupList ( wgf, gui, EDITWEIGHTGROUPLIST,  0, 36, 218, 128 );
 
     createPushButton ( wgf, gui, "+", 246,  36, 32, 32, addWeightGroupCbk    );
     createPushButton ( wgf, gui, "-", 246, 132, 32, 32, deleteWeightGroupCbk );
+}
+
+/******************************************************************************/
+void updateMeshPoseForm ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    gui->lock = 0x01;
+
+    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+
+        if ( ext ) {
+            while ( children ) {
+                GtkWidget *child = ( GtkWidget * ) children->data;
+                const char *child_name = gtk_widget_get_name ( child );
+
+                if ( GTK_IS_ENTRY(child) ) {
+                    GtkEntry *ent = GTK_ENTRY(child);
+
+                    if ( strcmp ( child_name, EDITMESHPOSENAME ) == 0x00 ) {
+                        if ( ext->curmps ) {
+                            gtk_entry_set_text ( ent, ext->curmps->name );
+                        }
+                    }
+                }
+
+                children =  g_list_next ( children );
+            }
+        }
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+void updateMeshPoseFrame ( GtkWidget *widget, G3DUI *gui ) {
+    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+
+    if ( frm ) updateMeshPoseForm ( frm, gui );
+}
+
+/******************************************************************************/
+static void createMeshPoseFrame ( GtkWidget *frm, G3DUI *gui,
+                                                  gint x,
+                                                  gint y,
+                                                  gint width,
+                                                  gint height ) {
+    GtkWidget *wgf, *lst;
+
+    wgf = createFrame ( frm, gui, EDITMESHPOSE,  x, y, width, height );
+
+    createCharText ( wgf, gui, EDITMESHPOSENAME, 0, 0, 96, 132, nameMeshPoseCbk );
+
+    createMeshPoseList ( wgf, gui, EDITMESHPOSELIST,  0, 36, 218, 128 );
+
+    createPushButton ( wgf, gui, "+", 246,  36, 32, 32, addMeshPoseCbk    );
+    createPushButton ( wgf, gui, "-", 246, 132, 32, 32, deleteMeshPoseCbk );
 }
 
 /******************************************************************************/
@@ -152,6 +233,10 @@ void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
 
             if ( strcmp ( child_name, EDITMESHWEIGHTGROUP ) == 0x00 ) {
                 updateWeightgroupFrame ( child, gui );
+            }
+
+            if ( strcmp ( child_name, EDITMESHPOSE ) == 0x00 ) {
+                updateMeshPoseFrame ( child, gui );
             }
 
             if ( GTK_IS_SPIN_BUTTON ( child ) ) {
@@ -207,7 +292,8 @@ GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
                                                         0,  0,
                                                       160, 64, gouraudCbk );
 
-    createWeightgroupFrame ( frm, gui,   0, 24, 286, 140 );
+    createWeightgroupFrame ( frm, gui,   0,  24, 286, 140 );
+    createMeshPoseFrame    ( frm, gui,   0, 208, 286, 140 );
 
     gtk_widget_show ( frm );
 

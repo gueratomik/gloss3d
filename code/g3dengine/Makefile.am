@@ -24,6 +24,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dcutface.c \
                       g3dcylinder.c \
                       g3dedge.c \
+                      g3dextension.c \
                       g3dface.c \
                       g3dffd.c \
                       g3dheightmap.c \
@@ -33,6 +34,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
+                      g3dmeshpose.c \
                       g3dmodifier.c \
                       g3dobject.c \
                       g3dpivot.c \
