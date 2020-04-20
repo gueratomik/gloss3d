@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -393,37 +393,6 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     glLoadIdentity ( );
 
     if ( cam ) {
-        G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
-        double TMPX[0x10];
-
-        if ( selobj ) {
-            if ( ( engine_flags & VIEWOBJECT ) ||
-                 ( engine_flags & VIEWAXIS   ) ) {
-                g3dvector_matrix ( &pos, selobj->wmatrix, &cam->pivot );
-            }
-
-            if ( selobj->type & EDITABLE ) {
-                G3DMESH *mes= ( G3DMESH * ) selobj;
-
-                if ( engine_flags & VIEWVERTEX ) {
-                    g3dmesh_getSelectedVerticesWorldPosition ( mes, 
-                                                               &cam->pivot );
-                }
-
-                if ( engine_flags & VIEWFACE ) {
-                    g3dmesh_getSelectedFacesWorldPosition ( mes, 
-                                                            &cam->pivot );
-                }
-
-                if ( engine_flags & VIEWEDGE ) {
-                    g3dmesh_getSelectedEdgesWorldPosition ( mes, 
-                                                            &cam->pivot );
-                }
-            }
-
-
-        }
-
         g3dcamera_view ( cam, engine_flags );
     }
 

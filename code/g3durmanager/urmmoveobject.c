@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -31,142 +31,213 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMMOVEOBJECT *urmmoveobject_new ( G3DOBJECT *obj, G3DVECTOR *oldpos,
-                                                   G3DVECTOR *oldrot,
-                                                   G3DVECTOR *oldsca,
-                                                   G3DVECTOR *newpos,
-                                                   G3DVECTOR *newrot,
-                                                   G3DVECTOR *newsca,
-                                                   uint32_t   axis_only ) {
-    uint32_t structsize = sizeof ( URMMOVEOBJECT );
+URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
+                                             uint32_t   save_type ) {
+    uint32_t structsize = sizeof ( URMTRANSFORMOBJECT );
 
-    URMMOVEOBJECT *mos = ( URMMOVEOBJECT * ) calloc ( 0x01, structsize );
+    URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) calloc ( 0x01, structsize );
 
-    if ( mos == NULL ) {
-        fprintf ( stderr, "urmmoveobject_new: memory allocation falied\n" );
+    if ( uto == NULL ) {
+        fprintf ( stderr, "urmtransformobject_new: memory allocation falied\n" );
 
         return NULL;
     }
 
-    mos->obj = obj;
-    memcpy ( &mos->oldpos, oldpos, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->oldrot, oldrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->oldsca, oldsca, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->newpos, newpos, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->newrot, newrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->newsca, newsca, sizeof ( G3DVECTOR ) );
+    uto->lobj      = lobj;
+    uto->save_type = save_type;
 
-    mos->axis_only = axis_only;
-
-    return mos;
+    return uto;
 }
 
 /******************************************************************************/
-void urmmoveobject_free ( URMMOVEOBJECT *mos ) {
-    free ( mos );
+void urmtransformobject_free ( URMTRANSFORMOBJECT *uto ) {
+    if ( uto->oldpos ) free ( uto->oldpos );
+    if ( uto->oldrot ) free ( uto->oldrot );
+    if ( uto->oldsca ) free ( uto->oldsca );
+
+    if ( uto->newpos ) free ( uto->newpos );
+    if ( uto->newrot ) free ( uto->newrot );
+    if ( uto->newsca ) free ( uto->newsca );
+
+    list_free ( &uto->lobj, NULL );
+
+    free ( uto );
 }
 
 /******************************************************************************/
-void moveObject_free ( void *data, uint32_t commit ) {
-    URMMOVEOBJECT *mos = ( URMMOVEOBJECT * ) data;
+void transformObject_free ( void *data, uint32_t commit ) {
+    URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
 
-    urmmoveobject_free ( mos );
+    urmtransformobject_free ( uto );
 }
 
 /******************************************************************************/
-void moveObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
-    URMMOVEOBJECT *mos = ( URMMOVEOBJECT * ) data;
-    double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
+void transformObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
+    LIST *ltmpobj = uto->lobj;
+    uint32_t i = 0x00;
 
-    /*** rebuild previous world matrix ***/
-    if ( mos->axis_only ) {
-        glMatrixMode ( GL_MODELVIEW );
-        glPushMatrix ( );
-        glLoadIdentity ( );
-        glTranslatef ( mos->newpos.x, mos->newpos.y, mos->newpos.z );
-        glRotatef    ( mos->newrot.x, 1.0f, 0.0f, 0.0f );
-        glRotatef    ( mos->newrot.y, 0.0f, 1.0f, 0.0f );
-        glRotatef    ( mos->newrot.z, 0.0f, 0.0f, 1.0f );
-        glScalef     ( mos->newsca.x, mos->newsca.y, mos->newsca.z );
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
 
-        glGetDoublev ( GL_MODELVIEW_MATRIX, OLDLOCALMVX );
+        if ( uto->save_type & UTOSAVEAXIS ) {
 
-        if ( mos->obj->parent  ){
-            g3dcore_multmatrix ( OLDLOCALMVX, 
-                                 mos->obj->parent->wmatrix, OLDWORLDMVX );
         }
-    }
 
-    memcpy ( &mos->obj->pos, &mos->oldpos, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->obj->rot, &mos->oldrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->obj->sca, &mos->oldsca, sizeof ( G3DVECTOR ) );
-
-    g3dobject_updateMatrix_r ( mos->obj, 0x00 );
-
-    /*** keep vertices at the same location if we are in axis mode ***/
-    if ( mos->axis_only && ( mos->obj->type & MESH ) ) {
-        G3DMESH *mes = ( G3DMESH * ) mos->obj;
-
-        g3dmesh_moveAxis ( mes, OLDWORLDMVX, flags );
-    }
-}
-
-/******************************************************************************/
-void moveObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
-    URMMOVEOBJECT *mos = ( URMMOVEOBJECT * ) data;
-    double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
-
-    /*** rebuild future world matrix ***/
-    if ( mos->axis_only ) {
-        glMatrixMode ( GL_MODELVIEW );
-        glPushMatrix ( );
-        glLoadIdentity ( );
-        glTranslatef ( mos->oldpos.x, mos->oldpos.y, mos->oldpos.z );
-        glRotatef    ( mos->oldrot.x, 1.0f, 0.0f, 0.0f );
-        glRotatef    ( mos->oldrot.y, 0.0f, 1.0f, 0.0f );
-        glRotatef    ( mos->oldrot.z, 0.0f, 0.0f, 1.0f );
-        glScalef     ( mos->oldsca.x, mos->oldsca.y, mos->oldsca.z );
-
-        glGetDoublev ( GL_MODELVIEW_MATRIX, OLDLOCALMVX );
-
-        if ( mos->obj->parent  ){
-            g3dcore_multmatrix ( OLDLOCALMVX, 
-                                 mos->obj->parent->wmatrix, OLDWORLDMVX );
+	if ( uto->save_type & UTOSAVETRANSLATION ) {
+	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
         }
-    }
 
-    memcpy ( &mos->obj->pos, &mos->newpos, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->obj->rot, &mos->newrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &mos->obj->sca, &mos->newsca, sizeof ( G3DVECTOR ) );
+	if ( uto->save_type & UTOSAVEROTATION ) {
+	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
+        }
 
-    g3dobject_updateMatrix_r ( mos->obj, 0x00 );
+	if ( uto->save_type & UTOSAVESCALING ) {
+	    memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR ) );
+        }
 
-    /*** keep vertices at the same location if we are in axis mode ***/
-    if ( mos->axis_only && ( mos->obj->type & MESH ) ) {
-        G3DMESH *mes = ( G3DMESH * ) mos->obj;
+	g3dobject_updateMatrix_r ( obj, 0x00 );
 
-        g3dmesh_moveAxis ( mes, OLDWORLDMVX, flags );
+	/*** keep vertices at the same location if we are in axis mode ***/
+	if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            /*g3dmesh_transformAxis ( mes, OLDWORLDMVX, flags );*/
+	}
+
+        i++;
+
+        ltmpobj = ltmpobj->next;
     }
 }
 
 /******************************************************************************/
-void g3durm_object_move ( G3DURMANAGER *urm, G3DOBJECT *obj,
-                                             G3DVECTOR *oldpos,
-                                             G3DVECTOR *oldrot,
-                                             G3DVECTOR *oldsca,
-                                             uint32_t   axis_only,
-                                             uint32_t   return_flags ) {
-    URMMOVEOBJECT *mos;
+void transformObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
+    LIST *ltmpobj = uto->lobj;
+    uint32_t i = 0x00;
 
-    mos = urmmoveobject_new ( obj, oldpos,
-                                   oldrot,
-                                   oldsca, 
-                                   &obj->pos, 
-                                   &obj->rot,  
-                                   &obj->sca,
-                                    axis_only );
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
 
-    g3durmanager_push ( urm, moveObject_undo,
-                             moveObject_redo,
-                             moveObject_free, mos, return_flags );
+        if ( uto->save_type & UTOSAVEAXIS ) {
+
+        }
+
+	if ( uto->save_type & UTOSAVETRANSLATION ) {
+	    memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
+        }
+
+	if ( uto->save_type & UTOSAVEROTATION ) {
+	    memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );
+        }
+
+	if ( uto->save_type & UTOSAVESCALING ) {
+	    memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR ) );
+        }
+
+	g3dobject_updateMatrix_r ( obj, 0x00 );
+
+	/*** keep vertices at the same location if we are in axis mode ***/
+	if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            /*g3dmesh_transformAxis ( mes, OLDWORLDMVX, flags );*/
+	}
+
+        i++;
+
+        ltmpobj = ltmpobj->next;
+    }
 }
+
+/******************************************************************************/
+void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time ) {
+
+    uint32_t nbobj   = list_count ( uto->lobj );
+    uint32_t vecsize = sizeof ( G3DVECTOR );
+    LIST    *ltmpobj = uto->lobj;
+    uint32_t i       = 0x00;
+
+    if ( uto->save_type & UTOSAVETRANSLATION ) {
+        uto->oldpos = ( G3DVECTOR * ) realloc ( uto->oldpos, vecsize * nbobj );
+        uto->newpos = ( G3DVECTOR * ) realloc ( uto->newpos, vecsize * nbobj );
+    }
+
+    if ( uto->save_type & UTOSAVEROTATION ) {
+        uto->oldrot = ( G3DVECTOR * ) realloc ( uto->oldrot, vecsize * nbobj );
+        uto->newrot = ( G3DVECTOR * ) realloc ( uto->newrot, vecsize * nbobj );
+    }
+
+    if ( uto->save_type & UTOSAVESCALING ) {
+        uto->oldsca = ( G3DVECTOR * ) realloc ( uto->oldsca, vecsize * nbobj );
+        uto->newsca = ( G3DVECTOR * ) realloc ( uto->newsca, vecsize * nbobj );
+    }
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( save_time == UTOSAVESTATEBEFORE ) {
+            if ( uto->save_type & UTOSAVETRANSLATION ) {
+        	uto->oldpos[i].x = obj->pos.x;
+        	uto->oldpos[i].y = obj->pos.y;
+        	uto->oldpos[i].z = obj->pos.z;
+            }
+
+            if ( uto->save_type & UTOSAVEROTATION ) {
+        	uto->oldrot[i].x = obj->rot.x;
+        	uto->oldrot[i].y = obj->rot.y;
+        	uto->oldrot[i].z = obj->rot.z;
+            }
+
+            if ( uto->save_type & UTOSAVESCALING ) {
+        	uto->oldsca[i].x = obj->sca.x;
+        	uto->oldsca[i].y = obj->sca.y;
+        	uto->oldsca[i].z = obj->sca.z;
+            }
+        }
+
+        if ( save_time == UTOSAVESTATEAFTER ) {
+            if ( uto->save_type & UTOSAVETRANSLATION ) {
+        	uto->newpos[i].x = obj->pos.x;
+        	uto->newpos[i].y = obj->pos.y;
+        	uto->newpos[i].z = obj->pos.z;
+            }
+
+            if ( uto->save_type & UTOSAVEROTATION ) {
+        	uto->newrot[i].x = obj->rot.x;
+        	uto->newrot[i].y = obj->rot.y;
+        	uto->newrot[i].z = obj->rot.z;
+            }
+
+            if ( uto->save_type & UTOSAVESCALING ) {
+        	uto->newsca[i].x = obj->sca.x;
+        	uto->newsca[i].y = obj->sca.y;
+        	uto->newsca[i].z = obj->sca.z;
+            }
+        }
+
+        i++;
+
+        ltmpobj = ltmpobj->next;
+    }
+}
+
+/******************************************************************************/
+URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm, 
+                                              LIST         *lobj,
+                                              uint32_t      save_type,
+                                              uint32_t      return_flags ) {
+    URMTRANSFORMOBJECT *uto;
+
+    uto = urmtransformobject_new ( list_copy ( lobj ), save_type );
+
+    g3durmanager_push ( urm, transformObject_undo,
+                             transformObject_redo,
+                             transformObject_free, uto, return_flags );
+
+    return uto;
+}
+

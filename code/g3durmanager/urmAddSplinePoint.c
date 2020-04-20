@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -79,15 +79,11 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
 
     if ( asp->seg ) g3dcurve_removeSegment ( asp->spline->curve, asp->seg );
 
-    g3dmesh_unselectVertex ( asp->spline, asp->pt );
-    g3dmesh_removeVertex ( asp->spline, asp->pt );
+    g3dcurve_unselectPoint ( asp->spline->curve, asp->pt );
+    g3dcurve_removePoint ( asp->spline->curve, asp->pt );
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( asp->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );
+    /*** Rebuild the spline modifiers ***/
+    g3dspline_update ( asp->spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -96,18 +92,14 @@ void addSplinePoint_redo ( G3DURMANAGER *urm,
                            uint32_t      engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
-    g3dmesh_addVertex ( asp->spline, asp->pt );
-    g3dmesh_unselectAllVertices ( asp->spline );
-    g3dmesh_selectVertex ( asp->spline, asp->pt );
+    g3dcurve_addPoint ( asp->spline->curve, asp->pt );
+    g3dcurve_unselectAllPoints ( asp->spline->curve );
+    g3dcurve_selectPoint ( asp->spline->curve, asp->pt );
 
     if ( asp->seg ) g3dcurve_addSegment ( asp->spline->curve, asp->seg );
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( asp->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );
+    /*** Rebuild the spline modifiers ***/
+    g3dspline_update ( asp->spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -120,7 +112,7 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
     URMADDSPLINEPOINT *asp;
 
     /* perform the operation */
-    g3dmesh_addSelectedVertex ( spline, pt );
+    g3dcurve_addSelectedPoint ( spline->curve, pt );
 
     if ( seg ) {
         G3DSPLINEPOINT *previousPoint = ( seg->pt[0] == pt ) ? seg->pt[1] :
@@ -132,10 +124,7 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dmesh_update ( spline, NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 
     /* remember it for undoing */
     asp = urmAddSplinePoint_new ( spline, pt, seg );

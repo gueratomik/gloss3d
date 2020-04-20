@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -463,7 +463,7 @@ void g3dwireframe_activate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify_r ( (G3DMESH*)parent, engine_flags );
+        g3dobject_modify_r ( (G3DMESH*)parent, engine_flags );
     }
 
     /*g3dmesh_modify ( obj, engine_flags );*/
@@ -475,7 +475,7 @@ void g3dwireframe_deactivate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify_r ( parent, engine_flags );
+        g3dobject_modify_r ( parent, engine_flags );
 
     /*g3dmesh_modify ( wir, engine_flags );*/
     }

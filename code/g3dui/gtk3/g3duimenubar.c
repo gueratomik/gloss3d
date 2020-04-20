@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -219,7 +219,7 @@ void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
                            "license", GLOSS3DLICENSE,
                            "comments", "Graphics by a Lightweight Open-Source Software",
                            "version", VERSION,
-                           "copyright", "2012-2017 The Gloss3D Team",
+                           "copyright", "2012-2020 The Gloss3D Team",
                            "website", "http://www.gloss3d.net",
                            "title", ("About Gloss3D"),
                            NULL );

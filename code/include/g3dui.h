@@ -452,7 +452,7 @@
 #define MENU_ALIGNNORMALS         "Align Faces"
 #define MENU_TRIANGULATE          "Triangulate"
 #define MENU_OPTION_CLOCKWISE     "Clockwise"
-#define MENU_OPTION_ANTICLOCKWISE "Anti Clockwise"
+#define MENU_OPTION_ANTICLOCKWISE "Counter-Clockwise"
 #define MENU_TRIANGULATE          "Triangulate"
 #define MENU_UNTRIANGULATE        "Untriangulate"
 #define MENU_WELDVERTICES         "Weld Selected Vertices"
@@ -994,7 +994,7 @@ void            g3duiclipboard_copyKey    ( G3DUICLIPBOARD *, G3DSCENE *,
                                                               LIST * );
 
 /******************************************************************************/
-G3DSCENE *common_g3dui_openG3DFile          ( G3DUI *, const char * );
+void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );

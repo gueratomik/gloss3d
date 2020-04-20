@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -307,7 +307,13 @@ void g3dtext_setFont ( G3DTEXT *txt,
                        uint32_t fontFaceSize,
                        uint32_t engine_flags ) {
     #ifdef __linux__
-    char *searchPath[] = { "/usr/share/fonts/X11/TTF",
+    char *searchPath[] = { "/usr/share/fonts/X11/misc",
+                           "/usr/share/fonts/X11/TTF",
+                           "/usr/share/fonts/X11/OTF",
+                           "/usr/share/fonts/X11/Type1",
+                           "/usr/share/fonts/X11/100dpi",
+                           "/usr/share/fonts/X11/75dpi",
+                           "/usr/share/fonts/dejavu",
                            "/usr/share/fonts/TrueType" };
     #endif
     #ifdef __MINGW32__
@@ -1017,7 +1023,7 @@ void g3dtext_init ( G3DTEXT *txt,
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, DRAWBEFORECHILDREN,
                                      DRAW_CALLBACK(g3dmesh_draw),
                                      FREE_CALLBACK(g3dtext_free),
-                                                   NULL,
+                                     PICK_CALLBACK(NULL),
                                                    NULL,
                                      COPY_CALLBACK(NULL),
                                                    NULL,

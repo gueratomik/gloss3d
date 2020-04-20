@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -30,7 +30,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t engine_flags ) {
+G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t eflags ) {
     G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
     G3DPRIMITIVE *cpypri;
     void *data;
@@ -52,14 +52,14 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t engine_flags ) {
     ((G3DOBJECT*)cpypri)->type = ((G3DOBJECT*)pri)->type;
 
     /*** A primitive is a mesh ***/
-    g3dmesh_clone ( ( G3DMESH * ) pri, ( G3DMESH * ) cpypri, engine_flags );
+    g3dmesh_clone ( ( G3DMESH * ) pri, ( G3DMESH * ) cpypri, eflags );
 
 
     return ( G3DOBJECT * ) cpypri;
 }
 
 /******************************************************************************/
-G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
+G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t eflags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
     G3DMESH *mes;
 
@@ -68,7 +68,7 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
 
     mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
                                               obj->name, 
-                                              engine_flags );
+                                              eflags );
 
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, NULL,
@@ -76,13 +76,13 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+                          UPDATEVERTEXNORMAL, eflags );
 
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;
 
-        g3dobject_removeChild ( parent, obj, engine_flags );
-        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
+        g3dobject_removeChild ( parent, obj, eflags );
+        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, eflags );
     }
 
     /*** Restore the default copy function ***/
@@ -93,24 +93,39 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dprimitive_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                             uint32_t   engine_flags ) {
-    /*** Primitive is not editable ***/
-    engine_flags &= (~MODEMASK) | VIEWOBJECT;
+uint32_t g3dprimitive_pick ( G3DOBJECT *obj, G3DCAMERA *curcam, 
+                                             uint32_t   eflags ) {
+    g3dmesh_pick( obj, curcam, eflags );
 
-    /*static GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f },
-                   whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
-                   whiteAmbient[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
-                   whiteShininess  = 0.0f;
-    G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-    uint32_t i;
+    return 0x00;
+}
 
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE,    whiteDiffuse   );
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT,    whiteAmbient   );
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR,   whiteSpecular  );
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, &whiteShininess );*/
+/******************************************************************************/
+uint32_t g3dprimitive_draw ( G3DOBJECT *obj, 
+                             G3DCAMERA *curcam, 
+                             uint32_t   eflags ) {
+    uint32_t takenOver = 0x00;
 
-    g3dmesh_draw ( obj, curcam, engine_flags );
+    if ( ( eflags & ONGOINGANIMATION ) == 0x00 ) {
+        takenOver = g3dobject_drawModifiers ( obj, curcam, eflags );
+    }
+
+    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
+        glDisable ( GL_DEPTH_TEST );
+    }
+
+    glEnable   ( GL_COLOR_MATERIAL );
+    glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
+
+    if ( takenOver & MODIFIERTAKESOVER ) {
+        /*** ***/
+    } else {
+        g3dmesh_drawObject ( ( G3DMESH * ) obj, curcam, eflags );
+    }
+
+    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
+        glEnable ( GL_DEPTH_TEST ); 
+    }
 
     return 0x00;
 }
@@ -136,7 +151,7 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
     g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN,
                                         DRAW_CALLBACK(g3dprimitive_draw),
                                         FREE_CALLBACK(g3dprimitive_free),
-                                                      NULL,
+                                        PICK_CALLBACK(g3dprimitive_pick),
                                                       NULL,
                                         COPY_CALLBACK(g3dprimitive_copy),
                                                       NULL,

@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -28,6 +28,93 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dengine/g3dengine.h>
+
+/******************************************************************************/
+void g3dobject_modify_r ( G3DOBJECT *obj, uint32_t eflags ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT* ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            if ( g3dobject_isActive ( child ) ) {
+                if ( mod->modify ) mod->modify ( mod, eflags );
+            }
+
+            g3dobject_modify_r ( child, eflags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
+void g3dobject_startUpdateModifiers_r ( G3DOBJECT *obj, uint32_t eflags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    G3DMESH *mes = ( G3DMESH * ) obj;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            if ( g3dobject_isActive ( child ) ) {
+                if ( mod->startUpdate ) mod->startUpdate ( mod, eflags );
+            }
+
+            g3dobject_startUpdateModifiers_r ( child, eflags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
+void g3dobject_updateModifiers_r ( G3DOBJECT *obj, uint32_t eflags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    G3DMESH *mes = ( G3DMESH * ) obj;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            if ( g3dobject_isActive ( child ) ) {
+                if ( mod->update ) mod->update ( mod, eflags );
+            }
+
+            g3dobject_updateModifiers_r ( child, eflags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
+void g3dobject_endUpdateModifiers_r ( G3DOBJECT *obj, uint32_t eflags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    G3DMESH *mes = ( G3DMESH * ) obj;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            if ( g3dobject_isActive ( child ) ) {
+                if ( mod->endUpdate ) mod->endUpdate ( mod, eflags );
+            }
+
+            g3dobject_endUpdateModifiers_r ( child, eflags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
 
 /******************************************************************************/
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags ) {
@@ -1064,6 +1151,7 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj, uint32_t flags ) {
 
 /******************************************************************************/
 void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
+    glMatrixMode ( GL_MODELVIEW );
     glPushMatrix ( );
     glLoadIdentity ( );
     glTranslatef ( obj->pos.x, obj->pos.y, obj->pos.z );
@@ -1109,7 +1197,7 @@ void g3dobject_drawKeys ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
         glMultMatrixd ( obj->parent->wmatrix );
     }
 
-    g3dcurve_draw ( obj->posCurve, cam, flags );
+    g3dcurve_draw ( obj->posCurve, flags );
 
     /*glBegin ( GL_LINE_STRIP );
     while ( ltmp ) {
@@ -1127,6 +1215,36 @@ void g3dobject_drawKeys ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
 }
 
 #define PIOVER180 0.01745329252
+/******************************************************************************/
+uint32_t g3dobject_pick ( G3DOBJECT *obj, 
+                          G3DCAMERA *curcam, 
+                          uint32_t   eflags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    double MVX[0x10];
+
+    glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );
+
+    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+    g3dpick_setModelviewMatrix ( MVX );
+
+    if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
+        obj->pick ( obj, curcam, eflags );
+    }
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
+
+        g3dobject_pick ( sub, curcam, eflags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    glPopMatrix ( );
+
+    return 0x00;
+}
+
 /******************************************************************************/
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
@@ -1160,10 +1278,6 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWBEFORECHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-               if ( engine_flags & SELECTMODE ) {
-                    glLoadName ( ( GLuint ) obj->id );
-                }
-
                 obj->draw ( obj, curcam, engine_flags );
             }
         }
@@ -1191,10 +1305,6 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
     if ( ( obj->type & MODIFIER ) == 0x00 ) {
         if ( obj->flags & DRAWAFTERCHILDREN ) {
             if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-               if ( engine_flags & SELECTMODE ) {
-                    glLoadName ( ( GLuint ) obj->id );
-                }
-
                 obj->draw ( obj, curcam, engine_flags );
             }
         }

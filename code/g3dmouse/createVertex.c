@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -127,14 +127,7 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
             if ( obj ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-
-                if ( ( obj->type & EDITABLE ) == 0x00 ) {
-                    fprintf ( stderr, "Not an editable object\n" );
-
-                    return FALSE;
-                }
 
                 /*** We need the selected object matrix in order to create ***/
                 /*** the cutting plan and find its coords, but do not ***/
@@ -156,32 +149,33 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 /*** hitting CTRL + click creates a vertex ***/
                 if ( /*( bev->state & G3DControlMask ) &&*/
                      ( bev->state & G3DControlMask )  ) {
-                    G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
-
-                    g3dmesh_unselectAllVertices ( mes );
 
                     if ( obj->type == G3DSPLINETYPE ) {
                         G3DSPLINE *spline = ( G3DSPLINE * ) obj;
                         G3DSPLINESEGMENT *seg = NULL;
-                        G3DSPLINEPOINT *pt = g3dcurvepoint_new ( objx, 
-                                                                  objy,
-                                                                  objz );
+                        G3DCURVEPOINT *pt = g3dcurvepoint_new ( objx, 
+                                                                objy,
+                                                                objz );
+
+                        G3DCURVEPOINT *lastpt = ( spline->curve->lselpt ) ? spline->curve->lselpt->data : NULL;
+
+                        g3dcurve_unselectAllPoints ( spline->curve );
 
                         /* 
                          * check if the point can be connected to a segment 
                          * i.e does not belong to more than 1 segment.
                          */
-                        if ( lastver == NULL ) {
-                            lastver = g3dcurve_getConnectablePoint ( spline->curve );
+                        if ( lastpt == NULL ) {
+                            lastpt = g3dcurve_getConnectablePoint ( spline->curve );
                         } else {
-                            if ( ((G3DSPLINEPOINT*)lastver)->nbseg > 0x01 ) {
-                                lastver = g3dcurve_getConnectablePoint ( spline->curve );
+                            if ( ((G3DSPLINEPOINT*)lastpt)->nbseg > 0x01 ) {
+                                lastpt = g3dcurve_getConnectablePoint ( spline->curve );
                             }
                         }
 
-                        if ( lastver ) {
+                        if ( lastpt ) {
                             seg = g3dcubicsegment_new ( pt,
-                                                        lastver,
+                                                        lastpt,
                                                         0.0f, 0.0f, 0.0f,
                                                         0.0f, 0.0f, 0.0f );
                         }
@@ -195,8 +189,14 @@ int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     }
 
                     if ( obj->type == G3DMESHTYPE ) {
+                        G3DMESH *mes = ( G3DMESH * ) obj;
                         G3DVERTEX *ver = g3dvertex_new ( objx, objy, objz );
  
+                        G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
+
+                        g3dmesh_unselectAllVertices ( mes );
+
+
                         g3dmesh_addSelectedVertex ( mes, ver );
 
                         /*** Rebuild the mesh or spline ***/

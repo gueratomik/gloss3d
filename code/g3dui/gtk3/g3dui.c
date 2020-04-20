@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -1306,13 +1306,15 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     GtkCssProvider *provider = gtk_css_provider_new ();
     static const gchar *myCSS = { "* {                      \n"
     #ifdef __linux__
-                                  "    font: Lucida Sans 8; \n"
+                                  "    font-family: Lucida Sans; \n"
+                                  "    font-size: 10px; \n"
     #endif
     #ifdef __MINGW32__
-                                  "    font: Verdana 8; \n"
+                                  "    font-family: Verdana; \n"
+                                  "    font-size: 10px; \n"
     #endif
                                   "}                        \n"
-                                  "GtkEntry {               \n"
+                                  "entry {               \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1324,7 +1326,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
-                                  "GtkButton {              \n"
+                                  "button {              \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1336,7 +1338,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
-                                  "GtkSpinButton {          \n"
+                                  "spinbutton {          \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     1px; \n"
@@ -1348,7 +1350,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-left:   1px; \n"
                                   "    padding-bottom: 1px; \n"
                                   "}                        \n"
-                                  "GtkQuad {                \n"
+                                  "quad {                \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1360,7 +1362,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
-                                  "GtkMenuItem#Option_Menu {\n"
+                                  "menuitem#Option_Menu {\n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     1px; \n"
@@ -1371,9 +1373,9 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-right:  0px; \n"
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
-                                  "    font-size:      6; \n"
+                                  "    font-size:      6px; \n"
                                   "}                        \n"
-                                  "GtkComboBoxText#Shading_Menu {   \n"
+                                  "comboboxtext#Shading_Menu {   \n"
                                   "    border-width:   0px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1384,9 +1386,9 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-right:  0px; \n"
                                   "    padding-left:   0px; \n"
                                   "    padding-bottom: 0px; \n"
-                                  "    font-size:      6; \n"
+                                  "    font-size:      6px; \n"
                                   "}                        \n"
-                                  "GtkToolbar {             \n"
+                                  "toolbar {             \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"

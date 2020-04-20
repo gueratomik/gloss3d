@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -616,7 +616,8 @@ G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *lis, G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-uint32_t g3dvertex_copyPositionFromList ( LIST *lver, G3DVECTOR **vec ) {
+uint32_t g3dvertex_copyPositionFromList ( LIST *lver, 
+                                          G3DVECTOR **vec ) {
     uint32_t nbver = list_count ( lver );
 
 
@@ -704,10 +705,10 @@ void g3dvertex_print ( G3DVERTEX *ver ) {
 G3DVERTEX *g3dvertex_weldList ( LIST *lver ) {
     G3DVERTEX *wel = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
     uint32_t nb = 0x00;
-    LIST *ltmp = lver;
+    LIST *ltmpver = lver;
 
-    while ( ltmp ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
         wel->pos.x += ver->pos.x;
         wel->pos.y += ver->pos.y;
@@ -715,7 +716,7 @@ G3DVERTEX *g3dvertex_weldList ( LIST *lver ) {
 
         nb++;
 
-        ltmp = ltmp->next;
+        ltmpver = ltmpver->next;
 
     }
 

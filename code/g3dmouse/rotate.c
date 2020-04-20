@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -159,9 +159,9 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 }
 
                 /****** Cursor axis picked ? ******/
-                g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
+                /*g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
                                                        VPX[0x03] - bev->y,
-                                 flags );
+                                 flags );*/
 
                 if ( obj->type & EDITABLE ) {
                     G3DOBJECT *objmes = obj;
@@ -191,7 +191,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** for the undo/redo manager ***/
                     nbver = g3dvertex_copyPositionFromList ( lver, &oldpos );
 
-                    g3dmesh_startUpdateModifiers_r ( obj, flags );
+                    g3dobject_startUpdateModifiers_r ( obj, flags );
 
                     vec = oldpos;
 
@@ -334,7 +334,7 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             ltmp = ltmp->next;
                         }
 
-                        g3dmesh_updateModifiers_r ( obj, flags );
+                        g3dobject_updateModifiers_r ( obj, flags );
 
                         if ( mes->onGeometryMove ) {
                             mes->onGeometryMove ( mes, lver, 
@@ -396,11 +396,11 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     if ( ( flags & VIEWOBJECT ) ||
                          ( flags & VIEWAXIS   ) ) {
-                        g3durm_object_move ( urm, obj, &obj->pos, 
+                        /*g3durm_object_move ( urm, obj, &obj->pos, 
                                                        &objrot,
                                                        &obj->sca,
                                                         ( flags & VIEWAXIS ),
-                                                        REDRAWVIEW );
+                                                        REDRAWVIEW );*/
                     }
 
                     if ( ( flags & VIEWVERTEX ) ||
@@ -417,6 +417,8 @@ int rotate_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             g3dmesh_updateBbox ( mes );
                         }
                     }
+
+                    g3dobject_startUpdateModifiers_r ( obj, flags );
                 }
             }
 

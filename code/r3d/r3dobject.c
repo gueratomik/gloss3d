@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -83,10 +83,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
         g3dcore_invertMatrix    ( childwmatrix, tmpmatrix    );
         g3dcore_transposeMatrix ( tmpmatrix   , childwnormix );
 
-        if ( ( child->type == G3DMESHTYPE ) ||
-             ( child->type &  TEXT        ) ||
-             ( child->type &  SPLINE      ) ||
-             ( child->type &  PRIMITIVE   ) ) {
+        if ( ( child->type &  MESH ) ) {
             G3DMESH *mes = ( G3DMESH * ) child;
         /*** Force the flag in case our mesh does not need displacement ***/
 

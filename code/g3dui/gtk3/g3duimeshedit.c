@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -58,8 +58,7 @@ static void addMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void gouraudCbk ( GtkWidget *widget, 
-                         GdkEvent  *event,
+static void gouraudCbk ( GtkWidget *widget,
                          gpointer   user_data ) {
     float gouraud = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );

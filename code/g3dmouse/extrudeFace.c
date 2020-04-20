@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -144,7 +144,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
-                    g3dmesh_startUpdateModifiers_r ( obj, flags );
+                    g3dobject_startUpdateModifiers_r ( obj, flags );
 
                     /*** for undo redo ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos ); 
@@ -195,7 +195,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                     }
                 }
 
-                g3dmesh_updateModifiers_r ( obj, flags );
+                g3dobject_updateModifiers_r ( obj, flags );
 
                 if ( mes->onGeometryMove ) {
                      mes->onGeometryMove ( mes, lselver, 
@@ -220,7 +220,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                                             newpos,
                                             REDRAWVIEW );
 
-            g3dmesh_endUpdateModifiers_r ( obj, flags );
+            g3dobject_endUpdateModifiers_r ( obj, flags );
 
             g3dmesh_updateBbox ( mes );
 

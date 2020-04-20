@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -30,6 +30,41 @@
 #include <g3dengine/g3dengine.h>
 
 /*****************************************************************************/
+G3DCURVEPOINT *g3dcurve_getLastSelectedPoint ( G3DCURVE *curve) {
+    return ( curve->lselpt ) ? curve->lselpt->data : NULL;
+}
+
+/*****************************************************************************/
+void g3dcursor_pick ( G3DCURSOR *csr, G3DCAMERA *cam, uint32_t eflags ) {
+    float ratio = 1.0f;
+    G3DVECTOR campos, oripos = { 0.0f, 0.0f, 0.0f };
+    uint32_t i;
+
+    g3dvector_matrix ( &oripos, ((G3DOBJECT*)cam)->wmatrix, &campos );
+
+    oripos.x = cam->pivot.x - campos.x;
+    oripos.y = cam->pivot.y - campos.y;
+    oripos.z = cam->pivot.z - campos.z;
+
+    ratio = g3dvector_length ( &oripos ) * 0.125f;
+
+    csr->axis[0x00].w = 0.0f;
+    csr->axis[0x01].w = 0.0f;
+    csr->axis[0x02].w = 0.0f;
+
+    for ( i = 0x00; i < 0x03; i++ ) {
+        static int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
+
+        g3dpick_setName ( name[i] );
+        g3dpick_drawLine ( 0.0f, 0.0f, 0.0f,
+                           ( csr->axis[i].x * ratio ),
+                           ( csr->axis[i].y * ratio ),
+                           ( csr->axis[i].z * ratio ) );
+    }
+}
+
+/*****************************************************************************/
+#ifdef UNUSED
 void g3dcursor_pick ( G3DCURSOR *csr, double *matrix, G3DCAMERA *cam,
                       int x, int y, uint32_t flags ) {
 #define SELECTBUFFERSIZE 0x200
@@ -93,6 +128,7 @@ void g3dcursor_pick ( G3DCURSOR *csr, double *matrix, G3DCAMERA *cam,
         }
     }
 }
+#endif
 
 /*****************************************************************************/
 void g3dcursor_init ( G3DCURSOR *csr ) {
@@ -122,7 +158,7 @@ void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
     float ratio;
     uint32_t i;
 
-    g3dvector_matrix ( &curcam->pivot, ((G3DOBJECT*)curcam)->wmatrix, &campos );
+    g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );
 
     oripos.x = curcam->pivot.x - campos.x;
     oripos.y = curcam->pivot.y - campos.y;

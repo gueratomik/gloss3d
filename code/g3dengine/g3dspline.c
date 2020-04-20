@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -43,99 +43,128 @@ G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline,
 }
 
 /******************************************************************************/
+uint32_t g3dspline_pick ( G3DOBJECT *obj, 
+                          G3DCAMERA *curcam, 
+                          uint32_t   engine_flags ) {
+    G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        if ( engine_flags & VIEWEDGE ) {
+            g3dcurve_pickSegments ( spline->curve, engine_flags );
+        }
+        if ( engine_flags & VIEWVERTEX ) {
+            g3dcurve_pickPoints  ( spline->curve, engine_flags );
+            g3dcurve_pickHandles ( spline->curve, engine_flags );
+        }
+    } else {
+        if ( engine_flags & VIEWOBJECT ) {
+            g3dpick_setName ( spline );
+            g3dcurve_pick ( spline->curve, engine_flags );
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+void g3dspline_update ( G3DSPLINE *spl,
+                        LIST      *lpt,
+                        uint32_t   update_flags,
+                        uint32_t   eflags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
+
+    if ( update_flags & RESETMODIFIERS ) {
+        g3dobject_modify_r ( obj, eflags );
+    }
+
+    if ( update_flags & UPDATEMODIFIERS ) {
+        /*** usually modifier update is based on selected vertices/faces/edges ***/
+        LIST *ltmpselpt = spl->curve->lselpt;
+
+        spl->curve->lselpt = ( lpt == NULL ) ? spl->curve->lpt : lpt;
+
+        g3dobject_startUpdateModifiers_r ( spl, eflags );
+        g3dobject_updateModifiers_r      ( spl, eflags );
+        g3dobject_endUpdateModifiers_r   ( spl, eflags );
+
+        /*** restore selected items ***/
+        spl->curve->lselpt = ltmpselpt;
+    }
+}
+
+/******************************************************************************/
+void g3dspline_moveAxis ( G3DSPLINE *spl, 
+                          double    *PREVMVX, /* previous world matrix */
+                          uint32_t   eflags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
+    LIST *ltmppt = spl->curve->lpt;
+    double DIFFMVX[0x10];
+
+    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+
+    /*** move object for children ***/
+    g3dobject_moveAxis ( obj, PREVMVX, eflags );
+
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+        G3DVECTOR  pos = { .x = pt->pos.x,
+                           .y = pt->pos.y,
+                           .z = pt->pos.z,
+                           .w = 1.0f };
+
+        g3dvector_matrix ( &pos, DIFFMVX, &pt->pos );
+#ifdef UNUSED
+        } else {
+            double DIFFROT[0x10];
+
+            /*** spline handles are vectors, they are altered by rotation matrix **/
+            g3dcore_extractRotationMatrix ( DIFFMVX, DIFFROT );
+
+            g3dvector_matrix ( &pos, DIFFROT, &ver->pos );
+        }
+#endif 
+
+        ltmppt = ltmppt->next;
+    }
+
+    /*g3dmesh_updateBbox ( mes );*/
+    g3dspline_update ( spl, NULL, RESETMODIFIERS, eflags );
+}
+
+/******************************************************************************/
 uint32_t g3dspline_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint32_t   engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) obj;
     LIST *ltmpseg = spline->curve->lseg;
-    LIST *ltmpver = spline->curve->lpt;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glLineWidth ( 2.0f );
-    glPointSize ( 3.0f );
+    glPointSize ( 4.0f );
 
     glDisable ( GL_LIGHTING );
 
-    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-        while ( ltmpseg ) {
-            G3DSPLINESEGMENT *seg = ( G3DSPLINESEGMENT * ) ltmpseg->data;
-
-            if ( obj->flags & CUBIC ) {
-                G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
-
-                /* draw line to the handle */
-                if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
-                    glColor3ub ( 0xFF, 0x7F, 0x00 );
-                    glBegin ( GL_LINES );
-                    glVertex3f (  csg->seg.pt[0x00]->pos.x, 
-                                  csg->seg.pt[0x00]->pos.y, 
-                                  csg->seg.pt[0x00]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x00]->pos.x + csg->seg.pt[0x03]->pos.x, 
-                                  csg->seg.pt[0x00]->pos.y + csg->seg.pt[0x03]->pos.y, 
-                                  csg->seg.pt[0x00]->pos.z + csg->seg.pt[0x03]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x01]->pos.x, 
-                                  csg->seg.pt[0x01]->pos.y, 
-                                  csg->seg.pt[0x01]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x01]->pos.x + csg->seg.pt[0x02]->pos.x, 
-                                  csg->seg.pt[0x01]->pos.y + csg->seg.pt[0x02]->pos.y, 
-                                  csg->seg.pt[0x01]->pos.z + csg->seg.pt[0x02]->pos.z );
-                    glEnd   ( );
-                }
-
-                if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-                    glColor3ub ( 0xFF, 0x7F, 0x7F );
-                    g3dcurvesegment_draw ( seg,
-                                            0.0f, 
-                                            1.0f,
-                                            spline->curve->nbStepsPerSegment,
-                                            NULL, /* to tessellation object */
-                                            NULL, /* no tessellation data **/
-                                            0x00,
-                                            engine_flags );
-                }
-            }
-
-            ltmpseg = ltmpseg->next;
+    if ( obj->flags & OBJECTSELECTED ) {
+        if ( engine_flags & VIEWOBJECT ) {
+            g3dcurve_draw ( spline->curve, engine_flags );
         }
+
+        if ( engine_flags & VIEWAXIS ) {
+            g3dcurve_draw ( spline->curve, engine_flags );
+        }
+
+        if ( engine_flags & VIEWEDGE ) {
+            g3dcurve_drawSegments ( spline->curve, engine_flags );
+        }
+
+        if ( engine_flags & VIEWVERTEX ) {
+            g3dcurve_drawSegments ( spline->curve, engine_flags );
+            g3dcurve_drawHandles  ( spline->curve, engine_flags );
+            g3dcurve_drawPoints   ( spline->curve, engine_flags );
+        }
+    } else {
+        g3dcurve_draw ( spline->curve, engine_flags );
     }
-
-    /*if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
-        glDisable ( GL_DEPTH_TEST );
-        while ( ltmpver ) {
-            G3DVERTEX * ver = ( G3DVERTEX * ) ltmpver->data;
-
-            if ( engine_flags & SELECTMODE ) {
-                glLoadName ( ( GLint ) ver->id );
-            }
-
-            glBegin ( GL_POINTS );
-            if ( ver->flags & VERTEXHANDLE ) {
-                if ( obj->flags & CUBIC ) {
-                    G3DCUBICHANDLE *han = ( G3DCUBICHANDLE * ) ver;
-
-                    if ( ver->flags & VERTEXSELECTED ) {
-                        glColor3ub ( 0xFF, 0x00, 0xFF );
-                    } else {
-                        glColor3ub ( 0x00, 0xFF, 0x00 );
-                    }
-                    glVertex3f (  han->pos.x + han->pt->pos.x, 
-                                  han->pos.y + han->pt->pos.y, 
-                                  han->pos.z + han->pt->pos.z );
-                }
-            } else {
-                if ( ver->flags & VERTEXSELECTED ) {
-                    glColor3ub ( 0xFF, 0x00, 0x00 );
-                } else {
-                    glColor3ub ( 0x00, 0x00, 0xFF );
-                }
-
-                glVertex3f (  ver->pos.x, ver->pos.y, ver->pos.z );
-            }
-            glEnd ( );
-
-            ltmpver = ltmpver->next;
-        }
-    }*/
 
     glPopAttrib ( );
 
@@ -166,7 +195,7 @@ void g3dspline_init ( G3DSPLINE *spline,
     g3dobject_init ( obj, G3DSPLINETYPE, id, name, DRAWBEFORECHILDREN | type,
                                      DRAW_CALLBACK(g3dspline_draw),
                                      FREE_CALLBACK(g3dspline_free),
-                                                   NULL,
+                                     PICK_CALLBACK(g3dspline_pick),
                                                    NULL,
                                      COPY_CALLBACK(g3dspline_copy),
                                                    NULL,

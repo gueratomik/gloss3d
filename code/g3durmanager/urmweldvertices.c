@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -32,9 +32,9 @@
 
 /******************************************************************************/
 URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, LIST *loldver,
+                                                      LIST *lnewver,
                                                       LIST *loldfac,
-                                                      LIST *lnewfac,
-                                                      G3DVERTEX *newver ) {
+                                                      LIST *lnewfac ) {
     uint32_t structsize = sizeof ( URMWELDVERTICES );
 
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) calloc ( 0x01, structsize );
@@ -49,7 +49,7 @@ URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, LIST *loldver,
     wvs->loldver = loldver;
     wvs->loldfac = loldfac;
     wvs->lnewfac = lnewfac;
-    wvs->newver  = newver;
+    wvs->lnewver = lnewver;
 
 
     return wvs;
@@ -65,14 +65,15 @@ void weldVertices_free ( void *data, uint32_t commit ) {
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) data;
 
     if ( commit ) {
-        list_exec ( wvs->loldver, (void(*)(void*)) g3dvertex_free );
-        list_exec ( wvs->loldfac, (void(*)(void*)) g3dface_free   );
+        list_free ( &wvs->loldver, (void(*)(void*)) g3dvertex_free );
+        list_free ( &wvs->loldfac, (void(*)(void*)) g3dface_free   );
         list_free ( &wvs->lnewfac, NULL );
+        list_free ( &wvs->lnewver, NULL );
     } else {
-        g3dvertex_free ( wvs->newver );
-        list_exec ( wvs->loldver, NULL );
-        list_exec ( wvs->loldfac, NULL );
-        list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_free );
+        list_free ( &wvs->lnewver, (void(*)(void*)) g3dvertex_free );
+        list_free ( &wvs->loldver, NULL );
+        list_free ( &wvs->loldfac, NULL );
+        list_free ( &wvs->lnewfac, (void(*)(void*)) g3dface_free );
     }
 
     urmweldvertices_free ( wvs );
@@ -89,7 +90,7 @@ void weldVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace, mes );
 
     /*** delete created vertex ***/
-    g3dmesh_removeVertex ( mes, wvs->newver );
+    list_execargdata ( wvs->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, mes );
 
     /*** restore deleted vertices ***/
     list_execargdata ( wvs->loldver, (void(*)(void*,void*)) g3dmesh_addSelectedVertex, mes );
@@ -123,7 +124,7 @@ void weldVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
     list_execargdata ( wvs->loldver, (void(*)(void*,void*)) g3dmesh_removeVertex, mes );
 
     /*** add created vertex ***/
-    g3dmesh_addSelectedVertex ( mes, wvs->newver );
+    list_execargdata ( wvs->lnewver, (void(*)(void*,void*)) g3dmesh_addSelectedVertex, mes);
 
     /*** restore new faces ***/
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
@@ -150,8 +151,11 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
     LIST *loldfac = NULL,
          *lnewfac = NULL;
     G3DVERTEX *newver;
+    LIST *lnewver = NULL;
 
     newver = g3dmesh_weldSelectedVertices ( mes, type, &loldfac, &lnewfac );
+
+    list_insert ( &lnewver, newver );
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
@@ -162,7 +166,43 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
                           UPDATEVERTEXNORMAL |
                           RESETMODIFIERS, engine_flags );
 
-    wvs = urmweldvertices_new ( mes, loldver, loldfac, lnewfac, newver );
+    wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
+
+    g3durmanager_push ( urm, weldVertices_undo,
+                             weldVertices_redo,
+                             weldVertices_free, wvs, return_flags );
+}
+
+/******************************************************************************/
+void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm, 
+                                         G3DMESH      *mes, 
+                                         uint32_t      type,
+                                         float         distance,
+                                         uint32_t engine_flags,
+                                         uint32_t return_flags ) {
+    URMWELDVERTICES *wvs;
+    LIST *loldver = NULL;
+    LIST *loldfac = NULL,
+         *lnewfac = NULL;
+    LIST *lnewver = NULL;
+
+    g3dmesh_weldNeighbourVertices ( mes, 
+                                    distance,
+                                    &loldver, 
+                                    &lnewver, 
+                                    &loldfac, 
+                                    &lnewfac );
+
+    /*** Rebuild the mesh with modifiers ***/
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
+
+    wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
 
     g3durmanager_push ( urm, weldVertices_undo,
                              weldVertices_redo,

@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -44,11 +44,12 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
         g3dui_setHourGlass ( gui );
 
         if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
+            URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce->lsel,
+                                                                UTOSAVETRANSLATION,
+                                                                REDRAWVIEW );
 
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
+            urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
 
             if ( axis == G3DUIXAXIS ) obj->pos.x = val;
             if ( axis == G3DUIYAXIS ) obj->pos.y = val;
@@ -56,11 +57,7 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3dobject_updateMatrix_r ( obj, gui->flags );
 
-            g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca,
-                                            ( gui->flags & VIEWAXIS ),
-                                            REDRAWVIEW );
+            urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }
 
         if ( gui->flags & VIEWVERTEX ) {
@@ -123,11 +120,11 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3dobject_updateMatrix_r ( obj, gui->flags );
 
-            g3durm_object_move ( urm, obj, &oldpos,  
+            /*g3durm_object_move ( urm, obj, &oldpos,  
                                            &oldrot, 
                                            &oldsca,
                                             ( gui->flags & VIEWAXIS ),
-                                            REDRAWVIEW );
+                                            REDRAWVIEW );*/
         }
 
         g3dui_unsetHourGlass ( gui );
@@ -162,11 +159,11 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3dobject_updateMatrix_r ( obj, gui->flags );
 
-            g3durm_object_move ( urm, obj, &oldpos,  
+            /*g3durm_object_move ( urm, obj, &oldpos,  
                                            &oldrot, 
                                            &oldsca,
                                             ( gui->flags & VIEWAXIS ),
-                                            REDRAWVIEW );
+                                            REDRAWVIEW );*/
         }
 
         g3dui_unsetHourGlass ( gui );

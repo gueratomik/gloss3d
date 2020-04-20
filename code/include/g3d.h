@@ -574,6 +574,12 @@ typedef struct _G3DSPLITVERTEX {
 } G3DSPLITVERTEX;
 
 /******************************************************************************/
+typedef struct _G3DWELDVERTEX {
+    LIST *loriver;
+    G3DVERTEX *newver;
+} G3DWELDVERTEX;
+
+/******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
 typedef struct _G3DMESH   G3DMESH;
 
@@ -2084,6 +2090,12 @@ void       g3dmesh_getSelectedFacesWorldPosition    ( G3DMESH *, G3DVECTOR * );
 void       g3dmesh_getSelectedFacesLocalPosition    ( G3DMESH *, G3DVECTOR * );
 G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *, uint32_t, LIST **,
                                                                LIST ** );
+void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
+                                      float   distance,
+                                      LIST **lnewver,
+                                      LIST **loldver,
+                                      LIST **lnewfac,
+                                      LIST **loldfac );
 void       g3dmesh_removeFacesFromVertex ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_removeFacesFromSelectedVertices ( G3DMESH * );
 void       g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *, G3DVECTOR * );

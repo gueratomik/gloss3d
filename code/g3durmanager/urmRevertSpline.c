@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -60,10 +60,7 @@ void g3durm_spline_revert ( G3DURMANAGER *urm,
                             uint32_t      return_flags ) {
     g3dcurve_revert ( spline->curve, engine_flags );
 
-    g3dmesh_update ( (G3DMESH*)spline, NULL,
-                                       NULL,
-                                       NULL,
-                                       RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 
     g3durmanager_push ( urm, revertSpline_undo,
                              revertSpline_redo,

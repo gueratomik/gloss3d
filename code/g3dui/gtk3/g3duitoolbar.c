@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -189,11 +189,7 @@ void g3dui_openfilecbk ( GtkWidget *widget, gpointer user_data ) {
         if ( filename ) {
             common_g3dui_closeScene ( gui );
 
-            gui->sce = common_g3dui_openG3DFile ( gui, filename );
-
-            if ( gui->sce == NULL ) {
-                gui->sce = g3dscene_new ( 0x00, "SCENE" );
-            }
+            common_g3dui_openG3DFile ( gui, filename );
 
             g_free    ( filename );
         }

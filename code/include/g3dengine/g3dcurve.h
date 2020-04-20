@@ -42,23 +42,20 @@ extern "C" {
 /************************** Spline drawing flags ******************************/
 #define DRAW_FOR_TESSELLATION ( 1 << 0 )
 
-/**
- * @struct G3DCURVE
- * @brief A structure to store a cubic or quadratic bezier curve.
- */
-typedef struct _G3DCURVE {
-    uint32_t  type;
-    LIST     *lpt;
-    uint32_t  nbpt;
-    LIST     *lseg; /** list of segments ***/
-    uint32_t  nbseg;
-    uint32_t  nbStepsPerSegment;
-} G3DCURVE;
+#define CURVEPOINTISPOINT     ( 1 << 1 )
+#define CURVEPOINTISHANDLE    ( 1 << 2 )
+#define CURVEPOINTSELECTED    ( 1 << 3 )
+
+#define P0IDX       0
+#define P1IDX       1
+#define P0HANDLEIDX (P0IDX+2)
+#define P1HANDLEIDX (P1IDX+2)
 
 /******************************************************************************/
 typedef struct _G3DCURVEPOINT {
     G3DVECTOR pos;
     uint32_t  id;
+    uint32_t  flags;
     LIST     *lseg;
     uint32_t  nbseg;
 } G3DCURVEPOINT, G3DCUBICHANDLE, G3DQUADRATICHANDLE;
@@ -71,6 +68,30 @@ typedef struct _G3DCURVESEGMENT {
                              G3DVECTOR        *pout );
     G3DCURVEPOINT *pt[0x04];
 } G3DCURVESEGMENT;
+
+/******************************************************************************/
+/**
+ * @struct G3DCURVE
+ * @brief A structure to store a cubic or quadratic bezier curve.
+ */
+typedef struct _G3DCURVE {
+    uint32_t  type;
+    LIST     *lpt;
+    uint32_t  nbpt;
+
+    LIST     *lselpt;
+    uint32_t  nbselpt;
+
+    LIST     *lseg; /** list of segments ***/
+    uint32_t  nbseg;
+    uint32_t  nbStepsPerSegment;
+
+    G3DVECTOR avgSelPtPos;
+
+    G3DCURVEPOINT *curhan; /*** current handle ***/
+} G3DCURVE;
+
+
 
 /******************************************************************************/
 /*typedef struct _G3DCUBICHANDLE {
@@ -126,14 +147,7 @@ void g3dcubicsegment_free ( G3DCUBICSEGMENT *seg );
 void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *csg, 
                                 float            factor, /* range 0 - 1 */
                                 G3DVECTOR       *pout );
-void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
-                             float             from, /* range 0 - 1 */
-                             float             to,   /* range 0 - 1 */
-                             float             nbSteps,
-                             GLUtesselator    *tobj,
-                             double          (*coords)[0x03],
-                             uint32_t          spline_flags,
-                             uint32_t          engine_flags );
+
 G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve, 
                                         G3DCURVEPOINT *p0,
                                         G3DCURVEPOINT *p1 );
@@ -161,9 +175,6 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DCURVEPOINT *pt0,
                                                float           hy,
                                                float           hz );
 G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags );
-uint32_t g3dcurve_draw ( G3DOBJECT *obj, 
-                         G3DCAMERA *curcam, 
-                         uint32_t   engine_flags );
 void g3dcurve_free ( G3DOBJECT *obj );
 void g3dcurve_addPoint ( G3DCURVE      *curve, 
                          G3DCURVEPOINT *pt );
@@ -175,9 +186,35 @@ void g3dcurve_removeSegment ( G3DCURVE        *curve,
                                G3DCURVESEGMENT *seg );
 G3DCURVE *g3dcurve_new ( uint32_t type, 
                          uint32_t engine_flags );
+void g3dcurve_unselectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt );
+void g3dcurve_selectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt );
+void g3dcurvepoint_unsetSelected ( G3DCURVEPOINT *pt );
+void g3dcurve_unselectAllPoints ( G3DCURVE *curve );
+void g3dcurve_addSelectedPoint ( G3DCURVE      *curve, 
+                                 G3DCURVEPOINT *pt );
+void g3dcurve_drawSegments ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_drawPoints ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_drawHandles ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_draw ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
+                             float             from, /* range 0 - 1 */
+                             float             to,   /* range 0 - 1 */
+                             float             nbSteps,
+                             GLUtesselator    *tobj,
+                             double          (*coords)[0x03],
+                             uint32_t          spline_flags,
+                             uint32_t          engine_flags );
 
-
-
+void g3dcurve_pickSegments ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_pickPoints ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_pickHandles ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurve_pick ( G3DCURVE *curve, uint32_t engine_flags );
+void g3dcurvesegment_pick ( G3DCURVESEGMENT *seg,
+                            float             from,
+                            float             to,
+                            float             nbSteps,
+                            uint32_t          engine_flags );
+G3DCURVEPOINT *g3dcurve_getLastSelectedPoint ( G3DCURVE *curve);
 
 #ifdef __cplusplus
 }

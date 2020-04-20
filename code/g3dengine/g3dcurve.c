@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -38,8 +38,8 @@ G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve,
     while ( ltmpseg ) {
         G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
 
-        if ( ( ( seg->pt[0x00] == p0 ) &&  ( seg->pt[0x01] == p1 ) ) ||
-             ( ( seg->pt[0x01] == p0 ) &&  ( seg->pt[0x00] == p1 ) ) ) {
+        if ( ( ( seg->pt[P0IDX] == p0 ) &&  ( seg->pt[P1IDX] == p1 ) ) ||
+             ( ( seg->pt[P1IDX] == p0 ) &&  ( seg->pt[P0IDX] == p1 ) ) ) {
             return seg;
         }
 
@@ -86,7 +86,7 @@ void g3dcurve_cut ( G3DCURVE *curve,
         G3DVECTOR pone, ptwo;
         uint32_t i;
 
-        memcpy ( &pone, &seg->pt[0x00]->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &pone, &seg->pt[P0IDX]->pos, sizeof ( G3DVECTOR ) );
 
         for( i = 0x01; i <= curve->nbStepsPerSegment; i++ ) {
             G3DVECTOR vout;
@@ -95,27 +95,27 @@ void g3dcurve_cut ( G3DCURVE *curve,
 
             if ( g3dface_intersect ( knife, &pone, &ptwo, &vout ) ) {
                 G3DCURVEPOINT *newPt = g3dcurvepoint_new ( vout.x, 
-                                                             vout.y, 
-                                                             vout.z );
+                                                           vout.y, 
+                                                           vout.z );
                 G3DCURVESEGMENT *newSeg[0x02];
 
-                newSeg[0x00] = g3dcubicsegment_new ( seg->pt[0x00],
+                newSeg[0x00] = g3dcubicsegment_new ( seg->pt[P0IDX],
                                                      newPt,
-                                                     seg->pt[0x03]->pos.x,
-                                                     seg->pt[0x03]->pos.y,
-                                                     seg->pt[0x03]->pos.z,
+                                                     seg->pt[P0HANDLEIDX]->pos.x,
+                                                     seg->pt[P0HANDLEIDX]->pos.y,
+                                                     seg->pt[P0HANDLEIDX]->pos.z,
                                                      0.0f,
                                                      0.0f,
                                                      0.0f );
 
                 newSeg[0x01] = g3dcubicsegment_new ( newPt,
-                                                     seg->pt[0x01],
+                                                     seg->pt[P1IDX],
                                                      0.0f,
                                                      0.0f,
                                                      0.0f,
-                                                     seg->pt[0x02]->pos.x,
-                                                     seg->pt[0x02]->pos.y,
-                                                     seg->pt[0x02]->pos.z );
+                                                     seg->pt[P1HANDLEIDX]->pos.x,
+                                                     seg->pt[P1HANDLEIDX]->pos.y,
+                                                     seg->pt[P1HANDLEIDX]->pos.z );
 
                 g3dcurve_removeSegment ( curve, seg );
                 list_insert ( lremovedSegments, seg );
@@ -141,17 +141,16 @@ void g3dcurve_cut ( G3DCURVE *curve,
 
 /******************************************************************************/
 void g3dcurve_roundSelectedPoints ( G3DCURVE *curve ) {
-    LIST *lselectedPoints = NULL;
-    LIST *ltmpver = curve->lpt;
+    LIST *ltmppt = curve->lselpt;
 
-    while ( ltmpver ) {
-        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmpver->data;
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
         if ( pt->nbseg == 0x02 ) {
             g3dcurvepoint_roundCubicSegments ( pt );
         }
 
-        ltmpver = ltmpver->next;
+        ltmppt = ltmppt->next;
     }
 }
 
@@ -196,10 +195,10 @@ void g3dcubicsegment_setHandlePositionFromList ( LIST *lseg,
 /******************************************************************************/
 LIST *g3dcurve_getSegmentsFromSelectedPoints ( G3DCURVE *curve ) {
     LIST *lsegments = NULL;
-    LIST *ltmpver = curve->lpt;
+    LIST *ltmppt = curve->lselpt;
 
-    while ( ltmpver ) {
-        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmpver->data;
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
         LIST *ltmpseg = pt->lseg;
 
@@ -213,7 +212,7 @@ LIST *g3dcurve_getSegmentsFromSelectedPoints ( G3DCURVE *curve ) {
             ltmpseg = ltmpseg->next;
         }
 
-        ltmpver = ltmpver->next;
+        ltmppt = ltmppt->next;
     }
 
     return lsegments;
@@ -221,18 +220,7 @@ LIST *g3dcurve_getSegmentsFromSelectedPoints ( G3DCURVE *curve ) {
 
 /******************************************************************************/
 LIST *g3dcurve_getSelectedPoints ( G3DCURVE *curve ) {
-    LIST *lselectedPoints = NULL;
-    LIST *ltmpver = curve->lpt;
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-        list_insert ( &lselectedPoints, ver );
-
-        ltmpver = ltmpver->next;
-    }
-
-    return lselectedPoints;
+    return list_copy ( curve->lselpt );
 }
 
 /******************************************************************************/
@@ -252,8 +240,8 @@ void g3dcurve_deletePoints ( G3DCURVE  *curve,
         LIST *ltmpsegnext = ltmpseg->next;
         uint32_t nbRemovedPoints = 0x00;
 
-        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[0] ) ? 1 : 0;
-        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[1] ) ? 1 : 0;
+        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[P0IDX] ) ? 1 : 0;
+        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[P1IDX] ) ? 1 : 0;
 
         if ( nbRemovedPoints > 0x00 ) {
             g3dcurve_removeSegment ( curve, seg ); 
@@ -280,14 +268,14 @@ void g3dcurve_revert ( G3DCURVE *curve,
 
     while ( ltmpseg ) {
         G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
-        G3DVERTEX *swappedVertex = csg->seg.pt[0x00];
-        G3DVERTEX *swappedHandle = csg->seg.pt[0x02];
+        G3DCURVEPOINT *swappedPoint  = csg->seg.pt[P0IDX];
+        G3DCURVEPOINT *swappedHandle = csg->seg.pt[P0HANDLEIDX];
 
-        csg->seg.pt[0x00] = csg->seg.pt[0x01];
-        csg->seg.pt[0x01] = swappedVertex;
+        csg->seg.pt[P0IDX] = csg->seg.pt[P1IDX];
+        csg->seg.pt[P1IDX] = swappedPoint;
 
-        csg->seg.pt[0x02] = csg->seg.pt[0x03];
-        csg->seg.pt[0x03] = swappedHandle;
+        csg->seg.pt[P0HANDLEIDX] = csg->seg.pt[P1HANDLEIDX];
+        csg->seg.pt[P1HANDLEIDX] = swappedHandle;
 
         ltmpseg = ltmpseg->next;
     }
@@ -314,18 +302,18 @@ void g3dcurvepoint_roundCubicSegments ( G3DCURVEPOINT *pt ) {
         while ( ltmpseg ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
 
-            segvec[nbseg].x = csg->seg.pt[1]->pos.x - csg->seg.pt[0]->pos.x;
-            segvec[nbseg].y = csg->seg.pt[1]->pos.y - csg->seg.pt[0]->pos.y;
-            segvec[nbseg].z = csg->seg.pt[1]->pos.z - csg->seg.pt[0]->pos.z;
+            segvec[nbseg].x = csg->seg.pt[P1IDX]->pos.x - csg->seg.pt[P0IDX]->pos.x;
+            segvec[nbseg].y = csg->seg.pt[P1IDX]->pos.y - csg->seg.pt[P0IDX]->pos.y;
+            segvec[nbseg].z = csg->seg.pt[P1IDX]->pos.z - csg->seg.pt[P0IDX]->pos.z;
 
-            if ( csg->seg.pt[1] == pt ) {
+            if ( csg->seg.pt[P1IDX] == pt ) {
                 segvec[nbseg].x = -segvec[nbseg].x;
                 segvec[nbseg].y = -segvec[nbseg].y;
                 segvec[nbseg].z = -segvec[nbseg].z;
 
-                han[nbseg] = csg->seg.pt[2];
+                han[nbseg] = csg->seg.pt[P1HANDLEIDX];
             } else {
-                han[nbseg] = csg->seg.pt[3];
+                han[nbseg] = csg->seg.pt[P0HANDLEIDX];
             }
 
             g3dvector_normalize ( &segvec[nbseg], &len[nbseg] );
@@ -413,6 +401,7 @@ G3DCURVEPOINT *g3dcurvepoint_new ( float x, float y, float z ) {
         return NULL;
     }
 
+    pt->flags |= CURVEPOINTISPOINT;
     pt->pos.x = x;
     pt->pos.y = y;
     pt->pos.z = z;
@@ -437,23 +426,23 @@ void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *csg,
  /* A(1 -3t +3t2 -t3)/6 + B(4 -6t2 +3t3)/6 + C(1 +3t +3t2 -3t3)/6 + D(t3)/6 */
 
     /*** compute absolute position of handles ***/
-    han[0].pos.x = ( csg->seg.pt[0]->pos.x + csg->seg.pt[3]->pos.x );
-    han[0].pos.y = ( csg->seg.pt[0]->pos.y + csg->seg.pt[3]->pos.y );
-    han[0].pos.z = ( csg->seg.pt[0]->pos.z + csg->seg.pt[3]->pos.z );
+    han[0].pos.x = ( csg->seg.pt[P0IDX]->pos.x + csg->seg.pt[P0HANDLEIDX]->pos.x );
+    han[0].pos.y = ( csg->seg.pt[P0IDX]->pos.y + csg->seg.pt[P0HANDLEIDX]->pos.y );
+    han[0].pos.z = ( csg->seg.pt[P0IDX]->pos.z + csg->seg.pt[P0HANDLEIDX]->pos.z );
 
-    han[1].pos.x = ( csg->seg.pt[1]->pos.x + csg->seg.pt[2]->pos.x );
-    han[1].pos.y = ( csg->seg.pt[1]->pos.y + csg->seg.pt[2]->pos.y );
-    han[1].pos.z = ( csg->seg.pt[1]->pos.z + csg->seg.pt[2]->pos.z );
+    han[1].pos.x = ( csg->seg.pt[P1IDX]->pos.x + csg->seg.pt[P1HANDLEIDX]->pos.x );
+    han[1].pos.y = ( csg->seg.pt[P1IDX]->pos.y + csg->seg.pt[P1HANDLEIDX]->pos.y );
+    han[1].pos.z = ( csg->seg.pt[P1IDX]->pos.z + csg->seg.pt[P1HANDLEIDX]->pos.z );
 
 
     /*** mid points ***/
-    mid[0].pos.x = ( csg->seg.pt[0]->pos.x * decFac ) + ( han[0].pos.x * incFac );
-    mid[0].pos.y = ( csg->seg.pt[0]->pos.y * decFac ) + ( han[0].pos.y * incFac );
-    mid[0].pos.z = ( csg->seg.pt[0]->pos.z * decFac ) + ( han[0].pos.z * incFac );
+    mid[0].pos.x = ( csg->seg.pt[P0IDX]->pos.x * decFac ) + ( han[0].pos.x * incFac );
+    mid[0].pos.y = ( csg->seg.pt[P0IDX]->pos.y * decFac ) + ( han[0].pos.y * incFac );
+    mid[0].pos.z = ( csg->seg.pt[P0IDX]->pos.z * decFac ) + ( han[0].pos.z * incFac );
 
-    mid[1].pos.x = ( csg->seg.pt[1]->pos.x * incFac ) + ( han[1].pos.x * decFac );
-    mid[1].pos.y = ( csg->seg.pt[1]->pos.y * incFac ) + ( han[1].pos.y * decFac );
-    mid[1].pos.z = ( csg->seg.pt[1]->pos.z * incFac ) + ( han[1].pos.z * decFac );
+    mid[1].pos.x = ( csg->seg.pt[P1IDX]->pos.x * incFac ) + ( han[1].pos.x * decFac );
+    mid[1].pos.y = ( csg->seg.pt[P1IDX]->pos.y * incFac ) + ( han[1].pos.y * decFac );
+    mid[1].pos.z = ( csg->seg.pt[P1IDX]->pos.z * incFac ) + ( han[1].pos.z * decFac );
 
     mid[2].pos.x = ( han[0].pos.x * decFac ) + ( han[1].pos.x * incFac );
     mid[2].pos.y = ( han[0].pos.y * decFac ) + ( han[1].pos.y * incFac );
@@ -474,6 +463,28 @@ void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *csg,
     pout->x  = ( mid[3].pos.x * decFac ) + ( mid[4].pos.x * incFac );
     pout->y  = ( mid[3].pos.y * decFac ) + ( mid[4].pos.y * incFac );
     pout->z  = ( mid[3].pos.z * decFac ) + ( mid[4].pos.z * incFac );
+}
+
+/******************************************************************************/
+void g3dcurvesegment_pick ( G3DCURVESEGMENT *seg,
+                            float             from, /* range 0 - 1 */
+                            float             to,   /* range 0 - 1 */
+                            float             nbSteps,
+                            uint32_t          engine_flags ) {
+    float factor = ( to - from ) / nbSteps;
+    G3DVECTOR pone, ptwo;
+    uint32_t i;
+
+    memcpy ( &pone, &seg->pt[P0IDX]->pos, sizeof ( G3DVECTOR ) );
+
+    for( i = 0x01; i <= nbSteps; i++ ) {
+        seg->getPoint ( seg, from + ( factor * i ), &ptwo );
+
+        g3dpick_drawLine ( pone.x, pone.y, pone.z,
+                           ptwo.x, ptwo.y, ptwo.z );
+
+        memcpy ( &pone, &ptwo, sizeof ( G3DVECTOR ) );
+    }
 }
 
 /******************************************************************************/
@@ -499,14 +510,14 @@ void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
             coords[i][0x00] = pout.x;
             coords[i][0x01] = pout.y;
             coords[i][0x02] = pout.z;
-/*printf("%f %f %f\n", pout.x, pout.y, pout.z);*/
+
             gluTessVertex ( tobj, coords[i], coords[i] );
             /*glVertex3dv ( coords[i] );*/
         }
     } else {
         G3DVECTOR pone, ptwo;
 
-        memcpy ( &pone, &seg->pt[0x00]->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &pone, &seg->pt[P0IDX]->pos, sizeof ( G3DVECTOR ) );
 
         for( i = 0x01; i <= nbSteps; i++ ) {
             seg->getPoint ( seg, from + ( factor * i ), &ptwo );
@@ -535,22 +546,25 @@ G3DCUBICSEGMENT *g3dcubicsegment_new ( G3DCURVEPOINT *pt0,
 
     csg->seg.getPoint = g3dcubicsegment_getPoint;
 
-    csg->seg.pt[0x00] = pt0;
-    csg->seg.pt[0x01] = pt1;
+    csg->seg.pt[P0IDX] = pt0;
+    csg->seg.pt[P1IDX] = pt1;
 
     /*** handles ***/
     /*csg->handle[0x00].pt = pt0;
     csg->handle[0x01].pt = pt1;*/
 
-    csg->seg.pt[0x03] = ( G3DCURVEPOINT * ) &csg->handle[0x00];
-    csg->seg.pt[0x03]->pos.x  = hx1;
-    csg->seg.pt[0x03]->pos.y  = hy1;
-    csg->seg.pt[0x03]->pos.z  = hz1;
+    csg->seg.pt[P0HANDLEIDX] = ( G3DCURVEPOINT * ) &csg->handle[0x00];
+    csg->seg.pt[P0HANDLEIDX]->pos.x  = hx1;
+    csg->seg.pt[P0HANDLEIDX]->pos.y  = hy1;
+    csg->seg.pt[P0HANDLEIDX]->pos.z  = hz1;
 
-    csg->seg.pt[0x02] = ( G3DCURVEPOINT * ) &csg->handle[0x01];
-    csg->seg.pt[0x02]->pos.x  = hx2;
-    csg->seg.pt[0x02]->pos.y  = hy2;
-    csg->seg.pt[0x02]->pos.z  = hz2;
+    csg->seg.pt[P1HANDLEIDX] = ( G3DCURVEPOINT * ) &csg->handle[0x01];
+    csg->seg.pt[P1HANDLEIDX]->pos.x  = hx2;
+    csg->seg.pt[P1HANDLEIDX]->pos.y  = hy2;
+    csg->seg.pt[P1HANDLEIDX]->pos.z  = hz2;
+
+    csg->seg.pt[P0HANDLEIDX]->flags |= CURVEPOINTISHANDLE;
+    csg->seg.pt[P1HANDLEIDX]->flags |= CURVEPOINTISHANDLE;
 
     return csg;
 }
@@ -567,13 +581,13 @@ void g3dquadraticsegment_getPoint ( G3DQUADRATICSEGMENT *qsg,
  /* A(1 -3t +3t2 -t3)/6 + B(4 -6t2 +3t3)/6 + C(1 +3t +3t2 -3t3)/6 + D(t3)/6 */
 
     /*** mid points ***/
-    mid[0].pos.x = ( qsg->seg.pt[0]->pos.x * decFac ) + ( han->pos.x * incFac );
-    mid[0].pos.y = ( qsg->seg.pt[0]->pos.y * decFac ) + ( han->pos.y * incFac );
-    mid[0].pos.z = ( qsg->seg.pt[0]->pos.z * decFac ) + ( han->pos.z * incFac );
+    mid[0].pos.x = ( qsg->seg.pt[P0IDX]->pos.x * decFac ) + ( han->pos.x * incFac );
+    mid[0].pos.y = ( qsg->seg.pt[P0IDX]->pos.y * decFac ) + ( han->pos.y * incFac );
+    mid[0].pos.z = ( qsg->seg.pt[P0IDX]->pos.z * decFac ) + ( han->pos.z * incFac );
 
-    mid[1].pos.x = ( qsg->seg.pt[1]->pos.x * incFac ) + ( han->pos.x * decFac );
-    mid[1].pos.y = ( qsg->seg.pt[1]->pos.y * incFac ) + ( han->pos.y * decFac );
-    mid[1].pos.z = ( qsg->seg.pt[1]->pos.z * incFac ) + ( han->pos.z * decFac );
+    mid[1].pos.x = ( qsg->seg.pt[P1IDX]->pos.x * incFac ) + ( han->pos.x * decFac );
+    mid[1].pos.y = ( qsg->seg.pt[P1IDX]->pos.y * incFac ) + ( han->pos.y * decFac );
+    mid[1].pos.z = ( qsg->seg.pt[P1IDX]->pos.z * incFac ) + ( han->pos.z * decFac );
 
     /*** mid mid mid point ***/
     pout->x  = ( mid[0].pos.x * decFac ) + ( mid[1].pos.x * incFac );
@@ -595,8 +609,10 @@ void g3dquadraticsegment_init ( G3DQUADRATICSEGMENT *qsg,
                                 float                hz ) {
     qsg->seg.getPoint = g3dquadraticsegment_getPoint;
 
-    qsg->seg.pt[0x00] = pt0;
-    qsg->seg.pt[0x01] = pt1;
+    qsg->seg.pt[P0IDX] = pt0;
+    qsg->seg.pt[P1IDX] = pt1;
+
+    qsg->handle.flags |= CURVEPOINTISPOINT;
 
     /*** handles ***/
     /*qsg->handle.pt[0x00] = pt0;
@@ -639,8 +655,8 @@ G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags ) {
             G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmpver->data;
 
             G3DCURVEPOINT *newPt = g3dcurvepoint_new ( pt->pos.x, 
-                                                         pt->pos.y,
-                                                         pt->pos.z );
+                                                       pt->pos.y,
+                                                       pt->pos.z );
 
             g3dlookup_add ( &pointLookup, pt, newPt );
 
@@ -651,10 +667,10 @@ G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags ) {
 
         while ( ltmpseg ) {
             G3DCURVESEGMENT *oriSeg = ( G3DCURVESEGMENT * ) ltmpseg->data;
-            G3DCURVEPOINT   *oriPt0 = oriSeg->pt[0x00],
-                             *oriPt1 = oriSeg->pt[0x01];
-            G3DCUBICHANDLE   *oriHd0 = oriSeg->pt[0x03]; /* handle 0 */
-            G3DCUBICHANDLE   *oriHd1 = oriSeg->pt[0x02]; /* handle 1 */
+            G3DCURVEPOINT   *oriPt0 = oriSeg->pt[P0IDX],
+                             *oriPt1 = oriSeg->pt[P1IDX];
+            G3DCUBICHANDLE   *oriHd0 = oriSeg->pt[P0HANDLEIDX]; /* handle 0 */
+            G3DCUBICHANDLE   *oriHd1 = oriSeg->pt[P1HANDLEIDX]; /* handle 1 */
             G3DCURVEPOINT   *newPt0 = g3dlookup_get( &pointLookup, oriPt0 );
             G3DCURVEPOINT   *newPt1 = g3dlookup_get( &pointLookup, oriPt1 );
             G3DCUBICSEGMENT  *newSeg = g3dcubicsegment_new ( newPt0,
@@ -682,110 +698,228 @@ G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dcurve_draw ( G3DOBJECT *obj, 
+void g3dcurve_pickHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+            G3DCURVEPOINT *pt0 = csg->seg.pt[P0IDX],
+                          *pt1 = csg->seg.pt[P1IDX],
+                          *han0 = csg->seg.pt[P0HANDLEIDX],
+                          *han1 = csg->seg.pt[P1HANDLEIDX];
+
+            g3dpick_setName ( ( uint64_t ) han0 );
+            g3dpick_drawPoint ( pt0->pos.x + han0->pos.x,
+                                pt0->pos.y + han0->pos.y,
+                                pt0->pos.z + han0->pos.z );
+
+            g3dpick_setName ( ( uint64_t ) han1 );
+            g3dpick_drawPoint ( pt1->pos.x + han1->pos.x,
+                                pt1->pos.y + han1->pos.y,
+                                pt1->pos.z + han1->pos.z );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_drawHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+            G3DCURVEPOINT *pt0 = csg->seg.pt[P0IDX],
+                          *pt1 = csg->seg.pt[P1IDX],
+                          *han0 = csg->seg.pt[P0HANDLEIDX],
+                          *han1 = csg->seg.pt[P1HANDLEIDX];
+
+            glBegin ( GL_POINTS );
+            glColor3ub ( 0x00, 0xFF, 0x00 );
+            glVertex3f ( pt0->pos.x + han0->pos.x,
+                         pt0->pos.y + han0->pos.y,
+                         pt0->pos.z + han0->pos.z );
+
+            glVertex3f ( pt1->pos.x + han1->pos.x,
+                         pt1->pos.y + han1->pos.y,
+                         pt1->pos.z + han1->pos.z );
+            glEnd ( );
+
+            glBegin ( GL_LINES );
+            glColor3ub ( 0xFF, 0xFF, 0xFF );
+            glVertex3f ( pt0->pos.x, pt0->pos.y, pt0->pos.z );
+            glVertex3f ( pt0->pos.x + han0->pos.x,
+                         pt0->pos.y + han0->pos.y,
+                         pt0->pos.z + han0->pos.z );
+
+            glVertex3f ( pt1->pos.x, pt1->pos.y, pt1->pos.z );
+            glVertex3f ( pt1->pos.x + han1->pos.x,
+                         pt1->pos.y + han1->pos.y,
+                         pt1->pos.z + han1->pos.z );
+            glEnd ( );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_pickPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmppt  = curve->lpt;
+
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+
+        g3dpick_setName ( pt );
+        g3dpick_drawPoint ( pt->pos.x, pt->pos.y, pt->pos.z );
+
+        ltmppt = ltmppt->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_drawPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmppt  = curve->lpt;
+
+    glBegin ( GL_POINTS );
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+
+        if ( pt->flags & CURVEPOINTSELECTED ) {
+            glColor3ub ( 0xFF, 0x00, 0x00 );
+        } else {
+            glColor3ub ( 0x00, 0x00, 0xFF );
+        }
+
+        glVertex3f ( pt->pos.x, pt->pos.y, pt->pos.z );
+
+        ltmppt = ltmppt->next;
+    }
+    glEnd ( );
+}
+
+/******************************************************************************/
+void g3dcurve_pickSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+
+            g3dpick_setName ( csg );
+            g3dcurvesegment_pick ( seg,
+                                   0.0f, 
+                                   1.0f,
+                                   curve->nbStepsPerSegment,
+                                   engine_flags );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_drawSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+
+            g3dcurvesegment_draw ( seg,
+                                   0.0f, 
+                                   1.0f,
+                                   curve->nbStepsPerSegment,
+                                   NULL, /* to tessellation object */
+                                   NULL, /* no tessellation data **/
+                                   0x00,
+                                   engine_flags );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_pick ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+
+            g3dcurvesegment_pick ( seg,
+                                   0.0f, 
+                                   1.0f,
+                                   curve->nbStepsPerSegment,
+                                   engine_flags );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+/*** currently same code as g3dcurve_drawSegments but there will be a ***/
+/*** difference when we will code segments selection (color changing) ***/
+/*** in g3dcurve_drawSegments ***/
+void g3dcurve_draw ( G3DCURVE *curve, uint32_t engine_flags ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( curve->type == CUBIC ) {
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
+
+            g3dcurvesegment_draw ( seg,
+                                   0.0f, 
+                                   1.0f,
+                                   curve->nbStepsPerSegment,
+                                   NULL, /* to tessellation object */
+                                   NULL, /* no tessellation data **/
+                                   0x00,
+                                   engine_flags );
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+}
+
+/******************************************************************************/
+/*uint32_t g3dcurve_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          uint32_t   engine_flags ) {
     G3DCURVE *curve = ( G3DCURVE * ) obj;
-    LIST *ltmpseg = curve->lseg;
-    LIST *ltmpver = curve->lpt;
 
-    glPushAttrib ( GL_ALL_ATTRIB_BITS );
-    glLineWidth ( 2.0f );
-    glPointSize ( 3.0f );
+    if ( engine_flags & SELECTMODE ) {
+        g3dcurve_drawSegments ( curve, engine_flags );
+    } else {
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glLineWidth ( 2.0f );
+        glPointSize ( 3.0f );
 
-    glDisable ( GL_LIGHTING );
+        glDisable ( GL_LIGHTING );
 
-    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-        while ( ltmpseg ) {
-            G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+        g3dcurve_drawSegments ( curve, engine_flags );
 
-            if ( curve->type == CUBIC ) {
-                G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
-
-                /* draw line to the handle */
-                /*if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
-                    glColor3ub ( 0xFF, 0x7F, 0x00 );
-                    glBegin ( GL_LINES );
-                    glVertex3f (  csg->seg.pt[0x00]->pos.x, 
-                                  csg->seg.pt[0x00]->pos.y, 
-                                  csg->seg.pt[0x00]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x00]->pos.x + csg->seg.pt[0x03]->pos.x, 
-                                  csg->seg.pt[0x00]->pos.y + csg->seg.pt[0x03]->pos.y, 
-                                  csg->seg.pt[0x00]->pos.z + csg->seg.pt[0x03]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x01]->pos.x, 
-                                  csg->seg.pt[0x01]->pos.y, 
-                                  csg->seg.pt[0x01]->pos.z );
-                    glVertex3f (  csg->seg.pt[0x01]->pos.x + csg->seg.pt[0x02]->pos.x, 
-                                  csg->seg.pt[0x01]->pos.y + csg->seg.pt[0x02]->pos.y, 
-                                  csg->seg.pt[0x01]->pos.z + csg->seg.pt[0x02]->pos.z );
-                    glEnd   ( );
-                }*/
-
-                /*if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-                    glColor3ub ( 0xFF, 0x7F, 0x7F );*/
-                    g3dcurvesegment_draw ( seg,
-                                            0.0f, 
-                                            1.0f,
-                                            curve->nbStepsPerSegment,
-                                            NULL, /* to tessellation object */
-                                            NULL, /* no tessellation data **/
-                                            0x00,
-                                            engine_flags );
-                /*}*/
-            }
-
-            ltmpseg = ltmpseg->next;
-        }
+        glPopAttrib ( );
     }
-#ifdef YOUPITRALALA
-    if ( ( obj->flags   & OBJECTSELECTED ) && ( engine_flags & VIEWVERTEX ) ) {
-        glDisable ( GL_DEPTH_TEST );
-        while ( ltmpver ) {
-            G3DVERTEX * ver = ( G3DVERTEX * ) ltmpver->data;
 
-            if ( engine_flags & SELECTMODE ) {
-                glLoadName ( ( GLint ) ver->id );
-            }
-
-            glBegin ( GL_POINTS );
-            if ( ver->flags & VERTEXHANDLE ) {
-                if ( obj->flags & CUBIC ) {
-                    G3DCUBICHANDLE *han = ( G3DCUBICHANDLE * ) ver;
-
-                    if ( ver->flags & VERTEXSELECTED ) {
-                        glColor3ub ( 0xFF, 0x00, 0xFF );
-                    } else {
-                        glColor3ub ( 0x00, 0xFF, 0x00 );
-                    }
-                    glVertex3f (  han->pos.x + han->pt->pos.x, 
-                                  han->pos.y + han->pt->pos.y, 
-                                  han->pos.z + han->pt->pos.z );
-                }
-            } else {
-                if ( ver->flags & VERTEXSELECTED ) {
-                    glColor3ub ( 0xFF, 0x00, 0x00 );
-                } else {
-                    glColor3ub ( 0x00, 0x00, 0xFF );
-                }
-
-                glVertex3f (  ver->pos.x, ver->pos.y, ver->pos.z );
-            }
-            glEnd ( );
-
-            ltmpver = ltmpver->next;
-        }
-    }
-#endif
-    glPopAttrib ( );
-#ifdef YOUPITRALALA
-    if ( ( ( obj->flags   & OBJECTSELECTED ) == 0x00 ) ||
-         ( ( obj->flags   & OBJECTSELECTED ) &&
-           ( engine_flags & SELECTMODE     ) == 0x00 ) ) {
-        g3dobject_drawModifiers ( obj, curcam, engine_flags );
-    }
-#endif
     return 0x00;
-}
+}*/
 
 /******************************************************************************/
 void g3dcurve_free ( G3DOBJECT *obj ) {
@@ -796,11 +930,70 @@ void g3dcurve_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+void g3dcurve_unselectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt ) {
+    list_remove ( &curve->lselpt, pt );
+
+    pt->flags &= ~(CURVEPOINTSELECTED);
+
+    curve->avgSelPtPos.x = ( curve->avgSelPtPos.x * curve->nbselpt ) - pt->pos.x;
+    curve->avgSelPtPos.y = ( curve->avgSelPtPos.y * curve->nbselpt ) - pt->pos.y;
+    curve->avgSelPtPos.z = ( curve->avgSelPtPos.z * curve->nbselpt ) - pt->pos.z;
+
+    curve->nbselpt--;
+
+    if ( curve->nbselpt ) {
+        curve->avgSelPtPos.x /= curve->nbselpt;
+        curve->avgSelPtPos.y /= curve->nbselpt;
+        curve->avgSelPtPos.z /= curve->nbselpt;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_selectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt ) {
+    list_insert ( &curve->lselpt, pt ); 
+
+    pt->flags |= CURVEPOINTSELECTED;
+
+    curve->avgSelPtPos.x = ( curve->avgSelPtPos.x * curve->nbselpt ) + pt->pos.x;
+    curve->avgSelPtPos.y = ( curve->avgSelPtPos.y * curve->nbselpt ) + pt->pos.y;
+    curve->avgSelPtPos.z = ( curve->avgSelPtPos.z * curve->nbselpt ) + pt->pos.z;
+
+    curve->nbselpt++;
+
+    curve->avgSelPtPos.x /= curve->nbselpt;
+    curve->avgSelPtPos.y /= curve->nbselpt;
+    curve->avgSelPtPos.z /= curve->nbselpt;
+}
+
+/******************************************************************************/
+void g3dcurvepoint_unsetSelected ( G3DCURVEPOINT *pt ) {
+     pt->flags &= ~(CURVEPOINTSELECTED);
+}
+
+/******************************************************************************/
+void g3dcurve_unselectAllPoints ( G3DCURVE *curve ) {
+    list_free ( &curve->lselpt, (void(*)(void*)) g3dcurvepoint_unsetSelected );
+
+    curve->nbselpt = 0x00;
+
+    curve->avgSelPtPos.x = 0.0f;
+    curve->avgSelPtPos.y = 0.0f;
+    curve->avgSelPtPos.z = 0.0f;
+}
+
+/******************************************************************************/
 void g3dcurve_addPoint ( G3DCURVE      *curve, 
                          G3DCURVEPOINT *pt ) {
     list_insert ( &curve->lpt, pt );
 
     curve->nbpt++;
+}
+
+/******************************************************************************/
+void g3dcurve_addSelectedPoint ( G3DCURVE      *curve, 
+                                 G3DCURVEPOINT *pt ) {
+    g3dcurve_addPoint ( curve, pt );
+    g3dcurve_selectPoint ( curve, pt );
 }
 
 /******************************************************************************/
@@ -819,8 +1012,8 @@ void g3dcurve_addSegment ( G3DCURVE        *curve,
     if ( curve->type == CUBIC ) {
         G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-        g3dcurvepoint_addSegment ( csg->seg.pt[0x00], csg );
-        g3dcurvepoint_addSegment ( csg->seg.pt[0x01], csg );
+        g3dcurvepoint_addSegment ( csg->seg.pt[P0IDX], csg );
+        g3dcurvepoint_addSegment ( csg->seg.pt[P1IDX], csg );
     }
 
     curve->nbseg++;
@@ -834,8 +1027,8 @@ void g3dcurve_removeSegment ( G3DCURVE        *curve,
     if ( curve->type == CUBIC ) {
         G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-        g3dcurvepoint_removeSegment ( csg->seg.pt[0x00], csg );
-        g3dcurvepoint_removeSegment ( csg->seg.pt[0x01], csg );
+        g3dcurvepoint_removeSegment ( csg->seg.pt[P0IDX], csg );
+        g3dcurvepoint_removeSegment ( csg->seg.pt[P1IDX], csg );
     }
 
     curve->nbseg--;

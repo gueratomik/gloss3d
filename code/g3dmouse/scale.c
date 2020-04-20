@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -122,9 +122,9 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 }
 
                 /****** Cursor axis picked ? ******/
-                g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
+                /*g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
                                                        VPX[0x03] - bev->y,
-                                 flags );
+                                 flags );*/
 
                 if ( obj->type & EDITABLE ) {
                     G3DOBJECT *objmes = obj;
@@ -154,7 +154,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                     /*** for the undo/redo manager ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos );
 
-                    g3dmesh_startUpdateModifiers_r ( obj, flags );
+                    g3dobject_startUpdateModifiers_r ( obj, flags );
 
                     /*** get scaling center. It is the average pos of vertices ***/
                     /*** we are going to move ***/
@@ -271,7 +271,7 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             /*g3dvertex_updateFacesPosition ( ver );*/
                         }
 
-                        g3dmesh_updateModifiers_r ( obj, flags );
+                        g3dobject_updateModifiers_r ( obj, flags );
 
                         if ( mes->onGeometryMove ) {
                             mes->onGeometryMove ( mes, lver, 
@@ -324,11 +324,11 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                     if ( ( flags & VIEWOBJECT ) ||
                          ( flags & VIEWAXIS   ) ) {
-                        g3durm_object_move ( urm, obj, &obj->pos, 
+                        /*g3durm_object_move ( urm, obj, &obj->pos, 
                                                        &obj->rot,
                                                        &objsca,
                                                         ( flags & VIEWAXIS ),
-                                                        REDRAWVIEW );
+                                                        REDRAWVIEW );*/
                     }
 
                     if ( ( flags & VIEWVERTEX ) ||
@@ -346,6 +346,8 @@ int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                             g3dmesh_updateBbox ( mes );
                         }
                     }
+
+                    g3dobject_updateModifiers_r ( obj, flags );
                 }
             }
 

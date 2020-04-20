@@ -186,7 +186,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSCENETYPE      ( OBJECT | SCENE )
 #define G3DBONETYPE       ( OBJECT | BONE )
                     /* ffd not flagged as mesh but still inherits from mesh */
-#define G3DFFDTYPE            ( OBJECT | EDITABLE |        MODIFIER | FFD )
+#define G3DFFDTYPE            ( OBJECT | MESH | MODIFIER | EDITABLE | FFD )
 #define G3DWIREFRAMETYPE      ( OBJECT | MESH | MODIFIER | WIREFRAME )
 #define G3DSUBDIVIDERTYPE     ( OBJECT | MESH | MODIFIER | SUBDIVIDER )
 #define G3DSPLINEREVOLVERTYPE ( OBJECT | MESH | MODIFIER | SPLINEREVOLVER )
@@ -194,7 +194,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
-#define G3DSPLINETYPE         ( OBJECT | EDITABLE | SPLINE )
+#define G3DSPLINETYPE         ( OBJECT | SPLINE )
 #define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
 
 /******************************************************************************/
@@ -380,9 +380,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /******************************************************************************/
 /*** for glLoadName ***/
-#define CURSORXAXIS 0xFFFFFFFF
-#define CURSORYAXIS 0xFFFFFFFE
-#define CURSORZAXIS 0xFFFFFFFD
+#define CURSORXAXIS 0x00
+#define CURSORYAXIS 0x01
+#define CURSORZAXIS 0x02
 
 /***************************** UVW Map policies --*****************************/
 #define UVMAPFLAT        0x00  /*** default projection ***/
@@ -485,7 +485,7 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #include <g3dengine/g2dvector.h>
 #include <g3dengine/g3dtinyvector.h>
 #include <g3dengine/g3dvector.h>
-
+#include <g3dengine/g3dpick.h>
 
 /******************************************************************************/
 typedef struct _G3DVECTORCACHE {
@@ -618,7 +618,7 @@ typedef struct _G3DCURVE  G3DCURVE;
 #define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint32_t))f)
 #define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint32_t))f)
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
-
+#define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint32_t))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -809,6 +809,7 @@ typedef struct _G3DEDGE {
     uint32_t   nbfac;                /*** number of connected faces           ***/
     LIST      *lfac;                 /*** Face list                           ***/
     G3DVERTEX *ver[0x02];    /*** Our edge is made of 2 vertices      ***/
+    G3DVECTOR  pos;
 } G3DEDGE, G3DEXTRUDEVERTEX;
 
 /******************************************************************************/
@@ -1004,6 +1005,9 @@ struct _G3DMESH {
     uint32_t nbseluvmap;
     uint32_t nbtex;
     uint32_t nbuvmap;
+    G3DVECTOR avgSelVerPos; /* average selected vertex position */
+    G3DVECTOR avgSelEdgPos; /* average selected vertex position */
+    G3DVECTOR avgSelFacPos; /* average selected vertex position */
     float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
@@ -1565,6 +1569,9 @@ G3DFACE *g3dquad_new              ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX *,
 G3DFACE *g3dtriangle_new          ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX * );
 void     g3dface_normal           ( G3DFACE * );
 void     g3dface_draw             ( G3DFACE *, float, LIST *, uint32_t, uint32_t );
+void g3dface_drawSkin ( G3DFACE *fac, 
+                        uint32_t oflags,
+                        uint32_t eflags );
 uint32_t g3dface_intersect        ( G3DFACE *, G3DVECTOR *, G3DVECTOR *,
                                                             G3DVECTOR * );
 void     g3dface_free             ( G3DFACE * );
@@ -1824,7 +1831,6 @@ uint32_t   g3dobject_draw                  ( G3DOBJECT *, G3DCAMERA *, uint32_t 
 /* modifier hides original vertices and thus needs some transparency */
 #define MODIFIERNEEDSTRANSPARENCY ( 1 << 1 ) 
 void       g3dobject_free                  ( G3DOBJECT *  );
-void       g3dobject_pick                  ( G3DOBJECT *, uint32_t  );
 void       g3dobject_removeChild           ( G3DOBJECT *, G3DOBJECT *, uint32_t );
 void       g3dobject_addChild              ( G3DOBJECT *, G3DOBJECT *, uint32_t );
 G3DOBJECT *g3dobject_getChildByID          ( G3DOBJECT *, uint32_t );
@@ -1890,6 +1896,10 @@ void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *,
 void       g3dobject_appendChild           ( G3DOBJECT *, G3DOBJECT *, 
                                                           uint32_t );
 void       g3dobject_activate              ( G3DOBJECT *, uint32_t );
+void       g3dobject_startUpdateModifiers_r ( G3DOBJECT *, uint32_t );
+void       g3dobject_updateModifiers_r      ( G3DOBJECT *, uint32_t );
+void       g3dobject_endUpdateModifiers_r   ( G3DOBJECT *, uint32_t );
+void g3dobject_modify_r ( G3DOBJECT *obj, uint32_t eflags );
 void g3dobject_moveAxis ( G3DOBJECT *obj, 
                           double    *PREVMVX, /* previous world matrix */
                           uint32_t   engine_flags );
@@ -1920,7 +1930,6 @@ void         g3dsymmetry_setMergeLimit ( G3DSYMMETRY *, float );
 G3DPRIMITIVE *g3dprimitive_new     ( uint32_t, char *, void *, uint32_t );
 void          g3dprimitive_free    ( G3DOBJECT *obj );
 uint32_t      g3dprimitive_draw    ( G3DOBJECT *obj, G3DCAMERA *, uint32_t );
-void          g3dprimitive_pick    ( G3DOBJECT *obj, uint32_t );
 G3DMESH      *g3dprimitive_convert ( G3DPRIMITIVE *, uint32_t );
 void          g3dprimitive_init    ( G3DPRIMITIVE *, uint32_t, char *,
                                                                void *,
@@ -2036,20 +2045,9 @@ LIST      *g3dmesh_getVertexListFromSelectedEdges       ( G3DMESH * );
 
 LIST      *g3dmesh_getEdgeBoundariesFromSelectedFaces   ( G3DMESH * );
 LIST      *g3dmesh_getVertexBoundariesFromSelectedFaces ( G3DMESH * );
-void       g3dmesh_modify_r             ( G3DMESH *, uint32_t );
-void       g3dmesh_pick                 ( G3DMESH *, G3DCAMERA *,
+uint32_t   g3dmesh_pick                 ( G3DMESH *, G3DCAMERA *,
                                                      uint32_t );
-void       g3dmesh_pickObject           ( G3DMESH *, G3DCAMERA *, uint32_t );
-LIST      *g3dmesh_pickEdge             ( G3DMESH *, G3DCAMERA *, uint32_t,
-                                                                  uint32_t,
-                                                                  uint32_t,
-                                                                  uint32_t );
-LIST      *g3dmesh_pickFace             ( G3DMESH *, G3DCAMERA *, uint32_t,
-                                                                  uint32_t,
-                                                                  uint32_t,
-                                                                  uint32_t );
-LIST      *g3dmesh_pickVertices         ( G3DMESH *, G3DCAMERA *, uint32_t,
-                                                                  uint32_t );
+
 void       g3dmesh_selectFace           ( G3DMESH *, G3DFACE * );
 void       g3dmesh_selectVertex         ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_stats                ( G3DMESH * );
@@ -2079,6 +2077,12 @@ void       g3dmesh_getSelectedFacesWorldPosition    ( G3DMESH *, G3DVECTOR * );
 void       g3dmesh_getSelectedFacesLocalPosition    ( G3DMESH *, G3DVECTOR * );
 G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *, uint32_t, LIST **,
                                                                LIST ** );
+void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
+                                      float   distance,
+                                      LIST **lnewver,
+                                      LIST **loldver,
+                                      LIST **lnewfac,
+                                      LIST **loldfac );
 void       g3dmesh_removeFacesFromVertex ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_removeFacesFromSelectedVertices ( G3DMESH * );
 void       g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *, G3DVECTOR * );
@@ -2210,9 +2214,6 @@ uint32_t   g3dmesh_dumpModifiers_r ( G3DMESH *, void (*Alloc)( uint32_t, /* nbve
 void       g3dmesh_addChild        ( G3DMESH *, G3DOBJECT *, uint32_t );
 void       g3dmesh_clearGeometry ( G3DMESH * );
 G3DMESH   *g3dmesh_symmetricMerge ( G3DMESH * , double  *, uint32_t );
-void       g3dmesh_startUpdateModifiers_r ( G3DMESH *, uint32_t );
-void       g3dmesh_updateModifiers_r      ( G3DMESH *, uint32_t );
-void       g3dmesh_endUpdateModifiers_r   ( G3DMESH *, uint32_t );
 void       g3dmesh_moveAxis               ( G3DMESH *, double  *, uint32_t );
 void       g3dmesh_selectAllEdges         ( G3DMESH * );
 void       g3dmesh_selectAllFaces         ( G3DMESH * );
@@ -2222,6 +2223,8 @@ void g3dmesh_removeUVMap ( );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
+uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout );
+uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, double *matrix, uint32_t eflags );
 void       g3dscene_free ( G3DOBJECT * );
 uint32_t   g3dscene_draw ( G3DOBJECT *, G3DCAMERA *, uint32_t );
 LIST      *g3dscene_pick ( G3DOBJECT *, G3DCAMERA *, uint32_t );
@@ -2275,7 +2278,7 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
 
 /******************************************************************************/
 void g3dcursor_draw  ( G3DCURSOR *, G3DCAMERA *, uint32_t );
-void g3dcursor_pick  ( G3DCURSOR *, double *, G3DCAMERA *, int, int, uint32_t );
+void g3dcursor_pick  ( G3DCURSOR *, G3DCAMERA *, uint32_t eflags );
 void g3dcursor_init  ( G3DCURSOR * );
 void g3dcursor_reset ( G3DCURSOR * );
 

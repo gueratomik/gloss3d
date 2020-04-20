@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -39,13 +39,13 @@
 G3DBRIDGETOOL *bridge_new ( ) {
     uint32_t structsize = sizeof ( G3DBRIDGETOOL );
 
-    G3DBRIDGETOOL *cf =  ( G3DBRIDGETOOL * ) calloc ( 0x04, structsize );
+    G3DBRIDGETOOL *bt =  ( G3DBRIDGETOOL * ) calloc ( 0x04, structsize );
 
-    if ( cf == NULL ) {
+    if ( bt == NULL ) {
         fprintf ( stderr, "bridge_new: Memory allocation failed\n" );
     }
 
-    return cf;
+    return bt;
 }
 
 /******************************************************************************/
@@ -56,14 +56,16 @@ uint32_t bridge_init ( G3DMOUSETOOL *mou,
                        uint32_t      engine_flags ) {
     /*** reset the vertex array ***/
     if ( mou->data ) {
-        G3DBRIDGETOOL *cf = mou->data;
-        G3DVERTEX **ver = cf->ver;
+        G3DBRIDGETOOL *bt = mou->data;
 
-        /*g3dmesh_unselectAllVertices ( cf->mes );*/
-
-        ver[0x00] = ver[0x01] = ver[0x02] = ver[0x03] = NULL;
-        cf->draw = 0x00;
-        cf->mes = NULL;
+        bt->ver[0x00] = 
+        bt->ver[0x01] = 
+        bt->ver[0x02] = 
+        bt->ver[0x03] =
+        bt->pt[0x00]  = 
+        bt->pt[0x01]  = NULL;
+        bt->draw = 0x00;
+        bt->obj  = NULL;
     } else {
         mou->data = bridge_new ( );
     }
@@ -75,13 +77,10 @@ uint32_t bridge_init ( G3DMOUSETOOL *mou,
 void bridge_draw ( G3DMOUSETOOL *mou, 
                    G3DSCENE     *sce, 
                    uint32_t      flags ) {
-    G3DBRIDGETOOL *cf = mou->data;
+    G3DBRIDGETOOL *bt = mou->data;
 
-    if ( cf && cf->draw ) {
-        G3DVERTEX **ver = cf->ver;
-        G3DMESH *mes = cf->mes;
-
-        if ( cf->mes ) {
+    if ( bt && bt->draw ) {
+        if ( bt->obj ) {
             glPushAttrib( GL_ALL_ATTRIB_BITS );
             glDisable   ( GL_DEPTH_TEST );
             glDisable   ( GL_LIGHTING );
@@ -91,17 +90,25 @@ void bridge_draw ( G3DMOUSETOOL *mou,
             /*** the cutting plan and find its coords, but do not ***/
             /*** forget the current matrix is the camera transformations **/
             glPushMatrix ( );
-            glMultMatrixd ( ((G3DOBJECT*)mes)->wmatrix );
+            glMultMatrixd ( bt->obj->wmatrix );
 
             glBegin ( GL_LINES );
-            if ( ver[0x02] && ver[0x03] ) {
-                glVertex3fv ( ( GLfloat * ) &ver[0x02]->pos );
-                glVertex3fv ( ( GLfloat * ) &ver[0x03]->pos );
-            }
+            if ( bt->obj->type & MESH ) {
+        	if ( bt->ver[0x02] && bt->ver[0x03] ) {
+                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x02]->pos );
+                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x03]->pos );
+        	}
 
-            if ( ver[0x00] && ver[0x01] ) {
-                glVertex3fv ( ( GLfloat * ) &ver[0x00]->pos );
-                glVertex3fv ( ( GLfloat * ) &ver[0x01]->pos );
+        	if ( bt->ver[0x00] && bt->ver[0x01] ) {
+                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x00]->pos );
+                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x01]->pos );
+        	}
+            }
+            if ( bt->obj->type & SPLINE ) {
+        	if ( bt->pt[0x00] && bt->pt[0x01] ) {
+                    glVertex3fv ( ( GLfloat * ) &bt->pt[0x00]->pos );
+                    glVertex3fv ( ( GLfloat * ) &bt->pt[0x01]->pos );
+        	}
             }
             glEnd ( );
 
@@ -113,70 +120,179 @@ void bridge_draw ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-int bridge_tool  ( G3DMOUSETOOL *mou, 
-                   G3DSCENE     *sce, 
-                   G3DCAMERA    *cam,
-                   G3DURMANAGER *urm, 
-                   uint32_t      flags,
-                   G3DEvent     *event ) {
-    G3DBRIDGETOOL *cf = mou->data;
-    G3DVERTEX **ver = cf->ver;
+static int bridge_spline  ( G3DSPLINE    *spl,
+                            G3DMOUSETOOL *mou, 
+                            G3DSCENE     *sce, 
+                            G3DCAMERA    *cam,
+                            G3DURMANAGER *urm, 
+                            uint32_t      flags,
+                            G3DEvent     *event ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
+    G3DBRIDGETOOL *bt = mou->data;
     static GLint VPX[0x04];
-    G3DPICKTOOL pt;
-
-    pt.only_visible = 0x00;
-
+    static G3DPICKTOOL ptool = { .coord = { 0 },
+                                 .only_visible = 0x01,
+                                 .weight = 0.0f,
+                                 .radius = 0x08 };
+ 
     switch ( event->type ) {
         case G3DButtonPress : {
-            G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             /*** Start drawing ***/
-            cf->draw = 0x01;
+            bt->draw = 0x01;
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            if ( obj && ( bev->button == 0x01 ) && ( obj->type & EDITABLE ) ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                /*** Selection rectangle ***/
-                int32_t coord[0x04] = { bev->x, VPX[0x03] - bev->y,
-                                        bev->x, VPX[0x03] - bev->y };
+            /*** Selection rectangle ***/
+            /*** Selection rectangle ***/
+            ptool.coord[0x00] = bev->x;
+            ptool.coord[0x01] = VPX[0x03] - bev->y;
+            ptool.coord[0x02] = ptool.coord[0x00];
+            ptool.coord[0x03] = ptool.coord[0x01];
 
-                if ( !ver[0x00] && !ver[0x01] && !ver[0x02] && !ver[0x03] ) {
-                    g3dmesh_unselectAllVertices ( mes );
-                }
+            g3dcurve_unselectAllPoints ( spl->curve );
 
-                pick_Item ( &pt, ( G3DOBJECT * ) mes, cam, coord, 0x00, flags );
+            pick_Item ( &ptool, sce, cam, flags );
 
-                /*** remember our Mesh for the drawing part ***/
-                /*** because we need its world matrix.      ***/
-                cf->mes = mes;
+            /*** remember our object for the drawing part ***/
+            /*** because we need its world matrix.      ***/
+            bt->obj = spl;
 
-                /*** if any selected vertex ***/
-                if ( mes->lselver ) {
-                    if ( ver[0x00] ) {
-                        ver[0x02] = g3dmesh_getLastSelectedVertex ( mes );
-                    } else {
-                        ver[0x00] = g3dmesh_getLastSelectedVertex ( mes );
-                    }
-                } else {
-                /*** reset if click fails to pick a vertex ***/
-                    ver[0x00] = ver[0x01] = ver[0x02] = ver[0x03] = NULL;
-                }
+            /*** if any selected point ***/
+            if ( spl->curve->lselpt ) {
+                bt->pt[0x00] = g3dcurve_getLastSelectedPoint ( spl->curve );
+            } else {
+            /*** reset if click fails to pick a vertex ***/
+                bt->pt[0x00] = bt->pt[0x01] = NULL;
             }
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
-            G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
             G3DMotionEvent *bev = ( G3DMotionEvent * ) event;
 
-            if ( obj && ( bev->state & G3DButton1Mask ) && ( obj->type & EDITABLE ) ) {
+            if ( bev->state & G3DButton1Mask ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 /*** Selection rectangle ***/
-                int32_t coord[0x04] = { bev->x, VPX[0x03] - bev->y,
-                                        bev->x, VPX[0x03] - bev->y };
+                ptool.coord[0x00] = bev->x;
+                ptool.coord[0x01] = VPX[0x03] - bev->y;
+                ptool.coord[0x02] = ptool.coord[0x00];
+                ptool.coord[0x03] = ptool.coord[0x01];
 
-                pick_Item ( &pt, ( G3DOBJECT * ) mes, cam, coord, 0x00, VIEWVERTEX );
+                pick_Item ( &ptool, sce, cam, VIEWVERTEX );
+
+                if ( spl->curve->lselpt ) {
+                    bt->pt[0x01] = g3dcurve_getLastSelectedPoint ( spl->curve );
+                }
+            }
+        } return REDRAWVIEW;
+
+        case G3DButtonRelease : {
+            if ( bt->pt[0x00] && bt->pt[0x01] ) {
+                /*** Must not be the same vertices ***/
+                if ( bt->pt[0x00] != bt->pt[0x01] ) {
+                    /*** must not already belong to 2 segment either ***/
+                    if ( ( bt->pt[0x00]->nbseg != 0x02 ) &&
+                         ( bt->pt[0x01]->nbseg != 0x02 ) ) { 
+                        G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+                        G3DCUBICSEGMENT *seg;
+
+                        seg = g3dcubicsegment_new ( bt->pt[0x00],
+                                                    bt->pt[0x01],
+                                                    0.0f, 0.0f, 0.0f,
+                                                    0.0f, 0.0f, 0.0f );
+
+                        g3durm_spline_addSegment ( urm,
+                                                   spline,
+                                                   seg,
+                                                   flags,
+                                                   REDRAWVIEW );
+                    }
+                }
+
+                bt->pt[0x00] = NULL;
+                bt->pt[0x01] = NULL;
+            }
+
+            /*** end drawing ***/
+            bt->draw = 0x00;
+            bt->obj = NULL;
+        } return REDRAWVIEW;
+
+        default :
+        break;
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
+static int bridge_mesh  ( G3DMESH      *mes,
+                          G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      flags,
+                          G3DEvent     *event ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DBRIDGETOOL *bt = mou->data;
+    G3DVERTEX **ver = bt->ver;
+    static GLint VPX[0x04];
+    static G3DPICKTOOL ptool = { .coord = { 0 },
+                                 .only_visible = 0x01,
+                                 .weight = 0.0f,
+                                 .radius = 0x08 };
+
+    switch ( event->type ) {
+        case G3DButtonPress : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            /*** Start drawing ***/
+            bt->draw = 0x01;
+
+            glGetIntegerv ( GL_VIEWPORT, VPX );
+
+            /*** Selection rectangle ***/
+            /*** Selection rectangle ***/
+            ptool.coord[0x00] = bev->x;
+            ptool.coord[0x01] = VPX[0x03] - bev->y;
+            ptool.coord[0x02] = ptool.coord[0x00];
+            ptool.coord[0x03] = ptool.coord[0x01];
+
+            if ( !ver[0x00] && !ver[0x01] && !ver[0x02] && !ver[0x03] ) {
+                g3dmesh_unselectAllVertices ( mes );
+            }
+
+            pick_Item ( &ptool, sce, cam, flags );
+
+            /*** remember our Mesh for the drawing part ***/
+            /*** because we need its world matrix.      ***/
+            bt->obj = obj;
+
+            /*** if any selected vertex ***/
+            if ( mes->lselver ) {
+                if ( ver[0x00] ) {
+                    ver[0x02] = g3dmesh_getLastSelectedVertex ( mes );
+                } else {
+                    ver[0x00] = g3dmesh_getLastSelectedVertex ( mes );
+                }
+            } else {
+            /*** reset if click fails to pick a vertex ***/
+                ver[0x00] = ver[0x01] = ver[0x02] = ver[0x03] = NULL;
+            }
+        } return REDRAWVIEW;
+
+        case G3DMotionNotify : {
+            G3DMotionEvent *bev = ( G3DMotionEvent * ) event;
+
+            if ( bev->state & G3DButton1Mask ) {
+                /*** Selection rectangle ***/
+                ptool.coord[0x00] = bev->x;
+                ptool.coord[0x01] = VPX[0x03] - bev->y;
+                ptool.coord[0x02] = ptool.coord[0x00];
+                ptool.coord[0x03] = ptool.coord[0x01];
+
+                pick_Item ( &ptool, sce, cam, VIEWVERTEX );
 
                 if ( mes->lselver ) {
                     if ( ver[0x02] ) {
@@ -199,115 +315,103 @@ int bridge_tool  ( G3DMOUSETOOL *mou,
         } return REDRAWVIEW;
 
         case G3DButtonRelease : {
-            G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-            /*XButtonEvent *bev = ( G3DButtonEvent * ) event;*/
+            if ( ver[0x00] && ver[0x01] && 
+                 ver[0x02] && ver[0x03] ) {
+                /*** Must not be the same vertices ***/
+                if ( ( ( ver[0x00] != ver[0x02] ) && 
+                       ( ver[0x01] != ver[0x03] ) ) ||
+                     ( ( ver[0x00] != ver[0x03] ) && 
+                       ( ver[0x01] != ver[0x02] ) ) ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    G3DFACE *fac = NULL;
+                    G3DVERTEX *tmpver2 = ver[0x02],
+                              *tmpver3 = ver[0x03];
 
-            if ( obj ) {
-                if ( obj->type == G3DSPLINETYPE ) {
-                    if ( ver[0x00] && ver[0x01] ) {
-                        G3DSPLINEPOINT *pt[0x02] = { ver[0x00], ver[0x01] };
-                        /*** Must not be the same vertices ***/
-                        if ( pt[0x00] != pt[0x01] ) {
-                            if ( ( pt[0x00]->nbseg != 0x02 ) &&
-                                 ( pt[0x01]->nbseg != 0x02 ) ) { 
-                                G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-                                G3DCUBICSEGMENT *seg;
-
-                                seg = g3dcubicsegment_new ( ver[0x00],
-                                                            ver[0x01],
-                                                            0.0f, 0.0f, 0.0f,
-                                                            0.0f, 0.0f, 0.0f );
-
-                                g3durm_spline_addSegment ( urm,
-                                                           spline,
-                                                           seg,
-                                                           flags,
-                                                           REDRAWVIEW );
-                            }
-                        }
+                    /*** Triangle - ver[3] differs from the first 2 vertices ***/
+                    if ( ( ver[0x02] == ver[0x00] ) ||
+                         ( ver[0x02] == ver[0x01] ) ) {
+                        ver[0x02] = ver[0x03];
+                        ver[0x03] = NULL;
                     }
 
-                    ver[0x00] = ver[0x01] = ver[0x02] = ver[0x03] = NULL;
-                }
-
-                if ( obj->type == G3DMESHTYPE ) {
-                    if ( ver[0x00] && ver[0x01] && 
-                         ver[0x02] && ver[0x03] ) {
-                        /*** Must not be the same vertices ***/
-                        if ( ( ( ver[0x00] != ver[0x02] ) && 
-                               ( ver[0x01] != ver[0x03] ) ) ||
-                             ( ( ver[0x00] != ver[0x03] ) && 
-                               ( ver[0x01] != ver[0x02] ) ) ) {
-                            G3DMESH *mes = ( G3DMESH * ) obj;
-                            G3DFACE *fac = NULL;
-                            G3DVERTEX *tmpver2 = ver[0x02],
-                                      *tmpver3 = ver[0x03];
-
-                            /*** Triangle - ver[3] differs from the first 2 vertices ***/
-                            if ( ( ver[0x02] == ver[0x00] ) ||
-                                 ( ver[0x02] == ver[0x01] ) ) {
-                                ver[0x02] = ver[0x03];
-                                ver[0x03] = NULL;
-                            }
-
-                            /*** Triangle - ver[2] differs from the first 2 vertices ***/
-                            if ( ( ver[0x03] == ver[0x00] ) ||
-                                 ( ver[0x03] == ver[0x01] ) ) {
-                                ver[0x03] = NULL;
-                            }
-
-                            /*** if ver[0x03] != NULL, then we did not create any ***/ 
-                            /*** triangle. Then, create a QUAD ***/
-                            if ( ver[0x03] ) {
-                                fac = g3dquad_new ( ver[0x00], ver[0x01],
-                                                    ver[0x03], ver[0x02] );
-                            } else {
-                                fac = g3dtriangle_new ( ver[0x00], ver[0x01],
-                                                                   ver[0x02] );
-                            }
-
-                            g3dmesh_addFace ( mes, fac );
-
-                            if ( g3dface_checkOrientation ( fac ) ) {
-                                g3dface_invertNormal ( fac );
-                            }
-
-                            g3durm_mesh_createFace ( urm, mes, fac, REDRAWVIEW );
-
-                            /*** regenerate subdivision buffer ***/
-                            g3dmesh_update ( mes, NULL,
-                                                  NULL,
-                                                  NULL,
-                                                  UPDATEFACEPOSITION |
-                                                  UPDATEFACENORMAL   |
-                                                  UPDATEVERTEXNORMAL |
-                                                  RESETMODIFIERS, flags );
-
-                            /*** be ready for another bridging ***/
-                            ver[0x00] = tmpver2;
-                            ver[0x01] = tmpver3;
-
-                            ver[0x02] = NULL;
-                            ver[0x03] = NULL;
-
-                        /*** add this action to undo/redo stack ***/
-                        /*createFace_push ( urm, mes, fac );*/
-                        }
+                    /*** Triangle - ver[2] differs from the first 2 vertices ***/
+                    if ( ( ver[0x03] == ver[0x00] ) ||
+                         ( ver[0x03] == ver[0x01] ) ) {
+                        ver[0x03] = NULL;
                     }
+
+                    /*** if ver[0x03] != NULL, then we did not create any ***/ 
+                    /*** triangle. Then, create a QUAD ***/
+                    if ( ver[0x03] ) {
+                        fac = g3dquad_new ( ver[0x00], ver[0x01],
+                                            ver[0x03], ver[0x02] );
+                    } else {
+                        fac = g3dtriangle_new ( ver[0x00], ver[0x01],
+                                                           ver[0x02] );
+                    }
+
+                    g3dmesh_addFace ( mes, fac );
+
+                    if ( g3dface_checkOrientation ( fac ) ) {
+                        g3dface_invertNormal ( fac );
+                    }
+
+                    g3durm_mesh_createFace ( urm, mes, fac, REDRAWVIEW );
+
+                    /*** regenerate subdivision buffer ***/
+                    g3dmesh_update ( mes, NULL,
+                                          NULL,
+                                          NULL,
+                                          UPDATEFACEPOSITION |
+                                          UPDATEFACENORMAL   |
+                                          UPDATEVERTEXNORMAL |
+                                          RESETMODIFIERS, flags );
+
+                    /*** be ready for another bridging ***/
+                    ver[0x00] = tmpver2;
+                    ver[0x01] = tmpver3;
+
+                    ver[0x02] = NULL;
+                    ver[0x03] = NULL;
                 }
             }
 
             /*** end drawing ***/
-            cf->draw = 0x00;
-            cf->mes = NULL;
+            bt->draw = 0x00;
+            bt->obj = NULL;
         } return REDRAWVIEW;
 
         default :
         break;
     }
 
-    /*xold = event->xmotion.x;
-    yold = event->xmotion.y;*/
+    return FALSE;
+}
+
+/******************************************************************************/
+int bridge_tool  ( G3DMOUSETOOL *mou, 
+                   G3DSCENE     *sce, 
+                   G3DCAMERA    *cam,
+                   G3DURMANAGER *urm, 
+                   uint32_t      eflags,
+                   G3DEvent     *event ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ) {
+        if ( eflags & VIEWVERTEX ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                return bridge_mesh ( mes, mou, sce, cam, urm, eflags, event );
+            }
+
+            if ( obj->type & SPLINE ) {
+                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+
+                return bridge_spline ( obj, mou, sce, cam, urm, eflags, event );
+            }
+        }
+    }
 
     return FALSE;
 }

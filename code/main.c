@@ -132,7 +132,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_widget_show ( glossui );
 
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
-    gtk_window_resize    ( GTK_WINDOW ( window ), 640, 480 );
+    gtk_window_resize    ( GTK_WINDOW ( window ), 1024, 576 );
 
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 

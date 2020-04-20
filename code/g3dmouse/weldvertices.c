@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -46,6 +46,30 @@ uint32_t weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
         g3durm_mesh_weldSelectedVertices ( urm, mes, 0x01, 
                                                      engine_flags, REDRAWVIEW );
+
+        return REDRAWVIEW;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t weldneighbourvertices_init ( G3DMOUSETOOL *mou, 
+                                      G3DSCENE     *sce, 
+                                      G3DCAMERA    *cam,
+                                      G3DURMANAGER *urm, 
+                                      uint32_t engine_flags ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( ( obj ) && ( obj->type & MESH ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+
+        g3durm_mesh_weldNeighbourVertices ( urm, 
+                                            mes, 
+                                            0x01,
+                                            0.1f,
+                                            engine_flags,
+                                            REDRAWVIEW );
 
         return REDRAWVIEW;
     }

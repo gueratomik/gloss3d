@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -118,12 +118,11 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
     if ( parent ) {
         G3DSPLINE *spl    = ( G3DSPLINE * ) parent;
-        G3DMESH   *splmes = ( G3DMESH   * ) spl;
         G3DOBJECT *splobj = ( G3DOBJECT * ) spl;
         G3DMESH   *srvmes = ( G3DMESH   * ) srv;
         G3DOBJECT *srvobj = ( G3DOBJECT * ) srv;
 
-        uint32_t   nbSplineVertices = splmes->nbver - ( spl->curve->nbseg * 0x02 );
+        uint32_t   nbSplineVertices = spl->curve->nbpt;
         uint32_t   nbSplineSegments = spl->curve->nbseg;
         uint32_t   nbVerticesPerStep  = nbSplineVertices + ( nbSplineSegments * srv->nbdivis );
         uint32_t   nbRevolvedVertices = ( nbSplineVertices * srv->nbsteps ) + 
@@ -134,7 +133,6 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                                         ( nbSplineSegments * ( srv->nbdivis + 1 ) * srv->nbsteps );
 
         uint32_t   nbRevolvedFaces    = ( nbSplineSegments + ( srv->nbdivis * nbSplineSegments ) ) * ( srv->nbsteps );
-        LIST *ltmpver = splmes->lver;
         G3DSUBVERTEX *srvVertices;
         G3DSUBEDGE   *srvEdges;
         G3DSUBFACE   *srvFaces;
@@ -144,7 +142,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         uint32_t     uniqueVertexId = 0x00;
 
         if ( nbRevolvedVertices && nbRevolvedEdges && nbRevolvedFaces ) {
-            uint32_t nbuvmap = g3dmesh_getUVMapCount ( splmes );
+            /*uint32_t nbuvmap = g3dmesh_getUVMapCount ( splmes );*/
             /* 
              * The simpliest solution for finding edges is to go with a lookup 
              * table.
@@ -182,34 +180,23 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                 glGetDoublev ( GL_MODELVIEW_MATRIX, RMX );
                 glPopMatrix ( );
 
-                LIST *ltmpver = splmes->lver;
-                uint32_t vertexID = 0x00;
-                uint32_t handleID = nbSplineVertices;
-                while ( ltmpver ) {
-                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                LIST *ltmppt = spl->curve->lpt;
+                uint32_t ptID = 0x00;
+                while ( ltmppt ) {
+                    G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-                    if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
-                        uint32_t offset = ( i * nbSplineVertices ) + vertexID;
-                        G3DVECTOR  vertexLocalPos;
+                    uint32_t offset = ( i * nbSplineVertices ) + ptID;
+                    G3DVECTOR  ptLocalPos;
 
-                        g3dvector_matrix ( &ver->pos, srvobj->lmatrix, &vertexLocalPos );
-                        g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
+                    g3dvector_matrix ( &pt->pos, srvobj->lmatrix, &ptLocalPos );
+                    g3dvector_matrix ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
-                        srvVertices[offset].ver.id = uniqueVertexId++;
-                        srvVertices[offset].ver.flags |= VERTEXORIGINAL;
+                    srvVertices[offset].ver.id = uniqueVertexId++;
+                    srvVertices[offset].ver.flags |= VERTEXORIGINAL;
 
-                        ver->id = vertexID++;
-                    } else {
-                        /* 
-                         * ensure vertices have unique IDs, or else spline point
-                         * picking won't work vey well. We could also restore
-                         * vertices ID to their original values after shaping
-                         * the spline revolver. I guess it's faster this way.
-                         */
-                        ver->id = handleID++;
-                    }
+                    pt->id = ptID++;
 
-                    ltmpver = ltmpver->next;
+                    ltmppt = ltmppt->next;
                 }
 
                 LIST *ltmpseg = spl->curve->lseg;
@@ -223,15 +210,15 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                         uint32_t offset = ( nbSplineVertices * srv->nbsteps ) +
                                           ( nbSplineSegments * srv->nbdivis * i ) +
                                           ( segmentID        * srv->nbdivis ) + j;
-                        G3DVECTOR  vertexLocalPos;
-                        G3DVECTOR  verpos;
+                        G3DVECTOR  ptLocalPos;
+                        G3DVECTOR  ptpos;
 
-                        g3dcubicsegment_getPoint ( seg, factor, &verpos );
+                        g3dcubicsegment_getPoint ( seg, factor, &ptpos );
 
                         factor += incrementFactor;
 
-                        g3dvector_matrix ( &verpos, srvobj->lmatrix, &vertexLocalPos );
-                        g3dvector_matrix ( &vertexLocalPos, RMX, &srvVertices[offset].ver.pos );
+                        g3dvector_matrix ( &ptpos, srvobj->lmatrix, &ptLocalPos );
+                        g3dvector_matrix ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
                         srvVertices[offset].ver.id = uniqueVertexId++;
                         srvVertices[offset].ver.flags |= VERTEXORIGINAL;
@@ -352,7 +339,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
             /** bbox is needed for uvmap to map correctly */
             if ( doTopology ) {
-                if ( nbuvmap < SUBFACEUVSETBUFFER ) {
+                /*if ( nbuvmap < SUBFACEUVSETBUFFER ) {
                     LIST *ltmpuvmap = splmes->luvmap;
                     G3DUVSET *uvs;
 
@@ -379,7 +366,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                         ltmpuvmap = ltmpuvmap->next;
                     }
-                }
+                }*/
             }
 
             if ( edgeLookupTable ) free ( edgeLookupTable );
@@ -410,7 +397,7 @@ void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dmesh_modify_r ( (G3DMESH*)parent, engine_flags );
+        g3dobject_modify_r ( (G3DMESH*)parent, engine_flags );
     }
 }
 
@@ -421,7 +408,7 @@ void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dmesh_modify_r ( parent, engine_flags );
+        g3dobject_modify_r ( parent, engine_flags );
     }
 }
 
@@ -439,7 +426,7 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
 
     if ( srvobj->parent ) {
         G3DSPLINE *spl    = ( G3DSPLINE * ) srvobj->parent;
-        G3DMESH   *splmes = ( G3DMESH   * ) spl;
+        /*G3DMESH   *splmes = ( G3DMESH   * ) spl;*/
         G3DOBJECT *splobj = ( G3DOBJECT * ) spl;
 
         if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
@@ -490,7 +477,7 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
                              subfac[i].fac.ver[0x03]->pos.y, 
                              subfac[i].fac.ver[0x03]->pos.z );*/
                 g3dface_draw  ( &subfac[i].fac, srvmes->gouraudScalarLimit,
-                                                splmes->ltex, 
+                                                /*splmes->ltex*/NULL, 
                                                 0x00 /* object_flags */,
                                                 engine_flags );
             }

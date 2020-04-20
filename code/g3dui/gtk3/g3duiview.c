@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -234,6 +234,8 @@ void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
 
 
     g3dobject_updateMatrix_r ( objcam, gui->flags );
+
+    gtk_widget_queue_draw ( ggt->curogl );
 }
 
 /******************************************************************************/

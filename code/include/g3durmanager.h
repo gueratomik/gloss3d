@@ -93,7 +93,7 @@ typedef struct _URMWELDVERTICES {
     LIST *loldver;
     LIST *loldfac;
     LIST *lnewfac;
-    G3DVERTEX *newver;
+    LIST *lnewver;
 } URMWELDVERTICES;
 
 /******************************************************************************/
@@ -150,16 +150,42 @@ typedef struct _URMEXTRUDEMESH {
 } URMEXTRUDEMESH;
 
 /******************************************************************************/
-typedef struct _URMMOVEOBJECT {
-    G3DOBJECT *obj;
-    G3DVECTOR oldpos;
-    G3DVECTOR oldrot;
-    G3DVECTOR oldsca;
-    G3DVECTOR newpos;
-    G3DVECTOR newrot;
-    G3DVECTOR newsca;
-    uint32_t  axis_only;
-} URMMOVEOBJECT;
+#define UTOSAVETRANSLATION ( 1 << 0 )
+#define UTOSAVEROTATION    ( 1 << 1 )
+#define UTOSAVESCALING     ( 1 << 2 )
+#define UTOSAVEAXIS        ( 1 << 3 )
+
+#define UTOSAVESTATEBEFORE ( 0x01 )
+#define UTOSAVESTATEAFTER  ( 0x02 )
+
+typedef struct _URMTRANSFORMOBJECT {
+    LIST      *lobj;
+    G3DVECTOR *oldpos;
+    G3DVECTOR *oldrot;
+    G3DVECTOR *oldsca;
+    G3DVECTOR *newpos;
+    G3DVECTOR *newrot;
+    G3DVECTOR *newsca;
+    uint32_t   save_type;
+} URMTRANSFORMOBJECT;
+
+/******************************************************************************/
+#define UMPSAVESELECTEDPOINTS ( 1 << 0 )
+#define UMPSAVECURRENTHANDLE  ( 1 << 1 )
+
+#define UMPSAVESTATEBEFORE ( 0x01 )
+#define UMPSAVESTATEAFTER  ( 0x02 )
+
+typedef struct _URMMOVEPOINT {
+    G3DSPLINE     *spl;
+    LIST          *lpt;    /*** list of curve points ***/
+    G3DCURVEPOINT *curhan; /*** the current selected handle ***/
+    G3DVECTOR     *oldpos;
+    G3DVECTOR     *newpos;
+    G3DVECTOR      oldhanpos;
+    G3DVECTOR      newhanpos;
+    uint32_t       save_type;
+} URMMOVEPOINT;
 
 /******************************************************************************/
 typedef struct _URMSELECTITEM {
@@ -324,7 +350,7 @@ void g3durm_primitive_convert ( G3DURMANAGER *, G3DSCENE  *, uint32_t ,
 
 /******************************************************************************/
 URMWELDVERTICES *urmweldvertices_new ( G3DMESH *, LIST *, LIST *,
-                                                          LIST *, G3DVERTEX * );
+                                                          LIST *, LIST * );
 void urmweldvertices_free ( URMWELDVERTICES * );
 void weldVertices_redo ( G3DURMANAGER *, void *, uint32_t );
 void weldVertices_undo ( G3DURMANAGER *, void *, uint32_t );
@@ -332,6 +358,12 @@ void weldVertices_free ( void *, uint32_t );
 void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *, G3DMESH *, uint32_t,
                                                                    uint32_t,
                                                                    uint32_t );
+void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm, 
+                                         G3DMESH      *mes, 
+                                         uint32_t      type,
+                                         float         distance,
+                                         uint32_t engine_flags,
+                                         uint32_t return_flags );
 
 /******************************************************************************/
 URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *, 
@@ -373,22 +405,17 @@ void g3durm_mesh_extrude ( G3DURMANAGER *, G3DMESH *, LIST *,
                                                       G3DVECTOR *, uint32_t );
 
 /******************************************************************************/
-URMMOVEOBJECT *urmmoveobject_new ( G3DOBJECT *obj, G3DVECTOR *,
-                                                   G3DVECTOR *,
-                                                   G3DVECTOR *,
-                                                   G3DVECTOR *,
-                                                   G3DVECTOR *,
-                                                   G3DVECTOR *,
-                                                   uint32_t );
-void urmmoveobject_free ( URMMOVEOBJECT * );
-void moveObject_undo ( G3DURMANAGER *, void *, uint32_t );
-void moveObject_redo ( G3DURMANAGER *, void *, uint32_t );
-void moveObject_free ( void *, uint32_t );
-void g3durm_object_move ( G3DURMANAGER *, G3DOBJECT *, G3DVECTOR *,
-                                                       G3DVECTOR *,
-                                                       G3DVECTOR *, 
-                                                       uint32_t,
-                                                       uint32_t );
+URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
+                                             uint32_t   save_flags );
+void urmtransformobject_free ( URMTRANSFORMOBJECT *uto );
+void transformObject_free ( void *data, uint32_t commit );
+void transformObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags );
+void transformObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags );
+void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time );
+URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm, 
+                                              LIST         *lobj,
+                                              uint32_t      save_type,
+                                              uint32_t      return_flags );
 
 /******************************************************************************/
 URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *, LIST *, LIST * );
@@ -597,5 +624,16 @@ void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
                                             uint32_t      engine_flags,
                                             uint32_t      return_flags );
 
+/******************************************************************************/
+URMMOVEPOINT *g3durm_spline_movePoint ( G3DURMANAGER *urm,
+                                        G3DSPLINE    *spl,
+                                        uint32_t      save_type,
+                                        uint32_t      return_flags );
+void urmmovepoint_saveState ( URMMOVEPOINT *ump, uint32_t save_time );
+void movePoint_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void movePoint_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void movePoint_free ( void *data, uint32_t commit );
+void urmmovepoint_free ( URMMOVEPOINT *ump );
+URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
 
 #endif

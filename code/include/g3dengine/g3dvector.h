@@ -145,6 +145,9 @@ float g3dvector_length ( G3DVECTOR *vec );
  */
 float g3dvector_angle ( G3DVECTOR *v0, G3DVECTOR *v1 );
 
+
+void g3dvector_createTranslationMatrix ( G3DVECTOR *vec, double *MVX );
+
 #ifdef __cplusplus
 }
 #endif

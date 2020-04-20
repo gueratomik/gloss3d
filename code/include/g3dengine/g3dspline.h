@@ -73,7 +73,13 @@ G3DSPLINE *g3dspline_new ( uint32_t id,
                            char    *name, 
                            uint32_t type, 
                            uint32_t engine_flags );
-
+void g3dspline_update ( G3DSPLINE *spl,
+                        LIST      *lpt,
+                        uint32_t   update_flags,
+                        uint32_t   eflags );
+void g3dspline_moveAxis ( G3DSPLINE *spl, 
+                          double    *PREVMVX, /* previous world matrix */
+                          uint32_t   eflags );
 
 #ifdef __cplusplus
 }

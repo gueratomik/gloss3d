@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -38,7 +38,7 @@ void common_g3duipicktooledit_paintRadiusCbk ( G3DUI *gui, float radius ) {
     if ( mou ) {
         G3DPICKTOOL *pt = mou->data;
 
-        pt->paint_radius = radius;
+        pt->radius = radius;
     }
 }
 

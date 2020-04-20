@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -454,7 +454,7 @@ void common_g3dui_setFileName ( G3DUI *gui, const char *filename ) {
 }
 
 /******************************************************************************/
-G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
+void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
     LIST *limportExtensions = NULL;
     G3DIMPORTEXTENSION *r3dext, *g3duiext;
 
@@ -506,7 +506,7 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
 
             printf ( "...Done!\n" );
         } else {
-            return g3dscene_new ( 0x00, "Gloss3D scene" );
+            gui->sce = g3dscene_new ( 0x00, "Gloss3D scene" );
         }
     }
 
@@ -537,8 +537,6 @@ G3DSCENE *common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
     g3dimportextension_free ( r3dext   );
 
     list_free ( &limportExtensions, NULL );
-
-    return gui->sce;
 }
 
 /******************************************************************************/
@@ -820,15 +818,6 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    mou = g3dmousetool_new ( PAINTWEIGHTTOOL, 'x', extrude_xpm,
-                             paintWeight_init,
-                             NULL, paintWeight_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL |
-                                          MESHTOOL );
-
-    /********************************/
-
     /*mou = g3dmousetool_new ( SCULPTTOOL, 'x', extrude_xpm,
                              sculptTool_init,
                              NULL, sculpt_tool, 0x00 );
@@ -904,6 +893,16 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL | 
                                           MESHTOOL       |
                                           GLMENUTOOL );
+					  
+    /********************************/
+
+    mou = g3dmousetool_new ( WELDNEIGHBOURVERTICESTOOL, 'a', NULL,
+                             weldneighbourvertices_init,
+                             NULL, NULL, MOUSETOOLNOCURRENT );
+
+    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL | 
+                                          MESHTOOL       |
+                                          GLMENUTOOL );
 
     /********************************/
 
@@ -947,9 +946,9 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
                                                     g3dcamera_gridZX,
                                                     g3dcamera_gridYZ };
     G3DVECTOR campos[0x04] = { {  -4.851479f,   1.710646f,   4.851479f, 1.0f },
-                               {        0.0f,        0.0f,       15.0f, 1.0f },
-                               {        0.0f,       15.0f,        0.0f, 1.0f },
-                               {       15.0f,        0.0f,        0.0f, 1.0f } },
+                               {        0.0f,        0.0f,        5.0f, 1.0f },
+                               {        0.0f,        5.0f,        0.0f, 1.0f },
+                               {        5.0f,        0.0f,        0.0f, 1.0f } },
               camrot[0x04] = { { -19.422806f, -43.322395f, -13.599810f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                { -90.000000f,        0.0f,        0.0f, 1.0f },

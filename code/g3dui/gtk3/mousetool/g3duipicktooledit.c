@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -83,7 +83,7 @@ void updatePickToolWeightForm ( GtkWidget *widget, G3DUI *gui ) {
                 GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITPICKTOOLWEIGHTRADIUS ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, pt->paint_radius );
+                    gtk_spin_button_set_value ( sbn, pt->radius );
                 }
             }
 

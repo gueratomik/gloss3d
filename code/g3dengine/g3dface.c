@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -746,6 +746,34 @@ void g3dface_drawSimple  ( G3DFACE *fac, uint32_t object_flags,
 }
 
 /******************************************************************************/
+void g3dface_drawSkin ( G3DFACE *fac,
+                        uint32_t oflags,
+                        uint32_t eflags ) {
+    int i;
+
+    ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
+                             glBegin ( GL_TRIANGLES ); 
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        if ( fac->ver[i]->flags & VERTEXPAINTED ) {
+            glColor3f ( 1.0f, fac->ver[i]->weight, 0.0f );
+        } else {
+            glColor3f ( 1.0f, 0.0f          , 0.0f );
+        }
+
+        glNormal3fv ( ( float * ) &fac->ver[i]->nor );
+
+        if ( fac->ver[i]->flags & VERTEXSKINNED ) {
+            glVertex3fv ( ( float * ) &fac->ver[i]->skn );
+        } else {
+            glVertex3fv ( ( float * ) &fac->ver[i]->pos );
+        }
+    }
+
+    glEnd ( );
+}
+
+/******************************************************************************/
 void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
                                    LIST    *ltex, 
                                    uint32_t object_flags,
@@ -767,8 +795,7 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
         /*}*/
     }
 
-    if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && 
-         ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->luvs ) {
+    if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex && fac->luvs ) {
 
        nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, engine_flags );
     }
@@ -778,10 +805,6 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVERTEX *ver = fac->ver[i];
 
-        if ( engine_flags & VIEWSKIN     ) {
-            glColor3f ( 1.0f, ver->weight, 0.0f );
-        }
-
         if ( (   fac->flags & FACESELECTED   ) && 
              (   engine_flags & VIEWFACE     ) &&
              ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) ) {
@@ -789,8 +812,6 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
         } else {
             glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
         }
-
-        if ( engine_flags & VIEWSKIN ) glColor3f ( 1.0f, ver->weight, 0.0f );
 
         for ( j = 0x00; j < nbtex; j++ ) {
             #ifdef __linux__
@@ -844,359 +865,6 @@ void g3dface_drawTriangle  ( G3DFACE *fac,
                              uint32_t engine_flags ) {
     g3dface_draw ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
 }
-
-#ifdef unused
-/******************************************************************************/
-void g3dface_drawQuad  ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
-                                                   uint32_t engine_flags ) {
-    G3DVERTEX *v0 = fac->ver[0x00],
-              *v1 = fac->ver[0x01],
-              *v2 = fac->ver[0x02],
-              *v3 = fac->ver[0x03];
-    G3DVERTEX **ver = fac->ver;
-    G3DUVSET *uvs = ( fac->luvs ) ? ( G3DUVSET * ) fac->luvs->data : NULL;
-    uint32_t i;
-
-    if ( object_flags & MESHGEOMETRYONLY ) {
-        glBegin ( GL_QUADS );
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            if ( ver[i]->flags & VERTEXSKINNED ) {
-                glVertex3fv ( ( float * ) &ver[i]->skn );
-            } else {
-                glVertex3fv ( ( float * ) &ver[i]->pos );
-            }
-        }
-        glEnd ( );
-
-
-        return;
-    }
-
-
-if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
-     ( ( engine_flags & SELECTMODE    ) == 0x00 ) ) {
-    if ( engine_flags & VIEWSKIN ) {
-        glBegin ( GL_QUADS );
-
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            glColor3f ( 1.0f, ver[i]->weight, 0.0f );
-
-            glNormal3fv ( ( float * ) &ver[i]->nor );
-
-            if ( ver[i]->flags & VERTEXSKINNED ) {
-                glVertex3fv ( ( float * ) &ver[i]->skn );
-            } else {
-                glVertex3fv ( ( float * ) &ver[i]->pos );
-            }
-        }
-
-        glEnd ( );
-    } else {
-        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos;
-        G3DVECTOR *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
-        G3DVECTOR *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
-        G3DVECTOR *p3 = ( v3->flags & VERTEXSKINNED ) ? &v3->skn : &v3->pos;
-        static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
-
-        if ( ltex && fac->luvs && ( ( engine_flags & SELECTMODE ) == 0x00 ) ) {
-            uint32_t nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, engine_flags );
-
-            glBegin  ( GL_QUADS );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x00], 
-                                       texcoord[i].v[0x00] ); 
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x00], 
-                                                                           texcoord[i].v[0x00] ); 
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v0->nor );
-            glVertex3fv  ( ( float * ) p0 );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x01], 
-                                       texcoord[i].v[0x01] );
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x01], 
-                                                                           texcoord[i].v[0x01] );
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v1->nor );
-            glVertex3fv  ( ( float * ) p1 );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x02], 
-                                       texcoord[i].v[0x02] );
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x02], 
-                                                                           texcoord[i].v[0x02] );
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v2->nor );
-            glVertex3fv  ( ( float * ) p2 );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x03], 
-                                       texcoord[i].v[0x03] ); 
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x03], 
-                                                                           texcoord[i].v[0x03] ); 
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v3->nor );
-            glVertex3fv  ( ( float * ) p3 );
-
-            glEnd ( );
-
-            g3dface_unbindMaterials ( fac, ltex, engine_flags );
-        } else {
-            if ( ( fac->flags & FACESELECTED ) && 
-                 ( engine_flags & VIEWFACE   ) &&
-                 ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) ) {
-                glColor3ub ( 0xFF, 0x7F, 0x00 );
-            } else {
-                glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
-            }
-
-            glBegin ( GL_QUADS );
-
-            glNormal3fv  ( ( float * ) &v0->nor );
-            glVertex3fv  ( ( float * ) p0 );
-
-            glNormal3fv  ( ( float * ) &v1->nor );
-            glVertex3fv  ( ( float * ) p1 );
-
-            glNormal3fv  ( ( float * ) &v2->nor );
-            glVertex3fv  ( ( float * ) p2 );
-
-            glNormal3fv  ( ( float * ) &v3->nor );
-            glVertex3fv  ( ( float * ) p3 );
-
-            glEnd ( );
-        }
-    }
-}
-
-    /*** Draw edges in subdivided mode ***/
-    if ( ( ( engine_flags & SELECTMODE   ) == 0x00 ) &&
-         ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&
-           ( fac->flags & FACEDRAWVERTICES ) ) {
-        glPushAttrib ( GL_ALL_ATTRIB_BITS );
-        glDisable ( GL_LIGHTING );
-        glPointSize ( 4.0f );
-
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            G3DVERTEX *v0 = fac->ver[i];
-            G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos;
-
-            if ( fac->ver[i]->flags & VERTEXORIGINAL ) {
-                if ( ( fac->ver[i]->flags & VERTEXSELECTED ) &&
-                     ( engine_flags       & VIEWVERTEX     ) ) {
-                    glColor3ub ( 0xFF, 0x00, 0x00 );
-                } else {
-                    glColor3ub ( 0x00, 0x00, 0xFF );
-                }
-
-                if ( engine_flags & SELECTMODE ) glLoadName ( ( GLint ) v0->id );
-                glBegin ( GL_POINTS );
-                glVertex3fv ( ( float * ) p0 );
-                glEnd ( );
-            }
-        }
-
-        glPopAttrib ( );
-    }
-
-    /*** NOT NEED FOR TRIANGLES, THUS ABSENT FROM g3dface_drawTriangle() ***/
-
-    /*** Draw edges in subdivided mode ***/
-    if ( ( ( engine_flags & SELECTMODE   ) == 0x00 ) &&
-         ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&
-           ( fac->flags & FACEDRAWEDGES ) ) {
-        glPushAttrib ( GL_ALL_ATTRIB_BITS );
-        glDisable ( GL_LIGHTING );
-
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            G3DEDGE *edg = fac->edg[i];
-            G3DVERTEX *v0 = edg->ver[0x00],
-                      *v1 = edg->ver[0x01];
-            G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                      *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
-
-            if ( edg->flags & EDGEORIGINAL ) {
-                if ( ( fac->edg[i]->flags & EDGESELECTED ) &&
-                     ( engine_flags       & VIEWEDGE     ) ) {
-                    glColor3ub ( 0xFF, 0x7F, 0x00 );
-                } else {
-                    glColor3ub ( 0x00, 0x7F, 0xFF );
-                }
-
-                if ( engine_flags & SELECTMODE ) glLoadName ( ( GLint ) edg->id );
-
-                glBegin ( GL_LINES );
-                glVertex3fv ( ( float * ) p0 );
-                glVertex3fv ( ( float * ) p1 );
-                glEnd ( );
-            }
-        }
-
-        glPopAttrib ( );
-    }
-}
-
-/******************************************************************************/
-void g3dface_drawTriangle ( G3DFACE *fac, LIST *ltex, uint32_t object_flags,
-                                                      uint32_t engine_flags ) {
-    G3DVERTEX *v0 = fac->ver[0x00],
-              *v1 = fac->ver[0x01],
-              *v2 = fac->ver[0x02];
-    G3DVERTEX **ver = fac->ver;
-    /*G3DMATERIAL *mat = fac->mat;*/
-    G3DUVSET *uvs = ( fac->luvs ) ? ( G3DUVSET * ) fac->luvs->data : NULL;
-    uint32_t i;
-
-    if ( object_flags & MESHGEOMETRYONLY ) {
-        glBegin ( GL_TRIANGLES );
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            if ( ver[i]->flags & VERTEXSKINNED ) {
-                glVertex3fv ( ( float * ) &ver[i]->skn );
-            } else {
-                glVertex3fv ( ( float * ) &ver[i]->pos );
-            }
-        }
-        glEnd ( );
-
-
-        return;
-    }
-
-if ( ( ( engine_flags & NODRAWPOLYGON ) == 0x00 ) &&
-     ( ( engine_flags & SELECTMODE    ) == 0x00 ) ) {
-    if ( engine_flags & VIEWSKIN ) {
-        glBegin ( GL_TRIANGLES );
-
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            if ( ver[i]->flags & VERTEXPAINTED ) {
-                glColor3f ( 1.0f, ver[i]->weight, 0.0f );
-            } else {
-                glColor3f ( 1.0f, 0.0f          , 0.0f );
-            }
-
-            glNormal3fv ( ( float * ) &ver[i]->nor );
-
-            if ( ver[i]->flags & VERTEXSKINNED ) {
-                glVertex3fv ( ( float * ) &ver[i]->skn );
-            } else {
-                glVertex3fv ( ( float * ) &ver[i]->pos );
-            }
-        }
-
-        glEnd ( );
-    } else {
-        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos;
-        G3DVECTOR *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
-        G3DVECTOR *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
-        static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
-
-        if ( ltex && fac->luvs && ( ( engine_flags & SELECTMODE ) == 0x00 ) ) {
-            uint32_t nbtex = g3dface_bindMaterials ( fac, ltex,
-                                                          texcoord,
-                                                          engine_flags );
-
-            glBegin ( GL_TRIANGLES );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x00], 
-                                       texcoord[i].v[0x00] ); 
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x00], 
-                                                                           texcoord[i].v[0x00] ); 
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v0->nor );
-            glVertex3fv  ( ( float * ) p0 );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x01], 
-                                       texcoord[i].v[0x01] );
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x01], 
-                                                                           texcoord[i].v[0x01] );
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v1->nor );
-            glVertex3fv  ( ( float * ) p1 );
-
-            for ( i = 0x00; i < nbtex; i++ ) {
-                #ifdef __linux__
-                glMultiTexCoord2fARB ( texcoord[i].tid,
-                                       texcoord[i].u[0x02], 
-                                       texcoord[i].v[0x02] );
-                #endif
-                #ifdef __MINGW32__
-                if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[i].tid,
-                                                                           texcoord[i].u[0x02], 
-                                                                           texcoord[i].v[0x02] );
-                #endif
-            }
-            glNormal3fv  ( ( float * ) &v2->nor );
-            glVertex3fv  ( ( float * ) p2 );
-
-            glEnd ( );
-
-            g3dface_unbindMaterials ( fac, ltex, engine_flags );
-        } else {
-            if ( ( fac->flags & FACESELECTED ) && 
-                 ( engine_flags & VIEWFACE   ) &&
-                 ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) ) {
-                glColor3ub ( 0xFF, 0x7F, 0x00 );
-            } else {
-                glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
-            }
-
-            glBegin ( GL_TRIANGLES );
-
-            glNormal3fv  ( ( float * ) &v0->nor );
-            glVertex3fv  ( ( float * ) p0 );
-
-            glNormal3fv  ( ( float * ) &v1->nor );
-            glVertex3fv  ( ( float * ) p1 );
-
-            glNormal3fv  ( ( float * ) &v2->nor );
-            glVertex3fv  ( ( float * ) p2 );
-
-            glEnd ( );
-        }
-    }
-}
-
-}
-#endif
 
 /******************************************************************************/
 void g3dface_drawQuadList ( LIST    *lqua,

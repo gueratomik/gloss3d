@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -336,4 +336,27 @@ G3DVECTOR *g3dvector_new ( float x, float y, float z, float w ) {
 
 
     return vec;
+}
+
+/******************************************************************************/
+void g3dvector_createTranslationMatrix ( G3DVECTOR *vec, double *MVX ) {
+    MVX[0x00] = 1.0f;
+    MVX[0x01] = 0.0f;
+    MVX[0x02] = 0.0f;
+    MVX[0x03] = 0.0f;
+
+    MVX[0x04] = 0.0f;
+    MVX[0x05] = 1.0f;
+    MVX[0x06] = 0.0f;
+    MVX[0x07] = 0.0f;
+
+    MVX[0x08] = 0.0f;
+    MVX[0x09] = 0.0f;
+    MVX[0x0A] = 1.0f;
+    MVX[0x0B] = 0.0f;
+
+    MVX[0x0C] = vec->x;
+    MVX[0x0D] = vec->y;
+    MVX[0x0E] = vec->z;
+    MVX[0x0F] = 1.0f;
 }

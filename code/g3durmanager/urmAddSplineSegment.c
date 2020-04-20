@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -76,11 +76,7 @@ void addSplineSegment_undo ( G3DURMANAGER *urm,
     g3dcurve_removeSegment ( ass->spline->curve, ass->seg );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( ass->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );
+    g3dspline_update ( ass->spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -92,11 +88,7 @@ void addSplineSegment_redo ( G3DURMANAGER *urm,
     g3dcurve_addSegment ( ass->spline->curve, ass->seg );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( ass->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );
+    g3dspline_update ( ass->spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -113,10 +105,7 @@ void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
     g3dcurvepoint_roundCubicSegments ( seg->pt[0x01] );
 
     /*** Rebuild the spline modifiers ***/
-    g3dmesh_update ( spline, NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 
     /* remember it for undoing */
     ass = urmAddSplineSegment_new ( spline, seg );

@@ -39,30 +39,31 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-#define PICKTOOL             "Pick"
-#define SCULPTTOOL           "Sculpt"
-#define SMOOTHTOOL           "Smooth"
-#define MOVETOOL             "Move"
-#define ROTATETOOL           "Rotate"
-#define SCALETOOL            "Scale"
-#define EXTRUDETOOL          "Extrude"
-#define EXTRUDINNERTOOL      "Extrude Inner"
-#define CREATESPHERETOOL     "Create Sphere"
-#define CREATECUBETOOL       "Create Cube"
-#define CREATECYLINDERTOOL   "Create Cylinder"
-#define CREATETORUSTOOL      "Create Torus"
-#define CREATEBONETOOL       "Create Bone"
-#define CREATEPLANETOOL      "Create Plane"
-#define CUTMESHTOOL          "Cutter"
-#define ADDVERTEXTOOL        "Add Vertex"
-#define REVERTSPLINETOOL     "Revert Spline"
-#define BRIDGETOOL           "Bridge"
-#define PAINTWEIGHTTOOL      "Paint Weight"
-#define UNTRIANGULATETOOL    "Untriangulate"
-#define TRIANGULATETOOL      "Triangulate"
-#define WELDVERTICESTOOL     "Weld Vertices"
-#define INVERTNORMALTOOL     "Invert Normal"
-#define ROUNDSPLINEPOINTTOOL "Round selection"
+#define PICKTOOL                     "Pick"
+#define SCULPTTOOL                   "Sculpt"
+#define SMOOTHTOOL                   "Smooth"
+#define MOVETOOL                     "Move"
+#define ROTATETOOL                   "Rotate"
+#define SCALETOOL                    "Scale"
+#define EXTRUDETOOL                  "Extrude"
+#define EXTRUDINNERTOOL              "Extrude Inner"
+#define CREATESPHERETOOL             "Create Sphere"
+#define CREATECUBETOOL               "Create Cube"
+#define CREATECYLINDERTOOL           "Create Cylinder"
+#define CREATETORUSTOOL              "Create Torus"
+#define CREATEBONETOOL               "Create Bone"
+#define CREATEPLANETOOL              "Create Plane"
+#define CUTMESHTOOL                  "Cutter"
+#define ADDVERTEXTOOL                "Add Vertex"
+#define REVERTSPLINETOOL             "Revert Spline"
+#define BRIDGETOOL                   "Bridge"
+#define PAINTWEIGHTTOOL              "Paint Weight"
+#define UNTRIANGULATETOOL            "Untriangulate"
+#define TRIANGULATETOOL              "Triangulate"
+#define WELDVERTICESTOOL             "Weld vertices"
+#define WELDNEIGHBOURVERTICESTOOL    "Weld neighbour vertices"
+#define INVERTNORMALTOOL             "Invert Normal"
+#define ROUNDSPLINEPOINTTOOL         "Round selection"
 
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
@@ -148,9 +149,10 @@ typedef struct _G3DMOUSETOOL {
 
 /******************************************************************************/
 typedef struct _G3DBRIDGETOOL {
-    uint32_t draw; /*** true or false ***/
-    G3DVERTEX *ver[0x04];
-    G3DMESH *mes; /*** the mesh that gest the new face ****/
+    uint32_t      draw; /*** true or false ***/
+    G3DVERTEX    *ver[0x04];
+    G3DCURVEPOINT *pt[0x02];
+    G3DOBJECT     *obj; /*** the mesh that gest the new face ****/
 } G3DBRIDGETOOL;
 
 /******************************************************************************/
@@ -170,7 +172,9 @@ typedef struct G3DPICKTOOL {
     uint32_t only_visible; /*** true or false                      ***/
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
-    uint32_t paint_radius;
+    uint32_t radius;
+    uint32_t    unselectFirst;
+    uint32_t    unselectIfSelected;
 } G3DPICKTOOL;
 
 /******************************************************************************/
@@ -306,10 +310,14 @@ int             pick_tool         ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
                                                                 uint32_t,
                                                                 G3DEvent * );
-void            pick_Item         ( G3DPICKTOOL *, G3DOBJECT *, G3DCAMERA *, 
-                                                                int32_t *,
-                                                                uint32_t,
-                                                                uint32_t );
+void pick_Item ( G3DPICKTOOL *pt, 
+                 G3DSCENE   *sce, 
+                 G3DCAMERA  *cam,
+                 uint32_t    flags );
+void pick_cursor ( G3DPICKTOOL *pt, 
+                   G3DSCENE   *sce, 
+                   G3DCAMERA  *cam,
+                   uint32_t    eflags );
 
 /******************************************************************************/
 G3DEXTRUDEFACE *extrudeFace_new   ( );
@@ -358,6 +366,11 @@ uint32_t triangulate_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
 
 /******************************************************************************/
 uint32_t weldvertices_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
+                                                         G3DURMANAGER *, 
+                                                         uint32_t );
+
+/******************************************************************************/
+uint32_t weldneighbourvertices_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
                                                          G3DURMANAGER *, 
                                                          uint32_t );
 

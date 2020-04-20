@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -102,10 +102,7 @@ void deleteSplinePoints_undo ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dmesh_update ( spline, NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -136,10 +133,7 @@ void deleteSplinePoints_redo ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dmesh_update ( spline, NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -157,10 +151,7 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                              engine_flags );
 
     /*** Rebuild the spline modifiers ***/
-    g3dmesh_update ( spline, NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
 
     dsp = urmDeleteSplinePoints_new ( spline, 
                                       lremovedPoints, 
