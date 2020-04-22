@@ -42,6 +42,8 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dplane.c \
                       g3dprimitive.c \
                       g3dprocedural.c \
+                      g3dproceduralbrick.c \
+                      g3dproceduralchessboard.c \
                       g3dproceduralnoise.c \
                       g3dquaternion.c \
                       g3drgba.c \

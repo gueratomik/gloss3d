@@ -241,8 +241,7 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
         }
 
         if ( uvmap ) {
-             LIST *ltmpfac = ( uvmap->facgrp ) ? uvmap->facgrp->lfac :
-                                                 mes->lfac;
+             LIST *ltmpfac = mes->lfac;
 
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;

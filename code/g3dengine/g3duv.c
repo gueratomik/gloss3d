@@ -244,67 +244,219 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
 }
 
 /******************************************************************************/
+void g3duvmap_getSphericalUV ( G3DUVMAP  *map, 
+                               G3DMESH   *mes, 
+                               G3DVECTOR *lpos,
+                               float     *u, 
+                               float     *v ) {
+    G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
+    G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
+    G3DVECTOR verWldPos; /*** position in mesh world coordinates ***/
+    G3DVECTOR verLocPos; /*** position in map  local coordinates ***/
+    G3DVECTOR nor;
+
+    g3dvector_matrix ( lpos      , parent->wmatrix , &verWldPos );
+    g3dvector_matrix ( &verWldPos, objmap->iwmatrix, &verLocPos );
+
+    g3dvector_normalize ( &verLocPos, NULL );
+
+
+    verLocPos.x = ( float ) ( ( int ) ( verLocPos.x * 10000 ) ) / 10000;
+    verLocPos.y = ( float ) ( ( int ) ( verLocPos.y * 10000 ) ) / 10000;
+    verLocPos.z = ( float ) ( ( int ) ( verLocPos.z * 10000 ) ) / 10000;
+
+
+    /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
+/*
+    printf("atan2: %f - z:%f, x:%f\n", atan2f( verLocPos.z, verLocPos.x ), verLocPos.z, verLocPos.x );
+*/
+    (*u) =   ( atan2f ( verLocPos.z, verLocPos.x ) / ( 2.0f * M_PI ) ) + 0.5f;
+    (*v) = - ( asin  ( verLocPos.y )              / ( M_PI        ) ) + 0.5f;
+
+    /*** for some unknown reason, printf prints 1.0f even if (*u) does not ***/
+    /*** match the condition below when comparing to 1.0f. So I compare to ***/
+    /*** 0.99999999f ***/
+    /*if ( (*u) >= 0.999f ) (*u) = 0.0f;
+    if ( (*v) >= 0.999f ) (*v) = 0.0f;*/
+
+    /*g3dvector_print (  lpos );*/
+/*    g3dvector_print ( &verLocPos );
+    printf("u:%f v:%f\n\n", (*u), (*v));*/
+/*
+    if ( uvs->veruv[i].u < 0.0f ) uvs->veruv[i].u = 0.0f;
+    if ( uvs->veruv[i].u > 1.0f ) uvs->veruv[i].u = 1.0f;
+    if ( uvs->veruv[i].v < 0.0f ) uvs->veruv[i].v = 0.0f;
+    if ( uvs->veruv[i].v > 1.0f ) uvs->veruv[i].v = 1.0f; */
+
+/*printf("U: %f V:%f\n", uvs->veruv[i].u, uvs->veruv[i].v );*/
+}
+
+/******************************************************************************/
+void g3duvmap_getCylindricalUV ( G3DUVMAP  *map, 
+                                 G3DMESH   *mes, 
+                                 G3DVECTOR *lpos,
+                                 float     *u, 
+                                 float     *v ) {
+    float xdiameter = map->pln.xradius * 2.0f,
+          ydiameter = map->pln.yradius * 2.0f;
+    G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
+    G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
+    G3DVECTOR wpos; /*** position in mesh world coordinates ***/
+    G3DVECTOR mpos; /*** position in map  local coordinates ***/
+
+    g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
+    g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
+
+    g3dvector_normalize ( &mpos, NULL );
+
+    /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
+    (*u) = ( atan2f( mpos.z, mpos.x ) / ( 2.0f * M_PI ) ) + 0.5f;
+    (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;
+}
+
+/******************************************************************************/
+void g3duvmap_getFlatUV ( G3DUVMAP  *map, 
+                          G3DMESH   *mes, 
+                          G3DVECTOR *lpos,
+                          float     *u, 
+                          float     *v ) {
+    float xdiameter = map->pln.xradius * 2.0f,
+          ydiameter = map->pln.yradius * 2.0f;
+    G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
+    G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
+    G3DVECTOR wpos; /*** position in mesh world coordinates ***/
+    G3DVECTOR mpos; /*** position in map  local coordinates ***/
+
+    g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
+    g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
+
+    (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
+    (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;
+}
+
+/******************************************************************************/
 void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
     G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
-    float xdiameter = map->pln.xradius * 2.0f,
-          ydiameter = map->pln.yradius * 2.0f;
     uint32_t i;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVERTEX *ver = fac->ver[i];
-        G3DVECTOR verwpos;
-        G3DVECTOR locpos;
-
-        /*** convert vector position to uvwmap coordinates system ***/
-        g3dvector_matrix ( &ver->pos, parent->wmatrix, &verwpos );
-
-        g3dvector_matrix ( &verwpos , objmap->iwmatrix, &locpos );
 
         switch ( map->projection ) {
             case UVMAPSPHERICAL : {
-                G3DVECTOR locnor;
-
-                memcpy ( &locnor, &locpos, sizeof ( G3DVECTOR ) );
-
-                g3dvector_normalize ( &locnor, NULL );
-
-                /*locnor.x = -locnor.x;
-                locnor.y = -locnor.y;
-                locnor.z = -locnor.z;*/
-
-/*printf("%f %f %f\n", locnor.x, locnor.y, locnor.z );*/
-                /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
-                uvs->veruv[i].u =   ( atan2f( locnor.z, locnor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
-                uvs->veruv[i].v = - ( asin  ( locnor.y )           / ( M_PI        ) ) + 0.5f;
-
-
-                if ( uvs->veruv[i].u < 0.0f ) uvs->veruv[i].u = 0.0f;
-                if ( uvs->veruv[i].u > 1.0f ) uvs->veruv[i].u = 1.0f;
-                if ( uvs->veruv[i].v < 0.0f ) uvs->veruv[i].v = 0.0f;
-                if ( uvs->veruv[i].v > 1.0f ) uvs->veruv[i].v = 1.0f;
-
-/*printf("U: %f V:%f\n", uvs->veruv[i].u, uvs->veruv[i].v );*/
+                g3duvmap_getSphericalUV ( map, 
+                                          mes, 
+                                         &ver->pos,
+                                         &uvs->veruv[i].u,
+                                         &uvs->veruv[i].v );
             } break;
 
             case UVMAPCYLINDRICAL : {
-                G3DVECTOR locnor;
-
-                memcpy ( &locnor, &locpos, sizeof ( G3DVECTOR ) );
-
-                g3dvector_normalize ( &locnor, NULL );
-
-                /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
-                uvs->veruv[i].u = ( atan2f( locnor.z, locnor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
-                uvs->veruv[i].v = ( locpos.y + map->pln.yradius ) / ydiameter;
+                g3duvmap_getCylindricalUV ( map, 
+                                            mes, 
+                                           &ver->pos,
+                                           &uvs->veruv[i].u,
+                                           &uvs->veruv[i].v );
             } break;
 
             case UVMAPFLAT :
             default :
-                uvs->veruv[i].u = ( locpos.x + map->pln.xradius ) / xdiameter;
-                uvs->veruv[i].v = ( locpos.y + map->pln.yradius ) / ydiameter;
+                g3duvmap_getFlatUV ( map, 
+                                     mes, 
+                                    &ver->pos,
+                                    &uvs->veruv[i].u,
+                                    &uvs->veruv[i].v );
             break;
+        }
+    }
+
+    if ( map->projection == UVMAPSPHERICAL ) {
+        float avgu = ( uvs->veruv[0].u + uvs->veruv[1].u + 
+                       uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver;
+        float avgv = ( uvs->veruv[0].v + uvs->veruv[1].v + 
+                       uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver;
+        float facu, facv;
+
+        g3duvmap_getSphericalUV ( map, mes, &fac->pos, &facu, &facv );
+
+        /*** face center U coord should match the avergae U coord of all ***/
+        /*** vertices. If that's not the case, we are in a situation of ***/
+        /*** spherical coordinates distorsion. We have to correct it by ***/
+        /*** looking for the right match. ***/
+        if ( fabs ( facu - avgu ) > 0.1f ) {
+            G3DUV *uv = uvs->veruv;
+            float testu[0x04][0x02] = { { uv[0].u, 1.0f - uv[0].u },
+                                        { uv[1].u, 1.0f - uv[1].u },
+                                        { uv[2].u, 1.0f - uv[2].u },
+                                        { uv[3].u, 1.0f - uv[3].u } };
+            float bestMatch = 1.0f;
+            int j, k, l;
+
+            for ( i = 0x00; i < 0x02; i++ ) {
+                for ( j = 0x00; j < 0x02; j++ ) {
+                    for ( k = 0x00; k < 0x02; k++ ) {
+                        for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                            float testavgu =  ( testu[0][i] +
+                                                testu[1][j] + 
+                                                testu[2][k] + 
+                                                testu[3][l] ) / fac->nbver;
+                            float match = fabs ( facu - testavgu );
+
+                            /*** find a candidate that matches closely ***/
+                            /*** the face U  coordinates ***/
+                            if ( match < bestMatch ) {
+                                uvs->veruv[0].u = testu[0][i];
+                                uvs->veruv[1].u = testu[1][j];
+                                uvs->veruv[2].u = testu[2][k];
+                                uvs->veruv[3].u = testu[3][l];
+
+                                bestMatch = match;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*** face center V coord should match the avergae V coord of all ***/
+        /*** vertices. If that's not the case, we are in a situation of ***/
+        /*** spherical coordinates distorsion. We have to correct it by ***/
+        /*** looking for the right match. ***/
+        if ( fabs ( facv - avgv ) > 0.1f ) {
+            G3DUV *uv = uvs->veruv;
+            float testv[0x04][0x02] = { { uv[0].v, 1.0f - uv[0].v },
+                                        { uv[1].v, 1.0f - uv[1].v },
+                                        { uv[2].v, 1.0f - uv[2].v },
+                                        { uv[3].v, 1.0f - uv[3].v } };
+            float bestMatch = 1.0f;
+            int j, k, l;
+
+            for ( i = 0x00; i < 0x02; i++ ) {
+                for ( j = 0x00; j < 0x02; j++ ) {
+                    for ( k = 0x00; k < 0x02; k++ ) {
+                        for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                            float testavgv =  ( testv[0][i] +
+                                                testv[1][j] + 
+                                                testv[2][k] + 
+                                                testv[3][l] ) / fac->nbver;
+                            float match = fabs ( facv - testavgv );
+
+                            /*** find a candidate that matches closely ***/
+                            /*** the face V  coordinates ***/
+                            if ( match < bestMatch ) {
+                                uvs->veruv[0].v = testv[0][i];
+                                uvs->veruv[1].v = testv[1][j];
+                                uvs->veruv[2].v = testv[2][k];
+                                uvs->veruv[3].v = testv[3][l];
+
+                                bestMatch = match;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -334,33 +486,17 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
     G3DMESH   *parmes  = mes;
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
+    LIST *ltmpfac = parmes->lfac;
 
-    if ( map->facgrp ) {
-        LIST *ltmpfac = map->facgrp->lfac;
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) _GETFACE(parmes,ltmpfac);
 
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-            /*** This function assigns a UVSet to the face if needed and ***/
-            /*** maps the UV coordinates to the face ***/
-            g3duvmap_insertFace ( map, mes, fac );
+        /*** This function assigns a UVSet to the face if needed and ***/
+        /*** maps the UV coordinates to the face ***/
+        g3duvmap_insertFace ( map, mes, fac );
 
 
-            ltmpfac = ltmpfac->next;
-        }
-    } else {
-        LIST *ltmpfac = parmes->lfac;
-
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) _GETFACE(parmes,ltmpfac);
-
-            /*** This function assigns a UVSet to the face if needed and ***/
-            /*** maps the UV coordinates to the face ***/
-            g3duvmap_insertFace ( map, mes, fac );
-
-
-            _NEXTFACE(parmes,ltmpfac);
-        }
+        _NEXTFACE(parmes,ltmpfac);
     }
 }
 

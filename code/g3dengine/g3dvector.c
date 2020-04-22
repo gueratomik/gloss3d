@@ -234,7 +234,7 @@ float g3dvector_length ( G3DVECTOR *vec ) {
                 ( vec->y * vec->y ) +
                 ( vec->z * vec->z );
 
-    if ( ( len < NORMMAX ) && ( len > NORMMIN ) ) return 1.0f;
+    /*if ( ( len < NORMMAX ) && ( len > NORMMIN ) ) return 1.0f;*/
 
 /** commented out: not accurate enough for spline point rounding. ***/
 /** must be made optional ***/
@@ -287,8 +287,6 @@ void g3dvector_normalize ( G3DVECTOR *vec, float *len ) {
     float LEN = g3dvector_length ( vec );
 
     if ( len ) (*len) = LEN;
-
-    if ( LEN == 1.0f ) return;
 
     if ( LEN ) {
         vec->x = vec->x / LEN;

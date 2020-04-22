@@ -741,6 +741,14 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_toggle_button_set_active ( tbn, FALSE );
                     }
                 }
+
+                if ( strcmp ( child_name, EDITDIFFUSEPROCEDURAL ) == 0x00 ) {
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
             }
 
             if ( GTK_IS_COLOR_BUTTON ( child ) ) {

@@ -90,12 +90,12 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
 
     /*** first vertex ***/
     capver[0x00] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
-    g3dvector_init    ( &capver[0x00]->nor, 0.0f, 0.0f,  1.0f, 1.0f );
+    g3dvector_init    ( &capver[0x00]->nor, 0.0f,  1.0f, 0.0f, 1.0f );
     g3dmesh_addVertex ( mes, capver[0x00] );
 
     /*** last vertex ***/
     capver[0x01] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
-    g3dvector_init    ( &capver[0x01]->nor, 0.0f, 0.0f, -1.0f, 1.0f );
+    g3dvector_init    ( &capver[0x01]->nor, 0.0f, -1.0f, 0.0f, 1.0f );
     g3dmesh_addVertex ( mes, capver[0x01] );
 
     /*** Vertices creation ***/
@@ -109,9 +109,9 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
             float cossliacc = cos ( sliacc ),
                   sinsliacc = sin ( sliacc );
 
-            g3dvector_init ( &nor, ( cossliacc * sincapacc ),
-                                   ( sinsliacc * sincapacc ),
-                                   ( coscapacc             ), 1.0f );
+            g3dvector_init ( &nor, ( sinsliacc * sincapacc ),
+                                   ( coscapacc             ),
+                                   ( cossliacc * sincapacc ), 1.0f );
 
             bdyver[vid] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
             g3dvector_init    ( &bdyver[vid]->nor, nor.x, nor.y, nor.z, 1.0f );

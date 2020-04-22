@@ -54,7 +54,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                 g3dmesh_selectUVMap ( mes, map );
             }
 
-            g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, NULL, map );
+            g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, map );
 
             g3dmesh_update ( mes, 
                              NULL,

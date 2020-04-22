@@ -281,8 +281,16 @@ void common_g3dui_materialProceduralCbk ( G3DUI *gui, const char *procType,
         if ( procRes ) sscanf ( procRes, "%dx%d", &resX, &resY );
 
         if ( procType ) {
-            if ( strcmp ( procType, PERLINNOISE ) == 0x00 ) {
+            if ( strcmp ( procType, PROCPERLINNOISE ) == 0x00 ) {
                 proc = g3dproceduralnoise_new ( );
+            }
+
+            if ( strcmp ( procType, PROCCHESSBOARD ) == 0x00 ) {
+                proc = g3dproceduralchessboard_new ( );
+            }
+
+            if ( strcmp ( procType, PROCBRICK ) == 0x00 ) {
+                proc = g3dproceduralbrick_new ( );
             }
         }
 
@@ -327,7 +335,7 @@ void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,
         if ( procRes ) sscanf ( procRes, "%dx%d", &resX, &resY );
 
         if ( procType ) {
-            if ( strcmp ( procType, PERLINNOISE ) == 0x00 ) {
+            if ( strcmp ( procType, PROCPERLINNOISE ) == 0x00 ) {
                 proc = g3dproceduralnoise_new ( );
             }
         }

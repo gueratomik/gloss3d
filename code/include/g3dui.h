@@ -103,7 +103,9 @@
 #define OPTIONMENUNAME  "Option_Menu"
 #define SHADINGMENUNAME "Shading_Menu"
 
-#define PERLINNOISE "Perlin Noise"
+#define PROCPERLINNOISE "Perlin Noise"
+#define PROCCHESSBOARD  "Chess board"
+#define PROCBRICK       "Brick"
 #define PROCRES128  "128x128"
 #define PROCRES256  "256x256"
 #define PROCRES512  "512x512"

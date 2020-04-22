@@ -768,7 +768,10 @@ void createProceduralTypeSelection ( GtkWidget *parent,
         g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
     }
 
-    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PERLINNOISE );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCPERLINNOISE );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCCHESSBOARD  );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCBRICK       );
+
     /*gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, XYSTR );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, YZSTR );*/
 

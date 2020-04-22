@@ -50,8 +50,7 @@ void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
 }
 
 /******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map,
-                                               G3DFACEGROUP *facgrp ) {
+G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map ) {
     G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
 
     if ( tex == NULL ) {
@@ -65,7 +64,6 @@ G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map,
 
     tex->mat    = mat;
     tex->map    = map;
-    tex->facgrp = facgrp;
 
 
     return tex;

@@ -406,7 +406,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /******************************* Procedural types *****************************/
 #define PROCEDURALNOISE        0x01
-#define PROCEDURALCHECKERBOARD 0x02
+#define PROCEDURALCHESSBOARD   0x02
+#define PROCEDURALBRICK        0x03
 
 /******************************************************************************/
 #define _GETVERTEX(mes,ltmpver) \
@@ -532,6 +533,26 @@ typedef struct _G3DPROCEDURALNOISE {
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
+typedef struct _G3DPROCEDURALCHESSBOARD {
+    G3DPROCEDURAL procedural;
+    G3DRGBA color1;
+    G3DRGBA color2;
+    int32_t udiv;
+    int32_t vdiv;
+} G3DPROCEDURALCHESSBOARD;
+
+/******************************************************************************/
+typedef struct _G3DPROCEDURALBRICK {
+    G3DPROCEDURAL procedural;
+    G3DRGBA brickColor;
+    G3DRGBA spacingColor;
+    int32_t nbBricksPerLine;
+    int32_t nbLines;
+    float uspacing;
+    float vspacing;
+} G3DPROCEDURALBRICK;
+
+/******************************************************************************/
 typedef struct _G3DCHANNEL {
     uint32_t       flags;
     G3DCOLOR       solid;
@@ -558,11 +579,6 @@ typedef struct _G3DMATERIAL {
     LIST     *lobj;
     uint32_t  nbobj;
 } G3DMATERIAL;
-
-/******************************************************************************/
-typedef struct _G3DFACEGROUP {
-    LIST *lfac;
-} G3DFACEGROUP;
 
 /******************************************************************************/
 typedef struct _G3DRTVERTEX {
@@ -685,7 +701,6 @@ typedef struct _G3DUVPLANE {
 typedef struct _G3DUVMAP {
     G3DOBJECT obj;   /*** Symmetry inherits G3DOBJECT ***/
     G3DUVPLANE pln;      /*** for flat projection ***/
-    G3DFACEGROUP *facgrp;
     uint32_t projection;
     uint32_t policy;
     uint32_t fixed;
@@ -728,13 +743,14 @@ struct _G3DUVSET {
     G3DUV     veruv[0x04];
     G3DUV     miduv[0x04];
     G3DUV     cenuv;       /*** face center UV ***/
+    /*** active helps us determine what face have a texture applied ***/
+    uint64_t  active; /*** supports max 64 textures per uvset ***/
 };
 
 /******************************************************************************/
 typedef struct _G3DTEXTURE {
     uint32_t      flags;
     G3DMATERIAL  *mat;
-    G3DFACEGROUP *facgrp;
     G3DUVMAP     *map;
     /*G3DRTUVSET   *rtuvsmem; *//*** UVSet buffer - for  non-power-of-2 texture ***/
                             /*** only for diffuse channel ***/
@@ -1978,7 +1994,6 @@ void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );
 void       g3dmesh_addFace              ( G3DMESH *, G3DFACE * );
 void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
-                                                     G3DFACEGROUP *,
                                                      G3DUVMAP     * );
 void       g3dmesh_addVertex            ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addSelectedFace      ( G3DMESH *, G3DFACE * );
@@ -2378,7 +2393,7 @@ G3DRIG *g3drig_new  ( G3DWEIGHTGROUP * );
 void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 
 /******************************************************************************/
-G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP *, G3DFACEGROUP * );
+G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP * );
 G3DTEXTURE *g3dtexture_getFromUVMap  ( LIST *, G3DUVMAP * );
 void        g3dtexture_unsetSelected ( G3DTEXTURE * );
 
@@ -2493,6 +2508,8 @@ void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );
+G3DPROCEDURALCHESSBOARD *g3dproceduralchessboard_new ( );
+G3DPROCEDURALBRICK *g3dproceduralbrick_new ( );
 
 #endif
 

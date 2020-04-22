@@ -873,7 +873,7 @@ void g3dmesh_removeUVMap ( ) {
 
 /******************************************************************************/
 void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t eflags ) {
-    LIST *ltmpfac = ( map->facgrp ) ? map->facgrp->lfac : mes->lfac;
+    LIST *ltmpfac = mes->lfac;
 
     list_insert ( &mes->luvmap, map );
     mes->nbuvmap++;
@@ -2964,9 +2964,8 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 
 /******************************************************************************/
 void g3dmesh_addMaterial ( G3DMESH *mes, G3DMATERIAL  *mat,
-                                         G3DFACEGROUP *facgrp,
                                          G3DUVMAP     *map ) {
-    G3DTEXTURE *tex = g3dtexture_new ( mat, map, facgrp );
+    G3DTEXTURE *tex = g3dtexture_new ( mat, map );
 
     if ( map ) g3duvmap_addMaterial ( map, mat );
 
@@ -3119,19 +3118,12 @@ void g3dmesh_assignFaceUVSets ( G3DMESH *mes, G3DFACE *fac ) {
 
     while ( ltmpmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
-        G3DFACEGROUP *facgrp = map->facgrp;
         G3DUVSET *uvs;
 
-        /*** if the UVMAP is not limited to a facegroup, then the UVMAP ***/
-        /*** maps all faces, so the FACE must be mapped by this UVMAP ***/ 
-        if ( facgrp == NULL ) {
+        uvs = g3dface_getUVSet ( fac, map );
+
+        if ( uvs == NULL ) {
             g3duvmap_insertFace ( map, mes, fac );
-        } else {
-        /*** Else, we check if the face belongs to the facegroup, in this ***/
-        /*** case we map it ***/
-            if ( list_seek ( facgrp->lfac, fac ) ) {
-                g3duvmap_insertFace ( map, mes, fac );
-            }
         }
 
         ltmpmap = ltmpmap->next;
