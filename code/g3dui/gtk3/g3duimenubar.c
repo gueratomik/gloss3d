@@ -961,6 +961,8 @@ GtkWidget *createImportMenu ( GtkWidget *parent, G3DUI *gui,
 #ifdef HAVE_C4D_H
     g3dui_addMenuButton ( menu, gui, FILEDESC_C4D, width, G_CALLBACK(g3dui_importfilecbk) );
 #endif
+    g3dui_addMenuButton ( menu, gui, FILEDESC_V2, width, G_CALLBACK(g3dui_importfilecbk) );
+
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
 
@@ -986,6 +988,7 @@ GtkWidget *createExportMenu ( GtkWidget *parent, G3DUI *gui,
     g3dui_addMenuButton ( menu, gui, FILEDESC_OBJ, width, G_CALLBACK(g3dui_exportfilecbk) );
     g3dui_addMenuButton ( menu, gui, FILEDESC_POV, width, G_CALLBACK(g3dui_exportfilecbk) );
     g3dui_addMenuButton ( menu, gui, FILEDESC_STA, width, G_CALLBACK(g3dui_exportfilecbk) );
+    g3dui_addMenuButton ( menu, gui, FILEDESC_V2, width, G_CALLBACK(g3dui_exportfilecbk) );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

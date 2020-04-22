@@ -166,6 +166,7 @@
 #define UVMAPSAVEORIENTATION     ( 1   <<   1 )
 #define UVMAPSAVECOORDS          ( 1   <<   2 )
 #define UVMAPSAVEMATERIALS       ( 1   <<   3 )
+#define UVMAPSAVERADIUS          ( 1   <<   3 )
 #define UVMAPSAVEALL             ( 0xFFFFFFFF )
 
 #define SCENESAVEMATERIALS       ( 1          )
@@ -202,6 +203,7 @@
 #define UVMAPCOORDSSIG      0x2420
 #define UVMAPMATERIALSSIG   0x2430
 #define UVMAPORIENTATIONSIG 0x2440
+#define UVMAPRADIUSSIG      0x2450
 
 #define MESHSIG            0x3000
 #define MESHSUB            0x3010
@@ -223,17 +225,6 @@
 #define GEOVERTICES        0x3110
 #define GEOTRIANGLES       0x3120
 #define GEOQUADS           0x3130
-
-#define SPLINESIG          0xB100
-#define SPLINEGEOSIG       0xB110
-#define SPLINEVERTICESSIG  0xB111
-#define SPLINESEGMENTSSIG  0xB112
-
-#define TEXTSIG            0xB200 
-#define TEXTFONTSIG        0xB210 
-#define TEXTTHICKNESSSIG   0xB220
-#define TEXTROUNDNESSSIG   0xB230
-#define TEXTTEXTSIG        0xB240
 
 #define PRIMSIG            0x4000
 #define SPHERESIG          0x4100
@@ -262,13 +253,14 @@
 #define SUBDIVIDERSIG      0x8200
 #define SUBDIVIDERLEVELSIG 0x8210
 
+#define WIREFRAMESIG          0x8300
+#define WIREFRAMEALGOSIG      0x8310
+#define WIREFRAMETHICKNESSSIG 0x8320
+
 #define SPLINEREVOLVERSIG      0x8400
 #define SPLINEREVOLVERSTEPSSIG 0x8420
 #define SPLINEREVOLVERDIVISSIG 0x8430
 
-#define WIREFRAMESIG          0x8300
-#define WIREFRAMEALGOSIG      0x8310
-#define WIREFRAMETHICKNESSSIG 0x8320
 
 #define SCENESIG           0x9000
 #define MATERIALFLAGSSIG   0x9212
@@ -288,12 +280,29 @@
 #define MATERIALREFLECTIONSIG 0x9260
 #define REFLECTIONSTRENGTHSIG 0x9261
 
-#define SOLIDCOLORSIG      0xAAA0
-#define IMAGECOLORSIG      0xAAA1
-#define PROCEDURALSIG      0xAAA2
+#define SOLIDCOLORSIG      0xAA00
+#define IMAGECOLORSIG      0xAA10
+#define PROCEDURALSIG      0xAA20
+
+
+#define PROCEDURALBRICKSIG 0xAA21
+#define PROCEDURALCHESSSIG 0xAA22
+#define PROCEDURALNOISESIG 0xAA23
+#define PROCEDURALRESSIG   0xAA2F /** Resolution - set last ***/
 
 #define CAMERASIG          0xA000
 #define CAMERAFOCALSIG     0xA100
+
+#define SPLINESIG          0xB100
+#define SPLINEGEOSIG       0xB110
+#define SPLINEVERTICESSIG  0xB111
+#define SPLINESEGMENTSSIG  0xB112
+
+#define TEXTSIG            0xB200 
+#define TEXTFONTSIG        0xB210 
+#define TEXTTHICKNESSSIG   0xB220
+#define TEXTROUNDNESSSIG   0xB230
+#define TEXTTEXTSIG        0xB240
 
 #define EXTENSIONSIG       0xFFF0
 #define EXTENSIONNAMESIG   0xFFF1

@@ -406,7 +406,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /******************************* Procedural types *****************************/
 #define PROCEDURALNOISE        0x01
-#define PROCEDURALCHESSBOARD   0x02
+#define PROCEDURALCHESS        0x02
 #define PROCEDURALBRICK        0x03
 
 /******************************************************************************/
@@ -533,21 +533,21 @@ typedef struct _G3DPROCEDURALNOISE {
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
-typedef struct _G3DPROCEDURALCHESSBOARD {
+typedef struct G3DPROCEDURALCHESS {
     G3DPROCEDURAL procedural;
     G3DRGBA color1;
     G3DRGBA color2;
-    int32_t udiv;
-    int32_t vdiv;
-} G3DPROCEDURALCHESSBOARD;
+    uint32_t udiv;
+    uint32_t vdiv;
+} G3DPROCEDURALCHESS;
 
 /******************************************************************************/
 typedef struct _G3DPROCEDURALBRICK {
     G3DPROCEDURAL procedural;
     G3DRGBA brickColor;
     G3DRGBA spacingColor;
-    int32_t nbBricksPerLine;
-    int32_t nbLines;
+    uint32_t nbBricksPerLine;
+    uint32_t nbLines;
     float uspacing;
     float vspacing;
 } G3DPROCEDURALBRICK;
@@ -2508,7 +2508,7 @@ void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );
-G3DPROCEDURALCHESSBOARD *g3dproceduralchessboard_new ( );
+G3DPROCEDURALCHESS *g3dproceduralchess_new ( );
 G3DPROCEDURALBRICK *g3dproceduralbrick_new ( );
 
 #endif

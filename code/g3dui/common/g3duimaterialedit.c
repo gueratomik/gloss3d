@@ -286,7 +286,7 @@ void common_g3dui_materialProceduralCbk ( G3DUI *gui, const char *procType,
             }
 
             if ( strcmp ( procType, PROCCHESSBOARD ) == 0x00 ) {
-                proc = g3dproceduralchessboard_new ( );
+                proc = g3dproceduralchess_new ( );
             }
 
             if ( strcmp ( procType, PROCBRICK ) == 0x00 ) {

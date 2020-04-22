@@ -7,6 +7,20 @@ libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
 
 LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             g3dexportextension.c \
+                            v2/g3dexportapp.c \
+                            v2/g3dexportbone.c \
+                            v2/g3dexport.c \
+                            v2/g3dexportcamera.c \
+                            v2/g3dexportchannel.c \
+                            v2/g3dexportlight.c \
+                            v2/g3dexportmaterial.c \
+                            v2/g3dexportmesh.c \
+                            v2/g3dexportmodifiers.c \
+                            v2/g3dexportobject.c \
+                            v2/g3dexportprimitive.c \
+                            v2/g3dexportscene.c \
+                            v2/g3dexportspline.c \
+                            v2/g3dexporttext.c \
                             stl.c \
                             pov.c \
                             obj.c

@@ -263,6 +263,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
             /*case MATERIALFLAGSSIG : {
                 readf ( &mat->flags, sizeof ( uint32_t ), 0x01, fsrc );
+
             } break;*/
 
             case MATERIALCOLORSIG : {
@@ -305,16 +306,61 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 /*g3dmaterial_enableReflection ( mat );*/
             } break;
 
+            case PROCEDURALSIG : {
+                if ( curchannel == &mat->diffuse ) {
+                    g3dmaterial_enableDiffuseProcedural ( mat );
+                }
+
+                printf ( "Procedural texture found\n" );
+            } break;
+
+            case PROCEDURALRESSIG : {
+                uint32_t width, height, Bpp;
+
+                readf ( &width , sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &height, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &Bpp   , sizeof ( uint32_t ), 0x01, fsrc );
+
+                if ( curchannel->proc ) {
+                    g3dprocedural_fill ( curchannel->proc , width, 
+                                                            height, Bpp * 8 );
+
+                    if ( curchannel == &mat->diffuse ) {
+                        g3dmaterial_addDiffuseProcedural ( mat, curchannel->proc );
+                    }
+                }
+
+
+            } break;
+
+            case PROCEDURALNOISESIG : {
+                G3DPROCEDURALNOISE *noise = g3dproceduralnoise_new ( );
+
+                printf ( "Procedural Noise texture found\n" );
+
+
+
+                readf ( &noise->color1.r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color1.g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color1.b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color1.a, sizeof ( uint32_t ), 0x01, fsrc );
+
+                readf ( &noise->color2.r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color2.g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color2.b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->color2.a, sizeof ( uint32_t ), 0x01, fsrc );
+            } break;
+
             case SOLIDCOLORSIG : {
                 if ( curchannel == &mat->diffuse ) {
                     g3dmaterial_enableDiffuseSolidColor ( mat );
                 }
 
                 /*** prepare to read current channel (Color channel) ***/
-                readf ( &curchannel->solid.r, sizeof ( float ), 0x01, fsrc );
-                readf ( &curchannel->solid.g, sizeof ( float ), 0x01, fsrc );
-                readf ( &curchannel->solid.b, sizeof ( float ), 0x01, fsrc );
-                readf ( &curchannel->solid.a, sizeof ( float ), 0x01, fsrc );
+                readf ( &curchannel->solid.r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &curchannel->solid.g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &curchannel->solid.b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &curchannel->solid.a, sizeof ( uint32_t ), 0x01, fsrc );
             } break;
 
             case IMAGECOLORSIG : {
@@ -430,6 +476,10 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 memcpy ( &obj->sca, &objsca, sizeof ( G3DVECTOR ) );*/
             break;
 
+            case UVMAPRADIUSSIG : {
+                readf ( &map->pln.xradius, sizeof ( float ), 0x01, fsrc );
+                readf ( &map->pln.yradius, sizeof ( float ), 0x01, fsrc );
+            } break;
 
             case UVMAPINFOSIG : {
                 readf ( &map->projection, sizeof ( uint32_t ), 0x01, fsrc );

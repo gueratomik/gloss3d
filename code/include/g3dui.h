@@ -70,7 +70,9 @@
 #include <g3dmouse.h>
 #include <g3dcom.h>
 #include <g3dexport.h>
+#include <g3dexportv2.h>
 #include <g3dimport.h>
+#include <g3dimportv2.h>
 
 /*********************** Export to g3d file ***********************************/
 #define G3DUISETTINGSSIG                  0x1000
@@ -90,6 +92,7 @@
 #define FILEDESC_C4D "Cinema4D .c4d"
 #define FILEDESC_STA "Ascii STL .stl"
 #define FILEDESC_POV "Povray Scene .pov"
+#define FILEDESC_V2  "Gloss3D V2 (Dev)"
 
 #define OBJECTMENUNAME          "Object Menu"
 

@@ -323,6 +323,10 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
         g3dscene_exportStlA ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );
     }
 
+    if ( strcmp ( filedesc, FILEDESC_V2 ) == 0x00 ) {
+        g3dscene_exportv2 ( gui->sce, filename,  "Made with GLOSS-3D", NULL, 0);
+    }
+
     g3dui_unsetHourGlass ( gui );
 
     g3dui_redrawGLViews        ( gui );
@@ -367,6 +371,9 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
             gui->sce = g3dscene_importC4D ( filename, gui->flags );
         }
 #endif
+        if ( strcmp ( filedesc, FILEDESC_V2 ) == 0x00 ) {
+            gui->sce = g3dscene_importv2 ( filename, gui->flags );
+        }
 
         if ( gui->sce ) {
             common_g3dui_setFileName ( gui, filename );

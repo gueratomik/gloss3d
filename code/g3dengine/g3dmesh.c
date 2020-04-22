@@ -897,19 +897,7 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t eflags ) {
                           NULL,
                           0x00, eflags );
 
-    g3duvmap_adjustFlatProjection ( map, mes );
-
-    /*** init some size for our uvwmap ***/
-    switch ( map->projection ) {
-        case UVMAPFLAT :
-
- /*** Actually I would just have to update G3DUVMAP object's matrix  to trigger this ***/
-            g3duvmap_applyProjection  ( map, mes );
-        break;
-
-        default :
-        break;
-    }
+    /*g3duvmap_adjustFlatProjection ( map, mes );*/
 }
 
 /******************************************************************************/
@@ -2886,6 +2874,10 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
             }
 
             if ( eflags & VIEWAXIS   ) {
+                g3dmesh_drawObject ( mes, curcam, eflags );
+            }
+
+            if ( eflags & VIEWUVWMAP ) {
                 g3dmesh_drawObject ( mes, curcam, eflags );
             }
 

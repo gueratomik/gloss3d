@@ -88,39 +88,39 @@ OBJECT(0x2000)
 ----------- MATERIALDISPLACEMENT(0x9230)
 --------------- DISPLACEMENTSTRENGTH (0x9231)
 ------------------- strengh ( float )
---------------- SOLIDCOLOR(0xAAA0)
+--------------- SOLIDCOLOR(0xAA00)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------- IMAGECOLOR(0xAAA1)
+--------------- IMAGECOLOR(0xAA10)
 ------------------- Path ( char[] )
---------------- PROCEDURAL(0xAAA2)
+--------------- PROCEDURAL(0xAA20)
 ----------- MATERIALBUMP(0x9240)
 --------------- SOLIDCOLOR(0xAAA0)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------- IMAGECOLOR(0xAAA1)
+--------------- IMAGECOLOR(0xAA10)
 ------------------- Path ( char[] )
---------------- PROCEDURAL(0xAAA2)
+--------------- PROCEDURAL(0xAA20)
 ----------- MATERIALSPECULAR(0x9250)
 --------------- SHININESS (0x9251)
 ------------------- shininess ( float )
 --------------- LEVEL (0x9252)
 ------------------- shininess ( float )
---------------- SOLIDCOLOR(0xAAA0)
+--------------- SOLIDCOLOR(0xAA00)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------- IMAGECOLOR(0xAAA1)
+--------------- IMAGECOLOR(0xAA10)
 ------------------- Path ( char[] )
---------------- PROCEDURAL(0xAAA2)
+--------------- PROCEDURAL(0xAA20)
 ----------- MATERIALREFLECTION(0x9260)
 --------------- SOLIDCOLOR(0xAAA0)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------- IMAGECOLOR(0xAAA1)
+--------------- IMAGECOLOR(0xAA10)
 ------------------- Path ( char[] )
---------------- PROCEDURAL(0xAAA2)
+--------------- PROCEDURAL(0xAA20)
 ----------- MATERIALREFRACTION(0x9270)
---------------- SOLIDCOLOR(0xAAA0)
+--------------- SOLIDCOLOR(0xAA00)
 ------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------- IMAGECOLOR(0xAAA1)
+--------------- IMAGECOLOR(0xAA10)
 ------------------- Path ( char[] )
---------------- PROCEDURAL(0xAAA2)
+--------------- PROCEDURAL(0xAA20)
 --- MESH(0x3000)
 ------- SUBDIVISION(0x3010)
 ----------- Level         (uint16_t)
@@ -493,6 +493,11 @@ static uint32_t uvmapinfo_blocksize ( ) {
 }
 
 /******************************************************************************/
+static uint32_t uvmapradius_blocksize ( ) {
+    return ( sizeof ( float ) + sizeof ( float ) );
+}
+
+/******************************************************************************/
 static uint32_t uvmapmaterials_blocksize ( G3DUVMAP *map ) {
     return ( sizeof ( uint32_t ) + ( ( sizeof ( uint32_t ) + 
                                        sizeof ( uint32_t ) ) * map->nbmat ) );
@@ -507,10 +512,20 @@ static uint32_t uvmapcoords_blocksize ( G3DUVMAP *map, G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+static void uvmapradius_writeblock ( G3DUVMAP *map, FILE *fdst ) {
+    writef ( &map->pln.xradius, sizeof ( float ), 0x01, fdst );
+    writef ( &map->pln.yradius, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
 static uint32_t uvmap_blocksize ( G3DUVMAP *map, 
                                   G3DMESH  *mes, 
                                   uint32_t  save_flags ) {
     uint32_t blocksize = 0x00;
+
+    if ( save_flags & UVMAPSAVERADIUS ) {
+        blocksize += uvmapradius_blocksize ( ) + 0x06;
+    }
 
     if ( save_flags & UVMAPSAVEORIENTATION ) {
         blocksize += orientation_blocksize ( ) + 0x06;
@@ -595,6 +610,12 @@ static void uvmap_writeblock ( G3DUVMAP *map,
                                G3DMESH  *mes,
                                uint32_t  flags, 
                                FILE     *fdst ) {
+    if ( flags & UVMAPSAVERADIUS ) {
+        chunk_write ( UVMAPRADIUSSIG, uvmapradius_blocksize ( ), fdst );
+
+        uvmapradius_writeblock ( map, fdst );
+    }
+
     if ( flags & UVMAPSAVEORIENTATION ) {
         chunk_write ( UVMAPORIENTATIONSIG, orientation_blocksize ( ), fdst );
 
@@ -2099,6 +2120,156 @@ static void materialreflection_writeblock ( G3DMATERIAL *mat,
 }
 
 /******************************************************************************/
+static uint32_t proceduralres_blocksize ( ) {
+    uint32_t blocksize = ( sizeof ( uint32_t ) ) + /*** width ***/
+                         ( sizeof ( uint32_t ) ) + /*** height ***/
+                         ( sizeof ( uint32_t ) );  /*** bpp ***/
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void proceduralres_writeblock ( G3DPROCEDURAL *proc, 
+                                       FILE          *fdst ) {
+
+    writef ( &proc->image.width        , sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->image.height       , sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->image.bytesPerPixel, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t proceduralnoise_blocksize ( G3DPROCEDURAL *proc ) {
+    uint32_t blocksize = ( sizeof ( uint32_t  ) * 0x04 ) + /*** RGBA1 ***/
+                         ( sizeof ( uint32_t  ) * 0x04 );  /*** RGBA2 ***/
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void proceduralnoise_writeblock ( G3DPROCEDURALNOISE *proc, 
+                                         FILE               *fdst ) {
+
+    writef ( &proc->color1.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.a, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->color2.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.a, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t proceduralchess_blocksize ( G3DPROCEDURAL *proc ) {
+    uint32_t blocksize = ( sizeof ( uint32_t  ) * 0x04 ) + /*** RGBA1 ***/
+                         ( sizeof ( uint32_t  ) * 0x04 ) + /*** RGBA2 ***/
+                           sizeof ( uint32_t ) +          /*** udiv ***/
+                           sizeof ( uint32_t );           /*** vdiv ***/
+
+    return  blocksize;
+}
+
+/******************************************************************************/
+static void proceduralchess_writeblock ( G3DPROCEDURALCHESS *proc, 
+                                         FILE               *fdst ) {
+
+    writef ( &proc->color1.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color1.a, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->color2.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->color2.a, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->udiv, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->vdiv, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t proceduralbrick_blocksize ( G3DPROCEDURAL *proc ) {
+    uint32_t blocksize = ( sizeof ( uint32_t  ) * 0x04 ) + /*** Brick color ***/
+                         ( sizeof ( uint32_t  ) * 0x04 ) + /*** Space color ***/
+                           sizeof ( uint32_t ) +       /*** brick per line ***/
+                           sizeof ( uint32_t ) +       /*** nb of lines    ***/
+                           sizeof ( float    ) +       /*** uspacing       ***/
+                           sizeof ( float    );        /*** vspacing       ***/
+
+    return  blocksize;
+}
+
+/******************************************************************************/
+static void proceduralbrick_writeblock ( G3DPROCEDURALBRICK *proc, 
+                                         FILE               *fdst ) {
+
+    writef ( &proc->brickColor.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->brickColor.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->brickColor.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->brickColor.a, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->spacingColor.r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->spacingColor.g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->spacingColor.b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->spacingColor.a, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->nbBricksPerLine, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->nbLines, sizeof ( uint32_t ), 0x01, fdst );
+
+    writef ( &proc->uspacing, sizeof ( float ), 0x01, fdst );
+    writef ( &proc->vspacing, sizeof ( float ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t procedural_blocksize ( G3DPROCEDURAL *proc ) {
+    uint32_t blocksize = 0x00;
+
+    if ( proc->type == PROCEDURALNOISE ) {
+         blocksize += proceduralnoise_blocksize ( proc ) + 0x06;
+    }
+
+    if ( proc->type == PROCEDURALCHESS ) {
+         blocksize += proceduralchess_blocksize ( proc ) + 0x06;
+    }
+
+    if ( proc->type == PROCEDURALBRICK ) {
+         blocksize += proceduralbrick_blocksize ( proc ) + 0x06;
+    }
+
+    blocksize +=  proceduralres_blocksize ( ) + 0x06;
+
+    return blocksize;
+}
+
+/******************************************************************************/
+static void procedural_writeblock ( G3DPROCEDURAL *proc, FILE *fdst ) {
+    if ( proc->type == PROCEDURALNOISE ) {
+        uint32_t blocksize = proceduralnoise_blocksize ( proc );
+
+        chunk_write ( PROCEDURALNOISESIG, blocksize, fdst );
+        proceduralnoise_writeblock ( proc, fdst );
+    }
+
+    if ( proc->type == PROCEDURALCHESS ) {
+        uint32_t blocksize = proceduralchess_blocksize ( proc );
+
+        chunk_write ( PROCEDURALCHESSSIG, blocksize, fdst );
+        proceduralchess_writeblock ( proc, fdst );
+    }
+
+    if ( proc->type == PROCEDURALBRICK ) {
+        uint32_t blocksize = proceduralbrick_blocksize ( proc );
+
+        chunk_write ( PROCEDURALBRICKSIG, blocksize, fdst );
+        proceduralbrick_writeblock ( proc, fdst );
+    }
+
+    chunk_write ( PROCEDURALRESSIG, proceduralres_blocksize ( ), fdst );
+    proceduralres_writeblock ( proc, fdst );
+}
+
+/******************************************************************************/
 static void materialcolor_writeblock ( G3DMATERIAL *mat, FILE *fdst ) {
     if ( mat->diffuse.flags & USESOLIDCOLOR ) {
         uint32_t blocksize = solidcolor_blocksize ( );
@@ -2117,7 +2288,12 @@ static void materialcolor_writeblock ( G3DMATERIAL *mat, FILE *fdst ) {
     }
 
     if ( mat->diffuse.flags & USEPROCEDURAL ) {
-        /*** not implemented yet ***/
+        if ( mat->diffuse.proc ) {
+            uint32_t blocksize = procedural_blocksize ( mat->diffuse.proc );
+
+            chunk_write ( PROCEDURALSIG, blocksize, fdst );
+            procedural_writeblock ( mat->diffuse.proc, fdst );
+        }
     }
 }
 
