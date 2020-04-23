@@ -49,53 +49,146 @@
 
 
 #ifdef FILE_FORMAT
-GLOSS3D("GLS3")
 
-SCENE(0x01000000)
-OBJECT (0x00100000)
---- IDENTITY(0x00110000)
-------- NAME(0x00111000)
------------ Name ( char[] )
-------- TYPE(0x00112000)
------------ Type ( uint32_t )
-------- PARENT(0x00113000)
------------ ID ( uint32_t )
-------- ACTIVE(0x00114000)
------------ active ( uint32_t ) /** 1 or 0 **/
---- ORIENTATION(0x00120000)
-------- Position ( float-float-float-float )
-------- Rotation ( float-float-float-float )
-------- Scale    ( float-float-float-float )
---- KEYS (0x00130000)
-------- KEY (0x00131000)
------------ TRANSFORMATION (0x00131100)
---------------- frame num ( float )
---------------- Position  ( float-float-float-uint32_t ) /** last int is usage **/
---------------- Rotation  ( float-float-float-uint32_t ) /** last int is usage **/
---------------- Scale     ( float-float-float-uint32_t ) /** last int is usage **/
------------ LOOP (0x00131200)
------------   LoopFrame ( float )
+
+#define SIG_ROOT
+#define SIG_OBJECT
+#define SIG_OBJECT_IDENTITY
+#define SIG_OBJECT_IDENTITY_NAME
+#define SIG_OBJECT_IDENTITY_TYPE            
+#define SIG_OBJECT_IDENTITY_PARENT
+#define SIG_OBJECT_IDENTITY_ACTIVE
+#define SIG_OBJECT_TRANSFORMATION
+#define SIG_KEYS
+#define SIG_KEY_ENTRY
+#define SIG_KEY_TRANSFORMATION
+#define SIG_KEY_LOOP
+#define SIG_OBJECT_SCENE
+#define SIG_OBJECT_PRIMITIVE
+#define SIG_OBJECT_PRIMITIVE_SPHERE
+#define SIG_OBJECT_PRIMITIVE_TORUS
+#define SIG_OBJECT_PRIMITIVE_CUBE
+#define SIG_OBJECT_PRIMITIVE_CONE
+#define SIG_OBJECT_PRIMITIVE_CYLINDER
+#define SIG_OBJECT_PRIMITIVE_PLANE
+#define SIG_MATERIALS
+#define SIG_MATERIAL_ENTRY
+#define SIG_MATERIAL_DIFFUSE
+#define SIG_MATERIAL_BUMP
+#define SIG_MATERIAL_ALPHA
+#define SIG_MATERIAL_SPECULAR
+#define SIG_MATERIAL_DISPLACEMENT
+#define SIG_MATERIAL_REFLECTION
+#define SIG_MATERIAL_REFRACTION
+#define SIG_CHANNEL
+#define SIG_CHANNEL_SOLID
+#define SIG_CHANNEL_IMAGE
+#define SIG_CHANNEL_PROCEDURAL
+#define SIG_CHANNEL_PROCEDURAL_BRICK
+#define SIG_CHANNEL_PROCEDURAL_CHESS
+#define SIG_CHANNEL_PROCEDURAL_NOISE
+#define SIG_OBJECT_LIGHT
+#define SIG_OBJECT_LIGHT_TYPE
+#define SIG_OBJECT_LIGHT_SHADOWCASTING
+#define SIG_OBJECT_LIGHT_INTENSITY
+#define SIG_OBJECT_LIGHT_SPOT
+#define SIG_OBJECT_LIGHT_DIFFUSE
+#define SIG_OBJECT_LIGHT_SPECULAR
+#define SIG_OBJECT_MESH
+#define SIG_OBJECT_MESH_GOURAUDLIMIT
+#define SIG_OBJECT_MESH_GEOMETRY
+#define SIG_OBJECT_MESH_GEOMETRY_VERTICES
+#define SIG_OBJECT_MESH_GEOMETRY_POLYGONS
+#define SIG_OBJECT_MESH_WEIGHTGROUPS
+#define SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
+#define SIG_OBJECT_MESH_WEIGHTGROUP_NAME
+#define SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
+#define SIG_OBJECT_MESH_UVMAPS
+#define SIG_OBJECT_MESH_UVMAP_ENTRY
+#define SIG_OBJECT_MESH_UVMAP_NAME
+#define SIG_OBJECT_MESH_UVSETS
+#define SIG_OBJECT_MESH_UVSET_ENTRY
+#define SIG_OBJECT_BONE
+#define SIG_OBJECT_BONE_TRANSFORM
+#define SIG_OBJECT_BONE_WEIGHTGROUPS
+#define SIG_OBJECT_BONE_WEIGHTGROUP
+#define SIG_OBJECT_SYMMETRY
+#define SIG_OBJECT_SPLINE
+#define SIG_OBJECT_SPLINE_QUADRATIC
+#define SIG_OBJECT_SPLINE_QUADRATIC_POINTS
+#define SIG_OBJECT_SPLINE_QUADRATIC_SEGMENTS
+#define SIG_OBJECT_TEXT
+#define SIG_OBJECT_TEXT_FONT
+#define SIG_OBJECT_TEXT_THICKNESS
+#define SIG_OBJECT_TEXT_ROUNDNESS
+#define SIG_OBJECT_TEXT_STRING
+#define SIG_OBJECT_MODIFIER_FFD
+#define SIG_OBJECT_MODIFIER_FFD_GEOMETRY
+#define SIG_OBJECT_MODIFIER_FFD_UVW
+#define SIG_OBJECT_MODIFIER_FFD_VERTICES
+#define SIG_OBJECT_MODIFIER_SUBDIVIDER
+#define SIG_OBJECT_MODIFIER_SUBDIVIDER_LEVEL
+#define SIG_OBJECT_MODIFIER_WIREFRAME
+#define SIG_OBJECT_MODIFIER_WIREFRAME_ALGO
+#define SIG_OBJECT_MODIFIER_WIREFRAME_THICKNESS
+#define SIG_OBJECT_MODIFIER_SLINEREVOLVER
+#define SIG_OBJECT_MODIFIER_SLINEREVOLVER_GEOMETRY
+#define SIG_OBJECT_CAMERA
+#define SIG_OBJECT_CAMERA_FOCAL
+#define SIG_EXTENSION
+#define SIG_EXTENSION_NAME
+#define SIG_EXTENSION_DATA
+
 #endif
 
-#define SIG_SCENE                           0x01000000
-#define SIG_OBJECT                          0x00100000
-#define SIG_OBJECT_IDENTITY                 0x00110000
-#define SIG_OBJECT_IDENTITY_NAME            0x00111000
-#define SIG_OBJECT_IDENTITY_TYPE            0x00112000
-#define SIG_OBJECT_IDENTITY_PARENT          0x00113000
-#define SIG_OBJECT_IDENTITY_ACTIVE          0x00114000
-#define SIG_OBJECT_TRANSFORMATION           0x00120000
-#define SIG_OBJECT_KEYS                     0x00130000
-#define SIG_OBJECT_KEYS_KEY                 0x00131000
-#define SIG_OBJECT_KEYS_KEY_TRANSFORMATION  0x00131100
-#define SIG_OBJECT_KEYS_KEY_LOOP            0x00131200
+#include "signatures.h"
+
+typedef struct _G3DEXPORTDATA {
+    G3DOBJECT *currentObject;
+    G3DFACE   *currentFace;
+    uint32_t objectID;
+} G3DEXPORTDATA;
 
 
-uint32_t g3dexportobject ( G3DOBJECT *obj, uint32_t flags, FILE *fdst );
 void g3dscene_exportv2 ( G3DSCENE *sce, 
                          char     *filename,
                          char     *comment,
                          LIST     *lextension, 
                          uint32_t  flags );
+
+uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
+                                uint32_t (*writeChunk) ( G3DEXPORTDATA *ged,
+                                                         void          *data,
+                                                         uint32_t       flags,
+                                                         FILE          *fdst ),
+                                G3DEXPORTDATA *ged,
+                                void          *data,
+                                uint32_t       flags,
+                                FILE          *fdst );
+uint32_t g3dexport_fwrite ( void   *ptr,
+                            size_t  size,
+                            size_t  count,
+                            FILE   *stream );
+
+uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
+                           G3DOBJECT     *obj,
+                           uint32_t       flags, 
+                           FILE          *fdst );
+uint32_t g3dexportscene ( G3DEXPORTDATA *ged, 
+                          G3DSCENE      *sce, 
+                          uint32_t       flags, 
+                          FILE          *fdst );
+uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged, 
+                              G3DOBJECT     *obj, 
+                              uint32_t       flags, 
+                              FILE          *fdst );
+uint32_t g3dexportmesh ( G3DEXPORTDATA *ged, 
+                         G3DMESH       *mes, 
+                         uint32_t       flags, 
+                         FILE          *fdst );
+
+uint32_t g3dexport_fwritef ( float *f, FILE *stream );
+uint32_t g3dexport_fwritel ( long *l, FILE *stream );
+uint32_t g3dexport_fwritell ( long long *ll, FILE *stream );
 
 #endif

@@ -31,25 +31,48 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-uint32_t g3dexportscene ( G3DSCENE *sce, uint32_t flags, FILE *fdst ) {
-    LIST *ltmpobj = ((G3DOBJECT*)sce)->lchildren;
-    uint32_t objID = 0x00;
+uint32_t g3dexportscene ( G3DEXPORTDATA *ged, 
+                          G3DSCENE      *sce, 
+                          uint32_t       flags, 
+                          FILE          *fdst ) {
     uint32_t size = 0x00;
+
+    return size;
+}
+
+/******************************************************************************/
+uint32_t g3dexportroot ( G3DEXPORTDATA *ged, 
+                         G3DSCENE      *sce, 
+                         uint32_t       flags, 
+                         FILE          *fdst ) {
+    LIST *lobj = NULL, *ltmpobj; 
+    uint32_t size = 0x00;
+
+    ged->objectID = 0x00;
+
+    /*** flatten the object tree ***/
+    g3dobject_treeToList_r ( sce, &lobj );
+
+    ltmpobj = lobj;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        obj->id = objID++;
+        ged->currentObject = obj;
 
-        /*** write objet identity ***/
         size += g3dexport_writeChunk ( SIG_OBJECT,
                                        g3dexportobject,
+                                       ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
 
+        ged->currentObject = NULL;
+
         ltmpobj = ltmpobj->next;
     }
+
+    list_free ( &lobj, NULL );
 
     return size;
 }
@@ -66,6 +89,7 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmpext = lextension;
     uint32_t size = 0x00;
+    G3DEXPORTDATA ged;
 
     if ( ( fdst = fopen ( filename, "wb" ) ) == NULL ) {
         fprintf ( stderr, "g3dscene_export: cannot write destination file\n" );
@@ -73,15 +97,14 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
         return;
     }
 
-    size = g3dexport_writeChunk ( SIG_SCENE,
-                                  g3dexportscene,
+    size = g3dexport_writeChunk ( SIG_ROOT,
+                                  g3dexportroot,
+                                 &ged,
                                   sce,
                                   0xFFFFFFFF,
                                   fdst );
 
     fprintf ( stderr, "%d bytes written\n", size );
-
-
 
 
 #ifdef UNUSED

@@ -739,6 +739,7 @@ typedef struct _G3DARBTEXCOORD {
 
 /******************************************************************************/
 struct _G3DUVSET {
+    uint64_t flags; /*** this wil lbe used for facegroup selection ***/
     G3DUVMAP *map;
     G3DUV     veruv[0x04];
     G3DUV     miduv[0x04];
@@ -1931,6 +1932,7 @@ void g3dobject_removeExtension ( G3DOBJECT          *obj,
 G3DOBJECTEXTENSION *g3dobject_getExtensionByID ( G3DOBJECT *obj, 
                                                  uint32_t   name,
                                                  uint32_t   unit );
+void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );

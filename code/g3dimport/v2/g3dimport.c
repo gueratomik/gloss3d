@@ -28,7 +28,22 @@
 /******************************************************************************/
 
 #include <config.h>
-#include <g3dexportv2.h>
+#include <g3dimportv2.h>
+
+/******************************************************************************/
+uint32_t g3dimport_freadf ( float *f, FILE *stream ) {
+    return g3dimport_fread ( f, sizeof ( float ), 0x01, stream );
+}
+
+/******************************************************************************/
+uint32_t g3dimport_freadl ( long *l, FILE *stream ) {
+    return g3dimport_fread ( l, sizeof ( long ), 0x01, stream );
+}
+
+/******************************************************************************/
+uint32_t g3dimport_freadll ( float *ll, FILE *stream ) {
+    return g3dimport_fread ( ll, sizeof ( long long ), 0x01, stream );
+}
 
 /******************************************************************************/
 /*** Write to file or, if stream is NULL, return the size to write. ***/
@@ -39,4 +54,14 @@ uint32_t g3dimport_fread ( void   *ptr,
                            size_t  count,
                            FILE   *stream ) {
     return fread ( ptr, size, count, stream );
+}
+
+/******************************************************************************/
+void g3dimportdata_incrementIndentLevel ( G3DIMPORTDATA *gid ) {
+    gid->indentLevel += 4;
+}
+
+/******************************************************************************/
+void g3dimportdata_decrementIndentLevel ( G3DIMPORTDATA *gid ) {
+    gid->indentLevel -= 4;
 }

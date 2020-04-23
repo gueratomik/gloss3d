@@ -31,9 +31,10 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keysKeyLoop ( G3DKEY    *key,
-                                              uint32_t   flags, 
-                                              FILE      *fdst ) {
+static uint32_t g3dexportobject_keysKeyLoop ( G3DEXPORTDATA *ged, 
+                                              G3DKEY        *key,
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexport_fwrite ( &key->loopFrame, sizeof ( float ), 0x01, fdst );
@@ -42,9 +43,10 @@ static uint32_t g3dexportobject_keysKeyLoop ( G3DKEY    *key,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keysKeyTransformation ( G3DKEY  *key, 
-                                                        uint32_t flags, 
-                                                        FILE     *fdst ) {
+static uint32_t g3dexportobject_keysKeyTransformation ( G3DEXPORTDATA *ged, 
+                                                        G3DKEY        *key, 
+                                                        uint32_t       flags, 
+                                                        FILE          *fdst ) {
     uint32_t usepos = ( key->flags & KEYPOSITION ) ? 0x01 : 0x00;
     uint32_t userot = ( key->flags & KEYROTATION ) ? 0x01 : 0x00;
     uint32_t usesca = ( key->flags & KEYSCALING  ) ? 0x01 : 0x00;
@@ -71,20 +73,23 @@ static uint32_t g3dexportobject_keysKeyTransformation ( G3DKEY  *key,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keysKey ( G3DKEY    *key, 
-                                          uint32_t   flags, 
-                                          FILE      *fdst ) {
+static uint32_t g3dexportobject_keysKey ( G3DEXPORTDATA *ged, 
+                                          G3DKEY        *key, 
+                                          uint32_t       flags, 
+                                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_KEYS_KEY_TRANSFORMATION,
+    size += g3dexport_writeChunk ( SIG_OBJECT_KEY_TRANSFORMATION,
                                    g3dexportobject_keysKeyTransformation,
+                                   ged,
                                    key,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( key->flags & KEYLOOP ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_KEYS_KEY_LOOP,
+        size += g3dexport_writeChunk ( SIG_OBJECT_KEY_LOOP,
                                        g3dexportobject_keysKeyLoop,
+                                       ged,
                                        key,
                                        0xFFFFFFFF,
                                        fdst );
@@ -94,9 +99,10 @@ static uint32_t g3dexportobject_keysKey ( G3DKEY    *key,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keys ( G3DOBJECT *obj, 
-                                       uint32_t   flags, 
-                                       FILE      *fdst ) {
+static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged, 
+                                       G3DOBJECT     *obj, 
+                                       uint32_t       flags, 
+                                       FILE          *fdst ) {
     LIST *ltmpkey = obj->lkey;
     uint32_t keyID = 0x00;
     uint32_t size = 0x00;
@@ -106,8 +112,9 @@ static uint32_t g3dexportobject_keys ( G3DOBJECT *obj,
 
         key->id = keyID++;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_KEYS_KEY,
+        size += g3dexport_writeChunk ( SIG_OBJECT_KEY_ENTRY,
                                        g3dexportobject_keysKey,
+                                       ged,
                                        key,
                                        0xFFFFFFFF,
                                        fdst );
@@ -119,9 +126,10 @@ static uint32_t g3dexportobject_keys ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_transformation ( G3DOBJECT *obj, 
-                                                 uint32_t   flags, 
-                                                 FILE      *fdst ) {
+static uint32_t g3dexportobject_transformation ( G3DEXPORTDATA *ged, 
+                                                 G3DOBJECT     *obj, 
+                                                 uint32_t       flags, 
+                                                 FILE          *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexport_fwrite ( &obj->pos.x, sizeof ( float ), 0x01, fdst );
@@ -143,65 +151,137 @@ static uint32_t g3dexportobject_transformation ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityActive ( G3DOBJECT *obj, 
-                                                 uint32_t   flags, 
-                                                 FILE      *fdst ) {
+static uint32_t g3dexportobject_identityActive ( G3DEXPORTDATA *ged, 
+                                                 G3DOBJECT     *obj, 
+                                                 uint32_t       flags, 
+                                                 FILE          *fdst ) {
     uint32_t active = ( obj->flags & OBJECTINACTIVE ) ? 0x01 : 0x00;
 
     return g3dexport_fwrite ( &active, sizeof ( uint32_t ), 0x01, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityType ( G3DOBJECT *obj, 
-                                               uint32_t   flags, 
-                                               FILE      *fdst ) {
-    return g3dexport_fwrite ( &obj->type, sizeof ( uint32_t ), 0x01, fdst );
+static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged, 
+                                               G3DOBJECT     *obj, 
+                                               uint32_t       flags, 
+                                               FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    if ( obj->type == G3DSCENETYPE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_SCENE,
+                                       g3dexportscene,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->type & PRIMITIVE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE,
+                                       g3dexportprimitive,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->type == G3DMESHTYPE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_MESH,
+                                       g3dexportmesh,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    /*if ( obj->type  & SPLINE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_SPLINE,
+                                       g3dexportspline,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->type  & CAMERA ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_CAMERA,
+                                       g3dexportcamera,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->type  & LIGHT ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_LIGHT,
+                                       g3dexportlight,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->type  & MODIFIER ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_MODIFIER,
+                                       g3dexportmodifier,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }*/
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityParent ( G3DOBJECT *obj, 
-                                                 uint32_t   flags, 
-                                                 FILE      *fdst ) {
-    return g3dexport_fwrite ( &obj->id, sizeof ( uint32_t ), 0x01, fdst );
+static uint32_t g3dexportobject_identityParent ( G3DEXPORTDATA *ged, 
+                                                 G3DOBJECT     *obj, 
+                                                 uint32_t       flags, 
+                                                 FILE          *fdst ) {
+    return g3dexport_fwrite ( &obj->parent->id, sizeof ( uint32_t ), 0x01, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityName ( G3DOBJECT *obj, 
-                                               uint32_t   flags, 
-                                               FILE      *fdst ) {
+static uint32_t g3dexportobject_identityName ( G3DEXPORTDATA *ged, 
+                                               G3DOBJECT     *obj, 
+                                               uint32_t       flags, 
+                                               FILE          *fdst ) {
     return g3dexport_fwrite ( obj->name, strlen ( obj->name ), 0x01, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identity ( G3DOBJECT *obj, 
-                                           uint32_t  flags, 
-                                           FILE     *fdst ) {
+static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged, 
+                                           G3DOBJECT     *obj, 
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
     /*** write object name ***/
     size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
                                    g3dexportobject_identityName,
+                                   ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
 
     /*** write object type ***/
     size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
-                                   g3dexportobject_identityParent,
+                                   g3dexportobject_identityType,
+                                   ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
 
-    /*** write object parent ID ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
-                                   g3dexportobject_identityParent,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+    if ( obj->parent ) {
+        /*** write object parent ID ***/
+        size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
+                                       g3dexportobject_identityParent,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
 
     /*** write object active or not ***/
     size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_ACTIVE,
                                    g3dexportobject_identityActive,
+                                   ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
@@ -211,12 +291,22 @@ static uint32_t g3dexportobject_identity ( G3DOBJECT *obj,
 
 
 /******************************************************************************/
-uint32_t g3dexportobject ( G3DOBJECT *obj, uint32_t flags, FILE *fdst ) {
+uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
+                           G3DOBJECT     *obj, 
+                           uint32_t       flags,
+                           FILE          *fdst ) {
+    LIST *ltmpobj = obj->lchildren;
     uint32_t size = 0x00;
+
+    /*** ensure unique ID starting from 0, only when we write ***/
+    if ( fdst ) {
+        obj->id = ged->objectID++;
+    }
 
     /*** write objet identity ***/
     size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY,
                                    g3dexportobject_identity,
+                                   ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
@@ -224,16 +314,20 @@ uint32_t g3dexportobject ( G3DOBJECT *obj, uint32_t flags, FILE *fdst ) {
     /*** write objet matrix transformations ***/
     size += g3dexport_writeChunk ( SIG_OBJECT_TRANSFORMATION,
                                    g3dexportobject_transformation,
+                                   ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
 
-    /*** write object's animation keys ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_KEYS,
-                                   g3dexportobject_keys,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+    if ( obj->lkey ) {
+        /*** write object's animation keys ***/
+        size += g3dexport_writeChunk ( SIG_OBJECT_KEYS,
+                                       g3dexportobject_keys,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
 
     return size;
 }

@@ -31,6 +31,21 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+uint32_t g3dexport_fwritef ( float *f, FILE *stream ) {
+    return g3dexport_fwrite ( f, sizeof ( float ), 0x01, stream );
+}
+
+/******************************************************************************/
+uint32_t g3dexport_fwritel ( long *l, FILE *stream ) {
+    return g3dexport_fwrite ( l, sizeof ( long ), 0x01, stream );
+}
+
+/******************************************************************************/
+uint32_t g3dexport_fwritell ( long long *ll, FILE *stream ) {
+    return g3dexport_fwrite ( ll, sizeof ( long long ), 0x01, stream );
+}
+
+/******************************************************************************/
 /*** Write to file or, if stream is NULL, return the size to write. ***/
 /*** this is useful to compute the chunk's future size. All file writing op ***/
 /*** MUST call this function. ***/
@@ -38,24 +53,32 @@ uint32_t g3dexport_fwrite ( void   *ptr,
                             size_t  size,
                             size_t  count,
                             FILE   *stream ) {
-    if ( stream == NULL ) {
-        return ( size * count );
+    uint32_t written = 0x00;
+
+    if ( stream ) {
+        uint32_t realCount = fwrite ( ptr, size, count, stream );
+
+        written = size * realCount;
+    } else {
+        written = ( size * count );
     }
 
-    return fwrite ( ptr, size, count, stream );
+    return written;
 }
 
 /******************************************************************************/
 uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
-                                uint32_t (*writeChunk) ( void    *data,
-                                                         uint32_t flags,
-                                                         FILE    *fdst ),
-                                void      *data,
-                                uint32_t  flags,
-                                FILE      *fdst ) {
+                                uint32_t (*writeChunk) ( G3DEXPORTDATA *ged,
+                                                         void          *data,
+                                                         uint32_t       flags,
+                                                         FILE          *fdst ),
+                                G3DEXPORTDATA *ged,
+                                void          *data,
+                                uint32_t       flags,
+                                FILE          *fdst ) {
     /*** First call the func with a NULL argument to get the nested chunks ***/
     /*** size. Side note : chunk size header is 8 bytes ***/
-    uint32_t chunkSize = writeChunk ( data, flags, NULL );
+    uint32_t chunkSize = writeChunk ( ged, data, flags, NULL );
     uint32_t size = 0x00;
 
     size += g3dexport_fwrite ( &chunkSignature, sizeof ( uint32_t  ), 0x01, fdst );
@@ -63,7 +86,7 @@ uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
 
     /*** Actually write on the disk ***/
     if ( fdst ) {
-        writeChunk ( data, flags, fdst );
+        writeChunk ( ged, data, flags, fdst );
     }
 
     return ( size + chunkSize );

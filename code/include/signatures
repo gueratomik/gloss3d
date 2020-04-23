@@ -1,0 +1,115 @@
+# GLOSS3D("GLS3")
+
+# Note. chunk IDs are the 32-bit checksums of the signature name.
+# e.g -> echo $signature | cksum  | awk '{ printf "%08X\n", $1}'
+
+
+SIG_ROOT
+---- SIG_OBJECT
+------- SIG_OBJECT_IDENTITY
+----------- SIG_OBJECT_IDENTITY_NAME
+--------------- Name ( char[] )
+----------- SIG_OBJECT_IDENTITY_TYPE
+--------------- SIG_OBJECT_SCENE
+------------------- SIG_MATERIALS
+----------------------- SIG_MATERIAL_ENTRY
+--------------------------- SIG_MATERIAL_DIFFUSE
+------------------------------- SIG_CHANNEL
+----------------------------------- SIG_CHANNEL_SOLID
+----------------------------------- SIG_CHANNEL_IMAGE
+----------------------------------- SIG_CHANNEL_PROCEDURAL
+--------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK
+--------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS
+--------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE
+--------------- SIG_OBJECT_PRIMITIVE
+------------------- SIG_OBJECT_PRIMITIVE_SPHERE
+----------------------- Radius ( float    )
+----------------------- Slices ( uint32_t )
+----------------------- Caps   ( uint32_t )
+------------------- SIG_OBJECT_PRIMITIVE_TORUS
+----------------------- Outer Radius ( float    )
+----------------------- Inner Radius ( float    )
+----------------------- Slices       ( uint32_t )
+----------------------- Caps         ( uint32_t )
+----------------------- Orientation  ( uint32_t )
+------------------- SIG_OBJECT_PRIMITIVE_CUBE
+----------------------- Radius ( float    )
+----------------------- NbX    ( uint32_t )
+----------------------- NbY    ( uint32_t )
+----------------------- NbZ    ( uint32_t )
+------------------- SIG_OBJECT_PRIMITIVE_CONE
+----------------------- Length      ( float    )
+----------------------- Slices      ( uint32_t )
+----------------------- Caps        ( uint32_t )
+----------------------- Closed?     ( uint32_t )
+----------------------- Orientation ( uint32_t )
+------------------- SIG_OBJECT_PRIMITIVE_PLANE
+----------------------- URadius     ( float    )
+----------------------- VRadius     ( float    )
+----------------------- NbU         ( uint32_t )
+----------------------- NbV         ( uint32_t )
+----------------------- Orientation ( uint32_t )
+------------------- SIG_OBJECT_PRIMITIVE_CYLINDER
+----------------------- Length      ( float    )
+----------------------- Radius      ( float    )
+----------------------- Slices      ( uint32_t )
+----------------------- Capx        ( uint32_t )
+----------------------- Capy        ( uint32_t )
+----------------------- Closed?     ( uint32_t )
+----------------------- Orientation ( uint32_t )
+--------------- SIG_OBJECT_MESH
+------------------- SIG_OBJECT_MESH_GOURAUDLIMIT
+----------------------- angle ( float )
+------------------- SIG_OBJECT_MESH_GEOMETRY
+----------------------- SIG_OBJECT_MESH_GEOMETRY_VERTICES
+--------------------------- Number of Vertices  ( uint32_t )
+--------------------------- Array ( float-float-float-uint32_t )
+----------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS
+--------------------------- Number of Polygons ( uint32_t )
+--------------------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
+------------------- SIG_OBJECT_MESH_WEIGHTGROUPS
+----------------------- SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
+--------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_NAME
+------------------------------- Name ( char[] )
+--------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
+------------------------------- Number of weights ( uint32_t )
+----------------------------------- Array( uint32_t[VERTEXID], float[Weight] )
+
+--------------- SIG_OBJECT_UVMAPS
+------------------- SIG_OBJECT_UVMAP_ENTRY
+----------------------- SIG_OBJECT_UVMAP_NAME
+--------------------------- Name ( char[] )
+----------------------- SIG_OBJECT_UVMAP_RADIUS
+--------------------------- xradius (float)
+--------------------------- yradius (float)
+----------------------- SIG_OBJECT_UVMAP_INFO
+--------------------------- Projection (uint32_t)
+--------------------------- Fixed      (uint32_t) /*** UVMap locked ? ***/
+----------------------- SIG_OBJECT_UVMAP_UVSETS
+--------------------------- SIG_OBJECT_UVMAP_UVSET_ENTRY
+------------------------------- (flags,faceID,uv[0x04]), (uint32_t,uint32_t,float[0x08])
+----------------------- SIG_OBJECT_UVMAP_MATERIALS
+--------------------------- nbmaterials (uint32_t) /*** UVMap locked ? ***/
+--------------------------- Array[] materialID (uint32_t)
+----------------------- SIG_OBJECT_UVMAP_TRANSFORMATION
+--------------------------- Position ( float-float-float-float )
+--------------------------- Rotation ( float-float-float-float )
+--------------------------- Scale    ( float-float-float-float )
+
+----------- SIG_OBJECT_IDENTITY_PARENT
+--------------- ID ( uint32_t )
+----------- SIG_OBJECT_IDENTITY_ACTIVE
+--------------- active ( uint32_t ) /** 1 or 0 **/
+------- SIG_OBJECT_TRANSFORMATION
+----------- Position ( float-float-float-float )
+----------- Rotation ( float-float-float-float )
+----------- Scale    ( float-float-float-float )
+------- SIG_OBJECT_KEYS
+----------- SIG_OBJECT_KEY_ENTRY
+--------------- SIG_OBJECT_KEY_TRANSFORMATION
+------------------- frame num ( float )
+------------------- Position  ( float-float-float-uint32_t ) /** last int is usage **/
+------------------- Rotation  ( float-float-float-uint32_t ) /** last int is usage **/
+------------------- Scale     ( float-float-float-uint32_t ) /** last int is usage **/
+--------------- SIG_OBJECT_KEY_LOOP
+---------------   LoopFrame ( float )

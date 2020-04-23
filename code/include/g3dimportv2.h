@@ -47,8 +47,35 @@
 #include <g3dengine/g3dengine.h>
 #include <g3dexportv2.h>
 
+#define PRINT_CHUNK_INFO(sig,size,level) \
+        fprintf( stderr, "%*s SIG:%08X LEN:%d - %s\n", level, "|-",\
+                                                       sig,\
+                                                       size, __func__ );
+
+/******************************************************************************/
+typedef struct _G3DIMPORTDATA {
+    G3DSCENE  *currentScene;
+    G3DOBJECT *currentObject;
+    uint32_t   currentObjectID;
+    char       currentObjectName[0x100];
+    uint32_t   engineFlags;
+    uint32_t   indentLevel;
+} G3DIMPORTDATA;
+
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
                               uint32_t    flags );
+
+uint32_t g3dimport_freadll ( float *ll, FILE *stream );
+uint32_t g3dimport_freadl ( long *l, FILE *stream );
+uint32_t g3dimport_freadf ( float *f, FILE *stream );
+uint32_t g3dimport_fread ( void   *ptr,
+                           size_t  size,
+                           size_t  count,
+                           FILE   *stream );
+
+void g3dimportscene     ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportobject    ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 #endif

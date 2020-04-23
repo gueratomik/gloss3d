@@ -30,11 +30,46 @@
 #include <config.h>
 #include <g3dimportv2.h>
 
+
+/******************************************************************************/
+void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
+
+    g3dimportdata_incrementIndentLevel ( gid );
+
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_OBJECT : {
+                g3dimportobject ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
+}
+
+
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
                               uint32_t    flags ) {
-    G3DSCENE *sce = g3dscene_new ( 0x00, "Scene" );
-    uint32_t chunksig, chunklen;
+    uint32_t chunkSignature, chunkSize;
+    G3DIMPORTDATA gid;
     FILE *fsrc = NULL;
 
     if ( ( fsrc = fopen ( filename, "rb" ) ) == NULL ) {
@@ -43,31 +78,37 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
         return 0x00;
     }
 
-    readf ( &chunksig, sizeof ( uint32_t ), 0x01, fsrc );
-    readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+    memset ( &gid, 0x00, sizeof ( G3DIMPORTDATA ) );
+
+    gid.currentScene = g3dscene_new ( gid.currentObjectID++, "Scene" );
+    gid.engineFlags  = VIEWOBJECT;
+
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
-        fprintf( stderr, "SIG:%X LEN:%d\n", chunksig, chunklen );
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid.indentLevel);
 
-        switch ( chunksig ) {
-
-            case SIG_OBJECT : {
-                fprintf ( stderr, "Object found\n" );
-
-                g3dimportobject ( sce, fsrc );
+        switch ( chunkSignature ) {
+            case SIG_ROOT : {
+                g3dimportroot ( &gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
 
-            default :
-                fseek ( fsrc, chunklen, SEEK_CUR );
-            break;
+                /*if ( ftell ( fsrc ) == chunkEnd ) {*/
+                    /** hand the file back to the parent function ***/
+                    /*return sce;
+                }*/
+            } break;
         }
 
-        readf ( &chunksig, sizeof ( uint32_t ), 0x01, fsrc );
-        readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
     fclose ( fsrc );
 
-    return sce;
+    return gid.currentScene;
 }

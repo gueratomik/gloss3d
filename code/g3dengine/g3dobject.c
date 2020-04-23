@@ -1347,27 +1347,38 @@ uint32_t g3dobject_isChild ( G3DOBJECT *parent, G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis ) {
+    LIST *ltmpobj = obj->lchildren;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
+
+        g3dobject_treeToList_r ( child, lis );
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    list_insert ( lis, obj );
+}
+
+/******************************************************************************/
 G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
     LIST *ltmp = obj->lchildren;
     G3DOBJECT *sel = NULL;
 
-    while ( ltmp ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
+    if ( obj->id == id ) {
+        sel = obj;
+    } else {
+        while ( ltmp ) {
+            G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-        if ( child->id == id ) {
+            sel = g3dobject_getChildByID ( child, id );
 
-            return child;
-        } else {
-            if ( sel = g3dobject_getChildByID ( child, id ) ) {
-
-                return sel;
-            }
+            ltmp = ltmp->next;
         }
-
-        ltmp = ltmp->next;
     }
 
-    return NULL;
+    return sel;
 }
 
 /******************************************************************************/
