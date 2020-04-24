@@ -30,36 +30,31 @@
 #include <g3dexportv2.h>
 
 
-
 /******************************************************************************/
-static uint32_t g3dexportmaterial_diffuse ( G3DEXPORTDATA *ged, 
-                                            G3DMATERIAL   *mat, 
-                                            uint32_t       flags, 
-                                            FILE          *fdst ) {
+static uint32_t g3dexportmyobjectvar ( G3DEXPORTDATA *ged, 
+                                       mytype        *myobject, 
+                                       uint32_t       flags, 
+                                       FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_CHANNEL,
-                                   g3dexportchannel,
-                                   ged,
-                                  &mat->diffuse,
-                                   0xFFFFFFFF,
-                                   fdst );
+    size += g3dexport_fwrite ( &myobject->myvar, sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 
 /******************************************************************************/
-uint32_t g3dexportmaterial  ( G3DEXPORTDATA *ged, 
-                              G3DMATERIAL   *mat, 
+uint32_t g3dexportmyobject ( G3DEXPORTDATA *ged, 
+                              mytype        *myobject, 
                               uint32_t       flags, 
                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_MATERIAL_DIFFUSE,
-                                   g3dexportmaterial_diffuse,
+
+    size += g3dexport_writeChunk ( SIG_XXXXXXX,
+                                   g3dexportxxxxx,
                                    ged,
-                                   mat,
+                                   myobject,
                                    0xFFFFFFFF,
                                    fdst );
 

@@ -16,7 +16,7 @@ do
     LBL=`echo $i | awk '{ print $1 }'`
     SIG=`echo $LBL | cksum  | awk '{ printf "0x%08X\n", $1}'`
     echo "#define $LBL $SIG"
-done  > $tmpout
+done  | sort -u > $tmpout
 
 cat $tmpout | column -t >> $header
 

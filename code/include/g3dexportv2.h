@@ -186,6 +186,10 @@ uint32_t g3dexportmesh ( G3DEXPORTDATA *ged,
                          G3DMESH       *mes, 
                          uint32_t       flags, 
                          FILE          *fdst );
+uint32_t g3dexportchannel  ( G3DEXPORTDATA *ged, 
+                             G3DCHANNEL    *cha,
+                             uint32_t       flags, 
+                             FILE          *fdst );
 
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
 uint32_t g3dexport_fwritel ( long *l, FILE *stream );

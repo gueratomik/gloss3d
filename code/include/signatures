@@ -13,14 +13,70 @@ SIG_ROOT
 --------------- SIG_OBJECT_SCENE
 ------------------- SIG_MATERIALS
 ----------------------- SIG_MATERIAL_ENTRY
+--------------------------- SIG_MATERIAL_NAME
+------------------------------- Name ( char[] )
+--------------------------- SIG_MATERIAL_FLAGS
+------------------------------- Flags ( uint32_t )
 --------------------------- SIG_MATERIAL_DIFFUSE
 ------------------------------- SIG_CHANNEL
 ----------------------------------- SIG_CHANNEL_SOLID
+--------------------------------------- Red-Green-Blue-Alpha (float-float-float-float)
 ----------------------------------- SIG_CHANNEL_IMAGE
+--------------------------------------- Path ( char[] )
 ----------------------------------- SIG_CHANNEL_PROCEDURAL
 --------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK_COLORS
+--------------------------------------------------- color1 (float-float-float-float)
+--------------------------------------------------- color2 (float-float-float-float)
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY
+--------------------------------------------------- nbBricksPerLine (uint32_t)
+--------------------------------------------------- nbLines (uint32_t)
+--------------------------------------------------- uspacing (float)
+--------------------------------------------------- vspacing (float)
 --------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS_COLORS
+--------------------------------------------------- color1 (float-float-float-float)
+--------------------------------------------------- color2 (float-float-float-float)
+------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY
+----------------------------------------------- udiv ( uint32_t )
+----------------------------------------------- vdiv ( uint32_t )
 --------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_COLORS
+--------------------------------------------------- color1 (float-float-float-float)
+--------------------------------------------------- color2 (float-float-float-float)
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY
+--------------------------------------------------- ?
+--------------------------- SIG_MATERIAL_DISPLACEMENT
+------------------------------- SIG_MATERIAL_DISPLACEMENT_STRENGTH
+----------------------------------- strengh ( float )
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+--------------------------- SIG_MATERIAL_SPECULAR
+------------------------------- SIG_MATERIAL_SPECULAR_SHININESS
+----------------------------------- shininess ( float )
+------------------------------- SIG_MATERIAL_SPECULAR_LEVEL
+----------------------------------- level ( float )
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+--------------------------- SIG_MATERIAL_BUMP
+------------------------------- SIG_MATERIAL_BUMP_STRENGTH
+----------------------------------- shininess ( float )
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+--------------------------- SIG_MATERIAL_REFLECTION
+------------------------------- SIG_MATERIAL_REFLECTION_STRENGTH
+----------------------------------- strength ( float )
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+--------------------------- SIG_MATERIAL_REFRACTION
+------------------------------- SIG_MATERIAL_REFRACTION_STRENGTH
+----------------------------------- strength ( float )
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+--------------------------- SIG_MATERIAL_ALPHA
+------------------------------- SIG_CHANNEL
+----------------------------------- ...
+
 --------------- SIG_OBJECT_PRIMITIVE
 ------------------- SIG_OBJECT_PRIMITIVE_SPHERE
 ----------------------- Radius ( float    )
