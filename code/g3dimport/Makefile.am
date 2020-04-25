@@ -15,6 +15,7 @@ LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
                             v2/g3dimportmaterial.c \
                             v2/g3dimportmesh.c \
                             v2/g3dimportmodifiers.c \
+                            v2/g3dimportuvmap.c \
                             v2/g3dimportobject.c \
                             v2/g3dimportprimitive.c \
                             v2/g3dimportscene.c \

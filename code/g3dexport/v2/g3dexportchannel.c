@@ -38,7 +38,7 @@ static uint32_t g3dexportchannel_proceduralNoiseGeometry ( G3DEXPORTDATA *ged,
     uint32_t size = 0x00;
 
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -53,17 +53,17 @@ static uint32_t g3dexportchannel_proceduralNoiseColors ( G3DEXPORTDATA *ged,
     g3drgba_toColor ( &noise->color1, &color1 );
     g3drgba_toColor ( &noise->color2, &color2 );
 
-    size += g3dexport_fwritel ( &color1.r, fdst );
-    size += g3dexport_fwritel ( &color1.g, fdst );
-    size += g3dexport_fwritel ( &color1.b, fdst );
-    size += g3dexport_fwritel ( &color1.a, fdst );
+    size += g3dexport_fwritef ( &color1.r, fdst );
+    size += g3dexport_fwritef ( &color1.g, fdst );
+    size += g3dexport_fwritef ( &color1.b, fdst );
+    size += g3dexport_fwritef ( &color1.a, fdst );
 
-    size += g3dexport_fwritel ( &color2.r, fdst );
-    size += g3dexport_fwritel ( &color2.g, fdst );
-    size += g3dexport_fwritel ( &color2.b, fdst );
-    size += g3dexport_fwritel ( &color2.a, fdst );
+    size += g3dexport_fwritef ( &color2.r, fdst );
+    size += g3dexport_fwritef ( &color2.g, fdst );
+    size += g3dexport_fwritef ( &color2.b, fdst );
+    size += g3dexport_fwritef ( &color2.a, fdst );
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -100,7 +100,7 @@ static uint32_t g3dexportchannel_proceduralChessGeometry ( G3DEXPORTDATA *ged,
     size += g3dexport_fwritel ( &chess->udiv, fdst );
     size += g3dexport_fwritel ( &chess->vdiv, fdst );
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -115,17 +115,17 @@ static uint32_t g3dexportchannel_proceduralChessColors ( G3DEXPORTDATA *ged,
     g3drgba_toColor ( &chess->color1, &color1 );
     g3drgba_toColor ( &chess->color2, &color2 );
 
-    size += g3dexport_fwritel ( &color1.r, fdst );
-    size += g3dexport_fwritel ( &color1.g, fdst );
-    size += g3dexport_fwritel ( &color1.b, fdst );
-    size += g3dexport_fwritel ( &color1.a, fdst );
+    size += g3dexport_fwritef ( &color1.r, fdst );
+    size += g3dexport_fwritef ( &color1.g, fdst );
+    size += g3dexport_fwritef ( &color1.b, fdst );
+    size += g3dexport_fwritef ( &color1.a, fdst );
 
-    size += g3dexport_fwritel ( &color2.r, fdst );
-    size += g3dexport_fwritel ( &color2.g, fdst );
-    size += g3dexport_fwritel ( &color2.b, fdst );
-    size += g3dexport_fwritel ( &color2.a, fdst );
+    size += g3dexport_fwritef ( &color2.r, fdst );
+    size += g3dexport_fwritef ( &color2.g, fdst );
+    size += g3dexport_fwritef ( &color2.b, fdst );
+    size += g3dexport_fwritef ( &color2.a, fdst );
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -164,7 +164,7 @@ static uint32_t g3dexportchannel_proceduralBrickGeometry ( G3DEXPORTDATA *ged,
     size += g3dexport_fwritef ( &brick->uspacing       , fdst );
     size += g3dexport_fwritef ( &brick->vspacing       , fdst );
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -179,17 +179,17 @@ static uint32_t g3dexportchannel_proceduralBrickColors ( G3DEXPORTDATA *ged,
     g3drgba_toColor ( &brick->brickColor  , &color1 );
     g3drgba_toColor ( &brick->spacingColor, &color2 );
 
-    size += g3dexport_fwritel ( &color1.r, fdst );
-    size += g3dexport_fwritel ( &color1.g, fdst );
-    size += g3dexport_fwritel ( &color1.b, fdst );
-    size += g3dexport_fwritel ( &color1.a, fdst );
+    size += g3dexport_fwritef ( &color1.r, fdst );
+    size += g3dexport_fwritef ( &color1.g, fdst );
+    size += g3dexport_fwritef ( &color1.b, fdst );
+    size += g3dexport_fwritef ( &color1.a, fdst );
 
-    size += g3dexport_fwritel ( &color2.r, fdst );
-    size += g3dexport_fwritel ( &color2.g, fdst );
-    size += g3dexport_fwritel ( &color2.b, fdst );
-    size += g3dexport_fwritel ( &color2.a, fdst );
+    size += g3dexport_fwritef ( &color2.r, fdst );
+    size += g3dexport_fwritef ( &color2.g, fdst );
+    size += g3dexport_fwritef ( &color2.b, fdst );
+    size += g3dexport_fwritef ( &color2.a, fdst );
 
-    return 0x00;
+    return size;
 }
 
 /******************************************************************************/
@@ -212,6 +212,20 @@ static uint32_t g3dexportchannel_proceduralBrick ( G3DEXPORTDATA *ged,
                                    cha,
                                    0xFFFFFFFF,
                                    fdst );
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportchannel_proceduralResolution ( G3DEXPORTDATA *ged,
+                                                        G3DCHANNEL    *cha,
+                                                        uint32_t       flags, 
+                                                        FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &cha->proc->image.width        , fdst );
+    size += g3dexport_fwritel ( &cha->proc->image.height       , fdst );
+    size += g3dexport_fwritel ( &cha->proc->image.bytesPerPixel, fdst );
+
     return size;
 }
 
@@ -254,6 +268,13 @@ static uint32_t g3dexportchannel_procedural ( G3DEXPORTDATA *ged,
         default :
         break;
     }
+
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_RESOLUTION,
+                                   g3dexportchannel_proceduralResolution,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     return size;
 }

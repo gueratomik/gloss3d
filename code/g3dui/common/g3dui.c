@@ -382,6 +382,9 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
 
             g3dui_unsetHourGlass ( gui );
 
+	    g3dui_clearMaterials ( gui );
+	    g3dui_importMaterials ( gui );
+
             return gui->sce;
         } else {
             g3dui_unsetHourGlass ( gui );

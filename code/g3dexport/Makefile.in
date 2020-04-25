@@ -138,8 +138,9 @@ am__objects_1 = g3dexport.lo g3dexportextension.lo v2/g3dexportapp.lo \
 	v2/g3dexportchannel.lo v2/g3dexportlight.lo \
 	v2/g3dexportmaterial.lo v2/g3dexportmesh.lo \
 	v2/g3dexportmodifiers.lo v2/g3dexportobject.lo \
-	v2/g3dexportprimitive.lo v2/g3dexportscene.lo \
-	v2/g3dexportspline.lo v2/g3dexporttext.lo stl.lo pov.lo obj.lo
+	v2/g3dexportprimitive.lo v2/g3dexportuvmap.lo \
+	v2/g3dexportscene.lo v2/g3dexportspline.lo v2/g3dexporttext.lo \
+	stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -176,7 +177,7 @@ am__depfiles_remade = ./$(DEPDIR)/g3dexport.Plo \
 	v2/$(DEPDIR)/g3dexportprimitive.Plo \
 	v2/$(DEPDIR)/g3dexportscene.Plo \
 	v2/$(DEPDIR)/g3dexportspline.Plo \
-	v2/$(DEPDIR)/g3dexporttext.Plo
+	v2/$(DEPDIR)/g3dexporttext.Plo v2/$(DEPDIR)/g3dexportuvmap.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -365,6 +366,7 @@ LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             v2/g3dexportmodifiers.c \
                             v2/g3dexportobject.c \
                             v2/g3dexportprimitive.c \
+                            v2/g3dexportuvmap.c \
                             v2/g3dexportscene.c \
                             v2/g3dexportspline.c \
                             v2/g3dexporttext.c \
@@ -461,6 +463,7 @@ v2/g3dexportmodifiers.lo: v2/$(am__dirstamp) \
 v2/g3dexportobject.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportprimitive.lo: v2/$(am__dirstamp) \
 	v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dexportuvmap.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportscene.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportspline.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexporttext.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
@@ -495,6 +498,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportscene.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportspline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexporttext.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportuvmap.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -682,6 +686,7 @@ distclean: distclean-am
 	-rm -f v2/$(DEPDIR)/g3dexportscene.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportspline.Plo
 	-rm -f v2/$(DEPDIR)/g3dexporttext.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportuvmap.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -746,6 +751,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v2/$(DEPDIR)/g3dexportscene.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportspline.Plo
 	-rm -f v2/$(DEPDIR)/g3dexporttext.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportuvmap.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -31,13 +31,37 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged, 
+                                          G3DMESH        *mes, 
+                                          uint32_t        flags, 
+                                          FILE           *fdst ) {
+    LIST *ltmpuvmap = mes->luvmap;
+    uint32_t size = 0x00;
+
+    while ( ltmpuvmap ) {
+        G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_ENTRY,
+                                       g3dexportuvmap,
+                                       ged,
+                                       uvmap,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpuvmap = ltmpuvmap->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportobject_keysKeyLoop ( G3DEXPORTDATA *ged, 
                                               G3DKEY        *key,
                                               uint32_t       flags, 
                                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &key->loopFrame, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritef ( &key->loopFrame, fdst );
 
     return size;
 }
@@ -52,22 +76,22 @@ static uint32_t g3dexportobject_keysKeyTransformation ( G3DEXPORTDATA *ged,
     uint32_t usesca = ( key->flags & KEYSCALING  ) ? 0x01 : 0x00;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &key->frame, sizeof ( float    ), 0x01, fdst );
+    size += g3dexport_fwritef ( &key->frame, fdst );
 
-    size += g3dexport_fwrite ( &key->pos.x, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->pos.y, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->pos.z, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &usepos    , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritef ( &key->pos.x, fdst );
+    size += g3dexport_fwritef ( &key->pos.y, fdst );
+    size += g3dexport_fwritef ( &key->pos.z, fdst );
+    size += g3dexport_fwritel ( &usepos    , fdst );
 
-    size += g3dexport_fwrite ( &key->rot.x, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->rot.y, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->rot.z, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &userot    , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritef ( &key->rot.x, fdst );
+    size += g3dexport_fwritef ( &key->rot.y, fdst );
+    size += g3dexport_fwritef ( &key->rot.z, fdst );
+    size += g3dexport_fwritel ( &userot    , fdst );
 
-    size += g3dexport_fwrite ( &key->sca.x, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->sca.y, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &key->sca.z, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &usesca    , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritef ( &key->sca.x, fdst );
+    size += g3dexport_fwritef ( &key->sca.y, fdst );
+    size += g3dexport_fwritef ( &key->sca.z, fdst );
+    size += g3dexport_fwritel ( &usesca    , fdst );
 
     return size;
 }
@@ -132,20 +156,20 @@ static uint32_t g3dexportobject_transformation ( G3DEXPORTDATA *ged,
                                                  FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &obj->pos.x, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->pos.y, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->pos.z, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->pos.w, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritef ( &obj->pos.x, fdst );
+    size += g3dexport_fwritef ( &obj->pos.y, fdst );
+    size += g3dexport_fwritef ( &obj->pos.z, fdst );
+    size += g3dexport_fwritef ( &obj->pos.w, fdst );
 
-    size += g3dexport_fwrite ( &obj->rot.x, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->rot.y, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->rot.z, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->rot.w, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritef ( &obj->rot.x, fdst );
+    size += g3dexport_fwritef ( &obj->rot.y, fdst );
+    size += g3dexport_fwritef ( &obj->rot.z, fdst );
+    size += g3dexport_fwritef ( &obj->rot.w, fdst );
 
-    size += g3dexport_fwrite ( &obj->sca.x, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->sca.y, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->sca.z, sizeof ( float ), 0x01, fdst );
-    size += g3dexport_fwrite ( &obj->sca.w, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritef ( &obj->sca.x, fdst );
+    size += g3dexport_fwritef ( &obj->sca.y, fdst );
+    size += g3dexport_fwritef ( &obj->sca.z, fdst );
+    size += g3dexport_fwritef ( &obj->sca.w, fdst );
 
     return size;
 }
@@ -157,7 +181,7 @@ static uint32_t g3dexportobject_identityActive ( G3DEXPORTDATA *ged,
                                                  FILE          *fdst ) {
     uint32_t active = ( obj->flags & OBJECTINACTIVE ) ? 0x01 : 0x00;
 
-    return g3dexport_fwrite ( &active, sizeof ( uint32_t ), 0x01, fdst );
+    return g3dexport_fwritel ( &active, fdst );
 }
 
 /******************************************************************************/
@@ -327,6 +351,21 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
+    }
+
+    /*** This concerns primitive as well and maybe other objects in ***/
+    /*** future developments so this goes here and not in g3dexportmesh() ***/
+    if ( obj->type & MESH ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+
+        if ( mes->luvmap ) {
+            size += g3dexport_writeChunk ( SIG_OBJECT_UVMAPS,
+                                           g3dexportobject_uvmaps,
+                                           ged,
+                                           mes,
+                                           0xFFFFFFFF,
+                                           fdst );
+        }
     }
 
     return size;

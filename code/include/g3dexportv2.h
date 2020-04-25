@@ -190,6 +190,14 @@ uint32_t g3dexportchannel  ( G3DEXPORTDATA *ged,
                              G3DCHANNEL    *cha,
                              uint32_t       flags, 
                              FILE          *fdst );
+uint32_t g3dexportmaterial  ( G3DEXPORTDATA *ged, 
+                              G3DMATERIAL   *mat, 
+                              uint32_t       flags, 
+                              FILE          *fdst );
+uint32_t g3dexportuvmap ( G3DEXPORTDATA  *ged, 
+                          G3DUVMAP       *uvmap, 
+                          uint32_t        flags, 
+                          FILE           *fdst );
 
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
 uint32_t g3dexport_fwritel ( long *l, FILE *stream );

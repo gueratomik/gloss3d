@@ -465,7 +465,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
             break;
 
             case UVMAPSIG :
-                map = g3duvmap_new ( /*objid,*/ objname, 0x00, 0x00 );
+                map = g3duvmap_new ( /*objid,*/ objname, 0x00 );
 
                 obj = ( G3DOBJECT * ) map;
 

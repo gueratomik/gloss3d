@@ -49,7 +49,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
 
         switch ( chunkSignature ) {
             case SIG_OBJECT_SCENE : {
-
+                g3dimportscene ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_MESH : {
@@ -136,26 +136,26 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_IDENTITY_ACTIVE : {
-                g3dimport_fread ( &active, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimport_freadl ( &active, fsrc );
             } break;
 
             case SIG_OBJECT_TRANSFORMATION : {
                 G3DVECTOR pos, rot, sca;
 
-                g3dimport_fread ( &pos.x, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &pos.y, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &pos.z, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &pos.w, sizeof ( float ), 0x01, fsrc );
+                g3dimport_freadf ( &pos.x, fsrc );
+                g3dimport_freadf ( &pos.y, fsrc );
+                g3dimport_freadf ( &pos.z, fsrc );
+                g3dimport_freadf ( &pos.w, fsrc );
 
-                g3dimport_fread ( &rot.x, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &rot.y, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &rot.z, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &rot.w, sizeof ( float ), 0x01, fsrc );
+                g3dimport_freadf ( &rot.x, fsrc );
+                g3dimport_freadf ( &rot.y, fsrc );
+                g3dimport_freadf ( &rot.z, fsrc );
+                g3dimport_freadf ( &rot.w, fsrc );
 
-                g3dimport_fread ( &sca.x, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &sca.y, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &sca.z, sizeof ( float ), 0x01, fsrc );
-                g3dimport_fread ( &sca.w, sizeof ( float ), 0x01, fsrc );
+                g3dimport_freadf ( &sca.x, fsrc );
+                g3dimport_freadf ( &sca.y, fsrc );
+                g3dimport_freadf ( &sca.z, fsrc );
+                g3dimport_freadf ( &sca.w, fsrc );
 
                 if ( gid->currentObject ) {
                     memcpy ( &gid->currentObject->pos, &pos, sizeof ( G3DVECTOR ) );
@@ -164,6 +164,10 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     g3dobject_updateMatrix_r ( gid->currentObject, 0x00 );
                 }
+            } break;
+
+            case SIG_OBJECT_UVMAPS : {
+                g3dimportuvmap ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_KEYS : {
@@ -178,22 +182,22 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DVECTOR pos, rot, sca;
                 float frame;
 
-                g3dimport_fread ( &frame, sizeof ( float ), 0x01, fsrc );
+                g3dimport_freadf ( &frame, fsrc );
 
-                g3dimport_fread ( &pos.x , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &pos.y , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &pos.z , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &usepos, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimport_freadf ( &pos.x , fsrc );
+                g3dimport_freadf ( &pos.y , fsrc );
+                g3dimport_freadf ( &pos.z , fsrc );
+                g3dimport_freadl ( &usepos, fsrc );
 
-                g3dimport_fread ( &rot.x , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &rot.y , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &rot.z , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &userot, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimport_freadf ( &rot.x , fsrc );
+                g3dimport_freadf ( &rot.y , fsrc );
+                g3dimport_freadf ( &rot.z , fsrc );
+                g3dimport_freadl ( &userot, fsrc );
 
-                g3dimport_fread ( &sca.x , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &sca.y , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &sca.z , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &usesca, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimport_freadf ( &sca.x , fsrc );
+                g3dimport_freadf ( &sca.y , fsrc );
+                g3dimport_freadf ( &sca.z , fsrc );
+                g3dimport_freadl ( &usesca, fsrc );
 
                 if ( usepos ) key_flags |= KEYPOSITION;
                 if ( userot ) key_flags |= KEYROTATION;
@@ -213,7 +217,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_KEY_LOOP : {
                 float loopFrame;
 
-                g3dimport_fread ( &loopFrame, sizeof ( float ), 0x01, fsrc );
+                g3dimport_freadf ( &loopFrame, fsrc );
 
                 g3dkey_setLoop ( key );
                 g3dkey_setLoopFrame ( key, loopFrame );

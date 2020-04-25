@@ -17,6 +17,7 @@
 #define  SIG_CHANNEL_PROCEDURAL_NOISE           0x5555DA0A
 #define  SIG_CHANNEL_PROCEDURAL_NOISE_COLORS    0xA5915616
 #define  SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY  0x89DD35EB
+#define  SIG_CHANNEL_PROCEDURAL_RESOLUTION      0xEE216EAF
 #define  SIG_CHANNEL_SOLID                      0x6393699E
 #define  SIG_MATERIAL_ALPHA                     0x563A65EF
 #define  SIG_MATERIAL_BUMP                      0x9679768A
@@ -64,13 +65,14 @@
 #define  SIG_OBJECT_SCENE                       0x4BBB8318
 #define  SIG_OBJECT_TRANSFORMATION              0x032337DC
 #define  SIG_OBJECT_UVMAP_ENTRY                 0x421863FA
-#define  SIG_OBJECT_UVMAP_INFO                  0x5EA65E22
+#define  SIG_OBJECT_UVMAP_FLAGS                 0x1562ED1C
+#define  SIG_OBJECT_UVMAP_MATERIAL_ENTRY        0xE5352318
 #define  SIG_OBJECT_UVMAP_MATERIALS             0x8A00FA5A
 #define  SIG_OBJECT_UVMAP_NAME                  0x319D470A
+#define  SIG_OBJECT_UVMAP_PROJECTION            0x3130507A
 #define  SIG_OBJECT_UVMAP_RADIUS                0x0D43B328
 #define  SIG_OBJECT_UVMAPS                      0xA51EEC38
 #define  SIG_OBJECT_UVMAP_TRANSFORMATION        0x69781F09
-#define  SIG_OBJECT_UVMAP_UVSET_ENTRY           0x91836C87
 #define  SIG_OBJECT_UVMAP_UVSETS                0xCF19BC88
 #define  SIG_ROOT                               0x99AD335D
 

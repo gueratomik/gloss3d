@@ -46,6 +46,10 @@ SIG_ROOT
 --------------------------------------------------- color2 (float-float-float-float)
 ----------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY
 --------------------------------------------------- ?
+----------------------------------- SIG_CHANNEL_PROCEDURAL_RESOLUTION
+--------------------------------------- width  ( uint32_t )
+--------------------------------------- height ( uint32_t )
+--------------------------------------- depth  ( uint32_t ) /* in bytes */
 --------------------------- SIG_MATERIAL_DISPLACEMENT
 ------------------------------- SIG_MATERIAL_DISPLACEMENT_STRENGTH
 ----------------------------------- strengh ( float )
@@ -133,20 +137,21 @@ SIG_ROOT
 
 --------------- SIG_OBJECT_UVMAPS
 ------------------- SIG_OBJECT_UVMAP_ENTRY
+----------------------- SIG_OBJECT_UVMAP_PROJECTION
+--------------------------- Projection (uint32_t)
 ----------------------- SIG_OBJECT_UVMAP_NAME
 --------------------------- Name ( char[] )
+----------------------- SIG_OBJECT_UVMAP_FLAGS
+--------------------------- Flags (uint32_t)
 ----------------------- SIG_OBJECT_UVMAP_RADIUS
 --------------------------- xradius (float)
 --------------------------- yradius (float)
------------------------ SIG_OBJECT_UVMAP_INFO
---------------------------- Projection (uint32_t)
---------------------------- Fixed      (uint32_t) /*** UVMap locked ? ***/
------------------------ SIG_OBJECT_UVMAP_UVSETS
---------------------------- SIG_OBJECT_UVMAP_UVSET_ENTRY
-------------------------------- (flags,faceID,uv[0x04]), (uint32_t,uint32_t,float[0x08])
 ----------------------- SIG_OBJECT_UVMAP_MATERIALS
---------------------------- nbmaterials (uint32_t) /*** UVMap locked ? ***/
---------------------------- Array[] materialID (uint32_t)
+--------------------------- SIG_OBJECT_UVMAP_MATERIAL_ENTRY
+------------------------------- materialID (uint32_t)
+----------------------- SIG_OBJECT_UVMAP_UVSETS
+--------------------------- nbUVSets (uint32_t)
+--------------------------- Array (flags,faceID,uv[0x04]), (uint32t_t,uint32_t,float[0x08])
 ----------------------- SIG_OBJECT_UVMAP_TRANSFORMATION
 --------------------------- Position ( float-float-float-float )
 --------------------------- Rotation ( float-float-float-float )

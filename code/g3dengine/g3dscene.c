@@ -236,6 +236,21 @@ void g3dscene_selectTree ( G3DSCENE *sce, G3DOBJECT *obj, int same ) {
 }
 
 /******************************************************************************/
+G3DMATERIAL *g3dscene_getMaterialByID ( G3DSCENE *sce, uint32_t id ) {
+    LIST *ltmpmat = sce->lmat;
+
+    while ( ltmpmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
+
+        if ( mat->id == id ) return mat;
+
+        ltmpmat = ltmpmat->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dscene_addMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
     list_insert ( &sce->lmat, mat );
 

@@ -31,11 +31,45 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportscene_materials ( G3DEXPORTDATA *ged, 
+                                           G3DSCENE      *sce, 
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
+    LIST *ltmpmat = sce->lmat;
+    uint32_t matID = 0x00;
+    uint32_t size = 0x00;
+
+    while ( ltmpmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
+
+        mat->id = matID++;
+
+        size += g3dexport_writeChunk ( SIG_MATERIAL_ENTRY,
+                                       g3dexportmaterial,
+                                       ged,
+                                       mat,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpmat = ltmpmat->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 uint32_t g3dexportscene ( G3DEXPORTDATA *ged, 
                           G3DSCENE      *sce, 
                           uint32_t       flags, 
                           FILE          *fdst ) {
     uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_MATERIALS,
+                                   g3dexportscene_materials,
+                                   ged,
+                                   sce,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     return size;
 }
@@ -54,7 +88,7 @@ uint32_t g3dexportroot ( G3DEXPORTDATA *ged,
     g3dobject_treeToList_r ( sce, &lobj );
 
     ltmpobj = lobj;
-
+printf("%s %d %d\n", __func__, list_count ( lobj ), fdst );
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 

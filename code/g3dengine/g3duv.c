@@ -330,6 +330,8 @@ void g3duvmap_getFlatUV ( G3DUVMAP  *map,
     g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
     g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
 
+g3dcore_printMatrix ( parent->wmatrix, 4, 4 );
+
     (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
     (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;
 }
@@ -554,8 +556,7 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
 }*/
 
 /******************************************************************************/
-void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t policy,
-                                                uint32_t projection ) {
+void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
     g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, DRAWBEFORECHILDREN,
@@ -573,12 +574,10 @@ void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t policy,
     /*obj->copy = g3dprimitive_copy;*/
 
     map->projection = projection;
-    map->policy     = policy;
 }
 
 /******************************************************************************/
-G3DUVMAP *g3duvmap_new ( char *name, uint32_t policy,
-                                     uint32_t projection ) {
+G3DUVMAP *g3duvmap_new ( char *name, uint32_t projection ) {
     G3DUVMAP *map = ( G3DUVMAP * ) calloc ( 0x01, sizeof ( G3DUVMAP ) );
 
     if ( map == NULL ) {
@@ -587,7 +586,7 @@ G3DUVMAP *g3duvmap_new ( char *name, uint32_t policy,
         return NULL; 
     }
 
-    g3duvmap_init ( map, name, policy, projection );
+    g3duvmap_init ( map, name, projection );
 
 
     return map;

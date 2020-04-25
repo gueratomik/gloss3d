@@ -65,9 +65,7 @@ void g3dmaterial_removeObject ( G3DMATERIAL *mat, G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dmaterial_enableReflectionImageColor ( G3DMATERIAL *mat ) {
-        mat->flags &= (~USECHANNELMASK); /*** clear flags first ***/
-
-        mat->reflection.flags |= USEIMAGECOLOR;
+    g3dchannel_enableImageColor ( &mat->reflection );
 }
 
 /******************************************************************************/
@@ -78,35 +76,26 @@ void g3dmaterial_addDiffuseImage ( G3DMATERIAL *mat, G3DIMAGE *colimg ) {
 }
 
 /******************************************************************************/
-G3DPROCEDURAL *g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat, G3DPROCEDURAL *proc ) {
+G3DPROCEDURAL *g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat,
+                                                  G3DPROCEDURAL *proc ) {
     G3DPROCEDURAL *previous = mat->diffuse.proc;
 
-    mat->diffuse.proc = proc;
-
-    g3dimage_bind ( &mat->diffuse.proc->image );
-
-    return previous;
+    return g3dchannel_setProcedural ( &mat->diffuse, proc, 0x01 );
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseSolidColor ( G3DMATERIAL *mat ) {
-        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
-
-        mat->diffuse.flags |= USESOLIDCOLOR;
+    g3dchannel_enableSolidColor ( &mat->diffuse );
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL *mat ) {
-        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
-
-        mat->diffuse.flags |= USEIMAGECOLOR;
+    g3dchannel_enableImageColor ( &mat->diffuse );
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDiffuseProcedural ( G3DMATERIAL *mat ) {
-        mat->diffuse.flags &= (~USECHANNELMASK); /*** clear flags first ***/
-
-        mat->diffuse.flags |= USEPROCEDURAL;
+    g3dchannel_enableProcedural ( &mat->diffuse );
 }
 
 /******************************************************************************/
@@ -117,11 +106,7 @@ void g3dmaterial_addDisplacementImage ( G3DMATERIAL *mat, G3DIMAGE *disimg ) {
 /******************************************************************************/
 G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat, 
                                                        G3DPROCEDURAL *proc ) {
-    G3DPROCEDURAL *previous = mat->diffuse.proc;
-
-    mat->displacement.proc = proc;
-
-    return previous;
+    return g3dchannel_setProcedural ( &mat->displacement, proc, 0x00 );
 }
 
 /******************************************************************************/
@@ -136,16 +121,12 @@ void g3dmaterial_disableDisplacement ( G3DMATERIAL *mat ) {
 
 /******************************************************************************/
 void g3dmaterial_enableDisplacementImageColor ( G3DMATERIAL *mat ) {
-        mat->displacement.flags &= (~USECHANNELMASK); /* clear flags first */
-
-        mat->displacement.flags |= USEIMAGECOLOR;
+    g3dchannel_enableImageColor ( &mat->displacement );
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL *mat ) {
-        mat->displacement.flags &= (~USECHANNELMASK); /*** clear flags first ***/
-
-        mat->displacement.flags |= USEPROCEDURAL;
+    g3dchannel_enableProcedural ( &mat->displacement );
 }
 
 /******************************************************************************/

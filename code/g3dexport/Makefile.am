@@ -18,6 +18,7 @@ LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             v2/g3dexportmodifiers.c \
                             v2/g3dexportobject.c \
                             v2/g3dexportprimitive.c \
+                            v2/g3dexportuvmap.c \
                             v2/g3dexportscene.c \
                             v2/g3dexportspline.c \
                             v2/g3dexporttext.c \

@@ -54,8 +54,14 @@
 
 /******************************************************************************/
 typedef struct _G3DIMPORTDATA {
-    G3DSCENE  *currentScene;
-    G3DOBJECT *currentObject;
+    G3DSCENE    *currentScene;
+    G3DOBJECT   *currentObject;
+    G3DMATERIAL *currentMaterial;
+    G3DCHANNEL  *currentChannel;
+    G3DUVMAP    *currentUVMap;
+    G3DVERTEX  **currentVertexArray;
+    G3DFACE    **currentFaceArray;
+    G3DFACE    **currentMaterialArray;
     uint32_t   currentObjectID;
     char       currentObjectName[0x100];
     uint32_t   engineFlags;
@@ -77,5 +83,8 @@ uint32_t g3dimport_fread ( void   *ptr,
 void g3dimportscene     ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportobject    ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 #endif

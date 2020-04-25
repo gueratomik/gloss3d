@@ -30,6 +30,41 @@
 #include <config.h>
 #include <g3dimportv2.h>
 
+/******************************************************************************/
+void g3dimportscene ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
+
+    g3dimportdata_incrementIndentLevel ( gid );
+
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_MATERIALS : {
+
+            } break;
+
+            case SIG_MATERIAL_ENTRY : {
+                g3dimportmaterial ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
+}
 
 /******************************************************************************/
 void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
@@ -47,7 +82,6 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT : {
                 g3dimportobject ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
-
 
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );

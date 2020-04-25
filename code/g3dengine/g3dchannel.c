@@ -30,6 +30,44 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
+                                          G3DPROCEDURAL *proc,
+                                          uint32_t       bindGL ) {
+    G3DPROCEDURAL *previous = cha->proc;
+
+    cha->proc = proc;
+
+    if ( bindGL ) {
+        glGenTextures ( 0x01, &proc->image.id );
+
+        g3dimage_bind ( &cha->proc->image );
+    }
+
+    return previous;
+}
+
+/******************************************************************************/
+void g3dchannel_enableProcedural ( G3DCHANNEL *cha ) {
+        cha->flags &= (~USECHANNELMASK); /*** clear flags first ***/
+
+        cha->flags |= USEPROCEDURAL;
+}
+
+/******************************************************************************/
+void g3dchannel_enableImageColor ( G3DCHANNEL *cha ) {
+        cha->flags &= (~USECHANNELMASK); /*** clear flags first ***/
+
+        cha->flags |= USEIMAGECOLOR;
+}
+
+/******************************************************************************/
+void g3dchannel_enableSolidColor ( G3DCHANNEL *cha ) {
+        cha->flags &= (~USECHANNELMASK); /*** clear flags first ***/
+
+        cha->flags |= USESOLIDCOLOR;
+}
+
+/******************************************************************************/
 void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
                                             float    v,
                                             G3DRGBA *rgba ) {

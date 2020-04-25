@@ -397,6 +397,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define BUMP_ENABLED         ( 1 <<  3 )
 #define REFLECTION_ENABLED   ( 1 <<  4 )
 #define REFRACTION_ENABLED   ( 1 <<  5 )
+#define ALPHA_ENABLED        ( 1 <<  6 )
 
 /******************************* Channel Flags ********************************/
 #define USESOLIDCOLOR        ( 1       )
@@ -572,10 +573,12 @@ typedef struct _G3DMATERIAL {
     G3DCHANNEL specular; 
     G3DCHANNEL reflection; 
     G3DCHANNEL refraction;
+    G3DCHANNEL alpha;
     float     transparency_strength;
     float     specular_level;  /*** specular intensity ***/
     float     shininess;  /*** specular shininess ***/
     float     displacement_strength;
+    float     bump_strength;
     LIST     *lobj;
     uint32_t  nbobj;
 } G3DMATERIAL;
@@ -739,7 +742,7 @@ typedef struct _G3DARBTEXCOORD {
 
 /******************************************************************************/
 struct _G3DUVSET {
-    uint64_t flags; /*** this wil lbe used for facegroup selection ***/
+    uint32_t  flags; /*** this wil lbe used for facegroup selection ***/
     G3DUVMAP *map;
     G3DUV     veruv[0x04];
     G3DUV     miduv[0x04];
@@ -2408,8 +2411,8 @@ void       g3duvmap_mapFace              ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_adjustFlatProjection ( G3DUVMAP *, G3DMESH *mes );
 void       g3duvmap_applyProjection      ( G3DUVMAP *, G3DMESH *mes );
 uint32_t   g3duvmap_draw                 ( G3DOBJECT *, G3DCAMERA *, uint32_t );
-void       g3duvmap_init                 ( G3DUVMAP *, char *, uint32_t, uint32_t );
-G3DUVMAP  *g3duvmap_new                  ( char *, uint32_t, uint32_t );
+void       g3duvmap_init                 ( G3DUVMAP *, char *, uint32_t );
+G3DUVMAP  *g3duvmap_new                  ( char *, uint32_t );
 void       g3duvmap_free                 ( G3DOBJECT * );
 G3DUV     *g3duv_new                     ( G3DUVSET * );
 void       g3duvmap_unfix                ( G3DUVMAP * );
@@ -2418,6 +2421,7 @@ void       g3duvset_subdivide            ( G3DUVSET *, G3DFACE * );
 void       g3duvmap_insertFace           ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_addMaterial          ( G3DUVMAP *, G3DMATERIAL * );
 void       g3duvmap_removeMaterial       ( G3DUVMAP *, G3DMATERIAL * );
+G3DMATERIAL *g3dscene_getMaterialByID      ( G3DSCENE *sce, uint32_t id );
 
 /******************************************************************************/
 void      g3dpivot_free ( G3DOBJECT * );
@@ -2507,6 +2511,11 @@ void          g3dwireframe_deactivate   ( G3DWIREFRAME *, uint32_t );
 
 /******************************************************************************/
 void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
+void g3dchannel_enableProcedural ( G3DCHANNEL *cha );
+void g3dchannel_enableImageColor ( G3DCHANNEL *cha );
+void g3dchannel_enableSolidColor ( G3DCHANNEL *cha );
+G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
+                                          G3DPROCEDURAL *proc, uint32_t );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

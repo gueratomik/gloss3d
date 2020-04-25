@@ -46,7 +46,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
             /*** A textured mesh should ALWAYS have a UVMAP.     ***/
             /*** Likely design issue - to FIX when I have time ***/
             if ( map == NULL ) {
-                map = g3duvmap_new ( "UVMap", 0x00, UVMAPFLAT );
+                map = g3duvmap_new ( "UVMap", UVMAPFLAT );
 
                 g3dmesh_addUVMap ( mes, map, gui->flags );
 
