@@ -2464,7 +2464,7 @@ void g3dprocedural_init ( G3DPROCEDURAL *,
                                             G3DRGBA * ) );
 void g3dprocedural_fill ( G3DPROCEDURAL *, uint32_t,
                                            uint32_t,
-                                           uint32_t );
+                                           uint32_t, uint32_t );
 
 /******************************************************************************/
 void g3dmodifier_init ( G3DMODIFIER *,
@@ -2515,7 +2515,7 @@ void g3dchannel_enableProcedural ( G3DCHANNEL *cha );
 void g3dchannel_enableImageColor ( G3DCHANNEL *cha );
 void g3dchannel_enableSolidColor ( G3DCHANNEL *cha );
 G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
-                                          G3DPROCEDURAL *proc, uint32_t );
+                                          G3DPROCEDURAL *proc );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

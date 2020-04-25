@@ -39,12 +39,15 @@ void g3dprocedural_init ( G3DPROCEDURAL *proc,
                                                 G3DRGBA * ) ) {
     proc->type       = type;
     proc->getColor   = func;
+
+    glGenTextures ( 0x01, &proc->image.id );
 }
 
 /******************************************************************************/
 void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
                                                uint32_t resy,
-                                               uint32_t bpp ) {
+                                               uint32_t bpp,
+                                               uint32_t bindGL ) {
     uint32_t i, j;
 
     proc->image.width  = resx;
@@ -85,4 +88,6 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
             }
         }
     }
+
+    if ( bindGL ) g3dimage_bind ( &proc->image );
 }

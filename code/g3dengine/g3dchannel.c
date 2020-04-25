@@ -31,17 +31,10 @@
 
 /******************************************************************************/
 G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
-                                          G3DPROCEDURAL *proc,
-                                          uint32_t       bindGL ) {
+                                          G3DPROCEDURAL *proc ) {
     G3DPROCEDURAL *previous = cha->proc;
 
     cha->proc = proc;
-
-    if ( bindGL ) {
-        glGenTextures ( 0x01, &proc->image.id );
-
-        g3dimage_bind ( &cha->proc->image );
-    }
 
     return previous;
 }

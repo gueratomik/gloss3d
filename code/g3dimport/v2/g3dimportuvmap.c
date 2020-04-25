@@ -153,6 +153,8 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 if ( mat ) {
                     g3dmesh_addMaterial ( gid->currentObject, mat, 
                                           gid->currentUVMap );
+                } else {
+fprintf(stderr, "%s: material not found: %d\n", __func__, matID);
                 }
             } break;
 

@@ -234,7 +234,6 @@ static uint32_t g3dexportchannel_procedural ( G3DEXPORTDATA *ged,
                                               G3DCHANNEL    *cha, 
                                               uint32_t       flags, 
                                               FILE          *fdst ) {
-    uint32_t filenameSize = strlen ( cha->image->filename );
     uint32_t size = 0x00;
 
     switch ( cha->proc->type ) {

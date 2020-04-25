@@ -37,6 +37,8 @@
 #define  SIG_MATERIAL_SPECULAR_LEVEL            0x24CA1ADB
 #define  SIG_MATERIAL_SPECULAR_SHININESS        0x92BEF4DC
 #define  SIG_OBJECT                             0xA0D6AA20
+#define  SIG_OBJECT_CAMERA                      0x590154D0
+#define  SIG_OBJECT_CAMERA_FOCAL                0x3B0925B4
 #define  SIG_OBJECT_IDENTITY                    0xFE404903
 #define  SIG_OBJECT_IDENTITY_ACTIVE             0x754FF5ED
 #define  SIG_OBJECT_IDENTITY_NAME               0x647F2371
@@ -46,6 +48,15 @@
 #define  SIG_OBJECT_KEY_LOOP                    0x0FEC17BD
 #define  SIG_OBJECT_KEYS                        0xBBE0F54D
 #define  SIG_OBJECT_KEY_TRANSFORMATION          0x499C5B71
+#define  SIG_OBJECT_LIGHT                       0x9722B4F3
+#define  SIG_OBJECT_LIGHT_AMBIENT               0x5857EAF8
+#define  SIG_OBJECT_LIGHT_DIFFUSE               0x95B25CFB
+#define  SIG_OBJECT_LIGHT_INTENSITY             0x482032B2
+#define  SIG_OBJECT_LIGHT_SHADOW                0xF365A4D5
+#define  SIG_OBJECT_LIGHT_SHADOW_CASTING        0xB34778F4
+#define  SIG_OBJECT_LIGHT_SHADOW_COLOR          0x45301A77
+#define  SIG_OBJECT_LIGHT_SPECULAR              0x4F876F5D
+#define  SIG_OBJECT_LIGHT_SPOT                  0x94A8DF01
 #define  SIG_OBJECT_MESH                        0xB5C6334F
 #define  SIG_OBJECT_MESH_GEOMETRY               0xB8E24649
 #define  SIG_OBJECT_MESH_GEOMETRY_POLYGONS      0x66659F93
@@ -55,6 +66,7 @@
 #define  SIG_OBJECT_MESH_WEIGHTGROUP_NAME       0x5ABC431A
 #define  SIG_OBJECT_MESH_WEIGHTGROUPS           0x48A48DC1
 #define  SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS    0x41E78C3A
+#define  SIG_OBJECT_NULL                        0x0E72D315
 #define  SIG_OBJECT_PRIMITIVE                   0xA61E4EB4
 #define  SIG_OBJECT_PRIMITIVE_CONE              0x14E5A54F
 #define  SIG_OBJECT_PRIMITIVE_CUBE              0xC1DBB750

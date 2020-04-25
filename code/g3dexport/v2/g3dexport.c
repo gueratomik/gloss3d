@@ -36,13 +36,13 @@ uint32_t g3dexport_fwritef ( float *f, FILE *stream ) {
 }
 
 /******************************************************************************/
-uint32_t g3dexport_fwritel ( long *l, FILE *stream ) {
-    return g3dexport_fwrite ( l, sizeof ( long ), 0x01, stream );
+uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream ) {
+    return g3dexport_fwrite ( l, sizeof ( uint32_t ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dexport_fwritell ( long long *ll, FILE *stream ) {
-    return g3dexport_fwrite ( ll, sizeof ( long long ), 0x01, stream );
+uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream ) {
+    return g3dexport_fwrite ( ll, sizeof ( uint64_t ), 0x01, stream );
 }
 
 /******************************************************************************/
@@ -79,18 +79,21 @@ uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
     /*** size. Side note : chunk size header is 8 bytes ***/
     uint32_t dummyChunkSize = 0x00;
     uint32_t chunkSize;
+    uint32_t chunkSizeOffset;
     uint32_t chunkEndPos;
     uint32_t size = 0x00;
 
     size += g3dexport_fwrite ( &chunkSignature, sizeof ( uint32_t  ), 0x01, fdst );
+
     size += g3dexport_fwrite ( &dummyChunkSize, sizeof ( uint32_t  ), 0x01, fdst );
 
     /*** write our data ***/
-    chunkSize = writeChunk ( ged, data, flags, fdst );
+    chunkSize = ( writeChunk ) ? writeChunk ( ged, data, flags, fdst ) : 0x00;
 
-    chunkEndPos = ftell ( fdst ); /*** memorize current position ***/
+    chunkEndPos  = ftell ( fdst ); /*** memorize current position ***/
+    chunkSizeOffset = ( chunkSize + sizeof ( uint32_t ) );
 
-    fseek ( fdst, - ( chunkSize + sizeof ( uint32_t ) ), SEEK_CUR );
+    fseek ( fdst, ( int32_t ) - chunkSizeOffset, SEEK_CUR );
 
     g3dexport_fwrite ( &chunkSize, sizeof ( uint32_t  ), 0x01, fdst );
 

@@ -665,6 +665,8 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         glBindTexture ( GL_TEXTURE_2D, difimg->id );
                         glEnable      ( GL_TEXTURE_2D );
 
+                        /*** this is called here because we need the matrix ***/
+                        /*** set by the camera transformation ***/
                         if ( tex->map->projection == UVMAPBACKGROUND ) {
                             g3duvset_mapFaceWithBackgroundProjection ( uvs, 
                                                                        fac,

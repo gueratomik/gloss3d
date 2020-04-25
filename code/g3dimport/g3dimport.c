@@ -322,8 +322,13 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 readf ( &Bpp   , sizeof ( uint32_t ), 0x01, fsrc );
 
                 if ( curchannel->proc ) {
-                    g3dprocedural_fill ( curchannel->proc , width, 
-                                                            height, Bpp * 8 );
+                    if ( curchannel == &mat->diffuse ) {
+                        g3dprocedural_fill ( curchannel->proc , width, 
+                                                                height, Bpp * 8, 0x01 );
+                    } else {
+                        g3dprocedural_fill ( curchannel->proc , width, 
+                                                                height, Bpp * 8, 0x00 );
+                    }
 
                     if ( curchannel == &mat->diffuse ) {
                         g3dmaterial_addDiffuseProcedural ( mat, curchannel->proc );

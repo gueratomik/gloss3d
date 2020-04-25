@@ -50,6 +50,9 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 gid->currentMaterial = g3dmaterial_new ( name );
 
+                /*** ID should be part of the above function args ***/
+                gid->currentMaterial->id = gid->currentMaterialID++;
+
                 g3dscene_addMaterial ( gid->currentScene,
                                        gid->currentMaterial );
             } break;
@@ -99,7 +102,9 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_CHANNEL : {
-                g3dimportchannel ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                if ( chunkSize ) {
+                    g3dimportchannel ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
             } break;
 
             default : {

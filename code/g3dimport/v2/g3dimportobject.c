@@ -48,6 +48,10 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_OBJECT_NULL : {
+
+            } break;
+
             case SIG_OBJECT_SCENE : {
                 g3dimportscene ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -62,6 +66,24 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
 
             case SIG_OBJECT_PRIMITIVE : {
                 g3dimportprimitive ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_CAMERA : {
+                gid->currentObject = g3dcamera_new ( gid->currentObjectID++ ,
+                                                     gid->currentObjectName,
+                                                     0.0f, 
+                                                     0.0f, 
+                                                     0.1f, 
+                                                     1000.0f );
+
+                g3dimportcamera ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_LIGHT : {
+                gid->currentObject = g3dlight_new ( gid->currentObjectID++ ,
+                                                    gid->currentObjectName );
+
+                g3dimportlight ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             /*** Unknown object type. Create a null object ***/

@@ -218,37 +218,53 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
-    /*if ( obj->type  & SPLINE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_SPLINE,
-                                       g3dexportspline,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
-    }
-
     if ( obj->type  & CAMERA ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_CAMERA,
+        size += g3dexport_writeChunk ( SIG_OBJECT_CAMERA,
                                        g3dexportcamera,
+                                       ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
     }
 
     if ( obj->type  & LIGHT ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_LIGHT,
+        size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT,
                                        g3dexportlight,
+                                       ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
     }
 
+    /*if ( obj->type  & SPLINE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT__SPLINE,
+                                       g3dexportspline,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+
+
     if ( obj->type  & MODIFIER ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TYPE_MODIFIER,
+        size += g3dexport_writeChunk ( SIG_OBJECT_MODIFIER,
                                        g3dexportmodifier,
+                                       ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
     }*/
+
+    if ( size == 0x00 ) {
+        printf("%s: unsupported Object Type for export\n", obj->name );
+        size += g3dexport_writeChunk ( SIG_OBJECT_NULL,
+                                       NULL,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
 
     return size;
 }
@@ -319,7 +335,6 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
                            G3DOBJECT     *obj, 
                            uint32_t       flags,
                            FILE          *fdst ) {
-    LIST *ltmpobj = obj->lchildren;
     uint32_t size = 0x00;
 
     /*** ensure unique ID starting from 0, only when we write ***/

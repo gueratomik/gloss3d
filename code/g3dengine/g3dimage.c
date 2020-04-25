@@ -181,7 +181,7 @@ void g3dimage_bind ( G3DIMAGE *image ) {
         uint32_t offset = ( image->previewId * bytesPerPreview );
 
         glTexImage2D ( GL_TEXTURE_2D, 0x00,
-                                      0x03,
+                                      image->bytesPerPixel,
                                       image->previewWidth,
                                       image->previewHeight,
                                       0x00,
@@ -190,7 +190,7 @@ void g3dimage_bind ( G3DIMAGE *image ) {
                                      &image->previewData[offset] );
     } else {
         glTexImage2D ( GL_TEXTURE_2D, 0x00,
-                                      0x03,
+                                      image->bytesPerPixel,
                                       image->width,
                                       image->height,
                                       0x00,

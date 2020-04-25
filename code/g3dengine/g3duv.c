@@ -330,8 +330,6 @@ void g3duvmap_getFlatUV ( G3DUVMAP  *map,
     g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
     g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
 
-g3dcore_printMatrix ( parent->wmatrix, 4, 4 );
-
     (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
     (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;
 }
@@ -343,117 +341,135 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
     G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        G3DVERTEX *ver = fac->ver[i];
+    if ( map->projection == UVMAPBACKGROUND ) {
+        g3duvset_mapFaceWithBackgroundProjection ( uvs, fac, 0x00 );
+    } else  {
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            G3DVERTEX *ver = fac->ver[i];
 
-        switch ( map->projection ) {
-            case UVMAPSPHERICAL : {
-                g3duvmap_getSphericalUV ( map, 
-                                          mes, 
-                                         &ver->pos,
-                                         &uvs->veruv[i].u,
-                                         &uvs->veruv[i].v );
-            } break;
+            switch ( map->projection ) {
+                case UVMAPSPHERICAL : {
+                    g3duvmap_getSphericalUV ( map, 
+                                              mes, 
+                                             &ver->pos,
+                                             &uvs->veruv[i].u,
+                                             &uvs->veruv[i].v );
+                } break;
 
-            case UVMAPCYLINDRICAL : {
-                g3duvmap_getCylindricalUV ( map, 
-                                            mes, 
-                                           &ver->pos,
-                                           &uvs->veruv[i].u,
-                                           &uvs->veruv[i].v );
-            } break;
+                case UVMAPCYLINDRICAL : {
+                    g3duvmap_getCylindricalUV ( map, 
+                                                mes, 
+                                               &ver->pos,
+                                               &uvs->veruv[i].u,
+                                               &uvs->veruv[i].v );
+                } break;
 
-            case UVMAPFLAT :
-            default :
-                g3duvmap_getFlatUV ( map, 
-                                     mes, 
-                                    &ver->pos,
-                                    &uvs->veruv[i].u,
-                                    &uvs->veruv[i].v );
-            break;
+                case UVMAPFLAT :
+                default :
+                    g3duvmap_getFlatUV ( map, 
+                                         mes, 
+                                        &ver->pos,
+                                        &uvs->veruv[i].u,
+                                        &uvs->veruv[i].v );
+                break;
+            }
         }
-    }
 
-    if ( map->projection == UVMAPSPHERICAL ) {
-        float avgu = ( uvs->veruv[0].u + uvs->veruv[1].u + 
-                       uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver;
-        float avgv = ( uvs->veruv[0].v + uvs->veruv[1].v + 
-                       uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver;
-        float facu, facv;
+        /*** Treats Spherical projection distorsion by finding the best ***/
+        /*** match compared to the face center's UV coord which should be ***/
+        /*** equal to the average of all vertices UVs ***/
+        /**  ____________________
+            |                   |
+            |  * p1         *---|--* <-- this will be incorrectly mapped as p1
+            |               |   |  |
+            |               | Face |
+            |               |   |  |
+            |  * p2         *---|--* <-- this will be incorrectly mapped as p2
+            |                   |
+            |___________________|
+                                  */
 
-        g3duvmap_getSphericalUV ( map, mes, &fac->pos, &facu, &facv );
+        if ( map->projection == UVMAPSPHERICAL ) {
+            float avgu = ( uvs->veruv[0].u + uvs->veruv[1].u + 
+                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver;
+            float avgv = ( uvs->veruv[0].v + uvs->veruv[1].v + 
+                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver;
+            float facu, facv;
 
-        /*** face center U coord should match the avergae U coord of all ***/
-        /*** vertices. If that's not the case, we are in a situation of ***/
-        /*** spherical coordinates distorsion. We have to correct it by ***/
-        /*** looking for the right match. ***/
-        if ( fabs ( facu - avgu ) > 0.1f ) {
-            G3DUV *uv = uvs->veruv;
-            float testu[0x04][0x02] = { { uv[0].u, 1.0f - uv[0].u },
-                                        { uv[1].u, 1.0f - uv[1].u },
-                                        { uv[2].u, 1.0f - uv[2].u },
-                                        { uv[3].u, 1.0f - uv[3].u } };
-            float bestMatch = 1.0f;
-            int j, k, l;
+            g3duvmap_getSphericalUV ( map, mes, &fac->pos, &facu, &facv );
 
-            for ( i = 0x00; i < 0x02; i++ ) {
-                for ( j = 0x00; j < 0x02; j++ ) {
-                    for ( k = 0x00; k < 0x02; k++ ) {
-                        for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
-                            float testavgu =  ( testu[0][i] +
-                                                testu[1][j] + 
-                                                testu[2][k] + 
-                                                testu[3][l] ) / fac->nbver;
-                            float match = fabs ( facu - testavgu );
+            /*** face center U coord should match the avergae U coord of all ***/
+            /*** vertices. If that's not the case, we are in a situation of ***/
+            /*** spherical coordinates distorsion. We have to correct it by ***/
+            /*** looking for the right match. ***/
+            if ( fabs ( facu - avgu ) > 0.1f ) {
+                G3DUV *uv = uvs->veruv;
+                float testu[0x04][0x02] = { { uv[0].u, 1.0f - uv[0].u },
+                                            { uv[1].u, 1.0f - uv[1].u },
+                                            { uv[2].u, 1.0f - uv[2].u },
+                                            { uv[3].u, 1.0f - uv[3].u } };
+                float bestMatch = 1.0f;
+                int j, k, l;
 
-                            /*** find a candidate that matches closely ***/
-                            /*** the face U  coordinates ***/
-                            if ( match < bestMatch ) {
-                                uvs->veruv[0].u = testu[0][i];
-                                uvs->veruv[1].u = testu[1][j];
-                                uvs->veruv[2].u = testu[2][k];
-                                uvs->veruv[3].u = testu[3][l];
+                for ( i = 0x00; i < 0x02; i++ ) {
+                    for ( j = 0x00; j < 0x02; j++ ) {
+                        for ( k = 0x00; k < 0x02; k++ ) {
+                            for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                                float testavgu =  ( testu[0][i] +
+                                                    testu[1][j] + 
+                                                    testu[2][k] + 
+                                                    testu[3][l] ) / fac->nbver;
+                                float match = fabs ( facu - testavgu );
 
-                                bestMatch = match;
+                                /*** find a candidate that matches closely ***/
+                                /*** the face U  coordinates ***/
+                                if ( match < bestMatch ) {
+                                    uvs->veruv[0].u = testu[0][i];
+                                    uvs->veruv[1].u = testu[1][j];
+                                    uvs->veruv[2].u = testu[2][k];
+                                    uvs->veruv[3].u = testu[3][l];
+
+                                    bestMatch = match;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        /*** face center V coord should match the avergae V coord of all ***/
-        /*** vertices. If that's not the case, we are in a situation of ***/
-        /*** spherical coordinates distorsion. We have to correct it by ***/
-        /*** looking for the right match. ***/
-        if ( fabs ( facv - avgv ) > 0.1f ) {
-            G3DUV *uv = uvs->veruv;
-            float testv[0x04][0x02] = { { uv[0].v, 1.0f - uv[0].v },
-                                        { uv[1].v, 1.0f - uv[1].v },
-                                        { uv[2].v, 1.0f - uv[2].v },
-                                        { uv[3].v, 1.0f - uv[3].v } };
-            float bestMatch = 1.0f;
-            int j, k, l;
+            /*** face center V coord should match the avergae V coord of all ***/
+            /*** vertices. If that's not the case, we are in a situation of ***/
+            /*** spherical coordinates distorsion. We have to correct it by ***/
+            /*** looking for the right match. ***/
+            if ( fabs ( facv - avgv ) > 0.1f ) {
+                G3DUV *uv = uvs->veruv;
+                float testv[0x04][0x02] = { { uv[0].v, 1.0f - uv[0].v },
+                                            { uv[1].v, 1.0f - uv[1].v },
+                                            { uv[2].v, 1.0f - uv[2].v },
+                                            { uv[3].v, 1.0f - uv[3].v } };
+                float bestMatch = 1.0f;
+                int j, k, l;
 
-            for ( i = 0x00; i < 0x02; i++ ) {
-                for ( j = 0x00; j < 0x02; j++ ) {
-                    for ( k = 0x00; k < 0x02; k++ ) {
-                        for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
-                            float testavgv =  ( testv[0][i] +
-                                                testv[1][j] + 
-                                                testv[2][k] + 
-                                                testv[3][l] ) / fac->nbver;
-                            float match = fabs ( facv - testavgv );
+                for ( i = 0x00; i < 0x02; i++ ) {
+                    for ( j = 0x00; j < 0x02; j++ ) {
+                        for ( k = 0x00; k < 0x02; k++ ) {
+                            for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                                float testavgv =  ( testv[0][i] +
+                                                    testv[1][j] + 
+                                                    testv[2][k] + 
+                                                    testv[3][l] ) / fac->nbver;
+                                float match = fabs ( facv - testavgv );
 
-                            /*** find a candidate that matches closely ***/
-                            /*** the face V  coordinates ***/
-                            if ( match < bestMatch ) {
-                                uvs->veruv[0].v = testv[0][i];
-                                uvs->veruv[1].v = testv[1][j];
-                                uvs->veruv[2].v = testv[2][k];
-                                uvs->veruv[3].v = testv[3][l];
+                                /*** find a candidate that matches closely ***/
+                                /*** the face V  coordinates ***/
+                                if ( match < bestMatch ) {
+                                    uvs->veruv[0].v = testv[0][i];
+                                    uvs->veruv[1].v = testv[1][j];
+                                    uvs->veruv[2].v = testv[2][k];
+                                    uvs->veruv[3].v = testv[3][l];
 
-                                bestMatch = match;
+                                    bestMatch = match;
+                                }
                             }
                         }
                     }

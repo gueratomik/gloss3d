@@ -46,10 +46,10 @@ SIG_ROOT
 --------------------------------------------------- color2 (float-float-float-float)
 ----------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY
 --------------------------------------------------- ?
------------------------------------ SIG_CHANNEL_PROCEDURAL_RESOLUTION
---------------------------------------- width  ( uint32_t )
---------------------------------------- height ( uint32_t )
---------------------------------------- depth  ( uint32_t ) /* in bytes */
+--------------------------------------- SIG_CHANNEL_PROCEDURAL_RESOLUTION
+------------------------------------------- width  ( uint32_t )
+------------------------------------------- height ( uint32_t )
+------------------------------------------- depth  ( uint32_t ) /* in bytes */
 --------------------------- SIG_MATERIAL_DISPLACEMENT
 ------------------------------- SIG_MATERIAL_DISPLACEMENT_STRENGTH
 ----------------------------------- strengh ( float )
@@ -80,7 +80,7 @@ SIG_ROOT
 --------------------------- SIG_MATERIAL_ALPHA
 ------------------------------- SIG_CHANNEL
 ----------------------------------- ...
-
+--------------- SIG_OBJECT_NULL
 --------------- SIG_OBJECT_PRIMITIVE
 ------------------- SIG_OBJECT_PRIMITIVE_SPHERE
 ----------------------- Radius ( float    )
@@ -134,6 +134,26 @@ SIG_ROOT
 --------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
 ------------------------------- Number of weights ( uint32_t )
 ----------------------------------- Array( uint32_t[VERTEXID], float[Weight] )
+--------------- SIG_OBJECT_CAMERA
+------------------- SIG_OBJECT_CAMERA_FOCAL
+---------------------- focal (float)
+
+--------------- SIG_OBJECT_LIGHT
+------------------- SIG_OBJECT_LIGHT_SPOT
+-----------------------  ?
+------------------- SIG_OBJECT_LIGHT_SHADOW
+----------------------- SIG_OBJECT_LIGHT_SHADOW_CASTING
+--------------------------- boolean (uint32_t)
+----------------------- SIG_OBJECT_LIGHT_SHADOW_COLOR
+--------------------------- RGBA (float-float-float-float)
+------------------- SIG_OBJECT_LIGHT_INTENSITY
+----------------------- intensity (float)
+------------------- SIG_OBJECT_LIGHT_DIFFUSE
+----------------------- RGBA (float-float-float-float)
+------------------- SIG_OBJECT_LIGHT_SPECULAR
+----------------------- RGBA (float-float-float-float)
+------------------- SIG_OBJECT_LIGHT_AMBIENT
+----------------------- RGBA (float-float-float-float)
 
 --------------- SIG_OBJECT_UVMAPS
 ------------------- SIG_OBJECT_UVMAP_ENTRY
@@ -156,7 +176,6 @@ SIG_ROOT
 --------------------------- Position ( float-float-float-float )
 --------------------------- Rotation ( float-float-float-float )
 --------------------------- Scale    ( float-float-float-float )
-
 ----------- SIG_OBJECT_IDENTITY_PARENT
 --------------- ID ( uint32_t )
 ----------- SIG_OBJECT_IDENTITY_ACTIVE

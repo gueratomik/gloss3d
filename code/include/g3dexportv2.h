@@ -198,9 +198,17 @@ uint32_t g3dexportuvmap ( G3DEXPORTDATA  *ged,
                           G3DUVMAP       *uvmap, 
                           uint32_t        flags, 
                           FILE           *fdst );
+uint32_t g3dexportcamera ( G3DEXPORTDATA *ged, 
+                           G3DCAMERA     *cam, 
+                           uint32_t       flags, 
+                           FILE          *fdst );
+uint32_t g3dexportlight ( G3DEXPORTDATA *ged, 
+                          G3DLIGHT     *lig, 
+                          uint32_t      flags, 
+                          FILE         *fdst );
 
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
-uint32_t g3dexport_fwritel ( long *l, FILE *stream );
-uint32_t g3dexport_fwritell ( long long *ll, FILE *stream );
+uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream );
+uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream );
 
 #endif

@@ -43,9 +43,6 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
-            case SIG_CHANNEL : {
-            } break;
-
             case SIG_CHANNEL_SOLID : {
                 g3dchannel_enableSolidColor ( gid->currentChannel );
 
@@ -80,37 +77,11 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dchannel_enableProcedural ( gid->currentChannel );
             } break;
 
-            case SIG_CHANNEL_PROCEDURAL_RESOLUTION : {
-                G3DPROCEDURAL *proc = gid->currentChannel->proc;
-                uint32_t width, height, depth;
- 
-                g3dimport_freadl ( &width, fsrc );
-                g3dimport_freadl ( &height, fsrc );
-                g3dimport_freadl ( &depth, fsrc );
-
-                /*** check because the procedural might not be created ***/
-                /*** if type not supported ***/
-                if ( proc ) {
-                    g3dprocedural_fill ( proc, width, height, depth * 0x08 );
-                }
-            } break;
-
             case SIG_CHANNEL_PROCEDURAL_BRICK : {
                 gid->currentChannel->proc = g3dproceduralbrick_new ( );
 
-                /*** we have to do some special treatment to bin image to ***/
-                /*** OpenGL memeory. Maybe we could just set some flags in ***/
-                /*** the channel to tell it needs GL binding ***/
-                if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
-                    g3dchannel_setProcedural ( gid->currentChannel, 
-                                               gid->currentChannel->proc, 
-                                               0x01 );
-printf("test\n");
-                } else {
-                    g3dchannel_setProcedural ( gid->currentChannel,
-                                               gid->currentChannel->proc,
-                                               0x00 );
-                }
+                g3dchannel_setProcedural ( gid->currentChannel,
+                                           gid->currentChannel->proc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY : {
@@ -140,6 +111,30 @@ printf("test\n");
 
                 g3dcolor_toRGBA ( &color1, &brick->brickColor   );
                 g3dcolor_toRGBA ( &color2, &brick->spacingColor );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_RESOLUTION : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                uint32_t width, height, depth;
+ 
+                g3dimport_freadl ( &width, fsrc );
+                g3dimport_freadl ( &height, fsrc );
+                g3dimport_freadl ( &depth, fsrc );
+
+                /*** check because the procedural might not be created ***/
+                /*** if type not supported ***/
+                if ( proc ) {
+                    /*** we have to do some special treatment to bin image to ***/
+                    /*** OpenGL memeory. Maybe we could just set some flags in ***/
+                    /*** the channel to tell it needs GL binding ***/
+                    if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
+                        g3dprocedural_fill ( proc, width, 
+                                                   height, depth * 0x08, 0x01 );
+                    } else {
+                        g3dprocedural_fill ( proc, width, 
+                                                   height, depth * 0x08, 0x00 );
+                    }
+                }
             } break;
 
             default : {

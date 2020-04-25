@@ -44,7 +44,6 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
         switch ( chunkSignature ) {
             case SIG_OBJECT_MESH_GEOMETRY : {
-
             } break;
 
             case SIG_OBJECT_MESH_GEOMETRY_VERTICES : {

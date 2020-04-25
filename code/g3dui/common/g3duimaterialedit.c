@@ -300,7 +300,7 @@ void common_g3dui_materialProceduralCbk ( G3DUI *gui, const char *procType,
             g3dmaterial_enableDiffuseProcedural ( mat );
 
             /*** fill preview ***/
-            g3dprocedural_fill ( proc, resX, resY, 0x18 );
+            g3dprocedural_fill ( proc, resX, resY, 0x18, 0x01 );
 
             previous = g3dmaterial_addDiffuseProcedural ( mat, proc );
 
@@ -346,7 +346,7 @@ void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,
             g3dmaterial_enableDisplacementProcedural ( mat );
 
             /*** fill preview ***/
-            g3dprocedural_fill ( proc, resX, resY, 0x08 );
+            g3dprocedural_fill ( proc, resX, resY, 0x08, 0x00 );
 
             previous = g3dmaterial_addDisplacementProcedural ( mat, proc );
 

@@ -80,7 +80,7 @@ G3DPROCEDURAL *g3dmaterial_addDiffuseProcedural ( G3DMATERIAL *mat,
                                                   G3DPROCEDURAL *proc ) {
     G3DPROCEDURAL *previous = mat->diffuse.proc;
 
-    return g3dchannel_setProcedural ( &mat->diffuse, proc, 0x01 );
+    return g3dchannel_setProcedural ( &mat->diffuse, proc );
 }
 
 /******************************************************************************/
@@ -106,7 +106,7 @@ void g3dmaterial_addDisplacementImage ( G3DMATERIAL *mat, G3DIMAGE *disimg ) {
 /******************************************************************************/
 G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat, 
                                                        G3DPROCEDURAL *proc ) {
-    return g3dchannel_setProcedural ( &mat->displacement, proc, 0x00 );
+    return g3dchannel_setProcedural ( &mat->displacement, proc );
 }
 
 /******************************************************************************/

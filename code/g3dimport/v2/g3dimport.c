@@ -36,13 +36,13 @@ uint32_t g3dimport_freadf ( float *f, FILE *stream ) {
 }
 
 /******************************************************************************/
-uint32_t g3dimport_freadl ( long *l, FILE *stream ) {
-    return g3dimport_fread ( l, sizeof ( long ), 0x01, stream );
+uint32_t g3dimport_freadl ( uint32_t *l, FILE *stream ) {
+    return g3dimport_fread ( l, sizeof ( uint32_t ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dimport_freadll ( float *ll, FILE *stream ) {
-    return g3dimport_fread ( ll, sizeof ( long long ), 0x01, stream );
+uint32_t g3dimport_freadll ( uint64_t *ll, FILE *stream ) {
+    return g3dimport_fread ( ll, sizeof ( uint64_t ), 0x01, stream );
 }
 
 /******************************************************************************/

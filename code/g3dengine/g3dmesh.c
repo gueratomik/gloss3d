@@ -3709,7 +3709,7 @@ void g3dmesh_transform ( G3DMESH *mes, uint32_t flags ) {
     while ( ltmpuvmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
 
-        g3duvmap_applyProjection ( map, mes );
+        g3dobject_updateMatrix ( map );
 
         ltmpuvmap = ltmpuvmap->next;
     }
