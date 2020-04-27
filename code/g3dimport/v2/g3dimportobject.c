@@ -49,7 +49,9 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
 
         switch ( chunkSignature ) {
             case SIG_OBJECT_NULL : {
-
+                gid->currentObject = g3dobject_new ( gid->currentObjectID++, 
+                                                     "NULL",
+                                                     gid->engineFlags );
             } break;
 
             case SIG_OBJECT_SCENE : {
@@ -84,6 +86,14 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                     gid->currentObjectName );
 
                 g3dimportlight ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_BONE : {
+                gid->currentObject = g3dbone_new ( gid->currentObjectID++ ,
+                                                   gid->currentObjectName,
+                                                   0.0f );
+
+                g3dimportbone ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             /*** Unknown object type. Create a null object ***/
@@ -130,6 +140,8 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_IDENTITY_NAME : {
                 /*** Potential buffer overflow here ***/
                 g3dimport_fread ( gid->currentObjectName, chunkSize, 0x01, fsrc );
+
+                printf ( "Object Name: %s\n", gid->currentObjectName );
             } break;
 
             case SIG_OBJECT_IDENTITY_TYPE : {

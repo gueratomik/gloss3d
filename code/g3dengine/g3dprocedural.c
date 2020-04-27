@@ -36,7 +36,7 @@ void g3dprocedural_init ( G3DPROCEDURAL *proc,
                                                 double, 
                                                 double, 
                                                 double, 
-                                                G3DRGBA * ) ) {
+                                                G3DCOLOR * ) ) {
     proc->type       = type;
     proc->getColor   = func;
 
@@ -61,11 +61,14 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
     for ( j = 0x00; j < proc->image.height; j++ ) {
         for ( i = 0x00; i < proc->image.width; i++ ) {
             uint32_t offset = ( j * proc->image.width ) + i;
+            G3DCOLOR color;
             G3DRGBA rgba;
 
             proc->getColor ( proc, (double) i / proc->image.width, 
                                    (double) j / proc->image.height,
-                                   (double) 0, &rgba );
+                                   (double) 0, &color );
+
+            g3dcolor_toRGBA ( &color, &rgba );
 
             switch ( bpp ) {
                 case 0x18 : {
@@ -78,9 +81,9 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
 
                 case 0x08 : {
                     unsigned char (*data)[0x01] = (unsigned char (*)[1])proc->image.data;
-                    uint32_t color = ( rgba.r + rgba.g + rgba.b ) / 0x03;
+                    uint32_t col = ( rgba.r + rgba.g + rgba.b ) / 0x03;
 
-                    data[offset][0x00] = color;
+                    data[offset][0x00] = col;
                 } break;
 
                 default:

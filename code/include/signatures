@@ -138,6 +138,24 @@ SIG_ROOT
 ------------------- SIG_OBJECT_CAMERA_FOCAL
 ---------------------- focal (float)
 
+--------------- SIG_OBJECT_BONE
+------------------- SIG_OBJECT_BONE_LENGTH
+----------------------- length (float)
+------------------- SIG_OBJECT_BONE_RIGS
+----------------------- SIG_OBJECT_BONE_RIG_ENTRY
+--------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUP
+----------------------------------- weightgroupid (uint32_t);
+----------------------------------- meshid (uint32_t);
+--------------------------- SIG_OBJECT_BONE_RIG_BINDMATRIX
+------------------------------- bindMatrix (double[0x10])
+--------------------------- SIG_OBJECT_BONE_RIG_SKINMATRIX
+------------------------------- skinMatrix (double[0x10])
+------------------- SIG_OBJECT_BONE_FIXING
+----------------------- SIG_OBJECT_BONE_FIXING_TRANSFORMATION
+--------------------------- Position ( float-float-float-float )
+--------------------------- Rotation ( float-float-float-float )
+--------------------------- Scale    ( float-float-float-float )
+
 --------------- SIG_OBJECT_LIGHT
 ------------------- SIG_OBJECT_LIGHT_SPOT
 -----------------------  ?

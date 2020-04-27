@@ -41,10 +41,12 @@ MATERIALLISTDATA *common_materiallistdata_new ( uint32_t image_width,
         return NULL;
     }
 
-    mdata->matmap = common_g3duimaterialmap_new ( image_width, 
-                                                   image_height );
+    /*mdata->matmap = common_g3duimaterialmap_new ( image_width, 
+                                                   image_height );*/
     mdata->preview_border = 0x04;
     mdata->preview_name_height = BUTTONSIZE;
+    mdata->image_width    = image_width;
+    mdata->image_height   = image_height;
     mdata->preview_width  = image_width  + ( mdata->preview_border * 0x02 );
     mdata->preview_height = image_height + ( mdata->preview_border * 0x02 ) +
                                              mdata->preview_name_height;
@@ -72,19 +74,15 @@ G3DUIMATERIALMAP *common_g3duimaterialmap_new ( uint32_t width,
     matmap->width  = width;
     matmap->height = height;
 
-    /*** build the material sphere vector map ***/
-    common_g3duimaterialmap_buildSphere ( matmap, width, height, 0.8f );
-
-
     return matmap;
 }
 
-
 /******************************************************************************/
 void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
-                                           uint32_t width,
-                                           uint32_t height,
-                                           float    rad ) {
+                                           G3DMATERIAL      *mat,
+                                           float             radius ) {
+    uint32_t width = matmap->width;
+    uint32_t height = matmap->height;
     uint32_t winx, winy;
     /*** 2 lights vector ***/
     G3DVECTOR luxpos[0x02] = { {  200.0f,  200.0f, -400.0f, 1.0f },
@@ -97,7 +95,7 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
 
         for ( winx = 0x00; winx < width; winx++ ) {
             float objx = ( float ) ( 2.0 * winx ) / width - 1.0f;
-            float equz =  ( rad * rad ) - ( ( objx * objx ) + ( objy * objy ) );
+            float equz =  ( radius * radius ) - ( ( objx * objx ) + ( objy * objy ) );
             G3DUIMATERIALPIXEL *p = pixel++;
 
             if ( equz >= 0.0f ) {
@@ -116,6 +114,18 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
         /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
+
+                if ( mat->flags & BUMP_ENABLED ) {
+                    G3DVECTOR bump;
+
+                    g3dchannel_getBumpVector ( &mat->bump, p->u, p->v, &bump );
+
+                    p->nor.x += ( ( bump.x * p->nor.x ) * mat->bump.solid.r );
+                    p->nor.y += ( ( bump.y * p->nor.y ) * mat->bump.solid.r );
+                    p->nor.z += ( ( bump.z * p->nor.z ) * mat->bump.solid.r );
+
+                    g3dvector_normalize ( &p->nor, NULL );
+                }
 
                 p->diff = 0.0f;
                 p->spec = 0.0f;
@@ -231,8 +241,8 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 G = ( G * p->diff );
                 B = ( B * p->diff );
 
-                if ( mat->transparency_strength ) {
-                    float trans = mat->transparency_strength;
+                if ( mat->alpha.solid.a ) {
+                    float trans = mat->alpha.solid.a;
 
                     R = GRAY + ( ( (int32_t) R - GRAY ) * ( 1.0f - trans ) );
                     G = GRAY + ( ( (int32_t) G - GRAY ) * ( 1.0f - trans ) );

@@ -41,7 +41,7 @@ static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     const char *name = gtk_entry_get_text ( GTK_ENTRY(widget) );
 
-    common_g3dui_materialNameCbk ( gui, name );
+    common_g3dui_materialSetNameCbk ( gui, name );
 }
 
 
@@ -57,6 +57,7 @@ const char *getProdeduralTypeSelection ( GtkWidget *widget ) {
         if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
             if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
                 GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
                 return gtk_combo_box_text_get_active_text ( cbt );
             }
         }
@@ -79,6 +80,7 @@ const char *getProdeduralResSelection ( GtkWidget *widget ) {
         if ( strcmp ( child_name, EDITCHANNELPROCEDURALRES ) == 0x00 ) {
             if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
                 GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
                 return gtk_combo_box_text_get_active_text ( cbt );
             }
         }
@@ -122,7 +124,7 @@ static void transparencyStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float strength = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
-    common_g3dui_materialTransparencyStrengthCbk ( gui, strength / 100.0f );
+    common_g3dui_materialSetAlphaStrengthCbk ( gui, strength / 100.0f );
 }
 
 /******************************************************************************/
@@ -130,7 +132,7 @@ static void refractionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float strength = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
-    common_g3dui_materialRefractionStrengthCbk ( gui, strength / 100.0f );
+    common_g3dui_materialSetRefractionStrengthCbk ( gui, strength / 100.0f );
 }
 
 /******************************************************************************/
@@ -212,7 +214,7 @@ static void reflectionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float strength = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
-    common_g3dui_materialReflectionStrengthCbk ( gui, strength / 100.0f );
+    common_g3dui_materialSetReflectionStrengthCbk ( gui, strength / 100.0f );
 }
 
 /******************************************************************************/
@@ -278,7 +280,7 @@ static GtkWidget *createReflectionPanel ( GtkWidget *parent, G3DUI *gui,
 static void displacementToggleCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3dui_materialDisplacementToggleCbk ( gui );
+    common_g3dui_materialToggleDisplacementCbk ( gui );
 }
 
 /******************************************************************************/
@@ -315,7 +317,12 @@ static void displacementImageCbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char     *filename = gtk_file_chooser_get_filename ( chooser );
 
-        common_g3dui_materialDisplacementImageCbk ( gui, filename );
+         if ( gui->selmat ) {
+            common_g3dui_channelChooseImageCbk ( gui,
+                                        	&gui->selmat->displacement,
+                                        	 filename,
+                                        	 0x00 );
+        }
 
         g_free    ( ( gpointer ) filename );
     }
@@ -329,7 +336,9 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     float str = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
     g3dui_setHourGlass ( gui );
-    common_g3dui_materialDisplacementStrengthCbk ( gui, str );
+
+    common_g3dui_materialSetDisplacementStrengthCbk ( gui, str );
+
     g3dui_unsetHourGlass ( gui );
 }
 
@@ -342,7 +351,14 @@ static void displacementProceduralCbk ( GtkWidget *widget, gpointer user_data ) 
 
     g3dui_setHourGlass ( gui );
 
-    common_g3dui_materialDisplacementProceduralCbk ( gui, procType, procRes );
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->displacement );
+	common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	  &gui->selmat->displacement,
+                                        	   procType, 
+                                        	   procRes,
+                                                   0x00 );
+    }
 
     g3dui_unsetHourGlass ( gui );
 
@@ -394,7 +410,7 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITDISPLACEMENTSTRENGTH ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, mat->displacement_strength );
+                    gtk_spin_button_set_value ( spb, mat->displacement.solid.a );
                 }
             }
 
@@ -483,41 +499,263 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-static void specularityColorCbk ( GtkWidget *widget,  gpointer user_data ) {
+static void bumpToggleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_materialToggleBumpCbk ( gui );
+}
+
+/******************************************************************************/
+static void bumpImageCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkFileFilter *filter = gtk_file_filter_new ();
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    /* extension filters */
+    gtk_file_filter_add_pattern ( filter, "*.jpg" );
+    gtk_file_filter_add_pattern ( filter, "*.png" );
+    gtk_file_filter_add_pattern ( filter, "*.avi" );
+    gtk_file_filter_add_pattern ( filter, "*.mkv" );
+    gtk_file_filter_add_pattern ( filter, "*.flv" );
+    gtk_file_filter_add_pattern ( filter, "*.gif" );
+    gtk_file_filter_add_pattern ( filter, "*.mp4" );
+    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+
+        if ( gui->selmat ) {
+            common_g3dui_channelChooseImageCbk ( gui,
+                                        	&gui->selmat->bump,
+                                        	 filename,
+                                        	 0x00 );
+        }
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+static void bumpStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float str = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    g3dui_setHourGlass ( gui );
+
+    common_g3dui_materialSetBumpStrengthCbk ( gui, str );
+
+    g3dui_unsetHourGlass ( gui );
+}
+
+/******************************************************************************/
+static void bumpProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    gchar *procType = getProdeduralTypeSelection ( parent ),
+          *procRes  = getProdeduralResSelection ( parent );
+
+    g3dui_setHourGlass ( gui );
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->bump );
+	common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	  &gui->selmat->bump,
+                                        	   procType, 
+                                        	   procRes,
+                                                   0x01 );
+    }
+
+    g3dui_unsetHourGlass ( gui );
+
+    g_free ( procType );
+    g_free ( procRes  );
+}
+
+/******************************************************************************/
+static void updateBumpPanel ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    gui->lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->selmat == NULL ) gtk_widget_set_sensitive ( child, FALSE );
+        else                       gtk_widget_set_sensitive ( child, TRUE  );
+
+        if ( gui->selmat ) {
+            G3DMATERIAL *mat = gui->selmat;
+
+            if ( GTK_IS_BUTTON ( child ) && ( GTK_IS_RADIO_BUTTON ( child ) == 0 ) ) {
+                GtkButton *btn = GTK_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITBUMPIMAGE ) == 0x00 ) {
+                    if ( mat->bump.flags & USEIMAGECOLOR ) {
+                        if ( mat->bump.image ) {
+                            if ( mat->bump.image->filename ) {
+                                char *imgpath, *imgname;
+
+                                imgpath = strdup ( mat->bump.image->filename );
+
+                                /*** We just keep the image name, not the whole ***/
+                                /*** path and display it as the button label.   ***/
+                                imgname = basename ( imgpath );
+
+                                gtk_button_set_label ( btn, imgname );
+
+                                free ( imgpath );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITBUMPSTRENGTH ) == 0x00 ) {
+                    gtk_spin_button_set_value ( spb, mat->bump.solid.a );
+                }
+            }
+
+            if ( GTK_IS_CHECK_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITBUMPENABLED ) == 0x00 ) {
+                    if ( mat->flags & BUMP_ENABLED ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void bumpProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    bumpProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static void bumpProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
+    bumpProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static GtkWidget *createBumpPanel ( GtkWidget *parent, G3DUI *gui,
+                                                               char *name,
+                                                               gint x,
+                                                               gint y,
+                                                               gint width,
+                                                               gint height ) {
+    GtkWidget *lab, *col, *pan, *btn;
+
+    pan = createPanel ( parent, gui, name, x, y, width, height );
+
+    createToggleLabel  ( pan, gui, EDITBUMPENABLED,   
+                                0,  0,
+                              192, 18, bumpToggleCbk );
+
+
+    createFloatText    ( pan, gui, EDITBUMPSTRENGTH,
+                               0.0f, FLT_MAX,
+                                0,  24,
+                               96,
+                               48, bumpStrengthCbk );
+
+    /*** Use image as displacement texture ***/
+    btn = createRadioLabel   ( pan, gui, EDITBUMPIMAGE, NULL,
+                                0, 48, 
+                               96, 18, NULL );
+
+    createPushButton   ( pan, gui, EDITBUMPIMAGE,
+                               96,  48, 
+                               96,  18, bumpImageCbk );
+
+          /*** Use image as texture ***/
+          createRadioLabel ( pan, gui, EDITBUMPPROCEDURAL,
+                                   btn,
+                                     0, 72, 96, 18,
+                                   bumpProceduralCbk );
+
+          createProceduralTypeSelection ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALTYPE,
+                                               0, 96,
+                                               104,
+                                               64,
+                                               bumpProceduralTypeCbk );
+
+          createProceduralResSelection  ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALRES,
+                                               0, 120,
+                                               104,
+                                               64,
+                                               bumpProceduralResCbk );
+
+
+    return pan;
+}
+
+/******************************************************************************/
+static void specularColorCbk ( GtkWidget *widget,  gpointer user_data ) {
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
     G3DUI *gui = ( G3DUI * ) user_data;
 
     if ( gui->selmat ) {
-        G3DMATERIAL *mat = gui->selmat;
         GdkRGBA color;
 
         gtk_color_chooser_get_rgba ( ccr, &color );
 
-        common_g3dui_materialColorChangeCbk ( gui, &mat->specular,
-                                                   color.red   * 255,
-                                                   color.green * 255,
-                                                   color.blue  * 255 );
+        common_g3dui_materialSetSpecularColorCbk ( gui,
+                                                   color.red,
+                                                   color.green,
+                                                   color.blue,
+                                                   color.alpha );
     }
 }
 
 /******************************************************************************/
-static void specularityLevelCbk ( GtkWidget *widget, gpointer user_data ) {
+static void specularLevelCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
-    common_g3dui_materialSpecularityLevelCbk ( gui, val / 255.0f );
+    common_g3dui_materialSetSpecularLevelCbk ( gui, val / 255.0f );
 }
 
 /******************************************************************************/
-static void specularityShininessCbk ( GtkWidget *widget, gpointer user_data ) {
+static void specularShininessCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
-    common_g3dui_materialSpecularityShininessCbk ( gui, val );
+    common_g3dui_materialSetSpecularShininessCbk ( gui, val );
 }
 
 /******************************************************************************/
-static void updateSpecularityPanel ( GtkWidget *widget, G3DUI *gui ) {
+static void updateSpecularPanel ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     gui->lock = 0x01;
@@ -535,11 +773,11 @@ static void updateSpecularityPanel ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_SCALE ( child ) ) {
                 GtkRange *ran = GTK_RANGE(child);
 
-                if ( strcmp ( child_name, EDITSPECULARITYSHININESS ) == 0x00 ) {
+                if ( strcmp ( child_name, EDITSPECULARSHININESS ) == 0x00 ) {
                     gtk_range_set_value ( ran, mat->shininess );
                 }
 
-                if ( strcmp ( child_name, EDITSPECULARITYLEVEL ) == 0x00 ) {
+                if ( strcmp ( child_name, EDITSPECULARLEVEL ) == 0x00 ) {
                     gtk_range_set_value ( ran, mat->specular_level * 255.0f );
                 }
             }
@@ -547,7 +785,7 @@ static void updateSpecularityPanel ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_COLOR_BUTTON ( child ) ) {
                 GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
 
-                if ( strcmp ( child_name, EDITSPECULARITYCOLOR ) == 0x00 ) {
+                if ( strcmp ( child_name, EDITSPECULARCOLOR ) == 0x00 ) {
                     GdkRGBA rgba = { .red   = mat->specular.solid.r,
                                      .green = mat->specular.solid.g,
                                      .blue  = mat->specular.solid.b,
@@ -565,7 +803,7 @@ static void updateSpecularityPanel ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-static GtkWidget *createSpecularityPanel ( GtkWidget *parent, G3DUI *gui,
+static GtkWidget *createSpecularPanel ( GtkWidget *parent, G3DUI *gui,
                                                               char *name,
                                                               gint x,
                                                               gint y,
@@ -576,37 +814,38 @@ static GtkWidget *createSpecularityPanel ( GtkWidget *parent, G3DUI *gui,
     pan = createPanel ( parent, gui, name, x, y, width, height );
 
           createSimpleLabel     ( pan, gui, 
-                                       EDITSPECULARITYSHININESS,
+                                       EDITSPECULARSHININESS,
                                          0,  0,  96, 18 );
 
           createHorizontalScale ( pan, gui, 
-                                       EDITSPECULARITYSHININESS,
+                                       EDITSPECULARSHININESS,
                                        104,  0, 208, 18,
                                        0.0f, 128.0f, 1.0f,
-                                       specularityShininessCbk );
+                                       specularShininessCbk );
 
           createSimpleLabel     ( pan, gui, 
-                                       EDITSPECULARITYLEVEL,
+                                       EDITSPECULARLEVEL,
                                          0, 24,  96, 18 );
 
           createHorizontalScale ( pan, gui, 
-                                       EDITSPECULARITYLEVEL,
+                                       EDITSPECULARLEVEL,
                                        104, 24, 208, 18,
                                        0.0f, 255.0f, 1.0f,
-                                       specularityLevelCbk );
+                                       specularLevelCbk );
 
           createColorButton     ( pan, gui,
-                                       EDITSPECULARITYCOLOR,
+                                       EDITSPECULARCOLOR,
                                        104, 48, 32, 18,
-                                       specularityColorCbk );
+                                       specularColorCbk );
 
     return pan;
 }
 
 /******************************************************************************/
-static void chooseImageCbk ( GtkWidget *widget, gpointer user_data ) {
+static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkFileFilter *filter = gtk_file_filter_new ();
     GtkWidget *dialog;
     gint       res;
 
@@ -620,29 +859,37 @@ static void chooseImageCbk ( GtkWidget *widget, gpointer user_data ) {
                                            GTK_RESPONSE_OK,
                                            NULL );
 
+    /* extension filters */
+    gtk_file_filter_add_pattern ( filter, "*.jpg" );
+    gtk_file_filter_add_pattern ( filter, "*.png" );
+    gtk_file_filter_add_pattern ( filter, "*.avi" );
+    gtk_file_filter_add_pattern ( filter, "*.mkv" );
+    gtk_file_filter_add_pattern ( filter, "*.flv" );
+    gtk_file_filter_add_pattern ( filter, "*.gif" );
+    gtk_file_filter_add_pattern ( filter, "*.mp4" );
+    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
+
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_OK ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        const char     *filename = gtk_file_chooser_get_filename ( chooser );
 
-        common_g3dui_materialChooseImageCbk ( gui, filename );
+        if ( gui->selmat ) {
+            common_g3dui_channelChooseImageCbk ( gui,
+                                        	&gui->selmat->diffuse,
+                                        	 filename,
+                                        	 0x00 );
+        }
 
-        g_free    ( filename );
+        g_free    ( ( gpointer ) filename );
     }
 
     gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
-static void imageColorCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_materialImageColorCbk ( gui );
-}
-
-/******************************************************************************/
-static void proceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+static void diffuseProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
     gchar *procType = getProdeduralTypeSelection ( parent ),
@@ -650,7 +897,14 @@ static void proceduralCbk ( GtkWidget *widget, gpointer user_data ) {
 
     g3dui_setHourGlass ( gui );
 
-    common_g3dui_materialProceduralCbk ( gui, procType, procRes );
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->diffuse );
+	common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	  &gui->selmat->diffuse,
+                                        	   procType, 
+                                        	   procRes,
+                                                   0x01 );
+    }
 
     g3dui_unsetHourGlass ( gui );
 
@@ -659,28 +913,51 @@ static void proceduralCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void solidColorChangeCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void diffuseSolidColorCbk ( GtkWidget *widget,  gpointer user_data ) {
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
+    G3DUI *gui = ( G3DUI * ) user_data;
 
     if ( gui->selmat ) {
-        G3DMATERIAL *mat = gui->selmat;
         GdkRGBA color;
 
         gtk_color_chooser_get_rgba ( ccr, &color );
 
-        common_g3dui_materialColorChangeCbk ( gui, &mat->diffuse,
-                                                   color.red   * 255,
-                                                   color.green * 255,
-                                                   color.blue  * 255 );
+        common_g3dui_materialSetDiffuseColorCbk ( gui,
+                                                  color.red,
+                                                  color.green,
+                                                  color.blue,
+                                                  color.alpha );
     }
 }
 
 /******************************************************************************/
-static void solidColorCbk ( GtkWidget *widget, gpointer user_data ) {
+static void radioDiffuseImageColorCbk ( GtkWidget *widget, 
+                                        gpointer   user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3dui_materialSolidColorCbk ( gui );
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableImageCbk ( gui, &gui->selmat->diffuse );
+    }
+}
+
+/******************************************************************************/
+static void radioDiffuseSolidColorCbk ( GtkWidget *widget, 
+                                        gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableSolidColorCbk ( gui, &gui->selmat->diffuse );
+    }
+}
+
+/******************************************************************************/
+static void diffuseProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    diffuseProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static void diffuseProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
+    diffuseProceduralCbk ( widget, user_data );
 }
 
 /******************************************************************************/
@@ -771,15 +1048,7 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
     gui->lock = 0x00;
 }
 
-/******************************************************************************/
-static void diffuseProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
-    proceduralCbk ( widget, user_data );
-}
 
-/******************************************************************************/
-static void diffuseProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
-    proceduralCbk ( widget, user_data );
-}
 
 /******************************************************************************/
 static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
@@ -797,32 +1066,32 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                    EDITDIFFUSECOLOR,
                                    NULL,
                                      0,  0, 96, 18,
-                                   solidColorCbk );
+                                   radioDiffuseSolidColorCbk );
           /*** Pick color button ***/
     col = createColorButton ( pan, gui,
                                    EDITDIFFUSECOLOR,
                                    104,  0, 96, 18,
-                                   solidColorChangeCbk );
+                                   diffuseSolidColorCbk );
 
           /*** Use image as texture ***/
           createRadioLabel ( pan, gui,
                                    EDITDIFFUSEIMAGE,
                                    btn,
                                      0, 24, 96, 18,
-                                   imageColorCbk );
+                                   radioDiffuseImageColorCbk );
 
           /*** Image chooser button **/
           createPushButton  ( pan, gui, 
                                    EDITDIFFUSEIMAGE,
                                    104, 24, 96, 18,
-                                   chooseImageCbk );
+                                   diffuseImageColorCbk );
 
           /*** Use image as texture ***/
           createRadioLabel ( pan, gui,
                                    EDITDIFFUSEPROCEDURAL,
                                    btn,
                                      0, 48, 96, 18,
-                                   proceduralCbk );
+                                   diffuseProceduralCbk );
 
           createProceduralTypeSelection ( pan, gui, 
                                                EDITDIFFUSEPROCEDURALTYPE,
@@ -850,8 +1119,8 @@ void updateMaterialChannels ( GtkWidget *widget, G3DUI *gui ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
         const char *child_name = gtk_widget_get_name ( child );
 
-        if ( strcmp ( child_name, EDITSPECULARITY  ) == 0x00 ) {
-            updateSpecularityPanel ( child, gui );
+        if ( strcmp ( child_name, EDITSPECULAR     ) == 0x00 ) {
+            updateSpecularPanel ( child, gui );
         }
 
         if ( strcmp ( child_name, EDITDIFFUSE      ) == 0x00 ) {
@@ -868,6 +1137,10 @@ void updateMaterialChannels ( GtkWidget *widget, G3DUI *gui ) {
 
         if ( strcmp ( child_name, EDITREFRACTION ) == 0x00 ) {
             updateRefractionPanel ( child, gui );
+        }
+
+        if ( strcmp ( child_name, EDITBUMP ) == 0x00 ) {
+            updateBumpPanel ( child, gui );
         }
 
         children =  g_list_next ( children );
@@ -949,7 +1222,8 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
 
     createDiffuseColorPanel ( tab, gui, EDITDIFFUSE     , 0, 0, width, height );
-    createSpecularityPanel  ( tab, gui, EDITSPECULARITY , 0, 0, width, height );
+    createSpecularPanel     ( tab, gui, EDITSPECULAR    , 0, 0, width, height );
+    createBumpPanel         ( tab, gui, EDITBUMP        , 0, 0, width, height );
     createDisplacementPanel ( tab, gui, EDITDISPLACEMENT, 0, 0, width, height );
     createReflectionPanel   ( tab, gui, EDITREFLECTION  , 0, 0, width, height );
     createRefractionPanel   ( tab, gui, EDITREFRACTION  , 0, 0, width, height );

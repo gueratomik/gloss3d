@@ -59,12 +59,15 @@ typedef struct _G3DIMPORTDATA {
     G3DMATERIAL *currentMaterial;
     G3DCHANNEL  *currentChannel;
     G3DUVMAP    *currentUVMap;
+    G3DRIG      *currentRig;
+    G3DWEIGHTGROUP *currentWeightgroup;
     G3DVERTEX  **currentVertexArray;
     G3DFACE    **currentFaceArray;
     G3DFACE    **currentMaterialArray;
     uint32_t   currentObjectID;
     char       currentObjectName[0x100];
     uint32_t   currentMaterialID;
+    uint32_t   currentWeightgroupID;
     uint32_t   engineFlags;
     uint32_t   indentLevel;
 } G3DIMPORTDATA;
@@ -73,6 +76,7 @@ typedef struct _G3DIMPORTDATA {
 G3DSCENE *g3dscene_importv2 ( const char *filename,
                               uint32_t    flags );
 
+uint32_t g3dimport_freadd ( double *d, FILE *stream );
 uint32_t g3dimport_freadll ( uint64_t *ll, FILE *stream );
 uint32_t g3dimport_freadl ( uint32_t *l, FILE *stream );
 uint32_t g3dimport_freadf ( float *f, FILE *stream );
@@ -89,5 +93,6 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportcamera ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 #endif

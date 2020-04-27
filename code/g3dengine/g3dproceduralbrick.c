@@ -38,7 +38,7 @@ static void getColor ( G3DPROCEDURAL *proc,
                        double         x, 
                        double         y,
                        double         z,
-                       G3DRGBA       *rgba ) {
+                       G3DCOLOR      *color ) {
     G3DPROCEDURALBRICK *pbd = ( G3DPROCEDURALBRICK * ) proc;
     float brickSizeU = ( 1.0f / pbd->nbBricksPerLine );
     float halfBrickU = brickSizeU / 2;
@@ -51,13 +51,13 @@ static void getColor ( G3DPROCEDURAL *proc,
          ( posu - ( uint32_t ) posu ) > ( 1.0f - pbd->uspacing ) || 
          ( posv - ( uint32_t ) posv ) < (        pbd->vspacing ) || 
          ( posv - ( uint32_t ) posv ) > ( 1.0f - pbd->vspacing ) ) {
-        rgba->r = pbd->spacingColor.r;
-        rgba->g = pbd->spacingColor.g;
-        rgba->b = pbd->spacingColor.b;
+        color->r = pbd->spacingColor.r;
+        color->g = pbd->spacingColor.g;
+        color->b = pbd->spacingColor.b;
     } else {
-        rgba->r = pbd->brickColor.r;
-        rgba->g = pbd->brickColor.g;
-        rgba->b = pbd->brickColor.b;
+        color->r = pbd->brickColor.r;
+        color->g = pbd->brickColor.g;
+        color->b = pbd->brickColor.b;
     }
 }
 
@@ -74,14 +74,14 @@ G3DPROCEDURALBRICK *g3dproceduralbrick_new ( ) {
     g3dprocedural_init ( ( G3DPROCEDURAL * ) pbd, PROCEDURALBRICK, getColor );
 
     /*** https://encycolorpedia.com/8b4f39 ***/
-    pbd->brickColor.r   = 0x8B;
-    pbd->brickColor.g   = 0x4F;
-    pbd->brickColor.b   = 0x39;
+    pbd->brickColor.r   = ( float ) 0x8B / 255.0f;
+    pbd->brickColor.g   = ( float ) 0x4F / 255.0f;
+    pbd->brickColor.b   = ( float ) 0x39 / 255.0f;
 
     /*** hhttps://encycolorpedia.com/47281e ***/
-    pbd->spacingColor.r = 0x47;
-    pbd->spacingColor.g = 0x28;
-    pbd->spacingColor.b = 0x1E;
+    pbd->spacingColor.r = ( float ) 0x47 / 255.0f;
+    pbd->spacingColor.g = ( float ) 0x28 / 255.0f;
+    pbd->spacingColor.b = ( float ) 0x1E / 255.0f;
 
     pbd->nbBricksPerLine = 3;
     pbd->nbLines = 6;

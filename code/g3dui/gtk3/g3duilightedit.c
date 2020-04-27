@@ -90,11 +90,11 @@ static GtkWidget *createSpecularityPanel ( GtkWidget *parent, G3DUI *gui,
 
           /*** Use Solid color as texture ***/
           createSimpleLabel ( pan, gui,
-                                   EDITSPECULARITYCOLOR,
+                                   EDITSPECULARCOLOR,
                                      0,  0, 96, 18 );
           /*** Pick color button ***/
     col = createColorButton ( pan, gui,
-                                   EDITSPECULARITYCOLOR,
+                                   EDITSPECULARCOLOR,
                                    104,  0, 96, 18,
                                    specularityChangeCbk );
 
@@ -275,7 +275,7 @@ void updateLightEdit ( GtkWidget *widget, G3DUI *gui ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
         const char *child_name = gtk_widget_get_name ( child );
 
-        if ( strcmp ( child_name, EDITSPECULARITY  ) == 0x00 ) {
+        if ( strcmp ( child_name, EDITSPECULAR  ) == 0x00 ) {
             updateSpecularityPanel ( child, gui );
         }
 
@@ -321,7 +321,7 @@ GtkWidget *createLightEdit ( GtkWidget *parent, G3DUI *gui,
 
     createLightGeneralPanel ( tab, gui, EDITLIGHTGENERAL, 0, 0, width, height );
     createDiffuseColorPanel ( tab, gui, EDITDIFFUSE     , 0, 0, width, height );
-    createSpecularityPanel  ( tab, gui, EDITSPECULARITY , 0, 0, width, height );
+    createSpecularityPanel  ( tab, gui, EDITSPECULAR    , 0, 0, width, height );
 
     list_insert ( &gui->lligedit, tab );
 

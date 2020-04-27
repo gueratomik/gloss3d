@@ -206,7 +206,12 @@ uint32_t g3dexportlight ( G3DEXPORTDATA *ged,
                           G3DLIGHT     *lig, 
                           uint32_t      flags, 
                           FILE         *fdst );
+uint32_t g3dexportbone ( G3DEXPORTDATA *ged, 
+                         G3DBONE     *cam, 
+                         uint32_t       flags, 
+                         FILE          *fdst );
 
+uint32_t g3dexport_fwrited ( double *d, FILE *stream );
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
 uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream );
 uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream );

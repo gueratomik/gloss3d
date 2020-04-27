@@ -111,7 +111,7 @@ static void getColor ( G3DPROCEDURAL *proc,
                        double         x, 
                        double         y,
                        double         z,
-                       G3DRGBA       *rgba ) {
+                       G3DCOLOR      *color ) {
     G3DPROCEDURALNOISE *pns = ( G3DPROCEDURALNOISE * ) proc;
     static int init;
     double coef = 0.0f;
@@ -127,9 +127,9 @@ static void getColor ( G3DPROCEDURAL *proc,
 
     coef = fbm ( x, y, 5 );
 
-    rgba->r = ( pns->color1.r * coef ) + ( pns->color2.r * ( 1.0f - coef ) );
-    rgba->g = ( pns->color1.g * coef ) + ( pns->color2.g * ( 1.0f - coef ) );
-    rgba->b = ( pns->color1.b * coef ) + ( pns->color2.b * ( 1.0f - coef ) );
+    color->r = ( pns->color1.r * coef ) + ( pns->color2.r * ( 1.0f - coef ) );
+    color->g = ( pns->color1.g * coef ) + ( pns->color2.g * ( 1.0f - coef ) );
+    color->b = ( pns->color1.b * coef ) + ( pns->color2.b * ( 1.0f - coef ) );
 }
 
 /******************************************************************************/
@@ -144,8 +144,8 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
 
     g3dprocedural_init ( ( G3DPROCEDURAL * )noi, PROCEDURALNOISE, getColor );
 
-    noi->color1.r = noi->color1.g = noi->color1.b = 0xFF;
-    noi->color2.r = noi->color2.g = noi->color2.b = 0x00;
+    noi->color1.r = noi->color1.g = noi->color1.b = ( float ) 0xFF / 255.0f;
+    noi->color2.r = noi->color2.g = noi->color2.b = ( float ) 0x00 / 255.0f;
 
     return noi;
 }

@@ -31,6 +31,11 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+uint32_t g3dexport_fwrited ( double *d, FILE *stream ) {
+    return g3dexport_fwrite ( d, sizeof ( double ), 0x01, stream );
+}
+
+/******************************************************************************/
 uint32_t g3dexport_fwritef ( float *f, FILE *stream ) {
     return g3dexport_fwrite ( f, sizeof ( float ), 0x01, stream );
 }

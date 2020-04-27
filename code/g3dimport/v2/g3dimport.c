@@ -31,6 +31,11 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
+uint32_t g3dimport_freadd ( double *d, FILE *stream ) {
+    return g3dimport_fread ( d, sizeof ( double ), 0x01, stream );
+}
+
+/******************************************************************************/
 uint32_t g3dimport_freadf ( float *f, FILE *stream ) {
     return g3dimport_fread ( f, sizeof ( float ), 0x01, stream );
 }

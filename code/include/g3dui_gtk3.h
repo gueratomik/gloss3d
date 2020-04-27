@@ -213,14 +213,18 @@ GtkWidget *gtk_uvmapeditor_getDrawingArea ( GtkWidget *widget );
 typedef struct _GTK3MATERIALPREVIEW {
     GdkPixbuf *img;
     G3DMATERIAL *mat;
+    /*** The vector map that helps us to build the preview sphere ***/
+    /*** This is per-preview because we need individual maps in case ***/
+    /*** normal vectors are affected by bump maps for instance ***/
+    G3DUIMATERIALMAP *map;
     G3DUIRECTANGLE rec;
 } GTK3MATERIALPREVIEW;
 
 GTK3MATERIALPREVIEW *gtk3materialpreview_new    ( G3DMATERIAL *,
-                                                  G3DUIMATERIALMAP * );
+                                                  uint32_t width,
+                                                  uint32_t height );
 void                 gtk3materialpreview_free   ( GTK3MATERIALPREVIEW * );
-void                 gtk3materialpreview_update ( GTK3MATERIALPREVIEW *,
-                                                  G3DUIMATERIALMAP * );
+void                 gtk3materialpreview_update ( GTK3MATERIALPREVIEW * );
 
 
 

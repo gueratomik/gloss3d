@@ -46,7 +46,7 @@ void g3dimportcamera ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_CAMERA_FOCAL : {
                 G3DCAMERA *cam = ( G3DCAMERA * ) gid->currentObject;
 
-                return g3dimport_freadf ( &cam->focal, fsrc );
+                g3dimport_freadf ( &cam->focal, fsrc );
             } break;
 
             default : {

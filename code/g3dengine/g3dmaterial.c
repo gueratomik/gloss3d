@@ -110,6 +110,16 @@ G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat,
 }
 
 /******************************************************************************/
+void g3dmaterial_enableBump ( G3DMATERIAL *mat ) {
+    mat->flags |= BUMP_ENABLED;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableBump ( G3DMATERIAL *mat ) {
+    mat->flags &= (~BUMP_ENABLED);
+}
+
+/******************************************************************************/
 void g3dmaterial_enableDisplacement ( G3DMATERIAL *mat ) {
     mat->flags |= DISPLACEMENT_ENABLED;
 }

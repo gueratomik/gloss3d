@@ -38,7 +38,7 @@ static void getColor ( G3DPROCEDURAL *proc,
                        double         x, 
                        double         y,
                        double         z,
-                       G3DRGBA       *rgba ) {
+                       G3DCOLOR      *color ) {
     G3DPROCEDURALCHESS *cbd = ( G3DPROCEDURALCHESS * ) proc;
     float posu = x * ( cbd->udiv * 2 ),
           posv = y * ( cbd->vdiv * 2 );
@@ -46,13 +46,13 @@ static void getColor ( G3DPROCEDURAL *proc,
              evenv = ( ( ( uint32_t ) posv ) % 2 ) ? 0 : 1;
 
     if ( ( evenu + evenv ) % 2 ) {
-        rgba->r = cbd->color1.r;
-        rgba->g = cbd->color1.g;
-        rgba->b = cbd->color1.b;
+        color->r = cbd->color1.r;
+        color->g = cbd->color1.g;
+        color->b = cbd->color1.b;
     } else {
-        rgba->r = cbd->color2.r;
-        rgba->g = cbd->color2.g;
-        rgba->b = cbd->color2.b;
+        color->r = cbd->color2.r;
+        color->g = cbd->color2.g;
+        color->b = cbd->color2.b;
     }
 }
 
@@ -68,8 +68,8 @@ G3DPROCEDURALCHESS *g3dproceduralchess_new ( ) {
 
     g3dprocedural_init ( ( G3DPROCEDURAL * ) cbd, PROCEDURALCHESS, getColor );
 
-    cbd->color1.r = cbd->color1.g = cbd->color1.b = 0xFF;
-    cbd->color2.r = cbd->color2.g = cbd->color2.b = 0x00;
+    cbd->color1.r = cbd->color1.g = cbd->color1.b = ( float ) 0xFF / 255.0f;
+    cbd->color2.r = cbd->color2.g = cbd->color2.b = ( float ) 0x00 / 255.0f;
 
     cbd->udiv = 4;
     cbd->vdiv = 4;

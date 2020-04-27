@@ -46,6 +46,48 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_MESH_GEOMETRY : {
             } break;
 
+            case SIG_OBJECT_MESH_WEIGHTGROUPS : {
+            } break;
+
+            case SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_MESH_WEIGHTGROUP_NAME : {
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
+
+                if ( chunkSize ) {
+                    char *name = calloc ( 0x01, chunkSize );
+
+                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+
+                    gid->currentWeightgroup = g3dweightgroup_new ( mes, name );
+                    g3dmesh_addWeightGroup ( mes, gid->currentWeightgroup );
+
+                    gid->currentWeightgroup->id = gid->currentWeightgroupID++;
+
+                    free ( name );
+                }
+            } break;
+
+            case SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS : {
+                uint32_t nbWeights;
+                uint32_t i;
+
+                g3dimport_freadl ( &nbWeights, fsrc );
+
+                for ( i = 0x00; i < nbWeights; i++ ) {
+                    uint32_t verID;
+                    float weight;
+
+                    g3dimport_freadl ( &verID , fsrc );
+                    g3dimport_freadf ( &weight, fsrc );
+
+                    g3dweightgroup_addVertex ( gid->currentWeightgroup,
+                                               gid->currentVertexArray[verID],
+                                               weight );
+                }
+            } break;
+
             case SIG_OBJECT_MESH_GEOMETRY_VERTICES : {
                 G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
                 uint32_t nbver;

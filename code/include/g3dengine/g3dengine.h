@@ -521,7 +521,7 @@ typedef struct _G3DPROCEDURAL {
     uint32_t type;
     void (*getColor)( struct _G3DPROCEDURAL *, double, 
                                                double, 
-                                               double, G3DRGBA * );
+                                               double, G3DCOLOR * );
     G3DIMAGE image;
     unsigned char *preview; /*** holds the generated image data ***/
 } G3DPROCEDURAL;
@@ -529,15 +529,15 @@ typedef struct _G3DPROCEDURAL {
 /******************************************************************************/
 typedef struct _G3DPROCEDURALNOISE {
     G3DPROCEDURAL procedural;
-    G3DRGBA color1;
-    G3DRGBA color2;
+    G3DCOLOR color1;
+    G3DCOLOR color2;
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
 typedef struct G3DPROCEDURALCHESS {
     G3DPROCEDURAL procedural;
-    G3DRGBA color1;
-    G3DRGBA color2;
+    G3DCOLOR color1;
+    G3DCOLOR color2;
     uint32_t udiv;
     uint32_t vdiv;
 } G3DPROCEDURALCHESS;
@@ -545,8 +545,8 @@ typedef struct G3DPROCEDURALCHESS {
 /******************************************************************************/
 typedef struct _G3DPROCEDURALBRICK {
     G3DPROCEDURAL procedural;
-    G3DRGBA brickColor;
-    G3DRGBA spacingColor;
+    G3DCOLOR brickColor;
+    G3DCOLOR spacingColor;
     uint32_t nbBricksPerLine;
     uint32_t nbLines;
     float uspacing;
@@ -2329,6 +2329,10 @@ void         g3dmaterial_updateMeshes         ( G3DMATERIAL *, uint32_t );
 void         g3dmaterial_draw                 ( G3DMATERIAL *, G3DFACE *, uint32_t );
 void         g3dmaterial_disableDisplacement  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacement   ( G3DMATERIAL *mat );
+void         g3dmaterial_disableBump  ( G3DMATERIAL *mat );
+void         g3dmaterial_enableBump   ( G3DMATERIAL *mat );
+void         g3dmaterial_disableAlpha  ( G3DMATERIAL *mat );
+void         g3dmaterial_enableAlpha   ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacementImageColor ( G3DMATERIAL * );
 void         g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL * );
 void         g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL * );
@@ -2461,7 +2465,7 @@ void g3dprocedural_init ( G3DPROCEDURAL *,
                                             double, 
                                             double, 
                                             double, 
-                                            G3DRGBA * ) );
+                                            G3DCOLOR * ) );
 void g3dprocedural_fill ( G3DPROCEDURAL *, uint32_t,
                                            uint32_t,
                                            uint32_t, uint32_t );
@@ -2516,6 +2520,10 @@ void g3dchannel_enableImageColor ( G3DCHANNEL *cha );
 void g3dchannel_enableSolidColor ( G3DCHANNEL *cha );
 G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
                                           G3DPROCEDURAL *proc );
+void g3dchannel_getBumpVector ( G3DCHANNEL *cha, 
+                                float       u,
+                                float       v,
+                                G3DVECTOR  *vout );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

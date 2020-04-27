@@ -37,6 +37,15 @@
 #define  SIG_MATERIAL_SPECULAR_LEVEL            0x24CA1ADB
 #define  SIG_MATERIAL_SPECULAR_SHININESS        0x92BEF4DC
 #define  SIG_OBJECT                             0xA0D6AA20
+#define  SIG_OBJECT_BONE                        0x58B4AB43
+#define  SIG_OBJECT_BONE_FIXING                 0x37806762
+#define  SIG_OBJECT_BONE_FIXING_TRANSFORMATION  0xEF18142E
+#define  SIG_OBJECT_BONE_LENGTH                 0xB876D5B8
+#define  SIG_OBJECT_BONE_RIG_BINDMATRIX         0xC9223A6B
+#define  SIG_OBJECT_BONE_RIG_ENTRY              0x0BED790B
+#define  SIG_OBJECT_BONE_RIGS                   0x6A4F8B22
+#define  SIG_OBJECT_BONE_RIG_SKINMATRIX         0xA610F6C4
+#define  SIG_OBJECT_BONE_RIG_WEIGHTGROUP        0x531902FA
 #define  SIG_OBJECT_CAMERA                      0x590154D0
 #define  SIG_OBJECT_CAMERA_FOCAL                0x3B0925B4
 #define  SIG_OBJECT_IDENTITY                    0xFE404903

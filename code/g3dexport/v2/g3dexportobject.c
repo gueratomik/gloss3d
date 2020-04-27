@@ -236,6 +236,15 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
+    if ( obj->type  == G3DBONETYPE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_BONE,
+                                       g3dexportbone,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
     /*if ( obj->type  & SPLINE ) {
         size += g3dexport_writeChunk ( SIG_OBJECT__SPLINE,
                                        g3dexportspline,

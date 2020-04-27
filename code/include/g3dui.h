@@ -370,11 +370,11 @@
 #define EDITDIFFUSEPROCEDURALTYPE  EDITCHANNELPROCEDURALTYPE
 #define EDITDIFFUSEPROCEDURALRES   EDITCHANNELPROCEDURALRES
 
-#define EDITSPECULARITY            "Specularity"
-#define EDITSPECULARITYSHININESS   "Shininess"
-#define EDITSPECULARITYLEVEL       "Level"
-#define EDITSPECULARITYCOLOR       EDITCHANNELCOLOR
-#define EDITSPECULARITYIMAGE       EDITCHANNELIMAGE
+#define EDITSPECULAR            "Specularity"
+#define EDITSPECULARSHININESS   "Shininess"
+#define EDITSPECULARLEVEL       "Level"
+#define EDITSPECULARCOLOR       EDITCHANNELCOLOR
+#define EDITSPECULARIMAGE       EDITCHANNELIMAGE
 
 #define EDITDISPLACEMENT           "Displacement"
 #define EDITDISPLACEMENTENABLED    "Enable Displacement Channel"
@@ -382,6 +382,13 @@
 #define EDITDISPLACEMENTIMAGE      EDITCHANNELIMAGE
 #define EDITDISPLACEMENTPROCEDURAL EDITCHANNELPROCEDURAL
 #define EDITDISPLACEMENTSTRENGTH   "Strength"
+
+#define EDITBUMP                   "Bump"
+#define EDITBUMPENABLED            "Enable Bump Channel"
+#define EDITBUMPCHANNEL            "Bump Channel"
+#define EDITBUMPIMAGE               EDITCHANNELIMAGE
+#define EDITBUMPPROCEDURAL          EDITCHANNELPROCEDURAL
+#define EDITBUMPSTRENGTH           "Strength"
 
 #define EDITREFLECTION             "Reflection"
 #define EDITREFLECTIONSTRENGTH     "Strength"
@@ -916,8 +923,8 @@ typedef struct _G3DUIMATERIALMAP {
 typedef struct _MATERIALLISTDATA {
     /*** List of material previews (those are ToolKit related) ***/
     LIST *lpreview;
-    /*** The vector map that helps us to build the preview sphere ***/
-    G3DUIMATERIALMAP *matmap;
+    uint32_t image_width;
+    uint32_t image_height;
     uint32_t preview_width;
     uint32_t preview_height;
     uint32_t preview_border;
@@ -926,9 +933,8 @@ typedef struct _MATERIALLISTDATA {
 
 /******************************************************************************/
 G3DUIMATERIALMAP *common_g3duimaterialmap_new         ( uint32_t, uint32_t );
-void              common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *, 
-                                                        uint32_t, 
-                                                        uint32_t,
+void              common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *,
+                                                        G3DMATERIAL *,
                                                         float );
 void              common_g3duimaterialmap_fillData    ( G3DUIMATERIALMAP *,
                                                         G3DMATERIAL *,
@@ -1052,25 +1058,53 @@ void      common_g3duimenubar_alignUVMapCbk   ( G3DUI *, const char * );
 void      common_g3duimenubar_fitUVMapCbk     ( G3DUI * );
 
 /************************** g3duimaterialedit.c *******************************/
-void common_g3dui_materialSolidColorCbk           ( G3DUI * );
-void common_g3dui_materialImageColorCbk           ( G3DUI * );
-void common_g3dui_materialColorChangeCbk          ( G3DUI *, G3DCHANNEL *,
-                                                             uint32_t ,
-                                                             uint32_t ,
-                                                             uint32_t );
-void common_g3dui_materialChooseImageCbk          ( G3DUI *, char * );
-void common_g3dui_materialSpecularityShininessCbk ( G3DUI *, float );
-void common_g3dui_materialSpecularityColorCbk     ( G3DUI *, uint32_t,
-                                                             uint32_t,
-                                                             uint32_t );
-void common_g3dui_materialNameCbk                 ( G3DUI *, const char * );
-void common_g3dui_materialSpecularityLevelCbk     ( G3DUI *, float );
-void common_g3dui_materialDisplacementStrengthCbk ( G3DUI *, float );
-void common_g3dui_materialDisplacementImageCbk    ( G3DUI *, const char * );
-void common_g3dui_materialDisplacementToggleCbk   ( G3DUI * );
-void common_g3dui_materialReflectionStrengthCbk   ( G3DUI *, float );
-void common_g3dui_materialRefractionStrengthCbk   ( G3DUI *, float );
-void common_g3dui_materialTransparencyStrengthCbk ( G3DUI *, float );
+void common_g3dui_materialToggleBumpCbk ( G3DUI *gui );
+void common_g3dui_materialToggleDisplacementCbk ( G3DUI *gui );
+void common_g3dui_materialChooseProceduralCbk ( G3DUI      *gui,
+                                                G3DCHANNEL *cha,
+                                                const char *procType,
+                                                const char *procRes,
+                                                uint32_t    bindGL );
+void common_g3dui_materialEnableImageCbk ( G3DUI *gui, G3DCHANNEL *cha );
+void common_g3dui_materialEnableSolidColorCbk ( G3DUI *gui, G3DCHANNEL *cha );
+void common_g3dui_materialEnableProceduralCbk ( G3DUI *gui, G3DCHANNEL *cha );
+void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
+                                          G3DCHANNEL *cha,
+                                          char       *filename,
+                                          uint32_t    bindGL );
+void common_g3dui_materialSetSpecularShininessCbk ( G3DUI *gui, 
+                                                       float  val );
+void common_g3dui_materialSetSpecularLevelCbk ( G3DUI *gui,
+                                                   float  val );
+void common_g3dui_materialSetNameCbk ( G3DUI *gui, const char *name );
+void common_g3dui_materialSetAlphaStrengthCbk ( G3DUI *gui, 
+                                                float  strength );
+void common_g3dui_materialSetRefractionStrengthCbk ( G3DUI *gui, 
+                                                     float  strength );
+void common_g3dui_materialSetReflectionStrengthCbk ( G3DUI *gui, 
+                                                     float  strength );
+void common_g3dui_materialSetBumpStrengthCbk ( G3DUI *gui, 
+                                               float  strength );
+void common_g3dui_materialSetDisplacementStrengthCbk ( G3DUI *gui, 
+                                                       float  strength );
+void common_g3dui_materialSetSpecularColorCbk ( G3DUI *gui, 
+                                                float  R,
+                                                float  G,
+                                                float  B,
+                                                float  A );
+void common_g3dui_materialSetDiffuseColorCbk ( G3DUI *gui, 
+                                               float  R,
+                                               float  G,
+                                               float  B,
+                                               float  A );
+
+void common_g3dui_channelSetColorCbk ( G3DUI      *gui, 
+                                       G3DCHANNEL *cha,
+                                       float       R,
+                                       float       G,
+                                       float       B,
+                                       float       A );
+
 
 /******************************** g3duitimeline.c *****************************/
 void common_g3dui_recordFrameCbk ( G3DUI *, uint32_t );

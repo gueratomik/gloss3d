@@ -117,7 +117,9 @@ static void materiallistdata_removePreview ( MATERIALLISTDATA *mdata,
 /******************************************************************************/
 static void materiallistdata_addPreview ( MATERIALLISTDATA *mdata, 
                                           G3DMATERIAL *mat ) {
-    GTK3MATERIALPREVIEW *preview = gtk3materialpreview_new ( mat, mdata->matmap );
+    GTK3MATERIALPREVIEW *preview = gtk3materialpreview_new ( mat, 
+                                                             mdata->image_width,
+                                                             mdata->image_height );
 
     list_insert ( &mdata->lpreview, preview );
 }
@@ -204,7 +206,7 @@ void g3duimateriallist_updatePreview ( GtkWidget *widget, G3DMATERIAL *mat ) {
                                                   GTK3WIDGETDATA );
     GTK3MATERIALPREVIEW *preview = materiallistdata_getPreview ( mdata, mat );
 
-    if ( preview ) gtk3materialpreview_update ( preview, mdata->matmap );
+    if ( preview ) gtk3materialpreview_update ( preview );
 
     gtk_widget_queue_draw_area ( widget, preview->rec.x, 
                                          preview->rec.y,
@@ -312,16 +314,18 @@ static void destroyPixbuf ( guchar *pixels, gpointer data ) {
 }
 
 /******************************************************************************/
-void gtk3materialpreview_update ( GTK3MATERIALPREVIEW *preview,
-                                  G3DUIMATERIALMAP    *matmap ) {
+void gtk3materialpreview_update ( GTK3MATERIALPREVIEW *preview ) {
     unsigned char (*data)[0x03];
+
+    /*** build the material sphere vector map ***/
+    common_g3duimaterialmap_buildSphere ( preview->map, preview->mat, 0.8f );
 
     if ( preview->img ) g_object_unref ( preview->img );
 
     preview->img = NULL;
 
     /*** Alloc a buffer that is filled with the material preview ***/
-    data = calloc ( 0x03, matmap->width * matmap->height );
+    data = calloc ( 0x03, preview->map->width * preview->map->height );
 
     if ( data == NULL ) {
         fprintf ( stderr, "gtk3materialpreview_new: memory allocation failed\n" );
@@ -329,22 +333,24 @@ void gtk3materialpreview_update ( GTK3MATERIALPREVIEW *preview,
         free ( preview );
     }
 
-    common_g3duimaterialmap_fillData ( matmap, preview->mat, data );
+    common_g3duimaterialmap_fillData ( preview->map, 
+                                       preview->mat, data );
 
     /*** Convert to a GdkPixbuf image ***/
     preview->img = gdk_pixbuf_new_from_data ( (const guchar *) data,
                                               GDK_COLORSPACE_RGB, 
                                               FALSE,
                                               0x08,
-                                              matmap->width,
-                                              matmap->height,
-                                              matmap->width * 0x03,
+                                              preview->map->width,
+                                              preview->map->height,
+                                              preview->map->width * 0x03,
                                               destroyPixbuf, NULL );
 }
 
 /******************************************************************************/
-GTK3MATERIALPREVIEW *gtk3materialpreview_new ( G3DMATERIAL *mat, 
-                                               G3DUIMATERIALMAP *matmap ) {
+GTK3MATERIALPREVIEW *gtk3materialpreview_new ( G3DMATERIAL *mat,
+                                               uint32_t     width,
+                                               uint32_t     height ) {
     uint32_t structsize = sizeof ( GTK3MATERIALPREVIEW );
     GTK3MATERIALPREVIEW *preview = ( GTK3MATERIALPREVIEW * ) calloc ( 0x01, structsize );
 
@@ -356,8 +362,9 @@ GTK3MATERIALPREVIEW *gtk3materialpreview_new ( G3DMATERIAL *mat,
     }
 
     preview->mat = mat;
+    preview->map = common_g3duimaterialmap_new ( width, height );
 
-    gtk3materialpreview_update ( preview, matmap );
+    gtk3materialpreview_update ( preview );
 
 
     return preview;
@@ -429,7 +436,7 @@ GtkWidget *createMaterialList ( GtkWidget *parent, G3DUI *gui,
                                                     gint y,
                                                     gint width,
                                                     gint height ) {
-    MATERIALLISTDATA *matlst = common_materiallistdata_new ( 0x60, 0x60 );
+    MATERIALLISTDATA *matlst = common_materiallistdata_new ( 0xC0, 0xC0 );
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
     GtkWidget *scr, *drw;
