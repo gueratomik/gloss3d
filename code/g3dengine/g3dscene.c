@@ -153,11 +153,12 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                                        uint32_t eflags ) {
     G3DVECTOR avgpos;
     uint32_t nbobj = g3dscene_getSelectionPosition ( sce, &avgpos );
+    static uint32_t matrixSize = sizeof ( double ) * 0x10;
 
     if ( nbobj == 0x01 ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
         
-        memcpy ( matrix, obj->wmatrix, sizeof ( double ) * 0x10 );
+        memcpy ( matrix, obj->wmatrix, matrixSize );
 
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
@@ -167,7 +168,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelVerPos, TRX );
                 g3dcore_multmatrix ( matrix, TRX, TMPX );
-                memcpy ( matrix, TMPX, sizeof ( TMPX ) );
+                memcpy ( matrix, TMPX, matrixSize );
             }
 
             if ( eflags & VIEWEDGE ) {
@@ -175,7 +176,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelEdgPos, TRX );
                 g3dcore_multmatrix ( matrix, TRX, TMPX );
-                memcpy ( matrix, TMPX, sizeof ( TMPX ) );
+                memcpy ( matrix, TMPX, matrixSize );
             }
 
             if ( eflags & VIEWFACE ) {
@@ -183,7 +184,15 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelFacPos, TRX );
                 g3dcore_multmatrix ( matrix, TRX, TMPX );
-                memcpy ( matrix, TMPX, sizeof ( TMPX ) );
+                memcpy ( matrix, TMPX, matrixSize );
+            }
+
+            if ( eflags & VIEWUVWMAP ) {
+                G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
+
+                if ( map ) {
+                    memcpy ( matrix, ((G3DOBJECT*)map)->wmatrix, matrixSize );
+                }
             }
         }
 
@@ -195,7 +204,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
 
                 g3dvector_createTranslationMatrix ( &spl->curve->avgSelPtPos, TRX );
                 g3dcore_multmatrix ( matrix, TRX, TMPX );
-                memcpy ( matrix, TMPX, sizeof ( TMPX ) );
+                memcpy ( matrix, TMPX, matrixSize );
             }
         }
     } else {

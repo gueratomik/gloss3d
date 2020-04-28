@@ -55,6 +55,9 @@ void common_g3dui_materialSetDiffuseColorCbk ( G3DUI *gui,
                                                float  G,
                                                float  B,
                                                float  A ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
     if ( gui->selmat ) {
         common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->diffuse, 
@@ -71,6 +74,9 @@ void common_g3dui_materialSetSpecularColorCbk ( G3DUI *gui,
                                                 float  G,
                                                 float  B,
                                                 float  A ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
     if ( gui->selmat ) {
         common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->specular, 
@@ -84,19 +90,31 @@ void common_g3dui_materialSetSpecularColorCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3dui_materialSetDisplacementStrengthCbk ( G3DUI *gui, 
                                                        float  strength ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
     if ( gui->selmat ) {
+        G3DMATERIAL *mat = gui->selmat;
+
         common_g3dui_channelSetColorCbk ( gui,
                                          &gui->selmat->displacement,
                                           strength,
                                           strength,
                                           strength,
                                           strength );
+
+        g3dmaterial_updateMeshes ( mat, gui->flags );
+
+        g3dui_redrawGLViews ( gui );
     }
 }
 
 /******************************************************************************/
 void common_g3dui_materialSetBumpStrengthCbk ( G3DUI *gui, 
                                                float  strength ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+    
     if ( gui->selmat ) {
 	common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->bump, strength,
@@ -109,6 +127,9 @@ void common_g3dui_materialSetBumpStrengthCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3dui_materialSetReflectionStrengthCbk ( G3DUI *gui, 
                                                      float  strength ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+    
     if ( gui->selmat ) {
 	common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->reflection, 
@@ -122,6 +143,9 @@ void common_g3dui_materialSetReflectionStrengthCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3dui_materialSetRefractionStrengthCbk ( G3DUI *gui, 
                                                      float  strength ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+    
     if ( gui->selmat ) {
 	common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->refraction, 
@@ -135,6 +159,9 @@ void common_g3dui_materialSetRefractionStrengthCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3dui_materialSetAlphaStrengthCbk ( G3DUI *gui, 
                                                 float  strength ) {
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
     if ( gui->selmat ) {
         common_g3dui_channelSetColorCbk ( gui, 
                                          &gui->selmat->alpha,
@@ -216,7 +243,7 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
             /*** Update Meshes that have this material   ***/
             /*** to rebuild Texture Coordinates. This is ***/
             /*** needed for buffered subdivided meshes ***/
-            if ( mat ) g3dmaterial_updateMeshes ( mat, gui->flags );
+            if ( cha == &mat->diffuse ) g3dmaterial_updateMeshes ( mat, gui->flags );
 
             g3dui_redrawGLViews ( gui );
             g3dui_updateSelectedMaterialPreview ( gui );
@@ -241,6 +268,10 @@ void common_g3dui_materialEnableProceduralCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         /*** Redraw Material List widget Previews ***/
         g3dui_updateSelectedMaterialPreview ( gui );
 
+        if (  cha == &mat->displacement ) {
+            g3dmaterial_updateMeshes ( mat, gui->flags );
+        }
+
         g3dui_redrawGLViews      ( gui );
         g3dui_redrawMaterialList ( gui );
     }
@@ -259,6 +290,10 @@ void common_g3dui_materialEnableSolidColorCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         /*** Redraw Material List widget Previews ***/
         g3dui_updateSelectedMaterialPreview ( gui );
 
+        if (  cha == &mat->displacement ) {
+            g3dmaterial_updateMeshes ( mat, gui->flags );
+        }
+
         g3dui_redrawGLViews      ( gui );
         g3dui_redrawMaterialList ( gui );
     }
@@ -276,6 +311,10 @@ void common_g3dui_materialEnableImageCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
 
         /*** Redraw Material List widget Previews ***/
         g3dui_updateSelectedMaterialPreview ( gui );
+
+        if (  cha == &mat->displacement ) {
+            g3dmaterial_updateMeshes ( mat, gui->flags );
+        }
 
         g3dui_redrawGLViews      ( gui );
         g3dui_redrawMaterialList ( gui );

@@ -86,7 +86,14 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_BUMP_STRENGTH : {
-                 g3dimport_freadf ( &gid->currentMaterial->bump_strength, fsrc );
+                float strength;
+
+                 g3dimport_freadf ( &strength, fsrc );
+
+                gid->currentMaterial->bump.solid.r = 
+                gid->currentMaterial->bump.solid.g =
+                gid->currentMaterial->bump.solid.b =
+                gid->currentMaterial->bump.solid.a = strength;
             } break;
 
             case SIG_MATERIAL_DISPLACEMENT : {
@@ -94,7 +101,14 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_DISPLACEMENT_STRENGTH : {
-                 g3dimport_freadf ( &gid->currentMaterial->displacement_strength, fsrc );
+                float strength;
+
+                 g3dimport_freadf ( &strength, fsrc );
+
+                gid->currentMaterial->displacement.solid.r = 
+                gid->currentMaterial->displacement.solid.g =
+                gid->currentMaterial->displacement.solid.b =
+                gid->currentMaterial->displacement.solid.a = strength;
             } break;
 
             case SIG_MATERIAL_ALPHA : {

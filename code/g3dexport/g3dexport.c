@@ -2067,7 +2067,7 @@ static void materialspecular_writeblock ( G3DMATERIAL *mat,
 /******************************************************************************/
 static void materialdisplacementstrength_writeblock ( G3DMATERIAL *mat, 
                                                       FILE *fdst ) {
-    writef ( &mat->displacement_strength, sizeof ( float ), 0x01, fdst );
+    writef ( &mat->displacement.solid.a, sizeof ( float ), 0x01, fdst );
 }
 
 /******************************************************************************/

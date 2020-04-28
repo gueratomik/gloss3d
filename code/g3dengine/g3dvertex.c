@@ -194,7 +194,8 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                             G3DMATERIAL *mat = ( tex->mat );
                             G3DUV *uv = &uvs->veruv[i];
 
-                            if ( mat->displacement_strength ) {
+                            /*** displacement strength is stored as solid color ***/
+                            if ( mat->displacement.solid.a ) {
                                 G3DIMAGE *disimg = NULL;
                                 uint32_t gray = 0x00;
                                 float factor;
@@ -236,7 +237,8 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                     }
                                 }
 
-                                factor = gray * mat->displacement_strength * 0.001f;
+                            /*** displacement strength is stored as solid color ***/
+                                factor = gray * mat->displacement.solid.a * 0.001f;
   
                                 displaced.x += ( ver->nor.x * factor );
                                 displaced.y += ( ver->nor.y * factor );

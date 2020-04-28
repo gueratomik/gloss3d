@@ -160,7 +160,10 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     mat->flags = DIFFUSE_ENABLED | SPECULAR_ENABLED | REFLECTION_ENABLED | REFRACTION_ENABLED;
 
-    mat->transparency_strength = 0.0f;
+    mat->alpha.solid.r = 
+    mat->alpha.solid.g = 
+    mat->alpha.solid.b = 
+    mat->alpha.solid.a = 0.0f;
 
     /*** default material color is gray ***/
     mat->diffuse.flags         = USESOLIDCOLOR;
@@ -213,7 +216,10 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->shininess         = 4.0f;
 
     /*** Default value for displacement ***/
-    mat->displacement_strength = 0.25f;
+    mat->displacement.solid.r = 
+    mat->displacement.solid.g = 
+    mat->displacement.solid.b = 
+    mat->displacement.solid.a = 0.25f;
 
     return mat;
 }

@@ -53,7 +53,8 @@ static uint32_t g3dexportmaterial_displacementStrength ( G3DEXPORTDATA *ged,
                                                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &mat->displacement_strength, fdst );
+    /*** displacement strength is stored as solid color ***/
+    size += g3dexport_fwritef ( &mat->displacement.solid.a, fdst );
 
     return size;
 }
@@ -89,7 +90,8 @@ static uint32_t g3dexportmaterial_bumpStrength ( G3DEXPORTDATA *ged,
                                                  FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &mat->bump_strength, fdst );
+    /*** bump strength is stored as solid color ***/
+    size += g3dexport_fwritef ( &mat->bump.solid.a, fdst );
 
     return size;
 }

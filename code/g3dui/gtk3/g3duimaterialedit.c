@@ -163,7 +163,7 @@ static void updateRefractionPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITREFRACTIONTRANSPARENCY ) == 0x00 ) {
-                    gtk_range_set_value ( ran, mat->transparency_strength * 100 );
+                    gtk_range_set_value ( ran, mat->alpha.solid.a * 100 );
                 }
             }
         }

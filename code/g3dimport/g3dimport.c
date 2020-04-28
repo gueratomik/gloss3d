@@ -295,7 +295,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
             } break;
 
             case DISPLACEMENTSTRENGTHSIG : {
-                readf ( &mat->displacement_strength, sizeof ( float ), 0x01, fsrc );
+                readf ( &mat->displacement.solid.a, sizeof ( float ), 0x01, fsrc );
             } break;
 
             case MATERIALREFLECTIONSIG : {

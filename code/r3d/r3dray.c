@@ -256,7 +256,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                 refraction->b += retval.b;
                 refraction->a += retval.a;
 
-                (*transparencyStrength) += mat->transparency_strength;
+                (*transparencyStrength) += mat->alpha.solid.a;
 
                 divRefraction++;
             }

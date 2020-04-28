@@ -35,341 +35,586 @@
 /******************************************************************************/
 
 /******************************************************************************/
-int scale_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                 G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
-    static GLdouble MVX[0x10], PJX[0x10], TMPX[0x10], FINX[0x10];
-    static GLint VPX[0x04];
-    static int32_t xold, yold, xori, yori;
-    static double objx, objy, objz,
+static int scale_spline ( G3DSPLINE    *spl,
+                           G3DMOUSETOOL *mou, 
+                           G3DSCENE     *sce, 
+                           G3DCAMERA    *cam,
+                           G3DURMANAGER *urm,
+                           uint32_t      eflags, 
+                           G3DEvent     *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static G3DVECTOR center;
-    static G3DOBJECT *obj;
-    static G3DMESH *mes;
-    static LIST *lori, *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx; /*** list of rail vectors ***/
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DUV     *olduv;
-    static G3DUV      avguv;
-    static G3DVECTOR objsca;
-    uint32_t retflags = REDRAWVIEW | REDRAWCOORDS;
+    static int32_t mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
+    static URMMOVEPOINT *ump;
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            xori = bev->x;
-            yori = bev->y;
+            glMatrixMode ( GL_PROJECTION );
+            glPushMatrix ( );
+            glLoadIdentity ( );
+            g3dcamera_project ( cam, eflags );
 
+            glMatrixMode ( GL_MODELVIEW );
+            glPushMatrix ( );
+            g3dcamera_view ( cam, HIDEGRID ); 
+            glMultMatrixd ( obj->wmatrix );
+
+            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            obj = g3dscene_getLastSelected ( sce );
+            glPopMatrix ( );
+            glMatrixMode ( GL_PROJECTION );
+            glPopMatrix ( );
 
-            /*** If the selected object is a MESH and we ***/
-            /*** are in viewmap mode, we move its uvwmap. ***/
-            if ( obj && ( flags & VIEWUVWMAP ) ) {
-                if ( obj->type == G3DMESHTYPE ) {
-                    mes = ( G3DMESH * ) obj;
+            mouseXpress = bev->x;
+            mouseYpress = bev->y;
 
-                    obj = ( G3DOBJECT * ) g3dmesh_getSelectedUVMap ( mes );
-                }
+            if ( eflags & VIEWVERTEX ) {
+                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                              bev->x, VPX[0x03] - bev->y },
+                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
+                                   .only_visible = 0x01,
+                                   .weight = 0.0f,
+                                   .radius = 0x08 };
+
+                /*** simulate click and release ***/
+                pick_Item ( &pt, sce, cam, eflags );
+
+                /*** MUST be called after pick_item because based on ***/
+                /*** currently selected points ***/
+                ump = g3durm_spline_movePoint ( urm, 
+                                                spl, 
+                                                UMPSAVESELECTEDPOINTS |
+                                                UMPSAVECURRENTHANDLE,
+                                                REDRAWVIEW );
+                urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
+
+                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
+                gluUnProject ( ( GLdouble ) bev->x,
+                               ( GLdouble ) VPX[0x03] - bev->y,
+                               ( GLdouble ) winz,
+                               MVX, PJX, VPX,
+                               &orix, &oriy, &oriz );
             }
-
-            if ( obj ) {
-                if ( ( flags & VIEWVERTEX ) &&
-                     ( flags & EDITUVWMAP ) ) {
-                    G3DMESH *mes = ( G3DMESH * ) obj;
-                    olduv = g3duv_copyUVFromList ( mes->lseluv );
-                    g3duv_getAverageFromList ( mes->lseluv, &avguv );
-                }
-            }
-
-            if ( obj && ( obj->flags & OBJECTNOSCALING ) == 0x00 ) {
-                memcpy ( FINX, obj->wmatrix, sizeof ( FINX ) );
-
-                /*** save status ***/
-                memcpy ( &objsca, &obj->sca, sizeof ( G3DVECTOR ) );
-
-                if ( obj->type & EDITABLE ) {
-                    mes = ( G3DMESH * ) obj;
-
-                    /****** Cursor axis picked ? ******/
-                    if ( flags & VIEWVERTEX ) {
-                        double TSX[0x10];
-
-                        memcpy ( TMPX, FINX, sizeof ( TMPX ) );
-                        g3dmesh_getSelectedVerticesTranslation ( mes, TSX );
-
-                        g3dcore_multmatrix ( TSX, TMPX, FINX );
-                    }
-
-                    if ( flags & VIEWFACE ) {
-                        double TSX[0x10];
-
-                        memcpy ( TMPX, FINX, sizeof ( TMPX ) );
-                        g3dmesh_getSelectedFacesTranslation ( mes, TSX );
-
-                        g3dcore_multmatrix ( TSX, TMPX, FINX );
-                    }
- 
-                    if ( flags & VIEWEDGE ) {
-                        double TSX[0x10];
-
-                        memcpy ( TMPX, FINX, sizeof ( TMPX ) );
-                        g3dmesh_getSelectedEdgesTranslation ( mes, TSX );
-
-                        g3dcore_multmatrix ( TSX, TMPX, FINX );
-                    }
-                }
-
-                /****** Cursor axis picked ? ******/
-                /*g3dcursor_pick ( &sce->csr, FINX, cam, bev->x, 
-                                                       VPX[0x03] - bev->y,
-                                 flags );*/
-
-                if ( obj->type & EDITABLE ) {
-                    G3DOBJECT *objmes = obj;
-                    LIST *ltmp;
-                    mes = ( G3DMESH * ) obj;
-
-                    if ( flags & VIEWVERTEX ) {
-                        lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
-                    }
-
-                    if ( flags & VIEWFACE ) {
-                        lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
-                    }
-
-                    if ( flags & VIEWEDGE ) {
-                        lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
-                    }
- 
-                    lfac = g3dvertex_getFacesFromList  ( lver );
-                    ledg = g3dface_getEdgesFromList    ( lfac );
-                    lvtx = g3dface_getVerticesFromList ( lfac );
-
-                    /*if ( mes->subdiv && (objmes->flags & BUFFEREDSUBDIVISION) ) {
-                        lsub = g3dvertex_getAreaFacesFromList ( lver );
-                    }*/
-
-                    /*** for the undo/redo manager ***/
-                    g3dvertex_copyPositionFromList ( lver, &oldpos );
-
-                    g3dobject_startUpdateModifiers_r ( obj, flags );
-
-                    /*** get scaling center. It is the average pos of vertices ***/
-                    /*** we are going to move ***/
-                    g3dmesh_getCenterFromVertexList ( lver, &center );
-
-                    /*** for each vertex, add a rail vector ***/
-                    ltmp = lver;
-                    while ( ltmp ) {
-                        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-                        G3DVECTOR *ori = g3dvector_new ( ( ver->pos.x - center.x ),
-                                                         ( ver->pos.y - center.y ),
-                                                         ( ver->pos.z - center.z ),
-                                                         ( 1.0f ) );
-
-                        list_append ( &lori, ori );
-
-                        ltmp = ltmp->next;
-                    }
-                }
-            }
-
-            xold = bev->x;
-            yold = bev->y;
-        } return REDRAWVIEW | REDRAWCOORDS;
+        } return REDRAWVIEW;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
-            if ( obj ) {
-                if ( ( flags & VIEWVERTEX ) &&
-                     ( flags & EDITUVWMAP ) ) {
-                    G3DMESH *mes = ( G3DMESH * ) obj;
-                    LIST *ltmpseluv = mes->lseluv;
-                    float x = ( float ) ( mev->x - xold ) / cam->canevas.width,
-                          y = ( float ) x;
-                    uint32_t i = 0x00;
+            if ( mev->state & G3DButton1Mask ) {
+                if ( eflags & VIEWVERTEX ) {
+                    LIST *ltmppt = spl->curve->lselpt;
+                    double difx, dify, difz;
 
-                    while ( ltmpseluv ) {
-                        G3DUV *uv = ( G3DUV * ) ltmpseluv->data;
+                    gluUnProject ( ( GLdouble ) mev->x,
+                               ( GLdouble ) VPX[0x03] - mev->y,
+                               ( GLdouble ) winz,
+                               MVX, PJX, VPX,
+                               &newx, &newy, &newz );
 
-                        uv->u += ( ( olduv[i].u - avguv.u ) * x );
-                        uv->v += ( ( olduv[i].v - avguv.v ) * y );
+                    difx = ( newx - orix );
+                    dify = ( newy - oriy );
+                    difz = ( newz - oriz );
 
-                        i++;
-
-                        ltmpseluv = ltmpseluv->next;
+                    if ( spl->curve->curhan ) {
+                        spl->curve->curhan->pos.x += difx;
+                        spl->curve->curhan->pos.y += dify;
+                        spl->curve->curhan->pos.z += difz;
                     }
 
-                    retflags = ( REDRAWVIEW | REDRAWUVMAPEDITOR );
+                    while ( ltmppt ) {
+                        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-                    xold = mev->x;
+                        pt->pos.x += difx;
+                        pt->pos.y += dify;
+                        pt->pos.z += difz;
+
+                        ltmppt = ltmppt->next;
+                    }
+
+                	g3dspline_update ( spl,
+                                       NULL,
+                                       UPDATEMODIFIERS, eflags );
+
+                    orix = newx;
+                    oriy = newy;
+                    oriz = newz;
                 }
             }
-
-            if ( obj && ( obj->flags & OBJECTNOSCALING ) == 0x00 ) {
-
-                if ( obj->type == G3DUVMAPTYPE ) retflags |= NOBUFFEREDSUBDIVISION;
-
-                if ( ( flags & VIEWOBJECT ) ||
-                     ( flags & VIEWSKIN   ) ||
-                     ( flags & VIEWUVWMAP ) ) {
-                    if ( ( flags & XAXIS ) && sce->csr.axis[0x00].w ) {
-                        obj->sca.x += ((float) ( xold - mev->x ) / 10.0f);
-                    }
-
-                    if ( ( flags & YAXIS ) && sce->csr.axis[0x01].w ) {
-                        obj->sca.y += ((float) ( xold - mev->x ) / 10.0f);
-                    }
-
-                    if ( ( flags & ZAXIS ) && sce->csr.axis[0x02].w ) {
-                        obj->sca.z += ((float) ( xold - mev->x ) / 10.0f);
-                    }
-
-                    g3dobject_updateMatrix_r ( obj, 0x00 );
-
-                    xold = mev->x;
-                    yold = mev->y;
-
-                    if ( obj->type == G3DUVMAPTYPE ) {
-                        g3duvmap_applyProjection ( obj, mes );
-                    }
-                } else {
-
-                    LIST *ltmp = lver;
-                    LIST *lbuf = lori;
-
-                    if ( obj->type & EDITABLE ) {
-                        while ( ltmp ) {
-                            G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-                            G3DVECTOR *ori = ( G3DVECTOR * ) lbuf->data;
-
-                            float sca = ( mev->x ) ? ( float ) xold / mev->x : 1.0f;
-
-
-                            if ( ( flags & XAXIS ) && sce->csr.axis[0x00].w ) {
-                                ver->pos.x = center.x + ( ori->x * ( sca ) );
-                            }
-
-                            if ( ( flags & YAXIS ) && sce->csr.axis[0x01].w ) {
-                                ver->pos.y = center.y + ( ori->y * ( sca ) );
-                            }
-
-                            if ( ( flags & ZAXIS ) && sce->csr.axis[0x02].w ) {
-                                ver->pos.z = center.z + ( ori->z * ( sca ) );
-                            }
-
-                            if ( ver->flags & VERTEXSKINNED ) {
-                                g3dvertex_computeSkinnedPosition ( ver );
-                            }
-
-                            lbuf = lbuf->next;
-                            ltmp = ltmp->next;
-
-                            /*g3dvertex_updateFacesPosition ( ver );*/
-                        }
-
-                        g3dobject_updateModifiers_r ( obj, flags );
-
-                        if ( mes->onGeometryMove ) {
-                            mes->onGeometryMove ( mes, lver, 
-                                                       ledg, 
-                                                       lfac, 
-                                                       flags );
-                        }
-                    }
-                }
-            }
-        } return retflags;
+        } return REDRAWVIEW;
 
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( ( bev->x == xori ) && ( bev->y == yori ) ) {
-                G3DPICKTOOL pt;
-                void *olddata = mou->data;
-                GLint polygonMode;
-                glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+            if ( eflags & VIEWVERTEX ) {
+                urmmovepoint_saveState ( ump, UMPSAVESTATEAFTER );
+            }
 
-                /*** when in wireframe, pick all vertices ***/
-                if ( polygonMode == GL_LINE ) {
-                    pt.only_visible = 0x00;
-                } else {
-                    pt.only_visible = 0x01;
-                }
+            spl->curve->curhan = NULL;
+        } return REDRAWVIEW;
 
-                mou->data = &pt;
+        default :
+        break;
+    }
 
-                event->type = G3DButtonPress;
-                pick_tool ( mou, sce, cam, urm, flags, event );
+    return FALSE;
+}
 
-                event->type = G3DButtonRelease;
-                pick_tool ( mou, sce, cam, urm, flags, event );
+/******************************************************************************/
+static int scale_mesh ( G3DMESH          *mes,
+                        G3DMOUSETOOL     *mou, 
+                        G3DSCENE         *sce, 
+                        G3DCAMERA        *cam,
+                        G3DURMANAGER     *urm,
+                        uint32_t          eflags, 
+                        G3DEvent         *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static int32_t mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    static LIST *lver, *lfac, *ledg;
+    static G3DVECTOR *oldpos;
+    static G3DVECTOR *newpos;
+    static G3DVECTOR pivot;
 
-                mou->data = olddata;
-            } else {
-                if ( obj && ( obj->flags & OBJECTNOSCALING ) == 0x00 ) {
-                    if ( obj->type == G3DUVMAPTYPE ) {
-                        G3DMESH *uvwmes = ( G3DMESH * ) obj->parent;
+    switch ( event->type ) {
+        case G3DButtonPress : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            G3DVECTOR avgpos;
 
-                        if ( uvwmes ) {
-                            g3dmesh_update ( uvwmes, NULL,
-                                                     NULL,
-                                                     NULL,
-                                                     RESETMODIFIERS, flags );
+            glMatrixMode ( GL_PROJECTION );
+            glPushMatrix ( );
+            glLoadIdentity ( );
+            g3dcamera_project ( cam, eflags );
+
+            glMatrixMode ( GL_MODELVIEW );
+            glPushMatrix ( );
+            g3dcamera_view ( cam, HIDEGRID );
+            glMultMatrixd ( obj->wmatrix );
+
+            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+            glGetIntegerv ( GL_VIEWPORT, VPX );
+
+            glPopMatrix ( );
+            glMatrixMode ( GL_PROJECTION );
+            glPopMatrix ( );
+
+            mouseXpress = orix = bev->x;
+            mouseYpress = bev->y;
+
+            if ( eflags & VIEWVERTEX ) {
+                lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+            }
+
+            if ( eflags & VIEWEDGE ) {
+                lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
+            }
+
+            if ( eflags & VIEWFACE ) {
+                lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
+            }
+
+            g3dvertex_getAveragePositionFromList ( lver, &pivot );
+            g3dvertex_copyPositionFromList       ( lver, &oldpos );
+ 
+            lfac = g3dvertex_getFacesFromList  ( lver );
+            ledg = g3dface_getEdgesFromList    ( lfac );
+
+            g3dobject_startUpdateModifiers_r ( mes, eflags );
+        } return REDRAWVIEW;
+
+        case G3DMotionNotify : {
+            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+            newx = mev->x;
+
+            if ( mev->state & G3DButton1Mask ) {
+                if ( ( eflags & VIEWVERTEX ) ||
+                     ( eflags & VIEWEDGE   ) ||
+                     ( eflags & VIEWFACE   ) ) {
+                    G3DVECTOR *axis = sce->csr.axis;
+                    LIST *ltmpver = lver;
+                    double difx, dify, difz;
+                    uint32_t verID = 0x00;
+
+                    if ( ( eflags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
+                    if ( ( eflags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
+                    if ( ( eflags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
+
+                    while ( ltmpver ) {
+                        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+                        ver->pos.x = pivot.x + ( ( oldpos[verID].x - pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
+                        ver->pos.y = pivot.y + ( ( oldpos[verID].y - pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
+                        ver->pos.z = pivot.z + ( ( oldpos[verID].z - pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+
+                        if ( obj->parent->childvertexchange ) {
+                            obj->parent->childvertexchange ( obj->parent,
+                                                             obj, ver );
                         }
-                    }
 
-                    if ( ( flags & VIEWOBJECT ) ||
-                         ( flags & VIEWAXIS   ) ) {
-                        /*g3durm_object_move ( urm, obj, &obj->pos, 
-                                                       &obj->rot,
-                                                       &objsca,
-                                                        ( flags & VIEWAXIS ),
-                                                        REDRAWVIEW );*/
-                    }
-
-                    if ( ( flags & VIEWVERTEX ) ||
-                         ( flags & VIEWEDGE   ) ||
-                         ( flags & VIEWFACE   ) ) {
-                        if ( obj->type & MESH ) { /*** FFD also concerned ***/
-
-                            g3dvertex_copyPositionFromList ( lver, &newpos );
-
-                            g3durm_mesh_moveVertexList ( urm, mes, lver, ledg, lfac, lsub,
-                                                         oldpos, 
-                                                         newpos, 
-                                                         REDRAWVIEW );
-
-                            g3dmesh_updateBbox ( mes );
+                        if ( ver->flags & VERTEXSKINNED ) {
+                            g3dvertex_computeSkinnedPosition ( ver );
                         }
+
+                        verID++;
+
+                        ltmpver = ltmpver->next;
                     }
 
-                    g3dobject_updateModifiers_r ( obj, flags );
+                    g3dobject_updateModifiers_r ( mes, eflags );
+
+                    if ( mes->onGeometryMove ) {
+                        mes->onGeometryMove ( mes, lver, 
+                                                   ledg, 
+                                                   lfac, 
+                                                   eflags );
+                    }
                 }
             }
+        } return REDRAWVIEW;
+
+        case G3DButtonRelease : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            /*** simulate click and release ***/
+            if ( ( bev->x == mouseXpress ) && 
+                 ( bev->y == mouseYpress ) ) {
+                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                              bev->x, VPX[0x03] - bev->y },
+                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
+                                   .only_visible = 0x01,
+                                   .weight = 0.0f,
+                                   .radius = 0x08 };
+
+                /*** we use pick_tool and not pick_Item in order to ***/
+                /*** get the undo/redo support ***/
+                void *tmpdata = mou->data;
+                mou->data = &pt;
+                pick_tool ( mou, sce, cam, urm, eflags, event );
+                mou->data = tmpdata;
+            }
+
+            g3dvertex_copyPositionFromList ( lver, &newpos );
+
+            g3durm_mesh_moveVertexList ( urm, mes, lver, ledg, lfac, NULL,
+                                         oldpos, 
+                                         newpos, 
+                                         REDRAWVIEW );
+
+            g3dmesh_updateBbox ( mes );
+
+            g3dobject_endUpdateModifiers_r ( mes, eflags );
 
             list_free ( &lver, NULL );
-            list_free ( &lvtx, NULL );
             list_free ( &lfac, NULL );
-            list_free ( &lsub, NULL );
+            list_free ( &ledg, NULL );
 
-            mes  = NULL;
-            obj  = NULL;
+            oldpos = newpos = NULL;
+        } return REDRAWVIEW            | 
+                 REDRAWCOORDS          | 
+                 BUFFEREDSUBDIVISIONOK | 
+                 REDRAWCURRENTOBJECT   | 
+                 REDRAWUVMAPEDITOR;
 
-            oldpos = newpos = olduv = NULL;
+        default :
+        break;
+    }
 
-            /*** free the temporary list and vectors ***/
-            if ( lori ) {
-                list_free ( &lori, g3dvector_free );
+    return FALSE;
+}
+
+/******************************************************************************/
+static int scale_object ( LIST        *lobj, 
+                          G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm,
+                          uint32_t      eflags, 
+                          G3DEvent     *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static int32_t mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    static LIST *lver, *lfac, *ledg;
+    static G3DVECTOR lvecx, lvecy, lvecz, pivot;
+    static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
+    static uint32_t nbobj;
+    static URMTRANSFORMOBJECT *uto;
+    static double PREVWMVX[0x10];
+
+    switch ( event->type ) {
+        case G3DButtonPress : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            /*** Record and undo procedure and record the current state ***/
+            uto = g3durm_object_transform ( urm,
+                                            lobj,
+                                            UTOSAVEROTATION, 
+                                            REDRAWVIEW );
+
+            urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
+            /***/
+
+            g3dscene_getSelectionPosition ( sce, &pivot );
+
+            mouseXpress = orix = bev->x;
+            mouseYpress = bev->y;
+
+            glMatrixMode ( GL_PROJECTION );
+            glPushMatrix ( );
+            glLoadIdentity ( );
+            g3dcamera_project ( cam, eflags );
+
+            glMatrixMode ( GL_MODELVIEW );
+            glPushMatrix ( );
+            g3dcamera_view ( cam, HIDEGRID );
+
+            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+            glGetIntegerv ( GL_VIEWPORT, VPX );
+
+            glPopMatrix ( );
+            glMatrixMode ( GL_PROJECTION );
+            glPopMatrix ( );
+
+            nbobj = list_count ( lobj );
+
+            if ( nbobj == 0x01 ) {
+                G3DOBJECT *obj = ( G3DOBJECT * ) lobj->data;
+                /*** PREVWMX is used in VIEWAXIS mode to move vertices back ***/
+                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
             }
-        } return REDRAWVIEW | REDRAWCOORDS | BUFFEREDSUBDIVISIONOK | REDRAWCURRENTOBJECT;
+        } return REDRAWVIEW;
 
-        default : {
+        case G3DMotionNotify : {
+            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+            LIST *ltmpobj = lobj;
 
+            if ( mev->state & G3DButton1Mask ) {
+                G3DDOUBLEVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                G3DVECTOR *axis = &sce->csr.axis;
+                G3DDOUBLEVECTOR endpos;
+                double ROTX[0x10];
+
+                if ( ( eflags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
+                if ( ( eflags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );
+                if ( ( eflags & ZAXIS ) && axis[0x02].w ) dif.z = ( mev->x - orix );
+
+                if ( nbobj > 0x01 ) {
+                    glMatrixMode ( GL_MODELVIEW );
+                    glPushMatrix ( );
+                    glLoadIdentity ( );
+                    glTranslatef ( pivot.x, pivot.y, pivot.z );
+                    glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
+                    glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
+                    glRotatef ( dif.z, 0.0f, 0.0f, 1.0f );
+                    glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
+                    glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
+                    glPopMatrix ( );
+                }
+
+                while ( ltmpobj ) {
+                    G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+                    G3DDOUBLEVECTOR lstartpos, lendpos;
+
+                    if ( nbobj == 0x01 ) {
+                        glLoadMatrixd ( obj->rmatrix );
+                        glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
+                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
+
+                        glLoadMatrixd ( obj->rmatrix );
+                        glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
+                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
+
+                        glLoadMatrixd ( obj->rmatrix );
+                        glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
+                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
+
+                        g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
+                    } else {
+                        G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
+                        G3DVECTOR objpos;
+                        G3DVECTOR rotpos;
+                        G3DVECTOR newpos;
+
+
+
+                        g3dvector_matrix ( &cenpos, obj->wmatrix, &objpos );
+                        g3dvector_matrix ( &objpos, ROTX, &rotpos );
+                        g3dvector_matrix ( &rotpos, obj->parent->iwmatrix, &newpos );
+
+                        obj->pos.x = newpos.x;
+                        obj->pos.y = newpos.y;
+                        obj->pos.z = newpos.z;
+                    }
+
+                    g3dobject_updateMatrix_r ( obj, eflags );
+
+                    if ( eflags & VIEWAXIS ) {
+                        /*** in case this was in VIEWAXIS mode, we move ***/
+                        /*** back the vertices were they were before,   ***/
+                        /*** in world coord ***/
+                        if ( nbobj == 0x01 ) {
+                            if ( obj->type == G3DMESHTYPE ) {
+                                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                                g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
+                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                            }
+
+                            if ( obj->type & SPLINE ) {
+                                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+
+                                g3dspline_moveAxis ( spl, PREVWMVX, eflags );
+                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                            }
+                        }
+                    }
+
+                    ltmpobj = ltmpobj->next;
+                }
+
+                memcpy ( &startpos, &endpos, sizeof ( G3DDOUBLEVECTOR ) );
+            }
+
+            orix = mev->x;
+        } return REDRAWVIEW | REDRAWCOORDS;
+
+        case G3DButtonRelease : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            LIST *ltmpobj = lobj;
+
+            while ( ltmpobj ) {
+                G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+                if ( obj->type == G3DMESHTYPE ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+
+                    g3dmesh_updateBbox ( mes );
+                }
+
+                ltmpobj = ltmpobj->next;
+            }
+
+            /*** simulate click and release ***/
+            if ( ( bev->x == mouseXpress ) && 
+                 ( bev->y == mouseYpress ) ) {
+                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                              bev->x, VPX[0x03] - bev->y },
+                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
+                                   .only_visible = 0x01,
+                                   .weight = 0.0f,
+                                   .radius = 0x08 };
+
+                /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
+                /*** and that was not used at all ***/
+                g3durmanager_undo ( urm, eflags );
+
+                /*** we use pick_tool and not pick_Item in order to ***/
+                /*** get the undo/redo support ***/
+                void *tmpdata = mou->data;
+                mou->data = &pt;
+                pick_tool ( mou, sce, cam, urm, eflags, event );
+                mou->data = tmpdata;
+            } else {
+                urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
+            }
+
+        } return REDRAWALL;
+
+        default :
+        break;
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
+int scale_tool ( G3DMOUSETOOL *mou, 
+                  G3DSCENE     *sce,
+                  G3DCAMERA    *cam,
+                  G3DURMANAGER *urm, 
+                  uint32_t     flags, 
+                  G3DEvent    *event ) {
+    static GLint VPX[0x04];
+    static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
+    static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
+    static uint32_t nbmsf;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    glGetIntegerv ( GL_VIEWPORT, VPX );
+
+    switch ( event->type ) {
+        case G3DButtonPress : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                          bev->x, VPX[0x03] - bev->y },
+                               .unselectFirst = 0x00,
+                               .only_visible = 0x01,
+                               .weight = 0.0f,
+                               .radius = 0x08 };
+
+            pick_cursor ( &pt, sce, cam, flags );
         } break;
+
+        default :
+        break;
+    }
+
+    if ( flags & VIEWOBJECT ) {
+        return scale_object ( sce->lsel, mou, sce, cam, urm, flags, event );
+    }
+
+
+    if ( obj ) {
+        if ( flags & VIEWAXIS ) {
+            LIST ldummy = { .next = NULL, 
+                            .data = obj,
+                            .prev = NULL };
+
+            return scale_object ( &ldummy, mou, sce, cam, urm, flags, event );
+        }
+
+        if ( flags & VIEWUVWMAP ) {
+            if ( obj->type & MESH ) {
+                G3DMESH  *mes = ( G3DMESH * ) obj;
+                G3DUVMAP * map = g3dmesh_getSelectedUVMap ( mes );
+
+                if ( map && ( g3duvmap_isFixed ( map ) == 0x00 ) ) {
+                    LIST ldummy = { .next = NULL, 
+                                    .data = map,
+                                    .prev = NULL };
+                    return scale_object ( &ldummy, mou, sce, cam, urm, flags, event );
+                }
+            }
+        }
+
+        if ( ( flags & VIEWVERTEX ) ||
+             ( flags & VIEWEDGE   ) ||
+             ( flags & VIEWFACE   ) ) {
+            if ( obj->type & SPLINE ) {
+                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+
+                return scale_spline ( spl, mou, sce, cam, urm, flags, event );
+            }
+
+            if ( ( obj->type & MESH ) && ( obj->type & EDITABLE ) ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                return scale_mesh ( mes, mou, sce, cam, urm, flags, event );
+            }
+        }
     }
 
     return FALSE;

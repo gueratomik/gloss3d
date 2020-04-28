@@ -30,6 +30,15 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+uint32_t g3duvmap_isFixed ( G3DUVMAP *map ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) map;
+
+    if ( obj->flags & UVMAPFIXED ) return 0x01;
+
+    return 0x00;
+}
+
+/******************************************************************************/
 void g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
     uint32_t nbuv = 0x00;
     LIST *ltmpuv = luv;

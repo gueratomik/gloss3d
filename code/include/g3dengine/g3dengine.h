@@ -574,11 +574,8 @@ typedef struct _G3DMATERIAL {
     G3DCHANNEL reflection; 
     G3DCHANNEL refraction;
     G3DCHANNEL alpha;
-    float     transparency_strength;
     float     specular_level;  /*** specular intensity ***/
     float     shininess;  /*** specular shininess ***/
-    float     displacement_strength;
-    float     bump_strength;
     LIST     *lobj;
     uint32_t  nbobj;
 } G3DMATERIAL;
@@ -2428,6 +2425,7 @@ void       g3duvmap_insertFace           ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_addMaterial          ( G3DUVMAP *, G3DMATERIAL * );
 void       g3duvmap_removeMaterial       ( G3DUVMAP *, G3DMATERIAL * );
 G3DMATERIAL *g3dscene_getMaterialByID      ( G3DSCENE *sce, uint32_t id );
+uint32_t g3duvmap_isFixed ( G3DUVMAP *map );
 
 /******************************************************************************/
 void      g3dpivot_free ( G3DOBJECT * );
