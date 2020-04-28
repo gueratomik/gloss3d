@@ -2282,7 +2282,9 @@ G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );
 void       g3dcamera_view     ( G3DCAMERA *, uint32_t );
 uint32_t   g3dcamera_draw     ( G3DOBJECT *, G3DCAMERA *, uint32_t  );
 void       g3dcamera_free     ( G3DOBJECT * );
-void       g3dcamera_pick     ( G3DOBJECT *, G3DCAMERA *, uint32_t  );
+uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
+                          G3DCAMERA *curcam, 
+                          uint32_t   eflags );
 void       g3dcamera_setGrid  ( G3DCAMERA *, void (*)(G3DCAMERA *, uint32_t) );
 void       g3dcamera_project  ( G3DCAMERA *, uint32_t );
 void       g3dcamera_grid3D   ( G3DCAMERA *, uint32_t );
@@ -2520,7 +2522,8 @@ void g3dchannel_enableImageColor ( G3DCHANNEL *cha );
 void g3dchannel_enableSolidColor ( G3DCHANNEL *cha );
 G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
                                           G3DPROCEDURAL *proc );
-void g3dchannel_getBumpVector ( G3DCHANNEL *cha, 
+void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
+                                G3DVECTOR  *ray,
                                 float       u,
                                 float       v,
                                 G3DVECTOR  *vout );

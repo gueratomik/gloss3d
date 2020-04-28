@@ -49,6 +49,55 @@ G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig,
 }
 
 /******************************************************************************/
+static void g3dlight_pickObject ( G3DLIGHT *lig, uint32_t eflags ) {
+    g3dpick_setName (  ( uint64_t ) lig );
+
+    g3dpick_drawLine (  1.0f, 0.0f, 0.0f,
+                       -1.0f, 0.0f, 0.0f );
+
+    g3dpick_drawLine (  0.707f,  0.707f, 0.0f,
+                       -0.707f, -0.707f, 0.0f );
+
+    g3dpick_drawLine ( -0.707f,  0.707f, 0.0f,
+                        0.707f, -0.707f, 0.0f );
+
+
+
+    g3dpick_drawLine ( 0.0f,  1.0f, 0.0f,
+                       0.0f, -1.0f, 0.0f );
+
+    g3dpick_drawLine ( 0.0f,  0.707f,  0.707f,
+                       0.0f, -0.707f, -0.707f );
+
+    g3dpick_drawLine ( 0.0f, -0.707f,  0.707f,
+                       0.0f,  0.707f, -0.707f );
+
+
+
+    g3dpick_drawLine ( 0.0f, 0.0f,  1.0f,
+                       0.0f, 0.0f, -1.0f );
+
+    g3dpick_drawLine (  0.707f, 0.0f,  0.707f,
+                       -0.707f, 0.0f, -0.707f );
+
+    g3dpick_drawLine ( -0.707f, 0.0f,  0.707f,
+                        0.707f, 0.0f, -0.707f );
+}
+
+/******************************************************************************/
+uint32_t g3dlight_pick ( G3DLIGHT  *lig,
+                         G3DCAMERA *cam, 
+                         uint32_t   eflags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    if ( obj->type & OBJECTSELECTED ) {
+        if ( eflags & VIEWOBJECT ) g3dlight_pickObject   ( lig, eflags );
+    } else {
+        if ( eflags & VIEWOBJECT ) g3dlight_pickObject   ( lig, eflags );
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dlight_draw ( G3DLIGHT  *lig,
                          G3DCAMERA *cam, 
                          uint32_t   engine_flags ) {
@@ -181,7 +230,7 @@ G3DLIGHT *g3dlight_new ( uint32_t  id,
     g3dobject_init ( obj, G3DLIGHTTYPE, id, name, DRAWBEFORECHILDREN,
                                     DRAW_CALLBACK(g3dlight_draw),
                                     FREE_CALLBACK(g3dlight_free),
-                                                  NULL,
+                                    PICK_CALLBACK(g3dlight_pick),
                                                   NULL,
                                     COPY_CALLBACK(g3dlight_copy),
                                                   NULL,

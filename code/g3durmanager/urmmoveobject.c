@@ -181,41 +181,41 @@ void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time ) {
 
         if ( save_time == UTOSAVESTATEBEFORE ) {
             if ( uto->save_type & UTOSAVETRANSLATION ) {
-        	uto->oldpos[i].x = obj->pos.x;
-        	uto->oldpos[i].y = obj->pos.y;
-        	uto->oldpos[i].z = obj->pos.z;
+        	    uto->oldpos[i].x = obj->pos.x;
+        	    uto->oldpos[i].y = obj->pos.y;
+        	    uto->oldpos[i].z = obj->pos.z;
             }
 
             if ( uto->save_type & UTOSAVEROTATION ) {
-        	uto->oldrot[i].x = obj->rot.x;
-        	uto->oldrot[i].y = obj->rot.y;
-        	uto->oldrot[i].z = obj->rot.z;
+        	    uto->oldrot[i].x = obj->rot.x;
+        	    uto->oldrot[i].y = obj->rot.y;
+        	    uto->oldrot[i].z = obj->rot.z;
             }
 
             if ( uto->save_type & UTOSAVESCALING ) {
-        	uto->oldsca[i].x = obj->sca.x;
-        	uto->oldsca[i].y = obj->sca.y;
-        	uto->oldsca[i].z = obj->sca.z;
+        	    uto->oldsca[i].x = obj->sca.x;
+        	    uto->oldsca[i].y = obj->sca.y;
+        	    uto->oldsca[i].z = obj->sca.z;
             }
         }
 
         if ( save_time == UTOSAVESTATEAFTER ) {
             if ( uto->save_type & UTOSAVETRANSLATION ) {
-        	uto->newpos[i].x = obj->pos.x;
-        	uto->newpos[i].y = obj->pos.y;
-        	uto->newpos[i].z = obj->pos.z;
+        	    uto->newpos[i].x = obj->pos.x;
+        	    uto->newpos[i].y = obj->pos.y;
+        	    uto->newpos[i].z = obj->pos.z;
             }
 
             if ( uto->save_type & UTOSAVEROTATION ) {
-        	uto->newrot[i].x = obj->rot.x;
-        	uto->newrot[i].y = obj->rot.y;
-        	uto->newrot[i].z = obj->rot.z;
+        	    uto->newrot[i].x = obj->rot.x;
+        	    uto->newrot[i].y = obj->rot.y;
+        	    uto->newrot[i].z = obj->rot.z;
             }
 
             if ( uto->save_type & UTOSAVESCALING ) {
-        	uto->newsca[i].x = obj->sca.x;
-        	uto->newsca[i].y = obj->sca.y;
-        	uto->newsca[i].z = obj->sca.z;
+        	    uto->newsca[i].x = obj->sca.x;
+        	    uto->newsca[i].y = obj->sca.y;
+        	    uto->newsca[i].z = obj->sca.z;
             }
         }
 
@@ -241,3 +241,19 @@ URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
     return uto;
 }
 
+/******************************************************************************/
+URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm, 
+                                             G3DUVMAP     *uvmap,
+                                             uint32_t      save_type,
+                                             uint32_t      return_flags ) {
+    URMTRANSFORMOBJECT *uto;
+    LIST *luvmap = NULL;
+
+    list_insert ( &luvmap, uvmap );
+
+    uto = g3durm_object_transform ( urm, luvmap, save_type, return_flags );
+
+    list_free ( &luvmap, NULL );
+
+    return uto;
+}

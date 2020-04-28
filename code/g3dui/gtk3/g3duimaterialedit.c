@@ -879,7 +879,7 @@ static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
             common_g3dui_channelChooseImageCbk ( gui,
                                         	&gui->selmat->diffuse,
                                         	 filename,
-                                        	 0x00 );
+                                        	 0x01 );
         }
 
         g_free    ( ( gpointer ) filename );

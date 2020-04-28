@@ -382,6 +382,71 @@ void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
 }
 
 /******************************************************************************/
+uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint32_t flags ) {
+    GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
+                                {  0.25, -0.5,  0.5 },
+                                { -0.25, -0.5,  0.5 },
+                                { -0.25,  0.5,  0.5 },
+
+                                {  0.25, -0.5, -0.5 },
+                                {  0.25,  0.5, -0.5 },
+                                { -0.25,  0.5, -0.5 },
+                                { -0.25, -0.5, -0.5 } } ;
+
+    GLfloat lns[0x08][0x03] = { {  0.1,  0.1, -0.5 },
+                                {  0.1, -0.1, -0.5 },
+                                { -0.1, -0.1, -0.5 },
+                                { -0.1,  0.1, -0.5 },
+
+                                {  0.25, -0.25, -0.7 },
+                                {  0.25,  0.25, -0.7 },
+                                { -0.25,  0.25, -0.7 },
+                                { -0.25, -0.25, -0.7 } } ;
+
+    uint32_t index[0x06][0x04] = { { 0x00, 0x01, 0x02, 0x03 },
+                                   { 0x04, 0x05, 0x06, 0x07 },
+                                   { 0x03, 0x02, 0x07, 0x06 },
+                                   { 0x05, 0x04, 0x01, 0x00 },
+                                   { 0x01, 0x04, 0x07, 0x02 },
+                                   { 0x05, 0x00, 0x03, 0x06 } };
+    uint32_t i;
+
+    g3dpick_setName (  ( uint64_t ) cam );
+
+    for ( i = 0x00; i < 0x06; i++ ) {
+        uint32_t v0 = index[i][0x00],
+                 v1 = index[i][0x01],
+                 v2 = index[i][0x02],
+                 v3 = index[i][0x03];
+
+        g3dpick_drawFace ( 0x04,
+                           pnt[v0][0x00], pnt[v0][0x01], pnt[v0][0x02],
+                           pnt[v1][0x00], pnt[v1][0x01], pnt[v1][0x02],
+                           pnt[v2][0x00], pnt[v2][0x01], pnt[v2][0x02],
+                           pnt[v3][0x00], pnt[v3][0x01], pnt[v3][0x02] );
+
+        g3dpick_drawFace ( 0x04,
+                           lns[v0][0x00], lns[v0][0x01], lns[v0][0x02],
+                           lns[v1][0x00], lns[v1][0x01], lns[v1][0x02],
+                           lns[v2][0x00], lns[v2][0x01], lns[v2][0x02],
+                           lns[v3][0x00], lns[v3][0x01], lns[v3][0x02] );
+    }
+}
+
+/******************************************************************************/
+uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
+                          G3DCAMERA *curcam, 
+                          uint32_t   eflags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+
+    if ( obj->type & OBJECTSELECTED ) {
+        if ( eflags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, eflags );
+    } else {
+        if ( eflags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, eflags );
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) obj;
     GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
@@ -504,16 +569,6 @@ void g3dcamera_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dcamera_pick ( G3DOBJECT *obj,  G3DCAMERA *curcam, uint32_t flags ) {
-    /*G3DCAMERA *cam = ( G3DCAMERA * ) obj;*/
-
-    /*** Is the Undo-Redo manager ***/
-    /*** going to handle freeing  ***/
-    /*** memory ? I have to think ***/
-    /*** about it ***/
-}
-
-/******************************************************************************/
 void g3dcamera_setGrid ( G3DCAMERA *cam, void (*grid)(G3DCAMERA *, uint32_t) ){
     cam->grid  = grid;
 }
@@ -545,7 +600,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
     g3dobject_init ( obj, G3DCAMERATYPE, id, name, DRAWBEFORECHILDREN,
                                                    g3dcamera_draw,
                                                    g3dcamera_free,
-                                                   NULL,
+                                                   g3dcamera_pick,
                                                    NULL,
                                      COPY_CALLBACK(g3dcamera_copy),
                                                    NULL,

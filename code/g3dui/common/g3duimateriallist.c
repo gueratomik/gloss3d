@@ -89,6 +89,7 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                                { -400.0f, -400.0f,    0.0f, 1.0f } };
     G3DVECTOR campos = { 0.0f, 0.0f, -1.0f, 1.0f };
     G3DUIMATERIALPIXEL *pixel = matmap->pixel;
+    G3DRGBA rgba;
 
     for ( winy = 0x00; winy < height; winy++ ) {
         float objy = ( float ) ( - 2.0 * winy ) / height + 1.0f;
@@ -115,16 +116,12 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
-                if ( mat->flags & BUMP_ENABLED ) {
-                    G3DVECTOR bump;
+                    if ( mat->flags & BUMP_ENABLED ) {
+                        g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba );
 
-                    g3dchannel_getBumpVector ( &mat->bump, p->u, p->v, &bump );
-
-                    p->nor.x += ( ( bump.x * p->nor.x ) * mat->bump.solid.r );
-                    p->nor.y += ( ( bump.y * p->nor.y ) * mat->bump.solid.r );
-                    p->nor.z += ( ( bump.z * p->nor.z ) * mat->bump.solid.r );
-
-                    g3dvector_normalize ( &p->nor, NULL );
+                    p->pos.x += ( rgba.r * mat->bump.solid.r );
+                    p->pos.y += ( rgba.r * mat->bump.solid.g );
+                    p->pos.z += ( rgba.r * mat->bump.solid.b );
                 }
 
                 p->diff = 0.0f;

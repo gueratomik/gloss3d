@@ -416,6 +416,10 @@ URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
                                               LIST         *lobj,
                                               uint32_t      save_type,
                                               uint32_t      return_flags );
+URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm, 
+                                             G3DUVMAP     *uvmap,
+                                             uint32_t      save_type,
+                                             uint32_t      return_flags );
 
 /******************************************************************************/
 URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *, LIST *, LIST * );

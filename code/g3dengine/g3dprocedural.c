@@ -53,6 +53,7 @@ void g3dprocedural_fill ( G3DPROCEDURAL *proc, uint32_t resx,
     proc->image.width  = resx;
     proc->image.height = resy;
     proc->image.bytesPerPixel = bpp >> 0x03;
+    proc->image.bytesPerLine = proc->image.bytesPerPixel * proc->image.width;
     proc->image.wratio = 1;
     proc->image.hratio = 1;
     proc->image.data   = realloc ( proc->image.data, resx * 

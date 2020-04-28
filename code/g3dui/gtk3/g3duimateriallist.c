@@ -436,7 +436,7 @@ GtkWidget *createMaterialList ( GtkWidget *parent, G3DUI *gui,
                                                     gint y,
                                                     gint width,
                                                     gint height ) {
-    MATERIALLISTDATA *matlst = common_materiallistdata_new ( 0xC0, 0xC0 );
+    MATERIALLISTDATA *matlst = common_materiallistdata_new ( 0x60, 0x60 );
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
     GtkWidget *scr, *drw;

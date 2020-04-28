@@ -565,11 +565,18 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
 }
 
 /******************************************************************************/
-/*void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
+void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
+    G3DOBJECT *parent = obj->parent;
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
-    g3duvmap_applyProjection ( map );
-}*/
+    if ( parent->type  & MESH ) {
+        G3DMESH *mes = ( G3DMESH * ) parent;
+
+        if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
+            g3duvmap_applyProjection ( map, mes );
+        }
+    }
+}
 
 /******************************************************************************/
 void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
@@ -586,6 +593,8 @@ void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
                                                        NULL,
                                                        NULL,
                                                        NULL );
+
+    objmap->transform = g3duvmap_transform;
 
     /*obj->copy = g3dprimitive_copy;*/
 

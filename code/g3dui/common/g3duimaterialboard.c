@@ -37,7 +37,6 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
 
     if ( obj && mat ) {
         if ( ( obj->type == G3DMESHTYPE ) ||
-             ( obj->type == G3DSPLINETYPE ) ||
              ( obj->type == G3DTEXTTYPE ) ||
            ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH  *mes = ( G3DMESH * ) obj;
@@ -52,6 +51,10 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
 
                 g3dmesh_unselectAllUVMaps ( mes );
                 g3dmesh_selectUVMap ( mes, map );
+
+                common_g3duimenubar_fitUVMapCbk ( gui );
+
+                g3duvmap_applyProjection ( map, mes );
             }
 
             g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, map );

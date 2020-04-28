@@ -103,7 +103,8 @@ void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
 }
 
 /******************************************************************************/
-void g3dchannel_getBumpVector ( G3DCHANNEL *cha, 
+void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
+                                G3DVECTOR  *ray,
                                 float       u,
                                 float       v,
                                 G3DVECTOR  *vout ) {
@@ -152,10 +153,23 @@ void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
                                             image->data[offsetyn+0x01] + 
                                             image->data[offsetyn+0x02] ) / 0x03;
 
-            G3DVECTOR v1 = { 1, 0, (float) colxn - col, 1.0f };
-            G3DVECTOR v2 = { 0, 1, (float) colyn - col, 1.0f };
+            G3DVECTOR tvec = { 1, 0, (float) colxn - col, 1.0f };
+            G3DVECTOR bvec = { 0, 1, (float) colyn - col, 1.0f };
+            G3DVECTOR nvec;
 
-            g3dvector_cross ( &v1, &v2, vout );
+            g3dvector_cross ( &tvec, &bvec, &nvec );
+
+            double    TBN[0x10] = { tvec.x, bvec.x, nvec.x, 0.0f,
+                                    tvec.y, bvec.y, nvec.y, 0.0f,  
+                                    tvec.z, bvec.z, nvec.z, 0.0f,  
+                                    0.0f  , 0.0f  , 0.0f  , 1.0f };
+            G3DVECTOR rout;
+
+            g3dvector_matrix ( ray, TBN, &rout );
+
+            vout->x = rout.x * nvec.x;
+            vout->y = rout.y * nvec.y;
+            vout->z = rout.z * nvec.z;
 
             g3dvector_normalize ( vout, NULL );
         }

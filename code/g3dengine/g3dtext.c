@@ -495,6 +495,8 @@ void g3dtext_setThickness ( G3DTEXT *txt,
                                   UPDATEMODIFIERS, engine_flags );*/
         }
     }
+
+    g3dmesh_updateBbox ( txt );
 }
 
 /******************************************************************************/
@@ -981,6 +983,8 @@ void g3dtext_generate ( G3DOBJECT *obj,
                              UPDATEVERTEXNORMAL | 
                              RESETMODIFIERS, engine_flags );
 
+    g3dmesh_updateBbox ( txt );
+
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
 
@@ -1023,7 +1027,7 @@ void g3dtext_init ( G3DTEXT *txt,
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, DRAWBEFORECHILDREN,
                                      DRAW_CALLBACK(g3dmesh_draw),
                                      FREE_CALLBACK(g3dtext_free),
-                                     PICK_CALLBACK(NULL),
+                                     PICK_CALLBACK(g3dmesh_pick),
                                                    NULL,
                                      COPY_CALLBACK(NULL),
                                                    NULL,

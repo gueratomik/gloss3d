@@ -364,6 +364,125 @@ static int move_mesh ( G3DMESH      *mes,
 }
 
 /******************************************************************************/
+int move_uvmap ( G3DMESH      *mes,
+                 G3DUVMAP     *map,
+                 G3DMOUSETOOL *mou, 
+                 G3DSCENE     *sce, 
+                 G3DCAMERA    *cam,
+                 G3DURMANAGER *urm,
+                 uint32_t      eflags, 
+                 G3DEvent     *event ) {
+    static G3DVECTOR vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f },
+                     vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f, .w = 1.0f },
+                     vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f, .w = 1.0f };
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static int32_t mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    static LIST *lver, *lfac, *ledg;
+    static G3DVECTOR lvecx, lvecy, lvecz, pivot;
+    static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
+    static uint32_t nbobj;
+    static URMTRANSFORMOBJECT *uto;
+    static double PREVWMVX[0x10];
+
+    switch ( event->type ) {
+        case G3DButtonPress : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            /*** Record and undo procedure and record the current state ***/
+            uto = g3durm_uvmap_transform ( urm,
+                                           map,
+                                           UTOSAVETRANSLATION, 
+                                           REDRAWVIEW );
+
+            urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
+            /***/
+
+            mouseXpress = bev->x;
+            mouseYpress = bev->y;
+
+            glMatrixMode ( GL_PROJECTION );
+            glPushMatrix ( );
+            glLoadIdentity ( );
+            g3dcamera_project ( cam, eflags );
+
+            glMatrixMode ( GL_MODELVIEW );
+            glPushMatrix ( );
+            g3dcamera_view ( cam, HIDEGRID );
+            glMultMatrixd ( ((G3DOBJECT*)mes)->wmatrix );
+
+            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+            glGetIntegerv ( GL_VIEWPORT, VPX );
+
+            glPopMatrix ( );
+            glMatrixMode ( GL_PROJECTION );
+            glPopMatrix ( );
+
+            /*** TOTO: change the call below to use camera.pivot ****/
+            g3dscene_getSelectionPosition ( sce, &pivot );
+
+            gluProject ( pivot.x, 
+                         pivot.y, 
+                         pivot.z, MVX, PJX, VPX, &winx, &winy, &winz );
+
+            gluUnProject ( ( GLdouble ) bev->x,
+                           ( GLdouble ) VPX[0x03] - bev->y,
+                           ( GLdouble ) winz,
+                               MVX, PJX, VPX,
+                              &orix, &oriy, &oriz );
+        } return REDRAWVIEW;
+
+        case G3DMotionNotify : {
+            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+            if ( mev->state & G3DButton1Mask ) {
+                G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+
+                G3DVECTOR *axis = sce->csr.axis;
+                double difx, dify, difz;
+
+                gluUnProject ( ( GLdouble ) mev->x,
+                               ( GLdouble ) VPX[0x03] - mev->y,
+                               ( GLdouble ) winz,
+                               MVX, PJX, VPX,
+                               &newx, &newy, &newz );
+
+
+                difx = ( newx - orix );
+                dify = ( newy - oriy );
+                difz = ( newz - oriz );
+
+                if ( ( eflags & XAXIS ) && axis[0].w ) ((G3DOBJECT*)map)->pos.x += difx;
+                if ( ( eflags & YAXIS ) && axis[1].w ) ((G3DOBJECT*)map)->pos.y += dify;
+                if ( ( eflags & ZAXIS ) && axis[2].w ) ((G3DOBJECT*)map)->pos.z += difz;
+
+                if ( ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) == 0x00 ) {
+                    g3dobject_updateMatrix_r ( map, eflags );
+                }
+
+                orix = newx;
+                oriy = newy;
+                oriz = newz;
+            }
+        } return REDRAWVIEW | REDRAWCOORDS;
+
+        case G3DButtonRelease : {
+            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
+        } return REDRAWALL;
+
+        default :
+        break;
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 int move_object ( G3DMOUSETOOL *mou, 
                   G3DSCENE     *sce, 
                   G3DCAMERA    *cam,
@@ -628,7 +747,6 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
         break;
     }
 
-
     if ( ( flags & VIEWOBJECT ) ||
          ( flags & VIEWAXIS   ) ) {
         return move_object ( mou, sce, cam, urm, flags, event );
@@ -636,6 +754,24 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
 
     if ( obj ) {
+        if ( flags & VIEWUVWMAP   ) {
+            if ( obj->type & MESH ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                G3DUVMAP *map = g3dmesh_getSelectedUVMap ( mes );
+
+               if ( map ) {
+                   return move_uvmap   ( mes, 
+                                         map, 
+                                         mou, 
+                                         sce,
+                                         cam, 
+                                         urm,
+                                         flags,
+                                         event );
+                }
+            }
+        }
+
         if ( ( flags & VIEWVERTEX ) ||
              ( flags & VIEWEDGE   ) ||
              ( flags & VIEWFACE   ) ||
