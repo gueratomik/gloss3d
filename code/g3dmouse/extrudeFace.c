@@ -107,6 +107,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                 *lselfac = NULL, 
                 *lselsub = NULL,
                 *lver    = NULL;
+    static uint32_t nbver;
 
     G3DEXTRUDEFACE *ef = ( G3DEXTRUDEFACE * ) mou->data;
 
@@ -144,6 +145,8 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
+                    nbver = list_count ( lver );
+
                     g3dobject_startUpdateModifiers_r ( obj, flags );
 
                     /*** for undo redo ***/
@@ -180,18 +183,33 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                 if ( obj->type == G3DMESHTYPE ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
                     LIST *ltmpver = lver, *ltmpdir = ldir;
+                    float diff = ( float ) mev->x - xold;
+
+                    mes->avgSelFacPos.x =
+                    mes->avgSelFacPos.y =
+                    mes->avgSelFacPos.z = 0.0f;
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                         G3DVECTOR *dir = ( G3DVECTOR * ) ltmpdir->data;
-                        float diff = ( float ) mev->x - xold;
+
 
                         ver->pos.x = ver->pos.x + ( dir->x * diff / 50.0f );
                         ver->pos.y = ver->pos.y + ( dir->y * diff / 50.0f );
                         ver->pos.z = ver->pos.z + ( dir->z * diff / 50.0f );
 
+                        mes->avgSelFacPos.x += ver->pos.x;
+                        mes->avgSelFacPos.y += ver->pos.y;
+                        mes->avgSelFacPos.z += ver->pos.z;
+
                         ltmpver = ltmpver->next;
                         ltmpdir = ltmpdir->next;
+                    }
+
+                    if ( nbver ) {
+                        mes->avgSelFacPos.x /= nbver;
+                        mes->avgSelFacPos.y /= nbver;
+                        mes->avgSelFacPos.z /= nbver;
                     }
                 }
 

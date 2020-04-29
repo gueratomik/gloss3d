@@ -78,7 +78,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
         #endif
 
-        /* Eventually reset object position at the first frame */
+        /* reset object position at the first frame */
         if ( gui->curframe != resetFrame ) {
             g3dobject_anim_r ( sce, resetFrame, gui->flags );
         }

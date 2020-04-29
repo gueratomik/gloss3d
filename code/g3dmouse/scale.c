@@ -360,7 +360,7 @@ static int scale_object ( LIST        *lobj,
             /*** Record and undo procedure and record the current state ***/
             uto = g3durm_object_transform ( urm,
                                             lobj,
-                                            UTOSAVEROTATION, 
+                                            UTOSAVESCALING, 
                                             REDRAWVIEW );
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
@@ -411,53 +411,13 @@ static int scale_object ( LIST        *lobj,
                 if ( ( eflags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );
                 if ( ( eflags & ZAXIS ) && axis[0x02].w ) dif.z = ( mev->x - orix );
 
-                if ( nbobj > 0x01 ) {
-                    glMatrixMode ( GL_MODELVIEW );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    glTranslatef ( pivot.x, pivot.y, pivot.z );
-                    glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
-                    glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
-                    glRotatef ( dif.z, 0.0f, 0.0f, 1.0f );
-                    glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
-                    glPopMatrix ( );
-                }
-
                 while ( ltmpobj ) {
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
                     G3DDOUBLEVECTOR lstartpos, lendpos;
 
-                    if ( nbobj == 0x01 ) {
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
-                    } else {
-                        G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
-                        G3DVECTOR objpos;
-                        G3DVECTOR rotpos;
-                        G3DVECTOR newpos;
-
-
-
-                        g3dvector_matrix ( &cenpos, obj->wmatrix, &objpos );
-                        g3dvector_matrix ( &objpos, ROTX, &rotpos );
-                        g3dvector_matrix ( &rotpos, obj->parent->iwmatrix, &newpos );
-
-                        obj->pos.x = newpos.x;
-                        obj->pos.y = newpos.y;
-                        obj->pos.z = newpos.z;
-                    }
+                    obj->sca.x += ( dif.x * 0.02f );
+                    obj->sca.y += ( dif.y * 0.02f );
+                    obj->sca.z += ( dif.z * 0.02f );
 
                     g3dobject_updateMatrix_r ( obj, eflags );
 
