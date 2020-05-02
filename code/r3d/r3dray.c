@@ -147,6 +147,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
     uint32_t divBump       = 0x00;
     uint32_t divReflection = 0x00;
     uint32_t divRefraction = 0x00;
+    uint32_t divAlpha      = 0x00;
     LIST *ltmptex = ltex;
     uint32_t i;
 
@@ -205,7 +206,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
-                g3dchannel_getColor ( &mat->diffuse   , avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval );
 
                 diffuse->r += retval.r;
                 diffuse->g += retval.g;
@@ -248,6 +249,27 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                 divReflection++;
             }
 
+            if ( mat->flags & ALPHA_ENABLED ) {
+                G3DCOLOR color;
+
+                g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval );
+
+                g3drgba_toColor ( &retval, &color );
+
+                if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
+                     ( mat->alpha.flags & USEPROCEDURAL ) ) {
+                    color.r *= mat->alpha.solid.r;
+                    color.g *= mat->alpha.solid.g;
+                    color.b *= mat->alpha.solid.b;
+                }
+
+                (*transparencyStrength) += ( 1.0f - ( ( color.r + 
+                                                        color.g + 
+                                                        color.b ) / 3 ) );
+
+                divAlpha++;
+            }
+
             if ( mat->flags & REFRACTION_ENABLED ) {
                 g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval );
 
@@ -256,7 +278,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                 refraction->b += retval.b;
                 refraction->a += retval.a;
 
-                (*transparencyStrength) += mat->alpha.solid.a;
+
 
                 divRefraction++;
             }
@@ -300,6 +322,10 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
         refraction->a /= divRefraction;
 
         (*transparencyStrength) /= ( divRefraction );
+    }
+
+    if ( divAlpha ) {
+        (*transparencyStrength) /= ( divAlpha );
     }
 
     return 0x00;
@@ -379,7 +405,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
         R3DLIGHT  *rlt = ( R3DLIGHT * ) ltmprlt->data;
         R3DOBJECT *rob = ( R3DOBJECT * )rlt;
         G3DOBJECT *objlig = rob->obj;
+        G3DLIGHT *lig = ( G3DLIGHT * ) objlig;
         R3DRAY luxray, spcray, refray, camray;
+        float spotFactor = 1.0f;
         float dot;
 
         memset ( &luxray, 0x00, sizeof ( R3DRAY ) );
@@ -402,6 +430,34 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
 
         dot = g3dvector_scalar ( ( G3DVECTOR * ) &luxray.dir, 
                                  ( G3DVECTOR * ) &ray->nor );
+
+        if ( objlig->flags & SPOTLIGHT ) {
+            float spotAngle;
+            float spotDot;
+            G3DVECTOR invLuxRay = { .x = -luxray.dir.x,
+                                    .y = -luxray.dir.y,
+                                    .z = -luxray.dir.z, 1.0f };
+
+            spotDot = g3dvector_scalar ( ( G3DVECTOR * ) &invLuxRay, 
+                                         ( G3DVECTOR * ) &rlt->zvec );
+
+            if ( spotDot > 0.0f ) {
+                spotAngle = acos ( spotDot )  * 180 / M_PI;
+
+                if ( spotAngle < lig->spotAngle ) {
+                    spotFactor = 1.0f;
+                } else {
+                    if ( spotAngle < ( lig->spotAngle + lig->spotFadeAngle ) ) {
+                        spotFactor = 1.0f - ( ( spotAngle - lig->spotAngle ) / 
+                                                            lig->spotFadeAngle );
+                    } else {
+                        spotFactor = 0.0f;
+                    }
+                }
+            }
+
+            dot *= spotFactor;
+        }
 
         if ( dot > 0.0f ) {
             /*** first find intersection closest point ***/
@@ -462,7 +518,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
                     r3dtinyvector_normalize ( &camray, NULL );
 
                     dot = g3dvector_scalar ( ( G3DVECTOR * ) &refray.dir,
-                                             ( G3DVECTOR * ) &camray );
+                                             ( G3DVECTOR * ) &camray ) * spotFactor;
 
                     if ( dot > 0.0f ) {
                         G3DLIGHT *lig = ((R3DOBJECT*)rlt)->obj;

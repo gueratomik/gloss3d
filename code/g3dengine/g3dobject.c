@@ -1046,7 +1046,7 @@ void g3dobject_appendChild ( G3DOBJECT *obj,
     child->parent = obj;
 
     if ( child->type == G3DLIGHTTYPE ) {
-        g3dlight_init ( ( G3DLIGHT * ) child );
+        g3dlight_turnOn ( ( G3DLIGHT * ) child );
     }
 
     if ( obj->addChild    ) obj->addChild  ( obj  , child, engine_flags );
@@ -1062,7 +1062,7 @@ void g3dobject_addChild ( G3DOBJECT *obj,
     child->parent = obj;
 
     if ( child->type == G3DLIGHTTYPE ) {
-        g3dlight_init ( ( G3DLIGHT * ) child );
+        g3dlight_turnOn ( ( G3DLIGHT * ) child );
     }
 
     if ( obj->addChild    ) obj->addChild  ( obj  , child, engine_flags );

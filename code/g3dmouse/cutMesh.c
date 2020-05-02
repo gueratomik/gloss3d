@@ -41,7 +41,7 @@ G3DCUTMESH *cutMesh_new ( ) {
         fprintf ( stderr, "cutMesh_new: Memory allocation failed\n" );
     }
 
-    cm->restrict_to_selection = 0x00;
+    cm->restrict_to_selection = 0x01;
 
 
     return cm;

@@ -98,12 +98,11 @@ uint32_t g3dlight_pick ( G3DLIGHT  *lig,
 }
 
 /******************************************************************************/
-uint32_t g3dlight_draw ( G3DLIGHT  *lig,
-                         G3DCAMERA *cam, 
-                         uint32_t   engine_flags ) {
+static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
+                                         uint32_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-    float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
     float intensity = lig->intensity;
+    float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
     float diffuseColor[0x04] = { ( lig->diffuseColor.r * intensity ) / 256.0f, 
                                  ( lig->diffuseColor.g * intensity ) / 256.0f,
                                  ( lig->diffuseColor.b * intensity ) / 256.0f,
@@ -116,7 +115,89 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
                                  ( lig->ambientColor.g * intensity ) / 256.0f,
                                  ( lig->ambientColor.b * intensity ) / 256.0f, 
                                  ( 1.0f ) };
- 
+
+    glLightfv ( lig->lid, GL_AMBIENT , ( const float * ) &ambientColor  );
+    glLightfv ( lig->lid, GL_DIFFUSE , ( const float * ) &diffuseColor  );
+    glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &specularColor );
+    glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos      );
+
+    /*** Commented out: Object appear with a ambient shading sometimes ***/
+    /*** I dont know why **/
+    /*if ( obj->flags & SPOTLIGHT ) {
+        float direction[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+
+        glLightf  ( lig->lid, GL_SPOT_CUTOFF   , lig->spotAngle );
+        glLightfv ( lig->lid, GL_SPOT_DIRECTION, direction );
+    }*/
+}
+
+/******************************************************************************/
+static uint32_t g3dlight_drawSpot ( G3DLIGHT  *lig,
+                                    G3DCAMERA *cam, 
+                                    uint32_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    float spotRadius = sin ( lig->spotAngle * M_PI / 180 ) * lig->spotLength;
+    float spotFadeRadius = sin ( ( lig->spotAngle + 
+                                   lig->spotFadeAngle ) * M_PI / 180 ) * lig->spotLength;
+
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    glDisable   ( GL_LIGHTING );
+    /*glDisable ( GL_DEPTH_TEST );*/
+    glColor3ub  ( lig->diffuseColor.r, 
+                  lig->diffuseColor.g, 
+                  lig->diffuseColor.b );
+
+    glBegin ( GL_LINES );
+
+    glVertex3f ( 0.0f,  0.0f, 0.0f );
+    glVertex3f ( 0.0f,  spotRadius, lig->spotLength );
+
+    glVertex3f ( 0.0f, 0.0f, 0.0f );
+    glVertex3f ( 0.0f, -spotRadius, lig->spotLength );
+
+    glVertex3f (       0.0f,  0.0f, 0.0f );
+    glVertex3f (  spotRadius,  0.0f, lig->spotLength );
+
+    glVertex3f (        0.0f, 0.0f, 0.0f );
+    glVertex3f ( -spotRadius, 0.0f, lig->spotLength );
+
+
+
+    glVertex3f ( 0.0f,  0.0f, 0.0f );
+    glVertex3f ( 0.0f,  spotFadeRadius, lig->spotLength );
+
+    glVertex3f ( 0.0f, 0.0f, 0.0f );
+    glVertex3f ( 0.0f, -spotFadeRadius, lig->spotLength );
+
+    glVertex3f (       0.0f,  0.0f, 0.0f );
+    glVertex3f (  spotFadeRadius,  0.0f, lig->spotLength );
+
+    glVertex3f (        0.0f, 0.0f, 0.0f );
+    glVertex3f ( -spotFadeRadius, 0.0f, lig->spotLength );
+
+    glEnd ( );
+
+    glPushMatrix ( );
+
+    glTranslatef ( 0.0f, 0.0f, lig->spotLength );
+
+    g3dcore_drawXYCircle ( spotRadius    , engine_flags );
+    g3dcore_drawXYCircle ( spotFadeRadius, engine_flags );
+
+    glPopMatrix ( );
+    glPopAttrib ( );
+
+    g3dlight_drawIntensity ( lig, engine_flags );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static uint32_t g3dlight_drawOmni ( G3DLIGHT  *lig,
+                                    G3DCAMERA *cam, 
+                                    uint32_t   engine_flags ) {
+
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -162,10 +243,22 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
 
     glPopAttrib ( );
 
-    glLightfv ( lig->lid, GL_AMBIENT , ( const float * ) &ambientColor  );
-    glLightfv ( lig->lid, GL_DIFFUSE , ( const float * ) &diffuseColor  );
-    glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &specularColor );
-    glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos      );
+    g3dlight_drawIntensity ( lig, engine_flags );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dlight_draw ( G3DLIGHT  *lig,
+                         G3DCAMERA *cam, 
+                         uint32_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    if ( obj->flags & SPOTLIGHT ) {
+        g3dlight_drawSpot ( lig, cam, engine_flags );
+    } else {
+        return g3dlight_drawOmni ( lig, cam, engine_flags );
+    }
 
     return 0x00;
 }
@@ -203,7 +296,7 @@ void g3dlight_zero ( G3DLIGHT *lig ) {
 }
 
 /******************************************************************************/
-void g3dlight_init ( G3DLIGHT *lig ) {
+void g3dlight_turnOn ( G3DLIGHT *lig ) {
     float pos[0x04] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
     glEnable ( lig->lid );
@@ -215,17 +308,32 @@ void g3dlight_init ( G3DLIGHT *lig ) {
 }
 
 /******************************************************************************/
-G3DLIGHT *g3dlight_new ( uint32_t  id, 
-                         char     *name ) {
-    G3DLIGHT *lig = ( G3DLIGHT * ) calloc ( 0x01, sizeof ( G3DLIGHT ) );
+void g3dlight_unsetSpot ( G3DLIGHT *lig ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-    static GLint lid = 0x00;
 
-    if ( lig == NULL ) {
-        fprintf ( stderr, "g3dlight_new: memory allocation faild\n" );
+    obj->flags &= (~SPOTLIGHT);
+}
 
-        return NULL;
-    }
+/******************************************************************************/
+void g3dlight_setSpot ( G3DLIGHT *lig, 
+                        float     spotLength,
+                        float     spotAngle, 
+                        float     spotFadeAngle ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    obj->flags |= SPOTLIGHT;
+
+    lig->spotLength     = spotLength;
+    lig->spotAngle      = spotAngle;
+    lig->spotFadeAngle  = spotFadeAngle;
+}
+
+/******************************************************************************/
+void g3dlight_init ( G3DLIGHT *lig, 
+                     uint32_t  id, 
+                     char     *name ) {
+    G3DGLOBALS *globals = g3dcore_getGlobals ( );
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     g3dobject_init ( obj, G3DLIGHTTYPE, id, name, DRAWBEFORECHILDREN,
                                     DRAW_CALLBACK(g3dlight_draw),
@@ -239,12 +347,14 @@ G3DLIGHT *g3dlight_new ( uint32_t  id,
                                                   NULL,
                                                   NULL );
 
-    /*obj->bbox.xmin = obj->bbox.ymin = obj->bbox.zmin = -1.0f;
-    obj->bbox.xmax = obj->bbox.ymax = obj->bbox.zmax =  1.0f;*/
 
-    lig->lid = GL_LIGHT0 + (++lid);
+    lig->lid = ++globals->lightID;
 
     lig->intensity = 1.0f;
+
+    lig->spotLength    = 1.0f;
+    lig->spotAngle     = 15.0f;
+    lig->spotFadeAngle =  2.5f;
 
     g3drgba_init ( &lig->shadowColor  , 0x00, 0x00, 0x00, 0x00 );
     g3drgba_init ( &lig->diffuseColor , 0xFF, 0xFF, 0xFF, 0xFF );
@@ -252,6 +362,20 @@ G3DLIGHT *g3dlight_new ( uint32_t  id,
     g3drgba_init ( &lig->ambientColor , 0x00, 0x00, 0x00, 0xFF );
 
     obj->flags |= LIGHTON;
+}
+
+/******************************************************************************/
+G3DLIGHT *g3dlight_new ( uint32_t  id, 
+                         char     *name ) {
+    G3DLIGHT *lig = ( G3DLIGHT * ) calloc ( 0x01, sizeof ( G3DLIGHT ) );
+
+    if ( lig == NULL ) {
+        fprintf ( stderr, "g3dlight_new: memory allocation faild\n" );
+
+        return NULL;
+    }
+
+    g3dlight_init ( lig, id, name );
 
 
     return lig;

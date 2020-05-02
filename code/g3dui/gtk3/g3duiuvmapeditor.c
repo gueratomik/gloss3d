@@ -528,6 +528,16 @@ GtkWidget *gtk_uvmapeditor_new ( ) {
 }
 
 /******************************************************************************/
+gboolean gtk_uvmapeditor_destroy ( GtkWidget *widget, gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
+
+    list_remove ( &gui->luvmapeditor,  guv );
+
+    return FALSE;
+}
+
+/******************************************************************************/
 GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                G3DUI     *gui,
                                char      *name,
@@ -568,6 +578,8 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (guv), "motion_notify_event" , G_CALLBACK (gtk_uvmapeditor_event), gui );
     g_signal_connect ( G_OBJECT (guv), "button_press_event"  , G_CALLBACK (gtk_uvmapeditor_event), gui );
     g_signal_connect ( G_OBJECT (guv), "button_release_event", G_CALLBACK (gtk_uvmapeditor_event), gui );
+    g_signal_connect ( G_OBJECT (guv), "destroy"       , G_CALLBACK (gtk_uvmapeditor_destroy), gui );
+
     /*g_signal_connect ( G_OBJECT (guv), "configure-event", G_CALLBACK (gtk_uvmapeditor_configure), gui );*/
 
     /*gdk_window_add_filter ( gtk_widget_get_window ( area ), gtk_area_filter, gui );*/
@@ -582,7 +594,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (g3duiuvmapeditor_sizeGL    ), gui );
     g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (g3duiuvmapeditor_initGL    ), gui );
     g_signal_connect ( G_OBJECT (area), "draw"                , G_CALLBACK (g3duiuvmapeditor_showGL    ), gui );
-    g_signal_connect ( G_OBJECT (area), "delete-event"        , G_CALLBACK (g3duiuvmapeditor_destroyGL ), gui );
+    g_signal_connect ( G_OBJECT (area), "destroy-event"       , G_CALLBACK (g3duiuvmapeditor_destroyGL ), gui );
 
     g_signal_connect ( G_OBJECT (area), "motion_notify_event" , G_CALLBACK (g3duiuvmapeditor_inputGL), gui );
     g_signal_connect ( G_OBJECT (area), "key_press_event"     , G_CALLBACK (g3duiuvmapeditor_inputGL), gui );
@@ -751,6 +763,8 @@ gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget,
     G3DUI            *gui    = ( G3DUI * ) user_data;
 
     common_g3duiuvmapeditor_destroyGL ( uvme );
+
+    list_remove ( &gui->luvmapeditor,  guv );
 
     return FALSE;
 }

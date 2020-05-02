@@ -29,6 +29,21 @@
 #include <config.h>
 #include <g3dexportv2.h>
 
+
+/******************************************************************************/
+static uint32_t g3dexportlight_spot ( G3DEXPORTDATA *ged, 
+                                      G3DLIGHT      *lig, 
+                                      uint32_t       flags, 
+                                      FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &lig->spotLength   , fdst );
+    size += g3dexport_fwritef ( &lig->spotAngle    , fdst );
+    size += g3dexport_fwritef ( &lig->spotFadeAngle, fdst );
+
+    return size;
+}
+
 /******************************************************************************/
 static uint32_t g3dexportlight_shadowColor ( G3DEXPORTDATA *ged, 
                                              G3DLIGHT      *lig, 
@@ -163,6 +178,15 @@ uint32_t g3dexportlight ( G3DEXPORTDATA *ged,
     if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SHADOW,
                                        g3dexportlight_shadow,
+                                       ged,
+                                       lig,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( ((G3DOBJECT*)lig)->flags & SPOTLIGHT ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SPOT,
+                                       g3dexportlight_spot,
                                        ged,
                                        lig,
                                        0xFFFFFFFF,

@@ -406,6 +406,26 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+            if ( GTK_IS_RADIO_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITDISPLACEMENTIMAGE ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITDISPLACEMENTPROCEDURAL ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
             if ( GTK_IS_SPIN_BUTTON ( child ) ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
@@ -431,6 +451,16 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
     }
 
     gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void radioDisplacementImageColorCbk ( GtkWidget *widget, 
+                                      gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableImageCbk ( gui, &gui->selmat->displacement );
+    }
 }
 
 /******************************************************************************/
@@ -468,7 +498,7 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
     /*** Use image as displacement texture ***/
     btn = createRadioLabel   ( pan, gui, EDITDISPLACEMENTIMAGE, NULL,
                                 0, 48, 
-                               96, 18, NULL );
+                               96, 18, radioDisplacementImageColorCbk );
 
     createPushButton   ( pan, gui, EDITDISPLACEMENTIMAGE,
                                96,  48, 
@@ -493,6 +523,258 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                                104,
                                                64,
                                                displacementProceduralResCbk );
+
+
+    return pan;
+}
+
+/******************************************************************************/
+static void alphaToggleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_materialToggleAlphaCbk ( gui );
+}
+
+/******************************************************************************/
+static void alphaImageCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkFileFilter *filter = gtk_file_filter_new ();
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    /* extension filters */
+    gtk_file_filter_add_pattern ( filter, "*.jpg" );
+    gtk_file_filter_add_pattern ( filter, "*.png" );
+    gtk_file_filter_add_pattern ( filter, "*.avi" );
+    gtk_file_filter_add_pattern ( filter, "*.mkv" );
+    gtk_file_filter_add_pattern ( filter, "*.flv" );
+    gtk_file_filter_add_pattern ( filter, "*.gif" );
+    gtk_file_filter_add_pattern ( filter, "*.mp4" );
+    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+
+        if ( gui->selmat ) {
+            common_g3dui_channelChooseImageCbk ( gui,
+                                        	    &gui->selmat->alpha,
+                                        	    filename,
+                                        	    0x00 );
+        }
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float str = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    g3dui_setHourGlass ( gui );
+
+    common_g3dui_materialSetAlphaStrengthCbk ( gui, str );
+
+    g3dui_unsetHourGlass ( gui );
+}
+
+/******************************************************************************/
+static void alphaProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    gchar *procType = getProdeduralTypeSelection ( parent ),
+          *procRes  = getProdeduralResSelection ( parent );
+
+    g3dui_setHourGlass ( gui );
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->alpha );
+	    common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	      &gui->selmat->alpha,
+                                        	       procType, 
+                                        	       procRes,
+                                                       0x01 );
+    }
+
+    g3dui_unsetHourGlass ( gui );
+
+    g_free ( procType );
+    g_free ( procRes  );
+}
+
+/******************************************************************************/
+static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    gui->lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( gui->selmat == NULL ) gtk_widget_set_sensitive ( child, FALSE );
+        else                       gtk_widget_set_sensitive ( child, TRUE  );
+
+        if ( gui->selmat ) {
+            G3DMATERIAL *mat = gui->selmat;
+
+            if ( GTK_IS_BUTTON ( child ) && ( GTK_IS_RADIO_BUTTON ( child ) == 0 ) ) {
+                GtkButton *btn = GTK_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITALPHAIMAGE ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                        if ( mat->alpha.image ) {
+                            if ( mat->alpha.image->filename ) {
+                                char *imgpath, *imgname;
+
+                                imgpath = strdup ( mat->alpha.image->filename );
+
+                                /*** We just keep the image name, not the whole ***/
+                                /*** path and display it as the button label.   ***/
+                                imgname = basename ( imgpath );
+
+                                gtk_button_set_label ( btn, imgname );
+
+                                free ( imgpath );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( GTK_IS_RADIO_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITALPHAIMAGE ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITALPHAPROCEDURAL ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITALPHASTRENGTH ) == 0x00 ) {
+                    gtk_spin_button_set_value ( spb, mat->alpha.solid.a );
+                }
+            }
+
+            if ( GTK_IS_CHECK_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITALPHAENABLED ) == 0x00 ) {
+                    if ( mat->flags & ALPHA_ENABLED ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void radioAlphaImageColorCbk ( GtkWidget *widget, 
+                                      gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableImageCbk ( gui, &gui->selmat->alpha );
+    }
+}
+
+/******************************************************************************/
+static void alphaProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    alphaProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static void alphaProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
+    alphaProceduralCbk ( widget, user_data );
+}
+
+/******************************************************************************/
+static GtkWidget *createAlphaPanel ( GtkWidget *parent, G3DUI *gui,
+                                                               char *name,
+                                                               gint x,
+                                                               gint y,
+                                                               gint width,
+                                                               gint height ) {
+    GtkWidget *lab, *col, *pan, *btn;
+
+    pan = createPanel ( parent, gui, name, x, y, width, height );
+
+    createToggleLabel  ( pan, gui, EDITALPHAENABLED,   
+                                0,  0,
+                              192, 18, alphaToggleCbk );
+
+
+    createFloatText    ( pan, gui, EDITALPHASTRENGTH,
+                               0.0f, FLT_MAX,
+                                0,  24,
+                               96,
+                               48, alphaStrengthCbk );
+
+    /*** Use image as displacement texture ***/
+    btn = createRadioLabel   ( pan, gui, EDITALPHAIMAGE, NULL,
+                                0, 48, 
+                               96, 18, radioAlphaImageColorCbk );
+
+    createPushButton   ( pan, gui, EDITALPHAIMAGE,
+                               96,  48, 
+                               96,  18, alphaImageCbk );
+
+          /*** Use image as texture ***/
+          createRadioLabel ( pan, gui, EDITALPHAPROCEDURAL,
+                                   btn,
+                                     0, 72, 96, 18,
+                                   alphaProceduralCbk );
+
+          createProceduralTypeSelection ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALTYPE,
+                                               0, 96,
+                                               104,
+                                               64,
+                                               alphaProceduralTypeCbk );
+
+          createProceduralResSelection  ( pan, gui, 
+                                               EDITDIFFUSEPROCEDURALRES,
+                                               0, 120,
+                                               104,
+                                               64,
+                                               alphaProceduralResCbk );
 
 
     return pan;
@@ -628,6 +910,26 @@ static void updateBumpPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+            if ( GTK_IS_RADIO_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( child_name, EDITBUMPIMAGE ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+
+                if ( strcmp ( child_name, EDITBUMPPROCEDURAL ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
             if ( GTK_IS_SPIN_BUTTON ( child ) ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
@@ -666,6 +968,16 @@ static void bumpProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void radioBumpImageColorCbk ( GtkWidget *widget, 
+                                      gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableImageCbk ( gui, &gui->selmat->bump );
+    }
+}
+
+/******************************************************************************/
 static GtkWidget *createBumpPanel ( GtkWidget *parent, G3DUI *gui,
                                                                char *name,
                                                                gint x,
@@ -690,7 +1002,7 @@ static GtkWidget *createBumpPanel ( GtkWidget *parent, G3DUI *gui,
     /*** Use image as displacement texture ***/
     btn = createRadioLabel   ( pan, gui, EDITBUMPIMAGE, NULL,
                                 0, 48, 
-                               96, 18, NULL );
+                               96, 18, radioBumpImageColorCbk );
 
     createPushButton   ( pan, gui, EDITBUMPIMAGE,
                                96,  48, 
@@ -1139,6 +1451,10 @@ void updateMaterialChannels ( GtkWidget *widget, G3DUI *gui ) {
             updateRefractionPanel ( child, gui );
         }
 
+        if ( strcmp ( child_name, EDITALPHA ) == 0x00 ) {
+            updateAlphaPanel ( child, gui );
+        }
+
         if ( strcmp ( child_name, EDITBUMP ) == 0x00 ) {
             updateBumpPanel ( child, gui );
         }
@@ -1225,6 +1541,7 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
     createSpecularPanel     ( tab, gui, EDITSPECULAR    , 0, 0, width, height );
     createBumpPanel         ( tab, gui, EDITBUMP        , 0, 0, width, height );
     createDisplacementPanel ( tab, gui, EDITDISPLACEMENT, 0, 0, width, height );
+    createAlphaPanel        ( tab, gui, EDITALPHA       , 0, 0, width, height );
     createReflectionPanel   ( tab, gui, EDITREFLECTION  , 0, 0, width, height );
     createRefractionPanel   ( tab, gui, EDITREFRACTION  , 0, 0, width, height );
 

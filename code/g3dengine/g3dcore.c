@@ -32,6 +32,20 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DGLOBALS *g3dcore_getGlobals ( ) {
+    static G3DGLOBALS globals;
+    static int init;
+
+    if ( init == 0x00 ) {
+        globals.lightID = GL_LIGHT0;
+ 
+        init = 0x01;
+    }
+
+    return &globals;
+}
+
+/******************************************************************************/
 #ifdef __linux__
 uint32_t g3dcore_getNumberOfCPUs ( ) {
     uint32_t nbcpu = 0x00;
@@ -83,22 +97,24 @@ char *g3dcore_strclone ( char *str ) {
 }
 
 /******************************************************************************/
-void g3dcore_drawXYCircle ( uint32_t engine_flags ) {
-    g3dcore_drawCircle ( ORIENTATIONXY, engine_flags );
+void g3dcore_drawXYCircle ( float radius, uint32_t engine_flags ) {
+    g3dcore_drawCircle ( ORIENTATIONXY, radius, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcore_drawYZCircle ( uint32_t engine_flags ) {
-    g3dcore_drawCircle ( ORIENTATIONYZ, engine_flags );
+void g3dcore_drawYZCircle ( float radius, uint32_t engine_flags ) {
+    g3dcore_drawCircle ( ORIENTATIONYZ, radius, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcore_drawZXCircle ( uint32_t engine_flags ) {
-    g3dcore_drawCircle ( ORIENTATIONZX, engine_flags );
+void g3dcore_drawZXCircle ( float radius, uint32_t engine_flags ) {
+    g3dcore_drawCircle ( ORIENTATIONZX, radius, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcore_drawCircle ( uint32_t orientation, uint32_t engine_flags ) {
+void g3dcore_drawCircle ( uint32_t orientation,
+                          float    radius,
+                          uint32_t engine_flags ) {
     static G3DVECTOR p[16] = { { .x =  1.0f          , .y =  0.0f           },
                                { .x =  0.92387953251f, .y =  0.38268343236f },
                                { .x =  0.70710678118f, .y =  0.70710678118f },
@@ -122,19 +138,19 @@ void g3dcore_drawCircle ( uint32_t orientation, uint32_t engine_flags ) {
     switch ( orientation ) {
         case ORIENTATIONXY :
             for ( i = 0x00; i < 0x10; i++ ) {
-                glVertex3f ( p[i].x, p[i].y, 0.0f );
+                glVertex3f ( p[i].x * radius, p[i].y * radius, 0.0f );
             } 
         break;
 
         case ORIENTATIONYZ :
             for ( i = 0x00; i < 0x10; i++ ) {
-                glVertex3f ( 0.0f, p[i].x, p[i].y );
+                glVertex3f ( 0.0f, p[i].x * radius, p[i].y * radius );
             } 
         break;
 
         case ORIENTATIONZX :
             for ( i = 0x00; i < 0x10; i++ ) {
-                glVertex3f ( p[i].y, 0.0f, p[i].x );
+                glVertex3f ( p[i].y * radius, 0.0f, p[i].x * radius );
             } 
         break;
     }

@@ -52,6 +52,17 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_LIGHT_SHADOW : {
             } break;
 
+            case SIG_OBJECT_LIGHT_SPOT : {
+                G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
+                float spotLength, spotAngle, spotFadeAngle;
+
+                g3dimport_freadf ( &spotLength   , fsrc );
+                g3dimport_freadf ( &spotAngle    , fsrc );
+                g3dimport_freadf ( &spotFadeAngle, fsrc );
+
+                g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
+            } break;
+
             case SIG_OBJECT_LIGHT_SHADOW_CASTING : {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 uint32_t shadowing;

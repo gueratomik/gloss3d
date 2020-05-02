@@ -51,6 +51,43 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI *gui, uint32_t red,
 }
 
 /******************************************************************************/
+void common_g3duilightedit_unsetSpotCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
+        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+        g3dlight_unsetSpot ( lig );
+
+        g3dui_redrawGLViews ( gui );
+    }
+}
+
+/******************************************************************************/
+void common_g3duilightedit_setSpotCbk ( G3DUI *gui,
+                                        float  spotLength,
+                                        float  spotAngle,
+                                        float  spotFadeAngle ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
+        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+        g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
+
+        g3dui_redrawGLViews ( gui );
+    }
+}
+
+/******************************************************************************/
 void common_g3duilightedit_castShadowsCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );

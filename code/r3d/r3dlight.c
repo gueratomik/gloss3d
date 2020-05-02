@@ -35,11 +35,17 @@ void r3dlight_free ( R3DOBJECT *rob ) {
 }
 
 /******************************************************************************/
-R3DLIGHT *r3dlight_new ( G3DLIGHT *lig, uint32_t id ) {
+R3DLIGHT *r3dlight_new ( G3DLIGHT *lig, 
+                         uint32_t id,
+                         double  *wmatrix,
+                         double  *cmatrix, /* camera world matrix */
+                         double  *pmatrix, /* camera proj matrix */
+                         int     *vmatrix /* camera viewport */ ) {
     int structsize = sizeof ( R3DLIGHT );
     R3DLIGHT *rlt = ( R3DLIGHT * ) calloc ( 0x01, structsize );
     R3DOBJECT *rob = ( R3DOBJECT * ) rlt;
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+    G3DVECTOR zvec;
     G3DVECTOR pos;
 
     if ( rlt == NULL ) {
@@ -50,8 +56,17 @@ R3DLIGHT *r3dlight_new ( G3DLIGHT *lig, uint32_t id ) {
 
     rob->obj = obj;
 
-    g3dvector_init ( &pos, 0.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_matrix ( &pos, ((G3DOBJECT*)lig)->wmatrix, &rlt->pos );
+    g3dvector_init ( &zvec, 0.0f, 0.0f, 1.0f, 1.0f );
+    g3dvector_init ( &pos , 0.0f, 0.0f, 0.0f, 1.0f );
+
+    g3dvector_matrix ( &zvec, obj->wmatrix, &rlt->zvec );
+    g3dvector_matrix ( &pos , obj->wmatrix, &rlt->pos  );
+
+    rlt->zvec.x =  rlt->zvec.x - rlt->pos.x;
+    rlt->zvec.y =  rlt->zvec.y - rlt->pos.y;
+    rlt->zvec.z =  rlt->zvec.z - rlt->pos.z;
+
+    g3dvector_normalize ( &rlt->zvec, NULL );
 
     r3dobject_init ( rob, id, obj->type, obj->flags, r3dlight_free );
 

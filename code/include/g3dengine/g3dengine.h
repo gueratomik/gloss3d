@@ -191,7 +191,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSUBDIVIDERTYPE     ( OBJECT | MESH | MODIFIER | SUBDIVIDER )
 #define G3DSPLINEREVOLVERTYPE ( OBJECT | MESH | MODIFIER | SPLINEREVOLVER )
 #define G3DLIGHTTYPE          ( OBJECT | LIGHT )
-#define G3DSPOTTYPE           ( OBJECT | LIGHT| SPOT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
 #define G3DSPLINETYPE         ( OBJECT | SPLINE )
@@ -327,6 +326,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** Light flags ***/
 #define LIGHTON               (  1 << 17 )
 #define LIGHTCASTSHADOWS      (  1 << 18 )
+#define SPOTLIGHT             (  1 << 19 )
 /*** UVMap flags ***/
 #define UVMAPFIXED            (  1 << 17 )
 /*** Wireframe flags ***/
@@ -488,6 +488,11 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #include <g3dengine/g3dtinyvector.h>
 #include <g3dengine/g3dvector.h>
 #include <g3dengine/g3dpick.h>
+
+/******************************************************************************/
+typedef struct G3DGLOBALS {
+    GLint lightID;
+} G3DGLOBALS;
 
 /******************************************************************************/
 typedef struct _G3DVECTORCACHE {
@@ -1347,6 +1352,7 @@ LIST *processHits ( GLint, GLuint * );
                                     ( float_to_short ( f2 ) >> 0 ) );*/
 
 /******************************************************************************/
+G3DGLOBALS *g3dcore_getGlobals ( );
 void     g3dcore_multmatrix              ( double *, double *, double * );
 uint32_t g3dcore_getNumberOfCPUs         ( );
 void     g3dcore_invertMatrix            ( double *, double * );
@@ -1382,10 +1388,10 @@ void     g3dcore_writeJpeg               ( const char *, uint32_t,
                                                          uint32_t,
                                                          unsigned char * );
 uint32_t g3dcore_getNextPowerOfTwo       ( uint32_t );
-void     g3dcore_drawCircle              ( uint32_t, uint32_t );
-void     g3dcore_drawXYCircle            ( uint32_t );
-void     g3dcore_drawYZCircle            ( uint32_t );
-void     g3dcore_drawZXCircle            ( uint32_t );
+void     g3dcore_drawCircle              ( uint32_t, float, uint32_t );
+void     g3dcore_drawXYCircle            ( float, uint32_t );
+void     g3dcore_drawYZCircle            ( float, uint32_t );
+void     g3dcore_drawZXCircle            ( float, uint32_t );
 char    *g3dcore_strclone                ( char *   );
 void     g3dcore_extractRotationMatrix   ( double *, double * );
 

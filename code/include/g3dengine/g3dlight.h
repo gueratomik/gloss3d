@@ -51,6 +51,9 @@ typedef struct _G3DLIGHT {
     G3DRGBA   diffuseColor;
     G3DRGBA   specularColor;
     G3DRGBA   ambientColor;
+    float     spotAngle;
+    float     spotFadeAngle;
+    float     spotLength;
 } G3DLIGHT;
 
 /******************************************************************************/
@@ -67,7 +70,7 @@ G3DLIGHT *g3dlight_new ( uint32_t id,
  * Turn on a light in the OpenGL view. It basically calls glEnable(lightID);
  * @param lig a pointer to a light.
  */
-void g3dlight_init ( G3DLIGHT *lig );
+void g3dlight_turnOn ( G3DLIGHT *lig );
 
 /**
  * Turn a light off in the OpenGL view.
@@ -103,6 +106,16 @@ G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig,
                           uint32_t       id,
                           unsigned char *name,
                           uint32_t       engine_flags );
+
+void g3dlight_init ( G3DLIGHT *lig, 
+                     uint32_t  id, 
+                     char     *name );
+
+void g3dlight_setSpot ( G3DLIGHT *lig, 
+                        float     spotLength,
+                        float     spotAngle, 
+                        float     spotFadeAngle );
+void g3dlight_unsetSpot ( G3DLIGHT *lig );
 
 #ifdef __cplusplus
 }

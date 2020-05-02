@@ -158,7 +158,9 @@ SIG_ROOT
 
 --------------- SIG_OBJECT_LIGHT
 ------------------- SIG_OBJECT_LIGHT_SPOT
------------------------  ?
+-----------------------  length    (float)
+-----------------------  angle     (float)
+-----------------------  fadeAngle (float)
 ------------------- SIG_OBJECT_LIGHT_SHADOW
 ----------------------- SIG_OBJECT_LIGHT_SHADOW_CASTING
 --------------------------- boolean (uint32_t)

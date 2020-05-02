@@ -159,6 +159,40 @@ static void updateLightGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_toggle_button_set_active ( tbn, FALSE );
                     }
                 }
+
+                if ( strcmp ( child_name, EDITLIGHTSPOTENABLED ) == 0x00 ) {
+                    GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                    if ( ((G3DOBJECT*)lig)->flags & SPOTLIGHT ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                if ( strcmp ( child_name, EDITLIGHTSPOTLENGTH ) == 0x00 ) {
+                    GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                    gtk_spin_button_set_value ( sbn, lig->spotLength );
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                if ( strcmp ( child_name, EDITLIGHTSPOTANGLE ) == 0x00 ) {
+                    GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                    gtk_spin_button_set_value ( sbn, lig->spotAngle );
+                }
+            }
+
+            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
+                if ( strcmp ( child_name, EDITLIGHTSPOTFADEANGLE ) == 0x00 ) {
+                    GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
+
+                    gtk_spin_button_set_value ( sbn, lig->spotFadeAngle );
+                }
             }
         }
 
@@ -238,7 +272,6 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                    0, 48, 96, 96,
                                    diffuseIntensityCbk );
 
-
     return pan;
 }
 
@@ -247,6 +280,81 @@ static void castShadowsCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3duilightedit_castShadowsCbk ( gui );
+}
+
+/******************************************************************************/
+static void spotLengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float spotLength = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            common_g3duilightedit_setSpotCbk ( gui,
+                                              spotLength, 
+                                              lig->spotAngle, 
+                                              lig->spotFadeAngle );
+        }
+    }
+}
+
+/******************************************************************************/
+static void spotFadeAngleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float spotFadeAngle = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            common_g3duilightedit_setSpotCbk ( gui,
+                                              lig->spotLength, 
+                                              lig->spotAngle, 
+                                              spotFadeAngle );
+        }
+    }
+}
+
+/******************************************************************************/
+static void spotAngleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float spotAngle = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            common_g3duilightedit_setSpotCbk ( gui,
+                                              lig->spotLength, 
+                                              spotAngle, 
+                                              lig->spotFadeAngle );
+        }
+    }
+}
+
+/******************************************************************************/
+static void spotToggleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            common_g3duilightedit_setSpotCbk ( gui,
+                                              lig->spotLength, 
+                                              lig->spotAngle, 
+                                              lig->spotFadeAngle );
+        }
+    }
 }
 
 /******************************************************************************/
@@ -262,7 +370,27 @@ static GtkWidget *createLightGeneralPanel ( GtkWidget *parent, G3DUI *gui,
 
     createToggleLabel ( pan, gui, EDITLIGHTCASTSHADOWS, 0, 0, 20, 20,
                                                         castShadowsCbk );
+    createToggleLabel  ( pan, gui, EDITLIGHTSPOTENABLED,   
+                                0,  24,
+                              192, 18, spotToggleCbk );
 
+          createFloatText   ( pan, gui,
+                                   EDITLIGHTSPOTLENGTH,
+                                   0.0f, FLT_MAX,
+                                   0, 48, 96, 96,
+                                   spotLengthCbk );
+
+          createFloatText   ( pan, gui,
+                                   EDITLIGHTSPOTANGLE,
+                                   0.0f, FLT_MAX,
+                                   0, 72, 96, 96,
+                                   spotAngleCbk );
+
+          createFloatText   ( pan, gui,
+                                   EDITLIGHTSPOTFADEANGLE,
+                                   0.0f, FLT_MAX,
+                                   0, 96, 96, 96,
+                                   spotFadeAngleCbk );
 
     return pan;
 }

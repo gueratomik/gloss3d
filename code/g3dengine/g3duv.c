@@ -550,18 +550,18 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
 
         case UVMAPSPHERICAL :
             glColor3ub ( 0x00, 0x00, 0x80 );
-            g3dcore_drawXYCircle ( engine_flags );
+            g3dcore_drawXYCircle ( 0.5f, engine_flags );
 
             glColor3ub ( 0x00, 0x80, 0x00 );
-            g3dcore_drawZXCircle ( engine_flags );
+            g3dcore_drawZXCircle ( 0.5f, engine_flags );
 
             glColor3ub ( 0x80, 0x00, 0x00 );
-            g3dcore_drawYZCircle ( engine_flags );
+            g3dcore_drawYZCircle ( 0.5f, engine_flags );
         break;
 
         case UVMAPCYLINDRICAL :
             glColor3ub ( 0x00, 0x00, 0x80 );
-            g3dcore_drawZXCircle ( engine_flags );
+            g3dcore_drawZXCircle ( 0.5f, engine_flags );
         break;
 
         default :

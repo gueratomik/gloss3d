@@ -200,7 +200,7 @@ typedef struct _MESHPICKDATA {
 uint32_t actionSelectFace ( uint64_t name, MESHPICKDATA *mpd ) {
     G3DFACE *fac = ( G3DFACE * ) name;
 
-    if ( list_seek ( mpd->mes->lselver, fac ) == NULL ) {
+    if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
         g3dmesh_selectFace ( mpd->mes, fac );
     }
 
@@ -211,7 +211,7 @@ uint32_t actionSelectFace ( uint64_t name, MESHPICKDATA *mpd ) {
 uint32_t actionSelectEdge ( uint64_t name, MESHPICKDATA *mpd ) {
     G3DEDGE *edg = ( G3DEDGE * ) name;
 
-    if ( list_seek ( mpd->mes->lseledg, edg ) == NULL ) {
+    if ( ( edg->flags & EDGESELECTED ) == 0x00 ) {
         g3dmesh_selectFace ( mpd->mes, edg );
     }
 
@@ -222,7 +222,7 @@ uint32_t actionSelectEdge ( uint64_t name, MESHPICKDATA *mpd ) {
 uint32_t actionSelectVertex ( uint64_t name, MESHPICKDATA *mpd ) {
     G3DVERTEX *ver = ( G3DVERTEX * ) name;
 
-    if ( list_seek ( mpd->mes->lselver, ver ) == NULL ) {
+    if ( ( ver->flags & VERTEXSELECTED ) == NULL ) {
         g3dmesh_selectVertex ( mpd->mes, ver );
     }
 
@@ -284,9 +284,9 @@ uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
     G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) name;
 
     if ( pt->flags & CURVEPOINTISPOINT ) {
-	if ( list_seek ( spd->spl->curve->lselpt, pt ) == NULL ) {
+	    if ( ( pt->flags & CURVEPOINTSELECTED ) == 0x00 ) {
             g3dcurve_selectPoint ( spd->spl->curve, pt );
-	}
+	    }
     }
 
     if ( pt->flags & CURVEPOINTISHANDLE ) {

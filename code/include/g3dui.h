@@ -324,6 +324,10 @@
 #define EDITLIGHTCASTSHADOWS "Cast shadows"
 #define EDITLIGHTCOLOR       "Light RGB Color"
 #define EDITLIGHTSPECULARITY "Light RGB Specularity"
+#define EDITLIGHTSPOTENABLED   "Spot Light"
+#define EDITLIGHTSPOTLENGTH    "Spot length"
+#define EDITLIGHTSPOTANGLE     "Spot angle"
+#define EDITLIGHTSPOTFADEANGLE "Spot fade angle"
 
 #define EDITCAMERA            "Camera"
 #define EDITCAMERADOF         "Depth of field"
@@ -389,6 +393,13 @@
 #define EDITBUMPIMAGE               EDITCHANNELIMAGE
 #define EDITBUMPPROCEDURAL          EDITCHANNELPROCEDURAL
 #define EDITBUMPSTRENGTH           "Strength"
+
+#define EDITALPHA                   "Alpha"
+#define EDITALPHAENABLED            "Enable Alpha Channel"
+#define EDITALPHACHANNEL            "Bump Channel"
+#define EDITALPHAIMAGE               EDITCHANNELIMAGE
+#define EDITALPHAPROCEDURAL          EDITCHANNELPROCEDURAL
+#define EDITALPHASTRENGTH           "Strength"
 
 #define EDITREFLECTION             "Reflection"
 #define EDITREFLECTIONSTRENGTH     "Strength"
@@ -1060,6 +1071,7 @@ void      common_g3duimenubar_fitUVMapCbk     ( G3DUI * );
 /************************** g3duimaterialedit.c *******************************/
 void common_g3dui_materialToggleBumpCbk ( G3DUI *gui );
 void common_g3dui_materialToggleDisplacementCbk ( G3DUI *gui );
+void common_g3dui_materialToggleAlphaCbk ( G3DUI *gui );
 void common_g3dui_materialChooseProceduralCbk ( G3DUI      *gui,
                                                 G3DCHANNEL *cha,
                                                 const char *procType,
@@ -1397,6 +1409,11 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
                                             int32_t           yold );
 
 void common_g3duilightedit_castShadowsCbk ( G3DUI *gui );
+void common_g3duilightedit_setSpotCbk ( G3DUI *gui,
+                                        float  spotLength,
+                                        float  spotAngle,
+                                        float  spotFadeAngle );
+void common_g3duilightedit_unsetSpotCbk ( G3DUI *gui );
 
 
 void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,

@@ -179,9 +179,6 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
     G3DUIMATERIALPIXEL *pixel = matmap->pixel;
     static int GRAY = 0x40;
     uint32_t x, y;
-    G3DRGBA rgba;
-
-    g3dcolor_toRGBA ( &mat->diffuse.solid, &rgba );
 
     for ( y = 0x00; y < matmap->height; y++ ) {
         for ( x = 0x00; x < matmap->width; x++ ) {
@@ -192,59 +189,39 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 float rf, gf, bf;
                 uint32_t col = 0x00;
 
-                if ( ( mat->diffuse.flags & USEIMAGECOLOR ) ||
-                     ( mat->diffuse.flags & USEPROCEDURAL ) ) {
-                    G3DIMAGE *colimg = NULL;
+                if ( mat->flags & DIFFUSE_ENABLED ) {
+                    G3DRGBA rgba;
 
-                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
-                        if ( mat->diffuse.proc ) {
-                            colimg = &mat->diffuse.proc->image;
-                        }
-                    }
+                    g3dchannel_getColor ( &mat->diffuse, p->u, p->v, &rgba );
 
-                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
-                        colimg = mat->diffuse.image;
-                    }
-
-                    if ( colimg ) {
-                        uint32_t imgx = ((uint32_t)((float)p->u * colimg->width  * colimg->wratio ));
-                        uint32_t imgy = ((uint32_t)((float)p->v * colimg->height * colimg->hratio ));
-                        uint32_t offset = ( imgy * colimg->width  ) + imgx;
-
-                        /*** This depth part should be optimized ***/
-                        if ( colimg->bytesPerPixel == 0x03 ) {
-                            unsigned char (*data)[0x03] = colimg->data;
-
-                            R = data[offset][0x00];
-                            G = data[offset][0x01];
-                            B = data[offset][0x02];
-                        }
-
-                        if ( colimg->bytesPerPixel == 0x01 ) {
-                            unsigned char (*data)[0x01] = colimg->data;
-
-                            R = G = B = data[offset][0x00];
-                        }
-                    }
+                    R = rgba.r;
+                    G = rgba.g;
+                    B = rgba.b;
                 }
 
-                if ( mat->diffuse.flags & USESOLIDCOLOR ) {
-                    R = ( uint32_t ) rgba.r,
-                    G = ( uint32_t ) rgba.g,
-                    B = ( uint32_t ) rgba.b;
+                if ( mat->flags & ALPHA_ENABLED ) {
+                    float trans = 0.0f;
+                    G3DRGBA rgba;
+
+                    g3dchannel_getColor ( &mat->alpha, p->u, p->v, &rgba );
+
+                    if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
+                         ( mat->alpha.flags & USEPROCEDURAL ) ) {
+                        rgba.r *= mat->alpha.solid.r;
+                        rgba.g *= mat->alpha.solid.g;
+                        rgba.b *= mat->alpha.solid.b;
+                    }
+
+                    trans = ( ( float ) ( ( rgba.r + rgba.g + rgba.b ) / ( 3 * 255.0f ) ) );
+
+                    R = GRAY + ( ( (int32_t) R - GRAY ) * ( trans ) );
+                    G = GRAY + ( ( (int32_t) G - GRAY ) * ( trans ) );
+                    B = GRAY + ( ( (int32_t) B - GRAY ) * ( trans ) );
                 }
 
                 R = ( R * p->diff );
                 G = ( G * p->diff );
                 B = ( B * p->diff );
-
-                if ( mat->alpha.solid.a ) {
-                    float trans = mat->alpha.solid.a;
-
-                    R = GRAY + ( ( (int32_t) R - GRAY ) * ( 1.0f - trans ) );
-                    G = GRAY + ( ( (int32_t) G - GRAY ) * ( 1.0f - trans ) );
-                    B = GRAY + ( ( (int32_t) B - GRAY ) * ( 1.0f - trans ) );
-                }
 
                 /*** Specularity ***/
                 if ( p->spec > 0.0f ) {

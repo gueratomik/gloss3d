@@ -591,6 +591,7 @@ typedef struct _R3DCAMERA {
 typedef struct _R3DLIGHT {
     R3DOBJECT robj;
     G3DVECTOR pos; /*** Face position in World coord ***/
+    G3DVECTOR zvec; /*** light orientation vector for spots (Z-oriented) ***/
 } R3DLIGHT;
 
 /******************************************************************************/
@@ -961,7 +962,12 @@ void r3dmesh_createOctree ( R3DMESH *, double *, R3DFACE **, uint32_t );
 void r3dmesh_allocUVSets ( R3DMESH * );
 
 /******************************************************************************/
-R3DLIGHT *r3dlight_new ( G3DLIGHT *, uint32_t );
+R3DLIGHT *r3dlight_new ( G3DLIGHT *, 
+                         uint32_t,
+                         double *,
+                         double *,
+                         double *,
+                         int * );
 
 /******************************************************************************/
 

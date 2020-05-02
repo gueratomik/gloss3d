@@ -414,3 +414,23 @@ void common_g3dui_materialToggleBumpCbk ( G3DUI *gui ) {
         g3dui_redrawGLViews ( gui );
     }
 }
+
+/******************************************************************************/
+void common_g3dui_materialToggleAlphaCbk ( G3DUI *gui ) {
+    G3DMATERIAL *mat = gui->selmat;
+
+    /*** prevent a loop when updating widget ***/
+    if ( gui->lock ) return;
+
+    if ( mat ) {
+        if ( mat->flags & ALPHA_ENABLED ) {
+            g3dmaterial_disableAlpha ( mat );
+        } else {
+            g3dmaterial_enableAlpha  ( mat );
+        }
+
+        g3dmaterial_updateMeshes ( mat, gui->flags );
+
+        g3dui_redrawGLViews ( gui );
+    }
+}

@@ -141,7 +141,12 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
 
         if ( child->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) child;
-            R3DLIGHT *rlt = r3dlight_new ( lig, (*nextId)++ );
+            R3DLIGHT *rlt = r3dlight_new ( lig,
+                                           (*nextId)++,
+                                           childwmatrix, 
+                                           cmatrix,
+                                           pmatrix,
+                                           vmatrix );
 
             /*** Add this renderlight to our list of renderlights ***/
             /*** We now have a Light in World coordinates ***/

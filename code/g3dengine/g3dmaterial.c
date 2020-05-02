@@ -110,6 +110,16 @@ G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat,
 }
 
 /******************************************************************************/
+void g3dmaterial_enableAlpha ( G3DMATERIAL *mat ) {
+    mat->flags |= ALPHA_ENABLED;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableAlpha ( G3DMATERIAL *mat ) {
+    mat->flags &= (~ALPHA_ENABLED);
+}
+
+/******************************************************************************/
 void g3dmaterial_enableBump ( G3DMATERIAL *mat ) {
     mat->flags |= BUMP_ENABLED;
 }
@@ -158,12 +168,16 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     if ( name ) g3dmaterial_name ( mat, name );
 
-    mat->flags = DIFFUSE_ENABLED | SPECULAR_ENABLED | REFLECTION_ENABLED | REFRACTION_ENABLED;
+    mat->flags = DIFFUSE_ENABLED    | 
+                 SPECULAR_ENABLED   |
+                 REFLECTION_ENABLED |
+                 REFRACTION_ENABLED;
 
+    mat->alpha.flags           = USEIMAGECOLOR;
     mat->alpha.solid.r = 
     mat->alpha.solid.g = 
     mat->alpha.solid.b = 
-    mat->alpha.solid.a = 0.0f;
+    mat->alpha.solid.a = 1.0f;
 
     /*** default material color is gray ***/
     mat->diffuse.flags         = USESOLIDCOLOR;
