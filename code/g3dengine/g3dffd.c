@@ -517,7 +517,7 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
                                                   OBJECTNOSCALING,
                                     DRAW_CALLBACK(g3dffd_draw),
                                     FREE_CALLBACK(g3dffd_free),
-                                                  NULL,
+                                    PICK_CALLBACK(g3dmesh_pick),
                                                   NULL,
                                                   NULL,
                                 ACTIVATE_CALLBACK(g3dffd_activate),

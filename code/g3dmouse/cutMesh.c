@@ -193,6 +193,7 @@ int cutMesh_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                           ver[0x03], ver[0x02] );
 
                     if ( obj->type == G3DMESHTYPE ) {
+
                         g3durm_mesh_cut ( urm, 
                                           mes, 
                                           knife,   

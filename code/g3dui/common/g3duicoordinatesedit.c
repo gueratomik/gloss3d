@@ -108,11 +108,12 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
         g3dui_setHourGlass ( gui );
 
         if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
+            URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce->lsel,
+                                                                UTOSAVEROTATION,
+                                                                REDRAWVIEW );
 
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
+            urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
 
             if ( axis == G3DUIXAXIS ) obj->rot.x = val;
             if ( axis == G3DUIYAXIS ) obj->rot.y = val;
@@ -120,11 +121,7 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3dobject_updateMatrix_r ( obj, gui->flags );
 
-            /*g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca,
-                                            ( gui->flags & VIEWAXIS ),
-                                            REDRAWVIEW );*/
+            urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }
 
         g3dui_unsetHourGlass ( gui );
@@ -147,11 +144,10 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
         g3dui_setHourGlass ( gui );
 
         if ( gui->flags & VIEWOBJECT ) {
-            G3DVECTOR oldpos, oldrot, oldsca;
-
-            memcpy ( &oldpos, &obj->pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldrot, &obj->rot, sizeof ( G3DVECTOR ) );
-            memcpy ( &oldsca, &obj->sca, sizeof ( G3DVECTOR ) );
+            URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce->lsel,
+                                                                UTOSAVESCALING,
+                                                                REDRAWVIEW );
 
             if ( axis == G3DUIXAXIS ) obj->sca.x = val;
             if ( axis == G3DUIYAXIS ) obj->sca.y = val;
@@ -159,11 +155,7 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
 
             g3dobject_updateMatrix_r ( obj, gui->flags );
 
-            /*g3durm_object_move ( urm, obj, &oldpos,  
-                                           &oldrot, 
-                                           &oldsca,
-                                            ( gui->flags & VIEWAXIS ),
-                                            REDRAWVIEW );*/
+            urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }
 
         g3dui_unsetHourGlass ( gui );

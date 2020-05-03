@@ -46,6 +46,7 @@ static gboolean gtk_view_expose        ( GtkWidget *, cairo_t * );
 static gboolean gtk_view_configure     ( GtkWidget *, GdkEvent *, gpointer );
 static void     gtk_view_size_allocate ( GtkWidget *, GtkAllocation * );
 static gboolean gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
+static void updateOptionMenu ( GtkWidget *widget, uint32_t viewFlags );
 
 /******************************************************************************/
 static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
@@ -129,6 +130,9 @@ void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
+
     if ( gvw->view.flags & VIEWNORMALS ) {
         gvw->view.flags &= (~VIEWNORMALS);
     } else {
@@ -144,6 +148,9 @@ void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
+
     if ( gvw->view.flags & HIDEBONES ) {
         gvw->view.flags &= (~HIDEBONES);
     } else {
@@ -158,6 +165,9 @@ void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI     *gui = ( G3DUI     * ) user_data;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
 
     if ( gvw->view.flags & NOLIGHTING ) {
         gvw->view.flags &= (~NOLIGHTING);
@@ -178,6 +188,9 @@ void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
+
     if ( gvw->view.flags & HIDEGRID ) {
         gvw->view.flags &= (~HIDEGRID);
     } else {
@@ -192,6 +205,9 @@ void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI     *gui = ( G3DUI     * ) user_data;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
 
     if ( gvw->view.flags & NOTEXTURE ) {
         gvw->view.flags &= (~NOTEXTURE);
@@ -208,6 +224,9 @@ void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget,
     G3DUI     *gui = ( G3DUI     * ) user_data;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    /*** prevents a loop ***/
+    if ( gvw->view.lock ) return;
 
     if ( gvw->view.flags & NOBACKGROUNDIMAGE ) {
         gvw->view.flags &= (~NOBACKGROUNDIMAGE);
@@ -238,6 +257,78 @@ void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     gtk_widget_queue_draw ( ggt->curogl );
 }
 
+#define VIEWMENULIGHTING        "Lights on"
+#define VIEWMENUBACKGROUND      "Show background"
+#define VIEWMENUTEXTURES        "Show textures"
+#define VIEWMENUGRID            "Show grid"
+#define VIEWMENUBONES           "Show bones"
+#define VIEWMENUNORMALS         "Show normals"
+#define VIEWMENUDEFAULTCAMERA   "Use default camera"
+#define VIEWMENUSELECTEDCAMERA  "Use selected camera"
+#define VIEWMENURESET           "Reset view"
+#define VIEWMENUUNDO            "Undo  view"
+#define VIEWMENUREDO            "Redo  view"
+
+/******************************************************************************/
+static void updateOptionMenu ( GtkWidget *widget, uint32_t viewFlags  ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( GTK_IS_CHECK_MENU_ITEM ( child ) ) {
+            GtkCheckMenuItem *item = ( GtkCheckMenuItem * ) child;
+            gboolean active = FALSE;
+
+            if ( strcmp ( child_name, VIEWMENULIGHTING  ) == 0x00 ) {
+                active = ( viewFlags & NOLIGHTING ) ? FALSE : TRUE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENUBACKGROUND  ) == 0x00 ) {
+                active = ( viewFlags & NOBACKGROUNDIMAGE ) ? FALSE : TRUE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENUTEXTURES  ) == 0x00 ) {
+                active = ( viewFlags & NOTEXTURE ) ? FALSE : TRUE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENUGRID  ) == 0x00 ) {
+                active = ( viewFlags & HIDEGRID ) ? FALSE : TRUE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENUBONES  ) == 0x00 ) {
+                active = ( viewFlags & HIDEBONES ) ? FALSE : TRUE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENUNORMALS  ) == 0x00 ) {
+                active = ( viewFlags & VIEWNORMALS ) ? TRUE : FALSE;
+            }
+
+            gtk_check_menu_item_set_active ( item, active  );
+        }
+
+        children =  g_list_next ( children );
+    }
+}
+
+/******************************************************************************/
+static void updateOptionMenuBar ( GtkWidget *widget ) {
+    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( widget );
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    uint32_t viewFlags = gvw->view.flags;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+
+        if ( GTK_IS_MENU_ITEM ( child ) ) {
+            updateOptionMenu ( gtk_menu_item_get_submenu ( child ), viewFlags );
+        }
+
+        children =  g_list_next ( children );
+    }
+}
+
 /******************************************************************************/
 GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
                                                   char *name,
@@ -266,15 +357,17 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton ( menu, gui,  "Use default camera"  , width, G_CALLBACK(g3duiview_useDefaultCameraCbk)  );
-    g3dui_addMenuButton ( menu, gui,  "Use selected camera" , width, G_CALLBACK(g3duiview_useSelectedCameraCbk) );
-    g3dui_addMenuButton ( menu, gui,  "Show / Hide normals" , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
-    g3dui_addMenuButton ( menu, gui,  "Show / Hide bones"   , width, G_CALLBACK(g3duiview_toggleBonesCbk)       );
-    g3dui_addMenuButton ( menu, gui,  "Show / Hide grid"    , width, G_CALLBACK(g3duiview_toggleGridCbk)        );
-    g3dui_addMenuButton ( menu, gui,  "Show / Hide textures", width, G_CALLBACK(g3duiview_toggleTexturesCbk)    );
-    g3dui_addMenuButton ( menu, gui,  "Show / Hide background image", width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
-    g3dui_addMenuButton ( menu, gui,  "Turn on/off lighting", width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
-    g3dui_addMenuButton ( menu, gui,  "Reset view"          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
+    g3dui_addMenuButton ( menu, gui, VIEWMENUDEFAULTCAMERA , width, G_CALLBACK(g3duiview_useDefaultCameraCbk)  );
+    g3dui_addMenuButton ( menu, gui, VIEWMENUSELECTEDCAMERA, width, G_CALLBACK(g3duiview_useSelectedCameraCbk) );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENUNORMALS       , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENUBONES         , width, G_CALLBACK(g3duiview_toggleBonesCbk)       );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENUGRID          , width, G_CALLBACK(g3duiview_toggleGridCbk)        );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENUTEXTURES      , width, G_CALLBACK(g3duiview_toggleTexturesCbk)    );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENUBACKGROUND    , width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
+    g3dui_addMenuToggle ( menu, gui, VIEWMENULIGHTING      , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
+    g3dui_addMenuButton ( menu, gui, VIEWMENURESET         , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
+    g3dui_addMenuButton ( menu, gui, VIEWMENUUNDO          , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
+    g3dui_addMenuButton ( menu, gui, VIEWMENUREDO          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
@@ -797,11 +890,11 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                     } break;
 
                     case ZOOMBUTTON : {
-                        if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_zoom ( view, mev->x, xold );
+                        if ( mev->state & GDK_BUTTON3_MASK ) {
+                            common_g3duiview_zoom ( view, -mev->x, -xold );
                         }
 
-                        if ( mev->state & GDK_BUTTON3_MASK ) {
+                        if ( mev->state & GDK_BUTTON1_MASK ) {
                             common_g3duiview_moveForward ( view, mev->x, xold );
                         }
                     } break;
@@ -974,6 +1067,31 @@ static void gtk_view_init ( GtkView *gvw ) {
 }
 
 /******************************************************************************/
+static void updateView ( GtkWidget *widget ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    GtkView *gvw = ( GtkView * ) widget;
+
+    gvw->view.lock = 0x01;
+
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
+
+        if ( GTK_IS_MENU_BAR ( child ) ) {
+            GtkMenu *bar = ( GtkMenu * ) child;
+
+            if ( strcmp ( child_name, OPTIONMENUNAME  ) == 0x00 ) {
+                updateOptionMenuBar ( bar );
+            }
+        }
+
+        children =  g_list_next ( children );
+    }
+
+    gvw->view.lock = 0x00;
+}
+
+/******************************************************************************/
 static void gtk_view_realize ( GtkWidget *widget ) {
     GdkWindow *parent_window = gtk_widget_get_parent_window ( widget );
     GtkStyleContext  *style  = gtk_widget_get_style_context ( widget );
@@ -1016,6 +1134,7 @@ static void gtk_view_realize ( GtkWidget *widget ) {
 #else
     gdk_window_set_user_data ( window, widget );
 #endif
+    updateView ( widget );
 }
 
 /******************************************************************************/
@@ -1048,6 +1167,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
     GdkRectangle gdkrec = { 0x00, 0x00, width, height };
     GtkWidget *gvw = gtk_view_new ( cam );
     GtkWidget *area/* = gtk_view_getGLArea ( gvw )*/;
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
     gtk_widget_set_name ( gvw, name );
 
@@ -1055,6 +1175,9 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*** the OpenGL Window ***/
     area = gtk_drawing_area_new ( );
+
+
+    ggt->curogl = area;
 
     gtk_widget_set_double_buffered (area, FALSE );
 

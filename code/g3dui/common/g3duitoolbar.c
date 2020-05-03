@@ -164,22 +164,15 @@ void common_g3dui_copySelectionCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
-    G3DSCENE  *sce = NULL;
-    G3DOBJECT *obj = NULL;
+    G3DSCENE  *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
     URMDELSELITEMS *dsi;
-    G3DURMANAGER *urm = NULL;
+    G3DURMANAGER *urm = gui->urm;
     G3DMESH   *mes = NULL;
     LIST *loldselobj = NULL;
     LIST *loldselver = NULL;
     LIST *loldselfac = NULL;
     LIST *loldseledg = NULL;
-
-    urm = gui->urm;
-    sce = gui->sce;
-
-    obj = g3dscene_getLastSelected ( sce );
-
-    mes = ( G3DMESH * ) obj;
 
     if ( gui->flags & VIEWOBJECT ) {
         g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, REDRAWVIEW |
@@ -205,6 +198,8 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
         }
 
         if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
             if ( gui->flags & VIEWVERTEX ) {
                 loldselver = list_copy ( mes->lselver );
                 loldselfac = g3dmesh_getFaceListFromSelectedVertices ( mes );

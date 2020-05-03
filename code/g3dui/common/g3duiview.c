@@ -313,7 +313,12 @@ void common_g3duiview_showGL ( G3DUI        *gui,
     R3DRENDERSETTINGS *rsg = gui->currsg;
     G3DRGBA backgroundRGBA;
 
-    g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );
+    if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
+        g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );
+    } else {
+        /*** Note: CLEARCOLOR is defined in r3d.h" */
+        backgroundRGBA.r = backgroundRGBA.g = backgroundRGBA.b = CLEARCOLOR;
+    }
 
     /*** Set clear color for the OpenGL Window ***/
     glClearColor ( ( float ) backgroundRGBA.r / 255.0f, 

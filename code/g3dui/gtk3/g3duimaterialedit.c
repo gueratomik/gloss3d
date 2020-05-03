@@ -1201,6 +1201,35 @@ static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void editDiffuseProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        G3DMATERIAL *mat = gui->selmat;
+
+        if ( mat->diffuse.proc ) {
+            switch ( mat->diffuse.proc->type ) {
+                case PROCEDURALBRICK :
+                    createProceduralBrickEdit ( dial,
+                                                gui,
+                                                mat->diffuse.proc, 
+                                                "Procedural Brick",
+                                                0, 0, 350, 35, 0x01 );
+                break;
+
+                default :
+                break;
+            }
+
+        }
+
+        gtk_widget_show ( dial );
+    }
+}
+
+/******************************************************************************/
 static void diffuseProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -1411,6 +1440,12 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                                104,
                                                64,
                                                diffuseProceduralTypeCbk );
+
+          /*** Image chooser button **/
+          createPushButton  ( pan, gui, 
+                                   EDITDIFFUSEPROCEDURALEDIT,
+                                   104, 96, 96, 18,
+                                   editDiffuseProceduralCbk );
 
           /*createProceduralResSelection  ( pan, gui, 
                                                EDITDIFFUSEPROCEDURALRES,

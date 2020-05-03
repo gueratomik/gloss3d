@@ -47,7 +47,6 @@ G3DPICKTOOL *pickTool_new ( ) {
     pt->operation     = 0x01; /*** add vertex weight ***/
     pt->weight        = 1.0f;
     pt->radius        = 0x08;
-    pt->unselectFirst = 0x01;
 
     return pt;
 }
@@ -130,12 +129,16 @@ static void shapeSelectionRectangle ( int x, int y, int32_t *coord ) {
 
 /******************************************************************************/
 /*** Var radius is the selection rectangle size in case x1 = x2 or y1 = y2  ***/
-static void closeSelectionRectangle ( G3DPICKTOOL *pt, int *VPX ) {
+static void closeSelectionRectangle ( G3DPICKTOOL *pt, 
+                                      int         *VPX, 
+                                      uint32_t     eflags ) {
     int x1 = VPX[0x00];
     int y1 = VPX[0x01];
     int x2 = VPX[0x00] + VPX[0x02];
     int y2 = VPX[0x01] + VPX[0x03];
 
+    /*** default selection is a 8px X 8px square. This is also the one used ***/
+    /*** for axis selection ***/
     if ( pt->coord[0x00] == pt->coord[0x02] ) {
         pt->coord[0x00] -= pt->radius;
         pt->coord[0x02] += pt->radius;
@@ -144,6 +147,19 @@ static void closeSelectionRectangle ( G3DPICKTOOL *pt, int *VPX ) {
     if ( pt->coord[0x01] == pt->coord[0x03] ) {
         pt->coord[0x01] -= pt->radius;
         pt->coord[0x03] += pt->radius;
+    }
+
+    /*** in face mode, the square is only 1 pixel large. ***/
+    if ( eflags &  VIEWFACE ) {
+        if ( pt->coord[0x00] == pt->coord[0x02] ) {
+            pt->coord[0x00] -= 0x01;
+            pt->coord[0x02] += 0x01;
+        }
+
+        if ( pt->coord[0x01] == pt->coord[0x03] ) {
+            pt->coord[0x01] -= 0x01;
+            pt->coord[0x03] += 0x01;
+        }
     }
 
     if ( pt->coord[0x00] > pt->coord[0x02] ) {
@@ -182,8 +198,14 @@ typedef struct _SCENEPICKDATA {
 
 /******************************************************************************/
 uint32_t actionSelectObject ( uint64_t name, SCENEPICKDATA *spd ) {
-    if ( list_seek ( spd->sce->lsel, ( G3DOBJECT * ) name ) == NULL ) {
-        g3dscene_selectObject ( spd->sce, ( G3DOBJECT * ) name, spd->flags );
+    G3DOBJECT *obj = ( G3DOBJECT * ) name;
+
+    if ( ( obj->flags & OBJECTSELECTED ) == 0x00 ) {
+        g3dscene_selectObject ( spd->sce, obj, 0x00 );
+    } else {
+        if ( spd->flags & CTRLCLICK ) {
+            g3dscene_unselectObject ( spd->sce, obj, 0x00 );
+        }
     }
 
     return 0x01;
@@ -202,6 +224,10 @@ uint32_t actionSelectFace ( uint64_t name, MESHPICKDATA *mpd ) {
 
     if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
         g3dmesh_selectFace ( mpd->mes, fac );
+    } else {
+        if ( mpd->flags & CTRLCLICK ) {
+            g3dmesh_unselectFace ( mpd->mes, fac );
+        }
     }
 
     return 0x01;
@@ -212,7 +238,11 @@ uint32_t actionSelectEdge ( uint64_t name, MESHPICKDATA *mpd ) {
     G3DEDGE *edg = ( G3DEDGE * ) name;
 
     if ( ( edg->flags & EDGESELECTED ) == 0x00 ) {
-        g3dmesh_selectFace ( mpd->mes, edg );
+        g3dmesh_selectEdge ( mpd->mes, edg );
+    } else {
+        if ( mpd->flags & CTRLCLICK ) {
+            g3dmesh_unselectEdge ( mpd->mes, edg );
+        }
     }
 
     return 0x01;
@@ -222,8 +252,12 @@ uint32_t actionSelectEdge ( uint64_t name, MESHPICKDATA *mpd ) {
 uint32_t actionSelectVertex ( uint64_t name, MESHPICKDATA *mpd ) {
     G3DVERTEX *ver = ( G3DVERTEX * ) name;
 
-    if ( ( ver->flags & VERTEXSELECTED ) == NULL ) {
+    if ( ( ver->flags & VERTEXSELECTED ) == 0x00 ) {
         g3dmesh_selectVertex ( mpd->mes, ver );
+    } else {
+        if ( mpd->flags & CTRLCLICK ) {
+            g3dmesh_unselectVertex ( mpd->mes, ver );
+        }
     }
 
     return 0x01;
@@ -286,7 +320,11 @@ uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
     if ( pt->flags & CURVEPOINTISPOINT ) {
 	    if ( ( pt->flags & CURVEPOINTSELECTED ) == 0x00 ) {
             g3dcurve_selectPoint ( spd->spl->curve, pt );
-	    }
+	    } else {
+            if ( spd->flags & CTRLCLICK ) {
+                g3dcurve_unselectPoint ( spd->spl->curve, pt );
+            }
+        }
     }
 
     if ( pt->flags & CURVEPOINTISHANDLE ) {
@@ -301,6 +339,7 @@ uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
 void pick_Item ( G3DPICKTOOL *pt, 
                  G3DSCENE   *sce, 
                  G3DCAMERA  *cam,
+                 uint32_t    ctrlClick,
                  uint32_t    eflags ) {
     static GLint  VPX[0x04];
     static double MVX[0x10];
@@ -309,7 +348,7 @@ void pick_Item ( G3DPICKTOOL *pt,
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
-    closeSelectionRectangle ( pt, VPX );
+    closeSelectionRectangle ( pt, VPX, eflags );
 
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
@@ -337,57 +376,72 @@ void pick_Item ( G3DPICKTOOL *pt,
 
     if ( eflags & VIEWOBJECT ) {
         SCENEPICKDATA spd = { .sce   =  sce,
-                              .flags = eflags };
+                              .flags = 0x00 };
 
-        if ( pt->unselectFirst ) g3dscene_unselectAllObjects ( sce, eflags );
+        if ( ctrlClick ) {
+            spd.flags |= CTRLCLICK;
+        } else {
+            g3dscene_unselectAllObjects ( sce, eflags );
+        }
+
         g3dpick_setAction ( actionSelectObject, &spd );
         g3dobject_pick ( sce, cam, VIEWOBJECT );
     } else {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
-	if ( obj ) {
-	    if ( obj->type & MESH ) {
-        	G3DMESH *mes = ( G3DMESH * ) obj;
-        	MESHPICKDATA mpd = { .mes    = mes,
-                        	     .weight = pt->weight,
-                        	     .flags  = eflags };
+	    if ( obj ) {
+	        if ( obj->type & MESH ) {
+        	    G3DMESH *mes = ( G3DMESH * ) obj;
+        	    MESHPICKDATA mpd = { .mes    = mes,
+                        	         .weight = pt->weight,
+                                     .flags = 0x00 };
 
-		if ( eflags & VIEWFACE ) {
-                    if ( pt->unselectFirst ) g3dmesh_unselectAllFaces ( mes );
-        	    g3dpick_setAction ( actionSelectFace, &mpd );
-        	    g3dobject_pick ( sce, cam, VIEWFACE );
-		}
+                if ( ctrlClick ) {
+                    mpd.flags |= CTRLCLICK;
+                } else {
+                    if ( eflags & VIEWFACE   ) g3dmesh_unselectAllFaces    ( mes );
+                    if ( eflags & VIEWEDGE   ) g3dmesh_unselectAllEdges    ( mes );
+                    if ( eflags & VIEWVERTEX ) g3dmesh_unselectAllVertices ( mes );
+                }
 
-		if ( eflags & VIEWEDGE ) {
-                    if ( pt->unselectFirst ) g3dmesh_unselectAllEdges ( mes );
-        	    g3dpick_setAction ( actionSelectEdge, &mpd );
-        	    g3dobject_pick ( sce, cam, VIEWEDGE );
-		}
+		        if ( eflags & VIEWFACE ) {
+        	            g3dpick_setAction ( actionSelectFace, &mpd );
+        	            g3dobject_pick ( sce, cam, VIEWFACE );
+		        }
 
-		if ( eflags & VIEWVERTEX ) {
-                    if ( pt->unselectFirst ) g3dmesh_unselectAllVertices ( mes );
-        	    g3dpick_setAction ( actionSelectVertex, &mpd );
-        	    g3dobject_pick ( sce, cam, VIEWVERTEX );
-		}
+		        if ( eflags & VIEWEDGE ) {
+        	            g3dpick_setAction ( actionSelectEdge, &mpd );
+        	            g3dobject_pick ( sce, cam, VIEWEDGE );
+		        }
 
-		if ( eflags & VIEWSKIN ) {
-        	    g3dpick_setAction ( actionPaintVertex, &mpd );
-        	    g3dobject_pick ( sce, cam, VIEWVERTEX );
-		}
+		        if ( eflags & VIEWVERTEX ) {
+        	            g3dpick_setAction ( actionSelectVertex, &mpd );
+        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+		        }
+
+		        if ( eflags & VIEWSKIN ) {
+        	            g3dpick_setAction ( actionPaintVertex, &mpd );
+        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+		        }
+	        }
+
+	        if ( obj->type & SPLINE ) {
+        	    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+        	    SPLINEPICKDATA spd = { .spl   =  ( G3DSPLINE * ) obj,
+                        	           .flags = 0x00 };
+
+                if ( ctrlClick ) {
+                    spd.flags |= CTRLCLICK;
+                } else {
+                    g3dcurve_unselectAllPoints ( spl );
+                }
+
+		        if ( eflags & VIEWVERTEX ) {
+        	            g3dpick_setAction ( actionSelectPoint, &spd );
+        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+		        }
+	        }
 	    }
-
-	    if ( obj->type & SPLINE ) {
-        	G3DSPLINE *spl = ( G3DSPLINE * ) obj;
-        	SPLINEPICKDATA spd = { .spl   =  ( G3DSPLINE * ) obj,
-                        	       .flags = eflags };
-
-		if ( eflags & VIEWVERTEX ) {
-                    if ( pt->unselectFirst ) g3dcurve_unselectAllPoints ( spl->curve );
-        	    g3dpick_setAction ( actionSelectPoint, &spd );
-        	    g3dobject_pick ( sce, cam, VIEWVERTEX );
-		}
-	    }
-	}
     }
 
     glPopMatrix ( );
@@ -420,7 +474,7 @@ void pick_cursor ( G3DPICKTOOL *pt,
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
     /*** check boundaries ***/
-    closeSelectionRectangle ( pt, VPX );
+    closeSelectionRectangle ( pt, VPX, eflags );
 
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
@@ -464,46 +518,47 @@ int weight_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     static int VPX[0x04];
 
     switch ( event->type ) {
-	case G3DButtonPress : {
+	    case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             obj = g3dscene_getLastSelected ( sce );
 
             if ( obj ) {
-        	if ( obj->type == G3DMESHTYPE ) {
-        	    G3DMESH *mes = ( G3DMESH * ) obj;
+        	    if ( obj->type == G3DMESHTYPE ) {
+        	        G3DMESH *mes = ( G3DMESH * ) obj;
 
-        	    /*** If there is no weightGroup, add one ***/
-        	    if ( mes->lgrp == NULL ) {
-                	G3DWEIGHTGROUP *grp;
-                	char buf[0x20];
+        	        /*** If there is no weightGroup, add one ***/
+        	        if ( mes->lgrp == NULL ) {
+                	    G3DWEIGHTGROUP *grp;
+                	    char buf[0x20];
 
-                	snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbgrp );
+                	    snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbgrp );
 
-                	grp = g3dweightgroup_new ( mes, buf );
+                	    grp = g3dweightgroup_new ( mes, buf );
 
-                	g3dmesh_addWeightGroup ( mes, grp );
+                	    g3dmesh_addWeightGroup ( mes, grp );
 
-                	mes->curgrp = grp;
+                	    mes->curgrp = grp;
+        	        }
         	    }
-        	}
             }
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
-	} return REDRAWVIEW | REDRAWCURRENTOBJECT;
+        } return REDRAWVIEW | REDRAWCURRENTOBJECT;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+            uint32_t ctrlClick = ( mev->state & G3DControlMask ) ? 1 : 0;
 
             if ( obj ) {
-        	if ( obj->type == G3DMESHTYPE ) {
-        	    pt->coord[0x00] = pt->coord[0x02] = mev->x;
-        	    pt->coord[0x01] = pt->coord[0x03] = VPX[0x03] - mev->y;
+        	    if ( obj->type == G3DMESHTYPE ) {
+        	        pt->coord[0x00] = pt->coord[0x02] = mev->x;
+        	        pt->coord[0x01] = pt->coord[0x03] = VPX[0x03] - mev->y;
 
-        	    closeSelectionRectangle ( pt, VPX );
+        	        closeSelectionRectangle ( pt, VPX, flags );
 
-                    pick_Item ( pt, sce, cam, flags );
-        	}
+                    pick_Item ( pt, sce, cam, ctrlClick, flags );
+        	    }
             }
         } return REDRAWVIEW;
 
@@ -532,136 +587,135 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     } else {
 	switch ( event->type ) {
             case G3DButtonPress : {
-        	G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+        	    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-        	glGetIntegerv ( GL_VIEWPORT, VPX );
+        	    glGetIntegerv ( GL_VIEWPORT, VPX );
 
-        	pt->start = 0x01;
+        	    pt->start = 0x01;
 
-        	startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
+        	    startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
             } return REDRAWALL;
 
             case G3DMotionNotify : {
         	/*** if G3DButtonPress was called ***/
-        	if ( pt->start ) {
-                    G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
-                    glGetIntegerv ( GL_VIEWPORT, VPX );
+        	    if ( pt->start ) {
+                        G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+                        glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                    shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
+                        shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
 
-                    return REDRAWVIEW | REDRAWUVMAPEDITOR;
-        	}
+                        return REDRAWVIEW | REDRAWUVMAPEDITOR;
+        	    }
             } return 0x00;
 
             case G3DButtonRelease : {
-        	G3DVECTOR vec = { 0.f, 0.f, 0.f, 1.0f };
-        	G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-        	G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-        	LIST *lselold = NULL;
-        	LIST *lselnew = NULL;
+        	    G3DVECTOR vec = { 0.f, 0.f, 0.f, 1.0f };
+        	    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+        	    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+        	    LIST *lselold = NULL;
+        	    LIST *lselnew = NULL;
+                uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
-                pt->unselectFirst = ( bev->state & G3DControlMask ) ? 0 : 1;
+        	    /*********************************/
+        	    if ( flags & VIEWOBJECT ) {
+                        /*** copy list for undo/redo manager ***/
+                        lselold = list_copy ( sce->lsel );
 
-        	/*********************************/
-        	if ( flags & VIEWOBJECT ) {
-                    /*** copy list for undo/redo manager ***/
-                    lselold = list_copy ( sce->lsel );
+                        obj = ( G3DOBJECT * ) sce;
 
-                    obj = ( G3DOBJECT * ) sce;
+                        pick_Item ( pt, sce, cam, ctrlClick, flags );
 
-                    pick_Item ( pt, sce, cam, flags );
+                        /*** copy list for undo/redo manager ***/
+                        lselnew = list_copy ( sce->lsel );
 
-                    /*** copy list for undo/redo manager ***/
-                    lselnew = list_copy ( sce->lsel );
+                        if ( lselold || lselnew ) {
+                	    /*** remember selection ***/
+                	    g3durm_scene_pickObject  ( urm, sce,
+                                                	    lselold,
+                                                	    lselnew,
+                                                	    flags,
+                                                	    REDRAWVIEW );
+                        }
+        	    }
 
-                    if ( lselold || lselnew ) {
-                	/*** remember selection ***/
-                	g3durm_scene_pickObject  ( urm, sce,
-                                                	lselold,
-                                                	lselnew,
-                                                	flags,
-                                                	REDRAWVIEW );
-                    }
-        	}
-
-        	if ( obj ) {
+        	    if ( obj ) {
                     if ( obj->type & SPLINE ) {
-                	G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+                	    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-        		if ( flags & VIEWVERTEX ) {
-                	    lselold = list_copy ( spl->curve->lselpt );
+        		        if ( flags & VIEWVERTEX ) {
+                	        lselold = list_copy ( spl->curve->lselpt );
 
-                	    pick_Item ( pt, sce, cam, flags );
+                	        pick_Item ( pt, sce, cam, ctrlClick, flags );
 
-                	    lselnew = list_copy ( spl->curve->lselpt );
-                	}
+                	        lselnew = list_copy ( spl->curve->lselpt );
+                	    }
                     }
 
                     if ( obj->type & MESH ) {
-                	G3DMESH *mes = ( G3DMESH * ) obj;
-
-        		if ( flags & VIEWVERTEX ) {
-                	    lselold = list_copy ( mes->lselver );
-
-                	    pick_Item ( pt, sce, cam, flags );
-
-                	    lselnew = list_copy ( mes->lselver );
-
-                	    /*** remember selection ***/
-                	    g3durm_mesh_pickVertices  ( urm, mes,
-                                                	     lselold,
-                                                	     lselnew,
-                                                	     flags,
-                                                	     REDRAWVIEW );
-        		}
-
-        		/*********************************/
-        		/*if ( flags & VIEWEDGE ) {
                 	    G3DMESH *mes = ( G3DMESH * ) obj;
-                	    lselold = list_copy ( mes->lseledg );
 
-                	    if ( ( bev->state & G3DControlMask ) == 0x00 ) {
-                        	g3dmesh_unselectAllEdges ( mes );
-                	    }
+        		        if ( flags & VIEWVERTEX ) {
+                	        lselold = list_copy ( mes->lselver );
 
-                	    pick_Item ( pt, sce, cam, pt->coord, unselectIfSelected, flags );
+                	        pick_Item ( pt, sce, cam, ctrlClick, flags );
 
-                	    lselnew = list_copy ( mes->lseledg );
-        		}*/
+                	        lselnew = list_copy ( mes->lselver );
 
-        		/*********************************/
-        		if ( ( flags & VIEWFACE ) ) {
-                	    G3DMESH *mes = ( G3DMESH * ) obj;
-                	    lselold = list_copy ( mes->lselfac );
+                	        /*** remember selection ***/
+                	        g3durm_mesh_pickVertices  ( urm, mes,
+                                                	         lselold,
+                                                	         lselnew,
+                                                	         flags,
+                                                	         REDRAWVIEW );
+        		        }
 
-                	    pick_Item ( pt, sce, cam, flags );
+        		    /*********************************/
+        		    /*if ( flags & VIEWEDGE ) {
+                	        G3DMESH *mes = ( G3DMESH * ) obj;
+                	        lselold = list_copy ( mes->lseledg );
 
-                	    lselnew = list_copy ( mes->lselfac );
+                	        if ( ( bev->state & G3DControlMask ) == 0x00 ) {
+                        	    g3dmesh_unselectAllEdges ( mes );
+                	        }
 
-                	    /*** remember selection ***/
-                	    g3durm_mesh_pickFaces  ( urm, mes,
-                                                	  lselold,
-                                                	  lselnew,
-                                                	  flags,
-                                                	  REDRAWVIEW );
+                	        pick_Item ( pt, sce, cam, pt->coord, unselectIfSelected, flags );
 
-                	    g3dmesh_update ( mes, NULL,
-                                        	  NULL,
-                                        	  NULL,
-                                        	  RESETMODIFIERS, flags );
-        		}
+                	        lselnew = list_copy ( mes->lseledg );
+        		    }*/
+
+        		    /*********************************/
+        	            if ( ( flags & VIEWFACE ) ) {
+                	        G3DMESH *mes = ( G3DMESH * ) obj;
+                	        lselold = list_copy ( mes->lselfac );
+
+                	        pick_Item ( pt, sce, cam, ctrlClick, flags );
+
+                	        lselnew = list_copy ( mes->lselfac );
+
+                	        /*** remember selection ***/
+                	        g3durm_mesh_pickFaces  ( urm, mes,
+                                                	      lselold,
+                                                	      lselnew,
+                                                	      flags,
+                                                	      REDRAWVIEW );
+
+                	        g3dmesh_update ( mes, NULL,
+                                        	      NULL,
+                                        	      NULL,
+                                        	      RESETMODIFIERS, flags );
+        	            }
                     }
-        	}
+        	    }
 
-        	/*** Push our selected items into the undo/redo stack ***/
-        	/*pick_push ( urm, obj, lselold, lselnew, gdt->flags );*/
+        	    /*** Push our selected items into the undo/redo stack ***/
+        	    /*pick_push ( urm, obj, lselold, lselnew, gdt->flags );*/
 
-        	pt->start = 0x00;
+        	    pt->start = 0x00;
             } return REDRAWALL;
 
             default :
             break;
-	}
+	    }
     }
 
     return 0x00;

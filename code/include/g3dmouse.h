@@ -166,6 +166,8 @@ typedef struct _G3DEXTRUDEFACE {
 } G3DEXTRUDEFACE;
 
 /******************************************************************************/
+#define CTRLCLICK ( 1 << 0 )
+
 typedef struct G3DPICKTOOL {
     int start; 
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
@@ -173,8 +175,6 @@ typedef struct G3DPICKTOOL {
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
-    uint32_t    unselectFirst;
-    uint32_t    unselectIfSelected;
 } G3DPICKTOOL;
 
 /******************************************************************************/
@@ -313,6 +313,7 @@ int             pick_tool         ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
 void pick_Item ( G3DPICKTOOL *pt, 
                  G3DSCENE   *sce, 
                  G3DCAMERA  *cam,
+                 uint32_t    ctrlClick,
                  uint32_t    flags );
 void pick_cursor ( G3DPICKTOOL *pt, 
                    G3DSCENE   *sce, 

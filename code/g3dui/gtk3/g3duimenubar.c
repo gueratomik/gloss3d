@@ -59,6 +59,28 @@ GtkWidget *g3dui_addMenuSeparator ( GtkWidget *menu ) {
 } 
 
 /******************************************************************************/
+GtkWidget *g3dui_addMenuToggle ( GtkWidget *menu, G3DUI *gui,
+                                                  const gchar *name,
+                                                  gint width,
+                                                  GCallback callback ) {
+    GtkWidget *item = gtk_check_menu_item_new_with_mnemonic ( name );
+    int height = gtk_widget_get_allocated_height ( item );
+
+    gtk_menu_shell_append ( GTK_MENU_SHELL ( menu ), item );
+
+    gtk_widget_set_name ( item, name );
+
+    if ( callback ) {
+        g_signal_connect ( G_OBJECT ( item ), "toggled", callback, gui );
+    }
+
+    gtk_widget_show ( item );
+
+
+    return item;
+}
+
+/******************************************************************************/
 GtkWidget *g3dui_addMenuButton ( GtkWidget *menu, G3DUI *gui,
                                                   const gchar *name,
                                                   gint width,

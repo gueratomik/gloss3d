@@ -2572,9 +2572,16 @@ static void g3dmesh_pickVertices ( G3DMESH *mes, uint32_t eflags ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
         g3dpick_setName ( ( uint64_t ) ver );
-        g3dpick_drawPoint ( ver->pos.x, 
-                            ver->pos.y, 
-                            ver->pos.z );
+
+        if ( ver->flags & VERTEXSKINNED ) {
+            g3dpick_drawPoint ( ver->skn.x, 
+                                ver->skn.y, 
+                                ver->skn.z );
+        } else {
+            g3dpick_drawPoint ( ver->pos.x, 
+                                ver->pos.y, 
+                                ver->pos.z );
+        }
 
         ltmpver = ltmpver->next;
     }
@@ -2902,6 +2909,18 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
                 g3dmesh_drawSkin     ( mes, obj->flags, eflags );
                 g3dmesh_drawEdges    ( mes, obj->flags, eflags );
                 g3dmesh_drawVertices ( mes, eflags );
+            }
+
+            if ( eflags & VIEWFACENORMAL ) {
+                g3dmesh_drawFaceNormal ( mes, eflags );
+            } 
+
+            if ( eflags & VIEWVERTEXNORMAL ) {
+                g3dmesh_drawVertexNormal ( mes, eflags );
+            }
+
+            if ( SYMMETRYVIEW ) {
+                g3dmesh_drawObject ( mes, curcam, eflags );
             }
         } else {
             g3dmesh_drawObject ( mes, curcam, eflags );

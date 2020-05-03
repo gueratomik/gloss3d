@@ -153,7 +153,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
 
             g3dcurve_unselectAllPoints ( spl->curve );
 
-            pick_Item ( &ptool, sce, cam, flags );
+            pick_Item ( &ptool, sce, cam, 0x00, flags );
 
             /*** remember our object for the drawing part ***/
             /*** because we need its world matrix.      ***/
@@ -179,7 +179,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
                 ptool.coord[0x02] = ptool.coord[0x00];
                 ptool.coord[0x03] = ptool.coord[0x01];
 
-                pick_Item ( &ptool, sce, cam, VIEWVERTEX );
+                pick_Item ( &ptool, sce, cam, 0x00, VIEWVERTEX );
 
                 if ( spl->curve->lselpt ) {
                     bt->pt[0x01] = g3dcurve_getLastSelectedPoint ( spl->curve );
@@ -263,7 +263,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                 g3dmesh_unselectAllVertices ( mes );
             }
 
-            pick_Item ( &ptool, sce, cam, flags );
+            pick_Item ( &ptool, sce, cam, 0x00, flags );
 
             /*** remember our Mesh for the drawing part ***/
             /*** because we need its world matrix.      ***/
@@ -292,7 +292,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                 ptool.coord[0x02] = ptool.coord[0x00];
                 ptool.coord[0x03] = ptool.coord[0x01];
 
-                pick_Item ( &ptool, sce, cam, VIEWVERTEX );
+                pick_Item ( &ptool, sce, cam, 0x00, VIEWVERTEX );
 
                 if ( mes->lselver ) {
                     if ( ver[0x02] ) {

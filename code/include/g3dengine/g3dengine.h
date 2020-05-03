@@ -119,7 +119,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDITUVWMAP         ( 1  <<  8 )
 #define VIEWAXIS           ( 1  <<  9 )
 #define VIEWSCULPT         ( 1  << 10 )
-#define VIEWPOSE          ( 1  << 11 )
+#define VIEWPOSE           ( 1  << 11 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
@@ -2536,6 +2536,8 @@ void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );
 G3DPROCEDURALCHESS *g3dproceduralchess_new ( );
 G3DPROCEDURALBRICK *g3dproceduralbrick_new ( );
+void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick, 
+                                       G3DPROCEDURALBRICK *pout );
 
 #endif
 

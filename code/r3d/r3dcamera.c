@@ -38,12 +38,17 @@ R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam, uint32_t width, uint32_t height ) {
     double f = 1.0f / tan ( ( double ) cam->focal / 2.0f * M_PI / 180.0f );
     double zfPzn = cam->zfar  + cam->znear;
     double znMzf = cam->znear - cam->zfar;
+    double zfMzn = cam->zfar - cam->znear;
 
     if ( rcam == NULL ) {
         fprintf ( stderr, "r3dcamera_new: memory allocation failed\n" );
+
+        return NULL;
     }
 
     ((R3DOBJECT*)rcam)->obj = cam;
+
+    g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );
 
     /*** image render size. Differs from the OpenGL view ***/
     rcam->VPX[0x00] = 0x00;
@@ -51,28 +56,63 @@ R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam, uint32_t width, uint32_t height ) {
     rcam->VPX[0x02] = width;
     rcam->VPX[0x03] = height;
 
-    /** we cannot use gluPerspective() because we are in a thread. **/
-    /* https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
-    rcam->PJX[0x00] =  a ? f / a : 0.0f;
-    rcam->PJX[0x04] =  0.0f;
-    rcam->PJX[0x08] =  0.0f;
-    rcam->PJX[0x0C] =  0.0f;
-    rcam->PJX[0x01] =  0.0f;
-    rcam->PJX[0x05] =  f;
-    rcam->PJX[0x09] =  0.0f;
-    rcam->PJX[0x0D] =  0.0f;
-    rcam->PJX[0x02] =  0.0f;
-    rcam->PJX[0x06] =  0.0f;
-    rcam->PJX[0x0A] = zfPzn / znMzf;
-    rcam->PJX[0x0E] = ( 2.0f * cam->zfar * cam->znear ) / znMzf;
-    rcam->PJX[0x03] =  0.0f;
-    rcam->PJX[0x07] =  0.0f;
-    rcam->PJX[0x0B] = -1.0f;
-    rcam->PJX[0x0F] =  0.0f;
+    if ( cam->focal == 2.0f ) {
+        /*** This part simulates the same code as in g3dcamera.c ***/
+        /*** for the call to glOrtho ***/
+        float dist;
+
+        if ( cam->grid == g3dcamera_gridXY ) dist = rcam->pos.z;
+        if ( cam->grid == g3dcamera_gridYZ ) dist = rcam->pos.x;
+        if ( cam->grid == g3dcamera_gridZX ) dist = rcam->pos.y;
+
+        double orthoLeft   = - ( double ) width  * 0.00125f * dist,
+               orthoRight  =   ( double ) width  * 0.00125f * dist,
+               orthoBottom = - ( double ) height * 0.00125f * dist,
+               orthoTop    =   ( double ) height * 0.00125f * dist;
+        double rightPlusLeft  = ( orthoRight + orthoLeft   ),
+               rightMinusLeft = ( orthoRight - orthoLeft   ),
+               topPlusBottom  = ( orthoTop   + orthoBottom ),
+               topMinusBottom = ( orthoTop   - orthoBottom );
+
+    /* https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glOrtho.xml */
+        rcam->PJX[0x00] =   ( double ) 2.0f / rightMinusLeft;
+        rcam->PJX[0x04] =  0.0f;
+        rcam->PJX[0x08] =  0.0f;
+        rcam->PJX[0x0C] = - ( double ) rightPlusLeft / rightMinusLeft;
+        rcam->PJX[0x01] =  0.0f;
+        rcam->PJX[0x05] =  2.0f / topMinusBottom;
+        rcam->PJX[0x09] =  0.0f;
+        rcam->PJX[0x0D] = - ( double ) topPlusBottom / topMinusBottom;
+        rcam->PJX[0x02] =  0.0f;
+        rcam->PJX[0x06] =  0.0f;
+        rcam->PJX[0x0A] = - ( double ) 2.0f / zfMzn;
+        rcam->PJX[0x0E] = - ( zfPzn / zfMzn );
+        rcam->PJX[0x03] =  0.0f;
+        rcam->PJX[0x07] =  0.0f;
+        rcam->PJX[0x0B] =  0.0f;
+        rcam->PJX[0x0F] =  1.0f;
+    } else {
+        /** we cannot use gluPerspective() because we are in a thread. **/
+        /* https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
+        rcam->PJX[0x00] =  a ? f / a : 0.0f;
+        rcam->PJX[0x04] =  0.0f;
+        rcam->PJX[0x08] =  0.0f;
+        rcam->PJX[0x0C] =  0.0f;
+        rcam->PJX[0x01] =  0.0f;
+        rcam->PJX[0x05] =  f;
+        rcam->PJX[0x09] =  0.0f;
+        rcam->PJX[0x0D] =  0.0f;
+        rcam->PJX[0x02] =  0.0f;
+        rcam->PJX[0x06] =  0.0f;
+        rcam->PJX[0x0A] = zfPzn / znMzf;
+        rcam->PJX[0x0E] = ( 2.0f * cam->zfar * cam->znear ) / znMzf;
+        rcam->PJX[0x03] =  0.0f;
+        rcam->PJX[0x07] =  0.0f;
+        rcam->PJX[0x0B] = -1.0f;
+        rcam->PJX[0x0F] =  0.0f;
+    }
 
     memcpy ( rcam->MVX, ((G3DOBJECT*)cam)->iwmatrix, sizeof ( double ) * 0x10 );
-
-    g3dtinyvector_matrix ( &zero, objcam->wmatrix, &rcam->pos );
 
 
     return rcam;

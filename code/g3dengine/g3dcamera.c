@@ -356,22 +356,21 @@ void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
         if ( cam->focal == 2.0f ) {
             static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, camwpos;
             G3DOBJECT *camobj = ( G3DOBJECT * ) cam;
-            int PJX[0x10];
+            int VPX[0x10];
             float dist;
 
-            glGetIntegerv ( GL_VIEWPORT, PJX );
+            glGetIntegerv ( GL_VIEWPORT, VPX );
 
             g3dvector_matrix ( &origin, camobj->wmatrix, &camwpos );
 
-            if ( cam->grid == g3dcamera_gridXY ) dist = camwpos.z;
-            if ( cam->grid == g3dcamera_gridYZ ) dist = camwpos.x;
-            if ( cam->grid == g3dcamera_gridZX ) dist = camwpos.y;
+            if ( cam->grid == g3dcamera_gridXY ) dist =  camwpos.z;
+            if ( cam->grid == g3dcamera_gridYZ ) dist =  camwpos.x;
+            if ( cam->grid == g3dcamera_gridZX ) dist =  camwpos.y;
 
-
-            glOrtho ( -PJX[0x02] * 0.00125f * dist,
-                       PJX[0x02] * 0.00125f * dist,
-                      -PJX[0x03] * 0.00125f * dist,
-                       PJX[0x03] * 0.00125f * dist, cam->znear, cam->zfar );
+            glOrtho ( -VPX[0x02] * 0.00125f * dist,
+                       VPX[0x02] * 0.00125f * dist,
+                      -VPX[0x03] * 0.00125f * dist,
+                       VPX[0x03] * 0.00125f * dist, cam->znear, cam->zfar );
         } else {
             gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
         }
@@ -414,22 +413,29 @@ uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint32_t flags ) {
     g3dpick_setName (  ( uint64_t ) cam );
 
     for ( i = 0x00; i < 0x06; i++ ) {
-        uint32_t v0 = index[i][0x00],
-                 v1 = index[i][0x01],
-                 v2 = index[i][0x02],
-                 v3 = index[i][0x03];
+        uint32_t v[0x04] = { index[i][0x00],
+                             index[i][0x01],
+                             index[i][0x02],
+                             index[i][0x03] };
+        uint32_t j;
 
-        g3dpick_drawFace ( 0x04,
-                           pnt[v0][0x00], pnt[v0][0x01], pnt[v0][0x02],
-                           pnt[v1][0x00], pnt[v1][0x01], pnt[v1][0x02],
-                           pnt[v2][0x00], pnt[v2][0x01], pnt[v2][0x02],
-                           pnt[v3][0x00], pnt[v3][0x01], pnt[v3][0x02] );
+        for ( j = 0x00; j < 0x04; j++ ) {
+            uint32_t n = ( j + 0x01 ) % 0x04;
 
-        g3dpick_drawFace ( 0x04,
-                           lns[v0][0x00], lns[v0][0x01], lns[v0][0x02],
-                           lns[v1][0x00], lns[v1][0x01], lns[v1][0x02],
-                           lns[v2][0x00], lns[v2][0x01], lns[v2][0x02],
-                           lns[v3][0x00], lns[v3][0x01], lns[v3][0x02] );
+            g3dpick_drawLine ( pnt[v[j]][0x00], 
+                               pnt[v[j]][0x01],
+                               pnt[v[j]][0x02],
+                               pnt[v[n]][0x00],
+                               pnt[v[n]][0x01],
+                               pnt[v[n]][0x02] );
+
+            g3dpick_drawLine ( lns[v[j]][0x00], 
+                               lns[v[j]][0x01],
+                               lns[v[j]][0x02],
+                               lns[v[n]][0x00],
+                               lns[v[n]][0x01],
+                               lns[v[n]][0x02] );
+        }
     }
 }
 

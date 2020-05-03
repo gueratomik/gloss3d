@@ -50,9 +50,9 @@ void r3darea_viewport ( R3DAREA *area, uint32_t x1, uint32_t y1,
 
         /*** Get ray's foreground coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 0.000001f, area->rcam->MVX, 
-                                                 area->rcam->PJX,
-                                                 VPX, &rx, &ry, &rz );
+        gluUnProject ( x, height - y, 0.0, area->rcam->MVX, 
+                                           area->rcam->PJX,
+                                           VPX, &rx, &ry, &rz );
 
         vip[i].src.x = ( rx );
         vip[i].src.y = ( ry );
@@ -61,7 +61,7 @@ void r3darea_viewport ( R3DAREA *area, uint32_t x1, uint32_t y1,
 
         /*** Get ray's background coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 0.999999f, area->rcam->MVX, 
+        gluUnProject ( x, height - y, 1.0f, area->rcam->MVX, 
                                                  area->rcam->PJX,
                                                  VPX, &rx, &ry, &rz );
 

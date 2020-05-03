@@ -41,7 +41,7 @@ void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updateCutMeshToolEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, CUTMESHTOOL );
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
@@ -55,7 +55,6 @@ void updateCutMeshToolEdit ( GtkWidget *widget, G3DUI *gui ) {
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
                 if ( strcmp ( child_name, EDITCUTMESHTOOLRESTRICT ) == 0x00 ) {
                     if ( cm->restrict_to_selection ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );

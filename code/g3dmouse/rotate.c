@@ -78,13 +78,13 @@ static int rotate_spline ( G3DSPLINE    *spl,
             if ( eflags & VIEWVERTEX ) {
                 G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                               bev->x, VPX[0x03] - bev->y },
-                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
                                    .radius = 0x08 };
+                uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
-                pick_Item ( &pt, sce, cam, eflags );
+                pick_Item ( &pt, sce, cam, ctrlClick, eflags );
 
                 /*** MUST be called after pick_item because based on ***/
                 /*** currently selected points ***/
@@ -308,7 +308,6 @@ static int rotate_mesh ( G3DMESH          *mes,
                  ( bev->y == mouseYpress ) ) {
                 G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                               bev->x, VPX[0x03] - bev->y },
-                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
                                    .radius = 0x08 };
@@ -527,7 +526,6 @@ static int rotate_object ( LIST        *lobj,
                  ( bev->y == mouseYpress ) ) {
                 G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                               bev->x, VPX[0x03] - bev->y },
-                                   .unselectFirst = ( ( bev->state & G3DControlMask ) == 0x00 ),
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
                                    .radius = 0x08 };
@@ -575,7 +573,6 @@ int rotate_tool ( G3DMOUSETOOL *mou,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
             G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                           bev->x, VPX[0x03] - bev->y },
-                               .unselectFirst = 0x00,
                                .only_visible = 0x01,
                                .weight = 0.0f,
                                .radius = 0x08 };

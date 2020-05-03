@@ -373,6 +373,7 @@
 #define EDITDIFFUSEPROCEDURAL      EDITCHANNELPROCEDURAL
 #define EDITDIFFUSEPROCEDURALTYPE  EDITCHANNELPROCEDURALTYPE
 #define EDITDIFFUSEPROCEDURALRES   EDITCHANNELPROCEDURALRES
+#define EDITDIFFUSEPROCEDURALEDIT  "Edit"
 
 #define EDITSPECULAR            "Specularity"
 #define EDITSPECULARSHININESS   "Shininess"
@@ -793,6 +794,7 @@ typedef struct _G3DUIVIEW {
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif
+    uint32_t lock;
 } G3DUIVIEW;
 
 /******************************************************************************/

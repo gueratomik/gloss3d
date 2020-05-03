@@ -349,10 +349,14 @@ static void spotToggleCbk ( GtkWidget *widget, gpointer user_data ) {
         if ( obj->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) obj;
 
-            common_g3duilightedit_setSpotCbk ( gui,
-                                              lig->spotLength, 
-                                              lig->spotAngle, 
-                                              lig->spotFadeAngle );
+            if ( obj->flags & SPOTLIGHT ) {
+                common_g3duilightedit_unsetSpotCbk ( gui );
+            } else {
+                common_g3duilightedit_setSpotCbk ( gui,
+                                                  lig->spotLength, 
+                                                  lig->spotAngle, 
+                                                  lig->spotFadeAngle );
+            }
         }
     }
 }

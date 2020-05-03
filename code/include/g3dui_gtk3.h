@@ -433,6 +433,16 @@ void createProceduralResSelection ( GtkWidget *parent,
                                            void     (*cbk)( GtkWidget *, 
                                                             gpointer ) );
 
+GtkWidget* createProceduralBrickEdit ( GtkWidget           *parent,
+                                       G3DUI               *gui,
+                                       G3DPROCEDURALBRICK *brick,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
 
 /******************************************************************************/
 GtkWidget *createHorizontalScale ( GtkWidget *, G3DUI *,
@@ -554,6 +564,16 @@ void createProceduralTypeSelection ( GtkWidget *,
                                      void     (*)( GtkWidget *, 
                                                    gpointer ) );
 
+GtkWidget *createDrawingArea ( GtkWidget *parent, G3DUI *gui,
+                                                  char *name,
+                                                  gint x, 
+                                                  gint y,
+                                                  gint width,
+                                                  gint height,
+                                                  void (*cbk)( GtkWidget *, 
+                                                               cairo_t *cr,
+                                                               gpointer ) );
+
 void dispatchMenuButton  ( G3DUI *, G3DMOUSETOOL *, uint32_t );
 
 /**************************** Toolbar or menu Callbacks ***********************/
@@ -637,7 +657,10 @@ GtkWidget *g3dui_addMenuButton    ( GtkWidget *, G3DUI *,
                                                  const gchar *,
                                                  gint,
                                                  GCallback );
-
+GtkWidget *g3dui_addMenuToggle ( GtkWidget *menu, G3DUI *gui,
+                                                  const gchar *name,
+                                                  gint width,
+                                                  GCallback callback );
 G3DCAMERA *g3dui_getCurrentViewCamera ( G3DUI *gui );
 G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui );
 

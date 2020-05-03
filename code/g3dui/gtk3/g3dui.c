@@ -85,7 +85,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
     static R3DRENDERSETTINGS viewRsg;
-    G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
+    G3DCAMERA *cam = /*g3dui_getMainViewCamera ( gui )*/g3dui_getCurrentViewCamera ( gui );
 
     /* First cancel running render on that window  if any */
     if ( rps ) {
@@ -207,6 +207,34 @@ GtkWidget *createColorButton ( GtkWidget *parent, G3DUI *gui,
 
 
     return btn;
+}
+
+/******************************************************************************/
+GtkWidget *createDrawingArea ( GtkWidget *parent, G3DUI *gui,
+                                                  char *name,
+                                                  gint x, 
+                                                  gint y,
+                                                  gint width,
+                                                  gint height,
+                                                  void (*cbk)( GtkWidget *, 
+                                                               cairo_t *cr,
+                                                               gpointer ) ) {
+    GtkWidget *area = gtk_drawing_area_new ( );
+
+    gtk_widget_set_name ( area, name );
+
+    gtk_widget_set_size_request ( area, width, height );
+
+    if ( cbk ) {
+        g_signal_connect ( area, "draw", G_CALLBACK ( cbk ), gui );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), area, x, y );
+
+    gtk_widget_show ( area );
+
+
+    return area;
 }
 
 /******************************************************************************/
@@ -1318,6 +1346,20 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     #endif
                                   "}                        \n"
                                   "entry {               \n"
+                                  "    min-height:     0px; \n"
+                                  "    border-width:   1px; \n"
+                                  "    border-radius:  0px; \n"
+                                  "    margin-top:     0px; \n"
+                                  "    margin-right:   0px; \n"
+                                  "    margin-left:    0px; \n"
+                                  "    margin-bottom:  0px; \n"
+                                  "    padding-top:    0px; \n"
+                                  "    padding-right:  0px; \n"
+                                  "    padding-left:   0px; \n"
+                                  "    padding-bottom: 0px; \n"
+                                  "}                        \n"
+                                  "scale {               \n"
+                                  "    min-height:     0px; \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1330,6 +1372,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
                                   "button {              \n"
+                                  "    min-height:     0px; \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"
@@ -1342,6 +1385,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    padding-bottom: 0px; \n"
                                   "}                        \n"
                                   "spinbutton {          \n"
+                                  "    min-height:     0px; \n"
                                   "    border-width:   1px; \n"
                                   "    border-radius:  0px; \n"
                                   "    margin-top:     0px; \n"

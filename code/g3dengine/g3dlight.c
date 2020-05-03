@@ -123,12 +123,12 @@ static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
 
     /*** Commented out: Object appear with a ambient shading sometimes ***/
     /*** I dont know why **/
-    /*if ( obj->flags & SPOTLIGHT ) {
+    if ( obj->flags & SPOTLIGHT ) {
         float direction[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
         glLightf  ( lig->lid, GL_SPOT_CUTOFF   , lig->spotAngle );
         glLightfv ( lig->lid, GL_SPOT_DIRECTION, direction );
-    }*/
+    }
 }
 
 /******************************************************************************/
@@ -186,9 +186,12 @@ static uint32_t g3dlight_drawSpot ( G3DLIGHT  *lig,
     g3dcore_drawXYCircle ( spotFadeRadius, engine_flags );
 
     glPopMatrix ( );
+
     glPopAttrib ( );
 
     g3dlight_drawIntensity ( lig, engine_flags );
+
+
 
     return 0x00;
 }
@@ -244,6 +247,8 @@ static uint32_t g3dlight_drawOmni ( G3DLIGHT  *lig,
     glPopAttrib ( );
 
     g3dlight_drawIntensity ( lig, engine_flags );
+
+
 
     return 0x00;
 }

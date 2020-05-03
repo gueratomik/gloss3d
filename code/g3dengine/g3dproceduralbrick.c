@@ -34,6 +34,16 @@
 /***  http://gamedev.stackexchange.com/questions/23625/how-do-you-generate-tileable-perlin-noise ***/
 
 /******************************************************************************/
+void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick, 
+                                       G3DPROCEDURALBRICK *pout ) {
+    uint32_t settingsSize = sizeof ( G3DPROCEDURALBRICK ) - 
+                            sizeof ( G3DPROCEDURAL );
+
+    memcpy ( ( char * ) pout  + sizeof ( G3DPROCEDURAL ),
+             ( char * ) brick + sizeof ( G3DPROCEDURAL ), settingsSize );
+}
+
+/******************************************************************************/
 static void getColor ( G3DPROCEDURAL *proc, 
                        double         x, 
                        double         y,

@@ -420,30 +420,32 @@ void g3dscene_unselectObject ( G3DSCENE *sce, G3DOBJECT *obj, uint32_t flags ) {
 /******************************************************************************/
 void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
                                             uint32_t engine_flags ) {
-    if ( list_seek ( sce->lsel, obj ) == NULL ) {
-        g3dobject_setSelected ( obj ); /*** set SELECTION flags ***/
+    if ( obj != sce ) {
+        if ( list_seek ( sce->lsel, obj ) == NULL ) {
+            g3dobject_setSelected ( obj ); /*** set SELECTION flags ***/
 
-        /*** if it is a buffered subdivided mesh, we have to rebuild it ***/
-        /*** because in skin mode the object would be red and keep its red ***/
-        /*** color even if we pick another object ***/
-        if ( obj->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
+            /*** if it is a buffered subdivided mesh, we have to rebuild it ***/
+            /*** because in skin mode the object would be red and keep its red ***/
+            /*** color even if we pick another object ***/
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
 
-            /*** Rebuild the subdivided mesh when the object is selected ***/
-            /*** This is needed when, for example, we are in vertex painting ***/
-            /*** mode, we change the object selection. Our buffered mesh ***/
-            /*** must be entirely rebuilt because it must change color (red)***/
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  0x00, engine_flags );
+                /*** Rebuild the subdivided mesh when the object is selected ***/
+                /*** This is needed when, for example, we are in vertex painting ***/
+                /*** mode, we change the object selection. Our buffered mesh ***/
+                /*** must be entirely rebuilt because it must change color (red)***/
+                g3dmesh_update ( mes, NULL,
+                                      NULL,
+                                      NULL,
+                                      0x00, engine_flags );
+            }
+
+            list_append ( &sce->lsel, obj );
+
+            printf ( "Selected: %s:%d\n", obj->name, obj->id );
+        } else {
+            printf ( "This object is selected already !\n" );
         }
-
-        list_append ( &sce->lsel, obj );
-
-        printf ( "Selected: %s:%d\n", obj->name, obj->id );
-    } else {
-        printf ( "This object is selected already !\n" );
     }
 }
 
