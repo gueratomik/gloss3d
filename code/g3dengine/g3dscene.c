@@ -456,11 +456,17 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     LIST *ltmp = sce->lsel;
     double matrix[0x10];
     uint32_t nbobj = g3dscene_getSelectionMatrix ( sce, matrix, flags );
+    G3DVECTOR sca;
+
+    /*** Extract scale factor to negate its effect on the cursor size ***/
+    /*** by scaling the cursor matrix with the inverse scale factors ***/
+    g3dcore_getMatrixScale ( matrix, &sca );
 
     g3dvector_matrix ( &zero, matrix, &curcam->pivot );
 
     glPushMatrix ( );
     glMultMatrixd ( matrix );
+    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
     g3dcursor_draw ( &sce->csr, curcam, flags );
     glPopMatrix ( );
 

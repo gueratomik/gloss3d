@@ -1219,6 +1219,14 @@ static void editDiffuseProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
                                                 0, 0, 350, 35, 0x01 );
                 break;
 
+                case PROCEDURALCHESS :
+                    createProceduralChessEdit ( dial,
+                                                gui,
+                                                mat->diffuse.proc, 
+                                                "Procedural Chess",
+                                                0, 0, 350, 35, 0x01 );
+                break;
+
                 default :
                 break;
             }

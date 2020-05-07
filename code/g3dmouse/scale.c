@@ -418,6 +418,10 @@ static int scale_object ( LIST        *lobj,
                     obj->sca.y += ( dif.y * 0.02f );
                     obj->sca.z += ( dif.z * 0.02f );
 
+                    if ( obj->sca.x < 0.0f ) obj->sca.x = 0.0001f;
+                    if ( obj->sca.y < 0.0f ) obj->sca.y = 0.0001f;
+                    if ( obj->sca.z < 0.0f ) obj->sca.z = 0.0001f;
+
                     g3dobject_updateMatrix_r ( obj, eflags );
 
                     if ( eflags & VIEWAXIS ) {

@@ -536,6 +536,9 @@ typedef struct _G3DPROCEDURALNOISE {
     G3DPROCEDURAL procedural;
     G3DCOLOR color1;
     G3DCOLOR color2;
+    float (*gradients)[2];
+    uint32_t nbGradientX;
+    uint32_t nbGradientY;
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
@@ -2538,6 +2541,9 @@ G3DPROCEDURALCHESS *g3dproceduralchess_new ( );
 G3DPROCEDURALBRICK *g3dproceduralbrick_new ( );
 void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick, 
                                        G3DPROCEDURALBRICK *pout );
-
+void g3dproceduralchess_copySettings ( G3DPROCEDURALCHESS *chess, 
+                                       G3DPROCEDURALCHESS *pout );
+void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *chess, 
+                                       G3DPROCEDURALNOISE *pout );
 #endif
 

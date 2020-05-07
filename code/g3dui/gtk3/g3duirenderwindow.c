@@ -123,28 +123,47 @@ uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                   uint32_t to, 
                                                   uint32_t depth, 
                                                   uint32_t width ) {
-    GtkWidget *widget = ( GtkWidget * ) fil->data;
-    guint cont = gtk_statusbar_get_context_id ( widget, "context" );
+    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
+    guint cont = gtk_statusbar_get_context_id ( tsb->widget, "context" );
     static char str[100];
 
-    if ( from == 0x00 && to == 0x00 ) {
-        snprintf ( str, 100, "Rendering frame %.2f", frameID );
+    /*** When called from "filter render before" event ***/
+    if ( ( from == 0x00 ) &&
+         ( to   == 0x00 ) ) {
+        snprintf ( str, 100, "Rendering frame %.2f (%.2f%%)", frameID,
+                                                              frameID / ( rsce->rsg->output.endframe - rsce->rsg->output.startframe ) * 100.0f );
     } else {
-        snprintf ( str, 100, "Done" );
+        /*** when called from "filter render image" event ***/
+        if ( ( int ) tsb->lastFrame == ( int ) frameID ) {
+            snprintf ( str, 100, "Done (100%%)" );
+        }
     }
 
-    gtk_statusbar_push ( widget, cont, str );
+    gtk_statusbar_push ( tsb->widget, cont, str );
 
     return 0x00;
 }
 
 /******************************************************************************/
+void filtertostatusbar_free ( R3DFILTER *fil ) {
+    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
+
+    free ( tsb );
+}
+
+/******************************************************************************/
 /*** This filter is declared in the g3dui layer because of GtkWidget struct***/
-R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget ) {
-    R3DFILTER *fil = r3dfilter_new ( FILTERBEFORE | FILTERIMAGE, "TOSTATUSBAR",
+R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame ) {
+    FILTERTOSTATUSBAR *tsb = calloc ( 0x01, sizeof ( FILTERTOSTATUSBAR ) );
+    R3DFILTER *fil = r3dfilter_new ( FILTERBEFORE | FILTERIMAGE,
+                                     TOSTATUSBARFILTERNAME,
                                      filtertostatusbar_draw,
-                                     NULL, 
-                                     widget );
+                                     filtertostatusbar_free, 
+                                     tsb );
+
+    tsb->widget = widget;
+    tsb->lastFrame = lastFrame;
+
     return fil;
 }
 
@@ -178,6 +197,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         LIST *lfilters = NULL;
 
+        list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME), rsg->output.endframe ) );
+
+
         if (   ( rsg->flags & ENABLEMOTIONBLUR ) && 
              ( ( rsg->flags & RENDERPREVIEW    ) == 0x00 ) ) {
             R3DFILTER *blur;
@@ -209,8 +231,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                  cam->dof.radius );
             list_append ( &lfilters, rdf );
         }
-
-        list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME)) );
 
         if ( rsg->flags & RENDERPREVIEW ) {
             list_append ( &lfilters, r3dfilter_preview_new ( gui ) );

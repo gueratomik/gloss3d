@@ -128,6 +128,8 @@ static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
 
         glLightf  ( lig->lid, GL_SPOT_CUTOFF   , lig->spotAngle );
         glLightfv ( lig->lid, GL_SPOT_DIRECTION, direction );
+    } else {
+        glLightf  ( lig->lid, GL_SPOT_CUTOFF   , 180.0f );
     }
 }
 

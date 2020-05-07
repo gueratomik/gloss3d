@@ -671,6 +671,8 @@ void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action );
 
 /******************************************************************************/
 #define TOGDKWINDOWFILTERNAME "TOGDKWINDOWFILTERNAME"
+
+
 typedef struct _FILTERTOGDKWINDOW {
     cairo_surface_t *crsurf;
     cairo_t         *cr;
@@ -685,6 +687,13 @@ void       filtertogdkwindow_draw ( void *, R3DSCENE *, unsigned char *,
                                                         uint32_t, 
                                                         uint32_t );
 FILTERTOGDKWINDOW *filtertogdkwindow_new ( GdkWindow * );
+
+typedef struct _FILTERTOSTATUSBAR {
+    GtkWidget *widget;
+    float lastFrame;
+} FILTERTOSTATUSBAR;
+
+R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
 
 /******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );

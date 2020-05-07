@@ -137,6 +137,7 @@
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
 #define MOTIONBLURFILTERNAME "Motion Blur"
 #define TOWINDOWFILTERNAME   "to Window"
+#define TOSTATUSBARFILTERNAME "To status bar"
 #define TOFFMPEGFILTERNAME   "to FFMpeg"
 #define TOBUFFERFILTERNAME   "to Buffer"
 #define WRITEIMAGEFILTERNAME "Write Image"

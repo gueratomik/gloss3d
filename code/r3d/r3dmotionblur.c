@@ -62,9 +62,6 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
     list_insert ( &lfilters, toWin );
 
-    /*** dont motion-blurize the first frame ***/
-    if ( rsce->curframe == rsce->rsg->output.startframe ) return 0x00;
-
     /*** remove motion blur from the filter list ***/
     /*list_remove ( &lfilters, r3dfilter_getByName ( lfilters, fil->name  ) );*/
 
@@ -81,6 +78,9 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 
     /*** Prepare the scene ***/
     middlersce = r3dscene_new ( rsce->rsg, 0x00, NOFREEFILTERS );
+
+    /*** For the status bar ***/
+    middlersce->curframe = rsce->curframe;
 
     /** create motion blur meshes from the meshes calculated in middle frame **/
     /** by the above call to r3dscene_new() **/
@@ -155,7 +155,7 @@ uint32_t filtervectormotionblur_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     /*** Free the current frame ***/
     r3dobject_free  ( ( R3DOBJECT * ) middlersce );
 
-    /* return 2 to interrupt previous rendering. */
+    /* return 2 to interrupt calling rendering. */
     /* Filter type must be FILTERBEFORE */
     return 0x02;
 }
