@@ -414,6 +414,13 @@ void g3dpick_setEpsilon ( float epsilon ) {
 }
 
 /******************************************************************************/
+void g3dpick_loadMatrix ( double *MVX ) {
+    G3DPICK *pick = g3dpick_get ( );
+
+    memcpy ( pick->MVX, MVX, sizeof ( double ) * 0x10 );
+}
+
+/******************************************************************************/
 void g3dpick_clear ( ) {
     G3DPICK *pick = g3dpick_get ( );
 
@@ -426,6 +433,10 @@ void g3dpick_clear ( ) {
                 pick->buffer[i] = 1.0f;
         }
     }
+
+    /*** this is necessary for the UVMAPEDITOR because we are not going to ***/
+    /*** call objects matrix building operations ***/
+    g3dcore_identityMatrix ( pick->MVX );
 }
 
 /******************************************************************************/

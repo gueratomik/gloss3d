@@ -40,6 +40,16 @@
 #include <xpm/axismode.xpm>
 
 /******************************************************************************/
+void g3duiuvmapeditor_setUVMode ( GtkWidget *widget, gpointer user_data ) {
+    const char *modename = gtk_widget_get_name ( widget );
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+
+    common_g3duiuvmapeditor_setMode ( uvme, modename );
+
+    /*g3dui_redrawGLViews ( gui );*/
+}
+
+/******************************************************************************/
 void g3dui_setMode ( GtkWidget *widget, gpointer user_data ) {
     const char *modename = gtk_widget_get_name ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -145,6 +155,7 @@ GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent,
                                       gint       y,
                                       gint       width,
                                       gint       height ) {
+    GtkUVMapEditor *guv = ( GtkUVMapEditor * ) parent;
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp;
@@ -157,8 +168,8 @@ GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent,
 
     gtk_orientable_set_orientation ( GTK_ORIENTABLE(bar), GTK_ORIENTATION_VERTICAL );
 
-    grp = addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
+    grp = addModeBarButton ( bar, grp , &guv->uvme, MODE_VIEWVERTEX, vertexmode_xpm, g3duiuvmapeditor_setUVMode );
+          addModeBarButton ( bar, grp , &guv->uvme, MODE_VIEWFACE  , facemode_xpm  , g3duiuvmapeditor_setUVMode );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 

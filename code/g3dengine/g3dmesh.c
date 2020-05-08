@@ -2552,6 +2552,86 @@ uint32_t g3dmesh_isDisplaced ( G3DMESH *mes, uint32_t eflags ) {
 }
 
 /******************************************************************************/
+void g3dmesh_pickUVs ( G3DMESH *mes, uint32_t eflags ) {
+    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+    if ( uvmap ) {
+        LIST *ltmpfac = mes->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+            if ( uvs ) {
+                if ( uvs->map == uvmap ) {
+                    int i;
+
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
+                        g3dpick_drawPoint ( uvs->veruv[i].u, 
+                                            uvs->veruv[i].v, 
+                                            0.0f );
+                    }
+                }
+            }
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_drawUVs ( G3DMESH *mes, uint32_t eflags ) {
+    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glPointSize ( 3.0f );
+
+    if ( uvmap ) {
+        LIST *ltmpfac = mes->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+            if ( uvs ) {
+                if ( uvs->map == uvmap ) {
+                    int i;
+
+                    glColor3ub ( 0x00, 0x00, 0x00 );
+                    glBegin ( GL_LINES );
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        int n = ( i + 0x01 ) % fac->nbver;
+
+                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+                        glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
+                    }
+                    glEnd ( );
+
+                    glBegin ( GL_POINTS );
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        if ( uvs->veruv[i].flags & UVSELECTED ) {
+                            glColor3ub ( 0xFF, 0x00, 0x00 );
+                        } else {
+                            glColor3ub ( 0x00, 0x00, 0xFF );
+                        }
+
+                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+
+
+                    }
+                    glEnd ( );
+                }
+            }
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
 void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                  G3DCAMERA *curcam,
                                  uint32_t   eflags ) {
@@ -2808,11 +2888,12 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     if ( obj->type & OBJECTSELECTED ) {
-        if ( eflags & VIEWOBJECT ) g3dmesh_pickObject   ( mes, eflags );
-        if ( eflags & VIEWFACE   ) g3dmesh_pickFaces    ( mes, eflags );
-        if ( eflags & VIEWEDGE   ) g3dmesh_pickEdges    ( mes, eflags );
-        if ( eflags & VIEWVERTEX ) g3dmesh_pickVertices ( mes, eflags );
-        if ( eflags & VIEWSKIN   ) g3dmesh_pickVertices ( mes, eflags );
+        if ( eflags & VIEWOBJECT   ) g3dmesh_pickObject   ( mes, eflags );
+        if ( eflags & VIEWFACE     ) g3dmesh_pickFaces    ( mes, eflags );
+        if ( eflags & VIEWEDGE     ) g3dmesh_pickEdges    ( mes, eflags );
+        if ( eflags & VIEWVERTEX   ) g3dmesh_pickVertices ( mes, eflags );
+        if ( eflags & VIEWSKIN     ) g3dmesh_pickVertices ( mes, eflags );
+        /*if ( eflags & VIEWVERTEXUV ) g3dmesh_pickUVs      ( mes, eflags );*/
     } else {
         if ( eflags & VIEWOBJECT ) g3dmesh_pickObject   ( mes, eflags );
     }
@@ -2856,6 +2937,10 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 
     if ( takenOver & MODIFIERTAKESOVER ) {
         if ( obj->flags & OBJECTSELECTED ) {
+            if ( eflags & VIEWVERTEXUV ) {
+                g3dmesh_drawUVs ( mes, eflags );
+            }
+
             if ( eflags & VIEWFACE ) {
                 /*g3dmesh_drawFaces    ( mes, obj->flags, eflags );*/
                 g3dmesh_drawEdges    ( mes, obj->flags, eflags );
@@ -2877,6 +2962,10 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
         }
     } else {
         if ( obj->flags & OBJECTSELECTED ) {
+            if ( eflags & VIEWVERTEXUV ) {
+                g3dmesh_drawUVs ( mes, eflags );
+            }
+
             if ( eflags & VIEWOBJECT ) {
                 g3dmesh_drawObject ( mes, curcam, eflags );
             }

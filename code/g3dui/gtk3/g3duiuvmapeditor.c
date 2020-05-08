@@ -464,6 +464,8 @@ static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
     GtkWidget *widget = ( GtkWidget * ) guv;
     G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
 
+    uvme->flags = VIEWVERTEXUV;
+
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
@@ -728,18 +730,18 @@ static gboolean g3duiuvmapeditor_inputGL ( GtkWidget *widget,
         break;
     }
 
-    if ( gui->mou ) {
+    if ( gui->uvmou ) {
         /*** Call the mousetool callback and redraw if return value is > 0 ***/
         G3DEvent g3dev;
 
         gdkevent_to_g3devent ( gdkev, &g3dev );
 
-        if ( gui->mou->tool ) {
-            uint32_t msk = gui->mou->tool ( gui->mou, 
-                                            gui->sce,
-                                            uvme->cam, 
-                                            gui->urm,
-                                            gui->flags | EDITUVWMAP, &g3dev );
+        if ( gui->uvmou->tool ) {
+            uint32_t msk = gui->uvmou->tool ( gui->uvmou, 
+                                              gui->sce,
+                                              &uvme->cam,
+                                              gui->urm,
+                                              uvme->flags, &g3dev );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
@@ -937,8 +939,10 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     GdkWindow        *gdkwin = gtk_widget_get_window        ( widget );
     G3DUI            *gui    = ( G3DUI * ) user_data;
     G3DUIGTK3        *ggt    = ( G3DUIGTK3 * ) gui->toolkit_data;;
-    G3DMOUSETOOL     *mou    = uvme->mou;
+    G3DMOUSETOOL     *mou    = gui->uvmou;
     uint32_t current;
+
+    ggt->currentUVMapEditor = guv;
 
 #ifdef __linux__
     Display      *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
@@ -954,7 +958,7 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     /*** Set Context as the current context ***/
     glXMakeCurrent ( dpy, win, uvme->glctx );
 
-    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->mou, gui->flags );
+    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, gui->flags );
 
     glXSwapBuffers ( dpy, win );
 
@@ -965,7 +969,7 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     /*** Set Context as the current context ***/
     wglMakeCurrent ( dc, uvme->glctx );
 
-    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->mou, gui->flags );
+    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, gui->flags );
 
     SwapBuffers ( dc );
 

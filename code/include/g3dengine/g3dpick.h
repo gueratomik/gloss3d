@@ -133,6 +133,8 @@ void g3dpick_setName ( uint64_t name );
  */
 void g3dpick_setEpsilon ( float epsilon );
 
+void g3dpick_loadMatrix ( double *MVX );
+
 #ifdef __cplusplus
 }
 #endif

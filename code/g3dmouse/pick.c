@@ -264,6 +264,22 @@ uint32_t actionSelectVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 }
 
 /******************************************************************************/
+uint32_t actionSelectUV ( uint64_t name, MESHPICKDATA *mpd ) {
+    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mpd->mes );
+    G3DUV *uv = ( G3DUV * ) name;
+
+    if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
+        g3duvmap_selectUV ( uvmap, uv );
+    } else {
+        if ( mpd->flags & CTRLCLICK ) {
+            g3duvmap_unselectUV ( uvmap, uv );
+        }
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 
 /* ( G3DMESH *mes, 
@@ -353,7 +369,6 @@ void pick_Item ( G3DPICKTOOL *pt,
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
     glLoadIdentity ( );
-
     g3dcamera_project ( cam, eflags );
     glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
 
@@ -368,10 +383,12 @@ void pick_Item ( G3DPICKTOOL *pt,
 
     g3dpick_clear ( );
 
-    if ( pt->only_visible ) {
-        g3dpick_setAction ( NULL, NULL );
-        g3dobject_pick ( sce, cam, VIEWOBJECT );
-        g3dpick_setEpsilon ( 0.00001f );
+    if ( ( eflags & VIEWVERTEXUV ) == 0x00 ) {
+        if ( pt->only_visible ) {
+            g3dpick_setAction ( NULL, NULL );
+            g3dobject_pick ( sce, cam, VIEWOBJECT );
+            g3dpick_setEpsilon ( 0.00001f );
+        }
     }
 
     if ( eflags & VIEWOBJECT ) {
@@ -390,6 +407,7 @@ void pick_Item ( G3DPICKTOOL *pt,
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
 	    if ( obj ) {
+
 	        if ( obj->type & MESH ) {
         	    G3DMESH *mes = ( G3DMESH * ) obj;
         	    MESHPICKDATA mpd = { .mes    = mes,
@@ -399,9 +417,24 @@ void pick_Item ( G3DPICKTOOL *pt,
                 if ( ctrlClick ) {
                     mpd.flags |= CTRLCLICK;
                 } else {
-                    if ( eflags & VIEWFACE   ) g3dmesh_unselectAllFaces    ( mes );
-                    if ( eflags & VIEWEDGE   ) g3dmesh_unselectAllEdges    ( mes );
-                    if ( eflags & VIEWVERTEX ) g3dmesh_unselectAllVertices ( mes );
+                    if ( eflags & VIEWFACE     ) g3dmesh_unselectAllFaces    ( mes );
+                    if ( eflags & VIEWEDGE     ) g3dmesh_unselectAllEdges    ( mes );
+                    if ( eflags & VIEWVERTEX   ) g3dmesh_unselectAllVertices ( mes );
+                    if ( eflags & VIEWVERTEXUV ) {
+                        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+                        if ( uvmap ) g3duvmap_unselectAllUVs ( uvmap );
+                    }
+                }
+
+		        if ( eflags & VIEWVERTEXUV ) {
+        	        g3dpick_setAction ( actionSelectUV, &mpd );
+                    /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
+                    /*** opration. Our drawing call must depend on an ***/
+                    /*** identity matrix ***/
+                    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+                    g3dpick_loadMatrix ( MVX );
+                    g3dmesh_pickUVs ( mes, VIEWVERTEXUV );
                 }
 
 		        if ( eflags & VIEWFACE ) {
@@ -568,6 +601,60 @@ int weight_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
         default :
         break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+int pickUV_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
+                  G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    G3DPICKTOOL *pt = mou->data;
+    static GLint VPX[0x04];
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+	        switch ( event->type ) {
+                case G3DButtonPress : {
+        	        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+        	        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+        	        pt->start = 0x01;
+
+        	        startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
+                } return REDRAWALL;
+
+                case G3DMotionNotify : {
+        	    /*** if G3DButtonPress was called ***/
+        	        if ( pt->start ) {
+                            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+                            glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                            shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
+
+                            return REDRAWVIEW | REDRAWUVMAPEDITOR;
+        	        }
+                } return 0x00;
+
+                case G3DButtonRelease : {
+        	        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                    uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
+
+        		    if ( flags & VIEWVERTEXUV ) {
+                	    pick_Item ( pt, sce, cam, ctrlClick, flags );
+                    }
+
+        	        pt->start = 0x00;
+                } return REDRAWALL;
+
+                default :
+                break;
+	        }
+        }
     }
 
     return 0x00;

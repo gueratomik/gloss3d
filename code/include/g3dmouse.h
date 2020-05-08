@@ -65,6 +65,11 @@
 #define INVERTNORMALTOOL             "Invert Normal"
 #define ROUNDSPLINEPOINTTOOL         "Round selection"
 
+#define PICKUVTOOL                   "Pick UV"
+#define MOVEUVTOOL                   "Move UV"
+#define ROTATEUVTOOL                 "Rotate UV"
+#define SCALEUVTOOL                  "Scale UV"
+
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
 
@@ -301,6 +306,14 @@ int             smooth_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DEvent * );
 
 /******************************************************************************/
+int moveUV_tool ( G3DMOUSETOOL *mou, 
+                  G3DSCENE     *sce, 
+                  G3DCAMERA    *cam,
+                  G3DURMANAGER *urm,
+                  uint32_t      eflags, 
+                  G3DEvent     *event );
+
+/******************************************************************************/
 G3DPICKTOOL    *pickTool_new      ( );
 uint32_t        pickTool_init     ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
@@ -310,6 +323,8 @@ int             pick_tool         ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                                                                 G3DURMANAGER *,
                                                                 uint32_t,
                                                                 G3DEvent * );
+int pickUV_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
+                  G3DURMANAGER *urm, uint32_t flags, G3DEvent *event );
 void pick_Item ( G3DPICKTOOL *pt, 
                  G3DSCENE   *sce, 
                  G3DCAMERA  *cam,

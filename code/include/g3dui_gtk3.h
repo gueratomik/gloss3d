@@ -116,6 +116,8 @@ typedef struct _G3DUIGTK3 {
     GtkWidget *curmat; /*** current material ***/
     GtkWidget *main;
     GdkWindow *winAtPosition; /*** window at mouse position (for hourGlass)***/
+    GtkWidget *currentUVMouseToolButton;
+    GtkWidget *currentUVMapEditor;
 } G3DUIGTK3;
 
 /***************************** Main Window Widget *****************************/
@@ -608,12 +610,13 @@ void g3duimateriallist_removeMaterial    ( GtkWidget *, G3DSCENE *,
 void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *, 
                                                         gpointer );
 
-void gtk3_g3dui_setMode ( GtkWidget *, gpointer );
-void g3dui_setMouseTool ( GtkWidget *, gpointer );
-gboolean gtk3_showGL    ( GtkWidget *, cairo_t *, gpointer );
-void gtk3_initGL        ( GtkWidget *, gpointer );
-void gtk3_sizeGL        ( GtkWidget *, GdkRectangle *, gpointer );
-gboolean gtk3_inputGL   ( GtkWidget *, GdkEvent *, gpointer );
+void gtk3_g3dui_setMode   ( GtkWidget *, gpointer );
+void g3dui_setMouseTool   ( GtkWidget *, gpointer );
+void g3dui_setUVMouseTool ( GtkWidget *, gpointer );
+gboolean gtk3_showGL      ( GtkWidget *, cairo_t *, gpointer );
+void gtk3_initGL          ( GtkWidget *, gpointer );
+void gtk3_sizeGL          ( GtkWidget *, GdkRectangle *, gpointer );
+gboolean gtk3_inputGL     ( GtkWidget *, GdkEvent *, gpointer );
 
 void g3dui_redrawUVMapEditors ( G3DUI *gui );
 GtkWidget *gtk_uvmapeditor_getGLArea ( GtkWidget *widget );

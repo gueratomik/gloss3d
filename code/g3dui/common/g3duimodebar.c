@@ -39,6 +39,18 @@
 #include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
+void common_g3duiuvmapeditor_setMode ( G3DUIUVMAPEDITOR *uvme, 
+                                       const char       *modename ) {
+    uint32_t curflags = uvme->flags & (~MODEMASK);
+    uint32_t newmode = 0x00;
+
+    if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEXUV;
+    if ( strcmp ( modename, MODE_VIEWFACE   ) == 0x00 ) newmode = VIEWFACEUV;
+
+    uvme->flags = ( curflags | newmode );
+}
+
+/******************************************************************************/
 void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
     /*** Discard mode flags ***/
     uint32_t oldmode  = gui->flags & MODEMASK;

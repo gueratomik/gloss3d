@@ -30,6 +30,30 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3duv_unsetSelected ( G3DUV *uv ) {
+    uv->flags &= ~(UVSELECTED);
+}
+
+/******************************************************************************/
+void g3duvmap_unselectUV ( G3DUVMAP *uvmap, G3DUV *uv ) {
+    list_remove ( &uvmap->lseluv, uv );
+
+    uv->flags &= ~(UVSELECTED);
+}
+
+/******************************************************************************/
+void g3duvmap_selectUV ( G3DUVMAP *uvmap, G3DUV *uv ) {
+    list_insert ( &uvmap->lseluv, uv ); 
+
+    uv->flags |= UVSELECTED;
+}
+
+/******************************************************************************/
+void g3duvmap_unselectAllUVs ( G3DUVMAP *uvmap ) {
+    list_free ( &uvmap->lseluv, g3duv_unsetSelected );
+}
+
+/******************************************************************************/
 uint32_t g3duvmap_isFixed ( G3DUVMAP *map ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) map;
 

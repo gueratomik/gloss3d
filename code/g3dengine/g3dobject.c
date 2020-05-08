@@ -1226,6 +1226,12 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
     glMultMatrixd ( obj->lmatrix );
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+
+    /*** if we are in the UVMAPEDITOR, we mustnot change the modelview ***/
+    /*** matrix ***/
+    if ( eflags & VIEWVERTEXUV ) g3dcore_identityMatrix ( MVX );
+    if ( eflags & VIEWFACEUV   ) g3dcore_identityMatrix ( MVX );
+
     g3dpick_setModelviewMatrix ( MVX );
 
     if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {

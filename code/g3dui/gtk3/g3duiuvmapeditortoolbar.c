@@ -69,19 +69,19 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
    /********************************/
 
-    addToolBarToggleButton ( bar, gui, PICKTOOL         , pick_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, PICKUVTOOL  , pick_xpm  , g3dui_setUVMouseTool    );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, MOVETOOL         , move_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, MOVEUVTOOL  , move_xpm  , g3dui_setUVMouseTool    );
+ 
+    /********************************/
+
+    addToolBarToggleButton ( bar, gui, SCALEUVTOOL , scale_xpm , g3dui_setUVMouseTool  );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, SCALETOOL        , scale_xpm , g3dui_setMouseTool  );
-
-    /********************************/
-
-    addToolBarToggleButton ( bar, gui, ROTATETOOL       , rotate_xpm, g3dui_setMouseTool );
+    addToolBarToggleButton ( bar, gui, ROTATEUVTOOL, rotate_xpm, g3dui_setUVMouseTool );
 
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );

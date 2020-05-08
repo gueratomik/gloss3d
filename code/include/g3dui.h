@@ -609,6 +609,7 @@ typedef struct _G3DUISEGMENT {
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
     G3DMOUSETOOL *mou; /*** current mouse tool ***/
+    G3DMOUSETOOL *uvmou; /*** current mouse tool for UV editor ***/
     /*G3DUITIMELINE *tim;*/
     G3DUICLIPBOARD *cli;
     G3DSCENE     *sce;
@@ -805,7 +806,7 @@ typedef struct _G3DUIVIEW {
 #define UVMAPZOOMBUTTON      0x01
 
 typedef struct _G3DUIUVMAPEDITOR {
-    uint32_t flags;
+    uint32_t       flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
     int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
@@ -813,8 +814,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     uint32_t       mode;
     LIST          *lseluv;
     LIST          *lseluvset;
-    G3DMOUSETOOL  *mou;
-    G3DCAMERA     *cam;
+    G3DCAMERA      cam;
 #ifdef __linux__
     GLXContext     glctx;
 #endif
@@ -1022,11 +1022,16 @@ void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );
+void      common_g3dui_setUVMouseTool ( G3DUI        *gui, 
+                                        G3DCAMERA    *cam, 
+                                        G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
 void      common_g3dui_setFileName          ( G3DUI *, const char * );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
                                                        uint32_t );
 void      common_g3dui_setMode              ( G3DUI *, const char * );
+void common_g3duiuvmapeditor_setMode ( G3DUIUVMAPEDITOR *uvme, 
+                                       const char       *modename );
 void      common_g3dui_dispatchGLMenuButton ( G3DUI *, G3DMOUSETOOL *,
                                                        uint32_t );
 void      common_g3dui_interpretMouseToolReturnFlags ( G3DUI *, uint32_t );

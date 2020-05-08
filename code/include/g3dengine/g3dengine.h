@@ -116,7 +116,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define VIEWSKIN           ( 1  <<  6 )
 #define VIEWUVWMAP         ( 1  <<  7 )
-#define EDITUVWMAP         ( 1  <<  8 )
+
 #define VIEWAXIS           ( 1  <<  9 )
 #define VIEWSCULPT         ( 1  << 10 )
 #define VIEWPOSE           ( 1  << 11 )
@@ -143,6 +143,11 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define LOADFULLRESIMAGES  ( 1  << 25 ) /* used by the renderer especially for animated textures */
 #define NODRAWPOLYGON      ( 1  << 26 )
 #define NOBACKGROUNDIMAGE  ( 1  << 27 )
+
+/******************************* UVMAp Editor flags ***************************/
+/*** They must not collide with below flags t ease code reuse ***/
+#define VIEWVERTEXUV       ( 1  << 28 )
+#define VIEWFACEUV         ( 1  << 29 )
 
 /******************************* Object Types *********************************/
 #define OBJECT         (  1       )
@@ -715,6 +720,7 @@ typedef struct _G3DUVMAP {
     LIST    *lmat;  /*** list of attached materials ***/
     uint32_t nbmat; /*** Number of attached materials ***/
     uint32_t mapID;
+    LIST    *lseluv;
 } G3DUVMAP;
 
 /******************************************************************************/
@@ -2246,6 +2252,8 @@ void       g3dmesh_selectAllFaces         ( G3DMESH * );
 G3DMESH   *g3dmesh_merge                  ( LIST *, uint32_t, uint32_t );
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes );
 void g3dmesh_removeUVMap ( );
+void g3dmesh_pickUVs ( G3DMESH *mes, uint32_t eflags );
+void g3dmesh_drawUVs ( G3DMESH *mes, uint32_t eflags );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2435,6 +2443,9 @@ void       g3duvmap_addMaterial          ( G3DUVMAP *, G3DMATERIAL * );
 void       g3duvmap_removeMaterial       ( G3DUVMAP *, G3DMATERIAL * );
 G3DMATERIAL *g3dscene_getMaterialByID      ( G3DSCENE *sce, uint32_t id );
 uint32_t g3duvmap_isFixed ( G3DUVMAP *map );
+void g3duvmap_selectUV ( G3DUVMAP *uvmap, G3DUV *uv );
+void g3duvmap_unselectUV ( G3DUVMAP *uvmap, G3DUV *uv );
+void g3duvmap_unselectAllUVs ( G3DUVMAP *uvmap );
 
 /******************************************************************************/
 void      g3dpivot_free ( G3DOBJECT * );
