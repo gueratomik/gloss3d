@@ -41,7 +41,7 @@
 /******************************************************************************/
 void common_g3duiuvmapeditor_setMode ( G3DUIUVMAPEDITOR *uvme, 
                                        const char       *modename ) {
-    uint32_t curflags = uvme->flags & (~MODEMASK);
+    uint32_t curflags = uvme->flags & (~UVMODEMASK);
     uint32_t newmode = 0x00;
 
     if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEXUV;

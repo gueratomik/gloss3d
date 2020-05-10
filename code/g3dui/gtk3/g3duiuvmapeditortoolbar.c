@@ -57,6 +57,8 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
                                       gint       y,
                                       gint       width,
                                       gint       height ) {
+    GtkUVMapEditor *guv = ( GtkUVMapEditor * ) parent;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp = NULL;
@@ -69,19 +71,27 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
    /********************************/
 
-    addToolBarToggleButton ( bar, gui, PICKUVTOOL  , pick_xpm  , g3dui_setUVMouseTool    );
+    addToolBarPushButton   ( bar, uvme, MENU_UNDO   , undo_xpm  , g3duiuvmapeditor_undoCbk );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, uvme, MENU_REDO   , redo_xpm  , g3duiuvmapeditor_redoCbk );
+
+   /********************************/
+
+    addToolBarToggleButton ( bar, uvme, PICKUVTOOL  , pick_xpm  , g3duiuvmapeditor_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, MOVEUVTOOL  , move_xpm  , g3dui_setUVMouseTool    );
+    addToolBarToggleButton ( bar, uvme, MOVEUVTOOL  , move_xpm  , g3duiuvmapeditor_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, SCALEUVTOOL , scale_xpm , g3dui_setUVMouseTool  );
+    addToolBarToggleButton ( bar, uvme, SCALEUVTOOL , scale_xpm , g3duiuvmapeditor_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, ROTATEUVTOOL, rotate_xpm, g3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL, rotate_xpm, g3duiuvmapeditor_setUVMouseTool );
 
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );

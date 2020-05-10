@@ -93,6 +93,13 @@ G3DURMANAGER *g3durmanager_new ( uint32_t level ) {
 }
 
 /******************************************************************************/
+void g3durmanager_free ( G3DURMANAGER *urm ) {
+    g3durmanager_clear ( urm );
+
+    free ( urm );
+}
+
+/******************************************************************************/
 uint32_t g3durmanager_undo ( G3DURMANAGER *urm, uint32_t flags ) {
     G3DURITEM *uri = urm->lcurprocs->data;
 

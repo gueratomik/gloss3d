@@ -313,6 +313,20 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                   uint32_t      eflags, 
                   G3DEvent     *event );
 
+int scaleUV_tool ( G3DMOUSETOOL *mou, 
+                   G3DSCENE     *sce, 
+                   G3DCAMERA    *cam,
+                   G3DURMANAGER *urm,
+                   uint32_t      eflags, 
+                   G3DEvent     *event );
+
+int rotateUV_tool ( G3DMOUSETOOL *mou, 
+                    G3DSCENE     *sce, 
+                    G3DCAMERA    *cam,
+                    G3DURMANAGER *urm,
+                    uint32_t      eflags, 
+                    G3DEvent     *event );
+
 /******************************************************************************/
 G3DPICKTOOL    *pickTool_new      ( );
 uint32_t        pickTool_init     ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,

@@ -30,6 +30,13 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes ) {
+    if ( mes->ltex ) return mes->ltex->data;
+
+    return NULL;
+}
+
+/******************************************************************************/
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes ) {
     if ( mes->lseltex ) return mes->lseltex->data;
 
@@ -2552,7 +2559,92 @@ uint32_t g3dmesh_isDisplaced ( G3DMESH *mes, uint32_t eflags ) {
 }
 
 /******************************************************************************/
-void g3dmesh_pickUVs ( G3DMESH *mes, uint32_t eflags ) {
+void g3dmesh_pickFaceUVs ( G3DMESH *mes, uint32_t eflags ) {
+    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+    if ( uvmap ) {
+        LIST *ltmpfac = mes->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+            if ( uvs ) {
+                if ( uvs->map == uvmap ) {
+                    g3dpick_setName ( ( uint64_t ) uvs );
+                    g3dpick_drawFace ( fac->nbver, 
+                                       uvs->veruv[0].u, 
+                                       uvs->veruv[0].v,
+                                       0.0f,
+                                       uvs->veruv[1].u,
+                                       uvs->veruv[1].v,
+                                       0.0f,
+                                       uvs->veruv[2].u,
+                                       uvs->veruv[2].v,
+                                       0.0f,
+                     ( fac->ver[3] ) ? uvs->veruv[3].u : 0.0f,
+                     ( fac->ver[3] ) ? uvs->veruv[3].v : 0.0f,
+                                       0.0f );
+                }
+            }
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_drawFaceUVs ( G3DMESH *mes, uint32_t eflags ) {
+    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glPointSize ( 3.0f );
+
+    if ( uvmap ) {
+        LIST *ltmpfac = mes->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+            if ( uvs ) {
+                if ( uvs->map == uvmap ) {
+                    int i;
+
+                    glColor3ub ( 0x00, 0x00, 0x00 );
+                    glBegin ( GL_LINES );
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        int n = ( i + 0x01 ) % fac->nbver;
+
+                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+                        glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
+                    }
+                    glEnd ( );
+
+                    glBegin ( GL_POINTS );
+                    if ( uvs->flags & UVSETSELECTED ) {
+                        glColor3ub ( 0xFF, 0x7F, 0x00 );
+                    } else {
+                        glColor3ub ( 0x00, 0x00, 0x00 );
+                    }
+
+                    glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
+                                   uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
+                                 ( uvs->veruv[0].v + uvs->veruv[1].v + 
+                                   uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
+                    glEnd ( );
+                }
+            }
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void g3dmesh_pickVertexUVs ( G3DMESH *mes, uint32_t eflags ) {
     G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
 
     if ( uvmap ) {
@@ -2581,7 +2673,7 @@ void g3dmesh_pickUVs ( G3DMESH *mes, uint32_t eflags ) {
 }
 
 /******************************************************************************/
-void g3dmesh_drawUVs ( G3DMESH *mes, uint32_t eflags ) {
+void g3dmesh_drawVertexUVs ( G3DMESH *mes, uint32_t eflags ) {
     G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
@@ -2938,7 +3030,11 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
     if ( takenOver & MODIFIERTAKESOVER ) {
         if ( obj->flags & OBJECTSELECTED ) {
             if ( eflags & VIEWVERTEXUV ) {
-                g3dmesh_drawUVs ( mes, eflags );
+                g3dmesh_drawVertexUVs ( mes, eflags );
+            }
+
+            if ( eflags & VIEWFACEUV ) {
+                g3dmesh_drawFaceUVs ( mes, eflags );
             }
 
             if ( eflags & VIEWFACE ) {
@@ -2963,7 +3059,11 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
     } else {
         if ( obj->flags & OBJECTSELECTED ) {
             if ( eflags & VIEWVERTEXUV ) {
-                g3dmesh_drawUVs ( mes, eflags );
+                g3dmesh_drawVertexUVs ( mes, eflags );
+            }
+
+            if ( eflags & VIEWFACEUV ) {
+                g3dmesh_drawFaceUVs ( mes, eflags );
             }
 
             if ( eflags & VIEWOBJECT ) {

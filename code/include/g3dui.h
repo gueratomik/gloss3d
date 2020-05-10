@@ -74,6 +74,21 @@
 #include <g3dimport.h>
 #include <g3dimportv2.h>
 
+/******************************************************************************/
+#define GLOSS3DLICENSE \
+"  GLOSS3D is free software: you can redistribute it and/or modify \n \
+it under the terms of the GNU General Public License as published by \n \
+the Free Software Foundation, either version 3 of the License, or \n \
+(at your option) any later version. \n \
+\n \
+  GLOSS3D is distributed in the hope that it will be useful, \n \
+but WITHOUT ANY WARRANTY; without even the implied warranty of \n \
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n \
+GNU General Public License for more details. \n \
+\n\
+  You should have received a copy of the GNU General Public License \n \
+along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
+
 /*********************** Export to g3d file ***********************************/
 #define G3DUISETTINGSSIG                  0x1000
 #define G3DUIVIEWSIG                          0x1100 /* uint64_t */
@@ -542,6 +557,11 @@
 #define MENU_ALIGNUVMAPYZ         "Along YZ plane"
 #define MENU_ALIGNUVMAPZX         "Along ZX plane"
 
+#define MENU_UVFROMVERTEX         "Select UVs from selected vertices"
+#define MENU_VERTEXFROMUV         "Select vertices from selected UVs"
+#define MENU_UVSETFROMFACE        "Select UV Set from selected faces"
+#define MENU_FACEFROMUVSET        "Select faces from selected UV Set"
+
 /******************************************************************************/
 #define MARGIN 0x02
 #define MARGDB ( MARGIN << 0x01 )
@@ -821,6 +841,8 @@ typedef struct _G3DUIUVMAPEDITOR {
 #ifdef __MINGW32__
     HGLRC          glctx;
 #endif
+    G3DURMANAGER  *uvurm;
+    G3DUI         *gui;
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/
@@ -1022,9 +1044,9 @@ void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );
-void      common_g3dui_setUVMouseTool ( G3DUI        *gui, 
-                                        G3DCAMERA    *cam, 
-                                        G3DMOUSETOOL *mou );
+void      common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme, 
+                                                   G3DCAMERA    *cam, 
+                                                   G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
 void      common_g3dui_setFileName          ( G3DUI *, const char * );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
@@ -1465,6 +1487,11 @@ void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
 void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme );
 
+void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme );
+
 /******************************************************************************/
 void common_g3duicameraedit_dofEnableCbk ( G3DUI *gui );
 void common_g3duicameraedit_dofFarBlurCbk ( G3DUI *gui, float farBlur );
@@ -1492,5 +1519,7 @@ void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
 void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui );
 void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps );
 
+void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme );
 
 #endif

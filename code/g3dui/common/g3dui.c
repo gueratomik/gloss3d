@@ -628,29 +628,6 @@ void common_g3dui_dispatchGLMenuButton ( G3DUI *gui, G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-void common_g3dui_setUVMouseTool ( G3DUI        *gui, 
-                                   G3DCAMERA    *cam, 
-                                   G3DMOUSETOOL *mou ) {
-    /*** Call the mouse tool initialization function once. This ***/
-    /*** can be used by this function to initialize some values ***/
-    if ( mou ) {
-        if ( mou->init ) {
-            uint32_t msk = mou->init ( mou, gui->sce, 
-                                            cam, 
-                                            gui->urm, gui->flags );
-
-            common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
-        }
-
-        if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
-            gui->uvmou = mou;
-        }
-    } else {
-        gui->uvmou = NULL;
-    }
-}
-
-/******************************************************************************/
 void common_g3dui_setMouseTool ( G3DUI        *gui, 
                                  G3DCAMERA    *cam, 
                                  G3DMOUSETOOL *mou ) {
@@ -980,6 +957,20 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     mou = g3dmousetool_new ( MOVEUVTOOL, 's', NULL,
                              NULL, NULL, moveUV_tool, 0x00 );
+
+    common_g3dui_addMouseTool ( gui, mou, 0x00 );
+
+    /********************************/
+
+    mou = g3dmousetool_new ( SCALEUVTOOL, 's', NULL,
+                             NULL, NULL, scaleUV_tool, 0x00 );
+
+    common_g3dui_addMouseTool ( gui, mou, 0x00 );
+
+    /********************************/
+
+    mou = g3dmousetool_new ( ROTATEUVTOOL, 's', NULL,
+                             NULL, NULL, rotateUV_tool, 0x00 );
 
     common_g3dui_addMouseTool ( gui, mou, 0x00 );
 

@@ -181,7 +181,8 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
     static float widthFactor;
     static float heightFactor;
     static int xold, yold;
-
+    static G3DUV *olduv, *newuv;
+    static LIST *lseluv;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -196,6 +197,12 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                         mouseXpress = xold = bev->x;
                         mouseYpress = yold = bev->y;
 
+                        if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
+                        if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
+
+                        /*** remember coords for undo-redo ***/
+                        g3duv_copyUVFromList ( lseluv, &olduv );
+
                         glGetIntegerv ( GL_VIEWPORT, VPX );
 
                         /* Note: cam->obj.sca.z = cam->obj.sca.x = cam->obj.sca.y */
@@ -207,16 +214,17 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                         G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
                         if ( mev->state & G3DButton1Mask ) {
-                            if ( eflags & VIEWVERTEXUV ) {
+                            if ( ( eflags & VIEWVERTEXUV ) || 
+                                 ( eflags & VIEWFACEUV   ) ) {
                                 float udiff = ( float ) ( mev->x - xold ) * widthFactor,
                                       vdiff = ( float ) ( mev->y - yold ) * heightFactor;
-                                LIST *ltmpuv = uvmap->lseluv;
+                                LIST *ltmpuv = lseluv;
 
                                 while ( ltmpuv ) {
                                     G3DUV *uv = ( G3DUV * ) ltmpuv->data;
 
                                     uv->u += udiff;
-                                    uv->v += vdiff;
+                                    uv->v -= vdiff;
 
                                     ltmpuv = ltmpuv->next;
                                 }
@@ -243,9 +251,27 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             /*** get the undo/redo support ***/
                             void *tmpdata = mou->data;
                             mou->data = &pt;
-                            pick_tool ( mou, sce, cam, urm, eflags, event );
+                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
                             mou->data = tmpdata;
+
+                            /*** cancel arrays allocated for undo-redo ***/
+                            if ( olduv ) free ( olduv );
+                        } else {
+                            /*** remember coords for undo-redo ***/
+                            g3duv_copyUVFromList ( lseluv, &newuv );
+
+                            g3durm_uvmap_moveUVList ( urm,
+                                                      uvmap, 
+                                                      lseluv,
+                                                      olduv, 
+                                                      newuv, 
+                                                      REDRAWVIEW |
+                                                      REDRAWUVMAPEDITOR );
                         }
+
+                        list_free ( &lseluv, NULL );
+
+                        olduv = newuv = NULL;
                     } return REDRAWVIEW            | 
                              REDRAWCOORDS          | 
                              BUFFEREDSUBDIVISIONOK | 
@@ -712,7 +738,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
             G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                           bev->x, VPX[0x03] - bev->y },
-                               .only_visible = 0x01,
+                               .only_visible = 0x00,
                                .weight = 0.0f,
                                .radius = 0x08 };
 

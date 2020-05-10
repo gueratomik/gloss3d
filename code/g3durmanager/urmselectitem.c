@@ -101,6 +101,110 @@ void selectItem_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
+void selectUVSets_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
+    LIST *ltmpnewfacsel = sit->lnewfacsel;
+    LIST *ltmpoldfacsel = sit->loldfacsel;
+
+    /*** unselect the new selection ***/
+    while ( ltmpoldfacsel ) {
+        G3DUVSET *uvset = ( G3DUVSET * ) ltmpoldfacsel->data;
+
+        g3duvmap_unselectUVSet ( uvmap, uvset );
+
+        ltmpoldfacsel = ltmpoldfacsel->next;
+    }
+
+    /*** select the former selection ***/
+    while ( ltmpnewfacsel ) {
+        G3DUVSET *uvset = ( G3DUVSET * ) ltmpnewfacsel->data;
+
+        g3duvmap_selectUVSet ( uvmap, uvset );
+
+        ltmpnewfacsel = ltmpnewfacsel->next;
+    }
+}
+
+/******************************************************************************/
+void selectUVSets_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
+    LIST *ltmpnewfacsel = sit->lnewfacsel;
+    LIST *ltmpoldfacsel = sit->loldfacsel;
+
+    /*** unselect the new selection ***/
+    while ( ltmpnewfacsel ) {
+        G3DUVSET *uvset = ( G3DUVSET * ) ltmpnewfacsel->data;
+
+        g3duvmap_unselectUVSet ( uvmap, uvset );
+
+        ltmpnewfacsel = ltmpnewfacsel->next;
+    }
+
+    /*** select the former selection ***/
+    while ( ltmpoldfacsel ) {
+        G3DUVSET *uvset = ( G3DUVSET * ) ltmpoldfacsel->data;
+
+        g3duvmap_selectUVSet ( uvmap, uvset );
+
+        ltmpoldfacsel = ltmpoldfacsel->next;
+    }
+}
+
+/******************************************************************************/
+void selectUVs_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
+    LIST *ltmpnewversel = sit->lnewversel;
+    LIST *ltmpoldversel = sit->loldversel;
+
+    /*** unselect the new selection ***/
+    while ( ltmpnewversel ) {
+        G3DUV *uv = ( G3DUV * ) ltmpnewversel->data;
+
+        g3duvmap_unselectUV ( uvmap, uv );
+
+        ltmpnewversel = ltmpnewversel->next;
+    }
+
+    /*** select the former selection ***/
+    while ( ltmpoldversel ) {
+        G3DUV *uv = ( G3DUV * ) ltmpoldversel->data;
+
+        g3duvmap_selectUV ( uvmap, uv );
+
+        ltmpoldversel = ltmpoldversel->next;
+    }
+}
+
+/******************************************************************************/
+void selectUVs_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
+    LIST *ltmpnewversel = sit->lnewversel;
+    LIST *ltmpoldversel = sit->loldversel;
+
+    /*** unselect the former selection ***/
+    while ( ltmpoldversel ) {
+        G3DUV *uv = ( G3DUV * ) ltmpoldversel->data;
+
+        g3duvmap_unselectUV ( uvmap, uv );
+
+        ltmpoldversel = ltmpoldversel->next;
+    }
+
+    /*** select the new selection ***/
+    while ( ltmpnewversel ) {
+        G3DUV *uv = ( G3DUV * ) ltmpnewversel->data;
+
+        g3duvmap_selectUV ( uvmap, uv );
+
+        ltmpnewversel = ltmpnewversel->next;
+    }
+}
+
+/******************************************************************************/
 void selectVertices_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
@@ -133,7 +237,7 @@ void selectVertices_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
     LIST *ltmpnewversel = sit->lnewversel;
     LIST *ltmpoldversel = sit->loldversel;
 
-    g3dmesh_unselectAllVertices ( mes );
+    /*g3dmesh_unselectAllVertices ( mes );*/
 
     /*** unselect the former selection ***/
     while ( ltmpoldversel ) {
@@ -291,6 +395,26 @@ void selectItem_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
             }
         }
     }
+
+    if ( obj->type == G3DUVMAPTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) obj->parent;
+
+        if ( sit->engine_flags & VIEWVERTEXUV ) {
+            selectUVs_undo ( sit, engine_flags );
+        }
+
+        if ( sit->engine_flags & VIEWFACEUV ) {
+            selectUVSets_undo ( sit, engine_flags );
+        }
+
+        /*** Rebuild the subdivided mesh ***/
+        g3dmesh_update ( mes, NULL,
+                              NULL,
+                              NULL,
+                              UPDATEFACEPOSITION |
+                              UPDATEFACENORMAL   |
+                              UPDATEVERTEXNORMAL, engine_flags );
+    }
 }
 
 /******************************************************************************/
@@ -325,6 +449,74 @@ void selectItem_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
                                   UPDATEVERTEXNORMAL, engine_flags );
         }
     }
+
+    if ( obj->type == G3DUVMAPTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) obj->parent;
+
+        if ( sit->engine_flags & VIEWVERTEXUV ) {
+            selectUVs_redo ( sit, engine_flags );
+        }
+
+        if ( sit->engine_flags & VIEWFACEUV ) {
+            selectUVSets_redo ( sit, engine_flags );
+        }
+
+        /*** Rebuild the subdivided mesh ***/
+        g3dmesh_update ( mes, NULL,
+                              NULL,
+                              NULL,
+                              UPDATEFACEPOSITION |
+                              UPDATEFACENORMAL   |
+                              UPDATEVERTEXNORMAL, engine_flags );
+    }
+}
+
+/******************************************************************************/
+void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm, 
+                               G3DUVMAP     *uvmap,
+                               LIST        *loldseluvset,
+                               LIST        *lnewseluvset,
+                               uint32_t     engine_flags,
+                               uint32_t     return_flags ) {
+    URMSELECTITEM *sit;
+
+    sit = urmselectitem_new ( ( G3DOBJECT * ) uvmap, NULL,
+                                   NULL,
+                                   NULL,
+                                   loldseluvset,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   lnewseluvset,
+                                   engine_flags );
+
+    g3durmanager_push ( urm, selectItem_undo,
+                             selectItem_redo,
+                             selectItem_free, sit, return_flags );
+}
+
+/******************************************************************************/
+void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm, 
+                            G3DUVMAP     *uvmap,
+                            LIST        *loldseluv,
+                            LIST        *lnewseluv,
+                            uint32_t     engine_flags,
+                            uint32_t     return_flags ) {
+    URMSELECTITEM *sit;
+
+    sit = urmselectitem_new ( ( G3DOBJECT * ) uvmap, NULL,
+                                   loldseluv,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   lnewseluv,
+                                   NULL,
+                                   NULL,
+                                   engine_flags );
+
+    g3durmanager_push ( urm, selectItem_undo,
+                             selectItem_redo,
+                             selectItem_free, sit, return_flags );
 }
 
 /******************************************************************************/

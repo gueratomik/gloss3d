@@ -96,6 +96,7 @@ if HAVE_GTK3
                             gtk3/g3duitimeline.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duitorusedit.c \
+                            gtk3/g3duiuvmenubar.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiuvmapeditor.c \
                             gtk3/g3duiuvmapeditortoolbar.c \

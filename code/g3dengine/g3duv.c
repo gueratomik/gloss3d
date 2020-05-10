@@ -30,6 +30,71 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+LIST *g3duvset_getUVsFromList ( LIST *luvset ) {
+    LIST *ltmpuvset = luvset;
+    LIST *luv = NULL;
+
+    while ( ltmpuvset ) {
+        G3DUVSET *uvset = ( G3DUVSET * ) ltmpuvset->data;
+        uint32_t i;
+
+        for ( i = 0x00; i < uvset->nbuv; i++ ) {
+            list_insert ( &luv, &uvset->veruv[i] );
+        }
+
+        ltmpuvset = ltmpuvset->next;
+    }
+
+    return luv;
+}
+
+/******************************************************************************/
+void g3duvset_unsetSelected ( G3DUVSET *uvset ) {
+    uvset->flags &= ~(UVSETSELECTED);
+}
+
+/******************************************************************************/
+void g3duvmap_unselectUVSet ( G3DUVMAP *uvmap, G3DUVSET *uvset ) {
+    list_remove ( &uvmap->lseluvset, uvset );
+
+    uvset->flags &= ~(UVSETSELECTED);
+}
+
+/******************************************************************************/
+void g3duvmap_selectUVSet ( G3DUVMAP *uvmap, G3DUVSET *uvset ) {
+    list_insert ( &uvmap->lseluvset, uvset ); 
+
+    uvset->flags |= UVSETSELECTED;
+}
+
+/******************************************************************************/
+void g3duvmap_unselectAllUVSets ( G3DUVMAP *uvmap ) {
+    list_free ( &uvmap->lseluvset, g3duvset_unsetSelected );
+}
+
+/******************************************************************************/
+uint32_t g3duv_copyUVFromList ( LIST *luv, G3DUV **curuv ) {
+    uint32_t nbuv = list_count ( luv );
+    LIST *ltmpuv = luv;
+    int i = 0x00;
+
+    (*curuv) = calloc ( nbuv, sizeof ( G3DUV ) );
+
+    while ( ltmpuv ) {
+        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+
+        (*curuv)[i].u = uv->u;
+        (*curuv)[i].v = uv->v;
+
+        i++;
+
+        ltmpuv = ltmpuv->next;
+    }
+
+    return nbuv;
+}
+
+/******************************************************************************/
 void g3duv_unsetSelected ( G3DUV *uv ) {
     uv->flags &= ~(UVSELECTED);
 }
@@ -63,7 +128,7 @@ uint32_t g3duvmap_isFixed ( G3DUVMAP *map ) {
 }
 
 /******************************************************************************/
-void g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
+uint32_t g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
     uint32_t nbuv = 0x00;
     LIST *ltmpuv = luv;
 
@@ -85,28 +150,8 @@ void g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
         uvout->u /= nbuv;
         uvout->v /= nbuv;
     }
-}
 
-/******************************************************************************/
-G3DUV *g3duv_copyUVFromList ( LIST *luv ) {
-    G3DUV *uvcpy = NULL;
-
-    if ( luv ) {
-        LIST *ltmpuv = luv;
-        uint32_t i = 0x00;
-
-        uvcpy = calloc ( list_count ( luv ), sizeof ( G3DUV ) );
-
-        while ( ltmpuv ) {
-            G3DUV *uv = ( G3DUV * ) ltmpuv->data;
-
-            memcpy ( &uvcpy[i++], uv, sizeof ( G3DUV ) );
-
-            ltmpuv = ltmpuv->next;
-        }
-    }
-
-    return uvcpy;
+    return nbuv;
 }
 
 /******************************************************************************/

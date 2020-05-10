@@ -148,6 +148,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** They must not collide with below flags t ease code reuse ***/
 #define VIEWVERTEXUV       ( 1  << 28 )
 #define VIEWFACEUV         ( 1  << 29 )
+#define UVMODEMASK         ( VIEWVERTEXUV | VIEWFACEUV )
 
 /******************************* Object Types *********************************/
 #define OBJECT         (  1       )
@@ -265,6 +266,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /********************************** UV Flags **********************************/
 #define UVSELECTED            (  1       )
+
+/******************************** UVSets Flags ********************************/
+#define UVSETSELECTED         (  1       )
 
 /******************************** height Flags ********************************/
 #define HEIGHTSET (  1       )
@@ -720,7 +724,8 @@ typedef struct _G3DUVMAP {
     LIST    *lmat;  /*** list of attached materials ***/
     uint32_t nbmat; /*** Number of attached materials ***/
     uint32_t mapID;
-    LIST    *lseluv;
+    LIST    *lseluv; /*** list of selected UVs ***/
+    LIST    *lseluvset; /*** list of selected UVSets ***/
 } G3DUVMAP;
 
 /******************************************************************************/
@@ -758,8 +763,9 @@ struct _G3DUVSET {
     G3DUV     veruv[0x04];
     G3DUV     miduv[0x04];
     G3DUV     cenuv;       /*** face center UV ***/
+    uint32_t  nbuv;
     /*** active helps us determine what face have a texture applied ***/
-    uint64_t  active; /*** supports max 64 textures per uvset ***/
+    uint64_t  restriction; /*** supports max 64 textures per uvset ***/
 };
 
 /******************************************************************************/
@@ -2252,8 +2258,11 @@ void       g3dmesh_selectAllFaces         ( G3DMESH * );
 G3DMESH   *g3dmesh_merge                  ( LIST *, uint32_t, uint32_t );
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes );
 void g3dmesh_removeUVMap ( );
-void g3dmesh_pickUVs ( G3DMESH *mes, uint32_t eflags );
-void g3dmesh_drawUVs ( G3DMESH *mes, uint32_t eflags );
+void g3dmesh_pickVertexUVs ( G3DMESH *mes, uint32_t eflags );
+void g3dmesh_pickFaceUVs ( G3DMESH *mes, uint32_t eflags );
+void g3dmesh_drawVertexUVs ( G3DMESH *mes, uint32_t eflags );
+void g3dmesh_drawFaceUVs ( G3DMESH *mes, uint32_t eflags );
+G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2446,6 +2455,14 @@ uint32_t g3duvmap_isFixed ( G3DUVMAP *map );
 void g3duvmap_selectUV ( G3DUVMAP *uvmap, G3DUV *uv );
 void g3duvmap_unselectUV ( G3DUVMAP *uvmap, G3DUV *uv );
 void g3duvmap_unselectAllUVs ( G3DUVMAP *uvmap );
+uint32_t g3duv_copyUVFromList ( LIST *luv, G3DUV **curuv );
+uint32_t g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout );
+
+void g3duvmap_unselectAllUVSets ( G3DUVMAP *uvmap );
+void g3duvmap_selectUVSet ( G3DUVMAP *uvmap, G3DUVSET *uvset );
+void g3duvmap_unselectUVSet ( G3DUVMAP *uvmap, G3DUVSET *uvset );
+void g3duvset_unsetSelected ( G3DUVSET *uvset );
+LIST *g3duvset_getUVsFromList ( LIST *luvset );
 
 /******************************************************************************/
 void      g3dpivot_free ( G3DOBJECT * );

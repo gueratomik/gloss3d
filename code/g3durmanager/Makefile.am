@@ -12,6 +12,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmweldvertices.c \
                                urmmovepoint.c \
                                urmmovevertices.c \
+                               urmmoveuvs.c \
                                urmextrudemesh.c \
                                urminvertnormal.c \
                                urmmoveobject.c \

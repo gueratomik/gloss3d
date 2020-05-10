@@ -116,6 +116,14 @@ typedef struct _URMMOVEVERTICES {
 } URMMOVEVERTICES;
 
 /******************************************************************************/
+typedef struct _URMMOVEUVS {
+    G3DUVMAP *uvmap;
+    LIST     *luv;
+    G3DUV    *olduv;
+    G3DUV    *newuv;
+} URMMOVEUVS;
+
+/******************************************************************************/
 typedef struct _URMCUTMESH {
     G3DMESH *mes;
     LIST *loldfac;
@@ -297,6 +305,7 @@ void g3durmanager_push ( G3DURMANAGER *, void (*) ( G3DURMANAGER *, void *, uint
 void g3duritem_free ( G3DURITEM * );
 void g3durmanager_clearFrom ( G3DURMANAGER *, LIST ** );
 void g3durmanager_clear     ( G3DURMANAGER * );
+void g3durmanager_free ( G3DURMANAGER *urm );
 
 /******************************************************************************/
 G3DURITEM *g3duritem_new ( void (*) ( G3DURMANAGER *,void *, uint32_t ),/* undo func    */
@@ -461,6 +470,19 @@ void g3durm_scene_pickObject  ( G3DURMANAGER *, G3DSCENE *,
                                                 LIST *,
                                                 uint32_t,
                                                 uint32_t );
+void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm, 
+                            G3DUVMAP     *uvmap,
+                            LIST        *loldseluv,
+                            LIST        *lnewseluv,
+                            uint32_t     engine_flags,
+                            uint32_t     return_flags );
+
+void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm, 
+                               G3DUVMAP     *uvmap,
+                               LIST        *loldseluv,
+                               LIST        *lnewseluv,
+                               uint32_t     engine_flags,
+                               uint32_t     return_flags );
 
 /******************************************************************************/
 URMADDVERTEX *urmaddvertex_new ( G3DMESH *, G3DVERTEX * );
@@ -639,5 +661,21 @@ void movePoint_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
 void movePoint_free ( void *data, uint32_t commit );
 void urmmovepoint_free ( URMMOVEPOINT *ump );
 URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
+
+/******************************************************************************/
+URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap, 
+                             LIST      *luv,
+                             G3DVECTOR *olduv,
+                             G3DVECTOR *newuv );
+void urmmoveuvs_free ( URMMOVEUVS *muvs );
+void moveUVs_free ( void *data, uint32_t commit );
+void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
+                               G3DUVMAP     *uvmap, 
+                               LIST         *luv,
+                               G3DVECTOR    *olduv,
+                               G3DVECTOR    *newuv, 
+                               uint32_t      return_flags );
 
 #endif

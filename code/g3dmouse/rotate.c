@@ -167,6 +167,136 @@ static int rotate_spline ( G3DSPLINE    *spl,
 }
 
 /******************************************************************************/
+int rotateUV_tool ( G3DMOUSETOOL *mou, 
+                    G3DSCENE     *sce, 
+                    G3DCAMERA    *cam,
+                    G3DURMANAGER *urm,
+                    uint32_t      eflags, 
+                    G3DEvent     *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static int32_t mouseXpress, mouseYpress;
+    G3DOBJECT *obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
+    static int VPX[0x04];
+    static float widthFactor;
+    static float heightFactor;
+    static int xold, yold;
+    static G3DUV *olduv, *newuv;
+    static uint32_t nbuv;
+    static G3DUV cenuv;
+    static LIST *lseluv;
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( uvmap ) {
+                switch ( event->type ) {
+                    case G3DButtonPress : {
+                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                        mouseXpress = xold = bev->x;
+                        mouseYpress = yold = bev->y;
+
+                        if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
+                        if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
+
+                        g3duv_copyUVFromList     ( lseluv, &olduv );
+                        g3duv_getAverageFromList ( lseluv, &cenuv );
+
+                        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                        /* Note: cam->obj.sca.z = cam->obj.sca.x = cam->obj.sca.y */
+                    } return REDRAWVIEW;
+
+                    case G3DMotionNotify : {
+                        G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+                        if ( mev->state & G3DButton1Mask ) {
+                            if ( ( eflags & VIEWVERTEXUV ) ||
+                                 ( eflags & VIEWFACEUV   ) ) {
+                                float angle = ( float ) ( mev->x - xold ) * 0.005f;
+                                /*** Build the 2D rotation matrix ***/
+                                float RTX[0x04] = { cos ( angle ), - sin ( angle ),
+                                                    sin ( angle ),   cos ( angle ) };
+                                LIST *ltmpuv = lseluv;
+                                int i = 0x00;
+
+                                while ( ltmpuv ) {
+                                    G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+                                    G3DUV vec = { .u = olduv[i].u - cenuv.u,
+                                                  .v = olduv[i].v - cenuv.v };
+                                    /** Perform Matrix multiplication ***/
+                                    G3DUV vrt = { .u = ( vec.u * RTX[0x00] ) + 
+                                                       ( vec.v * RTX[0x01] ),
+                                                  .v = ( vec.u * RTX[0x02] ) +
+                                                       ( vec.v * RTX[0x03] ) };
+
+                                    uv->u = cenuv.u + vrt.u;
+                                    uv->v = cenuv.v + vrt.v;
+
+                                    i++;
+
+                                    ltmpuv = ltmpuv->next;
+                                }
+                            }
+                        }
+                    } return REDRAWVIEW | REDRAWUVMAPEDITOR;
+
+                    case G3DButtonRelease : {
+                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                        /*** simulate click and release ***/
+                        if ( ( bev->x == mouseXpress ) && 
+                             ( bev->y == mouseYpress ) ) {
+                            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                          bev->x, VPX[0x03] - bev->y },
+                                               .only_visible = 0x00,
+                                               .weight = 0.0f,
+                                               .radius = 0x08 };
+
+                            /*** we use pick_tool and not pick_Item in order to ***/
+                            /*** get the undo/redo support ***/
+                            void *tmpdata = mou->data;
+                            mou->data = &pt;
+                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
+                            mou->data = tmpdata;
+
+                            /*** cancel arrays allocated for undo-redo ***/
+                            if ( olduv ) free ( olduv );
+                        } else {
+                            g3duv_copyUVFromList ( lseluv, &newuv );
+
+                            g3durm_uvmap_moveUVList ( urm,
+                                                      uvmap, 
+                                                      lseluv,
+                                                      olduv, 
+                                                      newuv, 
+                                                      REDRAWVIEW |
+                                                      REDRAWUVMAPEDITOR );
+                        }
+
+                        list_free ( &lseluv, NULL );
+
+                        olduv = newuv = NULL;
+                    } return REDRAWVIEW            | 
+                             REDRAWCOORDS          | 
+                             BUFFEREDSUBDIVISIONOK | 
+                             REDRAWCURRENTOBJECT   | 
+                             REDRAWUVMAPEDITOR;
+
+                    default :
+                    break;
+                }
+            }
+        }
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 static int rotate_mesh ( G3DMESH          *mes,
                          G3DMOUSETOOL     *mou, 
                          G3DSCENE         *sce, 

@@ -357,6 +357,8 @@ uint32_t g3dface_countUVSetsFromList ( LIST *lfac, uint32_t fixedOnly ) {
 void g3dface_addUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
     uint32_t i;
 
+    uvs->nbuv = fac->nbver;
+
     list_insert ( &fac->luvs, uvs );
 
     fac->nbuvs++;

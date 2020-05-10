@@ -612,7 +612,7 @@ void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *,
 
 void gtk3_g3dui_setMode   ( GtkWidget *, gpointer );
 void g3dui_setMouseTool   ( GtkWidget *, gpointer );
-void g3dui_setUVMouseTool ( GtkWidget *, gpointer );
+void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *, gpointer );
 gboolean gtk3_showGL      ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL          ( GtkWidget *, gpointer );
 void gtk3_sizeGL          ( GtkWidget *, GdkRectangle *, gpointer );
@@ -664,6 +664,9 @@ GtkWidget *g3dui_addMenuToggle ( GtkWidget *menu, G3DUI *gui,
                                                   const gchar *name,
                                                   gint width,
                                                   GCallback callback );
+
+void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data );
+
 G3DCAMERA *g3dui_getCurrentViewCamera ( G3DUI *gui );
 G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui );
 
@@ -703,4 +706,17 @@ void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
 void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
+void g3duiuvmapeditor_undoCbk ( GtkWidget *widget, gpointer user_data );
+void g3duiuvmapeditor_redoCbk ( GtkWidget *widget, gpointer user_data );
+void g3duiuvmapeditor_uv2verCbk ( GtkWidget *widget, gpointer user_data );
+void g3duiuvmapeditor_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
+
+
+GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
+                             G3DUIUVMAPEDITOR *uvme,
+                             char             *name,
+                             gint              x,
+                             gint              y,
+                             gint              width,
+                             gint              height );
 #endif

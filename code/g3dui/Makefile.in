@@ -178,10 +178,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duisymmetryedit.c gtk3/g3duitextedit.c \
 	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
 	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duiuvmapedit.c gtk3/g3duiuvmapeditor.c \
-	gtk3/g3duiuvmapeditortoolbar.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
-	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
+	gtk3/g3duiuvmenubar.c gtk3/g3duiuvmapedit.c \
+	gtk3/g3duiuvmapeditor.c gtk3/g3duiuvmapeditortoolbar.c \
+	gtk3/g3duiview.c gtk3/g3duiweightgrouplist.c \
+	gtk3/g3duiwireframeedit.c gtk3/r3dpreview.c \
+	gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c
@@ -253,7 +254,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duitextedit.lo gtk3/g3duitextureedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiuvmapedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiuvmenubar.lo gtk3/g3duiuvmapedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiuvmapeditor.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiuvmapeditortoolbar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/g3duiweightgrouplist.lo \
@@ -372,7 +373,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapedit.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo \
-	gtk3/$(DEPDIR)/g3duiview.Plo \
+	gtk3/$(DEPDIR)/g3duiuvmenubar.Plo gtk3/$(DEPDIR)/g3duiview.Plo \
 	gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo \
 	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo \
 	gtk3/$(DEPDIR)/r3dpreview.Plo \
@@ -646,6 +647,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitimeline.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiuvmenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapeditor.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapeditortoolbar.c \
@@ -920,6 +922,8 @@ gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiuvmenubar.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiuvmapedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiuvmapeditor.lo: gtk3/$(am__dirstamp) \
@@ -1058,6 +1062,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmenubar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiview.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@ # am--include-marker
@@ -1334,6 +1339,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiuvmenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
@@ -1478,6 +1484,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiuvmenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo

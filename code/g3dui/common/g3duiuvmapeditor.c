@@ -31,8 +31,272 @@
 
 #define CLEARCOLOR 100
 
+/******************************************************************************/
+void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme, 
+                                              G3DCAMERA        *cam, 
+                                              G3DMOUSETOOL     *mou ) {
+    G3DUI *gui = uvme->gui;
 
+    /*** Call the mouse tool initialization function once. This ***/
+    /*** can be used by this function to initialize some values ***/
+    if ( mou ) {
+        if ( mou->init ) {
+            uint32_t msk = mou->init ( mou, gui->sce,
+                                           &uvme->cam,
+                                            uvme->uvurm, uvme->flags );
 
+            common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
+        }
+
+        if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
+            gui->uvmou = mou;
+        }
+    } else {
+        gui->uvmou = NULL;
+    }
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( obj ) {
+
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( curmap ) {
+                LIST *ltmpfac = mes->lfac;
+                LIST *lselold, *lselnew;
+
+                lselold = list_copy ( mes->lselfac );
+
+                g3dmesh_unselectAllFaces ( mes );
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                    int i;
+
+                    if ( uvset->flags & UVSETSELECTED ) {
+                        if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
+                            g3dmesh_selectFace ( mes, fac );
+                        }
+                    }
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                lselnew = list_copy ( mes->lselfac );
+
+                /*** remember selection ***/
+                g3durm_mesh_pickFaces  ( uvme->gui->urm, 
+                                         mes,
+                                         lselold,
+                                         lselnew,
+                                         VIEWFACE,
+                                         REDRAWVIEW |
+                                         REDRAWUVMAPEDITOR );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( obj ) {
+
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( curmap ) {
+                LIST *ltmpfac = mes->lfac;
+                LIST *lselold, *lselnew;
+
+                lselold = list_copy ( curmap->lseluvset );
+
+                g3duvmap_unselectAllUVSets ( curmap );
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    int i;
+
+                    if ( fac->flags & FACESELECTED ) {
+                        G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+
+                        if ( ( uvset->flags & UVSETSELECTED ) == 0x00 ) {
+                            g3duvmap_selectUVSet ( curmap, uvset );
+                        }
+                    }
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                lselnew = list_copy ( curmap->lseluvset );
+
+                /*** remember selection ***/
+                g3durm_uvmap_pickUVSets  ( uvme->uvurm, 
+                                           curmap,
+                                           lselold,
+                                           lselnew,
+                                           VIEWFACEUV,
+                                           REDRAWVIEW |
+                                           REDRAWUVMAPEDITOR );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( curmap ) {
+                LIST *ltmpfac = mes->lfac;
+                LIST *lselold, *lselnew;
+
+                lselold = list_copy ( mes->lselver );
+
+                g3dmesh_unselectAllVertices ( mes );
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                    int i;
+
+                    for ( i = 0x00; i < uvset->nbuv; i++ ) {
+                        G3DUV *uv = &uvset->veruv[i];
+
+                        if ( uv->flags & UVSELECTED ) {
+                            G3DVERTEX *ver = fac->ver[i];
+
+                            if ( ( ver->flags & VERTEXSELECTED ) == 0x00 ) {
+                                g3dmesh_selectVertex ( mes, ver );
+                            }
+                        }
+                    }
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                lselnew = list_copy ( mes->lselver );
+
+                /*** remember selection ***/
+                g3durm_mesh_pickVertices  ( uvme->gui->urm,
+                                            mes,
+                                            lselold,
+                                            lselnew,
+                                            VIEWVERTEX,
+                                            REDRAWVIEW |
+                                            REDRAWUVMAPEDITOR );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( obj ) {
+
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( curmap ) {
+                LIST *ltmpfac = mes->lfac;
+                LIST *lselold, *lselnew;
+
+                lselold = list_copy ( curmap->lseluv );
+
+                g3duvmap_unselectAllUVs ( curmap );
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                    int i;
+
+                    for ( i = 0x00; i < fac->nbver; i++ ) {
+                        G3DVERTEX *ver = fac->ver[i];
+
+                        if ( ver->flags & VERTEXSELECTED ) {
+                            G3DUV *uv = &uvset->veruv[i];
+
+                            if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
+                                g3duvmap_selectUV ( curmap, uv );
+                            }
+                        }
+                    }
+
+                    ltmpfac = ltmpfac->next;
+                }
+
+                lselnew = list_copy ( curmap->lseluv );
+
+                /*** remember selection ***/
+                g3durm_uvmap_pickUVs  ( uvme->uvurm, 
+                                        curmap,
+                                        lselold,
+                                        lselnew,
+                                        VIEWVERTEXUV,
+                                        REDRAWVIEW |
+                                        REDRAWUVMAPEDITOR );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    uint32_t return_value;
+
+    return_value = g3durmanager_undo ( uvme->uvurm, uvme->flags );
+
+    common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
+
+    /*if ( return_value & REDRAWVIEW ) {
+        g3dui_redrawGLViews ( gui );
+    }
+
+    if ( return_value & REDRAWLIST ) {
+        g3dui_redrawObjectList ( gui );
+    }
+
+    if ( return_value & REDRAWCURRENTOBJECT ) {
+        g3dui_updateAllCurrentEdit ( gui );
+    }*/
+}
+
+/******************************************************************************/
+void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme ) {
+    uint32_t return_value;
+
+    return_value = g3durmanager_redo ( uvme->uvurm, uvme->flags );
+
+    common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
+
+    /*if ( return_value & REDRAWVIEW ) {
+        g3dui_redrawGLViews ( gui );
+    }
+
+    if ( return_value & REDRAWLIST ) {
+        g3dui_redrawObjectList ( gui );
+    }
+
+    if ( return_value & REDRAWCURRENTOBJECT ) {
+        g3dui_updateAllCurrentEdit ( gui );
+    }*/
+}
 
 /******************************************************************************/
 void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme, 
@@ -121,6 +385,8 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
 
     uvme->cam.obj.flags = CAMERAORTHO;
 
+    uvme->uvurm = g3durmanager_new ( 20 );
+
     uvme->flags = VIEWVERTEXUV;
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
@@ -138,15 +404,15 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
     /*** set rectangle position for each button ***/
     for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
         uvme->rec[i].x      = xpos;
-        uvme->rec[i].y      = TOOLBARBUTTONSIZE;
+        uvme->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
         uvme->rec[i].width  = BUTTONSIZE;
-        uvme->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE;
+        uvme->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
     }
 
     uvme->arearec.x      = MODEBARBUTTONSIZE;
-    uvme->arearec.y      = BUTTONSIZE;
+    uvme->arearec.y      = BUTTONSIZE + 0x20;
     uvme->arearec.width  = width - MODEBARBUTTONSIZE;
-    uvme->arearec.height = height - BUTTONSIZE;
+    uvme->arearec.height = height - BUTTONSIZE - 0x20;
 
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }
@@ -171,69 +437,58 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
     glEnable ( GL_COLOR_MATERIAL );
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-    /*glBegin ( GL_LINE_LOOP );
-    glVertex3f   ( uvme->cam->canevas.x, 
-                   uvme->cam->canevas.y, 0.0f );
-    glVertex3f   ( uvme->cam->canevas.x + 
-                   uvme->cam->canevas.width, 
-                   uvme->cam->canevas.y, 0.0f );
-    glVertex3f   ( uvme->cam->canevas.x + 
-                   uvme->cam->canevas.width, 
-                   uvme->cam->canevas.y + 
-                   uvme->cam->canevas.height, 0.0f );
-    glVertex3f   ( uvme->cam->canevas.x, 
-                   uvme->cam->canevas.y + 
-                   uvme->cam->canevas.height, 0.0f );
-    glEnd ( );*/
+    glBegin ( GL_LINE_LOOP );
+    glVertex3f   ( 0.0f, 0.0f, 0.0f );
+    glVertex3f   ( 1.0f, 0.0f, 0.0f );
+    glVertex3f   ( 1.0f, 1.0f, 0.0f );
+    glVertex3f   ( 0.0f, 1.0f, 0.0f );
+    glEnd ( );
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
         G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
+        /*** try the first texture in case no texture is selected ***/
+        if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
 
-        g3dmesh_drawUVs ( mes, engine_flags );
+        if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
+        if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
 
-#ifdef UNUSED
         if ( tex ) {
             G3DMATERIAL *mat = tex->mat;
 
             if ( mat ) {
                 G3DCHANNEL *chn = &mat->diffuse;
 
+                glEnable ( GL_TEXTURE_2D );
+
                 if ( chn->flags & USEIMAGECOLOR ) {
                     if ( chn->image ) {
-                        float imgratio = chn->image->width / 
-                                         chn->image->height;
-                        float x1 =   uvme->cam->canevas.x,
-                              y1 =   uvme->cam->canevas.y,
-                              x2 = ( uvme->cam->canevas.x + 
-                                     uvme->cam->canevas.width ),
-                              y2 = ( uvme->cam->canevas.y + 
-                                     uvme->cam->canevas.height );
-
-                        glEnable      ( GL_TEXTURE_2D );
                         glBindTexture ( GL_TEXTURE_2D, chn->image->id );
-
-                        /*common_g3duiuvmapeditor_setCanevas ( uvme );*/
-
-                        glBegin ( GL_QUADS );
-                        glTexCoord2f ( 0, 0 );
-                        glVertex3f   ( x1, y1, 0.0f );
-                        glTexCoord2f ( 1, 0 );
-                        glVertex3f   ( x2, y1, 0.0f );
-                        glTexCoord2f ( 1, 1 );
-                        glVertex3f   ( x2, y2, 0.0f );
-                        glTexCoord2f ( 0, 1 );
-                        glVertex3f   ( x1, y2, 0.0f );
-                        glEnd ( );
-
-                        glDisable ( GL_TEXTURE_2D );
                     }
                 }
+
+                if ( chn->flags & USEPROCEDURAL ) {
+                    if ( chn->proc->image.data ) {
+                        glBindTexture ( GL_TEXTURE_2D, chn->proc->image.id );
+                    }
+                }
+
+                glBegin ( GL_QUADS );
+                glTexCoord2f ( 0.0f, 0.0f );
+                glVertex3f   ( 0.0f, 0.0f, 0.0f );
+                glTexCoord2f ( 1.0f, 0.0f );
+                glVertex3f   ( 1.0f, 0.0f, 0.0f );
+                glTexCoord2f ( 1.0f, 1.0f );
+                glVertex3f   ( 1.0f, 1.0f, 0.0f );
+                glTexCoord2f ( 0.0f, 1.0f );
+                glVertex3f   ( 0.0f, 1.0f, 0.0f );
+                glEnd ( );
+
+                glDisable ( GL_TEXTURE_2D );
             }
         }
-#endif
     }
 
     if ( mou && mou->draw ) {

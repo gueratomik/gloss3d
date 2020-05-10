@@ -134,13 +134,14 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3durmanager_la_LIBADD =
 am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmdelselitems.lo urmweldvertices.lo urmmovepoint.lo \
-	urmmovevertices.lo urmextrudemesh.lo urminvertnormal.lo \
-	urmmoveobject.lo urmSplitMesh.lo urmRevertSpline.lo \
-	urmObjectRemoveKeys.lo urmRoundSplinePoint.lo \
-	urmAddSplinePoint.lo urmAddSplineSegment.lo urmCutSpline.lo \
-	urmObjectPose.lo urmDeleteSplinePoints.lo urmselectitem.lo \
-	urmcutmesh.lo urmuntriangulate.lo urmcreateface.lo \
-	urmaddvertex.lo urmtriangulate.lo
+	urmmovevertices.lo urmmoveuvs.lo urmextrudemesh.lo \
+	urminvertnormal.lo urmmoveobject.lo urmSplitMesh.lo \
+	urmRevertSpline.lo urmObjectRemoveKeys.lo \
+	urmRoundSplinePoint.lo urmAddSplinePoint.lo \
+	urmAddSplineSegment.lo urmCutSpline.lo urmObjectPose.lo \
+	urmDeleteSplinePoints.lo urmselectitem.lo urmcutmesh.lo \
+	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
+	urmtriangulate.lo
 am_libgloss_g3durmanager_la_OBJECTS = $(am__objects_1)
 libgloss_g3durmanager_la_OBJECTS =  \
 	$(am_libgloss_g3durmanager_la_OBJECTS)
@@ -178,8 +179,9 @@ am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmcreateface.Plo ./$(DEPDIR)/urmcutmesh.Plo \
 	./$(DEPDIR)/urmdelselitems.Plo ./$(DEPDIR)/urmextrudemesh.Plo \
 	./$(DEPDIR)/urminvertnormal.Plo ./$(DEPDIR)/urmmoveobject.Plo \
-	./$(DEPDIR)/urmmovepoint.Plo ./$(DEPDIR)/urmmovevertices.Plo \
-	./$(DEPDIR)/urmselectitem.Plo ./$(DEPDIR)/urmtriangulate.Plo \
+	./$(DEPDIR)/urmmovepoint.Plo ./$(DEPDIR)/urmmoveuvs.Plo \
+	./$(DEPDIR)/urmmovevertices.Plo ./$(DEPDIR)/urmselectitem.Plo \
+	./$(DEPDIR)/urmtriangulate.Plo \
 	./$(DEPDIR)/urmuntriangulate.Plo \
 	./$(DEPDIR)/urmweldvertices.Plo
 am__mv = mv -f
@@ -364,6 +366,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmweldvertices.c \
                                urmmovepoint.c \
                                urmmovevertices.c \
+                               urmmoveuvs.c \
                                urmextrudemesh.c \
                                urminvertnormal.c \
                                urmmoveobject.c \
@@ -481,6 +484,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urminvertnormal.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmmoveobject.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmmovepoint.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmmoveuvs.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmmovevertices.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmselectitem.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmtriangulate.Plo@am__quote@ # am--include-marker
@@ -671,6 +675,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/urminvertnormal.Plo
 	-rm -f ./$(DEPDIR)/urmmoveobject.Plo
 	-rm -f ./$(DEPDIR)/urmmovepoint.Plo
+	-rm -f ./$(DEPDIR)/urmmoveuvs.Plo
 	-rm -f ./$(DEPDIR)/urmmovevertices.Plo
 	-rm -f ./$(DEPDIR)/urmselectitem.Plo
 	-rm -f ./$(DEPDIR)/urmtriangulate.Plo
@@ -741,6 +746,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/urminvertnormal.Plo
 	-rm -f ./$(DEPDIR)/urmmoveobject.Plo
 	-rm -f ./$(DEPDIR)/urmmovepoint.Plo
+	-rm -f ./$(DEPDIR)/urmmoveuvs.Plo
 	-rm -f ./$(DEPDIR)/urmmovevertices.Plo
 	-rm -f ./$(DEPDIR)/urmselectitem.Plo
 	-rm -f ./$(DEPDIR)/urmtriangulate.Plo

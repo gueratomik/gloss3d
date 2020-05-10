@@ -414,13 +414,6 @@ void g3dpick_setEpsilon ( float epsilon ) {
 }
 
 /******************************************************************************/
-void g3dpick_loadMatrix ( double *MVX ) {
-    G3DPICK *pick = g3dpick_get ( );
-
-    memcpy ( pick->MVX, MVX, sizeof ( double ) * 0x10 );
-}
-
-/******************************************************************************/
 void g3dpick_clear ( ) {
     G3DPICK *pick = g3dpick_get ( );
 
