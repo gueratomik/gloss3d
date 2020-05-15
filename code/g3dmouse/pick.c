@@ -595,11 +595,11 @@ int weight_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
         	        G3DMESH *mes = ( G3DMESH * ) obj;
 
         	        /*** If there is no weightGroup, add one ***/
-        	        if ( mes->lgrp == NULL ) {
+        	        if ( mes->lweigrp == NULL ) {
                 	    G3DWEIGHTGROUP *grp;
                 	    char buf[0x20];
 
-                	    snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbgrp );
+                	    snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbweigrp );
 
                 	    grp = g3dweightgroup_new ( mes, buf );
 
@@ -672,7 +672,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                                 shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
 
-                                return REDRAWVIEW | REDRAWUVMAPEDITOR;
+                                return REDRAWUVMAPEDITOR;
         	            }
                     } return 0x00;
 

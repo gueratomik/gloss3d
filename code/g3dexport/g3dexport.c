@@ -1117,7 +1117,7 @@ static uint32_t nbweightgroup_blocksize ( ) {
 /******************************************************************************/
 static uint32_t weightgroups_blocksize ( G3DMESH *mes ) {
     uint32_t blocksize = 0x00;
-    LIST *ltmp = mes->lgrp;
+    LIST *ltmp = mes->lweigrp;
 
     blocksize += ( ( nbweightgroup_blocksize ( )  + 0x06 ) );
 
@@ -1771,7 +1771,7 @@ static void subdivision_writeblock ( uint16_t subdiv,
 
 /******************************************************************************/
 static void nbweightgroup_writeblock ( G3DMESH *mes, FILE *fdst ) {
-    writef ( &mes->nbgrp, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &mes->nbweigrp, sizeof ( uint32_t ), 0x01, fdst );
 }
 
 /******************************************************************************/
@@ -1809,7 +1809,7 @@ static void weightgroup_writeblock ( G3DWEIGHTGROUP *grp, FILE *fdst ) {
 
 /******************************************************************************/
 static void weightgroups_writeblock ( G3DMESH *mes, FILE *fdst ) {
-    LIST *ltmp = mes->lgrp;
+    LIST *ltmp = mes->lweigrp;
     uint32_t id = 0x00;
 
     chunk_write ( NBWEIGHTGROUPSIG, nbweightgroup_blocksize ( ), fdst );

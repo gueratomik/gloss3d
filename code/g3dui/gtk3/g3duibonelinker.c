@@ -38,7 +38,7 @@ static G3DWEIGHTGROUP *getWeightGroup ( G3DBONE *bon, float mouse_x,
     while ( parent ) {
         if ( parent->type == G3DMESHTYPE ) {
             G3DMESH *mes =( G3DMESH * ) parent;
-            LIST *ltmpgrp = mes->lgrp;
+            LIST *ltmpgrp = mes->lweigrp;
 
             while ( ltmpgrp ) {
                 G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
@@ -76,7 +76,7 @@ static uint32_t drawBoneWeightGroups ( GtkStyleContext *context, cairo_t *cr,
     while ( parent ) {
         if ( parent->type == G3DMESHTYPE ) {
             G3DMESH *mes =( G3DMESH * ) parent;
-            LIST *ltmpgrp = mes->lgrp;
+            LIST *ltmpgrp = mes->lweigrp;
             char buf[0x100];
 
             while ( ltmpgrp ) {

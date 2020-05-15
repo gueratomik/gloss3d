@@ -55,7 +55,7 @@
 /******************************************************************************/
 static uint32_t drawMeshWeightGroups ( GtkStyleContext *context, cairo_t *cr,
                                                                  G3DMESH *mes ) {
-    LIST *ltmpgrp = mes->lgrp;
+    LIST *ltmpgrp = mes->lweigrp;
     cairo_text_extents_t te;
     GdkRGBA fg;
     uint32_t maxheight = 0x00, maxwidth = 0x00;

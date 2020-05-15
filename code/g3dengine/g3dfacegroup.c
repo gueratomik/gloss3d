@@ -30,51 +30,77 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dtexture_restrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_addTextureSlot ( facgrp, tex->slotBit );
+void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp ) {
+    facgrp->flags &= ~(FACEGROUPSELECTED);
 }
 
 /******************************************************************************/
-void g3dtexture_unrestrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_removeTextureSlot ( facgrp, tex->slotBit );
-}
+void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
+                                   uint32_t      slotBit ) {
+    LIST *ltmpfac = facgrp->lfac;
 
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {
-    LIST *ltmptex = ltex;
+    facgrp->textureSlots |= slotBit;
 
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( tex->map == map ) return tex;
+        fac->textureSlots |= slotBit;
 
-        ltmptex = ltmptex->next;
+        ltmpfac = ltmpfac->next;
     }
-
-    return NULL;
 }
 
 /******************************************************************************/
-void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURESELECTED);
+void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
+                                      uint32_t      slotBit ) {
+    LIST *ltmpfac = facgrp->lfac;
+
+    facgrp->textureSlots &= (~slotBit);
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        fac->textureSlots &= (~slotBit);
+
+        ltmpfac = ltmpfac->next;
+    }
 }
 
 /******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map ) {
-    G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
+void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
+    list_insert ( &facgrp->lfac, fac );
 
-    if ( tex == NULL ) {
+    fac->textureSlots |= facgrp->textureSlots;
+
+    facgrp->nbfac++;
+}
+
+/******************************************************************************/
+void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
+    list_remove ( &facgrp->lfac, fac );
+
+    fac->textureSlots &= (~facgrp->textureSlots);
+
+    facgrp->nbfac--;
+}
+
+/******************************************************************************/
+G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
+    uint32_t structSize = sizeof ( G3DFACEGROUP );
+    G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) calloc ( 0x01, structSize );
+
+    if ( facgrp == NULL ) {
         fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
 
         return NULL;
     }
 
-    /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
+    facgrp->name = strdup ( name );
 
-    tex->mat    = mat;
-    tex->map    = map;
+    facgrp->lfac = list_copy ( lfac );
+
+    facgrp->nbfac = list_count ( lfac );
 
 
-    return tex;
+    return facgrp;
 }

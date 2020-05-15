@@ -443,7 +443,7 @@ LIST *g3dbone_getAllWeightGroups ( G3DBONE *bon ) {
     while ( ltmpmes ) {
         G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
         char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lgrp;
+        LIST *ltmpgrp = mes->lweigrp;
 
         while ( ltmpgrp ) {
             G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
@@ -471,7 +471,7 @@ LIST *g3dbone_seekWeightGroups ( G3DBONE *bon ) {
     while ( ltmpmes ) {
         G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
         char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lgrp;
+        LIST *ltmpgrp = mes->lweigrp;
 
         while ( ltmpgrp ) {
             G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
@@ -503,7 +503,7 @@ G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *bon, uint32_t id ) {
     while ( ltmpmes ) {
         G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
         char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lgrp;
+        LIST *ltmpgrp = mes->lweigrp;
 
         while ( ltmpgrp ) {
             G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;

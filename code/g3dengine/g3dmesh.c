@@ -30,6 +30,76 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
+    LIST *ltmpfacgrp = mes->lselfacgrp;
+
+    g3dmesh_unselectAllFaces ( mes );
+
+    while ( ltmpfacgrp ) {
+        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+        LIST *ltmpfac = facgrp->lfac;
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+            g3dmesh_selectFace ( mes, fac );
+
+            ltmpfac = ltmpfac->next;
+        }
+
+        ltmpfacgrp = ltmpfacgrp->next;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_unselectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
+    list_remove ( &mes->lselfacgrp, facgrp );
+
+    facgrp->flags &= ~(FACEGROUPSELECTED);
+}
+
+/******************************************************************************/
+void g3dmesh_selectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
+    list_insert ( &mes->lselfacgrp, facgrp ); 
+
+    facgrp->flags |= FACEGROUPSELECTED;
+}
+
+/******************************************************************************/
+void g3dmesh_unselectAllFacegroups ( G3DMESH *mes ) {
+    list_free ( &mes->lselfacgrp, g3dfacegroup_unsetSelected );
+}
+
+/******************************************************************************/
+void g3dmesh_removeFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
+    list_remove ( &mes->lfacgrp, facgrp );
+
+    mes->nbfacgrp--;
+}
+
+/******************************************************************************/
+void g3dmesh_addFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
+    list_insert ( &mes->lfacgrp, facgrp );
+
+    mes->nbfacgrp++;
+}
+
+/******************************************************************************/
+uint32_t g3dmesh_getAvailableTextureSlot ( G3DMESH *mes ) {
+    uint32_t nbSlots = sizeof ( mes->textureSlots ) * 0x08;
+    int i;
+
+    for ( i = 0x00; i < nbSlots; i++ ) {
+        uint32_t slotBit = ( 1 << i );
+
+        if ( ( mes->textureSlots & slotBit ) == 0x00 ) return slotBit;
+    }
+
+    /*** no slots available ***/
+    return 0x00;
+}
+
+/******************************************************************************/
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes ) {
     if ( mes->ltex ) return mes->ltex->data;
 
@@ -986,7 +1056,7 @@ void g3dmesh_selectAllEdges ( G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID ( G3DMESH *mes, uint32_t grpid ) {
-    LIST *ltmp = mes->lgrp;
+    LIST *ltmp = mes->lweigrp;
 
     while ( ltmp ) {
         G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmp->data;
@@ -3206,12 +3276,20 @@ void g3dmesh_removeMaterial ( G3DMESH *mes, G3DMATERIAL  *mat ) {
 void g3dmesh_removeTexture ( G3DMESH *mes, G3DTEXTURE *tex ) {
     list_remove ( &mes->ltex, tex );
 
+    mes->textureSlots &= (~tex->slotBit);
+
+    tex->slotBit = 0x00;
+
     mes->nbtex--;
 }
 
 /******************************************************************************/
 void g3dmesh_addTexture ( G3DMESH *mes, G3DTEXTURE *tex ) {
     list_insert ( &mes->ltex, tex );
+
+    tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
+
+    mes->textureSlots |= tex->slotBit;
 
     mes->nbtex++;
 }
@@ -3300,16 +3378,16 @@ void g3dmesh_removeFace ( G3DMESH *mes, G3DFACE *fac ) {
 
 /******************************************************************************/
 void g3dmesh_addWeightGroup ( G3DMESH *mes, G3DWEIGHTGROUP *grp ) {
-    list_insert ( &mes->lgrp, grp );
+    list_insert ( &mes->lweigrp, grp );
 
-    mes->nbgrp++;
+    mes->nbweigrp++;
 }
 
 /******************************************************************************/
 void g3dmesh_removeWeightGroup ( G3DMESH *mes, G3DWEIGHTGROUP *grp ) {
-    list_remove ( &mes->lgrp, grp );
+    list_remove ( &mes->lweigrp, grp );
 
-    mes->nbgrp--;
+    mes->nbweigrp--;
 }
 
 /******************************************************************************/
@@ -3501,13 +3579,13 @@ void g3dmesh_invertVertexSelection ( G3DMESH *mes, uint32_t eflags ) {
 
 /******************************************************************************/
 void g3dmesh_unselectWeightGroup ( G3DMESH *mes, G3DWEIGHTGROUP *grp ) {
-    list_remove ( &mes->lselgrp, grp );
+    list_remove ( &mes->lselweigrp, grp );
 
     grp->flags &= ~(WEIGHTGROUPSELECTED);
 
     mes->curgrp = NULL;
 
-    mes->nbselgrp--;
+    mes->nbselweigrp--;
 
     g3dweightgroup_unpainted ( grp );
 }
@@ -3517,13 +3595,13 @@ void g3dmesh_selectWeightGroup ( G3DMESH *mes, G3DWEIGHTGROUP *grp ) {
 
     if ( mes->curgrp ) g3dmesh_unselectWeightGroup ( mes, mes->curgrp );
 
-    list_insert ( &mes->lselgrp, grp ); 
+    list_insert ( &mes->lselweigrp, grp ); 
 
     grp->flags |= WEIGHTGROUPSELECTED;
 
     mes->curgrp = grp;
 
-    mes->nbselgrp++;
+    mes->nbselweigrp++;
 
     g3dweightgroup_painted ( grp );
 }

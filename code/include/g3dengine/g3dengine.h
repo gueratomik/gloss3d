@@ -771,11 +771,23 @@ struct _G3DUVSET {
 /******************************************************************************/
 typedef struct _G3DTEXTURE {
     uint32_t      flags;
+    uint32_t      slotBit; /*** maximum number of textures per mesh = 32 ***/
     G3DMATERIAL  *mat;
     G3DUVMAP     *map;
     /*G3DRTUVSET   *rtuvsmem; *//*** UVSet buffer - for  non-power-of-2 texture ***/
                             /*** only for diffuse channel ***/
 } G3DTEXTURE;
+
+/******************************************************************************/
+#define FACEGROUPSELECTED ( 1 << 0x00 )
+
+typedef struct G3DFACEGROUP {
+    uint32_t flags;
+    char     *name;
+    uint32_t textureSlots;
+    LIST    *lfac;
+    uint32_t nbfac;
+} G3DFACEGROUP;
 
 /******************************************************************************/
 typedef struct _G3DSYMMETRY {
@@ -893,6 +905,8 @@ typedef struct _G3DFACE {
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
     float            surface;/*** used by the raytracer               ***/
     G3DHEIGHTMAP    *heightmap;
+    LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
+    uint32_t         textureSlots;
 } G3DFACE;
 
 #include <g3dengine/g3dcurve.h>
@@ -1013,16 +1027,20 @@ struct _G3DMESH {
     LIST *lfac;    /*** List of faces           ***/
     LIST *lqua;    /*** List of Quads           ***/
     LIST *ltri;    /*** List of Triangles       ***/
-    LIST *lgrp;    /*** List of vertex groups   ***/
+    LIST *lfacgrp; /*** List of face groups     ***/
+    LIST *lweigrp;
+    LIST *ltex;    /*** list of textures ***/
+    LIST *luvmap;
+
     LIST *lselver;
     LIST *lseledg;
     LIST *lselfac;
-    LIST *lselgrp;
+    LIST *lselweigrp;
+    LIST *lselfacgrp;
     LIST *lseltex;
     LIST *lseluv;
-    LIST *ltex;    /*** list of textures ***/
-    LIST *luvmap;
     LIST *lseluvmap;
+
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
@@ -1032,16 +1050,18 @@ struct _G3DMESH {
     uint32_t nbfac;
     uint32_t nbtri;
     uint32_t nbqua;
-    uint32_t nbgrp;
+    uint32_t nbweigrp;
+    uint32_t nbfacgrp;
     uint32_t nbhtm; /*** Number of heightmaps ***/
     uint32_t nbselver;
     uint32_t nbseledg;
     uint32_t nbselfac;
-    uint32_t nbselgrp;
+    uint32_t nbselweigrp;
     uint32_t nbseltex;
     uint32_t nbseluvmap;
     uint32_t nbtex;
     uint32_t nbuvmap;
+    uint32_t textureSlots; /*** available texture slots ***/
     G3DVECTOR avgSelVerPos; /* average selected vertex position */
     G3DVECTOR avgSelEdgPos; /* average selected vertex position */
     G3DVECTOR avgSelFacPos; /* average selected vertex position */
@@ -2263,6 +2283,13 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes, uint32_t eflags );
 void g3dmesh_drawVertexUVs ( G3DMESH *mes, uint32_t eflags );
 void g3dmesh_drawFaceUVs ( G3DMESH *mes, uint32_t eflags );
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes );
+uint32_t g3dmesh_getAvailableTextureSlot ( G3DMESH *mes );
+void g3dmesh_removeFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
+void g3dmesh_addFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
+void g3dmesh_selectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
+void g3dmesh_unselectAllFacegroups ( G3DMESH *mes );
+void g3dmesh_unselectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
+void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2430,6 +2457,8 @@ void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP * );
 G3DTEXTURE *g3dtexture_getFromUVMap  ( LIST *, G3DUVMAP * );
 void        g3dtexture_unsetSelected ( G3DTEXTURE * );
+void g3dtexture_restrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
+void g3dtexture_unrestrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
 
 /******************************************************************************/
 G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );
@@ -2573,5 +2602,16 @@ void g3dproceduralchess_copySettings ( G3DPROCEDURALCHESS *chess,
                                        G3DPROCEDURALCHESS *pout );
 void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *chess, 
                                        G3DPROCEDURALNOISE *pout );
+
+/******************************************************************************/
+void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
+                                   uint32_t      slotBit );
+void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
+                                      uint32_t      slotBit );
+void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
+void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
+G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac );
+void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp );
+
 #endif
 

@@ -233,7 +233,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
 
                         xold = mev->x;
                         yold = mev->y;
-                    } return REDRAWVIEW | REDRAWUVMAPEDITOR;
+                    } return REDRAWUVMAPEDITOR;
 
                     case G3DButtonRelease : {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;

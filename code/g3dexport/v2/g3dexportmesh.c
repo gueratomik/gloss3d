@@ -92,7 +92,7 @@ static uint32_t g3dexportmesh_weightgroups ( G3DEXPORTDATA *ged,
                                              G3DMESH       *mes, 
                                              uint32_t       flags, 
                                              FILE          *fdst ) {
-    LIST *ltmpgrp = mes->lgrp;
+    LIST *ltmpgrp = mes->lweigrp;
     uint32_t grpid = 0x00;
     uint32_t size = 0x00;
 
@@ -212,7 +212,7 @@ uint32_t g3dexportmesh ( G3DEXPORTDATA *ged,
                                    0xFFFFFFFF,
                                    fdst );
 
-    if ( mes->lgrp ) {
+    if ( mes->lweigrp ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUPS,
                                        g3dexportmesh_weightgroups,
                                        ged,

@@ -33,7 +33,7 @@
 G3DWEIGHTGROUP *common_g3duiweightgrouplist_getWeightGroup ( G3DMESH *mes, 
                                                              float mouse_x,
                                                              float mouse_y ) {
-    LIST *ltmpgrp = mes->lgrp;
+    LIST *ltmpgrp = mes->lweigrp;
     float y = 0;
 
     while ( ltmpgrp ) {
@@ -88,7 +88,7 @@ void common_g3duiweightgrouplist_addWeightGroupCbk ( G3DUI *gui ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         char buf[0x20];
 
-        snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbgrp );
+        snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbweigrp );
 
         g3dmesh_addWeightGroup ( mes, g3dweightgroup_new ( mes, buf ) );
 

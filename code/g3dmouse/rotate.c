@@ -242,7 +242,7 @@ int rotateUV_tool ( G3DMOUSETOOL *mou,
                                 }
                             }
                         }
-                    } return REDRAWVIEW | REDRAWUVMAPEDITOR;
+                    } return REDRAWUVMAPEDITOR;
 
                     case G3DButtonRelease : {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
