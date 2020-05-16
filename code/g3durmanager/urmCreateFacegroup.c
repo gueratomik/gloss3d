@@ -19,6 +19,7 @@
 /*                                                                            */
 /******************************************************************************/
 
+
 /******************************************************************************/
 /*                                                                            */
 /* Please avoid using global variables at all costs in this file, and never   */
@@ -27,87 +28,73 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3durmanager.h>
 
 /******************************************************************************/
-void g3dfacegroup_free ( G3DFACEGROUP *facgrp ) {
-    list_free ( &facgrp->lfac, NULL );
+URMCREATEFACEGROUP *urmcreatefacegroup_new ( G3DMESH      *mes, 
+                                             G3DFACEGROUP *facgrp ) {
+    uint32_t structsize = sizeof ( URMCREATEFACEGROUP );
 
-    free ( facgrp );
-}
+    URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) calloc ( 0x01, structsize );
 
-/******************************************************************************/
-void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp ) {
-    facgrp->flags &= ~(FACEGROUPSELECTED);
-}
-
-/******************************************************************************/
-void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
-                                   uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
-
-    facgrp->textureSlots |= slotBit;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots |= slotBit;
-
-        ltmpfac = ltmpfac->next;
-    }
-}
-
-/******************************************************************************/
-void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
-                                      uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
-
-    facgrp->textureSlots &= (~slotBit);
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots &= (~slotBit);
-
-        ltmpfac = ltmpfac->next;
-    }
-}
-
-/******************************************************************************/
-void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_insert ( &facgrp->lfac, fac );
-
-    fac->textureSlots |= facgrp->textureSlots;
-
-    facgrp->nbfac++;
-}
-
-/******************************************************************************/
-void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_remove ( &facgrp->lfac, fac );
-
-    fac->textureSlots &= (~facgrp->textureSlots);
-
-    facgrp->nbfac--;
-}
-
-/******************************************************************************/
-G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
-    uint32_t structSize = sizeof ( G3DFACEGROUP );
-    G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) calloc ( 0x01, structSize );
-
-    if ( facgrp == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
+    if ( ucf == NULL ) {
+        fprintf ( stderr, "%s: memory allocation falied\n", __func__ );
 
         return NULL;
     }
 
-    facgrp->name = strdup ( name );
+    ucf->mes    = mes;
+    ucf->facgrp = facgrp;
 
-    facgrp->lfac = list_copy ( lfac );
+    return ucf;
+}
 
-    facgrp->nbfac = list_count ( lfac );
+/******************************************************************************/
+void urmcreatefacegroup_free ( URMCREATEFACEGROUP *ucf ) {
+    free ( ucf );
+}
 
+/******************************************************************************/
+void createFacegroup_free ( void *data, uint32_t commit ) {
+    URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) data;
 
-    return facgrp;
+    if ( commit ) {
+        /* */
+    } else {
+        g3dfacegroup_free ( ucf->facgrp );
+    }
+
+    urmcreatefacegroup_free ( ucf );
+}
+
+/******************************************************************************/
+void createFacegroup_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+    URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) data;
+
+    g3dmesh_removeFacegroup ( ucf->mes, ucf->facgrp );
+}
+
+/******************************************************************************/
+void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+    URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) data;
+
+    g3dmesh_addFacegroup ( ucf->mes, ucf->facgrp );
+}
+
+/******************************************************************************/
+void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
+                                   G3DMESH      *mes,
+                                   const char   *name,
+                                   uint32_t      engine_flags,
+                                   uint32_t      return_flags ) {
+    G3DFACEGROUP *facgrp = g3dfacegroup_new ( name, mes->lselfac );
+    URMCREATEFACEGROUP *ucf;
+
+    g3dmesh_addFacegroup ( mes, facgrp );
+
+    ucf = urmcreatefacegroup_new ( mes, facgrp );
+
+    g3durmanager_push ( urm, createFacegroup_undo,
+                             createFacegroup_redo,
+                             createFacegroup_free, ucf, return_flags );
 }

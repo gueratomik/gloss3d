@@ -222,6 +222,12 @@ typedef struct _URMADDVERTEX {
 } URMADDVERTEX;
 
 /******************************************************************************/
+typedef struct _URMCREATEFACEGROUP {
+    G3DMESH      *mes;
+    G3DFACEGROUP *facgrp;
+} URMCREATEFACEGROUP;
+
+/******************************************************************************/
 typedef struct _URMOBJECTPOSE {
     G3DOBJECT *obj;
     float      frame;
@@ -677,5 +683,18 @@ void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                G3DVECTOR    *olduv,
                                G3DVECTOR    *newuv, 
                                uint32_t      return_flags );
+
+/******************************************************************************/
+URMCREATEFACEGROUP *urmcreatefacegroup_new ( G3DMESH      *mes, 
+                                             G3DFACEGROUP *facgrp );
+void urmcreatefacegroup_free ( URMCREATEFACEGROUP *ucf );
+void createFacegroup_free ( void *data, uint32_t commit );
+void createFacegroup_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
+                                   G3DMESH      *mes,
+                                   const char   *name,
+                                   uint32_t      engine_flags,
+                                   uint32_t      return_flags );
 
 #endif

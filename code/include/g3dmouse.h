@@ -60,6 +60,7 @@
 #define PAINTWEIGHTTOOL              "Paint Weight"
 #define UNTRIANGULATETOOL            "Untriangulate"
 #define TRIANGULATETOOL              "Triangulate"
+#define CREATEFACEGROUPTOOL          "Create Facegroup"
 #define WELDVERTICESTOOL             "Weld vertices"
 #define WELDNEIGHBOURVERTICESTOOL    "Weld neighbour vertices"
 #define INVERTNORMALTOOL             "Invert Normal"
@@ -415,5 +416,11 @@ uint32_t revertSpline_init  ( G3DMOUSETOOL *mou,
                               G3DCAMERA    *cam,
                               G3DURMANAGER *urm, 
                               uint32_t      engine_flags );
+
+/******************************************************************************/
+uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
+                                                    G3DCAMERA *cam,
+                                                    G3DURMANAGER *urm, 
+                                                    uint32_t engine_flags );
 
 #endif

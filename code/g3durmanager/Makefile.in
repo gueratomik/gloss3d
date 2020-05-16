@@ -141,7 +141,7 @@ am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmAddSplineSegment.lo urmCutSpline.lo urmObjectPose.lo \
 	urmDeleteSplinePoints.lo urmselectitem.lo urmcutmesh.lo \
 	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
-	urmtriangulate.lo
+	urmtriangulate.lo urmCreateFacegroup.lo
 am_libgloss_g3durmanager_la_OBJECTS = $(am__objects_1)
 libgloss_g3durmanager_la_OBJECTS =  \
 	$(am_libgloss_g3durmanager_la_OBJECTS)
@@ -167,6 +167,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmAddSplinePoint.Plo \
 	./$(DEPDIR)/urmAddSplineSegment.Plo \
+	./$(DEPDIR)/urmCreateFacegroup.Plo \
 	./$(DEPDIR)/urmCutSpline.Plo \
 	./$(DEPDIR)/urmDeleteSplinePoints.Plo \
 	./$(DEPDIR)/urmObjectPose.Plo \
@@ -384,7 +385,8 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmuntriangulate.c \
                                urmcreateface.c \
                                urmaddvertex.c \
-                               urmtriangulate.c
+                               urmtriangulate.c \
+                               urmCreateFacegroup.c
 
 all: all-am
 
@@ -467,6 +469,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3durmanager.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplinePoint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplineSegment.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmCreateFacegroup.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmCutSpline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmDeleteSplinePoints.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmObjectPose.Plo@am__quote@ # am--include-marker
@@ -658,6 +661,7 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/g3durmanager.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
+	-rm -f ./$(DEPDIR)/urmCreateFacegroup.Plo
 	-rm -f ./$(DEPDIR)/urmCutSpline.Plo
 	-rm -f ./$(DEPDIR)/urmDeleteSplinePoints.Plo
 	-rm -f ./$(DEPDIR)/urmObjectPose.Plo
@@ -729,6 +733,7 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/g3durmanager.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
+	-rm -f ./$(DEPDIR)/urmCreateFacegroup.Plo
 	-rm -f ./$(DEPDIR)/urmCutSpline.Plo
 	-rm -f ./$(DEPDIR)/urmDeleteSplinePoints.Plo
 	-rm -f ./$(DEPDIR)/urmObjectPose.Plo

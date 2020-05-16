@@ -2612,6 +2612,7 @@ void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
 void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
 G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac );
 void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp );
+void g3dfacegroup_free ( G3DFACEGROUP *facgrp );
 
 #endif
 

@@ -27,87 +27,30 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dmouse.h>
 
 /******************************************************************************/
-void g3dfacegroup_free ( G3DFACEGROUP *facgrp ) {
-    list_free ( &facgrp->lfac, NULL );
-
-    free ( facgrp );
-}
+/* each function must return FALSE for redrawing the OGL Widget it belongs to */
+/* only or TRUE to redraw all OGL Widgets                                     */
+/******************************************************************************/
 
 /******************************************************************************/
-void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp ) {
-    facgrp->flags &= ~(FACEGROUPSELECTED);
-}
+uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
+                                 G3DSCENE *sce, 
+                                 G3DCAMERA *cam,
+                                 G3DURMANAGER *urm, 
+                                 uint32_t engine_flags ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
-/******************************************************************************/
-void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
-                                   uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
+    if ( ( obj ) && ( obj->type & MESH ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
 
-    facgrp->textureSlots |= slotBit;
+        g3durm_mesh_createFacegroup ( urm, mes, "FaceGroup", engine_flags,
+                                                             REDRAWVIEW | 
+                                                             REDRAWCURRENTOBJECT );
 
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots |= slotBit;
-
-        ltmpfac = ltmpfac->next;
-    }
-}
-
-/******************************************************************************/
-void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
-                                      uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
-
-    facgrp->textureSlots &= (~slotBit);
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots &= (~slotBit);
-
-        ltmpfac = ltmpfac->next;
-    }
-}
-
-/******************************************************************************/
-void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_insert ( &facgrp->lfac, fac );
-
-    fac->textureSlots |= facgrp->textureSlots;
-
-    facgrp->nbfac++;
-}
-
-/******************************************************************************/
-void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_remove ( &facgrp->lfac, fac );
-
-    fac->textureSlots &= (~facgrp->textureSlots);
-
-    facgrp->nbfac--;
-}
-
-/******************************************************************************/
-G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
-    uint32_t structSize = sizeof ( G3DFACEGROUP );
-    G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) calloc ( 0x01, structSize );
-
-    if ( facgrp == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
-
-        return NULL;
+        return REDRAWVIEW | REDRAWCURRENTOBJECT;
     }
 
-    facgrp->name = strdup ( name );
-
-    facgrp->lfac = list_copy ( lfac );
-
-    facgrp->nbfac = list_count ( lfac );
-
-
-    return facgrp;
+    return 0x00;
 }

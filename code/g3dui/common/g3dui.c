@@ -924,6 +924,15 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
                                           MESHTOOL     |
                                           GLMENUTOOL );
 
+    /********************************/
+
+    mou = g3dmousetool_new ( CREATEFACEGROUPTOOL, 'a', NULL,
+                             createFacegroup_init,
+                             NULL, NULL, MOUSETOOLNOCURRENT );
+
+    common_g3dui_addMouseTool ( gui, mou, FACEMODETOOL | 
+                                          MESHTOOL     |
+                                          GLMENUTOOL );
 
     /********************************/
 

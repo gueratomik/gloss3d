@@ -134,10 +134,10 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dmouse_la_LIBADD =
 am__objects_1 = createCube.lo createCylinder.lo bridge.lo \
 	createPlane.lo createSphere.lo createVertex.lo createBone.lo \
-	createTorus.lo cutMesh.lo triangulate.lo untriangulate.lo \
-	revertSpline.lo roundSplinePoint.lo invertNormal.lo empty.lo \
-	extrudeFace.lo g3dmousetool.lo weldvertices.lo move.lo pick.lo \
-	rotate.lo sculpt.lo scale.lo
+	createTorus.lo cutMesh.lo createFacegroup.lo triangulate.lo \
+	untriangulate.lo revertSpline.lo roundSplinePoint.lo \
+	invertNormal.lo empty.lo extrudeFace.lo g3dmousetool.lo \
+	weldvertices.lo move.lo pick.lo rotate.lo sculpt.lo scale.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -161,16 +161,17 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/bridge.Plo \
 	./$(DEPDIR)/createBone.Plo ./$(DEPDIR)/createCube.Plo \
-	./$(DEPDIR)/createCylinder.Plo ./$(DEPDIR)/createPlane.Plo \
-	./$(DEPDIR)/createSphere.Plo ./$(DEPDIR)/createTorus.Plo \
-	./$(DEPDIR)/createVertex.Plo ./$(DEPDIR)/cutMesh.Plo \
-	./$(DEPDIR)/empty.Plo ./$(DEPDIR)/extrudeFace.Plo \
-	./$(DEPDIR)/g3dmousetool.Plo ./$(DEPDIR)/invertNormal.Plo \
-	./$(DEPDIR)/move.Plo ./$(DEPDIR)/pick.Plo \
-	./$(DEPDIR)/revertSpline.Plo ./$(DEPDIR)/rotate.Plo \
-	./$(DEPDIR)/roundSplinePoint.Plo ./$(DEPDIR)/scale.Plo \
-	./$(DEPDIR)/sculpt.Plo ./$(DEPDIR)/triangulate.Plo \
-	./$(DEPDIR)/untriangulate.Plo ./$(DEPDIR)/weldvertices.Plo
+	./$(DEPDIR)/createCylinder.Plo ./$(DEPDIR)/createFacegroup.Plo \
+	./$(DEPDIR)/createPlane.Plo ./$(DEPDIR)/createSphere.Plo \
+	./$(DEPDIR)/createTorus.Plo ./$(DEPDIR)/createVertex.Plo \
+	./$(DEPDIR)/cutMesh.Plo ./$(DEPDIR)/empty.Plo \
+	./$(DEPDIR)/extrudeFace.Plo ./$(DEPDIR)/g3dmousetool.Plo \
+	./$(DEPDIR)/invertNormal.Plo ./$(DEPDIR)/move.Plo \
+	./$(DEPDIR)/pick.Plo ./$(DEPDIR)/revertSpline.Plo \
+	./$(DEPDIR)/rotate.Plo ./$(DEPDIR)/roundSplinePoint.Plo \
+	./$(DEPDIR)/scale.Plo ./$(DEPDIR)/sculpt.Plo \
+	./$(DEPDIR)/triangulate.Plo ./$(DEPDIR)/untriangulate.Plo \
+	./$(DEPDIR)/weldvertices.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -355,6 +356,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createBone.c     \
                            createTorus.c    \
                            cutMesh.c        \
+                           createFacegroup.c        \
                            triangulate.c    \
                            untriangulate.c  \
                            revertSpline.c   \
@@ -452,6 +454,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createBone.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCube.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCylinder.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createFacegroup.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createPlane.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createSphere.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createTorus.Plo@am__quote@ # am--include-marker
@@ -640,6 +643,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/createBone.Plo
 	-rm -f ./$(DEPDIR)/createCube.Plo
 	-rm -f ./$(DEPDIR)/createCylinder.Plo
+	-rm -f ./$(DEPDIR)/createFacegroup.Plo
 	-rm -f ./$(DEPDIR)/createPlane.Plo
 	-rm -f ./$(DEPDIR)/createSphere.Plo
 	-rm -f ./$(DEPDIR)/createTorus.Plo
@@ -708,6 +712,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/createBone.Plo
 	-rm -f ./$(DEPDIR)/createCube.Plo
 	-rm -f ./$(DEPDIR)/createCylinder.Plo
+	-rm -f ./$(DEPDIR)/createFacegroup.Plo
 	-rm -f ./$(DEPDIR)/createPlane.Plo
 	-rm -f ./$(DEPDIR)/createSphere.Plo
 	-rm -f ./$(DEPDIR)/createTorus.Plo
