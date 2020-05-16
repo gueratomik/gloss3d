@@ -255,27 +255,39 @@ static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void selectFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    /*common_g3duimeshedit_createFaceGroupCbk ( gui );*/
-   /* common_g3duimeshposelist_createPoseCbk ( gui );*/
-}
-
-/******************************************************************************/
 static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
-    /*common_g3duimeshedit_createFaceGroupCbk ( gui );*/
-   /* common_g3duimeshposelist_createPoseCbk ( gui );*/
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+            if ( facgrp ) {
+                g3dfacegroup_addFaceList ( facgrp, mes->lselfac );
+            }
+        }
+    }
 }
 
 /******************************************************************************/
 static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
-    /*common_g3duimeshedit_createFaceGroupCbk ( gui );*/
-   /* common_g3duimeshposelist_createPoseCbk ( gui );*/
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+            if ( facgrp ) {
+                g3dmesh_removeFacegroup ( mes, facgrp );
+            }
+        }
+    }
+
+    updateFaceGroupFrameFixed ( gtk_widget_get_parent ( widget ), gui );
 }
 
 /******************************************************************************/
@@ -327,6 +339,32 @@ static void destroyFacegroupCbk ( GtkWidget *widget,
     FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
 
     free ( fgd );
+}
+
+/******************************************************************************/
+static void nameFacegroupCbk  ( GtkWidget *widget, 
+                                GdkEvent  *event, 
+                                gpointer   user_data ) {
+    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+            if ( facgrp ) {
+                if ( facgrp->name ) free ( facgrp->name );
+
+                facgrp->name = strdup ( grpname );
+            }
+        }
+    }
+
+    updateFaceGroupFrameFixed ( gtk_widget_get_parent ( widget ), gui );
 }
 
 /******************************************************************************/
@@ -440,18 +478,35 @@ static void createFaceGroupFrameFixedScrolled ( GtkWidget *frm,
 /******************************************************************************/
 static void updateFaceGroupFrameFixed ( GtkWidget *fixed, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(fixed) );
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
 
-        if ( GTK_IS_SCROLLED_WINDOW ( child ) ) {
-            if ( strcmp ( child_name, EDITFACEGROUPLIST ) == 0x00 ) {
-                updateFaceGroupFrameFixedScrolled ( child, gui );
+            while ( children ) {
+                GtkWidget *child = ( GtkWidget * ) children->data;
+                const char *child_name = gtk_widget_get_name ( child );
+
+                if ( GTK_IS_ENTRY ( child ) ) {
+                    if ( strcmp ( child_name, EDITFACEGROUPNAME ) == 0x00 ) {
+                        G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+                        if ( facgrp ) {
+                            gtk_entry_set_text ( child, facgrp->name );
+                        }
+                    }
+                }
+
+                if ( GTK_IS_SCROLLED_WINDOW ( child ) ) {
+                    if ( strcmp ( child_name, EDITFACEGROUPLIST ) == 0x00 ) {
+                        updateFaceGroupFrameFixedScrolled ( child, gui );
+                    }
+                }
+
+                children =  g_list_next ( children );
             }
         }
-
-        children =  g_list_next ( children );
     }
 }
 
@@ -473,14 +528,14 @@ static void createFaceGroupFrame ( GtkWidget *frm,
 
     fgf = createFrame ( frm, gui, EDITFACEGROUP,  x, y, width, height );
 
-    createCharText ( fgf, gui, EDITFACEGROUPNAME, 0, 0, 96, 132, nameMeshPoseCbk );
+    createCharText ( fgf, gui, EDITFACEGROUPNAME, 0, 0, 96, 132, nameFacegroupCbk );
 
     createFaceGroupFrameFixedScrolled ( fgf, gui, 0, 36, 212, 128 );
 
     createPushButton ( fgf, gui, "Create", 216,  36, 64, 18, createFaceGroupCbk );
-    createPushButton ( fgf, gui, "Select", 216,  84, 64, 18, selectFaceGroupCbk );
     createPushButton ( fgf, gui, "Update", 216,  60, 64, 18, updateFaceGroupCbk );
-    createPushButton ( fgf, gui, "Delete", 216, 108, 64, 18, deleteFaceGroupCbk );
+    createPushButton ( fgf, gui, "Delete", 216,  84, 64, 18, deleteFaceGroupCbk );
+   /* createPushButton ( fgf, gui, "Select", 216, 108, 64, 18, selectFaceGroupCbk ); */
 }
 
 /******************************************************************************/

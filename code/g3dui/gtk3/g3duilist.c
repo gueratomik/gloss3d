@@ -227,8 +227,9 @@ static void drawTextures ( GtkStyleContext *context, cairo_t *cr,
     static unsigned char pixel[0x100][0x03];
 
     /*** Init once and for all ***/
-    if ( matmap == NULL ) matmap = common_g3duimaterialmap_new ( LISTINDENT,
-                                                                 LISTINDENT );
+    if ( matmap == NULL ) {
+        matmap = common_g3duimaterialmap_new ( LISTINDENT, LISTINDENT );
+    }
 
     if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
         G3DMESH *mes =  ( G3DMESH * ) obj;
@@ -238,6 +239,8 @@ static void drawTextures ( GtkStyleContext *context, cairo_t *cr,
         while ( ltmptex ) {
             G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
             GdkPixbuf  *pixbuf; 
+
+            common_g3duimaterialmap_buildSphere ( matmap, tex->mat, 0.8f );
 
             common_g3duimaterialmap_fillData ( matmap, tex->mat, pixel );
 

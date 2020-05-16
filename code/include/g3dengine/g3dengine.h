@@ -234,6 +234,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /******************************* Texture Flags ********************************/
 #define TEXTURESELECTED   ( 1      )
 #define TEXTUREDISPLACE   ( 1 << 1 )
+#define TEXTURERESTRICTED ( 1 << 2 )
 
 /******************************** Edge Flags **********************************/
 #define EDGESELECTED      (  1       )
@@ -764,8 +765,6 @@ struct _G3DUVSET {
     G3DUV     miduv[0x04];
     G3DUV     cenuv;       /*** face center UV ***/
     uint32_t  nbuv;
-    /*** active helps us determine what face have a texture applied ***/
-    uint64_t  restriction; /*** supports max 64 textures per uvset ***/
 };
 
 /******************************************************************************/
@@ -2290,6 +2289,7 @@ void g3dmesh_selectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
 void g3dmesh_unselectAllFacegroups ( G3DMESH *mes );
 void g3dmesh_unselectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
 void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes );
+G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2613,6 +2613,7 @@ void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
 G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac );
 void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp );
 void g3dfacegroup_free ( G3DFACEGROUP *facgrp );
+void g3dfacegroup_addFaceList ( G3DFACEGROUP *facgrp, LIST *lfac );
 
 #endif
 

@@ -159,13 +159,17 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 
     (*transparencyStrength) = 0.0f;
 
-    if ( ltex == NULL ) { 
-        diffuse->r = diffuse->g = diffuse->b = MESHCOLORUB;
-    }
-
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
         G3DMATERIAL *mat = tex->mat;
+
+        if ( tex->flags & TEXTURERESTRICTED ) {
+            if ( ( rfc->textureSlots & tex->slotBit ) == 0x00 )  {
+                ltmptex = ltmptex->next;
+
+                continue;
+            }
+        }
 
         if ( tex->map && rfc->ruvs ) {
             uint32_t mapID = tex->map->mapID;
@@ -278,8 +282,6 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                 refraction->b += retval.b;
                 refraction->a += retval.a;
 
-
-
                 divRefraction++;
             }
         }
@@ -292,6 +294,8 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
         diffuse->g /= divDiffuse;
         diffuse->b /= divDiffuse;
         diffuse->a /= divDiffuse;
+    } else {
+        diffuse->r = diffuse->g = diffuse->b = MESHCOLORUB;
     }
 
     if ( divSpecular ) {

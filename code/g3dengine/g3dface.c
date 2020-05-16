@@ -512,6 +512,14 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
             G3DMATERIAL *mat = tex->mat;
             G3DIMAGE *difimg = NULL;
 
+            if ( tex->flags & TEXTURERESTRICTED ) {
+                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                    ltmptex = ltmptex->next;
+
+                    continue;
+                }
+            }
+
             if ( tex->map == uvs->map ) {
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
                     if ( mat->flags & DIFFUSE_ENABLED ) {
@@ -533,7 +541,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                         #ifdef __MINGW32__
                         if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
                         #endif
-                        
+
                         glDisable ( GL_TEXTURE_2D );
 
                         arbid++;
@@ -603,6 +611,14 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                   mat->specular.solid.b * mat->specular_level,
                                   mat->specular.solid.a * mat->specular_level };
             G3DIMAGE *difimg = NULL;
+
+            if ( tex->flags & TEXTURERESTRICTED ) {
+                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                    ltmptex = ltmptex->next;
+
+                    continue;
+                }
+            }
 
             if ( tex->map == uvs->map ) {
                 if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {

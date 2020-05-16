@@ -1582,7 +1582,7 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
 
     createDiffuseColorPanel ( tab, gui, EDITDIFFUSE     , 0, 0, width, height );
     createSpecularPanel     ( tab, gui, EDITSPECULAR    , 0, 0, width, height );
-    createBumpPanel         ( tab, gui, EDITBUMP        , 0, 0, width, height );
+    /*createBumpPanel         ( tab, gui, EDITBUMP        , 0, 0, width, height );*/
     createDisplacementPanel ( tab, gui, EDITDISPLACEMENT, 0, 0, width, height );
     createAlphaPanel        ( tab, gui, EDITALPHA       , 0, 0, width, height );
     createReflectionPanel   ( tab, gui, EDITREFLECTION  , 0, 0, width, height );

@@ -1665,11 +1665,9 @@ char *g3dobject_getName ( G3DOBJECT *obj ) {
 /******************************************************************************/
 void g3dobject_name ( G3DOBJECT *obj, const char *name ) {
     if ( name ) {
-        uint32_t len = strlen ( name ) + 0x01;
+        if ( obj->name ) free ( obj->name );
 
-        obj->name = realloc ( obj->name, len );
-
-        memcpy ( obj->name, name, len );
+        obj->name = strdup ( name );
     }
 }
 

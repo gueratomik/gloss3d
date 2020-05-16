@@ -192,6 +192,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 
                 dumpFac.nbver = 0x04;
 
+                dumpFac.textureSlots = fac->textureSlots;
+
                 dumpFac.ver[0x00] = &dumpVer[0x00];
                 dumpFac.ver[0x01] = &dumpVer[0x01];
                 dumpFac.ver[0x02] = &dumpVer[0x02];
@@ -603,7 +605,13 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
                                   mat->specular.solid.b * mat->specular_level,
                                   mat->specular.solid.a * mat->specular_level };
 
+            if ( tex->flags & TEXTURERESTRICTED ) {
+                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                    ltmptex = ltmptex->next;
 
+                    continue;
+                }
+            }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
                 if ( mat->diffuse.flags & USESOLIDCOLOR ) {
@@ -691,6 +699,14 @@ static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac,
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
             G3DMATERIAL *mat = tex->mat;
             G3DIMAGE    *difimg = NULL;
+
+            if ( tex->flags & TEXTURERESTRICTED ) {
+                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                    ltmptex = ltmptex->next;
+
+                    continue;
+                }
+            }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
                 if ( mat->diffuse.flags & USEIMAGECOLOR ) {

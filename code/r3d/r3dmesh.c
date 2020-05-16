@@ -182,6 +182,8 @@ static void Dump ( G3DFACE *fac, void *data ) {
             rms->curfac->rverID[0x01] = fac->ver[0x01]->id;
             rms->curfac->rverID[0x02] = fac->ver[0x02]->id;
 
+            rms->curfac->textureSlots = fac->textureSlots;
+
             for ( i = 0x00; i < 0x03; i++ ) {
                 G3DVERTEX *ver = fac->ver[i];
                 float scalar = fabs ( g3dvector_scalar ( &ver->nor,
@@ -277,6 +279,8 @@ static void Dump ( G3DFACE *fac, void *data ) {
                 rms->curfac->rverID[0x00] = fac->ver[idx[i][0x00]]->id;
                 rms->curfac->rverID[0x01] = fac->ver[idx[i][0x01]]->id;
                 rms->curfac->rverID[0x02] = fac->ver[idx[i][0x02]]->id;
+
+                rms->curfac->textureSlots = fac->textureSlots;
 
                 for ( j = 0x00; j < 0x03; j++ ) {
                     G3DVERTEX *ver = fac->ver[idx[i][j]];

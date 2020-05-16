@@ -30,6 +30,13 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+static void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duitextureedit_toggleRestrictCbk ( gui );
+}
+
+/******************************************************************************/
 static void uvmapSelectorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     uint32_t mapID = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
@@ -99,19 +106,203 @@ static void createUVMapSelector ( GtkWidget *parent, G3DUI *gui,
 /******************************************************************************/
 void updateTextureEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     /*** prevents a loop ***/
     gui->lock = 0x01;
 
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            if ( tex ) {
+                while ( children ) {
+                    GtkWidget *child = ( GtkWidget * ) children->data;
+                    const char *child_name = gtk_widget_get_name ( child );
+
+                    if ( GTK_IS_TOGGLE_BUTTON(child) ) {
+                        GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                        if ( strcmp ( child_name, EDITTEXTURERESTRICT ) == 0x00 ) {
+                            if ( tex->flags & TEXTURERESTRICTED ) {
+                                gtk_toggle_button_set_active ( tbn, TRUE  );
+                            } else {
+                                gtk_toggle_button_set_active ( tbn, FALSE );
+                            }
+                        }
+                    }
+
+                    children =  g_list_next ( children );
+                }
+            }
+        }
+    }
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+#define EDITFACEGROUP     "Facegroups"
+#define EDITFACEGROUPNAME "Facegroup Name"
+#define EDITFACEGROUPLIST "Facegroup list"
+
+typedef struct _FACEGROUPDATA {
+    G3DMESH      *mes;
+    G3DFACEGROUP *facgrp;
+    G3DUI        *gui;
+} FACEGROUPDATA;
+
+/******************************************************************************/
+static void selectFacegroupCbk ( GtkWidget *widget, gpointer user_data ) {
+    gboolean active = gtk_toggle_button_get_active (widget);
+    FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fgd->gui->sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            if ( active == TRUE  ) g3dfacegroup_addTextureSlot    ( fgd->facgrp, tex->slotBit );
+            if ( active == FALSE ) g3dfacegroup_removeTextureSlot ( fgd->facgrp, tex->slotBit );
+        }
+    }
+
+    g3dui_redrawGLViews ( fgd->gui );
+}
+
+/******************************************************************************/
+static void destroyFacegroupCbk ( GtkWidget *widget,
+                                  gpointer   user_data ) {
+    FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
+
+    free ( fgd );
+}
+
+/******************************************************************************/
+static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
+                                                       G3DUI     *gui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    gui->lock = 0x01;
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            GdkRectangle frec = { 0x00, 0x00, 0x00, 0x00 };
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+            LIST *ltmpfacgrp = mes->lfacgrp;
+            uint32_t maxWidth = 0x00;
+            uint32_t y = 0x00;
+
+            if ( tex ) {
+                while ( ltmpfacgrp ) {
+                    G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+                    GtkWidget *checkButton = gtk_check_button_new_with_label ( facgrp->name );
+                    GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x10 };
+                    FACEGROUPDATA *fgd = calloc ( 0x01, sizeof ( FACEGROUPDATA ) );
+
+                    if ( facgrp->textureSlots & tex->slotBit ) {
+                        gtk_toggle_button_set_active ( checkButton, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( checkButton, FALSE );
+                    }
+
+                    fgd->mes    = mes;
+                    fgd->facgrp = facgrp;
+                    fgd->gui    = gui;
+
+                    gtk_fixed_put ( fixed, checkButton, 0, y );
+
+                    gtk_widget_size_allocate ( checkButton, &lrec );
+
+                    g_signal_connect ( checkButton, "toggled", G_CALLBACK(selectFacegroupCbk) , fgd );
+                    g_signal_connect ( checkButton, "destroy", G_CALLBACK(destroyFacegroupCbk), fgd );
+
+                    y += lrec.height;
+
+                    ltmpfacgrp = ltmpfacgrp->next;
+                }
+
+                frec.width  = 100;
+                frec.height = y;
+
+                gtk_widget_size_allocate ( fixed, &frec );
+            }
+        }
+    }
+
+    gui->lock = 0x00;
+
+    gtk_widget_show_all ( fixed );
+}
+
+/******************************************************************************/
+static void updateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
+                                                     G3DUI     *gui ) {
+    GList *children = gtk_container_get_children ( GTK_CONTAINER(fixed) );
+
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
 
+        gtk_widget_destroy ( child );
 
         children =  g_list_next ( children );
     }
 
-    gui->lock = 0x00;
+    populateFaceGroupFrameFixedScrolledFixed ( fixed, gui );
+}
+
+/******************************************************************************/
+static void updateFaceGroupFrameFixedScrolled ( GtkWidget *scrolled,
+                                                G3DUI     *gui ) {
+    GtkWidget *viewport = gtk_bin_get_child(GTK_BIN(scrolled));
+    GtkWidget *fixed = gtk_bin_get_child(GTK_BIN(viewport));
+
+    updateFaceGroupFrameFixedScrolledFixed ( fixed, gui );
+}
+
+/******************************************************************************/
+static void createFaceGroupFrameFixedScrolled ( GtkWidget *frm, 
+                                                G3DUI     *gui,
+                                                gint       x,
+                                                gint       y,
+                                                gint       width,
+                                                gint       height ) {
+    GtkWidget *scrolled = gtk_scrolled_window_new ( NULL, NULL );
+    GdkRectangle srec = { 0x00, 0x00, width, height };
+    GtkWidget *fixed = gtk_fixed_new ( );
+
+    gtk_container_add( GTK_CONTAINER(scrolled), fixed );
+    gtk_container_add( GTK_CONTAINER(frm)     , fixed );
+
+    gtk_widget_set_size_request ( scrolled, width, height );
+
+    gtk_widget_size_allocate ( scrolled, &srec );
+
+    gtk_fixed_put ( frm, scrolled, x, y );
+
+    gtk_widget_set_name ( scrolled, EDITFACEGROUPLIST );
+    gtk_widget_set_name ( fixed   , EDITFACEGROUPLIST );
+
+    updateFaceGroupFrameFixedScrolledFixed ( fixed,  gui );
+
+    gtk_widget_show_all ( scrolled );
+}
+
+/******************************************************************************/
+static void createFaceGroupFrame ( GtkWidget *frm, 
+                                   G3DUI     *gui,
+                                   gint       x,
+                                   gint       y,
+                                   gint       width,
+                                   gint       height ) {
+    GtkWidget *fgf, *lst;
+
+    fgf = createFrame ( frm, gui, EDITFACEGROUP,  x, y, width, height );
+
+    createFaceGroupFrameFixedScrolled ( fgf, gui, 0, 0, 212, 128 );
 }
 
 /******************************************************************************/
@@ -147,8 +338,12 @@ GtkWidget* createTextureEdit ( GtkWidget *parent, G3DUI *gui,
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
     gui->lock = 0x01;
 
+
     createUVMapSelector ( frm, gui, EDITTEXTUREMAPPING,
                                  16, 16, 128, 128, uvmapSelectorCbk );
+    createToggleLabel   ( frm, gui, EDITTEXTURERESTRICT,
+                                0,  40, 64, 24, restrictCbk );
+    createFaceGroupFrame   ( frm, gui,   0, 64, 286, 140 );
 
     gui->lock = 0x00;
 

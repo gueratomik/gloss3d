@@ -268,6 +268,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
+#define EDITTEXTURERESTRICT  "Restrict to selection"
 
 /**** Widget names for SphereEdit TextField widgets ***/
 #define EDITSPHERE       "Edit Sphere"
@@ -430,6 +431,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define EDITUVMAP             "UVMap"
 #define EDITUVMAPPROJECTION   "Projection"
+#define EDITUVMAPNAME         "Name"
 #define EDITUVMAPFIXED        "Fixed"
 #define EDITUVMAPEDITOR       "Edit UV Map"
 #define CYLINDRICALPROJECTION "Cylindrical"
@@ -1260,6 +1262,7 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI *, uint32_t,
 
 /****************************** Texture Edit  *********************************/
 void common_g3duitextureedit_setUVMapCbk ( G3DUI *, uint32_t );
+void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui );
 
 /****************************** Render Edit  **********************************/
 void common_g3duirenderedit_startFrameCbk ( G3DUI *, float );

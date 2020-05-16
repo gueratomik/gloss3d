@@ -116,38 +116,74 @@ void updateUVMapEdit ( GtkWidget *widget, G3DUI *gui ) {
     /*** already know the value !                                           ***/
     gui->lock = 0x01;
 
-    if ( obj && ( obj->type == G3DUVMAPTYPE ) ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) obj;
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH  *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *map = g3dmesh_getSelectedUVMap ( mes );
 
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
+            if ( map ) {
+                while ( children ) {
+                    GtkWidget *child = ( GtkWidget * ) children->data;
+                    const char *child_name = gtk_widget_get_name ( child );
 
-            if ( GTK_IS_RADIO_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITUVMAPFIXED ) == 0x00 ) {
-                    if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    if ( GTK_IS_ENTRY(child) ) {
+                        gtk_entry_set_text ( child, ((G3DOBJECT*)map)->name );
                     }
+
+                    if ( GTK_IS_TOGGLE_BUTTON(child) ) {
+                        GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                        if ( strcmp ( child_name, EDITUVMAPFIXED ) == 0x00 ) {
+                            if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
+                                gtk_toggle_button_set_active ( tbn, TRUE  );
+                            } else {
+                                gtk_toggle_button_set_active ( tbn, FALSE );
+                            }
+                        }
+                    }
+
+                    if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                        GtkComboBox *cmb = GTK_COMBO_BOX(child);
+
+                        if ( strcmp ( child_name, EDITUVMAPPROJECTION   ) == 0x00 ) {
+                            gtk_combo_box_set_active ( cmb, map->projection );
+                        }
+                    }
+
+                    children =  g_list_next ( children );
                 }
             }
-
-            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
-                GtkComboBox *cmb = GTK_COMBO_BOX(child);
-
-                if ( strcmp ( child_name, EDITUVMAPPROJECTION   ) == 0x00 ) {
-                    gtk_combo_box_set_active ( cmb, map->projection );
-                }
-            }
-
-            children =  g_list_next ( children );
         }
     }
 
     gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void Realize ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    updateUVMapEdit ( widget, gui );
+}
+
+/******************************************************************************/
+static void nameUVMapCbk  ( GtkWidget *widget, 
+                            GdkEvent  *event, 
+                            gpointer   user_data ) {
+    const char *mapname = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *map = g3dmesh_getSelectedUVMap ( mes );
+
+            if ( map ) {
+                g3dobject_name ( (G3DOBJECT*) map, mapname );
+            }
+        }
+    }
 }
 
 /******************************************************************************/
@@ -169,21 +205,24 @@ GtkWidget *createUVMapEdit ( GtkWidget *parent, G3DUI *gui,
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
     gui->lock = 0x01;
 
+    createCharText ( frm, gui, EDITUVMAPNAME, 0, 0, 96, 132, nameUVMapCbk );
     createToggleLabel         ( frm, gui, EDITUVMAPFIXED,
-                                0,  0, 200, 20, lockUVMapCbk );
+                                0,  24, 200, 20, lockUVMapCbk );
 
     createProjectionSelection ( frm, gui, EDITUVMAPPROJECTION, 
-                                0, 24, 96, 96, projectionCbk );
+                                0, 48, 96, 96, projectionCbk );
 
 
     createPushButton  ( frm, gui, 
                              EDITUVMAPEDITOR,
-                              0, 48, 96, 18,
+                              0, 72, 96, 18,
                              uvmapEditorCbk );
 
     gui->lock = 0x00;
 
     gtk_container_add ( GTK_CONTAINER(parent), frm );
+
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
 
     gtk_widget_show ( frm );
 

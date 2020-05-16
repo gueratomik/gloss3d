@@ -366,9 +366,9 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
     g3dui_addMenuToggle ( menu, gui, VIEWMENUBACKGROUND    , width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
     g3dui_addMenuToggle ( menu, gui, VIEWMENULIGHTING      , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
     g3dui_addMenuButton ( menu, gui, VIEWMENURESET         , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
-    g3dui_addMenuButton ( menu, gui, VIEWMENUUNDO          , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
+/*    g3dui_addMenuButton ( menu, gui, VIEWMENUUNDO          , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
     g3dui_addMenuButton ( menu, gui, VIEWMENUREDO          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
-
+*/
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
     gtk_widget_show ( bar );

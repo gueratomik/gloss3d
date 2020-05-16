@@ -493,6 +493,7 @@ typedef struct _R3DFACE {
     float      d;
     float      surface;
     R3DUVSET  *ruvs;
+    uint32_t   textureSlots;
 } R3DFACE;
 
 /******************************************************************************/

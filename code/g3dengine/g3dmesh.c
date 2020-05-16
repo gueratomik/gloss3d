@@ -30,6 +30,15 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes ) {
+    if ( mes->lselfacgrp ) {
+        return ( G3DFACEGROUP * ) mes->lselfacgrp->data;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
     LIST *ltmpfacgrp = mes->lselfacgrp;
 
