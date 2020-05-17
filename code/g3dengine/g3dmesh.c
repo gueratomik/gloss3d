@@ -30,6 +30,22 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
+    LIST *ltmpfacgrp = mes->lfacgrp;
+
+    while ( ltmpfacgrp ) {
+        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+
+        /*** search UVMap by index ***/
+        if ( facgrp->id == id ) return facgrp;
+
+        ltmpfacgrp = ltmpfacgrp->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes ) {
     if ( mes->lselfacgrp ) {
         return ( G3DFACEGROUP * ) mes->lselfacgrp->data;
@@ -923,26 +939,15 @@ G3DUVMAP *g3dmesh_getLastUVMap ( G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
-    LIST *lmap = g3dobject_getChildrenByType ( ( G3DOBJECT * ) mes, G3DUVMAPTYPE );
-    LIST *ltmpmap = lmap;
-    uint32_t mapid = 0x00;
+    LIST *ltmpmap = mes->luvmap;
 
     while ( ltmpmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
 
-        /*** search UVMap by index ***/
-        if ( mapid++ == id ) {
-
-            list_free ( &lmap, NULL );
-
-            return map;
-        }
+        if ( ((G3DOBJECT*)map)->id == id ) return map;
 
         ltmpmap = ltmpmap->next;
     }
-
-    list_free ( &lmap, NULL );
-
 
     return NULL;
 }
@@ -3243,7 +3248,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dmesh_addMaterial ( G3DMESH *mes, G3DMATERIAL  *mat,
+/*void g3dmesh_addMaterial ( G3DMESH *mes, G3DMATERIAL  *mat,
                                          G3DUVMAP     *map ) {
     G3DTEXTURE *tex = g3dtexture_new ( mat, map );
 
@@ -3252,7 +3257,7 @@ void g3dmesh_addMaterial ( G3DMESH *mes, G3DMATERIAL  *mat,
     g3dmaterial_addObject ( mat, ( G3DOBJECT * ) mes );
 
     g3dmesh_addTexture ( mes, tex );
-}
+}*/
 
 /******************************************************************************/
 G3DTEXTURE *g3dmesh_getTextureFromMaterial ( G3DMESH *mes, 
@@ -3271,7 +3276,7 @@ G3DTEXTURE *g3dmesh_getTextureFromMaterial ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_removeMaterial ( G3DMESH *mes, G3DMATERIAL  *mat ) {
+/*void g3dmesh_removeMaterial ( G3DMESH *mes, G3DMATERIAL  *mat ) {
     G3DTEXTURE *tex = g3dmesh_getTextureFromMaterial ( mes, mat );
 
     if ( tex->map ) g3duvmap_removeMaterial ( tex->map, mat );
@@ -3279,7 +3284,7 @@ void g3dmesh_removeMaterial ( G3DMESH *mes, G3DMATERIAL  *mat ) {
     g3dmesh_removeTexture ( mes, tex );
 
     g3dmaterial_removeObject ( mat, ( G3DOBJECT * ) mes );
-}
+}*/
 
 /******************************************************************************/
 void g3dmesh_removeTexture ( G3DMESH *mes, G3DTEXTURE *tex ) {

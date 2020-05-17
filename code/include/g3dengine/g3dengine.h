@@ -722,8 +722,8 @@ typedef struct _G3DUVMAP {
     uint32_t projection;
     uint32_t policy;
     uint32_t fixed;
-    LIST    *lmat;  /*** list of attached materials ***/
-    uint32_t nbmat; /*** Number of attached materials ***/
+    /*LIST    *lmat;*/  /*** list of attached materials ***/
+    /*uint32_t nbmat;*/ /*** Number of attached materials ***/
     uint32_t mapID;
     LIST    *lseluv; /*** list of selected UVs ***/
     LIST    *lseluvset; /*** list of selected UVSets ***/
@@ -773,6 +773,8 @@ typedef struct _G3DTEXTURE {
     uint32_t      slotBit; /*** maximum number of textures per mesh = 32 ***/
     G3DMATERIAL  *mat;
     G3DUVMAP     *map;
+    LIST         *lfacgrp;
+    uint32_t      nbfacgrp;
     /*G3DRTUVSET   *rtuvsmem; *//*** UVSet buffer - for  non-power-of-2 texture ***/
                             /*** only for diffuse channel ***/
 } G3DTEXTURE;
@@ -782,6 +784,7 @@ typedef struct _G3DTEXTURE {
 
 typedef struct G3DFACEGROUP {
     uint32_t flags;
+    uint32_t id;
     char     *name;
     uint32_t textureSlots;
     LIST    *lfac;
@@ -1753,8 +1756,8 @@ uint32_t g3dface_setInnerVertex ( G3DFACE *, G3DSUBVERTEX **,
                                              uint32_t, 
                                              uint32_t,
                                              uint32_t );
-uint32_t g3dface_bindMaterials   ( G3DFACE *, LIST *, G3DARBTEXCOORD *,uint32_t );
-void     g3dface_unbindMaterials ( G3DFACE *, LIST *, uint32_t );
+uint32_t g3dface_bindMaterials   ( G3DFACE *, LIST *, G3DARBTEXCOORD *,uint32_t, uint32_t );
+void     g3dface_unbindMaterials ( G3DFACE *, LIST *, uint32_t, uint32_t );
 void     g3dface_removeAllUVSets ( G3DFACE * );
 uint32_t g3dface_countUVSetsFromList ( LIST *, uint32_t );
 void     g3dface_importUVSets ( G3DFACE *, G3DFACE * );
@@ -2290,6 +2293,7 @@ void g3dmesh_unselectAllFacegroups ( G3DMESH *mes );
 void g3dmesh_unselectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
 void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes );
 G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes );
+G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
@@ -2457,8 +2461,10 @@ void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP * );
 G3DTEXTURE *g3dtexture_getFromUVMap  ( LIST *, G3DUVMAP * );
 void        g3dtexture_unsetSelected ( G3DTEXTURE * );
-void g3dtexture_restrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
-void g3dtexture_unrestrict ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
+void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
+void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
+void g3dtexture_restrict ( G3DTEXTURE *tex );
+void g3dtexture_unrestrict ( G3DTEXTURE *tex );
 
 /******************************************************************************/
 G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );

@@ -272,8 +272,9 @@ void g3dscene_delMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        G3DTEXTURE *tex = g3dmesh_getTextureFromMaterial ( obj, mat );
 
-        g3dmesh_removeMaterial ( ( G3DMESH * ) obj, mat );
+        if ( tex ) g3dmesh_removeTexture ( ( G3DMESH * ) obj, tex );
 
 
         ltmpobj = ltmpobj->next;

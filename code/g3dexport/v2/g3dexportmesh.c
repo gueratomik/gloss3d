@@ -30,6 +30,90 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportmesh_facegroupFaces ( G3DEXPORTDATA *ged, 
+                                               G3DFACEGROUP  *grp, 
+                                               uint32_t       flags, 
+                                               FILE          *fdst ) {
+    LIST *ltmpfac = grp->lfac;
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &grp->nbfac, fdst );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        size += g3dexport_fwritel ( &fac->id, fdst );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmesh_facegroupName ( G3DEXPORTDATA *ged, 
+                                              G3DFACEGROUP  *grp, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwrite ( grp->name, strlen ( grp->name ), 0x01, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmesh_facegroupEntry ( G3DEXPORTDATA *ged, 
+                                               G3DFACEGROUP  *grp, 
+                                               uint32_t       flags, 
+                                               FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_NAME,
+                                   g3dexportmesh_facegroupName,
+                                   ged,
+                                   grp,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_FACES,
+                                   g3dexportmesh_facegroupFaces,
+                                   ged,
+                                   grp,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmesh_facegroups ( G3DEXPORTDATA *ged, 
+                                           G3DMESH       *mes, 
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
+    LIST *ltmpgrp = mes->lfacgrp;
+    uint32_t grpid = 0x00;
+    uint32_t size = 0x00;
+
+    while ( ltmpgrp ) {
+        G3DFACEGROUP *grp = ( G3DFACEGROUP * ) ltmpgrp->data;
+
+        grp->id = grpid++; /*** for indexation by textures ***/
+
+        size += g3dexport_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_ENTRY,
+                                       g3dexportmesh_facegroupEntry,
+                                       ged,
+                                       grp,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpgrp = ltmpgrp->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportmesh_weightgroupWeights ( G3DEXPORTDATA  *ged, 
                                                    G3DWEIGHTGROUP *grp, 
                                                    uint32_t        flags, 
@@ -215,6 +299,15 @@ uint32_t g3dexportmesh ( G3DEXPORTDATA *ged,
     if ( mes->lweigrp ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUPS,
                                        g3dexportmesh_weightgroups,
+                                       ged,
+                                       mes,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( mes->lfacgrp ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_MESH_FACEGROUPS,
+                                       g3dexportmesh_facegroups,
                                        ged,
                                        mes,
                                        0xFFFFFFFF,

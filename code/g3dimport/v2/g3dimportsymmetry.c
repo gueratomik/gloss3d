@@ -26,77 +26,49 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
+
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dtexture_restrict ( G3DTEXTURE *tex ) {
-    tex->flags |= TEXTURERESTRICTED;
-}
+void g3dimportsymmetry ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
 
-/******************************************************************************/
-void g3dtexture_unrestrict ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURERESTRICTED);
-}
+    g3dimportdata_incrementIndentLevel ( gid );
 
-/******************************************************************************/
-void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_addTextureSlot ( facgrp, tex->slotBit );
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_insert ( &tex->lfacgrp, facgrp );
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
-    tex->nbfacgrp++;
-}
+        switch ( chunkSignature ) {
+            case SIG_OBJECT_SYMMETRY_PLANE : {
+                G3DSYMMETRY *sym = ( G3DSYMMETRY * ) gid->currentObject;
+                uint32_t symplane;
 
-/******************************************************************************/
-void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_removeTextureSlot ( facgrp, tex->slotBit );
+                g3dimport_freadl ( &symplane, fsrc );
 
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_remove ( &tex->lfacgrp, facgrp );
+                g3dsymmetry_setPlane ( sym, symplane );
+            } break;
 
-    tex->nbfacgrp--;
-}
+            case SIG_OBJECT_SYMMETRY_MERGELIMIT : {
+                G3DSYMMETRY *sym = ( G3DSYMMETRY * ) gid->currentObject;
 
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {
-    LIST *ltmptex = ltex;
+                g3dimport_freadf ( &sym->mergelimit, fsrc );
+            } break;
 
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
 
-        if ( tex->map == map ) return tex;
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        ltmptex = ltmptex->next;
-    }
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
 
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURESELECTED);
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map ) {
-    G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
-
-    if ( tex == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
-
-        return NULL;
-    }
-
-    /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
-
-    tex->mat    = mat;
-    tex->map    = map;
-
-
-    return tex;
+    g3dimportdata_decrementIndentLevel ( gid );
 }

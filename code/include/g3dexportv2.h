@@ -47,100 +47,6 @@
 #include <list.h>
 #include <g3dengine/g3dengine.h>
 
-
-#ifdef FILE_FORMAT
-
-
-#define SIG_ROOT
-#define SIG_OBJECT
-#define SIG_OBJECT_IDENTITY
-#define SIG_OBJECT_IDENTITY_NAME
-#define SIG_OBJECT_IDENTITY_TYPE            
-#define SIG_OBJECT_IDENTITY_PARENT
-#define SIG_OBJECT_IDENTITY_ACTIVE
-#define SIG_OBJECT_TRANSFORMATION
-#define SIG_KEYS
-#define SIG_KEY_ENTRY
-#define SIG_KEY_TRANSFORMATION
-#define SIG_KEY_LOOP
-#define SIG_OBJECT_SCENE
-#define SIG_OBJECT_PRIMITIVE
-#define SIG_OBJECT_PRIMITIVE_SPHERE
-#define SIG_OBJECT_PRIMITIVE_TORUS
-#define SIG_OBJECT_PRIMITIVE_CUBE
-#define SIG_OBJECT_PRIMITIVE_CONE
-#define SIG_OBJECT_PRIMITIVE_CYLINDER
-#define SIG_OBJECT_PRIMITIVE_PLANE
-#define SIG_MATERIALS
-#define SIG_MATERIAL_ENTRY
-#define SIG_MATERIAL_DIFFUSE
-#define SIG_MATERIAL_BUMP
-#define SIG_MATERIAL_ALPHA
-#define SIG_MATERIAL_SPECULAR
-#define SIG_MATERIAL_DISPLACEMENT
-#define SIG_MATERIAL_REFLECTION
-#define SIG_MATERIAL_REFRACTION
-#define SIG_CHANNEL
-#define SIG_CHANNEL_SOLID
-#define SIG_CHANNEL_IMAGE
-#define SIG_CHANNEL_PROCEDURAL
-#define SIG_CHANNEL_PROCEDURAL_BRICK
-#define SIG_CHANNEL_PROCEDURAL_CHESS
-#define SIG_CHANNEL_PROCEDURAL_NOISE
-#define SIG_OBJECT_LIGHT
-#define SIG_OBJECT_LIGHT_TYPE
-#define SIG_OBJECT_LIGHT_SHADOWCASTING
-#define SIG_OBJECT_LIGHT_INTENSITY
-#define SIG_OBJECT_LIGHT_SPOT
-#define SIG_OBJECT_LIGHT_DIFFUSE
-#define SIG_OBJECT_LIGHT_SPECULAR
-#define SIG_OBJECT_MESH
-#define SIG_OBJECT_MESH_GOURAUDLIMIT
-#define SIG_OBJECT_MESH_GEOMETRY
-#define SIG_OBJECT_MESH_GEOMETRY_VERTICES
-#define SIG_OBJECT_MESH_GEOMETRY_POLYGONS
-#define SIG_OBJECT_MESH_WEIGHTGROUPS
-#define SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
-#define SIG_OBJECT_MESH_WEIGHTGROUP_NAME
-#define SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
-#define SIG_OBJECT_MESH_UVMAPS
-#define SIG_OBJECT_MESH_UVMAP_ENTRY
-#define SIG_OBJECT_MESH_UVMAP_NAME
-#define SIG_OBJECT_MESH_UVSETS
-#define SIG_OBJECT_MESH_UVSET_ENTRY
-#define SIG_OBJECT_BONE
-#define SIG_OBJECT_BONE_TRANSFORM
-#define SIG_OBJECT_BONE_WEIGHTGROUPS
-#define SIG_OBJECT_BONE_WEIGHTGROUP
-#define SIG_OBJECT_SYMMETRY
-#define SIG_OBJECT_SPLINE
-#define SIG_OBJECT_SPLINE_QUADRATIC
-#define SIG_OBJECT_SPLINE_QUADRATIC_POINTS
-#define SIG_OBJECT_SPLINE_QUADRATIC_SEGMENTS
-#define SIG_OBJECT_TEXT
-#define SIG_OBJECT_TEXT_FONT
-#define SIG_OBJECT_TEXT_THICKNESS
-#define SIG_OBJECT_TEXT_ROUNDNESS
-#define SIG_OBJECT_TEXT_STRING
-#define SIG_OBJECT_MODIFIER_FFD
-#define SIG_OBJECT_MODIFIER_FFD_GEOMETRY
-#define SIG_OBJECT_MODIFIER_FFD_UVW
-#define SIG_OBJECT_MODIFIER_FFD_VERTICES
-#define SIG_OBJECT_MODIFIER_SUBDIVIDER
-#define SIG_OBJECT_MODIFIER_SUBDIVIDER_LEVEL
-#define SIG_OBJECT_MODIFIER_WIREFRAME
-#define SIG_OBJECT_MODIFIER_WIREFRAME_ALGO
-#define SIG_OBJECT_MODIFIER_WIREFRAME_THICKNESS
-#define SIG_OBJECT_MODIFIER_SLINEREVOLVER
-#define SIG_OBJECT_MODIFIER_SLINEREVOLVER_GEOMETRY
-#define SIG_OBJECT_CAMERA
-#define SIG_OBJECT_CAMERA_FOCAL
-#define SIG_EXTENSION
-#define SIG_EXTENSION_NAME
-#define SIG_EXTENSION_DATA
-
-#endif
-
 #include "signatures.h"
 
 typedef struct _G3DEXPORTDATA {
@@ -169,6 +75,11 @@ uint32_t g3dexport_fwrite ( void   *ptr,
                             size_t  size,
                             size_t  count,
                             FILE   *stream );
+
+uint32_t g3dexportroot ( G3DEXPORTDATA *ged, 
+                         G3DSCENE      *sce, 
+                         uint32_t       flags, 
+                         FILE          *fdst );
 
 uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
                            G3DOBJECT     *obj,
@@ -210,6 +121,30 @@ uint32_t g3dexportbone ( G3DEXPORTDATA *ged,
                          G3DBONE     *cam, 
                          uint32_t       flags, 
                          FILE          *fdst );
+uint32_t g3dexportsymmetry ( G3DEXPORTDATA *ged, 
+                             G3DSYMMETRY   *sym, 
+                             uint32_t       flags, 
+                             FILE          *fdst );
+uint32_t g3dexporttext ( G3DEXPORTDATA *ged, 
+                         G3DTEXT       *txt, 
+                         uint32_t       flags, 
+                         FILE          *fdst );
+uint32_t g3dexportsubdivider ( G3DEXPORTDATA *ged, 
+                               G3DSUBDIVIDER   *sub, 
+                               uint32_t       flags, 
+                               FILE          *fdst );
+uint32_t g3dexportwireframe ( G3DEXPORTDATA *ged, 
+                              G3DWIREFRAME  *wfm, 
+                              uint32_t       flags, 
+                              FILE          *fdst );
+uint32_t g3dexportsplinerevolver ( G3DEXPORTDATA    *ged, 
+                                   G3DSPLINEREVOLVER *srv, 
+                                   uint32_t          flags, 
+                                   FILE             *fdst );
+uint32_t g3dexportspline ( G3DEXPORTDATA*ged, 
+                           G3DSPLINE    *spl, 
+                           uint32_t      flags, 
+                           FILE         *fdst );
 
 uint32_t g3dexport_fwrited ( double *d, FILE *stream );
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );

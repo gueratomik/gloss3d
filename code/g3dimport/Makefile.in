@@ -139,7 +139,9 @@ am__objects_1 = g3dimport.lo v2/g3dimportapp.lo v2/g3dimportbone.lo \
 	v2/g3dimportmesh.lo v2/g3dimportmodifiers.lo \
 	v2/g3dimportuvmap.lo v2/g3dimportobject.lo \
 	v2/g3dimportprimitive.lo v2/g3dimportscene.lo \
-	v2/g3dimportspline.lo v2/g3dimporttext.lo \
+	v2/g3dimportsubdivider.lo v2/g3dimportsymmetry.lo \
+	v2/g3dimportspline.lo v2/g3dimportsplinerevolver.lo \
+	v2/g3dimporttext.lo v2/g3dimportwireframe.lo \
 	g3dimportextension.lo collada.lo 3ds.lo obj.lo
 am_libgloss_g3dimport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dimport_la_OBJECTS = $(am_libgloss_g3dimport_la_OBJECTS)
@@ -176,7 +178,11 @@ am__depfiles_remade = ./$(DEPDIR)/3ds.Plo ./$(DEPDIR)/collada.Plo \
 	v2/$(DEPDIR)/g3dimportprimitive.Plo \
 	v2/$(DEPDIR)/g3dimportscene.Plo \
 	v2/$(DEPDIR)/g3dimportspline.Plo \
-	v2/$(DEPDIR)/g3dimporttext.Plo v2/$(DEPDIR)/g3dimportuvmap.Plo
+	v2/$(DEPDIR)/g3dimportsplinerevolver.Plo \
+	v2/$(DEPDIR)/g3dimportsubdivider.Plo \
+	v2/$(DEPDIR)/g3dimportsymmetry.Plo \
+	v2/$(DEPDIR)/g3dimporttext.Plo v2/$(DEPDIR)/g3dimportuvmap.Plo \
+	v2/$(DEPDIR)/g3dimportwireframe.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -366,8 +372,12 @@ LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
                             v2/g3dimportobject.c \
                             v2/g3dimportprimitive.c \
                             v2/g3dimportscene.c \
+                            v2/g3dimportsubdivider.c \
+                            v2/g3dimportsymmetry.c \
                             v2/g3dimportspline.c \
+                            v2/g3dimportsplinerevolver.c \
                             v2/g3dimporttext.c \
+                            v2/g3dimportwireframe.c \
                             g3dimportextension.c \
                             collada.c \
                             3ds.c \
@@ -465,8 +475,16 @@ v2/g3dimportobject.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dimportprimitive.lo: v2/$(am__dirstamp) \
 	v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dimportscene.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dimportsubdivider.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dimportsymmetry.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dimportspline.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dimportsplinerevolver.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dimporttext.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dimportwireframe.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dimport.la: $(libgloss_g3dimport_la_OBJECTS) $(libgloss_g3dimport_la_DEPENDENCIES) $(EXTRA_libgloss_g3dimport_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dimport_la_OBJECTS) $(libgloss_g3dimport_la_LIBADD) $(LIBS)
@@ -497,8 +515,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportprimitive.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportscene.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportspline.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportsplinerevolver.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportsubdivider.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportsymmetry.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimporttext.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportuvmap.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportwireframe.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -685,8 +707,12 @@ distclean: distclean-am
 	-rm -f v2/$(DEPDIR)/g3dimportprimitive.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportscene.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportspline.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsplinerevolver.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsubdivider.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsymmetry.Plo
 	-rm -f v2/$(DEPDIR)/g3dimporttext.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportuvmap.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportwireframe.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -750,8 +776,12 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v2/$(DEPDIR)/g3dimportprimitive.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportscene.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportspline.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsplinerevolver.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsubdivider.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportsymmetry.Plo
 	-rm -f v2/$(DEPDIR)/g3dimporttext.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportuvmap.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportwireframe.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

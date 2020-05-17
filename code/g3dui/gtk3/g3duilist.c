@@ -540,7 +540,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
                     if ( pob ) {
                         if ( pob->picked == TEXTURERECTHIT ) {
-                            g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
+                            g3dmesh_removeTexture ( ( G3DMESH * ) pob->obj, pob->tex );
                         }
 
                         if ( pob->picked == UVMAPRECTHIT ) {

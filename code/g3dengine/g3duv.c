@@ -467,14 +467,21 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
             |___________________|
                                   */
 
-        if ( map->projection == UVMAPSPHERICAL ) {
+        if ( ( map->projection == UVMAPSPHERICAL   ) ||
+             ( map->projection == UVMAPCYLINDRICAL ) ) {
             float avgu = ( uvs->veruv[0].u + uvs->veruv[1].u + 
                            uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver;
             float avgv = ( uvs->veruv[0].v + uvs->veruv[1].v + 
                            uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver;
             float facu, facv;
 
-            g3duvmap_getSphericalUV ( map, mes, &fac->pos, &facu, &facv );
+            if ( map->projection == UVMAPSPHERICAL ) {
+                g3duvmap_getSphericalUV ( map, mes, &fac->pos, &facu, &facv );
+            }
+
+            if ( map->projection == UVMAPCYLINDRICAL ) {
+                g3duvmap_getCylindricalUV ( map, mes, &fac->pos, &facu, &facv );
+            }
 
             /*** face center U coord should match the avergae U coord of all ***/
             /*** vertices. If that's not the case, we are in a situation of ***/
@@ -701,16 +708,16 @@ void g3duvmap_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3duvmap_addMaterial ( G3DUVMAP *map, G3DMATERIAL *mat ) {
+/*void g3duvmap_addMaterial ( G3DUVMAP *map, G3DMATERIAL *mat ) {
 
     list_insert ( &map->lmat, mat );
 
     map->nbmat++;
-}
+}*/
 
 /******************************************************************************/
-void g3duvmap_removeMaterial ( G3DUVMAP *map, G3DMATERIAL *mat ) {
+/*void g3duvmap_removeMaterial ( G3DUVMAP *map, G3DMATERIAL *mat ) {
     list_remove ( &map->lmat, mat );
 
     map->nbmat--;
-}
+}*/

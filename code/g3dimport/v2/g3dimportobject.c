@@ -55,6 +55,8 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_OBJECT_SCENE : {
+                gid->currentObject = gid->currentScene;
+
                 g3dimportscene ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
@@ -94,6 +96,52 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                    0.0f );
 
                 g3dimportbone ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_SYMMETRY : {
+                gid->currentObject = g3dsymmetry_new ( gid->currentObjectID++ ,
+                                                       gid->currentObjectName );
+
+                g3dimportsymmetry ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER : {
+                gid->currentObject = g3dsubdivider_new ( gid->currentObjectID++ ,
+                                                         gid->currentObjectName,
+                                                         gid->engineFlags );
+
+                g3dimportsubdivider ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_SPLINEREVOLVER : {
+                gid->currentObject = g3dsplinerevolver_new ( gid->currentObjectID++ ,
+                                                             gid->currentObjectName );
+
+                g3dimportsplinerevolver ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_SPLINE : {
+                gid->currentObject = g3dspline_new ( gid->currentObjectID++ ,
+                                                     gid->currentObjectName,
+                                                     CUBIC,
+                                                     gid->engineFlags );
+
+                g3dimportspline ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_WIREFRAME : {
+                gid->currentObject = g3dwireframe_new ( gid->currentObjectID++ ,
+                                                        gid->currentObjectName );
+
+                g3dimportwireframe ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_TEXT : {
+                gid->currentObject = g3dtext_new ( gid->currentObjectID++ ,
+                                                   gid->currentObjectName,
+                                                   gid->engineFlags );
+
+                g3dimporttext ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             /*** Unknown object type. Create a null object ***/
@@ -171,6 +219,10 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_IDENTITY_ACTIVE : {
                 g3dimport_freadl ( &active, fsrc );
+
+                if ( active ) {
+                    g3dobject_activate ( gid->currentObject, gid->engineFlags );
+                }
             } break;
 
             case SIG_OBJECT_TRANSFORMATION : {
@@ -202,6 +254,56 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_UVMAPS : {
                 g3dimportuvmap ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_TEXTURES : {
+            } break;
+
+            case SIG_OBJECT_TEXTURE_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_TEXTURE_MATERIAL : {
+                G3DMATERIAL *mat = NULL;
+                uint32_t matID;
+
+                g3dimport_freadl ( &matID, fsrc );
+
+                mat = g3dscene_getMaterialByID ( gid->currentScene, matID );
+
+                gid->currentTexture = g3dtexture_new ( mat, NULL );
+
+                g3dmesh_addTexture ( gid->currentObject, gid->currentTexture );
+            } break;
+
+            case SIG_OBJECT_TEXTURE_UVMAP : {
+                G3DUVMAP *uvmap = NULL;
+                uint32_t uvmapID;
+
+                g3dimport_freadl ( &uvmapID, fsrc );
+
+                uvmap = g3dmesh_getUVMapByID ( gid->currentObject, uvmapID );
+
+                gid->currentTexture->map = uvmap;
+            } break;
+
+            case SIG_OBJECT_TEXTURE_RESTRICT : {
+                uint32_t nbfacgrp;
+                int i;
+
+                g3dtexture_restrict ( gid->currentTexture );
+
+                g3dimport_freadl ( &nbfacgrp, fsrc );
+
+                for ( i = 0x00; i < nbfacgrp; i++ ) {
+                    G3DFACEGROUP *facgrp;
+                    uint32_t facgrpID;
+
+                    g3dimport_freadl ( &facgrpID, fsrc );
+
+                    facgrp = g3dmesh_getFacegroupByID ( gid->currentObject, facgrpID );
+
+                    g3dtexture_restrictFacegroup ( gid->currentTexture, facgrp );
+                }
             } break;
 
             case SIG_OBJECT_KEYS : {

@@ -26,77 +26,49 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
+
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dtexture_restrict ( G3DTEXTURE *tex ) {
-    tex->flags |= TEXTURERESTRICTED;
-}
+void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
 
-/******************************************************************************/
-void g3dtexture_unrestrict ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURERESTRICTED);
-}
+    g3dimportdata_incrementIndentLevel ( gid );
 
-/******************************************************************************/
-void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_addTextureSlot ( facgrp, tex->slotBit );
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_insert ( &tex->lfacgrp, facgrp );
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
-    tex->nbfacgrp++;
-}
+        switch ( chunkSignature ) {
+            case SIG_OBJECT_WIREFRAME_ALGO : {
+                G3DWIREFRAME *wfm = ( G3DWIREFRAME * ) gid->currentObject;
+                uint32_t algo;
 
-/******************************************************************************/
-void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_removeTextureSlot ( facgrp, tex->slotBit );
+                /*** unimplemented ***/
+                g3dimport_freadl ( &algo, fsrc );
+            } break;
 
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_remove ( &tex->lfacgrp, facgrp );
+            case SIG_OBJECT_WIREFRAME_GEOMETRY : {
+                G3DWIREFRAME *wfm = ( G3DWIREFRAME * ) gid->currentObject;
 
-    tex->nbfacgrp--;
-}
+                g3dimport_freadf ( &wfm->thickness, fsrc );
+                g3dimport_freadf ( &wfm->aperture , fsrc );
+            } break;
 
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {
-    LIST *ltmptex = ltex;
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
 
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        if ( tex->map == map ) return tex;
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
 
-        ltmptex = ltmptex->next;
-    }
-
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURESELECTED);
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map ) {
-    G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
-
-    if ( tex == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
-
-        return NULL;
-    }
-
-    /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
-
-    tex->mat    = mat;
-    tex->map    = map;
-
-
-    return tex;
+    g3dimportdata_decrementIndentLevel ( gid );
 }

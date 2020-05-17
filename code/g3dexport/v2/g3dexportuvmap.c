@@ -57,7 +57,7 @@ static uint32_t g3dexportuvmap_transformation ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportuvmap_material ( G3DEXPORTDATA  *ged,
+/*static uint32_t g3dexportuvmap_material ( G3DEXPORTDATA  *ged,
                                           G3DMATERIAL    *mat,
                                           uint32_t        flags, 
                                           FILE           *fdst ) {
@@ -66,10 +66,10 @@ static uint32_t g3dexportuvmap_material ( G3DEXPORTDATA  *ged,
     size += g3dexport_fwritel ( &mat->id, fdst );
 
     return size;
-}
+}*/
 
 /******************************************************************************/
-static uint32_t g3dexportuvmap_materials ( G3DEXPORTDATA  *ged,
+/*static uint32_t g3dexportuvmap_materials ( G3DEXPORTDATA  *ged,
                                            G3DUVMAP       *uvmap,
                                            uint32_t        flags, 
                                            FILE           *fdst ) {
@@ -90,7 +90,7 @@ static uint32_t g3dexportuvmap_materials ( G3DEXPORTDATA  *ged,
     }
 
     return size;
-}
+}*/
 
 /******************************************************************************/
 static uint32_t g3dexportuvmap_UVSets ( G3DEXPORTDATA  *ged,
@@ -208,12 +208,12 @@ uint32_t g3dexportuvmap ( G3DEXPORTDATA  *ged,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_MATERIALS,
+    /*size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_MATERIALS,
                                    g3dexportuvmap_materials,
                                    ged,
                                    uvmap,
                                    0xFFFFFFFF,
-                                   fdst );
+                                   fdst );*/
 
     if ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_UVSETS,

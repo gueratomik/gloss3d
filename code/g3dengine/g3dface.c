@@ -498,6 +498,7 @@ LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
 
 /******************************************************************************/
 void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
+                                             uint32_t object_flags,
                                              uint32_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmpuvs  = fac->luvs;
@@ -547,7 +548,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                         arbid++;
                     }
 
-                    if ( mat->bump.image ) {
+                    /*if ( mat->bump.image ) {
                         #ifdef __linux__
                         glActiveTextureARB ( arbid );
                         #endif
@@ -558,7 +559,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                         glDisable ( GL_TEXTURE_2D );
 
                         arbid++;
-                    }
+                    }*/
                 }
             }
 
@@ -567,11 +568,14 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
 
         ltmpuvs = ltmpuvs->next;
     }
+
+    glEnable ( GL_COLOR_MATERIAL );
 }
 
 /******************************************************************************/
 uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex, 
                                                G3DARBTEXCOORD *texcoord,
+                                               uint32_t        object_flags,
                                                uint32_t        engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmpuvs  = fac->luvs;
@@ -631,7 +635,9 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                             glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
                         }
 
-                        if ( fac->flags & FACESELECTED ) {
+                        if ( ( object_flags & OBJECTSELECTED ) &&
+                             ( engine_flags & VIEWFACE       ) &&
+                             ( fac->flags   & FACESELECTED   ) ) {
                             glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
                         }
 
@@ -711,8 +717,6 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                         /*texcoord[nbtex].q[0x03] = uvs->veruv[0x03].q;*/
                         texcoord[nbtex].tid = arbid;
                     }
-
-                    /*glEnable ( GL_COLOR_MATERIAL );*/
 
                     arbid++; nbtex++;
                 }
@@ -817,7 +821,7 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex && fac->luvs ) {
 
-       nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, engine_flags );
+       nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, object_flags, engine_flags );
     }
 
     ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
@@ -864,7 +868,7 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && 
          ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->luvs ) {
-        g3dface_unbindMaterials ( fac, ltex, engine_flags );
+        g3dface_unbindMaterials ( fac, ltex, object_flags, engine_flags );
     }
 }
 

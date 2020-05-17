@@ -43,9 +43,9 @@ void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui ) {
 
             if ( tex ) {
                 if ( tex->flags & TEXTURERESTRICTED ) {
-                    tex->flags &= (~TEXTURERESTRICTED);
+                    g3dtexture_unrestrict (tex );
                 } else {
-                    tex->flags |= TEXTURERESTRICTED;
+                    g3dtexture_restrict (tex );
                 }
             }
         }

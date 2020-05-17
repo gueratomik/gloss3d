@@ -27,76 +27,34 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dexportv2.h>
 
 /******************************************************************************/
-void g3dtexture_restrict ( G3DTEXTURE *tex ) {
-    tex->flags |= TEXTURERESTRICTED;
+static uint32_t g3dexportsubdivider_level ( G3DEXPORTDATA *ged, 
+                                            G3DSUBDIVIDER   *sdr, 
+                                            uint32_t       flags, 
+                                            FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &sdr->subdiv_preview, fdst );
+    size += g3dexport_fwritel ( &sdr->subdiv_render , fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-void g3dtexture_unrestrict ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURERESTRICTED);
-}
+uint32_t g3dexportsubdivider ( G3DEXPORTDATA *ged, 
+                               G3DSUBDIVIDER *sdr, 
+                               uint32_t       flags, 
+                               FILE          *fdst ) {
+    uint32_t size = 0x00;
 
-/******************************************************************************/
-void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_addTextureSlot ( facgrp, tex->slotBit );
+    size += g3dexport_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
+                                   g3dexportsubdivider_level,
+                                   ged,
+                                   sdr,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_insert ( &tex->lfacgrp, facgrp );
-
-    tex->nbfacgrp++;
-}
-
-/******************************************************************************/
-void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_removeTextureSlot ( facgrp, tex->slotBit );
-
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_remove ( &tex->lfacgrp, facgrp );
-
-    tex->nbfacgrp--;
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {
-    LIST *ltmptex = ltex;
-
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
-
-        if ( tex->map == map ) return tex;
-
-        ltmptex = ltmptex->next;
-    }
-
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURESELECTED);
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DMATERIAL *mat, G3DUVMAP *map ) {
-    G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
-
-    if ( tex == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
-
-        return NULL;
-    }
-
-    /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
-
-    tex->mat    = mat;
-    tex->map    = map;
-
-
-    return tex;
+    return size;
 }

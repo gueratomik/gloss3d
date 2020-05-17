@@ -46,6 +46,46 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_MESH_GEOMETRY : {
             } break;
 
+            case SIG_OBJECT_MESH_FACEGROUPS : {
+            } break;
+
+            case SIG_OBJECT_MESH_FACEGROUP_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_MESH_FACEGROUP_NAME : {
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
+
+                if ( chunkSize ) {
+                    char *name = calloc ( 0x01, chunkSize );
+
+                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+
+                    gid->currentFacegroup = g3dfacegroup_new ( name, NULL );
+
+                    g3dmesh_addFacegroup ( mes, gid->currentFacegroup );
+
+                    gid->currentFacegroup->id = gid->currentFacegroupID++;
+
+                    free ( name );
+                }
+            } break;
+
+            case SIG_OBJECT_MESH_FACEGROUP_FACES : {
+                uint32_t nbFaces;
+                uint32_t i;
+
+                g3dimport_freadl ( &nbFaces, fsrc );
+
+                for ( i = 0x00; i < nbFaces; i++ ) {
+                    uint32_t facID;
+
+                    g3dimport_freadl ( &facID , fsrc );
+
+                    g3dfacegroup_addFace ( gid->currentFacegroup,
+                                           gid->currentFaceArray[facID] );
+                }
+            } break;
+
             case SIG_OBJECT_MESH_WEIGHTGROUPS : {
             } break;
 
@@ -61,6 +101,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     g3dimport_fread ( name, chunkSize, 0x01, fsrc );
 
                     gid->currentWeightgroup = g3dweightgroup_new ( mes, name );
+
                     g3dmesh_addWeightGroup ( mes, gid->currentWeightgroup );
 
                     gid->currentWeightgroup->id = gid->currentWeightgroupID++;

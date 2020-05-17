@@ -20,8 +20,12 @@ LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             v2/g3dexportprimitive.c \
                             v2/g3dexportuvmap.c \
                             v2/g3dexportscene.c \
+                            v2/g3dexportsymmetry.c \
+                            v2/g3dexportsubdivider.c \
                             v2/g3dexportspline.c \
+                            v2/g3dexportsplinerevolver.c \
                             v2/g3dexporttext.c \
+                            v2/g3dexportwireframe.c \
                             stl.c \
                             pov.c \
                             obj.c

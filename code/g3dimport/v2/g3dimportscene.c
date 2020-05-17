@@ -144,5 +144,8 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     fclose ( fsrc );
 
+    /* apply modifiers, compute normals */
+    g3dobject_updateMeshes_r ( gid.currentScene, flags );
+
     return gid.currentScene;
 }

@@ -120,8 +120,9 @@ void g3dobject_endUpdateModifiers_r ( G3DOBJECT *obj, uint32_t eflags ) {
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
 
-    if ( ( obj->type == G3DMESHTYPE   ) ||
-         ( obj->type == G3DSPLINETYPE ) ) {
+    /*** Note: program crashes if condition is obj->type & MESH ***/
+    /*** when loading a g3d file ***/
+    if ( obj->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         /*** Rebuild mesh ***/

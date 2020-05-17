@@ -60,6 +60,8 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     gid->currentUVMap = g3duvmap_new ( name, uvmapProjection );
 
+                    ((G3DOBJECT*)gid->currentUVMap)->id = gid->currentUVMapID++;
+
                     if ( gid->currentObject->type & MESH ) {
                         g3dmesh_addUVMap ( ( G3DMESH * ) gid->currentObject,
                                                          gid->currentUVMap, 
@@ -135,24 +137,6 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     if ( uvs ) {
                         memcpy ( uvs, &uvset, sizeof ( G3DUVSET ) );
                     }
-                }
-            } break;
-
-            case SIG_OBJECT_UVMAP_MATERIALS : {
-            } break;
-
-            case SIG_OBJECT_UVMAP_MATERIAL_ENTRY : {
-                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
-                G3DMATERIAL *mat;
-                uint32_t matID;
-
-                g3dimport_freadl ( &matID, fsrc );
-
-                mat = g3dscene_getMaterialByID ( gid->currentScene, matID );
-
-                if ( mat ) {
-                    g3dmesh_addMaterial ( gid->currentObject, mat, 
-                                          gid->currentUVMap );
                 }
             } break;
 

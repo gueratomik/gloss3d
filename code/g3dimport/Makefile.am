@@ -19,8 +19,12 @@ LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
                             v2/g3dimportobject.c \
                             v2/g3dimportprimitive.c \
                             v2/g3dimportscene.c \
+                            v2/g3dimportsubdivider.c \
+                            v2/g3dimportsymmetry.c \
                             v2/g3dimportspline.c \
+                            v2/g3dimportsplinerevolver.c \
                             v2/g3dimporttext.c \
+                            v2/g3dimportwireframe.c \
                             g3dimportextension.c \
                             collada.c \
                             3ds.c \

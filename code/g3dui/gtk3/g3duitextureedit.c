@@ -164,8 +164,8 @@ static void selectFacegroupCbk ( GtkWidget *widget, gpointer user_data ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( active == TRUE  ) g3dfacegroup_addTextureSlot    ( fgd->facgrp, tex->slotBit );
-            if ( active == FALSE ) g3dfacegroup_removeTextureSlot ( fgd->facgrp, tex->slotBit );
+            if ( active == TRUE  ) g3dtexture_restrictFacegroup   ( tex, fgd->facgrp );
+            if ( active == FALSE ) g3dtexture_unrestrictFacegroup ( tex, fgd->facgrp );
         }
     }
 

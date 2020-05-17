@@ -54,22 +54,27 @@
 
 /******************************************************************************/
 typedef struct _G3DIMPORTDATA {
-    G3DSCENE    *currentScene;
-    G3DOBJECT   *currentObject;
-    G3DMATERIAL *currentMaterial;
-    G3DCHANNEL  *currentChannel;
-    G3DUVMAP    *currentUVMap;
-    G3DRIG      *currentRig;
+    G3DSCENE       *currentScene;
+    G3DOBJECT      *currentObject;
+    G3DMATERIAL    *currentMaterial;
+    G3DTEXTURE     *currentTexture;
+    G3DCHANNEL     *currentChannel;
+    G3DUVMAP       *currentUVMap;
+    G3DRIG         *currentRig;
     G3DWEIGHTGROUP *currentWeightgroup;
-    G3DVERTEX  **currentVertexArray;
-    G3DFACE    **currentFaceArray;
-    G3DFACE    **currentMaterialArray;
-    uint32_t   currentObjectID;
-    char       currentObjectName[0x100];
-    uint32_t   currentMaterialID;
-    uint32_t   currentWeightgroupID;
-    uint32_t   engineFlags;
-    uint32_t   indentLevel;
+    G3DFACEGROUP   *currentFacegroup;
+    G3DVERTEX     **currentVertexArray;
+    G3DFACE       **currentFaceArray;
+    G3DMATERIAL   **currentMaterialArray;
+    G3DCURVEPOINT **currentPointArray;
+    uint32_t        currentObjectID;
+    char            currentObjectName[0x100];
+    uint32_t        currentMaterialID;
+    uint32_t        currentWeightgroupID;
+    uint32_t        currentFacegroupID;
+    uint32_t        currentUVMapID;
+    uint32_t        engineFlags;
+    uint32_t        indentLevel;
 } G3DIMPORTDATA;
 
 /******************************************************************************/
@@ -94,5 +99,10 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportcamera ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportsymmetry ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportsubdivider ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 #endif

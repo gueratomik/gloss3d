@@ -57,7 +57,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                 g3duvmap_applyProjection ( map, mes );
             }
 
-            g3dmesh_addMaterial ( ( G3DMESH * ) mes, mat, map );
+            g3dmesh_addTexture ( mes, g3dtexture_new ( mat, map ) );
 
             g3dmesh_update ( mes, 
                              NULL,

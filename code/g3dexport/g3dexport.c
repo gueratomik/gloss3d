@@ -498,10 +498,10 @@ static uint32_t uvmapradius_blocksize ( ) {
 }
 
 /******************************************************************************/
-static uint32_t uvmapmaterials_blocksize ( G3DUVMAP *map ) {
+/*static uint32_t uvmapmaterials_blocksize ( G3DUVMAP *map ) {
     return ( sizeof ( uint32_t ) + ( ( sizeof ( uint32_t ) + 
                                        sizeof ( uint32_t ) ) * map->nbmat ) );
-}
+}*/
 
 /******************************************************************************/
 static uint32_t uvmapcoords_blocksize ( G3DUVMAP *map, G3DMESH *mes ) {
@@ -535,9 +535,9 @@ static uint32_t uvmap_blocksize ( G3DUVMAP *map,
         blocksize += uvmapinfo_blocksize ( ) + 0x06;
     }
 
-    if ( save_flags & UVMAPSAVEMATERIALS ) {
+    /*if ( save_flags & UVMAPSAVEMATERIALS ) {
         blocksize += uvmapmaterials_blocksize ( map ) + 0x06;
-    }
+    }*/
 
     if ( save_flags & UVMAPSAVECOORDS ) {
         blocksize += uvmapcoords_blocksize ( map, mes ) + 0x06;
@@ -588,7 +588,7 @@ static void uvmapcoords_writeblock ( G3DUVMAP *map, G3DMESH *mes, FILE *fdst ) {
 }
 
 /******************************************************************************/
-static void uvmapmaterials_writeblock ( G3DUVMAP *map, FILE *fdst ) {
+/*static void uvmapmaterials_writeblock ( G3DUVMAP *map, FILE *fdst ) {
     LIST *ltmpmat = map->lmat;
     uint32_t zero = 0x00;
 
@@ -598,12 +598,12 @@ static void uvmapmaterials_writeblock ( G3DUVMAP *map, FILE *fdst ) {
         G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
 
         writef ( &mat->id, sizeof ( uint32_t ), 0x01, fdst );
-        /*** bad design - unused ***/
+        *//*** bad design - unused ***//*
         writef ( &zero   , sizeof ( uint32_t ), 0x01, fdst );
 
         ltmpmat = ltmpmat->next;
     }
-}
+}*/
 
 /******************************************************************************/
 static void uvmap_writeblock ( G3DUVMAP *map, 
@@ -628,11 +628,11 @@ static void uvmap_writeblock ( G3DUVMAP *map,
         uvmapinfo_writeblock ( map, fdst );
     }
 
-    if ( flags & UVMAPSAVEMATERIALS ) {
+    /*if ( flags & UVMAPSAVEMATERIALS ) {
         chunk_write ( UVMAPMATERIALSSIG, uvmapmaterials_blocksize ( map ), fdst );
 
         uvmapmaterials_writeblock ( map, fdst );
-    }
+    }*/
 
     if ( flags & UVMAPSAVECOORDS ) {
         chunk_write ( UVMAPCOORDSSIG, uvmapcoords_blocksize ( map, mes ), fdst );

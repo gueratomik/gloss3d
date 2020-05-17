@@ -538,7 +538,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                     readf ( &matID, sizeof ( uint32_t ), 0x01, fsrc );   
                     readf ( &grpID, sizeof ( uint32_t ), 0x01, fsrc );
 
-                    g3dmesh_addMaterial ( parmes, matarr[totMat-matID-1], map );
+                    /*g3dmesh_addMaterial ( parmes, matarr[totMat-matID-1], map );*/
                 }
 
                 if ( matarr ) { free ( matarr ); matarr = NULL; }

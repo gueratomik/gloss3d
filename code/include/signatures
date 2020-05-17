@@ -80,7 +80,9 @@ SIG_ROOT
 --------------------------- SIG_MATERIAL_ALPHA
 ------------------------------- SIG_CHANNEL
 ----------------------------------- ...
+
 --------------- SIG_OBJECT_NULL
+
 --------------- SIG_OBJECT_PRIMITIVE
 ------------------- SIG_OBJECT_PRIMITIVE_SPHERE
 ----------------------- Radius ( float    )
@@ -134,9 +136,64 @@ SIG_ROOT
 --------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
 ------------------------------- Number of weights ( uint32_t )
 ----------------------------------- Array( uint32_t[VERTEXID], float[Weight] )
+------------------- SIG_OBJECT_MESH_FACEGROUPS
+----------------------- SIG_OBJECT_MESH_FACEGROUP_ENTRY
+--------------------------- SIG_OBJECT_MESH_FACEGROUP_NAME
+------------------------------- Name ( char[] )
+--------------------------- SIG_OBJECT_MESH_FACEGROUP_FACES
+------------------------------- Number of faces ( uint32_t )
+----------------------------------- Array( uint32_t[FACEID] )
+
 --------------- SIG_OBJECT_CAMERA
 ------------------- SIG_OBJECT_CAMERA_FOCAL
 ---------------------- focal (float)
+
+--------------- SIG_OBJECT_SUBDIVIDER
+------------------- SIG_OBJECT_SUBDIVIDER_LEVEL
+---------------------- editor (uint32)
+---------------------- render (uint32)
+
+--------------- SIG_OBJECT_SPLINE
+---------------------- SIG_OBJECT_SPLINE_GEOMETRY
+-------------------------- SIG_OBJECT_SPLINE_GEOMETRY_POINTS
+------------------------------ Number of Points  ( uint32_t )
+------------------------------ Array ( float-float-float-uint32_t)
+-------------------------- SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS
+------------------------------ Number of Segments  ( uint32_t )
+------------------------------ Array ( uint32_t-uint32_t-float-float-float-float-float-float)
+
+--------------- SIG_OBJECT_SPLINEREVOLVER
+------------------- SIG_OBJECT_SPLINEREVOLVER_GEOMETRY
+---------------------- steps (uint32)
+---------------------- divis (uint32)
+
+--------------- SIG_OBJECT_WIREFRAME
+------------------- SIG_OBJECT_WIREFRAME_ALGO
+-----------------------  algo (uint32_t)
+------------------- SIG_OBJECT_WIREFRAME_GEOMETRY
+----------------------- thickness (float)
+----------------------- aperture (float)
+
+--------------- SIG_OBJECT_SYMMETRY
+------------------- SIG_OBJECT_SYMMETRY_PLANE
+---------------------- orientation (uint32_t)
+------------------- SIG_OBJECT_SYMMETRY_MERGELIMIT
+----------------------  mergelimit ( float )
+
+--------------- SIG_OBJECT_TEXT
+------------------- SIG_OBJECT_TEXT_FONT
+----------------------- SIG_OBJECT_TEXT_FONT_FILE
+--------------------------- Name ( char[] )
+----------------------- SIG_OBJECT_TEXT_FONT_FACE
+--------------------------- Name ( char[] )
+----------------------- SIG_OBJECT_TEXT_FONT_SIZE
+--------------------------- fontSize ( uint32_t )
+------------------- SIG_OBJECT_TEXT_THICKNESS
+----------------------- thickness ( float )
+------------------- SIG_OBJECT_TEXT_ROUNDNESS
+----------------------- roundness ( uint32_t )
+------------------- SIG_OBJECT_TEXT_STRING
+----------------------- Name ( char[] )
 
 --------------- SIG_OBJECT_BONE
 ------------------- SIG_OBJECT_BONE_LENGTH
@@ -186,9 +243,6 @@ SIG_ROOT
 ----------------------- SIG_OBJECT_UVMAP_RADIUS
 --------------------------- xradius (float)
 --------------------------- yradius (float)
------------------------ SIG_OBJECT_UVMAP_MATERIALS
---------------------------- SIG_OBJECT_UVMAP_MATERIAL_ENTRY
-------------------------------- materialID (uint32_t)
 ----------------------- SIG_OBJECT_UVMAP_UVSETS
 --------------------------- nbUVSets (uint32_t)
 --------------------------- Array (flags,faceID,uv[0x04]), (uint32t_t,uint32_t,float[0x08])
@@ -196,6 +250,17 @@ SIG_ROOT
 --------------------------- Position ( float-float-float-float )
 --------------------------- Rotation ( float-float-float-float )
 --------------------------- Scale    ( float-float-float-float )
+
+--------------- SIG_OBJECT_TEXTURES
+------------------- SIG_OBJECT_TEXTURE_ENTRY
+----------------------- SIG_OBJECT_TEXTURE_MATERIAL
+--------------------------- materialID (uint32_t)
+----------------------- SIG_OBJECT_TEXTURE_UVMAP
+--------------------------- uvmapID (uint32_t)
+----------------------- SIG_OBJECT_TEXTURE_RESTRICT
+--------------------------- nbfacegroups (uint32_t)
+--------------------------- facegroupID (uint32_t)
+
 ----------- SIG_OBJECT_IDENTITY_PARENT
 --------------- ID ( uint32_t )
 ----------- SIG_OBJECT_IDENTITY_ACTIVE
