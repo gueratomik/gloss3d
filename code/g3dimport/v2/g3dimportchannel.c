@@ -77,11 +77,43 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dchannel_enableProcedural ( gid->currentChannel );
             } break;
 
-            case SIG_CHANNEL_PROCEDURAL_BRICK : {
-                gid->currentChannel->proc = g3dproceduralbrick_new ( );
+            case SIG_CHANNEL_PROCEDURAL_CHESS : {
+                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
 
-                g3dchannel_setProcedural ( gid->currentChannel,
-                                           gid->currentChannel->proc );
+                g3dchannel_setProcedural ( gid->currentChannel, proc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
+
+                g3dimport_freadl ( &chess->udiv, fsrc );
+                g3dimport_freadl ( &chess->vdiv, fsrc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_CHESS_COLORS : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
+                G3DCOLOR color1, color2;
+
+                g3dimport_freadf ( &color1.r, fsrc );
+                g3dimport_freadf ( &color1.g, fsrc );
+                g3dimport_freadf ( &color1.b, fsrc );
+                g3dimport_freadf ( &color1.a, fsrc );
+
+                g3dimport_freadf ( &color2.r, fsrc );
+                g3dimport_freadf ( &color2.g, fsrc );
+                g3dimport_freadf ( &color2.b, fsrc );
+                g3dimport_freadf ( &color2.a, fsrc );
+
+                g3dcolor_toRGBA ( &color1, &chess->color1 );
+                g3dcolor_toRGBA ( &color2, &chess->color2 );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_BRICK : {
+                G3DPROCEDURAL *proc = g3dproceduralbrick_new ( );
+
+                g3dchannel_setProcedural ( gid->currentChannel, proc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY : {

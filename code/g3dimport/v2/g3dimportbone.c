@@ -58,6 +58,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_BONE_RIG_WEIGHTGROUP : {
                 G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
                 G3DOBJECT *obj = gid->currentObject;
+                G3DOBJECT *child;
                 G3DWEIGHTGROUP *grp = NULL;
                 G3DMESH *mes = NULL;
                 uint32_t grpID;
@@ -66,18 +67,22 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimport_freadl ( &grpID, fsrc );
                 g3dimport_freadl ( &objID, fsrc );
 
-                mes = g3dobject_getChildByID ( gid->currentScene, objID );
+                child = g3dobject_getChildByID ( gid->currentScene, objID );
 
-                if ( mes ) {
-                    grp = g3dmesh_getWeightGroupByID ( mes, grpID );
+                if ( child ) {
+                    if ( child->type == G3DMESHTYPE ) {
+                        mes = ( G3DMESH * ) child;
 
-                    if ( grp ) {
-                        gid->currentRig = g3dbone_addWeightGroup ( bon, grp );
+                        grp = g3dmesh_getWeightGroupByID ( mes, grpID );
 
-                        /*** this must be called before loading the ***/
-                        /*** bind and skin matrices ***/
-                        if ( obj->flags & BONEFIXED ) {
-                            g3drig_fix ( gid->currentRig, bon );
+                        if ( grp ) {
+                            gid->currentRig = g3dbone_addWeightGroup ( bon, grp );
+
+                            /*** this must be called before loading the ***/
+                            /*** bind and skin matrices ***/
+                            if ( obj->flags & BONEFIXED ) {
+                                g3drig_fix ( gid->currentRig, bon );
+                            }
                         }
                     }
                 }

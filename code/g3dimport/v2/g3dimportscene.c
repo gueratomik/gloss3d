@@ -79,7 +79,17 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
-            case SIG_OBJECT : {
+            case SIG_EXTENSIONS : {
+            } break;
+
+            case SIG_EXTENSION_ENTRY : {
+                g3dimportextension ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECTS : {
+            } break;
+
+            case SIG_OBJECT_ENTRY : {
                 g3dimportobject ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
@@ -101,6 +111,7 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
+                              LIST      *lextension,
                               uint32_t    flags ) {
     uint32_t chunkSignature, chunkSize;
     G3DIMPORTDATA gid;
@@ -114,6 +125,7 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     memset ( &gid, 0x00, sizeof ( G3DIMPORTDATA ) );
 
+    gid.lext = lextension;
     gid.currentScene = g3dscene_new ( gid.currentObjectID++, "Scene" );
     gid.engineFlags  = VIEWOBJECT;
 

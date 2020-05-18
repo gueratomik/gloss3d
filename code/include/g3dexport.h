@@ -312,14 +312,6 @@
 #define EXPORTOBJTRIANGULATE ( 1 << 1 )
 
 /******************************************************************************/
-typedef struct _G3DEXPORTEXTENSION {
-    char      *name;
-    uint32_t (*blockSize)(void *data);
-    void     (*writeBlock)(void *data, FILE *fdst);
-    void      *data;
-} G3DEXPORTEXTENSION;
-
-/******************************************************************************/
 void g3dscene_write ( G3DSCENE *sce, 
                       char     *filename,
                       char     *comment,
@@ -329,12 +321,6 @@ void g3dscene_write ( G3DSCENE *sce,
 void g3dscene_exportObj ( G3DSCENE *, const char *, const char *,  uint32_t );
 void g3dscene_exportPov ( G3DSCENE *, const char *, const char *,  uint32_t );
 
-G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
-                                             uint32_t (*blockSize)(void *data),
-                                             void     (*writeBlock)(void *data, 
-                                                                    FILE *fdst),
-                                             void      *data);
-
 void chunk_write ( uint16_t  chunkid,
                    uint32_t  chunkln, 
                    FILE     *fdst );
@@ -342,8 +328,6 @@ void writef ( void   *ptr,
               size_t  size,
               size_t  count,
               FILE   *stream );
-
-void g3dexportextension_free ( G3DEXPORTEXTENSION *ext );
 
 #endif
 

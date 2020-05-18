@@ -2980,16 +2980,6 @@ static void object_writeblock ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static void extensionname_writeBlock ( G3DEXPORTEXTENSION *ext, 
-                                       FILE               *fdst ) {
-    chunk_write ( EXTENSIONNAMESIG, 
-                  strlen ( ext->name ),
-                  fdst );
-
-    writef ( ext->name, strlen ( ext->name ), 0x01, fdst );
-}
-
-/******************************************************************************/
 void g3dscene_write ( G3DSCENE *sce, 
                       char     *filename,
                       char     *comment,
@@ -3020,6 +3010,8 @@ void g3dscene_write ( G3DSCENE *sce,
 
     object_writeblock ( obj, &objid, OBJECTSAVEALL, fdst );
 
+
+#ifdef NOLONGERSUPPORTED
     while ( ltmpext ) {
         G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) ltmpext->data;
 
@@ -3038,6 +3030,7 @@ void g3dscene_write ( G3DSCENE *sce,
 
         ltmpext = ltmpext->next;
     }
+#endif
 
     fclose ( fdst );
 }

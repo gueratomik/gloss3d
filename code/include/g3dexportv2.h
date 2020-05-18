@@ -50,11 +50,22 @@
 #include "signatures.h"
 
 typedef struct _G3DEXPORTDATA {
+    G3DSCENE  *currentScene;
     G3DOBJECT *currentObject;
     G3DFACE   *currentFace;
-    uint32_t objectID;
+    uint32_t   objectID;
+    LIST     *lext;
 } G3DEXPORTDATA;
 
+/******************************************************************************/
+typedef struct _G3DEXPORTEXTENSION {
+    uint32_t signature;
+    uint32_t (*write)( G3DEXPORTDATA *ged,
+                       void          *data,
+                       uint32_t       flags,
+                       FILE          *fdst );
+    void      *data;
+} G3DEXPORTEXTENSION;
 
 void g3dscene_exportv2 ( G3DSCENE *sce, 
                          char     *filename,
@@ -145,10 +156,22 @@ uint32_t g3dexportspline ( G3DEXPORTDATA*ged,
                            G3DSPLINE    *spl, 
                            uint32_t      flags, 
                            FILE         *fdst );
+uint32_t g3dexportextension ( G3DEXPORTDATA       *ged, 
+                              G3DEXPORTEXTENSION  *ext, 
+                              uint32_t             flags, 
+                              FILE                *fdst );
 
 uint32_t g3dexport_fwrited ( double *d, FILE *stream );
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
 uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream );
 uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream );
+
+G3DEXPORTEXTENSION *g3dexportextension_new ( uint32_t signature,
+                                             uint32_t (*write)( G3DEXPORTDATA      *ged, 
+                                                                G3DEXPORTEXTENSION *ext, 
+                                                                uint32_t            flags, 
+                                                                FILE               *fdst ),
+                                             void      *data );
+void g3dexportextension_free ( G3DEXPORTEXTENSION *ext );
 
 #endif

@@ -27,14 +27,46 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dexport.h>
+#include <g3dexportv2.h>
 
 /******************************************************************************/
-G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
-                                             uint32_t (*blockSize)(void *data),
-                                             void     (*writeBlock)(void *data, 
-                                                                    FILE *fdst),
-                                             void      *data) {
+static uint32_t g3dexportextension_entry ( G3DEXPORTDATA       *ged, 
+                                           G3DEXPORTEXTENSION  *ext, 
+                                           uint32_t             flags, 
+                                           FILE                *fdst ) {
+    uint32_t size = 0x00;
+
+    if ( ext->write ) {
+        size += ext->write ( ged, ext->data, flags, fdst );
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+uint32_t g3dexportextension ( G3DEXPORTDATA       *ged, 
+                              G3DEXPORTEXTENSION  *ext, 
+                              uint32_t             flags, 
+                              FILE                *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( ext->signature,
+                                   g3dexportextension_entry,
+                                   ged,
+                                   ext,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+G3DEXPORTEXTENSION *g3dexportextension_new ( uint32_t signature,
+                                             uint32_t (*write)( G3DEXPORTDATA      *ged, 
+                                                                G3DEXPORTEXTENSION *ext, 
+                                                                uint32_t            flags, 
+                                                                FILE               *fdst ),
+                                             void      *data ) {
     uint32_t size = sizeof ( G3DEXPORTEXTENSION );
     G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) calloc ( 0x01, size );
 
@@ -44,10 +76,9 @@ G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
         return NULL;
     }
 
-    ext->name = strdup ( name );
-    ext->blockSize = blockSize;
-    ext->writeBlock = writeBlock;
-    ext->data = data;
+    ext->signature = signature;
+    ext->write     = write;
+    ext->data      = data;
 
     return ext;
 }
@@ -56,4 +87,3 @@ G3DEXPORTEXTENSION *g3dexportextension_new ( char      *name,
 void g3dexportextension_free ( G3DEXPORTEXTENSION *ext ) {
     free ( ext );
 }
-

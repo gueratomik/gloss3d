@@ -32,682 +32,696 @@
 /******************************************************************************/
 /********************************** Output ************************************/
 /******************************************************************************/
-static uint32_t r3doutputfps_blockSize ( ) {
-    return sizeof ( uint32_t );
+
+/******************************************************************************/
+static uint32_t r3drendersettings_outputRatio ( G3DEXPORTDATA     *ged,
+                                               R3DOUTPUTSETTINGS *ros,
+                                               uint32_t           flags, 
+                                               FILE              *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &ros->ratio, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3doutputfps_writeBlock ( uint32_t fps, FILE *fdst ) {
-    chunk_write ( R3DOUTPUTFPSSIG, 
-                  r3doutputfps_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_outputFormat ( G3DEXPORTDATA     *ged,
+                                                R3DOUTPUTSETTINGS *ros,
+                                                uint32_t           flags, 
+                                                FILE              *fdst ) {
+    uint32_t size = 0x00; 
 
-    writef ( &fps, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritel ( &ros->format, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3doutputsize_blockSize ( ) {
-    /* return width and height size */
-    return sizeof ( uint32_t ) * 0x02;
+static uint32_t r3drendersettings_outputFile ( G3DEXPORTDATA     *ged,
+                                              R3DOUTPUTSETTINGS *ros,
+                                              uint32_t           flags, 
+                                              FILE              *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwrite ( ros->outfile, strlen ( ros->outfile ), 0x01, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3doutputsize_writeBlock ( uint32_t  width, 
-                                       uint32_t  height, 
-                                       FILE     *fdst ) {
-    chunk_write ( R3DOUTPUTSIZESIG, 
-                  r3doutputsize_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_outputFrame ( G3DEXPORTDATA     *ged,
+                                               R3DOUTPUTSETTINGS *ros,
+                                               uint32_t           flags, 
+                                               FILE              *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &width , sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &height, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritef ( &ros->startframe, fdst );
+    size += g3dexport_fwritef ( &ros->endframe  , fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3doutputframe_blockSize ( ) {
-    return sizeof ( float ) * 0x02;
+static uint32_t r3drendersettings_outputSize ( G3DEXPORTDATA     *ged,
+                                              R3DOUTPUTSETTINGS *ros,
+                                              uint32_t           flags, 
+                                              FILE              *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &ros->width , fdst );
+    size += g3dexport_fwritel ( &ros->height, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3doutputframe_writeBlock ( float  startFrame, 
-                                        float  endFrame, 
-                                        FILE  *fdst ) {
-    chunk_write ( R3DOUTPUTFRAMESIG, 
-                  r3doutputframe_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_outputFPS ( G3DEXPORTDATA     *ged,
+                                             R3DOUTPUTSETTINGS *ros,
+                                             uint32_t           flags, 
+                                             FILE              *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &startFrame, sizeof ( float ), 0x01, fdst );
-    writef ( &endFrame  , sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritel ( &ros->fps, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3doutputoutfile_blockSize ( char *outfile ) {
-    uint32_t len = ( outfile ) ? strlen ( outfile ) : 0x00;
+static uint32_t r3drendersettings_output ( G3DEXPORTDATA     *ged,
+                                          R3DOUTPUTSETTINGS *ros,
+                                          uint32_t           flags, 
+                                          FILE              *fdst ) {
+    uint32_t size = 0x00;
 
-    return len;
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FPS,
+                                   r3drendersettings_outputFPS,
+                                   ged,
+                                   ros,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static void r3doutputoutfile_writeBlock ( char *outfile, 
-                                          FILE *fdst ) {
-    chunk_write ( R3DOUTPUTOUTFILESIG, 
-                  r3doutputoutfile_blockSize ( outfile ),
-                  fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_SIZE,
+                                   r3drendersettings_outputSize,
+                                   ged,
+                                   ros,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    writef ( outfile, r3doutputoutfile_blockSize ( outfile ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3doutputformat_blockSize (  ) {
-    return sizeof ( uint32_t );
-}
-
-/******************************************************************************/
-static void r3doutputformat_writeBlock ( uint32_t  format, 
-                                         FILE     *fdst ) {
-    chunk_write ( R3DOUTPUTFORMATSIG, 
-                  r3doutputformat_blockSize ( ),
-                  fdst );
-
-    writef ( &format, sizeof ( uint32_t ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3doutputratio_blockSize (  ) {
-    return sizeof ( float );
-}
-
-/******************************************************************************/
-static void r3doutputratio_writeBlock ( float  ratio, 
-                                        FILE  *fdst ) {
-    chunk_write ( R3DOUTPUTRATIOSIG, 
-                  r3doutputratio_blockSize ( ),
-                  fdst );
-
-    writef ( &ratio, sizeof ( float ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3doutputsettings_blockSize ( R3DOUTPUTSETTINGS *ros ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3doutputfps_blockSize ( ) + 0x06;
-    blocksize += r3doutputsize_blockSize ( ) + 0x06;
-    blocksize += r3doutputframe_blockSize ( ) + 0x06;
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FRAME,
+                                   r3drendersettings_outputFrame,
+                                   ged,
+                                   ros,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     if ( ros->outfile ) {
-        blocksize += r3doutputoutfile_blockSize ( ros ) + 0x06;
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FILE,
+                                       r3drendersettings_outputFile,
+                                       ged,
+                                       ros,
+                                       0xFFFFFFFF,
+                                       fdst );
     }
 
-    blocksize += r3doutputformat_blockSize (  ) + 0x06;
-    blocksize += r3doutputratio_blockSize (  ) + 0x06;
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FORMAT,
+                                   r3drendersettings_outputFormat,
+                                   ged,
+                                   ros,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    return blocksize;
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_RATIO,
+                                   r3drendersettings_outputRatio,
+                                   ged,
+                                   ros,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static void r3doutputsettings_writeBlock ( R3DOUTPUTSETTINGS *ros, 
-                                           FILE              *fdst ) {
-    chunk_write ( R3DOUTPUTSETTINGSSIG, 
-                  r3doutputsettings_blockSize ( ros ),
-                  fdst );
-
-    r3doutputfps_writeBlock ( ros->fps, fdst );
-    r3doutputsize_writeBlock ( ros->width, ros->height, fdst );
-    r3doutputframe_writeBlock ( ros->startframe, ros->endframe, fdst );
-
-    if ( ros->outfile ) {
-        r3doutputoutfile_writeBlock ( ros->outfile, fdst );
-    }
-
-    r3doutputformat_writeBlock ( ros->format, fdst );
-    r3doutputratio_writeBlock ( ros->ratio, fdst );
+    return size;
 }
 
 /******************************************************************************/
 /******************************** Background **********************************/
 /******************************************************************************/
-    G3DIMAGE  *image;
 
 /******************************************************************************/
-static uint32_t r3dbackgroundmode_blockSize ( ) {
-    return sizeof ( uint32_t );
+static uint32_t r3drendersettings_backgroundImage  ( G3DEXPORTDATA         *ged,
+                                                    R3DBACKGROUNDSETTINGS *bgs,
+                                                    uint32_t               flags, 
+                                                    FILE                  *fdst ) {
+    uint32_t len = strlen ( bgs->image->filename );
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwrite ( bgs->image->filename, len, 0x01, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dbackgroundmode_writeBlock ( uint32_t  mode, 
-                                           FILE     *fdst ) {
-    chunk_write ( R3DBACKGROUNDMODESIG, 
-                  r3dbackgroundmode_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_backgroundColor ( G3DEXPORTDATA          *ged,
+                                                   R3DBACKGROUNDSETTINGS *bgs,
+                                                   uint32_t               flags, 
+                                                   FILE                  *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &mode, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritel ( &bgs->color, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dbackgroundcolor_blockSize ( ) {
-    return sizeof ( uint32_t );
+static uint32_t r3drendersettings_backgroundMode ( G3DEXPORTDATA         *ged,
+                                                  R3DBACKGROUNDSETTINGS *bgs,
+                                                  uint32_t               flags, 
+                                                  FILE                   *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &bgs->mode, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dbackgroundcolor_writeBlock ( uint32_t  color, 
-                                            FILE     *fdst ) {
-    chunk_write ( R3DBACKGROUNDCOLORSIG, 
-                  r3dbackgroundcolor_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_background ( G3DEXPORTDATA         *ged,
+                                              R3DBACKGROUNDSETTINGS *bgs,
+                                              uint32_t               flags, 
+                                              FILE                  *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &color, sizeof ( uint32_t ), 0x01, fdst );
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_MODE,
+                                   r3drendersettings_backgroundMode,
+                                   ged,
+                                   bgs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static uint32_t r3dbackgroundimage_blockSize ( G3DIMAGE *image ) {
-    return strlen ( image->filename );
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_COLOR,
+                                   r3drendersettings_backgroundColor,
+                                   ged,
+                                   bgs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static void r3dbackgroundimage_writeBlock ( G3DIMAGE *image, 
-                                            FILE     *fdst ) {
-    chunk_write ( R3DBACKGROUNDIMAGESIG, 
-                  r3dbackgroundimage_blockSize ( image ),
-                  fdst );
-
-    writef ( image->filename, r3dbackgroundimage_blockSize ( image ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3dbackgroundsettings_blockSize ( R3DBACKGROUNDSETTINGS *rbs ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3dbackgroundmode_blockSize ( ) + 0x06;
-    blocksize += r3dbackgroundcolor_blockSize ( ) + 0x06;
-
-    if ( rbs->image ) {
-        blocksize += r3dbackgroundimage_blockSize ( rbs->image ) + 0x06;
+    if ( bgs->image ) {
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_IMAGE,
+                                       r3drendersettings_backgroundImage,
+                                       ged,
+                                       bgs,
+                                       0xFFFFFFFF,
+                                       fdst );
     }
 
-    return blocksize;
-}
-
-/******************************************************************************/
-static void r3dbackgroundsettings_writeBlock ( R3DBACKGROUNDSETTINGS *rbs, 
-                                               FILE                  *fdst ) {
-    chunk_write ( R3DBACKGROUNDSETTINGSSIG, 
-                  r3dbackgroundsettings_blockSize ( rbs ),
-                  fdst );
-
-    r3dbackgroundmode_writeBlock ( rbs->mode, fdst );
-    r3dbackgroundcolor_writeBlock ( rbs->color, fdst );
-
-    if ( rbs->image ) {
-        r3dbackgroundimage_writeBlock ( rbs->image, fdst );
-    }
+    return size;
 }
 
 /******************************************************************************/
 /********************************** WireFrame *********************************/
 /******************************************************************************/
-static uint32_t r3dwireframecolor_blockSize ( ) {
-    return sizeof ( uint32_t );
+
+/******************************************************************************/
+static uint32_t r3drendersettings_wireframeThickness ( G3DEXPORTDATA        *ged,
+                                                      R3DWIREFRAMESETTINGS *wfs,
+                                                      uint32_t              flags, 
+                                                      FILE                 *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &wfs->thickness, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dwireframecolor_writeBlock ( uint32_t  color, 
-                                           FILE     *fdst ) {
-    chunk_write ( R3DWIREFRAMECOLORSIG, 
-                  r3dwireframecolor_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_wireframeColor ( G3DEXPORTDATA        *ged,
+                                                  R3DWIREFRAMESETTINGS *wfs,
+                                                  uint32_t              flags, 
+                                                  FILE                 *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &color, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritel ( &wfs->color, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dwireframethickness_blockSize ( ) {
-    return sizeof ( uint32_t );
-}
+static uint32_t r3drendersettings_wireframe ( G3DEXPORTDATA        *ged,
+                                             R3DWIREFRAMESETTINGS *wfs,
+                                             uint32_t              flags, 
+                                             FILE                 *fdst ) {
+    uint32_t size = 0x00;
 
-/******************************************************************************/
-static void r3dwireframethickness_writeBlock ( float  thickness, 
-                                               FILE  *fdst ) {
-    chunk_write ( R3DWIREFRAMETHICKNESSSIG, 
-                  r3dwireframethickness_blockSize ( ),
-                  fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_COLOR,
+                                   r3drendersettings_wireframeColor,
+                                   ged,
+                                   wfs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    writef ( &thickness, sizeof ( float ), 0x01, fdst );
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_THICKNESS,
+                                   r3drendersettings_wireframeThickness,
+                                   ged,
+                                   wfs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static uint32_t r3dwireframesettings_blockSize ( R3DWIREFRAMESETTINGS *rws ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3dwireframecolor_blockSize ( ) + 0x06;
-    blocksize += r3dwireframethickness_blockSize ( ) + 0x06;
-
-    return blocksize;
-}
-
-/******************************************************************************/
-static void r3dwireframesettings_writeBlock ( R3DWIREFRAMESETTINGS *rws, 
-                                              FILE                 *fdst ) {
-    chunk_write ( R3DWIREFRAMESETTINGSSIG, 
-                  r3dwireframesettings_blockSize ( rws ),
-                  fdst );
-
-    r3dwireframecolor_writeBlock ( rws->color, fdst );
-    r3dwireframethickness_writeBlock ( rws->thickness, fdst );
+    return size;
 }
 
 /******************************************************************************/
 /******************************** Motion Blur *********************************/
 /******************************************************************************/
-static uint32_t r3dmotionblurstrength_blockSize ( ) {
-    return sizeof ( uint32_t );
+
+
+
+/******************************************************************************/
+static uint32_t r3drendersettings_motionblurSubSamplingRate ( G3DEXPORTDATA         *ged,
+                                                             R3DMOTIONBLURSETTINGS *mbs,
+                                                             uint32_t               flags, 
+                                                             FILE                  *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &mbs->vMotionBlurSubSamplingRate, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dmotionblurstrength_writeBlock ( uint32_t  strength, 
-                                               FILE     *fdst ) {
-    chunk_write ( R3DMOTIONBLURSTRENGTHSIG, 
-                  r3dmotionblurstrength_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_motionblurSamples ( G3DEXPORTDATA         *ged,
+                                                     R3DMOTIONBLURSETTINGS *mbs,
+                                                     uint32_t               flags, 
+                                                     FILE                  *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &strength, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritel ( &mbs->vMotionBlurSamples, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dmotionbluriterations_blockSize ( ) {
-    return sizeof ( uint32_t );
+static uint32_t r3drendersettings_motionblurIterations ( G3DEXPORTDATA         *ged,
+                                                        R3DMOTIONBLURSETTINGS *mbs,
+                                                        uint32_t               flags, 
+                                                        FILE                  *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &mbs->iterations, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dmotionbluriterations_writeBlock ( uint32_t  iterations, 
-                                                 FILE     *fdst ) {
-    chunk_write ( R3DMOTIONBLURITERATIONSSIG, 
-                  r3dmotionbluriterations_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_motionblurStrength ( G3DEXPORTDATA         *ged,
+                                                      R3DMOTIONBLURSETTINGS *mbs,
+                                                      uint32_t               flags, 
+                                                      FILE                  *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &iterations, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexport_fwritel ( &mbs->strength, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dmotionblursamples_blockSize ( ) {
-    return sizeof ( uint32_t );
-}
+static uint32_t r3drendersettings_motionblur ( G3DEXPORTDATA         *ged,
+                                              R3DMOTIONBLURSETTINGS *mbs,
+                                              uint32_t               flags, 
+                                              FILE                  *fdst ) {
+    uint32_t size = 0x00; 
 
-/******************************************************************************/
-static void r3dmotionblursamples_writeBlock ( uint32_t  samples, 
-                                              FILE     *fdst ) {
-    chunk_write ( R3DMOTIONBLURSAMPLESSIG, 
-                  r3dmotionblursamples_blockSize ( ),
-                  fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH,
+                                   r3drendersettings_motionblurStrength,
+                                   ged,
+                                   mbs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    writef ( &samples, sizeof ( uint32_t ), 0x01, fdst );
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS,
+                                   r3drendersettings_motionblurIterations,
+                                   ged,
+                                   mbs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static uint32_t r3dmotionblursubsamplingrate_blockSize ( ) {
-    return sizeof ( float );
-}
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES,
+                                   r3drendersettings_motionblurSamples,
+                                   ged,
+                                   mbs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-/******************************************************************************/
-static void r3dmotionblursubsamplingrate_writeBlock ( float  subsamplingrate, 
-                                                      FILE  *fdst ) {
-    chunk_write ( R3DMOTIONBLURSUBSAMPLINGRATESIG, 
-                  r3dmotionblursubsamplingrate_blockSize ( ),
-                  fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE,
+                                   r3drendersettings_motionblurSubSamplingRate,
+                                   ged,
+                                   mbs,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    writef ( &subsamplingrate, sizeof ( float ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3dmotionblursettings_blockSize ( R3DMOTIONBLURSETTINGS *rms ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3dmotionblurstrength_blockSize ( ) + 0x06;
-    blocksize += r3dmotionbluriterations_blockSize ( ) + 0x06;
-    blocksize += r3dmotionblursamples_blockSize ( ) + 0x06;
-    blocksize += r3dmotionblursubsamplingrate_blockSize ( ) + 0x06;
-
-    return blocksize;
-}
-
-/******************************************************************************/
-static void r3dmotionblursettings_writeBlock ( R3DMOTIONBLURSETTINGS *rms, 
-                                               FILE                  *fdst ) {
-    chunk_write ( R3DMOTIONBLURSETTINGSSIG, 
-                  r3dmotionblursettings_blockSize ( rms ),
-                  fdst );
-
-    r3dmotionblurstrength_writeBlock ( rms->strength, fdst );
-    r3dmotionbluriterations_writeBlock ( rms->iterations, fdst );
-    r3dmotionblursamples_writeBlock ( rms->vMotionBlurSamples, fdst );
-    r3dmotionblursubsamplingrate_writeBlock ( rms->vMotionBlurSubSamplingRate, fdst );
+    return size;
 }
 
 /******************************************************************************/
 /************************************* FOG ************************************/
 /******************************************************************************/
-static uint32_t r3dfogfar_blockSize ( ) {
-    return sizeof ( float );
+
+/******************************************************************************/
+static uint32_t r3drendersettings_fogColor ( G3DEXPORTDATA  *ged,
+                                            R3DFOGSETTINGS *fgs,
+                                            uint32_t        flags, 
+                                            FILE           *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &fgs->color, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dfogfar_writeBlock ( float  ffar, 
-                                   FILE  *fdst ) {
-    chunk_write ( R3DFOGFARSIG, 
-                  r3dfogfar_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_fogFar ( G3DEXPORTDATA  *ged,
+                                          R3DFOGSETTINGS *fgs,
+                                          uint32_t        flags, 
+                                          FILE           *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &ffar, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritef ( &fgs->ffar, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dfognear_blockSize ( ) {
-    return sizeof ( float );
+static uint32_t r3drendersettings_fogNear ( G3DEXPORTDATA  *ged,
+                                           R3DFOGSETTINGS *fgs,
+                                           uint32_t        flags, 
+                                           FILE           *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &fgs->fnear, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3dfognear_writeBlock ( float  fnear, 
-                                    FILE  *fdst ) {
-    chunk_write ( R3DFOGNEARSIG, 
-                  r3dfognear_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_fogFlags ( G3DEXPORTDATA  *ged,
+                                            R3DFOGSETTINGS *fgs,
+                                            uint32_t        flags, 
+                                            FILE           *fdst ) {
+    uint32_t size = 0x00;
 
-    writef ( &fnear, sizeof ( float ), 0x01, fdst );
+    size += g3dexport_fwritell ( &fgs->flags, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3dfogcolor_blockSize ( ) {
-    return sizeof ( uint32_t );
-}
-
-/******************************************************************************/
-static void r3dfogcolor_writeBlock ( uint32_t  color, 
-                                     FILE     *fdst ) {
-    chunk_write ( R3DFOGCOLORSIG, 
-                  r3dfogcolor_blockSize ( ),
-                  fdst );
-
-    writef ( &color, sizeof ( uint32_t ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3dfogflags_blockSize ( ) {
-    return sizeof ( uint64_t );
-}
-
-/******************************************************************************/
-static void r3dfogflags_writeBlock ( uint64_t flags, 
-                                     FILE    *fdst ) {
-    chunk_write ( R3DFOGFLAGSSIG, 
-                  r3dfogflags_blockSize ( ),
-                  fdst );
-
-    writef ( &flags, sizeof ( uint64_t ), 0x01, fdst );
-}
-
-/******************************************************************************/
-static uint32_t r3dfogsettings_blockSize ( R3DFOGSETTINGS *rfs ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3dfogflags_blockSize ( ) + 0x06;
-    blocksize += r3dfogcolor_blockSize ( ) + 0x06;
-    blocksize += r3dfognear_blockSize ( ) + 0x06;
-    blocksize += r3dfogfar_blockSize ( ) + 0x06;
-
-    return blocksize;
-}
-
-/******************************************************************************/
-static void r3dfogsettings_writeBlock ( R3DFOGSETTINGS *rfs, 
+static uint32_t r3drendersettings_fog ( G3DEXPORTDATA  *ged,
+                                        R3DFOGSETTINGS *fgs,
+                                        uint32_t        flags, 
                                         FILE           *fdst ) {
-    chunk_write ( R3DFOGSETTINGSSIG, 
-                  r3dfogsettings_blockSize ( rfs ),
-                  fdst );
+    uint32_t size = 0x00;
 
-    r3dfogflags_writeBlock ( rfs->flags, fdst );
-    r3dfogcolor_writeBlock ( rfs->color, fdst );
-    r3dfognear_writeBlock ( rfs->fnear, fdst );
-    r3dfogfar_writeBlock ( rfs->ffar, fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_FLAGS,
+                                   r3drendersettings_fogFlags,
+                                   ged,
+                                   fgs,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_NEAR,
+                                   r3drendersettings_fogNear,
+                                   ged,
+                                   fgs,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_FAR,
+                                   r3drendersettings_fogFar,
+                                   ged,
+                                   fgs,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_COLOR,
+                                   r3drendersettings_fogColor,
+                                   ged,
+                                   fgs,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    return size;
 }
 
 /******************************************************************************/
 /***************************** Render settings ********************************/
 /******************************************************************************/
-static uint32_t r3drenderflags_blockSize ( ) {
-    return sizeof ( uint64_t );
+
+/******************************************************************************/
+static uint32_t r3drendersettings_flags ( G3DEXPORTDATA     *ged,
+                                         R3DRENDERSETTINGS *rsg,
+                                         uint32_t          flags, 
+                                         FILE              *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritell ( &rsg->flags, fdst );
+
+    return size;
 }
 
 /******************************************************************************/
-static void r3drenderflags_writeBlock ( uint64_t  flags,
-                                        FILE     *fdst ) {
-    chunk_write ( R3DRENDERFLAGSSIG, 
-                  r3drenderflags_blockSize ( ),
-                  fdst );
+static uint32_t r3drendersettings_entry ( G3DEXPORTDATA     *ged,
+                                          R3DRENDERSETTINGS *rsg,
+                                          uint32_t          flags, 
+                                          FILE              *fdst ) {
+    uint32_t size= 0x00;
 
-    writef ( &flags, sizeof ( uint64_t ), 0x01, fdst );
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FLAGS,
+                                   r3drendersettings_flags,
+                                   ged,
+                                   rsg,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT,
+                                   r3drendersettings_output,
+                                   ged,
+                                  &rsg->output,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND,
+                                   r3drendersettings_background,
+                                   ged,
+                                  &rsg->background,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    if ( rsg->flags & RENDERWIREFRAME ) {
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME,
+                                       r3drendersettings_wireframe,
+                                       ged,
+                                      &rsg->wireframe,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( rsg->flags & ENABLEMOTIONBLUR ) {
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR,
+                                       r3drendersettings_motionblur,
+                                       ged,
+                                      &rsg->motionBlur,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( rsg->flags & RENDERFOG ) {
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG,
+                                       r3drendersettings_fog,
+                                       ged,
+                                      &rsg->fog,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    return size;
 }
 
 /******************************************************************************/
-static uint32_t r3drendersettings_blockSize ( R3DRENDERSETTINGS *rsg ) {
-    uint32_t blocksize = 0x00;
-
-    blocksize += r3drenderflags_blockSize ( ) + 0x06;
-    blocksize += r3doutputsettings_blockSize     ( &rsg->output     ) + 0x06;
-    blocksize += r3dbackgroundsettings_blockSize ( &rsg->background ) + 0x06;
-    blocksize += r3dmotionblursettings_blockSize ( &rsg->motionBlur ) + 0x06;
-    blocksize += r3dwireframesettings_blockSize  ( &rsg->wireframe  ) + 0x06;
-    blocksize += r3dfogsettings_blockSize        ( &rsg->fog        ) + 0x06;
-
-    return blocksize;
-}
-
-/******************************************************************************/
-static void r3drendersettings_writeBlock ( R3DRENDERSETTINGS *rsg, 
-                                           FILE              *fdst ) {
-    chunk_write ( R3DRENDERSETTINGSSIG, 
-                  r3drendersettings_blockSize ( rsg ),
-                  fdst );
-
-    r3drenderflags_writeBlock        (  rsg->flags     , fdst );
-    r3doutputsettings_writeBlock     ( &rsg->output    , fdst );
-    r3dbackgroundsettings_writeBlock ( &rsg->background, fdst );
-    r3dmotionblursettings_writeBlock ( &rsg->motionBlur, fdst );
-    r3dwireframesettings_writeBlock  ( &rsg->wireframe , fdst );
-    r3dfogsettings_writeBlock        ( &rsg->fog       , fdst );
-}
-
-/******************************************************************************/
-uint32_t r3drendersettings_blockSizeFromList ( LIST *lrsg ) {
-    uint32_t blocksize = 0x00;
+uint32_t r3drendersettings_write ( G3DEXPORTDATA       *ged, 
+                                   LIST                *lrsg, 
+                                   uint32_t             flags, 
+                                   FILE                *fdst ) {
+    uint32_t size = 0x00;
     LIST *ltmprsg = lrsg;
 
     while ( ltmprsg ) {
         R3DRENDERSETTINGS *rsg = ( R3DRENDERSETTINGS * ) ltmprsg->data;
 
-        blocksize += r3drendersettings_blockSize ( rsg );
+        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_ENTRY,
+                                       r3drendersettings_entry,
+                                       ged,
+                                       rsg,
+                                       0xFFFFFFFF,
+                                       fdst );
 
         ltmprsg = ltmprsg->next;
     }
 
-    return blocksize;
+    return size;
 }
 
 /******************************************************************************/
-void r3drendersettings_writeBlockFromList ( LIST *lrsg, 
-                                            FILE *fdst ) {
-    LIST *ltmprsg = lrsg;
-
-    while ( ltmprsg ) {
-        R3DRENDERSETTINGS *rsg = ( R3DRENDERSETTINGS * ) ltmprsg->data;
-
-        r3drendersettings_writeBlock ( rsg, fdst );
-
-        ltmprsg = ltmprsg->next;
-    }
-}
-
-/******************************************************************************/
-void r3drendersettings_readBlockToList ( LIST    **lrsg,
-                                         G3DSCENE *sce,
-                                         FILE     *fsrc ) {
+void r3drendersettings_read ( G3DIMPORTDATA *gid, 
+                              uint32_t       chunkEnd, 
+                              FILE          *fsrc,
+                              LIST         **lrsg ) {
+    uint32_t chunkSignature, chunkSize;
     R3DRENDERSETTINGS *rsg = NULL;
-    LIST *ltmprsg = lrsg;
-    uint16_t chunksig;
-    uint32_t chunklen;
     
-    readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
-    readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+
 
     do {
-        switch ( chunksig ) {
-            case R3DRENDERSETTINGSSIG :
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_RENDERSETTINGS_ENTRY :
                 rsg = r3drendersettings_new ( );
 
                 list_append ( lrsg, rsg );
             break;
 
-            case R3DRENDERFLAGSSIG :
-                if ( rsg ) {
-                    readf ( &rsg->flags, sizeof ( uint64_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_FLAGS :
+                g3dimport_freadll ( &rsg->flags, fsrc );
             break;
 
-            case R3DOUTPUTSETTINGSSIG :
+            case SIG_RENDERSETTINGS_OUTPUT :
                 printf ( "render output settings found\n" );
             break;
 
-            case R3DOUTPUTFPSSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->output.fps, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_OUTPUT_FPS : {
+                g3dimport_freadl ( &rsg->output.fps, fsrc );
             } break;
 
-            case R3DOUTPUTSIZESIG : {
-                if ( rsg ) {
-                    readf ( &rsg->output.width , sizeof ( uint32_t ), 1, fsrc );
-                    readf ( &rsg->output.height, sizeof ( uint32_t ), 1, fsrc );
-                }
-
+            case SIG_RENDERSETTINGS_OUTPUT_SIZE : {
+                g3dimport_freadl ( &rsg->output.width , fsrc );
+                g3dimport_freadl ( &rsg->output.height, fsrc );
             } break;
 
-            case R3DOUTPUTFRAMESIG : {
-                if ( rsg ) {
-                    readf ( &rsg->output.startframe, sizeof ( float ), 1, fsrc );
-                    readf ( &rsg->output.endframe  , sizeof ( float ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_OUTPUT_FRAME : {
+                g3dimport_freadf ( &rsg->output.startframe, fsrc );
+                g3dimport_freadf ( &rsg->output.endframe  , fsrc );
             } break;
 
-            case R3DOUTPUTOUTFILESIG : {
-                if ( rsg ) {
-                    char buffer[0x200] = { 0 };
+            case SIG_RENDERSETTINGS_OUTPUT_FILE : {
+                char *buffer = calloc ( 0x01, chunkSize );
 
-                    readf ( buffer, chunklen, 1, fsrc );
+                g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
 
-                    rsg->output.outfile = strdup ( buffer );
-                }
+                rsg->output.outfile = strdup ( buffer );
+
+                free ( buffer );
             } break;
 
-            case R3DOUTPUTFORMATSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->output.format, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_OUTPUT_FORMAT : {
+                g3dimport_freadl ( &rsg->output.format, fsrc );
             } break;
 
-            case R3DOUTPUTRATIOSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->output.ratio, sizeof ( float ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_OUTPUT_RATIO : {
+                g3dimport_freadf ( &rsg->output.ratio, fsrc );
             } break;
 
-            case R3DBACKGROUNDSETTINGSSIG : {
+            case SIG_RENDERSETTINGS_BACKGROUND : {
                 printf ( "render background settings found\n" );
             } break;
 
-            case R3DBACKGROUNDMODESIG : {
-                if ( rsg ) {
-                    readf ( &rsg->background.mode, sizeof ( uint32_t ), 1, fsrc );
+            case SIG_RENDERSETTINGS_BACKGROUND_MODE : {
+                g3dimport_freadl ( &rsg->background.mode, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_BACKGROUND_COLOR : {
+                g3dimport_freadl ( &rsg->background.color, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_BACKGROUND_IMAGE : {
+                char *buffer = calloc ( 0x01, chunkSize );
+
+                g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
+
+                rsg->background.image = g3dimage_new ( buffer, 1 );
+                /* 
+                 * make it an opengl texture. We'll use it
+                 * for the opengl views 
+                 */
+                if ( rsg->background.image ) {
+                    g3dimage_bind ( rsg->background.image );
                 }
             } break;
 
-            case R3DBACKGROUNDCOLORSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->background.color, sizeof ( uint32_t ), 1, fsrc );
-                }
-            } break;
-
-            case R3DBACKGROUNDIMAGESIG : {
-                if ( rsg ) {
-                    char buffer[0x200] = { 0 };
-
-                    readf ( buffer, chunklen, 1, fsrc );
-
-                    rsg->background.image = g3dimage_new ( buffer, 1 );
-                    /* 
-                     * make it an opengl texture. We'll use it
-                     * for the opengl views 
-                     */
-                    if ( rsg->background.image ) {
-                        g3dimage_bind ( rsg->background.image );
-                    }
-                }
-            } break;
-
-            case R3DWIREFRAMESETTINGSSIG : {
+            case SIG_RENDERSETTINGS_WIREFRAME : {
                 printf ( "render wireframe settings found\n" );
             } break;
 
-            case R3DWIREFRAMECOLORSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->wireframe.color, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_WIREFRAME_COLOR : {
+                g3dimport_freadl ( &rsg->wireframe.color, fsrc );
             } break;
 
-            case R3DWIREFRAMETHICKNESSSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->wireframe.thickness, sizeof ( float ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_WIREFRAME_THICKNESS : {
+                g3dimport_freadf ( &rsg->wireframe.thickness, fsrc );
             } break;
 
-            case R3DMOTIONBLURSETTINGSSIG : {
+            case SIG_RENDERSETTINGS_MOTIONBLUR : {
                 printf ( "render motion blur settings found\n" );
             } break;
 
-            case R3DMOTIONBLURSTRENGTHSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->motionBlur.strength, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH : {
+                g3dimport_freadl ( &rsg->motionBlur.strength, fsrc );
             } break;
 
-            case R3DMOTIONBLURITERATIONSSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->motionBlur.iterations, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS : {
+                g3dimport_freadl ( &rsg->motionBlur.iterations, fsrc );
             } break;
 
-            case R3DMOTIONBLURSAMPLESSIG : {
-                if ( rsg ) {
-                    readf ( &rsg->motionBlur.vMotionBlurSamples, sizeof ( uint32_t ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES : {
+                g3dimport_freadl ( &rsg->motionBlur.vMotionBlurSamples, fsrc );
             } break;
 
-            case R3DMOTIONBLURSUBSAMPLINGRATESIG : {
-                if ( rsg ) {
-                    readf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, sizeof ( float ), 1, fsrc );
-                }
+            case SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE : {
+                g3dimport_freadf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, fsrc );
             } break;
 
-            case 0xFFFF: /* EXTENSIONENDSIG */
-                return;
-            break;
+            case SIG_RENDERSETTINGS_FOG : {
+                printf ( "render fog settings found\n" );
+            } break;
 
-            default :
-                fseek ( fsrc, chunklen, SEEK_CUR );
-            break;
+            case SIG_RENDERSETTINGS_FOG_FLAGS : {
+                g3dimport_freadll ( &rsg->fog.flags, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_FOG_NEAR : {
+                g3dimport_freadf ( &rsg->fog.fnear, fsrc );
+            } break;
+
+             case SIG_RENDERSETTINGS_FOG_FAR : {
+                g3dimport_freadf ( &rsg->fog.ffar, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_FOG_COLOR : {
+                g3dimport_freadl ( &rsg->fog.color, fsrc );
+            } break;
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
         }
 
-        readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
-        readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
 }
 
 

@@ -19,6 +19,8 @@
 #define  SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY  0x89DD35EB
 #define  SIG_CHANNEL_PROCEDURAL_RESOLUTION      0xEE216EAF
 #define  SIG_CHANNEL_SOLID                      0x6393699E
+#define  SIG_EXTENSION_ENTRY                    0xE4C94E11
+#define  SIG_EXTENSIONS                         0x22457A87
 #define  SIG_MATERIAL_ALPHA                     0x563A65EF
 #define  SIG_MATERIAL_BUMP                      0x9679768A
 #define  SIG_MATERIAL_BUMP_STRENGTH             0x2A823612
@@ -36,7 +38,6 @@
 #define  SIG_MATERIAL_SPECULAR                  0xCE7F7484
 #define  SIG_MATERIAL_SPECULAR_LEVEL            0x24CA1ADB
 #define  SIG_MATERIAL_SPECULAR_SHININESS        0x92BEF4DC
-#define  SIG_OBJECT                             0xA0D6AA20
 #define  SIG_OBJECT_BONE                        0x58B4AB43
 #define  SIG_OBJECT_BONE_FIXING                 0x37806762
 #define  SIG_OBJECT_BONE_FIXING_TRANSFORMATION  0xEF18142E
@@ -48,6 +49,7 @@
 #define  SIG_OBJECT_BONE_RIG_WEIGHTGROUP        0x531902FA
 #define  SIG_OBJECT_CAMERA                      0x590154D0
 #define  SIG_OBJECT_CAMERA_FOCAL                0x3B0925B4
+#define  SIG_OBJECT_ENTRY                       0x08CAC424
 #define  SIG_OBJECT_IDENTITY                    0xFE404903
 #define  SIG_OBJECT_IDENTITY_ACTIVE             0x754FF5ED
 #define  SIG_OBJECT_IDENTITY_NAME               0x647F2371
@@ -87,6 +89,7 @@
 #define  SIG_OBJECT_PRIMITIVE_PLANE             0x38CD7589
 #define  SIG_OBJECT_PRIMITIVE_SPHERE            0xBB3D1FB3
 #define  SIG_OBJECT_PRIMITIVE_TORUS             0x033C5DCC
+#define  SIG_OBJECTS                            0x15DB4DF2
 #define  SIG_OBJECT_SCENE                       0x4BBB8318
 #define  SIG_OBJECT_SPLINE                      0x52A0AE8B
 #define  SIG_OBJECT_SPLINE_GEOMETRY             0x1B9C4060

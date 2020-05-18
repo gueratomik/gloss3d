@@ -79,6 +79,8 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
+#include <g3dexportv2.h>
+#include <g3dimportv2.h>
 #include <g3dcom.h>
 
 /******************************************************************************/
@@ -306,33 +308,34 @@ typedef G3DDOUBLEVECTOR  R3DDOUBLEPOINT;
 #define RENDERTOVIDEO 0x01
 
 /*********************** Export to g3d file ***********************************/
-#define R3DRENDERSETTINGSSIG          0x1000
-#define R3DRENDERFLAGSSIG                     0x1010 /* uint64_t */
-#define R3DOUTPUTSETTINGSSIG              0x1200
-#define R3DOUTPUTFPSSIG                       0x1210 /* uint32_t */
-#define R3DOUTPUTSIZESIG                      0x1220 /* uint32_t, uint32_t */
-#define R3DOUTPUTFRAMESIG                     0x1230 /* float, float */
-#define R3DOUTPUTOUTFILESIG                   0x1240 /* char[]   */
-#define R3DOUTPUTFORMATSIG                    0x1250 /* uint32_t */
-#define R3DOUTPUTRATIOSIG                     0x1260 /* float    */
-#define R3DBACKGROUNDSETTINGSSIG          0x1300
-#define R3DBACKGROUNDMODESIG                  0x1310 /* uint32_t */
-#define R3DBACKGROUNDCOLORSIG                 0x1320 /* uint32_t */
-#define R3DBACKGROUNDIMAGESIG                 0x1330 /* char[]   */
-#define R3DWIREFRAMESETTINGSSIG           0x1400
-#define R3DWIREFRAMECOLORSIG                  0x1410 /* uint32_t */
-#define R3DWIREFRAMETHICKNESSSIG              0x1420 /* float    */
-#define R3DMOTIONBLURSETTINGSSIG          0x1500
-#define R3DMOTIONBLURSTRENGTHSIG              0x1510
-#define R3DMOTIONBLURITERATIONSSIG            0x1520
-#define R3DMOTIONBLURSAMPLESSIG               0x1530
-#define R3DMOTIONBLURSUBSAMPLINGRATESIG       0x1540
-#define R3DFOGSETTINGSSIG                 0x1600
-#define R3DFOGFLAGSSIG                        0x1610 /* uint64_t */
-#define R3DFOGNEARSIG                         0x1620 /* float    */
-#define R3DFOGFARSIG                          0x1630 /* float    */
-#define R3DFOGCOLORSIG                        0x1640 /* uint32_t */
-#define R3DDOFSIG                         0x1700
+#define SIG_RENDERSETTINGS_EXTENSION                    0x3D0C0000
+#define SIG_RENDERSETTINGS_ENTRY                            0x10000000
+#define SIG_RENDERSETTINGS_FLAGS                                0x11000000 /* uint64_t */
+#define SIG_RENDERSETTINGS_OUTPUT                               0x12000000
+#define SIG_RENDERSETTINGS_OUTPUT_FPS                               0x12100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_SIZE                              0x12200000 /* uint32_t, uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_FRAME                             0x12300000 /* float, float */
+#define SIG_RENDERSETTINGS_OUTPUT_FILE                              0x12400000 /* char[]   */
+#define SIG_RENDERSETTINGS_OUTPUT_FORMAT                            0x12500000 /* uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_RATIO                             0x12600000 /* float    */
+#define SIG_RENDERSETTINGS_BACKGROUND                           0x13000000
+#define SIG_RENDERSETTINGS_BACKGROUND_MODE                          0x13100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_BACKGROUND_COLOR                         0x13200000 /* uint32_t */
+#define SIG_RENDERSETTINGS_BACKGROUND_IMAGE                         0x13300000 /* char[]   */
+#define SIG_RENDERSETTINGS_WIREFRAME                            0x14000000
+#define SIG_RENDERSETTINGS_WIREFRAME_COLOR                          0x14100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_WIREFRAME_THICKNESS                      0x14200000 /* float    */
+#define SIG_RENDERSETTINGS_MOTIONBLUR                           0x15000000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH                      0x15100000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS                    0x15200000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES                       0x15300000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE               0x15400000
+#define SIG_RENDERSETTINGS_FOG                                  0x16000000
+#define SIG_RENDERSETTINGS_FOG_FLAGS                                0x16100000 /* uint64_t */
+#define SIG_RENDERSETTINGS_FOG_NEAR                                 0x16200000 /* float    */
+#define SIG_RENDERSETTINGS_FOG_FAR                                  0x16300000 /* float    */
+#define SIG_RENDERSETTINGS_FOG_COLOR                                0x16400000 /* uint32_t */
+#define SIG_RENDERSETTINGS_DOF                                  0x17000000
 
 /******************************************************************************/
 
@@ -1250,11 +1253,14 @@ void r3dfulloctree_count_r ( R3DFULLOCTREE *rft, R3DFACE   *rfac,
                                                  R3DVERTEX *rver,
                                                  uint32_t   nbrfc );
 
-void r3drendersettings_readBlockToList ( LIST    **lrsg,
-                                         G3DSCENE *sce,
-                                         FILE     *fsrc );
-void r3drendersettings_writeBlockFromList ( LIST *lrsg, 
-                                            FILE *fdst );
-uint32_t r3drendersettings_blockSizeFromList ( LIST *lrsg );
+void r3drendersettings_read ( G3DIMPORTDATA *gid, 
+                              uint32_t       chunkEnd, 
+                              FILE          *fsrc,
+                              LIST         **lrsg );
+
+uint32_t r3drendersettings_write ( G3DEXPORTDATA       *ged, 
+                                   LIST                *lrsg, 
+                                   uint32_t             flags, 
+                                   FILE                *fdst );
 
 #endif

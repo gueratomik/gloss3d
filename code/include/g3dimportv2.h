@@ -75,10 +75,22 @@ typedef struct _G3DIMPORTDATA {
     uint32_t        currentUVMapID;
     uint32_t        engineFlags;
     uint32_t        indentLevel;
+    LIST           *lext;
 } G3DIMPORTDATA;
 
 /******************************************************************************/
+typedef struct _G3DIMPORTEXTENSION {
+    uint32_t signature;
+    void (*read)( G3DIMPORTDATA *gid,
+                  uint32_t       chunkEnd,
+                  FILE          *fsrc,
+                  void          *data );
+    void *data;
+} G3DIMPORTEXTENSION;
+
+/******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
+                              LIST       *lextension,
                               uint32_t    flags );
 
 uint32_t g3dimport_freadd ( double *d, FILE *stream );
@@ -104,5 +116,16 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportsubdivider ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+
+G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
+                                             void (*read)( G3DIMPORTDATA *gid,
+                                                           uint32_t       chunkEnd,
+                                                           FILE          *fsrc,
+                                                           void          *data ),
+                                             void      *data );
+void g3dimportextension_free ( G3DIMPORTEXTENSION *ext );
+G3DIMPORTEXTENSION *g3dimportextension_getFromList ( uint32_t signature,
+                                                     LIST    *lext );
+void g3dimportextension ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 #endif

@@ -6,7 +6,7 @@ lib_LTLIBRARIES = libgloss-g3dexport.la
 libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
 
 LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
-                            g3dexportextension.c \
+                            v2/g3dexportextension.c \
                             v2/g3dexportapp.c \
                             v2/g3dexportbone.c \
                             v2/g3dexport.c \

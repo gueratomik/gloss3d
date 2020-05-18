@@ -210,7 +210,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     if ( parentObject ) {
                         /*** here we append otherwise the list is going to be ***/
                         /*** reversed compared to the saved version ***/
-                        g3dobject_appendChild ( parentObject, 
+                        g3dobject_addChild ( parentObject, 
                                                 gid->currentObject, 
                                                 gid->engineFlags );
                     }

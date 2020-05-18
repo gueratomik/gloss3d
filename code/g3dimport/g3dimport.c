@@ -1532,7 +1532,7 @@ printf("NB Quds = %d\n", nbqua );
             case EXTENSIONSIG :
             break;
 
-            case EXTENSIONNAMESIG : {
+            /*case EXTENSIONNAMESIG : {
                 char buf[0x200] = { 0 };
                 G3DIMPORTEXTENSION *ext;
 
@@ -1550,7 +1550,7 @@ printf("NB Quds = %d\n", nbqua );
 
                     readUnknownExtension ( NULL, sce, fsrc );
                 }
-            } break;
+            } break;*/
 
             default :
                 fseek ( fsrc, chunklen, SEEK_CUR );

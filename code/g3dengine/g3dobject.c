@@ -1371,21 +1371,21 @@ void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis ) {
 /******************************************************************************/
 G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
     LIST *ltmp = obj->lchildren;
-    G3DOBJECT *sel = NULL;
 
     if ( obj->id == id ) {
-        sel = obj;
+        return obj;
     } else {
         while ( ltmp ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
+            G3DOBJECT *match = g3dobject_getChildByID ( child, id );
 
-            sel = g3dobject_getChildByID ( child, id );
+            if ( match ) return match;
 
             ltmp = ltmp->next;
         }
     }
 
-    return sel;
+    return NULL;
 }
 
 /******************************************************************************/

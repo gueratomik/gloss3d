@@ -27,14 +27,47 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dimport.h>
+#include <g3dimportv2.h>
 
 /******************************************************************************/
-G3DIMPORTEXTENSION *g3dimportextension_new ( char      *name,
-                                             void     (*readBlock)(void     *data,
-                                                                   G3DSCENE *sce, 
-                                                                   FILE     *fsrc),
-                                             void      *data) {
+void g3dimportextension ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
+
+    g3dimportdata_incrementIndentLevel ( gid );
+
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        G3DIMPORTEXTENSION *ext = g3dimportextension_getFromList ( chunkSignature, gid->lext );
+
+        if ( ext ) {
+            printf ( "Extension found - Signature: %08X\n", chunkSignature );
+
+            ext->read ( gid, chunkEnd, fsrc, ext->data );
+        } else {
+            fseek ( fsrc, chunkSize, SEEK_CUR );
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
+}
+
+/******************************************************************************/
+G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
+                                             void (*read)( G3DIMPORTDATA *gid,
+                                                           uint32_t       chunkEnd,
+                                                           FILE          *fsrc,
+                                                           void          *data ),
+                                             void *data) {
     uint32_t size = sizeof ( G3DIMPORTEXTENSION );
     G3DIMPORTEXTENSION *ext = ( G3DIMPORTEXTENSION * ) calloc ( 0x01, size );
 
@@ -44,9 +77,9 @@ G3DIMPORTEXTENSION *g3dimportextension_new ( char      *name,
         return NULL;
     }
 
-    ext->name = strdup ( name );
-    ext->readBlock = readBlock;
-    ext->data = data;
+    ext->signature = signature;
+    ext->read      = read;
+    ext->data      = data;
 
     return ext;
 }
@@ -57,16 +90,14 @@ void g3dimportextension_free ( G3DIMPORTEXTENSION *ext ) {
 }
 
 /******************************************************************************/
-G3DIMPORTEXTENSION *g3dimportextension_getFromList ( LIST *lext,
-                                                     char *name ) {
+G3DIMPORTEXTENSION *g3dimportextension_getFromList ( uint32_t signature,
+                                                     LIST    *lext ) {
     LIST *ltmpext = lext;
 
     while ( ltmpext ) {
         G3DIMPORTEXTENSION *ext = ( G3DIMPORTEXTENSION * ) ltmpext->data;
 
-        if ( strcmp ( ext->name, name ) == 0x00 ) {
-            return ext;
-        }
+        if ( ext->signature == signature ) return ext;
 
         ltmpext = ltmpext->next;
     }

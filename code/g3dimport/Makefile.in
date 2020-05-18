@@ -142,7 +142,7 @@ am__objects_1 = g3dimport.lo v2/g3dimportapp.lo v2/g3dimportbone.lo \
 	v2/g3dimportsubdivider.lo v2/g3dimportsymmetry.lo \
 	v2/g3dimportspline.lo v2/g3dimportsplinerevolver.lo \
 	v2/g3dimporttext.lo v2/g3dimportwireframe.lo \
-	g3dimportextension.lo collada.lo 3ds.lo obj.lo
+	v2/g3dimportextension.lo collada.lo 3ds.lo obj.lo
 am_libgloss_g3dimport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dimport_la_OBJECTS = $(am_libgloss_g3dimport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -165,11 +165,12 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/3ds.Plo ./$(DEPDIR)/collada.Plo \
-	./$(DEPDIR)/g3dimport.Plo ./$(DEPDIR)/g3dimportextension.Plo \
-	./$(DEPDIR)/obj.Plo v2/$(DEPDIR)/g3dimport.Plo \
-	v2/$(DEPDIR)/g3dimportapp.Plo v2/$(DEPDIR)/g3dimportbone.Plo \
+	./$(DEPDIR)/g3dimport.Plo ./$(DEPDIR)/obj.Plo \
+	v2/$(DEPDIR)/g3dimport.Plo v2/$(DEPDIR)/g3dimportapp.Plo \
+	v2/$(DEPDIR)/g3dimportbone.Plo \
 	v2/$(DEPDIR)/g3dimportcamera.Plo \
 	v2/$(DEPDIR)/g3dimportchannel.Plo \
+	v2/$(DEPDIR)/g3dimportextension.Plo \
 	v2/$(DEPDIR)/g3dimportlight.Plo \
 	v2/$(DEPDIR)/g3dimportmaterial.Plo \
 	v2/$(DEPDIR)/g3dimportmesh.Plo \
@@ -378,7 +379,7 @@ LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
                             v2/g3dimportsplinerevolver.c \
                             v2/g3dimporttext.c \
                             v2/g3dimportwireframe.c \
-                            g3dimportextension.c \
+                            v2/g3dimportextension.c \
                             collada.c \
                             3ds.c \
                             obj.c \
@@ -485,6 +486,8 @@ v2/g3dimportsplinerevolver.lo: v2/$(am__dirstamp) \
 v2/g3dimporttext.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dimportwireframe.lo: v2/$(am__dirstamp) \
 	v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dimportextension.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dimport.la: $(libgloss_g3dimport_la_OBJECTS) $(libgloss_g3dimport_la_DEPENDENCIES) $(EXTRA_libgloss_g3dimport_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dimport_la_OBJECTS) $(libgloss_g3dimport_la_LIBADD) $(LIBS)
@@ -500,13 +503,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3ds.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collada.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dimport.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dimportextension.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportapp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportbone.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportcamera.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportchannel.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportextension.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportlight.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportmaterial.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportmesh.Plo@am__quote@ # am--include-marker
@@ -692,13 +695,13 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/3ds.Plo
 	-rm -f ./$(DEPDIR)/collada.Plo
 	-rm -f ./$(DEPDIR)/g3dimport.Plo
-	-rm -f ./$(DEPDIR)/g3dimportextension.Plo
 	-rm -f ./$(DEPDIR)/obj.Plo
 	-rm -f v2/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportbone.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportcamera.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportchannel.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportextension.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportlight.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportmesh.Plo
@@ -761,13 +764,13 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/3ds.Plo
 	-rm -f ./$(DEPDIR)/collada.Plo
 	-rm -f ./$(DEPDIR)/g3dimport.Plo
-	-rm -f ./$(DEPDIR)/g3dimportextension.Plo
 	-rm -f ./$(DEPDIR)/obj.Plo
 	-rm -f v2/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportbone.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportcamera.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportchannel.Plo
+	-rm -f v2/$(DEPDIR)/g3dimportextension.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportlight.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportmesh.Plo

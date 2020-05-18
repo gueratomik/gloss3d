@@ -31,6 +31,67 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportroot_objects ( G3DEXPORTDATA *ged, 
+                                        G3DSCENE      *sce, 
+                                        uint32_t       flags, 
+                                        FILE          *fdst ) {
+    LIST *lobj = NULL, *ltmpobj; 
+    uint32_t size = 0x00;
+
+    ged->objectID = 0x00;
+
+    /*** flatten the object tree ***/
+    g3dobject_treeToList_r ( sce, &lobj );
+
+    ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        ged->currentObject = obj;
+
+        size += g3dexport_writeChunk ( SIG_OBJECT_ENTRY,
+                                       g3dexportobject,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ged->currentObject = NULL;
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    list_free ( &lobj, NULL );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportroot_extensions ( G3DEXPORTDATA *ged, 
+                                           G3DSCENE      *sce, 
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
+    LIST *ltmpext = ged->lext;
+    uint32_t size = 0x00;
+
+    while ( ltmpext ) {
+        G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) ltmpext->data;
+
+        size += g3dexport_writeChunk ( SIG_EXTENSION_ENTRY,
+                                       g3dexportextension,
+                                       ged,
+                                       ext,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpext = ltmpext->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportscene_materials ( G3DEXPORTDATA *ged, 
                                            G3DSCENE      *sce, 
                                            uint32_t       flags, 
@@ -79,34 +140,24 @@ uint32_t g3dexportroot ( G3DEXPORTDATA *ged,
                          G3DSCENE      *sce, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
-    LIST *lobj = NULL, *ltmpobj; 
+
     uint32_t size = 0x00;
 
-    ged->objectID = 0x00;
+    size += g3dexport_writeChunk ( SIG_OBJECTS,
+                                   g3dexportroot_objects,
+                                   ged,
+                                   sce,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    /*** flatten the object tree ***/
-    g3dobject_treeToList_r ( sce, &lobj );
-
-    ltmpobj = lobj;
-
-    while ( ltmpobj ) {
-        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-
-        ged->currentObject = obj;
-
-        size += g3dexport_writeChunk ( SIG_OBJECT,
-                                       g3dexportobject,
+    if ( ged->lext ) {
+        size += g3dexport_writeChunk ( SIG_EXTENSIONS,
+                                       g3dexportroot_extensions,
                                        ged,
-                                       obj,
+                                       sce,
                                        0xFFFFFFFF,
                                        fdst );
-
-        ged->currentObject = NULL;
-
-        ltmpobj = ltmpobj->next;
     }
-
-    list_free ( &lobj, NULL );
 
     return size;
 }
@@ -130,6 +181,11 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
 
         return;
     }
+
+    memset ( &ged, 0x00, sizeof ( ged ) );
+
+    ged.currentScene = sce;
+    ged.lext         = lextension;
 
     size = g3dexport_writeChunk ( SIG_ROOT,
                                   g3dexportroot,
