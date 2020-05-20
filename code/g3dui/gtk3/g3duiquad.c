@@ -215,15 +215,20 @@ static void gtk_quad_init ( GtkQuad *gqw ) {
 
 /******************************************************************************/
 static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
-    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;;
+    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
+    void (*grid[0x04])(uint32_t) = { g3dcore_grid3D,
+                                     g3dcore_gridXY,
+                                     g3dcore_gridYZ,
+                                     g3dcore_gridZX };
     GtkQuad *gqw = ( GtkQuad * ) widget;
     G3DUIQUAD *quad = &gqw->quad;
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
+
         uint32_t vwidth  = ( quad->seg[i].x2 - quad->seg[i].x1 ),
                  vheight = ( quad->seg[i].y2 - quad->seg[i].y1 );
-        GtkWidget *gvw;
+        GtkView *gvw;
 
         /*** Create OpenGL Views ***/
         gvw = createView ( widget,
@@ -236,6 +241,8 @@ static void gtk_quad_createDefaultViews ( GtkWidget *widget, G3DUI *gui ) {
         if ( i == 0x00 ) {
             ggt->mainView = gvw;
         }
+
+        gvw->view.grid = grid[i];
 
         /*if ( ggt->curogl == NULL ) ggt->curogl = gvw;*/
 

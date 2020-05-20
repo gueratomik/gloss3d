@@ -32,6 +32,239 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dcore_gridZX ( uint32_t flags ) {
+    double zmax, xmax, zmin, xmin, yval;
+    GLdouble MVX[0x10], PJX[0x10];
+    GLint    VPX[0x04];
+    GLint x1, y1, x2, y2, zbeg, xbeg, zend, xend;
+    int i;
+
+    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
+    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+    glGetIntegerv ( GL_VIEWPORT         , VPX );
+
+    x1 = VPX[0x00];
+    y1 = VPX[0x01];
+    x2 = VPX[0x02] - 0x01;
+    y2 = VPX[0x03] - 0x01;
+
+    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xmin, &yval, &zmax );
+    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xmax, &yval, &zmax );
+    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xmax, &yval, &zmin );
+    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xmin, &yval, &zmin );
+
+    zbeg = ( GLint ) zmin;
+    zend = ( GLint ) zmax;
+    xbeg = ( GLint ) xmin;
+    xend = ( GLint ) xmax;
+
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    glDisable   ( GL_LIGHTING );
+    glBegin ( GL_LINES );
+
+    if ( zbeg < zend ) {
+        for ( i = zbeg; i <= zend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+
+            glVertex3f ( xmin, yval, i );
+            glVertex3f ( xmax, yval, i );
+        }
+    }
+
+    if ( xbeg < xend ) {
+        for ( i = xbeg; i <= xend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+   
+            glVertex3f ( i, yval, zmin );
+            glVertex3f ( i, yval, zmax );
+        }
+    }
+
+    glEnd ( );
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void g3dcore_gridYZ ( uint32_t flags ) {
+    double ymax, zmax, ymin, zmin, xval;
+    GLdouble MVX[0x10], PJX[0x10];
+    GLint    VPX[0x04];
+    GLint x1, y1, x2, y2, ybeg, zbeg, yend, zend;
+    int i;
+
+    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
+    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+    glGetIntegerv ( GL_VIEWPORT         , VPX );
+
+    x1 = VPX[0x00];
+    y1 = VPX[0x01];
+    x2 = VPX[0x02];
+    y2 = VPX[0x03];
+
+    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xval, &ymax, &zmin );
+    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xval, &ymax, &zmax );
+    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xval, &ymin, &zmax );
+    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xval, &ymin, &zmin );
+
+    ybeg = ( GLint ) ymax;
+    yend = ( GLint ) ymin;
+    zbeg = ( GLint ) zmin;
+    zend = ( GLint ) zmax;
+
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    glDisable   ( GL_LIGHTING );
+    glBegin ( GL_LINES );
+
+    if ( ybeg < yend ) {
+        for ( i = ybeg; i <= yend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+   
+            glVertex3f ( xval, i, zmin );
+            glVertex3f ( xval, i, zmax );
+        }
+    }
+
+    if ( zbeg < zend ) {
+        for ( i = zbeg; i <= zend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+   
+            glVertex3f ( xval, ymin, i );
+            glVertex3f ( xval, ymax, i );
+        }
+    }
+
+    glEnd ( );
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void g3dcore_gridXY ( uint32_t flags ) {
+    double xmax, ymax, xmin, ymin, zval;
+    GLdouble MVX[0x10], PJX[0x10];
+    GLint    VPX[0x04];
+    GLint x1, y1, x2, y2, xbeg, ybeg, xend, yend;
+    int i;
+
+    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
+    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+    glGetIntegerv ( GL_VIEWPORT         , VPX );
+
+    x1 = VPX[0x00];
+    y1 = VPX[0x01];
+    x2 = VPX[0x02];
+    y2 = VPX[0x03];
+
+    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xmin, &ymax, &zval );
+    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xmax, &ymax, &zval );
+    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xmax, &ymin, &zval );
+    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xmin, &ymin, &zval );
+
+    xbeg = ( GLint ) xmin;
+    xend = ( GLint ) xmax;
+    ybeg = ( GLint ) ymax;
+    yend = ( GLint ) ymin;
+
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    glDisable   ( GL_LIGHTING );
+    glBegin ( GL_LINES );
+
+    if ( xbeg < xend ) {
+        for ( i = xbeg; i <= xend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+   
+            glVertex3f ( i, ymin, zval );
+            glVertex3f ( i, ymax, zval );
+        }
+    }
+
+    if ( ybeg < yend ) {
+        for ( i = ybeg; i <= yend; i++ ) {
+            if ( i % 0x05 ) {
+                glColor3ub ( 0x80, 0x80, 0x80 );
+            } else {
+                glColor3ub ( 0x00, 0x00, 0x00 );
+            }
+   
+            glVertex3f ( xmin, i, zval );
+            glVertex3f ( xmax, i, zval );
+        }
+    }
+
+    glEnd ( );
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void g3dcore_grid3D ( uint32_t flags ) {
+    float x1, x2, z1, z2;
+    int i;
+
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    glDisable   ( GL_LIGHTING );
+    glBegin ( GL_LINES );
+
+    x1 = -10.0f;
+    z1 = -10.0f;
+    z2 =  10.0f;
+
+    for ( i = 0x00; i < 0x15; i++ ) {
+        if ( i % 0x05 ) {
+            glColor3ub ( 0x80, 0x80, 0x80 );
+        } else {
+            glColor3ub ( 0x00, 0x00, 0x00 );
+        }
+
+        glVertex3f ( x1, 0.0f, z1 );
+        glVertex3f ( x1, 0.0f, z2 );
+
+        x1 = ( x1 + 1.0f );
+    }
+
+    z1 = -10.0f;
+    x1 = -10.0f;
+    x2 =  10.0f;
+    for ( i = 0x00; i < 0x15; i++ ) {
+        if ( i % 0x05 ) {
+            glColor3ub ( 0x80, 0x80, 0x80 );
+        } else {
+            glColor3ub ( 0x00, 0x00, 0x00 );
+        }
+
+        glVertex3f ( x1, 0.0f, z1 );
+        glVertex3f ( x2, 0.0f, z1 );
+
+        z1 = ( z1 + 1.0f );
+    }
+
+    glEnd ( );
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
 G3DGLOBALS *g3dcore_getGlobals ( ) {
     static G3DGLOBALS globals;
     static int init;

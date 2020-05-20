@@ -1104,6 +1104,19 @@ void g3dui_redrawUVMapEditors ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_updateGLViewsMenu ( G3DUI *gui ) {
+    LIST *ltmp = gui->lglview;
+
+    while ( ltmp ) {
+        GtkWidget *glview = ( GtkWidget * ) ltmp->data;
+
+        gtk_view_updateMenu ( glview );
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
 void g3dui_redrawGLViews ( G3DUI *gui ) {
     LIST *ltmp = gui->lglview;
 

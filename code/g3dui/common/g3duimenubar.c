@@ -585,8 +585,6 @@ void common_g3dui_addCameraCbk ( G3DUI *gui, G3DCAMERA *currentCamera ) {
                                                     currentCamera->znear,
                                                     currentCamera->zfar );
 
-    g3dcamera_setGrid ( cam, g3dcamera_grid3D );
-
     g3dobject_importTransformations ( ( G3DOBJECT * ) cam, 
                                       ( G3DOBJECT * ) currentCamera );
 

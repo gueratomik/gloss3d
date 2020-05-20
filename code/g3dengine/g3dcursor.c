@@ -171,10 +171,6 @@ void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
     glDisable ( GL_LIGHTING );
 
     for ( i = 0x00; i < 0x03; i++ ) {
-        if ( flags & SELECTMODE ) {
-            glLoadName ( name[i] );
-        }
-
         glBegin ( GL_LINES );
         if ( csr->axis[i].w == 2.0f ) {
             glColor3ub ( 0x00, 0xFF, 0xFF );

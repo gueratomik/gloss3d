@@ -347,8 +347,12 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define QUADRATIC             (  1 << 17 )
 #define CUBIC                 (  1 << 18 )
 /**** CAMERA flags ***/
-#define CAMERAORTHO           (  1 << 17 )
-#define CAMERADOF             (  1 << 18 )
+#define CAMERAORTHOGRAPHIC    (  1 << 17 )
+#define CAMERAPERSPECTIVE     (  1 << 18 )
+#define CAMERADOF             (  1 << 19 )
+#define CAMERAXY              (  1 << 20 )
+#define CAMERAYZ              (  1 << 21 )
+#define CAMERAZX              (  1 << 22 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
@@ -1370,11 +1374,11 @@ struct _G3DCAMERA {
     float focal, ratio, znear, zfar; /*** Camera's lense settings   ***/
     double pmatrix[0x10]; /*** 4x4 projection matrix ***/
     GLint  vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
-    void (*grid)(struct _G3DCAMERA *, uint32_t );
     G2DRECTANGLE canevas;
     uint32_t width;
     uint32_t height;
     G3DCAMERADOF dof;
+    G3DVECTOR ortho; /*** used for orthographic projection, until I find a better idea ***/
 };
 
 /******************************************************************************/
@@ -1390,6 +1394,10 @@ LIST *processHits ( GLint, GLuint * );
 
 /******************************************************************************/
 G3DGLOBALS *g3dcore_getGlobals ( );
+void       g3dcore_grid3D   ( uint32_t );
+void       g3dcore_gridXY   ( uint32_t );
+void       g3dcore_gridYZ   ( uint32_t );
+void       g3dcore_gridZX   ( uint32_t );
 void     g3dcore_multmatrix              ( double *, double *, double * );
 uint32_t g3dcore_getNumberOfCPUs         ( );
 void     g3dcore_invertMatrix            ( double *, double * );
@@ -2341,10 +2349,6 @@ uint32_t g3dcamera_pick ( G3DCAMERA *cam,
                           uint32_t   eflags );
 void       g3dcamera_setGrid  ( G3DCAMERA *, void (*)(G3DCAMERA *, uint32_t) );
 void       g3dcamera_project  ( G3DCAMERA *, uint32_t );
-void       g3dcamera_grid3D   ( G3DCAMERA *, uint32_t );
-void       g3dcamera_gridXY   ( G3DCAMERA *, uint32_t );
-void       g3dcamera_gridYZ   ( G3DCAMERA *, uint32_t );
-void       g3dcamera_gridZX   ( G3DCAMERA *, uint32_t );
 void       g3dcamera_setPivot ( G3DCAMERA *, float, float, float );
 void       g3dcamera_updateViewingMatrix ( G3DCAMERA *, uint32_t );
 void       g3dcamera_import   ( G3DCAMERA *, G3DCAMERA * );

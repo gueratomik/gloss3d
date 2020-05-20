@@ -76,7 +76,13 @@ void g3dlight_turnOn ( G3DLIGHT *lig );
  * Turn a light off in the OpenGL view.
  * @param lig a pointer to a light.
  */
-void g3dlight_zero ( G3DLIGHT *lig );
+void g3dlight_turnOff ( G3DLIGHT *lig );
+
+/**
+ * Turn a light off in the OpenGL view.
+ * @param lig a pointer to a light.
+ */
+void g3dlight_reset ( G3DLIGHT *lig );
 
 /**
  * Free a previously allocated light.

@@ -56,19 +56,15 @@ R3DCAMERA *r3dcamera_new ( G3DCAMERA *cam, uint32_t width, uint32_t height ) {
     rcam->VPX[0x02] = width;
     rcam->VPX[0x03] = height;
 
-    if ( cam->focal == 2.0f ) {
+    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
         /*** This part simulates the same code as in g3dcamera.c ***/
         /*** for the call to glOrtho ***/
         float dist;
 
-        if ( cam->grid == g3dcamera_gridXY ) dist = rcam->pos.z;
-        if ( cam->grid == g3dcamera_gridYZ ) dist = rcam->pos.x;
-        if ( cam->grid == g3dcamera_gridZX ) dist = rcam->pos.y;
-
-        double orthoLeft   = - ( double ) width  * 0.00125f * dist,
-               orthoRight  =   ( double ) width  * 0.00125f * dist,
-               orthoBottom = - ( double ) height * 0.00125f * dist,
-               orthoTop    =   ( double ) height * 0.00125f * dist;
+        double orthoLeft   = - ( ( double ) width  * cam->ortho.z ) + cam->ortho.x,
+               orthoRight  =   ( ( double ) width  * cam->ortho.z ) + cam->ortho.x,
+               orthoBottom = - ( ( double ) height * cam->ortho.z ) + cam->ortho.y,
+               orthoTop    =   ( ( double ) height * cam->ortho.z ) + cam->ortho.y;
         double rightPlusLeft  = ( orthoRight + orthoLeft   ),
                rightMinusLeft = ( orthoRight - orthoLeft   ),
                topPlusBottom  = ( orthoTop   + orthoBottom ),

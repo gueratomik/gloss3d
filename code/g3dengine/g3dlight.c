@@ -272,11 +272,16 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
 
 /******************************************************************************/
 void g3dlight_free ( G3DLIGHT *lig ) {
-    g3dlight_zero ( lig );
+    g3dlight_reset ( lig );
 }
 
 /******************************************************************************/
-void g3dlight_zero ( G3DLIGHT *lig ) {
+void g3dlight_turnOff ( G3DLIGHT *lig ) {
+    glDisable ( lig->lid );
+}
+
+/******************************************************************************/
+void g3dlight_reset ( G3DLIGHT *lig ) {
     float pos[0x04] = { 0.0f, 0.0f, 1.0f, 0.0f };
     float col[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -336,6 +341,16 @@ void g3dlight_setSpot ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
+void g3dlight_activate ( G3DLIGHT *lig, uint32_t engine_flags ) {
+    g3dlight_turnOn ( lig );
+}
+
+/******************************************************************************/
+void g3dlight_deactivate ( G3DLIGHT *lig, uint32_t engine_flags ) {
+    g3dlight_turnOff ( lig );
+}
+
+/******************************************************************************/
 void g3dlight_init ( G3DLIGHT *lig, 
                      uint32_t  id, 
                      char     *name ) {
@@ -348,8 +363,8 @@ void g3dlight_init ( G3DLIGHT *lig,
                                     PICK_CALLBACK(g3dlight_pick),
                                                   NULL,
                                     COPY_CALLBACK(g3dlight_copy),
-                                                  NULL,
-                                                  NULL,
+                                ACTIVATE_CALLBACK(g3dlight_activate),
+                              DEACTIVATE_CALLBACK(g3dlight_deactivate),
                                                   NULL,
                                                   NULL,
                                                   NULL );

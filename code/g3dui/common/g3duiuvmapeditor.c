@@ -383,8 +383,6 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
     uvme->cam.obj.sca.y = 1.0f;
     uvme->cam.obj.sca.z = 1.0f;
 
-    uvme->cam.obj.flags = CAMERAORTHO;
-
     uvme->uvurm = g3durmanager_new ( 20 );
 
     uvme->flags = VIEWVERTEXUV;

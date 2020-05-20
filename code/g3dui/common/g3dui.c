@@ -335,17 +335,17 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
                                           r3drendersettings_write,
                                           gui->lrsg );
 
-        /*g3duiext = g3dexportextension_new ( "G3DUISETTINGS",
-                                            g3duisettings_writeBlock,
-                                            gui );*/
+        g3duiext = g3dexportextension_new ( SIG_G3DUI,
+                                            g3dui_write,
+                                            gui );
 
         list_insert ( &lext, r3dext   );
-        /*list_insert ( &lext, g3duiext );*/
+        list_insert ( &lext, g3duiext );
 
         g3dscene_exportv2 ( gui->sce, filename,  "Made with GLOSS3D", lext, 0 );
 
-        /*g3dexportextension_free ( g3duiext );*/
-        g3dexportextension_free ( r3dext );
+        g3dexportextension_free ( g3duiext );
+        g3dexportextension_free ( r3dext   );
 
         list_free ( &lext, NULL );
     }
@@ -361,6 +361,7 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
 /******************************************************************************/
 G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc, 
                                                      const char *filename ) {
+    G3DSCENE *sce = gui->sce;
     g3dui_setHourGlass ( gui );
 #ifdef __linux__
     if ( access( filename, F_OK ) == 0x00 ) {
@@ -395,7 +396,7 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
         }
 #endif
         if ( strcmp ( filedesc, FILEDESC_V2 ) == 0x00 ) {
-            G3DIMPORTEXTENSION *r3dext;
+            G3DIMPORTEXTENSION *r3dext, *g3duiext;
             LIST *lext = NULL;
             LIST *lrsg = NULL;
 
@@ -406,12 +407,12 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
                                               r3drendersettings_read,
                                              &lrsg );
             /* import G3DUI settings module */
-            /*g3duiext = g3dimportextension_new ( "G3DUISETTINGS",
-                                                g3duisettings_readBlock,
-                                                gui );*/
+            g3duiext = g3dimportextension_new ( SIG_G3DUI,
+                                                g3dui_read,
+                                                gui );
 
-            list_insert ( &lext, r3dext );
-            /*list_insert ( &lext, g3duiext );*/
+            list_insert ( &lext, r3dext   );
+            list_insert ( &lext, g3duiext );
 
             gui->sce = g3dscene_importv2 ( filename, lext, gui->flags );
 
@@ -441,7 +442,7 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
                 gui->currsg = defaultRsg;
             }
 
-    /*g3dimportextension_free ( g3duiext );*/
+            g3dimportextension_free ( g3duiext );
             g3dimportextension_free ( r3dext   );
 
             list_free ( &lext, NULL );
@@ -455,21 +456,24 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
 
             g3dui_unsetHourGlass ( gui );
 
-	    g3dui_clearMaterials ( gui );
-	    g3dui_importMaterials ( gui );
+	        g3dui_clearMaterials ( gui );
+	        g3dui_importMaterials ( gui );
 
-            return gui->sce;
+            sce = gui->sce;
         } else {
             g3dui_unsetHourGlass ( gui );
 
-            return g3dscene_new ( 0x00, "Gloss3D scene" );
+            sce = g3dscene_new ( 0x00, "Gloss3D scene" );
         }
     }
 
+    g3dui_updateGLViewsMenu    ( gui );
     g3dui_redrawGLViews        ( gui );
     g3dui_updateCoords         ( gui );
     g3dui_redrawObjectList     ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+
+    return sce;
 }
 
 /******************************************************************************/
@@ -1059,18 +1063,18 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
 /******************************************************************************/
 void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
-    void (*camgrid[0x04])(G3DCAMERA *,uint32_t) = { g3dcamera_grid3D,
-                                                    g3dcamera_gridXY,
-                                                    g3dcamera_gridZX,
-                                                    g3dcamera_gridYZ };
+    uint32_t camflags[0x04] = { CAMERAPERSPECTIVE,
+                                CAMERAORTHOGRAPHIC | CAMERAXY | OBJECTNOROTATION,
+                                CAMERAORTHOGRAPHIC | CAMERAYZ | OBJECTNOROTATION,
+                                CAMERAORTHOGRAPHIC | CAMERAZX | OBJECTNOROTATION };
     G3DVECTOR campos[0x04] = { {  -4.851479f,   1.710646f,   4.851479f, 1.0f },
-                               {        0.0f,        0.0f,        5.0f, 1.0f },
-                               {        0.0f,        5.0f,        0.0f, 1.0f },
-                               {        5.0f,        0.0f,        0.0f, 1.0f } },
+                               {        0.0f,        0.0f,        0.0f, 1.0f },
+                               {        0.0f,        0.0f,        0.0f, 1.0f },
+                               {        0.0f,        0.0f,        0.0f, 1.0f } },
               camrot[0x04] = { { -19.422806f, -43.322395f, -13.599810f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
-                               { -90.000000f,        0.0f,        0.0f, 1.0f },
-                               {        0.0f, -90.000000f,        0.0f, 1.0f } },
+                               {        0.0f,      -90.0f,        0.0f, 1.0f },
+                               {      -90.0f,        0.0f,        0.0f, 1.0f } },
               camsca[0x04] = { {        1.0f,        1.0f,        1.0f, 1.0f },
                                {        1.0f,        1.0f,        1.0f, 1.0f },
                                {        1.0f,        1.0f,        1.0f, 1.0f },
@@ -1079,10 +1083,12 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
-        G3DOBJECT *objcam = ( G3DOBJECT * ) gui->defaultCameras[i];
+        G3DCAMERA *cam = gui->defaultCameras[i];
+        G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
-        gui->defaultCameras[i]->focal =  camfoc[i];
-        gui->defaultCameras[i]->grid  = camgrid[i];
+        cam->focal = camfoc[i];
+
+        objcam->flags |= camflags[i];
 
         memcpy ( &objcam->pos, &campos[i], sizeof ( G3DVECTOR ) );
         memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR ) );
@@ -1099,6 +1105,7 @@ void common_g3dui_createDefaultCameras ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     gui->defaultCameras = ( G3DCAMERA ** ) calloc ( 0x04, ptrSize );
+
 
     gui->defaultCameras[0x00] = g3dcamera_new ( 0x00, 
                                                 "Camera",

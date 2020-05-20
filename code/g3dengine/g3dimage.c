@@ -292,7 +292,7 @@ void g3dimage_animate ( G3DIMAGE *image,
 /******************************************************************************/
 void g3dimage_initFromVideo ( G3DIMAGE   *image, 
                               const char *filename, 
-                              uint32_t    poweroftwo ) {
+                              uint32_t    bindGL ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     g3dimage_getVideoSize ( image, 0x00 );
@@ -327,7 +327,7 @@ void g3dimage_initFromVideo ( G3DIMAGE   *image,
 /******************************************************************************/
 void g3dimage_initFromJpeg ( G3DIMAGE   *img,
                              const char *filename,
-                             uint32_t    poweroftwo ) {
+                             uint32_t    bindGL ) {
     unsigned char *jpgdata = NULL;
     uint32_t jpgwidth,
              jpgheight,
@@ -347,13 +347,15 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 
     img->bytesPerPixel = jpgdepth;
 
-    if ( poweroftwo && ( jpgdepth == 0x03 ) ) {
+    /*** power of two is co;;ented out. All images must be of power of two ***/
+    if ( /*poweroftwo &&*/ ( jpgdepth == 0x03 ) ) {
         uint32_t imgwidth  = g3dcore_getNextPowerOfTwo ( jpgwidth  ),
                  imgheight = g3dcore_getNextPowerOfTwo ( jpgheight );
-        uint32_t jpgbytesperline = jpgwidth * jpgdepth,
+        uint32_t oribytesperline = jpgwidth * jpgdepth,
                  imgbytesperline = imgwidth * jpgdepth;
-        unsigned char *imgdata;
-        uint32_t i;
+        unsigned char (*oridata)[0x03] = jpgdata;
+        unsigned char (*imgdata)[0x03];
+        uint32_t i, j;
 
         img->width  = imgwidth;
         img->height = imgheight;
@@ -362,38 +364,54 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 
         img->data = imgdata = calloc ( imgheight, imgbytesperline );
 
-        gluScaleImage ( GL_RGB, 
+        /* gluScaleImage crashes sometimes, I don't know why */
+        /*gluScaleImage ( GL_RGB, 
                         jpgwidth, 
                         jpgheight, 
                         GL_UNSIGNED_BYTE, 
                         jpgdata,
                         imgwidth,
                         imgheight, 
-                        GL_UNSIGNED_BYTE, imgdata );
+                        GL_UNSIGNED_BYTE, imgdata );*/
 
-        /*for ( i = 0x00; i < jpgheight; i++ ) {
-            uint32_t imgoffset = ( i * imgbytesperline ),
-                     jpgoffset = ( i * jpgbytesperline );
+        for ( i = 0x00; i < imgheight; i++ ) {
+            uint32_t ni = i * img->hratio;
 
-            memcpy ( &imgdata[imgoffset],
-                     &jpgdata[jpgoffset], jpgbytesperline );
-        }*/
+            if ( ni < jpgheight ) {
+                for ( j = 0x00; j < imgwidth; j++ ) {
+                    uint32_t nj = j * img->wratio;
 
-        img->bytesPerLine  = imgbytesperline;
+                    if ( nj < jpgwidth ) {
+                        uint32_t imgoffset = (  i * imgwidth ) +  j,
+                                 orioffset = ( ni * jpgwidth ) + nj;
 
-        free ( jpgdata );
-    } else {
+                        imgdata[imgoffset][0] = oridata[orioffset][0];
+                        imgdata[imgoffset][1] = oridata[orioffset][1];
+                        imgdata[imgoffset][2] = oridata[orioffset][2];
+                    }
+                }
+            }
+        }
+
+        img->bytesPerLine = imgbytesperline;
+
+        if ( bindGL ) g3dimage_bind ( img );
+    }/* else {
         img->width  = jpgwidth;
         img->height = jpgheight;
 
         img->data   = jpgdata;
 
         img->bytesPerLine  = img->bytesPerPixel * img->width;
-    }
+    }*/
+
+
+
+    free ( jpgdata );
 }
 
 /******************************************************************************/
-G3DIMAGE *g3dimage_new ( const char *filename, uint32_t poweroftwo ) {
+G3DIMAGE *g3dimage_new ( const char *filename, uint32_t bindGL ) {
     G3DIMAGE *img = ( G3DIMAGE * ) calloc ( 0x01, sizeof ( G3DIMAGE ) );
     char *extension = strrchr ( filename, '.' );
 
@@ -412,7 +430,7 @@ G3DIMAGE *g3dimage_new ( const char *filename, uint32_t poweroftwo ) {
     if ( extension ) {
         if ( ( strcasecmp ( extension, ".jpg"  ) == 0x00 ) ||
              ( strcasecmp ( extension, ".jpeg" ) == 0x00 ) ) {
-            g3dimage_initFromJpeg ( img, filename, poweroftwo );
+            g3dimage_initFromJpeg ( img, filename, bindGL );
         }
 
         if ( ( strcasecmp ( extension, ".avi" ) == 0x00 ) ||
@@ -420,7 +438,7 @@ G3DIMAGE *g3dimage_new ( const char *filename, uint32_t poweroftwo ) {
              ( strcasecmp ( extension, ".gif" ) == 0x00 ) ||
              ( strcasecmp ( extension, ".mp4" ) == 0x00 ) ||
              ( strcasecmp ( extension, ".flv" ) == 0x00 ) ) {
-            g3dimage_initFromVideo ( img, filename, poweroftwo );
+            g3dimage_initFromVideo ( img, filename, bindGL );
         }
     }
 

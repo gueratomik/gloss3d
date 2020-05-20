@@ -62,9 +62,10 @@ static uint32_t r3drendersettings_outputFile ( G3DEXPORTDATA     *ged,
                                               R3DOUTPUTSETTINGS *ros,
                                               uint32_t           flags, 
                                               FILE              *fdst ) {
+    uint32_t len = strlen ( ros->outfile );
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( ros->outfile, strlen ( ros->outfile ), 0x01, fdst );
+    size += g3dexport_fwrite ( ros->outfile, len, 0x01, fdst );
 
     return size;
 }
@@ -577,8 +578,6 @@ void r3drendersettings_read ( G3DIMPORTDATA *gid,
     
     g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
     g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
-
-
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);

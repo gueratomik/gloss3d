@@ -547,8 +547,6 @@ G3DSCENE *g3dscene_open ( const char *filename,
             case CAMERASIG :
                 cam = g3dcamera_new ( objid, objname, 0.0f, 0.0f, 0.1f, 1000.0f );
 
-                cam->grid = g3dcamera_grid3D;
-
                 obj = ( G3DOBJECT * ) cam;
 
                 objarr[objid] = obj;

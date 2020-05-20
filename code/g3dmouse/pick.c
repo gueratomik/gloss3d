@@ -535,10 +535,16 @@ void pick_cursor ( G3DPICKTOOL *pt,
     static GLint  VPX[0x04];
     static double MVX[0x10];
     static double PJX[0x10];
+    G3DVECTOR sca;
 
     g3dpick_clear ( );
 
     g3dscene_getSelectionMatrix ( sce, MVX, eflags );
+
+    /*** Extract scale factor to negate its effect on the cursor size ***/
+    /*** by scaling the cursor matrix with the inverse scale factors ***/
+    /*** same code as in g3dscene_draw ( ). Should be factorized ***/
+    g3dcore_getMatrixScale ( MVX, &sca );
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -556,6 +562,7 @@ void pick_cursor ( G3DPICKTOOL *pt,
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
     glMultMatrixd ( MVX );
+    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
     g3dpick_setModelviewMatrix  ( MVX   );

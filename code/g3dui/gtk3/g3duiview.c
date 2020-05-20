@@ -98,27 +98,33 @@ GtkWidget *createViewMenu ( GtkWidget *widget, G3DUI *gui, char *menuname ) {
 
 /******************************************************************************/
 void g3duiview_useDefaultCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
-    gvw->view.cam = gvw->view.defcam;
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    view->cam = view->defcam;
 
     gtk_widget_queue_draw ( ggt->curogl );
 }
 
 /******************************************************************************/
 void g3duiview_useSelectedCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
     G3DSCENE  *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
 
     if ( obj && obj->type == G3DCAMERATYPE ) {
         G3DCAMERA *cam = ( G3DCAMERA * ) obj;
 
-        common_g3duiview_useSelectedCamera ( &gvw->view, cam );
+        common_g3duiview_useSelectedCamera ( view, cam );
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -126,17 +132,17 @@ void g3duiview_useSelectedCameraCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & VIEWNORMALS ) {
-        gvw->view.flags &= (~VIEWNORMALS);
+    if ( view->flags & VIEWNORMALS ) {
+        view->flags &= (~VIEWNORMALS);
     } else {
-        gvw->view.flags |= VIEWNORMALS;
+        view->flags |= VIEWNORMALS;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -144,17 +150,17 @@ void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & HIDEBONES ) {
-        gvw->view.flags &= (~HIDEBONES);
+    if ( view->flags & HIDEBONES ) {
+        view->flags &= (~HIDEBONES);
     } else {
-        gvw->view.flags |= HIDEBONES;
+        view->flags |= HIDEBONES;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -162,21 +168,25 @@ void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & NOLIGHTING ) {
-        gvw->view.flags &= (~NOLIGHTING);
+    /*** Note: gui->sce is NULL when this widget is initialized ***/
+    /*** because g3dengine needs an initialised widget first ***/
+    if ( gui->sce ) {
+        if ( view->flags & NOLIGHTING ) {
+            view->flags &= (~NOLIGHTING);
 
-        g3dscene_turnLightsOn  ( gui->sce );
-    } else {
-        gvw->view.flags |= NOLIGHTING;
+            g3dscene_turnLightsOn  ( gui->sce );
+        } else {
+            view->flags |= NOLIGHTING;
 
-        g3dscene_turnLightsOff ( gui->sce );
+            g3dscene_turnLightsOff ( gui->sce );
+        }
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -184,17 +194,17 @@ void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & HIDEGRID ) {
-        gvw->view.flags &= (~HIDEGRID);
+    if ( view->flags & HIDEGRID ) {
+        view->flags &= (~HIDEGRID);
     } else {
-        gvw->view.flags |= HIDEGRID;
+        view->flags |= HIDEGRID;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -202,17 +212,17 @@ void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & NOTEXTURE ) {
-        gvw->view.flags &= (~NOTEXTURE);
+    if ( view->flags & NOTEXTURE ) {
+        view->flags &= (~NOTEXTURE);
     } else {
-        gvw->view.flags |= NOTEXTURE;
+        view->flags |= NOTEXTURE;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -221,35 +231,34 @@ void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget, 
                                           gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
     /*** prevents a loop ***/
-    if ( gvw->view.lock ) return;
+    if ( gui->lock ) return;
 
-    if ( gvw->view.flags & NOBACKGROUNDIMAGE ) {
-        gvw->view.flags &= (~NOBACKGROUNDIMAGE);
+    if ( view->flags & NOBACKGROUNDIMAGE ) {
+        view->flags &= (~NOBACKGROUNDIMAGE);
     } else {
-        gvw->view.flags |= NOBACKGROUNDIMAGE;
+        view->flags |= NOBACKGROUNDIMAGE;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
 }
 
-
 /******************************************************************************/
 void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI     *gui = ( G3DUI     * ) user_data;
+    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
-    G3DOBJECT *objcam = ( G3DOBJECT * ) gvw->view.cam;
+    G3DOBJECT *objcam = ( G3DOBJECT * ) view->cam;
 
-    memcpy ( &objcam->pos, &gvw->view.defcampos, sizeof ( G3DVECTOR ) );
-    memcpy ( &objcam->rot, &gvw->view.defcamrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &objcam->sca, &gvw->view.defcamsca, sizeof ( G3DVECTOR ) );
+    memcpy ( &objcam->pos, &view->defcampos, sizeof ( G3DVECTOR ) );
+    memcpy ( &objcam->rot, &view->defcamrot, sizeof ( G3DVECTOR ) );
+    memcpy ( &objcam->sca, &view->defcamsca, sizeof ( G3DVECTOR ) );
 
-    gvw->view.cam->focal = gvw->view.defcamfoc;
+    view->cam->focal = view->defcamfoc;
 
 
     g3dobject_updateMatrix_r ( objcam, gui->flags );
@@ -330,7 +339,7 @@ static void updateOptionMenuBar ( GtkWidget *widget ) {
 }
 
 /******************************************************************************/
-GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
+GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUIVIEW *view,
                                                   char *name,
                                                   gint x,
                                                   gint y,
@@ -357,17 +366,17 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton ( menu, gui, VIEWMENUDEFAULTCAMERA , width, G_CALLBACK(g3duiview_useDefaultCameraCbk)  );
-    g3dui_addMenuButton ( menu, gui, VIEWMENUSELECTEDCAMERA, width, G_CALLBACK(g3duiview_useSelectedCameraCbk) );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENUNORMALS       , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENUBONES         , width, G_CALLBACK(g3duiview_toggleBonesCbk)       );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENUGRID          , width, G_CALLBACK(g3duiview_toggleGridCbk)        );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENUTEXTURES      , width, G_CALLBACK(g3duiview_toggleTexturesCbk)    );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENUBACKGROUND    , width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
-    g3dui_addMenuToggle ( menu, gui, VIEWMENULIGHTING      , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
-    g3dui_addMenuButton ( menu, gui, VIEWMENURESET         , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
-/*    g3dui_addMenuButton ( menu, gui, VIEWMENUUNDO          , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
-    g3dui_addMenuButton ( menu, gui, VIEWMENUREDO          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
+    g3dui_addMenuButton ( menu, view, VIEWMENUDEFAULTCAMERA , width, G_CALLBACK(g3duiview_useDefaultCameraCbk)  );
+    g3dui_addMenuButton ( menu, view, VIEWMENUSELECTEDCAMERA, width, G_CALLBACK(g3duiview_useSelectedCameraCbk) );
+    g3dui_addMenuToggle ( menu, view, VIEWMENUNORMALS       , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
+    g3dui_addMenuToggle ( menu, view, VIEWMENUBONES         , width, G_CALLBACK(g3duiview_toggleBonesCbk)       );
+    g3dui_addMenuToggle ( menu, view, VIEWMENUGRID          , width, G_CALLBACK(g3duiview_toggleGridCbk)        );
+    g3dui_addMenuToggle ( menu, view, VIEWMENUTEXTURES      , width, G_CALLBACK(g3duiview_toggleTexturesCbk)    );
+    g3dui_addMenuToggle ( menu, view, VIEWMENUBACKGROUND    , width, G_CALLBACK(g3duiview_toggleBackgroundImageCbk)    );
+    g3dui_addMenuToggle ( menu, view, VIEWMENULIGHTING      , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
+    g3dui_addMenuButton ( menu, view, VIEWMENURESET         , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
+/*    g3dui_addMenuButton ( menu, view, VIEWMENUUNDO          , width, G_CALLBACK(g3duiview_toggleLightingCbk)    );
+    g3dui_addMenuButton ( menu, view, VIEWMENUREDO          , width, G_CALLBACK(g3duiview_resetCameraCbk)       );
 */
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
@@ -875,17 +884,20 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
 
                 switch ( view->buttonID ) {
                     case ROTATEBUTTON : {
-                        if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_orbit ( view, piv,
-                                                           mev->x,
-                                                           mev->y, 
-                                                           xold, 
-                                                           yold );
-/*printf("%f %f %f\n", ( float ) mev->x - xold, ( float ) mev->x, ( float ) xold );
-*/                        }
+                        G3DOBJECT *objcam = ( G3DOBJECT * ) view->cam;
 
-                        if ( mev->state & GDK_BUTTON3_MASK ) {
-                            common_g3duiview_spin ( view, mev->x, xold );
+                        if ( ( objcam->flags & OBJECTNOROTATION ) == 0x00 ) {
+                            if ( mev->state & GDK_BUTTON1_MASK ) {
+                                common_g3duiview_orbit ( view, piv,
+                                                               mev->x,
+                                                               mev->y, 
+                                                               xold, 
+                                                               yold );
+                            }
+
+                            if ( mev->state & GDK_BUTTON3_MASK ) {
+                                common_g3duiview_spin ( view, mev->x, xold );
+                            }
                         }
                     } break;
 
@@ -1067,11 +1079,13 @@ static void gtk_view_init ( GtkView *gvw ) {
 }
 
 /******************************************************************************/
-static void updateView ( GtkWidget *widget ) {
+void gtk_view_updateMenu ( GtkWidget *widget ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     GtkView *gvw = ( GtkView * ) widget;
+    G3DUIVIEW *view = &gvw->view;
+    G3DUI *gui = view->gui;
 
-    gvw->view.lock = 0x01;
+    gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -1088,7 +1102,7 @@ static void updateView ( GtkWidget *widget ) {
         children =  g_list_next ( children );
     }
 
-    gvw->view.lock = 0x00;
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -1134,18 +1148,21 @@ static void gtk_view_realize ( GtkWidget *widget ) {
 #else
     gdk_window_set_user_data ( window, widget );
 #endif
-    updateView ( widget );
+    gtk_view_updateMenu ( widget );
 }
 
 /******************************************************************************/
-GtkWidget *gtk_view_new ( G3DCAMERA *cam ) {
+GtkWidget *gtk_view_new ( G3DCAMERA *cam, G3DUI *gui ) {
     GObject *gob = g_object_new ( gtk_view_get_type ( ), NULL );
     GtkView *gvw = ( GtkView * ) gob;
     G3DUIVIEW *view = &gvw->view;
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
+    view->flags = 0x00;
+
     /*** I don't have time to implement GTK+3 property ***/
     /*** thing. Plus, it's , freaking complicated .... ***/
+    view->gui = gui;
     view->cam = view->defcam = cam;
 
     memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
@@ -1165,7 +1182,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
                                            gint width,
                                            gint height ) {
     GdkRectangle gdkrec = { 0x00, 0x00, width, height };
-    GtkWidget *gvw = gtk_view_new ( cam );
+    GtkView *gvw = gtk_view_new ( cam, gui );
     GtkWidget *area/* = gtk_view_getGLArea ( gvw )*/;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -1175,7 +1192,6 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*** the OpenGL Window ***/
     area = gtk_drawing_area_new ( );
-
 
     ggt->curogl = area;
 
@@ -1229,7 +1245,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     gtk_widget_show ( area );
 
-    createOptionMenu       ( gvw, gui, OPTIONMENUNAME , 96, 96,  60, BUTTONSIZE );
+    createOptionMenu       ( gvw, &gvw->view, OPTIONMENUNAME , 96, 96,  60, BUTTONSIZE );
     createShadingSelection ( gvw, gui, SHADINGMENUNAME, 96,  0, 112, BUTTONSIZE );
 
     gtk_widget_show ( gvw );
@@ -1621,7 +1637,8 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     /*** GUI Toolkit Independent part ****/
     /*************************************/
     if ( sce ) {
-        common_g3duiview_showGL ( gui, 
+        common_g3duiview_showGL ( view,
+                                  gui, 
                                   sce, 
                                   cam, 
                                   mou, 

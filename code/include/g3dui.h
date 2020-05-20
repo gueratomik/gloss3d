@@ -90,13 +90,16 @@ GNU General Public License for more details. \n \
 along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /*********************** Export to g3d file ***********************************/
-#define G3DUISETTINGSSIG                  0x1000
-#define G3DUIVIEWSIG                          0x1100 /* uint64_t */
-#define G3DUIVIEWDEFAULTCAMERAPOSITIONSIG         0x1110 /* float-float-float */
-#define G3DUIVIEWDEFAULTCAMERAROTATIONSIG         0x1120 /* float-float-float */
-#define G3DUIVIEWDEFAULTCAMERASCALINGSIG          0x1130 /* float-float-float */
-#define G3DUIVIEWDEFAULTCAMERAFOCALSIG            0x1140 /* float */
-#define G3DUIVIEWUSECAMERASIG                     0x1150 /* uint32_t */
+#define SIG_G3DUI                             0x3D3D0000
+#define SIG_G3DUI_VIEWS                          0x10000000
+#define SIG_G3DUI_VIEW_ENTRY                          0x11000000
+#define SIG_G3DUI_VIEW_FLAGS                              0x11100000
+#define SIG_G3DUI_VIEW_CAMERA                             0x11200000
+#define SIG_G3DUI_VIEW_CAMERA_POSITION                        0x11210000 /* float-float-float */
+#define SIG_G3DUI_VIEW_CAMERA_ROTATION                        0x11220000 /* float-float-float */
+#define SIG_G3DUI_VIEW_CAMERA_SCALING                         0x11230000 /* float-float-float */
+#define SIG_G3DUI_VIEW_CAMERA_FOCAL                           0x11240000 /* float */
+#define SIG_G3DUI_VIEW_USECAMERA                          0x1130000 /* uint32_t */
 
 /******************************************************************************/
 #define G3DUIAPPNAME "Gloss3D"
@@ -793,6 +796,7 @@ void common_g3duiquad_init           ( G3DUIQUAD *, uint32_t, uint32_t );
 #define ZOOMBUTTON      0x03
 
 typedef struct _G3DUIVIEW {
+    G3DUI         *gui;
     G3DUIRECTANGLE rec[NBVIEWBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE glrec;
     /*Pixmap         curpix[NBVIEWBUTTON];
@@ -809,6 +813,7 @@ typedef struct _G3DUIVIEW {
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/
     uint32_t       flags;
+    void         (*grid)( uint32_t );
 #ifdef __linux__
     GLXContext     glctx;
     pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
@@ -817,7 +822,6 @@ typedef struct _G3DUIVIEW {
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif
-    uint32_t lock;
 } G3DUIVIEW;
 
 /******************************************************************************/
@@ -855,7 +859,7 @@ void common_g3duiview_sizeGL ( G3DUIVIEW *, uint32_t, uint32_t );
 
 void common_g3duiview_initGL ( G3DUIVIEW * );
 
-void common_g3duiview_showGL ( G3DUI *, G3DSCENE *, G3DCAMERA *, 
+void common_g3duiview_showGL ( G3DUIVIEW *, G3DUI *, G3DSCENE *, G3DCAMERA *, 
                                                     G3DMOUSETOOL *,
                                                         uint32_t,
                                                         uint32_t );
@@ -1397,12 +1401,14 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
                                           uint32_t           sequence );
 
 /******************************************************************************/
-uint32_t g3duisettings_blockSize ( G3DUI *gui );
-void g3duisettings_readBlock ( G3DUI    *gui, 
-                               G3DSCENE *sce,
-                               FILE     *fdst );
-void g3duisettings_writeBlock ( G3DUI *gui, 
-                                FILE  *fdst );
+uint32_t g3dui_write ( G3DEXPORTDATA *ged, 
+                       G3DUI         *gui, 
+                       uint32_t       flags, 
+                       FILE          *fdst );
+void g3dui_read ( G3DIMPORTDATA *gid, 
+                  uint32_t       chunkEnd, 
+                  FILE          *fsrc,
+                  G3DUI         *gui );
 
 /******************************************************************************/
 LIST *common_g3duiuvmapeditor_getUV ( G3DSCENE *sce,

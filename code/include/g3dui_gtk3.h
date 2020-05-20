@@ -183,7 +183,7 @@ typedef struct _GtkViewClass {
 
 /******************************************************************************/
 GType      gtk_view_get_type    (void) G_GNUC_CONST;
-GtkWidget *gtk_view_new     ( G3DCAMERA * );
+GtkWidget *gtk_view_new     ( G3DCAMERA *, G3DUI *gui );
 GtkWidget *gtk_view_getGLArea ( GtkWidget *widget );
 /******************************************************************************/
 /******************************************************************************/
@@ -596,6 +596,8 @@ void g3dui_mergeSceneCbk ( GtkWidget *widget, gpointer user_data );
 uint32_t g3dui_cancelRenderByScene ( G3DUI *, R3DSCENE * );
 uint32_t g3dui_cancelRenderByID    ( G3DUI *, uint64_t   );
 void g3dui_redrawGLViews ( G3DUI * );
+void gtk_view_updateMenu ( GtkWidget * );
+void g3dui_updateGLViewsMenu ( G3DUI *gui );
 void addGLMenuButton ( G3DUI *, GtkWidget *, G3DMOUSETOOL * );
 GtkWidget *createViewMenu ( GtkWidget *, G3DUI *, char * );
 

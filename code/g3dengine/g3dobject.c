@@ -1081,7 +1081,7 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
     /*child->parent = NULL;*/
 
     if ( child->type == G3DLIGHTTYPE ) {
-        g3dlight_zero ( ( G3DLIGHT * ) child );
+        g3dlight_reset ( ( G3DLIGHT * ) child );
     }
 
     /*if ( child->setParent ) obj->setParent   ( child, NULL , engine_flags );*/

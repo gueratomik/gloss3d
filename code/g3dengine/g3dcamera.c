@@ -42,8 +42,6 @@ G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
 
     memcpy ( &newcam->pivot, &cam->pivot, sizeof ( cam->pivot ) );
 
-    newcam->grid = cam->grid;
-
     return newcam;
 }
 
@@ -70,239 +68,6 @@ void g3dcamera_grid2D_r ( float ubeg, float uend,
         glVertex3f ( ubeg, i, 0.0f );
         glVertex3f ( uend, i, 0.0f );
     }
-}
-
-/******************************************************************************/
-void g3dcamera_gridZX ( G3DCAMERA *cam, uint32_t flags ) {
-    double zmax, xmax, zmin, xmin, yval;
-    GLdouble MVX[0x10], PJX[0x10];
-    GLint    VPX[0x04];
-    GLint x1, y1, x2, y2, zbeg, xbeg, zend, xend;
-    int i;
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    x1 = VPX[0x00];
-    y1 = VPX[0x01];
-    x2 = VPX[0x02] - 0x01;
-    y2 = VPX[0x03] - 0x01;
-
-    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xmin, &yval, &zmax );
-    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xmax, &yval, &zmax );
-    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xmax, &yval, &zmin );
-    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xmin, &yval, &zmin );
-
-    zbeg = ( GLint ) zmin;
-    zend = ( GLint ) zmax;
-    xbeg = ( GLint ) xmin;
-    xend = ( GLint ) xmax;
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glBegin ( GL_LINES );
-
-    if ( zbeg < zend ) {
-        for ( i = zbeg; i <= zend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-
-            glVertex3f ( xmin, yval, i );
-            glVertex3f ( xmax, yval, i );
-        }
-    }
-
-    if ( xbeg < xend ) {
-        for ( i = xbeg; i <= xend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-   
-            glVertex3f ( i, yval, zmin );
-            glVertex3f ( i, yval, zmax );
-        }
-    }
-
-    glEnd ( );
-
-    glPopAttrib ( );
-}
-
-/******************************************************************************/
-void g3dcamera_gridYZ ( G3DCAMERA *cam, uint32_t flags ) {
-    double ymax, zmax, ymin, zmin, xval;
-    GLdouble MVX[0x10], PJX[0x10];
-    GLint    VPX[0x04];
-    GLint x1, y1, x2, y2, ybeg, zbeg, yend, zend;
-    int i;
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    x1 = VPX[0x00];
-    y1 = VPX[0x01];
-    x2 = VPX[0x02];
-    y2 = VPX[0x03];
-
-    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xval, &ymax, &zmin );
-    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xval, &ymax, &zmax );
-    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xval, &ymin, &zmax );
-    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xval, &ymin, &zmin );
-
-    ybeg = ( GLint ) ymax;
-    yend = ( GLint ) ymin;
-    zbeg = ( GLint ) zmin;
-    zend = ( GLint ) zmax;
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glBegin ( GL_LINES );
-
-    if ( ybeg < yend ) {
-        for ( i = ybeg; i <= yend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-   
-            glVertex3f ( xval, i, zmin );
-            glVertex3f ( xval, i, zmax );
-        }
-    }
-
-    if ( zbeg < zend ) {
-        for ( i = zbeg; i <= zend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-   
-            glVertex3f ( xval, ymin, i );
-            glVertex3f ( xval, ymax, i );
-        }
-    }
-
-    glEnd ( );
-
-    glPopAttrib ( );
-}
-
-/******************************************************************************/
-void g3dcamera_gridXY ( G3DCAMERA *cam, uint32_t flags ) {
-    double xmax, ymax, xmin, ymin, zval;
-    GLdouble MVX[0x10], PJX[0x10];
-    GLint    VPX[0x04];
-    GLint x1, y1, x2, y2, xbeg, ybeg, xend, yend;
-    int i;
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    x1 = VPX[0x00];
-    y1 = VPX[0x01];
-    x2 = VPX[0x02];
-    y2 = VPX[0x03];
-
-    gluUnProject ( x1, y1, 0.0f, MVX, PJX, VPX, &xmin, &ymax, &zval );
-    gluUnProject ( x2, y1, 0.0f, MVX, PJX, VPX, &xmax, &ymax, &zval );
-    gluUnProject ( x2, y2, 0.0f, MVX, PJX, VPX, &xmax, &ymin, &zval );
-    gluUnProject ( x1, y2, 0.0f, MVX, PJX, VPX, &xmin, &ymin, &zval );
-
-    xbeg = ( GLint ) xmin;
-    xend = ( GLint ) xmax;
-    ybeg = ( GLint ) ymax;
-    yend = ( GLint ) ymin;
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glBegin ( GL_LINES );
-
-    if ( xbeg < xend ) {
-        for ( i = xbeg; i <= xend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-   
-            glVertex3f ( i, ymin, zval );
-            glVertex3f ( i, ymax, zval );
-        }
-    }
-
-    if ( ybeg < yend ) {
-        for ( i = ybeg; i <= yend; i++ ) {
-            if ( i % 0x05 ) {
-                glColor3ub ( 0x80, 0x80, 0x80 );
-            } else {
-                glColor3ub ( 0x00, 0x00, 0x00 );
-            }
-   
-            glVertex3f ( xmin, i, zval );
-            glVertex3f ( xmax, i, zval );
-        }
-    }
-
-    glEnd ( );
-
-    glPopAttrib ( );
-}
-
-/******************************************************************************/
-void g3dcamera_grid3D ( G3DCAMERA *cam, uint32_t flags ) {
-    float x1, x2, z1, z2;
-    int i;
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glBegin ( GL_LINES );
-
-    x1 = -10.0f;
-    z1 = -10.0f;
-    z2 =  10.0f;
-
-    for ( i = 0x00; i < 0x15; i++ ) {
-        if ( i % 0x05 ) {
-            glColor3ub ( 0x80, 0x80, 0x80 );
-        } else {
-            glColor3ub ( 0x00, 0x00, 0x00 );
-        }
-
-        glVertex3f ( x1, 0.0f, z1 );
-        glVertex3f ( x1, 0.0f, z2 );
-
-        x1 = ( x1 + 1.0f );
-    }
-
-    z1 = -10.0f;
-    x1 = -10.0f;
-    x2 =  10.0f;
-    for ( i = 0x00; i < 0x15; i++ ) {
-        if ( i % 0x05 ) {
-            glColor3ub ( 0x80, 0x80, 0x80 );
-        } else {
-            glColor3ub ( 0x00, 0x00, 0x00 );
-        }
-
-        glVertex3f ( x1, 0.0f, z1 );
-        glVertex3f ( x2, 0.0f, z1 );
-
-        z1 = ( z1 + 1.0f );
-    }
-
-    glEnd ( );
-
-    glPopAttrib ( );
 }
 
 /******************************************************************************/
@@ -341,40 +106,22 @@ void g3dcamera_view ( G3DCAMERA *cam, uint32_t flags ) {
 
     glLoadIdentity( );
     glMultMatrixd( obj->iwmatrix );
-
-    if ( ( flags & HIDEGRID ) == 0x00 ) {
-        if ( cam->grid ) cam->grid ( cam, flags );
-    }
 }
 
 /******************************************************************************/
 void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
-    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHO ) {
-        /*** commented out: we keep identity matrix in EDITUVMAP mode ***/
-        /*glOrtho ( 0.0f, cam->width,
-                        cam->height, 0.0f, 0.0f, 1.0f );*/
+    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
+        int VPX[0x10];
+        float dist;
+
+        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+        glOrtho ( ( -VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
+                  (  VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
+                  ( -VPX[0x03] * cam->ortho.z ) + cam->ortho.y,
+                  (  VPX[0x03] * cam->ortho.z ) + cam->ortho.y, cam->znear, cam->zfar );
     } else {
-        if ( cam->focal == 2.0f ) {
-            static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, camwpos;
-            G3DOBJECT *camobj = ( G3DOBJECT * ) cam;
-            int VPX[0x10];
-            float dist;
-
-            glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            g3dvector_matrix ( &origin, camobj->wmatrix, &camwpos );
-
-            if ( cam->grid == g3dcamera_gridXY ) dist =  camwpos.z;
-            if ( cam->grid == g3dcamera_gridYZ ) dist =  camwpos.x;
-            if ( cam->grid == g3dcamera_gridZX ) dist =  camwpos.y;
-
-            glOrtho ( -VPX[0x02] * 0.00125f * dist,
-                       VPX[0x02] * 0.00125f * dist,
-                      -VPX[0x03] * 0.00125f * dist,
-                       VPX[0x03] * 0.00125f * dist, cam->znear, cam->zfar );
-        } else {
-            gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
-        }
+        gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
     }
 
     glGetDoublev  ( GL_PROJECTION_MATRIX, cam->pmatrix );
@@ -576,15 +323,10 @@ void g3dcamera_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dcamera_setGrid ( G3DCAMERA *cam, void (*grid)(G3DCAMERA *, uint32_t) ){
-    cam->grid  = grid;
-}
-
-/******************************************************************************/
 void g3dcamera_setOrtho ( G3DCAMERA *cam,
                           uint32_t   width, 
                           uint32_t   height ) {
-    ((G3DOBJECT*)cam)->flags |= CAMERAORTHO;
+    ((G3DOBJECT*)cam)->flags |= CAMERAORTHOGRAPHIC;
 
     cam->width  = width;
     cam->height = height;
@@ -625,6 +367,11 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
     cam->dof.noBlur   =  6.0f;
     cam->dof.farBlur  = 12.0f;
     cam->dof.radius   =    10;
+
+    cam->ortho.x = 0.0f;
+    cam->ortho.y = 0.0f;
+    cam->ortho.z = 0.00750f;
+
 
     g3dvector_init ( &cam->pivot, 0.0f, 0.0f, 0.0f, 1.0f );
 

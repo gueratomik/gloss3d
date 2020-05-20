@@ -30,58 +30,217 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint32_t g3duisettings_blockSize ( G3DUI *gui ) {
-    uint32_t blocksize = 0x00;
+static uint32_t g3duiview_cameraPosition ( G3DEXPORTDATA *ged,
+                                           G3DVECTOR     *pos,
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &pos->x, fdst );
+    size += g3dexport_fwritef ( &pos->y, fdst );
+    size += g3dexport_fwritef ( &pos->z, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_cameraRotation ( G3DEXPORTDATA *ged,
+                                           G3DVECTOR     *rot,
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &rot->x, fdst );
+    size += g3dexport_fwritef ( &rot->y, fdst );
+    size += g3dexport_fwritef ( &rot->z, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_cameraScaling ( G3DEXPORTDATA *ged,
+                                          G3DVECTOR     *sca,
+                                          uint32_t       flags, 
+                                          FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &sca->x, fdst );
+    size += g3dexport_fwritef ( &sca->y, fdst );
+    size += g3dexport_fwritef ( &sca->z, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_cameraFocal ( G3DEXPORTDATA *ged,
+                                        G3DCAMERA     *cam,
+                                        uint32_t       flags, 
+                                        FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritef ( &cam->focal, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_useCamera ( G3DEXPORTDATA *ged,
+                                      G3DCAMERA     *cam,
+                                      uint32_t       flags, 
+                                      FILE          *fdst ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &obj->id, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_flags ( G3DEXPORTDATA *ged,
+                                  G3DUIVIEW     *view,
+                                  uint32_t       flags, 
+                                  FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &view->flags, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_camera ( G3DEXPORTDATA *ged,
+                                   G3DCAMERA     *cam,
+                                   uint32_t       flags, 
+                                   FILE          *fdst ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+    uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_CAMERA_POSITION,
+                                   g3duiview_cameraPosition,
+                                   ged,
+                                  &obj->pos,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_CAMERA_ROTATION,
+                                   g3duiview_cameraRotation,
+                                   ged,
+                                  &obj->rot,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_CAMERA_SCALING,
+                                   g3duiview_cameraScaling,
+                                   ged,
+                                  &obj->sca,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_CAMERA_FOCAL,
+                                   g3duiview_cameraFocal,
+                                   ged,
+                                   cam,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_entry ( G3DEXPORTDATA *ged,
+                                   G3DUIVIEW     *view,
+                                   uint32_t       flags, 
+                                   FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS,
+                                   g3duiview_flags,
+                                   ged,
+                                   view,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_CAMERA,
+                                   g3duiview_camera,
+                                   ged,
+                                   view->defcam,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    if ( view->cam != view->defcam ) {
+        size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_USECAMERA,
+                                       g3duiview_useCamera,
+                                       ged,
+                                       view->cam,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiviews ( G3DEXPORTDATA *ged, 
+                             G3DUI         *gui, 
+                             uint32_t       flags, 
+                             FILE          *fdst ) {
     LIST *ltmpview = gui->lview;
+    uint32_t size = 0x00;
 
     while ( ltmpview ) {
         G3DUIVIEW *view = ( G3DUIVIEW * ) ltmpview->data;
 
-        blocksize += ( common_g3duiview_blockSize ( view ) + 0x06 );
+        size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_ENTRY,
+                                       g3duiview_entry,
+                                       ged,
+                                       view,
+                                       0xFFFFFFFF,
+                                       fdst );
 
         ltmpview = ltmpview->next;
     }
 
-    return blocksize;
+    return size;
 }
 
 /******************************************************************************/
-void g3duisettings_writeBlock ( G3DUI *gui, 
-                                FILE  *fdst ) {
-    LIST *ltmpview = gui->lview;
+uint32_t g3dui_write ( G3DEXPORTDATA *ged, 
+                       G3DUI         *gui, 
+                       uint32_t       flags, 
+                       FILE          *fdst ) {
+    uint32_t size = 0x00;
 
-    chunk_write ( G3DUISETTINGSSIG, 
-                  g3duisettings_blockSize ( gui ),
-                  fdst );
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEWS,
+                                   g3duiviews,
+                                   ged,
+                                   gui,
+                                   0xFFFFFFFF,
+                                   fdst );
 
-    while ( ltmpview ) {
-        G3DUIVIEW *view = ( G3DUIVIEW * ) ltmpview->data;
-
-        common_g3duiview_writeBlock ( view, fdst );
-
-        ltmpview = ltmpview->next;
-    }
+    return size;
 }
 
-
 /******************************************************************************/
-void g3duisettings_readBlock ( G3DUI    *gui, 
-                               G3DSCENE *sce,
-                               FILE     *fsrc ) {
+void g3dui_read ( G3DIMPORTDATA *gid, 
+                  uint32_t       chunkEnd, 
+                  FILE          *fsrc,
+                  G3DUI         *gui ) {
+    uint32_t chunkSignature, chunkSize;
     LIST *ltmpview = gui->lview;
-    G3DUIVIEW *view = NULL;
-    uint16_t chunksig;
-    uint32_t chunklen;
+    G3DUIVIEW *view;
 
-    readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
-    readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
-        switch ( chunksig ) {
-            case G3DUISETTINGSSIG :
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_G3DUI_VIEWS :
             break;
 
-            case G3DUIVIEWSIG :
+            case SIG_G3DUI_VIEW_ENTRY :
                 if ( ltmpview ) {
                     view = ( G3DUIVIEW * ) ltmpview->data;
 
@@ -89,77 +248,87 @@ void g3duisettings_readBlock ( G3DUI    *gui,
                 }
             break;
 
-            case G3DUIVIEWDEFAULTCAMERAPOSITIONSIG :
+            case SIG_G3DUI_VIEW_FLAGS : {
                 if ( view ) {
-                    readf ( &((G3DOBJECT*)view->defcam)->pos.x, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->pos.y, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->pos.z, sizeof ( float ), 1, fsrc );
+                    g3dimport_freadl ( &view->flags, fsrc );
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_CAMERA : {
+            } break;
+
+            case SIG_G3DUI_VIEW_CAMERA_POSITION :
+                if ( view ) {
+                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+
+                    g3dimport_freadf ( &obj->pos.x, fsrc );
+                    g3dimport_freadf ( &obj->pos.y, fsrc );
+                    g3dimport_freadf ( &obj->pos.z, fsrc );
+
+                    g3dobject_updateMatrix ( view->defcam );
                 }
             break;
 
-            case G3DUIVIEWDEFAULTCAMERAROTATIONSIG :
+            case SIG_G3DUI_VIEW_CAMERA_ROTATION :
                 if ( view ) {
-                    readf ( &((G3DOBJECT*)view->defcam)->rot.x, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->rot.y, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->rot.z, sizeof ( float ), 1, fsrc );
+                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+
+                    g3dimport_freadf ( &obj->rot.x, fsrc );
+                    g3dimport_freadf ( &obj->rot.y, fsrc );
+                    g3dimport_freadf ( &obj->rot.z, fsrc );
+
+                    g3dobject_updateMatrix ( view->defcam );
                 }
             break;
 
-            case G3DUIVIEWDEFAULTCAMERASCALINGSIG :
+            case SIG_G3DUI_VIEW_CAMERA_SCALING :
                 if ( view ) {
-                    readf ( &((G3DOBJECT*)view->defcam)->sca.x, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->sca.y, sizeof ( float ), 1, fsrc );
-                    readf ( &((G3DOBJECT*)view->defcam)->sca.z, sizeof ( float ), 1, fsrc );
+                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+
+                    g3dimport_freadf ( &obj->sca.x, fsrc );
+                    g3dimport_freadf ( &obj->sca.y, fsrc );
+                    g3dimport_freadf ( &obj->sca.z, fsrc );
+
+                    g3dobject_updateMatrix ( view->defcam );
                 }
             break;
 
-            case G3DUIVIEWDEFAULTCAMERAFOCALSIG :
+            case SIG_G3DUI_VIEW_CAMERA_FOCAL :
                 if ( view ) {
-                    readf ( &view->defcam->focal, sizeof ( float ), 1, fsrc );
+                    g3dimport_freadf ( &view->defcam->focal, fsrc );
                 }
             break;
 
-            case G3DUIVIEWUSECAMERASIG : {
+            case SIG_G3DUI_VIEW_USECAMERA : {
                 if ( view ) {
-                    LIST *lcam = g3dobject_getChildrenByType ( sce, 
-                                                               G3DCAMERATYPE );
-                    LIST *ltmpcam = lcam;
-                    uint32_t useCameraID;
+                    uint32_t camID;
+                    G3DOBJECT *obj;
 
-                    readf ( &useCameraID, sizeof ( uint32_t ), 1, fsrc );
+                    g3dimport_freadl ( &camID, fsrc );
 
-                    while ( ltmpcam ) {
-                        G3DCAMERA *cam = ( G3DCAMERA * ) ltmpcam->data;
+                    obj = g3dobject_getChildByID ( gid->currentScene, camID );
 
-                        if ( ((G3DOBJECT*)cam)->id == useCameraID ) {
+                    if ( obj ) {
+                        if ( obj->type == G3DCAMERATYPE ) {
+                            G3DCAMERA *cam = ( G3DCAMERA * ) obj;
+
                             common_g3duiview_useSelectedCamera ( view, cam );
                         }
-
-                        ltmpcam = ltmpcam->next;
                     }
                 }
             } break;
 
-            case 0xFFFF : { /* EXTENSIONENDSIG */
-                ltmpview = gui->lview;
-
-                while ( ltmpview ) {
-                    G3DUIVIEW *view = ( G3DUIVIEW * ) ltmpview->data;
-
-                    g3dobject_updateMatrix_r ( view->defcam, gui->flags );
-
-                    ltmpview = ltmpview->next;
-                }
-
-                return;
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;
-
-            default :
-                fseek ( fsrc, chunklen, SEEK_CUR );
-            break;
         }
 
-        readf ( &chunksig, sizeof ( uint16_t ), 0x01, fsrc );
-        readf ( &chunklen, sizeof ( uint32_t ), 0x01, fsrc );
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
 }

@@ -101,6 +101,8 @@ static uint32_t g3dexportuvmap_UVSets ( G3DEXPORTDATA  *ged,
     LIST *ltmpfac = mes->lfac;
     uint32_t size = 0x00;
 
+    size += g3dexport_fwritel ( &mes->nbfac, fdst );
+
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );

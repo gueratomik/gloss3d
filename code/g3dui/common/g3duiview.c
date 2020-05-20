@@ -79,16 +79,21 @@ void common_g3duiview_moveSideward ( G3DUIVIEW *view, int32_t x   ,
     int difx = ( xold - x ),
         dify = ( yold - y );
 
-    g3dvector_matrix  ( &xvec, obj->rmatrix, &camx );
-    g3dvector_matrix  ( &yvec, obj->rmatrix, &camy );
+    if ( obj->flags & CAMERAORTHOGRAPHIC ) {
+        cam->ortho.x += ( difx * 0.025f );
+        cam->ortho.y -= ( dify * 0.025f );
+    } else {
+        g3dvector_matrix  ( &xvec, obj->rmatrix, &camx );
+        g3dvector_matrix  ( &yvec, obj->rmatrix, &camy );
 
-    obj->pos.x += ( camx.x * ( (float) ( difx ) / 20.0f ) );
-    obj->pos.y += ( camx.y * ( (float) ( difx ) / 20.0f ) );
-    obj->pos.z += ( camx.z * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.x += ( camx.x * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.y += ( camx.y * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.z += ( camx.z * ( (float) ( difx ) / 20.0f ) );
 
-    obj->pos.x -= ( camy.x * ( (float) ( dify ) / 20.0f ) );
-    obj->pos.y -= ( camy.y * ( (float) ( dify ) / 20.0f ) );
-    obj->pos.z -= ( camy.z * ( (float) ( dify ) / 20.0f ) );
+        obj->pos.x -= ( camy.x * ( (float) ( dify ) / 20.0f ) );
+        obj->pos.y -= ( camy.y * ( (float) ( dify ) / 20.0f ) );
+        obj->pos.z -= ( camy.z * ( (float) ( dify ) / 20.0f ) );
+    }
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 }
@@ -105,17 +110,21 @@ void common_g3duiview_moveForward ( G3DUIVIEW *view, int32_t x,
     float posx, posy, posz;
     int difx = ( xold - x );
 
-    g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
+    if ( obj->flags & CAMERAORTHOGRAPHIC ) {
+        cam->ortho.z += ( difx * 0.00025f );
+    } else {
+        g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
 
-    obj->pos.x += ( camz.x * ( (float) ( difx ) / 20.0f ) );
-    obj->pos.y += ( camz.y * ( (float) ( difx ) / 20.0f ) );
-    obj->pos.z += ( camz.z * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.x += ( camz.x * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.y += ( camz.y * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.z += ( camz.z * ( (float) ( difx ) / 20.0f ) );
 
-    /*** if orthogonal view, dont let the camera ***/
-    /*** go negative ***/
-    if ( cam->focal == 2.0f ) {
-        if ( obj->pos.z > cam->zfar  ) obj->pos.z = cam->zfar;
-        if ( obj->pos.z < cam->znear ) obj->pos.z = cam->znear;
+        /*** if orthogonal view, dont let the camera ***/
+        /*** go negative ***/
+        if ( cam->focal == 2.0f ) {
+            if ( obj->pos.z > cam->zfar  ) obj->pos.z = cam->zfar;
+            if ( obj->pos.z < cam->znear ) obj->pos.z = cam->znear;
+        }
     }
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
@@ -300,7 +309,8 @@ void common_g3duiview_showRenderingArea ( G3DUI   *gui,
 }
 
 /******************************************************************************/
-void common_g3duiview_showGL ( G3DUI        *gui, 
+void common_g3duiview_showGL ( G3DUIVIEW    *view,
+                               G3DUI        *gui,
                                G3DSCENE     *sce,
                                G3DCAMERA    *cam,
                                G3DMOUSETOOL *mou,
@@ -399,6 +409,14 @@ void common_g3duiview_showGL ( G3DUI        *gui,
 
     if ( cam ) {
         g3dcamera_view ( cam, engine_flags );
+
+        if ( ( engine_flags & HIDEGRID ) == 0x00 ) {
+            if ( view->cam != view->defcam ) {
+                g3dcore_grid3D ( engine_flags );
+            } else {
+                if ( view->grid ) view->grid ( engine_flags );
+            }
+        }
     }
 
     g3dobject_draw ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
