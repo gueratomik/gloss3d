@@ -64,7 +64,8 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     if ( gid->currentObject->type & MESH ) {
                         g3dmesh_addUVMap ( ( G3DMESH * ) gid->currentObject,
-                                                         gid->currentUVMap, 
+                                                         gid->currentUVMap,
+                                                         NULL,
                                                          gid->engineFlags );
                     }
 

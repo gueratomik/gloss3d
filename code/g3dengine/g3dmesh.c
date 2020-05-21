@@ -1003,7 +1003,10 @@ void g3dmesh_removeUVMap ( G3DMESH  *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t eflags ) {
+void g3dmesh_addUVMap ( G3DMESH  *mes, 
+                        G3DUVMAP *map,
+                        LIST    **lnewuvset,
+                        uint32_t eflags ) {
     LIST *ltmpfac = mes->lfac;
 
     list_insert ( &mes->luvmap, map );
@@ -1013,11 +1016,17 @@ void g3dmesh_addUVMap ( G3DMESH *mes, G3DUVMAP *map, uint32_t eflags ) {
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-        G3DUVSET *uvs = g3duvset_new ( map );
+        G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
         uint32_t i;
+
+        /** Note: when adding an UVMap, the uvset is created only if ***/
+        /** no UVSet for this UVMap already exists. This might be the ***/
+        /*** case in a undo-redo setup ***/
+        if ( uvs == NULL ) uvs = g3duvset_new ( map );
 
         g3dface_addUVSet ( fac, uvs );
 
+        if ( lnewuvset ) list_insert ( lnewuvset, uvs );
 
         _NEXTFACE(mes,ltmpfac);
     }

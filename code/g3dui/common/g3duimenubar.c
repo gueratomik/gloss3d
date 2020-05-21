@@ -42,7 +42,11 @@ void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3duvmap_new ( "UVMap", UVMAPFLAT );
 
-            g3dmesh_addUVMap ( mes, map, gui->flags );
+            g3durm_mesh_addUVMap ( gui->urm,
+                                   mes,
+                                   map, 
+                                   gui->flags,
+                                   REDRAWVIEW | REDRAWLIST );
 
             g3dmesh_unselectAllUVMaps ( mes );
             g3dmesh_selectUVMap ( mes, map );

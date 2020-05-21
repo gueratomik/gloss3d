@@ -2057,8 +2057,10 @@ void       g3dmesh_addVertex            ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addSelectedFace      ( G3DMESH *, G3DFACE * );
 void       g3dmesh_addSelectedVertex    ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addTexture           ( G3DMESH *, G3DTEXTURE * );
-void       g3dmesh_addUVMap             ( G3DMESH *, G3DUVMAP *, 
-                                                     uint32_t );
+void       g3dmesh_addUVMap ( G3DMESH  *mes, 
+                              G3DUVMAP *map,
+                              LIST    **lnewuvset,
+                              uint32_t eflags );
 void       g3dmesh_addWeightGroup       ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_alignNormals         ( G3DMESH * );
 void       g3dmesh_alignFaces           ( G3DMESH * );

@@ -192,6 +192,13 @@ typedef struct _URMREMOVEUVMAP {
 } URMREMOVEUVMAP;
 
 /******************************************************************************/
+typedef struct _URMADDUVMAP {
+    G3DMESH  *mes;
+    G3DUVMAP *uvmap;
+    LIST     *lnewuvset;
+} URMADDUVMAP;
+
+/******************************************************************************/
 #define UTOSAVETRANSLATION ( 1 << 0 )
 #define UTOSAVEROTATION    ( 1 << 1 )
 #define UTOSAVESCALING     ( 1 << 2 )
@@ -752,5 +759,12 @@ void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
                                G3DUVMAP     *uvmap, 
                                uint32_t      engine_flags,
                                uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_mesh_addUVMap ( G3DURMANAGER *urm,
+                            G3DMESH      *mes,
+                            G3DUVMAP     *uvmap, 
+                            uint32_t      engine_flags,
+                            uint32_t      return_flags );
 
 #endif

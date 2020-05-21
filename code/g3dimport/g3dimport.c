@@ -474,7 +474,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
                 obj = ( G3DOBJECT * ) map;
 
-                g3dmesh_addUVMap ( ( G3DMESH * ) mes, map, flags );
+                g3dmesh_addUVMap ( ( G3DMESH * ) mes, map, NULL, flags );
 
                 /*memcpy ( &obj->pos, &objpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &obj->rot, &objrot, sizeof ( G3DVECTOR ) );
