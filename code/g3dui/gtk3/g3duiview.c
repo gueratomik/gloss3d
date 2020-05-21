@@ -804,7 +804,7 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
 
             /*** we exlude the maximize button (ID=0) from grabbing ***/
             if ( ( view->buttonID > 0 ) && ( grabbing == 0x00 ) ) { 
-                gdk_window_set_cursor ( gtk_widget_get_window ( ggt->top ), 
+                gdk_window_set_cursor ( gtk_widget_get_window ( gtk_widget_get_toplevel ( widget ) ), 
                                         gdk_cursor_new ( GDK_BLANK_CURSOR ) );
 
                 switch ( view->buttonID ) {
@@ -853,7 +853,7 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                         if ( grabbing ) {
                             gtk_view_ungrab_pointer ( widget, event );
 
-                            gdk_window_set_cursor ( gtk_widget_get_window ( ggt->top ), 
+                            gdk_window_set_cursor ( gtk_widget_get_window ( gtk_widget_get_toplevel ( widget ) ), 
                                                 NULL );
 
                             grabbing = 0x00;

@@ -80,7 +80,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
@@ -254,7 +254,7 @@ int rotateUV_tool ( G3DMOUSETOOL *mou,
                                                           bev->x, VPX[0x03] - bev->y },
                                                .only_visible = 0x00,
                                                .weight = 0.0f,
-                                               .radius = 0x08 };
+                                               .radius = PICKMINRADIUS };
 
                             /*** we use pick_tool and not pick_Item in order to ***/
                             /*** get the undo/redo support ***/
@@ -440,7 +440,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
 
                 /*** we use pick_tool and not pick_Item in order to ***/
                 /*** get the undo/redo support ***/
@@ -658,7 +658,7 @@ static int rotate_object ( LIST        *lobj,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
@@ -705,7 +705,7 @@ int rotate_tool ( G3DMOUSETOOL *mou,
                                           bev->x, VPX[0x03] - bev->y },
                                .only_visible = 0x01,
                                .weight = 0.0f,
-                               .radius = 0x08 };
+                               .radius = PICKMINRADIUS };
 
             pick_cursor ( &pt, sce, cam, flags );
         } break;

@@ -156,10 +156,10 @@ G3DWEIGHTGROUP *g3dweightgroup_mirror ( G3DWEIGHTGROUP *grp,
 G3DWEIGHT *g3dweightgroup_addVertex ( G3DWEIGHTGROUP *grp, 
                                       G3DVERTEX *ver, float weight ) {
     G3DWEIGHT *wei = g3dweight_new ( ver, weight );
-    LIST *ltmpfac = ver->lfac;
+    /*LIST *ltmpfac = ver->lfac;*/
 
     list_insert ( &grp->lwei, wei );
-    list_insert ( &grp->lver, ver );
+    /*list_insert ( &grp->lver, ver );*/
 
     grp->nbwei++;
 
@@ -178,6 +178,22 @@ G3DWEIGHT *g3dweightgroup_addVertex ( G3DWEIGHTGROUP *grp,
 }
 
 /******************************************************************************/
+LIST *g3dweightgroup_getVertices ( G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpwei = grp->lwei;
+    LIST *lver = NULL;
+
+    while ( ltmpwei ) {
+        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+
+        list_insert ( &lver, wei->ver );
+
+        ltmpwei = ltmpwei->next;
+    }
+
+    return lver;
+}
+
+/******************************************************************************/
 void g3dweightgroup_empty ( G3DWEIGHTGROUP *grp ) {
     LIST *ltmp = grp->lwei;
 
@@ -190,7 +206,7 @@ void g3dweightgroup_empty ( G3DWEIGHTGROUP *grp ) {
     }
 
     list_free ( &grp->lwei, NULL );
-    list_free ( &grp->lver, NULL );
+    /*list_free ( &grp->lver, NULL );*/
 
     grp->nbwei = 0x00;
 }
@@ -198,7 +214,7 @@ void g3dweightgroup_empty ( G3DWEIGHTGROUP *grp ) {
 /******************************************************************************/
 void g3dweightgroup_removeWeight ( G3DWEIGHTGROUP *grp, G3DWEIGHT *wei ) {
     list_remove ( &grp->lwei, wei );
-    list_remove ( &grp->lver, wei->ver );
+    /*list_remove ( &grp->lver, wei->ver );*/
 
     g3dvertex_removeWeight ( wei->ver, wei );
 
@@ -290,6 +306,9 @@ G3DWEIGHTGROUP *g3dweightgroup_new ( G3DMESH *mes, char *name ) {
 
 /******************************************************************************/
 void g3dweightgroup_free ( G3DWEIGHTGROUP *grp ) {
+    list_free ( &grp->lwei, g3dweight_free );
+    /*list_free ( &grp->lver, NULL );*/
+
     free ( grp );
 }
 
@@ -320,6 +339,8 @@ void g3dweight_reset ( G3DWEIGHT *wei, G3DRIG *rig ) {
 
 /******************************************************************************/
 void g3dweight_free ( G3DWEIGHT *wei ) {
+    list_free ( &wei->lrig, NULL );
+
     free ( wei );
 }
 

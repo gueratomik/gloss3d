@@ -67,7 +67,11 @@ static void addMaterialCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     LIST *ltmpmatlist = gui->lmatlist;
 
-    g3dscene_addMaterial ( gui->sce, mat );
+    g3durm_scene_addMaterial ( gui->urm,
+                               gui->sce, 
+                               mat,
+                               gui->flags,
+                               REBUILDMATERIALLIST );
 
     while ( ltmpmatlist ) {
         GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;

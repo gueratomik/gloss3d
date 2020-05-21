@@ -19,6 +19,7 @@
 /*                                                                            */
 /******************************************************************************/
 
+
 /******************************************************************************/
 /*                                                                            */
 /* Please avoid using global variables at all costs in this file, and never   */
@@ -27,99 +28,74 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3durmanager.h>
 
 /******************************************************************************/
-void g3dtexture_restrict ( G3DTEXTURE *tex ) {
-    tex->flags |= TEXTURERESTRICTED;
-}
+URMADDMATERIAL *urmaddmaterial_new ( G3DSCENE    *sce,
+                                     G3DMATERIAL *mat,
+                                     uint32_t     engine_flags ) {
+    uint32_t structsize = sizeof ( URMADDMATERIAL );
 
-/******************************************************************************/
-void g3dtexture_unrestrict ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURERESTRICTED);
-}
+    URMADDMATERIAL *uam = ( URMADDMATERIAL * ) calloc ( 0x01, structsize );
 
-/******************************************************************************/
-void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_addTextureSlot ( facgrp, tex->slotBit );
-
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_insert ( &tex->lfacgrp, facgrp );
-
-    tex->nbfacgrp++;
-}
-
-/******************************************************************************/
-void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp ) {
-    g3dfacegroup_removeTextureSlot ( facgrp, tex->slotBit );
-
-    /*** Actually remembering the facegroup pointer is needed when it comes ***/
-    /*** to write the data file (.g3d) ***/
-    list_remove ( &tex->lfacgrp, facgrp );
-
-    tex->nbfacgrp--;
-}
-
-/******************************************************************************/
-void g3dtexture_unrestrictAllFacegroups ( G3DTEXTURE *tex ) {
-    LIST *ltmpfacgrp = tex->lfacgrp;
-
-    while ( ltmpfacgrp ) {
-        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
-        LIST *ltmpfacgrpnext = ltmpfacgrp->next;
-
-        g3dtexture_unrestrictFacegroup ( tex, facgrp );
-
-        ltmpfacgrp = ltmpfacgrpnext;
-    }
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_getFromUVMap ( LIST *ltex, G3DUVMAP *map ) {
-    LIST *ltmptex = ltex;
-
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
-
-        if ( tex->map == map ) return tex;
-
-        ltmptex = ltmptex->next;
-    }
-
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dtexture_unsetSelected ( G3DTEXTURE *tex ) {
-    tex->flags &= (~TEXTURESELECTED);
-}
-
-/******************************************************************************/
-void g3dtexture_free ( G3DTEXTURE *tex ) {
-    list_free ( &tex->lfacgrp, NULL );
-
-    free ( tex );
-}
-
-/******************************************************************************/
-G3DTEXTURE *g3dtexture_new ( G3DOBJECT   *obj, 
-                             G3DMATERIAL *mat, 
-                             G3DUVMAP    *map ) {
-    G3DTEXTURE *tex = ( G3DTEXTURE * ) calloc ( 0x01, sizeof ( G3DTEXTURE ) );
-
-    if ( tex == NULL ) {
-        fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
+    if ( uam == NULL ) {
+        fprintf ( stderr, "%s: memory allocation falied\n", __func__ );
 
         return NULL;
     }
 
-    /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
+    uam->sce = sce;
+    uam->mat = mat;
 
-    tex->mat    = mat;
-    tex->map    = map;
-    tex->obj    = obj;
+    return uam;
+}
 
-    return tex;
+/******************************************************************************/
+void urmaddmaterial_free ( URMADDMATERIAL *uam ) {
+    free ( uam );
+}
+
+/******************************************************************************/
+void addMaterial_free ( void *data, uint32_t commit ) {
+    URMADDMATERIAL *uam = ( URMADDMATERIAL * ) data;
+
+    if ( commit ) {
+
+    } else {
+        g3dmaterial_free ( uam->mat );
+    }
+
+    urmaddmaterial_free ( uam );
+}
+
+/******************************************************************************/
+void addMaterial_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMADDMATERIAL *uam = ( URMADDMATERIAL * ) data;
+
+    g3dscene_removeMaterial ( uam->sce, uam->mat );
+}
+
+/******************************************************************************/
+void addMaterial_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMADDMATERIAL *uam = ( URMADDMATERIAL * ) data;
+
+    g3dscene_addMaterial ( uam->sce, uam->mat );
+}
+
+/******************************************************************************/
+void g3durm_scene_addMaterial ( G3DURMANAGER *urm,
+                                G3DSCENE     *sce,
+                                G3DMATERIAL  *mat,
+                                uint32_t      engine_flags,
+                                uint32_t      return_flags ) {
+    URMADDMATERIAL *uam = urmaddmaterial_new ( sce, mat, engine_flags );
+
+    g3dscene_addMaterial ( sce, mat );
+
+    g3durmanager_push ( urm, 
+                        addMaterial_undo,
+                        addMaterial_redo,
+                        addMaterial_free, 
+                        uam,
+                        return_flags );
 }

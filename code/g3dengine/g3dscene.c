@@ -267,15 +267,35 @@ void g3dscene_addMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
 }
 
 /******************************************************************************/
-void g3dscene_delMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
-    LIST *ltmpobj = mat->lobj;
+void g3dscene_removeMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
+    LIST *lobj = g3dmaterial_getObjects ( mat, sce );
+    LIST *ltmpobj = lobj;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        G3DTEXTURE *tex = g3dmesh_getTextureFromMaterial ( obj, mat );
 
-        if ( tex ) g3dmesh_removeTexture ( ( G3DMESH * ) obj, tex );
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            LIST *ltmptex = mes->ltex;
 
+            while ( ltmptex ) {
+                G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+                LIST *ltmptexnext = ltmptex->next;
+
+                if ( tex->mat == mat ) {
+                    g3dmesh_removeTexture ( mes, tex );
+
+                    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
+                    g3dmesh_update ( mes, 
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     RESETMODIFIERS, 0x00 );
+                }
+
+                ltmptex = ltmptexnext;
+            }
+        }
 
         ltmpobj = ltmpobj->next;
     }
@@ -283,6 +303,8 @@ void g3dscene_delMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
     list_remove ( &sce->lmat, mat );
 
     sce->nbmat--;
+
+    list_free ( &lobj, NULL );
 }
 
 /******************************************************************************/

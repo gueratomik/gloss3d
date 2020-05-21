@@ -38,6 +38,7 @@
 #define  SIG_MATERIAL_SPECULAR                  0xCE7F7484
 #define  SIG_MATERIAL_SPECULAR_LEVEL            0x24CA1ADB
 #define  SIG_MATERIAL_SPECULAR_SHININESS        0x92BEF4DC
+#define  SIG_OBJECT_ACTIVE                      0x1E4FEB75
 #define  SIG_OBJECT_BONE                        0x58B4AB43
 #define  SIG_OBJECT_BONE_FIXING                 0x37806762
 #define  SIG_OBJECT_BONE_FIXING_TRANSFORMATION  0xEF18142E
@@ -51,7 +52,6 @@
 #define  SIG_OBJECT_CAMERA_FOCAL                0x3B0925B4
 #define  SIG_OBJECT_ENTRY                       0x08CAC424
 #define  SIG_OBJECT_IDENTITY                    0xFE404903
-#define  SIG_OBJECT_IDENTITY_ACTIVE             0x754FF5ED
 #define  SIG_OBJECT_IDENTITY_NAME               0x647F2371
 #define  SIG_OBJECT_IDENTITY_PARENT             0x34D92405
 #define  SIG_OBJECT_IDENTITY_TYPE               0x5173F267

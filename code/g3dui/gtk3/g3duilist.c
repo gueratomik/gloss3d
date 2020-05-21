@@ -540,11 +540,21 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
                     if ( pob ) {
                         if ( pob->picked == TEXTURERECTHIT ) {
-                            g3dmesh_removeTexture ( ( G3DMESH * ) pob->obj, pob->tex );
+                            if ( pob->obj->type & MESH ) {
+                                g3durm_mesh_removeTexture ( urm,
+                                                            pob->obj,
+                                                            pob->tex,
+                                                            gui->flags,
+                                                            retflags );
+                            }
                         }
 
                         if ( pob->picked == UVMAPRECTHIT ) {
-                            g3dmesh_removeUVMap ( ( G3DMESH * ) pob->obj, pob->uvmap );
+                            g3durm_mesh_removeUVMap ( urm,
+                                                      pob->obj,
+                                                      pob->uvmap, 
+                                                      gui->flags,
+                                                      REDRAWVIEW |REDRAWLIST );
                         }
                     } else {
                         g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );

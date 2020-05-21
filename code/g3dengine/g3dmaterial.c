@@ -30,23 +30,68 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, uint32_t engine_flags ) {
-    LIST *ltmpobj = mat->lobj;
+LIST *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce ) {
+    LIST *lobj = NULL;
+    LIST *lis = NULL;
+    LIST *ltmpobj;
+
+    g3dobject_treeToList_r ( sce, &lobj );
+
+    ltmpobj = lobj;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        if ( obj->type == G3DMESHTYPE ) {
+        if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
+            LIST *ltmptex = mes->ltex;
 
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  RESETMODIFIERS, engine_flags );
+            while ( ltmptex ) {
+                G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+
+                if ( tex->mat == mat ) {
+                    list_insert ( &lis, obj );
+
+                    break;
+                }
+
+                ltmptex = ltmptex->next;
+            }
         }
 
         ltmpobj = ltmpobj->next;
     }
+
+    list_free ( &lobj, NULL );
+
+    return lis;
+}
+
+/******************************************************************************/
+void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, 
+                                G3DSCENE    *sce, 
+                                uint32_t     engine_flags ) {
+    LIST *lobj = g3dmaterial_getObjects ( mat, sce );
+    LIST *ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( obj ) {
+            if ( obj->type & MESH ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                g3dmesh_update ( mes, NULL,
+                                      NULL,
+                                      NULL,
+                                      RESETMODIFIERS, engine_flags );
+            }
+        }
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    list_free ( &lobj, NULL );
 }
 
 /******************************************************************************/
@@ -240,5 +285,7 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
 /******************************************************************************/
 void g3dmaterial_free ( G3DMATERIAL *mat ) {
+    /*** TODO : free channels ***/
+
     free ( mat );
 }

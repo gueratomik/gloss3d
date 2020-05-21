@@ -103,7 +103,7 @@ void common_g3dui_materialSetDisplacementStrengthCbk ( G3DUI *gui,
                                           strength,
                                           strength );
 
-        g3dmaterial_updateMeshes ( mat, gui->flags );
+        g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }
@@ -243,7 +243,9 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
             /*** Update Meshes that have this material   ***/
             /*** to rebuild Texture Coordinates. This is ***/
             /*** needed for buffered subdivided meshes ***/
-            if ( cha == &mat->diffuse ) g3dmaterial_updateMeshes ( mat, gui->flags );
+            if ( cha == &mat->diffuse ) {
+                g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
+            }
 
             g3dui_redrawGLViews ( gui );
             g3dui_updateSelectedMaterialPreview ( gui );
@@ -269,7 +271,7 @@ void common_g3dui_materialEnableProceduralCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         g3dui_updateSelectedMaterialPreview ( gui );
 
         if (  cha == &mat->displacement ) {
-            g3dmaterial_updateMeshes ( mat, gui->flags );
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
         }
 
         g3dui_redrawGLViews      ( gui );
@@ -291,7 +293,7 @@ void common_g3dui_materialEnableSolidColorCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         g3dui_updateSelectedMaterialPreview ( gui );
 
         if (  cha == &mat->displacement ) {
-            g3dmaterial_updateMeshes ( mat, gui->flags );
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
         }
 
         g3dui_redrawGLViews      ( gui );
@@ -313,7 +315,7 @@ void common_g3dui_materialEnableImageCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         g3dui_updateSelectedMaterialPreview ( gui );
 
         if (  cha == &mat->displacement ) {
-            g3dmaterial_updateMeshes ( mat, gui->flags );
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
         }
 
         g3dui_redrawGLViews      ( gui );
@@ -366,6 +368,8 @@ void common_g3dui_materialChooseProceduralCbk ( G3DUI      *gui,
                 printf ( "%s todo: free previous image\n", __func__ );
             }
 
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
+
             /*** Redraw Material List widget Previews ***/
             g3dui_updateSelectedMaterialPreview ( gui );
 
@@ -389,7 +393,7 @@ void common_g3dui_materialToggleDisplacementCbk ( G3DUI *gui ) {
             g3dmaterial_enableDisplacement  ( mat );
         }
 
-        g3dmaterial_updateMeshes ( mat, gui->flags );
+        g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }
@@ -409,7 +413,7 @@ void common_g3dui_materialToggleBumpCbk ( G3DUI *gui ) {
             g3dmaterial_enableBump  ( mat );
         }
 
-        g3dmaterial_updateMeshes ( mat, gui->flags );
+        g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }
@@ -429,7 +433,7 @@ void common_g3dui_materialToggleAlphaCbk ( G3DUI *gui ) {
             g3dmaterial_enableAlpha  ( mat );
         }
 
-        g3dmaterial_updateMeshes ( mat, gui->flags );
+        g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
 
         g3dui_redrawGLViews ( gui );
     }

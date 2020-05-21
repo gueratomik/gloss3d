@@ -307,8 +307,8 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             xori = xold = bev->x;
             yori = yold = bev->y;
 
-            if ( grabbing == 0x00 ) { 
-                gdk_window_set_cursor ( gtk_widget_get_window ( ggt->top ), 
+            if ( ( uvme->buttonID > -1 ) && ( grabbing == 0x00 ) ) { 
+                gdk_window_set_cursor ( gtk_widget_get_window ( gtk_widget_get_toplevel ( widget ) ), 
                                         gdk_cursor_new ( GDK_BLANK_CURSOR ) );
 
                 gtk_uvmapeditor_grab_pointer ( widget, event );
@@ -328,7 +328,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
                         if ( grabbing ) {
                             gtk_uvmapeditor_ungrab_pointer ( widget, event );
 
-                            gdk_window_set_cursor ( gtk_widget_get_window ( ggt->top ), 
+                            gdk_window_set_cursor ( gtk_widget_get_window ( gtk_widget_get_toplevel ( widget ) ), 
                                                 NULL );
 
                             grabbing = 0x00;

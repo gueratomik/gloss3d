@@ -155,7 +155,7 @@ uint32_t g3duv_getAverageFromList ( LIST *luv, G3DUV *uvout ) {
 }
 
 /******************************************************************************/
-G3DUV *g3duv_new ( G3DUVSET *uvs ) {
+/*G3DUV *g3duv_new ( G3DUVSET *uvs ) {
     G3DUV *uv = ( G3DUV * ) calloc ( 0x01, sizeof ( G3DUV ) ) ;
 
     if ( uv == NULL ) {
@@ -168,6 +168,11 @@ G3DUV *g3duv_new ( G3DUVSET *uvs ) {
 
 
     return uv;
+}*/
+
+/******************************************************************************/
+void g3duvset_free ( G3DUVSET *uvset ) {
+    free ( uvset );
 }
 
 /******************************************************************************/

@@ -279,16 +279,6 @@ static uint32_t g3dexportobject_transformation ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityActive ( G3DEXPORTDATA *ged, 
-                                                 G3DOBJECT     *obj, 
-                                                 uint32_t       flags, 
-                                                 FILE          *fdst ) {
-    uint32_t active = ( obj->flags & OBJECTINACTIVE ) ? 0x00 : 0x01;
-
-    return g3dexport_fwritel ( &active, fdst );
-}
-
-/******************************************************************************/
 static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged, 
                                                G3DOBJECT     *obj, 
                                                uint32_t       flags, 
@@ -476,17 +466,18 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
-    /*** write object active or not ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_ACTIVE,
-                                   g3dexportobject_identityActive,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
-
     return size;
 }
 
+/******************************************************************************/
+static uint32_t g3dexportobject_active ( G3DEXPORTDATA *ged, 
+                                         G3DOBJECT     *obj, 
+                                         uint32_t       flags, 
+                                         FILE          *fdst ) {
+    uint32_t active = ( obj->flags & OBJECTINACTIVE ) ? 0x00 : 0x01;
+
+    return g3dexport_fwritel ( &active, fdst );
+}
 
 /******************************************************************************/
 uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
@@ -549,6 +540,14 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
                                            fdst );
         }
     }
+
+    /*** write object active or not ***/
+    size += g3dexport_writeChunk ( SIG_OBJECT_ACTIVE,
+                                   g3dexportobject_active,
+                                   ged,
+                                   obj,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     return size;
 }

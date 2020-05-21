@@ -80,7 +80,7 @@ static int move_spline ( G3DSPLINE    *spl,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
@@ -245,7 +245,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                                                           bev->x, VPX[0x03] - bev->y },
                                                .only_visible = 0x00,
                                                .weight = 0.0f,
-                                               .radius = 0x08 };
+                                               .radius = PICKMINRADIUS };
 
                             /*** we use pick_tool and not pick_Item in order to ***/
                             /*** get the undo/redo support ***/
@@ -370,6 +370,7 @@ static int move_mesh ( G3DMESH      *mes,
                     G3DVECTOR *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
+                    uint32_t nbver = 0x00;
 
                     gluUnProject ( ( GLdouble ) mev->x,
                                ( GLdouble ) VPX[0x03] - mev->y,
@@ -380,6 +381,10 @@ static int move_mesh ( G3DMESH      *mes,
                     difx = ( newx - orix );
                     dify = ( newy - oriy );
                     difz = ( newz - oriz );
+
+                    memset ( &mes->avgSelVerPos, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &mes->avgSelEdgPos, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &mes->avgSelFacPos, 0x00, sizeof ( G3DVECTOR ) );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -397,26 +402,48 @@ static int move_mesh ( G3DMESH      *mes,
                             g3dvertex_computeSkinnedPosition ( ver );
                         }
 
+                        /*** move the cursor as well ***/
+                        if ( eflags & VIEWVERTEX ) {
+                            mes->avgSelVerPos.x += ver->pos.x;
+                            mes->avgSelVerPos.y += ver->pos.y;
+                            mes->avgSelVerPos.z += ver->pos.z;
+                        }
+
+                        if ( eflags & VIEWEDGE   ) {
+                            mes->avgSelEdgPos.x += ver->pos.x;
+                            mes->avgSelEdgPos.y += ver->pos.y;
+                            mes->avgSelEdgPos.z += ver->pos.z;
+                        }
+
+                        if ( eflags & VIEWFACE   ) {
+                            mes->avgSelFacPos.x += ver->pos.x;
+                            mes->avgSelFacPos.y += ver->pos.y;
+                            mes->avgSelFacPos.z += ver->pos.z;
+                        }
+
+                        nbver++;
+
                         ltmpver = ltmpver->next;
                     }
 
-                    /*** move the cursor as well ***/
-                    if ( ( eflags & XAXIS ) && axis[0].w ) {
-                        if ( eflags & VIEWVERTEX ) mes->avgSelVerPos.x += difx;
-                        if ( eflags & VIEWEDGE   ) mes->avgSelEdgPos.x += difx;
-                        if ( eflags & VIEWFACE   ) mes->avgSelFacPos.x += difx;
-                    }
+                    if ( nbver ) {
+                        if ( eflags & VIEWVERTEX ) {
+                            mes->avgSelVerPos.x /= nbver;
+                            mes->avgSelVerPos.y /= nbver;
+                            mes->avgSelVerPos.z /= nbver;
+                        }
 
-                    if ( ( eflags & YAXIS ) && axis[1].w ) {
-                        if ( eflags & VIEWVERTEX ) mes->avgSelVerPos.y += dify;
-                        if ( eflags & VIEWEDGE   ) mes->avgSelEdgPos.y += dify;
-                        if ( eflags & VIEWFACE   ) mes->avgSelFacPos.y += dify;
-                    }
+                        if ( eflags & VIEWEDGE ) {
+                            mes->avgSelEdgPos.x /= nbver;
+                            mes->avgSelEdgPos.y /= nbver;
+                            mes->avgSelEdgPos.z /= nbver;
+                        }
 
-                    if ( ( eflags & ZAXIS ) && axis[2].w ) {
-                        if ( eflags & VIEWVERTEX ) mes->avgSelVerPos.z += difz;
-                        if ( eflags & VIEWEDGE   ) mes->avgSelEdgPos.z += difz;
-                        if ( eflags & VIEWFACE   ) mes->avgSelFacPos.z += difz;
+                        if ( eflags & VIEWFACE ) {
+                            mes->avgSelFacPos.x /= nbver;
+                            mes->avgSelFacPos.y /= nbver;
+                            mes->avgSelFacPos.z /= nbver;
+                        }
                     }
 
                     g3dobject_updateModifiers_r ( mes, eflags );
@@ -445,7 +472,7 @@ static int move_mesh ( G3DMESH      *mes,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
 
                 /*** we use pick_tool and not pick_Item in order to ***/
                 /*** get the undo/redo support ***/
@@ -581,6 +608,7 @@ int move_object ( LIST        *lobj,
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
                     G3DDOUBLEVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
                     G3DDOUBLEVECTOR lstartpos, lendpos;
+                    G3DVECTOR sca = { 1.0f, 1.0f, 1.0f, 1.0f };
 
                     if ( nbobj == 0x01 ) {
                         /*** Helps with moving the mouse in the same ***/
@@ -591,6 +619,9 @@ int move_object ( LIST        *lobj,
                         g3dvector_matrix ( &vecx, obj->rmatrix, &lvecx );
                         g3dvector_matrix ( &vecy, obj->rmatrix, &lvecy );
                         g3dvector_matrix ( &vecz, obj->rmatrix, &lvecz );
+
+                        /** adjust move amplitude with scaling factor ***/
+                        g3dcore_getMatrixScale ( obj->wmatrix, &sca );
                     } else {
                         G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f }, lzero;
 
@@ -627,21 +658,21 @@ int move_object ( LIST        *lobj,
                     dif.z = ( lendpos.z - lstartpos.z );
 
                     if ( ( eflags & XAXIS ) && sce->csr.axis[0x00].w ) {
-                        obj->pos.x += ( lvecx.x * dif.x );
-                        obj->pos.y += ( lvecx.y * dif.x );
-                        obj->pos.z += ( lvecx.z * dif.x );
+                        obj->pos.x += ( lvecx.x * dif.x * sca.x );
+                        obj->pos.y += ( lvecx.y * dif.x * sca.x );
+                        obj->pos.z += ( lvecx.z * dif.x * sca.x );
                     }
 
                     if ( ( eflags & YAXIS ) && sce->csr.axis[0x01].w ) {
-                        obj->pos.x += ( lvecy.x * dif.y );
-                        obj->pos.y += ( lvecy.y * dif.y );
-                        obj->pos.z += ( lvecy.z * dif.y );
+                        obj->pos.x += ( lvecy.x * dif.y * sca.y );
+                        obj->pos.y += ( lvecy.y * dif.y * sca.y );
+                        obj->pos.z += ( lvecy.z * dif.y * sca.y );
                     }
 
                     if ( ( eflags & ZAXIS ) && sce->csr.axis[0x02].w ) {
-                        obj->pos.x += ( lvecz.x * dif.z );
-                        obj->pos.y += ( lvecz.y * dif.z );
-                        obj->pos.z += ( lvecz.z * dif.z );
+                        obj->pos.x += ( lvecz.x * dif.z * sca.z );
+                        obj->pos.y += ( lvecz.y * dif.z * sca.z );
+                        obj->pos.z += ( lvecz.z * dif.z * sca.z );
                     }
 
                     g3dobject_updateMatrix_r ( obj, eflags );
@@ -697,7 +728,7 @@ int move_object ( LIST        *lobj,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
                                    .weight = 0.0f,
-                                   .radius = 0x08 };
+                                   .radius = PICKMINRADIUS };
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
@@ -740,7 +771,7 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                           bev->x, VPX[0x03] - bev->y },
                                .only_visible = 0x00,
                                .weight = 0.0f,
-                               .radius = 0x08 };
+                               .radius = PICKMINRADIUS };
 
             pick_cursor ( &pt, sce, cam, flags );
         } break;

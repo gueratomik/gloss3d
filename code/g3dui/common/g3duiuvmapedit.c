@@ -65,6 +65,12 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
 
             g3duvmap_applyProjection ( map, mes );
 
+            /*** might need to recompute displacement ***/
+            g3dmesh_update ( mes, NULL,
+                                  NULL,
+                                  NULL,
+                                  RESETMODIFIERS, gui->flags );
+
             ltmpuvmap = ltmpuvmap->next;
         }
 

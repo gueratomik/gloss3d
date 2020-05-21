@@ -217,7 +217,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 }
             } break;
 
-            case SIG_OBJECT_IDENTITY_ACTIVE : {
+            case SIG_OBJECT_ACTIVE : {
                 g3dimport_freadl ( &active, fsrc );
 
                 if ( active ) {
@@ -263,6 +263,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_TEXTURE_MATERIAL : {
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
                 G3DMATERIAL *mat = NULL;
                 uint32_t matID;
 
@@ -270,9 +271,9 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 mat = g3dscene_getMaterialByID ( gid->currentScene, matID );
 
-                gid->currentTexture = g3dtexture_new ( mat, NULL );
+                gid->currentTexture = g3dtexture_new ( mes, mat, NULL );
 
-                g3dmesh_addTexture ( gid->currentObject, gid->currentTexture );
+                g3dmesh_addTexture ( mes, gid->currentTexture );
             } break;
 
             case SIG_OBJECT_TEXTURE_UVMAP : {

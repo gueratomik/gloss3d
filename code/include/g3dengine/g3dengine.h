@@ -739,6 +739,7 @@ typedef struct _G3DPIVOT {
     G3DCAMERA *cam;
 } G3DPIVOT;
 
+typedef struct _G3DFACE  G3DFACE;
 typedef struct _G3DUVSET G3DUVSET;
 typedef struct _G3DUVSET G3DSUBUVSET;
 
@@ -764,6 +765,7 @@ typedef struct _G3DARBTEXCOORD {
 /******************************************************************************/
 struct _G3DUVSET {
     uint32_t  flags; /*** this wil lbe used for facegroup selection ***/
+    G3DFACE  *fac; /* the face it belongs to. Useful for undo-redo */
     G3DUVMAP *map;
     G3DUV     veruv[0x04];
     G3DUV     miduv[0x04];
@@ -776,6 +778,7 @@ typedef struct _G3DTEXTURE {
     uint32_t      flags;
     uint32_t      slotBit; /*** maximum number of textures per mesh = 32 ***/
     G3DMATERIAL  *mat;
+    G3DOBJECT    *obj;
     G3DUVMAP     *map;
     LIST         *lfacgrp;
     uint32_t      nbfacgrp;
@@ -807,6 +810,7 @@ typedef struct _G3DSYMMETRY {
 /******************************************************************************/
 typedef struct _G3DCURSOR {
     G3DVECTOR axis[0x03];
+    float     ratio;
 } G3DCURSOR;
 
 /******************************************************************************/
@@ -1010,7 +1014,7 @@ typedef struct _G3DWEIGHTGROUP {
     G3DMESH *mes;
     char *name;
     LIST *lwei;
-    LIST *lver; /*** for faster access ***/
+    /*LIST *lver;*/ /*** for faster access ***/
     uint32_t nbwei;
 } G3DWEIGHTGROUP;
 
@@ -1044,7 +1048,7 @@ struct _G3DMESH {
     LIST *lselweigrp;
     LIST *lselfacgrp;
     LIST *lseltex;
-    LIST *lseluv;
+    /*LIST *lseluv;*/
     LIST *lseluvmap;
 
     uint32_t verid;
@@ -1798,6 +1802,7 @@ void g3dface_initSubface ( G3DFACE *, G3DSUBFACE   *,
 void g3dface_subdivideUVSets ( G3DFACE * );
 uint32_t g3dface_isFullyMirrored ( G3DFACE * );
 G3DFACE *g3dface_newWithEdges ( G3DVERTEX **, G3DEDGE **, uint32_t );
+void g3dface_getAveragePositionFromList ( LIST *lver, G3DVECTOR *pos );
 
 /******************************************************************************/
 void g3dsubface_addUVSet   ( G3DSUBFACE *, G3DUVSET *, uint32_t );
@@ -2202,9 +2207,10 @@ void       g3dmesh_updateFacesFromList           ( G3DMESH *, LIST *,
                                                               LIST *, 
                                                               uint32_t );
 
-void       g3dmesh_removeTexture                 ( G3DMESH *, G3DTEXTURE * );
-void       g3dmesh_removeMaterial                ( G3DMESH *, G3DMATERIAL  * );
-G3DTEXTURE *g3dmesh_getTextureFromMaterial       ( G3DMESH *, G3DMATERIAL * );
+void       g3dmesh_deleteTexture                 ( G3DMESH *, G3DTEXTURE * );
+void       g3dmesh_removeMaterial                ( G3DMESH *, G3DMATERIAL * );
+LIST      *g3dmesh_getTexturesFromMaterial       ( G3DMESH *, G3DMATERIAL * );
+LIST      *g3dmesh_getTexturesFromUVMap          ( G3DMESH *, G3DUVMAP * );
 
 void       g3dmesh_update                        ( G3DMESH *, LIST *, 
                                                               LIST *, 
@@ -2287,7 +2293,11 @@ void       g3dmesh_selectAllEdges         ( G3DMESH * );
 void       g3dmesh_selectAllFaces         ( G3DMESH * );
 G3DMESH   *g3dmesh_merge                  ( LIST *, uint32_t, uint32_t );
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes );
-void g3dmesh_removeUVMap ( );
+void g3dmesh_removeUVMap ( G3DMESH  *mes,
+                           G3DUVMAP *map,
+                           LIST    **lolduvset,
+                           LIST    **loldtex,
+                           uint32_t  eflags );
 void g3dmesh_pickVertexUVs ( G3DMESH *mes, uint32_t eflags );
 void g3dmesh_pickFaceUVs ( G3DMESH *mes, uint32_t eflags );
 void g3dmesh_drawVertexUVs ( G3DMESH *mes, uint32_t eflags );
@@ -2324,7 +2334,7 @@ uint32_t   g3dscene_getNextObjectID          ( G3DSCENE * );
 void       g3dscene_drawScene                ( G3DSCENE *, uint32_t );
 LIST      *g3dscene_getAllMeshes             ( G3DSCENE * );
 void       g3dscene_addMaterial              ( G3DSCENE *, G3DMATERIAL * );
-void       g3dscene_delMaterial              ( G3DSCENE *, G3DMATERIAL * );
+void       g3dscene_removeMaterial           ( G3DSCENE *, G3DMATERIAL * );
 void       g3dscene_freeMaterials            ( G3DSCENE * );
 void       g3dscene_drawSelectedObjectCursor ( G3DSCENE *, uint32_t );
 void       g3dscene_checkLights              ( G3DSCENE * );
@@ -2385,7 +2395,7 @@ G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *,
                                                        G3DPROCEDURAL * );
 void         g3dmaterial_addObject            ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_removeObject         ( G3DMATERIAL *, G3DOBJECT * );
-void         g3dmaterial_updateMeshes         ( G3DMATERIAL *, uint32_t );
+void         g3dmaterial_updateMeshes         ( G3DMATERIAL *, G3DSCENE *, uint32_t );
 void         g3dmaterial_draw                 ( G3DMATERIAL *, G3DFACE *, uint32_t );
 void         g3dmaterial_disableDisplacement  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacement   ( G3DMATERIAL *mat );
@@ -2400,6 +2410,7 @@ void         g3dmaterial_enableDiffuseProcedural ( G3DMATERIAL * );
 void         g3dmaterial_enableDiffuseSolidColor ( G3DMATERIAL * );
 void         g3dmaterial_enableReflectionImageColor ( G3DMATERIAL * );
 void         g3dmaterial_name ( G3DMATERIAL *, const char * );
+LIST        *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce );
 
 /******************************************************************************/
 /*void  g3drttriangle_getposition ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );
@@ -2449,6 +2460,7 @@ G3DWEIGHTGROUP *g3dweightgroup_mirror        ( G3DWEIGHTGROUP *, uint32_t );
 void            g3dweightgroup_removeWeight  ( G3DWEIGHTGROUP *, G3DWEIGHT * );
 G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID   ( G3DMESH *, uint32_t );
 void            g3dweightgroup_empty         ( G3DWEIGHTGROUP * );
+LIST           *g3dweightgroup_getVertices   ( G3DWEIGHTGROUP *grp );
 
 /******************************************************************************/
 G3DWEIGHT *g3dweight_new ( G3DVERTEX *, float );
@@ -2462,16 +2474,21 @@ G3DRIG *g3drig_new  ( G3DWEIGHTGROUP * );
 void    g3drig_fix  ( G3DRIG *, G3DBONE * );
 
 /******************************************************************************/
-G3DTEXTURE *g3dtexture_new           ( G3DMATERIAL *, G3DUVMAP * );
+G3DTEXTURE *g3dtexture_new           ( G3DOBJECT   *obj,
+                                       G3DMATERIAL *mat, 
+                                       G3DUVMAP    *map );
 G3DTEXTURE *g3dtexture_getFromUVMap  ( LIST *, G3DUVMAP * );
 void        g3dtexture_unsetSelected ( G3DTEXTURE * );
 void g3dtexture_restrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
 void g3dtexture_unrestrictFacegroup ( G3DTEXTURE *tex, G3DFACEGROUP *facgrp );
 void g3dtexture_restrict ( G3DTEXTURE *tex );
 void g3dtexture_unrestrict ( G3DTEXTURE *tex );
+void g3dtexture_unrestrictAllFacegroups ( G3DTEXTURE *tex );
+void g3dtexture_free ( G3DTEXTURE *tex );
 
 /******************************************************************************/
 G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );
+void g3duvset_free ( G3DUVSET *uvset );
 void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
                                                 G3DFACE  *fac,
                                                 uint32_t  engine_flags );

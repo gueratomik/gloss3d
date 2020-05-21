@@ -232,7 +232,11 @@ void g3duimateriallist_addPreview ( GtkWidget *widget, G3DMATERIAL *mat ) {
 void g3duimateriallist_removeMaterial ( GtkWidget *widget, G3DSCENE *sce,
                                                            G3DURMANAGER *urm,
                                                            G3DMATERIAL *mat ) {
-    g3dscene_delMaterial ( sce, mat );
+     g3durm_scene_removeMaterial ( urm, 
+                                   sce, 
+                                   mat, 
+                                   0x00,
+                                   REDRAWLIST | REBUILDMATERIALLIST  );
 
     g3duimateriallist_removePreview ( widget, mat );
 }

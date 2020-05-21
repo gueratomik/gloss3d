@@ -264,8 +264,6 @@ SIG_ROOT
 
 --------------- SIG_OBJECT_IDENTITY_PARENT
 ------------------- ID ( uint32_t )
---------------- SIG_OBJECT_IDENTITY_ACTIVE
-------------------- active ( uint32_t ) /** 1 or 0 **/
 ----------- SIG_OBJECT_TRANSFORMATION
 --------------- Position ( float-float-float-float )
 --------------- Rotation ( float-float-float-float )
@@ -279,6 +277,8 @@ SIG_ROOT
 ----------------------- Scale     ( float-float-float-uint32_t ) /** last int is usage **/
 ------------------- SIG_OBJECT_KEY_LOOP
 -------------------   LoopFrame ( float )
+----------- SIG_OBJECT_ACTIVE
+--------------- active ( uint32_t ) /** 1 or 0 **/
 ---- SIG_EXTENSIONS
 -------- SIG_EXTENSION_ENTRY
 ------------ XXXXXXX

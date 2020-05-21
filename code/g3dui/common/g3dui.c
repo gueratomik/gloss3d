@@ -425,6 +425,8 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
 
                     /*if ( rsg->flags & RENDERDEFAULT ) {*/
                         gui->currsg = rsg;
+                        common_g3dui_addRenderSettings ( gui, rsg );
+                        common_g3dui_useRenderSettings ( gui, rsg );
 
                         /*** that's kind of a global variable, because ***/
                         /*** I did not want to change the engine to display ***/
@@ -437,9 +439,8 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
             } else {
                 R3DRENDERSETTINGS *defaultRsg = r3drendersettings_new ( );
 
-                list_insert ( &gui->lrsg, defaultRsg );
-
-                gui->currsg = defaultRsg;
+                common_g3dui_addRenderSettings ( gui, defaultRsg );
+                common_g3dui_useRenderSettings ( gui, defaultRsg );
             }
 
             g3dimportextension_free ( g3duiext );
@@ -729,6 +730,16 @@ void common_g3dui_setMouseTool ( G3DUI        *gui,
 void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
     if ( msk & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
+    }
+
+    if ( msk & REDRAWMATERIALLIST ) {
+        g3dui_redrawMaterialList ( gui );
+    }
+
+    if ( msk & REBUILDMATERIALLIST ) {
+        g3dui_clearMaterials ( gui );
+        g3dui_importMaterials ( gui );
+        g3dui_redrawMaterialList ( gui );
     }
 
     if ( msk & REDRAWUVMAPEDITOR ) {

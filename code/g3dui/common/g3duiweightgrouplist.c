@@ -128,7 +128,7 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
         if ( mes->curgrp ) {
             G3DWEIGHTGROUP *curgrp = mes->curgrp;
 /*** TODO - check if we are in buffered mode. Otherwise this is not needed ***/
-            LIST *lsub = ( curgrp ) ? g3dvertex_getFacesFromList ( curgrp->lver ) : NULL;
+            /*LIST *lsub = ( curgrp ) ? g3dvertex_getFacesFromList ( curgrp->lver ) : NULL;*/
 
 
             g3dweightgroup_empty ( curgrp );
@@ -143,7 +143,7 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
                                   UPDATEFACENORMAL |
                                   RESETMODIFIERS, gui->flags );
 
-            list_free ( &lsub, NULL );
+            /*list_free ( &lsub, NULL );*/
 
             g3dui_redrawGLViews ( gui );
             g3dui_updateAllCurrentEdit ( gui );
@@ -162,27 +162,36 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         G3DWEIGHTGROUP *curgrp = mes->curgrp;
+        LIST *lver;
 
         /*** deselect previsouly selected weightgroup ***/
         if ( mes->curgrp ) {
             G3DWEIGHTGROUP *curgrp = mes->curgrp;
 
+            lver = g3dweightgroup_getVertices;
+
             g3dmesh_unselectWeightGroup ( mes, curgrp );
 
             /*** update vertex painting ***/
-            g3dmesh_update ( mes, curgrp->lver,
+            g3dmesh_update ( mes, lver,
                                   NULL,
                                   NULL,
                                   UPDATEMODIFIERS, gui->flags );
+
+            list_free ( &lver, NULL );
         }
+
+        lver = g3dweightgroup_getVertices ( grp );
 
         g3dmesh_selectWeightGroup ( mes, grp );
 
         /*** update vertex painting ***/
-        g3dmesh_update ( mes, grp->lver,
+        g3dmesh_update ( mes, lver,
                               NULL,
                               NULL,
                               RESETMODIFIERS, gui->flags );
+
+        list_free ( &lver, NULL );
 
         g3dui_redrawGLViews ( gui );
         g3dui_updateAllCurrentEdit ( gui );

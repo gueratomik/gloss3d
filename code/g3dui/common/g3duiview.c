@@ -112,6 +112,8 @@ void common_g3duiview_moveForward ( G3DUIVIEW *view, int32_t x,
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
         cam->ortho.z += ( difx * 0.00025f );
+
+        if ( cam->ortho.z < 0.0f ) cam->ortho.z = 0.0f;
     } else {
         g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
 

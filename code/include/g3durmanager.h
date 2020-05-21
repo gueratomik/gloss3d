@@ -158,6 +158,40 @@ typedef struct _URMEXTRUDEMESH {
 } URMEXTRUDEMESH;
 
 /******************************************************************************/
+typedef struct _URMREMOVETEXTURE {
+    G3DOBJECT   *obj;
+    G3DTEXTURE  *tex;
+    LIST        *lfacgrp;
+} URMREMOVETEXTURE;
+
+/******************************************************************************/
+typedef struct _URMADDTEXTURE {
+    G3DOBJECT   *obj;
+    G3DTEXTURE  *tex;
+} URMADDTEXTURE;
+
+/******************************************************************************/
+typedef struct _URMADDMATERIAL {
+    G3DSCENE    *sce;
+    G3DMATERIAL *mat;
+} URMADDMATERIAL;
+
+/******************************************************************************/
+typedef struct _URMREMOVEMATERIAL {
+    G3DSCENE    *sce;
+    G3DMATERIAL *mat;
+    LIST       *ludt; /*** list of URMDELETETEXTURE ***/
+} URMREMOVEMATERIAL;
+
+/******************************************************************************/
+typedef struct _URMREMOVEUVMAP {
+    G3DMESH  *mes;
+    G3DUVMAP *uvmap;
+    LIST     *lolduvset;
+    LIST     *loldtex;
+} URMREMOVEUVMAP;
+
+/******************************************************************************/
 #define UTOSAVETRANSLATION ( 1 << 0 )
 #define UTOSAVEROTATION    ( 1 << 1 )
 #define UTOSAVESCALING     ( 1 << 2 )
@@ -669,14 +703,6 @@ void urmmovepoint_free ( URMMOVEPOINT *ump );
 URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
 
 /******************************************************************************/
-URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap, 
-                             LIST      *luv,
-                             G3DVECTOR *olduv,
-                             G3DVECTOR *newuv );
-void urmmoveuvs_free ( URMMOVEUVS *muvs );
-void moveUVs_free ( void *data, uint32_t commit );
-void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
-void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,
@@ -685,16 +711,46 @@ void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                uint32_t      return_flags );
 
 /******************************************************************************/
-URMCREATEFACEGROUP *urmcreatefacegroup_new ( G3DMESH      *mes, 
-                                             G3DFACEGROUP *facgrp );
-void urmcreatefacegroup_free ( URMCREATEFACEGROUP *ucf );
-void createFacegroup_free ( void *data, uint32_t commit );
-void createFacegroup_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
-void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
 void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
                                    G3DMESH      *mes,
                                    const char   *name,
                                    uint32_t      engine_flags,
                                    uint32_t      return_flags );
+
+/******************************************************************************/
+void urmremovetexture_free ( URMREMOVETEXTURE *udt );
+void g3durm_mesh_deleteTexture ( G3DURMANAGER *urm,
+                                 G3DMESH      *mes,
+                                 G3DTEXTURE   *tex, 
+                                 uint32_t      engine_flags,
+                                 uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_mesh_addTexture ( G3DURMANAGER *urm,
+                              G3DMESH      *mes,
+                              G3DTEXTURE   *tex,
+                              uint32_t      engine_flags,
+                              uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_scene_addMaterial ( G3DURMANAGER *urm,
+                                G3DSCENE     *sce,
+                                G3DMATERIAL  *mat,
+                                uint32_t      engine_flags,
+                                uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_scene_removeMaterial ( G3DURMANAGER *urm,
+                                   G3DSCENE     *sce,
+                                   G3DMATERIAL  *mat,
+                                   uint32_t      engine_flags,
+                                   uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
+                               G3DMESH      *mes,
+                               G3DUVMAP     *uvmap, 
+                               uint32_t      engine_flags,
+                               uint32_t      return_flags );
 
 #endif

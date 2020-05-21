@@ -86,19 +86,23 @@
 #define G3DButton2Mask   ( 1  << 3  )
 #define G3DButton3Mask   ( 1  << 4  )
 
-#define REDRAWVIEW            ( 1      )
-#define REDRAWUVMAPEDITOR     ( 1 << 1 )
-#define REDRAWLIST            ( 1 << 2 )
-#define REDRAWCOORDS          ( 1 << 3 )
-#define REDRAWPARAMS          ( 1 << 4 )
-#define REDRAWCURRENTOBJECT   ( 1 << 5 )
-#define REDRAWTIMELINE        ( 1 << 6 )
-#define NOBUFFEREDSUBDIVISION ( 1 << 7 )
-#define BUFFEREDSUBDIVISIONOK ( 1 << 8 )
+#define REDRAWVIEW            ( 1       )
+#define REDRAWUVMAPEDITOR     ( 1 <<  1 )
+#define REDRAWLIST            ( 1 <<  2 )
+#define REDRAWCOORDS          ( 1 <<  3 )
+#define REDRAWPARAMS          ( 1 <<  4 )
+#define REDRAWCURRENTOBJECT   ( 1 <<  5 )
+#define REDRAWTIMELINE        ( 1 <<  6 )
+#define REDRAWMATERIALLIST    ( 1 <<  7 )
+#define REBUILDMATERIALLIST   ( 1 <<  8 )
+#define NOBUFFEREDSUBDIVISION ( 1 <<  9 )
+#define BUFFEREDSUBDIVISIONOK ( 1 << 10 )
 #define REDRAWALL             ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
                                 REDRAWUVMAPEDITOR |\
                                 REDRAWPARAMS | REDRAWCURRENTOBJECT | \
                                 REDRAWTIMELINE )
+
+#define PICKMINRADIUS 0x10
 
 /******************************************************************************/
 typedef struct {

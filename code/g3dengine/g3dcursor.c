@@ -40,13 +40,14 @@ void g3dcursor_pick ( G3DCURSOR *csr, G3DCAMERA *cam, uint32_t eflags ) {
     G3DVECTOR campos, oripos = { 0.0f, 0.0f, 0.0f };
     uint32_t i;
 
-    g3dvector_matrix ( &oripos, ((G3DOBJECT*)cam)->wmatrix, &campos );
+    /*** Commented out: this part is computed in the draw function ***/
+    /*** g3dvector_matrix ( &oripos, ((G3DOBJECT*)cam)->wmatrix, &campos );
 
     oripos.x = cam->pivot.x - campos.x;
     oripos.y = cam->pivot.y - campos.y;
     oripos.z = cam->pivot.z - campos.z;
 
-    ratio = g3dvector_length ( &oripos ) * 0.125f;
+    ratio = g3dvector_length ( &oripos ) * 0.125f; ***/
 
     csr->axis[0x00].w = 0.0f;
     csr->axis[0x01].w = 0.0f;
@@ -57,78 +58,11 @@ void g3dcursor_pick ( G3DCURSOR *csr, G3DCAMERA *cam, uint32_t eflags ) {
 
         g3dpick_setName ( name[i] );
         g3dpick_drawLine ( 0.0f, 0.0f, 0.0f,
-                           ( csr->axis[i].x * ratio ),
-                           ( csr->axis[i].y * ratio ),
-                           ( csr->axis[i].z * ratio ) );
+                           ( csr->axis[i].x * csr->ratio ),
+                           ( csr->axis[i].y * csr->ratio ),
+                           ( csr->axis[i].z * csr->ratio ) );
     }
 }
-
-/*****************************************************************************/
-#ifdef UNUSED
-void g3dcursor_pick ( G3DCURSOR *csr, double *matrix, G3DCAMERA *cam,
-                      int x, int y, uint32_t flags ) {
-#define SELECTBUFFERSIZE 0x200
-    GLuint buffer[SELECTBUFFERSIZE];
-    LIST *lsel;
-    GLint hits, VPX[0x04];
-    G3DVECTOR vec = { 0.f, 0.f, 0.f, 1.0f };
-
-    glGetIntegerv ( GL_VIEWPORT, VPX );
-
-    glMatrixMode ( GL_PROJECTION );
-    glLoadIdentity ( );
-
-    gluPickMatrix ( x, y, 0x10, 0x10, VPX );
-    g3dcamera_project ( cam, flags );
-
-    glMatrixMode ( GL_MODELVIEW );
-    glLoadIdentity ( );
-
-    g3dcamera_view ( cam, 0x00 );
-
-    /*** Se tthe cursor position to the matrix passed as argument, ***/
-    /*** usually the selected object ***/
-    glMultMatrixd ( matrix );
-
-    glSelectBuffer ( SELECTBUFFERSIZE, buffer );
-    glRenderMode ( GL_SELECT );
-    glInitNames ( );
-    glPushName ( 0 );
-
-    /*** draw cursor ***/
-    g3dcursor_draw ( csr, cam, flags | SELECTMODE );
-
-    hits = glRenderMode ( GL_RENDER );
-    /*** processhits returns the list of picked objects's IDs  ***/
-    /*** It used to return picked objects pointers, but that's ***/
-    /*** not possible with 64bits architectures, as pointer    ***/
-    /*** type (64bits) is bigger than GLint (32bits)           ***/
-
-    lsel = processHits ( hits, buffer );
-
-    if ( lsel ) {
-        LIST *ltmp = lsel;
-
-        /*** We know one axis was selected, so first disable all axis ***/
-        csr->axis[0x00].w = 0.0f;
-        csr->axis[0x01].w = 0.0f;
-        csr->axis[0x02].w = 0.0f;
-
-        while ( ltmp ) {
-            /*** some trick for avoiding the compiler to complain about ***/
-            /*** different data type size, as unsigned long depends on ***/
-            /*** the architecture, unlike uint32_t ***/
-            unsigned long id = ( unsigned long ) ltmp->data;
-
-            if ( id == CURSORXAXIS ) csr->axis[0x00].w = 2.0f;
-            if ( id == CURSORYAXIS ) csr->axis[0x01].w = 2.0f;
-            if ( id == CURSORZAXIS ) csr->axis[0x02].w = 2.0f;
-
-            ltmp = ltmp->next;
-        }
-    }
-}
-#endif
 
 /*****************************************************************************/
 void g3dcursor_init ( G3DCURSOR *csr ) {
@@ -155,16 +89,20 @@ void g3dcursor_reset ( G3DCURSOR *csr ) {
 void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
     int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
     G3DVECTOR oripos = { 0.0f, 0.0f, 0.0f, 1.0f }, campos;
-    float ratio;
+    float ratio = 1.0f;
     uint32_t i;
 
-    g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );
+    if ( ((G3DOBJECT*)curcam)->flags & CAMERAORTHOGRAPHIC ) {
+        csr->ratio = curcam->ortho.z * 200.0f;
+    } else {
+        g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );
 
-    oripos.x = curcam->pivot.x - campos.x;
-    oripos.y = curcam->pivot.y - campos.y;
-    oripos.z = curcam->pivot.z - campos.z;
+        oripos.x = curcam->pivot.x - campos.x;
+        oripos.y = curcam->pivot.y - campos.y;
+        oripos.z = curcam->pivot.z - campos.z;
 
-    ratio = g3dvector_length ( &oripos ) * 0.125;
+        csr->ratio = g3dvector_length ( &oripos ) * 0.125;
+    }
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_DEPTH_TEST );
@@ -179,9 +117,9 @@ void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
         }
 
         glVertex3f ( 0.0f, 0.0f, 0.0f );
-        glVertex3f ( ( csr->axis[i].x * ratio ),
-                     ( csr->axis[i].y * ratio ),
-                     ( csr->axis[i].z * ratio ) );
+        glVertex3f ( ( csr->axis[i].x * csr->ratio ),
+                     ( csr->axis[i].y * csr->ratio ),
+                     ( csr->axis[i].z * csr->ratio ) );
 
         /*glVertex3f ( curcam->pivot.x, curcam->pivot.y, curcam->pivot.z );
         glVertex3f ( curcam->pivot.x + ( csr->axis[i].x * ratio ),

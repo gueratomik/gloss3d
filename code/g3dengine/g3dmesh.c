@@ -958,8 +958,48 @@ uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-void g3dmesh_removeUVMap ( ) {
-    printf("not implemented yet");
+void g3dmesh_removeUVMap ( G3DMESH  *mes,
+                           G3DUVMAP *map,
+                           LIST    **lolduvset,
+                           LIST    **loldtex,
+                           uint32_t  eflags ) {
+    LIST *ltmpfac = mes->lfac;
+    LIST *ltmptex = mes->ltex;
+
+    list_remove ( &mes->luvmap, map );
+    mes->nbuvmap--;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
+        uint32_t i;
+
+        g3dface_removeUVSet ( fac, uvs );
+
+        if ( lolduvset ) list_insert ( lolduvset, uvs );
+        /* TODO: uvset should be freed in case lolduvset is NULL, */
+        /* which won't be the case in our program */
+
+        _NEXTFACE(mes,ltmpfac);
+    }
+
+    while ( ltmptex ) {
+        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+
+        if ( tex->map == map ) {
+            tex->map = NULL;
+
+            if ( loldtex ) list_insert ( loldtex, tex );
+        }
+
+        ltmptex = ltmptex->next;
+    }
+
+    /*** We must alloc memory for the subdivided uvsets ***/
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          0x00, eflags );
 }
 
 /******************************************************************************/
@@ -3260,19 +3300,39 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 }*/
 
 /******************************************************************************/
-G3DTEXTURE *g3dmesh_getTextureFromMaterial ( G3DMESH *mes, 
-                                             G3DMATERIAL *mat ) {
+LIST *g3dmesh_getTexturesFromMaterial ( G3DMESH *mes, G3DMATERIAL *mat ) {
     LIST *ltmptex = mes->ltex;
+    LIST *lis = NULL;
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
-        if ( tex->mat == mat ) return tex;
+        if ( tex->mat == mat ) {
+            list_insert ( &lis, tex );
+        }
 
         ltmptex = ltmptex->next;
     }
 
-    return NULL;
+    return lis;
+}
+
+/******************************************************************************/
+LIST *g3dmesh_getTexturesFromUVMap ( G3DMESH *mes, G3DUVMAP *uvmap ) {
+    LIST *ltmptex = mes->ltex;
+    LIST *lis = NULL;
+
+    while ( ltmptex ) {
+        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+
+        if ( tex->map == uvmap ) {
+            list_insert ( &lis, tex );
+        }
+
+        ltmptex = ltmptex->next;
+    }
+
+    return lis;
 }
 
 /******************************************************************************/
@@ -3295,17 +3355,25 @@ void g3dmesh_removeTexture ( G3DMESH *mes, G3DTEXTURE *tex ) {
     tex->slotBit = 0x00;
 
     mes->nbtex--;
+
+    g3dtexture_unrestrictAllFacegroups ( tex );
 }
 
 /******************************************************************************/
 void g3dmesh_addTexture ( G3DMESH *mes, G3DTEXTURE *tex ) {
-    list_insert ( &mes->ltex, tex );
+    G3DOBJECT  *obj = ( G3DOBJECT * ) mes;
 
-    tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
+    if ( tex ) {
+        list_insert ( &mes->ltex, tex );
 
-    mes->textureSlots |= tex->slotBit;
+        tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
 
-    mes->nbtex++;
+        mes->textureSlots |= tex->slotBit;
+
+        mes->nbtex++;
+    }
+
+    return tex;
 }
 
 /******************************************************************************/
@@ -3499,7 +3567,22 @@ void g3dmesh_free ( G3DOBJECT *obj ) {
     /*** memory ? I have to think ***/
     /*** about it ***/
     /*if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes, mes->subdiv );*/
-    printf("TODO: free vertices %s\n", __func__);
+
+    list_free ( &mes->lfac   , g3dface_free        );
+    list_free ( &mes->ledg   , g3dedge_free        );
+    list_free ( &mes->lver   , g3dvertex_free      );
+    list_free ( &mes->ltex   , g3dtexture_free     );
+    list_free ( &mes->lfacgrp, g3dfacegroup_free   );
+    list_free ( &mes->lweigrp, g3dweightgroup_free );
+    list_free ( &mes->luvmap , g3duvmap_free       );
+
+    list_free ( &mes->lselfac   , NULL    );
+    list_free ( &mes->lseledg   , NULL    );
+    list_free ( &mes->lselver   , NULL    );
+    list_free ( &mes->lseltex   , NULL    );
+    list_free ( &mes->lselfacgrp, NULL    );
+    list_free ( &mes->lselweigrp, NULL );
+    list_free ( &mes->lseluvmap , NULL );
 }
 
 /******************************************************************************/

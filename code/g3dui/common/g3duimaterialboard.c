@@ -41,6 +41,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
            ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
             G3DMESH  *mes = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3dmesh_getLastUVMap ( mes );
+            G3DTEXTURE *tex;
 
             /*** A textured mesh should ALWAYS have a UVMAP.     ***/
             /*** Likely design issue - to FIX when I have time ***/
@@ -57,13 +58,13 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                 g3duvmap_applyProjection ( map, mes );
             }
 
-            g3dmesh_addTexture ( mes, g3dtexture_new ( mat, map ) );
+            tex = g3dtexture_new ( mes, mat, map );
 
-            g3dmesh_update ( mes, 
-                             NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, gui->flags );
+            g3durm_mesh_addTexture ( gui->urm, 
+                                     mes, 
+                                     tex,
+                                     gui->flags,
+                                     REDRAWVIEW | REDRAWLIST );
         }
     }
 

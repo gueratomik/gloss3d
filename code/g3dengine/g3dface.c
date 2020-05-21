@@ -79,6 +79,34 @@ Edge ID
     g3dvector_normalize ( &fac->cen.nor );
 }*/
 
+/******************************************************************************/
+void g3dface_getAveragePositionFromList ( LIST *lver, G3DVECTOR *pos ) {
+    uint32_t nb = 0x00;
+    LIST *ltmp = lver;
+
+    pos->x = 0.0f;
+    pos->y = 0.0f;
+    pos->z = 0.0f;
+
+    while ( ltmp ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmp->data;
+
+        pos->x += fac->pos.x;
+        pos->y += fac->pos.y;
+        pos->z += fac->pos.z;
+
+        nb++;
+
+        ltmp = ltmp->next;
+    }
+
+    if ( nb ) {
+        pos->x /= nb;
+        pos->y /= nb;
+        pos->z /= nb;
+    }
+}
+
 /*****************************************************************************/
 void g3dtriangle_evalSubdivision ( uint32_t level, uint32_t *totalFaces,
                                                    uint32_t *totalEdges,
@@ -358,6 +386,7 @@ void g3dface_addUVSet ( G3DFACE *fac, G3DUVSET *uvs ) {
     uint32_t i;
 
     uvs->nbuv = fac->nbver;
+    uvs->fac  = fac;
 
     list_insert ( &fac->luvs, uvs );
 
@@ -1787,6 +1816,7 @@ G3DEDGE *g3dface_compare ( G3DFACE *fac, G3DFACE *bud ) {
 /******************************************************************************/
 void g3dface_free ( G3DFACE *fac ) {
     /*printf ( "freeing memory for face\n" );*/
+    list_free ( &fac->luvs, g3duvset_free );
 
     free ( fac );
 }

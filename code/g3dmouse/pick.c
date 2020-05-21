@@ -46,7 +46,7 @@ G3DPICKTOOL *pickTool_new ( ) {
 
     pt->operation     = 0x01; /*** add vertex weight ***/
     pt->weight        = 1.0f;
-    pt->radius        = 0x08;
+    pt->radius        = PICKMINRADIUS;
 
     return pt;
 }
@@ -561,8 +561,10 @@ void pick_cursor ( G3DPICKTOOL *pt,
     glPushMatrix ( );
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
+
     glMultMatrixd ( MVX );
     glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
+
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
     g3dpick_setModelviewMatrix  ( MVX   );
@@ -572,6 +574,12 @@ void pick_cursor ( G3DPICKTOOL *pt,
 
     g3dpick_setAction ( actionSelectAxis, &sce->csr );
     g3dcursor_pick ( &sce->csr, cam, eflags );
+
+    if ( ( sce->csr.axis[0].w == 0.0f ) &&
+         ( sce->csr.axis[1].w == 0.0f ) &&
+         ( sce->csr.axis[2].w == 0.0f ) ) {
+        sce->csr.axis[0].w = sce->csr.axis[1].w = sce->csr.axis[2].w = 1.0f;
+    }
 
     glPopMatrix ( );
 
@@ -821,6 +829,10 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 
                 	        lselnew = list_copy ( mes->lselver );
 
+                            g3dvertex_getAveragePositionFromList (lselnew,
+                                                                 &mes->avgSelVerPos );
+
+
                 	        /*** remember selection ***/
                 	        g3durm_mesh_pickVertices  ( urm, mes,
                                                 	         lselold,
@@ -851,6 +863,9 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 	        pick_Item ( pt, sce, cam, ctrlClick, flags );
 
                 	        lselnew = list_copy ( mes->lselfac );
+
+                            g3dface_getAveragePositionFromList (lselnew,
+                                                                &mes->avgSelFacPos );
 
                 	        /*** remember selection ***/
                 	        g3durm_mesh_pickFaces  ( urm, mes,
