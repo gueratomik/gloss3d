@@ -101,7 +101,7 @@ void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
         oripos.y = curcam->pivot.y - campos.y;
         oripos.z = curcam->pivot.z - campos.z;
 
-        csr->ratio = g3dvector_length ( &oripos ) * 0.125;
+        csr->ratio = g3dvector_length ( &oripos ) * 0.00250 * curcam->focal;
     }
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );

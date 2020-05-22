@@ -353,10 +353,10 @@ static void displacementProceduralCbk ( GtkWidget *widget, gpointer user_data ) 
 
     if ( gui->selmat ) {
         common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->displacement );
-	common_g3dui_materialChooseProceduralCbk ( gui,
-                                        	  &gui->selmat->displacement,
-                                        	   procType, 
-                                        	   procRes,
+	    common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	      &gui->selmat->displacement,
+                                        	       procType, 
+                                        	       procRes,
                                                    0x00 );
     }
 

@@ -243,9 +243,7 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
             /*** Update Meshes that have this material   ***/
             /*** to rebuild Texture Coordinates. This is ***/
             /*** needed for buffered subdivided meshes ***/
-            if ( cha == &mat->diffuse ) {
-                g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
-            }
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
 
             g3dui_redrawGLViews ( gui );
             g3dui_updateSelectedMaterialPreview ( gui );
@@ -270,7 +268,10 @@ void common_g3dui_materialEnableProceduralCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         /*** Redraw Material List widget Previews ***/
         g3dui_updateSelectedMaterialPreview ( gui );
 
-        if (  cha == &mat->displacement ) {
+        if ( cha == &mat->displacement ) {
+            /*** Update Meshes that have this material   ***/
+            /*** to rebuild Texture Coordinates. This is ***/
+            /*** needed for buffered subdivided meshes   ***/
             g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
         }
 
@@ -292,7 +293,10 @@ void common_g3dui_materialEnableSolidColorCbk ( G3DUI *gui, G3DCHANNEL *cha ) {
         /*** Redraw Material List widget Previews ***/
         g3dui_updateSelectedMaterialPreview ( gui );
 
-        if (  cha == &mat->displacement ) {
+        if ( cha == &mat->displacement ) {
+            /*** Update Meshes that have this material   ***/
+            /*** to rebuild Texture Coordinates. This is ***/
+            /*** needed for buffered subdivided meshes   ***/
             g3dmaterial_updateMeshes ( mat, gui->sce, gui->flags );
         }
 
@@ -365,6 +369,7 @@ void common_g3dui_materialChooseProceduralCbk ( G3DUI      *gui,
             previous = g3dchannel_setProcedural ( cha, proc );
 
             if ( previous ) {
+                /*** that's for the undo redo manager ***/
                 printf ( "%s todo: free previous image\n", __func__ );
             }
 

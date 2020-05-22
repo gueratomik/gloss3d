@@ -530,72 +530,66 @@ void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
                                              uint32_t object_flags,
                                              uint32_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
-    LIST *ltmpuvs  = fac->luvs;
+    LIST *ltmptex  = ltex;
     uint32_t nbtex = 0x00;
 
-    while ( ltmpuvs ) {
-        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-        LIST *ltmptex = ltex;
+    while ( ltmptex ) {
+        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->map );
+        G3DMATERIAL *mat = tex->mat;
+        G3DIMAGE    *difimg = NULL;
 
-        while ( ltmptex ) {
-            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
-            G3DMATERIAL *mat = tex->mat;
-            G3DIMAGE *difimg = NULL;
+        if ( tex->flags & TEXTURERESTRICTED ) {
+            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                ltmptex = ltmptex->next;
 
-            if ( tex->flags & TEXTURERESTRICTED ) {
-                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
-                    ltmptex = ltmptex->next;
-
-                    continue;
-                }
+                continue;
             }
-
-            if ( tex->map == uvs->map ) {
-                if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
-                    if ( mat->flags & DIFFUSE_ENABLED ) {
-                        if ( mat->diffuse.flags & USEIMAGECOLOR ) {
-                            difimg = mat->diffuse.image;
-                        }
-
-                        if ( mat->diffuse.flags & USEPROCEDURAL ) {
-                            if ( mat->diffuse.proc ) {
-                                difimg = &mat->diffuse.proc->image;
-                            }
-                        }
-                    }
-
-                    if ( difimg ) {
-                        #ifdef __linux__
-                        glActiveTextureARB ( arbid );
-                        #endif
-                        #ifdef __MINGW32__
-                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                        #endif
-
-                        glDisable ( GL_TEXTURE_2D );
-
-                        arbid++;
-                    }
-
-                    /*if ( mat->bump.image ) {
-                        #ifdef __linux__
-                        glActiveTextureARB ( arbid );
-                        #endif
-                        #ifdef __MINGW32__
-                        if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                        #endif
-
-                        glDisable ( GL_TEXTURE_2D );
-
-                        arbid++;
-                    }*/
-                }
-            }
-
-            ltmptex = ltmptex->next;
         }
 
-        ltmpuvs = ltmpuvs->next;
+        if ( uvset ) {
+            if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
+                if ( mat->flags & DIFFUSE_ENABLED ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                        difimg = mat->diffuse.image;
+                    }
+
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            difimg = &mat->diffuse.proc->image;
+                        }
+                    }
+                }
+
+                if ( difimg ) {
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
+
+                    glDisable ( GL_TEXTURE_2D );
+
+                    arbid++;
+                }
+
+                /*if ( mat->bump.image ) {
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
+
+                    glDisable ( GL_TEXTURE_2D );
+
+                    arbid++;
+                }*/
+            }
+        }
+
+        ltmptex = ltmptex->next;
     }
 
     glEnable ( GL_COLOR_MATERIAL );
@@ -607,7 +601,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                                                uint32_t        object_flags,
                                                uint32_t        engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
-    LIST *ltmpuvs  = fac->luvs;
+    LIST *ltmptex  = ltex;
     uint32_t nbtex = 0x00;
     static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
@@ -632,81 +626,59 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
     }
 
-    while ( ltmpuvs ) {
-        G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-        LIST *ltmptex = ltex;
+    while ( ltmptex ) {
+        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->map );
+        G3DMATERIAL *mat = tex->mat;
+        G3DCOLOR specular = { mat->specular.solid.r * mat->specular_level,
+                              mat->specular.solid.g * mat->specular_level,
+                              mat->specular.solid.b * mat->specular_level,
+                              mat->specular.solid.a * mat->specular_level };
+        G3DIMAGE *difimg = NULL;
 
-        while ( ltmptex ) {
-            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data; 
-            G3DMATERIAL *mat = tex->mat;
-            G3DCOLOR specular = { mat->specular.solid.r * mat->specular_level,
-                                  mat->specular.solid.g * mat->specular_level,
-                                  mat->specular.solid.b * mat->specular_level,
-                                  mat->specular.solid.a * mat->specular_level };
-            G3DIMAGE *difimg = NULL;
+        if ( tex->flags & TEXTURERESTRICTED ) {
+            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                ltmptex = ltmptex->next;
 
-            if ( tex->flags & TEXTURERESTRICTED ) {
-                if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
-                    ltmptex = ltmptex->next;
-
-                    continue;
-                }
+                continue;
             }
+        }
 
-            if ( tex->map == uvs->map ) {
-                if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
-                    glDisable ( GL_COLOR_MATERIAL );
+        if ( mat->flags & DIFFUSE_ENABLED ) {
+            if ( mat->diffuse.flags & USESOLIDCOLOR ) {
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+            } else {
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
+            }
+        }
 
-                    if ( mat->flags & DIFFUSE_ENABLED ) {
-                        if ( mat->diffuse.flags & USESOLIDCOLOR ) {
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
-                        } else {
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
-                        }
+        if ( uvset ) {
+            if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
+                glDisable ( GL_COLOR_MATERIAL );
 
-                        if ( ( object_flags & OBJECTSELECTED ) &&
-                             ( engine_flags & VIEWFACE       ) &&
-                             ( fac->flags   & FACESELECTED   ) ) {
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
-                        }
-
-                        if ( mat->diffuse.flags & USEIMAGECOLOR ) {
-                            difimg = mat->diffuse.image;
-                        }
-
-                        if ( mat->diffuse.flags & USEPROCEDURAL ) {
-                            if ( mat->diffuse.proc ) {
-                                difimg = &mat->diffuse.proc->image;
-                            }
-                        }
+                if ( mat->flags & DIFFUSE_ENABLED ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                        difimg = mat->diffuse.image;
                     }
 
-                    /*if ( difimg ) {
-                        glBindTexture ( GL_TEXTURE_2D, difimg->id );
-                        glEnable      ( GL_TEXTURE_2D );
-
-                        glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-                                                    GL_COMBINE_EXT );
-                    }*/
-
-                    glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
-                    glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR , ( GLfloat * ) &specular );
-                    glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess );
-
-#ifdef unused
-                        if ( ( fac->flags   & FACESELECTED ) && 
-                             /*( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) &&*/
-                             ( engine_flags & VIEWFACE     ) ) {
-                            glEnable   ( GL_COLOR_MATERIAL );
-                            glColor3ub ( 0xFF, 0x7F, 0x00  );
-                        } else {
-                            glDisable ( GL_COLOR_MATERIAL );
-
-                            glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE,   ( GLfloat * ) &mat->diffuse.solid  );
-
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            difimg = &mat->diffuse.proc->image;
                         }
                     }
-#endif
+                }
+/* Commented out: with GL_AMBIENT, the face does not appear orange when selected
+I dont't know why.
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT  , ( GLfloat * ) whiteAmbient );
+*/
+
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR , ( GLfloat * ) &specular );
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_SHININESS, ( GLfloat * ) &mat->shininess );
+
+                if ( difimg ) {
+                    glEnable      ( GL_TEXTURE_2D );
+                    glBindTexture ( GL_TEXTURE_2D, difimg->id );
+
                     #ifdef __linux__
                     glActiveTextureARB ( arbid );
                     #endif
@@ -714,47 +686,40 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
                     if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
                     #endif
 
-                    if ( difimg ) {
-                        glBindTexture ( GL_TEXTURE_2D, difimg->id );
-                        glEnable      ( GL_TEXTURE_2D );
-
-                        /*** this is called here because we need the matrix ***/
-                        /*** set by the camera transformation ***/
-                        if ( tex->map->projection == UVMAPBACKGROUND ) {
-                            g3duvset_mapFaceWithBackgroundProjection ( uvs, 
-                                                                       fac,
-                                                                       engine_flags );
-                        }
-
-                        glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-                                                    GL_COMBINE_EXT );
-
-                        texcoord[nbtex].u[0x00] = uvs->veruv[0x00].u;
-                        texcoord[nbtex].v[0x00] = uvs->veruv[0x00].v;
-                        /*texcoord[nbtex].q[0x00] = uvs->veruv[0x00].q;*/
-
-                        texcoord[nbtex].u[0x01] = uvs->veruv[0x01].u;
-                        texcoord[nbtex].v[0x01] = uvs->veruv[0x01].v;
-                        /*texcoord[nbtex].q[0x01] = uvs->veruv[0x01].q;*/
-
-                        texcoord[nbtex].u[0x02] = uvs->veruv[0x02].u;
-                        texcoord[nbtex].v[0x02] = uvs->veruv[0x02].v;
-                        /*texcoord[nbtex].q[0x02] = uvs->veruv[0x02].q;*/
-
-                        texcoord[nbtex].u[0x03] = uvs->veruv[0x03].u;
-                        texcoord[nbtex].v[0x03] = uvs->veruv[0x03].v;
-                        /*texcoord[nbtex].q[0x03] = uvs->veruv[0x03].q;*/
-                        texcoord[nbtex].tid = arbid;
+                    /*** this is called here because we need the matrix ***/
+                    /*** set by the camera transformation ***/
+                    if ( tex->map->projection == UVMAPBACKGROUND ) {
+                        g3duvset_mapFaceWithBackgroundProjection ( uvset, 
+                                                                   fac,
+                                                                   engine_flags );
                     }
 
-                    arbid++; nbtex++;
-                }
-            }
+                    glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+                                                GL_COMBINE_EXT );
 
-            ltmptex = ltmptex->next;
+                    texcoord[nbtex].u[0x00] = uvset->veruv[0x00].u;
+                    texcoord[nbtex].v[0x00] = uvset->veruv[0x00].v;
+                    /*texcoord[nbtex].q[0x00] = uvs->veruv[0x00].q;*/
+
+                    texcoord[nbtex].u[0x01] = uvset->veruv[0x01].u;
+                    texcoord[nbtex].v[0x01] = uvset->veruv[0x01].v;
+                    /*texcoord[nbtex].q[0x01] = uvs->veruv[0x01].q;*/
+
+                    texcoord[nbtex].u[0x02] = uvset->veruv[0x02].u;
+                    texcoord[nbtex].v[0x02] = uvset->veruv[0x02].v;
+                    /*texcoord[nbtex].q[0x02] = uvs->veruv[0x02].q;*/
+
+                    texcoord[nbtex].u[0x03] = uvset->veruv[0x03].u;
+                    texcoord[nbtex].v[0x03] = uvset->veruv[0x03].v;
+                    /*texcoord[nbtex].q[0x03] = uvs->veruv[0x03].q;*/
+                    texcoord[nbtex].tid = arbid;
+                }
+
+                arbid++; nbtex++;
+            }
         }
 
-        ltmpuvs = ltmpuvs->next;
+        ltmptex = ltmptex->next;
     }
 
     return nbtex;
@@ -848,8 +813,7 @@ void g3dface_draw  ( G3DFACE *fac, float    gouraudScalarLimit,
         /*}*/
     }
 
-    if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex && fac->luvs ) {
-
+    if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex ) {
        nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, object_flags, engine_flags );
     }
 

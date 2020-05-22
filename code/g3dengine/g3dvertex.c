@@ -208,7 +208,9 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                     if ( mat->displacement.flags & USEPROCEDURAL ) {
                                         /* Way too slow to query directly the procedure, */
                                         /* instead we query the generated image */
-                                        disimg = &mat->displacement.proc->image;
+                                        if ( mat->displacement.proc ) {
+                                            disimg = &mat->displacement.proc->image;
+                                        }
                                     }
 
                                     if ( disimg && disimg->width && disimg->height ) {

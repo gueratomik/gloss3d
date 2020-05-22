@@ -85,6 +85,7 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
                                       NULL,
                                       NULL,
                                       RESETMODIFIERS, engine_flags );
+
             }
         }
 
@@ -251,10 +252,10 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->ambient.solid.a       = 1.0f;
 
     mat->displacement.flags    = USEIMAGECOLOR;
-    mat->displacement.solid.r  = 1.0f;
-    mat->displacement.solid.g  = 1.0f;
-    mat->displacement.solid.b  = 1.0f;
-    mat->displacement.solid.a  = 1.0f;
+    mat->displacement.solid.r  = 
+    mat->displacement.solid.g  = 
+    mat->displacement.solid.b  = 
+    mat->displacement.solid.a  = 0.25f;
 
     mat->reflection.flags      = USESOLIDCOLOR;
     mat->reflection.solid.r    = 0.0f;
@@ -274,11 +275,6 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     /*** Default shininess ***/
     mat->shininess         = 4.0f;
 
-    /*** Default value for displacement ***/
-    mat->displacement.solid.r = 
-    mat->displacement.solid.g = 
-    mat->displacement.solid.b = 
-    mat->displacement.solid.a = 0.25f;
 
     return mat;
 }

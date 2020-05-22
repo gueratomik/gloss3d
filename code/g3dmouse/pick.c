@@ -819,7 +819,8 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                 	    }
                     }
 
-                    if ( obj->type & MESH ) {
+                    if ( ( obj->type == G3DMESHTYPE ) || 
+                         ( obj->type == G3DFFDTYPE  ) ) {
                 	    G3DMESH *mes = ( G3DMESH * ) obj;
 
         		        if ( flags & VIEWVERTEX ) {
