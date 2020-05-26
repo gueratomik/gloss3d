@@ -347,6 +347,7 @@ typedef struct _R3DFOGSETTINGS {
     float    fnear; /* far is a C keyword. Use prefix f */
     float    ffar; /* far is a C keyword. Use prefix f */
     uint32_t color;
+    float    strength;
 } R3DFOGSETTINGS;
 
 /******************************************************************************/

@@ -115,7 +115,7 @@ G3DTEXTURE *g3dtexture_new ( G3DOBJECT   *obj,
     }
 
     /*** By default, texture displacement channel affects subdivisions ***/
-    tex->flags  = TEXTUREDISPLACE;
+    tex->flags  = TEXTUREDISPLACE | TEXTUREREPEATED;
 
     tex->mat    = mat;
     tex->map    = map;

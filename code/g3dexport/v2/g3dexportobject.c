@@ -393,7 +393,14 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
-
+    if ( obj->type == G3DFFDTYPE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_FFD,
+                                       g3dexportffd,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
 
     /*if ( obj->type  & MODIFIER ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_MODIFIER,
@@ -448,14 +455,6 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
                                    0xFFFFFFFF,
                                    fdst );
 
-    /*** write object type ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
-                                   g3dexportobject_identityType,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
-
     if ( obj->parent ) {
         /*** write object parent ID ***/
         size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
@@ -465,6 +464,14 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
                                        0xFFFFFFFF,
                                        fdst );
     }
+
+    /*** write object type ***/
+    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
+                                   g3dexportobject_identityType,
+                                   ged,
+                                   obj,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     return size;
 }

@@ -215,6 +215,15 @@ void g3dcurvesegment_pick ( G3DCURVESEGMENT *seg,
                             float             nbSteps,
                             uint32_t          engine_flags );
 G3DCURVEPOINT *g3dcurve_getLastSelectedPoint ( G3DCURVE *curve);
+void g3dcurve_getSurroundingPoints ( G3DCURVE       *curve, 
+                                     G3DCURVEPOINT  *pt, 
+                                     G3DCURVEPOINT **prevPt, 
+                                     G3DCURVEPOINT **nextPt );
+void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve, 
+                                         G3DCURVEPOINT   *pt,
+                                         G3DCURVESEGMENT *seg,
+                                         LIST           **laddedSegments,
+                                         LIST           **lremovedSegments );
 
 #ifdef __cplusplus
 }

@@ -162,6 +162,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
         G3DMATERIAL *mat = tex->mat;
+        uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
             if ( ( rfc->textureSlots & tex->slotBit ) == 0x00 )  {
@@ -210,7 +211,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & DIFFUSE_ENABLED ) {
-                g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval, repeat );
 
                 diffuse->r += retval.r;
                 diffuse->g += retval.g;
@@ -221,7 +222,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & SPECULAR_ENABLED ) {
-                g3dchannel_getColor ( &mat->specular  , avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->specular, avgu, avgv, &retval, repeat );
 
                 specular->r += retval.r;
                 specular->g += retval.g;
@@ -232,7 +233,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & BUMP_ENABLED ) {
-                g3dchannel_getColor ( &mat->bump      , avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->bump, avgu, avgv, &retval, repeat );
 
                 bump->r += retval.r;
                 bump->g += retval.g;
@@ -243,7 +244,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & REFLECTION_ENABLED ) {
-                g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval, repeat );
 
                 reflection->r += retval.r;
                 reflection->g += retval.g;
@@ -256,7 +257,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             if ( mat->flags & ALPHA_ENABLED ) {
                 G3DCOLOR color;
 
-                g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
 
                 g3drgba_toColor ( &retval, &color );
 
@@ -275,7 +276,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & REFRACTION_ENABLED ) {
-                g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval );
+                g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval, repeat );
 
                 refraction->r += retval.r;
                 refraction->g += retval.g;
@@ -932,8 +933,12 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                 }
             }
 
-            if ( query_flags & RAYQUERYLIGHTING ) {
+            if ( ( query_flags & RAYQUERYLIGHTING ) &&
+                 ( rob->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
                 r3dray_illumination ( ray, rsce, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
+            } else {
+                col.r = col.g = col.b = 255;
+                spc.r = spc.g = spc.b = 0;
             }
 
             diffuse.r = ( uint32_t ) ( ( col.r * diffuse.r ) >> 0x08 ) + ( ( spc.r * specular.r ) >> 0x08 );

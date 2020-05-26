@@ -112,5 +112,6 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 
+    /*** Modifiers start inactive ***/
     g3dobject_deactivate ( (G3DOBJECT*)mod, 0x00 );
 }

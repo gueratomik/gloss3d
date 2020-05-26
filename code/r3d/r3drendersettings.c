@@ -774,6 +774,7 @@ R3DRENDERSETTINGS *r3drendersettings_new ( ) {
     rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 
     rsg->fog.flags = FOGAFFECTSBACKGROUND;
+    rsg->fog.strength  = 1.0f;
     rsg->fog.fnear  = 0.0f;
     rsg->fog.ffar   = 100.0f;
     rsg->fog.color = 0x00FFFFFF;

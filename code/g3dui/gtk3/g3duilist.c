@@ -806,8 +806,10 @@ void objectlistarea_draw ( GtkWidget *widget,
     /*** Adjust drawing area size. This implies draw() is called ***/
     /*** twice. We might want to change that in the future.      ***/
 
-    width = size & 0x0000FFFF;
-    height = size >> 0x10;
+    /** Note: we add 0x10 in widht and height otherwise the scroll ba might ***/
+    /*** get in the way and that's annoying . ***/
+    width  = ( size & 0x0000FFFF ) + 0x10;
+    height = ( size >> 0x10 ) + 0x10;
 
     if ( ( opd->oldWidth  != width  ) || 
          ( opd->oldHeight != height ) ) {

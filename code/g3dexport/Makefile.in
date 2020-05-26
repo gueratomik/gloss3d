@@ -133,7 +133,7 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dexport_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = g3dexport.lo v2/g3dexportextension.lo \
+am__objects_1 = v1/g3dexport.lo v2/g3dexportextension.lo \
 	v2/g3dexportapp.lo v2/g3dexportbone.lo v2/g3dexport.lo \
 	v2/g3dexportcamera.lo v2/g3dexportchannel.lo \
 	v2/g3dexportlight.lo v2/g3dexportmaterial.lo \
@@ -142,8 +142,8 @@ am__objects_1 = g3dexport.lo v2/g3dexportextension.lo \
 	v2/g3dexportuvmap.lo v2/g3dexportscene.lo \
 	v2/g3dexportsymmetry.lo v2/g3dexportsubdivider.lo \
 	v2/g3dexportspline.lo v2/g3dexportsplinerevolver.lo \
-	v2/g3dexporttext.lo v2/g3dexportwireframe.lo stl.lo pov.lo \
-	obj.lo
+	v2/g3dexporttext.lo v2/g3dexportwireframe.lo \
+	v2/g3dexportffd.lo stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -165,14 +165,14 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/g3dexport.Plo ./$(DEPDIR)/obj.Plo \
-	./$(DEPDIR)/pov.Plo ./$(DEPDIR)/stl.Plo \
+am__depfiles_remade = ./$(DEPDIR)/obj.Plo ./$(DEPDIR)/pov.Plo \
+	./$(DEPDIR)/stl.Plo v1/$(DEPDIR)/g3dexport.Plo \
 	v2/$(DEPDIR)/g3dexport.Plo v2/$(DEPDIR)/g3dexportapp.Plo \
 	v2/$(DEPDIR)/g3dexportbone.Plo \
 	v2/$(DEPDIR)/g3dexportcamera.Plo \
 	v2/$(DEPDIR)/g3dexportchannel.Plo \
 	v2/$(DEPDIR)/g3dexportextension.Plo \
-	v2/$(DEPDIR)/g3dexportlight.Plo \
+	v2/$(DEPDIR)/g3dexportffd.Plo v2/$(DEPDIR)/g3dexportlight.Plo \
 	v2/$(DEPDIR)/g3dexportmaterial.Plo \
 	v2/$(DEPDIR)/g3dexportmesh.Plo \
 	v2/$(DEPDIR)/g3dexportmodifiers.Plo \
@@ -360,7 +360,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dexport.la
 libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
-LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
+LIBGLOSSG3DEXPORT_C_FILES = v1/g3dexport.c \
                             v2/g3dexportextension.c \
                             v2/g3dexportapp.c \
                             v2/g3dexportbone.c \
@@ -381,6 +381,7 @@ LIBGLOSSG3DEXPORT_C_FILES = g3dexport.c \
                             v2/g3dexportsplinerevolver.c \
                             v2/g3dexporttext.c \
                             v2/g3dexportwireframe.c \
+                            v2/g3dexportffd.c \
                             stl.c \
                             pov.c \
                             obj.c
@@ -453,6 +454,13 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+v1/$(am__dirstamp):
+	@$(MKDIR_P) v1
+	@: > v1/$(am__dirstamp)
+v1/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) v1/$(DEPDIR)
+	@: > v1/$(DEPDIR)/$(am__dirstamp)
+v1/g3dexport.lo: v1/$(am__dirstamp) v1/$(DEPDIR)/$(am__dirstamp)
 v2/$(am__dirstamp):
 	@$(MKDIR_P) v2
 	@: > v2/$(am__dirstamp)
@@ -488,28 +496,32 @@ v2/g3dexportsplinerevolver.lo: v2/$(am__dirstamp) \
 v2/g3dexporttext.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportwireframe.lo: v2/$(am__dirstamp) \
 	v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dexportffd.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dexport.la: $(libgloss_g3dexport_la_OBJECTS) $(libgloss_g3dexport_la_DEPENDENCIES) $(EXTRA_libgloss_g3dexport_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dexport_la_OBJECTS) $(libgloss_g3dexport_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f v1/*.$(OBJEXT)
+	-rm -f v1/*.lo
 	-rm -f v2/*.$(OBJEXT)
 	-rm -f v2/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dexport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pov.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stl.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v1/$(DEPDIR)/g3dexport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportapp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportbone.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportcamera.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportchannel.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportextension.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportffd.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportlight.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmaterial.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmesh.Plo@am__quote@ # am--include-marker
@@ -560,6 +572,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf v1/.libs v1/_libs
 	-rm -rf v2/.libs v2/_libs
 
 ID: $(am__tagged_files)
@@ -680,6 +693,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f v1/$(DEPDIR)/$(am__dirstamp)
+	-rm -f v1/$(am__dirstamp)
 	-rm -f v2/$(DEPDIR)/$(am__dirstamp)
 	-rm -f v2/$(am__dirstamp)
 
@@ -692,16 +707,17 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/g3dexport.Plo
-	-rm -f ./$(DEPDIR)/obj.Plo
+		-rm -f ./$(DEPDIR)/obj.Plo
 	-rm -f ./$(DEPDIR)/pov.Plo
 	-rm -f ./$(DEPDIR)/stl.Plo
+	-rm -f v1/$(DEPDIR)/g3dexport.Plo
 	-rm -f v2/$(DEPDIR)/g3dexport.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportbone.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportcamera.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportchannel.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportextension.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportffd.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportlight.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmesh.Plo
@@ -761,16 +777,17 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/g3dexport.Plo
-	-rm -f ./$(DEPDIR)/obj.Plo
+		-rm -f ./$(DEPDIR)/obj.Plo
 	-rm -f ./$(DEPDIR)/pov.Plo
 	-rm -f ./$(DEPDIR)/stl.Plo
+	-rm -f v1/$(DEPDIR)/g3dexport.Plo
 	-rm -f v2/$(DEPDIR)/g3dexport.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportbone.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportcamera.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportchannel.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportextension.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportffd.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportlight.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmesh.Plo

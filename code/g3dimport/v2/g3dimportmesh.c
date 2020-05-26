@@ -148,6 +148,8 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     gid->currentVertexArray[i] = g3dvertex_new ( x, y, z );
 
+                    gid->currentVertexArray[i]->id = i;
+
                     g3dmesh_addVertex ( mes, gid->currentVertexArray[i] );
                 }
 

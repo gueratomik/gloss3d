@@ -52,6 +52,10 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                 gid->currentObject = g3dobject_new ( gid->currentObjectID++, 
                                                      "NULL",
                                                      gid->engineFlags );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
             } break;
 
             case SIG_OBJECT_SCENE : {
@@ -64,6 +68,10 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                 gid->currentObject = g3dmesh_new ( gid->currentObjectID++ ,
                                                    gid->currentObjectName,
                                                    gid->engineFlags );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 g3dimportmesh ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -80,12 +88,20 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                      0.1f, 
                                                      1000.0f );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
                 g3dimportcamera ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_LIGHT : {
                 gid->currentObject = g3dlight_new ( gid->currentObjectID++ ,
                                                     gid->currentObjectName );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 g3dimportlight ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -95,12 +111,20 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                    gid->currentObjectName,
                                                    0.0f );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
                 g3dimportbone ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_SYMMETRY : {
                 gid->currentObject = g3dsymmetry_new ( gid->currentObjectID++ ,
                                                        gid->currentObjectName );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 g3dimportsymmetry ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -110,12 +134,20 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                          gid->currentObjectName,
                                                          gid->engineFlags );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
                 g3dimportsubdivider ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_SPLINEREVOLVER : {
                 gid->currentObject = g3dsplinerevolver_new ( gid->currentObjectID++ ,
                                                              gid->currentObjectName );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 g3dimportsplinerevolver ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -126,12 +158,20 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                      CUBIC,
                                                      gid->engineFlags );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
                 g3dimportspline ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_WIREFRAME : {
                 gid->currentObject = g3dwireframe_new ( gid->currentObjectID++ ,
                                                         gid->currentObjectName );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 g3dimportwireframe ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
@@ -141,7 +181,22 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                                    gid->currentObjectName,
                                                    gid->engineFlags );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
                 g3dimporttext ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            case SIG_OBJECT_FFD : {
+                gid->currentObject = g3dffd_new ( gid->currentObjectID++ ,
+                                                  gid->currentObjectName );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
+                g3dimportffd ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             /*** Unknown object type. Create a null object ***/
@@ -149,6 +204,10 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                 gid->currentObject = g3dobject_new ( gid->currentObjectID++, 
                                                      "NULL",
                                                      gid->engineFlags );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
 
                 fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;
@@ -204,17 +263,9 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 /*** We check the pointer because object might be NULL if  ***/
                 /*** coming from an unsupported primitive from a plugin e.g **/
-                if ( gid->currentObject ) {
-                    parentObject = g3dobject_getChildByID ( gid->currentScene, parentID );
 
-                    if ( parentObject ) {
-                        /*** here we append otherwise the list is going to be ***/
-                        /*** reversed compared to the saved version ***/
-                        g3dobject_addChild ( parentObject, 
-                                                gid->currentObject, 
-                                                gid->engineFlags );
-                    }
-                }
+                gid->parentObject = g3dobject_getChildByID ( gid->currentScene, 
+                                                             parentID );
             } break;
 
             case SIG_OBJECT_ACTIVE : {

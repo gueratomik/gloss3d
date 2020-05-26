@@ -235,6 +235,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define TEXTURESELECTED   ( 1      )
 #define TEXTUREDISPLACE   ( 1 << 1 )
 #define TEXTURERESTRICTED ( 1 << 2 )
+#define TEXTUREREPEATED   ( 1 << 3 )
 
 /******************************** Edge Flags **********************************/
 #define EDGESELECTED      (  1       )
@@ -325,6 +326,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define OBJECTNOTRANSLATION     (  1 << 6  )
 #define OBJECTNOROTATION        (  1 << 7  )
 #define OBJECTNOSCALING         (  1 << 8  )
+#define OBJECTNOSHADING         (  1 << 9  )
 /*** Private flags ***/
 /*** Bone flags ***/
 #define BONEFIXED             (  1 << 17 )
@@ -1477,7 +1479,7 @@ void       g3dvertex_free       ( G3DVERTEX * );
 void       g3dvertex_addUV      ( G3DVERTEX *, G3DUV * );
 void       g3dvertex_removeUV   ( G3DVERTEX *, G3DUV * );
 uint32_t   g3dvertex_isBoundary ( G3DVERTEX * );
-
+int32_t    g3dvertex_getRankFromList ( LIST *lver, G3DVERTEX *ver );
 void       g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *, G3DVECTOR * );
 void       g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *, G3DVECTOR * );
 void       g3dvertex_computeEdgePoint           ( G3DVERTEX *, G3DEDGE *,
@@ -1865,6 +1867,12 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj,
                          G3DKEY   **overwrittenKey,
                          uint32_t   key_flags );
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key );
+void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
+                                       G3DKEY    *key,
+                                       uint32_t   keyFlags );
+void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
+                                         G3DKEY    *key, 
+                                         uint32_t   keyFlags );
 
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint32_t engine_flags );
 
@@ -1948,6 +1956,7 @@ uint32_t   g3dobject_getNumberOfChildrenByType ( G3DOBJECT *, uint32_t );
 LIST      *g3dobject_getChildrenByType     ( G3DOBJECT *, uint32_t );
 void       g3dobject_printCoordinates      ( G3DOBJECT * );
 float      g3dobject_getKeys               ( G3DOBJECT *, float, 
+                                                          G3DKEY **,
                                                           G3DKEY **,
                                                           G3DKEY **,
                                                           uint32_t );
@@ -2385,6 +2394,7 @@ void    g3dffd_generateuvw  ( G3DFFD * );
 uint32_t g3dffd_modify ( G3DFFD *, uint32_t );
 void    g3dffd_appendVertex ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_unassign     ( G3DFFD * );
+void    g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw );
 
 /******************************************************************************/
 G3DMATERIAL *g3dmaterial_new                  ( const char * );
@@ -2609,7 +2619,7 @@ void          g3dwireframe_activate     ( G3DWIREFRAME *, uint32_t );
 void          g3dwireframe_deactivate   ( G3DWIREFRAME *, uint32_t );
 
 /******************************************************************************/
-void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA * );
+void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA *, uint32_t );
 void g3dchannel_enableProcedural ( G3DCHANNEL *cha );
 void g3dchannel_enableImageColor ( G3DCHANNEL *cha );
 void g3dchannel_enableSolidColor ( G3DCHANNEL *cha );

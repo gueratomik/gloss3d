@@ -34,8 +34,8 @@ static void usePosCbk ( GtkWidget *widget, gpointer user_data ) {
     gboolean rpos = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( rpos ) common_g3duikeyedit_setFlagCbk   ( gui, KEYPOSITION );
-    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYPOSITION );
+    if ( rpos ) common_g3duikeyedit_setKeyTransformationsCbk   ( gui, KEYPOSITION );
+    else        common_g3duikeyedit_unsetKeyTransformationsCbk ( gui, KEYPOSITION );
 }
 
 /******************************************************************************/
@@ -43,8 +43,8 @@ static void useRotCbk ( GtkWidget *widget, gpointer user_data ) {
     gboolean rrot = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( rrot ) common_g3duikeyedit_setFlagCbk   ( gui, KEYROTATION );
-    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYROTATION );
+    if ( rrot ) common_g3duikeyedit_setKeyTransformationsCbk   ( gui, KEYROTATION );
+    else        common_g3duikeyedit_unsetKeyTransformationsCbk ( gui, KEYROTATION );
 }
 
 /******************************************************************************/
@@ -52,8 +52,8 @@ static void useScaCbk ( GtkWidget *widget, gpointer user_data ) {
     gboolean rsca = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( rsca ) common_g3duikeyedit_setFlagCbk   ( gui, KEYSCALING );
-    else        common_g3duikeyedit_unsetFlagCbk ( gui, KEYSCALING );
+    if ( rsca ) common_g3duikeyedit_setKeyTransformationsCbk   ( gui, KEYSCALING );
+    else        common_g3duikeyedit_unsetKeyTransformationsCbk ( gui, KEYSCALING );
 }
 
 /******************************************************************************/

@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duikeyedit_unsetFlagCbk ( G3DUI *gui, uint32_t flag ) {
+void common_g3duikeyedit_setKeyTransformationsCbk ( G3DUI *gui, uint32_t flag ) {
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -38,15 +38,22 @@ void common_g3duikeyedit_unsetFlagCbk ( G3DUI *gui, uint32_t flag ) {
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        LIST *ltmpkey = obj->lselkey;
 
-        g3dkey_unsetFlagFromList ( obj->lselkey, flag );
+        while ( ltmpkey ) {
+            G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+
+            g3dobject_setKeyTransformations ( obj, key, flag );
+
+            ltmpkey = ltmpkey->next;
+        }
 
         ltmpobj = ltmpobj->next;
     }
 }
 
 /******************************************************************************/
-void common_g3duikeyedit_setFlagCbk ( G3DUI *gui, uint32_t flag ) {
+void common_g3duikeyedit_unsetKeyTransformationsCbk ( G3DUI *gui, uint32_t flag ) {
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -54,8 +61,15 @@ void common_g3duikeyedit_setFlagCbk ( G3DUI *gui, uint32_t flag ) {
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        LIST *ltmpkey = obj->lselkey;
 
-        g3dkey_setFlagFromList ( obj->lselkey, flag );
+        while ( ltmpkey ) {
+            G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+
+            g3dobject_unsetKeyTransformations ( obj, key, flag );
+
+            ltmpkey = ltmpkey->next;
+        }
 
         ltmpobj = ltmpobj->next;
     }

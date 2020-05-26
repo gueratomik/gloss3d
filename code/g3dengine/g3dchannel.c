@@ -63,8 +63,22 @@ void g3dchannel_enableSolidColor ( G3DCHANNEL *cha ) {
 /******************************************************************************/
 void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
                                             float    v,
-                                            G3DRGBA *rgba ) {
-    if ( cha->flags & USEIMAGECOLOR ) {
+                                            G3DRGBA *rgba,
+                                            uint32_t repeat ) {
+    uint32_t channelFlags = cha->flags;
+
+    if ( repeat == 0x00 ) {
+        if ( ( u < 0.0f ) || ( u > 1.0f ) ||
+             ( v < 0.0f ) || ( v > 1.0f ) ) {
+            channelFlags = USESOLIDCOLOR;
+        }
+    }
+
+    if ( channelFlags & USESOLIDCOLOR ) {
+        g3dcolor_toRGBA ( &cha->solid, rgba );
+    }
+
+    if ( channelFlags & USEIMAGECOLOR ) {
         G3DIMAGE *colimg = cha->image;
         if ( colimg && colimg->width && colimg->height ) {
             int32_t imgx = ((int32_t)((float)u * colimg->width  )) % colimg->width;
@@ -84,11 +98,7 @@ void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
         }
     }
 
-    if ( cha->flags & USESOLIDCOLOR ) {
-        g3dcolor_toRGBA ( &cha->solid, rgba );
-    }
-
-    if ( cha->flags & USEPROCEDURAL ) {
+    if ( channelFlags & USEPROCEDURAL ) {
         G3DPROCEDURAL *proc = cha->proc;
         G3DCOLOR color;
 

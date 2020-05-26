@@ -80,8 +80,8 @@ void common_g3duiview_moveSideward ( G3DUIVIEW *view, int32_t x   ,
         dify = ( yold - y );
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
-        cam->ortho.x += ( difx * 0.025f );
-        cam->ortho.y -= ( dify * 0.025f );
+        cam->ortho.x += ( difx * cam->ortho.z );
+        cam->ortho.y -= ( dify * cam->ortho.z );
     } else {
         g3dvector_matrix  ( &xvec, obj->rmatrix, &camx );
         g3dvector_matrix  ( &yvec, obj->rmatrix, &camy );

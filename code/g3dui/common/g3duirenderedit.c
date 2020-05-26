@@ -131,6 +131,17 @@ void common_g3duirenderedit_wireframeColorCbk ( G3DUI        *gui,
     rsg->wireframe.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 }
 
+
+/******************************************************************************/
+void common_g3duirenderedit_setFogStrengthCbk ( G3DUI *gui, 
+                                                float strength ) {
+    R3DRENDERSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->fog.strength = strength / 100.0f;
+}
+
 /******************************************************************************/
 void common_g3duirenderedit_setFogCbk ( G3DUI *gui ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;

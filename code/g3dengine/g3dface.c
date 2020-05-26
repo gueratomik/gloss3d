@@ -526,76 +526,6 @@ LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
 }
 
 /******************************************************************************/
-void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
-                                             uint32_t object_flags,
-                                             uint32_t engine_flags ) {
-    GLint arbid = GL_TEXTURE0_ARB;
-    LIST *ltmptex  = ltex;
-    uint32_t nbtex = 0x00;
-
-    while ( ltmptex ) {
-        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
-        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->map );
-        G3DMATERIAL *mat = tex->mat;
-        G3DIMAGE    *difimg = NULL;
-
-        if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
-                ltmptex = ltmptex->next;
-
-                continue;
-            }
-        }
-
-        if ( uvset ) {
-            if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
-                if ( mat->flags & DIFFUSE_ENABLED ) {
-                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
-                        difimg = mat->diffuse.image;
-                    }
-
-                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
-                        if ( mat->diffuse.proc ) {
-                            difimg = &mat->diffuse.proc->image;
-                        }
-                    }
-                }
-
-                if ( difimg ) {
-                    #ifdef __linux__
-                    glActiveTextureARB ( arbid );
-                    #endif
-                    #ifdef __MINGW32__
-                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                    #endif
-
-                    glDisable ( GL_TEXTURE_2D );
-
-                    arbid++;
-                }
-
-                /*if ( mat->bump.image ) {
-                    #ifdef __linux__
-                    glActiveTextureARB ( arbid );
-                    #endif
-                    #ifdef __MINGW32__
-                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
-                    #endif
-
-                    glDisable ( GL_TEXTURE_2D );
-
-                    arbid++;
-                }*/
-            }
-        }
-
-        ltmptex = ltmptex->next;
-    }
-
-    glEnable ( GL_COLOR_MATERIAL );
-}
-
-/******************************************************************************/
 uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex, 
                                                G3DARBTEXCOORD *texcoord,
                                                uint32_t        object_flags,
@@ -679,6 +609,14 @@ I dont't know why.
                     glEnable      ( GL_TEXTURE_2D );
                     glBindTexture ( GL_TEXTURE_2D, difimg->id );
 
+                    if ( tex->flags & TEXTUREREPEATED ) {
+                        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+                        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+                    } else {
+                        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+                        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                    }
+
                     #ifdef __linux__
                     glActiveTextureARB ( arbid );
                     #endif
@@ -725,6 +663,76 @@ I dont't know why.
     return nbtex;
 }
 
+/******************************************************************************/
+void g3dface_unbindMaterials ( G3DFACE *fac, LIST    *ltex,
+                                             uint32_t object_flags,
+                                             uint32_t engine_flags ) {
+    GLint arbid = GL_TEXTURE0_ARB;
+    LIST *ltmptex  = ltex;
+    uint32_t nbtex = 0x00;
+
+    while ( ltmptex ) {
+        G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->map );
+        G3DMATERIAL *mat = tex->mat;
+        G3DIMAGE    *difimg = NULL;
+
+        if ( tex->flags & TEXTURERESTRICTED ) {
+            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+                ltmptex = ltmptex->next;
+
+                continue;
+            }
+        }
+
+        if ( uvset ) {
+            if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
+                if ( mat->flags & DIFFUSE_ENABLED ) {
+                    if ( mat->diffuse.flags & USEIMAGECOLOR ) {
+                        difimg = mat->diffuse.image;
+                    }
+
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            difimg = &mat->diffuse.proc->image;
+                        }
+                    }
+                }
+
+                if ( difimg ) {
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
+
+                    glDisable ( GL_TEXTURE_2D );
+
+                    arbid++;
+                }
+
+                /*if ( mat->bump.image ) {
+                    #ifdef __linux__
+                    glActiveTextureARB ( arbid );
+                    #endif
+                    #ifdef __MINGW32__
+                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    #endif
+
+                    glDisable ( GL_TEXTURE_2D );
+
+                    arbid++;
+                }*/
+            }
+        }
+
+        ltmptex = ltmptex->next;
+    }
+
+    glBindTexture ( GL_TEXTURE_2D, 0 );
+    glEnable ( GL_COLOR_MATERIAL );
+}
 
 /******************************************************************************/
 void g3dface_drawSimple  ( G3DFACE *fac, uint32_t object_flags,

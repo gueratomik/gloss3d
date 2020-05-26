@@ -55,6 +55,7 @@
 /******************************************************************************/
 typedef struct _G3DIMPORTDATA {
     G3DSCENE       *currentScene;
+    G3DOBJECT      *parentObject;
     G3DOBJECT      *currentObject;
     G3DMATERIAL    *currentMaterial;
     G3DTEXTURE     *currentTexture;
@@ -90,6 +91,7 @@ typedef struct _G3DIMPORTEXTENSION {
 
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
+                              G3DSCENE   *mergedScene,
                               LIST       *lextension,
                               uint32_t    flags );
 
@@ -116,6 +118,7 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportsubdivider ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
                                              void (*read)( G3DIMPORTDATA *gid,

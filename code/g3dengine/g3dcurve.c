@@ -97,38 +97,11 @@ void g3dcurve_cut ( G3DCURVE *curve,
                 G3DCURVEPOINT *newPt = g3dcurvepoint_new ( vout.x, 
                                                            vout.y, 
                                                            vout.z );
-                G3DCURVESEGMENT *newSeg[0x02];
-
-                newSeg[0x00] = g3dcubicsegment_new ( seg->pt[P0IDX],
-                                                     newPt,
-                                                     seg->pt[P0HANDLEIDX]->pos.x,
-                                                     seg->pt[P0HANDLEIDX]->pos.y,
-                                                     seg->pt[P0HANDLEIDX]->pos.z,
-                                                     0.0f,
-                                                     0.0f,
-                                                     0.0f );
-
-                newSeg[0x01] = g3dcubicsegment_new ( newPt,
-                                                     seg->pt[P1IDX],
-                                                     0.0f,
-                                                     0.0f,
-                                                     0.0f,
-                                                     seg->pt[P1HANDLEIDX]->pos.x,
-                                                     seg->pt[P1HANDLEIDX]->pos.y,
-                                                     seg->pt[P1HANDLEIDX]->pos.z );
-
-                g3dcurve_removeSegment ( curve, seg );
-                list_insert ( lremovedSegments, seg );
- 
-                g3dcurve_addPoint    ( curve, newPt );
-                g3dcurve_addSegment ( curve, newSeg[0x00] );
-                g3dcurve_addSegment ( curve, newSeg[0x01] );
-
-                g3dcurvepoint_roundCubicSegments ( newPt );
-
-                list_insert ( laddedPoints, newPt );
-                list_insert ( laddedSegments, newSeg[0x00] );
-                list_insert ( laddedSegments, newSeg[0x01] );
+                g3dcurve_insertPointWithinSegment ( curve, 
+                                                    newPt,
+                                                    seg,
+                                                    laddedSegments,
+                                                    lremovedSegments );
             }
 
             /* prepare jumping to the next sub segment */
@@ -945,6 +918,72 @@ void g3dcurve_unselectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt ) {
         curve->avgSelPtPos.x /= curve->nbselpt;
         curve->avgSelPtPos.y /= curve->nbselpt;
         curve->avgSelPtPos.z /= curve->nbselpt;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_getSurroundingPoints ( G3DCURVE       *curve, 
+                                     G3DCURVEPOINT  *pt, 
+                                     G3DCURVEPOINT **prevPt, 
+                                     G3DCURVEPOINT **nextPt ) {
+    LIST *ltmppt = curve->lpt;
+
+    while ( ltmppt ) {
+        G3DCURVEPOINT *curPt = ( G3DCURVEPOINT * ) ltmppt->data;
+
+        if ( curPt == pt ) {
+            if (*prevPt) *prevPt = ( ltmppt->prev ) ? ltmppt->prev->data : NULL;
+            if (*nextPt) *nextPt = ( ltmppt->next ) ? ltmppt->next->data : NULL;
+        }
+
+        ltmppt = ltmppt->next;
+    }
+}
+
+/******************************************************************************/
+void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve, 
+                                         G3DCURVEPOINT   *pt,
+                                         G3DCURVESEGMENT *seg,
+                                         LIST           **laddedSegments,
+                                         LIST           **lremovedSegments ) {
+    G3DCURVESEGMENT *newSeg[0x02];
+
+    switch ( curve->type ) {
+        case CUBIC : {
+            newSeg[0x00] = g3dcubicsegment_new ( seg->pt[P0IDX],
+                                                 pt,
+                                                 seg->pt[P0HANDLEIDX]->pos.x,
+                                                 seg->pt[P0HANDLEIDX]->pos.y,
+                                                 seg->pt[P0HANDLEIDX]->pos.z,
+                                                 0.0f,
+                                                 0.0f,
+                                                 0.0f );
+
+            newSeg[0x01] = g3dcubicsegment_new ( pt,
+                                                 seg->pt[P1IDX],
+                                                 0.0f,
+                                                 0.0f,
+                                                 0.0f,
+                                                 seg->pt[P1HANDLEIDX]->pos.x,
+                                                 seg->pt[P1HANDLEIDX]->pos.y,
+                                                 seg->pt[P1HANDLEIDX]->pos.z );
+
+            g3dcurve_removeSegment ( curve, seg );
+
+            g3dcurve_addPoint ( curve, pt );
+
+            g3dcurve_addSegment ( curve, newSeg[0x00] );
+            g3dcurve_addSegment ( curve, newSeg[0x01] );
+
+            g3dcurvepoint_roundCubicSegments ( pt );
+
+            if ( laddedSegments   ) list_insert ( laddedSegments  , newSeg[0x00] );
+            if ( laddedSegments   ) list_insert ( laddedSegments  , newSeg[0x01] );
+            if ( lremovedSegments ) list_insert ( lremovedSegments, seg          );
+        } break;
+
+        default :
+        break;
     }
 }
 

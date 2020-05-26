@@ -13,9 +13,15 @@ echo >> $header
 
 for i in `cat signatures | grep "SIG" | sed 's/-//g'`
 do
-    LBL=`echo $i | awk '{ print $1 }'`
+    LBL=`echo $i | awk -F= '{ print $1 }'`
+    HEX=`echo $i | awk -F= '{ print $2 }'`
     SIG=`echo $LBL | cksum  | awk '{ printf "0x%08X\n", $1}'`
-    echo "#define $LBL $SIG"
+    if [[ $HEX == 0x* ]]
+    then
+        echo "#define $LBL $HEX"
+    else
+        echo "#define $LBL $SIG"
+    fi
 done  | sort -u > $tmpout
 
 cat $tmpout | column -t >> $header

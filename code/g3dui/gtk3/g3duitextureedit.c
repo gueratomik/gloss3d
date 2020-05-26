@@ -37,6 +37,13 @@ static void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void repeatCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duitextureedit_toggleRepeatCbk ( gui );
+}
+
+/******************************************************************************/
 static void uvmapSelectorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     uint32_t mapID = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
@@ -126,6 +133,14 @@ void updateTextureEdit ( GtkWidget *widget, G3DUI *gui ) {
 
                         if ( strcmp ( child_name, EDITTEXTURERESTRICT ) == 0x00 ) {
                             if ( tex->flags & TEXTURERESTRICTED ) {
+                                gtk_toggle_button_set_active ( tbn, TRUE  );
+                            } else {
+                                gtk_toggle_button_set_active ( tbn, FALSE );
+                            }
+                        }
+
+                        if ( strcmp ( child_name, EDITTEXTUREREPEAT ) == 0x00 ) {
+                            if ( tex->flags & TEXTUREREPEATED ) {
                                 gtk_toggle_button_set_active ( tbn, TRUE  );
                             } else {
                                 gtk_toggle_button_set_active ( tbn, FALSE );
@@ -339,11 +354,13 @@ GtkWidget* createTextureEdit ( GtkWidget *parent, G3DUI *gui,
     gui->lock = 0x01;
 
 
-    createUVMapSelector ( frm, gui, EDITTEXTUREMAPPING,
-                                 16, 16, 128, 128, uvmapSelectorCbk );
-    createToggleLabel   ( frm, gui, EDITTEXTURERESTRICT,
-                                0,  40, 64, 24, restrictCbk );
-    createFaceGroupFrame   ( frm, gui,   0, 64, 286, 140 );
+    createUVMapSelector  ( frm, gui, EDITTEXTUREMAPPING,
+                                     16, 16, 128, 128, uvmapSelectorCbk );
+    createToggleLabel    ( frm, gui, EDITTEXTURERESTRICT,
+                                      0, 40,  64,  24, restrictCbk );
+    createToggleLabel    ( frm, gui, EDITTEXTUREREPEAT,
+                                      0, 64,  64,  24, repeatCbk );
+    createFaceGroupFrame ( frm, gui,  0, 88, 286, 140 );
 
     gui->lock = 0x00;
 

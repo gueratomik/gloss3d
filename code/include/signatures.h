@@ -51,6 +51,10 @@
 #define  SIG_OBJECT_CAMERA                      0x590154D0
 #define  SIG_OBJECT_CAMERA_FOCAL                0x3B0925B4
 #define  SIG_OBJECT_ENTRY                       0x08CAC424
+#define  SIG_OBJECT_FFD                         0xAAB09BB7
+#define  SIG_OBJECT_FFD_GEOMETRY                0x3E1B16CA
+#define  SIG_OBJECT_FFD_UVW                     0x96C70372
+#define  SIG_OBJECT_FFD_VERTICES                0x2815E438
 #define  SIG_OBJECT_IDENTITY                    0xFE404903
 #define  SIG_OBJECT_IDENTITY_NAME               0x647F2371
 #define  SIG_OBJECT_IDENTITY_PARENT             0x34D92405
@@ -127,6 +131,10 @@
 #define  SIG_OBJECT_WIREFRAME                   0x40AFF65E
 #define  SIG_OBJECT_WIREFRAME_ALGO              0x012D8C08
 #define  SIG_OBJECT_WIREFRAME_GEOMETRY          0x9D0046B3
-#define  SIG_ROOT                               0x99AD335D
+#define  SIG_ROOT                               0x44335347
+#define  SIG_ROOT_COMMENT                       0xEEC76AC0
+#define  SIG_ROOT_VERSION                       0x475DDCE9
+#define  SIG_ROOT_VERSION_APP                   0xC5BF91AC
+#define  SIG_ROOT_VERSION_FILE                  0x7A68906E
 
 #endif

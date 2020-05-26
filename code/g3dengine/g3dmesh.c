@@ -3010,6 +3010,8 @@ void g3dmesh_drawFaces ( G3DMESH *mes, uint32_t object_flags,
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
 
+    if ( obj->flags & OBJECTNOSHADING ) glDisable ( GL_LIGHTING );
+
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
@@ -3069,6 +3071,10 @@ void g3dmesh_drawObject ( G3DMESH   *mes,
                           uint32_t   eflags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
+    glPushAttrib ( GL_LIGHTING_BIT );
+
+    if ( obj->flags & OBJECTNOSHADING ) glDisable ( GL_LIGHTING );
+
     g3dface_drawTriangleList ( mes->ltri, 
                                mes->gouraudScalarLimit, 
                                mes->ltex, 
@@ -3082,6 +3088,8 @@ void g3dmesh_drawObject ( G3DMESH   *mes,
                                eflags & (~VIEWFACE) );
 
     g3dmesh_drawSelectedUVMap ( mes, curcam, eflags );
+
+    glPopAttrib ( );
 }
 
 /******************************************************************************/
@@ -3112,7 +3120,7 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
                         uint32_t   eflags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
-    if ( obj->type & OBJECTSELECTED ) {
+    if ( obj->flags & OBJECTSELECTED ) {
         if ( eflags & VIEWOBJECT   ) g3dmesh_pickObject   ( mes, eflags );
         if ( eflags & VIEWFACE     ) g3dmesh_pickFaces    ( mes, eflags );
         if ( eflags & VIEWEDGE     ) g3dmesh_pickEdges    ( mes, eflags );

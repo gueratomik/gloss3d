@@ -111,6 +111,7 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
+                              G3DSCENE   *mergedScene,
                               LIST      *lextension,
                               uint32_t    flags ) {
     uint32_t chunkSignature, chunkSize;
@@ -126,7 +127,9 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
     memset ( &gid, 0x00, sizeof ( G3DIMPORTDATA ) );
 
     gid.lext = lextension;
-    gid.currentScene = g3dscene_new ( gid.currentObjectID++, "Scene" );
+    gid.currentScene = ( mergedScene ) ? mergedScene : 
+                                         g3dscene_new ( gid.currentObjectID++, 
+                                                        "Scene" );
     gid.engineFlags  = VIEWOBJECT;
 
     g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
@@ -158,6 +161,9 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     /* apply modifiers, compute normals */
     g3dobject_updateMeshes_r ( gid.currentScene, flags );
+
+    /*** Disable default light if there are some ligths ***/
+    g3dscene_checkLights ( gid.currentScene );
 
     return gid.currentScene;
 }

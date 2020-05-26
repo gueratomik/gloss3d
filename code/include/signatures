@@ -2,9 +2,19 @@
 
 # Note. chunk IDs are the 32-bit checksums of the signature name.
 # e.g -> echo $signature | cksum  | awk '{ printf "%08X\n", $1}'
+# Signature can be enforced with =HEX
 
 
-SIG_ROOT
+SIG_ROOT=0x44335347
+---- SIG_ROOT_VERSION
+---- SIG_ROOT_VERSION_APP
+------------ major (uint32_t)
+------------ minor (uint32_t)
+------------ release (uint32_t)
+---- SIG_ROOT_VERSION_FILE
+-------- version (uint32_t)
+---- SIG_ROOT_COMMENT
+-------- comment ( char[] )
 ---- SIG_OBJECTS
 -------- SIG_OBJECT_ENTRY
 ----------- SIG_OBJECT_IDENTITY
@@ -167,6 +177,21 @@ SIG_ROOT
 ----------------------- SIG_OBJECT_SPLINEREVOLVER_GEOMETRY
 -------------------------- steps (uint32)
 -------------------------- divis (uint32)
+
+------------------- SIG_OBJECT_FFD
+-------------------------- SIG_OBJECT_FFD_GEOMETRY
+------------------------------- nbx (uint32_t)
+------------------------------- nby (uint32_t)
+------------------------------- nbz (uint32_t) 
+------------------------------- radx (float)
+------------------------------- rady (float)
+------------------------------- radz (float)
+-------------------------- SIG_OBJECT_FFD_UVW
+------------------------------ (float{x}-float{y}-float{z},float{u}-float{v}-float{w})[nb control points]
+-------------------------- SIG_OBJECT_FFD_VERTICES
+------------------------------ uint32_t number of controlled vertices
+------------------------------ (uint32_t{verID}-float{x}-float{y}-float{z},float{u}-float{v}-float{w})[controlled vertices]
+
 
 ------------------- SIG_OBJECT_WIREFRAME
 ----------------------- SIG_OBJECT_WIREFRAME_ALGO

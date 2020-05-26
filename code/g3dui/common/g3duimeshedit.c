@@ -103,6 +103,28 @@ void common_g3duimeshedit_gouraudCbk ( G3DUI *gui, float scalarLimit ) {
     g3dui_redrawGLViews ( gui );
 }
 
+/******************************************************************************/
+void common_g3duimeshedit_toggleShadingCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    g3dui_setHourGlass ( gui );
+
+    if ( obj ) {
+        if ( obj->flags & OBJECTNOSHADING ) {
+            obj->flags &= (~OBJECTNOSHADING);
+        } else {
+            obj->flags |= OBJECTNOSHADING;
+        }
+    }
+
+    g3dui_unsetHourGlass ( gui );
+
+    g3dui_redrawGLViews ( gui );
+}
 
 
 /******************************************************************************/

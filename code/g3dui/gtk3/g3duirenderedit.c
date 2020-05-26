@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
+
 /******************************************************************************/
 static void formatCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
@@ -804,6 +806,16 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
             if ( GTK_IS_SPIN_BUTTON(child) ) {
                 GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
 
+                if ( strcmp ( child_name, EDITRENDERFOGSTRENGTH ) == 0x00 ) {
+                    if ( ( rsg->flags & RENDERFOG ) ) {
+                        gtk_widget_set_sensitive ( child, TRUE );
+                    } else {
+                        gtk_widget_set_sensitive ( child, FALSE );
+                    }
+
+                    gtk_spin_button_set_value ( sbn, rsg->fog.strength * 100.0f );
+                }
+
                 if ( strcmp ( child_name, EDITRENDERFOGNEAR ) == 0x00 ) {
                     if ( ( rsg->flags & RENDERFOG ) ) {
                         gtk_widget_set_sensitive ( child, TRUE );
@@ -880,6 +892,15 @@ static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void fogStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+
+    common_g3duirenderedit_setFogStrengthCbk ( gui, strength );
+}
+
+/******************************************************************************/
 static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     float fnear = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
@@ -933,21 +954,26 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
                                      0, 24, 96, 18,
                                    setFogAffectsBackgroundCbk );
 
+          createFloatText ( frm, gui, EDITRENDERFOGSTRENGTH,
+                                     0.0f, 100.0f,
+                                     0, 48, 96,  48,
+                                   fogStrengthCbk );
+
           createFloatText ( frm, gui, EDITRENDERFOGNEAR,
                                      0.0f, FLT_MAX,
-                                     0, 48, 96,  48,
+                                     0, 72, 96,  48,
                                    fogNearCbk );
 
           createFloatText ( frm, gui, EDITRENDERFOGFAR,
                                      0.0f, FLT_MAX,
-                                     0, 72, 96,  48,
+                                     0, 96, 96,  48,
                                    fogFarCbk );
 
           createSimpleLabel ( frm, gui, EDITRENDERFOGCOLOR,
-                                     0, 96, 96, 20 );
+                                     0, 120, 96, 20 );
 
           createColorButton ( frm, gui, EDITRENDERFOGCOLOR,
-                                    96, 96, 96, 18, fogColorCbk );
+                                    96, 120, 96, 18, fogColorCbk );
 
     gui->lock = 0x00;
 
@@ -1125,7 +1151,7 @@ static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
+static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {

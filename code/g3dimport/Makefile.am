@@ -5,7 +5,7 @@ AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dimport.la
 libgloss_g3dimport_la_SOURCES = $(LIBGLOSSG3DIMPORT_C_FILES)
 
-LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
+LIBGLOSSG3DIMPORT_C_FILES = v1/g3dimport.c \
                             v2/g3dimportapp.c \
                             v2/g3dimportbone.c \
                             v2/g3dimport.c \
@@ -24,6 +24,7 @@ LIBGLOSSG3DIMPORT_C_FILES = g3dimport.c \
                             v2/g3dimportspline.c \
                             v2/g3dimportsplinerevolver.c \
                             v2/g3dimporttext.c \
+                            v2/g3dimportffd.c \
                             v2/g3dimportwireframe.c \
                             v2/g3dimportextension.c \
                             collada.c \

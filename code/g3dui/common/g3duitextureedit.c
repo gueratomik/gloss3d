@@ -55,6 +55,31 @@ void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3duitextureedit_toggleRepeatCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes  = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            if ( tex ) {
+                if ( tex->flags & TEXTUREREPEATED ) {
+                    tex->flags &= (~TEXTUREREPEATED);
+                } else {
+                    tex->flags |= TEXTUREREPEATED;
+                }
+            }
+        }
+    }
+
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
 void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t mapID ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );

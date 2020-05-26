@@ -377,46 +377,38 @@ void *r3dscene_raytrace ( void *ptr ) {
                          fogG = ( ( rsce->rsg->fog.color & 0x0000FF00 ) >> 0x08 ),
                          fogB =   ( rsce->rsg->fog.color & 0x000000FF );
 
-                if ( ray.flags & INTERSECT ) {
-                    float fogDistance = area->zBuffer[offset];
-                    float deltaFog = ( rsce->rsg->fog.ffar - 
-                                       rsce->rsg->fog.fnear );
-                    float incFogRatio = ( fogDistance - 
-                                          rsce->rsg->fog.fnear ) / deltaFog;
-                    float decFogRatio = 1.0f - incFogRatio;
+                float fogDistance = area->zBuffer[offset];
+                float fogNear = rsce->rsg->fog.fnear;
+                float fogFar = rsce->rsg->fog.ffar;
+                float deltaFog = ( fogFar - fogNear );
+                float incFogRatio = ( deltaFog ) ? ( fogDistance - 
+                                                     fogNear ) / deltaFog : 0.0f;
+                /*** note: fog strength is between 0.0f and 1.0f ***/
+                float decFogRatio = rsce->rsg->fog.strength - incFogRatio;
 
-                    if ( incFogRatio > 1.0f ) {
-                        incFogRatio = 1.0f;
-                        decFogRatio = 0.0f;
-                    }
-
-                    if ( incFogRatio < 0.0f ) {
-                        incFogRatio = 0.0f;
-                        decFogRatio = 1.0f;
-                    }
-
-                    uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
-                    uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
-                    uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
-
-                    if ( R > 0xFF ) R = 0xFF;
-                    if ( G > 0xFF ) G = 0xFF;
-                    if ( B > 0xFF ) B = 0xFF;
-
-                    imgptr[0x00] = R;
-                    imgptr[0x01] = G;
-                    imgptr[0x02] = B;
-                } else {
-                    /* 
-                     * if no polygon impact, apply fog to the background only
-                     * if requested.
-                     */
-                    if ( rsce->rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
-                        imgptr[0x00] = fogR;
-                        imgptr[0x01] = fogG;
-                        imgptr[0x02] = fogB;
-                    }
+                if ( fogDistance < fogNear ) {
+                    incFogRatio = 0.0f;
+                    decFogRatio = 1.0f;
                 }
+
+                if ( fogDistance > fogNear ) {
+                    if ( incFogRatio > 1.0f ) incFogRatio = 1.0f;
+
+                    incFogRatio = incFogRatio * rsce->rsg->fog.strength;
+                    decFogRatio = 1.0f - incFogRatio;
+                }
+
+                uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
+                uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
+                uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
+
+                if ( R > 0xFF ) R = 0xFF;
+                if ( G > 0xFF ) G = 0xFF;
+                if ( B > 0xFF ) B = 0xFF;
+
+                imgptr[0x00] = R;
+                imgptr[0x01] = G;
+                imgptr[0x02] = B;
             }
 
             imgptr += 0x03;

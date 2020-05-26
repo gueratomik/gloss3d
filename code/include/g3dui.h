@@ -110,7 +110,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define FILEDESC_C4D "Cinema4D .c4d"
 #define FILEDESC_STA "Ascii STL .stl"
 #define FILEDESC_POV "Povray Scene .pov"
-#define FILEDESC_V2  "Gloss3D V2 (Dev)"
+#define FILEDESC_V2  "Gloss3D V2"
+#define FILEDESC_V1  "Gloss3D V1"
 
 #define OBJECTMENUNAME          "Object Menu"
 
@@ -268,11 +269,13 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITRENDERFOGNEAR              "Near distance"
 #define EDITRENDERFOGFAR               "Far distance"
 #define EDITRENDERFOGCOLOR             "Color"
+#define EDITRENDERFOGSTRENGTH          "Strength"
 
 
 #define EDITTEXTUREMAPPING   "Choose UVW Map"
 #define EDITTEXTURERESTRICT  "Restrict to selection"
-
+#define EDITTEXTUREREPEAT    "Repeat texture"
+ 
 /**** Widget names for SphereEdit TextField widgets ***/
 #define EDITSPHERE       "Edit Sphere"
 #define EDITSPHERECAPS   "Caps"
@@ -327,10 +330,13 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /**** Widget names for MeshEdit TextField widget ***/
 #define EDITMESH             "Mesh"
-#define EDITMESHWEIGHTGROUP  "Weight Groups"
+#define EDITMESHGENERAL      "General"
+#define EDITMESHWEIGHTGROUPS "Weight Groups"
+#define EDITMESHFACEGROUPS   "Face Groups"
 #define EDITMESHPOSE         "Poses"
 #define EDITMESHGOURAUDLIMIT "Gouraud Shading limit"
 #define EDITMESHISOLINES     "Use isoparms (Slower)"
+#define EDITMESHSHADING      "Disable shading"
 
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
@@ -1166,6 +1172,8 @@ void common_g3duikeyedit_loopCbk      ( G3DUI *, uint32_t );
 void common_g3duikeyedit_loopFrameCbk ( G3DUI *, float );
 void common_g3duikeyedit_setFlagCbk   ( G3DUI *, uint32_t );
 void common_g3duikeyedit_unsetFlagCbk ( G3DUI *, uint32_t );
+void common_g3duikeyedit_unsetKeyTransformationsCbk ( G3DUI *gui, uint32_t flag );
+void common_g3duikeyedit_setKeyTransformationsCbk   ( G3DUI *gui, uint32_t flag );
 
 /****************************** Object Edit ***********************************/
 void common_g3duiobjectedit_nameCbk ( G3DUI *, const char * );
@@ -1183,6 +1191,7 @@ void common_g3duimeshedit_useAdaptiveCbk      ( G3DUI * );
 void common_g3duimeshedit_setAdaptiveAngleCbk ( G3DUI *, float );
 void common_g3duimeshedit_subdivSyncCbk       ( G3DUI * );
 void common_g3duimeshedit_gouraudCbk          ( G3DUI *, float );
+void common_g3duimeshedit_toggleShadingCbk    ( G3DUI *gui );
 
 /****************************** Text Edit *************************************/
 void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness );
@@ -1267,6 +1276,7 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI *, uint32_t,
 /****************************** Texture Edit  *********************************/
 void common_g3duitextureedit_setUVMapCbk ( G3DUI *, uint32_t );
 void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui );
+void common_g3duitextureedit_toggleRepeatCbk ( G3DUI *gui );
 
 /****************************** Render Edit  **********************************/
 void common_g3duirenderedit_startFrameCbk ( G3DUI *, float );
@@ -1476,6 +1486,8 @@ void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui );
 void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui );
 void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui );
 void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui );
+void common_g3duirenderedit_setFogStrengthCbk ( G3DUI *gui, 
+                                                float strength );
 void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename );
 void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui );

@@ -117,7 +117,7 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
                     if ( mat->flags & BUMP_ENABLED ) {
-                        g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba );
+                        g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba, 0x01 );
 
                     p->pos.x += ( rgba.r * mat->bump.solid.r );
                     p->pos.y += ( rgba.r * mat->bump.solid.g );
@@ -192,7 +192,7 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 if ( mat->flags & DIFFUSE_ENABLED ) {
                     G3DRGBA rgba;
 
-                    g3dchannel_getColor ( &mat->diffuse, p->u, p->v, &rgba );
+                    g3dchannel_getColor ( &mat->diffuse, p->u, p->v, &rgba, 0x01 );
 
                     R = rgba.r;
                     G = rgba.g;
@@ -203,7 +203,7 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                     float trans = 0.0f;
                     G3DRGBA rgba;
 
-                    g3dchannel_getColor ( &mat->alpha, p->u, p->v, &rgba );
+                    g3dchannel_getColor ( &mat->alpha, p->u, p->v, &rgba, 0x01 );
 
                     if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
                          ( mat->alpha.flags & USEPROCEDURAL ) ) {

@@ -240,6 +240,29 @@ void g3dffd_generateuvw ( G3DFFD *ffd ) {
 }
 
 /******************************************************************************/
+void g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+    if ( parent ) {
+        G3DMESH *mes = ( G3DMESH * ) parent;
+        LIST *ltmp = mes->lver;
+
+        g3dvector_matrix ( &ffd->locmin, obj->lmatrix, &ffd->parmin );
+        g3dvector_matrix ( &ffd->locmax, obj->lmatrix, &ffd->parmax );
+
+        ffd->lver  = lver;
+        ffd->nbver = list_count ( lver );
+
+        ffd->pos = pos;
+        ffd->uvw = uvw;
+
+        ffd->lfac = g3dvertex_getFacesFromList ( ffd->lver );
+        ffd->ledg = g3dface_getEdgesFromList   ( ffd->lfac );
+    }
+}
+
+/******************************************************************************/
 void g3dffd_activate ( G3DFFD *ffd, uint32_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );

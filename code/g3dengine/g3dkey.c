@@ -158,21 +158,6 @@ void g3dkey_unsetFlagFromList ( LIST *lkey, uint32_t flag ) {
 }
 
 /******************************************************************************/
-void g3dkey_setUseScalingFromList ( LIST *lkey ) {
-    g3dkey_setFlagFromList ( lkey, KEYSCALING );
-}
-
-/******************************************************************************/
-void g3dkey_setUseRotationFromList ( LIST *lkey ) {
-    g3dkey_setFlagFromList ( lkey, KEYROTATION );
-}
-
-/******************************************************************************/
-void g3dkey_setUsePositionFromList ( LIST *lkey ) {
-    g3dkey_setFlagFromList ( lkey, KEYPOSITION );
-}
-
-/******************************************************************************/
 uint32_t g3dkey_getFlagFromList ( LIST *lkey, uint32_t flag ) {
     LIST *ltmpkey = lkey;
 

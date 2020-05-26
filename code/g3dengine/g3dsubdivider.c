@@ -642,6 +642,14 @@ I dont't know why.
                 glEnable ( GL_TEXTURE_2D );
                 glBindTexture ( GL_TEXTURE_2D, difimg->id );
 
+                if ( tex->flags & TEXTUREREPEATED ) {
+                    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+                    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+                } else {
+                    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+                    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                }
+
                 glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, 
                                             GL_COMBINE_EXT );
 
@@ -729,6 +737,7 @@ static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac,
         ltmptex = ltmptex->next;
     }
 
+    glBindTexture ( GL_TEXTURE_2D, 0 );
     glEnable ( GL_COLOR_MATERIAL );
 }
 

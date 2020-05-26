@@ -705,7 +705,6 @@ R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
 
 /******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
-void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
 void g3duiuvmapeditor_undoCbk ( GtkWidget *widget, gpointer user_data );

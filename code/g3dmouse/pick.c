@@ -137,18 +137,6 @@ static void closeSelectionRectangle ( G3DPICKTOOL *pt,
     int x2 = VPX[0x00] + VPX[0x02];
     int y2 = VPX[0x01] + VPX[0x03];
 
-    /*** default selection is a 8px X 8px square. This is also the one used ***/
-    /*** for axis selection ***/
-    if ( pt->coord[0x00] == pt->coord[0x02] ) {
-        pt->coord[0x00] -= pt->radius;
-        pt->coord[0x02] += pt->radius;
-    }
-
-    if ( pt->coord[0x01] == pt->coord[0x03] ) {
-        pt->coord[0x01] -= pt->radius;
-        pt->coord[0x03] += pt->radius;
-    }
-
     /*** in face mode, the square is only 1 pixel large. ***/
     if ( ( eflags &  VIEWFACE   ) ||
          ( eflags &  VIEWFACEUV ) ) {
@@ -160,6 +148,18 @@ static void closeSelectionRectangle ( G3DPICKTOOL *pt,
         if ( pt->coord[0x01] == pt->coord[0x03] ) {
             pt->coord[0x01] -= 0x01;
             pt->coord[0x03] += 0x01;
+        }
+    } else {
+        /*** default selection is a 8px X 8px square. This is also the one used ***/
+        /*** for axis selection ***/
+        if ( pt->coord[0x00] == pt->coord[0x02] ) {
+            pt->coord[0x00] -= pt->radius;
+            pt->coord[0x02] += pt->radius;
+        }
+
+        if ( pt->coord[0x01] == pt->coord[0x03] ) {
+            pt->coord[0x01] -= pt->radius;
+            pt->coord[0x03] += pt->radius;
         }
     }
 

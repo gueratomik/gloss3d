@@ -30,6 +30,24 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+int32_t g3dvertex_getRankFromList ( LIST *lver, G3DVERTEX *ver ) {
+    LIST *ltmpver = lver;
+    int32_t i = 0x00;
+
+    while ( ltmpver ) {
+        G3DVERTEX *cmp = ( G3DVERTEX * ) ltmpver->data;
+
+        if ( cmp == ver ) return i;
+
+        i++;
+
+        ltmpver = ltmpver->next;
+    }
+
+    return -1;
+}
+
+/******************************************************************************/
 uint32_t g3dvertex_belongsToSelectedFacesOnly ( G3DVERTEX *ver ) {
     LIST *ltmpfac = ver->lfac;
 

@@ -57,6 +57,9 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                      cap, 
                                                      radius );
 
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
                 
             } break;
 
@@ -75,6 +78,10 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                    nby,
                                                    nbz,
                                                    radius );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_TORUS : {
@@ -95,6 +102,10 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                     cap,
                                                     extrad,
                                                     intrad );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_CYLINDER : {
@@ -117,6 +128,10 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                        capy, 
                                                        radius,
                                                        length );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_PLANE : {
@@ -137,6 +152,10 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                     nbv, 
                                                     radu, 
                                                     radv );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
             } break;
 
             default : {
