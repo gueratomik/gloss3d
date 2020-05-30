@@ -134,7 +134,8 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
     gtk_window_resize    ( GTK_WINDOW ( window ), 1024, 576 );
 
-    g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (window, "destroy"     , G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );
 
     gtk_widget_show (window);
   

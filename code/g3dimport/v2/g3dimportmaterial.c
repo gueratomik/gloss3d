@@ -53,8 +53,12 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 /*** ID should be part of the above function args ***/
                 gid->currentMaterial->id = gid->currentMaterialID++;
 
-                g3dscene_addMaterial ( gid->currentScene,
-                                       gid->currentMaterial );
+                g3dscene_appendMaterial ( gid->currentScene,
+                                          gid->currentMaterial );
+            } break;
+
+            case SIG_MATERIAL_FLAGS : {
+                g3dimport_freadl ( &gid->currentMaterial->flags, fsrc );
             } break;
 
             case SIG_MATERIAL_DIFFUSE : {
@@ -97,13 +101,15 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_DISPLACEMENT : {
+                g3dmaterial_enableAlpha ( gid->currentMaterial );
+
                 gid->currentChannel = &gid->currentMaterial->displacement;
             } break;
 
             case SIG_MATERIAL_DISPLACEMENT_STRENGTH : {
                 float strength;
 
-                 g3dimport_freadf ( &strength, fsrc );
+                g3dimport_freadf ( &strength, fsrc );
 
                 gid->currentMaterial->displacement.solid.r = 
                 gid->currentMaterial->displacement.solid.g =

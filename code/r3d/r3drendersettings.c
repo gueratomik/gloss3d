@@ -205,9 +205,9 @@ static uint32_t r3drendersettings_backgroundMode ( G3DEXPORTDATA         *ged,
 
 /******************************************************************************/
 static uint32_t r3drendersettings_background ( G3DEXPORTDATA         *ged,
-                                              R3DBACKGROUNDSETTINGS *bgs,
-                                              uint32_t               flags, 
-                                              FILE                  *fdst ) {
+                                               R3DBACKGROUNDSETTINGS *bgs,
+                                               uint32_t               flags, 
+                                               FILE                  *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_MODE,
@@ -224,7 +224,8 @@ static uint32_t r3drendersettings_background ( G3DEXPORTDATA         *ged,
                                    0xFFFFFFFF,
                                    fdst );
 
-    if ( bgs->image ) {
+    if ( ( bgs->mode & BACKGROUND_IMAGE ) && 
+         ( bgs->image ) ) {
         size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_IMAGE,
                                        r3drendersettings_backgroundImage,
                                        ged,

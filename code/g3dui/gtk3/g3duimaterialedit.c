@@ -195,7 +195,7 @@ static GtkWidget *createRefractionPanel ( GtkWidget *parent, G3DUI *gui,
                                        100.0f, 200.0f, 1.0f,
                                        refractionStrengthCbk );
 
-          createSimpleLabel     ( pan, gui, 
+          /*createSimpleLabel     ( pan, gui, 
                                        EDITREFRACTIONTRANSPARENCY,
                                          0, 24,  96, 18 );
 
@@ -203,7 +203,7 @@ static GtkWidget *createRefractionPanel ( GtkWidget *parent, G3DUI *gui,
                                        EDITREFRACTIONTRANSPARENCY,
                                        104, 24, 208, 18,
                                        0.0f, 100.0f, 1.0f,
-                                       transparencyStrengthCbk );
+                                       transparencyStrengthCbk );*/
 
 
     return pan;
@@ -585,11 +585,11 @@ static void alphaImageCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    float str = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    float opacity = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
     g3dui_setHourGlass ( gui );
 
-    common_g3dui_materialSetAlphaStrengthCbk ( gui, str );
+    common_g3dui_materialSetAlphaStrengthCbk ( gui, opacity / 100.0f );
 
     g3dui_unsetHourGlass ( gui );
 }
@@ -620,7 +620,7 @@ static void alphaProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+    GList *children = gtk_container_get_children ( GTK_CONTAINER ( widget ) );
 
     gui->lock = 0x01;
 
@@ -682,7 +682,7 @@ static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITALPHASTRENGTH ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, mat->alpha.solid.a );
+                    gtk_spin_button_set_value ( spb, mat->alpha.solid.a * 100.0f );
                 }
             }
 
@@ -742,7 +742,7 @@ static GtkWidget *createAlphaPanel ( GtkWidget *parent, G3DUI *gui,
 
 
     createFloatText    ( pan, gui, EDITALPHASTRENGTH,
-                               0.0f, FLT_MAX,
+                               0.0f, 100.0f,
                                 0,  24,
                                96,
                                48, alphaStrengthCbk );
@@ -1467,40 +1467,46 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
+static void updatePage ( GtkWidget *widget, G3DUI *gui ) {
+    const char *name = gtk_widget_get_name ( widget );
+
+    if ( strcmp ( name, EDITSPECULAR     ) == 0x00 ) {
+        updateSpecularPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITDIFFUSE      ) == 0x00 ) {
+        updateDiffuseColorPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITDISPLACEMENT ) == 0x00 ) {
+        updateDisplacementPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITREFLECTION   ) == 0x00 ) {
+        updateReflectionPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITREFRACTION   ) == 0x00 ) {
+        updateRefractionPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITALPHA        ) == 0x00 ) {
+        updateAlphaPanel ( widget, gui );
+    }
+
+    if ( strcmp ( name, EDITBUMP         ) == 0x00 ) {
+        updateBumpPanel ( widget, gui );
+    }
+}
+
+/******************************************************************************/
 void updateMaterialChannels ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
 
-        if ( strcmp ( child_name, EDITSPECULAR     ) == 0x00 ) {
-            updateSpecularPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITDIFFUSE      ) == 0x00 ) {
-            updateDiffuseColorPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITDISPLACEMENT ) == 0x00 ) {
-            updateDisplacementPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITREFLECTION ) == 0x00 ) {
-            updateReflectionPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITREFRACTION ) == 0x00 ) {
-            updateRefractionPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITALPHA ) == 0x00 ) {
-            updateAlphaPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITBUMP ) == 0x00 ) {
-            updateBumpPanel ( child, gui );
-        }
+        updatePage ( child, gui );
 
         children =  g_list_next ( children );
     }
@@ -1512,6 +1518,9 @@ void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
     G3DMATERIAL *mat = gui->selmat;
 
     gui->lock = 0x01;
+
+    if ( gui->selmat == NULL ) gtk_widget_set_sensitive ( widget, FALSE );
+    else                       gtk_widget_set_sensitive ( widget, TRUE  );
 
     if ( mat ) {
         while ( children ) {
@@ -1525,7 +1534,7 @@ void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
             if ( strcmp ( child_name, EDITMATERIALNAME      ) == 0x00 ) {
                 if ( GTK_IS_ENTRY(child) ) {
                     GtkEntry *ent = GTK_ENTRY(child);
-                 
+
                     gtk_entry_set_text ( ent, mat->name );
                 }
             }
@@ -1535,6 +1544,16 @@ void updateMaterialEdit ( GtkWidget *widget, G3DUI *gui ) {
     }
 
     gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void pageAdded ( GtkNotebook *notebook,
+                        GtkWidget   *child,
+                        guint        page_num,
+                        gpointer     user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    updatePage ( child, gui );
 }
 
 /******************************************************************************/
@@ -1578,7 +1597,8 @@ GtkWidget *createMaterialEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(frm), tab, gdkrec.x, gdkrec.y );
 
-    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
+    /*g_signal_connect ( G_OBJECT (tab), "page-added", G_CALLBACK (pageAdded), gui );*/
 
     createDiffuseColorPanel ( tab, gui, EDITDIFFUSE     , 0, 0, width, height );
     createSpecularPanel     ( tab, gui, EDITSPECULAR    , 0, 0, width, height );

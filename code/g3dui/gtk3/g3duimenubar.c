@@ -855,6 +855,35 @@ GtkWidget *createEditMenu ( GtkWidget *bar, G3DUI *gui,
 }
 
 /******************************************************************************/
+gboolean g3dui_exitEventCbk ( GtkWidget *widget, 
+                              GdkEvent  *event, 
+                              gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_message_dialog_new ( NULL,
+                                      GTK_DIALOG_MODAL,
+                                      GTK_MESSAGE_QUESTION,
+                                      GTK_BUTTONS_YES_NO,
+                                      "Leave Gloss3D ?" );
+
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_YES ) {
+        common_g3dui_exitokcbk ( gui );
+
+        return FALSE;
+    }
+
+    gtk_widget_destroy ( dialog );
+
+    return TRUE;
+}
+
+/******************************************************************************/
 void g3dui_exitcbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3 *ggt = gui->toolkit_data;
@@ -865,7 +894,7 @@ void g3dui_exitcbk ( GtkWidget *widget, gpointer user_data ) {
                                       GTK_DIALOG_MODAL,
                                       GTK_MESSAGE_QUESTION,
                                       GTK_BUTTONS_YES_NO,
-                                      "Leave Gloss3D :-( ?" );
+                                      "Leave Gloss3D ?" );
 
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );

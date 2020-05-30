@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+typedef struct _G3DSCENE G3DSCENE;
+
 /**
  * @struct G3DSYSINFO
  * @brief A structure to store system-type info (number of CPUs, etc...).
@@ -59,6 +61,7 @@ typedef struct _G3DSYSINFO {
     G3DIMAGE        *backgroundImage;
     G2DVECTOR        renderRectangle[0x04];
     G3DCAMERA       *defaultCamera; /* used for backgroung uvw mapping */
+    G3DSCENE *sce; /*** used only for debugging purpose ***/
 } G3DSYSINFO;
 
 /******************************************************************************/

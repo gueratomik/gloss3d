@@ -953,6 +953,24 @@ G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
 }
 
 /******************************************************************************/
+G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank ) {
+    LIST *ltmpmap = mes->luvmap;
+    uint32_t count = 0x00;
+
+    while ( ltmpmap ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
+
+        if ( count == rank ) return map;
+
+        count++;
+
+        ltmpmap = ltmpmap->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
     return mes->nbuvmap;
 }
@@ -2142,11 +2160,13 @@ void g3dmesh_cut ( G3DMESH *mes, G3DFACE *knife, LIST   **loldfac,
                                                  LIST   **lnewfac,
                                                  uint32_t restricted,
                                                  uint32_t eflags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *lcutfac = NULL; /*** list of cut faces    ***/
     LIST *lcutedg = NULL;
     LIST *loldedg = NULL;
     LIST *ltmpedg, *lseledg;
     LIST *ltmpfac;
+    LIST *ltmpnewver;
 
     if ( ( restricted ) && ( eflags & VIEWFACE ) ) {
         lseledg = ltmpedg = g3dface_getEdgesFromList ( mes->lselfac );
@@ -2213,6 +2233,20 @@ void g3dmesh_cut ( G3DMESH *mes, G3DFACE *knife, LIST   **loldfac,
         }
 
         ltmpfac = ltmpfac->next;
+    }
+
+    ltmpnewver = (*lnewver);
+
+    /*** Must be done after vertex topology is done ***/
+    while ( ltmpnewver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpnewver->data;
+
+        if ( obj->parent->childvertexchange ) {
+            obj->parent->childvertexchange ( obj->parent,
+                                             obj, ver );
+        }
+
+        ltmpnewver = ltmpnewver->next;
     }
 
     if ( ( restricted ) && ( eflags & VIEWFACE ) ) {

@@ -157,7 +157,7 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 /*** if type not supported ***/
                 if ( proc ) {
                     /*** we have to do some special treatment to bin image to ***/
-                    /*** OpenGL memeory. Maybe we could just set some flags in ***/
+                    /*** OpenGL memory. Maybe we could just set some flags in ***/
                     /*** the channel to tell it needs GL binding ***/
                     if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
                         g3dprocedural_fill ( proc, width, 

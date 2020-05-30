@@ -422,10 +422,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define EDITALPHA                   "Alpha"
 #define EDITALPHAENABLED            "Enable Alpha Channel"
-#define EDITALPHACHANNEL            "Bump Channel"
+#define EDITALPHACHANNEL            "Alpha Channel"
 #define EDITALPHAIMAGE               EDITCHANNELIMAGE
 #define EDITALPHAPROCEDURAL          EDITCHANNELPROCEDURAL
-#define EDITALPHASTRENGTH           "Strength"
+#define EDITALPHASTRENGTH           "Opacity"
 
 #define EDITREFLECTION             "Reflection"
 #define EDITREFLECTIONSTRENGTH     "Strength"

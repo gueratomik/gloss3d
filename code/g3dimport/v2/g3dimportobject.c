@@ -273,6 +273,8 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 if ( active ) {
                     g3dobject_activate ( gid->currentObject, gid->engineFlags );
+                } else {
+                    g3dobject_deactivate ( gid->currentObject, gid->engineFlags );
                 }
             } break;
 

@@ -82,6 +82,20 @@ double g3ddoublevector_length ( G3DDOUBLEVECTOR *vec ) {
 }
 
 /******************************************************************************/
+void g3ddoublevector_normalize ( G3DDOUBLEVECTOR *vec, float *len ) {
+    float LEN = g3ddoublevector_length ( vec );
+
+    if ( len ) (*len) = LEN;
+
+    if ( LEN ) {
+        vec->x = vec->x / LEN;
+        vec->y = vec->y / LEN;
+        vec->z = vec->z / LEN;
+        vec->w = 1.0f;
+    }
+}
+
+/******************************************************************************/
 void g3ddoublevector_invert ( G3DDOUBLEVECTOR *vec ) {
     vec->x = - vec->x;
     vec->y = - vec->y;

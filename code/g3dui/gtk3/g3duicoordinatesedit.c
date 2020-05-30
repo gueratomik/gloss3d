@@ -142,6 +142,27 @@ void updateCoordinatesEdit ( GtkWidget *widget, G3DUI *gui ) {
                                   .y = obj->sca.y,
                                   .z = obj->sca.z };
 
+                if ( ( obj->flags & OBJECTNOTRANSLATION ) &&
+                     (  ( strcmp ( child_name, EDITXPOSITION ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITYPOSITION ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITZPOSITION ) == 0x00 ) ) ) {
+                    gtk_widget_set_sensitive ( child, FALSE );
+                }
+
+                if ( ( obj->flags & OBJECTNOROTATION ) &&
+                     (  ( strcmp ( child_name, EDITXROTATION ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITYROTATION ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITZROTATION ) == 0x00 ) ) ) {
+                    gtk_widget_set_sensitive ( child, FALSE );
+                }
+
+                if ( ( obj->flags & OBJECTNOSCALING ) &&
+                     (  ( strcmp ( child_name, EDITXSCALING ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITYSCALING ) == 0x00 ) ||
+                        ( strcmp ( child_name, EDITZSCALING ) == 0x00 ) ) ) {
+                    gtk_widget_set_sensitive ( child, FALSE );
+                }
+
                 if ( obj->type == G3DMESHTYPE ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
 

@@ -537,33 +537,35 @@ static int scale_object ( LIST        *lobj,
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
                     G3DDOUBLEVECTOR lstartpos, lendpos;
 
-                    obj->sca.x += ( dif.x * 0.02f );
-                    obj->sca.y += ( dif.y * 0.02f );
-                    obj->sca.z += ( dif.z * 0.02f );
+                    if ( ( obj->flags & OBJECTNOSCALING ) == 0x00 ) {
+                        obj->sca.x += ( dif.x * 0.02f );
+                        obj->sca.y += ( dif.y * 0.02f );
+                        obj->sca.z += ( dif.z * 0.02f );
 
-                    if ( obj->sca.x < 0.0f ) obj->sca.x = 0.0001f;
-                    if ( obj->sca.y < 0.0f ) obj->sca.y = 0.0001f;
-                    if ( obj->sca.z < 0.0f ) obj->sca.z = 0.0001f;
+                        if ( obj->sca.x < 0.0f ) obj->sca.x = 0.0001f;
+                        if ( obj->sca.y < 0.0f ) obj->sca.y = 0.0001f;
+                        if ( obj->sca.z < 0.0f ) obj->sca.z = 0.0001f;
 
-                    g3dobject_updateMatrix_r ( obj, eflags );
+                        g3dobject_updateMatrix_r ( obj, eflags );
 
-                    if ( eflags & VIEWAXIS ) {
-                        /*** in case this was in VIEWAXIS mode, we move ***/
-                        /*** back the vertices were they were before,   ***/
-                        /*** in world coord ***/
-                        if ( nbobj == 0x01 ) {
-                            if ( obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
+                        if ( eflags & VIEWAXIS ) {
+                            /*** in case this was in VIEWAXIS mode, we move ***/
+                            /*** back the vertices were they were before,   ***/
+                            /*** in world coord ***/
+                            if ( nbobj == 0x01 ) {
+                                if ( obj->type == G3DMESHTYPE ) {
+                                    G3DMESH *mes = ( G3DMESH * ) obj;
 
-                                g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
-                            }
+                                    g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
 
-                            if ( obj->type & SPLINE ) {
-                                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+                                if ( obj->type & SPLINE ) {
+                                    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                                g3dspline_moveAxis ( spl, PREVWMVX, eflags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    g3dspline_moveAxis ( spl, PREVWMVX, eflags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
                             }
                         }
                     }

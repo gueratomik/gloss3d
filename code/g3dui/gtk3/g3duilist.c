@@ -539,28 +539,32 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                     uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
 
                     if ( pob ) {
-                        if ( pob->picked == TEXTURERECTHIT ) {
-                            if ( pob->obj->type & MESH ) {
-                                g3durm_mesh_removeTexture ( urm,
-                                                            pob->obj,
-                                                            pob->tex,
-                                                            gui->flags,
-                                                            retflags );
-                            }
-                        }
+                        switch ( pob->picked ) {
+                            case TEXTURERECTHIT : {
+                                if ( pob->obj->type & MESH ) {
+                                    g3durm_mesh_removeTexture ( urm,
+                                                                pob->obj,
+                                                                pob->tex,
+                                                                gui->flags,
+                                                                retflags );
+                                }
+                            } break;
 
-                        if ( pob->picked == UVMAPRECTHIT ) {
-                            g3durm_mesh_removeUVMap ( urm,
-                                                      pob->obj,
-                                                      pob->uvmap, 
-                                                      gui->flags,
-                                                      REDRAWVIEW |REDRAWLIST );
+                            case UVMAPRECTHIT : {
+                                g3durm_mesh_removeUVMap ( urm,
+                                                          pob->obj,
+                                                          pob->uvmap, 
+                                                          gui->flags,
+                                                          REDRAWVIEW |REDRAWLIST );
+                            } break;
+
+                            default : {
+                                g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
+
+                                pob = NULL;
+                            } break;
                         }
-                    } else {
-                        g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
                     }
-
-                    pob = NULL;
                 } break;
 
                 case GDK_KEY_c: {

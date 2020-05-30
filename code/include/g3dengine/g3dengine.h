@@ -1404,6 +1404,10 @@ void       g3dcore_grid3D   ( uint32_t );
 void       g3dcore_gridXY   ( uint32_t );
 void       g3dcore_gridYZ   ( uint32_t );
 void       g3dcore_gridZX   ( uint32_t );
+float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
+                             G3DVECTOR *p1,
+                             G3DVECTOR *p2,
+                             G3DVECTOR *pout );
 void     g3dcore_multmatrix              ( double *, double *, double * );
 uint32_t g3dcore_getNumberOfCPUs         ( );
 void     g3dcore_invertMatrix            ( double *, double * );
@@ -1454,7 +1458,7 @@ double g3ddoublevector_length ( G3DDOUBLEVECTOR * );
 double g3ddoublevector_scalar ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR * );
 void g3ddoublevector_cross ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR *, 
                                                 G3DDOUBLEVECTOR * );
-
+void g3ddoublevector_normalize ( G3DDOUBLEVECTOR *vec, float *len );
 
 
 /******************************************************************************/
@@ -2074,6 +2078,7 @@ void       g3dmesh_addWeightGroup       ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_alignNormals         ( G3DMESH * );
 void       g3dmesh_alignFaces           ( G3DMESH * );
 uint32_t   g3dmesh_getUVMapCount        ( G3DMESH *mes );
+G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank );
 void       g3dmesh_allocSubdivisionBuffers       ( G3DMESH *, uint32_t );
 void       g3dmesh_allocFaceSubdivisionBuffer    ( G3DMESH *, uint32_t,
                                                               uint32_t );
@@ -2345,6 +2350,7 @@ uint32_t   g3dscene_getNextObjectID          ( G3DSCENE * );
 void       g3dscene_drawScene                ( G3DSCENE *, uint32_t );
 LIST      *g3dscene_getAllMeshes             ( G3DSCENE * );
 void       g3dscene_addMaterial              ( G3DSCENE *, G3DMATERIAL * );
+void       g3dscene_appendMaterial           ( G3DSCENE *sce, G3DMATERIAL *mat );
 void       g3dscene_removeMaterial           ( G3DSCENE *, G3DMATERIAL * );
 void       g3dscene_freeMaterials            ( G3DSCENE * );
 void       g3dscene_drawSelectedObjectCursor ( G3DSCENE *, uint32_t );

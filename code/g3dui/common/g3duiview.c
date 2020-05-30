@@ -111,15 +111,15 @@ void common_g3duiview_moveForward ( G3DUIVIEW *view, int32_t x,
     int difx = ( xold - x );
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
-        cam->ortho.z += ( difx * 0.00025f );
+        cam->ortho.z += ( difx * 0.000005f );
 
         if ( cam->ortho.z < 0.0f ) cam->ortho.z = 0.0f;
     } else {
         g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
 
-        obj->pos.x += ( camz.x * ( (float) ( difx ) / 20.0f ) );
-        obj->pos.y += ( camz.y * ( (float) ( difx ) / 20.0f ) );
-        obj->pos.z += ( camz.z * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.x += ( camz.x * ( (float) ( difx ) / 40.0f ) );
+        obj->pos.y += ( camz.y * ( (float) ( difx ) / 40.0f ) );
+        obj->pos.z += ( camz.z * ( (float) ( difx ) / 40.0f ) );
 
         /*** if orthogonal view, dont let the camera ***/
         /*** go negative ***/
@@ -324,6 +324,8 @@ void common_g3duiview_showGL ( G3DUIVIEW    *view,
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     R3DRENDERSETTINGS *rsg = gui->currsg;
     G3DRGBA backgroundRGBA;
+
+    sysinfo->sce = sce; /* for debugging purpose */
 
     if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
         g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );

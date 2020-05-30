@@ -445,75 +445,77 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
                      ( ffd->nby + 0x01 ) *
                      ( ffd->nbz + 0x01 );
 
-    glPushAttrib ( GL_ALL_ATTRIB_BITS );
-    glDisable ( GL_LIGHTING );
+    if ( ( flags & SYMMETRYVIEW ) == 0x00 ) {
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glDisable ( GL_LIGHTING );
 
-    glPointSize ( 3.0f );
+        glPointSize ( 3.0f );
 
-    for ( i = 0x00; i <= ffd->nbx; i++ ) {
-        for ( j = 0x00; j <= ffd->nby; j++ ) {
-            for ( k = 0x00; k <= ffd->nbz; k++ ) {
-                G3DVERTEX *pnt = &ffd->pnt[n++];
+        for ( i = 0x00; i <= ffd->nbx; i++ ) {
+            for ( j = 0x00; j <= ffd->nby; j++ ) {
+                for ( k = 0x00; k <= ffd->nbz; k++ ) {
+                    G3DVERTEX *pnt = &ffd->pnt[n++];
 
-                if ( flags & SELECTMODE ) glLoadName ( ( GLint ) pnt->id );
+                    if ( flags & SELECTMODE ) glLoadName ( ( GLint ) pnt->id );
 
-                if ( pnt->flags & VERTEXSELECTED ) {
-                    glColor3ub ( 0xFF, 0x00, 0x00 );
-                } else {
-                    glColor3ub ( 0x00, 0x00, 0x00 );
+                    if ( pnt->flags & VERTEXSELECTED ) {
+                        glColor3ub ( 0xFF, 0x00, 0x00 );
+                    } else {
+                        glColor3ub ( 0x00, 0x00, 0x00 );
+                    }
+
+                    glBegin ( GL_POINTS );
+                    glVertex3fv ( ( const GLfloat * ) &pnt->pos );
+                    glEnd ( );
+                }
+            }
+        }
+
+        if ( ( flags & SELECTMODE ) == 0x00 ) {
+            uint32_t nbx = ffd->nbx + 0x01;
+            uint32_t nby = ffd->nby + 0x01;
+            uint32_t nbz = ffd->nbz + 0x01;
+            uint32_t n = 0x00;
+
+            glColor3ub ( 0xFF, 0x7F, 0x00 );
+            glBegin ( GL_LINES );
+
+            for ( n = 0x00; n < nbpnt; n++ ) {
+                G3DVERTEX *pnt0 = &ffd->pnt[n];
+                uint32_t   nxtz = ( n + 0x01 );
+                uint32_t   nxty = ( n + nbz  );
+                uint32_t   nxtx = ( n + ( nby * nbz ) );
+                G3DVERTEX *pntz = NULL;
+                G3DVERTEX *pnty = NULL;
+                G3DVERTEX *pntx = NULL;
+
+                if ( ( nxtz < nbpnt ) && ( nxtz % nbz ) ) {
+                    pntz = &ffd->pnt[nxtz];
+
+                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                    glVertex3fv ( ( const GLfloat * ) &pntz->pos );
                 }
 
-                glBegin ( GL_POINTS );
-                glVertex3fv ( ( const GLfloat * ) &pnt->pos );
-                glEnd ( );
-            }
-        }
-    }
+                if ( ( nxty < nbpnt ) && ( ( nxty % ( nbz * nby ) ) >= nbz ) ) {
+                    pnty = &ffd->pnt[nxty];
 
-    if ( ( flags & SELECTMODE ) == 0x00 ) {
-        uint32_t nbx = ffd->nbx + 0x01;
-        uint32_t nby = ffd->nby + 0x01;
-        uint32_t nbz = ffd->nbz + 0x01;
-        uint32_t n = 0x00;
+                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                    glVertex3fv ( ( const GLfloat * ) &pnty->pos );
+                }
 
-        glColor3ub ( 0xFF, 0x7F, 0x00 );
-        glBegin ( GL_LINES );
+                if ( nxtx < nbpnt ) {
+                    pntx = &ffd->pnt[nxtx];
 
-        for ( n = 0x00; n < nbpnt; n++ ) {
-            G3DVERTEX *pnt0 = &ffd->pnt[n];
-            uint32_t   nxtz = ( n + 0x01 );
-            uint32_t   nxty = ( n + nbz  );
-            uint32_t   nxtx = ( n + ( nby * nbz ) );
-            G3DVERTEX *pntz = NULL;
-            G3DVERTEX *pnty = NULL;
-            G3DVERTEX *pntx = NULL;
-
-            if ( ( nxtz < nbpnt ) && ( nxtz % nbz ) ) {
-                pntz = &ffd->pnt[nxtz];
-
-                glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                glVertex3fv ( ( const GLfloat * ) &pntz->pos );
+                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                    glVertex3fv ( ( const GLfloat * ) &pntx->pos );
+                }
             }
 
-            if ( ( nxty < nbpnt ) && ( ( nxty % ( nbz * nby ) ) >= nbz ) ) {
-                pnty = &ffd->pnt[nxty];
-
-                glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                glVertex3fv ( ( const GLfloat * ) &pnty->pos );
-            }
-
-            if ( nxtx < nbpnt ) {
-                pntx = &ffd->pnt[nxtx];
-
-                glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                glVertex3fv ( ( const GLfloat * ) &pntx->pos );
-            }
+            glEnd ( );
         }
 
-        glEnd ( );
+        glPopAttrib ( );
     }
-
-    glPopAttrib ( );
 
     return /*MODIFIERTAKESOVER*/0x00;
 }

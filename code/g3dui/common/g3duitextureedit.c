@@ -80,7 +80,7 @@ void common_g3duitextureedit_toggleRepeatCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t mapID ) {
+void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t rank ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
@@ -89,24 +89,13 @@ void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t mapID ) {
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes  = ( G3DMESH * ) obj;
+            G3DUVMAP *map = g3dmesh_getUVMapByRank ( mes, rank );
             LIST *ltmpseltex = mes->lseltex;
 
             while ( ltmpseltex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmpseltex->data;
-                uint32_t curmap = 0x00;
-                LIST *ltmpuvmap = mes->luvmap;
 
-                while ( ltmpuvmap ) {
-                    G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
-
-                    if ( curmap == mapID ) {
-                        tex->map = uvmap;
-                    }
-
-                    curmap++;
-
-                    ltmpuvmap = ltmpuvmap->next;
-                }
+                tex->map = ( map ) ? map : NULL;
 
                 ltmpseltex = ltmpseltex->next;
             }

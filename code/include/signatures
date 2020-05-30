@@ -7,12 +7,12 @@
 
 SIG_ROOT=0x44335347
 ---- SIG_ROOT_VERSION
----- SIG_ROOT_VERSION_APP
+-------- SIG_ROOT_VERSION_APP
 ------------ major (uint32_t)
 ------------ minor (uint32_t)
 ------------ release (uint32_t)
----- SIG_ROOT_VERSION_FILE
--------- version (uint32_t)
+-------- SIG_ROOT_VERSION_FILE
+------------ version (uint32_t)
 ---- SIG_ROOT_COMMENT
 -------- comment ( char[] )
 ---- SIG_OBJECTS
@@ -20,6 +20,8 @@ SIG_ROOT=0x44335347
 ----------- SIG_OBJECT_IDENTITY
 --------------- SIG_OBJECT_IDENTITY_NAME
 ------------------- Name ( char[] )
+--------------- SIG_OBJECT_IDENTITY_PARENT
+------------------- ID ( uint32_t )
 --------------- SIG_OBJECT_IDENTITY_TYPE
 ------------------- SIG_OBJECT_SCENE
 ----------------------- SIG_MATERIALS
@@ -130,6 +132,7 @@ SIG_ROOT=0x44335347
 --------------------------- Capy        ( uint32_t )
 --------------------------- Closed?     ( uint32_t )
 --------------------------- Orientation ( uint32_t )
+
 ------------------- SIG_OBJECT_MESH
 ----------------------- SIG_OBJECT_MESH_GOURAUDLIMIT
 --------------------------- angle ( float )
@@ -287,8 +290,6 @@ SIG_ROOT=0x44335347
 ------------------------------- nbfacegroups (uint32_t)
 ------------------------------- facegroupID (uint32_t)
 
---------------- SIG_OBJECT_IDENTITY_PARENT
-------------------- ID ( uint32_t )
 ----------- SIG_OBJECT_TRANSFORMATION
 --------------- Position ( float-float-float-float )
 --------------- Rotation ( float-float-float-float )

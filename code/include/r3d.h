@@ -875,7 +875,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                               R3DRGBA *bump,
                               R3DRGBA *reflection,
                               R3DRGBA *refraction,
-                              float   *transparencyStrength,
+                              R3DRGBA *alpha,
                               LIST    *ltex,
                               uint32_t query_flags );
 uint32_t r3dray_intersectBoundingBox ( R3DRAY   *, R3DBBOX  *, R3DPOINT *,

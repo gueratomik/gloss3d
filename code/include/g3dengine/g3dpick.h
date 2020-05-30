@@ -135,6 +135,9 @@ void g3dpick_setEpsilon ( float epsilon );
 
 void g3dpick_loadMatrix ( double *MVX );
 
+void g3dpick_enableDepthTest ( );
+void g3dpick_disableDepthTest ( );
+
 #ifdef __cplusplus
 }
 #endif

@@ -150,7 +150,8 @@ static void closeSelectionRectangle ( G3DPICKTOOL *pt,
             pt->coord[0x03] += 0x01;
         }
     } else {
-        /*** default selection is a 8px X 8px square. This is also the one used ***/
+        /*** default selection is a radius X radius square. 
+        /*** This is also the one used ***/
         /*** for axis selection ***/
         if ( pt->coord[0x00] == pt->coord[0x02] ) {
             pt->coord[0x00] -= pt->radius;
@@ -405,7 +406,7 @@ void pick_Item ( G3DPICKTOOL *pt,
         if ( pt->only_visible ) {
             g3dpick_setAction ( NULL, NULL );
             g3dobject_pick ( sce, cam, VIEWOBJECT );
-            g3dpick_setEpsilon ( 0.00001f );
+            g3dpick_setEpsilon ( 0.001f );
         }
     }
 
@@ -425,6 +426,8 @@ void pick_Item ( G3DPICKTOOL *pt,
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
 	    if ( obj ) {
+            if ( pt->only_visible ) g3dpick_enableDepthTest  ( );
+            else                    g3dpick_disableDepthTest ( );
 
 	        if ( obj->type & MESH ) {
         	    G3DMESH *mes = ( G3DMESH * ) obj;
@@ -455,7 +458,7 @@ void pick_Item ( G3DPICKTOOL *pt,
         	        g3dpick_setAction ( actionSelectVertexUV, &mpd );
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
-                    /*** identity matrix ***/
+                    /*** identity matrix in the UVMap Editor ***/
                     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
                     g3dpick_setModelviewMatrix ( MVX );
                     g3dmesh_pickVertexUVs ( mes, VIEWVERTEXUV );
@@ -465,7 +468,7 @@ void pick_Item ( G3DPICKTOOL *pt,
         	        g3dpick_setAction ( actionSelectFaceUV, &mpd );
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
-                    /*** identity matrix ***/
+                    /*** identity matrix in the UVMap Editor ***/
                     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
                     g3dpick_setModelviewMatrix ( MVX );
                     g3dmesh_pickFaceUVs ( mes, VIEWFACEUV );
@@ -500,7 +503,7 @@ void pick_Item ( G3DPICKTOOL *pt,
                 if ( ctrlClick ) {
                     spd.flags |= CTRLCLICK;
                 } else {
-                    g3dcurve_unselectAllPoints ( spl );
+                    g3dcurve_unselectAllPoints ( spl->curve );
                 }
 
 		        if ( eflags & VIEWVERTEX ) {
@@ -549,7 +552,9 @@ void pick_cursor ( G3DPICKTOOL *pt,
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
     /*** check boundaries ***/
-    closeSelectionRectangle ( pt, VPX, eflags );
+    /*** eflags is 0x00, that way the size ***/
+    /*** of the picking region is radius x radius */
+    closeSelectionRectangle ( pt, VPX, 0x00 );
 
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );

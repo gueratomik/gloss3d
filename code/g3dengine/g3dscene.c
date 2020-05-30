@@ -167,7 +167,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelVerPos, TRX );
-                g3dcore_multmatrix ( matrix, TRX, TMPX );
+                g3dcore_multmatrix ( TRX, matrix, TMPX );
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
@@ -175,7 +175,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelEdgPos, TRX );
-                g3dcore_multmatrix ( matrix, TRX, TMPX );
+                g3dcore_multmatrix ( TRX, matrix, TMPX );
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
@@ -183,7 +183,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelFacPos, TRX );
-                g3dcore_multmatrix ( matrix, TRX, TMPX );
+                g3dcore_multmatrix ( TRX, matrix, TMPX );
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
@@ -262,6 +262,13 @@ G3DMATERIAL *g3dscene_getMaterialByID ( G3DSCENE *sce, uint32_t id ) {
 /******************************************************************************/
 void g3dscene_addMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
     list_insert ( &sce->lmat, mat );
+
+    sce->nbmat++;
+}
+
+/******************************************************************************/
+void g3dscene_appendMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
+    list_append ( &sce->lmat, mat );
 
     sce->nbmat++;
 }

@@ -574,54 +574,56 @@ static int rotate_object ( LIST        *lobj,
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
                     G3DDOUBLEVECTOR lstartpos, lendpos;
 
-                    if ( nbobj == 0x01 ) {
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        glLoadMatrixd ( obj->rmatrix );
-                        glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                        g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
-                    } else {
-                        G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
-                        G3DVECTOR objpos;
-                        G3DVECTOR rotpos;
-                        G3DVECTOR newpos;
-
-                        g3dvector_matrix ( &cenpos, obj->wmatrix, &objpos );
-                        g3dvector_matrix ( &objpos, ROTX, &rotpos );
-                        g3dvector_matrix ( &rotpos, obj->parent->iwmatrix, &newpos );
-
-                        obj->pos.x = newpos.x;
-                        obj->pos.y = newpos.y;
-                        obj->pos.z = newpos.z;
-                    }
-
-                    g3dobject_updateMatrix_r ( obj, eflags );
-
-                    if ( eflags & VIEWAXIS ) {
-                        /*** in case this was in VIEWAXIS mode, we move ***/
-                        /*** back the vertices were they were before,   ***/
-                        /*** in world coord ***/
+                    if ( ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                         if ( nbobj == 0x01 ) {
-                            if ( obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
+                            glLoadMatrixd ( obj->rmatrix );
+                            glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
+                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
 
-                                g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
-                            }
+                            glLoadMatrixd ( obj->rmatrix );
+                            glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
+                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
 
-                            if ( obj->type & SPLINE ) {
-                                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+                            glLoadMatrixd ( obj->rmatrix );
+                            glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
+                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
 
-                                g3dspline_moveAxis ( spl, PREVWMVX, eflags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                            g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
+                        } else {
+                            G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
+                            G3DVECTOR objpos;
+                            G3DVECTOR rotpos;
+                            G3DVECTOR newpos;
+
+                            g3dvector_matrix ( &cenpos, obj->wmatrix, &objpos );
+                            g3dvector_matrix ( &objpos, ROTX, &rotpos );
+                            g3dvector_matrix ( &rotpos, obj->parent->iwmatrix, &newpos );
+
+                            obj->pos.x = newpos.x;
+                            obj->pos.y = newpos.y;
+                            obj->pos.z = newpos.z;
+                        }
+
+                        g3dobject_updateMatrix_r ( obj, eflags );
+
+                        if ( eflags & VIEWAXIS ) {
+                            /*** in case this was in VIEWAXIS mode, we move ***/
+                            /*** back the vertices were they were before,   ***/
+                            /*** in world coord ***/
+                            if ( nbobj == 0x01 ) {
+                                if ( obj->type == G3DMESHTYPE ) {
+                                    G3DMESH *mes = ( G3DMESH * ) obj;
+
+                                    g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
+
+                                if ( obj->type & SPLINE ) {
+                                    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+
+                                    g3dspline_moveAxis ( spl, PREVWMVX, eflags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
                             }
                         }
                     }

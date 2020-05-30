@@ -226,8 +226,6 @@ uint32_t g3dexportuvmap ( G3DEXPORTDATA  *ged,
                                        fdst );
     }
 
-
-
     size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_TRANSFORMATION,
                                    g3dexportuvmap_transformation,
                                    ged,

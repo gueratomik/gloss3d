@@ -1213,3 +1213,39 @@ void g3dcore_getMatrixTranslation ( double *matrix, G3DVECTOR *pos ) {
     pos->z = matrix[0x0E];
     pos->w = 1.0f;
 }
+
+/******************************************************************************/
+float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
+                          G3DVECTOR *p1,
+                          G3DVECTOR *p2,
+                          G3DVECTOR *pout ) {
+    G3DVECTOR dir = { .x = p2->x - p1->x,
+                      .y = p2->y - p1->y,
+                      .z = p2->z - p1->z,
+                      .w = 1.0f };
+    float vo = ( plane->x * p1->x ) +
+               ( plane->y * p1->y ) +
+               ( plane->z * p1->z ) + plane->w,
+          vd = ( plane->x * dir.x ) + 
+               ( plane->y * dir.y ) +
+               ( plane->z * dir.z );
+    float t;
+
+    if ( vd == 0.0f ) return 0.0f;
+
+    t = - ( vo / vd );
+
+    if ( t > 0.0f ) {
+        if ( vd < 0.0f ) {
+            pout->x = p1->x + ( dir.x * t );
+            pout->y = p1->y + ( dir.y * t );
+            pout->z = p1->z + ( dir.z * t );
+            /*** store the distance we got ***/
+            pout->w = t;
+
+            return t;
+        }
+    }
+
+    return 0.0f;
+}

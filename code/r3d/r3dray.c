@@ -139,7 +139,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                                   R3DRGBA *bump,
                                   R3DRGBA *reflection,
                                   R3DRGBA *refraction,
-                                  float   *transparencyStrength,
+                                  R3DRGBA *alpha,
                                   LIST    *ltex,
                                   uint32_t query_flags ) {
     uint32_t divDiffuse    = 0x00;
@@ -156,8 +156,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
     memset ( bump      , 0x00, sizeof ( R3DRGBA ) );
     memset ( reflection, 0x00, sizeof ( R3DRGBA ) );
     memset ( refraction, 0x00, sizeof ( R3DRGBA ) );
-
-    (*transparencyStrength) = 0.0f;
+    memset ( alpha     , 0x00, sizeof ( R3DRGBA ) );
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -255,22 +254,19 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
             }
 
             if ( mat->flags & ALPHA_ENABLED ) {
-                G3DCOLOR color;
-
                 g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
 
-                g3drgba_toColor ( &retval, &color );
+                alpha->a  = 1.0f; /* used as boolean to say alpha is enabled */
+                alpha->r += retval.r;
+                alpha->g += retval.g;
+                alpha->b += retval.b;
 
                 if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
                      ( mat->alpha.flags & USEPROCEDURAL ) ) {
-                    color.r *= mat->alpha.solid.r;
-                    color.g *= mat->alpha.solid.g;
-                    color.b *= mat->alpha.solid.b;
+                    alpha->r *= ( mat->alpha.solid.a );
+                    alpha->g *= ( mat->alpha.solid.a );
+                    alpha->b *= ( mat->alpha.solid.a );
                 }
-
-                (*transparencyStrength) += ( 1.0f - ( ( color.r + 
-                                                        color.g + 
-                                                        color.b ) / 3 ) );
 
                 divAlpha++;
             }
@@ -325,12 +321,12 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
         refraction->g /= divRefraction;
         refraction->b /= divRefraction;
         refraction->a /= divRefraction;
-
-        (*transparencyStrength) /= ( divRefraction );
     }
 
     if ( divAlpha ) {
-        (*transparencyStrength) /= ( divAlpha );
+        alpha->r /= ( divAlpha );
+        alpha->g /= ( divAlpha );
+        alpha->b /= ( divAlpha );
     }
 
     return 0x00;
@@ -340,6 +336,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 uint32_t r3dray_reflect ( R3DRAY *ray, R3DRAY *rout ) {
     float dot = g3dvector_scalar ( ( G3DVECTOR * ) &ray->dir,
                                    ( G3DVECTOR * ) &ray->nor );
+
     if ( dot > 0.0f ) {
         return 0x00;
     } else {
@@ -352,6 +349,9 @@ uint32_t r3dray_reflect ( R3DRAY *ray, R3DRAY *rout ) {
 
         /*** reflected ray origin is parent ray intersection point ***/
         memcpy ( &rout->ori, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
+
+        rout->x = ray->x;
+        rout->y = ray->y;
 
         /*** reflection formula ***/
         rout->dir.x = ray->dir.x - ( dotby2 * ray->nor.x );
@@ -380,6 +380,9 @@ void r3dray_refract ( R3DRAY *ray, R3DRAY *rout, float eta ) {
 
     /*** refracted ray origin is parent ray intersection point ***/
     memcpy ( &rout->ori, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
+
+    rout->x = ray->x;
+    rout->y = ray->y;
 
     if ( cost > 0.0f ) {
         float cabs = sqrt ( cost );
@@ -803,8 +806,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         }
 
         if ( ray->flags & INTERSECT ) {
-            G3DRGBA diffuse, specular, bump, reflection, refraction;
-            float transparencyStrength;
+            G3DRGBA diffuse, specular, bump, reflection, refraction, alpha;
             R3DOBJECT *rob = hitrob;
             R3DMESH *rms = ( rob->obj->type & MESH ) ? ( R3DMESH * ) rob : NULL;
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
@@ -829,7 +831,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                          &bump,
                                          &reflection,
                                          &refraction,
-                                         &transparencyStrength,
+                                         &alpha,
                                           ltex, 
                                           query_flags ) ) {
                 return rsce->rsg->background.color;
@@ -898,14 +900,18 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                                refraction.b ) / 0x03 ) / 255.0f;
                 uint32_t i;
 
-                if ( transparencyStrength > 0.0f ) {
+                if ( alpha.a == 1.0f ) {
+                    G3DCOLOR opac;
+                    G3DRGBA  bkgd;
                     uint32_t retcol;
                     R3DRAY frcray;
 
                     /*** build the reflexion ray from the current ray ***/
                     r3dray_refract ( ray, 
                                     &frcray, 
-                                     refractionStrength );
+                                     /*refractionStrength*/1.0f );
+
+                    g3dtinyvector_normalize ( &frcray.dir, NULL );
 
                     retcol = r3dray_shoot ( &frcray, 
                                              rsce, 
@@ -916,20 +922,12 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                              RAYQUERYREFLECTION |
                                              RAYQUERYREFRACTION );
 
-                    if ( transparencyStrength == 1.0f ) {
-                        diffuse.r = ( retcol & 0x00FF0000 ) >> 0x10;
-                        diffuse.g = ( retcol & 0x0000FF00 ) >> 0x08;
-                        diffuse.b = ( retcol & 0x000000FF );
-                    } else {
-                        float sub = ( 1.0f - transparencyStrength );
-                        uint32_t REFR = ( retcol & 0x00FF0000 ) >> 0x10,
-                                 REFG = ( retcol & 0x0000FF00 ) >> 0x08,
-                                 REFB = ( retcol & 0x000000FF );
+                    g3drgba_fromLong ( &bkgd, retcol );
+                    g3drgba_toColor  ( &alpha, &opac );
 
-                        diffuse.r = ( REFR * transparencyStrength ) + ( diffuse.r * sub );
-                        diffuse.g = ( REFG * transparencyStrength ) + ( diffuse.g * sub );
-                        diffuse.b = ( REFB * transparencyStrength ) + ( diffuse.b * sub );
-                    }
+                    diffuse.r = ( diffuse.r * opac.r ) + ( bkgd.r * ( 1.0f - opac.r ) );
+                    diffuse.g = ( diffuse.g * opac.g ) + ( bkgd.g * ( 1.0f - opac.g ) );
+                    diffuse.b = ( diffuse.b * opac.b ) + ( bkgd.b * ( 1.0f - opac.b ) );
                 }
             }
 

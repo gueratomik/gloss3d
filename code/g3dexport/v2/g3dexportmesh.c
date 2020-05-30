@@ -240,13 +240,14 @@ static uint32_t g3dexportmesh_geometryVertices ( G3DEXPORTDATA *ged,
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        uint32_t verFlags = ver->flags & VERTEXSYMALL;
 
         ver->id = vid++;
 
         size += g3dexport_fwritef ( &ver->pos.x, fdst );
         size += g3dexport_fwritef ( &ver->pos.y, fdst );
         size += g3dexport_fwritef ( &ver->pos.z, fdst );
-        size += g3dexport_fwritef ( &ver->pos.w, fdst );
+        size += g3dexport_fwritel ( &verFlags  , fdst );
 
         ltmpver = ltmpver->next;
     }

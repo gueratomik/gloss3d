@@ -139,16 +139,18 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 gid->currentVertexArray = ( G3DVERTEX ** ) realloc ( gid->currentVertexArray, nbver * sizeof ( G3DVERTEX * ) );
 
                 for ( i = 0x00; i < nbver; i++ ) {
-                    float x, y, z, w;
+                    uint32_t verFlags;
+                    float x, y, z;
 
-                    g3dimport_freadf ( &x, fsrc );
-                    g3dimport_freadf ( &y, fsrc );
-                    g3dimport_freadf ( &z, fsrc );
-                    g3dimport_freadf ( &w, fsrc );
+                    g3dimport_freadf ( &x       , fsrc );
+                    g3dimport_freadf ( &y       , fsrc );
+                    g3dimport_freadf ( &z       , fsrc );
+                    g3dimport_freadl ( &verFlags, fsrc );
 
                     gid->currentVertexArray[i] = g3dvertex_new ( x, y, z );
 
-                    gid->currentVertexArray[i]->id = i;
+                    gid->currentVertexArray[i]->id    = i;
+                    gid->currentVertexArray[i]->flags = verFlags;
 
                     g3dmesh_addVertex ( mes, gid->currentVertexArray[i] );
                 }

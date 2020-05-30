@@ -46,9 +46,9 @@ static void repeatCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void uvmapSelectorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    uint32_t mapID = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
+    uint32_t rank = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
 
-    common_g3duitextureedit_setUVMapCbk ( gui, mapID );
+    common_g3duitextureedit_setUVMapCbk ( gui, rank );
 }
 
 /******************************************************************************/
@@ -93,19 +93,34 @@ static void createUVMapSelector ( GtkWidget *parent, G3DUI *gui,
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
+        G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
         LIST *ltmpuvmap = mes->luvmap;
+        uint32_t mapRank = 0x00;
+        int selected = 0x00;
 
         while ( ltmpuvmap ) {
             G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
             char *mapname = ((G3DOBJECT*)map)->name;
 
-            gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, mapname        );
+            gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, mapname );
  
+            if ( tex->map == map ) {
+                gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), mapRank );
+
+                selected = 0x01;
+            }
+
+            mapRank++;
+
             ltmpuvmap = ltmpuvmap->next;
         }
-    }
 
-    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
+        gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, "None" );
+
+        if ( selected == 0x00 ) {
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), mapRank );
+        }
+    }
 
     gtk_widget_show ( cmb );
 }
