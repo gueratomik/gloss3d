@@ -100,6 +100,8 @@ void g3dcylinder_build ( G3DPRIMITIVE *pri, int slice,
     obj->bbox.zmin = 0.0f;
     obj->bbox.xmax = obj->bbox.ymax =  radius;
     obj->bbox.zmax = length;
+
+    if ( ver ) free ( ver );
 }
 
 /******************************************************************************/

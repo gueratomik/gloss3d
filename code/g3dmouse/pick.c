@@ -406,7 +406,7 @@ void pick_Item ( G3DPICKTOOL *pt,
         if ( pt->only_visible ) {
             g3dpick_setAction ( NULL, NULL );
             g3dobject_pick ( sce, cam, VIEWOBJECT );
-            g3dpick_setEpsilon ( 0.001f );
+            g3dpick_setEpsilon ( 0.00001f );
         }
     }
 

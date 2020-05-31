@@ -178,6 +178,8 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+            uint32_t ctrlClick = ( mev->state & G3DControlMask ) ? 1 : 0;
+            float factor = ( ctrlClick ) ? 500.0f : 50.0f;
 
             if ( obj ) {
                 if ( obj->type == G3DMESHTYPE ) {
@@ -194,9 +196,9 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                         G3DVECTOR *dir = ( G3DVECTOR * ) ltmpdir->data;
 
 
-                        ver->pos.x = ver->pos.x + ( dir->x * diff / 50.0f );
-                        ver->pos.y = ver->pos.y + ( dir->y * diff / 50.0f );
-                        ver->pos.z = ver->pos.z + ( dir->z * diff / 50.0f );
+                        ver->pos.x = ver->pos.x + ( dir->x * diff / factor );
+                        ver->pos.y = ver->pos.y + ( dir->y * diff / factor );
+                        ver->pos.z = ver->pos.z + ( dir->z * diff / factor );
 
                         mes->avgSelFacPos.x += ver->pos.x;
                         mes->avgSelFacPos.y += ver->pos.y;

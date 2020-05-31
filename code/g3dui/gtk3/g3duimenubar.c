@@ -589,6 +589,13 @@ void g3dui_addCylinderCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addTubeCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addTubeCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_addLightCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -651,6 +658,7 @@ GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
     g3dui_addMenuButton    ( menu, gui, MENU_ADDSPHERE   , width, G_CALLBACK(g3dui_addSphereCbk)   );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDTORUS    , width, G_CALLBACK(g3dui_addTorusCbk)    );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDCYLINDER , width, G_CALLBACK(g3dui_addCylinderCbk) );
+    g3dui_addMenuButton    ( menu, gui, MENU_ADDTUBE     , width, G_CALLBACK(g3dui_addTubeCbk)     );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDTEXT     , width, G_CALLBACK(g3dui_addTextCbk)     );
     g3dui_addMenuButton    ( menu, gui, MENU_ADDNULL     , width, G_CALLBACK(g3dui_addNullCbk)     );
 

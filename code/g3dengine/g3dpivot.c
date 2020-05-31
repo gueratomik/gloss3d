@@ -58,16 +58,15 @@ uint32_t g3dpivot_draw ( G3DOBJECT *obj, G3DCAMERA *curcam,
 }
 
 /******************************************************************************/
-void g3dpivot_orbit ( G3DPIVOT *piv, int32_t x   , int32_t y, 
-                                     int32_t xold, int32_t yold ) {
+void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
     G3DOBJECT *yaxis  = ( G3DOBJECT * ) piv,
               *xaxis  = ( G3DOBJECT * ) yaxis->lchildren->data,
               *locam  = ( G3DOBJECT * ) xaxis->lchildren->data;
     double LCX[0x10];
 
-    yaxis->rot.y -= ( xold - x );
+    yaxis->rot.y -= ( diffx );
 
-    xaxis->rot.x -= ( yold - y );
+    xaxis->rot.x -= ( diffy );
 
     g3dobject_updateMatrix_r ( yaxis, 0x00 );
 

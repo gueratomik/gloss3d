@@ -177,6 +177,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SPLINE         (  1 << 23 )
 #define SPLINEREVOLVER (  1 << 24 )
 #define TEXT           (  1 << 25 )
+#define TUBE           (  1 << 26 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
@@ -186,6 +187,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DTORUSTYPE      ( OBJECT | MESH | PRIMITIVE | TORUS )
 #define G3DCUBETYPE       ( OBJECT | MESH | PRIMITIVE | CUBE )
 #define G3DCYLINDERTYPE   ( OBJECT | MESH | PRIMITIVE | CYLINDER )
+#define G3DTUBETYPE       ( OBJECT | MESH | PRIMITIVE | TUBE )
 #define G3DCONETYPE       ( OBJECT | MESH | PRIMITIVE | CONE )
 #define G3DSYMMETRYTYPE   ( OBJECT | MULTIPLIER | SYMMETRY )
 #define G3DCAMERATYPE     ( OBJECT | CAMERA )
@@ -1347,6 +1349,16 @@ typedef struct _CYLINDERDATASTRUCT {
 } CYLINDERDATASTRUCT;
 
 /******************************************************************************/
+typedef struct _TUBEDATASTRUCT {
+    uint32_t slice, capx, capy;
+    float radius;
+    float thickness;
+    float length;
+    uint32_t closed;
+    uint32_t orientation;
+} TUBEDATASTRUCT;
+
+/******************************************************************************/
 typedef struct _G3DSCENE {
     G3DOBJECT obj;    /*** Scene inherits G3DOBJECT    ***/
     LIST *lsel;       /*** Selected objects            ***/
@@ -2052,6 +2064,23 @@ void g3dcylinder_build ( G3DPRIMITIVE *pri, int, int, int, float, float );
 G3DPRIMITIVE *g3dcylinder_new ( uint32_t, char *, int, int, int, float, float );
 
 /******************************************************************************/
+void g3dtube_build ( G3DPRIMITIVE *pri, 
+                     int           slice,
+                     int           capx,
+                     int           capy,
+                     float         radius, 
+                     float         thickness,
+                     float         length );
+G3DPRIMITIVE *g3dtube_new ( uint32_t id, 
+                            char    *name,
+                            int      slice,
+                            int      capx,
+                            int      capy,
+                            float    innerRadius, 
+                            float    thickness,
+                            float    length );
+
+/******************************************************************************/
 G3DMESH   *g3dmesh_new                  ( uint32_t, char *, uint32_t );
 void       g3dmesh_init                 ( G3DMESH *, uint32_t, 
                                                      char *, 
@@ -2543,7 +2572,7 @@ void      g3dpivot_free ( G3DOBJECT * );
 uint32_t  g3dpivot_draw ( G3DOBJECT *, G3DCAMERA *, uint32_t );
 void      g3dpivot_init ( G3DPIVOT *, G3DCAMERA *, G3DVECTOR *, uint32_t );
 G3DPIVOT *g3dpivot_new  ( G3DCAMERA *, G3DVECTOR *, uint32_t );
-void      g3dpivot_orbit ( G3DPIVOT *, int32_t, int32_t, int32_t, int32_t );
+void      g3dpivot_orbit ( G3DPIVOT *, float, float );
 
 /******************************************************************************/
 void          g3dheightmap_realloc ( G3DHEIGHTMAP *, uint32_t );

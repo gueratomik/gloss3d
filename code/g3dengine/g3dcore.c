@@ -1219,24 +1219,28 @@ float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
                           G3DVECTOR *p1,
                           G3DVECTOR *p2,
                           G3DVECTOR *pout ) {
+    G3DVECTOR p1mp2 = { .x = p1->x - p2->x,
+                        .y = p1->y - p2->y,
+                        .z = p1->z - p2->z,
+                        .w = 1.0f };
     G3DVECTOR dir = { .x = p2->x - p1->x,
                       .y = p2->y - p1->y,
                       .z = p2->z - p1->z,
                       .w = 1.0f };
-    float vo = ( plane->x * p1->x ) +
-               ( plane->y * p1->y ) +
-               ( plane->z * p1->z ) + plane->w,
-          vd = ( plane->x * dir.x ) + 
-               ( plane->y * dir.y ) +
-               ( plane->z * dir.z );
+    float vo =  ( ( plane->x * p1->x ) +
+                  ( plane->y * p1->y ) +
+                  ( plane->z * p1->z ) ) + plane->w,
+          vd = ( plane->x * p1mp2.x ) + 
+               ( plane->y * p1mp2.y ) +
+               ( plane->z * p1mp2.z );
     float t;
 
     if ( vd == 0.0f ) return 0.0f;
 
-    t = - ( vo / vd );
+    t = ( vo / vd );
 
-    if ( t > 0.0f ) {
-        if ( vd < 0.0f ) {
+    /*if ( t > 0.0f ) {*/
+        /*if ( vd < 0.0f ) {*/
             pout->x = p1->x + ( dir.x * t );
             pout->y = p1->y + ( dir.y * t );
             pout->z = p1->z + ( dir.z * t );
@@ -1244,8 +1248,8 @@ float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
             pout->w = t;
 
             return t;
-        }
-    }
+        /*}*/
+    /*}*/
 
     return 0.0f;
 }

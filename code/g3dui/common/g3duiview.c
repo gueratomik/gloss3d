@@ -30,15 +30,16 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiview_orbit ( G3DUIVIEW *view, G3DPIVOT *piv,
-                                               int32_t x   , int32_t y, 
-                                               int32_t xold, int32_t yold ) {
+void common_g3duiview_orbit ( G3DUIVIEW *view,
+                              G3DPIVOT  *piv,
+                              float      diffx, 
+                              float      diffy ) {
 
-    g3dpivot_orbit ( piv, x, y, xold, yold );
+    g3dpivot_orbit ( piv, diffx, diffy );
 }
 
 /******************************************************************************/
-void common_g3duiview_spin ( G3DUIVIEW *view, int32_t x, int32_t xold ) {
+void common_g3duiview_spin ( G3DUIVIEW *view, float diffx ) {
     G3DCAMERA *cam = view->cam;
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
@@ -47,52 +48,48 @@ void common_g3duiview_spin ( G3DUIVIEW *view, int32_t x, int32_t xold ) {
     G3DVECTOR ovec = { 0.0f, 0.0f, 0.0f, 1.0f }, camp;
     GLdouble MVX[0x10];
 
-    obj->rot.z += ( xold - x );
+    obj->rot.z += ( diffx );
 
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 }
 
 /******************************************************************************/
-void common_g3duiview_zoom ( G3DUIVIEW *view, int32_t x, int32_t xold ) {
+void common_g3duiview_zoom ( G3DUIVIEW *view, float diffx ) {
     G3DCAMERA *cam = view->cam;
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    int difx = ( xold - x );
 
-    cam->focal -= ( (float) ( difx ) / 20.0f );
+    cam->focal -= ( (float) ( diffx ) / 20.0f );
 
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 }
 
 /******************************************************************************/
-void common_g3duiview_moveSideward ( G3DUIVIEW *view, int32_t x   , 
-                                                      int32_t y, 
-                                                      int32_t xold, 
-                                                      int32_t yold ) {
+void common_g3duiview_moveSideward ( G3DUIVIEW *view,
+                                     float diffx, 
+                                     float diffy ) {
     G3DCAMERA *cam = view->cam;
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
               yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
               zvec = { 0.0f, 0.0f, 1.0f, 1.0f }, camx, camy, camz;
     float posx, posy, posz;
-    int difx = ( xold - x ),
-        dify = ( yold - y );
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
-        cam->ortho.x += ( difx * cam->ortho.z );
-        cam->ortho.y -= ( dify * cam->ortho.z );
+        cam->ortho.x += ( diffx * cam->ortho.z );
+        cam->ortho.y -= ( diffy * cam->ortho.z );
     } else {
         g3dvector_matrix  ( &xvec, obj->rmatrix, &camx );
         g3dvector_matrix  ( &yvec, obj->rmatrix, &camy );
 
-        obj->pos.x += ( camx.x * ( (float) ( difx ) / 20.0f ) );
-        obj->pos.y += ( camx.y * ( (float) ( difx ) / 20.0f ) );
-        obj->pos.z += ( camx.z * ( (float) ( difx ) / 20.0f ) );
+        obj->pos.x += ( camx.x * ( (float) ( diffx ) / 20.0f ) );
+        obj->pos.y += ( camx.y * ( (float) ( diffx ) / 20.0f ) );
+        obj->pos.z += ( camx.z * ( (float) ( diffx ) / 20.0f ) );
 
-        obj->pos.x -= ( camy.x * ( (float) ( dify ) / 20.0f ) );
-        obj->pos.y -= ( camy.y * ( (float) ( dify ) / 20.0f ) );
-        obj->pos.z -= ( camy.z * ( (float) ( dify ) / 20.0f ) );
+        obj->pos.x -= ( camy.x * ( (float) ( diffy ) / 20.0f ) );
+        obj->pos.y -= ( camy.y * ( (float) ( diffy ) / 20.0f ) );
+        obj->pos.z -= ( camy.z * ( (float) ( diffy ) / 20.0f ) );
     }
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
@@ -100,26 +97,24 @@ void common_g3duiview_moveSideward ( G3DUIVIEW *view, int32_t x   ,
 
 
 /******************************************************************************/
-void common_g3duiview_moveForward ( G3DUIVIEW *view, int32_t x, 
-                                                     int32_t xold ) {
+void common_g3duiview_moveForward ( G3DUIVIEW *view, float diffx ) {
     G3DCAMERA *cam = view->cam;
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
               yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
               zvec = { 0.0f, 0.0f, 1.0f, 1.0f }, camx, camy, camz;
     float posx, posy, posz;
-    int difx = ( xold - x );
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
-        cam->ortho.z += ( difx * 0.000005f );
+        cam->ortho.z += ( diffx * 0.000005f );
 
         if ( cam->ortho.z < 0.0f ) cam->ortho.z = 0.0f;
     } else {
         g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
 
-        obj->pos.x += ( camz.x * ( (float) ( difx ) / 40.0f ) );
-        obj->pos.y += ( camz.y * ( (float) ( difx ) / 40.0f ) );
-        obj->pos.z += ( camz.z * ( (float) ( difx ) / 40.0f ) );
+        obj->pos.x += ( camz.x * ( (float) ( diffx ) / 40.0f ) );
+        obj->pos.y += ( camz.y * ( (float) ( diffx ) / 40.0f ) );
+        obj->pos.z += ( camz.z * ( (float) ( diffx ) / 40.0f ) );
 
         /*** if orthogonal view, dont let the camera ***/
         /*** go negative ***/

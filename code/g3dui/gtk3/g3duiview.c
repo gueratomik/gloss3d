@@ -878,49 +878,65 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
 
         case GDK_MOTION_NOTIFY : {
             GdkEventMotion *mev = ( GdkEventMotion * ) event;
-
             /*** If pressed ***/
             if ( view->buttonID > -1 && grabbing ) {
+                float diffx = ( xold - mev->x ) / 2,
+                      diffy = ( yold - mev->y ) / 2;
+
+                if ( ( mev->state & GDK_CONTROL_MASK ) &&
+                     ( mev->state & GDK_SHIFT_MASK   ) ) {
+                        diffx *= 100;
+                        diffy *= 100;
+                } else {
+                    if ( mev->state & GDK_CONTROL_MASK ) {
+                        diffx /= 10;
+                        diffy /= 10;
+                    }
+
+                    if ( mev->state & GDK_SHIFT_MASK ) {
+                        diffx *= 10;
+                        diffy *= 10;
+                    }
+                }
 
                 switch ( view->buttonID ) {
                     case ROTATEBUTTON : {
                         G3DOBJECT *objcam = ( G3DOBJECT * ) view->cam;
 
+
                         if ( ( objcam->flags & OBJECTNOROTATION ) == 0x00 ) {
                             if ( mev->state & GDK_BUTTON1_MASK ) {
-                                common_g3duiview_orbit ( view, piv,
-                                                               mev->x,
-                                                               mev->y, 
-                                                               xold, 
-                                                               yold );
+                                common_g3duiview_orbit ( view, 
+                                                         piv,
+                                                         diffx, 
+                                                         diffy );
                             }
 
                             if ( mev->state & GDK_BUTTON3_MASK ) {
-                                common_g3duiview_spin ( view, mev->x, xold );
+                                common_g3duiview_spin ( view, diffx );
                             }
                         }
                     } break;
 
                     case ZOOMBUTTON : {
                         if ( mev->state & GDK_BUTTON3_MASK ) {
-                            common_g3duiview_zoom ( view, -mev->x, -xold );
+                            common_g3duiview_zoom ( view, -diffx );
                         }
 
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_moveForward ( view, mev->x, xold );
+                            common_g3duiview_moveForward ( view, diffx );
                         }
                     } break;
 
                     case TRANSLATEBUTTON : {
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_g3duiview_moveSideward ( view, mev->x,
-                                                           mev->y, 
-                                                           xold, 
-                                                           yold );
+                            common_g3duiview_moveSideward ( view, 
+                                                            diffx, 
+                                                            diffy );
                         }
 
                         if ( mev->state & GDK_BUTTON3_MASK ) {
-                            common_g3duiview_moveForward ( view, mev->x, xold );
+                            common_g3duiview_moveForward ( view, diffx );
                         }
                     } break;
 

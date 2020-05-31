@@ -520,6 +520,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDSPHERE            "Add Sphere"
 #define MENU_ADDTORUS             "Add Torus"
 #define MENU_ADDCYLINDER          "Add Cylinder"
+#define MENU_ADDTUBE              "Add Tube"
 #define MENU_ADDLIGHT             "Add Light"
 #define MENU_ADDCAMERA            "Add Camera"
 #define MENU_ADDEMPTYMESH         "Add Empty Mesh"
@@ -870,14 +871,11 @@ void common_g3duiview_showGL ( G3DUIVIEW *, G3DUI *, G3DSCENE *, G3DCAMERA *,
                                                         uint32_t,
                                                         uint32_t );
 int  common_g3duiview_getCurrentButton ( G3DUIVIEW *, int, int );
-void common_g3duiview_moveForward  ( G3DUIVIEW *, int32_t, int32_t );
-void common_g3duiview_moveSideward ( G3DUIVIEW *, int32_t, int32_t, 
-                                                  int32_t, int32_t );
-void common_g3duiview_zoom         ( G3DUIVIEW *, int32_t, int32_t );
-void common_g3duiview_spin         ( G3DUIVIEW *, int32_t, int32_t );
-void common_g3duiview_orbit        ( G3DUIVIEW *, G3DPIVOT *,
-                                                  int32_t, int32_t,
-                                                  int32_t, int32_t );
+void common_g3duiview_moveForward  ( G3DUIVIEW *, float );
+void common_g3duiview_moveSideward ( G3DUIVIEW *, float, float );
+void common_g3duiview_zoom         ( G3DUIVIEW *, float );
+void common_g3duiview_spin         ( G3DUIVIEW *, float );
+void common_g3duiview_orbit        ( G3DUIVIEW *, G3DPIVOT *, float, float );
 
 /*************************** List widget Structures ***************************/
 #define LISTINDENT 0x10
@@ -1089,6 +1087,7 @@ void      common_g3dui_addCameraCbk           ( G3DUI     *gui,
                                                 G3DCAMERA *currentCamera );
 void      common_g3dui_addLightCbk            ( G3DUI * );
 void      common_g3dui_addCylinderCbk         ( G3DUI * );
+void      common_g3dui_addTubeCbk             ( G3DUI * );
 void      common_g3dui_addTorusCbk            ( G3DUI * );
 void      common_g3dui_addSphereCbk           ( G3DUI * );
 void      common_g3dui_addCubeCbk             ( G3DUI * );

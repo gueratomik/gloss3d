@@ -663,6 +663,31 @@ void common_g3dui_addCylinderCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3dui_addTubeCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    uint32_t pid = g3dscene_getNextObjectID ( sce );
+    G3DPRIMITIVE *pri = g3dtube_new ( pid, "Tube", 0x18,
+                                                   0x01,
+                                                   0x01, 1.0f, 0.1f, 1.0f );
+
+    g3durm_object_addChild ( urm, sce, gui->flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) pri );
+
+    g3dscene_unselectAllObjects ( sce, gui->flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
 void common_g3dui_addTorusCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
