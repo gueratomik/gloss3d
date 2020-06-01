@@ -33,6 +33,11 @@
 
 #define ENABLEDEPTHTEST ( 1 << 0 )
 
+/*** Note: the clipping works only with the front PLANE. This means, the ***/
+/*** polygon may have very long edges going through clipping planes, but ***/
+/*** they are currently not clipped, as I still have to find the right ***/
+/*** method to clip the whole polygon cleanly ***/
+
 #define CLIPPINGPLANES 0x01
 
 /******************************************************************************/
@@ -545,14 +550,6 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
         g3dvector_matrix ( &plocal[0x02], pick->MVX, &pworld[0x02] );
         g3dvector_matrix ( &plocal[0x03], pick->MVX, &pworld[0x03] );
 
-        for ( i = 0x00; i < nbver; i++ ) {
-            uint32_t n = ( i + 0x01 ) % nbver;
-
-            /*** init for lines that won't get clipped ***/
-            memcpy ( &lworld[i][0x00], &pworld[i], sizeof ( G3DVECTOR ) );
-            memcpy ( &lworld[i][0x01], &pworld[n], sizeof ( G3DVECTOR ) );
-        }
-
         /*** Clip first, or else GluProject will return unwanted values ***/
         for ( i = 0x00; i < nbver; i++ ) {
             uint32_t n = ( i + 0x01 ) % nbver;
@@ -560,6 +557,9 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                       *p2 = &pworld[n];
             float distance = FLT_MAX;
             float s1, s2;
+
+            memcpy ( &lworld[i][0x00], p1, sizeof ( G3DVECTOR ) );
+            memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR ) );
 
             for ( j = 0x00; j < CLIPPINGPLANES; j++ ) {
                 int32_t out1 = -1, 
@@ -591,20 +591,20 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                         memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR ) );
                     }*/
 
+                    if ( s1 < 0.0f ) {
+                        memcpy ( &lworld[i][0x00], p2, sizeof ( G3DVECTOR ) );
+                        memcpy ( &lworld[i][0x01], p1, sizeof ( G3DVECTOR ) );
+                    }
+
                     t = g3dcore_intersect ( &pick->frustrum[j],
                                             &lworld[i][0x00],
                                             &lworld[i][0x01],
                                             &it );
 
                     if (  ( t > 0.0f ) && ( t < distance ) ) {
-                        if ( s1 < 0.0f ) {
-                            memcpy ( &lworld[i][0x00], p2, sizeof ( G3DVECTOR ) );
-                            memcpy ( &lworld[i][0x01], p1, sizeof ( G3DVECTOR ) );
-                        }
-
                         /*** overwrite the outside point ***/
                         memcpy ( &lworld[i][0x01], &it, sizeof ( G3DVECTOR ) );
-/*printf("T: %f\n", t);*/
+/*printf("Clipped %d T: %f\n", i, t);*/
                         /*** remember clipping point position for ***/
                         /*** drawing the clipping line ***/
                         gluProject ( it.x, 
@@ -619,12 +619,12 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                         
                         distance = t;
                     }
+
+                    /*** only 2 lines at most can clip. Prepare to store the **/
+                    /*** second clipping point ***/
+                    nbClip = 0x01;
                 }
             }
-
-            /*** only 2 lines at most can clip. Prepare to store the **/
-            /*** second clipping point ***/
-            nbClip = 0x01;
         }
 
         for ( i = 0x00; i < nbver; i++ ) {
@@ -640,6 +640,9 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                             &lscreen[i][j].z );
             }
 
+/*printf("line:%d pt1.x:%f, pt1.y:%f\n", i, lscreen[i][0x00].x, 
+                                          lscreen[i][0x00].y );*/
+
             if ( lscreen[i][0x00].x < xmin ) xmin = lscreen[i][0x00].x;
             if ( lscreen[i][0x00].x > xmax ) xmax = lscreen[i][0x00].x;
             if ( lscreen[i][0x00].y < ymin ) ymin = lscreen[i][0x00].y;
@@ -647,16 +650,17 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
         }
 
         /*** check boundaries. Drop face if outside picking rectangle ***/
-        if ( ( xmin > pick->AMX[0x02] ) ||
+        /* Commented out: this part does not work ***/
+        /*if ( ( xmin > pick->AMX[0x02] ) ||
              ( xmax < pick->AMX[0x00] ) ||
              ( ymin > pick->AMX[0x03] ) ||
              ( ymax < pick->AMX[0x01] ) ) {
 
             return 0x00;
-        }
+        }*/
 
         for ( i = 0x00; i < nbver; i++ ) {
-            /*if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {*/
+            if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
                 uint32_t n = ( i + 0x01 ) % nbver;
                 G3DPICKPOINT pt1 = { .x = lscreen[i][0x00].x,
                                      .y = lscreen[i][0x00].y,
@@ -670,7 +674,7 @@ printf("line:%d pt2.x:%d, pt2.y:%d\n", i, pt2.x, pt2.y );*/
 
                 if ( pt1.x < pt2.x ) g3dpick_drawFaceLine ( pick, &pt1, &pt2 );
                 else                 g3dpick_drawFaceLine ( pick, &pt2, &pt1 );
-            /*}*/
+            }
         }
 /*printf("nbClip = %d\n", nbClip);*/
         /*** Draw the new clipping line ***/
