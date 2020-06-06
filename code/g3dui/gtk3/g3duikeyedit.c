@@ -231,25 +231,25 @@ GtkWidget* createKeyEdit ( GtkWidget *parent, G3DUI *gui,
 
     createToggleLabel ( frm, gui, EDITKEYPOSITION ,   8, 0, 96, 20, usePosCbk );
 
-    createFloatText   ( frm, gui, EDITKEYXPOSITION, FLT_MIN, FLT_MAX, 8, 24, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYYPOSITION, FLT_MIN, FLT_MAX, 8, 48, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYZPOSITION, FLT_MIN, FLT_MAX, 8, 72, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYXPOSITION, -FLT_MAX, FLT_MAX, 8, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYPOSITION, -FLT_MAX, FLT_MAX, 8, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZPOSITION, -FLT_MAX, FLT_MAX, 8, 72, 0, 96, keyCbk );
 
     /********** Rotation values text fields ****************/
 
     createToggleLabel ( frm, gui, EDITKEYROTATION , 160, 0, 96, 20, useRotCbk );
 
-    createFloatText   ( frm, gui, EDITKEYXROTATION, FLT_MIN, FLT_MAX, 160, 24, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYYROTATION, FLT_MIN, FLT_MAX, 160, 48, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYZROTATION, FLT_MIN, FLT_MAX, 160, 72, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYXROTATION, -FLT_MAX, FLT_MAX, 160, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYROTATION, -FLT_MAX, FLT_MAX, 160, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZROTATION, -FLT_MAX, FLT_MAX, 160, 72, 0, 96, keyCbk );
 
     /********** Scaling values text fields ****************/
 
     createToggleLabel ( frm, gui, EDITKEYSCALING  , 312, 0, 96, 20, useScaCbk );
 
-    createFloatText   ( frm, gui, EDITKEYXSCALING , FLT_MIN, FLT_MAX, 312, 24, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYYSCALING , FLT_MIN, FLT_MAX, 312, 48, 0, 96, keyCbk );
-    createFloatText   ( frm, gui, EDITKEYZSCALING , FLT_MIN, FLT_MAX, 312, 72, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYXSCALING , -FLT_MAX, FLT_MAX, 312, 24, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYYSCALING , -FLT_MAX, FLT_MAX, 312, 48, 0, 96, keyCbk );
+    createFloatText   ( frm, gui, EDITKEYZSCALING , -FLT_MAX, FLT_MAX, 312, 72, 0, 96, keyCbk );
 
     /*** Loop frame ***/
 

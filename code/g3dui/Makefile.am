@@ -46,6 +46,7 @@ if HAVE_GTK3
                             common/g3duitimeline.c \
                             common/g3duitoolbar.c \
                             common/g3duitorusedit.c \
+                            common/g3duitubeedit.c \
                             common/g3duiuvmapedit.c \
                             common/g3duiuvmapeditor.c \
                             common/g3duiview.c \
@@ -96,6 +97,7 @@ if HAVE_GTK3
                             gtk3/g3duitimeline.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duitorusedit.c \
+                            gtk3/g3duitubeedit.c \
                             gtk3/g3duiuvmenubar.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiuvmapeditor.c \

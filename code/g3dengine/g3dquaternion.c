@@ -34,6 +34,104 @@ Special Thanks to :
 http://content.gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_repres
 ent_rotation
 *******************************************************************************/
+
+void g3dquaternion_print ( G3DQUATERNION *qua ) {
+    printf ( "%f %f %f %f\n", qua->x, qua->y, qua->z, qua->w );
+}
+
+/******************************************************************************/
+/*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
+void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
+    /* roll (Z-axis rotation) */
+    double sinr_cosp = 2.0f *        ( ( qua->w * qua->z ) + ( qua->x * qua->y ) );
+    double cosr_cosp = 1.0f - 2.0f * ( ( qua->z * qua->z ) + ( qua->x * qua->x ) );
+
+    rot->z = atan2 ( sinr_cosp, cosr_cosp );
+
+    /* pitch (X-axis rotation) */
+    double sinp = 2 * ( ( qua->w * qua->x ) - ( qua->y * qua->z ) );
+
+    if ( fabs ( sinp ) >= 1 ) {
+        /* use 90 degrees if out of range*/
+        rot->x = copysign ( M_PI / 2.0f, sinp ); 
+    } else {
+        rot->x = asin ( sinp );
+    }
+
+    /* yaw (Y-axis rotation) */
+    double siny_cosp = 2.0f *        ( ( qua->w * qua->y ) + ( qua->z * qua->x ) );
+    double cosy_cosp = 1.0f - 2.0f * ( ( qua->x * qua->x ) + ( qua->y * qua->y ) );
+
+    rot->y = atan2 ( siny_cosp, cosy_cosp );
+}
+
+/******************************************************************************/
+void g3dquaternion_toEulerInDegrees ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
+    g3dquaternion_toEuler ( qua, rot );
+
+    rot->x = rot->x * 180.0f / M_PI;
+    rot->y = rot->y * 180.0f / M_PI;
+    rot->z = rot->z * 180.0f / M_PI;
+}
+
+/******************************************************************************/
+/* https://en.wikipedia.org/wiki/Slerp#Quaternion_Slerp */
+void g3dquaternion_slerp ( G3DQUATERNION *q0, 
+                           G3DQUATERNION *q1, 
+                           double          t,
+                           G3DQUATERNION *qout ) {
+    /* Only unit quaternions are valid rotations.
+       Normalize to avoid undefined behavior. */
+    g3dquaternion_normalize ( q0 );
+    g3dquaternion_normalize ( q1 );
+
+    /* Compute the cosine of the angle between the two vectors. */
+    double dot = g3dquaternion_scalar ( q0, q1 );
+
+    /* If the dot product is negative, slerp won't take */
+    /* the shorter path. Note that v1 and -v1 are equivalent when */
+    /* the negation is applied to all four components. Fix by */
+    /* reversing one quaternion. */
+    if ( dot < 0.0f ) {
+        q1->w = - q1->w;
+        q1->x = - q1->x;
+        q1->y = - q1->y;
+        q1->z = - q1->z;
+
+        dot = -dot;
+    }
+
+    const double DOT_THRESHOLD = 0.9995f;
+
+    if ( dot > DOT_THRESHOLD ) {
+        /* If the inputs are too close for comfort, linearly interpolate  */
+        /* and normalize the result.  */
+
+        qout->w = q0->w + ( t * ( q1->w - q0->w ) );
+        qout->x = q0->x + ( t * ( q1->x - q0->x ) );
+        qout->y = q0->y + ( t * ( q1->y - q0->y ) );
+        qout->z = q0->z + ( t * ( q1->z - q0->z ) );
+        
+        g3dquaternion_normalize ( qout );
+
+        return;
+    }
+
+    /* Since dot is in range [0, DOT_THRESHOLD], acos is safe */
+    double theta_0 = acos(dot);        /* theta_0 = angle between input vectors */
+    double theta = theta_0*t;          /* theta = angle between v0 and result */
+    double sin_theta = sin(theta);     /* compute this value only once */
+    double sin_theta_0 = sin(theta_0); /* compute this value only once */
+
+    double s0 = cos(theta) - dot * sin_theta / sin_theta_0;   /* == sin(theta_0 - theta) / sin(theta_0) */
+    double s1 = sin_theta / sin_theta_0;
+
+    qout->w = ( s0 * q0->w ) + ( s1 * q1->w );
+    qout->x = ( s0 * q0->x ) + ( s1 * q1->x );
+    qout->y = ( s0 * q0->y ) + ( s1 * q1->y );
+    qout->z = ( s0 * q0->z ) + ( s1 * q1->z );
+}
+
 /*
 void Quaternion::FromEuler(float pitch, float yaw, float roll)
 {
@@ -86,34 +184,39 @@ void Quaternion::FromEuler(float pitch, float yaw, float roll)
 }*/
 
 /******************************************************************************/
-/*void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
-    float x2 = qua->x * qua->x;
-    float y2 = qua->y * qua->y;
-    float z2 = qua->z * qua->z;
-    float xy = qua->x * qua->y;
-    float xz = qua->x * qua->z;
-    float yz = qua->y * qua->z;
-    float wx = qua->w * qua->x;
-    float wy = qua->w * qua->y;
-    float wz = qua->w * qua->z;
+void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
+    double TMPX[0x10];
+
+    float roll2 = qua->z * qua->z;
+    float pitch2 = qua->x * qua->x;
+    float yaw2 = qua->y * qua->y;
+    float rollPitch = qua->z * qua->x;
+    float rollYaw = qua->z * qua->y;
+    float pitchYaw = qua->x * qua->y;
+    float angleRoll = qua->w * qua->z;
+    float anglePitch = qua->w * qua->x;
+    float angleYaw = qua->w * qua->y;
   
-    matrix[0x00] = 1.0f - 2.0f * ( y2 + z2 );
-    matrix[0x01] = 2.0f * ( xy - wz );
-    matrix[0x02] = 2.0f * ( xz + wy );
+    matrix[0x00] = 1.0f - 2.0f * ( pitch2 + yaw2 );
+    matrix[0x01] = 2.0f * ( rollPitch - angleYaw );
+    matrix[0x02] = 2.0f * ( rollYaw + anglePitch );
     matrix[0x03] = 0.0f;
-    matrix[0x04] = 2.0f * ( xy + wz );
-    matrix[0x05] = 1.0f - 2.0f * ( x2 + z2 );
-    matrix[0x06] = 2.0f * ( yz - wx );
+    matrix[0x04] = 2.0f * ( rollPitch + angleYaw );
+    matrix[0x05] = 1.0f - 2.0f * ( roll2 + yaw2 );
+    matrix[0x06] = 2.0f * ( pitchYaw - angleRoll );
     matrix[0x07] = 0.0f;
-    matrix[0x08] = 2.0f * ( xz - wy );
-    matrix[0x09] = 2.0f * ( yz + wx );
-    matrix[0x0A] = 1.0f - 2.0f * ( x2 + y2 );
+    matrix[0x08] = 2.0f * ( rollYaw - anglePitch );
+    matrix[0x09] = 2.0f * ( pitchYaw + angleRoll );
+    matrix[0x0A] = 1.0f - 2.0f * ( roll2 + pitch2 );
     matrix[0x0B] = 0.0f;
     matrix[0x0C] = 0.0f;
     matrix[0x0D] = 0.0f;
     matrix[0x0E] = 0.0f;
     matrix[0x0F] = 1.0f;
-}*/
+
+    /*g3dcore_transposeMatrix ( matrix, TMPX );
+    memcpy ( matrix, TMPX, sizeof ( TMPX ) );*/
+}
 
 /******************************************************************************/
 /*void g3dquaternion_init ( G3DQUATERNION *qua, float x, float y,
@@ -172,13 +275,19 @@ void Quaternion::FromEuler(float pitch, float yaw, float roll)
 }*/
 
 /******************************************************************************/
-/*float g3dquaternion_length ( G3DQUATERNION *qua ) {
-    return sqrt ( ( qua->x * qua->x ) + ( qua->y * qua->y ) +
-                  ( qua->z * qua->z ) + ( qua->w * qua->w ) );
-}*/
+float g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 ) {
+    return ( ( q0->x * q1->x ) + ( q0->y * q1->y ) +
+             ( q0->z * q1->z ) + ( q0->w * q1->w ) );
+}
 
 /******************************************************************************/
-/*void g3dquaternion_normalize ( G3DQUATERNION *qua ) {
+float g3dquaternion_length ( G3DQUATERNION *qua ) {
+    return sqrt ( ( qua->x * qua->x ) + ( qua->y * qua->y ) +
+                  ( qua->z * qua->z ) + ( qua->w * qua->w ) );
+}
+
+/******************************************************************************/
+void g3dquaternion_normalize ( G3DQUATERNION *qua ) {
     float len = g3dquaternion_length ( qua );
 
     if ( len ) {
@@ -187,4 +296,4 @@ void Quaternion::FromEuler(float pitch, float yaw, float roll)
         qua->z = ( qua->z / len );
         qua->w = ( qua->w / len );
     }
-}*/
+}

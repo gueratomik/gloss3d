@@ -13,6 +13,7 @@ LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
                            createVertex.c   \
                            createBone.c     \
                            createTorus.c    \
+                           createTube.c    \
                            cutMesh.c        \
                            createFacegroup.c        \
                            triangulate.c    \

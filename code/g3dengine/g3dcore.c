@@ -31,6 +31,41 @@
 #include <setjmp.h>
 #include <g3dengine/g3dengine.h>
 
+
+/******************************************************************************/
+/*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
+/* Note: yaw (Y), pitch (X), roll (Z) */
+void g3dcore_eulerToQuaternion ( G3DVECTOR *angles, G3DQUATERNION *qout ) {
+    double pitch = angles->x;
+    double yaw   = angles->y;
+    double roll  = angles->z;
+    /* Abbreviations for the various angular functions */
+    double cy = cos ( yaw   * 0.5f );
+    double sy = sin ( yaw   * 0.5f );
+    double cp = cos ( pitch * 0.5f );
+    double sp = sin ( pitch * 0.5f );
+    double cr = cos ( roll  * 0.5f );
+    double sr = sin ( roll  * 0.5f );
+
+    qout->w = cr * cp * cy + sr * sp * sy;
+    qout->x = cr * sp * cy + sr * cp * sy;
+    qout->y = cr * cp * sy - sr * sp * cy;
+    qout->z = sr * cp * cy - cr * sp * sy;
+
+    g3dquaternion_normalize ( qout );
+}
+
+/******************************************************************************/
+void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR     *angles, 
+                                          G3DQUATERNION *qout ) {
+    G3DVECTOR rad = { .x = angles->x * M_PI / 180.0f,
+                      .y = angles->y * M_PI / 180.0f,
+                      .z = angles->z * M_PI / 180.0f,
+                      .w = 1.0f };
+
+    g3dcore_eulerToQuaternion ( &rad, qout );
+}
+
 /******************************************************************************/
 void g3dcore_gridZX ( uint32_t flags ) {
     double zmax, xmax, zmin, xmin, yval;

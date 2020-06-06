@@ -38,7 +38,7 @@ G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
     g3dsymmetry_setPlane ( newsym, sym->orientation );
     g3dsymmetry_setMergeLimit ( newsym, sym->mergelimit );
 
-    return ;
+    return newsym;
 }
 
 /******************************************************************************/

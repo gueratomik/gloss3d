@@ -691,7 +691,7 @@ void createFloatText ( GtkWidget *parent, G3DUI  *gui,
                                           void  (*cbk)( GtkWidget *, 
                                                         gpointer ) ) {
     GtkAdjustment *adj = gtk_adjustment_new ( 0.0, 
-                                              min, 
+                                              min,
                                               max,
                                               0.1,
                                               1.0,

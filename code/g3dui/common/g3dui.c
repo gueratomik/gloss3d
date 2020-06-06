@@ -797,6 +797,13 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
+    mou = g3dmousetool_new ( CREATETUBETOOL, 'a', cylinder_xpm,
+                             NULL, NULL, createTube, 0x00 );
+    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
+                                          GLMENUTOOL );
+
+    /********************************/
+
     mou = g3dmousetool_new ( CREATETORUSTOOL, 'a', cylinder_xpm,
                              NULL, NULL, createTorus, 0x00 );
 

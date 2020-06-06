@@ -654,6 +654,7 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj, float frame, uint32_t flags ) {
     G3DKEY *prevkey = NULL,
            *nextkey = NULL,
            *framekey = NULL;
+    double RMX[0x10];
     float updframe;
 
     updframe = g3dobject_getKeys ( obj, frame, &framekey,
@@ -669,15 +670,47 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj, float frame, uint32_t flags ) {
                                                          &nextkey->rotCurvePoint );
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
+            G3DQUATERNION qsrc, qdst, qout;
+            G3DVECTOR rot;
+
+            g3dcore_eulerInDegreesToQuaternion ( &prevkey->rot,
+                                                 &qsrc );
+
+            g3dcore_eulerInDegreesToQuaternion ( &nextkey->rot,
+                                                 &qdst );
 
             g3dcubicsegment_getPoint ( csg, ratio, &obj->rot );
 
             glPushMatrix ( );
             glLoadIdentity ( );
 
+/*g3dquaternion_print ( &qsrc );
+
+g3dquaternion_print ( &qdst );*/
+
+
+            /*g3dquaternion_slerp ( &qsrc, &qdst, ratio, &qout );*/
+
+/*printf("%f\n", ratio );*/
+/*g3dquaternion_print ( &qsrc );
+g3dquaternion_print ( &qdst );
+g3dquaternion_print ( &qout );*/
+
+            /*g3dquaternion_convert ( &qout, RMX );
+            glLoadMatrixd ( RMX );*/
+
+            /*g3dquaternion_toEulerInDegrees ( &qout, &obj->rot );*/
+
+/*g3dquaternion_toEulerInDegrees ( &qsrc, &rot );
+
+g3dvector_print ( &prevkey->rot );
+g3dvector_print ( &rot );*/
+
             glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
             glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
             glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
+
+            /*glRotatef ( qout.w * 180 / M_PI, qout.x, qout.y, qout.z );*/
 
             glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
             glPopMatrix ( );
@@ -1139,13 +1172,30 @@ void g3dobject_free ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_buildRotationMatrix ( G3DOBJECT *obj ) {
+    double TMPX[0x10];
+    G3DQUATERNION qua;
+    G3DVECTOR rot;
+
     glPushMatrix ( );
     glLoadIdentity ( );
+
+    /*printf("%s\n", obj->name );*/
+    
     glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
     glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
     glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
+    
+   /*g3dcore_eulerInDegreesToQuaternion ( &obj->rot, &qua );
+    g3dquaternion_toEulerInDegrees     ( &qua, &rot );
+
+    g3dvector_print ( &obj->rot );
+    g3dvector_print ( &rot );*/
+
     glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
     glPopMatrix ( );
+
+    /*g3dcore_printMatrix ( obj->rmatrix, 4, 4 );
+    g3dcore_printMatrix ( TMPX, 4, 4 );*/
 }
 
 /******************************************************************************/
@@ -1468,17 +1518,26 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
             obj->wmatrix[i] = obj->iwmatrix[i] = obj->rmatrix[i] = 0.0f;
         }
     }
+
+    obj->rotXAxis.x = obj->rotYAxis.y = obj->rotZAxis.z = 1.0f;
+
+    obj->rotXAxis.y = obj->rotYAxis.x = obj->rotZAxis.x =
+    obj->rotXAxis.z = obj->rotYAxis.z = obj->rotZAxis.y = 0.0f;
 }
 
 /******************************************************************************/
 uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
                                                    uint32_t   engine_flags ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/
 void g3dobject_default_free ( G3DOBJECT *obj ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/
@@ -1499,19 +1558,26 @@ G3DOBJECT* g3dobject_default_copy ( G3DOBJECT *obj, uint32_t id,
                                                     const char *name,
                                                     uint32_t engine_flags ) {
     G3DOBJECT *cpy = g3dobject_new ( id, name, engine_flags );
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 
     return cpy;
 }
 
 /******************************************************************************/
 void g3dobject_default_activate ( G3DOBJECT *obj, uint32_t engine_flags ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/
 void g3dobject_default_deactivate ( G3DOBJECT *obj, uint32_t engine_flags ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/
@@ -1519,7 +1585,10 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
                                                       const char *name,
                                                       uint32_t engine_flags ) {
     G3DOBJECT *com = g3dobject_new ( id, name, engine_flags );
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 
     return com;
 }
@@ -1527,13 +1596,17 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
 /******************************************************************************/
 void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child, 
                                                   uint32_t   engine_flags ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/
 void g3dobject_default_setParent ( G3DOBJECT *obj, G3DOBJECT *parent, 
                                                    uint32_t   engine_flags ) {
-    printf("%s unimplemented for %s\n", __func__, obj->name );
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
 }
 
 /******************************************************************************/

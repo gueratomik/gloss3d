@@ -1396,6 +1396,10 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
                     common_g3dui_pasteSelectionCbk ( gui );
                 } break;
 
+                case GDK_KEY_s: {
+                    g3dui_savefilecbk ( widget, gui );
+                } break;
+
                 case GDK_KEY_a: {
                     common_g3dui_selectAllCbk ( gui );
                 } break;

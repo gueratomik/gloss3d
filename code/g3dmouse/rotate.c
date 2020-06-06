@@ -499,6 +499,8 @@ static int rotate_object ( LIST        *lobj,
     static URMTRANSFORMOBJECT *uto;
     static double PREVWMVX[0x10];
 
+    static G3DVECTOR xaxis, yaxis, zaxis;
+
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
@@ -548,7 +550,7 @@ static int rotate_object ( LIST        *lobj,
             LIST *ltmpobj = lobj;
 
             if ( mev->state & G3DButton1Mask ) {
-                G3DDOUBLEVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                G3DVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
                 G3DVECTOR *axis = &sce->csr.axis;
                 G3DDOUBLEVECTOR endpos;
                 double ROTX[0x10];
@@ -576,19 +578,18 @@ static int rotate_object ( LIST        *lobj,
 
                     if ( ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                         if ( nbobj == 0x01 ) {
+                            glPushMatrix ( );
                             glLoadMatrixd ( obj->rmatrix );
+
                             glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
-                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                            glLoadMatrixd ( obj->rmatrix );
                             glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
-                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-
-                            glLoadMatrixd ( obj->rmatrix );
                             glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
+
                             glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
 
                             g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
+/*g3dvector_print ( &dif );*/
+                            glPopMatrix ( );
                         } else {
                             G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
                             G3DVECTOR objpos;

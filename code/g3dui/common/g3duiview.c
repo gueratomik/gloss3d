@@ -36,6 +36,8 @@ void common_g3duiview_orbit ( G3DUIVIEW *view,
                               float      diffy ) {
 
     g3dpivot_orbit ( piv, diffx, diffy );
+
+    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
@@ -52,6 +54,8 @@ void common_g3duiview_spin ( G3DUIVIEW *view, float diffx ) {
 
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
+
+    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
@@ -63,6 +67,8 @@ void common_g3duiview_zoom ( G3DUIVIEW *view, float diffx ) {
 
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
+
+    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
@@ -93,6 +99,8 @@ void common_g3duiview_moveSideward ( G3DUIVIEW *view,
     }
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
+
+    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }
 
 
@@ -125,6 +133,8 @@ void common_g3duiview_moveForward ( G3DUIVIEW *view, float diffx ) {
     }
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
+
+    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/

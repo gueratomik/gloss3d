@@ -670,6 +670,9 @@ typedef struct _G3DOBJECT {
     char *name;             /*** Object's name           ***/
     G3DVECTOR pos;          /*** Object center position  ***/
     G3DVECTOR rot;          /*** Object center angles    ***/
+    G3DVECTOR rotXAxis;
+    G3DVECTOR rotYAxis;
+    G3DVECTOR rotZAxis;
     G3DVECTOR sca;          /*** Object's center scaling ***/
     double  lmatrix[0x10];   /*** Local matrix, i.e relative to its parent ***/
     double ilmatrix[0x10];  /*** Inverse local matrix ***/  
@@ -1412,6 +1415,15 @@ LIST *processHits ( GLint, GLuint * );
 
 /******************************************************************************/
 G3DGLOBALS *g3dcore_getGlobals ( );
+void g3dquaternion_slerp ( G3DQUATERNION *q0, 
+                           G3DQUATERNION *q1, 
+                           double          t,
+                           G3DQUATERNION *qout );
+void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot );
+void g3dquaternion_toEulerInDegrees ( G3DQUATERNION *qua, G3DVECTOR *rot );
+void g3dcore_eulerToQuaternion ( G3DVECTOR *angles, G3DQUATERNION *qout );
+void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR     *angles, 
+                                          G3DQUATERNION *qout );
 void       g3dcore_grid3D   ( uint32_t );
 void       g3dcore_gridXY   ( uint32_t );
 void       g3dcore_gridYZ   ( uint32_t );
@@ -1480,6 +1492,10 @@ void g3dquaternion_inverse ( G3DQUATERNION *, G3DQUATERNION * );
 void g3dquaternion_set ( G3DQUATERNION *, float , float, float );
 void g3dquaternion_convert ( G3DQUATERNION *, double * );
 void g3dquaternion_init ( G3DQUATERNION *, float, float, float, float );
+float g3dquaternion_length ( G3DQUATERNION *qua );
+void g3dquaternion_normalize ( G3DQUATERNION *qua );
+float g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 );
+void g3dquaternion_print ( G3DQUATERNION *qua );
 
 /******************************************************************************/
 G3DVERTEX *g3dvertex_new        ( float, float, float );

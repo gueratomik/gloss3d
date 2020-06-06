@@ -49,6 +49,7 @@
 #define EXTRUDINNERTOOL              "Extrude Inner"
 #define CREATESPHERETOOL             "Create Sphere"
 #define CREATECUBETOOL               "Create Cube"
+#define CREATETUBETOOL               "Create Tube"
 #define CREATECYLINDERTOOL           "Create Cylinder"
 #define CREATETORUSTOOL              "Create Torus"
 #define CREATEBONETOOL               "Create Bone"
@@ -256,6 +257,9 @@ int createTorus    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                      G3DURMANAGER *, uint32_t, G3DEvent * );
 int createPlane    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
                      G3DURMANAGER *, uint32_t, G3DEvent * );
+int createTube    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
+                     G3DURMANAGER *, uint32_t, G3DEvent * );
+
 /******************************************************************************/
 uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
                                                 G3DCAMERA *cam,

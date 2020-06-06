@@ -400,6 +400,13 @@ GtkWidget *createCurrentMouseTool ( GtkWidget *, G3DUI *, char *, gint, gint,
 void       updateCutMeshToolEdit  ( GtkWidget *, G3DUI * );
 GtkWidget *createCutMeshToolEdit  ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
+void updateTubeEdit ( GtkWidget *widget, G3DUI *gui );
+GtkWidget *createTubeEdit ( GtkWidget *parent, G3DUI *gui, 
+                                                   char *name,
+                                                   gint x, 
+                                                   gint y,
+                                                   gint width,
+                                                   gint height );
 
 void updateSubdividerEdit ( GtkWidget *widget, G3DUI *gui );
 GtkWidget *createSubdividerEdit ( GtkWidget *parent, G3DUI *gui,

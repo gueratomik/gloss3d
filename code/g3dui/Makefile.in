@@ -151,10 +151,10 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duisymmetryedit.c common/g3duitextedit.c \
 	common/g3duitextureedit.c common/g3duitimeboard.c \
 	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duiuvmapedit.c \
-	common/g3duiuvmapeditor.c common/g3duiview.c \
-	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
-	common/g3duiwireframeedit.c \
+	common/g3duitorusedit.c common/g3duitubeedit.c \
+	common/g3duiuvmapedit.c common/g3duiuvmapeditor.c \
+	common/g3duiview.c common/g3duiviewexport.c \
+	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
 	common/mousetool/g3duicurrentmousetool.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -178,11 +178,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duisymmetryedit.c gtk3/g3duitextedit.c \
 	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
 	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duiuvmenubar.c gtk3/g3duiuvmapedit.c \
-	gtk3/g3duiuvmapeditor.c gtk3/g3duiuvmapeditortoolbar.c \
-	gtk3/g3duiview.c gtk3/g3duiweightgrouplist.c \
-	gtk3/g3duiwireframeedit.c gtk3/r3dpreview.c \
-	gtk3/mousetool/g3duicurrentmousetool.c \
+	gtk3/g3duitubeedit.c gtk3/g3duiuvmenubar.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiuvmapeditor.c \
+	gtk3/g3duiuvmapeditortoolbar.c gtk3/g3duiview.c \
+	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
+	gtk3/r3dpreview.c gtk3/mousetool/g3duicurrentmousetool.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c
@@ -218,6 +218,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duitimeboard.lo \
 @HAVE_GTK3_TRUE@	common/g3duitimeline.lo common/g3duitoolbar.lo \
 @HAVE_GTK3_TRUE@	common/g3duitorusedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duitubeedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duiuvmapeditor.lo common/g3duiview.lo \
 @HAVE_GTK3_TRUE@	common/g3duiviewexport.lo \
@@ -254,7 +255,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duitextedit.lo gtk3/g3duitextureedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiuvmenubar.lo gtk3/g3duiuvmapedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duitubeedit.lo gtk3/g3duiuvmenubar.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiuvmapedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiuvmapeditor.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiuvmapeditortoolbar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/g3duiweightgrouplist.lo \
@@ -323,6 +325,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duitimeline.Plo \
 	common/$(DEPDIR)/g3duitoolbar.Plo \
 	common/$(DEPDIR)/g3duitorusedit.Plo \
+	common/$(DEPDIR)/g3duitubeedit.Plo \
 	common/$(DEPDIR)/g3duiuvmapedit.Plo \
 	common/$(DEPDIR)/g3duiuvmapeditor.Plo \
 	common/$(DEPDIR)/g3duiview.Plo \
@@ -370,6 +373,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duitimeline.Plo \
 	gtk3/$(DEPDIR)/g3duitoolbar.Plo \
 	gtk3/$(DEPDIR)/g3duitorusedit.Plo \
+	gtk3/$(DEPDIR)/g3duitubeedit.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapedit.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo \
@@ -597,6 +601,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duitimeline.c \
 @HAVE_GTK3_TRUE@                            common/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            common/g3duitorusedit.c \
+@HAVE_GTK3_TRUE@                            common/g3duitubeedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiuvmapedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiuvmapeditor.c \
 @HAVE_GTK3_TRUE@                            common/g3duiview.c \
@@ -647,6 +652,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitimeline.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duitubeedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapeditor.c \
@@ -810,6 +816,8 @@ common/g3duitoolbar.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duitorusedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duitubeedit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiuvmapedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiuvmapeditor.lo: common/$(am__dirstamp) \
@@ -922,6 +930,8 @@ gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duitubeedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiuvmenubar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiuvmapedit.lo: gtk3/$(am__dirstamp) \
@@ -1009,6 +1019,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitimeline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitorusedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitubeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiuvmapeditor.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiview.Plo@am__quote@ # am--include-marker
@@ -1059,6 +1070,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitimeline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitorusedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitubeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo@am__quote@ # am--include-marker
@@ -1286,6 +1298,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f common/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f common/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f common/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f common/$(DEPDIR)/g3duiview.Plo
@@ -1336,6 +1349,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo
@@ -1431,6 +1445,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f common/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f common/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f common/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f common/$(DEPDIR)/g3duiview.Plo
@@ -1481,6 +1496,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditor.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapeditortoolbar.Plo

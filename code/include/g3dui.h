@@ -319,6 +319,15 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITCYLINDERLENGTH "Length"
 #define EDITCYLINDERRADIUS "Radius"
 
+/**** Widget names for TubeEdit TextField widget ***/
+#define EDITTUBE       "Edit Tube"
+#define EDITTUBEXCAPS  "X Caps"
+#define EDITTUBEYCAPS  "Y Caps" 
+#define EDITTUBESLICES "Slices"
+#define EDITTUBELENGTH "Length"
+#define EDITTUBERADIUS "Radius"
+#define EDITTUBETHICKNESS "Thickness"
+
 /**** Widget names for Pick Tool widget ***/
 #define EDITPICKTOOLVISIBLE        "Only visible"
 #define EDITPICKTOOLWEIGHTFRAME    "Weight Painting"
@@ -1218,6 +1227,13 @@ void common_g3duicylinderedit_lengthCbk ( G3DUI *, float );
 void common_g3duicylinderedit_radiusCbk ( G3DUI *, float );
 void common_g3duicylinderedit_capCbk    ( G3DUI *, G3DUIAXIS, int );
 void common_g3duicylinderedit_sliceCbk  ( G3DUI *, int );
+
+/****************************** Tube Edit *************************************/
+void common_g3duitubeedit_lengthCbk    ( G3DUI *, float );
+void common_g3duitubeedit_radiusCbk    ( G3DUI *, float );
+void common_g3duitubeedit_thicknessCbk ( G3DUI *, float );
+void common_g3duitubeedit_capCbk       ( G3DUI *, G3DUIAXIS, int );
+void common_g3duitubeedit_sliceCbk     ( G3DUI *, int );
 
 /****************************** FFD Edit **************************************/
 void common_g3duiffdedit_radiusCbk ( G3DUI *, G3DUIAXIS, float );

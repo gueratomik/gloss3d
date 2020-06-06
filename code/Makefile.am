@@ -177,6 +177,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/subico.xpm \
                        xpm/symico.xpm \
                        xpm/torico.xpm \
+                       xpm/tubico.xpm \
                        xpm/translate_view.xpm \
                        xpm/txtico.xpm \
                        xpm/undo.xpm \

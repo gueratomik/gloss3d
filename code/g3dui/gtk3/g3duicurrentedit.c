@@ -47,6 +47,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( obj->type == G3DFFDTYPE            ) wname = EDITFFD;
         if ( obj->type == G3DPLANETYPE          ) wname = EDITPLANE;
         if ( obj->type == G3DTORUSTYPE          ) wname = EDITTORUS;
+        if ( obj->type == G3DTUBETYPE           ) wname = EDITTUBE;
         if ( obj->type == G3DBONETYPE           ) wname = EDITBONE;
         if ( obj->type == G3DUVMAPTYPE          ) wname = EDITUVMAP;
         if ( obj->type == G3DSUBDIVIDERTYPE     ) wname = EDITSUBDIVIDER;
@@ -70,6 +71,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                     if ( obj->type == G3DCYLINDERTYPE       ) updateCylinderEdit       ( child, gui );
                     if ( obj->type == G3DPLANETYPE          ) updatePlaneEdit          ( child, gui );
                     if ( obj->type == G3DTORUSTYPE          ) updateTorusEdit          ( child, gui );
+                    if ( obj->type == G3DTUBETYPE           ) updateTubeEdit           ( child, gui );
                     if ( obj->type == G3DMESHTYPE           ) updateMeshEdit           ( child, gui );
                     if ( obj->type == G3DBONETYPE           ) updateBoneEdit           ( child, gui );
                     if ( obj->type == G3DFFDTYPE            ) updateFFDEdit            ( child, gui );
@@ -158,6 +160,7 @@ GtkWidget *createCurrentEdit ( GtkWidget *parent, G3DUI *gui,
     createCylinderEdit       ( frm, gui, EDITCYLINDER      , 0, 32, 296, 320 );
     createPlaneEdit          ( frm, gui, EDITPLANE         , 0, 32, 296, 320 );
     createTorusEdit          ( frm, gui, EDITTORUS         , 0, 32, 296, 320 );
+    createTubeEdit           ( frm, gui, EDITTUBE          , 0, 32, 296, 320 );
     createMeshEdit           ( frm, gui, EDITMESH          , 0, 32, 320, 320 );
     createBoneEdit           ( frm, gui, EDITBONE          , 0, 32, 296, 320 );
     createFFDEdit            ( frm, gui, EDITFFD           , 0, 32, 296, 320 );

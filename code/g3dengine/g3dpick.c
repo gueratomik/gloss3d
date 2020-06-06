@@ -562,9 +562,6 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
             memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR ) );
 
             for ( j = 0x00; j < CLIPPINGPLANES; j++ ) {
-                int32_t out1 = -1, 
-                        out2 = -1;
-
                 /* Check if both points are inside the frustrum */
                 s1 = ( pick->frustrum[j].x * p1->x ) +
                      ( pick->frustrum[j].y * p1->y ) +
@@ -573,14 +570,14 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                      ( pick->frustrum[j].y * p2->y ) +
                      ( pick->frustrum[j].z * p2->z ) + pick->frustrum[j].w;
 
-                if ( s1 > 0.0f ) out1 = 1;
-                if ( s2 > 0.0f ) out2 = 1;
+                /*if ( s1 > 0.0f ) out1 = 1;
+                if ( s2 > 0.0f ) out2 = 1;*/
 
-                if ( ( out1 == 1 ) && ( out2 == 1 ) ) {
+                if ( ( s1 > 0.0f ) && ( s2 > 0.0f ) ) {
                     nodraw &= (~( 1 << i ));
                 }
 
-                if ( ( out1 * out2 ) < 0x00 ) {
+                if ( ( s1 * s2 ) < 0x00 ) {
                     G3DVECTOR it; /*** intersection ***/
                     float t;
 
@@ -616,7 +613,7 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                                     &pclip[nbClip].x, 
                                     &pclip[nbClip].y, 
                                     &pclip[nbClip].z );
-                        
+
                         distance = t;
                     }
 
@@ -643,21 +640,27 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
 /*printf("line:%d pt1.x:%f, pt1.y:%f\n", i, lscreen[i][0x00].x, 
                                           lscreen[i][0x00].y );*/
 
-            if ( lscreen[i][0x00].x < xmin ) xmin = lscreen[i][0x00].x;
-            if ( lscreen[i][0x00].x > xmax ) xmax = lscreen[i][0x00].x;
-            if ( lscreen[i][0x00].y < ymin ) ymin = lscreen[i][0x00].y;
-            if ( lscreen[i][0x00].y > ymax ) ymax = lscreen[i][0x00].y;
+            /* prepare 2D clipping */
+            if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
+                if ( lscreen[i][0x00].x < xmin ) xmin = lscreen[i][0x00].x;
+                if ( lscreen[i][0x00].x > xmax ) xmax = lscreen[i][0x00].x;
+                if ( lscreen[i][0x00].y < ymin ) ymin = lscreen[i][0x00].y;
+                if ( lscreen[i][0x00].y > ymax ) ymax = lscreen[i][0x00].y;
+
+                if ( lscreen[i][0x01].x < xmin ) xmin = lscreen[i][0x01].x;
+                if ( lscreen[i][0x01].x > xmax ) xmax = lscreen[i][0x01].x;
+                if ( lscreen[i][0x01].y < ymin ) ymin = lscreen[i][0x01].y;
+                if ( lscreen[i][0x01].y > ymax ) ymax = lscreen[i][0x01].y;
+            }
         }
 
-        /*** check boundaries. Drop face if outside picking rectangle ***/
-        /* Commented out: this part does not work ***/
-        /*if ( ( xmin > pick->AMX[0x02] ) ||
+        /*** Perform 2D clipping ***/
+        if ( ( xmin > pick->AMX[0x02] ) ||
              ( xmax < pick->AMX[0x00] ) ||
              ( ymin > pick->AMX[0x03] ) ||
              ( ymax < pick->AMX[0x01] ) ) {
-
             return 0x00;
-        }*/
+        }
 
         for ( i = 0x00; i < nbver; i++ ) {
             if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
