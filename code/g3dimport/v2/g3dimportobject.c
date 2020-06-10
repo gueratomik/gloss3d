@@ -51,7 +51,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
             case SIG_OBJECT_NULL : {
                 gid->currentObject = g3dobject_new ( gid->currentObjectID++, 
                                                      "NULL",
-                                                     gid->engineFlags );
+                                                     0x00 );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 

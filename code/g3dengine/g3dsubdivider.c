@@ -606,7 +606,9 @@ static void bindMaterials ( G3DMESH *mes, G3DFACE *fac,
         if ( tex->flags & TEXTURERESTRICTED ) {
             if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
-
+/*
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+*/
                 continue;
             }
         }

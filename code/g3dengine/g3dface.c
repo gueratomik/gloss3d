@@ -569,7 +569,9 @@ uint32_t g3dface_bindMaterials ( G3DFACE *fac, LIST           *ltex,
         if ( tex->flags & TEXTURERESTRICTED ) {
             if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
-
+/*
+                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+*/
                 continue;
             }
         }

@@ -997,6 +997,9 @@ void g3duiuvmapeditor_initGL ( GtkWidget *widget,
 
     uvme->glctx = wglCreateContext ( dc );
 
+    if ( uvme->gui->sharedCtx == NULL ) uvme->gui->sharedCtx = uvme->glctx;
+    else wglShareLists( uvme->gui->sharedCtx, uvme->glctx );
+	
     wglMakeCurrent ( dc,  uvme->glctx );
 
     common_g3duiuvmapeditor_initGL ( uvme );

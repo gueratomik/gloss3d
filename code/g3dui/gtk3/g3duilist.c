@@ -774,8 +774,8 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 void objectlistarea_draw ( GtkWidget *widget,  
                            cairo_t   *cr,  
                            gpointer   user_data ) {
-    OBJECTLISTPRIVATEDATA *opd = g_object_get_data ( widget, "PRIVATEDATA" );
-    G3DUI    *gui = ( G3DUI * ) user_data;
+    OBJECTLISTPRIVATEDATA *opd = ( OBJECTLISTPRIVATEDATA * ) user_data;
+    G3DUI    *gui = ( G3DUI * ) opd->gui;
     G3DSCENE *sce = gui->sce;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     GtkAllocation allocation;
@@ -832,7 +832,7 @@ void objectlistarea_draw ( GtkWidget *widget,
 static gboolean objectlistarea_delete ( GtkWidget *widget, 
                                         GdkEvent  *event,
                                         gpointer   data ) {
-    OBJECTLISTPRIVATEDATA *opd = g_object_get_data ( widget, "PRIVATEDATA" );
+    OBJECTLISTPRIVATEDATA *opd = ( OBJECTLISTPRIVATEDATA * ) data;
 
     objectlistprivatedata_free ( opd );
 
@@ -846,6 +846,7 @@ GtkWidget *createObjectList ( GtkWidget *parent, G3DUI *gui,
                                                  gint y,
                                                  gint width,
                                                  gint height ) {
+    OBJECTLISTPRIVATEDATA *opd = objectlistprivatedata_new ( gui );
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
     GtkWidget *scr, *drw;
@@ -867,10 +868,6 @@ GtkWidget *createObjectList ( GtkWidget *parent, G3DUI *gui,
     /*** Drawing area within the Scrolled Window ***/
     drw = gtk_drawing_area_new ( );
 
-    g_object_set_data ( G_OBJECT (drw), 
-                        "PRIVATEDATA", 
-                        objectlistprivatedata_new ( ) );
-
     /*** For keyboard inputs ***/
     gtk_widget_set_can_focus ( drw, TRUE );
 
@@ -890,7 +887,7 @@ GtkWidget *createObjectList ( GtkWidget *parent, G3DUI *gui,
 		                               G_CALLBACK (objectlistarea_delete), gui);
 
     g_signal_connect ( G_OBJECT (drw), "draw"                ,
-                                       G_CALLBACK (objectlistarea_draw ), gui );
+                                       G_CALLBACK (objectlistarea_draw ), opd );
 
     g_signal_connect ( G_OBJECT (drw), "motion_notify_event" ,
                                        G_CALLBACK (objectlistarea_input), gui );

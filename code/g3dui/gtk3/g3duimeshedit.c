@@ -227,7 +227,7 @@ static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
 
             if ( facgrp ) {
-                g3dfacegroup_addFaceList ( facgrp, mes->lselfac );
+                g3dfacegroup_setFaceList ( facgrp, mes->lselfac );
             }
         }
     }
@@ -376,8 +376,10 @@ static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed,
 
             frec.width  = 100;
             frec.height = y;
-
-            gtk_widget_size_allocate ( fixed, &frec );
+			
+            if ( frec.height ) {
+                gtk_widget_set_size_request ( fixed, frec.width, frec.height );
+			}
         }
     }
 
@@ -404,8 +406,13 @@ static void updateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed,
 static void updateFaceGroupFrameFixedScrolled ( GtkWidget *scrolled,
                                                 G3DUI     *gui ) {
     GtkWidget *viewport = gtk_bin_get_child(GTK_BIN(scrolled));
+#ifdef __linux__
     GtkWidget *fixed = gtk_bin_get_child(GTK_BIN(viewport));
+#endif
 
+#ifdef __MINGW32__
+    GtkWidget *fixed = gtk_bin_get_child(scrolled);
+#endif
     updateFaceGroupFrameFixedScrolledFixed ( fixed, gui );
 }
 

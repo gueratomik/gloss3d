@@ -3469,6 +3469,7 @@ void g3dmesh_removeEdge ( G3DMESH *mes, G3DEDGE *edg ) {
 
 /******************************************************************************/
 void g3dmesh_removeFace ( G3DMESH *mes, G3DFACE *fac ) {
+    LIST *ltmpfacgrp = mes->lfacgrp;
     uint32_t i;
 
     list_remove ( &mes->lfac   , fac );
@@ -3506,6 +3507,15 @@ void g3dmesh_removeFace ( G3DMESH *mes, G3DFACE *fac ) {
         list_remove ( &mes->lqua, fac );
 
         mes->nbqua--;
+    }
+
+    /*** remove face from face groups ***/
+    while ( ltmpfacgrp ) {
+        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+
+        g3dfacegroup_removeFace ( facgrp, fac );
+
+        ltmpfacgrp = ltmpfacgrp->next;
     }
 }
 

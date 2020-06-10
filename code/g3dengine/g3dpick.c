@@ -85,9 +85,6 @@ static G3DPICK *g3dpick_get ( ) {
 
             return NULL;
         }
-
-        pick->zNear = 0.1f;
-        pick->zFar  = 1000.0f;
     }
 
     return pick;
@@ -116,6 +113,7 @@ void g3dpick_buildFrustrum ( ) {
     /*G3DMESH *mes = g3dmesh_new ( 0x00, "frustrum", 0x00 );
     G3DVERTEX *ver[0x08];
     G3DFACE *fac[0x06];*/
+        double xDouble, yDouble, zDouble;
         int i;
 
         memset ( pick->frustrum, 0x00, sizeof ( pick->frustrum ) );
@@ -206,8 +204,19 @@ void g3dpick_buildFrustrum ( ) {
             pick->frustrum[i].w = 0.0f;
         }
 #endif
+
+        gluUnProject ( 0.0f,
+                       0.0f,
+                       0.0f, /* zNear */
+                       IDX,
+                       pick->PJX,
+                       pick->VPX,
+                      &xDouble,
+                      &yDouble,
+                      &zDouble );
+
         pick->frustrum[0x00].z = -1.0f;
-        pick->frustrum[0x00].w = -pick->zNear;
+        pick->frustrum[0x00].w = zDouble;
 
         /*pick->frustrum[0x01].z =  1.0f;
         pick->frustrum[0x01].w =  pick->zFar;*/
