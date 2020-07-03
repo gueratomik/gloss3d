@@ -262,8 +262,9 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
             if ( /*( oncursor == 0x00 ) &&
                  ( onkey    == 0x00 ) && */
                  ( dragging == 0x00 ) ) {
-                g3duitimeline_grab_pointer ( widget, gdkev );
                 g3duitimeline_hide_pointer ( widget );
+                g3duitimeline_grab_pointer ( widget, gdkev );
+
 
                 dragging = 0x01;
             }
@@ -277,6 +278,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
             GdkEventMotion *mev = ( GdkEventMotion * ) gdkev;
 
             if ( mev->state & GDK_BUTTON1_MASK && ( mev->x > 0x00 ) ) {
+
                 /*** WATCH OUT: GdkEventMotion x,y are floating-point vars ***/
                 xacc += ( ( int32_t ) mev->x - xold );
 

@@ -1362,7 +1362,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                   "    font-size: 10px; \n"
     #endif
     #ifdef __MINGW32__
-                                  "    font-family: Verdana; \n"
+                                  "    font-family: Calibri; \n"
                                   "    font-size: 10px; \n"
     #endif
                                   "}                        \n"

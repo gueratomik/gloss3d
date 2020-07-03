@@ -317,10 +317,12 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
                                            int32_t           x, 
                                            int32_t           xold ) {
-    uvme->cam.obj.sca.z -= ( ( float ) ( x - xold ) * 0.01f );
+    uvme->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.00005f );
 
-    uvme->cam.obj.sca.x = uvme->cam.obj.sca.z;
-    uvme->cam.obj.sca.y = uvme->cam.obj.sca.z;
+    if ( uvme->cam.ortho.z < 0.0001f ) uvme->cam.ortho.z = 0.0001f;
+
+    uvme->cam.ortho.x = uvme->cam.ortho.z;
+    uvme->cam.ortho.y = uvme->cam.ortho.z;
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
 
@@ -383,6 +385,15 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
     uvme->cam.obj.sca.y = 1.0f;
     uvme->cam.obj.sca.z = 1.0f;
 
+    uvme->cam.obj.flags |= CAMERAORTHOGRAPHIC;
+	uvme->cam.ortho.x = 0.0f;
+    uvme->cam.ortho.y = 0.0f;
+    uvme->cam.ortho.z = 0.001f;
+    uvme->cam.znear   = -1000.0f;
+    uvme->cam.zfar    = 1000.0f;
+	
+	uvme->cam.obj.name = "UVMapEditor Camera";
+	
     uvme->uvurm = g3durmanager_new ( uvme->gui->conf.undolevel );
 
     uvme->flags = VIEWVERTEXUV;
@@ -412,6 +423,8 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
     uvme->arearec.width  = width - MODEBARBUTTONSIZE;
     uvme->arearec.height = height - BUTTONSIZE - 0x20;
 
+
+	
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }
 

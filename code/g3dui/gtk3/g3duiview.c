@@ -1486,7 +1486,8 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
     GdkWindow  *p_window = gtk_widget_get_parent_window ( widget );
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
-
+    G3DUI *gui = ( G3DUI * ) user_data;
+	
 #ifdef __linux__
     Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      root     = DefaultRootWindow ( dis );
@@ -1498,7 +1499,7 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
                              GLX_DEPTH_SIZE, 24,
                              GLX_DOUBLEBUFFER,
                              None };
-    G3DUI *gui = ( G3DUI * ) user_data;
+
     GtkAllocation allocation;
     GdkWindowAttr attr;
     GdkScreen *gdkscr;
@@ -1596,6 +1597,9 @@ void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
 
     view->glctx = wglCreateContext ( dc );
 
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = view->glctx;
+    else wglShareLists( gui->sharedCtx, view->glctx );
+
     wglMakeCurrent ( dc,  view->glctx );
 
 #ifdef __MINGW32__
@@ -1679,7 +1683,8 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     /*** GUI Toolkit Independent part ****/
     /*************************************/
     if ( sce ) {
-        common_g3duiview_showGL ( gui, 
+        common_g3duiview_showGL ( view,
+                                  gui, 
                                   sce, 
                                   cam, 
                                   mou, 
