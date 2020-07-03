@@ -92,9 +92,11 @@ void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-void g3dfacegroup_addFaceList ( G3DFACEGROUP *facgrp, LIST *lfac ) {
+void g3dfacegroup_setFaceList ( G3DFACEGROUP *facgrp, LIST *lfac ) {
     /*** Clear previous list ***/
     list_free ( &facgrp->lfac, NULL );
+
+    facgrp->nbfac = 0x00;
 
     list_execargdata ( lfac, g3dfacegroup_addFace, facgrp );
 }
@@ -112,7 +114,7 @@ G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
 
     facgrp->name = strdup ( name );
 
-    g3dfacegroup_addFaceList ( facgrp, lfac );
+    g3dfacegroup_setFaceList ( facgrp, lfac );
  
     return facgrp;
 }

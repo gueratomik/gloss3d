@@ -929,8 +929,11 @@ typedef struct _PICKEDOBJECT {
 
 /******************************************************************************/
 typedef struct _OBJECTLISTPRIVATEDATA {
+    G3DUI *gui;
     uint32_t oldWidth, oldHeight;
 } OBJECTLISTPRIVATEDATA;
+
+OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( G3DUI *gui );
 
 PICKEDOBJECT *pickobject ( uint32_t, uint32_t,
                                      uint32_t, 

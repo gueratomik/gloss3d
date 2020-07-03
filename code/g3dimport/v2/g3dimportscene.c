@@ -90,6 +90,10 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_ENTRY : {
+                gid->currentWeightgroupID = 0x00;
+                gid->currentFacegroupID = 0x00;
+                gid->currentUVMapID = 0x00;
+
                 g3dimportobject ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 

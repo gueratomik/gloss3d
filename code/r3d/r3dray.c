@@ -162,6 +162,8 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
         G3DMATERIAL *mat = tex->mat;
         uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
+        float avgu = 0.0f, avgv = 0.0f;
+        R3DRGBA retval;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
             if ( ( rfc->textureSlots & tex->slotBit ) == 0x00 )  {
@@ -173,8 +175,6 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 
         if ( tex->map && rfc->ruvs ) {
             uint32_t mapID = tex->map->mapID;
-            float avgu = 0.0f, avgv = 0.0f;
-            R3DRGBA retval;
 
             switch ( tex->map->projection ) {
                 /*
@@ -208,79 +208,79 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                              ( rfc->ruvs[mapID].uv[0x02].v * ray->ratio[0x02] ) );
                 } break;
             }
+        }
 
-            if ( mat->flags & DIFFUSE_ENABLED ) {
-                g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval, repeat );
+        if ( mat->flags & DIFFUSE_ENABLED ) {
+            g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval, repeat );
 
-                diffuse->r += retval.r;
-                diffuse->g += retval.g;
-                diffuse->b += retval.b;
-                diffuse->a += retval.a;
+            diffuse->r += retval.r;
+            diffuse->g += retval.g;
+            diffuse->b += retval.b;
+            diffuse->a += retval.a;
 
-                divDiffuse++;
+            divDiffuse++;
+        }
+
+        if ( mat->flags & SPECULAR_ENABLED ) {
+            g3dchannel_getColor ( &mat->specular, avgu, avgv, &retval, repeat );
+
+            specular->r += retval.r;
+            specular->g += retval.g;
+            specular->b += retval.b;
+            specular->a += retval.a;
+
+            divSpecular++;
+        }
+
+        if ( mat->flags & BUMP_ENABLED ) {
+            g3dchannel_getColor ( &mat->bump, avgu, avgv, &retval, repeat );
+
+            bump->r += retval.r;
+            bump->g += retval.g;
+            bump->b += retval.b;
+            bump->a += retval.a;
+
+            divBump++;
+        }
+
+        if ( mat->flags & REFLECTION_ENABLED ) {
+            g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval, repeat );
+
+            reflection->r += retval.r;
+            reflection->g += retval.g;
+            reflection->b += retval.b;
+            reflection->a += retval.a;
+
+            divReflection++;
+        }
+
+        if ( mat->flags & ALPHA_ENABLED ) {
+            g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
+
+            alpha->a  = 1.0f; /* used as boolean to say alpha is enabled */
+            alpha->r += retval.r;
+            alpha->g += retval.g;
+            alpha->b += retval.b;
+
+            if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
+                 ( mat->alpha.flags & USEPROCEDURAL ) ) {
+                alpha->r *= ( mat->alpha.solid.a );
+                alpha->g *= ( mat->alpha.solid.a );
+                alpha->b *= ( mat->alpha.solid.a );
             }
 
-            if ( mat->flags & SPECULAR_ENABLED ) {
-                g3dchannel_getColor ( &mat->specular, avgu, avgv, &retval, repeat );
+            divAlpha++;
+        }
 
-                specular->r += retval.r;
-                specular->g += retval.g;
-                specular->b += retval.b;
-                specular->a += retval.a;
+        if ( mat->flags & REFRACTION_ENABLED ) {
+            g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval, repeat );
 
-                divSpecular++;
-            }
+            refraction->r += retval.r;
+            refraction->g += retval.g;
+            refraction->b += retval.b;
+            refraction->a += retval.a;
 
-            if ( mat->flags & BUMP_ENABLED ) {
-                g3dchannel_getColor ( &mat->bump, avgu, avgv, &retval, repeat );
-
-                bump->r += retval.r;
-                bump->g += retval.g;
-                bump->b += retval.b;
-                bump->a += retval.a;
-
-                divBump++;
-            }
-
-            if ( mat->flags & REFLECTION_ENABLED ) {
-                g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval, repeat );
-
-                reflection->r += retval.r;
-                reflection->g += retval.g;
-                reflection->b += retval.b;
-                reflection->a += retval.a;
-
-                divReflection++;
-            }
-
-            if ( mat->flags & ALPHA_ENABLED ) {
-                g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
-
-                alpha->a  = 1.0f; /* used as boolean to say alpha is enabled */
-                alpha->r += retval.r;
-                alpha->g += retval.g;
-                alpha->b += retval.b;
-
-                if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
-                     ( mat->alpha.flags & USEPROCEDURAL ) ) {
-                    alpha->r *= ( mat->alpha.solid.a );
-                    alpha->g *= ( mat->alpha.solid.a );
-                    alpha->b *= ( mat->alpha.solid.a );
-                }
-
-                divAlpha++;
-            }
-
-            if ( mat->flags & REFRACTION_ENABLED ) {
-                g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval, repeat );
-
-                refraction->r += retval.r;
-                refraction->g += retval.g;
-                refraction->b += retval.b;
-                refraction->a += retval.a;
-
-                divRefraction++;
-            }
+            divRefraction++;
         }
 
         ltmptex = ltmptex->next;

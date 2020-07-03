@@ -227,7 +227,7 @@ static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
 
             if ( facgrp ) {
-                g3dfacegroup_addFaceList ( facgrp, mes->lselfac );
+                g3dfacegroup_setFaceList ( facgrp, mes->lselfac );
             }
         }
     }

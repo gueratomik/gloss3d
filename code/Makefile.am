@@ -83,6 +83,7 @@ if HAVE_WIN32
 endif
 
 EXTRA_DIST   = include/g3dexport.h \
+                       include/g3dexportv2.h \
                        include/g3dengine/g2dvector.h \
                        include/g3dengine/g3dcolor.h \
                        include/g3dengine/g3dcurve.h \
@@ -92,6 +93,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dlookup.h \
                        include/g3dengine/g3dmesh.h \
                        include/g3dengine/g3drgba.h \
+                       include/g3dengine/g3dpick.h \
                        include/g3dengine/g3dspline.h \
                        include/g3dengine/g3dsplinerevolver.h \
                        include/g3dengine/g3dsubdivisionthread.h \
@@ -102,6 +104,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dvector.h \
                        include/g3d.h \
                        include/g3dimport.h \
+                       include/g3dimportv2.h \
                        include/g3dmouse.h \
                        include/g3dui.h \
                        include/g3dui_motif.h \
@@ -118,6 +121,9 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/GLwDrawAP.h \
                        include/GLwMDrawA.h \
                        include/GLwMDrawAP.h \
+                       include/signatures \
+                       include/signatures.h \
+                       include/siggen.sh \
                        xpm/addvertex.xpm \
                        xpm/axismode.xpm \
                        xpm/bonico.xpm \

@@ -325,6 +325,10 @@ void objectlistprivatedata_free ( OBJECTLISTPRIVATEDATA *opd ) {
 }
 
 /*******************************************************************************/
-OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( ) {
-    return calloc ( 0x01, sizeof ( OBJECTLISTPRIVATEDATA ) );
+OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( G3DUI *gui ) {
+    OBJECTLISTPRIVATEDATA *opd = ( OBJECTLISTPRIVATEDATA * ) calloc ( 0x01, sizeof ( OBJECTLISTPRIVATEDATA ) );
+
+    opd->gui = gui;
+
+    return opd;
 }
