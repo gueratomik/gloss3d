@@ -162,6 +162,12 @@ void updateUVMapEdit ( GtkWidget *widget, G3DUI *gui ) {
                         if ( strcmp ( child_name, EDITUVMAPPROJECTION   ) == 0x00 ) {
                             gtk_combo_box_set_active ( cmb, map->projection );
                         }
+
+                        if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
+                            gtk_widget_set_sensitive ( cmb, FALSE  );
+                        } else {
+                            gtk_widget_set_sensitive ( cmb, TRUE );
+                        }
                     }
 
                     children =  g_list_next ( children );

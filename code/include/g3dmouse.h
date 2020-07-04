@@ -36,6 +36,7 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
+#include <lips3d/lips3d.h>
 #include <g3durmanager.h>
 
 /******************************************************************************/
@@ -71,6 +72,9 @@
 #define MOVEUVTOOL                   "Move UV"
 #define ROTATEUVTOOL                 "Rotate UV"
 #define SCALEUVTOOL                  "Scale UV"
+
+/******************************************************************************/
+#define SPRAYTOOL                    "Spray"
 
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
@@ -187,6 +191,11 @@ typedef struct G3DPICKTOOL {
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
 } G3DPICKTOOL;
+
+/******************************************************************************/
+typedef struct _SPRAY {
+    L3DTOOL *tool;
+} SPRAY;
 
 /******************************************************************************/
 typedef struct _SCULPTFACE {
@@ -430,5 +439,19 @@ uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                                                     G3DCAMERA *cam,
                                                     G3DURMANAGER *urm, 
                                                     uint32_t engine_flags );
+
+/******************************************************************************/
+SPRAY *spray_new ( );
+uint32_t spray_init ( G3DMOUSETOOL *mou, 
+                      G3DSCENE     *sce, 
+                      G3DCAMERA    *cam,
+                      G3DURMANAGER *urm,
+                      uint32_t      engine_flags );
+int spray_tool ( G3DMOUSETOOL *mou, 
+                 G3DSCENE     *sce, 
+                 G3DCAMERA    *cam,
+                 G3DURMANAGER *urm, 
+                 uint32_t      flags, 
+                 G3DEvent     *event );
 
 #endif

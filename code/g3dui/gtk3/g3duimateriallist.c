@@ -411,9 +411,13 @@ static void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
+    G3DUI *gui = ( G3DUI * ) user_data;
 
     /*** Render with button style ***/
     gtk_style_context_add_class ( context, GTK_STYLE_CLASS_BUTTON );
+
+    g3duimateriallist_removeAllPreviews ( widget );
+    g3duimateriallist_importFromScene ( widget, gui->sce );
 }
 
 /******************************************************************************/

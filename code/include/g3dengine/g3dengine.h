@@ -755,8 +755,6 @@ typedef struct _G3DUV {
     G3DUVSET *set;
     float u;
     float v;
-    float x; /* needed for picking */
-    float y; /* needed for picking */
     uint32_t flags;
 } G3DUV, G3DSUBUV;
 

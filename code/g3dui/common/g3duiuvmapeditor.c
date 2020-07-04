@@ -437,24 +437,6 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    g3dcamera_project ( &uvme->cam, 0x00  );
-
-    glMatrixMode ( GL_MODELVIEW );
-    glLoadIdentity ( );
-    g3dcamera_view ( &uvme->cam, 0x00  );
-
-    glEnable ( GL_COLOR_MATERIAL );
-    glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-    glBegin ( GL_LINE_LOOP );
-    glVertex3f   ( 0.0f, 0.0f, 0.0f );
-    glVertex3f   ( 1.0f, 0.0f, 0.0f );
-    glVertex3f   ( 1.0f, 1.0f, 0.0f );
-    glVertex3f   ( 0.0f, 1.0f, 0.0f );
-    glEnd ( );
-
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
@@ -463,20 +445,23 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
         /*** try the first texture in case no texture is selected ***/
         if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
 
-        if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
-        if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
-
         if ( tex ) {
             G3DMATERIAL *mat = tex->mat;
 
             if ( mat ) {
                 G3DCHANNEL *chn = &mat->diffuse;
+                float whRatio = 1.0f;
 
                 glEnable ( GL_TEXTURE_2D );
 
                 if ( chn->flags & USEIMAGECOLOR ) {
                     if ( chn->image ) {
                         glBindTexture ( GL_TEXTURE_2D, chn->image->id );
+
+                        if ( chn->image->height ) {
+                            whRatio = ( chn->image->width / 
+                                        chn->image->height );
+                        }
                     }
                 }
 
@@ -485,6 +470,24 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                         glBindTexture ( GL_TEXTURE_2D, chn->proc->image.id );
                     }
                 }
+
+
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                g3dcamera_project ( &uvme->cam, 0x00  );
+
+                glMatrixMode ( GL_MODELVIEW );
+                glLoadIdentity ( );
+
+                /*** preserve image aspect ratio ***/
+                uvme->cam.obj.sca.y = whRatio;
+
+                g3dobject_updateMatrix ( &uvme->cam.obj );
+
+                g3dcamera_view ( &uvme->cam, 0x00  );
+
+                glEnable ( GL_COLOR_MATERIAL );
+                glColor3ub ( 0xFF, 0xFF, 0xFF );
 
                 glBegin ( GL_QUADS );
                 glTexCoord2f ( 0.0f, 0.0f );
@@ -498,6 +501,16 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                 glEnd ( );
 
                 glDisable ( GL_TEXTURE_2D );
+
+                glBegin ( GL_LINE_LOOP );
+                glVertex3f   ( 0.0f, 0.0f, 0.0f );
+                glVertex3f   ( 1.0f, 0.0f, 0.0f );
+                glVertex3f   ( 1.0f, 1.0f, 0.0f );
+                glVertex3f   ( 0.0f, 1.0f, 0.0f );
+                glEnd ( );
+
+                if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
+                if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
             }
         }
     }

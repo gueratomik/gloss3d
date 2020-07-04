@@ -125,7 +125,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
-    glossui = gtk_glossui_new ( );
+    glossui = gtk_glossui_new ( loadFile );
 
     gtk_container_add ( GTK_CONTAINER(window), glossui );
 

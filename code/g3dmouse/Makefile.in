@@ -132,13 +132,19 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dmouse_la_LIBADD =
-am__objects_1 = createCube.lo createCylinder.lo bridge.lo \
-	createPlane.lo createSphere.lo createVertex.lo createBone.lo \
-	createTorus.lo createTube.lo cutMesh.lo createFacegroup.lo \
-	triangulate.lo untriangulate.lo revertSpline.lo \
-	roundSplinePoint.lo invertNormal.lo empty.lo extrudeFace.lo \
-	g3dmousetool.lo weldvertices.lo move.lo pick.lo rotate.lo \
-	sculpt.lo scale.lo
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_1 = g3dmousetool.lo gloss3d/createCube.lo \
+	gloss3d/createCylinder.lo gloss3d/bridge.lo \
+	gloss3d/createPlane.lo gloss3d/createSphere.lo \
+	gloss3d/createVertex.lo gloss3d/createBone.lo \
+	gloss3d/createTorus.lo gloss3d/createTube.lo \
+	gloss3d/cutMesh.lo gloss3d/createFacegroup.lo \
+	gloss3d/triangulate.lo gloss3d/untriangulate.lo \
+	gloss3d/revertSpline.lo gloss3d/roundSplinePoint.lo \
+	gloss3d/invertNormal.lo gloss3d/empty.lo \
+	gloss3d/extrudeFace.lo gloss3d/weldvertices.lo gloss3d/move.lo \
+	gloss3d/pick.lo gloss3d/rotate.lo gloss3d/sculpt.lo \
+	gloss3d/scale.lo lips3d/spray.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -160,19 +166,26 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/bridge.Plo \
-	./$(DEPDIR)/createBone.Plo ./$(DEPDIR)/createCube.Plo \
-	./$(DEPDIR)/createCylinder.Plo ./$(DEPDIR)/createFacegroup.Plo \
-	./$(DEPDIR)/createPlane.Plo ./$(DEPDIR)/createSphere.Plo \
-	./$(DEPDIR)/createTorus.Plo ./$(DEPDIR)/createTube.Plo \
-	./$(DEPDIR)/createVertex.Plo ./$(DEPDIR)/cutMesh.Plo \
-	./$(DEPDIR)/empty.Plo ./$(DEPDIR)/extrudeFace.Plo \
-	./$(DEPDIR)/g3dmousetool.Plo ./$(DEPDIR)/invertNormal.Plo \
-	./$(DEPDIR)/move.Plo ./$(DEPDIR)/pick.Plo \
-	./$(DEPDIR)/revertSpline.Plo ./$(DEPDIR)/rotate.Plo \
-	./$(DEPDIR)/roundSplinePoint.Plo ./$(DEPDIR)/scale.Plo \
-	./$(DEPDIR)/sculpt.Plo ./$(DEPDIR)/triangulate.Plo \
-	./$(DEPDIR)/untriangulate.Plo ./$(DEPDIR)/weldvertices.Plo
+am__depfiles_remade = ./$(DEPDIR)/g3dmousetool.Plo \
+	gloss3d/$(DEPDIR)/bridge.Plo gloss3d/$(DEPDIR)/createBone.Plo \
+	gloss3d/$(DEPDIR)/createCube.Plo \
+	gloss3d/$(DEPDIR)/createCylinder.Plo \
+	gloss3d/$(DEPDIR)/createFacegroup.Plo \
+	gloss3d/$(DEPDIR)/createPlane.Plo \
+	gloss3d/$(DEPDIR)/createSphere.Plo \
+	gloss3d/$(DEPDIR)/createTorus.Plo \
+	gloss3d/$(DEPDIR)/createTube.Plo \
+	gloss3d/$(DEPDIR)/createVertex.Plo \
+	gloss3d/$(DEPDIR)/cutMesh.Plo gloss3d/$(DEPDIR)/empty.Plo \
+	gloss3d/$(DEPDIR)/extrudeFace.Plo \
+	gloss3d/$(DEPDIR)/invertNormal.Plo gloss3d/$(DEPDIR)/move.Plo \
+	gloss3d/$(DEPDIR)/pick.Plo gloss3d/$(DEPDIR)/revertSpline.Plo \
+	gloss3d/$(DEPDIR)/rotate.Plo \
+	gloss3d/$(DEPDIR)/roundSplinePoint.Plo \
+	gloss3d/$(DEPDIR)/scale.Plo gloss3d/$(DEPDIR)/sculpt.Plo \
+	gloss3d/$(DEPDIR)/triangulate.Plo \
+	gloss3d/$(DEPDIR)/untriangulate.Plo \
+	gloss3d/$(DEPDIR)/weldvertices.Plo lips3d/$(DEPDIR)/spray.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -348,31 +361,32 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dmouse.la
 libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)
-LIBGLOSSG3DMOUSE_C_FILES = createCube.c     \
-                           createCylinder.c \
-                           bridge.c         \
-                           createPlane.c    \
-                           createSphere.c   \
-                           createVertex.c   \
-                           createBone.c     \
-                           createTorus.c    \
-                           createTube.c    \
-                           cutMesh.c        \
-                           createFacegroup.c        \
-                           triangulate.c    \
-                           untriangulate.c  \
-                           revertSpline.c   \
-                           roundSplinePoint.c \
-                           invertNormal.c   \
-                           empty.c          \
-                           extrudeFace.c    \
-                           g3dmousetool.c   \
-                           weldvertices.c   \
-                           move.c           \
-                           pick.c           \
-                           rotate.c         \
-                           sculpt.c         \
-                           scale.c
+LIBGLOSSG3DMOUSE_C_FILES = g3dmousetool.c             \
+                           gloss3d/createCube.c       \
+                           gloss3d/createCylinder.c   \
+                           gloss3d/bridge.c           \
+                           gloss3d/createPlane.c      \
+                           gloss3d/createSphere.c     \
+                           gloss3d/createVertex.c     \
+                           gloss3d/createBone.c       \
+                           gloss3d/createTorus.c      \
+                           gloss3d/createTube.c       \
+                           gloss3d/cutMesh.c          \
+                           gloss3d/createFacegroup.c  \
+                           gloss3d/triangulate.c      \
+                           gloss3d/untriangulate.c    \
+                           gloss3d/revertSpline.c     \
+                           gloss3d/roundSplinePoint.c \
+                           gloss3d/invertNormal.c     \
+                           gloss3d/empty.c            \
+                           gloss3d/extrudeFace.c      \
+                           gloss3d/weldvertices.c     \
+                           gloss3d/move.c             \
+                           gloss3d/pick.c             \
+                           gloss3d/rotate.c           \
+                           gloss3d/sculpt.c           \
+                           gloss3d/scale.c            \
+                           lips3d/spray.c
 
 all: all-am
 
@@ -442,41 +456,108 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+gloss3d/$(am__dirstamp):
+	@$(MKDIR_P) gloss3d
+	@: > gloss3d/$(am__dirstamp)
+gloss3d/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) gloss3d/$(DEPDIR)
+	@: > gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createCube.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createCylinder.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/bridge.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createPlane.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createSphere.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createVertex.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createBone.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createTorus.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createTube.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/cutMesh.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/createFacegroup.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/triangulate.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/untriangulate.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/revertSpline.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/roundSplinePoint.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/invertNormal.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/empty.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/extrudeFace.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/weldvertices.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/move.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/pick.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/rotate.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/sculpt.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/scale.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
+lips3d/$(am__dirstamp):
+	@$(MKDIR_P) lips3d
+	@: > lips3d/$(am__dirstamp)
+lips3d/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) lips3d/$(DEPDIR)
+	@: > lips3d/$(DEPDIR)/$(am__dirstamp)
+lips3d/spray.lo: lips3d/$(am__dirstamp) \
+	lips3d/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dmouse.la: $(libgloss_g3dmouse_la_OBJECTS) $(libgloss_g3dmouse_la_DEPENDENCIES) $(EXTRA_libgloss_g3dmouse_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dmouse_la_OBJECTS) $(libgloss_g3dmouse_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f gloss3d/*.$(OBJEXT)
+	-rm -f gloss3d/*.lo
+	-rm -f lips3d/*.$(OBJEXT)
+	-rm -f lips3d/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bridge.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createBone.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCube.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createCylinder.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createFacegroup.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createPlane.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createSphere.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createTorus.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createTube.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/createVertex.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cutMesh.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/empty.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/extrudeFace.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmousetool.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invertNormal.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/move.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pick.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revertSpline.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotate.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/roundSplinePoint.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scale.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sculpt.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/triangulate.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/untriangulate.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/weldvertices.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/bridge.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createBone.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createCube.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createCylinder.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createFacegroup.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createPlane.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createSphere.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createTorus.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createTube.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/createVertex.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/cutMesh.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/empty.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/extrudeFace.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/invertNormal.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/move.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/pick.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/revertSpline.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/rotate.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/roundSplinePoint.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/scale.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/sculpt.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/triangulate.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/untriangulate.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/weldvertices.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@lips3d/$(DEPDIR)/spray.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -513,6 +594,8 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf gloss3d/.libs gloss3d/_libs
+	-rm -rf lips3d/.libs lips3d/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -632,6 +715,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f gloss3d/$(DEPDIR)/$(am__dirstamp)
+	-rm -f gloss3d/$(am__dirstamp)
+	-rm -f lips3d/$(DEPDIR)/$(am__dirstamp)
+	-rm -f lips3d/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -642,31 +729,32 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/bridge.Plo
-	-rm -f ./$(DEPDIR)/createBone.Plo
-	-rm -f ./$(DEPDIR)/createCube.Plo
-	-rm -f ./$(DEPDIR)/createCylinder.Plo
-	-rm -f ./$(DEPDIR)/createFacegroup.Plo
-	-rm -f ./$(DEPDIR)/createPlane.Plo
-	-rm -f ./$(DEPDIR)/createSphere.Plo
-	-rm -f ./$(DEPDIR)/createTorus.Plo
-	-rm -f ./$(DEPDIR)/createTube.Plo
-	-rm -f ./$(DEPDIR)/createVertex.Plo
-	-rm -f ./$(DEPDIR)/cutMesh.Plo
-	-rm -f ./$(DEPDIR)/empty.Plo
-	-rm -f ./$(DEPDIR)/extrudeFace.Plo
-	-rm -f ./$(DEPDIR)/g3dmousetool.Plo
-	-rm -f ./$(DEPDIR)/invertNormal.Plo
-	-rm -f ./$(DEPDIR)/move.Plo
-	-rm -f ./$(DEPDIR)/pick.Plo
-	-rm -f ./$(DEPDIR)/revertSpline.Plo
-	-rm -f ./$(DEPDIR)/rotate.Plo
-	-rm -f ./$(DEPDIR)/roundSplinePoint.Plo
-	-rm -f ./$(DEPDIR)/scale.Plo
-	-rm -f ./$(DEPDIR)/sculpt.Plo
-	-rm -f ./$(DEPDIR)/triangulate.Plo
-	-rm -f ./$(DEPDIR)/untriangulate.Plo
-	-rm -f ./$(DEPDIR)/weldvertices.Plo
+		-rm -f ./$(DEPDIR)/g3dmousetool.Plo
+	-rm -f gloss3d/$(DEPDIR)/bridge.Plo
+	-rm -f gloss3d/$(DEPDIR)/createBone.Plo
+	-rm -f gloss3d/$(DEPDIR)/createCube.Plo
+	-rm -f gloss3d/$(DEPDIR)/createCylinder.Plo
+	-rm -f gloss3d/$(DEPDIR)/createFacegroup.Plo
+	-rm -f gloss3d/$(DEPDIR)/createPlane.Plo
+	-rm -f gloss3d/$(DEPDIR)/createSphere.Plo
+	-rm -f gloss3d/$(DEPDIR)/createTorus.Plo
+	-rm -f gloss3d/$(DEPDIR)/createTube.Plo
+	-rm -f gloss3d/$(DEPDIR)/createVertex.Plo
+	-rm -f gloss3d/$(DEPDIR)/cutMesh.Plo
+	-rm -f gloss3d/$(DEPDIR)/empty.Plo
+	-rm -f gloss3d/$(DEPDIR)/extrudeFace.Plo
+	-rm -f gloss3d/$(DEPDIR)/invertNormal.Plo
+	-rm -f gloss3d/$(DEPDIR)/move.Plo
+	-rm -f gloss3d/$(DEPDIR)/pick.Plo
+	-rm -f gloss3d/$(DEPDIR)/revertSpline.Plo
+	-rm -f gloss3d/$(DEPDIR)/rotate.Plo
+	-rm -f gloss3d/$(DEPDIR)/roundSplinePoint.Plo
+	-rm -f gloss3d/$(DEPDIR)/scale.Plo
+	-rm -f gloss3d/$(DEPDIR)/sculpt.Plo
+	-rm -f gloss3d/$(DEPDIR)/triangulate.Plo
+	-rm -f gloss3d/$(DEPDIR)/untriangulate.Plo
+	-rm -f gloss3d/$(DEPDIR)/weldvertices.Plo
+	-rm -f lips3d/$(DEPDIR)/spray.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -712,31 +800,32 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/bridge.Plo
-	-rm -f ./$(DEPDIR)/createBone.Plo
-	-rm -f ./$(DEPDIR)/createCube.Plo
-	-rm -f ./$(DEPDIR)/createCylinder.Plo
-	-rm -f ./$(DEPDIR)/createFacegroup.Plo
-	-rm -f ./$(DEPDIR)/createPlane.Plo
-	-rm -f ./$(DEPDIR)/createSphere.Plo
-	-rm -f ./$(DEPDIR)/createTorus.Plo
-	-rm -f ./$(DEPDIR)/createTube.Plo
-	-rm -f ./$(DEPDIR)/createVertex.Plo
-	-rm -f ./$(DEPDIR)/cutMesh.Plo
-	-rm -f ./$(DEPDIR)/empty.Plo
-	-rm -f ./$(DEPDIR)/extrudeFace.Plo
-	-rm -f ./$(DEPDIR)/g3dmousetool.Plo
-	-rm -f ./$(DEPDIR)/invertNormal.Plo
-	-rm -f ./$(DEPDIR)/move.Plo
-	-rm -f ./$(DEPDIR)/pick.Plo
-	-rm -f ./$(DEPDIR)/revertSpline.Plo
-	-rm -f ./$(DEPDIR)/rotate.Plo
-	-rm -f ./$(DEPDIR)/roundSplinePoint.Plo
-	-rm -f ./$(DEPDIR)/scale.Plo
-	-rm -f ./$(DEPDIR)/sculpt.Plo
-	-rm -f ./$(DEPDIR)/triangulate.Plo
-	-rm -f ./$(DEPDIR)/untriangulate.Plo
-	-rm -f ./$(DEPDIR)/weldvertices.Plo
+		-rm -f ./$(DEPDIR)/g3dmousetool.Plo
+	-rm -f gloss3d/$(DEPDIR)/bridge.Plo
+	-rm -f gloss3d/$(DEPDIR)/createBone.Plo
+	-rm -f gloss3d/$(DEPDIR)/createCube.Plo
+	-rm -f gloss3d/$(DEPDIR)/createCylinder.Plo
+	-rm -f gloss3d/$(DEPDIR)/createFacegroup.Plo
+	-rm -f gloss3d/$(DEPDIR)/createPlane.Plo
+	-rm -f gloss3d/$(DEPDIR)/createSphere.Plo
+	-rm -f gloss3d/$(DEPDIR)/createTorus.Plo
+	-rm -f gloss3d/$(DEPDIR)/createTube.Plo
+	-rm -f gloss3d/$(DEPDIR)/createVertex.Plo
+	-rm -f gloss3d/$(DEPDIR)/cutMesh.Plo
+	-rm -f gloss3d/$(DEPDIR)/empty.Plo
+	-rm -f gloss3d/$(DEPDIR)/extrudeFace.Plo
+	-rm -f gloss3d/$(DEPDIR)/invertNormal.Plo
+	-rm -f gloss3d/$(DEPDIR)/move.Plo
+	-rm -f gloss3d/$(DEPDIR)/pick.Plo
+	-rm -f gloss3d/$(DEPDIR)/revertSpline.Plo
+	-rm -f gloss3d/$(DEPDIR)/rotate.Plo
+	-rm -f gloss3d/$(DEPDIR)/roundSplinePoint.Plo
+	-rm -f gloss3d/$(DEPDIR)/scale.Plo
+	-rm -f gloss3d/$(DEPDIR)/sculpt.Plo
+	-rm -f gloss3d/$(DEPDIR)/triangulate.Plo
+	-rm -f gloss3d/$(DEPDIR)/untriangulate.Plo
+	-rm -f gloss3d/$(DEPDIR)/weldvertices.Plo
+	-rm -f lips3d/$(DEPDIR)/spray.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -1582,6 +1582,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     char configFileName[0x100];
     GtkWidget *tab;
     G3DEXPORTEXTENSION *exportExtension;
+    char *loadFile = NULL;
 
     #ifdef __linux__
     snprintf ( configFileName, 0x100, "%s/.gloss3d/gloss3d.conf", home );
@@ -1685,7 +1686,11 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     common_g3dui_initDefaultMouseTools ( gui, g3dui_getMainViewCamera ( gui ) );
 
     /*** File loading must be done AFTER OpenGL init ***/
-    gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
+    if ( gui->loadFile ) {
+        common_g3dui_openG3DFile ( gui, gui->loadFile );
+    } else {
+        gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
+    }
 
     /*** MainBoard uses G3DSCENE, we must created it after scene creation ***/
     createMainBoard ( widget, gui, MAINBOARDNAME, gui->mbrdrec.x,
@@ -1702,14 +1707,18 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     /*gtk_style_context_set_background ( gtk_widget_get_style_context ( widget ),
                                        window );*/
-
 }
 
 /******************************************************************************/
-GtkWidget *gtk_glossui_new ( ) {
-  return g_object_new ( gtk_glossui_get_type ( ),
-                        /*"active", NULL,*/
-                        NULL);
+GtkWidget *gtk_glossui_new ( const char *filename ) {
+    GtkWidget *widget = g_object_new ( gtk_glossui_get_type ( ), NULL );
+    GtkGlossUI *glossui = ( GtkGlossUI * ) widget;
+
+    if ( filename ) {
+       glossui->gui.loadFile = strdup ( filename );
+    }
+
+    return widget;
 }
 
 /******************************************************************************/

@@ -23,6 +23,7 @@ SUBDIRS = g3dengine \
           g3dcom \
           g3dui \
           g3durmanager \
+          lips3d \
           r3d
 #          r3dnet
 
@@ -37,7 +38,8 @@ if HAVE_GTK3
                          g3dcom/libgloss-g3dcom.la \
                          g3dui/libgloss-g3dui-gtk3.la \
                          g3durmanager/libgloss-g3durmanager.la \
-                         r3d/libgloss-r3d.la
+                         r3d/libgloss-r3d.la \
+                         lips3d/libgloss-lips3d.la
 #                         r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
@@ -55,7 +57,8 @@ if HAVE_MOTIF
                           g3dcom/libgloss-g3dcom.la \
                           g3dui/libgloss-g3dui-motif.la \
                           g3durmanager/libgloss-g3durmanager.la \
-                          r3d/libgloss-r3d.la
+                          r3d/libgloss-r3d.la \
+                          lips3d/libgloss-lips3d.la
 #                          r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
@@ -102,6 +105,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dtext.h \
                        include/g3dengine/g3dtinyvector.h \
                        include/g3dengine/g3dvector.h \
+                       include/lips3d/lips3d.h \
                        include/g3d.h \
                        include/g3dimport.h \
                        include/g3dimportv2.h \

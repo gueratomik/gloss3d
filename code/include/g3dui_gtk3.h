@@ -135,7 +135,7 @@ typedef struct _GtkGlossUIClass {
 
 /******************************************************************************/
 GType      gtk_glossui_get_type    (void) G_GNUC_CONST;
-GtkWidget *gtk_glossui_new ( );
+GtkWidget *gtk_glossui_new ( const char *filename );
 
 
 

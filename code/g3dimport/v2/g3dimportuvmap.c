@@ -120,6 +120,8 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     uint32_t facID;
                     G3DUVSET uvset;
 
+                    memset ( &uvset, 0x00, sizeof ( G3DUVSET ) );
+
                     g3dimport_freadl ( &flags   , fsrc );
                     g3dimport_freadl ( &facID   , fsrc );
 
@@ -136,7 +138,8 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                              gid->currentUVMap );
 
                     if ( uvs ) {
-                        memcpy ( uvs, &uvset, sizeof ( G3DUVSET ) );
+                        memcpy ( uvs->veruv, 
+                                &uvset.veruv, sizeof ( G3DUV ) * 0x04 );
                     }
                 }
             } break;

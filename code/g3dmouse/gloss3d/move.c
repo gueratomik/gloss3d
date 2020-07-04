@@ -175,12 +175,13 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                   G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     G3DOBJECT *obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
+    static GLdouble MVX[0x10], PJX[0x10];
     static int VPX[0x04];
     static float widthFactor;
     static float heightFactor;
-    static int xold, yold;
+    static double xold, yold;
     static G3DUV *olduv, *newuv;
     static LIST *lseluv;
 
@@ -194,30 +195,48 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                     case G3DButtonPress : {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                        mouseXpress = xold = bev->x;
-                        mouseYpress = yold = bev->y;
+                        glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+                        glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                        gluUnProject ( bev->x, 
+                                       bev->y, 
+                                       0.0f,
+                                       MVX,
+                                       PJX,
+                                       VPX,
+                                      &orix,
+                                      &oriy,
+                                      &oriz );
+
+                        mouseXpress = xold = orix;
+                        mouseYpress = yold = oriy;
 
                         if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
                         if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
 
                         /*** remember coords for undo-redo ***/
                         g3duv_copyUVFromList ( lseluv, &olduv );
-
-                        glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                        /* Note: cam->obj.sca.z = cam->obj.sca.x = cam->obj.sca.y */
-                        widthFactor  = ( 2.0f / VPX[0x02] ) * cam->obj.sca.z;
-                        heightFactor = ( 2.0f / VPX[0x03] ) * cam->obj.sca.z;
                     } return REDRAWVIEW;
 
                     case G3DMotionNotify : {
                         G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
                         if ( mev->state & G3DButton1Mask ) {
+                            gluUnProject ( mev->x, 
+                                           mev->y, 
+                                           0.0f,
+                                           MVX,
+                                           PJX,
+                                           VPX,
+                                          &newx,
+                                          &newy,
+                                          &newz );
+
                             if ( ( eflags & VIEWVERTEXUV ) || 
                                  ( eflags & VIEWFACEUV   ) ) {
-                                float udiff = ( float ) ( mev->x - xold ) * widthFactor,
-                                      vdiff = ( float ) ( mev->y - yold ) * heightFactor;
+                                float udiff = ( float ) ( newx - orix ),
+                                      vdiff = ( float ) ( newy - oriy );
                                 LIST *ltmpuv = lseluv;
 
                                 while ( ltmpuv ) {
@@ -229,10 +248,10 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                                     ltmpuv = ltmpuv->next;
                                 }
                             }
-                        }
 
-                        xold = mev->x;
-                        yold = mev->y;
+                            orix = newx;
+                            oriy = newy;
+                        }
                     } return REDRAWUVMAPEDITOR;
 
                     case G3DButtonRelease : {

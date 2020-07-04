@@ -1021,6 +1021,13 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     common_g3dui_addMouseTool ( gui, mou, 0x00 );
 
     /********************************/
+
+    mou = g3dmousetool_new ( SPRAYTOOL, 's', NULL,
+                             spray_init, NULL, spray_tool, 0x00 );
+
+    common_g3dui_addMouseTool ( gui, mou, 0x00 );
+
+    /********************************/
 }
 
 /******************************************************************************/
