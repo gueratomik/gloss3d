@@ -471,6 +471,13 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                     }
                 }
 
+                /*** disable bilinear filtering ***/
+                glTexParameteri ( GL_TEXTURE_2D, 
+                                  GL_TEXTURE_MIN_FILTER, 
+                                  GL_NEAREST );
+                glTexParameteri( GL_TEXTURE_2D, 
+                                 GL_TEXTURE_MAG_FILTER, 
+                                 GL_NEAREST );
 
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
@@ -499,6 +506,14 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                 glTexCoord2f ( 0.0f, 1.0f );
                 glVertex3f   ( 0.0f, 1.0f, 0.0f );
                 glEnd ( );
+
+                /*** reenable bilinear filtering ***/
+                glTexParameteri ( GL_TEXTURE_2D, 
+                                  GL_TEXTURE_MIN_FILTER, 
+                                  GL_NEAREST_MIPMAP_LINEAR );
+                glTexParameteri( GL_TEXTURE_2D, 
+                                 GL_TEXTURE_MAG_FILTER, 
+                                 GL_LINEAR );
 
                 glDisable ( GL_TEXTURE_2D );
 

@@ -40,6 +40,10 @@ static int Init ( L3DTOOL  *tool,
                   char     *mask,
                   char     *zbuffer,
                   uint32_t  engineFlags ) {
+    L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
+
+    sprtool->oldx = x;
+    sprtool->oldy = y;
 
     return 0x00;
 }
@@ -54,28 +58,43 @@ static int Paint ( L3DTOOL  *tool,
                    uint32_t  bpp,
                    char     *mask,
                    char     *zbuffer,
+                   int32_t  *updx,
+                   int32_t  *updy,
+                   int32_t  *updw,
+                   int32_t  *updh,
                    uint32_t  engineFlags ) {
     L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
-    uint32_t offset = ( y * width ) + x;
+    uint32_t size = 0x0A, halfSize = size / 0x02;
 
-    switch ( bpp ) {
-        case 0x20 :
-        break;
+    if ( updx ) (*updx) = ( x < sprtool->oldx ) ? x - halfSize : sprtool->oldx - halfSize;
+    if ( updy ) (*updy) = ( y < sprtool->oldy ) ? y - halfSize : sprtool->oldy - halfSize;
+    if ( updw ) (*updw) = ( abs ( sprtool->oldx - x ) + size + 1 );
+    if ( updh ) (*updh) = ( abs ( sprtool->oldy - y ) + size + 1 );
 
-        case 0x18 : {
-            char (*buffer24)[0x03] = buffer;
+    if ( (*updx) < 0x00 ) (*updx) = 0x00;
+    if ( (*updy) < 0x00 ) (*updy) = 0x00;
 
-            buffer24[offset][0x00] = 0x00;
-            buffer24[offset][0x01] = 0x00;
-            buffer24[offset][0x02] = 0x00;
-        } break;
+    if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
+    if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
 
-        default :
-            fprintf ( stderr, "Unsupported depth\n");
-        break;
-    }
+    l3core_paintLine ( tool->pattern,
+                       0xFF, /* color */
+                       size,    /* size */
+                       1.0f,
+                       sprtool->oldx,
+                       sprtool->oldy,
+                       x,
+                       y,
+                       buffer,
+                       width,
+                       height, 
+                       bpp, 
+                       mask,
+                       zbuffer,
+                       engineFlags );
 
-
+    sprtool->oldx = x;
+    sprtool->oldy = y;
 
     return 0x00;
 }
@@ -106,6 +125,8 @@ L3DSPRAYTOOL *l3dspraytool_new ( ) {
 
         return NULL;
     }
+
+    sprtool->tool.pattern = l3dpattern_new ( );
 
     sprtool->tool.init  = Init;
     sprtool->tool.paint = Paint;

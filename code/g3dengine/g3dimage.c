@@ -382,7 +382,7 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
                     uint32_t nj = j * img->wratio;
 
                     if ( nj < jpgwidth ) {
-                        uint32_t imgoffset = (  i * imgwidth ) +  j,
+                        uint32_t imgoffset = ( ( imgheight - i - 1 ) * imgwidth ) +  j,
                                  orioffset = ( ni * jpgwidth ) + nj;
 
                         imgdata[imgoffset][0] = oridata[orioffset][0];

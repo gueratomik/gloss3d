@@ -81,20 +81,20 @@ int spray_tool ( G3DMOUSETOOL *mou,
     static G3DMESH *mes;
     SPRAY *spr = mou->data;
     double mx, my, mz;
+    static int subRect[0x04];
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
+            subRect[0x00] = subRect[0x02] = bev->x;
+            subRect[0x01] = subRect[0x03] = bev->y;
 
             glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
             glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-        } return REDRAWVIEW;
 
-        case G3DMotionNotify : {
-            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+            obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
 
             if ( obj ) {
                 if ( obj->type & MESH ) {
@@ -110,8 +110,60 @@ int spray_tool ( G3DMOUSETOOL *mou,
 
                         if ( chn->flags & USEIMAGECOLOR ) {
                             if ( chn->image ) {
+                                gluUnProject ( bev->x, 
+                                               VPX[0x03] - bev->y, 
+                                               0.0f,
+                                               MVX,
+                                               PJX,
+                                               VPX,
+                                              &mx,
+                                              &my,
+                                              &mz );
+
+                                spr->tool->init ( spr->tool,
+                                                  mx * chn->image->width,
+                                                  my * chn->image->height,
+                                                  chn->image->data,
+                                                  chn->image->width,
+                                                  chn->image->height,
+                                                  chn->image->bytesPerPixel * 0x08,
+                                                  NULL,
+                                                  NULL,
+                                                  0x00 );
+
+                                g3dimage_bind ( chn->image );
+                            }
+                        }
+                    }
+                }
+            }
+        } return REDRAWVIEW;
+
+        case G3DMotionNotify : {
+            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+            int32_t subx, suby, subw, subh;
+
+            subRect[0x02] = mev->x;
+            subRect[0x03] = mev->y;
+
+            if ( obj ) {
+                if ( obj->type & MESH ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+                    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+                    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+                    if ( tex ) {
+                        G3DMATERIAL *mat = tex->mat;
+                        G3DCHANNEL *chn = &mat->diffuse;
+
+                        if ( chn->flags & USEIMAGECOLOR ) {
+                            if ( chn->image ) {
+                                G3DIMAGE *image = chn->image;
+
                                 gluUnProject ( mev->x, 
-                                               mev->y, 
+                                               VPX[0x03] - mev->y, 
                                                0.0f,
                                                MVX,
                                                PJX,
@@ -121,28 +173,95 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &mz );
 
                                 if ( mev->state & G3DButton1Mask ) {
+
                                     spr->tool->paint ( spr->tool,
-                                                       mx * chn->image->width,
-                                                       my * chn->image->height,
-                                                       chn->image->data,
-                                                       chn->image->width,
-                                                       chn->image->height,
-                                                       chn->image->bytesPerPixel * 0x08,
+                                                       mx * image->width,
+                                                       my * image->height,
+                                                       image->data,
+                                                       image->width,
+                                                       image->height,
+                                                       image->bytesPerPixel * 0x08,
                                                        NULL,
                                                        NULL,
+                                                      &subx,
+                                                      &suby,
+                                                      &subw,
+                                                      &subh,
                                                        0x00 );
 
-                                    g3dimage_bind ( chn->image );
+                                    if ( ( subx < image->width  ) &&
+                                         ( suby < image->height ) ) {
+                                        glEnable ( GL_TEXTURE_2D );
+                                        glBindTexture ( GL_TEXTURE_2D, image->id );
+                                        glActiveTexture( image->id ); 
+                                        glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
+                                        glTexSubImage2D ( GL_TEXTURE_2D, 
+                                                          0x00,
+                                                          subx,
+                                                          suby,
+                                                          subw,
+                                                          subh,
+                                                          GL_RGB,
+                                                          GL_UNSIGNED_BYTE,
+                                                          image->data + ( suby * image->bytesPerLine ) + ( subx * image->bytesPerPixel ) );
+                                        glBindTexture ( GL_TEXTURE_2D, 0x00 );
+                                        glDisable ( GL_TEXTURE_2D );
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } return REDRAWVIEW;
+
+            subRect[0x00] = subRect[0x02];
+            subRect[0x01] = subRect[0x03];
+        } return REDRAWUVMAPEDITOR;
 
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+            if ( obj ) {
+                if ( obj->type & MESH ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+                    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+                    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+                    if ( tex ) {
+                        G3DMATERIAL *mat = tex->mat;
+                        G3DCHANNEL *chn = &mat->diffuse;
+
+                        if ( chn->flags & USEIMAGECOLOR ) {
+                            if ( chn->image ) {
+                                gluUnProject ( bev->x, 
+                                               VPX[0x03] - bev->y, 
+                                               0.0f,
+                                               MVX,
+                                               PJX,
+                                               VPX,
+                                              &mx,
+                                              &my,
+                                              &mz );
+
+                                spr->tool->done ( spr->tool,
+                                                  mx * chn->image->width,
+                                                  my * chn->image->height,
+                                                  chn->image->data,
+                                                  chn->image->width,
+                                                  chn->image->height,
+                                                  chn->image->bytesPerPixel * 0x08,
+                                                  NULL,
+                                                  NULL,
+                                                  0x00 );
+
+                                g3dimage_bind ( chn->image );
+                            }
+                        }
+                    }
+                }
+            }
 
             obj = NULL;
         } return REDRAWVIEW;
