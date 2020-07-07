@@ -63,6 +63,45 @@ gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget,
                                      gpointer   user_data );
 
 /******************************************************************************/
+void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv ) {
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
+    G3DUI        *gui = uvme->gui;
+    G3DUIGTK3    *ggt = ( G3DUIGTK3    * ) gui->toolkit_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+
+                if ( mat ) {
+                    G3DCHANNEL *chn = &mat->diffuse;
+
+                    if ( chn->flags & USEIMAGECOLOR ) {
+                        if ( chn->image ) {
+                            if ( chn->image->width && chn->image->height ) {
+                                uint32_t size = chn->image->width *
+                                                chn->image->height;
+                                uvme->mask    = realloc ( uvme->mask   , size );
+                                uvme->zbuffer = realloc ( uvme->zbuffer, size );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
     G3DUI        *gui = uvme->gui;
@@ -705,7 +744,8 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
 
     gtk_container_add ( GTK_CONTAINER(parent), guv );
 
-
+    /*** size mask and z buffers ***/
+    g3duiuvmapeditor_resizeBuffers ( guv );
 
 
     return guv;
@@ -811,6 +851,9 @@ static gboolean g3duiuvmapeditor_inputGL ( GtkWidget *widget,
         G3DEvent g3dev;
 
         gdkevent_to_g3devent ( gdkev, &g3dev );
+
+        gui->uvmou->mask    = uvme->mask;
+        gui->uvmou->zbuffer = uvme->zbuffer;
 
         if ( gui->uvmou->tool ) {
             uint32_t msk = gui->uvmou->tool ( gui->uvmou, 

@@ -631,6 +631,7 @@ void gtk3_sizeGL          ( GtkWidget *, GdkRectangle *, gpointer );
 gboolean gtk3_inputGL     ( GtkWidget *, GdkEvent *, gpointer );
 
 void g3dui_redrawUVMapEditors ( G3DUI *gui );
+void g3dui_resizeUVMapEditors ( G3DUI *gui );
 GtkWidget *gtk_uvmapeditor_getGLArea ( GtkWidget *widget );
 
 void g3dui_updateAllCurrentEdit          ( G3DUI * );
@@ -721,7 +722,7 @@ void g3duiuvmapeditor_undoCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_redoCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_uv2verCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
-
+void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv );
 
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
                              G3DUIUVMAPEDITOR *uvme,

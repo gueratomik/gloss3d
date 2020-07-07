@@ -1085,6 +1085,20 @@ void g3dui_importMaterials      ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_resizeUVMapEditors ( G3DUI *gui ) {
+    LIST *ltmp = gui->luvmapeditor;
+
+    while ( ltmp ) {
+        GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
+
+        /*** resize buffers ***/
+        g3duiuvmapeditor_resizeBuffers ( guv );
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
 void g3dui_redrawUVMapEditors ( G3DUI *gui ) {
     LIST *ltmp = gui->luvmapeditor;
 
@@ -1097,7 +1111,6 @@ void g3dui_redrawUVMapEditors ( G3DUI *gui ) {
         arec.width = arec.height = 0x01;
 
         gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
-
 
         ltmp = ltmp->next;
     }

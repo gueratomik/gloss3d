@@ -684,6 +684,10 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
             if ( pob ) {
                 obj = pob->obj;
 
+                if ( pob->picked == TEXTURERECTHIT ) {
+                    g3dui_resizeUVMapEditors ( gui );
+                }
+
                 /*g3dui_updateCoords ( gui );
                 g3dui_redrawTimeline ( gui );*/
             }

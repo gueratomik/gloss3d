@@ -865,6 +865,8 @@ typedef struct _G3DUIUVMAPEDITOR {
 #endif
     G3DURMANAGER  *uvurm;
     G3DUI         *gui;
+    char          *mask;
+    char          *zbuffer;
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/

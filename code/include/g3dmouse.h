@@ -112,7 +112,10 @@
 /******************************************************************************/
 typedef struct {
 	int type;             /* G3DKeyPress or G3DKeyRelease */
-	int x, y;             /* pointer x, y coordinates in event window */
+    /*** we use floating point because GDK does. I don't know why. ***/
+    /*** If we use int, then it's hard to know the direction change of the ***/
+    /*** mouse, which is needed for LIPS3D ***/
+	double x, y;             /* pointer x, y coordinates in event window */
 	unsigned int state;   /* key or button mask */
 	unsigned int keycode; /* detail */
 } G3DKeyEvent;
@@ -120,7 +123,10 @@ typedef struct {
 /******************************************************************************/
 typedef struct {
 	int type;            /* G3DButtonPress or G3DButtonRelease */
-	int x, y;            /* pointer x, y coordinates in event window */
+    /*** we use floating point because GDK does. I don't know why. ***/
+    /*** If we use int, then it's hard to know the direction change of the ***/
+    /*** mouse, which is needed for LIPS3D ***/
+	double x, y;            /* pointer x, y coordinates in event window */
 	unsigned int state;  /* key or button mask */
 	unsigned int button; /* detail */
 } G3DButtonEvent;
@@ -128,7 +134,10 @@ typedef struct {
 /******************************************************************************/
 typedef struct {
 	int type;            /* G3DMotionNotify */
-	int x, y;            /* pointer x, y coordinates in event window */
+    /*** we use floating point because GDK does. I don't know why. ***/
+    /*** If we use int, then it's hard to know the direction change of the ***/
+    /*** mouse, which is needed for LIPS3D ***/
+	double x, y;            /* pointer x, y coordinates in event window */
 	unsigned int state;  /* key or button mask */
 } G3DMotionEvent;
 
@@ -159,6 +168,8 @@ typedef struct _G3DMOUSETOOL {
                            G3DURMANAGER *,
                            uint32_t, G3DEvent * ); /** mouse event callback **/
     void *data; /*** private datas ***/
+    char        *mask;     /*** used by LIPS3D API ***/
+    char        *zbuffer;  /*** used by LIPS3D API ***/
     uint32_t flags;
 } G3DMOUSETOOL;
 

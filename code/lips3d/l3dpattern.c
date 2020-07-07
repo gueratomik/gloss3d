@@ -30,19 +30,19 @@
 #include <lips3d/lips3d.h>
 
 /******************************************************************************/
-static int l3dpattern_defaultPaint ( L3DPATTERN *pattern,
-                                     uint32_t    color,
-                                     int32_t     size,
-                                     float       pressure,
-                                     int32_t     x,
-                                     int32_t     y,
-                                     char       *buffer,
-                                     uint32_t    width,
-                                     uint32_t    height,
-                                     uint32_t    bpp,
-                                     char       *mask,
-                                     char       *zbuffer,
-                                     uint32_t    engineFlags ) {
+static int l3dpattern_defaultPaint ( L3DPATTERN    *pattern,
+                                     uint32_t       color,
+                                     int32_t        size,
+                                     float          pressure,
+                                     int32_t        x,
+                                     int32_t        y,
+                                     unsigned char *buffer,
+                                     uint32_t       width,
+                                     uint32_t       height,
+                                     uint32_t       bpp,
+                                     unsigned char *mask,
+                                     unsigned char *zbuffer,
+                                     uint32_t       engineFlags ) {
     int32_t rect[0x04];
 
     if ( size == 0x01 ) {
@@ -75,7 +75,7 @@ static int l3dpattern_defaultPaint ( L3DPATTERN *pattern,
             rect[0x03] = y + halfSize;
         }
 
-        l3core_paintRectangle ( pattern,
+        /*l3core_paintRectangle ( pattern,
                                 color,
                                 size,
                                 pressure,
@@ -89,9 +89,9 @@ static int l3dpattern_defaultPaint ( L3DPATTERN *pattern,
                                 bpp, 
                                 mask,
                                 zbuffer,
-                                engineFlags );
+                                engineFlags );*/
 
-        /*l3core_paintCircle ( pattern,
+        l3core_paintCircle ( pattern,
                                 color,
                                 size,
                                 pressure,
@@ -103,7 +103,7 @@ static int l3dpattern_defaultPaint ( L3DPATTERN *pattern,
                                 bpp, 
                                 mask,
                                 zbuffer,
-                                engineFlags );*/
+                                engineFlags );
     }
 
     return 0x00;

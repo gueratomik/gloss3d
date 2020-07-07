@@ -45,26 +45,28 @@ static int Init ( L3DTOOL  *tool,
     sprtool->oldx = x;
     sprtool->oldy = y;
 
+    memset ( zbuffer, 0x00, width * height );
+
     return 0x00;
 }
 
 /******************************************************************************/
-static int Paint ( L3DTOOL  *tool,
-                   int32_t  x,
-                   int32_t  y,
-                   char     *buffer, 
-                   uint32_t  width, 
-                   uint32_t  height,
-                   uint32_t  bpp,
-                   char     *mask,
-                   char     *zbuffer,
-                   int32_t  *updx,
-                   int32_t  *updy,
-                   int32_t  *updw,
-                   int32_t  *updh,
-                   uint32_t  engineFlags ) {
+static int Paint ( L3DTOOL       *tool,
+                   int32_t        x,
+                   int32_t        y,
+                   unsigned char *buffer, 
+                   uint32_t       width, 
+                   uint32_t       height,
+                   uint32_t       bpp,
+                   unsigned char *mask,
+                   unsigned char *zbuffer,
+                   int32_t       *updx,
+                   int32_t       *updy,
+                   int32_t       *updw,
+                   int32_t       *updh,
+                   uint32_t       engineFlags ) {
     L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
-    uint32_t size = 0x0A, halfSize = size / 0x02;
+    uint32_t size = 0x10, halfSize = size / 0x02;
 
     if ( updx ) (*updx) = ( x < sprtool->oldx ) ? x - halfSize : sprtool->oldx - halfSize;
     if ( updy ) (*updy) = ( y < sprtool->oldy ) ? y - halfSize : sprtool->oldy - halfSize;
@@ -80,7 +82,7 @@ static int Paint ( L3DTOOL  *tool,
     l3core_paintLine ( tool->pattern,
                        0xFF, /* color */
                        size,    /* size */
-                       1.0f,
+                       0.1f,
                        sprtool->oldx,
                        sprtool->oldy,
                        x,
@@ -100,16 +102,16 @@ static int Paint ( L3DTOOL  *tool,
 }
 
 /******************************************************************************/
-static int Done ( L3DTOOL  *tool,
-                  int32_t  x,
-                  int32_t  y,
-                  char     *buffer, 
-                  uint32_t  width, 
-                  uint32_t  height,
-                  uint32_t  bpp,
-                  char     *mask,
-                  char     *zbuffer,
-                  uint32_t  engineFlags ) {
+static int Done ( L3DTOOL       *tool,
+                  int32_t        x,
+                  int32_t        y,
+                  unsigned char *buffer, 
+                  uint32_t       width, 
+                  uint32_t       height,
+                  uint32_t       bpp,
+                  unsigned char *mask,
+                  unsigned char *zbuffer,
+                  uint32_t       engineFlags ) {
     L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
 
     return 0x00;

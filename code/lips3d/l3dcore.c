@@ -30,19 +30,19 @@
 #include <lips3d/lips3d.h>
 
 /******************************************************************************/
-int l3dcore_paintPoint ( L3DPATTERN *pattern,
-                         uint32_t    color,
-                         int32_t     size,
-                         float       pressure,
-                         int32_t     x,
-                         int32_t     y,
-                         char       *buffer,
-                         uint32_t    width,
-                         uint32_t    height,
-                         uint32_t    bpp,
-                         char       *mask,
-                         char       *zbuffer,
-                         uint32_t    engineFlags ) {
+int l3dcore_paintPoint ( L3DPATTERN    *pattern,
+                         uint32_t       color,
+                         int32_t        size,
+                         float          pressure,
+                         int32_t        x,
+                         int32_t        y,
+                         unsigned char *buffer,
+                         uint32_t       width,
+                         uint32_t       height,
+                         uint32_t       bpp,
+                         unsigned char *mask,
+                         unsigned char *zbuffer,
+                         uint32_t       engineFlags ) {
     if ( ( x > 0x00 ) && ( x < width  ) &&
          ( y > 0x00 ) && ( y < height ) ) {
         uint8_t A = ( color & 0xFF000000 ) >> 24;
@@ -51,21 +51,25 @@ int l3dcore_paintPoint ( L3DPATTERN *pattern,
         uint8_t B = ( color & 0x000000FF ) >>  0;
         uint32_t offset = ( y * width ) + x;
 
-        switch ( bpp ) {
-            case 0x20 :
-            break;
+        if ( zbuffer[offset] == 0x00 ) {
+            switch ( bpp ) {
+                case 0x20 :
+                break;
 
-            case 0x18 : {
-                char (*buffer24)[0x03] = buffer;
+                case 0x18 : {
+                    unsigned char (*buffer24)[0x03] = buffer;
 
-                buffer24[offset][0x00] = R;
-                buffer24[offset][0x01] = G;
-                buffer24[offset][0x02] = B;
-            } break;
+                    buffer24[offset][0x00] = R;
+                    buffer24[offset][0x01] = G;
+                    buffer24[offset][0x02] = B;
+                } break;
 
-            default :
-                fprintf ( stderr, "Unsupported depth\n");
-            break;
+                default :
+                    fprintf ( stderr, "Unsupported depth\n");
+                break;
+            }
+
+            zbuffer[offset] = 0xFF;
         }
     }
 
@@ -73,26 +77,26 @@ int l3dcore_paintPoint ( L3DPATTERN *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintCircle ( L3DPATTERN *pattern,
-                         uint32_t    color,
-                         int32_t     size,
-                         float       pressure,
-                         int32_t     xp,
-                         int32_t     yp,
-                         char       *buffer,
-                         uint32_t    width,
-                         uint32_t    height, 
-                         uint32_t    bpp, 
-                         char       *mask,
-                         char       *zbuffer,
+int l3core_paintCircle ( L3DPATTERN    *pattern,
+                         uint32_t       color,
+                         int32_t        size,
+                         float          pressure,
+                         int32_t        xp,
+                         int32_t        yp,
+                         unsigned char *buffer,
+                         uint32_t       width,
+                         uint32_t       height, 
+                         uint32_t       bpp, 
+                         unsigned char *mask,
+                         unsigned char *zbuffer,
                          uint32_t    engineFlags ) {
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
     uint8_t G = ( color & 0x0000FF00 ) >>  8;
     uint8_t B = ( color & 0x000000FF ) >>  0;
-    int32_t radius = size;
+    int32_t radius = size / 0x02;
     int32_t x, y, rdiff = ( radius * radius );
-
+    float invPressure = 1.0f - pressure;
     int32_t x1 = xp - radius, x2 = xp + radius;
     int32_t y1 = yp - radius, y2 = yp + radius;
 
@@ -107,21 +111,25 @@ int l3core_paintCircle ( L3DPATTERN *pattern,
                 uint32_t offset = ( y * width ) + x;
 
                 if ( ( xdiff + ydiff ) <= rdiff ) {
-                    switch ( bpp ) {
-                        case 0x20 :
-                        break;
+                    if ( zbuffer[offset] == 0x00 ) {
+                        switch ( bpp ) {
+                            case 0x20 :
+                            break;
 
-                        case 0x18 : {
-                            char (*buffer24)[0x03] = buffer;
+                            case 0x18 : {
+                                unsigned char (*buffer24)[0x03] = buffer;
 
-                            buffer24[offset][0x00] = R;
-                            buffer24[offset][0x01] = G;
-                            buffer24[offset][0x02] = B;
-                        } break;
+                                buffer24[offset][0x00] = ( R * pressure ) + ( buffer24[offset][0x00] * invPressure ) ;
+                                buffer24[offset][0x01] = ( G * pressure ) + ( buffer24[offset][0x01] * invPressure ) ;
+                                buffer24[offset][0x02] = ( B * pressure ) + ( buffer24[offset][0x02] * invPressure ) ;
+                            } break;
 
-                        default :
-                            fprintf ( stderr, "Unsupported depth\n");
-                        break;
+                            default :
+                                fprintf ( stderr, "Unsupported depth\n");
+                            break;
+                        }
+
+                        zbuffer[offset] = 0xFF;
                     }
                 }
             }
@@ -130,20 +138,20 @@ int l3core_paintCircle ( L3DPATTERN *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintRectangle ( L3DPATTERN *pattern,
-                            uint32_t    color,
-                            int32_t     size,
-                            float       pressure,
-                            int32_t     x1,
-                            int32_t     y1,
-                            int32_t     x2,
-                            int32_t     y2,
-                            char       *buffer,
-                            uint32_t    width,
-                            uint32_t    height, 
-                            uint32_t    bpp, 
-                            char       *mask,
-                            char       *zbuffer,
+int l3core_paintRectangle ( L3DPATTERN    *pattern,
+                            uint32_t       color,
+                            int32_t        size,
+                            float          pressure,
+                            int32_t        x1,
+                            int32_t        y1,
+                            int32_t        x2,
+                            int32_t        y2,
+                            unsigned char *buffer,
+                            uint32_t       width,
+                            uint32_t       height, 
+                            uint32_t       bpp, 
+                            unsigned char *mask,
+                            unsigned char *zbuffer,
                             uint32_t    engineFlags ) {
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
@@ -157,21 +165,25 @@ int l3core_paintRectangle ( L3DPATTERN *pattern,
                  ( y > 0x00 ) && ( y < height ) ) {
                 uint32_t offset = ( y * width ) + x;
 
-                switch ( bpp ) {
-                    case 0x20 :
-                    break;
+                if ( zbuffer[offset] == 0x00 ) {
+                    switch ( bpp ) {
+                        case 0x20 :
+                        break;
 
-                    case 0x18 : {
-                        char (*buffer24)[0x03] = buffer;
+                        case 0x18 : {
+                            unsigned char (*buffer24)[0x03] = buffer;
 
-                        buffer24[offset][0x00] = R;
-                        buffer24[offset][0x01] = G;
-                        buffer24[offset][0x02] = B;
-                    } break;
+                            buffer24[offset][0x00] = R;
+                            buffer24[offset][0x01] = G;
+                            buffer24[offset][0x02] = B;
+                        } break;
 
-                    default :
-                        fprintf ( stderr, "Unsupported depth\n");
-                    break;
+                        default :
+                            fprintf ( stderr, "Unsupported depth\n");
+                        break;
+                    }
+
+                    zbuffer[offset] = 0xFF;
                 }
             }
         }
@@ -179,21 +191,21 @@ int l3core_paintRectangle ( L3DPATTERN *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintLine ( L3DPATTERN *pattern,
-                       uint32_t    color,
-                       int32_t     size,
-                       float       pressure,
-                       int32_t     x1,
-                       int32_t     y1,
-                       int32_t     x2,
-                       int32_t     y2,
-                       char       *buffer,
-                       uint32_t    width,
-                       uint32_t    height, 
-                       uint32_t    bpp, 
-                       char       *mask,
-                       char       *zbuffer,
-                       uint32_t    engineFlags ) {
+int l3core_paintLine ( L3DPATTERN    *pattern,
+                       uint32_t       color,
+                       int32_t        size,
+                       float          pressure,
+                       int32_t        x1,
+                       int32_t        y1,
+                       int32_t        x2,
+                       int32_t        y2,
+                       unsigned char *buffer,
+                       uint32_t       width,
+                       uint32_t       height, 
+                       uint32_t       bpp, 
+                       unsigned char *mask,
+                       unsigned char *zbuffer,
+                       uint32_t       engineFlags ) {
 
     int32_t dx  = ( x2 - x1 ),
             ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),

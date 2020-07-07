@@ -82,6 +82,7 @@ int spray_tool ( G3DMOUSETOOL *mou,
     SPRAY *spr = mou->data;
     double mx, my, mz;
     static int subRect[0x04];
+    static double oldx, oldy;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -127,8 +128,8 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                                   chn->image->width,
                                                   chn->image->height,
                                                   chn->image->bytesPerPixel * 0x08,
-                                                  NULL,
-                                                  NULL,
+                                                  mou->mask,
+                                                  mou->zbuffer,
                                                   0x00 );
 
                                 g3dimage_bind ( chn->image );
@@ -137,6 +138,9 @@ int spray_tool ( G3DMOUSETOOL *mou,
                     }
                 }
             }
+
+            oldx = bev->x;
+            oldy = bev->y;
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -173,6 +177,22 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &mz );
 
                                 if ( mev->state & G3DButton1Mask ) {
+                                    static double oldVector[0x02];
+                                           double newVector[0x02];
+
+                                    newVector[0x00] = mev->x - oldx;
+                                    newVector[0x01] = mev->y - oldy;
+
+                                    /*** If we are going in the opposite direction, then reset the zbuffer. ***/
+                                    /*** This allows for a second pass of the pencil ***/
+                                    if ( ( ( newVector[0x00] * 
+                                             oldVector[0x00] ) +
+                                           ( newVector[0x01] * 
+                                             oldVector[0x01] ) ) < 0x00 ) {
+                                        memset ( mou->zbuffer, 
+                                                 0x00, 
+                                                 image->width * image->height );
+                                    }
 
                                     spr->tool->paint ( spr->tool,
                                                        mx * image->width,
@@ -181,13 +201,16 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                                        image->width,
                                                        image->height,
                                                        image->bytesPerPixel * 0x08,
-                                                       NULL,
-                                                       NULL,
+                                                       mou->mask,
+                                                       mou->zbuffer,
                                                       &subx,
                                                       &suby,
                                                       &subw,
                                                       &subh,
                                                        0x00 );
+
+                                    oldVector[0x00] = newVector[0x00];
+                                    oldVector[0x01] = newVector[0x01];
 
                                     if ( ( subx < image->width  ) &&
                                          ( suby < image->height ) ) {
@@ -216,6 +239,9 @@ int spray_tool ( G3DMOUSETOOL *mou,
 
             subRect[0x00] = subRect[0x02];
             subRect[0x01] = subRect[0x03];
+
+            oldx = mev->x;
+            oldy = mev->y;
         } return REDRAWUVMAPEDITOR;
 
         case G3DButtonRelease : {
@@ -252,8 +278,8 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                                   chn->image->width,
                                                   chn->image->height,
                                                   chn->image->bytesPerPixel * 0x08,
-                                                  NULL,
-                                                  NULL,
+                                                  mou->mask,
+                                                  mou->zbuffer,
                                                   0x00 );
 
                                 g3dimage_bind ( chn->image );
