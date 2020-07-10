@@ -31,8 +31,8 @@
 
 /******************************************************************************/
 static int Init ( L3DTOOL  *tool,
-                  int32_t  x,
-                  int32_t  y,
+                  int32_t   x,
+                  int32_t   y,
                   char     *buffer, 
                   uint32_t  width, 
                   uint32_t  height,
@@ -66,12 +66,19 @@ static int Paint ( L3DTOOL       *tool,
                    int32_t       *updh,
                    uint32_t       engineFlags ) {
     L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
-    uint32_t size = 0x10, halfSize = size / 0x02;
+    uint32_t size = 0x10, half = size / 0x02;
+    /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
+    /*** does not seem to copy the subimage completely ***/
+    uint32_t margin = 10; 
+    int32_t x1 = ( x < sprtool->oldx ) ? x - half : sprtool->oldx - half - margin,
+            y1 = ( y < sprtool->oldy ) ? y - half : sprtool->oldy - half - margin,
+            x2 = ( x > sprtool->oldx ) ? x + half : sprtool->oldx + half + margin,
+            y2 = ( y > sprtool->oldy ) ? y + half : sprtool->oldy + half + margin;
 
-    if ( updx ) (*updx) = ( x < sprtool->oldx ) ? x - halfSize : sprtool->oldx - halfSize;
-    if ( updy ) (*updy) = ( y < sprtool->oldy ) ? y - halfSize : sprtool->oldy - halfSize;
-    if ( updw ) (*updw) = ( abs ( sprtool->oldx - x ) + size + 1 );
-    if ( updh ) (*updh) = ( abs ( sprtool->oldy - y ) + size + 1 );
+    if ( updx ) (*updx) = x1;
+    if ( updy ) (*updy) = y1;
+    if ( updw ) (*updw) = ( x2 - x1 ) + 1;
+    if ( updh ) (*updh) = ( y2 - y1 ) + 1;
 
     if ( (*updx) < 0x00 ) (*updx) = 0x00;
     if ( (*updy) < 0x00 ) (*updy) = 0x00;
@@ -80,8 +87,7 @@ static int Paint ( L3DTOOL       *tool,
     if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
 
     l3core_paintLine ( tool->pattern,
-                       0xFF, /* color */
-                       size,    /* size */
+                       0xFF808080,
                        0.1f,
                        sprtool->oldx,
                        sprtool->oldy,
@@ -94,6 +100,19 @@ static int Paint ( L3DTOOL       *tool,
                        mask,
                        zbuffer,
                        engineFlags );
+
+    /*l3dpattern_paint ( tool->pattern,
+                       0xFF,
+                       1.0f,
+                       x,
+                       y,
+                       buffer,
+                       width,
+                       height,
+                       bpp,
+                       mask,
+                       zbuffer,
+                       engineFlags );*/
 
     sprtool->oldx = x;
     sprtool->oldy = y;
@@ -128,7 +147,7 @@ L3DSPRAYTOOL *l3dspraytool_new ( ) {
         return NULL;
     }
 
-    sprtool->tool.pattern = l3dpattern_new ( );
+    sprtool->tool.pattern = l3dplainrectanglepattern_new ( 24 );
 
     sprtool->tool.init  = Init;
     sprtool->tool.paint = Paint;

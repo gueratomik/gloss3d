@@ -44,7 +44,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
                            G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
@@ -175,7 +175,7 @@ int rotateUV_tool ( G3DMOUSETOOL *mou,
                     G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     G3DOBJECT *obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
     static int VPX[0x04];
     static float widthFactor;
@@ -306,7 +306,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                          G3DEvent         *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
@@ -489,7 +489,7 @@ static int rotate_object ( LIST        *lobj,
                            G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;

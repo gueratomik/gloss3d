@@ -49,20 +49,15 @@ typedef struct _L3DBRUSH {
 
 /******************************************************************************/
 typedef struct _L3DPATTERN {
-    int (*paint)( struct _L3DPATTERN *pattern,
-                  uint32_t            color,
-                  int32_t             size,
-                  float               pressure,
-                  int32_t             x,
-                  int32_t             y,
-                  unsigned char      *buffer, 
-                  uint32_t            width, 
-                  uint32_t            height,
-                  uint32_t            bpp,
-                  unsigned char      *mask,
-                  unsigned char      *zbuffer,
-                  uint32_t            engineFlags );
+    int (*generate)( struct _L3DPATTERN *pattern );
+    uint32_t size;
+    unsigned char *buffer;
 } L3DPATTERN;
+
+/******************************************************************************/
+typedef struct _L3DPLAINRECTANGLEPATTERN {
+    L3DPATTERN pattern;
+} L3DPLAINRECTANGLEPATTERN;
 
 /******************************************************************************/
 typedef struct _L3DTOOL {
@@ -154,7 +149,6 @@ typedef struct _L3DBRUSHTOOL {
 /******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       color,
-                         int32_t        size,
                          float          pressure,
                          int32_t        x,
                          int32_t        y,
@@ -169,7 +163,6 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintCircle ( L3DPATTERN    *pattern,
                          uint32_t       color,
-                         int32_t        size,
                          float          pressure,
                          int32_t        x,
                          int32_t        y,
@@ -184,7 +177,6 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       color,
-                            int32_t        size,
                             float          pressure,
                             int32_t        x1,
                             int32_t        y1,
@@ -201,7 +193,6 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintLine ( L3DPATTERN    *pat,
                        uint32_t       color,
-                       int32_t        size,
                        float          pressure,
                        int32_t        x1,
                        int32_t        y1,
@@ -219,7 +210,24 @@ int l3core_paintLine ( L3DPATTERN    *pat,
 L3DSPRAYTOOL *l3dspraytool_new ( );
 
 /******************************************************************************/
-void l3dpattern_init ( L3DPATTERN *pattern );
-L3DPATTERN *l3dpattern_new ( );
+int l3dpattern_paint ( L3DPATTERN    *pattern,
+                       uint32_t       color,
+                       float          pressure,
+                       int32_t        x,
+                       int32_t        y,
+                       unsigned char *buffer,
+                       uint32_t       width,
+                       uint32_t       height,
+                       uint32_t       bpp,
+                       unsigned char *mask,
+                       unsigned char *zbuffer,
+                       uint32_t       engineFlags );
+void l3dpattern_generatePlainRectangle ( L3DPATTERN *pattern );
+void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern );
+void l3dpattern_resize ( L3DPATTERN *pattern, uint32_t size );
+void l3dpattern_init ( L3DPATTERN *pattern,
+                       uint32_t    size,
+                       void(*generate)(L3DPATTERN*));
+L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size );
 
 #endif

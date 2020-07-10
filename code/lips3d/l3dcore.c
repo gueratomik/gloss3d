@@ -32,7 +32,6 @@
 /******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       color,
-                         int32_t        size,
                          float          pressure,
                          int32_t        x,
                          int32_t        y,
@@ -79,7 +78,6 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintCircle ( L3DPATTERN    *pattern,
                          uint32_t       color,
-                         int32_t        size,
                          float          pressure,
                          int32_t        xp,
                          int32_t        yp,
@@ -94,7 +92,7 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
     uint8_t G = ( color & 0x0000FF00 ) >>  8;
     uint8_t B = ( color & 0x000000FF ) >>  0;
-    int32_t radius = size / 0x02;
+    int32_t radius = pattern->size / 0x02;
     int32_t x, y, rdiff = ( radius * radius );
     float invPressure = 1.0f - pressure;
     int32_t x1 = xp - radius, x2 = xp + radius;
@@ -140,7 +138,6 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       color,
-                            int32_t        size,
                             float          pressure,
                             int32_t        x1,
                             int32_t        y1,
@@ -193,7 +190,6 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
 /******************************************************************************/
 int l3core_paintLine ( L3DPATTERN    *pattern,
                        uint32_t       color,
-                       int32_t        size,
                        float          pressure,
                        int32_t        x1,
                        int32_t        y1,
@@ -225,19 +221,18 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                 y     += py;
             }
 
-            pattern->paint ( pattern,
-                             color,
-                             size,
-                             pressure,
-                             x,
-                             y,
-                             buffer,
-                             width,
-                             height,
-                             bpp,
-                             mask,
-                             zbuffer,
-                             engineFlags );
+            l3dpattern_paint ( pattern,
+                               color,
+                               pressure,
+                               x,
+                               y,
+                               buffer,
+                               width,
+                               height,
+                               bpp,
+                               mask,
+                               zbuffer,
+                               engineFlags );
 
             cumul += ddy;
             x     += px;
@@ -249,19 +244,18 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                 x     += px;
             }
 
-            pattern->paint ( pattern,
-                             color,
-                             size,
-                             pressure,
-                             x,
-                             y,
-                             buffer,
-                             width,
-                             height,
-                             bpp,
-                             mask,
-                             zbuffer,
-                             engineFlags );
+            l3dpattern_paint ( pattern,
+                               color,
+                               pressure,
+                               x,
+                               y,
+                               buffer,
+                               width,
+                               height,
+                               bpp,
+                               mask,
+                               zbuffer,
+                               engineFlags );
 
             cumul += ddx;
             y     += py;

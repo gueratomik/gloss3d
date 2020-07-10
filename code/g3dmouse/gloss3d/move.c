@@ -44,7 +44,7 @@ static int move_spline ( G3DSPLINE    *spl,
                          G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
@@ -209,8 +209,8 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                                       &oriy,
                                       &oriz );
 
-                        mouseXpress = xold = orix;
-                        mouseYpress = yold = oriy;
+                        mouseXpress = xold = bev->x;
+                        mouseYpress = yold = bev->y;
 
                         if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
                         if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
@@ -317,7 +317,7 @@ static int move_mesh ( G3DMESH      *mes,
                        G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
@@ -544,7 +544,7 @@ int move_object ( LIST        *lobj,
                      vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f, .w = 1.0f };
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
-    static int32_t mouseXpress, mouseYpress;
+    static double mouseXpress, mouseYpress;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
