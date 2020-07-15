@@ -63,19 +63,23 @@ typedef struct _L3DPLAINRECTANGLEPATTERN {
 typedef struct _L3DTOOL {
     L3DPATTERN *pattern;
     int (*init)( struct _L3DTOOL *tool,
+                 uint32_t         fgcolor,
+                 uint32_t         bgcolor,
+                 int32_t          x,
+                 int32_t          y,
+                 unsigned char   *buffer, 
+                 uint32_t         width, 
+                 uint32_t         height,
+                 uint32_t         bpp,
+                 unsigned char   *mask,
+                 unsigned char   *zbuffer,
+                 uint32_t         engineFlags );
+    int (*paint)( struct _L3DTOOL *tool,
+                  uint32_t         fgcolor,
+                  uint32_t         bgcolor,
                   int32_t          x,
                   int32_t          y,
                   unsigned char   *buffer, 
-                  uint32_t         width, 
-                  uint32_t         height,
-                  uint32_t         bpp,
-                  unsigned char   *mask,
-                  unsigned char   *zbuffer,
-                  uint32_t         engineFlags );
-    int (*paint)( struct _L3DTOOL *tool,
-                  int32_t          x,
-                  int32_t          y,
-                  unsigned char            *buffer, 
                   uint32_t         width, 
                   uint32_t         height,
                   uint32_t         bpp,
@@ -87,15 +91,17 @@ typedef struct _L3DTOOL {
                   int32_t         *updh,
                   uint32_t         engineFlags );
     int (*done)( struct _L3DTOOL *tool,
-                  int32_t          x,
-                  int32_t          y,
-                  unsigned char            *buffer, 
-                  uint32_t         width, 
-                  uint32_t         height,
-                  uint32_t         bpp,
-                  unsigned char    *mask,
-                  unsigned char   *zbuffer,
-                  uint32_t         engineFlags );
+                 uint32_t        fgcolor,
+                 uint32_t        bgcolor,
+                 int32_t         x,
+                 int32_t         y,
+                 unsigned char  *buffer, 
+                 uint32_t        width, 
+                 uint32_t        height,
+                 uint32_t        bpp,
+                 unsigned char  *mask,
+                 unsigned char  *zbuffer,
+                 uint32_t        engineFlags );
 } L3DTOOL;
 
 /******************************************************************************/

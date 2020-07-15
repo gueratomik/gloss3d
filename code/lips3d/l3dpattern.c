@@ -88,15 +88,15 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                     uint32_t poffset = ( yp * pattern->size ) + xp;
 
                     if ( zbuffer[boffset] < pattern->buffer[poffset] ) {
+                        unsigned char maxDiff = 0xFF - zbuffer[boffset];
                         unsigned char diff = pattern->buffer[poffset] - zbuffer[boffset];
 
                         if ( pattern->buffer[poffset] > 0x00 ) {
-                            unsigned char pval = /*pattern->buffer[poffset]*/diff;
-                            float patternPressure = ( float ) pval / 255.0f;
-                            /*** Note: opacity and pressure are the same thing. ***/
-                            /*** I just needed different names. ***/
+                            float patternPressure = ( ( float ) pattern->buffer[poffset] / 255 ) * ( 1.0f - ( ( float ) zbuffer[boffset] / pattern->buffer[poffset] ) );
                             float P = pressure * patternPressure;
                             float invP = 1.0f - P;
+
+
 
                             switch ( bpp ) {
                                 case 0x20 :
@@ -108,9 +108,15 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                                                   BG = b24[boffset][0x01],
                                                   BB = b24[boffset][0x02];
 
-                                    b24[boffset][0x00] = ( R * P ) + ( BR * invP );
-                                    b24[boffset][0x01] = ( G * P ) + ( BG * invP );
-                                    b24[boffset][0x02] = ( B * P ) + ( BB * invP );
+                                        b24[boffset][0x00] = ( R * P ) + ( BR * invP );
+                                        b24[boffset][0x01] = ( G * P ) + ( BG * invP );
+                                        b24[boffset][0x02] = ( B * P ) + ( BB * invP );
+/*if ( ( xm == x ) && ( ym == y ) ) {
+    printf ( "P:%f Pat:%d Z:%d\n", P, pattern->buffer[poffset], zbuffer[boffset] );
+    printf ( "%d %d %d\n", b24[boffset][0x00], 
+                           b24[boffset][0x01],
+                           b24[boffset][0x02]);
+}*/
                                 } break;
 
                                 default :
@@ -142,10 +148,10 @@ void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern ) {
     uint32_t x1 = xp - radius, x2 = xp + radius;
     uint32_t y1 = yp - radius, y2 = yp + radius;
 
-    for ( y = y1; y <= y2; y++ ) {
+    for ( y = 0x00; y < pattern->size; y++ ) {
         int32_t ydiff = ( y - yp )  * ( y - yp );
 
-        for ( x = x1; x <= x2; x++ ) {
+        for ( x = 0x00; x < pattern->size; x++ ) {
             int32_t xdiff = ( x - xp ) * ( x - xp );
 
             uint32_t offset = ( y * pattern->size ) + x;
@@ -174,7 +180,7 @@ void l3dpattern_generateFadedCircle ( L3DPATTERN *pattern ) {
             uint32_t offset = ( y * pattern->size ) + x;
 
             if ( ( xdiff + ydiff ) <= rdiff ) {
-                float fade = 1.0f - ( sqrt ( xdiff + ydiff ) / sqrt ( rdiff ) );
+                float fade = 1.0f - ( sqrt ( xdiff + ydiff ) / radius );
 
                 pattern->buffer[offset] = 0xFF * fade;
             }

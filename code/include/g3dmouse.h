@@ -46,7 +46,7 @@
 #define MOVETOOL                     "Move"
 #define ROTATETOOL                   "Rotate"
 #define SCALETOOL                    "Scale"
-#define EXTRUDETOOL                  "Extrude"
+#define EXTRUDEFACETOOL              "Extrude face"
 #define EXTRUDINNERTOOL              "Extrude Inner"
 #define CREATESPHERETOOL             "Create Sphere"
 #define CREATECUBETOOL               "Create Cube"
@@ -56,7 +56,7 @@
 #define CREATEBONETOOL               "Create Bone"
 #define CREATEPLANETOOL              "Create Plane"
 #define CUTMESHTOOL                  "Cutter"
-#define ADDVERTEXTOOL                "Add Vertex"
+#define CREATEVERTEXTOOL             "Create Vertex (ctrl+click)"
 #define REVERTSPLINETOOL             "Revert Spline"
 #define BRIDGETOOL                   "Bridge"
 #define PAINTWEIGHTTOOL              "Paint Weight"
@@ -74,7 +74,12 @@
 #define SCALEUVTOOL                  "Scale UV"
 
 /******************************************************************************/
-#define SPRAYTOOL                    "Spray"
+#define SELECTAREATOOL               "Select area"
+#define SELECTRANDOMTOOL             "Select random"
+#define PENTOOL                      "Pen"
+#define BUCKETTOOL                   "Bucket"
+#define ERASERTOOL                   "Eraser"
+#define COLORPICKERTOOL              "Color Picker"
 
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
@@ -167,46 +172,54 @@ typedef struct _G3DMOUSETOOL {
                            G3DCAMERA *,
                            G3DURMANAGER *,
                            uint32_t, G3DEvent * ); /** mouse event callback **/
-    void *data; /*** private datas ***/
     char        *mask;     /*** used by LIPS3D API ***/
     char        *zbuffer;  /*** used by LIPS3D API ***/
     uint32_t flags;
-} G3DMOUSETOOL;
+} G3DMOUSETOOL,
+  G3DCREATESPHERETOOL,
+  G3DCREATECUBETOOL,
+  G3DCREATEPLANETOOL,
+  G3DCREATECYLINDERTOOL,
+  G3DCREATETORUSTOOL,
+  G3DCREATEBONETOOL,
+  G3DMOUSETOOLCREATEVERTEX,
+  G3DMOUSETOOLREVERTSPLINE,
+  G3DMOUSETOOLTRIANGULATE,
+  G3DMOUSETOOLUNTRIANGULATE;
 
 /******************************************************************************/
-typedef struct _G3DBRIDGETOOL {
+typedef struct _G3DMOUSETOOLBRIDGE {
+    G3DMOUSETOOL  tool;
     uint32_t      draw; /*** true or false ***/
     G3DVERTEX    *ver[0x04];
     G3DCURVEPOINT *pt[0x02];
     G3DOBJECT     *obj; /*** the mesh that gest the new face ****/
-} G3DBRIDGETOOL;
+} G3DMOUSETOOLBRIDGE;
 
 /******************************************************************************/
-typedef struct _G3DCREATEVERTEX {
+typedef struct _G3DMOUSETOOLCREATEVERTEX {
+    G3DMOUSETOOL  tool;
     uint32_t dummy;
-} G3DCREATEVERTEX;
+} G3DMOUSETOOLCREATEVERTEX;
 
 /******************************************************************************/
-typedef struct _G3DEXTRUDEFACE {
+typedef struct _G3DMOUSETOOLEXTRUDEFACE {
+    G3DMOUSETOOL  tool;
     uint32_t inner; /*** true or false ***/
-} G3DEXTRUDEFACE;
+} G3DMOUSETOOLEXTRUDEFACE;
 
 /******************************************************************************/
 #define CTRLCLICK ( 1 << 0 )
 
-typedef struct G3DPICKTOOL {
+typedef struct _G3DMOUSETOOLPICK {
+    G3DMOUSETOOL  tool;
     int start; 
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
     uint32_t only_visible; /*** true or false                      ***/
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
-} G3DPICKTOOL;
-
-/******************************************************************************/
-typedef struct _SPRAY {
-    L3DTOOL *tool;
-} SPRAY;
+} G3DMOUSETOOLPICK;
 
 /******************************************************************************/
 typedef struct _SCULPTFACE {
@@ -216,6 +229,7 @@ typedef struct _SCULPTFACE {
 
 /******************************************************************************/
 typedef struct G3DSCULPTTOOL {
+    G3DMOUSETOOL  tool;
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
     int only_visible;
     int radius;
@@ -226,6 +240,7 @@ typedef struct G3DSCULPTTOOL {
 
 /******************************************************************************/
 typedef struct _G3DSMOOTHTOOL {
+    G3DMOUSETOOL  tool;
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
     int only_visible;
     int radius;
@@ -234,17 +249,34 @@ typedef struct _G3DSMOOTHTOOL {
 } G3DSMOOTHTOOL;
 
 /******************************************************************************/
-typedef struct _G3DCUTMESH {
+typedef struct _G3DMUOUSETOOLCUTMESH {
+    G3DMOUSETOOL  tool;
     int start;
     GLdouble coord[0x04][0x03];
     uint32_t restrict_to_selection; /*** true or false ***/
-} G3DCUTMESH;
+} G3DMUOUSETOOLCUTMESH;
 
 /******************************************************************************/
 typedef struct _G3DMESHFAC {
     G3DMESH *mes;
     LIST *lfac;
 } G3DMESHFAC;
+
+/******************************************************************************/
+typedef struct _L3DMOUSETOOL {
+    G3DMOUSETOOL tool;
+    L3DPATTERN  *pattern;
+} L3DMOUSETOOL;
+
+/******************************************************************************/
+typedef struct _L3DPENTOOL {
+    L3DMOUSETOOL tool;
+} L3DPENTOOL;
+
+/******************************************************************************/
+typedef struct _L3DERASERTOOL {
+    L3DMOUSETOOL tool;
+} L3DERASERTOOL;
 
 /******************************************************************************/
 G3DMOUSETOOL *g3dmousetool_new ( char *, char , const char **,
@@ -261,78 +293,6 @@ G3DMOUSETOOL *g3dmousetool_new ( char *, char , const char **,
                                             G3DURMANAGER *,
                                             uint32_t, G3DEvent * ),
                                  uint32_t );
-
-/******************************************************************************/
-int createSphere   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createCube     ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createCylinder ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createVertex   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createBone     ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createTorus    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createPlane    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-int createTube    ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                     G3DURMANAGER *, uint32_t, G3DEvent * );
-
-/******************************************************************************/
-uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                                G3DCAMERA *cam,
-                                                G3DURMANAGER *urm, 
-                                                uint32_t engine_flags );
-
-/******************************************************************************/
-G3DBRIDGETOOL  *bridge_new    ( );
-uint32_t        bridge_init   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-void            bridge_draw   ( G3DMOUSETOOL *, G3DSCENE *, uint32_t );
-int             bridge_tool   ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                                G3DURMANAGER *, 
-                                                                uint32_t, 
-                                                                G3DEvent * );
-
-/******************************************************************************/
-G3DCUTMESH     *cutMesh_new       ( );
-uint32_t        cutMesh_init      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-void            cutMesh_draw      ( G3DMOUSETOOL *, G3DSCENE *, uint32_t );
-int             cutMesh_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *, 
-                                                                uint32_t,
-                                                                G3DEvent * );
-
-/******************************************************************************/
-uint32_t        paintWeight_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-int             paintWeight_tool  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *, 
-                                                                uint32_t,
-                                                                G3DEvent * );
-/******************************************************************************/
-uint32_t        sculptTool_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-int             sculpt_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *, 
-                                                                uint32_t,
-                                                                G3DEvent * );
-
-/******************************************************************************/
-uint32_t        smoothTool_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-int             smooth_tool      ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *, 
-                                                                uint32_t,
-                                                                G3DEvent * );
 
 /******************************************************************************/
 int moveUV_tool ( G3DMOUSETOOL *mou, 
@@ -380,70 +340,7 @@ void pick_cursor ( G3DPICKTOOL *pt,
 
 /******************************************************************************/
 G3DEXTRUDEFACE *extrudeFace_new   ( );
-uint32_t        extrudeFace_init  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-uint32_t        extrudeInner_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t );
-int             extrudeFace_tool  ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *,
-                                                                G3DURMANAGER *,
-                                                                uint32_t,
-                                                                G3DEvent * );
 
-/******************************************************************************/
-int move_tool ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, G3DURMANAGER *, 
-                                                         uint32_t,
-                                                         G3DEvent * );
-
-/******************************************************************************/
-int scale_tool ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, G3DURMANAGER *, 
-                                                          uint32_t,
-                                                          G3DEvent * );
-
-/******************************************************************************/
-int rotate_tool ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, G3DURMANAGER *, 
-                                                           uint32_t,
-                                                           G3DEvent * );
-
-/******************************************************************************/
-uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
-                                  G3DSCENE     *sce, 
-                                  G3DCAMERA    *cam,
-                                  G3DURMANAGER *urm, 
-                                  uint32_t      engine_flags );
-
-/******************************************************************************/
-uint32_t untriangulate_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                          G3DURMANAGER *, 
-                                                          uint32_t );
-
-/******************************************************************************/
-uint32_t triangulate_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                        G3DURMANAGER *, 
-                                                        uint32_t );
-
-/******************************************************************************/
-uint32_t weldvertices_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                         G3DURMANAGER *, 
-                                                         uint32_t );
-
-/******************************************************************************/
-uint32_t weldneighbourvertices_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                         G3DURMANAGER *, 
-                                                         uint32_t );
-
-/******************************************************************************/
-uint32_t invertNormal_init ( G3DMOUSETOOL *, G3DSCENE *, G3DCAMERA *, 
-                                                         G3DURMANAGER *, 
-                                                         uint32_t );
-
-/******************************************************************************/
-uint32_t revertSpline_init  ( G3DMOUSETOOL *mou, 
-                              G3DSCENE     *sce, 
-                              G3DCAMERA    *cam,
-                              G3DURMANAGER *urm, 
-                              uint32_t      engine_flags );
 
 /******************************************************************************/
 uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 

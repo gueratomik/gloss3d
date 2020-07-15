@@ -30,46 +30,30 @@
 #include <g3dmouse.h>
 
 /******************************************************************************/
-G3DMOUSETOOL *g3dmousetool_new ( char *name, char key, const char **icon,
-                                 uint32_t (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
-                                                    G3DCAMERA *,
-                                                    G3DURMANAGER *, 
-                                                    uint32_t ),
-                                 void (*draw) ( G3DMOUSETOOL *,
-                                                G3DSCENE *, uint32_t ),
-                                 int  (*tool) ( G3DMOUSETOOL *, G3DSCENE *,
-                                                G3DCAMERA *, G3DURMANAGER *,
-                                                uint32_t,
-                                                G3DEvent * ),
-                                 uint32_t flags ) {
+void g3dmousetool_init ( G3DMOUSETOOL *tool,
+                         char *name, char key, const char **icon,
+                         uint32_t (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
+                                            G3DCAMERA *,
+                                            G3DURMANAGER *, 
+                                            uint32_t ),
+                         void (*draw) ( G3DMOUSETOOL *,
+                                        G3DSCENE *, uint32_t ),
+                         int  (*tool) ( G3DMOUSETOOL *, G3DSCENE *,
+                                        G3DCAMERA *, G3DURMANAGER *,
+                                        uint32_t,
+                                        G3DEvent * ),
+                         uint32_t flags ) {
 
     int len = ( name ) ? strlen ( name ) : 0x00;
-    G3DMOUSETOOL *mou;
 
-    if ( len == 0x00 ) {
-        fprintf ( stderr, "mousetool_new: tool has no name !\n" );
+    tool->name = ( char * ) calloc ( 0x01, ( len + 0x01 ) );
 
-        return NULL;
-    }
+    strncpy ( tool->name, name, len );
 
-    mou = ( G3DMOUSETOOL * ) calloc ( 0x01, sizeof ( G3DMOUSETOOL ) );
-
-    if ( mou == NULL ) {
-        fprintf ( stderr, "mousetool_new: memory allocation failed\n" );
-
-        return NULL;
-    }
-
-    mou->name = ( char * ) calloc ( 0x01, ( len + 0x01 ) );
-    strncpy ( mou->name, name, len );
-
-    mou->icon  = icon;
-    mou->init  = init;
-    mou->draw  = draw;
-    mou->tool  = tool;
-    mou->key   = key;
-    mou->flags = flags;
-
-
-    return mou;
+    tool->icon  = icon;
+    tool->init  = init;
+    tool->draw  = draw;
+    tool->tool  = tool;
+    tool->key   = key;
+    tool->flags = flags;
 }

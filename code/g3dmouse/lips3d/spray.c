@@ -69,11 +69,13 @@ void spray_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
 
 /******************************************************************************/
 int spray_tool ( G3DMOUSETOOL *mou, 
-                 G3DSCENE     *sce, 
-                 G3DCAMERA    *cam,
-                 G3DURMANAGER *urm, 
-                 uint32_t      flags, 
-                 G3DEvent     *event ) {
+                   G3DSCENE     *sce, 
+                   G3DCAMERA    *cam,
+                   G3DURMANAGER *urm,
+                   uint32_t      fgcolor,
+                   uint32_t      fgcolor,
+                   uint32_t      flags, 
+                   G3DEvent     *event ) {
     /*** selection rectangle coords ***/
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
@@ -122,6 +124,8 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &mz );
 
                                 spr->tool->init ( spr->tool,
+                                                  0x00000000,
+                                                  0xFFFFFFFF,
                                                   mx * chn->image->width,
                                                   my * chn->image->height,
                                                   chn->image->data,
@@ -195,6 +199,8 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                     }
 
                                     spr->tool->paint ( spr->tool,
+                                                       0x00000000,
+                                                       0xFFFFFFFF,
                                                        mx * image->width,
                                                        my * image->height,
                                                        image->data,
@@ -272,6 +278,8 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &mz );
 
                                 spr->tool->done ( spr->tool,
+                                                  0x00000000,
+                                                  0xFFFFFFFF,
                                                   mx * chn->image->width,
                                                   my * chn->image->height,
                                                   chn->image->data,
@@ -297,4 +305,40 @@ int spray_tool ( G3DMOUSETOOL *mou,
     }
 
     return 0x00;
+}
+
+/******************************************************************************/
+int pen_tool ( G3DMOUSETOOL *mou, 
+               G3DSCENE     *sce, 
+               G3DCAMERA    *cam,
+               G3DURMANAGER *urm,
+               uint32_t      flags, 
+               G3DEvent     *event ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+
+    spray_tool ( mou, 
+                 sce,
+                 cam,
+                 urm,
+                 sysinfo->fgcolor,
+                 sysinfo->bgcolor, 
+                 flags, 
+                 event );
+}
+
+/******************************************************************************/
+int eraser_tool ( G3DMOUSETOOL *mou, 
+                  G3DSCENE     *sce, 
+                  G3DCAMERA    *cam,
+                  G3DURMANAGER *urm,
+                  uint32_t      flags, 
+                  G3DEvent     *event ) {
+    spray_tool ( mou, 
+                 sce,
+                 cam,
+                 urm,
+                 0xFFFFFFFF,
+                 0x00000000, 
+                 flags, 
+                 event );
 }

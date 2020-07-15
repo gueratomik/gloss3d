@@ -35,6 +35,28 @@
 /******************************************************************************/
 
 /******************************************************************************/
+G3DCREATECUBETOOL *g3dcreatecubetool_new ( ) {
+    uint32_t structsize = sizeof ( G3DCREATECUBETOOL );
+
+    G3DCREATECUBETOOL *pt = ( G3DCREATECUBETOOL * ) calloc ( 0x01, structsize );
+
+    if ( pt == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( pt,
+                        CREATECUBETOOL,
+                        's',
+                        NULL, /* no icon */
+                        NULL,
+                        NULL,
+                        createCube,
+                        0x00 );
+
+    return pt;
+}
+
+/******************************************************************************/
 int createCube ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                  G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
     static GLdouble MVX[0x10], PJX[0x10];

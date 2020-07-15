@@ -35,6 +35,28 @@
 /******************************************************************************/
 
 /******************************************************************************/
+G3DCREATEPLANETOOL *g3dcreateplanetool_new ( ) {
+    uint32_t structsize = sizeof ( G3DCREATEPLANETOOL );
+
+    G3DCREATEPLANETOOL *pt = ( G3DCREATEPLANETOOL * ) calloc ( 0x01, structsize );
+
+    if ( pt == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( pt,
+                        CREATEPLANETOOL,
+                        's',
+                        NULL, /* no icon */
+                        NULL,
+                        NULL,
+                        createPlane,
+                        0x00 );
+
+    return pt;
+}
+
+/******************************************************************************/
 int createPlane ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
     static GLdouble MVX[0x10], PJX[0x10];

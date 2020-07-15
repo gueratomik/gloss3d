@@ -48,6 +48,11 @@
 #include <xpm/xaxis.xpm>
 #include <xpm/yaxis.xpm>
 #include <xpm/zaxis.xpm>
+#include <xpm/selectarea.xpm>
+#include <xpm/selectrandom.xpm>
+#include <xpm/pen.xpm>
+#include <xpm/bucket.xpm>
+#include <xpm/eraser.xpm>
 
 /******************************************************************************/
 GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent, 
@@ -91,11 +96,24 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL, rotate_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, SELECTAREATOOL, selectarea_xpm, g3duiuvmapeditor_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SPRAYTOOL, rotate_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, SELECTRANDOMTOOL, selectrandom_xpm, g3duiuvmapeditor_setUVMouseTool );
+
+    /********************************/
+
+    addToolBarToggleButton ( bar, uvme, PENTOOL, pen_xpm, g3duiuvmapeditor_setUVMouseTool );
+
+    /********************************/
+
+    addToolBarToggleButton ( bar, uvme, BUCKETTOOL, bucket_xpm, g3duiuvmapeditor_setUVMouseTool );
+
+    /********************************/
+
+    addToolBarToggleButton ( bar, uvme, ERASERTOOL, eraser_xpm, g3duiuvmapeditor_setUVMouseTool );
+
 
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );

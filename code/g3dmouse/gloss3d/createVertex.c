@@ -33,83 +33,57 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
-/******************************************************************************/
-/*static void createVertex_undo ( void *data ) {
-    URMCREATEVERTEX *ucv = ( URMCREATEVERTEX * ) data;
-    G3DVERTEX *ver = ucv->ver;
-    G3DMESH *mes = ucv->mes;
-
-    list_remove ( &mes->lver, ver );
-}*/
-
-/******************************************************************************/
-/*static void createVertex_redo ( void *data ) {
-    URMCREATEVERTEX *ucv = ( URMCREATEVERTEX * ) data;
-    G3DVERTEX *ver = ucv->ver;
-    G3DMESH *mes = ucv->mes;
-
-    list_append ( &mes->lver, ver );
-}*/
+static uint32_t createVertex_init ( G3DMOUSETOOL *mou, 
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags );
+static int createVertex_tool ( G3DMOUSETOOL *mou, 
+                               G3DSCENE     *sce, 
+                               G3DCAMERA    *cam,
+                               G3DURMANAGER *urm, 
+                               uint32_t      flags, 
+                               G3DEvent     *event );
 
 /******************************************************************************/
-static void createVertex_free ( void *data ) {
-    /*URMCREATEVERTEX *ucv = ( URMCREATEVERTEX * ) data;*/
-}
+G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATEVERTEX );
 
-/******************************************************************************/
-/*static void createVertex_push ( G3DURMANAGER *urm, G3DMESH *mes,
-                                                   G3DVERTEX *ver ) {
-    URMCREATEVERTEX *ucv;
-
-    ucv = ( URMCREATEVERTEX * ) calloc ( 0x01, sizeof ( URMCREATEVERTEX ) );
-
-    if ( ucv == NULL ) {
-        fprintf ( stderr, "createVertex_push: calloc failed\n" );
-
-        return;
-    }
-
-    ucv->mes = mes;
-    ucv->ver = ver;
-
-    g3durmanager_push ( urm, createVertex_undo,
-                             createVertex_redo,
-                             createVertex_free, ucv );
-}*/
-
-/******************************************************************************/
-G3DCREATEVERTEX *createVertex_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATEVERTEX );
-
-    G3DCREATEVERTEX *cv =  ( G3DCREATEVERTEX * ) calloc ( 0x04, structsize );
+    G3DMOUSETOOLCREATEVERTEX *cv = ( G3DMOUSETOOLCREATEVERTEX * ) calloc ( 0x01, structsize );
 
     if ( cv == NULL ) {
-        fprintf ( stderr, "createVertex_new: Memory allocation failed\n" );
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
+
+    g3dmousetool_init ( cv,
+                        CREATEVERTEXTOOL,
+                        's',
+                        NULL,
+                        createVertex_init,
+                        NULL,
+                        createVertex_tool,
+                        0x00 );
 
     return cv;
 }
 
 /******************************************************************************/
-uint32_t createVertex_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                                G3DCAMERA *cam,
-                                                G3DURMANAGER *urm, 
-                                                uint32_t engine_flags ) {
-    /*** reset the vertex array ***/
-    if ( mou->data ) {
-        G3DCREATEVERTEX *cv = mou->data;
-
-        /*cv->lastAddedVertex = NULL;*/
-    } else {
-        mou->data = createVertex_new ( );
-    }
+static uint32_t createVertex_init ( G3DMOUSETOOL *mou, 
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags ) {
 
     return 0x00;
 }
 
 /******************************************************************************/
-int createVertex ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createVertex_tool ( G3DMOUSETOOL *mou, 
+                               G3DSCENE     *sce, 
+                               G3DCAMERA    *cam,
+                               G3DURMANAGER *urm, 
+                               uint32_t      flags, 
+                               G3DEvent     *event ) {
     /*G3DURMANAGER *urm = gdt->urm;*/
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];

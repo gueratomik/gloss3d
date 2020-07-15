@@ -62,6 +62,8 @@ typedef struct _G3DSYSINFO {
     G2DVECTOR        renderRectangle[0x04];
     G3DCAMERA       *defaultCamera; /* used for backgroung uvw mapping */
     G3DSCENE *sce; /*** used only for debugging purpose ***/
+    uint32_t         fgcolor;
+    uint32_t         bgcolor;
 } G3DSYSINFO;
 
 /******************************************************************************/

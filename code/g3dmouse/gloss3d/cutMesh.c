@@ -33,13 +33,22 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 /******************************************************************************/
-G3DCUTMESH *cutMesh_new ( ) {
-    uint32_t structsize = sizeof ( G3DCUTMESH );
-    G3DCUTMESH *cm =  ( G3DCUTMESH * ) calloc ( 0x01, structsize );
+G3DMOUSETOOLCUTMESH *g3dcutmeshtool_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCUTMESH );
+    G3DMOUSETOOLCUTMESH *cm =  ( G3DMOUSETOOLCUTMESH * ) calloc ( 0x01, structsize );
 
     if ( cm == NULL ) {
         fprintf ( stderr, "cutMesh_new: Memory allocation failed\n" );
     }
+
+    g3dmousetool_init ( cm,
+                        CUTMESHTOOL,
+                        's',
+                        NULL,
+                        cutMesh_init,
+                        cutMesh_draw,
+                        cutMesh_tool,
+                        0x00 );
 
     cm->restrict_to_selection = 0x01;
 
@@ -48,17 +57,12 @@ G3DCUTMESH *cutMesh_new ( ) {
 }
 
 /******************************************************************************/
-uint32_t cutMesh_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                           G3DCAMERA *cam,
-                                           G3DURMANAGER *urm, 
-                                           uint32_t engine_flags ) {
-    if ( mou->data ) {
-        G3DCUTMESH *cm = mou->data;
-    } else {
-        mou->data = cutMesh_new ( );
-    }
+uint32_t cutMesh_init ( G3DMOUSETOOL *mou, 
+                        G3DSCENE     *sce, 
+                        G3DCAMERA    *cam,
+                        G3DURMANAGER *urm, 
+                        uint32_t      engine_flags ) {
 
-    return 0x00;
 }
 
 /******************************************************************************/
@@ -66,7 +70,7 @@ void cutMesh_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
     if ( ( flags & VIEWVERTEX ) ||
          ( flags & VIEWEDGE   ) ||
          ( flags & VIEWFACE   ) ) {
-        G3DCUTMESH *cm = mou->data;
+        G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) mou;
         /*** two dimensions array [4][3](x,y,z), relative to object ***/
         GLdouble (*coord)[0x03] = cm->coord;
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -98,7 +102,7 @@ int cutMesh_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static G3DMESH *mes;
-    G3DCUTMESH *cm = mou->data;
+    G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) mou;
 
     switch ( event->type ) {
         case G3DButtonPress : {

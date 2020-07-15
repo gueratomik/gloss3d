@@ -30,7 +30,6 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-#include <xpm/sphere.xpm>
 #include <xpm/cube.xpm>
 #include <xpm/cylinder.xpm>
 #include <xpm/knife.xpm>
@@ -756,8 +755,7 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    mou = g3dmousetool_new ( PICKTOOL, 's', NULL,
-                             pickTool_init, pick_draw, pick_tool, 0x00 );
+    mou = ( G3DMOUSETOOL * ) g3dmousepicktool_new ( );
 
     common_g3dui_addMouseTool ( gui, mou, 0x00 );
 
@@ -766,160 +764,114 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATESPHERETOOL, 'a', sphere_xpm,
-                             NULL, NULL, createSphere, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatespheretool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATECUBETOOL, 'a', cube_xpm,
-                             NULL, NULL, createCube, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatecubetool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATEPLANETOOL, 'a', sphere_xpm,
-                             NULL, NULL, createPlane, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dcreateplanetool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATECYLINDERTOOL, 'a', cylinder_xpm,
-                             NULL, NULL, createCylinder, 0x00 );
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatecylindertool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATETUBETOOL, 'a', cylinder_xpm,
-                             NULL, NULL, createTube, 0x00 );
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatetubetool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATETORUSTOOL, 'a', cylinder_xpm,
-                             NULL, NULL, createTorus, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatetorustool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CREATEBONETOOL, 'a', cylinder_xpm,
-                             NULL, NULL, createBone, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, OBJECTMODETOOL |  
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dcreatebonetool_new ( ),
+                                OBJECTMODETOOL | GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( CUTMESHTOOL, 'a', knife_xpm,
-                             cutMesh_init,
-                             cutMesh_draw,
-                             cutMesh_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL | 
-                                          FACEMODETOOL   | 
-                                          EDGEMODETOOL   |
-                                          MESHTOOL       |
-                                          SPLINETOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dcutmeshtool_new ( ),
+                                VERTEXMODETOOL | 
+                                FACEMODETOOL   | 
+                                EDGEMODETOOL   |
+                                MESHTOOL       |
+                                SPLINETOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( ADDVERTEXTOOL, 'a', addvertex_xpm,
-                             createVertex_init, NULL, createVertex, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL |
-                                          MESHTOOL       |
-                                          SPLINETOOL     |
-                                          GLMENUTOOL );
-
-    /********************************/
-
-    mou = g3dmousetool_new ( REVERTSPLINETOOL, 'a', NULL,
-                             revertSpline_init,
-                             NULL, NULL, MOUSETOOLNOCURRENT );
-
-    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL |
-                                          SPLINETOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui, 
+                                g3dmousetoolcreatevertex_new ( ),
+                                VERTEXMODETOOL |
+                                MESHTOOL       |
+                                SPLINETOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( BRIDGETOOL, 'a', bridge_xpm,
-                             bridge_init,
-                             bridge_draw, bridge_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, VERTEXMODETOOL |
-                                          MESHTOOL       |
-                                          SPLINETOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolrevertspline_new ( ),
+                                VERTEXMODETOOL |
+                                SPLINETOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    /*mou = g3dmousetool_new ( SCULPTTOOL, 'x', extrude_xpm,
-                             sculptTool_init,
-                             NULL, sculpt_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, SCULPTMODETOOL | 
-                                          MESHTOOL       |
-                                          GLMENUTOOL );*/
-
-    /********************************/
-
-    /*mou = g3dmousetool_new ( SMOOTHTOOL, 'x', extrude_xpm,
-                             smoothTool_init,
-                             NULL, smooth_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, SCULPTMODETOOL | GLMENUTOOL );*/
+    common_g3dui_addMouseTool ( gui, 
+                                g3dmousetoolbridge_new ( ), 
+                                VERTEXMODETOOL |
+                                MESHTOOL       |
+                                SPLINETOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( EXTRUDETOOL, 'x', extrude_xpm,
-                             extrudeFace_init,
-                             NULL, extrudeFace_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, FACEMODETOOL | 
-                                          MESHTOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolextrudeface_new ( ), 
+                                FACEMODETOOL | 
+                                MESHTOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( EXTRUDINNERTOOL, 'x', extrude_xpm,
-                             extrudeInner_init,
-                             NULL, extrudeFace_tool, 0x00 );
-
-    common_g3dui_addMouseTool ( gui, mou, FACEMODETOOL | 
-                                          MESHTOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolextrudeinner_new ( ), 
+                                FACEMODETOOL | 
+                                MESHTOOL     |
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( UNTRIANGULATETOOL, 'a', NULL,
-                             untriangulate_init,
-                             NULL, NULL, MOUSETOOLNOCURRENT );
-
-    common_g3dui_addMouseTool ( gui, mou, FACEMODETOOL |
-                                          MESHTOOL     | 
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetooluntriangulate_new ( ),
+                                FACEMODETOOL |
+                                MESHTOOL     | 
+                                GLMENUTOOL );
 
     /********************************/
 
-    mou = g3dmousetool_new ( TRIANGULATETOOL, 'a', NULL,
-                             triangulate_init,
-                             NULL, NULL, MOUSETOOLNOCURRENT );
-
-    common_g3dui_addMouseTool ( gui, mou, FACEMODETOOL | 
-                                          MESHTOOL     |
-                                          GLMENUTOOL );
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetooltriangulate_new ( ),
+                                FACEMODETOOL |
+                                MESHTOOL     | 
+                                GLMENUTOOL );
 
     /********************************/
 
@@ -1022,7 +974,7 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    mou = g3dmousetool_new ( SPRAYTOOL, 's', NULL,
+    mou = g3dmousetool_new ( PENTOOL, 's', NULL,
                              spray_init, NULL, spray_tool, 0x00 );
 
     common_g3dui_addMouseTool ( gui, mou, 0x00 );

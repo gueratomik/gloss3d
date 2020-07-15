@@ -35,10 +35,40 @@
 /******************************************************************************/
 
 /******************************************************************************/
-uint32_t revertSpline_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                                 G3DCAMERA *cam,
-                                                 G3DURMANAGER *urm, 
-                                                 uint32_t engine_flags ) {
+static uint32_t revertSpline_init ( G3DMOUSETOOL *mou, 
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags );
+
+/******************************************************************************/
+G3DMOUSETOOLREVERTSPLINE *g3dmousetoolrevertspline_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLREVERTSPLINE );
+
+    G3DMOUSETOOLREVERTSPLINE *cv = ( G3DMOUSETOOLREVERTSPLINE * ) calloc ( 0x01, structsize );
+
+    if ( cv == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( cv,
+                        REVERTSPLINETOOL,
+                        's',
+                        NULL,
+                        revertSpline_init,
+                        NULL,
+                        NULL,
+                        MOUSETOOLNOCURRENT );
+
+    return cv;
+}
+
+/******************************************************************************/
+static uint32_t revertSpline_init ( G3DMOUSETOOL *mou, 
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type == G3DSPLINETYPE ) ) {

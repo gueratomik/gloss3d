@@ -32,52 +32,68 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
+static uint32_t bridge_init ( G3DMOUSETOOL *mou, 
+                              G3DSCENE     *sce, 
+                              G3DCAMERA    *cam,
+                              G3DURMANAGER *urm, 
+                              uint32_t      engine_flags );
+static void bridge_draw ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          uint32_t      flags );
+static int bridge_tool  ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      eflags,
+                          G3DEvent     *event );
 
 /******************************************************************************/
-/***************** Alloc memory for createFace tool private data **************/
-/******** We could have used structure declared as static variable too ********/
-G3DBRIDGETOOL *bridge_new ( ) {
-    uint32_t structsize = sizeof ( G3DBRIDGETOOL );
+G3DMOUSETOOLBRIDGE *g3dmousetoolbridge_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLBRIDGE );
 
-    G3DBRIDGETOOL *bt =  ( G3DBRIDGETOOL * ) calloc ( 0x04, structsize );
+    G3DMOUSETOOLBRIDGE *bt =  ( G3DMOUSETOOLBRIDGE * ) calloc ( 0x04, structsize );
 
     if ( bt == NULL ) {
-        fprintf ( stderr, "bridge_new: Memory allocation failed\n" );
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
+
+    g3dmousetool_init ( bt,
+                        BRIDGETOOL,
+                        's',
+                        NULL,
+                        bridge_init,
+                        bridge_draw,
+                        bridge_tool,
+                        0x00 );
 
     return bt;
 }
 
 /******************************************************************************/
-uint32_t bridge_init ( G3DMOUSETOOL *mou, 
-                       G3DSCENE     *sce, 
-                       G3DCAMERA    *cam,
-                       G3DURMANAGER *urm, 
-                       uint32_t      engine_flags ) {
-    /*** reset the vertex array ***/
-    if ( mou->data ) {
-        G3DBRIDGETOOL *bt = mou->data;
+static uint32_t bridge_init ( G3DMOUSETOOL *mou, 
+                              G3DSCENE     *sce, 
+                              G3DCAMERA    *cam,
+                              G3DURMANAGER *urm, 
+                              uint32_t      engine_flags ) {
+    G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
-        bt->ver[0x00] = 
-        bt->ver[0x01] = 
-        bt->ver[0x02] = 
-        bt->ver[0x03] =
-        bt->pt[0x00]  = 
-        bt->pt[0x01]  = NULL;
-        bt->draw = 0x00;
-        bt->obj  = NULL;
-    } else {
-        mou->data = bridge_new ( );
-    }
+    bt->ver[0x00] = 
+    bt->ver[0x01] = 
+    bt->ver[0x02] = 
+    bt->ver[0x03] =
+    bt->pt[0x00]  = 
+    bt->pt[0x01]  = NULL;
+    bt->draw = 0x00;
+    bt->obj  = NULL;
 
     return 0x00;
 }
 
 /******************************************************************************/
-void bridge_draw ( G3DMOUSETOOL *mou, 
-                   G3DSCENE     *sce, 
-                   uint32_t      flags ) {
-    G3DBRIDGETOOL *bt = mou->data;
+static void bridge_draw ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          uint32_t      flags ) {
+    G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
     if ( bt && bt->draw ) {
         if ( bt->obj ) {
@@ -128,7 +144,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
                             uint32_t      flags,
                             G3DEvent     *event ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
-    G3DBRIDGETOOL *bt = mou->data;
+    G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
     static GLint VPX[0x04];
     static G3DPICKTOOL ptool = { .coord = { 0 },
                                  .only_visible = 0x01,
@@ -235,7 +251,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                           uint32_t      flags,
                           G3DEvent     *event ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DBRIDGETOOL *bt = mou->data;
+    G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
     G3DVERTEX **ver = bt->ver;
     static GLint VPX[0x04];
     static G3DPICKTOOL ptool = { .coord = { 0 },
@@ -389,12 +405,12 @@ static int bridge_mesh  ( G3DMESH      *mes,
 }
 
 /******************************************************************************/
-int bridge_tool  ( G3DMOUSETOOL *mou, 
-                   G3DSCENE     *sce, 
-                   G3DCAMERA    *cam,
-                   G3DURMANAGER *urm, 
-                   uint32_t      eflags,
-                   G3DEvent     *event ) {
+static int bridge_tool  ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      eflags,
+                          G3DEvent     *event ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( obj ) {

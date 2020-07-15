@@ -33,57 +33,101 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
-G3DEXTRUDEFACE *extrudeFace_new ( ) {
-    uint32_t structsize = sizeof ( G3DEXTRUDEFACE );
 
-    G3DEXTRUDEFACE *ef =  ( G3DEXTRUDEFACE * ) calloc ( 0x04, structsize );
+static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, 
+                                   G3DSCENE     *sce, 
+                                   G3DCAMERA    *cam,
+                                   G3DURMANAGER *urm, 
+                                   uint32_t      engine_flags );
+static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags );
+static int extrudeFace_tool  ( G3DMOUSETOOL *mou, 
+                               G3DSCENE     *sce, 
+                               G3DCAMERA    *cam,
+                               G3DURMANAGER *urm, 
+                               uint32_t      flags,
+                               G3DEvent      *event );
+
+/******************************************************************************/
+G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLEXTRUDEFACE );
+
+    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) calloc ( 0x01, structsize );
 
     if ( ef == NULL ) {
-        fprintf ( stderr, "extrudeFace_new: Memory allocation failed\n" );
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
+    g3dmousetool_init ( ef,
+                        EXTRUDEFACETOOL,
+                        's',
+                        NULL,
+                        extrudeFace_init,
+                        NULL,
+                        extrudeFace_tool,
+                        0x00 );
 
     return ef;
 }
 
 /******************************************************************************/
-uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                               G3DCAMERA *cam,
-                                               G3DURMANAGER *urm, 
-                                               uint32_t engine_flags ) {
-    if ( mou->data == NULL ) {
-        G3DEXTRUDEFACE *ef =  extrudeFace_new ( );
+G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLEXTRUDEFACE );
 
-        ef->inner = 0x00;
+    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) calloc ( 0x01, structsize );
 
-        mou->data = ef;
+    if ( ef == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
+
+    g3dmousetool_init ( ef,
+                        EXTRUDEINNERTOOL,
+                        's',
+                        NULL,
+                        extrudeInner_init,
+                        NULL,
+                        extrudeFace_tool,
+                        0x00 );
+
+    return ef;
+}
+
+/******************************************************************************/
+static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, 
+                                   G3DSCENE     *sce, 
+                                   G3DCAMERA    *cam,
+                                   G3DURMANAGER *urm, 
+                                   uint32_t      engine_flags ) {
+    G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
+
+    ef->inner = 0x00;
 
     return 0x00;
 }
 
 /******************************************************************************/
-uint32_t extrudeInner_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                                G3DCAMERA *cam,
-                                                G3DURMANAGER *urm, 
-                                                uint32_t engine_flags ) {
-    if ( mou->data == NULL ) {
-        G3DEXTRUDEFACE *ef =  extrudeFace_new ( );
+static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
+                                    G3DSCENE     *sce, 
+                                    G3DCAMERA    *cam,
+                                    G3DURMANAGER *urm, 
+                                    uint32_t      engine_flags ) {
+    G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
 
-        ef->inner = 0x01;
-
-        mou->data = ef;
-    }
+    ef->inner = 0x01;
 
     return 0x00;
 }
 
 /******************************************************************************/
-int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                           G3DCAMERA *cam,
-                                           G3DURMANAGER *urm, 
-                                           uint32_t flags,
-                                           G3DEvent *event ) {
+static int extrudeFace_tool  ( G3DMOUSETOOL *mou, 
+                               G3DSCENE     *sce, 
+                               G3DCAMERA    *cam,
+                               G3DURMANAGER *urm, 
+                               uint32_t      flags,
+                               G3DEvent      *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static int32_t xold, yold;
@@ -109,7 +153,7 @@ int extrudeFace_tool  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
                 *lver    = NULL;
     static uint32_t nbver;
 
-    G3DEXTRUDEFACE *ef = ( G3DEXTRUDEFACE * ) mou->data;
+    G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
 
     /*** This tool can only be used in face mode ***/
     if ( ( flags & VIEWFACE ) == 0x00 ) return FALSE;

@@ -31,6 +31,8 @@
 
 /******************************************************************************/
 static int Init ( L3DTOOL  *tool,
+                  uint32_t  fgcolor,
+                  uint32_t  bgcolor,
                   int32_t   x,
                   int32_t   y,
                   char     *buffer, 
@@ -52,6 +54,8 @@ static int Init ( L3DTOOL  *tool,
 
 /******************************************************************************/
 static int Paint ( L3DTOOL       *tool,
+                   uint32_t       fgcolor,
+                   uint32_t       bgcolor,
                    int32_t        x,
                    int32_t        y,
                    unsigned char *buffer, 
@@ -65,8 +69,9 @@ static int Paint ( L3DTOOL       *tool,
                    int32_t       *updw,
                    int32_t       *updh,
                    uint32_t       engineFlags ) {
+    /*y = 100;*/
     L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
-    uint32_t size = 0x10, half = size / 0x02;
+    uint32_t size = tool->pattern->size, half = size / 0x02;
     /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
     /*** does not seem to copy the subimage completely ***/
     uint32_t margin = 10; 
@@ -86,9 +91,11 @@ static int Paint ( L3DTOOL       *tool,
     if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
     if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
 
+    static int test = 1;
+
     l3core_paintLine ( tool->pattern,
-                       0xFF808080,
-                       0.1f,
+                       fgcolor,
+                       0.2f,
                        sprtool->oldx,
                        sprtool->oldy,
                        x,
@@ -101,11 +108,162 @@ static int Paint ( L3DTOOL       *tool,
                        zbuffer,
                        engineFlags );
 
+    if ( test == 0x00 ) {
+        /*l3core_paintLine ( tool->pattern,
+                           0x00000000,
+                           0.1f,
+                           100,
+                           200,
+                           200,
+                           200,
+                           buffer,
+                           width,
+                           height, 
+                           bpp, 
+                           mask,
+                           zbuffer,
+                           engineFlags );*/
+
+        /*l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           100,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           106,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           112,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           118,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           124,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           130,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           0.2f,
+                           136,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );*/
+
+        /*l3dpattern_paint ( tool->pattern,
+                           0x00000000,
+                           1.0f,
+                           148,
+                           200,
+                           buffer,
+                           width,
+                           height,
+                           bpp,
+                           mask,
+                           zbuffer,
+                           engineFlags );*/
+
+        g3dcore_writeJpeg ( "test.jpg", width, height, bpp, buffer );
+
+        test = 0x01;
+    }
+
     /*l3dpattern_paint ( tool->pattern,
-                       0xFF,
+                       0x00000000,
                        1.0f,
-                       x,
-                       y,
+                       100,
+                       216,
+                       buffer,
+                       width,
+                       height,
+                       bpp,
+                       mask,
+                       zbuffer,
+                       engineFlags );
+
+    l3dpattern_paint ( tool->pattern,
+                       0x00000000,
+                       1.0f,
+                       110,
+                       216,
+                       buffer,
+                       width,
+                       height,
+                       bpp,
+                       mask,
+                       zbuffer,
+                       engineFlags );*/
+
+    /*l3dpattern_paint ( tool->pattern,
+                       0x00000000,
+                       1.0f,
+                       102,
+                       216,
                        buffer,
                        width,
                        height,
@@ -122,6 +280,8 @@ static int Paint ( L3DTOOL       *tool,
 
 /******************************************************************************/
 static int Done ( L3DTOOL       *tool,
+                  uint32_t       fgcolor,
+                  uint32_t       bgcolor,
                   int32_t        x,
                   int32_t        y,
                   unsigned char *buffer, 
@@ -147,7 +307,7 @@ L3DSPRAYTOOL *l3dspraytool_new ( ) {
         return NULL;
     }
 
-    sprtool->tool.pattern = l3dplainrectanglepattern_new ( 24 );
+    sprtool->tool.pattern = l3dplainrectanglepattern_new ( 12 );
 
     sprtool->tool.init  = Init;
     sprtool->tool.paint = Paint;

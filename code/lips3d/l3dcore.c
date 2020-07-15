@@ -216,7 +216,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
 
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
-            if ( cumul >= ddx ) {
+            if ( cumul > ddx ) {
                 cumul -= ddx;
                 y     += py;
             }
@@ -239,7 +239,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
-            if ( cumul >= ddy ) {
+            if ( cumul > ddy ) {
                 cumul -= ddy;
                 x     += px;
             }

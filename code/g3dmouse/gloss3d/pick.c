@@ -33,14 +33,25 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
-G3DPICKTOOL *pickTool_new ( ) {
-    uint32_t structsize = sizeof ( G3DPICKTOOL );
 
-    G3DPICKTOOL *pt =  ( G3DPICKTOOL * ) calloc ( 0x01, structsize );
+/******************************************************************************/
+G3DMOUSETOOLPICK *g3dpicktool_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLPICK );
+
+    G3DMOUSETOOLPICK *pt =  ( G3DMOUSETOOLPICK * ) calloc ( 0x01, structsize );
 
     if ( pt == NULL ) {
         fprintf ( stderr, "pickTool_new: Memory allocation failed\n" );
     }
+
+    g3dmousetool_init ( pt,
+                        PICKTOOL,
+                        's',
+                        NULL,
+                        pick_init,
+                        pick_draw,
+                        pick_tool,
+                        0x00 );
 
     pt->only_visible  = 0x01;
 
@@ -52,23 +63,17 @@ G3DPICKTOOL *pickTool_new ( ) {
 }
 
 /******************************************************************************/
-uint32_t pickTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                            G3DCAMERA *cam,
-                                            G3DURMANAGER *urm, 
-                                            uint32_t engine_flags ) {
-    if ( mou->data ) {
-        G3DPICKTOOL *pt = mou->data;
+uint32_t pick_init ( G3DMOUSETOOL *mou, 
+                     G3DSCENE     *sce, 
+                     G3DCAMERA    *cam,
+                     G3DURMANAGER *urm, 
+                     uint32_t      engine_flags ) {
 
-    } else {
-        mou->data = pickTool_new ( );
-    }
-
-    return 0x00;
 }
 
 /******************************************************************************/
 void pick_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
-    G3DPICKTOOL *pt = ( G3DPICKTOOL * ) mou->data;
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     int32_t *coord = pt->coord;
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
@@ -129,7 +134,7 @@ static void shapeSelectionRectangle ( int x, int y, int32_t *coord ) {
 
 /******************************************************************************/
 /*** Var radius is the selection rectangle size in case x1 = x2 or y1 = y2  ***/
-static void closeSelectionRectangle ( G3DPICKTOOL *pt, 
+static void closeSelectionRectangle ( G3DMOUSETOOLPICK *pt, 
                                       int         *VPX, 
                                       uint32_t     eflags ) {
     int x1 = VPX[0x00];
@@ -370,7 +375,7 @@ uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
 
 /******************************************************************************/
 /*** We basically draw the scene in 2D with pointer values as pixels ***/
-void pick_Item ( G3DPICKTOOL *pt, 
+void pick_Item ( G3DMOUSETOOLPICK *pt, 
                  G3DSCENE   *sce, 
                  G3DCAMERA  *cam,
                  uint32_t    ctrlClick,
@@ -531,7 +536,7 @@ uint32_t actionSelectAxis ( uint64_t name, G3DCURSOR *csr ) {
 
 /******************************************************************************/
 /*** We basically draw the scene in 2D with pointer values as pixels ***/
-void pick_cursor ( G3DPICKTOOL *pt, 
+void pick_cursor ( G3DMOUSETOOLPICK *pt, 
                    G3DSCENE   *sce, 
                    G3DCAMERA  *cam,
                    uint32_t    eflags ) {
@@ -600,7 +605,7 @@ static void pick_free ( void *data ) {
 /******************************************************************************/
 int weight_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
-    G3DPICKTOOL *pt = mou->data;
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     static G3DOBJECT *obj = NULL;
     static int VPX[0x04];
 
@@ -664,7 +669,7 @@ int weight_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
 int pickUV_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-    G3DPICKTOOL *pt = mou->data;
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     static GLint VPX[0x04];
 
     if ( obj ) {
@@ -752,7 +757,7 @@ int pick_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     /*G3DURMANAGER *urm = gdt->urm;*/
     /*** selection rectangle coords ***/
     static GLint VPX[0x04];
-    G3DPICKTOOL *pt = mou->data;
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     uint32_t unselectIfSelected = 0x01;
 
     if ( flags & VIEWSKIN ) {

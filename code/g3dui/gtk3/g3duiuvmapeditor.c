@@ -35,6 +35,7 @@
 #include <xpm/maximize_view.xpm>
 #include <xpm/zoom_view.xpm>
 
+
 G_DEFINE_TYPE (GtkUVMapEditor, gtk_uvmapeditor, GTK_TYPE_FIXED)
 
 /******************************************************************************/
