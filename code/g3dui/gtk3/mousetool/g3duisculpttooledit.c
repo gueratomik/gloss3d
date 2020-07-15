@@ -56,14 +56,13 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updateSculptToolEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    if ( mou ) {
-        G3DSCULPTTOOL *st = mou->data;
-
+    if ( sc ) {
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );
@@ -72,7 +71,7 @@ void updateSculptToolEdit ( GtkWidget *widget, G3DUI *gui ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITSCULPTTOOLVISIBLE ) == 0x00 ) {
-                    if ( st->only_visible ) {
+                    if ( sc->only_visible ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -84,11 +83,11 @@ void updateSculptToolEdit ( GtkWidget *widget, G3DUI *gui ) {
                 GtkRange *ran = GTK_RANGE(child);
 
                 if ( strcmp ( child_name, EDITSCULPTTOOLPRESSURE ) == 0x00 ) {
-                    gtk_range_set_value ( ran, ( st->pressure * 100.0f ) );
+                    gtk_range_set_value ( ran, ( sc->pressure * 100.0f ) );
                 }
 
                 if ( strcmp ( child_name, EDITSCULPTTOOLRADIUS ) == 0x00 ) {
-                    gtk_range_set_value ( ran, st->radius );
+                    gtk_range_set_value ( ran, sc->radius );
                 }
             }
 

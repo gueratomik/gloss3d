@@ -34,11 +34,18 @@
 /* Widgets                                                                    */
 /******************************************************************************/
 
-/******************************************************************************/
-G3DCREATEPLANETOOL *g3dcreateplanetool_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATEPLANETOOL );
+static int createPlane ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      flags, 
+                         G3DEvent     *event );
 
-    G3DCREATEPLANETOOL *pt = ( G3DCREATEPLANETOOL * ) calloc ( 0x01, structsize );
+/******************************************************************************/
+G3DMOUSETOOLCREATEPLANE *g3dmousetoolcreateplane_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATEPLANE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATEPLANE *pt = ( G3DMOUSETOOLCREATEPLANE * ) memarea;
 
     if ( pt == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
@@ -57,8 +64,12 @@ G3DCREATEPLANETOOL *g3dcreateplanetool_new ( ) {
 }
 
 /******************************************************************************/
-int createPlane ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                  G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createPlane ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      flags, 
+                         G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,

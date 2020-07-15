@@ -32,12 +32,11 @@
 /******************************************************************************/
 void common_g3duipicktooledit_paintRadiusCbk ( G3DUI *gui, float radius ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DPICKTOOL *pt = mou->data;
-
+    if ( pt ) {
         pt->radius = radius;
     }
 }
@@ -45,12 +44,11 @@ void common_g3duipicktooledit_paintRadiusCbk ( G3DUI *gui, float radius ) {
 /******************************************************************************/
 void common_g3duipicktooledit_setWeightCbk ( G3DUI *gui, float weight ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DPICKTOOL *pt = mou->data;
-
+    if ( pt ) {
         pt->weight = weight;
     }
 }
@@ -58,12 +56,11 @@ void common_g3duipicktooledit_setWeightCbk ( G3DUI *gui, float weight ) {
 /******************************************************************************/
 void common_g3duipicktooledit_onlyVisibleCbk ( G3DUI *gui, int visible_only ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DPICKTOOL *pt = mou->data;
-
+    if ( pt ) {
         pt->only_visible = visible_only;
     }
 }

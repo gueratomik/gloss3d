@@ -34,6 +34,63 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static int scale_tool ( G3DMOUSETOOL *mou, 
+                        G3DSCENE     *sce,
+                        G3DCAMERA    *cam,
+                        G3DURMANAGER *urm, 
+                        uint32_t     flags, 
+                        G3DEvent    *event );
+static int scaleUV_tool ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce,
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t     flags, 
+                          G3DEvent    *event );
+
+/******************************************************************************/
+G3DMOUSETOOLSCALE *g3dmousetoolscale_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLSCALE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLSCALE *sc =  ( G3DMOUSETOOLSCALE * ) memarea;
+
+    if ( sc == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( sc,
+                        SCALETOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        scale_tool,
+                        0x00 );
+
+    return sc;
+}
+
+/******************************************************************************/
+G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLSCALEUV );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLSCALEUV *sc =  ( G3DMOUSETOOLSCALEUV * ) memarea;
+
+    if ( sc == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( sc,
+                        SCALEUVTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        scaleUV_tool,
+                        0x00 );
+
+    return sc;
+}
+
 /******************************************************************************/
 static int scale_spline ( G3DSPLINE    *spl,
                            G3DMOUSETOOL *mou, 
@@ -76,11 +133,11 @@ static int scale_spline ( G3DSPLINE    *spl,
             mouseYpress = bev->y;
 
             if ( eflags & VIEWVERTEX ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
@@ -243,18 +300,13 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
                         /*** simulate click and release ***/
                         if ( ( bev->x == mouseXpress ) && 
                              ( bev->y == mouseYpress ) ) {
-                            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                          bev->x, VPX[0x03] - bev->y },
-                                               .only_visible = 0x00,
-                                               .weight = 0.0f,
-                                               .radius = PICKMINRADIUS };
+                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                               bev->x, VPX[0x03] - bev->y },
+                                                    .only_visible = 0x00,
+                                                    .weight = 0.0f,
+                                                    .radius = PICKMINRADIUS };
 
-                            /*** we use pick_tool and not pick_Item in order to ***/
-                            /*** get the undo/redo support ***/
-                            void *tmpdata = mou->data;
-                            mou->data = &pt;
-                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
-                            mou->data = tmpdata;
+                            pickUV_tool ( &pt, sce, cam, urm, eflags, event );
 
                             /*** cancel arrays allocated for undo-redo ***/
                             if ( olduv ) free ( olduv );
@@ -412,18 +464,13 @@ static int scale_mesh ( G3DMESH          *mes,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -598,22 +645,17 @@ static int scale_object ( LIST        *lobj,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, eflags );
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
@@ -628,12 +670,12 @@ static int scale_object ( LIST        *lobj,
 }
 
 /******************************************************************************/
-int scale_tool ( G3DMOUSETOOL *mou, 
-                  G3DSCENE     *sce,
-                  G3DCAMERA    *cam,
-                  G3DURMANAGER *urm, 
-                  uint32_t     flags, 
-                  G3DEvent    *event ) {
+static int scale_tool ( G3DMOUSETOOL *mou, 
+                        G3DSCENE     *sce,
+                        G3DCAMERA    *cam,
+                        G3DURMANAGER *urm, 
+                        uint32_t     flags, 
+                        G3DEvent    *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
@@ -645,11 +687,11 @@ int scale_tool ( G3DMOUSETOOL *mou,
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                          bev->x, VPX[0x03] - bev->y },
-                               .only_visible = 0x01,
-                               .weight = 0.0f,
-                               .radius = PICKMINRADIUS };
+            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                               bev->x, VPX[0x03] - bev->y },
+                                    .only_visible = 0x01,
+                                    .weight = 0.0f,
+                                    .radius = PICKMINRADIUS };
 
             pick_cursor ( &pt, sce, cam, flags );
         } break;

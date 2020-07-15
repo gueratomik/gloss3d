@@ -56,14 +56,13 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updatePickToolWeightForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) tool;
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    if ( mou ) {
-        G3DPICKTOOL *pt = mou->data;
-
+    if ( pt ) {
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );
@@ -104,14 +103,13 @@ void updatePickToolWeightFrame ( GtkWidget *widget, G3DUI *gui ) {
 /******************************************************************************/
 void updatePickToolEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, PICKTOOL );
+    G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) tool;
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    if ( mou ) {
-        G3DPICKTOOL *pt = mou->data;
-
+    if ( pt ) {
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );

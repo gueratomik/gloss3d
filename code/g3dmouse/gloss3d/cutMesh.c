@@ -32,20 +32,32 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
+
+static void cutMesh_draw ( G3DMOUSETOOL *mou,
+                           G3DSCENE     *sce,
+                           uint32_t      flags );
+static int cutMesh_tool ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      flags, 
+                          G3DEvent     *event );
+
 /******************************************************************************/
-G3DMOUSETOOLCUTMESH *g3dcutmeshtool_new ( ) {
+G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
     uint32_t structsize = sizeof ( G3DMOUSETOOLCUTMESH );
-    G3DMOUSETOOLCUTMESH *cm =  ( G3DMOUSETOOLCUTMESH * ) calloc ( 0x01, structsize );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCUTMESH *cm =  ( G3DMOUSETOOLCUTMESH * ) memarea;
 
     if ( cm == NULL ) {
-        fprintf ( stderr, "cutMesh_new: Memory allocation failed\n" );
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
     g3dmousetool_init ( cm,
                         CUTMESHTOOL,
                         's',
                         NULL,
-                        cutMesh_init,
+                        NULL,
                         cutMesh_draw,
                         cutMesh_tool,
                         0x00 );
@@ -57,16 +69,9 @@ G3DMOUSETOOLCUTMESH *g3dcutmeshtool_new ( ) {
 }
 
 /******************************************************************************/
-uint32_t cutMesh_init ( G3DMOUSETOOL *mou, 
-                        G3DSCENE     *sce, 
-                        G3DCAMERA    *cam,
-                        G3DURMANAGER *urm, 
-                        uint32_t      engine_flags ) {
-
-}
-
-/******************************************************************************/
-void cutMesh_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
+static void cutMesh_draw ( G3DMOUSETOOL *mou,
+                           G3DSCENE     *sce,
+                           uint32_t      flags ) {
     if ( ( flags & VIEWVERTEX ) ||
          ( flags & VIEWEDGE   ) ||
          ( flags & VIEWFACE   ) ) {
@@ -95,8 +100,12 @@ void cutMesh_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
 }
 
 /*****************************************************************************/
-int cutMesh_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int cutMesh_tool ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      flags, 
+                          G3DEvent     *event ) {
     /*** selection rectangle coords ***/
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];

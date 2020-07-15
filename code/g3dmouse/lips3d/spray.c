@@ -33,47 +33,76 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 /******************************************************************************/
-SPRAY *spray_new ( ) {
-    uint32_t structsize = sizeof ( SPRAY );
-    SPRAY *spr =  ( SPRAY * ) calloc ( 0x01, structsize );
 
-    if ( spr == NULL ) {
-        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
-    }
-
-    spr->tool = l3dspraytool_new ( );
-
-    return spr;
-}
-
-/******************************************************************************/
-uint32_t spray_init ( G3DMOUSETOOL *mou, 
+static int pen_tool ( G3DMOUSETOOL *mou, 
                       G3DSCENE     *sce, 
                       G3DCAMERA    *cam,
                       G3DURMANAGER *urm,
-                      uint32_t      engine_flags ) {
-    if ( mou->data ) {
-        SPRAY *cm = mou->data;
-    } else {
-        mou->data = spray_new ( );
+                      uint32_t      flags, 
+                      G3DEvent     *event );
+static int eraser_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm,
+                         uint32_t      flags, 
+                         G3DEvent     *event );
+
+/******************************************************************************/
+L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
+    uint32_t structsize = sizeof ( L3DMOUSETOOLPEN );
+    void *memarea = calloc ( 0x01, structsize );
+    L3DMOUSETOOLPEN *pn =  ( L3DMOUSETOOLPEN * ) memarea;
+
+    if ( pn == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    return 0x00;
+    l3dmousetool_init ( pn,
+                        PENTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        pen_tool,
+                        0x00 );
+
+    pn->ltool.obj = l3dbasepen_new ( );
+
+    return pn;
 }
 
 /******************************************************************************/
-void spray_draw ( G3DMOUSETOOL *mou, G3DSCENE *sce, uint32_t flags ) {
-        SPRAY *spr = mou->data;
+L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
+    uint32_t structsize = sizeof ( L3DMOUSETOOLERASER );
+    void *memarea = calloc ( 0x01, structsize );
+    L3DMOUSETOOLERASER *er =  ( L3DMOUSETOOLERASER * ) memarea;
 
+    if ( er == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    l3dmousetool_init ( er,
+                        ERASERTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        eraser_tool,
+                        0x00 );
+
+    er->ltool.obj = l3dbasepen_new ( );
+
+
+    return er;
 }
 
 /******************************************************************************/
-int spray_tool ( G3DMOUSETOOL *mou, 
+int basepen_tool ( G3DMOUSETOOL *mou, 
                    G3DSCENE     *sce, 
                    G3DCAMERA    *cam,
                    G3DURMANAGER *urm,
                    uint32_t      fgcolor,
-                   uint32_t      fgcolor,
+                   uint32_t      bgcolor,
                    uint32_t      flags, 
                    G3DEvent     *event ) {
     /*** selection rectangle coords ***/
@@ -81,7 +110,7 @@ int spray_tool ( G3DMOUSETOOL *mou,
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static G3DMESH *mes;
-    SPRAY *spr = mou->data;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mou;
     double mx, my, mz;
     static int subRect[0x04];
     static double oldx, oldy;
@@ -123,18 +152,23 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &my,
                                               &mz );
 
-                                spr->tool->init ( spr->tool,
-                                                  0x00000000,
-                                                  0xFFFFFFFF,
-                                                  mx * chn->image->width,
-                                                  my * chn->image->height,
-                                                  chn->image->data,
-                                                  chn->image->width,
-                                                  chn->image->height,
-                                                  chn->image->bytesPerPixel * 0x08,
-                                                  mou->mask,
-                                                  mou->zbuffer,
-                                                  0x00 );
+                                memset ( mou->zbuffer, 
+                                         0x00, 
+                                         chn->image->width * 
+                                         chn->image->height);
+
+                                ltool->obj->init ( ltool->obj,
+                                                   fgcolor,
+                                                   bgcolor,
+                                                   mx * chn->image->width,
+                                                   my * chn->image->height,
+                                                   chn->image->data,
+                                                   chn->image->width,
+                                                   chn->image->height,
+                                                   chn->image->bytesPerPixel * 0x08,
+                                                   mou->mask,
+                                                   mou->zbuffer,
+                                                   0x00 );
 
                                 g3dimage_bind ( chn->image );
                             }
@@ -198,22 +232,22 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                                  image->width * image->height );
                                     }
 
-                                    spr->tool->paint ( spr->tool,
-                                                       0x00000000,
-                                                       0xFFFFFFFF,
-                                                       mx * image->width,
-                                                       my * image->height,
-                                                       image->data,
-                                                       image->width,
-                                                       image->height,
-                                                       image->bytesPerPixel * 0x08,
-                                                       mou->mask,
-                                                       mou->zbuffer,
-                                                      &subx,
-                                                      &suby,
-                                                      &subw,
-                                                      &subh,
-                                                       0x00 );
+                                    ltool->obj->paint ( ltool->obj,
+                                                        fgcolor,
+                                                        bgcolor,
+                                                        mx * image->width,
+                                                        my * image->height,
+                                                        image->data,
+                                                        image->width,
+                                                        image->height,
+                                                        image->bytesPerPixel * 0x08,
+                                                        mou->mask,
+                                                        mou->zbuffer,
+                                                       &subx,
+                                                       &suby,
+                                                       &subw,
+                                                       &subh,
+                                                        0x00 );
 
                                     oldVector[0x00] = newVector[0x00];
                                     oldVector[0x01] = newVector[0x01];
@@ -277,18 +311,18 @@ int spray_tool ( G3DMOUSETOOL *mou,
                                               &my,
                                               &mz );
 
-                                spr->tool->done ( spr->tool,
-                                                  0x00000000,
-                                                  0xFFFFFFFF,
-                                                  mx * chn->image->width,
-                                                  my * chn->image->height,
-                                                  chn->image->data,
-                                                  chn->image->width,
-                                                  chn->image->height,
-                                                  chn->image->bytesPerPixel * 0x08,
-                                                  mou->mask,
-                                                  mou->zbuffer,
-                                                  0x00 );
+                                ltool->obj->done ( ltool->obj,
+                                                   fgcolor,
+                                                   bgcolor,
+                                                   mx * chn->image->width,
+                                                   my * chn->image->height,
+                                                   chn->image->data,
+                                                   chn->image->width,
+                                                   chn->image->height,
+                                                   chn->image->bytesPerPixel * 0x08,
+                                                   mou->mask,
+                                                   mou->zbuffer,
+                                                   0x00 );
 
                                 g3dimage_bind ( chn->image );
                             }
@@ -308,37 +342,38 @@ int spray_tool ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-int pen_tool ( G3DMOUSETOOL *mou, 
-               G3DSCENE     *sce, 
-               G3DCAMERA    *cam,
-               G3DURMANAGER *urm,
-               uint32_t      flags, 
-               G3DEvent     *event ) {
+static int pen_tool ( G3DMOUSETOOL *mou, 
+                      G3DSCENE     *sce, 
+                      G3DCAMERA    *cam,
+                      G3DURMANAGER *urm,
+                      uint32_t      flags, 
+                      G3DEvent     *event ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
-    spray_tool ( mou, 
-                 sce,
-                 cam,
-                 urm,
-                 sysinfo->fgcolor,
-                 sysinfo->bgcolor, 
-                 flags, 
-                 event );
+    basepen_tool ( mou, 
+                   sce,
+                   cam,
+                   urm,
+                   sysinfo->fgcolor,
+                   sysinfo->bgcolor, 
+                   flags, 
+                   event );
 }
 
 /******************************************************************************/
-int eraser_tool ( G3DMOUSETOOL *mou, 
-                  G3DSCENE     *sce, 
-                  G3DCAMERA    *cam,
-                  G3DURMANAGER *urm,
-                  uint32_t      flags, 
-                  G3DEvent     *event ) {
-    spray_tool ( mou, 
-                 sce,
-                 cam,
-                 urm,
-                 0xFFFFFFFF,
-                 0x00000000, 
-                 flags, 
-                 event );
+static int eraser_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm,
+                         uint32_t      flags, 
+                         G3DEvent     *event ) {
+
+    basepen_tool ( mou, 
+                   sce,
+                   cam,
+                   urm,
+                   0xFFFFFFFF,
+                   0x00000000, 
+                   flags, 
+                   event );
 }

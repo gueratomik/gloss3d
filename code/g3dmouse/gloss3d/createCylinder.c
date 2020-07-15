@@ -33,31 +33,42 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static int createCylinder_tool ( G3DMOUSETOOL *mou, 
+                                 G3DSCENE     *sce, 
+                                 G3DCAMERA    *cam,
+                                 G3DURMANAGER *urm, 
+                                 uint32_t      flags, 
+                                 G3DEvent     *event );
+
 /******************************************************************************/
-G3DCREATECYLINDERTOOL *g3dcreatecylindertool_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATECYLINDERTOOL );
+G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATECYLINDER );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATECYLINDER *cc = ( G3DMOUSETOOLCREATECYLINDER * ) memarea;
 
-    G3DCREATECYLINDERTOOL *pt = ( G3DCREATECYLINDERTOOL * ) calloc ( 0x01, structsize );
-
-    if ( pt == NULL ) {
+    if ( cc == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( pt,
+    g3dmousetool_init ( cc,
                         CREATECYLINDERTOOL,
                         's',
                         NULL, /* no icon */
                         NULL,
                         NULL,
-                        createCylinder,
+                        createCylinder_tool,
                         0x00 );
 
-    return pt;
+    return cc;
 }
 
 /******************************************************************************/
-int createCylinder ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                     G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createCylinder_tool ( G3DMOUSETOOL *mou, 
+                                 G3DSCENE     *sce, 
+                                 G3DCAMERA    *cam,
+                                 G3DURMANAGER *urm, 
+                                 uint32_t      flags, 
+                                 G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,

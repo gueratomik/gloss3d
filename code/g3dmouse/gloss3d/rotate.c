@@ -34,6 +34,63 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static int rotateUV_tool ( G3DMOUSETOOL *mou, 
+                           G3DSCENE     *sce, 
+                           G3DCAMERA    *cam,
+                           G3DURMANAGER *urm,
+                           uint32_t      eflags, 
+                           G3DEvent     *event );
+static int rotate_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce,
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t     flags, 
+                         G3DEvent    *event );
+
+/******************************************************************************/
+G3DMOUSETOOLROTATE *g3dmousetoolrotate_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLROTATE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLROTATE *rt =  ( G3DMOUSETOOLROTATE * ) memarea;
+
+    if ( rt == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( rt,
+                        ROTATETOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        rotate_tool,
+                        0x00 );
+
+    return rt;
+}
+
+/******************************************************************************/
+G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLROTATEUV );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLROTATEUV *rt =  ( G3DMOUSETOOLROTATEUV * ) memarea;
+
+    if ( rt == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( rt,
+                        ROTATEUVTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        rotateUV_tool,
+                        0x00 );
+
+    return rt;
+}
+
 /******************************************************************************/
 static int rotate_spline ( G3DSPLINE    *spl,
                            G3DMOUSETOOL *mou, 
@@ -76,11 +133,11 @@ static int rotate_spline ( G3DSPLINE    *spl,
             mouseYpress = bev->y;
 
             if ( eflags & VIEWVERTEX ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
@@ -167,12 +224,12 @@ static int rotate_spline ( G3DSPLINE    *spl,
 }
 
 /******************************************************************************/
-int rotateUV_tool ( G3DMOUSETOOL *mou, 
-                    G3DSCENE     *sce, 
-                    G3DCAMERA    *cam,
-                    G3DURMANAGER *urm,
-                    uint32_t      eflags, 
-                    G3DEvent     *event ) {
+static int rotateUV_tool ( G3DMOUSETOOL *mou, 
+                           G3DSCENE     *sce, 
+                           G3DCAMERA    *cam,
+                           G3DURMANAGER *urm,
+                           uint32_t      eflags, 
+                           G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
@@ -250,18 +307,13 @@ int rotateUV_tool ( G3DMOUSETOOL *mou,
                         /*** simulate click and release ***/
                         if ( ( bev->x == mouseXpress ) && 
                              ( bev->y == mouseYpress ) ) {
-                            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                          bev->x, VPX[0x03] - bev->y },
-                                               .only_visible = 0x00,
-                                               .weight = 0.0f,
-                                               .radius = PICKMINRADIUS };
+                            G3DMOUSETOOLPICKUV pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                                 bev->x, VPX[0x03] - bev->y },
+                                                      .only_visible = 0x00,
+                                                      .weight = 0.0f,
+                                                      .radius = PICKMINRADIUS };
 
-                            /*** we use pick_tool and not pick_Item in order to ***/
-                            /*** get the undo/redo support ***/
-                            void *tmpdata = mou->data;
-                            mou->data = &pt;
-                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
-                            mou->data = tmpdata;
+                            pickUV_tool ( &pt, sce, cam, urm, eflags, event );
 
                             /*** cancel arrays allocated for undo-redo ***/
                             if ( olduv ) free ( olduv );
@@ -436,18 +488,13 @@ static int rotate_mesh ( G3DMESH          *mes,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -657,22 +704,17 @@ static int rotate_object ( LIST        *lobj,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, eflags );
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
@@ -687,12 +729,12 @@ static int rotate_object ( LIST        *lobj,
 }
 
 /******************************************************************************/
-int rotate_tool ( G3DMOUSETOOL *mou, 
-                  G3DSCENE     *sce,
-                  G3DCAMERA    *cam,
-                  G3DURMANAGER *urm, 
-                  uint32_t     flags, 
-                  G3DEvent    *event ) {
+static int rotate_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce,
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t     flags, 
+                         G3DEvent    *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
@@ -704,11 +746,11 @@ int rotate_tool ( G3DMOUSETOOL *mou,
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                          bev->x, VPX[0x03] - bev->y },
-                               .only_visible = 0x01,
-                               .weight = 0.0f,
-                               .radius = PICKMINRADIUS };
+            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                               bev->x, VPX[0x03] - bev->y },
+                                    .only_visible = 0x01,
+                                    .weight = 0.0f,
+                                    .radius = PICKMINRADIUS };
 
             pick_cursor ( &pt, sce, cam, flags );
         } break;

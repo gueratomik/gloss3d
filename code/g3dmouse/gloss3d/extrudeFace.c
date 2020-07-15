@@ -54,8 +54,8 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
 /******************************************************************************/
 G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
     uint32_t structsize = sizeof ( G3DMOUSETOOLEXTRUDEFACE );
-
-    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) calloc ( 0x01, structsize );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) memarea;
 
     if ( ef == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
@@ -76,8 +76,8 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
 /******************************************************************************/
 G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( ) {
     uint32_t structsize = sizeof ( G3DMOUSETOOLEXTRUDEFACE );
-
-    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) calloc ( 0x01, structsize );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLEXTRUDEFACE *ef =  ( G3DMOUSETOOLEXTRUDEFACE * ) memarea;
 
     if ( ef == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );

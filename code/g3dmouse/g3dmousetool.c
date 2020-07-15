@@ -30,7 +30,7 @@
 #include <g3dmouse.h>
 
 /******************************************************************************/
-void g3dmousetool_init ( G3DMOUSETOOL *tool,
+void g3dmousetool_init ( G3DMOUSETOOL *gtool,
                          char *name, char key, const char **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
                                             G3DCAMERA *,
@@ -46,14 +46,38 @@ void g3dmousetool_init ( G3DMOUSETOOL *tool,
 
     int len = ( name ) ? strlen ( name ) : 0x00;
 
-    tool->name = ( char * ) calloc ( 0x01, ( len + 0x01 ) );
+    gtool->name = ( char * ) calloc ( 0x01, ( len + 0x01 ) );
 
-    strncpy ( tool->name, name, len );
+    strncpy ( gtool->name, name, len );
 
-    tool->icon  = icon;
-    tool->init  = init;
-    tool->draw  = draw;
-    tool->tool  = tool;
-    tool->key   = key;
-    tool->flags = flags;
+    gtool->icon  = icon;
+    gtool->init  = init;
+    gtool->draw  = draw;
+    gtool->tool  = tool;
+    gtool->key   = key;
+    gtool->flags = flags;
+}
+
+/******************************************************************************/
+void l3dmousetool_init ( L3DMOUSETOOL *ltool,
+                         char *name, char key, const char **icon,
+                         uint32_t (*init) ( G3DMOUSETOOL *, G3DSCENE *, 
+                                            G3DCAMERA *,
+                                            G3DURMANAGER *, 
+                                            uint32_t ),
+                         void (*draw) ( G3DMOUSETOOL *,
+                                        G3DSCENE *, uint32_t ),
+                         int  (*tool) ( G3DMOUSETOOL *, G3DSCENE *,
+                                        G3DCAMERA *, G3DURMANAGER *,
+                                        uint32_t,
+                                        G3DEvent * ),
+                         uint32_t flags ) {
+    g3dmousetool_init ( &ltool->gtool,
+                         name,
+                         key,
+                         icon,
+                         init,
+                         draw,
+                         tool,
+                         flags );
 }

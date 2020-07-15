@@ -33,17 +33,24 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static int createTorus ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      flags, 
+                         G3DEvent     *event );
+
 /******************************************************************************/
-G3DCREATETORUSTOOL *g3dcreatetorustool_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATETORUSTOOL );
+G3DMOUSETOOLCREATETORUS *g3dmousetoolcreatetorus_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATETORUS );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATETORUS *ct = ( G3DMOUSETOOLCREATETORUS * ) memarea;
 
-    G3DCREATETORUSTOOL *pt = ( G3DCREATETORUSTOOL * ) calloc ( 0x01, structsize );
-
-    if ( pt == NULL ) {
+    if ( ct == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( pt,
+    g3dmousetool_init ( ct,
                         CREATETORUSTOOL,
                         's',
                         NULL, /* no icon */
@@ -52,12 +59,16 @@ G3DCREATETORUSTOOL *g3dcreatetorustool_new ( ) {
                         createTorus,
                         0x00 );
 
-    return pt;
+    return ct;
 }
 
 /******************************************************************************/
-int createTorus ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                     G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createTorus ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      flags, 
+                         G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,

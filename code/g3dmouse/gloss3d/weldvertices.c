@@ -34,11 +34,65 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou, 
+                                     G3DSCENE     *sce, 
+                                     G3DCAMERA    *cam,
+                                     G3DURMANAGER *urm, 
+                                     uint32_t      engine_flags );
+static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou, 
+                                      G3DSCENE     *sce, 
+                                      G3DCAMERA    *cam,
+                                      G3DURMANAGER *urm, 
+                                      uint32_t engine_flags );
+
 /******************************************************************************/
-uint32_t weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                                 G3DCAMERA *cam,
-                                                 G3DURMANAGER *urm, 
-                                                 uint32_t engine_flags ) {
+G3DMOUSETOOLWELDVERTICES *g3dmousetoolweldvertices_new ( ) {
+    void *memarea = calloc ( 0x01, sizeof ( G3DMOUSETOOLWELDVERTICES ) );
+    G3DMOUSETOOLWELDVERTICES *wv = ( G3DMOUSETOOLWELDVERTICES * ) memarea;
+
+    if ( wv == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( wv,
+                        WELDVERTICESTOOL,
+                        's',
+                        NULL,
+                        weldVertices_init,
+                        NULL,
+                        NULL,
+                        MOUSETOOLNOCURRENT );
+
+    return wv;
+}
+
+/******************************************************************************/
+G3DMOUSETOOLWELDNEIGHBOURS *g3dmousetoolweldneighbours_new ( ) {
+    void *memarea = calloc ( 0x01, sizeof ( G3DMOUSETOOLWELDNEIGHBOURS ) );
+    G3DMOUSETOOLWELDNEIGHBOURS *wn = ( G3DMOUSETOOLWELDNEIGHBOURS * ) memarea;
+
+    if ( wn == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( wn,
+                        WELDNEIGHBOURSTOOL,
+                        's',
+                        NULL,
+                        weldNeighbours_init,
+                        NULL,
+                        NULL,
+                        MOUSETOOLNOCURRENT );
+
+    return wn;
+}
+
+/******************************************************************************/
+static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou, 
+                                     G3DSCENE     *sce, 
+                                     G3DCAMERA    *cam,
+                                     G3DURMANAGER *urm, 
+                                     uint32_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
@@ -54,7 +108,7 @@ uint32_t weldvertices_init  ( G3DMOUSETOOL *mou, G3DSCENE *sce,
 }
 
 /******************************************************************************/
-uint32_t weldneighbourvertices_init ( G3DMOUSETOOL *mou, 
+static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou, 
                                       G3DSCENE     *sce, 
                                       G3DCAMERA    *cam,
                                       G3DURMANAGER *urm, 

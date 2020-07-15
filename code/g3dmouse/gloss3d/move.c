@@ -34,6 +34,63 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static int move_tool ( G3DMOUSETOOL *mou, 
+                       G3DSCENE *sce, 
+                       G3DCAMERA *cam,
+                       G3DURMANAGER *urm, 
+                       uint32_t flags, 
+                       G3DEvent *event );
+static int moveUV_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE *sce, 
+                         G3DCAMERA *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t flags, 
+                         G3DEvent *event );
+
+/******************************************************************************/
+G3DMOUSETOOLMOVE *g3dmousetoolmove_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLMOVE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLMOVE *mv =  ( G3DMOUSETOOLMOVE * ) memarea;
+
+    if ( mv == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( mv,
+                        MOVETOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        move_tool,
+                        0x00 );
+
+    return mv;
+}
+
+/******************************************************************************/
+G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLMOVEUV );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLMOVEUV *mv =  ( G3DMOUSETOOLMOVEUV * ) memarea;
+
+    if ( mv == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( mv,
+                        MOVEUVTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        moveUV_tool,
+                        0x00 );
+
+    return mv;
+}
+
 /******************************************************************************/
 static int move_spline ( G3DSPLINE    *spl,
                          G3DMOUSETOOL *mou, 
@@ -76,11 +133,11 @@ static int move_spline ( G3DSPLINE    *spl,
             mouseYpress = bev->y;
 
             if ( eflags & VIEWVERTEX ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
@@ -260,18 +317,13 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                         /*** simulate click and release ***/
                         if ( ( bev->x == mouseXpress ) && 
                              ( bev->y == mouseYpress ) ) {
-                            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                          bev->x, VPX[0x03] - bev->y },
-                                               .only_visible = 0x00,
-                                               .weight = 0.0f,
-                                               .radius = PICKMINRADIUS };
+                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                               bev->x, VPX[0x03] - bev->y },
+                                                    .only_visible = 0x00,
+                                                    .weight = 0.0f,
+                                                    .radius = PICKMINRADIUS };
 
-                            /*** we use pick_tool and not pick_Item in order to ***/
-                            /*** get the undo/redo support ***/
-                            void *tmpdata = mou->data;
-                            mou->data = &pt;
-                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
-                            mou->data = tmpdata;
+                            pickUV_tool ( &pt, sce, cam, urm, eflags, event );
 
                             /*** cancel arrays allocated for undo-redo ***/
                             if ( olduv ) free ( olduv );
@@ -487,18 +539,13 @@ static int move_mesh ( G3DMESH      *mes,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -743,22 +790,17 @@ int move_object ( LIST        *lobj,
             /*** simulate click and release ***/
             if ( ( bev->x == mouseXpress ) && 
                  ( bev->y == mouseYpress ) ) {
-                G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                              bev->x, VPX[0x03] - bev->y },
-                                   .only_visible = 0x01,
-                                   .weight = 0.0f,
-                                   .radius = PICKMINRADIUS };
+                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                   bev->x, VPX[0x03] - bev->y },
+                                        .only_visible = 0x01,
+                                        .weight = 0.0f,
+                                        .radius = PICKMINRADIUS };
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, eflags );
 
-                /*** we use pick_tool and not pick_Item in order to ***/
-                /*** get the undo/redo support ***/
-                void *tmpdata = mou->data;
-                mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
-                mou->data = tmpdata;
+                pick_tool ( &pt, sce, cam, urm, eflags, event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
@@ -773,8 +815,12 @@ int move_object ( LIST        *lobj,
 }
 
 /******************************************************************************/
-int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int move_tool ( G3DMOUSETOOL *mou, 
+                       G3DSCENE *sce, 
+                       G3DCAMERA *cam,
+                       G3DURMANAGER *urm, 
+                       uint32_t flags, 
+                       G3DEvent *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
@@ -786,11 +832,11 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                          bev->x, VPX[0x03] - bev->y },
-                               .only_visible = 0x00,
-                               .weight = 0.0f,
-                               .radius = PICKMINRADIUS };
+            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                               bev->x, VPX[0x03] - bev->y },
+                                    .only_visible = 0x00,
+                                    .weight = 0.0f,
+                                    .radius = PICKMINRADIUS };
 
             pick_cursor ( &pt, sce, cam, flags );
         } break;

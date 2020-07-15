@@ -41,14 +41,13 @@ void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updateCutMeshToolEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, CUTMESHTOOL );
+    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, CUTMESHTOOL );
+    G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) tool;
 
     /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    if ( mou ) {
-        G3DCUTMESH *cm = mou->data;
-
+    if ( cm ) {
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );

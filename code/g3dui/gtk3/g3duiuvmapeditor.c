@@ -443,13 +443,14 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
 
 /******************************************************************************/
 static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
-                                     GtkAllocation *allocation ) {
+                                            GtkAllocation *allocation ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
+    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
 
-    common_g3duiuvmapeditor_resize ( &guv->uvme, 
-                                      allocation->width, 
-                                      allocation->height );
+    common_g3duiuvmapeditor_resize ( uvme, 
+                                     allocation->width, 
+                                     allocation->height );
 
     gtk_widget_set_allocation ( widget, allocation );
 
@@ -499,10 +500,10 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
         }
 
         if ( GTK_IS_DRAWING_AREA(child) ) {
-            gdkrec.x      += MODEBARBUTTONSIZE;
-            gdkrec.y      += ( BUTTONSIZE + TOOLBARBUTTONSIZE + 0x20 );
-            gdkrec.width   = allocation->width - MODEBARBUTTONSIZE;
-            gdkrec.height  = allocation->height - BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
+            gdkrec.x       = uvme->arearec.x;
+            gdkrec.y       = uvme->arearec.y;
+            gdkrec.width   = uvme->arearec.width;
+            gdkrec.height  = uvme->arearec.height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }

@@ -29,23 +29,85 @@
 #include <config.h>
 #include <lips3d/lips3d.h>
 
-/******************************************************************************/
-static int Init ( L3DTOOL  *tool,
-                  uint32_t  fgcolor,
-                  uint32_t  bgcolor,
-                  int32_t   x,
-                  int32_t   y,
-                  char     *buffer, 
-                  uint32_t  width, 
-                  uint32_t  height,
-                  uint32_t  bpp,
-                  char     *mask,
-                  char     *zbuffer,
-                  uint32_t  engineFlags ) {
-    L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
+static int l3dbasepen_init ( L3DOBJECT     *obj,
+                             uint32_t       fgcolor,
+                             uint32_t       bgcolor,
+                             int32_t        x,
+                             int32_t        y,
+                             unsigned char *buffer, 
+                             uint32_t       width, 
+                             uint32_t       height,
+                             uint32_t       bpp,
+                             unsigned char *mask,
+                             unsigned char *zbuffer,
+                             uint32_t       engineFlags );
+static int l3dbasepen_paint ( L3DOBJECT     *obj,
+                              uint32_t       fgcolor,
+                              uint32_t       bgcolor,
+                              int32_t        x,
+                              int32_t        y,
+                              unsigned char *buffer, 
+                              uint32_t       width, 
+                              uint32_t       height,
+                              uint32_t       bpp,
+                              unsigned char *mask,
+                              unsigned char *zbuffer,
+                              int32_t       *updx,
+                              int32_t       *updy,
+                              int32_t       *updw,
+                              int32_t       *updh,
+                              uint32_t       engineFlags );
+static int l3dbasepen_done ( L3DOBJECT     *obj,
+                             uint32_t       fgcolor,
+                             uint32_t       bgcolor,
+                             int32_t        x,
+                             int32_t        y,
+                             unsigned char *buffer, 
+                             uint32_t       width, 
+                             uint32_t       height,
+                             uint32_t       bpp,
+                             unsigned char *mask,
+                             unsigned char *zbuffer,
+                             uint32_t       engineFlags );
 
-    sprtool->oldx = x;
-    sprtool->oldy = y;
+/******************************************************************************/
+L3DBASEPEN* l3dbasepen_new ( ) {
+    uint32_t structSize = sizeof ( L3DBASEPEN );
+    L3DBASEPEN *basepen = ( L3DBASEPEN * ) calloc ( 0x01, structSize );
+
+    if ( basepen == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+
+        return NULL;
+    }
+
+    l3dobject_init ( basepen,
+                     l3dplainrectanglepattern_new ( 0x10 ),
+                     1.0f,
+                     l3dbasepen_init,
+                     l3dbasepen_paint,
+                     l3dbasepen_done );
+
+    return basepen;
+}
+
+/******************************************************************************/
+static int l3dbasepen_init ( L3DOBJECT     *obj,
+                             uint32_t       fgcolor,
+                             uint32_t       bgcolor,
+                             int32_t        x,
+                             int32_t        y,
+                             unsigned char *buffer, 
+                             uint32_t       width, 
+                             uint32_t       height,
+                             uint32_t       bpp,
+                             unsigned char *mask,
+                             unsigned char *zbuffer,
+                             uint32_t       engineFlags ) {
+    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+
+    basepen->oldx = x;
+    basepen->oldy = y;
 
     memset ( zbuffer, 0x00, width * height );
 
@@ -53,32 +115,32 @@ static int Init ( L3DTOOL  *tool,
 }
 
 /******************************************************************************/
-static int Paint ( L3DTOOL       *tool,
-                   uint32_t       fgcolor,
-                   uint32_t       bgcolor,
-                   int32_t        x,
-                   int32_t        y,
-                   unsigned char *buffer, 
-                   uint32_t       width, 
-                   uint32_t       height,
-                   uint32_t       bpp,
-                   unsigned char *mask,
-                   unsigned char *zbuffer,
-                   int32_t       *updx,
-                   int32_t       *updy,
-                   int32_t       *updw,
-                   int32_t       *updh,
-                   uint32_t       engineFlags ) {
+static int l3dbasepen_paint ( L3DOBJECT     *obj,
+                              uint32_t       fgcolor,
+                              uint32_t       bgcolor,
+                              int32_t        x,
+                              int32_t        y,
+                              unsigned char *buffer, 
+                              uint32_t       width, 
+                              uint32_t       height,
+                              uint32_t       bpp,
+                              unsigned char *mask,
+                              unsigned char *zbuffer,
+                              int32_t       *updx,
+                              int32_t       *updy,
+                              int32_t       *updw,
+                              int32_t       *updh,
+                              uint32_t       engineFlags ) {
     /*y = 100;*/
-    L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
-    uint32_t size = tool->pattern->size, half = size / 0x02;
+    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+    uint32_t size = obj->pattern->size, half = size / 0x02;
     /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
     /*** does not seem to copy the subimage completely ***/
     uint32_t margin = 10; 
-    int32_t x1 = ( x < sprtool->oldx ) ? x - half : sprtool->oldx - half - margin,
-            y1 = ( y < sprtool->oldy ) ? y - half : sprtool->oldy - half - margin,
-            x2 = ( x > sprtool->oldx ) ? x + half : sprtool->oldx + half + margin,
-            y2 = ( y > sprtool->oldy ) ? y + half : sprtool->oldy + half + margin;
+    int32_t x1 = ( x < basepen->oldx ) ? x - half : basepen->oldx - half - margin,
+            y1 = ( y < basepen->oldy ) ? y - half : basepen->oldy - half - margin,
+            x2 = ( x > basepen->oldx ) ? x + half : basepen->oldx + half + margin,
+            y2 = ( y > basepen->oldy ) ? y + half : basepen->oldy + half + margin;
 
     if ( updx ) (*updx) = x1;
     if ( updy ) (*updy) = y1;
@@ -93,11 +155,11 @@ static int Paint ( L3DTOOL       *tool,
 
     static int test = 1;
 
-    l3core_paintLine ( tool->pattern,
+    l3core_paintLine ( obj->pattern,
                        fgcolor,
-                       0.2f,
-                       sprtool->oldx,
-                       sprtool->oldy,
+                       obj->pressure,
+                       basepen->oldx,
+                       basepen->oldy,
                        x,
                        y,
                        buffer,
@@ -272,52 +334,26 @@ static int Paint ( L3DTOOL       *tool,
                        zbuffer,
                        engineFlags );*/
 
-    sprtool->oldx = x;
-    sprtool->oldy = y;
+    basepen->oldx = x;
+    basepen->oldy = y;
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int Done ( L3DTOOL       *tool,
-                  uint32_t       fgcolor,
-                  uint32_t       bgcolor,
-                  int32_t        x,
-                  int32_t        y,
-                  unsigned char *buffer, 
-                  uint32_t       width, 
-                  uint32_t       height,
-                  uint32_t       bpp,
-                  unsigned char *mask,
-                  unsigned char *zbuffer,
-                  uint32_t       engineFlags ) {
-    L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) tool;
+static int l3dbasepen_done ( L3DOBJECT     *obj,
+                             uint32_t       fgcolor,
+                             uint32_t       bgcolor,
+                             int32_t        x,
+                             int32_t        y,
+                             unsigned char *buffer, 
+                             uint32_t       width, 
+                             uint32_t       height,
+                             uint32_t       bpp,
+                             unsigned char *mask,
+                             unsigned char *zbuffer,
+                             uint32_t       engineFlags ) {
+    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     return 0x00;
 }
-
-/******************************************************************************/
-L3DSPRAYTOOL *l3dspraytool_new ( ) {
-    uint32_t structSize = sizeof ( L3DSPRAYTOOL );
-    L3DSPRAYTOOL *sprtool = ( L3DSPRAYTOOL * ) calloc ( 0x01, structSize );
-
-    if ( sprtool == NULL ) {
-        fprintf ( stderr, "%s: calloc failed\n", __func__ );
-
-        return NULL;
-    }
-
-    sprtool->tool.pattern = l3dplainrectanglepattern_new ( 12 );
-
-    sprtool->tool.init  = Init;
-    sprtool->tool.paint = Paint;
-    sprtool->tool.done  = Done;
-
-    return sprtool;
-}
-
-
-
-
-
-

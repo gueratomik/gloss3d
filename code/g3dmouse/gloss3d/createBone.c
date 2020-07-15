@@ -28,17 +28,24 @@
 /******************************************************************************/
 #include <g3dmouse.h>
 
+static int createBone ( G3DMOUSETOOL *mou, 
+                        G3DSCENE     *sce, 
+                        G3DCAMERA    *cam,
+                        G3DURMANAGER *urm, 
+                        uint32_t      flags, 
+                        G3DEvent     *event );
+
 /******************************************************************************/
-G3DCREATEBONETOOL *g3dcreatebonetool_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATEBONETOOL );
+G3DMOUSETOOLCREATEBONE *g3dmousetoolcreatebone_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATEBONE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATEBONE *cb = ( G3DMOUSETOOLCREATEBONE * ) memarea;
 
-    G3DCREATEBONETOOL *pt = ( G3DCREATEBONETOOL * ) calloc ( 0x01, structsize );
-
-    if ( pt == NULL ) {
+    if ( cb == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( pt,
+    g3dmousetool_init ( cb,
                         CREATEBONETOOL,
                         's',
                         NULL, /* no icon */
@@ -47,12 +54,16 @@ G3DCREATEBONETOOL *g3dcreatebonetool_new ( ) {
                         createBone,
                         0x00 );
 
-    return pt;
+    return cb;
 }
 
 /******************************************************************************/
-int createBone ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                 G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createBone ( G3DMOUSETOOL *mou, 
+                        G3DSCENE     *sce, 
+                        G3DCAMERA    *cam,
+                        G3DURMANAGER *urm, 
+                        uint32_t      flags, 
+                        G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,

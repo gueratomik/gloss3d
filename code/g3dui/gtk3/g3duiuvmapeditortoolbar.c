@@ -96,6 +96,10 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     /********************************/
 
+    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL , rotate_xpm , g3duiuvmapeditor_setUVMouseTool );
+
+    /********************************/
+
     addToolBarToggleButton ( bar, uvme, SELECTAREATOOL, selectarea_xpm, g3duiuvmapeditor_setUVMouseTool );
 
     /********************************/

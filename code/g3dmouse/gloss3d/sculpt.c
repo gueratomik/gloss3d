@@ -32,6 +32,13 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 
+static int sculpt_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      engine_flags, 
+                         G3DEvent     *event );
+
 /******************************************************************************/
 uint32_t directionChange ( uint32_t x, uint32_t y ) {
     static uint32_t oldx, oldy;
@@ -57,10 +64,10 @@ uint32_t directionChange ( uint32_t x, uint32_t y ) {
 }
 
 /******************************************************************************/
-G3DSCULPTTOOL *sculptTool_new ( ) {
-    uint32_t structsize = sizeof ( G3DSCULPTTOOL );
+G3DMOUSETOOLSCULPT *sculptTool_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLSCULPT );
 
-    G3DSCULPTTOOL *st =  ( G3DSCULPTTOOL * ) calloc ( 0x01, structsize );
+    G3DMOUSETOOLSCULPT *st =  ( G3DMOUSETOOLSCULPT * ) calloc ( 0x01, structsize );
 
     if ( st == NULL ) {
         fprintf ( stderr, "sculptTool_new: Memory allocation failed\n" );
@@ -78,7 +85,7 @@ G3DSCULPTTOOL *sculptTool_new ( ) {
 #define BUFFERSIZE 0x10000
 
 /******************************************************************************/
-void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
+void sculpt_pick ( G3DMOUSETOOLSCULPT *st, G3DMESH *mes,
                                       G3DCAMERA *cam,
                                       G3DVECTOR *dir,
                                       uint32_t engine_flags ) {
@@ -266,28 +273,18 @@ void sculpt_pick ( G3DSCULPTTOOL *st, G3DMESH *mes,
 }
 
 /******************************************************************************/
-uint32_t sculptTool_init ( G3DMOUSETOOL *mou, G3DSCENE *sce, 
-                                              G3DCAMERA *cam,
-                                              G3DURMANAGER *urm, 
-                                              uint32_t engine_flags ) {
-    if ( mou->data ) {
-        G3DSCULPTTOOL *st = mou->data;
-    } else {
-        mou->data = sculptTool_new ( );
-    }
-
-    return 0x00;
-}
-
-/******************************************************************************/
 static void sculpt_free ( void *data ) {
 
 }
 
 /******************************************************************************/
-int sculpt_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                  G3DURMANAGER *urm, uint32_t engine_flags, G3DEvent *event ) {
-    G3DSCULPTTOOL *st = mou->data;
+static int sculpt_tool ( G3DMOUSETOOL *mou, 
+                         G3DSCENE     *sce, 
+                         G3DCAMERA    *cam,
+                         G3DURMANAGER *urm, 
+                         uint32_t      engine_flags, 
+                         G3DEvent     *event ) {
+    G3DMOUSETOOLSCULPT *st = ( G3DMOUSETOOLSCULPT * ) mou;
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static GLdouble MVX[0x10], PJX[0x10];

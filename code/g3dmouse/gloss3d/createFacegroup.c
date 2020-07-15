@@ -34,12 +34,40 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
+                                        G3DSCENE *sce, 
+                                        G3DCAMERA *cam,
+                                        G3DURMANAGER *urm, 
+                                        uint32_t engine_flags );
+
 /******************************************************************************/
-uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
-                                 G3DSCENE *sce, 
-                                 G3DCAMERA *cam,
-                                 G3DURMANAGER *urm, 
-                                 uint32_t engine_flags ) {
+G3DMOUSETOOLCREATEFACEGROUP *g3dmousetoolcreatefacegroup_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATEFACEGROUP );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATEFACEGROUP *cf = ( G3DMOUSETOOLCREATEFACEGROUP * ) memarea;
+
+    if ( cf == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( cf,
+                        CREATEFACEGROUPTOOL,
+                        's',
+                        NULL,
+                        createFacegroup_init,
+                        NULL,
+                        NULL,
+                        MOUSETOOLNOCURRENT );
+
+    return cf;
+}
+
+/******************************************************************************/
+static uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
+                                        G3DSCENE *sce, 
+                                        G3DCAMERA *cam,
+                                        G3DURMANAGER *urm, 
+                                        uint32_t engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {

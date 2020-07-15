@@ -146,11 +146,11 @@ static int bridge_spline  ( G3DSPLINE    *spl,
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
     static GLint VPX[0x04];
-    static G3DPICKTOOL ptool = { .coord = { 0 },
-                                 .only_visible = 0x01,
-                                 .weight = 0.0f,
-                                 .radius = 0x08 };
- 
+    static G3DMOUSETOOLPICK ptool = { .coord = { 0 },
+                                      .only_visible = 0x01,
+                                      .weight = 0.0f,
+                                      .radius = 0x08 };
+
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
@@ -254,10 +254,10 @@ static int bridge_mesh  ( G3DMESH      *mes,
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
     G3DVERTEX **ver = bt->ver;
     static GLint VPX[0x04];
-    static G3DPICKTOOL ptool = { .coord = { 0 },
-                                 .only_visible = 0x01,
-                                 .weight = 0.0f,
-                                 .radius = 0x08 };
+    static G3DMOUSETOOLPICK ptool = { .coord = { 0 },
+                                      .only_visible = 0x01,
+                                      .weight = 0.0f,
+                                      .radius = 0x08 };
 
     switch ( event->type ) {
         case G3DButtonPress : {

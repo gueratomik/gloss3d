@@ -408,7 +408,7 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme, 
                                       uint32_t          width, 
                                       uint32_t          height ) {
-    int i, xpos = ( width - BUTTONSIZE ), brd = 0x02;
+    int i, xpos = ( width - BUTTONSIZE - L3DPATTERNBOARDWIDTH ), brd = 0x02;
 
     /*** set rectangle position for each button ***/
     for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
@@ -419,11 +419,19 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
     }
 
     uvme->arearec.x      = MODEBARBUTTONSIZE;
-    uvme->arearec.y      = BUTTONSIZE + 0x20;
-    uvme->arearec.width  = width - MODEBARBUTTONSIZE;
-    uvme->arearec.height = height - BUTTONSIZE - 0x20;
+    uvme->arearec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT + BUTTONSIZE;
+    uvme->arearec.width  = width - MODEBARBUTTONSIZE - L3DBOARDWIDTH;
+    uvme->arearec.height = height - uvme->arearec.y;
 
+    uvme->patternrec.x      = uvme->arearec.x + uvme->arearec.width;
+    uvme->patternrec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT;
+    uvme->patternrec.width  = L3DBOARDWIDTH;
+    uvme->patternrec.height = L3DPATTERNBOARDHEIGHT;
 
+    uvme->toolrec.x      = uvme->patternrec.x;
+    uvme->toolrec.y      = uvme->patternrec.y + uvme->patternrec.height;
+    uvme->toolrec.width  = L3DPATTERNBOARDWIDTH;
+    uvme->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT;
 	
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }

@@ -843,7 +843,11 @@ typedef struct _G3DUIVIEW {
 /******************************************************************************/
 #define NBUVMAPBUTTON   0x02
 #define BUTTONSIZE      0x10 /*** 16x16 ***/
-
+#define L3DBOARDWIDTH          256
+#define L3DPATTERNBOARDWIDTH   256
+#define L3DPATTERNBOARDHEIGHT  128
+#define L3DMENUBARHEIGHT        32
+#define L3DTOOLBARHEIGHT        32
 #define UVMAPTRANSLATEBUTTON 0x00
 #define UVMAPZOOMBUTTON      0x01
 
@@ -851,6 +855,8 @@ typedef struct _G3DUIUVMAPEDITOR {
     uint32_t       flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
+    G3DUIRECTANGLE patternrec;
+    G3DUIRECTANGLE toolrec;
     int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
     LIST          *lmenu;
     uint32_t       mode;

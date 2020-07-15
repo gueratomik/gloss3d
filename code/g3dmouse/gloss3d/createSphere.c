@@ -34,17 +34,24 @@
 /* Widgets                                                                    */
 /******************************************************************************/
 
+static int createSphere ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      flags, 
+                          G3DEvent     *event );
+
 /******************************************************************************/
-G3DCREATESPHERETOOL *g3dcreatespheretool_new ( ) {
-    uint32_t structsize = sizeof ( G3DCREATESPHERETOOL );
+G3DMOUSETOOLCREATESPHERE *g3dmousetoolcreatesphere_new ( ) {
+    uint32_t structsize = sizeof ( G3DMOUSETOOLCREATESPHERE );
+    void *memarea = calloc ( 0x01, structsize );
+    G3DMOUSETOOLCREATESPHERE *cs = ( G3DMOUSETOOLCREATESPHERE * ) memarea;
 
-    G3DCREATESPHERETOOL *pt = ( G3DCREATESPHERETOOL * ) calloc ( 0x01, structsize );
-
-    if ( pt == NULL ) {
+    if ( cs == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( pt,
+    g3dmousetool_init ( cs,
                         CREATESPHERETOOL,
                         's',
                         NULL, /* no icon */
@@ -53,12 +60,16 @@ G3DCREATESPHERETOOL *g3dcreatespheretool_new ( ) {
                         createSphere,
                         0x00 );
 
-    return pt;
+    return cs;
 }
 
 /******************************************************************************/
-int createSphere ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                   G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+static int createSphere ( G3DMOUSETOOL *mou, 
+                          G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
+                          G3DURMANAGER *urm, 
+                          uint32_t      flags, 
+                          G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,

@@ -34,12 +34,39 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
+static uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
+                                         G3DSCENE     *sce, 
+                                         G3DCAMERA    *cam,
+                                         G3DURMANAGER *urm, 
+                                         uint32_t      engine_flags );
+
 /******************************************************************************/
-uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
-                                  G3DSCENE     *sce, 
-                                  G3DCAMERA    *cam,
-                                  G3DURMANAGER *urm, 
-                                  uint32_t      engine_flags ) {
+G3DMOUSETOOLROUNDSPLINEPOINT *g3dmousetoolroundsplinepoint_new ( ) {
+    void *memarea = calloc ( 0x01, sizeof ( G3DMOUSETOOLROUNDSPLINEPOINT ) );
+    G3DMOUSETOOLROUNDSPLINEPOINT *sp = ( G3DMOUSETOOLROUNDSPLINEPOINT * ) memarea;
+
+    if ( sp == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    g3dmousetool_init ( sp,
+                        ROUNDSPLINEPOINTTOOL,
+                        's',
+                        NULL,
+                        roundSplinePoint_init,
+                        NULL,
+                        NULL,
+                        MOUSETOOLNOCURRENT );
+
+    return sp;
+}
+
+/******************************************************************************/
+static uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
+                                         G3DSCENE     *sce, 
+                                         G3DCAMERA    *cam,
+                                         G3DURMANAGER *urm, 
+                                         uint32_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type == G3DSPLINETYPE ) ) {

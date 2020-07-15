@@ -55,102 +55,62 @@ typedef struct _L3DPATTERN {
 } L3DPATTERN;
 
 /******************************************************************************/
+typedef struct _L3DOBJECT {
+    L3DPATTERN *pattern;
+    float       pressure;
+    int (*init) ( struct _L3DOBJECT *obj,
+                  uint32_t           fgcolor,
+                  uint32_t           bgcolor,
+                  int32_t            x,
+                  int32_t            y,
+                  unsigned char     *buffer, 
+                  uint32_t           width, 
+                  uint32_t           height,
+                  uint32_t           bpp,
+                  unsigned char     *mask,
+                  unsigned char     *zbuffer,
+                  uint32_t           engineFlags );
+    int (*paint) ( struct _L3DOBJECT *obj,
+                   uint32_t           fgcolor,
+                   uint32_t           bgcolor,
+                   int32_t            x,
+                   int32_t            y,
+                   unsigned char     *buffer, 
+                   uint32_t           width, 
+                   uint32_t           height,
+                   uint32_t           bpp,
+                   unsigned char     *mask,
+                   unsigned char     *zbuffer,
+                   int32_t           *updx,
+                   int32_t           *updy,
+                   int32_t           *updw,
+                   int32_t           *updh,
+                   uint32_t           engineFlags );
+    int (*done) ( struct _L3DOBJECT *obj,
+                  uint32_t           fgcolor,
+                  uint32_t           bgcolor,
+                  int32_t            x,
+                  int32_t            y,
+                  unsigned char     *buffer, 
+                  uint32_t           width, 
+                  uint32_t           height,
+                  uint32_t           bpp,
+                  unsigned char     *mask,
+                  unsigned char     *zbuffer,
+                  uint32_t           engineFlags );
+} L3DOBJECT;
+
+/******************************************************************************/
+typedef struct _L3DBASEPEN {
+    L3DOBJECT obj;
+    int32_t   oldx;
+    int32_t   oldy;
+} L3DBASEPEN;
+
+/******************************************************************************/
 typedef struct _L3DPLAINRECTANGLEPATTERN {
     L3DPATTERN pattern;
 } L3DPLAINRECTANGLEPATTERN;
-
-/******************************************************************************/
-typedef struct _L3DTOOL {
-    L3DPATTERN *pattern;
-    int (*init)( struct _L3DTOOL *tool,
-                 uint32_t         fgcolor,
-                 uint32_t         bgcolor,
-                 int32_t          x,
-                 int32_t          y,
-                 unsigned char   *buffer, 
-                 uint32_t         width, 
-                 uint32_t         height,
-                 uint32_t         bpp,
-                 unsigned char   *mask,
-                 unsigned char   *zbuffer,
-                 uint32_t         engineFlags );
-    int (*paint)( struct _L3DTOOL *tool,
-                  uint32_t         fgcolor,
-                  uint32_t         bgcolor,
-                  int32_t          x,
-                  int32_t          y,
-                  unsigned char   *buffer, 
-                  uint32_t         width, 
-                  uint32_t         height,
-                  uint32_t         bpp,
-                  unsigned char   *mask,
-                  unsigned char   *zbuffer,
-                  int32_t         *updx,
-                  int32_t         *updy,
-                  int32_t         *updw,
-                  int32_t         *updh,
-                  uint32_t         engineFlags );
-    int (*done)( struct _L3DTOOL *tool,
-                 uint32_t        fgcolor,
-                 uint32_t        bgcolor,
-                 int32_t         x,
-                 int32_t         y,
-                 unsigned char  *buffer, 
-                 uint32_t        width, 
-                 uint32_t        height,
-                 uint32_t        bpp,
-                 unsigned char  *mask,
-                 unsigned char  *zbuffer,
-                 uint32_t        engineFlags );
-} L3DTOOL;
-
-/******************************************************************************/
-typedef struct _L3DLINETOOL {
-    L3DTOOL tool;
-} L3DLINETOOL;
-
-/******************************************************************************/
-typedef struct _L3DRECTANGLETOOL {
-    L3DTOOL tool;
-} L3DRECTANGLETOOL;
-
-/******************************************************************************/
-typedef struct _L3DCIRCLETOOL {
-    L3DTOOL tool;
-} L3DCIRCLETOOL;
-
-/******************************************************************************/
-typedef struct _L3DSPRAYTOOL {
-    L3DTOOL tool;
-    int32_t oldx;
-    int32_t oldy;
-} L3DSPRAYTOOL;
-
-/******************************************************************************/
-typedef struct _L3DBUCKETTOOL {
-    L3DTOOL tool;
-} L3DBUCKETTOOL;
-
-/******************************************************************************/
-typedef struct _L3DERASERTOOL {
-    L3DTOOL tool;
-} L3DERASERTOOL;
-
-/******************************************************************************/
-typedef struct _L3DSELECTIONTOOL {
-    L3DTOOL tool;
-} L3DSELECTIONTOOL;
-
-/******************************************************************************/
-typedef struct _L3DPENTOOL {
-    L3DTOOL tool;
-} L3DPENTOOL;
-
-/******************************************************************************/
-typedef struct _L3DBRUSHTOOL {
-    L3DTOOL   tool;
-    L3DBRUSH *brush;
-} L3DBRUSHTOOL;
 
 /******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
@@ -213,9 +173,6 @@ int l3core_paintLine ( L3DPATTERN    *pat,
                        uint32_t       engineFlags );
 
 /******************************************************************************/
-L3DSPRAYTOOL *l3dspraytool_new ( );
-
-/******************************************************************************/
 int l3dpattern_paint ( L3DPATTERN    *pattern,
                        uint32_t       color,
                        float          pressure,
@@ -235,5 +192,53 @@ void l3dpattern_init ( L3DPATTERN *pattern,
                        uint32_t    size,
                        void(*generate)(L3DPATTERN*));
 L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size );
+
+/******************************************************************************/
+void l3dobject_init ( L3DOBJECT  *obj,
+                      L3DPATTERN *pattern,
+                      float       pressure,
+                      int (*init) ( L3DOBJECT     *obj,
+                                    uint32_t       fgcolor,
+                                    uint32_t       bgcolor,
+                                    int32_t        x,
+                                    int32_t        y,
+                                    unsigned char *buffer, 
+                                    uint32_t       width, 
+                                    uint32_t       height,
+                                    uint32_t       bpp,
+                                    unsigned char *mask,
+                                    unsigned char *zbuffer,
+                                    uint32_t       engineFlags ),
+                     int (*paint) ( L3DOBJECT     *obj,
+                                    uint32_t       fgcolor,
+                                    uint32_t       bgcolor,
+                                    int32_t        x,
+                                    int32_t        y,
+                                    unsigned char *buffer, 
+                                    uint32_t       width, 
+                                    uint32_t       height,
+                                    uint32_t       bpp,
+                                    unsigned char *mask,
+                                    unsigned char *zbuffer,
+                                    int32_t       *updx,
+                                    int32_t       *updy,
+                                    int32_t       *updw,
+                                    int32_t       *updh,
+                                    uint32_t       engineFlags ),
+                     int (*done) ( L3DOBJECT     *obj,
+                                   uint32_t       fgcolor,
+                                   uint32_t       bgcolor,
+                                   int32_t        x,
+                                   int32_t        y,
+                                   unsigned char *buffer, 
+                                   uint32_t       width, 
+                                   uint32_t       height,
+                                   uint32_t       bpp,
+                                   unsigned char *mask,
+                                   unsigned char *zbuffer,
+                                   uint32_t       engineFlags ) );
+
+/******************************************************************************/
+L3DBASEPEN* l3dbasepen_new ( );
 
 #endif

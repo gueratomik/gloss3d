@@ -32,38 +32,35 @@
 /******************************************************************************/
 void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui, int radius ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DSCULPTTOOL *st = mou->data;
-
-        st->radius = radius;
+    if ( sc ) {
+        sc->radius = radius;
     }
 }
 
 /******************************************************************************/
 void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui, float pressure ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DSCULPTTOOL *st = mou->data;
-
-        st->pressure = pressure;
+    if ( sc ) {
+        sc->pressure = pressure;
     }
 }
 
 /******************************************************************************/
 void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui, int visible_only ) {
     G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
 
     if ( gui->lock ) return;
 
-    if ( mou ) {
-        G3DSCULPTTOOL *st = mou->data;
-
-        st->only_visible = visible_only;
+    if ( sc ) {
+        sc->only_visible = visible_only;
     }
 }

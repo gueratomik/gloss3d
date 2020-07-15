@@ -53,7 +53,7 @@ static void uvmapEditorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3 *ggt = gui->toolkit_data;
 
-    createUVMapEditor ( dial, gui, "UVMAPEDITOR", 800, 600 );
+    createUVMapEditor ( dial, gui, "UVMAPEDITOR", 1024, 576 );
 
     gtk_widget_show ( dial );
     gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
