@@ -64,6 +64,7 @@ typedef struct _G3DSYSINFO {
     G3DSCENE *sce; /*** used only for debugging purpose ***/
     uint32_t         fgcolor;
     uint32_t         bgcolor;
+    uint32_t         debug; /* yes or no */
 } G3DSYSINFO;
 
 /******************************************************************************/

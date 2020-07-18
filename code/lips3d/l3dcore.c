@@ -50,25 +50,27 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
         uint8_t B = ( color & 0x000000FF ) >>  0;
         uint32_t offset = ( y * width ) + x;
 
-        if ( zbuffer[offset] == 0x00 ) {
-            switch ( bpp ) {
-                case 0x20 :
-                break;
+        if ( mask[offset] ) {
+            if ( zbuffer[offset] == 0x00 ) {
+                switch ( bpp ) {
+                    case 0x20 :
+                    break;
 
-                case 0x18 : {
-                    unsigned char (*buffer24)[0x03] = buffer;
+                    case 0x18 : {
+                        unsigned char (*buffer24)[0x03] = buffer;
 
-                    buffer24[offset][0x00] = R;
-                    buffer24[offset][0x01] = G;
-                    buffer24[offset][0x02] = B;
-                } break;
+                        buffer24[offset][0x00] = R;
+                        buffer24[offset][0x01] = G;
+                        buffer24[offset][0x02] = B;
+                    } break;
 
-                default :
-                    fprintf ( stderr, "Unsupported depth\n");
-                break;
+                    default :
+                        fprintf ( stderr, "Unsupported depth\n");
+                    break;
+                }
+
+                zbuffer[offset] = 0xFF;
             }
-
-            zbuffer[offset] = 0xFF;
         }
     }
 
@@ -109,25 +111,27 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
                 uint32_t offset = ( y * width ) + x;
 
                 if ( ( xdiff + ydiff ) <= rdiff ) {
-                    if ( zbuffer[offset] == 0x00 ) {
-                        switch ( bpp ) {
-                            case 0x20 :
-                            break;
+                    if ( mask[offset] ) {
+                        if ( zbuffer[offset] == 0x00 ) {
+                            switch ( bpp ) {
+                                case 0x20 :
+                                break;
 
-                            case 0x18 : {
-                                unsigned char (*buffer24)[0x03] = buffer;
+                                case 0x18 : {
+                                    unsigned char (*buffer24)[0x03] = buffer;
 
-                                buffer24[offset][0x00] = ( R * pressure ) + ( buffer24[offset][0x00] * invPressure ) ;
-                                buffer24[offset][0x01] = ( G * pressure ) + ( buffer24[offset][0x01] * invPressure ) ;
-                                buffer24[offset][0x02] = ( B * pressure ) + ( buffer24[offset][0x02] * invPressure ) ;
-                            } break;
+                                    buffer24[offset][0x00] = ( R * pressure ) + ( buffer24[offset][0x00] * invPressure ) ;
+                                    buffer24[offset][0x01] = ( G * pressure ) + ( buffer24[offset][0x01] * invPressure ) ;
+                                    buffer24[offset][0x02] = ( B * pressure ) + ( buffer24[offset][0x02] * invPressure ) ;
+                                } break;
 
-                            default :
-                                fprintf ( stderr, "Unsupported depth\n");
-                            break;
+                                default :
+                                    fprintf ( stderr, "Unsupported depth\n");
+                                break;
+                            }
+
+                            zbuffer[offset] = 0xFF;
                         }
-
-                        zbuffer[offset] = 0xFF;
                     }
                 }
             }
@@ -162,25 +166,27 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
                  ( y > 0x00 ) && ( y < height ) ) {
                 uint32_t offset = ( y * width ) + x;
 
-                if ( zbuffer[offset] == 0x00 ) {
-                    switch ( bpp ) {
-                        case 0x20 :
-                        break;
+                if ( mask[offset] ) {
+                    if ( zbuffer[offset] == 0x00 ) {
+                        switch ( bpp ) {
+                            case 0x20 :
+                            break;
 
-                        case 0x18 : {
-                            unsigned char (*buffer24)[0x03] = buffer;
+                            case 0x18 : {
+                                unsigned char (*buffer24)[0x03] = buffer;
 
-                            buffer24[offset][0x00] = R;
-                            buffer24[offset][0x01] = G;
-                            buffer24[offset][0x02] = B;
-                        } break;
+                                buffer24[offset][0x00] = R;
+                                buffer24[offset][0x01] = G;
+                                buffer24[offset][0x02] = B;
+                            } break;
 
-                        default :
-                            fprintf ( stderr, "Unsupported depth\n");
-                        break;
+                            default :
+                                fprintf ( stderr, "Unsupported depth\n");
+                            break;
+                        }
+
+                        zbuffer[offset] = 0xFF;
                     }
-
-                    zbuffer[offset] = 0xFF;
                 }
             }
         }

@@ -87,44 +87,46 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                     /*** pattern offset ***/
                     uint32_t poffset = ( yp * pattern->size ) + xp;
 
-                    if ( zbuffer[boffset] < pattern->buffer[poffset] ) {
-                        unsigned char maxDiff = 0xFF - zbuffer[boffset];
-                        unsigned char diff = pattern->buffer[poffset] - zbuffer[boffset];
+                    if ( mask[boffset] ) {
+                        if ( zbuffer[boffset] < pattern->buffer[poffset] ) {
+                            unsigned char maxDiff = 0xFF - zbuffer[boffset];
+                            unsigned char diff = pattern->buffer[poffset] - zbuffer[boffset];
 
-                        if ( pattern->buffer[poffset] > 0x00 ) {
-                            float patternPressure = ( ( float ) pattern->buffer[poffset] / 255 ) * ( 1.0f - ( ( float ) zbuffer[boffset] / pattern->buffer[poffset] ) );
-                            float P = pressure * patternPressure;
-                            float invP = 1.0f - P;
+                            if ( pattern->buffer[poffset] > 0x00 ) {
+                                float patternPressure = ( ( float ) pattern->buffer[poffset] / 255 ) * ( 1.0f - ( ( float ) zbuffer[boffset] / pattern->buffer[poffset] ) );
+                                float P = pressure * patternPressure;
+                                float invP = 1.0f - P;
 
 
 
-                            switch ( bpp ) {
-                                case 0x20 :
-                                break;
+                                switch ( bpp ) {
+                                    case 0x20 :
+                                    break;
 
-                                case 0x18 : {
-                                    unsigned char (*b24)[0x03] = buffer;
-                                    unsigned char BR = b24[boffset][0x00],
-                                                  BG = b24[boffset][0x01],
-                                                  BB = b24[boffset][0x02];
+                                    case 0x18 : {
+                                        unsigned char (*b24)[0x03] = buffer;
+                                        unsigned char BR = b24[boffset][0x00],
+                                                      BG = b24[boffset][0x01],
+                                                      BB = b24[boffset][0x02];
 
-                                        b24[boffset][0x00] = ( R * P ) + ( BR * invP );
-                                        b24[boffset][0x01] = ( G * P ) + ( BG * invP );
-                                        b24[boffset][0x02] = ( B * P ) + ( BB * invP );
-/*if ( ( xm == x ) && ( ym == y ) ) {
-    printf ( "P:%f Pat:%d Z:%d\n", P, pattern->buffer[poffset], zbuffer[boffset] );
-    printf ( "%d %d %d\n", b24[boffset][0x00], 
-                           b24[boffset][0x01],
-                           b24[boffset][0x02]);
-}*/
-                                } break;
+                                            b24[boffset][0x00] = ( R * P ) + ( BR * invP );
+                                            b24[boffset][0x01] = ( G * P ) + ( BG * invP );
+                                            b24[boffset][0x02] = ( B * P ) + ( BB * invP );
+    /*if ( ( xm == x ) && ( ym == y ) ) {
+        printf ( "P:%f Pat:%d Z:%d\n", P, pattern->buffer[poffset], zbuffer[boffset] );
+        printf ( "%d %d %d\n", b24[boffset][0x00], 
+                               b24[boffset][0x01],
+                               b24[boffset][0x02]);
+    }*/
+                                    } break;
 
-                                default :
-                                    fprintf ( stderr, "Unsupported depth\n");
-                                break;
+                                    default :
+                                        fprintf ( stderr, "Unsupported depth\n");
+                                    break;
+                                }
+
+                                zbuffer[boffset] = pattern->buffer[poffset];
                             }
-
-                            zbuffer[boffset] = pattern->buffer[poffset];
                         }
                     }
                 }

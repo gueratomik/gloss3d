@@ -973,6 +973,12 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     common_g3dui_addMouseTool ( gui,
                                 l3dmousetooleraser_new ( ), 
                                 0x00 );
+
+    /********************************/
+
+    common_g3dui_addMouseTool ( gui,
+                                l3dmousetoolselectrandom_new ( ), 
+                                0x00 );
 }
 
 /******************************************************************************/

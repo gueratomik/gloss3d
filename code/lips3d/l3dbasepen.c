@@ -29,19 +29,7 @@
 #include <config.h>
 #include <lips3d/lips3d.h>
 
-static int l3dbasepen_init ( L3DOBJECT     *obj,
-                             uint32_t       fgcolor,
-                             uint32_t       bgcolor,
-                             int32_t        x,
-                             int32_t        y,
-                             unsigned char *buffer, 
-                             uint32_t       width, 
-                             uint32_t       height,
-                             uint32_t       bpp,
-                             unsigned char *mask,
-                             unsigned char *zbuffer,
-                             uint32_t       engineFlags );
-static int l3dbasepen_paint ( L3DOBJECT     *obj,
+static int l3dbasepen_press ( L3DOBJECT     *obj,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -52,12 +40,8 @@ static int l3dbasepen_paint ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              int32_t       *updx,
-                              int32_t       *updy,
-                              int32_t       *updw,
-                              int32_t       *updh,
                               uint32_t       engineFlags );
-static int l3dbasepen_done ( L3DOBJECT     *obj,
+static int l3dbasepen_move ( L3DOBJECT     *obj,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -68,7 +52,23 @@ static int l3dbasepen_done ( L3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
+                             int32_t       *updx,
+                             int32_t       *updy,
+                             int32_t       *updw,
+                             int32_t       *updh,
                              uint32_t       engineFlags );
+static int l3dbasepen_release ( L3DOBJECT     *obj,
+                                uint32_t       fgcolor,
+                                uint32_t       bgcolor,
+                                int32_t        x,
+                                int32_t        y,
+                                unsigned char *buffer, 
+                                uint32_t       width, 
+                                uint32_t       height,
+                                uint32_t       bpp,
+                                unsigned char *mask,
+                                unsigned char *zbuffer,
+                                uint32_t       engineFlags );
 
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( ) {
@@ -84,26 +84,26 @@ L3DBASEPEN* l3dbasepen_new ( ) {
     l3dobject_init ( basepen,
                      l3dplainrectanglepattern_new ( 0x10 ),
                      1.0f,
-                     l3dbasepen_init,
-                     l3dbasepen_paint,
-                     l3dbasepen_done );
+                     l3dbasepen_press,
+                     l3dbasepen_move,
+                     l3dbasepen_release );
 
     return basepen;
 }
 
 /******************************************************************************/
-static int l3dbasepen_init ( L3DOBJECT     *obj,
-                             uint32_t       fgcolor,
-                             uint32_t       bgcolor,
-                             int32_t        x,
-                             int32_t        y,
-                             unsigned char *buffer, 
-                             uint32_t       width, 
-                             uint32_t       height,
-                             uint32_t       bpp,
-                             unsigned char *mask,
-                             unsigned char *zbuffer,
-                             uint32_t       engineFlags ) {
+static int l3dbasepen_press ( L3DOBJECT     *obj,
+                              uint32_t       fgcolor,
+                              uint32_t       bgcolor,
+                              int32_t        x,
+                              int32_t        y,
+                              unsigned char *buffer, 
+                              uint32_t       width, 
+                              uint32_t       height,
+                              uint32_t       bpp,
+                              unsigned char *mask,
+                              unsigned char *zbuffer,
+                              uint32_t       engineFlags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     basepen->oldx = x;
@@ -115,233 +115,7 @@ static int l3dbasepen_init ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dbasepen_paint ( L3DOBJECT     *obj,
-                              uint32_t       fgcolor,
-                              uint32_t       bgcolor,
-                              int32_t        x,
-                              int32_t        y,
-                              unsigned char *buffer, 
-                              uint32_t       width, 
-                              uint32_t       height,
-                              uint32_t       bpp,
-                              unsigned char *mask,
-                              unsigned char *zbuffer,
-                              int32_t       *updx,
-                              int32_t       *updy,
-                              int32_t       *updw,
-                              int32_t       *updh,
-                              uint32_t       engineFlags ) {
-    /*y = 100;*/
-    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
-    uint32_t size = obj->pattern->size, half = size / 0x02;
-    /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
-    /*** does not seem to copy the subimage completely ***/
-    uint32_t margin = 10; 
-    int32_t x1 = ( x < basepen->oldx ) ? x - half : basepen->oldx - half - margin,
-            y1 = ( y < basepen->oldy ) ? y - half : basepen->oldy - half - margin,
-            x2 = ( x > basepen->oldx ) ? x + half : basepen->oldx + half + margin,
-            y2 = ( y > basepen->oldy ) ? y + half : basepen->oldy + half + margin;
-
-    if ( updx ) (*updx) = x1;
-    if ( updy ) (*updy) = y1;
-    if ( updw ) (*updw) = ( x2 - x1 ) + 1;
-    if ( updh ) (*updh) = ( y2 - y1 ) + 1;
-
-    if ( (*updx) < 0x00 ) (*updx) = 0x00;
-    if ( (*updy) < 0x00 ) (*updy) = 0x00;
-
-    if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
-    if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
-
-    static int test = 1;
-
-    l3core_paintLine ( obj->pattern,
-                       fgcolor,
-                       obj->pressure,
-                       basepen->oldx,
-                       basepen->oldy,
-                       x,
-                       y,
-                       buffer,
-                       width,
-                       height, 
-                       bpp, 
-                       mask,
-                       zbuffer,
-                       engineFlags );
-
-    if ( test == 0x00 ) {
-        /*l3core_paintLine ( tool->pattern,
-                           0x00000000,
-                           0.1f,
-                           100,
-                           200,
-                           200,
-                           200,
-                           buffer,
-                           width,
-                           height, 
-                           bpp, 
-                           mask,
-                           zbuffer,
-                           engineFlags );*/
-
-        /*l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           100,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           106,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           112,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           118,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           124,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           130,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );
-
-        l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           0.2f,
-                           136,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );*/
-
-        /*l3dpattern_paint ( tool->pattern,
-                           0x00000000,
-                           1.0f,
-                           148,
-                           200,
-                           buffer,
-                           width,
-                           height,
-                           bpp,
-                           mask,
-                           zbuffer,
-                           engineFlags );*/
-
-        g3dcore_writeJpeg ( "test.jpg", width, height, bpp, buffer );
-
-        test = 0x01;
-    }
-
-    /*l3dpattern_paint ( tool->pattern,
-                       0x00000000,
-                       1.0f,
-                       100,
-                       216,
-                       buffer,
-                       width,
-                       height,
-                       bpp,
-                       mask,
-                       zbuffer,
-                       engineFlags );
-
-    l3dpattern_paint ( tool->pattern,
-                       0x00000000,
-                       1.0f,
-                       110,
-                       216,
-                       buffer,
-                       width,
-                       height,
-                       bpp,
-                       mask,
-                       zbuffer,
-                       engineFlags );*/
-
-    /*l3dpattern_paint ( tool->pattern,
-                       0x00000000,
-                       1.0f,
-                       102,
-                       216,
-                       buffer,
-                       width,
-                       height,
-                       bpp,
-                       mask,
-                       zbuffer,
-                       engineFlags );*/
-
-    basepen->oldx = x;
-    basepen->oldy = y;
-
-    return 0x00;
-}
-
-/******************************************************************************/
-static int l3dbasepen_done ( L3DOBJECT     *obj,
+static int l3dbasepen_move ( L3DOBJECT     *obj,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -352,7 +126,69 @@ static int l3dbasepen_done ( L3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
+                             int32_t       *updx,
+                             int32_t       *updy,
+                             int32_t       *updw,
+                             int32_t       *updh,
                              uint32_t       engineFlags ) {
+    if ( engineFlags & L3DBUTTON1PRESSED ) {
+        /*y = 100;*/
+        L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+        uint32_t size = obj->pattern->size, half = size / 0x02;
+        /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
+        /*** does not seem to copy the subimage completely ***/
+        uint32_t margin = 10; 
+        int32_t x1 = ( x < basepen->oldx ) ? x - half : basepen->oldx - half,
+                y1 = ( y < basepen->oldy ) ? y - half : basepen->oldy - half,
+                x2 = ( x > basepen->oldx ) ? x + half : basepen->oldx + half,
+                y2 = ( y > basepen->oldy ) ? y + half : basepen->oldy + half;
+
+        if ( updx ) (*updx) = x1;
+        if ( updy ) (*updy) = y1;
+        if ( updw ) (*updw) = ( x2 - x1 ) + 1;
+        if ( updh ) (*updh) = ( y2 - y1 ) + 1;
+
+        if ( (*updx) < 0x00 ) (*updx) = 0x00;
+        if ( (*updy) < 0x00 ) (*updy) = 0x00;
+
+        if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
+        if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
+
+        l3core_paintLine ( obj->pattern,
+                           fgcolor,
+                           obj->pressure,
+                           basepen->oldx,
+                           basepen->oldy,
+                           x,
+                           y,
+                           buffer,
+                           width,
+                           height, 
+                           bpp, 
+                           mask,
+                           zbuffer,
+                           engineFlags );
+
+        basepen->oldx = x;
+        basepen->oldy = y;
+    }
+
+    return L3DUPDATESUBIMAGE;
+}
+
+/******************************************************************************/
+static int l3dbasepen_release ( L3DOBJECT     *obj,
+                                uint32_t       fgcolor,
+                                uint32_t       bgcolor,
+                                int32_t        x,
+                                int32_t        y,
+                                unsigned char *buffer, 
+                                uint32_t       width, 
+                                uint32_t       height,
+                                uint32_t       bpp,
+                                unsigned char *mask,
+                                unsigned char *zbuffer,
+                                uint32_t       engineFlags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     return 0x00;

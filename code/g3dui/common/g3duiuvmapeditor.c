@@ -442,6 +442,7 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                                       G3DMOUSETOOL     *mou,
                                       uint32_t          engine_flags ) {
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+    L3DMOUSETOOLSELECTRANDOM *seltool = common_g3dui_getMouseTool ( gui, SELECTRANDOMTOOL );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -536,6 +537,10 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                 if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
             }
         }
+    }
+
+    if ( seltool && ( seltool != mou ) && seltool->gtool.draw ) {
+        seltool->gtool.draw ( seltool, gui->sce, engine_flags );
     }
 
     if ( mou && mou->draw ) {

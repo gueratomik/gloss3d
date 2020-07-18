@@ -46,18 +46,47 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DURMANAGER *urm,
                          uint32_t      flags, 
                          G3DEvent     *event );
+static void selector_draw ( G3DMOUSETOOL *gtool, 
+                            G3DSCENE     *sce, 
+                            uint32_t     flags );
+
+/******************************************************************************/
+L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( ) {
+    uint32_t structsize = sizeof ( L3DMOUSETOOLSELECTRANDOM );
+    void *memarea = calloc ( 0x01, structsize );
+    L3DMOUSETOOLSELECTRANDOM *sr =  ( L3DMOUSETOOLSELECTRANDOM * ) memarea;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
+
+    if ( sr == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    l3dmousetool_init ( ltool,
+                        SELECTRANDOMTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        selector_draw,
+                        pen_tool,
+                        0x00 );
+
+    ltool->obj = l3dselector_new ( );
+
+    return sr;
+}
 
 /******************************************************************************/
 L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
     uint32_t structsize = sizeof ( L3DMOUSETOOLPEN );
     void *memarea = calloc ( 0x01, structsize );
     L3DMOUSETOOLPEN *pn =  ( L3DMOUSETOOLPEN * ) memarea;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) pn;
 
     if ( pn == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( pn,
+    l3dmousetool_init ( ltool,
                         PENTOOL,
                         's',
                         NULL,
@@ -66,7 +95,7 @@ L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
                         pen_tool,
                         0x00 );
 
-    pn->ltool.obj = l3dbasepen_new ( );
+    ltool->obj = l3dbasepen_new ( );
 
     return pn;
 }
@@ -76,12 +105,13 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
     uint32_t structsize = sizeof ( L3DMOUSETOOLERASER );
     void *memarea = calloc ( 0x01, structsize );
     L3DMOUSETOOLERASER *er =  ( L3DMOUSETOOLERASER * ) memarea;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) er;
 
     if ( er == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( er,
+    l3dmousetool_init ( ltool,
                         ERASERTOOL,
                         's',
                         NULL,
@@ -90,10 +120,39 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
                         eraser_tool,
                         0x00 );
 
-    er->ltool.obj = l3dbasepen_new ( );
+    ltool->obj = l3dbasepen_new ( );
 
 
     return er;
+}
+
+/******************************************************************************/
+static void selector_draw ( G3DMOUSETOOL *gtool, 
+                            G3DSCENE     *sce, 
+                            uint32_t     flags ) {
+    L3DMOUSETOOLSELECTRANDOM *sr =  ( L3DMOUSETOOLSELECTRANDOM * ) gtool;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) ltool->obj;
+    LIST *ltmplin = sel->llines;
+    double sx[0x04], sy[0x04], sz[0x04];
+
+    glPushAttrib ( GL_ENABLE_BIT ); 
+
+    glColor3ub ( 0x80, 0x80, 0x80 );
+    glLineStipple ( 1, 0x5555 );
+    glEnable ( GL_LINE_STIPPLE );
+    glBegin ( GL_LINES );
+    while ( ltmplin ) {
+        L3DSELECTORLINE *lin = ( L3DSELECTORLINE * ) ltmplin->data;
+
+        glVertex3f ( lin->srcpt->u, lin->srcpt->v, 0.0f );
+        glVertex3f ( lin->dstpt->u, lin->dstpt->v, 0.0f );
+
+        ltmplin = ltmplin->next;
+    }
+    glEnd ( );
+
+    glPopAttrib ( );
 }
 
 /******************************************************************************/
@@ -157,18 +216,18 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                          chn->image->width * 
                                          chn->image->height);
 
-                                ltool->obj->init ( ltool->obj,
-                                                   fgcolor,
-                                                   bgcolor,
-                                                   mx * chn->image->width,
-                                                   my * chn->image->height,
-                                                   chn->image->data,
-                                                   chn->image->width,
-                                                   chn->image->height,
-                                                   chn->image->bytesPerPixel * 0x08,
-                                                   mou->mask,
-                                                   mou->zbuffer,
-                                                   0x00 );
+                                ltool->obj->press ( ltool->obj,
+                                                    fgcolor,
+                                                    bgcolor,
+                                                    mx * chn->image->width,
+                                                    my * chn->image->height,
+                                                    chn->image->data,
+                                                    chn->image->width,
+                                                    chn->image->height,
+                                                    chn->image->bytesPerPixel * 0x08,
+                                                    mou->mask,
+                                                    mou->zbuffer,
+                                                    0x00 );
 
                                 g3dimage_bind ( chn->image );
                             }
@@ -188,6 +247,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
             subRect[0x02] = mev->x;
             subRect[0x03] = mev->y;
 
+            obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
+
             if ( obj ) {
                 if ( obj->type & MESH ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
@@ -203,6 +264,10 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                         if ( chn->flags & USEIMAGECOLOR ) {
                             if ( chn->image ) {
                                 G3DIMAGE *image = chn->image;
+                                uint32_t retval = 0x00;
+                                uint32_t l3dFlags = 0x00;
+
+                                l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
 
                                 gluUnProject ( mev->x, 
                                                VPX[0x03] - mev->y, 
@@ -232,26 +297,28 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                  image->width * image->height );
                                     }
 
-                                    ltool->obj->paint ( ltool->obj,
-                                                        fgcolor,
-                                                        bgcolor,
-                                                        mx * image->width,
-                                                        my * image->height,
-                                                        image->data,
-                                                        image->width,
-                                                        image->height,
-                                                        image->bytesPerPixel * 0x08,
-                                                        mou->mask,
-                                                        mou->zbuffer,
-                                                       &subx,
-                                                       &suby,
-                                                       &subw,
-                                                       &subh,
-                                                        0x00 );
-
                                     oldVector[0x00] = newVector[0x00];
                                     oldVector[0x01] = newVector[0x01];
+                                }
 
+                                retval = ltool->obj->move ( ltool->obj,
+                                                            fgcolor,
+                                                            bgcolor,
+                                                            mx * image->width,
+                                                            my * image->height,
+                                                            image->data,
+                                                            image->width,
+                                                            image->height,
+                                                            image->bytesPerPixel * 0x08,
+                                                            mou->mask,
+                                                            mou->zbuffer,
+                                                           &subx,
+                                                           &suby,
+                                                           &subw,
+                                                           &subh,
+                                                            l3dFlags );
+
+                                if ( retval & L3DUPDATESUBIMAGE ) {
                                     if ( ( subx < image->width  ) &&
                                          ( suby < image->height ) ) {
                                         glEnable ( GL_TEXTURE_2D );
@@ -311,18 +378,18 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                               &my,
                                               &mz );
 
-                                ltool->obj->done ( ltool->obj,
-                                                   fgcolor,
-                                                   bgcolor,
-                                                   mx * chn->image->width,
-                                                   my * chn->image->height,
-                                                   chn->image->data,
-                                                   chn->image->width,
-                                                   chn->image->height,
-                                                   chn->image->bytesPerPixel * 0x08,
-                                                   mou->mask,
-                                                   mou->zbuffer,
-                                                   0x00 );
+                                ltool->obj->release ( ltool->obj,
+                                                      fgcolor,
+                                                      bgcolor,
+                                                      mx * chn->image->width,
+                                                      my * chn->image->height,
+                                                      chn->image->data,
+                                                      chn->image->width,
+                                                      chn->image->height,
+                                                      chn->image->bytesPerPixel * 0x08,
+                                                      mou->mask,
+                                                      mou->zbuffer,
+                                                      0x00 );
 
                                 g3dimage_bind ( chn->image );
                             }
@@ -331,7 +398,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                 }
             }
 
-            obj = NULL;
+            /*obj = NULL; */
         } return REDRAWVIEW;
 
         default :

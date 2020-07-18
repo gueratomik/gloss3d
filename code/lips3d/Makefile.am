@@ -7,6 +7,7 @@ libgloss_lips3d_la_SOURCES = $(LIBGLOSSLIPS3D_C_FILES)
 
 LIBGLOSSLIPS3D_C_FILES = l3dbasepen.c \
                          l3dobject.c \
+                         l3dselector.c \
                          l3dpattern.c \
                          l3dcore.c
 

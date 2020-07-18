@@ -272,7 +272,7 @@ typedef struct _G3DMESHFAC {
 typedef struct _L3DMOUSETOOL {
     G3DMOUSETOOL gtool;
     L3DOBJECT   *obj;
-} L3DMOUSETOOL;
+} L3DMOUSETOOL, L3DMOUSETOOLSELECTEAREA, L3DMOUSETOOLSELECTRANDOM;
 
 /******************************************************************************/
 typedef struct _L3DMOUSETOOLPEN {
@@ -337,5 +337,9 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    uint32_t          eflags );
 
 /******************************************************************************/
+
+L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( );
+L3DMOUSETOOLPEN          *l3dmousetoolpen_new ( );
+L3DMOUSETOOLERASER       *l3dmousetooleraser_new ( );
 
 #endif

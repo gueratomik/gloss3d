@@ -77,10 +77,22 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     int argc = 0x00;
     char **argv = NULL;
 #endif
-    char *loadFile = ( argc == 0x02 ) ? argv[0x01] : NULL;
+    char *loadFile = NULL;
     char appname[0x100];
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    int i;
 
     snprintf ( appname, 0x100, "%s %s", G3DUIAPPNAME, VERSION );
+
+#ifdef __linux__
+    for ( i = 0x01; i < argc; i++ ) {
+        if ( strcmp ( argv[i], "-d" ) == 0x00 ) {
+            sysinfo->debug = 0x01;
+        } else {
+            loadFile = argv[i];
+        }
+    }
+#endif
 
 #ifdef WITH_MOTIF
     XtAppContext app;
