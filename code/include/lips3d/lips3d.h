@@ -49,11 +49,6 @@
 #define L3DBUTTON1DOUBLED  ( 1 << 3 )
 
 /******************************************************************************/
-typedef struct _L3DBRUSH {
-    int dummy;
-} L3DBRUSH;
-
-/******************************************************************************/
 typedef struct _L3DPATTERN {
     int (*generate)( struct _L3DPATTERN *pattern );
     uint32_t size;
@@ -61,38 +56,57 @@ typedef struct _L3DPATTERN {
 } L3DPATTERN;
 
 /******************************************************************************/
-typedef struct _L3DOBJECT {
+typedef struct _L3DSYSINFO {
     L3DPATTERN *pattern;
+    uint32_t    fgcolor;
+    uint32_t    bgcolor;
+    uint32_t    debug; /* yes or no */
+} L3DSYSINFO;
+
+/******************************************************************************/
+void l3dsysinfo_reset ( L3DSYSINFO *sysinfo );
+L3DSYSINFO *l3dsysinfo_get ( );
+
+/******************************************************************************/
+void l3dsysinfo_setPattern ( L3DSYSINFO *sysinfo, L3DPATTERN *pattern );
+void l3dsysinfo_setForegroundColor ( L3DSYSINFO *sysinfo, uint32_t fgcolor );
+void l3dsysinfo_setBackgroundColor ( L3DSYSINFO *sysinfo, uint32_t bgcolor );
+
+/******************************************************************************/
+typedef struct _L3DOBJECT {
     float       pressure;
-    int (*press) ( struct _L3DOBJECT *obj,
-                   uint32_t           fgcolor,
-                   uint32_t           bgcolor,
-                   int32_t            x,
-                   int32_t            y,
-                   unsigned char     *buffer, 
-                   uint32_t           width, 
-                   uint32_t           height,
-                   uint32_t           bpp,
-                   unsigned char     *mask,
-                   unsigned char     *zbuffer,
-                   uint32_t           engineFlags );
-    int (*move) ( struct _L3DOBJECT *obj,
-                  uint32_t           fgcolor,
-                  uint32_t           bgcolor,
-                  int32_t            x,
-                  int32_t            y,
-                  unsigned char     *buffer, 
-                  uint32_t           width, 
-                  uint32_t           height,
-                  uint32_t           bpp,
-                  unsigned char     *mask,
-                  unsigned char     *zbuffer,
-                  int32_t           *updx,
-                  int32_t           *updy,
-                  int32_t           *updw,
-                  int32_t           *updh,
-                  uint32_t           engineFlags );
+    int (*press)   ( struct _L3DOBJECT *obj,
+                     L3DPATTERN        *pattern,
+                     uint32_t           fgcolor,
+                     uint32_t           bgcolor,
+                     int32_t            x,
+                     int32_t            y,
+                     unsigned char     *buffer, 
+                     uint32_t           width, 
+                     uint32_t           height,
+                     uint32_t           bpp,
+                     unsigned char     *mask,
+                     unsigned char     *zbuffer,
+                     uint32_t           engineFlags );
+    int (*move)    ( struct _L3DOBJECT *obj,
+                     L3DPATTERN        *pattern,
+                     uint32_t           fgcolor,
+                     uint32_t           bgcolor,
+                     int32_t            x,
+                     int32_t            y,
+                     unsigned char     *buffer, 
+                     uint32_t           width, 
+                     uint32_t           height,
+                     uint32_t           bpp,
+                     unsigned char     *mask,
+                     unsigned char     *zbuffer,
+                     int32_t           *updx,
+                     int32_t           *updy,
+                     int32_t           *updw,
+                     int32_t           *updh,
+                     uint32_t           engineFlags );
     int (*release) ( struct _L3DOBJECT *obj,
+                     L3DPATTERN        *pattern,
                      uint32_t           fgcolor,
                      uint32_t           bgcolor,
                      int32_t            x,
@@ -147,6 +161,16 @@ typedef struct _L3DSELECTOR {
 typedef struct _L3DPLAINRECTANGLEPATTERN {
     L3DPATTERN pattern;
 } L3DPLAINRECTANGLEPATTERN;
+
+/******************************************************************************/
+typedef struct _L3DPLAINCIRCLEPATTERN {
+    L3DPATTERN pattern;
+} L3DPLAINCIRCLEPATTERN;
+
+/******************************************************************************/
+typedef struct _L3DFADEDCIRCLEPATTERN {
+    L3DPATTERN pattern;
+} L3DFADEDCIRCLEPATTERN;
 
 /******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
@@ -228,40 +252,44 @@ void l3dpattern_init ( L3DPATTERN *pattern,
                        uint32_t    size,
                        void(*generate)(L3DPATTERN*));
 L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size );
+L3DFADEDCIRCLEPATTERN    *l3dfadedcirclepattern_new    ( uint32_t size );
+L3DPLAINCIRCLEPATTERN    *l3dplaincirclepattern_new    ( uint32_t size );
 
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
-                      L3DPATTERN *pattern,
                       float       pressure,
-                      int (*press) ( L3DOBJECT     *obj,
-                                     uint32_t       fgcolor,
-                                     uint32_t       bgcolor,
-                                     int32_t        x,
-                                     int32_t        y,
-                                     unsigned char *buffer, 
-                                     uint32_t       width, 
-                                     uint32_t       height,
-                                     uint32_t       bpp,
-                                     unsigned char *mask,
-                                     unsigned char *zbuffer,
-                                     uint32_t       engineFlags ),
-                     int (*move) ( L3DOBJECT     *obj,
-                                   uint32_t       fgcolor,
-                                   uint32_t       bgcolor,
-                                   int32_t        x,
-                                   int32_t        y,
-                                   unsigned char *buffer, 
-                                   uint32_t       width, 
-                                   uint32_t       height,
-                                   uint32_t       bpp,
-                                   unsigned char *mask,
-                                   unsigned char *zbuffer,
-                                   int32_t       *updx,
-                                   int32_t       *updy,
-                                   int32_t       *updw,
-                                   int32_t       *updh,
-                                   uint32_t       engineFlags ),
+                      int (*press)  ( L3DOBJECT     *obj,
+                                      L3DPATTERN    *pattern,
+                                      uint32_t       fgcolor,
+                                      uint32_t       bgcolor,
+                                      int32_t        x,
+                                      int32_t        y,
+                                      unsigned char *buffer, 
+                                      uint32_t       width, 
+                                      uint32_t       height,
+                                      uint32_t       bpp,
+                                      unsigned char *mask,
+                                      unsigned char *zbuffer,
+                                      uint32_t       engineFlags ),
+                      int (*move)   ( L3DOBJECT     *obj,
+                                      L3DPATTERN    *pattern,
+                                      uint32_t       fgcolor,
+                                      uint32_t       bgcolor,
+                                      int32_t        x,
+                                      int32_t        y,
+                                      unsigned char *buffer, 
+                                      uint32_t       width, 
+                                      uint32_t       height,
+                                      uint32_t       bpp,
+                                      unsigned char *mask,
+                                      unsigned char *zbuffer,
+                                      int32_t       *updx,
+                                      int32_t       *updy,
+                                      int32_t       *updw,
+                                      int32_t       *updh,
+                                      uint32_t       engineFlags ),
                      int (*release) ( L3DOBJECT     *obj,
+                                      L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
                                       uint32_t       bgcolor,
                                       int32_t        x,

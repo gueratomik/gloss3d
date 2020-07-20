@@ -9,5 +9,6 @@ LIBGLOSSLIPS3D_C_FILES = l3dbasepen.c \
                          l3dobject.c \
                          l3dselector.c \
                          l3dpattern.c \
+                         l3dsysinfo.c \
                          l3dcore.c
 

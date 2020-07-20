@@ -228,8 +228,50 @@ L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size ) {
 
     l3dpattern_init ( ( L3DPATTERN * ) prp, 
                                        size, 
-                                       l3dpattern_generateFadedCircle );
+                                       l3dpattern_generatePlainRectangle );
 
 
     return prp;
+}
+
+/******************************************************************************/
+L3DPLAINCIRCLEPATTERN *l3dplaincirclepattern_new ( uint32_t size ) {
+    uint32_t structSize = sizeof ( L3DPLAINCIRCLEPATTERN );
+    L3DPLAINCIRCLEPATTERN *pcp;
+
+    pcp = ( L3DPLAINCIRCLEPATTERN * ) calloc ( 0x01, structSize );
+
+    if ( pcp == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+
+        return NULL;
+    }
+
+    l3dpattern_init ( ( L3DPATTERN * ) pcp, 
+                                       size, 
+                                       l3dpattern_generatePlainCircle );
+
+
+    return pcp;
+}
+
+/******************************************************************************/
+L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size ) {
+    uint32_t structSize = sizeof ( L3DFADEDCIRCLEPATTERN );
+    L3DFADEDCIRCLEPATTERN *fcp;
+
+    fcp = ( L3DFADEDCIRCLEPATTERN * ) calloc ( 0x01, structSize );
+
+    if ( fcp == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+
+        return NULL;
+    }
+
+    l3dpattern_init ( ( L3DPATTERN * ) fcp, 
+                                       size, 
+                                       l3dpattern_generateFadedCircle );
+
+
+    return fcp;
 }

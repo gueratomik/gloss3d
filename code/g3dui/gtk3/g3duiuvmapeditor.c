@@ -93,6 +93,8 @@ void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv ) {
                                                 chn->image->height;
                                 uvme->mask    = realloc ( uvme->mask   , size );
                                 uvme->zbuffer = realloc ( uvme->zbuffer, size );
+
+                                memset ( uvme->mask, 0xFF, size );
                             }
                         }
                     }
@@ -508,6 +510,15 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
+        if ( strcmp ( child_name, "PATTERNLIST" ) == 0x00 ) {
+            gdkrec.x       = uvme->patternrec.x;
+            gdkrec.y       = uvme->patternrec.y;
+            gdkrec.width   = uvme->patternrec.width;
+            gdkrec.height  = uvme->patternrec.height;
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
         children = g_list_next ( children );
     }
 }
@@ -656,6 +667,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                gint       height ) {
     GdkRectangle gdkrec = { 0x00, 0x00, width, height };
     GtkWidget *guv = gtk_uvmapeditor_new ( );
+    G3DUIUVMAPEDITOR *uvme = &((GtkUVMapEditor*)guv)->uvme;
     GtkWidget *area/* = gtk_uvmapeditor_getGLArea ( guv )*/;
     GtkWidget *mbar;
     GtkWidget *tbar;
@@ -737,10 +749,15 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                       width,
                                       32 );
 
-    createUVMenuBar   ( guv, &((GtkUVMapEditor*)guv)->uvme, "MENUBAR", 0x00,
+    createUVMenuBar   ( guv, uvme, "MENUBAR", 0x00,
                                                0x00,
                                                width,
                                                32 );
+
+    createPatternList ( guv, uvme, "PATTERNLIST", 0x00,
+                                                  0x00,
+                                                  256,
+                                                  128 );
 
     gtk_widget_show ( guv );
 

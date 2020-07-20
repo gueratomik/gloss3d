@@ -31,9 +31,9 @@
 
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
-                      L3DPATTERN *pattern,
                       float       pressure,
                       int (*press) ( L3DOBJECT     *obj,
+                                     L3DPATTERN    *pattern,
                                      uint32_t       fgcolor,
                                      uint32_t       bgcolor,
                                      int32_t        x,
@@ -46,6 +46,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                      unsigned char *zbuffer,
                                      uint32_t       engineFlags ),
                      int (*move) ( L3DOBJECT     *obj,
+                                   L3DPATTERN    *pattern,
                                    uint32_t       fgcolor,
                                    uint32_t       bgcolor,
                                    int32_t        x,
@@ -62,6 +63,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                    int32_t       *updh,
                                    uint32_t       engineFlags ),
                      int (*release) ( L3DOBJECT     *obj,
+                                      L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
                                       uint32_t       bgcolor,
                                       int32_t        x,
@@ -77,6 +79,5 @@ void l3dobject_init ( L3DOBJECT  *obj,
     obj->move     = move;
     obj->release  = release;
 
-    obj->pattern  = pattern;
     obj->pressure = pressure;
 }

@@ -160,6 +160,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                    G3DSCENE     *sce, 
                    G3DCAMERA    *cam,
                    G3DURMANAGER *urm,
+                   L3DPATTERN   *pattern,
                    uint32_t      fgcolor,
                    uint32_t      bgcolor,
                    uint32_t      flags, 
@@ -217,6 +218,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                          chn->image->height);
 
                                 ltool->obj->press ( ltool->obj,
+                                                    pattern,
                                                     fgcolor,
                                                     bgcolor,
                                                     mx * chn->image->width,
@@ -302,6 +304,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                 }
 
                                 retval = ltool->obj->move ( ltool->obj,
+                                                            pattern,
                                                             fgcolor,
                                                             bgcolor,
                                                             mx * image->width,
@@ -379,6 +382,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                               &mz );
 
                                 ltool->obj->release ( ltool->obj,
+                                                      pattern,
                                                       fgcolor,
                                                       bgcolor,
                                                       mx * chn->image->width,
@@ -415,12 +419,13 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DURMANAGER *urm,
                       uint32_t      flags, 
                       G3DEvent     *event ) {
-    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
     basepen_tool ( mou, 
                    sce,
                    cam,
                    urm,
+                   sysinfo->pattern,
                    sysinfo->fgcolor,
                    sysinfo->bgcolor, 
                    flags, 
@@ -434,11 +439,13 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DURMANAGER *urm,
                          uint32_t      flags, 
                          G3DEvent     *event ) {
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
     basepen_tool ( mou, 
                    sce,
                    cam,
                    urm,
+                   sysinfo->pattern,
                    0xFFFFFFFF,
                    0x00000000, 
                    flags, 

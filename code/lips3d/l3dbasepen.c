@@ -30,6 +30,7 @@
 #include <lips3d/lips3d.h>
 
 static int l3dbasepen_press ( L3DOBJECT     *obj,
+                              L3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -42,6 +43,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t       engineFlags );
 static int l3dbasepen_move ( L3DOBJECT     *obj,
+                             L3DPATTERN    *pattern,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -58,6 +60,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              int32_t       *updh,
                              uint32_t       engineFlags );
 static int l3dbasepen_release ( L3DOBJECT     *obj,
+                                L3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
                                 uint32_t       bgcolor,
                                 int32_t        x,
@@ -82,7 +85,6 @@ L3DBASEPEN* l3dbasepen_new ( ) {
     }
 
     l3dobject_init ( basepen,
-                     l3dplainrectanglepattern_new ( 0x10 ),
                      1.0f,
                      l3dbasepen_press,
                      l3dbasepen_move,
@@ -93,6 +95,7 @@ L3DBASEPEN* l3dbasepen_new ( ) {
 
 /******************************************************************************/
 static int l3dbasepen_press ( L3DOBJECT     *obj,
+                              L3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -116,6 +119,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
 
 /******************************************************************************/
 static int l3dbasepen_move ( L3DOBJECT     *obj,
+                             L3DPATTERN    *pattern,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -134,7 +138,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
     if ( engineFlags & L3DBUTTON1PRESSED ) {
         /*y = 100;*/
         L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
-        uint32_t size = obj->pattern->size, half = size / 0x02;
+        uint32_t size = pattern->size, half = size / 0x02;
         /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
         /*** does not seem to copy the subimage completely ***/
         uint32_t margin = 10; 
@@ -154,7 +158,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
         if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
         if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
 
-        l3core_paintLine ( obj->pattern,
+        l3core_paintLine ( pattern,
                            fgcolor,
                            obj->pressure,
                            basepen->oldx,
@@ -178,6 +182,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
 
 /******************************************************************************/
 static int l3dbasepen_release ( L3DOBJECT     *obj,
+                                L3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
                                 uint32_t       bgcolor,
                                 int32_t        x,

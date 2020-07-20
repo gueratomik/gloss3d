@@ -873,6 +873,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     G3DUI         *gui;
     char          *mask;
     char          *zbuffer;
+    L3DPATTERN    *selpat;
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/
@@ -1005,6 +1006,23 @@ void              common_g3duimaterialmap_fillData    ( G3DUIMATERIALMAP *,
                                                         G3DMATERIAL *,
                                                         unsigned char (*)[3] );
 MATERIALLISTDATA *common_materiallistdata_new ( uint32_t, uint32_t );
+
+/******************************************************************************/
+#define NBPATTERNS 0x0C
+typedef struct _PATTERNLISTDATA {
+    /*** List of pattern previews (those are ToolKit related) ***/
+    LIST    *lpreview;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t preview_width;
+    uint32_t preview_height;
+    uint32_t preview_border;
+    L3DPATTERN *patterns[NBPATTERNS];
+} PATTERNLISTDATA;
+
+/******************************************************************************/
+PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size );
+
 
 /******************************************************************************/
 /******************************************************************************/

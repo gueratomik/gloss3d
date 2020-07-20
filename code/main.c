@@ -79,15 +79,28 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
     char *loadFile = NULL;
     char appname[0x100];
-    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    G3DSYSINFO *g3dsysinfo = g3dsysinfo_get ( );
+    L3DSYSINFO *l3dsysinfo = l3dsysinfo_get ( );
     int i;
 
     snprintf ( appname, 0x100, "%s %s", G3DUIAPPNAME, VERSION );
 
 #ifdef __linux__
     for ( i = 0x01; i < argc; i++ ) {
-        if ( strcmp ( argv[i], "-d" ) == 0x00 ) {
-            sysinfo->debug = 0x01;
+        if ( strlen ( argv[i] ) > 0x01 ) {
+            if ( argv[i][0x00] == '-' ) {
+                switch ( argv[i][0x01] ) {
+                    case 'd' :
+                        g3dsysinfo->debug = 0x01;
+                        l3dsysinfo->debug = 0x01;
+                    break;
+ 
+                    default :
+                    break;
+                }
+            } else {
+                loadFile = argv[i];
+            }
         } else {
             loadFile = argv[i];
         }
