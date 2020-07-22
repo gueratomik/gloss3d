@@ -428,11 +428,18 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
     uvme->patternrec.width  = L3DBOARDWIDTH;
     uvme->patternrec.height = L3DPATTERNBOARDHEIGHT;
 
+
+    uvme->fgbgrec.x      = uvme->arearec.x + uvme->arearec.width + ( L3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
+    uvme->fgbgrec.y      = uvme->patternrec.y + uvme->patternrec.height;
+    uvme->fgbgrec.width  = 0x30;
+    uvme->fgbgrec.height = 0x30;
+
     uvme->toolrec.x      = uvme->patternrec.x;
-    uvme->toolrec.y      = uvme->patternrec.y + uvme->patternrec.height;
+    uvme->toolrec.y      = uvme->patternrec.y + uvme->patternrec.height + 0x30;
     uvme->toolrec.width  = L3DPATTERNBOARDWIDTH;
-    uvme->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT;
-	
+    uvme->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT - 0x30;
+
+
     common_g3duiuvmapeditor_setCanevas ( uvme );
 }
 

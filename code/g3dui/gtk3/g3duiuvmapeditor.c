@@ -519,6 +519,24 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
+        if ( strcmp ( child_name, "FGBGBUTTON" ) == 0x00 ) {
+            gdkrec.x       = uvme->fgbgrec.x;
+            gdkrec.y       = uvme->fgbgrec.y;
+            gdkrec.width   = uvme->fgbgrec.width;
+            gdkrec.height  = uvme->fgbgrec.height;
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
+        if ( strcmp ( child_name, "CHANNELSELECTION" ) == 0x00 ) {
+            gdkrec.x       = MODEBARBUTTONSIZE;
+            gdkrec.y       = ( TOOLBARBUTTONSIZE + 0x20 );
+            gdkrec.width   = 0x80;
+            gdkrec.height  = 0x12;
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
         children = g_list_next ( children );
     }
 }
@@ -581,13 +599,90 @@ static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
     GtkWidget *widget = ( GtkWidget * ) guv;
     G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
 
-    uvme->flags = VIEWVERTEXUV;
+    uvme->flags = VIEWVERTEXUV | SHOWDIFFUSE;
 
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
     common_g3duiview_init ( uvme, gtk_widget_get_allocated_width  ( widget ), 
                                   gtk_widget_get_allocated_height ( widget ) );
+}
+
+/******************************************************************************/
+#define DIFFUSECHANNELSTR      "Diffuse channel"
+#define SPECULARCHANNELSTR     "Specular channel"
+#define DISPLACEMENTCHANNELSTR "Displacement channel"
+#define ALPHACHANNELSTR        "Alpha channel"
+#define BUMPCHANNELSTR         "Bump channel"
+#define REFLECTIONCHANNELSTR   "Reflection channel"
+#define REFRACTIONCHANNELSTR   "Refraction channel"
+
+static void selectChannelCbk( GtkWidget *widget, 
+                              gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
+    const char *str  = gtk_combo_box_text_get_active_text ( cmbt );
+
+    uvme->flags = ( uvme->flags & (~UVCHANNELMASK) );
+
+    if ( strcmp ( str, DIFFUSECHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWDIFFUSE;
+    }
+
+    if ( strcmp ( str, SPECULARCHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWSPECULAR;
+    }
+
+    if ( strcmp ( str, DISPLACEMENTCHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWDISPLACEMENT;
+    }
+
+    if ( strcmp ( str, ALPHACHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWALPHA;
+    }
+
+    if ( strcmp ( str, BUMPCHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWBUMP;
+    }
+
+    if ( strcmp ( str, REFLECTIONCHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWREFLECTION;
+    }
+
+    if ( strcmp ( str, REFRACTIONCHANNELSTR ) == 0x00 ) {
+        uvme->flags |= SHOWREFRACTION;
+    }
+}
+
+/******************************************************************************/
+static void createChannelSelection ( GtkWidget        *parent, 
+                                     G3DUIUVMAPEDITOR *uvme,
+                                     char             *name,
+                                     gint              x,
+                                     gint              y,
+                                     gint              width ) {
+    GtkWidget     *cmb  = gtk_combo_box_text_new ( );
+    GdkRectangle   crec = { 0x00, 0x00, width, 0x12 };
+
+    gtk_widget_set_name ( cmb, name );
+
+    gtk_widget_size_allocate ( cmb, &crec );
+
+    gtk_fixed_put ( GTK_FIXED(parent), cmb, x, y );
+
+    g_signal_connect ( cmb, "changed", G_CALLBACK(selectChannelCbk), uvme );
+
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, DIFFUSECHANNELSTR      );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, SPECULARCHANNELSTR     );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, DISPLACEMENTCHANNELSTR );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, ALPHACHANNELSTR        );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, BUMPCHANNELSTR         );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, REFLECTIONCHANNELSTR   );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, REFRACTIONCHANNELSTR   );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
+
+    gtk_widget_show ( cmb );
 }
 
 /******************************************************************************/
@@ -758,6 +853,10 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                                   0x00,
                                                   256,
                                                   128 );
+
+    createChannelSelection ( guv, uvme, "CHANNELSELECTION", 0x00, 0x00, 0x80 );
+
+    createFgBgButton ( guv, gui, "FGBGBUTTON", 0x00, 0x00, 0x30, 0x30 );
 
     gtk_widget_show ( guv );
 

@@ -145,7 +145,22 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NOBACKGROUNDIMAGE  ( 1  << 27 )
 
 /******************************* UVMAp Editor flags ***************************/
-/*** They must not collide with below flags t ease code reuse ***/
+
+#define SHOWDIFFUSE        ( 1  <<  0 )
+#define SHOWSPECULAR       ( 1  <<  1 )
+#define SHOWDISPLACEMENT   ( 1  <<  2 )
+#define SHOWALPHA          ( 1  <<  3 )
+#define SHOWBUMP           ( 1  <<  4 )
+#define SHOWREFLECTION     ( 1  <<  5 )
+#define SHOWREFRACTION     ( 1  <<  6 )
+#define UVCHANNELMASK      ( SHOWDIFFUSE      | \
+                             SHOWSPECULAR     | \
+                             SHOWDISPLACEMENT | \
+                             SHOWALPHA        | \
+                             SHOWBUMP         | \
+                             SHOWREFLECTION   | \
+                             SHOWREFRACTION )
+/* Note: this flags are shared and must not collide with g3dengine flags */
 #define VIEWVERTEXUV       ( 1  << 28 )
 #define VIEWFACEUV         ( 1  << 29 )
 #define UVMODEMASK         ( VIEWVERTEXUV | VIEWFACEUV )

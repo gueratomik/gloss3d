@@ -856,6 +856,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
     G3DUIRECTANGLE patternrec;
+    G3DUIRECTANGLE fgbgrec;
     G3DUIRECTANGLE toolrec;
     int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
     LIST          *lmenu;

@@ -738,4 +738,12 @@ GtkWidget *createUVMenuBar ( GtkWidget        *parent,
                              gint              y,
                              gint              width,
                              gint              height );
+
+GtkWidget *createFgBgButton ( GtkWidget *parent, 
+                              G3DUI     *gui,
+                              char      *name,
+                              gint       x,
+                              gint       y,
+                              gint       width,
+                              gint       height );
 #endif

@@ -138,8 +138,24 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
 
     glPushAttrib ( GL_ENABLE_BIT ); 
 
-    glColor3ub ( 0x80, 0x80, 0x80 );
+    glColor3ub ( 0xFF, 0xFF, 0xFF );
     glLineStipple ( 1, 0x5555 );
+    glEnable ( GL_LINE_STIPPLE );
+    glBegin ( GL_LINES );
+    while ( ltmplin ) {
+        L3DSELECTORLINE *lin = ( L3DSELECTORLINE * ) ltmplin->data;
+
+        glVertex3f ( lin->srcpt->u, lin->srcpt->v, 0.0f );
+        glVertex3f ( lin->dstpt->u, lin->dstpt->v, 0.0f );
+
+        ltmplin = ltmplin->next;
+    }
+    glEnd ( );
+
+    ltmplin = sel->llines;
+
+    glColor3ub ( 0x00, 0x00, 0x00 );
+    glLineStipple ( 1, 0x6666 );
     glEnable ( GL_LINE_STIPPLE );
     glBegin ( GL_LINES );
     while ( ltmplin ) {
