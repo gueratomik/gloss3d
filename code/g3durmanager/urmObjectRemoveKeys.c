@@ -77,7 +77,7 @@ void objectRemoveKeys_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void objectRemoveKeys_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     LIST *ltmpork = ( LIST * ) data;
 
     while ( ltmpork ) {
@@ -102,7 +102,7 @@ void objectRemoveKeys_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void objectRemoveKeys_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     LIST *ltmpork = ( LIST * ) data;
 
     while ( ltmpork ) {
@@ -127,7 +127,7 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
                                             LIST         *lobj,
-                                            uint32_t      engine_flags,
+                                            uint64_t engine_flags,
                                             uint32_t      return_flags ) {
     LIST *ltmpobj = lobj;
     LIST *lork = NULL;

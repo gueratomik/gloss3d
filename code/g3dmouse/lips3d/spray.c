@@ -38,17 +38,17 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DSCENE     *sce, 
                       G3DCAMERA    *cam,
                       G3DURMANAGER *urm,
-                      uint32_t      flags, 
+                      uint64_t engine_flags, 
                       G3DEvent     *event );
 static int eraser_tool ( G3DMOUSETOOL *mou, 
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm,
-                         uint32_t      flags, 
+                         uint64_t engine_flags, 
                          G3DEvent     *event );
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
-                            uint32_t     flags );
+                            uint64_t engine_flags );
 
 /******************************************************************************/
 L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( ) {
@@ -129,7 +129,7 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
 /******************************************************************************/
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
-                            uint32_t     flags ) {
+                            uint64_t engine_flags ) {
     L3DMOUSETOOLSELECTRANDOM *sr =  ( L3DMOUSETOOLSELECTRANDOM * ) gtool;
     L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
     L3DSELECTOR *sel = ( L3DSELECTOR * ) ltool->obj;
@@ -179,7 +179,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                    L3DPATTERN   *pattern,
                    uint32_t      fgcolor,
                    uint32_t      bgcolor,
-                   uint32_t      flags, 
+                   uint64_t engine_flags, 
                    G3DEvent     *event ) {
     /*** selection rectangle coords ***/
     static GLdouble MVX[0x10], PJX[0x10];
@@ -214,40 +214,43 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
                     if ( tex ) {
                         G3DMATERIAL *mat = tex->mat;
-                        G3DCHANNEL *chn = &mat->diffuse;
+                        uint32_t channelID = GETCHANNEL(engine_flags);
+                        G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
-                        if ( chn->flags & USEIMAGECOLOR ) {
-                            if ( chn->image ) {
-                                gluUnProject ( bev->x, 
-                                               VPX[0x03] - bev->y, 
-                                               0.0f,
-                                               MVX,
-                                               PJX,
-                                               VPX,
-                                              &mx,
-                                              &my,
-                                              &mz );
+                        if ( chn ) {
+                            if ( chn->flags & USEIMAGECOLOR ) {
+                                if ( chn->image ) {
+                                    gluUnProject ( bev->x, 
+                                                   VPX[0x03] - bev->y, 
+                                                   0.0f,
+                                                   MVX,
+                                                   PJX,
+                                                   VPX,
+                                                  &mx,
+                                                  &my,
+                                                  &mz );
 
-                                memset ( mou->zbuffer, 
-                                         0x00, 
-                                         chn->image->width * 
-                                         chn->image->height);
+                                    memset ( mou->zbuffer, 
+                                             0x00, 
+                                             chn->image->width * 
+                                             chn->image->height);
 
-                                ltool->obj->press ( ltool->obj,
-                                                    pattern,
-                                                    fgcolor,
-                                                    bgcolor,
-                                                    mx * chn->image->width,
-                                                    my * chn->image->height,
-                                                    chn->image->data,
-                                                    chn->image->width,
-                                                    chn->image->height,
-                                                    chn->image->bytesPerPixel * 0x08,
-                                                    mou->mask,
-                                                    mou->zbuffer,
-                                                    0x00 );
+                                    ltool->obj->press ( ltool->obj,
+                                                        pattern,
+                                                        fgcolor,
+                                                        bgcolor,
+                                                        mx * chn->image->width,
+                                                        my * chn->image->height,
+                                                        chn->image->data,
+                                                        chn->image->width,
+                                                        chn->image->height,
+                                                        chn->image->bytesPerPixel * 0x08,
+                                                        mou->mask,
+                                                        mou->zbuffer,
+                                                        0x00 );
 
-                                g3dimage_bind ( chn->image );
+                                    g3dimage_bind ( chn->image );
+                                }
                             }
                         }
                     }
@@ -277,84 +280,87 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
                     if ( tex ) {
                         G3DMATERIAL *mat = tex->mat;
-                        G3DCHANNEL *chn = &mat->diffuse;
+                        uint32_t channelID = GETCHANNEL(engine_flags);
+                        G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
-                        if ( chn->flags & USEIMAGECOLOR ) {
-                            if ( chn->image ) {
-                                G3DIMAGE *image = chn->image;
-                                uint32_t retval = 0x00;
-                                uint32_t l3dFlags = 0x00;
+                        if ( chn ) {
+                            if ( chn->flags & USEIMAGECOLOR ) {
+                                if ( chn->image ) {
+                                    G3DIMAGE *image = chn->image;
+                                    uint32_t retval = 0x00;
+                                    uint32_t l3dFlags = 0x00;
 
-                                l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
+                                    l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
 
-                                gluUnProject ( mev->x, 
-                                               VPX[0x03] - mev->y, 
-                                               0.0f,
-                                               MVX,
-                                               PJX,
-                                               VPX,
-                                              &mx,
-                                              &my,
-                                              &mz );
+                                    gluUnProject ( mev->x, 
+                                                   VPX[0x03] - mev->y, 
+                                                   0.0f,
+                                                   MVX,
+                                                   PJX,
+                                                   VPX,
+                                                  &mx,
+                                                  &my,
+                                                  &mz );
 
-                                if ( mev->state & G3DButton1Mask ) {
-                                    static double oldVector[0x02];
-                                           double newVector[0x02];
+                                    if ( mev->state & G3DButton1Mask ) {
+                                        static double oldVector[0x02];
+                                               double newVector[0x02];
 
-                                    newVector[0x00] = mev->x - oldx;
-                                    newVector[0x01] = mev->y - oldy;
+                                        newVector[0x00] = mev->x - oldx;
+                                        newVector[0x01] = mev->y - oldy;
 
-                                    /*** If we are going in the opposite direction, then reset the zbuffer. ***/
-                                    /*** This allows for a second pass of the pencil ***/
-                                    if ( ( ( newVector[0x00] * 
-                                             oldVector[0x00] ) +
-                                           ( newVector[0x01] * 
-                                             oldVector[0x01] ) ) < 0x00 ) {
-                                        memset ( mou->zbuffer, 
-                                                 0x00, 
-                                                 image->width * image->height );
+                                        /*** If we are going in the opposite direction, then reset the zbuffer. ***/
+                                        /*** This allows for a second pass of the pencil ***/
+                                        if ( ( ( newVector[0x00] * 
+                                                 oldVector[0x00] ) +
+                                               ( newVector[0x01] * 
+                                                 oldVector[0x01] ) ) < 0x00 ) {
+                                            memset ( mou->zbuffer, 
+                                                     0x00, 
+                                                     image->width * image->height );
+                                        }
+
+                                        oldVector[0x00] = newVector[0x00];
+                                        oldVector[0x01] = newVector[0x01];
                                     }
 
-                                    oldVector[0x00] = newVector[0x00];
-                                    oldVector[0x01] = newVector[0x01];
-                                }
+                                    retval = ltool->obj->move ( ltool->obj,
+                                                                pattern,
+                                                                fgcolor,
+                                                                bgcolor,
+                                                                mx * image->width,
+                                                                my * image->height,
+                                                                image->data,
+                                                                image->width,
+                                                                image->height,
+                                                                image->bytesPerPixel * 0x08,
+                                                                mou->mask,
+                                                                mou->zbuffer,
+                                                               &subx,
+                                                               &suby,
+                                                               &subw,
+                                                               &subh,
+                                                                l3dFlags );
 
-                                retval = ltool->obj->move ( ltool->obj,
-                                                            pattern,
-                                                            fgcolor,
-                                                            bgcolor,
-                                                            mx * image->width,
-                                                            my * image->height,
-                                                            image->data,
-                                                            image->width,
-                                                            image->height,
-                                                            image->bytesPerPixel * 0x08,
-                                                            mou->mask,
-                                                            mou->zbuffer,
-                                                           &subx,
-                                                           &suby,
-                                                           &subw,
-                                                           &subh,
-                                                            l3dFlags );
-
-                                if ( retval & L3DUPDATESUBIMAGE ) {
-                                    if ( ( subx < image->width  ) &&
-                                         ( suby < image->height ) ) {
-                                        glEnable ( GL_TEXTURE_2D );
-                                        glBindTexture ( GL_TEXTURE_2D, image->id );
-                                        glActiveTexture( image->id ); 
-                                        glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
-                                        glTexSubImage2D ( GL_TEXTURE_2D, 
-                                                          0x00,
-                                                          subx,
-                                                          suby,
-                                                          subw,
-                                                          subh,
-                                                          GL_RGB,
-                                                          GL_UNSIGNED_BYTE,
-                                                          image->data + ( suby * image->bytesPerLine ) + ( subx * image->bytesPerPixel ) );
-                                        glBindTexture ( GL_TEXTURE_2D, 0x00 );
-                                        glDisable ( GL_TEXTURE_2D );
+                                    if ( retval & L3DUPDATESUBIMAGE ) {
+                                        if ( ( subx < image->width  ) &&
+                                             ( suby < image->height ) ) {
+                                            glEnable ( GL_TEXTURE_2D );
+                                            glBindTexture ( GL_TEXTURE_2D, image->id );
+                                            glActiveTexture( image->id ); 
+                                            glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
+                                            glTexSubImage2D ( GL_TEXTURE_2D, 
+                                                              0x00,
+                                                              subx,
+                                                              suby,
+                                                              subw,
+                                                              subh,
+                                                              GL_RGB,
+                                                              GL_UNSIGNED_BYTE,
+                                                              image->data + ( suby * image->bytesPerLine ) + ( subx * image->bytesPerPixel ) );
+                                            glBindTexture ( GL_TEXTURE_2D, 0x00 );
+                                            glDisable ( GL_TEXTURE_2D );
+                                        }
                                     }
                                 }
                             }
@@ -383,35 +389,38 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
                     if ( tex ) {
                         G3DMATERIAL *mat = tex->mat;
-                        G3DCHANNEL *chn = &mat->diffuse;
+                        uint32_t channelID = GETCHANNEL(engine_flags);
+                        G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
-                        if ( chn->flags & USEIMAGECOLOR ) {
-                            if ( chn->image ) {
-                                gluUnProject ( bev->x, 
-                                               VPX[0x03] - bev->y, 
-                                               0.0f,
-                                               MVX,
-                                               PJX,
-                                               VPX,
-                                              &mx,
-                                              &my,
-                                              &mz );
+                        if ( chn ) {
+                            if ( chn->flags & USEIMAGECOLOR ) {
+                                if ( chn->image ) {
+                                    gluUnProject ( bev->x, 
+                                                   VPX[0x03] - bev->y, 
+                                                   0.0f,
+                                                   MVX,
+                                                   PJX,
+                                                   VPX,
+                                                  &mx,
+                                                  &my,
+                                                  &mz );
 
-                                ltool->obj->release ( ltool->obj,
-                                                      pattern,
-                                                      fgcolor,
-                                                      bgcolor,
-                                                      mx * chn->image->width,
-                                                      my * chn->image->height,
-                                                      chn->image->data,
-                                                      chn->image->width,
-                                                      chn->image->height,
-                                                      chn->image->bytesPerPixel * 0x08,
-                                                      mou->mask,
-                                                      mou->zbuffer,
-                                                      0x00 );
+                                    ltool->obj->release ( ltool->obj,
+                                                          pattern,
+                                                          fgcolor,
+                                                          bgcolor,
+                                                          mx * chn->image->width,
+                                                          my * chn->image->height,
+                                                          chn->image->data,
+                                                          chn->image->width,
+                                                          chn->image->height,
+                                                          chn->image->bytesPerPixel * 0x08,
+                                                          mou->mask,
+                                                          mou->zbuffer,
+                                                          0x00 );
 
-                                g3dimage_bind ( chn->image );
+                                    g3dimage_bind ( chn->image );
+                                }
                             }
                         }
                     }
@@ -433,7 +442,7 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DSCENE     *sce, 
                       G3DCAMERA    *cam,
                       G3DURMANAGER *urm,
-                      uint32_t      flags, 
+                      uint64_t engine_flags, 
                       G3DEvent     *event ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
@@ -444,7 +453,7 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                    sysinfo->pattern,
                    sysinfo->fgcolor,
                    sysinfo->bgcolor, 
-                   flags, 
+                   engine_flags, 
                    event );
 }
 
@@ -453,7 +462,7 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm,
-                         uint32_t      flags, 
+                         uint64_t engine_flags, 
                          G3DEvent     *event ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
@@ -464,6 +473,6 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                    sysinfo->pattern,
                    0xFFFFFFFF,
                    0x00000000, 
-                   flags, 
+                   engine_flags, 
                    event );
 }

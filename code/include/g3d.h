@@ -1041,7 +1041,7 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     uint32_t     nbFacesPerQuad;
     uint32_t     cpuID;
     uint32_t     subdiv_level;
-    uint32_t     engine_flags;
+    uint64_t engine_flags;
     uint32_t    *qua_indexes; /*** Quad subindexes - used for sculpting ***/
     uint32_t    *tri_indexes; /*** Triangles subindexes  - used for sculpting ***/
 } G3DSUBDIVISIONTHREAD;

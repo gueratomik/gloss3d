@@ -49,7 +49,8 @@ void g3dbbox_adjust ( G3DBBOX *bbox, G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-void g3dbbox_draw ( G3DBBOX *bbox, uint32_t engine_flags ) {
+void g3dbbox_draw ( G3DBBOX *bbox, 
+                    uint64_t engine_flags ) {
     float xlen = ( bbox->xmax - bbox->xmin ) * BBOXLEN,
           ylen = ( bbox->ymax - bbox->ymin ) * BBOXLEN,
           zlen = ( bbox->zmax - bbox->zmin ) * BBOXLEN;

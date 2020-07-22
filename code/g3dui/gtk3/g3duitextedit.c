@@ -137,7 +137,7 @@ static void pickFontCbk ( GtkFontChooser *self,
                 g3dtext_setFont ( txt, fontFamilyName,
                                        fontFile,
                                        fontSize,
-                                       gui->flags );
+                                       gui->engine_flags );
             }
 
             g3dui_redrawGLViews ( gui );

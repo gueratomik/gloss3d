@@ -130,10 +130,11 @@ void g3duiclipboard_clear ( G3DUICLIPBOARD *cli ) {
 }
 
 /******************************************************************************/
-void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli, G3DSCENE *sce,
-                                                      LIST *lobj,
-                                                      int recurse, 
-                                                      uint32_t engine_flags ) {
+void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli, 
+                                 G3DSCENE       *sce,
+                                 LIST           *lobj,
+                                 int             recurse, 
+                                 uint64_t        engine_flags ) {
     LIST *ltmpobj = lobj;
 
     /*** First clear the clipboard ***/

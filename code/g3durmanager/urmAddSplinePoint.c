@@ -74,7 +74,7 @@ void addSplinePoint_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void addSplinePoint_undo ( G3DURMANAGER *urm, 
                            void         *data,
-                           uint32_t      engine_flags ) {
+                           uint64_t engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     if ( asp->seg ) g3dcurve_removeSegment ( asp->spline->curve, asp->seg );
@@ -89,7 +89,7 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void addSplinePoint_redo ( G3DURMANAGER *urm, 
                            void         *data,
-                           uint32_t      engine_flags ) {
+                           uint64_t engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     g3dcurve_addPoint ( asp->spline->curve, asp->pt );
@@ -107,7 +107,7 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
                               G3DSPLINE        *spline, 
                               G3DSPLINEPOINT   *pt,
                               G3DSPLINESEGMENT *seg,
-                              uint32_t          engine_flags,
+                              uint64_t engine_flags,
                               uint32_t          return_flags ) {
     URMADDSPLINEPOINT *asp;
 

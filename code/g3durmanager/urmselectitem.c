@@ -30,15 +30,16 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMSELECTITEM *urmselectitem_new ( G3DOBJECT *obj, LIST *loldobjsel,
-                                                   LIST *loldversel,
-                                                   LIST *loldedgsel,
-                                                   LIST *loldfacsel,
-                                                   LIST *lnewobjsel,
-                                                   LIST *lnewversel,
-                                                   LIST *lnewedgsel,
-                                                   LIST *lnewfacsel,
-                                                   uint32_t engine_flags ) {
+static URMSELECTITEM *urmselectitem_new ( G3DOBJECT *obj, 
+                                          LIST      *loldobjsel,
+                                          LIST      *loldversel,
+                                          LIST      *loldedgsel,
+                                          LIST      *loldfacsel,
+                                          LIST      *lnewobjsel,
+                                          LIST      *lnewversel,
+                                          LIST      *lnewedgsel,
+                                          LIST      *lnewfacsel,
+                                          uint64_t   engine_flags ) {
     uint32_t structsize = sizeof ( URMSELECTITEM );
 
     URMSELECTITEM *sit = ( URMSELECTITEM * ) calloc ( 0x01, structsize );
@@ -68,7 +69,7 @@ URMSELECTITEM *urmselectitem_new ( G3DOBJECT *obj, LIST *loldobjsel,
 }
 
 /******************************************************************************/
-void urmselectitem_free ( URMSELECTITEM *sit ) {
+static void urmselectitem_free ( URMSELECTITEM *sit ) {
     list_free ( &sit->loldobjsel, NULL );
     list_free ( &sit->loldversel, NULL );
     list_free ( &sit->loldedgsel, NULL );
@@ -83,7 +84,7 @@ void urmselectitem_free ( URMSELECTITEM *sit ) {
 }
 
 /******************************************************************************/
-void selectItem_free ( void *data, uint32_t commit ) {
+static void selectItem_free ( void *data, uint32_t commit ) {
     URMSELECTITEM *sit = ( URMSELECTITEM * ) data;
 
     list_free ( &sit->lnewobjsel, NULL );
@@ -101,7 +102,8 @@ void selectItem_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void selectUVSets_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectUVSets_redo ( URMSELECTITEM *sit, 
+                                uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
     LIST *ltmpnewfacsel = sit->lnewfacsel;
@@ -127,7 +129,8 @@ void selectUVSets_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectUVSets_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectUVSets_undo ( URMSELECTITEM *sit, 
+                                uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
     LIST *ltmpnewfacsel = sit->lnewfacsel;
@@ -153,7 +156,8 @@ void selectUVSets_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectUVs_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectUVs_undo ( URMSELECTITEM *sit, 
+                             uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
     LIST *ltmpnewversel = sit->lnewversel;
@@ -179,7 +183,8 @@ void selectUVs_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectUVs_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectUVs_redo ( URMSELECTITEM *sit, 
+                             uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DUVMAP *uvmap = ( G3DUVMAP * ) obj;
     LIST *ltmpnewversel = sit->lnewversel;
@@ -205,7 +210,8 @@ void selectUVs_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectVertices_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectVertices_undo ( URMSELECTITEM *sit, 
+                                  uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
     LIST *ltmpnewversel = sit->lnewversel;
@@ -231,7 +237,8 @@ void selectVertices_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectVertices_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectVertices_redo ( URMSELECTITEM *sit, 
+                                  uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
     LIST *ltmpnewversel = sit->lnewversel;
@@ -259,7 +266,8 @@ void selectVertices_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectFaces_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectFaces_undo ( URMSELECTITEM *sit, 
+                               uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
     LIST *ltmpnewfacsel = sit->lnewfacsel;
@@ -285,7 +293,8 @@ void selectFaces_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectFaces_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectFaces_redo ( URMSELECTITEM *sit, 
+                               uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
     LIST *ltmpnewfacsel = sit->lnewfacsel;
@@ -311,7 +320,8 @@ void selectFaces_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectObjects_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectObjects_undo ( URMSELECTITEM *sit, 
+                                 uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DSCENE  *sce = ( G3DSCENE *  ) obj;
     LIST *ltmpnewobjsel = sit->lnewobjsel;
@@ -337,7 +347,8 @@ void selectObjects_undo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectObjects_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
+static void selectObjects_redo ( URMSELECTITEM *sit, 
+                                 uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DSCENE  *sce = ( G3DSCENE *  ) obj;
     LIST *ltmpnewobjsel = sit->lnewobjsel;
@@ -363,7 +374,9 @@ void selectObjects_redo ( URMSELECTITEM *sit, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectItem_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void selectItem_undo ( G3DURMANAGER *urm, 
+                              void         *data, 
+                              uint64_t      engine_flags ) {
     URMSELECTITEM *sit = ( URMSELECTITEM * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
@@ -418,7 +431,9 @@ void selectItem_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void selectItem_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void selectItem_redo ( G3DURMANAGER *urm, 
+                              void         *data, 
+                              uint64_t      engine_flags ) {
     URMSELECTITEM *sit = ( URMSELECTITEM * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
     G3DMESH *mes = ( G3DMESH * ) obj;
@@ -474,10 +489,10 @@ void selectItem_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm, 
                                G3DUVMAP     *uvmap,
-                               LIST        *loldseluvset,
-                               LIST        *lnewseluvset,
-                               uint32_t     engine_flags,
-                               uint32_t     return_flags ) {
+                               LIST         *loldseluvset,
+                               LIST         *lnewseluvset,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( ( G3DOBJECT * ) uvmap, NULL,
@@ -498,10 +513,10 @@ void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm, 
                             G3DUVMAP     *uvmap,
-                            LIST        *loldseluv,
-                            LIST        *lnewseluv,
-                            uint32_t     engine_flags,
-                            uint32_t     return_flags ) {
+                            LIST         *loldseluv,
+                            LIST         *lnewseluv,
+                            uint64_t      engine_flags,
+                            uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( ( G3DOBJECT * ) uvmap, NULL,
@@ -520,11 +535,12 @@ void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void g3durm_mesh_pickVertices ( G3DURMANAGER *urm, G3DMESH *mes,
-                                                   LIST *loldversel,
-                                                   LIST *lnewversel,
-                                                   uint32_t engine_flags,
-                                                   uint32_t return_flags ) {
+void g3durm_mesh_pickVertices ( G3DURMANAGER *urm, 
+                                G3DMESH      *mes,
+                                LIST         *loldversel,
+                                LIST         *lnewversel,
+                                uint64_t      engine_flags,
+                                uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( ( G3DOBJECT * ) mes, NULL,
@@ -543,11 +559,12 @@ void g3durm_mesh_pickVertices ( G3DURMANAGER *urm, G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3durm_mesh_pickFaces ( G3DURMANAGER *urm, G3DMESH *mes,
-                                                LIST *loldversel,
-                                                LIST *lnewversel,
-                                                uint32_t engine_flags,
-                                                uint32_t return_flags ) {
+void g3durm_mesh_pickFaces ( G3DURMANAGER *urm, 
+                             G3DMESH      *mes,
+                             LIST         *loldversel,
+                             LIST         *lnewversel,
+                             uint64_t      engine_flags,
+                             uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( ( G3DOBJECT * ) mes, NULL,
@@ -566,11 +583,12 @@ void g3durm_mesh_pickFaces ( G3DURMANAGER *urm, G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3durm_scene_pickObject ( G3DURMANAGER *urm, G3DSCENE *sce,
-                                                  LIST *loldobjsel,
-                                                  LIST *lnewobjsel,
-                                                  uint32_t engine_flags,
-                                                  uint32_t return_flags ) {
+void g3durm_scene_pickObject ( G3DURMANAGER *urm, 
+                               G3DSCENE     *sce,
+                               LIST         *loldobjsel,
+                               LIST         *lnewobjsel,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( ( G3DOBJECT * ) sce, loldobjsel,

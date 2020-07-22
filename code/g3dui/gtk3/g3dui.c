@@ -1626,7 +1626,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     /*** copy-paste manager ***/
     gui->cli = g3duiclipboard_new ( );
 
-    gui->flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
+    gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
     rsg = r3drendersettings_new ( ); /*** default render settings ***/
 
@@ -1711,9 +1711,9 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                                   gui->mbrdrec.width,
                                                   gui->mbrdrec.height );
 
-    /*gui->sce = g3dscene_import3ds ( "../SKULL.3DS", gui->flags );*/
+    /*gui->sce = g3dscene_import3ds ( "../SKULL.3DS", gui->engine_flags );*/
 
-    /*gui->sce = g3dscene_open ( "../models/T-Rex_60_Animated_Textured.g3d", gui->flags );*/
+    /*gui->sce = g3dscene_open ( "../models/T-Rex_60_Animated_Textured.g3d", gui->engine_flags );*/
 
 
 
@@ -1737,5 +1737,5 @@ GtkWidget *gtk_glossui_new ( const char *filename ) {
 /******************************************************************************/
 void g3dui_init ( G3DUI *gui, G3DSCENE *sce ) {
     gui->sce    = sce;
-    gui->flags |= VIEWOBJECT;
+    gui->engine_flags |= VIEWOBJECT;
 }

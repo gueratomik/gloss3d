@@ -30,7 +30,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dffd_startUpdate ( G3DFFD *ffd, uint32_t engine_flags ) {
+void g3dffd_startUpdate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) ffd;
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
@@ -41,11 +41,11 @@ void g3dffd_startUpdate ( G3DFFD *ffd, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dffd_endUpdate ( G3DFFD *ffd, uint32_t engine_flags ) {
+void g3dffd_endUpdate ( G3DFFD *ffd, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dffd_update ( G3DFFD *ffd, uint32_t engine_flags ) {
+void g3dffd_update ( G3DFFD *ffd, uint64_t engine_flags ) {
     g3dffd_modify ( ffd, engine_flags );
 }
 
@@ -69,9 +69,10 @@ static double binomialcoeff ( int n, int k ) {
 }
 
 /******************************************************************************/
-G3DOBJECT *g3dffd_commit ( G3DFFD *ffd, uint32_t       id,
-                                        unsigned char *name,
-                                        uint32_t       engine_flags ) {
+static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
+                                  uint32_t       id,
+                                  unsigned char *name,
+                                  uint64_t       engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -83,7 +84,8 @@ G3DOBJECT *g3dffd_commit ( G3DFFD *ffd, uint32_t       id,
 }
 
 /******************************************************************************/
-uint32_t g3dffd_modify ( G3DFFD *ffd, uint32_t engine_flags ) {
+uint32_t g3dffd_modify ( G3DFFD  *ffd, 
+                         uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -189,7 +191,7 @@ uint32_t g3dffd_modify ( G3DFFD *ffd, uint32_t engine_flags ) {
 void g3dffd_onGeometryMove ( G3DFFD *ffd, LIST    *lver, 
                                           LIST    *ledg,
                                           LIST    *lfac,
-                                          uint32_t engine_flags ) {
+                                          uint64_t engine_flags ) {
     g3dffd_modify ( ffd, engine_flags );
 }
 
@@ -263,7 +265,7 @@ void g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw ) {
 }
 
 /******************************************************************************/
-void g3dffd_activate ( G3DFFD *ffd, uint32_t engine_flags ) {
+void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -305,7 +307,7 @@ void g3dffd_activate ( G3DFFD *ffd, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dffd_deactivate ( G3DFFD *ffd, uint32_t engine_flags ) {
+void g3dffd_deactivate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -437,7 +439,9 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
 }
 
 /******************************************************************************/
-uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
+uint32_t g3dffd_draw ( G3DOBJECT *obj,
+                       G3DCAMERA *cam, 
+                       uint64_t   engine_flags ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
     uint32_t i, j, k;
     uint32_t n = 0x00;
@@ -445,7 +449,7 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
                      ( ffd->nby + 0x01 ) *
                      ( ffd->nbz + 0x01 );
 
-    if ( ( flags & SYMMETRYVIEW ) == 0x00 ) {
+    if ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) {
         glPushAttrib ( GL_ALL_ATTRIB_BITS );
         glDisable ( GL_LIGHTING );
 
@@ -455,8 +459,6 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
             for ( j = 0x00; j <= ffd->nby; j++ ) {
                 for ( k = 0x00; k <= ffd->nbz; k++ ) {
                     G3DVERTEX *pnt = &ffd->pnt[n++];
-
-                    if ( flags & SELECTMODE ) glLoadName ( ( GLint ) pnt->id );
 
                     if ( pnt->flags & VERTEXSELECTED ) {
                         glColor3ub ( 0xFF, 0x00, 0x00 );
@@ -471,7 +473,7 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj, G3DCAMERA *cam, uint32_t flags ) {
             }
         }
 
-        if ( ( flags & SELECTMODE ) == 0x00 ) {
+        if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
             uint32_t nbx = ffd->nbx + 0x01;
             uint32_t nby = ffd->nby + 0x01;
             uint32_t nbz = ffd->nbz + 0x01;

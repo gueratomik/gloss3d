@@ -35,10 +35,10 @@
 /******************************************************************************/
 
 static uint32_t invertNormal_init  ( G3DMOUSETOOL *mou, 
-                                     G3DSCENE *sce, 
-                                     G3DCAMERA *cam,
+                                     G3DSCENE     *sce, 
+                                     G3DCAMERA    *cam,
                                      G3DURMANAGER *urm, 
-                                     uint32_t engine_flags );
+                                     uint64_t      engine_flags );
 
 /******************************************************************************/
 G3DMOUSETOOLINVERTNORMAL *g3dmousetoolinvertnormal_new ( ) {
@@ -63,10 +63,10 @@ G3DMOUSETOOLINVERTNORMAL *g3dmousetoolinvertnormal_new ( ) {
 
 /******************************************************************************/
 static uint32_t invertNormal_init  ( G3DMOUSETOOL *mou, 
-                                     G3DSCENE *sce, 
-                                     G3DCAMERA *cam,
+                                     G3DSCENE     *sce, 
+                                     G3DCAMERA    *cam,
                                      G3DURMANAGER *urm, 
-                                     uint32_t engine_flags ) {
+                                     uint64_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {

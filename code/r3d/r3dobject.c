@@ -65,7 +65,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
                         LIST     **lrob,    /*** List of Render Objects ***/
                         LIST     **lrlt, 
                         uint32_t   dump_flags,
-                        uint32_t   engine_flags ) { /*** List of lights         ***/
+                        uint64_t engine_flags ) { /*** List of lights         ***/
     LIST *ltmp = obj->lchildren;
 
     while ( ltmp ) {
@@ -114,7 +114,7 @@ void r3dobject_import ( G3DOBJECT *obj, /*** Object to convert      ***/
             g3dcore_multmatrix ( sym->smatrix, childwmatrix, swmatrix );
 
             if ( g3dobject_isActive ( child ) ) {
-                uint32_t new_engine_flags = engine_flags;
+                uint64_t new_engine_flags = engine_flags;
                 /* Alternate symmety flags in case of nested symmetry objects */
                 if ( engine_flags & SYMMETRYVIEW ) {
                     new_engine_flags &= (~SYMMETRYVIEW);

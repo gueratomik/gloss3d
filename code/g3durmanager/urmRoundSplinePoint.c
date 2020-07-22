@@ -72,7 +72,7 @@ void roundSplinePoint_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void roundSplinePoint_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
 
     g3dcubicsegment_setHandlePositionFromList ( rsp->lsegments, rsp->pos );
@@ -88,7 +88,7 @@ void roundSplinePoint_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void roundSplinePoint_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
     LIST *lbackupSelectedPoints = ((G3DMESH*)rsp->spline)->lselver;
 
@@ -109,7 +109,7 @@ void roundSplinePoint_redo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
                                          G3DSPLINE        *spline,
-                                         uint32_t          engine_flags,
+                                         uint64_t engine_flags,
                                          uint32_t          return_flags ) {
     LIST *lsegments = g3dcurve_getSegmentsFromSelectedPoints ( spline->curve );
     uint32_t nbseg = list_count ( lsegments );

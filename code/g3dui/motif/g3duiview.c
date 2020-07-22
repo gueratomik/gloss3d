@@ -377,7 +377,7 @@ static void showGL ( Widget w, XtPointer client, XtPointer call ) {
 
     if ( gui->playLock ) {
          /*** Force disabling real time subdivision ***/
-        gui->flags |= ONGOINGANIMATION;
+        gui->engine_flags |= ONGOINGANIMATION;
     }
 
     /*** Retrieve the current 3D Scene ***/
@@ -394,7 +394,7 @@ static void showGL ( Widget w, XtPointer client, XtPointer call ) {
     glXMakeCurrent ( dis, win, gw->gview.glctx );
 
     /*** GUI Toolkit Independent part ***/
-    common_g3duiview_showGL ( gui, sce, cam, mou, current, gui->flags | gw->gview.flags );
+    common_g3duiview_showGL ( gui, sce, cam, mou, current, gui->engine_flags | gw->gview.flags );
 
     GLwDrawingAreaSwapBuffers ( w );
 
@@ -402,7 +402,7 @@ static void showGL ( Widget w, XtPointer client, XtPointer call ) {
 
     if ( gui->playLock ) {
         /*** Re-enable real time subdivision ***/
-        gui->flags &= (~ONGOINGANIMATION);
+        gui->engine_flags &= (~ONGOINGANIMATION);
     }
 }
 
@@ -570,7 +570,7 @@ static void inputGL ( Widget wid, XtPointer client, XtPointer call ) {
 printf("copying %d object(s)\n", list_count ( sce->lsel ) );
                            g3dui_setHourGlass ( gui );
                            /* a decommenter apres adaptation ***/
-                           /*g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->flags );*/
+                           /*g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->engine_flags );*/
                            g3dui_unsetHourGlass ( gui );
                         }
                     break;
@@ -587,7 +587,7 @@ printf("copying %d object(s)\n", list_count ( sce->lsel ) );
 printf("pasting\n");
                            g3dui_setHourGlass ( gui );
                            /* a decommenter apres adaptation ***/
-                           /*g3duiclipboard_paste ( cli, urm, sce, dst, gui->flags );*/
+                           /*g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );*/
                            g3dui_unsetHourGlass ( gui );
                         }
 
@@ -620,10 +620,10 @@ printf("pasting\n");
         if ( gui->mou->tool ) {
             uint32_t msk = gui->mou->tool ( gui->mou, gui->sce,
                                             gui->curcam, gui->urm,
-                                            gui->flags, &g3dev );
+                                            gui->engine_flags, &g3dev );
             /*** The curent tool must be allowed to ***/
             /*** run in the current drawing mode.   ***/
-        /*if ( ( gui->mou->flags & MODEMASK ) == ( gui->flags & MODEMASK ) ) {*/
+        /*if ( ( gui->mou->flags & MODEMASK ) == ( gui->engine_flags & MODEMASK ) ) {*/
 
                 common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
@@ -758,10 +758,10 @@ Widget getMenu ( LIST *lmenu, Widget parent ) {
 
 /******************************************************************************/
 Widget getViewMenu ( Widget w, G3DUI *gui ) {
-    if ( gui->flags & VIEWOBJECT ) return getMenu ( gui->lobjmenu, w );
-    if ( gui->flags & VIEWFACE   ) return getMenu ( gui->lfacmenu, w );
-    if ( gui->flags & VIEWEDGE   ) return getMenu ( gui->ledgmenu, w );
-    if ( gui->flags & VIEWVERTEX ) return getMenu ( gui->lvermenu, w );
+    if ( gui->engine_flags & VIEWOBJECT ) return getMenu ( gui->lobjmenu, w );
+    if ( gui->engine_flags & VIEWFACE   ) return getMenu ( gui->lfacmenu, w );
+    if ( gui->engine_flags & VIEWEDGE   ) return getMenu ( gui->ledgmenu, w );
+    if ( gui->engine_flags & VIEWVERTEX ) return getMenu ( gui->lvermenu, w );
 
     return NULL;
 }
@@ -1257,7 +1257,7 @@ static void resetcamcbk ( Widget w, XtPointer client, XtPointer call ) {
         gw->gview.cam->focal = gw->gview.defcamfoc;
 
 
-        g3dobject_updateMatrix_r ( objcam, gui->flags );
+        g3dobject_updateMatrix_r ( objcam, gui->engine_flags );
     }
 }
 

@@ -44,9 +44,9 @@ void common_g3dui_stopCbk ( G3DUI *gui ) {
         gui->playLock     = 0x00;
         /*gui->playthreadid = 0x00;*/
 
-        gui->flags &= (~ONGOINGANIMATION);
+        gui->engine_flags &= (~ONGOINGANIMATION);
 
-        g3dscene_updateMeshes ( gui->sce, gui->flags );
+        g3dscene_updateMeshes ( gui->sce, gui->engine_flags );
 
         g3dui_redrawGLViews ( gui );
     }
@@ -57,15 +57,15 @@ void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
 
     /*** Force disabling real time subdivision ***/
-    gui->flags |= ONGOINGANIMATION;
+    gui->engine_flags |= ONGOINGANIMATION;
 
-    g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe, gui->flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe, gui->engine_flags );
 
     /*** Re-enable real time subdivision ***/
-    gui->flags &= (~ONGOINGANIMATION);
+    gui->engine_flags &= (~ONGOINGANIMATION);
 
     /*** Update buffered subdivided meshes ***/
-    g3dscene_updateMeshes ( gui->sce, gui->flags );
+    g3dscene_updateMeshes ( gui->sce, gui->engine_flags );
 
     common_g3dui_processAnimatedImages ( gui );
 
@@ -83,7 +83,7 @@ void common_g3dui_recordFrameCbk ( G3DUI *gui, uint32_t key_flags ) {
                          &obj->rot,
                          &obj->sca,*/
                          key_flags,
-                         gui->flags,
+                         gui->engine_flags,
                          REDRAWTIMELINE | REDRAWVIEW );
 
     if ( gui->curframe > gui->endframe   ) gui->endframe   = gui->curframe;

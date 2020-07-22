@@ -30,7 +30,8 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dmodifier_modify_r ( G3DMODIFIER *mod, uint32_t engine_flags ) {
+void g3dmodifier_modify_r ( G3DMODIFIER *mod,
+                            uint64_t     engine_flags ) {
     G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
 
@@ -50,8 +51,9 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dmodifier_draw ( G3DMODIFIER *mod, G3DCAMERA *cam, 
-                                              uint32_t   engine_flags ) {
+uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
+                            G3DCAMERA   *cam, 
+                            uint64_t     engine_flags ) {
     G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
     uint32_t takenOver = g3dobject_drawModifiers ( obj, cam, engine_flags );
 

@@ -55,27 +55,27 @@ typedef struct _G3DSPLINEREVOLVER {
 void g3dsplinerevolver_free ( G3DSPLINEREVOLVER *srv );
 uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv, 
                                   G3DCAMERA         *cam, 
-                                  uint32_t           engine_flags );
+                                  uint64_t engine_flags );
 void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv, 
-                                    uint32_t           engine_flags );
+                                    uint64_t engine_flags );
 void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv, 
-                                  uint32_t           engine_flags );
+                                  uint64_t engine_flags );
 uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv, 
-                                    uint32_t           engine_flags );
+                                    uint64_t engine_flags );
 void g3dsplinerevolver_update ( G3DSPLINEREVOLVER *srv, 
-                                uint32_t           engine_flags );
+                                uint64_t engine_flags );
 void g3dsplinerevolver_endUpdate ( G3DSPLINEREVOLVER *srv,
-                                   uint32_t           engine_flags );
+                                   uint64_t engine_flags );
 void g3dsplinerevolver_startUpdate ( G3DSPLINEREVOLVER *srv, 
-                                     uint32_t           engine_flags );
+                                     uint64_t engine_flags );
 G3DSPLINEREVOLVER *g3dsplinerevolver_copy ( G3DSPLINEREVOLVER *srv,
-                                            uint32_t           engine_flags );
+                                            uint64_t engine_flags );
 void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
                                    G3DOBJECT         *parent,
-                                   uint32_t           engine_flags );
+                                   uint64_t engine_flags );
 G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name );
 void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv, 
-                                   uint32_t           engine_flags );
+                                   uint64_t engine_flags );
 
 #ifdef __cplusplus
 }

@@ -30,8 +30,8 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
-                                uint32_t     engine_flags ) {
+static G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
+                                       uint64_t     engine_flags ) {
     G3DOBJECT *objsym = ( G3DOBJECT * ) sym;
     G3DSYMMETRY *newsym = g3dsymmetry_new ( objsym->id, objsym->name );
 
@@ -45,7 +45,7 @@ G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
 void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                              G3DOBJECT *ori, /* original object */
                              double    *MVX,
-                             uint32_t   engine_flags ) {
+                             uint64_t   engine_flags ) {
     LIST *ltmpchildren = ori->lchildren;
 
     while ( ltmpchildren ) {
@@ -78,7 +78,8 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, uint32_t engine_flags ) {
+static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, 
+                                       uint64_t     engine_flags ) {
     G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( sym ),
                                      g3dobject_getName ( sym ), 0x00 );
     double *worldMatrix = ((G3DOBJECT*)sym)->wmatrix;
@@ -97,20 +98,24 @@ G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dsymmetry_activate ( G3DSYMMETRY *sym, uint32_t engine_flags ) {
+void g3dsymmetry_activate ( G3DSYMMETRY *sym, 
+                            uint64_t     engine_flags ) {
 
 }
 
 /******************************************************************************/
-void g3dsymmetry_deactivate ( G3DSYMMETRY *sym, uint32_t engine_flags ) {
+void g3dsymmetry_deactivate ( G3DSYMMETRY *sym, 
+                              uint64_t engine_flags ) {
 
 }
 
 /*****************************************************************************/
-G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym, LIST **loldobj, uint32_t flags ) {
+G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
+                               LIST       **loldobj, 
+                               uint64_t     engine_flags ) {
     G3DOBJECT *symobj = ( G3DOBJECT * ) sym;
     LIST *ltmp = symobj->lchildren;
-    G3DMESH *symmes = g3dmesh_new ( symobj->id, "Mesh", flags );
+    G3DMESH *symmes = g3dmesh_new ( symobj->id, "Mesh", engine_flags );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) symmes,
                                       ( G3DOBJECT * ) symobj );
@@ -236,7 +241,8 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym, LIST **loldobj, uint32_t flags 
 }
 
 /*****************************************************************************/
-void g3dsymmetry_meshChildChange ( G3DSYMMETRY *sym, G3DMESH *mes ) {
+void g3dsymmetry_meshChildChange ( G3DSYMMETRY *sym, 
+                                   G3DMESH     *mes ) {
     LIST *ltmpver = mes->lver;
 
     while ( ltmpver ) {
@@ -303,9 +309,10 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-uint32_t g3dsymmetry_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                            uint32_t   engine_flags ) {
-    uint32_t next_engine_flags = engine_flags;
+uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
+                            G3DCAMERA *curcam, 
+                            uint64_t   engine_flags ) {
+    uint64_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
     LIST *ltmp = obj->lchildren;
 
@@ -348,19 +355,22 @@ void g3dsymmetry_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dsymmetry_setPlane ( G3DSYMMETRY *sym, uint32_t orientation  ) {
+void g3dsymmetry_setPlane ( G3DSYMMETRY *sym, 
+                            uint32_t     orientation  ) {
     sym->orientation = orientation;
 
     g3dcore_symmetryMatrix ( sym->smatrix, orientation );
 }
 
 /******************************************************************************/
-void g3dsymmetry_setMergeLimit ( G3DSYMMETRY *sym, float limit  ) {
+void g3dsymmetry_setMergeLimit ( G3DSYMMETRY *sym,
+                                 float        limit  ) {
     sym->mergelimit = limit;
 }
 
 /******************************************************************************/
-G3DSYMMETRY *g3dsymmetry_new ( uint32_t id, char *name ) {
+G3DSYMMETRY *g3dsymmetry_new ( uint32_t id, 
+                               char    *name ) {
     uint32_t structsize = sizeof ( G3DSYMMETRY );
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) calloc ( 0x01, structsize );
     G3DOBJECT *obj = ( G3DOBJECT * ) sym;

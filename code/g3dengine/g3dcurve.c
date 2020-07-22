@@ -72,7 +72,7 @@ void g3dcurve_cut ( G3DCURVE *curve,
                     LIST    **laddedPoints,
                     LIST    **laddedSegments,
                     LIST    **lremovedSegments,
-                    uint32_t  engine_flags ) {
+                    uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -200,7 +200,7 @@ LIST *g3dcurve_getSelectedPoints ( G3DCURVE *curve ) {
 void g3dcurve_deletePoints ( G3DCURVE  *curve,
                              LIST      *lremovedPoints,
                              LIST     **lremovedSegments,
-                             uint32_t   engine_flags ) {
+                             uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
     LIST *ltmpver = lremovedPoints;
 
@@ -236,7 +236,7 @@ void g3dcurve_deletePoints ( G3DCURVE  *curve,
 
 /******************************************************************************/
 void g3dcurve_revert ( G3DCURVE *curve,
-                        uint32_t   engine_flags ) {
+                        uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -443,7 +443,7 @@ void g3dcurvesegment_pick ( G3DCURVESEGMENT *seg,
                             float             from, /* range 0 - 1 */
                             float             to,   /* range 0 - 1 */
                             float             nbSteps,
-                            uint32_t          engine_flags ) {
+                            uint64_t engine_flags ) {
     float factor = ( to - from ) / nbSteps;
     G3DVECTOR pone, ptwo;
     uint32_t i;
@@ -468,7 +468,7 @@ void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
                              GLUtesselator    *tobj,
                              double          (*coords)[0x03],
                              uint32_t          spline_flags,
-                             uint32_t          engine_flags ) {
+                             uint64_t engine_flags ) {
     float factor = ( to - from ) / nbSteps;
     uint32_t i;
 
@@ -612,7 +612,7 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DCURVEPOINT *pt0,
 }
 
 /******************************************************************************/
-G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags ) {
+G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint64_t engine_flags ) {
     G3DOBJECT *obj      = ( G3DOBJECT * ) curve;
     G3DCURVE *newSpline = g3dcurve_new ( curve->type, engine_flags );
     G3DLOOKUP  pointLookup;
@@ -671,7 +671,7 @@ G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_pickHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_pickHandles ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -700,7 +700,7 @@ void g3dcurve_pickHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_drawHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_drawHandles ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -743,7 +743,7 @@ void g3dcurve_drawHandles ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_pickPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_pickPoints ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmppt  = curve->lpt;
 
     while ( ltmppt ) {
@@ -757,7 +757,7 @@ void g3dcurve_pickPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_drawPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_drawPoints ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmppt  = curve->lpt;
 
     glBegin ( GL_POINTS );
@@ -778,7 +778,7 @@ void g3dcurve_drawPoints ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_pickSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_pickSegments ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -800,7 +800,7 @@ void g3dcurve_pickSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_drawSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_drawSegments ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -824,7 +824,7 @@ void g3dcurve_drawSegments ( G3DCURVE *curve, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcurve_pick ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_pick ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -848,7 +848,7 @@ void g3dcurve_pick ( G3DCURVE *curve, uint32_t engine_flags ) {
 /*** currently same code as g3dcurve_drawSegments but there will be a ***/
 /*** difference when we will code segments selection (color changing) ***/
 /*** in g3dcurve_drawSegments ***/
-void g3dcurve_draw ( G3DCURVE *curve, uint32_t engine_flags ) {
+void g3dcurve_draw ( G3DCURVE *curve, uint64_t engine_flags ) {
     LIST *ltmpseg = curve->lseg;
 
     while ( ltmpseg ) {
@@ -874,7 +874,7 @@ void g3dcurve_draw ( G3DCURVE *curve, uint32_t engine_flags ) {
 /******************************************************************************/
 /*uint32_t g3dcurve_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
-                         uint32_t   engine_flags ) {
+                         uint64_t engine_flags ) {
     G3DCURVE *curve = ( G3DCURVE * ) obj;
 
     if ( engine_flags & SELECTMODE ) {
@@ -1075,7 +1075,7 @@ void g3dcurve_removeSegment ( G3DCURVE        *curve,
 
 /******************************************************************************/
 G3DCURVE *g3dcurve_new ( uint32_t type, 
-                         uint32_t engine_flags ) {
+                         uint64_t engine_flags ) {
     G3DCURVE *curve = ( G3DCURVE * ) calloc ( 0x01, sizeof ( G3DCURVE ) );
 
     if ( curve == NULL ) {

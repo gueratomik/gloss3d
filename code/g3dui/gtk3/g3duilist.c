@@ -128,7 +128,7 @@ PICKEDOBJECT *selectObject_r ( GtkStyleContext *context, G3DOBJECT *obj,
                                                          G3DSCENE *sce,
                                                          G3DURMANAGER *urm,
                                                          uint32_t keep,
-                                                         uint32_t engine_flags){
+                                                         uint64_t engine_flags){
     LIST *ltmpobj = obj->lchildren;
     PICKEDOBJECT *pob;
     uint32_t strwidth;
@@ -549,7 +549,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                     g3durm_mesh_removeTexture ( urm,
                                                                 pob->obj,
                                                                 pob->tex,
-                                                                gui->flags,
+                                                                gui->engine_flags,
                                                                 retflags );
                                 }
                             } break;
@@ -558,12 +558,12 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                 g3durm_mesh_removeUVMap ( urm,
                                                           pob->obj,
                                                           pob->uvmap, 
-                                                          gui->flags,
+                                                          gui->engine_flags,
                                                           REDRAWVIEW |REDRAWLIST );
                             } break;
 
                             default : {
-                                g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
+                                g3durm_scene_deleteSelectedObjects ( urm, sce, gui->engine_flags, retflags );
 
                                 pob = NULL;
                             } break;
@@ -577,7 +577,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                     g3dui_setHourGlass ( gui );
                     g3duiclipboard_copyObject ( cli, 
                                                 sce,
-                                                sce->lsel, 0x01, gui->flags );
+                                                sce->lsel, 0x01, gui->engine_flags );
                     g3dui_unsetHourGlass ( gui );
                 } break;
 
@@ -592,7 +592,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                     if ( src ) dst = src->parent;
 
                     g3dui_setHourGlass   ( gui );
-                    g3duiclipboard_paste ( cli, urm, sce, dst, gui->flags );
+                    g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );
                     g3dui_unsetHourGlass ( gui );
                 } break;
             }
@@ -618,7 +618,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                             LISTINDENT,
                                             bev->x,
                                             bev->y,
-                                            sce, urm, 0x00, gui->flags );
+                                            sce, urm, 0x00, gui->engine_flags );
 
             if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
                 GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
@@ -678,7 +678,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                             LISTINDENT,
                                             bev->x,
                                             bev->y,
-                                            sce, urm, pick_flags, gui->flags );
+                                            sce, urm, pick_flags, gui->engine_flags );
             g3dui_unsetHourGlass ( gui );
 
             if ( pob ) {
@@ -718,7 +718,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                 LISTINDENT,
                                                 mev->x,
                                                 mev->y,
-                                                sce, NULL, PICKEDOBJECTNOPARSE, gui->flags );
+                                                sce, NULL, PICKEDOBJECTNOPARSE, gui->engine_flags );
 
                 dst = ( pob ) ? pob->obj : NULL;
 
@@ -740,7 +740,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                     if ( obj->type == G3DSCENETYPE ) break;
 
                     /*** Perform action & record for the undo-redo manager ***/
-                    g3durm_object_addChild ( urm, sce, gui->flags,
+                    g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                        ( REDRAWVIEW |
                                                          REDRAWLIST | 
                                                          REDRAWCURRENTOBJECT ),
@@ -755,7 +755,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                         g3dmesh_update ( ( G3DMESH * ) obj, NULL,
                                               NULL,
                                               NULL,
-                                              UPDATEFACEPOSITION, gui->flags );
+                                              UPDATEFACEPOSITION, gui->engine_flags );
                     }
 
                     g3dui_updateCoords ( gui );

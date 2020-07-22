@@ -68,7 +68,7 @@ void movePoint_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void movePoint_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEPOINT *ump = ( URMMOVEPOINT * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) ump->spl;
     LIST *ltmppt = ump->lpt;
@@ -93,7 +93,7 @@ void movePoint_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void movePoint_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEPOINT *ump = ( URMMOVEPOINT * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) ump->spl;
     LIST *ltmppt = ump->lpt;

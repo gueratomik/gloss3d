@@ -38,13 +38,13 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce, 
                            G3DCAMERA    *cam,
                            G3DURMANAGER *urm,
-                           uint32_t      eflags, 
+                           uint64_t engine_flags, 
                            G3DEvent     *event );
 static int rotate_tool ( G3DMOUSETOOL *mou, 
                          G3DSCENE     *sce,
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm, 
-                         uint32_t     flags, 
+                         uint64_t engine_flags, 
                          G3DEvent    *event );
 
 /******************************************************************************/
@@ -97,7 +97,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
                            G3DSCENE     *sce, 
                            G3DCAMERA    *cam,
                            G3DURMANAGER *urm,
-                           uint32_t      eflags, 
+                           uint64_t engine_flags, 
                            G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -114,7 +114,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -132,7 +132,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
             mouseXpress = bev->x;
             mouseYpress = bev->y;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                                    bev->x, VPX[0x03] - bev->y },
                                         .only_visible = 0x01,
@@ -141,7 +141,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
-                pick_Item ( &pt, sce, cam, ctrlClick, eflags );
+                pick_Item ( &pt, sce, cam, ctrlClick, engine_flags );
 
                 /*** MUST be called after pick_item because based on ***/
                 /*** currently selected points ***/
@@ -165,7 +165,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
             if ( mev->state & G3DButton1Mask ) {
-                if ( eflags & VIEWVERTEX ) {
+                if ( engine_flags & VIEWVERTEX ) {
                     LIST *ltmppt = spl->curve->lselpt;
                     double difx, dify, difz;
 
@@ -197,7 +197,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
 
                 	g3dspline_update ( spl,
                                        NULL,
-                                       UPDATEMODIFIERS, eflags );
+                                       UPDATEMODIFIERS, engine_flags );
 
                     orix = newx;
                     oriy = newy;
@@ -209,7 +209,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 urmmovepoint_saveState ( ump, UMPSAVESTATEAFTER );
             }
 
@@ -228,7 +228,7 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce, 
                            G3DCAMERA    *cam,
                            G3DURMANAGER *urm,
-                           uint32_t      eflags, 
+                           uint64_t engine_flags, 
                            G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -256,8 +256,8 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                         mouseXpress = xold = bev->x;
                         mouseYpress = yold = bev->y;
 
-                        if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
-                        if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
+                        if ( engine_flags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
+                        if ( engine_flags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
 
                         g3duv_copyUVFromList     ( lseluv, &olduv );
                         g3duv_getAverageFromList ( lseluv, &cenuv );
@@ -271,8 +271,8 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                         G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
                         if ( mev->state & G3DButton1Mask ) {
-                            if ( ( eflags & VIEWVERTEXUV ) ||
-                                 ( eflags & VIEWFACEUV   ) ) {
+                            if ( ( engine_flags & VIEWVERTEXUV ) ||
+                                 ( engine_flags & VIEWFACEUV   ) ) {
                                 float angle = ( float ) ( mev->x - xold ) * 0.005f;
                                 /*** Build the 2D rotation matrix ***/
                                 float RTX[0x04] = { cos ( angle ), - sin ( angle ),
@@ -313,7 +313,7 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                                                       .weight = 0.0f,
                                                       .radius = PICKMINRADIUS };
 
-                            pickUV_tool ( &pt, sce, cam, urm, eflags, event );
+                            pickUV_tool ( &pt, sce, cam, urm, engine_flags, event );
 
                             /*** cancel arrays allocated for undo-redo ***/
                             if ( olduv ) free ( olduv );
@@ -354,7 +354,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                          G3DSCENE         *sce, 
                          G3DCAMERA        *cam,
                          G3DURMANAGER     *urm,
-                         uint32_t          eflags, 
+                         uint64_t engine_flags, 
                          G3DEvent         *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -375,7 +375,7 @@ static int rotate_mesh ( G3DMESH          *mes,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -393,15 +393,15 @@ static int rotate_mesh ( G3DMESH          *mes,
             mouseXpress = orix = bev->x;
             mouseYpress = bev->y;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
             }
 
-            if ( eflags & VIEWEDGE ) {
+            if ( engine_flags & VIEWEDGE ) {
                 lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
             }
 
-            if ( eflags & VIEWFACE ) {
+            if ( engine_flags & VIEWFACE ) {
                 lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
             }
 
@@ -411,7 +411,7 @@ static int rotate_mesh ( G3DMESH          *mes,
             lfac = g3dvertex_getFacesFromList  ( lver );
             ledg = g3dface_getEdgesFromList    ( lfac );
 
-            g3dobject_startUpdateModifiers_r ( mes, eflags );
+            g3dobject_startUpdateModifiers_r ( mes, engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -420,17 +420,17 @@ static int rotate_mesh ( G3DMESH          *mes,
             newx = mev->x;
 
             if ( mev->state & G3DButton1Mask ) {
-                if ( ( eflags & VIEWVERTEX ) ||
-                     ( eflags & VIEWEDGE   ) ||
-                     ( eflags & VIEWFACE   ) ) {
+                if ( ( engine_flags & VIEWVERTEX ) ||
+                     ( engine_flags & VIEWEDGE   ) ||
+                     ( engine_flags & VIEWFACE   ) ) {
                     G3DVECTOR *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
                     double ROTX[0x10];
 
-                    if ( ( eflags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
-                    if ( ( eflags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
-                    if ( ( eflags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
+                    if ( ( engine_flags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
+                    if ( ( engine_flags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
+                    if ( ( engine_flags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
 
                     glMatrixMode ( GL_MODELVIEW );
                     glPushMatrix ( );
@@ -468,13 +468,13 @@ static int rotate_mesh ( G3DMESH          *mes,
                         ltmpver = ltmpver->next;
                     }
 
-                    g3dobject_updateModifiers_r ( mes, eflags );
+                    g3dobject_updateModifiers_r ( mes, engine_flags );
 
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
                                                    lfac, 
-                                                   eflags );
+                                                   engine_flags );
                     }
 
                     orix = newx;
@@ -494,7 +494,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                         .weight = 0.0f,
                                         .radius = PICKMINRADIUS };
 
-                pick_tool ( &pt, sce, cam, urm, eflags, event );
+                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -506,7 +506,7 @@ static int rotate_mesh ( G3DMESH          *mes,
 
             g3dmesh_updateBbox ( mes );
 
-            g3dobject_endUpdateModifiers_r ( mes, eflags );
+            g3dobject_endUpdateModifiers_r ( mes, engine_flags );
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );
@@ -532,7 +532,7 @@ static int rotate_object ( LIST        *lobj,
                            G3DSCENE     *sce, 
                            G3DCAMERA    *cam,
                            G3DURMANAGER *urm,
-                           uint32_t      eflags, 
+                           uint64_t engine_flags, 
                            G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -569,7 +569,7 @@ static int rotate_object ( LIST        *lobj,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -602,9 +602,9 @@ static int rotate_object ( LIST        *lobj,
                 G3DDOUBLEVECTOR endpos;
                 double ROTX[0x10];
 
-                if ( ( eflags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
-                if ( ( eflags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );
-                if ( ( eflags & ZAXIS ) && axis[0x02].w ) dif.z = ( mev->x - orix );
+                if ( ( engine_flags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
+                if ( ( engine_flags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );
+                if ( ( engine_flags & ZAXIS ) && axis[0x02].w ) dif.z = ( mev->x - orix );
 
                 if ( nbobj > 0x01 ) {
                     glMatrixMode ( GL_MODELVIEW );
@@ -652,9 +652,9 @@ static int rotate_object ( LIST        *lobj,
                             obj->pos.z = newpos.z;
                         }
 
-                        g3dobject_updateMatrix_r ( obj, eflags );
+                        g3dobject_updateMatrix_r ( obj, engine_flags );
 
-                        if ( eflags & VIEWAXIS ) {
+                        if ( engine_flags & VIEWAXIS ) {
                             /*** in case this was in VIEWAXIS mode, we move ***/
                             /*** back the vertices were they were before,   ***/
                             /*** in world coord ***/
@@ -662,14 +662,14 @@ static int rotate_object ( LIST        *lobj,
                                 if ( obj->type == G3DMESHTYPE ) {
                                     G3DMESH *mes = ( G3DMESH * ) obj;
 
-                                    g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
+                                    g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
                                     memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
                                 }
 
                                 if ( obj->type & SPLINE ) {
                                     G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                                    g3dspline_moveAxis ( spl, PREVWMVX, eflags );
+                                    g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
                                     memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
                                 }
                             }
@@ -712,9 +712,9 @@ static int rotate_object ( LIST        *lobj,
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
-                g3durmanager_undo ( urm, eflags );
+                g3durmanager_undo ( urm, engine_flags );
 
-                pick_tool ( &pt, sce, cam, urm, eflags, event );
+                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
@@ -733,7 +733,7 @@ static int rotate_tool ( G3DMOUSETOOL *mou,
                          G3DSCENE     *sce,
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm, 
-                         uint32_t     flags, 
+                         uint64_t engine_flags, 
                          G3DEvent    *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
@@ -752,27 +752,27 @@ static int rotate_tool ( G3DMOUSETOOL *mou,
                                     .weight = 0.0f,
                                     .radius = PICKMINRADIUS };
 
-            pick_cursor ( &pt, sce, cam, flags );
+            pick_cursor ( &pt, sce, cam, engine_flags );
         } break;
 
         default :
         break;
     }
 
-    if ( flags & VIEWOBJECT ) {
-        return rotate_object ( sce->lsel, mou, sce, cam, urm, flags, event );
+    if ( engine_flags & VIEWOBJECT ) {
+        return rotate_object ( sce->lsel, mou, sce, cam, urm, engine_flags, event );
     }
 
     if ( obj ) {
-        if ( flags & VIEWAXIS ) {
+        if ( engine_flags & VIEWAXIS ) {
             LIST ldummy = { .next = NULL, 
                             .data = obj,
                             .prev = NULL };
 
-            return rotate_object ( &ldummy, mou, sce, cam, urm, flags, event );
+            return rotate_object ( &ldummy, mou, sce, cam, urm, engine_flags, event );
         }
 
-        if ( flags & VIEWUVWMAP ) {
+        if ( engine_flags & VIEWUVWMAP ) {
             if ( obj->type & MESH ) {
                 G3DMESH  *mes = ( G3DMESH * ) obj;
                 G3DUVMAP * map = g3dmesh_getSelectedUVMap ( mes );
@@ -782,24 +782,24 @@ static int rotate_tool ( G3DMOUSETOOL *mou,
                                     .data = map,
                                     .prev = NULL };
 
-                    return rotate_object ( &ldummy, mou, sce, cam, urm, flags, event );
+                    return rotate_object ( &ldummy, mou, sce, cam, urm, engine_flags, event );
                 }
             }
         }
 
-        if ( ( flags & VIEWVERTEX ) ||
-             ( flags & VIEWEDGE   ) ||
-             ( flags & VIEWFACE   ) ) {
+        if ( ( engine_flags & VIEWVERTEX ) ||
+             ( engine_flags & VIEWEDGE   ) ||
+             ( engine_flags & VIEWFACE   ) ) {
             if ( obj->type & SPLINE ) {
                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                return rotate_spline ( spl, mou, sce, cam, urm, flags, event );
+                return rotate_spline ( spl, mou, sce, cam, urm, engine_flags, event );
             }
 
             if ( ( obj->type & MESH ) && ( obj->type & EDITABLE ) ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                return rotate_mesh ( mes, mou, sce, cam, urm, flags, event );
+                return rotate_mesh ( mes, mou, sce, cam, urm, engine_flags, event );
             }
         }
     }

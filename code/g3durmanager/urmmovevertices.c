@@ -31,12 +31,13 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *mes, LIST *lver,
-                                                     LIST *ledg,
-                                                     LIST *lfac,
-                                                     LIST *lsub,
-                                                     G3DVECTOR *oldpos,
-                                                     G3DVECTOR *newpos ) {
+static URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *mes, 
+                                              LIST *lver,
+                                              LIST *ledg,
+                                              LIST *lfac,
+                                              LIST *lsub,
+                                              G3DVECTOR *oldpos,
+                                              G3DVECTOR *newpos ) {
     uint32_t structsize = sizeof ( URMMOVEVERTICES );
 
     URMMOVEVERTICES *mvs = ( URMMOVEVERTICES * ) calloc ( 0x01, structsize );
@@ -60,7 +61,7 @@ URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *mes, LIST *lver,
 }
 
 /******************************************************************************/
-void urmmovevertices_free ( URMMOVEVERTICES *mvs ) {
+static void urmmovevertices_free ( URMMOVEVERTICES *mvs ) {
     list_free ( &mvs->lver, NULL );
     list_free ( &mvs->ledg, NULL );
     list_free ( &mvs->lfac, NULL );
@@ -73,14 +74,17 @@ void urmmovevertices_free ( URMMOVEVERTICES *mvs ) {
 }
 
 /******************************************************************************/
-void moveVertices_free ( void *data, uint32_t commit ) {
+static void moveVertices_free ( void    *data, 
+                                uint32_t commit ) {
     URMMOVEVERTICES *mvs = ( URMMOVEVERTICES * ) data;
 
     urmmovevertices_free ( mvs );
 }
 
 /******************************************************************************/
-void moveVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void moveVertices_undo ( G3DURMANAGER *urm, 
+                                void         *data, 
+                                uint64_t      engine_flags ) {
     URMMOVEVERTICES *mvs = ( URMMOVEVERTICES * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) mvs->mes;
     G3DMESH *mes = mvs->mes;
@@ -117,7 +121,9 @@ void moveVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 }
 
 /******************************************************************************/
-void moveVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void moveVertices_redo ( G3DURMANAGER *urm, 
+                                void         *data, 
+                                uint64_t      engine_flags ) {
     URMMOVEVERTICES *mvs = ( URMMOVEVERTICES * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) mvs->mes;
     G3DMESH *mes = mvs->mes;
@@ -162,7 +168,8 @@ void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
                                   LIST *lfac,
                                   LIST *lsub,
                                   G3DVECTOR *oldpos,
-                                  G3DVECTOR *newpos, uint32_t return_flags ) {
+                                  G3DVECTOR *newpos,
+                                  uint32_t return_flags ) {
     URMMOVEVERTICES *mvs;
 
     mvs = urmmovevertices_new ( mes, lver, ledg, lfac, lsub, oldpos, newpos );

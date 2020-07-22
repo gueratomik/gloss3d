@@ -213,7 +213,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
                                           uint32_t      *nbpos,
                                           uint32_t       curdiv,
                                           uint32_t       object_flags,
-                                          uint32_t       engine_flags ) {
+                                          uint64_t engine_flags ) {
     LIST *ltmpfac = subedg->edg.lfac;
     uint32_t freeflag = 0x00;
 

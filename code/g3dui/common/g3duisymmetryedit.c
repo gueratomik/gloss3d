@@ -55,7 +55,7 @@ void common_g3duisymmetryedit_limitCbk ( G3DUI *gui, float limit ) {
                                       NULL,
                                       UPDATEVERTEXNORMAL |
                                       UPDATEFACENORMAL | 
-                                      RESETMODIFIERS, gui->flags );
+                                      RESETMODIFIERS, gui->engine_flags );
             }
 
             ltmpobj = ltmpobj->next;

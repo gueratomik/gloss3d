@@ -31,8 +31,8 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
-                                             uint32_t   save_type ) {
+static URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
+                                                    uint32_t   save_type ) {
     uint32_t structsize = sizeof ( URMTRANSFORMOBJECT );
 
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) calloc ( 0x01, structsize );
@@ -50,7 +50,7 @@ URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
 }
 
 /******************************************************************************/
-void urmtransformobject_free ( URMTRANSFORMOBJECT *uto ) {
+static void urmtransformobject_free ( URMTRANSFORMOBJECT *uto ) {
     if ( uto->oldpos ) free ( uto->oldpos );
     if ( uto->oldrot ) free ( uto->oldrot );
     if ( uto->oldsca ) free ( uto->oldsca );
@@ -65,14 +65,16 @@ void urmtransformobject_free ( URMTRANSFORMOBJECT *uto ) {
 }
 
 /******************************************************************************/
-void transformObject_free ( void *data, uint32_t commit ) {
+static void transformObject_free ( void *data, uint32_t commit ) {
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
 
     urmtransformobject_free ( uto );
 }
 
 /******************************************************************************/
-void transformObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void transformObject_undo ( G3DURMANAGER *urm, 
+                                   void         *data, 
+                                   uint64_t      engine_flags ) {
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
     LIST *ltmpobj = uto->lobj;
     uint32_t i = 0x00;
@@ -113,7 +115,9 @@ void transformObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void transformObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void transformObject_redo ( G3DURMANAGER *urm, 
+                                   void         *data, 
+                                   uint64_t      engine_flags ) {
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) data;
     LIST *ltmpobj = uto->lobj;
     uint32_t i = 0x00;

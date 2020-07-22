@@ -156,7 +156,7 @@ void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui ) {
                                       NULL,
                                       UPDATEVERTEXNORMAL |
                                       UPDATEFACENORMAL |
-                                      RESETMODIFIERS, gui->flags );*/
+                                      RESETMODIFIERS, gui->engine_flags );*/
 
                 g3dui_redrawGLViews ( gui );
                 g3dui_updateAllCurrentEdit ( gui );
@@ -188,7 +188,7 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps ) {
             /*g3dmesh_update ( mes, curgrp->lver,
                                   NULL,
                                   NULL,
-                                  UPDATEMODIFIERS, gui->flags );*/
+                                  UPDATEMODIFIERS, gui->engine_flags );*/
         }
 
         g3dmeshposeextension_selectPose ( ext, mps );
@@ -197,7 +197,7 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps ) {
         /*g3dmesh_update ( mes, grp->lver,
                               NULL,
                               NULL,
-                              RESETMODIFIERS, gui->flags );*/
+                              RESETMODIFIERS, gui->engine_flags );*/
 
         g3dui_redrawGLViews ( gui );
         g3dui_updateAllCurrentEdit ( gui );

@@ -67,7 +67,7 @@ void updatePickToolWeightForm ( GtkWidget *widget, G3DUI *gui ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
             const char *child_name = gtk_widget_get_name ( child );
 
-            if ( gui->flags & VIEWSKIN ) gtk_widget_set_sensitive ( child, TRUE  );
+            if ( gui->engine_flags & VIEWSKIN ) gtk_widget_set_sensitive ( child, TRUE  );
             else                         gtk_widget_set_sensitive ( child, FALSE );
 
             if ( GTK_IS_SCALE(child) ) {

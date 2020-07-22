@@ -655,7 +655,7 @@ typedef struct _G3DUI {
     G3DUICLIPBOARD *cli;
     G3DSCENE     *sce;
     G3DUICONF     conf;
-    uint32_t      flags;
+    uint64_t      engine_flags;
     /* context menus for all objects */
     LIST         *lObjectModeMenu;
     /* context menus for meshes */
@@ -828,7 +828,7 @@ typedef struct _G3DUIVIEW {
     LIST          *lmenu;
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/
-    uint32_t       flags;
+    uint64_t       engine_flags;
     void         (*grid)( uint32_t );
 #ifdef __linux__
     GLXContext     glctx;
@@ -852,7 +852,7 @@ typedef struct _G3DUIVIEW {
 #define UVMAPZOOMBUTTON      0x01
 
 typedef struct _G3DUIUVMAPEDITOR {
-    uint32_t       flags;
+    uint64_t       engine_flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
     G3DUIRECTANGLE patternrec;
@@ -885,10 +885,14 @@ void common_g3duiview_sizeGL ( G3DUIVIEW *, uint32_t, uint32_t );
 
 void common_g3duiview_initGL ( G3DUIVIEW * );
 
-void common_g3duiview_showGL ( G3DUIVIEW *, G3DUI *, G3DSCENE *, G3DCAMERA *, 
-                                                    G3DMOUSETOOL *,
-                                                        uint32_t,
-                                                        uint32_t );
+void common_g3duiview_showGL ( G3DUIVIEW    *view,
+                               G3DUI        *gui,
+                               G3DSCENE     *sce,
+                               G3DCAMERA    *cam,
+                               G3DMOUSETOOL *mou,
+                               uint32_t      current,
+                               uint64_t      engine_flags );
+
 int  common_g3duiview_getCurrentButton ( G3DUIVIEW *, int, int );
 void common_g3duiview_moveForward  ( G3DUIVIEW *, float );
 void common_g3duiview_moveSideward ( G3DUIVIEW *, float, float );
@@ -945,16 +949,17 @@ typedef struct _OBJECTLISTPRIVATEDATA {
 
 OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( G3DUI *gui );
 
-PICKEDOBJECT *pickobject ( uint32_t, uint32_t,
-                                     uint32_t, 
-                                     uint32_t,
-                                     uint32_t,
-                                     uint32_t,
-                                     G3DOBJECT *,
-                                     G3DSCENE *,
-                                     G3DURMANAGER *,
-                                     uint32_t,
-                                     uint32_t );
+PICKEDOBJECT *pickobject ( uint32_t x, 
+                           uint32_t y,
+                           uint32_t xsep,
+                           uint32_t xm,
+                           uint32_t ym,
+                           uint32_t strwidth,
+                           G3DOBJECT *obj,
+                           G3DSCENE *sce,
+                           G3DURMANAGER *urm,
+                           uint32_t pick_flags,
+                           uint64_t engine_flags );
 
 uint32_t listedObject_sizeInit ( LISTEDOBJECT *, uint32_t, uint32_t, uint32_t );
 LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *, uint32_t, 
@@ -1076,10 +1081,11 @@ G3DUICLIPBOARD *g3duiclipboard_new        ( );
 void            g3duiclipboard_clear      ( G3DUICLIPBOARD * );
 void            g3duiclipboard_free       ( G3DUICLIPBOARD * );
 void            g3duiclipboard_clear      ( G3DUICLIPBOARD * );
-void            g3duiclipboard_copyObject ( G3DUICLIPBOARD *, G3DSCENE *,
-                                                              LIST *,
-                                                              int, 
-                                                              uint32_t );
+void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli, 
+                                 G3DSCENE       *sce,
+                                 LIST           *lobj,
+                                 int             recurse, 
+                                 uint64_t        engine_flags );
 void            g3duiclipboard_paste      ( G3DUICLIPBOARD *, G3DURMANAGER *,
                                                               G3DSCENE *,
                                                               G3DOBJECT *,
@@ -1478,7 +1484,7 @@ void common_g3duiuvmapeditor_plotUV ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
-                                      uint32_t          engine_flags );
+                                      uint64_t engine_flags );
 void common_g3duiuvmapeditor_initGL ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_sizeGL ( G3DUIUVMAPEDITOR *uvme, 
                                       uint32_t          width, 

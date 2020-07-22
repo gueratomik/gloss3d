@@ -668,7 +668,7 @@ typedef struct _R3DDUMP {
     double  *wnormix; /* object normal matrix (invert modelview)  */
     int     *vmatrix; /* camera viewport   */
     uint32_t dump_flags;
-    uint32_t engine_flags;
+    uint64_t engine_flags;
 } R3DDUMP;
 
 /******************************************************************************/
@@ -895,7 +895,7 @@ void r3dobject_import ( G3DOBJECT *obj,
                         LIST     **lrob,
                         LIST     **lrlt, 
                         uint32_t   dump_flags,
-                        uint32_t   engine_flags );
+                        uint64_t engine_flags );
 
 /******************************************************************************/
 void r3dinterpolation_build ( R3DINTERPOLATION *,
@@ -951,14 +951,16 @@ void r3dcontainerface_init ( R3DCONTAINERFACE *, G3DFACE       *,
 void r3dcontainerface_free ( R3DCONTAINERFACE * );
 
 /******************************************************************************/
-R3DMESH *r3dmesh_new ( G3DMESH *, uint32_t, 
-                                  double *,
-                                  double *,
-                                  double *,
-                                  double *,
-                                  int *,
-                                  uint32_t,
-                                  uint32_t );
+R3DMESH *r3dmesh_new ( G3DMESH *mes, 
+                       uint32_t id,
+                       double  *wmatrix,
+                       double  *cmatrix, /* camera world matrix */
+                       double  *wnormix,
+                       double  *pmatrix, /* camera proj matrix */
+                       int     *vmatrix, /* camera viewport */
+                       uint32_t dump_flags,
+                       uint64_t engine_flags );
+
 R3DMESH *r3dmesh_newFromPrimitive ( G3DPRIMITIVE *, double *, double * );
 void r3dmesh_free ( R3DOBJECT * );
 void r3dmesh_allocFaces ( R3DMESH *, uint32_t );
@@ -1001,7 +1003,9 @@ R3DSCENE *r3dscene_new ( R3DRENDERSETTINGS *rsg, uint32_t dump_flags,
 void *r3dscene_render_frame_t    ( R3DSCENE * );
 void *r3dscene_render_sequence_t ( R3DSCENE * );
 void  r3dscene_render            ( R3DSCENE * );
-void r3dscene_import ( R3DSCENE *, uint32_t, uint32_t );
+void r3dscene_import ( R3DSCENE *rsce, 
+                       uint32_t  dump_flags,
+                       uint64_t  engine_flags );
 
 /******************************************************************************/
 LIST **r3dbbox_getList ( R3DBBOX *, uint32_t, uint32_t, uint32_t );

@@ -35,12 +35,12 @@
 
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
-                           uint32_t      flags );
+                           uint64_t engine_flags );
 static int cutMesh_tool ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
-                          uint32_t      flags, 
+                          uint64_t engine_flags, 
                           G3DEvent     *event );
 
 /******************************************************************************/
@@ -71,10 +71,10 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
 /******************************************************************************/
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
-                           uint32_t      flags ) {
-    if ( ( flags & VIEWVERTEX ) ||
-         ( flags & VIEWEDGE   ) ||
-         ( flags & VIEWFACE   ) ) {
+                           uint64_t engine_flags ) {
+    if ( ( engine_flags & VIEWVERTEX ) ||
+         ( engine_flags & VIEWEDGE   ) ||
+         ( engine_flags & VIEWFACE   ) ) {
         G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) mou;
         /*** two dimensions array [4][3](x,y,z), relative to object ***/
         GLdouble (*coord)[0x03] = cm->coord;
@@ -104,7 +104,7 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
-                          uint32_t      flags, 
+                          uint64_t engine_flags, 
                           G3DEvent     *event ) {
     /*** selection rectangle coords ***/
     static GLdouble MVX[0x10], PJX[0x10];
@@ -121,9 +121,9 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
 
             cm->start = 0x01;
 
-            if ( ( flags & VIEWVERTEX ) ||
-                 ( flags & VIEWEDGE   ) ||
-                 ( flags & VIEWFACE   ) ) {
+            if ( ( engine_flags & VIEWVERTEX ) ||
+                 ( engine_flags & VIEWEDGE   ) ||
+                 ( engine_flags & VIEWFACE   ) ) {
                 if ( obj && ( ( obj->type == G3DMESHTYPE   ) ||
                               ( obj->type == G3DSPLINETYPE ) ) ) {
                     mes = ( G3DMESH * ) obj;
@@ -159,9 +159,9 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
         case G3DMotionNotify : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( ( flags & VIEWVERTEX ) ||
-                 ( flags & VIEWEDGE   ) ||
-                 ( flags & VIEWFACE   ) ) {
+            if ( ( engine_flags & VIEWVERTEX ) ||
+                 ( engine_flags & VIEWEDGE   ) ||
+                 ( engine_flags & VIEWFACE   ) ) {
                 if ( mes ) {
                     gluUnProject ( ( double ) bev->x,
                                    ( double ) VPX[0x03] - bev->y, 0.000001f,
@@ -183,9 +183,9 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
             G3DFACE *knife;
             int i;
 
-            if ( ( flags & VIEWVERTEX ) ||
-                 ( flags & VIEWEDGE   ) ||
-                 ( flags & VIEWFACE   ) ) {
+            if ( ( engine_flags & VIEWVERTEX ) ||
+                 ( engine_flags & VIEWEDGE   ) ||
+                 ( engine_flags & VIEWFACE   ) ) {
                 if ( mes ) {
                     /*gluUnProject ( ( double ) bev->x, ( double ) bev->y, 0.001f,
                                     MVX, PJX, VPX, &coord[0x02][0x00],
@@ -211,7 +211,7 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                                           mes, 
                                           knife,   
                                           cm->restrict_to_selection, 
-                                          flags, 
+                                          engine_flags, 
                                           REDRAWVIEW );
                     }
 
@@ -221,7 +221,7 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                         g3durm_spline_cut ( urm,
                                             spline, 
                                             knife,
-                                            flags,
+                                            engine_flags,
                                             REDRAWVIEW );
                     }
 

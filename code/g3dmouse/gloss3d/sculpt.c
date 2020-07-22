@@ -36,7 +36,7 @@ static int sculpt_tool ( G3DMOUSETOOL *mou,
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm, 
-                         uint32_t      engine_flags, 
+                         uint64_t      engine_flags, 
                          G3DEvent     *event );
 
 /******************************************************************************/
@@ -85,10 +85,11 @@ G3DMOUSETOOLSCULPT *sculptTool_new ( ) {
 #define BUFFERSIZE 0x10000
 
 /******************************************************************************/
-void sculpt_pick ( G3DMOUSETOOLSCULPT *st, G3DMESH *mes,
-                                      G3DCAMERA *cam,
-                                      G3DVECTOR *dir,
-                                      uint32_t engine_flags ) {
+void sculpt_pick ( G3DMOUSETOOLSCULPT *st, 
+                   G3DMESH            *mes,
+                   G3DCAMERA          *cam,
+                   G3DVECTOR          *dir,
+                   uint64_t            engine_flags ) {
 #ifdef REFURSBISH
     int MX = st->coord[0x00] + ( ( st->coord[0x02] - st->coord[0x00] ) >> 0x01 ),
         MY = st->coord[0x01] + ( ( st->coord[0x03] - st->coord[0x01] ) >> 0x01 ),
@@ -282,7 +283,7 @@ static int sculpt_tool ( G3DMOUSETOOL *mou,
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm, 
-                         uint32_t      engine_flags, 
+                         uint64_t      engine_flags, 
                          G3DEvent     *event ) {
     G3DMOUSETOOLSCULPT *st = ( G3DMOUSETOOLSCULPT * ) mou;
     static GLint VPX[0x04];

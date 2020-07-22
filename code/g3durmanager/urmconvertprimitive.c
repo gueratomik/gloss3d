@@ -62,7 +62,8 @@ void urmconvertprimitive_free ( URMCONVERTPRIMITIVE *cpv ) {
 }
 
 /******************************************************************************/
-void convertPrimitive_free ( void *data, uint32_t commit ) {
+void convertPrimitive_free ( void    *data, 
+                             uint32_t commit ) {
     URMCONVERTPRIMITIVE *cpv = ( URMCONVERTPRIMITIVE * ) data;
 
     if ( commit ) {
@@ -75,52 +76,57 @@ void convertPrimitive_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void convertPrimitive_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void convertPrimitive_undo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMCONVERTPRIMITIVE *cpv = ( URMCONVERTPRIMITIVE * ) data;
     G3DPRIMITIVE *pri    = cpv->pri;
     G3DOBJECT    *parent = cpv->par;
     G3DMESH      *mes    = cpv->mes;
     G3DSCENE     *sce    = cpv->sce;
 
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
-    g3dobject_removeChild ( parent, ( G3DOBJECT * ) mes, flags );
-    g3dobject_addChild    ( parent, ( G3DOBJECT * ) pri, flags );
+    g3dobject_removeChild ( parent, ( G3DOBJECT * ) mes, engine_flags );
+    g3dobject_addChild    ( parent, ( G3DOBJECT * ) pri, engine_flags );
 
-    g3dscene_selectObject ( sce   , ( G3DOBJECT * ) pri, flags );
+    g3dscene_selectObject ( sce   , ( G3DOBJECT * ) pri, engine_flags );
 }
 
 /******************************************************************************/
-void convertPrimitive_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void convertPrimitive_redo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMCONVERTPRIMITIVE *cpv = ( URMCONVERTPRIMITIVE * ) data;
     G3DPRIMITIVE *pri    = cpv->pri;
     G3DOBJECT    *parent = cpv->par;
     G3DMESH      *mes    = cpv->mes;
     G3DSCENE     *sce    = cpv->sce;
 
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
-    g3dobject_removeChild ( parent, ( G3DOBJECT * ) pri, flags );
-    g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, flags );
+    g3dobject_removeChild ( parent, ( G3DOBJECT * ) pri, engine_flags );
+    g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
 
-    g3dscene_selectObject ( sce   , ( G3DOBJECT * ) mes, flags );
+    g3dscene_selectObject ( sce   , ( G3DOBJECT * ) mes, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_primitive_convert ( G3DURMANAGER *urm, G3DSCENE  *sce,
-                                                   uint32_t flags,
-                                                   G3DPRIMITIVE *pri,
-                                                   G3DOBJECT *par,
-                                                   uint32_t return_flags ) {
+void g3durm_primitive_convert ( G3DURMANAGER *urm, 
+                                G3DSCENE     *sce,
+                                uint64_t      engine_flags,
+                                G3DPRIMITIVE *pri,
+                                G3DOBJECT    *par,
+                                uint32_t      return_flags ) {
     URMCONVERTPRIMITIVE *cpv;
     G3DMESH *mes;
 
     /*** perform action ***/
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
-    mes = g3dprimitive_convert ( ( G3DPRIMITIVE * ) pri, flags );
+    mes = g3dprimitive_convert ( ( G3DPRIMITIVE * ) pri, engine_flags );
 
-    g3dscene_selectObject ( sce, ( G3DOBJECT * ) mes, flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) mes, engine_flags );
 
     /*** save state for undoing ***/
     cpv = urmconvertprimitive_new ( pri, mes, par, sce );

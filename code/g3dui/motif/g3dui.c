@@ -1595,8 +1595,8 @@ void reloadfilesignal ( int signo, siginfo_t *info, void *extra ) {
                                      XmNheight, &height,
                                      NULL );
 
-        g3dcamera_view    ( clt->cam, gui->flags );
-        g3dcamera_project ( clt->cam, gui->flags );
+        g3dcamera_view    ( clt->cam, gui->engine_flags );
+        g3dcamera_project ( clt->cam, gui->engine_flags );
 
         /*rsce = r3dscene_render ( clt->sce, clt->cam, 0x00, clt->from,
                                                      clt->resx-1, clt->to,
@@ -1722,7 +1722,7 @@ static XtRealizeProc Realize ( Widget w, XtValueMask *value_mask,
     /*** copy-paste manager ***/
     /*gui->cli = g3duiclipboard_new ( );*//*a decommenter apres adaptation*/
 
-    gui->flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
+    gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
     gui->currsg = g3duirendersettings_new ( ); /*** default render settings ***/
 

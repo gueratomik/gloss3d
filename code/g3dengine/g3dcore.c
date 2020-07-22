@@ -67,7 +67,7 @@ void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR     *angles,
 }
 
 /******************************************************************************/
-void g3dcore_gridZX ( uint32_t flags ) {
+void g3dcore_gridZX ( uint64_t engine_flags ) {
     double zmax, xmax, zmin, xmin, yval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -129,7 +129,7 @@ void g3dcore_gridZX ( uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_gridYZ ( uint32_t flags ) {
+void g3dcore_gridYZ ( uint64_t engine_flags ) {
     double ymax, zmax, ymin, zmin, xval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -191,7 +191,7 @@ void g3dcore_gridYZ ( uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_gridXY ( uint32_t flags ) {
+void g3dcore_gridXY ( uint64_t engine_flags ) {
     double xmax, ymax, xmin, ymin, zval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -253,7 +253,7 @@ void g3dcore_gridXY ( uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_grid3D ( uint32_t flags ) {
+void g3dcore_grid3D ( uint64_t engine_flags ) {
     float x1, x2, z1, z2;
     int i;
 
@@ -365,24 +365,27 @@ char *g3dcore_strclone ( char *str ) {
 }
 
 /******************************************************************************/
-void g3dcore_drawXYCircle ( float radius, uint32_t engine_flags ) {
+void g3dcore_drawXYCircle ( float    radius, 
+                            uint64_t engine_flags ) {
     g3dcore_drawCircle ( ORIENTATIONXY, radius, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcore_drawYZCircle ( float radius, uint32_t engine_flags ) {
+void g3dcore_drawYZCircle ( float    radius, 
+                            uint64_t engine_flags ) {
     g3dcore_drawCircle ( ORIENTATIONYZ, radius, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcore_drawZXCircle ( float radius, uint32_t engine_flags ) {
+void g3dcore_drawZXCircle ( float    radius, 
+                            uint64_t engine_flags ) {
     g3dcore_drawCircle ( ORIENTATIONZX, radius, engine_flags );
 }
 
 /******************************************************************************/
 void g3dcore_drawCircle ( uint32_t orientation,
                           float    radius,
-                          uint32_t engine_flags ) {
+                          uint64_t engine_flags ) {
     static G3DVECTOR p[16] = { { .x =  1.0f          , .y =  0.0f           },
                                { .x =  0.92387953251f, .y =  0.38268343236f },
                                { .x =  0.70710678118f, .y =  0.70710678118f },
@@ -617,335 +620,6 @@ void g3dcore_symmetryMatrix ( double *matrix, uint32_t orientation ) {
     if ( orientation == ORIENTATIONYZ ) {
         matrix[0x00] = -1.0f;
     }
-}
-
-/******************************************************************************/
-void g3dcore_keepVisibleVerticesOnly ( LIST **lselver, LIST *lfac, 
-                                                       uint32_t subdiv,
-                                                       uint32_t object_flags,
-                                                       uint32_t engine_flags ) {
-    LIST *lver = list_copy ( (*lselver) );
-    /** At first I used only the faces from the picked vertices, but it     **/
-    /** does not work when a face is inside the screen but not its vertices.**/
-    /*LIST *lfac = g3dvertex_getFaceListFromVertices ( lver );*/
-    LIST *ltmpfac = lfac;
-    LIST *ltmpver = lver;
-    double MVX[0x10];
-    double PJX[0x10];
-    int    VPX[0x04];
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING   );
-    glEnable    ( GL_DEPTH_TEST );
-
-    /** Very important as we are going to overlap faces ***/
-    glDepthFunc ( GL_LEQUAL );
-
-    glColor3ub ( 0x00, 0x00, 0x00 );
-
-    object_flags |= MESHGEOMETRYONLY;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        g3dface_drawSimple ( fac, object_flags, engine_flags );
-
-
-        ltmpfac = ltmpfac->next;
-    }
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        GLdouble posx, posy, posz;
-        GLubyte pix[0x03];
-        G3DVECTOR *pos = ( ver->flags & VERTEXSUBDIVIDED ) ? ( G3DVECTOR * ) &ver->rtvermem->pos :
-                                                             ( G3DVECTOR * ) &ver->pos;
-
-        /*** spline handle have relative pos ***/
-      if ( ( ver->flags & VERTEXHANDLE ) == 0x00 ) {
-        /*** draw vertex ***/
-        glColor3ub ( 0xFF, 0xFF, 0xFF );
-        glPointSize ( 4.0f );
-        glBegin ( GL_POINTS );
-        glVertex3fv ( ( GLfloat * ) pos );
-        glEnd ( );
-
-        gluProject ( pos->x,
-                     pos->y,
-                     pos->z, MVX, PJX, VPX, &posx, &posy, &posz );
-
-        glReadPixels ( posx, posy,
-                       0x01, 0x01,
-                       /* dont use GL_RGBA or it will read more than 1 int ! */
-                       GL_RGB, GL_UNSIGNED_BYTE, pix );
-
-        if ( ( pix[0x00] != 0xFF ) || 
-             ( pix[0x01] != 0xFF ) || 
-             ( pix[0x02] != 0xFF ) ) {
-            list_remove ( lselver, ver );
-        }
-
-        /*** erase vertex ***/
-        glColor3ub ( 0x00, 0x00, 0x00 );
-        glBegin ( GL_POINTS );
-        glVertex3fv ( ( GLfloat * ) pos );
-        glEnd ( );
-      }
-
-        ltmpver = ltmpver->next;
-    }
-
-    glPopAttrib ( );
-
-    list_free ( &lver, NULL );
-    /*list_free ( &lfac, NULL );*/
-}
-
-/******************************************************************************/
-void g3dcore_keepVisibleEdgesOnly ( LIST **lseledg, LIST *lfac, 
-                                                    uint32_t subdiv,
-                                                    uint32_t moux,
-                                                    uint32_t mouy,
-                                                    uint32_t object_flags,
-                                                    uint32_t engine_flags ) {
-    /** At first I used only the faces from the picked vertices, but it     **/
-    /** does not work when a face is inside the screen but not its vertices.**/
-    /*LIST *lfac = g3dvertex_getFaceListFromVertices ( lver );*/
-    LIST *ltmpfac = lfac;
-    LIST *ltmpsel = (*lseledg);
-    double MVX[0x10];
-    double PJX[0x10];
-    int    VPX[0x04];
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING   );
-    glEnable    ( GL_DEPTH_TEST );
-
-    /** Very important as we are going to overlap faces ***/
-    glDepthFunc ( GL_LEQUAL );
-
-    glColor3ub ( 0x00, 0x00, 0x00 );
-
-    object_flags |= MESHGEOMETRYONLY;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        g3dface_drawSimple ( fac, object_flags, engine_flags );
-
-
-        ltmpfac = ltmpfac->next;
-    }
-
-    while ( ltmpsel ) {
-        G3DEDGE *edg = ( G3DEDGE * ) ltmpsel->data;
-        GLubyte pix[0x03];
-        uint32_t i;
-
-        /*** draw vertex ***/
-        glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-        g3dedge_drawSimple ( edg, object_flags, engine_flags );
-
-        /*** test the selection rectangle center lies in the face ***/
-        glReadPixels ( moux, mouy,
-                       0x01, 0x01,
-                       /*** dont use GL_RGBA or it will ***/
-                       /*** read more than 1 int !      ***/
-                       GL_RGB, GL_UNSIGNED_BYTE, pix );
-
-        if ( ( pix[0x00] != 0xFF ) || 
-             ( pix[0x01] != 0xFF ) || 
-             ( pix[0x02] != 0xFF ) ) {
-            double posx, posy, posz;
-            uint32_t remove = 0x01;
-            G3DVECTOR pos;
-
-            g3dedge_getAveragePosition ( edg, &pos );
-
-            /*** Test the face center lies in the selection rectangle ***/
-            /*** otherwise ***/
-            gluProject ( pos.x,
-                         pos.y,
-                         pos.z, MVX,
-                                PJX, 
-                                VPX, &posx, &posy, &posz );
-
-            glReadPixels ( posx, posy,
-                           0x01, 0x01,
-                           /*** dont use GL_RGBA or it will ***/
-                           /*** read more than 1 int !      ***/
-                           GL_RGB, GL_UNSIGNED_BYTE, pix );
- 
-            if ( ( pix[0x00] == 0xFF ) &&
-                 ( pix[0x01] == 0xFF ) &&
-                 ( pix[0x02] == 0xFF ) ) {
-                remove = 0x00;
-            }
-
-            if ( remove ) list_remove ( lseledg, edg );
-        }
-
-        /*** erase face ***/
-        glColor3ub ( 0x00, 0x00, 0x00 );
-
-        g3dedge_drawSimple ( edg, object_flags, engine_flags );
-
-
-        ltmpsel = ltmpsel->next;
-    }
-
-    glPopAttrib ( );
-
-    /*list_free ( &lver, NULL );*/
-    /*list_free ( &lfac, NULL );*/
-}
-
-/******************************************************************************/
-void g3dcore_keepVisibleFacesOnly ( LIST **lselfac, LIST *lfac, 
-                                                    uint32_t subdiv,
-                                                    uint32_t moux,
-                                                    uint32_t mouy,
-                                                    uint32_t object_flags,
-                                                    uint32_t engine_flags ) {
-    /** At first I used only the faces from the picked vertices, but it     **/
-    /** does not work when a face is inside the screen but not its vertices.**/
-    /*LIST *lfac = g3dvertex_getFaceListFromVertices ( lver );*/
-    LIST *ltmpfac = lfac;
-    LIST *ltmpsel = (*lselfac);
-    double MVX[0x10];
-    double PJX[0x10];
-    int    VPX[0x04];
-
-    glGetDoublev  ( GL_MODELVIEW_MATRIX , MVX );
-    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-    glGetIntegerv ( GL_VIEWPORT         , VPX );
-
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING   );
-    glEnable    ( GL_DEPTH_TEST );
-
-    /** Very important as we are going to overlap faces ***/
-    glDepthFunc ( GL_LEQUAL );
-
-    glColor3ub ( 0x00, 0x00, 0x00 );
-
-    object_flags |= MESHGEOMETRYONLY;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        g3dface_drawSimple ( fac, object_flags, engine_flags );
-
-
-        ltmpfac = ltmpfac->next;
-    }
-
-    while ( ltmpsel ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpsel->data;
-        GLubyte pix[0x03];
-        uint32_t i;
-
-        /*** draw vertex ***/
-        glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-        g3dface_drawSimple ( fac, object_flags, engine_flags );
-
-        /*** test the selection rectangle center lies in the face ***/
-        glReadPixels ( moux, mouy,
-                       0x01, 0x01,
-                       /*** dont use GL_RGBA or it will ***/
-                       /*** read more than 1 int !      ***/
-                       GL_RGB, GL_UNSIGNED_BYTE, pix );
-
-        if ( ( pix[0x00] != 0xFF ) || 
-             ( pix[0x01] != 0xFF ) || 
-             ( pix[0x02] != 0xFF ) ) {
-            double posx, posy, posz;
-            uint32_t remove = 0x01;
-
-            /*** Test the face center lies in the selection rectangle ***/
-            /*** otherwise ***/
-            gluProject ( fac->pos.x,
-                         fac->pos.y,
-                         fac->pos.z, MVX,
-                                     PJX, 
-                                     VPX, &posx, &posy, &posz );
-
-            glReadPixels ( posx, posy,
-                           0x01, 0x01,
-                           /*** dont use GL_RGBA or it will ***/
-                           /*** read more than 1 int !      ***/
-                           GL_RGB, GL_UNSIGNED_BYTE, pix );
- 
-            if ( ( pix[0x00] == 0xFF ) &&
-                 ( pix[0x01] == 0xFF ) &&
-                 ( pix[0x02] == 0xFF ) ) {
-                remove = 0x00;
-            }
-
-            if ( remove ) list_remove ( lselfac, fac );
-        }
-
-        /*** erase face ***/
-        glColor3ub ( 0x00, 0x00, 0x00 );
-
-        g3dface_drawSimple ( fac, object_flags, engine_flags );
-
-        ltmpsel = ltmpsel->next;
-    }
-
-    glPopAttrib ( );
-
-    /*list_free ( &lver, NULL );*/
-    /*list_free ( &lfac, NULL );*/
-}
-
-/*****************************************************************************/
-/*** http://www.opengl.org/archives/resources/faq/technical/selection.htm  ***/
-/*****************************************************************************/
-LIST *processHits ( GLint hits, GLuint *buffer ) {
-    GLuint *ptr = buffer;
-    LIST *lis = NULL;
-    GLint min, max;
-    GLuint i, j;
-
-    for ( i = 0x00; i < hits; i++ ) {
-        GLuint nbname = (*ptr++);
-
-        min = *(ptr++); /** D0 NOT  COMMENT THIS ***/
-        max = *(ptr++); /** D0 NOT  COMMENT THIS ***/
-
-        for ( j = 0x00; j < nbname; j++ ) {
-            GLuint name = (*ptr++);
-#ifdef __LP64__
-            /*** Tells the compiler to shut up about different size cast ***/
-            uint64_t cname = ( uint64_t ) name;
-#else
-            uint32_t cname = ( uint32_t ) name;
-#endif
-
-            list_insert ( &lis, ( void * ) cname );
-        }
-    }
-
-
-
-    return lis;
 }
 
 /******************************************************************************/

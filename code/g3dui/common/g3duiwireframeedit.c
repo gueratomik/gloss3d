@@ -42,10 +42,10 @@ void common_g3duiwireframeedit_thicknessCbk ( G3DUI *gui, float thickness ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dwireframe_setThickness ( wir, thickness, gui->flags );
+        g3dwireframe_setThickness ( wir, thickness, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->flags );*/
+        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
     }
 
     g3dui_redrawGLViews ( gui );

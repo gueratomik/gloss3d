@@ -124,7 +124,7 @@ typedef struct _XMLDATA {
     LIST *lpolylist;
     char    *tmpstr;
     uint32_t tmpsiz; /*** store tmpstr size for realloc stuff ***/
-    uint32_t flags;
+    uint64_t engine_flags;
 } XMLDATA;
 
 /******************************************************************************/
@@ -163,10 +163,12 @@ void geometryStartElement ( void *, const XML_Char *, const XML_Char ** );
 void geometryEndElement ( void *, const XML_Char * );
 void startElement ( void *, const XML_Char *, const XML_Char ** );
 void endElement ( void *, const XML_Char * );
-XMLDATA *xmldata_new ( uint32_t );
+XMLDATA *xmldata_new ( uint64_t engine_flags );
 void xmldata_free ( XMLDATA * );
-G3DSCENE *xmldata_convert ( XMLDATA *, uint32_t );
-G3DSCENE *g3dscene_importCollada ( const char *, uint32_t );
+G3DSCENE *xmldata_convert ( XMLDATA *xdt, 
+                            uint64_t engine_flags );
+G3DSCENE *g3dscene_importCollada ( const char *filename, 
+                                   uint64_t    engine_flags );
 VERTEXARRAY *vertexarray_new ( char *, char * );
 
 #endif
@@ -197,15 +199,14 @@ G3DSCENE *g3dscene_open ( const char *filename,
                           uint32_t    flags );
 
 /*****************************< 3DStudio .3ds FILES >**************************/
-G3DSCENE *g3dscene_import3ds ( const char *, uint32_t );
+G3DSCENE *g3dscene_import3ds ( const char *filename, 
+                               uint64_t    engine_flags );
 
 /*****************************< Wavefront .obj FILES >*************************/
-G3DSCENE   *g3dscene_importObj ( const char *, uint32_t );
-char       *readEntry          ( FILE * );
-G3DMESH    *readMesh           ( const char *, G3DSCENE *, uint32_t );
-G3DVERTEX  *readVertex         ( const char * );
-G3DFACE    *readFace           ( const char *, G3DVERTEX **, uint32_t );
-G3DVERTEX **vertab_realloc     ( G3DVERTEX **, uint32_t * );
-G3DSCENE   *readFile           ( FILE *, uint32_t );
+G3DSCENE *g3dscene_importObj( const char *filename, 
+                              uint64_t    engine_flags );
+
+/*** neded by g3duiconf ***/
+char *readEntry ( FILE *fsrc );
 
 #endif

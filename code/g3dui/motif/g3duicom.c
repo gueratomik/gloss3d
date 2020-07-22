@@ -40,7 +40,7 @@ void g3duicom_communicate ( Widget w, XtPointer client,
     /*** otherwise g3dobject_anim_r() may call some buffered subdivision ***/
     /*** updates and that;s gonna be really slow. We prefer to rely ***/
     /*** On real time stuff ***/
-    gui->flags |= ONGOINGANIMATION;
+    gui->engine_flags |= ONGOINGANIMATION;
 
     if ( event->type == ClientMessage) {
         XClientMessageEvent *cme = (XClientMessageEvent *) event ;
@@ -50,7 +50,7 @@ void g3duicom_communicate ( Widget w, XtPointer client,
 
             memcpy ( &frame, &cme->data.l[0x01], sizeof ( float ) );
 
-            g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, frame, gui->flags );
+            g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, frame, gui->engine_flags );
 
             g3dui_redrawGLViews ( gui );
 
@@ -59,7 +59,7 @@ void g3duicom_communicate ( Widget w, XtPointer client,
     }
 
     /*** Re-enable real time subdivision ***/
-    gui->flags &= (~ONGOINGANIMATION);
+    gui->engine_flags &= (~ONGOINGANIMATION);
 }
 
 /******************************************************************************/

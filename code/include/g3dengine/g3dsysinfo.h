@@ -99,7 +99,7 @@ void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *sysinfo,
                                         float       sceneCurrentFrame,
                                         float       sceneEndFrame,
                                         float       sceneFramesPerSecond,
-                                        uint32_t    engine_flags );
+                                        uint64_t engine_flags );
 
 /**
  * Reset the g3dsysinfo structure to its default values.

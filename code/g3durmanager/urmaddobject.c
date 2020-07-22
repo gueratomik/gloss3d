@@ -31,9 +31,10 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMADDOBJECT *urmaddobject_new ( LIST *lobj, G3DOBJECT *oldpar,
-                                             G3DOBJECT *newpar,
-                                             G3DSCENE  *sce ) {
+static URMADDOBJECT *urmaddobject_new ( LIST      *lobj,
+                                        G3DOBJECT *oldpar,
+                                        G3DOBJECT *newpar,
+                                        G3DSCENE  *sce ) {
     uint32_t structsize = sizeof ( URMADDOBJECT );
 
     URMADDOBJECT *ado = ( URMADDOBJECT * ) calloc ( 0x01, structsize );
@@ -55,7 +56,7 @@ URMADDOBJECT *urmaddobject_new ( LIST *lobj, G3DOBJECT *oldpar,
 }
 
 /******************************************************************************/
-void urmaddobject_free ( URMADDOBJECT *ado ) {
+static void urmaddobject_free ( URMADDOBJECT *ado ) {
     list_free ( &ado->lsel, NULL );
     list_free ( &ado->lobj, NULL );
 
@@ -63,7 +64,7 @@ void urmaddobject_free ( URMADDOBJECT *ado ) {
 }
 
 /******************************************************************************/
-void addObject_free ( void *data, uint32_t commit ) {
+static void addObject_free ( void *data, uint32_t commit ) {
     URMADDOBJECT *ado = ( URMADDOBJECT * ) data;
     LIST *lobj = ado->lobj;
 
@@ -77,7 +78,9 @@ void addObject_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void addObject_undo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMADDOBJECT *ado = ( URMADDOBJECT * ) data;
     G3DOBJECT *newpar = ado->newpar,
               *oldpar = ado->oldpar;
@@ -86,12 +89,12 @@ void addObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
     LIST *lobj = ado->lobj;
 
     /*** restore the selection ***/
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
     while ( ltmpsel ) {
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmpsel->data;
 
-        g3dscene_selectObject ( sce, sel, flags );
+        g3dscene_selectObject ( sce, sel, engine_flags );
 
         ltmpsel = ltmpsel->next;
     }
@@ -108,7 +111,9 @@ void addObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void addObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void addObject_redo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMADDOBJECT *ado = ( URMADDOBJECT * ) data;
     G3DOBJECT *newpar = ado->newpar,
               *oldpar = ado->oldpar;
@@ -122,12 +127,12 @@ void addObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
     }
 
     /*** Select the newly added objects ***/
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        g3dscene_selectObject ( sce, obj, flags );
+        g3dscene_selectObject ( sce, obj, engine_flags );
 
         ltmpobj = ltmpobj->next;
     }
@@ -139,28 +144,36 @@ void addObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 /******************************************************************************/
 /*** This function is a container function for legacy compatibility with ***/
 /*** other functions that add only one object ***/ 
-void g3durm_object_addChild ( G3DURMANAGER *urm, G3DSCENE  *sce,
-                                                 uint32_t   flags,
-                                                 uint32_t   return_flags,
-                                                 G3DOBJECT *oldpar,
-                                                 G3DOBJECT *newpar,
-                                                 G3DOBJECT *obj ) {
+void g3durm_object_addChild ( G3DURMANAGER *urm, 
+                              G3DSCENE     *sce,
+                              uint64_t      engine_flags,
+                              uint32_t      return_flags,
+                              G3DOBJECT    *oldpar,
+                              G3DOBJECT    *newpar,
+                              G3DOBJECT    *obj ) {
     LIST *lobj = NULL;
 
     list_insert ( &lobj, obj );
 
-    g3durm_object_addChildren ( urm, sce, flags, return_flags, oldpar, newpar, lobj );
+    g3durm_object_addChildren ( urm, 
+                                sce, 
+                                engine_flags, 
+                                return_flags, 
+                                oldpar, 
+                                newpar,
+                                lobj );
 
     list_free ( &lobj, NULL );
 }
 
 /******************************************************************************/
-void g3durm_object_addChildren ( G3DURMANAGER *urm, G3DSCENE  *sce,
-                                                    uint32_t   flags,
-                                                    uint32_t   return_flags,
-                                                    G3DOBJECT *oldpar,
-                                                    G3DOBJECT *newpar,
-                                                    LIST      *lobj ) {
+void g3durm_object_addChildren ( G3DURMANAGER *urm, 
+                                 G3DSCENE  *sce,
+                                 uint64_t   engine_flags,
+                                 uint32_t   return_flags,
+                                 G3DOBJECT *oldpar,
+                                 G3DOBJECT *newpar,
+                                 LIST      *lobj ) {
     URMADDOBJECT *ado;
     LIST *ltmpobj = lobj;
 
@@ -182,14 +195,14 @@ void g3durm_object_addChildren ( G3DURMANAGER *urm, G3DSCENE  *sce,
     g3dscene_checkLights ( sce );
 
     /*** Select the newly added objects ***/
-    g3dscene_unselectAllObjects ( sce, flags );
+    g3dscene_unselectAllObjects ( sce, engine_flags );
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        g3dobject_updateMatrix_r ( obj, flags );
+        g3dobject_updateMatrix_r ( obj, engine_flags );
 
-        g3dscene_selectObject ( sce, obj, flags );
+        g3dscene_selectObject ( sce, obj, engine_flags );
 
         ltmpobj = ltmpobj->next;
     }

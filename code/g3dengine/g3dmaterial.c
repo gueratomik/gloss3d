@@ -70,7 +70,7 @@ LIST *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce ) {
 /******************************************************************************/
 void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, 
                                 G3DSCENE    *sce, 
-                                uint32_t     engine_flags ) {
+                                uint64_t     engine_flags ) {
     LIST *lobj = g3dmaterial_getObjects ( mat, sce );
     LIST *ltmpobj = lobj;
 
@@ -198,6 +198,25 @@ void g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL *mat ) {
 /******************************************************************************/
 void g3dmaterial_name ( G3DMATERIAL *mat, const char *name ) {
     mat->name = g3dcore_strclone ( ( char * ) name );
+}
+
+/******************************************************************************/
+G3DCHANNEL *g3dmaterial_getChannelByID ( G3DMATERIAL *mat, 
+                                         uint32_t     id ) {
+    switch ( id ) {
+        case DIFFUSECHANNELID      : return &mat->diffuse; break;
+        case SPECULARCHANNELID     : return &mat->specular; break;
+        case DISPLACEMENTCHANNELID : return &mat->displacement; break;
+        case ALPHACHANNELID        : return &mat->alpha; break;
+        case BUMPCHANNELID         : return &mat->bump; break;
+        case REFLECTIONCHANNELID   : return &mat->reflection; break;
+        case REFRACTIONCHANNELID   : return &mat->refraction; break;
+ 
+        default : 
+        break;
+    }
+
+    return NULL;
 }
 
 /******************************************************************************/

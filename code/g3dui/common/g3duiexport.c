@@ -103,7 +103,7 @@ static uint32_t g3duiview_flags ( G3DEXPORTDATA *ged,
                                   FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &view->flags, fdst );
+    size += g3dexport_fwritel ( &view->engine_flags, fdst );
 
     return size;
 }
@@ -250,7 +250,7 @@ void g3dui_read ( G3DIMPORTDATA *gid,
 
             case SIG_G3DUI_VIEW_FLAGS : {
                 if ( view ) {
-                    g3dimport_freadl ( &view->flags, fsrc );
+                    g3dimport_freadl ( &view->engine_flags, fsrc );
                 }
             } break;
 

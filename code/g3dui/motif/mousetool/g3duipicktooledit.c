@@ -73,7 +73,7 @@ void updatePickToolWeightForm ( Widget w, G3DUI *gui ) {
         for ( i = 0x00; i < nc; i++ ) {
             Widget child = children[i];
 
-            if ( gui->flags & VIEWSKIN ) XtSetSensitive ( child, True  );
+            if ( gui->engine_flags & VIEWSKIN ) XtSetSensitive ( child, True  );
             else                         XtSetSensitive ( child, False );
 
 

@@ -97,7 +97,7 @@ void confirmsubdivokcbk ( Widget w, XtPointer client, XtPointer call ) {
 
     g3dui_setHourGlass ( gui );
 
-    g3dmesh_setSubdivisionLevel ( csd->mes, csd->level, gui->flags );
+    g3dmesh_setSubdivisionLevel ( csd->mes, csd->level, gui->engine_flags );
 
     g3dui_unsetHourGlass ( gui );
 

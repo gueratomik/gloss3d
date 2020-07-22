@@ -121,7 +121,7 @@ PICKEDOBJECT *selectObject_r ( XmFontList fontlist, G3DOBJECT *obj,
                                                          G3DSCENE *sce,
                                                          G3DURMANAGER *urm,
                                                          uint32_t keep,
-                                                         uint32_t engine_flags ) {
+                                                         uint64_t engine_flags ) {
     LIST *ltmpobj = obj->lchildren;
     PICKEDOBJECT *pob;
     uint32_t strwidth;
@@ -428,7 +428,7 @@ static void Input ( Widget w, XtPointer client,
                         if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
                             g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
                         } else {
-                            g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
+                            g3durm_scene_deleteSelectedObjects ( urm, sce, gui->engine_flags, retflags );
                         }
 
                         pob = NULL;
@@ -440,7 +440,7 @@ static void Input ( Widget w, XtPointer client,
                         if ( kev->state & ControlMask ) {
 printf("copying %d object(s)\n", list_count ( sce->lsel ) );
                            g3dui_setHourGlass ( gui );
-                           /*g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->flags );*/
+                           /*g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->engine_flags );*/
                            g3dui_unsetHourGlass ( gui );
                         }
                     break;
@@ -456,7 +456,7 @@ printf("copying %d object(s)\n", list_count ( sce->lsel ) );
                            if ( src ) dst = src->parent;
 printf("pasting\n");
                            g3dui_setHourGlass ( gui );
-                           /*g3duiclipboard_paste ( cli, urm, sce, dst, gui->flags );*/
+                           /*g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );*/
                            g3dui_unsetHourGlass ( gui );
                         }
                     break;
@@ -498,7 +498,7 @@ printf("pasting\n");
                                             LISTINDENT,
                                             bev->x,
                                             bev->y,
-                                            sce, urm, pick_flags, gui->flags );
+                                            sce, urm, pick_flags, gui->engine_flags );
 
 
             if ( pob ) {
@@ -534,7 +534,7 @@ printf("pasting\n");
                                                 LISTINDENT,
                                                 mev->x,
                                                 mev->y,
-                                                sce, NULL, PICKEDOBJECTNOPARSE, gui->flags );
+                                                sce, NULL, PICKEDOBJECTNOPARSE, gui->engine_flags );
 
                 dst = ( pob ) ? pob->obj : NULL;
 
@@ -553,7 +553,7 @@ printf("pasting\n");
                     G3DOBJECT *par = obj->parent;
 
                     /*** Perform action & record for the undo-redo manager ***/
-                    g3durm_object_addChild ( urm, sce, gui->flags,
+                    g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                        ( REDRAWVIEW |
                                                          REDRAWLIST | 
                                                          REDRAWCURRENTOBJECT ),
@@ -571,7 +571,7 @@ printf("pasting\n");
                                               NULL,
                                               UPDATEFACEPOSITION |
                                               COMPUTEEDGEPOSITION |
-                                              COMPUTESUBDIVISION, gui->flags );
+                                              COMPUTESUBDIVISION, gui->engine_flags );
                     }
 
                     g3dui_updateCoords ( gui );
@@ -629,7 +629,7 @@ static void Input ( Widget w, XtPointer client,
                         if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
                             g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
                         } else {
-                            g3durm_scene_deleteSelectedObjects ( urm, sce, gui->flags, retflags );
+                            g3durm_scene_deleteSelectedObjects ( urm, sce, gui->engine_flags, retflags );
                         }
 
                         pob = NULL;
@@ -641,7 +641,7 @@ static void Input ( Widget w, XtPointer client,
                         if ( kev->state & ControlMask ) {
 printf("copying %d object(s)\n", list_count ( sce->lsel ) );
                            g3dui_setHourGlass ( gui );
-                           g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->flags );
+                           g3duiclipboard_copyObject ( cli, sce, sce->lsel, 0x01, gui->engine_flags );
                            g3dui_unsetHourGlass ( gui );
                         }
                     break;
@@ -657,7 +657,7 @@ printf("copying %d object(s)\n", list_count ( sce->lsel ) );
                            if ( src ) dst = src->parent;
 printf("pasting\n");
                            g3dui_setHourGlass ( gui );
-                           g3duiclipboard_paste ( cli, urm, sce, dst, gui->flags );
+                           g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );
                            g3dui_unsetHourGlass ( gui );
                         }
                     break;
@@ -762,10 +762,10 @@ printf("pasting\n");
 
                         /*** Press CTRL to select multiple objects ***/
                         if ( ( bev->state & ControlMask ) == 0x00 ) {
-                            g3dscene_unselectAllObjects ( gui->sce, gui->flags );
+                            g3dscene_unselectAllObjects ( gui->sce, gui->engine_flags );
                         }
 
-                        g3dscene_selectObject ( gui->sce, obj, gui->flags );
+                        g3dscene_selectObject ( gui->sce, obj, gui->engine_flags );
 
                         lselnew = list_copy ( sce->lsel );
 
@@ -773,7 +773,7 @@ printf("pasting\n");
                         g3durm_scene_pickObject  ( urm, sce,
                                                         lselold,
                                                         lselnew,
-                                                        gui->flags,
+                                                        gui->engine_flags,
                                                         REDRAWVIEW );
                     }
                 }
@@ -830,7 +830,7 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
                     G3DOBJECT *par = obj->parent;
 
                     /*** Perform action & record for the undo-redo manager ***/
-                    g3durm_object_addChild ( urm, sce, gui->flags,
+                    g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                        ( REDRAWVIEW |
                                                          REDRAWLIST | 
                                                          REDRAWCURRENTOBJECT ),
@@ -848,7 +848,7 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
                                               NULL,
                                               UPDATEFACEPOSITION |
                                               COMPUTEEDGEPOSITION |
-                                              COMPUTESUBDIVISION, gui->flags );
+                                              COMPUTESUBDIVISION, gui->engine_flags );
                     }
 
                     g3dui_updateCoords ( gui );

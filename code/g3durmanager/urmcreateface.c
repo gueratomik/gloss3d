@@ -31,7 +31,8 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMCREATEFACE *urmcreateface_new ( G3DMESH *mes, G3DFACE *fac ) {
+static URMCREATEFACE *urmcreateface_new ( G3DMESH *mes, 
+                                          G3DFACE *fac ) {
     uint32_t structsize = sizeof ( URMCREATEFACE );
 
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) calloc ( 0x01, structsize );
@@ -50,13 +51,13 @@ URMCREATEFACE *urmcreateface_new ( G3DMESH *mes, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-void urmcreateface_free ( URMCREATEFACE *cfs ) {
-
+static void urmcreateface_free ( URMCREATEFACE *cfs ) {
     free ( cfs );
 }
 
 /******************************************************************************/
-void createFace_free ( void *data, uint32_t commit ) {
+static void createFace_free ( void    *data, 
+                              uint32_t commit ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
 
     /*** Discard changes ***/
@@ -68,7 +69,9 @@ void createFace_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void createFace_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void createFace_undo ( G3DURMANAGER *urm, 
+                              void         *data, 
+                              uint64_t      engine_flags ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) cfs->mes;
     G3DMESH *mes = cfs->mes;
@@ -96,7 +99,9 @@ void createFace_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void createFace_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void createFace_redo ( G3DURMANAGER *urm, 
+                              void         *data, 
+                              uint64_t      engine_flags ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) cfs->mes;
     G3DMESH *mes = cfs->mes;
@@ -128,8 +133,9 @@ void createFace_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 
 /******************************************************************************/
 void g3durm_mesh_createFace ( G3DURMANAGER *urm,
-                              G3DMESH *mes, 
-                              G3DFACE *fac, uint32_t return_flags ) {
+                              G3DMESH      *mes, 
+                              G3DFACE      *fac, 
+                              uint32_t      return_flags ) {
     URMCREATEFACE *cfs;
 
     cfs = urmcreateface_new ( mes, fac );

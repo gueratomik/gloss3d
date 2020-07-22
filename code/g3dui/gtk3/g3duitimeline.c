@@ -235,7 +235,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
             /*** disable buffered subdivision whatever happens. because  ***/
             /*** in animation mode they are slower than their on-the-fly ***/
             /*** counterparts (re-enabled in ButtonReleased ***/
-            gui->flags |= ONGOINGANIMATION;
+            gui->engine_flags |= ONGOINGANIMATION;
 
             pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
                                                                   bev->y,
@@ -290,7 +290,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                         common_g3dui_processAnimatedImages ( gui );
 
                         g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
-                                                                gui->flags );
+                                                                gui->engine_flags );
 
                         g3dui_updateCoords  ( gui );
                         g3dui_redrawGLViews ( gui );
@@ -321,7 +321,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
                     int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
 
                     /*** Recompute buffered subdivided Meshes ***/
-                    g3dscene_updateMeshes ( sce, gui->flags );
+                    g3dscene_updateMeshes ( sce, gui->engine_flags );
 
                     /*** After dragging the cursor, move ***/
                     /*** the pointer to its position.    ***/
@@ -343,7 +343,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
             }
 
             /*** disable animation mode whatever happens ***/
-            gui->flags &= (~ONGOINGANIMATION);
+            gui->engine_flags &= (~ONGOINGANIMATION);
 
             oncursor = onkey = dragging = 0x00;
 

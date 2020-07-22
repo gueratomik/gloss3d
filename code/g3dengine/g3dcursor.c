@@ -35,7 +35,9 @@ G3DCURVEPOINT *g3dcurve_getLastSelectedPoint ( G3DCURVE *curve) {
 }
 
 /*****************************************************************************/
-void g3dcursor_pick ( G3DCURSOR *csr, G3DCAMERA *cam, uint32_t eflags ) {
+void g3dcursor_pick ( G3DCURSOR *csr, 
+                      G3DCAMERA *cam, 
+                      uint64_t   engine_flags ) {
     float ratio = 1.0f;
     G3DVECTOR campos, oripos = { 0.0f, 0.0f, 0.0f };
     uint32_t i;
@@ -86,7 +88,9 @@ void g3dcursor_reset ( G3DCURSOR *csr ) {
 }
 
 /*****************************************************************************/
-void g3dcursor_draw ( G3DCURSOR *csr, G3DCAMERA *curcam, uint32_t flags ) {
+void g3dcursor_draw ( G3DCURSOR *csr, 
+                      G3DCAMERA *curcam, 
+                      uint64_t   engine_flags ) {
     int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
     G3DVECTOR oripos = { 0.0f, 0.0f, 0.0f, 1.0f }, campos;
     float ratio = 1.0f;

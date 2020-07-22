@@ -31,11 +31,13 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce, LIST *loldselobj,
-                                     G3DMESH  *mes, LIST *loldselver,
-                                                    LIST *loldseledg,
-                                                    LIST *loldselfac,
-                                                    uint32_t flags ) {
+static URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce, 
+                                            LIST     *loldselobj,
+                                            G3DMESH  *mes, 
+                                            LIST     *loldselver,
+                                            LIST     *loldseledg,
+                                            LIST     *loldselfac,
+                                            uint64_t  engine_flags ) {
     uint32_t structsize = sizeof ( URMDELSELITEMS );
 
     URMDELSELITEMS *dsi = ( URMDELSELITEMS * ) calloc ( 0x01, structsize );
@@ -46,9 +48,9 @@ URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce, LIST *loldselobj,
         return NULL;
     }
 
-    dsi->sce   = sce;
-    dsi->mes   = mes;
-    dsi->flags = flags;
+    dsi->sce          = sce;
+    dsi->mes          = mes;
+    dsi->engine_flags = engine_flags;
 
     dsi->loldselobj = loldselobj;
     dsi->loldselver = loldselver;
@@ -60,7 +62,7 @@ URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce, LIST *loldselobj,
 }
 
 /******************************************************************************/
-void urmdelselitems_free ( URMDELSELITEMS *dsi ) {
+static void urmdelselitems_free ( URMDELSELITEMS *dsi ) {
     list_free ( &dsi->loldselobj, NULL );
     list_free ( &dsi->loldselver, NULL );
     /*list_free ( &dsi->loldseledg, NULL );*/
@@ -70,7 +72,8 @@ void urmdelselitems_free ( URMDELSELITEMS *dsi ) {
 }
 
 /******************************************************************************/
-void deleteSelectedItems_free ( void *data, uint32_t commit ) {
+static void deleteSelectedItems_free ( void    *data, 
+                                       uint32_t commit ) {
     URMDELSELITEMS *dsi = ( URMDELSELITEMS * ) data;
 
     if ( commit ) {
@@ -84,15 +87,17 @@ void deleteSelectedItems_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void deleteSelectedItems_undo ( G3DURMANAGER *urm, 
+                                       void         *data, 
+                                       uint64_t      engine_flags ) {
     URMDELSELITEMS *dsi = ( URMDELSELITEMS * ) data;
     G3DMESH *mes = dsi->mes;
 
-    if ( dsi->flags & VIEWOBJECT ) {
+    if ( dsi->engine_flags & VIEWOBJECT ) {
         G3DSCENE *sce = ( G3DSCENE * ) dsi->sce;
         LIST *lselobj = dsi->loldselobj;
 
-        g3dscene_unselectAllObjects ( sce, flags );
+        g3dscene_unselectAllObjects ( sce, engine_flags );
 
         /*** Here we cannot just replace sce->lselobj with ***/
         /*** lsel because some flags are turned on in      ***/
@@ -100,18 +105,18 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
         while ( lselobj ) {
             G3DOBJECT *child = ( G3DOBJECT * ) lselobj->data;
 
-            g3dscene_selectObject ( sce, child, flags );
+            g3dscene_selectObject ( sce, child, engine_flags );
 
-            g3dobject_addChild ( child->parent, child, flags );
+            g3dobject_addChild ( child->parent, child, engine_flags );
 
             lselobj = lselobj->next;
         }
 
         g3dscene_checkLights ( sce );
     } else {
-        if ( mes && ( ( dsi->flags & VIEWFACE   ) ||
-                      ( dsi->flags & VIEWVERTEX ) ||
-                      ( dsi->flags & VIEWEDGE   ) ) ) {
+        if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
+                      ( dsi->engine_flags & VIEWVERTEX ) ||
+                      ( dsi->engine_flags & VIEWEDGE   ) ) ) {
             LIST *ltmpver = dsi->loldselver;
             LIST *ltmpfac = dsi->loldselfac;
 
@@ -145,30 +150,32 @@ void deleteSelectedItems_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
-                                  RESETMODIFIERS, flags );
+                                  RESETMODIFIERS, engine_flags );
         }
     }
 }
 
 /******************************************************************************/
-void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void deleteSelectedItems_redo ( G3DURMANAGER *urm, 
+                                       void         *data, 
+                                       uint64_t      engine_flags ) {
     URMDELSELITEMS *dsi = ( URMDELSELITEMS * ) data;
     G3DMESH *mes = dsi->mes;
 
-    if ( dsi->flags & VIEWOBJECT ) {
+    if ( dsi->engine_flags & VIEWOBJECT ) {
         G3DSCENE *sce = ( G3DSCENE * ) dsi->sce;
         LIST *lselobj = dsi->lnewselobj;
 
         /*** Here we cannot just replace sce->lselobj with ***/
         /*** lsel because some flags are turned on in      ***/
         /*** objects structure when added to a scene.      ***/
-        g3dscene_deleteSelectedObjects ( sce, flags );
+        g3dscene_deleteSelectedObjects ( sce, engine_flags );
 
         g3dscene_checkLights ( sce );
     } else {
-        if ( mes && ( ( dsi->flags & VIEWFACE   ) ||
-                      ( dsi->flags & VIEWVERTEX ) ||
-                      ( dsi->flags & VIEWEDGE   ) ) ) {
+        if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
+                      ( dsi->engine_flags & VIEWVERTEX ) ||
+                      ( dsi->engine_flags & VIEWEDGE   ) ) ) {
             LIST *ltmpver = dsi->loldselver;
             LIST *ltmpfac = dsi->loldselfac;
 
@@ -201,29 +208,98 @@ void deleteSelectedItems_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) 
                                   UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
-                                  RESETMODIFIERS, flags );
+                                  RESETMODIFIERS, engine_flags );
         }
     }
 }
 
 /******************************************************************************/
+void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
+                                  G3DMESH      *mes,
+                                  uint64_t      engine_flags,
+                                  uint32_t      return_flags ) {
+    LIST *loldselobj = NULL;
+    LIST *loldselver = NULL;
+    LIST *loldselfac = NULL;
+    LIST *loldseledg = NULL;
+    URMDELSELITEMS *dsi;
+
+    if ( engine_flags & VIEWVERTEX ) {
+        loldselver = list_copy ( mes->lselver );
+        loldselfac = g3dmesh_getFaceListFromSelectedVertices ( mes );
+    }
+
+    if ( engine_flags & VIEWFACE ) {
+        loldselfac = list_copy ( mes->lselfac );
+    }
+
+    if ( engine_flags & VIEWEDGE ) {
+        loldselver = g3dmesh_getVertexListFromSelectedEdges ( mes );
+        loldseledg = list_copy ( mes->lseledg );
+        loldselfac = g3dmesh_getFaceListFromSelectedEdges ( mes );
+    }
+
+    dsi = urmdelselitems_new ( NULL,
+                               NULL,
+                               mes, 
+                               loldselver,
+                               loldseledg,
+                               loldselfac,
+                               engine_flags );
+
+    g3durmanager_push ( urm, 
+                        deleteSelectedItems_undo,
+                        deleteSelectedItems_redo,
+                        deleteSelectedItems_free,
+                        dsi,
+                        return_flags );
+
+            /*g3dmesh_unselectAllVertices ( mes );*/
+            /*g3dmesh_unselectAllFaces    ( mes );*/
+
+    if ( engine_flags & VIEWVERTEX ) {
+        g3dmesh_removeVerticesFromList ( mes, loldselver );
+        g3dmesh_removeFacesFromList    ( mes, loldselfac );
+    }
+
+    if ( engine_flags & VIEWFACE ) {
+        g3dmesh_removeFacesFromList    ( mes, loldselfac );
+    }
+
+    if ( engine_flags & VIEWEDGE ) {
+        g3dmesh_removeVerticesFromList ( mes, loldselver );
+        g3dmesh_removeFacesFromList    ( mes, loldselfac );
+    }
+
+    /*** Rebuild the subdivided mesh ***/
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
+}
+
+/******************************************************************************/
 void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
-                                          G3DSCENE *sce, uint32_t flags,
-                                                         uint32_t return_flags ) {
+                                          G3DSCENE     *sce, 
+                                          uint64_t      engine_flags,
+                                          uint32_t      return_flags ) {
     LIST *loldselobj = NULL;
     URMDELSELITEMS *dsi;
 
     loldselobj = list_copy ( sce->lsel );
 
     /*** perform action ***/
-    g3dscene_deleteSelectedObjects ( sce, flags );
+    g3dscene_deleteSelectedObjects ( sce, engine_flags );
 
     g3dscene_checkLights ( sce );
 
     /*** save state ***/
     dsi = urmdelselitems_new ( sce, loldselobj, NULL, NULL,
                                                 NULL, NULL,
-                                                flags );
+                                                engine_flags );
 
     g3durmanager_push ( urm, deleteSelectedItems_undo,
                              deleteSelectedItems_redo,

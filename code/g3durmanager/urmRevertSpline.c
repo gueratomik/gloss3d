@@ -38,7 +38,7 @@ void revertSpline_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void revertSpline_undo ( G3DURMANAGER *urm, 
                          void         *data, 
-                         uint32_t      engine_flags ) {
+                         uint64_t engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) data;
 
     g3dcurve_revert ( spline->curve, engine_flags );
@@ -47,7 +47,7 @@ void revertSpline_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void revertSpline_redo ( G3DURMANAGER *urm, 
                          void         *data,
-                         uint32_t      engine_flags ) {
+                         uint64_t engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) data;
 
     g3dcurve_revert ( spline->curve, engine_flags );
@@ -56,7 +56,7 @@ void revertSpline_redo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_spline_revert ( G3DURMANAGER *urm, 
                             G3DSPLINE    *spline,
-                            uint32_t      engine_flags,
+                            uint64_t engine_flags,
                             uint32_t      return_flags ) {
     g3dcurve_revert ( spline->curve, engine_flags );
 

@@ -166,7 +166,7 @@ void updateCoordinatesEdit ( GtkWidget *widget, G3DUI *gui ) {
                 if ( obj->type == G3DMESHTYPE ) {
                     G3DMESH *mes = ( G3DMESH * ) obj;
 
-                    if ( gui->flags & VIEWVERTEX ) {
+                    if ( gui->engine_flags & VIEWVERTEX ) {
                         g3dvertex_getAveragePositionFromList ( mes->lselver, &pos );
                     }
                 }

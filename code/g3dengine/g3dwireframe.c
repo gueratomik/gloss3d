@@ -29,26 +29,30 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+static void g3dwireframe_activate ( G3DWIREFRAME *wir, 
+                                    uint64_t      engine_flags );
+
 /******************************************************************************/
 void g3dwireframe_setParent ( G3DWIREFRAME *wir,
                               G3DOBJECT    *parent,
-                              uint32_t      engine_flags ) {
+                              uint64_t      engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) wir ) ) {
         g3dwireframe_activate ( wir, engine_flags );
     }
 }
 
 /******************************************************************************/
-G3DWIREFRAME *g3dwireframe_copy ( G3DWIREFRAME *wir,
-                                  uint32_t      engine_flags ) {
+static G3DWIREFRAME *g3dwireframe_copy ( G3DWIREFRAME *wir,
+                                         uint64_t      engine_flags ) {
     G3DOBJECT *objwir = ( G3DOBJECT * ) wir;
 
     return g3dwireframe_new ( objwir->id, objwir->name );
 }
 
 /******************************************************************************/
-void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
-                                                    uint32_t engine_flags ) {
+void g3dwireframe_setThickness ( G3DWIREFRAME *wir, 
+                                 float         thickness,
+                                 uint64_t      engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -113,7 +117,8 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir, float    thickness,
 }
 
 /******************************************************************************/
-void g3dwireframe_startUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static void g3dwireframe_startUpdate ( G3DWIREFRAME *wir,
+                                       uint64_t      engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) wir;
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
@@ -167,13 +172,15 @@ void g3dwireframe_startUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dwireframe_endUpdate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static void g3dwireframe_endUpdate ( G3DWIREFRAME *wir, 
+                                     uint64_t      engine_flags ) {
     list_free ( &((G3DMESH*)wir)->lselver, NULL );
     list_free ( &wir->lupdver, NULL );
 }
 
 /******************************************************************************/
-void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static void g3dwireframe_update ( G3DWIREFRAME *wir, 
+                                  uint64_t      engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -242,7 +249,8 @@ void g3dwireframe_update ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir,
+                                      uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     /*** We consider triangles as quads as well ***/
@@ -458,7 +466,8 @@ uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dwireframe_activate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static void g3dwireframe_activate ( G3DWIREFRAME *wir, 
+                                    uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -470,7 +479,8 @@ void g3dwireframe_activate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dwireframe_deactivate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
+static void g3dwireframe_deactivate ( G3DWIREFRAME *wir, 
+                                      uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -482,8 +492,9 @@ void g3dwireframe_deactivate ( G3DWIREFRAME *wir, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, G3DCAMERA *cam, 
-                                                uint32_t   engine_flags ) {
+static uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, 
+                                    G3DCAMERA    *cam, 
+                                    uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     uint32_t forbidden_modes = 0x00;
 
@@ -493,7 +504,7 @@ uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, G3DCAMERA *cam,
         return 0x00;
     } else {
         G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-        uint32_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
+        uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
                               ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
         /* quick and dirty hack to force g3dmesh_draw() */
         /* to draw the red skinning for this modifier when its parent */
@@ -515,7 +526,8 @@ void g3dwireframe_free ( G3DWIREFRAME *wir ) {
 }
 
 /******************************************************************************/
-G3DWIREFRAME *g3dwireframe_new ( uint32_t id, char *name ) {
+G3DWIREFRAME *g3dwireframe_new ( uint32_t id, 
+                                 char    *name ) {
     uint32_t structSize = sizeof ( G3DWIREFRAME );
     G3DWIREFRAME *wir = ( G3DWIREFRAME * ) calloc ( 0x01, structSize );
     G3DMODIFIER *mod = ( G3DMODIFIER * ) wir;

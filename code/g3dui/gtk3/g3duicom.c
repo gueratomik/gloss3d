@@ -35,9 +35,9 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     /*** otherwise g3dobject_anim_r() may call some buffered subdivision ***/
     /*** updates and that;s gonna be really slow. We prefer to rely ***/
     /*** On real time stuff ***/
-    gui->flags |= ONGOINGANIMATION;
+    gui->engine_flags |= ONGOINGANIMATION;
 
-    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, gtf->frame, gui->flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, gtf->frame, gui->engine_flags );
 
     g3dui_redrawGLViews  ( gui );
     g3dui_redrawTimeline ( gui );
@@ -47,7 +47,7 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     common_g3dui_processAnimatedImages ( gui );
 
     /*** Re-enable real time subdivision ***/
-    gui->flags &= (~ONGOINGANIMATION);
+    gui->engine_flags &= (~ONGOINGANIMATION);
 }
 
 /******************************************************************************/

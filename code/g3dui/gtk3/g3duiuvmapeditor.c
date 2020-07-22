@@ -84,17 +84,20 @@ void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv ) {
                 G3DMATERIAL *mat = tex->mat;
 
                 if ( mat ) {
-                    G3DCHANNEL *chn = &mat->diffuse;
+                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
+                    G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
-                    if ( chn->flags & USEIMAGECOLOR ) {
-                        if ( chn->image ) {
-                            if ( chn->image->width && chn->image->height ) {
-                                uint32_t size = chn->image->width *
-                                                chn->image->height;
-                                uvme->mask    = realloc ( uvme->mask   , size );
-                                uvme->zbuffer = realloc ( uvme->zbuffer, size );
+                    if ( chn ) {
+                        if ( chn->flags & USEIMAGECOLOR ) {
+                            if ( chn->image ) {
+                                if ( chn->image->width && chn->image->height ) {
+                                    uint32_t size = chn->image->width *
+                                                    chn->image->height;
+                                    uvme->mask    = realloc ( uvme->mask   , size );
+                                    uvme->zbuffer = realloc ( uvme->zbuffer, size );
 
-                                memset ( uvme->mask, 0xFF, size );
+                                    memset ( uvme->mask, 0xFF, size );
+                                }
                             }
                         }
                     }
@@ -599,7 +602,7 @@ static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
     GtkWidget *widget = ( GtkWidget * ) guv;
     G3DUIUVMAPEDITOR *uvme   = &guv->uvme;
 
-    uvme->flags = VIEWVERTEXUV | SHOWDIFFUSE;
+    uvme->engine_flags = VIEWVERTEXUV;
 
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
@@ -623,35 +626,38 @@ static void selectChannelCbk( GtkWidget *widget,
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
     const char *str  = gtk_combo_box_text_get_active_text ( cmbt );
 
-    uvme->flags = ( uvme->flags & (~UVCHANNELMASK) );
+    uvme->engine_flags = ( uvme->engine_flags & (~UVCHANNELMASK) );
 
     if ( strcmp ( str, DIFFUSECHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWDIFFUSE;
+        SHOWCHANNEL(uvme->engine_flags,DIFFUSECHANNELID);
     }
 
     if ( strcmp ( str, SPECULARCHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWSPECULAR;
+        SHOWCHANNEL(uvme->engine_flags,SPECULARCHANNELID);
     }
 
     if ( strcmp ( str, DISPLACEMENTCHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWDISPLACEMENT;
+        SHOWCHANNEL(uvme->engine_flags,DISPLACEMENTCHANNELID);
     }
 
     if ( strcmp ( str, ALPHACHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWALPHA;
+        SHOWCHANNEL(uvme->engine_flags,ALPHACHANNELID);
     }
 
     if ( strcmp ( str, BUMPCHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWBUMP;
+        SHOWCHANNEL(uvme->engine_flags,BUMPCHANNELID);
     }
 
     if ( strcmp ( str, REFLECTIONCHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWREFLECTION;
+        SHOWCHANNEL(uvme->engine_flags,REFLECTIONCHANNELID);
     }
 
     if ( strcmp ( str, REFRACTIONCHANNELSTR ) == 0x00 ) {
-        uvme->flags |= SHOWREFRACTION;
+        SHOWCHANNEL(uvme->engine_flags,REFRACTIONCHANNELID);
     }
+
+    /*** resize selection mask and zbuffer ***/
+    g3duiuvmapeditor_resizeBuffers ( gtk_widget_get_parent ( widget ) );
 }
 
 /******************************************************************************/
@@ -978,7 +984,7 @@ static gboolean g3duiuvmapeditor_inputGL ( GtkWidget *widget,
                                               gui->sce,
                                               &uvme->cam,
                                               uvme->uvurm,
-                                              uvme->flags, &g3dev );
+                                              uvme->engine_flags, &g3dev );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
@@ -1198,7 +1204,7 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     /*** Set Context as the current context ***/
     glXMakeCurrent ( dpy, win, uvme->glctx );
 
-    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, uvme->flags );
+    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, uvme->engine_flags );
 
     glXSwapBuffers ( dpy, win );
 
@@ -1209,7 +1215,7 @@ gboolean g3duiuvmapeditor_showGL ( GtkWidget *widget,
     /*** Set Context as the current context ***/
     wglMakeCurrent ( dc, uvme->glctx );
 
-    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, uvme->flags );
+    common_g3duiuvmapeditor_showGL ( uvme, gui, gui->uvmou, uvme->engine_flags );
 
     SwapBuffers ( dc );
 

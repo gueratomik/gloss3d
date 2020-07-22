@@ -46,7 +46,7 @@ static gboolean gtk_view_expose        ( GtkWidget *, cairo_t * );
 static gboolean gtk_view_configure     ( GtkWidget *, GdkEvent *, gpointer );
 static void     gtk_view_size_allocate ( GtkWidget *, GtkAllocation * );
 static gboolean gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
-static void updateOptionMenu ( GtkWidget *widget, uint32_t viewFlags );
+static void updateOptionMenu ( GtkWidget *widget, uint64_t viewFlags );
 
 /******************************************************************************/
 static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
@@ -139,10 +139,10 @@ void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( view->flags & VIEWNORMALS ) {
-        view->flags &= (~VIEWNORMALS);
+    if ( view->engine_flags & VIEWNORMALS ) {
+        view->engine_flags &= (~VIEWNORMALS);
     } else {
-        view->flags |= VIEWNORMALS;
+        view->engine_flags |= VIEWNORMALS;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -157,10 +157,10 @@ void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( view->flags & HIDEBONES ) {
-        view->flags &= (~HIDEBONES);
+    if ( view->engine_flags & HIDEBONES ) {
+        view->engine_flags &= (~HIDEBONES);
     } else {
-        view->flags |= HIDEBONES;
+        view->engine_flags |= HIDEBONES;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -178,12 +178,12 @@ void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** Note: gui->sce is NULL when this widget is initialized ***/
     /*** because g3dengine needs an initialised widget first ***/
     if ( gui->sce ) {
-        if ( view->flags & NOLIGHTING ) {
-            view->flags &= (~NOLIGHTING);
+        if ( view->engine_flags & NOLIGHTING ) {
+            view->engine_flags &= (~NOLIGHTING);
 
             g3dscene_turnLightsOn  ( gui->sce );
         } else {
-            view->flags |= NOLIGHTING;
+            view->engine_flags |= NOLIGHTING;
 
             g3dscene_turnLightsOff ( gui->sce );
         }
@@ -201,10 +201,10 @@ void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( view->flags & HIDEGRID ) {
-        view->flags &= (~HIDEGRID);
+    if ( view->engine_flags & HIDEGRID ) {
+        view->engine_flags &= (~HIDEGRID);
     } else {
-        view->flags |= HIDEGRID;
+        view->engine_flags |= HIDEGRID;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -219,10 +219,10 @@ void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( view->flags & NOTEXTURE ) {
-        view->flags &= (~NOTEXTURE);
+    if ( view->engine_flags & NOTEXTURE ) {
+        view->engine_flags &= (~NOTEXTURE);
     } else {
-        view->flags |= NOTEXTURE;
+        view->engine_flags |= NOTEXTURE;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -238,10 +238,10 @@ void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget,
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( view->flags & NOBACKGROUNDIMAGE ) {
-        view->flags &= (~NOBACKGROUNDIMAGE);
+    if ( view->engine_flags & NOBACKGROUNDIMAGE ) {
+        view->engine_flags &= (~NOBACKGROUNDIMAGE);
     } else {
-        view->flags |= NOBACKGROUNDIMAGE;
+        view->engine_flags |= NOBACKGROUNDIMAGE;
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
@@ -261,7 +261,7 @@ void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     view->cam->focal = view->defcamfoc;
 
 
-    g3dobject_updateMatrix_r ( objcam, gui->flags );
+    g3dobject_updateMatrix_r ( objcam, gui->engine_flags );
 
     gtk_widget_queue_draw ( ggt->curogl );
 }
@@ -279,7 +279,7 @@ void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
 #define VIEWMENUREDO            "Redo  view"
 
 /******************************************************************************/
-static void updateOptionMenu ( GtkWidget *widget, uint32_t viewFlags  ) {
+static void updateOptionMenu ( GtkWidget *widget, uint64_t viewFlags  ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
@@ -325,7 +325,7 @@ static void updateOptionMenu ( GtkWidget *widget, uint32_t viewFlags  ) {
 static void updateOptionMenuBar ( GtkWidget *widget ) {
     GtkView   *gvw = ( GtkView * ) gtk_widget_get_parent ( widget );
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    uint32_t viewFlags = gvw->view.flags;
+    uint64_t viewFlags = gvw->view.engine_flags;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -400,7 +400,7 @@ static void shadingCbk ( GtkWidget *widget, gpointer user_data ) {
         glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
-        gvw->view.flags &= (~NOTEXTURE);
+        gvw->view.engine_flags &= (~NOTEXTURE);
         gvw->view.mode   = GLVIEWGOURAUD;
     }
 
@@ -410,7 +410,7 @@ static void shadingCbk ( GtkWidget *widget, gpointer user_data ) {
         glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
-        gvw->view.flags &= (~NOTEXTURE);
+        gvw->view.engine_flags &= (~NOTEXTURE);
         gvw->view.mode   = GLVIEWFLAT;
     }
 
@@ -421,7 +421,7 @@ static void shadingCbk ( GtkWidget *widget, gpointer user_data ) {
         /*g3dui_disableTextureImages ( gui );*/
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
-        gvw->view.flags |= NOTEXTURE;
+        gvw->view.engine_flags |= NOTEXTURE;
         gvw->view.mode   = GLVIEWWIREFRAME;
     }
 
@@ -589,12 +589,12 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
     while ( ltmpmenu ) {
         GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
 
-        if ( gui->flags & VIEWOBJECT ) {
+        if ( gui->engine_flags & VIEWOBJECT ) {
             if ( strcmp ( gtk_widget_get_name ( menu ), OBJECTMENUNAME ) == 0x00 ) curmenu = menu;
         }
 
         if ( selObj ) {
-            if ( gui->flags & VIEWVERTEX ) {
+            if ( gui->engine_flags & VIEWVERTEX ) {
                 if ( selObj->type == G3DSPLINETYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODESPLINEMENUNAME ) == 0x00 ) curmenu = menu;
                 }
@@ -604,19 +604,19 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
                 }
             }
 
-            if ( gui->flags & VIEWEDGE ) {
+            if ( gui->engine_flags & VIEWEDGE ) {
                 if ( selObj->type == G3DMESHTYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
                 }
             }
 
-            if ( gui->flags & VIEWFACE ) {
+            if ( gui->engine_flags & VIEWFACE ) {
                 if ( selObj->type == G3DMESHTYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), FACEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
                 }
             }
 
-            if ( gui->flags & VIEWSCULPT ) {
+            if ( gui->engine_flags & VIEWSCULPT ) {
                 if ( selObj->type == G3DMESHTYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
                 }
@@ -810,7 +810,7 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                 switch ( view->buttonID ) {
                     case ROTATEBUTTON : {
                         /*** pivot for rotation ***/
-                        piv = g3dpivot_new ( cam, &cam->pivot, gui->flags );
+                        piv = g3dpivot_new ( cam, &cam->pivot, gui->engine_flags );
 
                         /*g3dobject_addChild ( sce, piv );*/
                     } break;
@@ -1174,7 +1174,7 @@ GtkWidget *gtk_view_new ( G3DCAMERA *cam, G3DUI *gui ) {
     G3DUIVIEW *view = &gvw->view;
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
-    view->flags = 0x00;
+    view->engine_flags = 0x00;
 
     /*** I don't have time to implement GTK+3 property ***/
     /*** thing. Plus, it's , freaking complicated .... ***/
@@ -1434,7 +1434,7 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
                                             gui->sce,
                                             view->cam, 
                                             gui->urm,
-                                            gui->flags, &g3dev );
+                                            gui->engine_flags, &g3dev );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
@@ -1647,7 +1647,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     if ( gui->playLock ) {
          /*** Force disabling real time subdivision ***/
-        gui->flags |= ONGOINGANIMATION;
+        gui->engine_flags |= ONGOINGANIMATION;
     }
 
     /*** This helps the drawarea to determine if it should draw mouse tools ***/
@@ -1667,7 +1667,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                   cam, 
                                   mou, 
                                   current,
-                                  gui->flags | view->flags );
+                                  gui->engine_flags | view->engine_flags );
     }
     /*************************************/
 
@@ -1689,7 +1689,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                   cam, 
                                   mou, 
                                   current,
-                                  gui->flags | view->flags );
+                                  gui->engine_flags | view->engine_flags );
     }
     /*************************************/
 
@@ -1700,7 +1700,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     if ( gui->playLock ) {
         /*** Re-enable real time subdivision ***/
-        gui->flags &= (~ONGOINGANIMATION);
+        gui->engine_flags &= (~ONGOINGANIMATION);
     }
 	
 

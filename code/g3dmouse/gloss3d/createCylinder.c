@@ -37,7 +37,7 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
                                  G3DSCENE     *sce, 
                                  G3DCAMERA    *cam,
                                  G3DURMANAGER *urm, 
-                                 uint32_t      flags, 
+                                 uint64_t engine_flags, 
                                  G3DEvent     *event );
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
                                  G3DSCENE     *sce, 
                                  G3DCAMERA    *cam,
                                  G3DURMANAGER *urm, 
-                                 uint32_t      flags, 
+                                 uint64_t engine_flags, 
                                  G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
@@ -102,7 +102,7 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
 
                 g3dobject_updateMatrix_r ( obj, 0x00 );
 
-                g3durm_object_addChild ( urm, sce, flags, REDRAWVIEW | REDRAWLIST,
+                g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWLIST,
                                          NULL, ( G3DOBJECT * ) sce, obj );
             }
         } return REDRAWALL;

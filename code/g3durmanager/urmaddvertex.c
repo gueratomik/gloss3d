@@ -31,7 +31,8 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMADDVERTEX *urmaddvertex_new ( G3DMESH *mes, G3DVERTEX *ver ) {
+static URMADDVERTEX *urmaddvertex_new ( G3DMESH *mes,
+                                        G3DVERTEX *ver ) {
     uint32_t structsize = sizeof ( URMADDVERTEX );
 
     URMADDVERTEX *avs = ( URMADDVERTEX * ) calloc ( 0x01, structsize );
@@ -50,13 +51,14 @@ URMADDVERTEX *urmaddvertex_new ( G3DMESH *mes, G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-void urmaddvertex_free ( URMADDVERTEX *avs ) {
+static void urmaddvertex_free ( URMADDVERTEX *avs ) {
 
     free ( avs );
 }
 
 /******************************************************************************/
-void addVertex_free ( void *data, uint32_t commit ) {
+static void addVertex_free ( void    *data,
+                             uint32_t commit ) {
     URMADDVERTEX *avs = ( URMADDVERTEX * ) data;
 
     /*** Discard changes ***/
@@ -68,7 +70,9 @@ void addVertex_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addVertex_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void addVertex_undo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMADDVERTEX *avs = ( URMADDVERTEX * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) avs->mes;
     G3DMESH *mes = avs->mes;
@@ -90,7 +94,9 @@ void addVertex_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void addVertex_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void addVertex_redo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMADDVERTEX *avs = ( URMADDVERTEX * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) avs->mes;
     G3DMESH *mes = avs->mes;
@@ -113,8 +119,9 @@ void addVertex_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 
 /******************************************************************************/
 void g3durm_mesh_addVertex ( G3DURMANAGER *urm,
-                             G3DMESH *mes, 
-                             G3DVERTEX *ver, uint32_t return_flags ) {
+                             G3DMESH      *mes, 
+                             G3DVERTEX    *ver, 
+                             uint32_t      return_flags ) {
     URMADDVERTEX *avs;
 
     avs = urmaddvertex_new ( mes, ver );

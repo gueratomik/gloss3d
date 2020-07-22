@@ -71,7 +71,9 @@ char *readEntry ( FILE *fsrc ) {
 }
 
 /*****************************************************************************/
-G3DMESH *readMesh ( const char *str, G3DSCENE *sce, uint32_t engine_flags ) {
+static G3DMESH *readMesh ( const char *str, 
+                           G3DSCENE   *sce, 
+                           uint64_t    engine_flags ) {
     uint32_t oid = g3dscene_getNextObjectID ( sce );
     char name[0x40] = { 0x00 };
     G3DMESH *mes;
@@ -84,7 +86,7 @@ G3DMESH *readMesh ( const char *str, G3DSCENE *sce, uint32_t engine_flags ) {
 }
 
 /*****************************************************************************/
-G3DVERTEX *readVertex ( const char *str ) {
+static G3DVERTEX *readVertex ( const char *str ) {
     G3DVERTEX *ver;
     float x, y, z;
 
@@ -97,7 +99,9 @@ G3DVERTEX *readVertex ( const char *str ) {
 }
 
 /*****************************************************************************/
-G3DFACE *readFace   ( const char *str, G3DVERTEX **vertab, uint32_t nbver ) {
+static G3DFACE *readFace   ( const char *str, 
+                             G3DVERTEX **vertab, 
+                             uint32_t    nbver ) {
     char vidx[0x04][0x20] = { { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 } };
     G3DVERTEX *quad[0x04] = { NULL, NULL, NULL, NULL };
     uint32_t vid[0x04], tid[0x04], nid[0x04];
@@ -129,7 +133,8 @@ G3DFACE *readFace   ( const char *str, G3DVERTEX **vertab, uint32_t nbver ) {
 
 /*****************************************************************************/
 #define OBJMAXVERTEX 0x400
-G3DVERTEX **vertab_realloc ( G3DVERTEX **vertab, uint32_t *nbmax ) {
+static G3DVERTEX **vertab_realloc ( G3DVERTEX **vertab, 
+                                    uint32_t   *nbmax ) {
     uint32_t structsize = sizeof ( G3DVERTEX * );
 
     (*nbmax) += OBJMAXVERTEX;
@@ -141,7 +146,8 @@ G3DVERTEX **vertab_realloc ( G3DVERTEX **vertab, uint32_t *nbmax ) {
 }
 
 /*****************************************************************************/
-G3DSCENE *readFile ( FILE *fsrc, uint32_t engine_flags ) {
+static G3DSCENE *readFile ( FILE    *fsrc, 
+                            uint64_t engine_flags ) {
     G3DSCENE *sce = NULL;
     G3DMESH  *mes = NULL;
     G3DVERTEX **vertab = NULL;
@@ -224,7 +230,8 @@ G3DSCENE *readFile ( FILE *fsrc, uint32_t engine_flags ) {
 }
 
 /*****************************************************************************/
-G3DSCENE *g3dscene_importObj( const char *filename, uint32_t engine_flags ) {
+G3DSCENE *g3dscene_importObj( const char *filename, 
+                              uint64_t    engine_flags ) {
     G3DSCENE *sce;
     FILE *fsrc;
 

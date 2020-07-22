@@ -35,7 +35,7 @@ URMREMOVEUVMAP *urmremoveuvmap_new ( G3DMESH  *mes,
                                      G3DUVMAP *uvmap,
                                      LIST     *lolduvset,
                                      LIST     *loldtex,
-                                     uint32_t  engine_flags ) {
+                                     uint64_t engine_flags ) {
     uint32_t structsize = sizeof ( URMREMOVEUVMAP );
 
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) calloc ( 0x01, structsize );
@@ -136,7 +136,7 @@ void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
                                G3DMESH      *mes,
                                G3DUVMAP     *uvmap, 
-                               uint32_t      engine_flags,
+                               uint64_t engine_flags,
                                uint32_t      return_flags ) {
     LIST *lolduvset = NULL;
     LIST *loldtex = NULL;

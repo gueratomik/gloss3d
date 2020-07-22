@@ -79,7 +79,7 @@ typedef struct _URMCONVERTPRIMITIVE {
 /******************************************************************************/
 typedef struct _URMDELSELITEMS {
     G3DSCENE *sce;
-    uint32_t flags;
+    uint64_t engine_flags;
     G3DMESH *mes;
     LIST *loldselfac, *lnewselfac;
     LIST *loldseledg, *lnewseledg;
@@ -247,7 +247,7 @@ typedef struct _URMSELECTITEM {
     LIST *lnewversel;
     LIST *lnewfacsel;
     LIST *lnewedgsel;
-    uint32_t engine_flags;
+    uint64_t engine_flags;
 } URMSELECTITEM;
 
 /******************************************************************************/
@@ -327,8 +327,8 @@ typedef struct _G3DURMANAGER {
 /******************************************************************************/
 typedef struct _G3DURITEM {
     uint32_t commit;
-    void (*undo) ( G3DURMANAGER *, void *, uint32_t ); /*** called if g3durmanager_undo is called  ***/
-    void (*redo) ( G3DURMANAGER *, void *, uint32_t ); /*** called if g3durmanager_redo is called  ***/
+    void (*undo) ( G3DURMANAGER *, void *, uint64_t ); /*** called if g3durmanager_undo is called  ***/
+    void (*redo) ( G3DURMANAGER *, void *, uint64_t ); /*** called if g3durmanager_redo is called  ***/
     void (*free) ( void *, uint32_t );
     void *data;
     uint32_t return_flags;
@@ -342,131 +342,122 @@ typedef struct _G3DURITEM {
 /******************************************************************************/
 G3DURMANAGER *g3durmanager_new ( uint32_t );
 void g3durmanager_init ( G3DURMANAGER *, uint32_t );
-uint32_t g3durmanager_undo ( G3DURMANAGER *, uint32_t );
-uint32_t g3durmanager_redo ( G3DURMANAGER *, uint32_t );
-void g3durmanager_push ( G3DURMANAGER *, void (*) ( G3DURMANAGER *, void *, uint32_t ),
-                                         void (*) ( G3DURMANAGER *, void *, uint32_t ),
-                                         void (*) ( void *, uint32_t ),
-                                         void *, 
-                                         uint32_t  );
+uint32_t g3durmanager_undo ( G3DURMANAGER *urm, 
+                             uint64_t      engine_flags );
+uint32_t g3durmanager_redo ( G3DURMANAGER *urm, 
+                             uint64_t      engine_flags );
+void g3durmanager_push ( G3DURMANAGER *urm, 
+                         void   (*undofunc) ( G3DURMANAGER *urm, 
+                                              void         *data,
+                                              uint64_t      engine_flags ),
+                         void   (*redofunc) ( G3DURMANAGER *urm, 
+                                              void         *data, 
+                                              uint64_t      engine_flags ),
+                         void   (*freefunc) ( void *, uint32_t ),
+                         void    *data, 
+                         uint32_t return_flags );
 void g3duritem_free ( G3DURITEM * );
 void g3durmanager_clearFrom ( G3DURMANAGER *, LIST ** );
 void g3durmanager_clear     ( G3DURMANAGER * );
 void g3durmanager_free ( G3DURMANAGER *urm );
 
 /******************************************************************************/
-G3DURITEM *g3duritem_new ( void (*) ( G3DURMANAGER *,void *, uint32_t ),/* undo func    */
-                           void (*) ( G3DURMANAGER *,void *, uint32_t ),/* redo func    */
-                           void (*) ( void *, uint32_t ),     /* free func    */
+G3DURITEM *g3duritem_new ( void (*undofunc) ( G3DURMANAGER *urm, 
+                                              void         *data,
+                                              uint64_t      engine_flags ),
+                           void (*redofunc) ( G3DURMANAGER *urm, 
+                                              void         *data,
+                                              uint64_t      engine_flags ),
+                           void (*freefunc) ( void    *data, 
+                                              uint32_t commit ),
                            void *,                            /* user data    */
                            uint32_t );                        /* return flags */
 
 /******************************************************************************/
-URMADDOBJECT *urmaddobject_new          ( LIST *, G3DOBJECT *,
-                                                  G3DOBJECT *, G3DSCENE * );
-void          urmaddobject_free         ( URMADDOBJECT * );
-void          addObject_undo            ( G3DURMANAGER *, void *, uint32_t );
-void          addObject_redo            ( G3DURMANAGER *, void *, uint32_t );
-void          addObject_free            ( void *, uint32_t );
-void          g3durm_object_addChild    ( G3DURMANAGER *, G3DSCENE *,
-                                                          uint32_t   ,
-                                                          uint32_t,
-                                                          G3DOBJECT *,
-                                                          G3DOBJECT *,
-                                                          G3DOBJECT * );
-void          g3durm_object_addChildren ( G3DURMANAGER *, G3DSCENE  *,
-                                                          uint32_t   ,
-                                                          uint32_t   ,
-                                                          G3DOBJECT *,
-                                                          G3DOBJECT *,
-                                                          LIST      * );
+void g3durm_object_addChild ( G3DURMANAGER *urm, 
+                              G3DSCENE     *sce,
+                              uint64_t      engine_flags,
+                              uint32_t      return_flags,
+                              G3DOBJECT    *oldpar,
+                              G3DOBJECT    *newpar,
+                              G3DOBJECT    *obj );
+void g3durm_object_addChildren ( G3DURMANAGER *urm, 
+                                 G3DSCENE  *sce,
+                                 uint64_t   engine_flags,
+                                 uint32_t   return_flags,
+                                 G3DOBJECT *oldpar,
+                                 G3DOBJECT *newpar,
+                                 LIST      *lobj );
 
 /******************************************************************************/
-URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *, LIST *,
-                                     G3DMESH  *, LIST *,
-                                                 LIST *,
-                                                 LIST *, uint32_t );
-void urmdelselitems_free ( URMDELSELITEMS * );
-void deleteSelectedItems_undo ( G3DURMANAGER *, void *, uint32_t );
-void deleteSelectedItems_redo ( G3DURMANAGER *, void *, uint32_t );
-void deleteSelectedItems_free ( void *, uint32_t );
-void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *,
-                                          G3DSCENE *, uint32_t, uint32_t );
+void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
+                                          G3DSCENE     *sce, 
+                                          uint64_t      engine_flags,
+                                          uint32_t      return_flags );
+void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
+                                  G3DMESH      *mes,
+                                  uint64_t      engine_flags,
+                                  uint32_t      return_flags );
 
 /******************************************************************************/
 URMCONVERTPRIMITIVE *urmconvertprimitive_new ( G3DPRIMITIVE *, 
                                                G3DMESH *, G3DOBJECT *, 
                                                                G3DSCENE  * );
 void urmconvertprimitive_free ( URMCONVERTPRIMITIVE * );
-void convertPrimitive_undo ( G3DURMANAGER *, void *, uint32_t );
-void convertPrimitive_redo ( G3DURMANAGER *, void *, uint32_t );
+void convertPrimitive_undo ( G3DURMANAGER *, void *, uint64_t );
+void convertPrimitive_redo ( G3DURMANAGER *, void *, uint64_t );
 void convertPrimitive_free (  void *, uint32_t );
-void g3durm_primitive_convert ( G3DURMANAGER *, G3DSCENE  *, uint32_t ,
-                                G3DPRIMITIVE *, G3DOBJECT *, uint32_t );
+void g3durm_primitive_convert ( G3DURMANAGER *urm, 
+                                G3DSCENE     *sce,
+                                uint64_t      engine_flags,
+                                G3DPRIMITIVE *pri,
+                                G3DOBJECT    *par,
+                                uint32_t      return_flags );
 
 /******************************************************************************/
-URMWELDVERTICES *urmweldvertices_new ( G3DMESH *, LIST *, LIST *,
-                                                          LIST *, LIST * );
-void urmweldvertices_free ( URMWELDVERTICES * );
-void weldVertices_redo ( G3DURMANAGER *, void *, uint32_t );
-void weldVertices_undo ( G3DURMANAGER *, void *, uint32_t );
-void weldVertices_free ( void *, uint32_t );
-void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *, G3DMESH *, uint32_t,
-                                                                   uint32_t,
-                                                                   uint32_t );
+void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm, 
+                                        G3DMESH      *mes, 
+                                        uint32_t      type,
+                                        uint64_t      engine_flags,
+                                        uint32_t      return_flags );
 void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm, 
                                          G3DMESH      *mes, 
                                          uint32_t      type,
                                          float         distance,
-                                         uint32_t engine_flags,
-                                         uint32_t return_flags );
+                                         uint64_t      engine_flags,
+                                         uint32_t      return_flags );
 
 /******************************************************************************/
-URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *, 
-                                       LIST *, LIST *, LIST *, LIST *,
-                                       G3DVECTOR *, G3DVECTOR * );
-void urmmovevertices_free ( URMMOVEVERTICES * );
-void moveVertices_undo ( G3DURMANAGER *, void *, uint32_t );
-void moveVertices_redo ( G3DURMANAGER *, void *, uint32_t );
-void moveVertices_free ( void *, uint32_t );
-void g3durm_mesh_moveVertexList ( G3DURMANAGER *, G3DMESH *, 
-                                  LIST *, LIST *, LIST *, LIST *,
-                                  G3DVECTOR *, G3DVECTOR *, uint32_t );
+void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
+                                  G3DMESH *mes, 
+                                  LIST *lver,
+                                  LIST *ledg,
+                                  LIST *lfac,
+                                  LIST *lsub,
+                                  G3DVECTOR *oldpos,
+                                  G3DVECTOR *newpos,
+                                  uint32_t return_flags );
 
 /******************************************************************************/
-URMCUTMESH *urmcutmesh_new ( G3DMESH *, LIST *, LIST *, LIST * );
-void urmcutmesh_free ( URMCUTMESH * );
-void cutMesh_undo ( G3DURMANAGER *, void *, uint32_t );
-void cutMesh_redo ( G3DURMANAGER *, void *, uint32_t );
-void cutMesh_free ( void *, uint32_t );
-void g3durm_mesh_cut ( G3DURMANAGER *, G3DMESH *, G3DFACE *, int, uint32_t, uint32_t );
+void g3durm_mesh_cut ( G3DURMANAGER *urm, 
+                       G3DMESH      *mes,
+                       G3DFACE      *knife,
+                       int           restricted,
+                       uint64_t      engine_flags,
+                       uint32_t      return_flags );
 
 /******************************************************************************/
-URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH *, LIST *,
-                                                LIST *,
-                                                LIST *,
-                                                LIST *,
-                                                G3DVECTOR *,
-                                                G3DVECTOR * );
-
-void urmextrudemesh_free ( URMEXTRUDEMESH * );
-void extrudeMesh_free ( void *, uint32_t  );
-void extrudeMesh_undo ( G3DURMANAGER *, void *, uint32_t );
-void extrudeMesh_redo ( G3DURMANAGER *, void *, uint32_t );
-void g3durm_mesh_extrude ( G3DURMANAGER *, G3DMESH *, LIST *,
-                                                      LIST *, 
-                                                      LIST *, 
-                                                      LIST *,
-                                                      G3DVECTOR *,
-                                                      G3DVECTOR *, uint32_t );
+void g3durm_mesh_extrude ( G3DURMANAGER *urm, 
+                           G3DMESH      *mes,
+                           LIST         *loriver,
+                           LIST         *loldfac,
+                           LIST         *lnewver,
+                           LIST         *lnewfac,
+                           G3DVECTOR    *oldpos,
+                           G3DVECTOR    *newpos,
+                           uint32_t      return_flags );
 
 /******************************************************************************/
-URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
-                                             uint32_t   save_flags );
-void urmtransformobject_free ( URMTRANSFORMOBJECT *uto );
-void transformObject_free ( void *data, uint32_t commit );
-void transformObject_undo ( G3DURMANAGER *urm, void *data, uint32_t flags );
-void transformObject_redo ( G3DURMANAGER *urm, void *data, uint32_t flags );
 void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time );
 URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm, 
                                               LIST         *lobj,
@@ -478,113 +469,87 @@ URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm,
                                              uint32_t      return_flags );
 
 /******************************************************************************/
-URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *, LIST *, LIST * );
-void urmuntriangulate_free     ( URMUNTRIANGULATE * );
-void unTriangulate_undo        ( G3DURMANAGER *, void *, uint32_t );
-void unTriangulate_redo        ( G3DURMANAGER *, void *, uint32_t );
-void unTriangulate_free        ( void *, uint32_t );
-void g3durm_mesh_untriangulate ( G3DURMANAGER *, G3DMESH *, uint32_t, uint32_t );
-void g3durm_mesh_triangulate   ( G3DURMANAGER *, G3DMESH *, int, uint32_t, uint32_t );
+void unTriangulate_free ( void *data, uint32_t commit );
+void unTriangulate_undo ( G3DURMANAGER *urm, 
+                          void         *data, 
+                          uint64_t      engine_flags );
+void unTriangulate_redo ( G3DURMANAGER *urm, 
+                          void         *data, 
+                          uint64_t      engine_flags );
+void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, 
+                                 G3DMESH      *mes,
+                                 uint64_t      engine_flags,
+                                 uint32_t      return_flags );
+void g3durm_mesh_triangulate ( G3DURMANAGER *urm, 
+                               G3DMESH      *mes, 
+                               int           clockwise,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags );
 
 /******************************************************************************/
-URMCREATEFACE *urmcreateface_new ( G3DMESH *, G3DFACE * );
-void urmcreateface_free ( URMCREATEFACE * );
-void createFace_free ( void *, uint32_t  );
-void createFace_undo ( G3DURMANAGER *, void *, uint32_t );
-void createFace_redo ( G3DURMANAGER *, void *, uint32_t );
-void g3durm_mesh_createFace ( G3DURMANAGER *, G3DMESH *, G3DFACE *, uint32_t );
+void g3durm_mesh_createFace ( G3DURMANAGER *urm,
+                              G3DMESH      *mes, 
+                              G3DFACE      *fac, 
+                              uint32_t      return_flags );
 
 /******************************************************************************/
-URMSELECTITEM *urmselectitem_new ( G3DOBJECT *, LIST *, LIST *, LIST *, LIST *,
-                                                LIST *, LIST *, LIST *, LIST *,
-                                                uint32_t );
-void urmselectitem_free ( URMSELECTITEM * );
-void selectItem_free ( void *, uint32_t );
-void selectItem_undo ( G3DURMANAGER *, void *, uint32_t );
-void selectItem_redo ( G3DURMANAGER *, void *, uint32_t );
-void g3durm_mesh_pickVertices ( G3DURMANAGER *, G3DMESH *,
-                                                LIST *,
-                                                LIST *,
-                                                uint32_t,
-                                                uint32_t );
-void g3durm_mesh_pickFaces    ( G3DURMANAGER *, G3DMESH *,
-                                                LIST *,
-                                                LIST *,
-                                                uint32_t,
-                                                uint32_t );
-void g3durm_scene_pickObject  ( G3DURMANAGER *, G3DSCENE *,
-                                                LIST *,
-                                                LIST *,
-                                                uint32_t,
-                                                uint32_t );
-void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm, 
-                            G3DUVMAP     *uvmap,
-                            LIST        *loldseluv,
-                            LIST        *lnewseluv,
-                            uint32_t     engine_flags,
-                            uint32_t     return_flags );
-
 void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm, 
                                G3DUVMAP     *uvmap,
-                               LIST        *loldseluv,
-                               LIST        *lnewseluv,
-                               uint32_t     engine_flags,
-                               uint32_t     return_flags );
+                               LIST         *loldseluvset,
+                               LIST         *lnewseluvset,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags );
+void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm, 
+                            G3DUVMAP     *uvmap,
+                            LIST         *loldseluv,
+                            LIST         *lnewseluv,
+                            uint64_t      engine_flags,
+                            uint32_t      return_flags );
+void g3durm_mesh_pickVertices ( G3DURMANAGER *urm, 
+                                G3DMESH      *mes,
+                                LIST         *loldversel,
+                                LIST         *lnewversel,
+                                uint64_t      engine_flags,
+                                uint32_t      return_flags );
+void g3durm_mesh_pickFaces ( G3DURMANAGER *urm, 
+                             G3DMESH      *mes,
+                             LIST         *loldversel,
+                             LIST         *lnewversel,
+                             uint64_t      engine_flags,
+                             uint32_t      return_flags );
+void g3durm_scene_pickObject ( G3DURMANAGER *urm, 
+                               G3DSCENE     *sce,
+                               LIST         *loldobjsel,
+                               LIST         *lnewobjsel,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags );
+
 
 /******************************************************************************/
-URMADDVERTEX *urmaddvertex_new ( G3DMESH *, G3DVERTEX * );
-void urmaddvertex_free ( URMADDVERTEX * );
-void addVertex_free ( void *, uint32_t  );
-void addVertex_undo ( G3DURMANAGER *, void *, uint32_t );
-void addVertex_redo ( G3DURMANAGER *, void *, uint32_t );
-void g3durm_mesh_addVertex ( G3DURMANAGER *, G3DMESH *, G3DVERTEX *, uint32_t );
+void g3durm_mesh_addVertex ( G3DURMANAGER *urm,
+                             G3DMESH      *mes, 
+                             G3DVERTEX    *ver, 
+                             uint32_t      return_flags );
 
 /******************************************************************************/
-URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes );
-void urminvertnormal_free ( URMINVERTNORMAL * );
-void invertNormal_free ( void *, uint32_t  );
-void invertNormal_undo ( G3DURMANAGER *, void *, uint32_t );
-void invertNormal_redo ( G3DURMANAGER *, void *, uint32_t );
-void g3durm_mesh_invertNormal ( G3DURMANAGER *, G3DMESH *, uint32_t, uint32_t );
+void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, 
+                                G3DMESH      *mes,
+                                uint64_t      engine_flags,
+                                uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                                   G3DSPLINE    *spline, 
                                   LIST         *lremovedPoints,
-                                  uint32_t      engine_flags,
+                                  uint64_t      engine_flags,
                                   uint32_t      return_flags );
-void deleteSplinePoints_redo ( G3DURMANAGER *urm, 
-                               void         *data, 
-                               uint32_t      engine_flags );
-void deleteSplinePoints_undo ( G3DURMANAGER *urm, 
-                               void         *data, 
-                               uint32_t      engine_flags );
-void deleteSplinePoints_free ( void    *data, 
-                               uint32_t commit );
-void urmDeleteSplinePoints_free ( URMDELETESPLINEPOINTS *dsp );
-URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline, 
-                                                   LIST      *lremovedPoints,
-                                                   LIST      *lremovedSegments );
 
 /******************************************************************************/
 void g3durm_spline_cut ( G3DURMANAGER *urm,
                          G3DSPLINE    *spline, 
                          G3DFACE      *knife,
-                         uint32_t      engine_flags,
+                         uint64_t      engine_flags,
                          uint32_t      return_flags );
-void cutSpline_redo ( G3DURMANAGER *urm, 
-                      void         *data, 
-                      uint32_t      engine_flags );
-void cutSpline_undo ( G3DURMANAGER *urm, 
-                      void         *data, 
-                      uint32_t      engine_flags );
-void cutSpline_free ( void    *data, 
-                      uint32_t commit );
-void urmCutSpline_free ( URMCUTSPLINE *csp );
-URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline, 
-                                 LIST      *laddedPoints,
-                                 LIST      *laddedSegments,
-                                 LIST      *lremovedSegments );
 
 /******************************************************************************/
 URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline, 
@@ -594,29 +559,29 @@ void urmAddSplinePoint_free ( URMADDSPLINEPOINT *asp );
 void addSplinePoint_free ( void *data, uint32_t commit );
 void addSplinePoint_undo ( G3DURMANAGER *urm, 
                            void         *data,
-                           uint32_t      engine_flags );
+                           uint64_t engine_flags );
 void addSplinePoint_redo ( G3DURMANAGER *urm, 
                            void         *data,
-                           uint32_t      engine_flags );
+                           uint64_t engine_flags );
 void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
                               G3DSPLINE        *spline, 
                               G3DSPLINEPOINT   *pt,
                               G3DSPLINESEGMENT *seg,
-                              uint32_t          engine_flags,
+                              uint64_t engine_flags,
                               uint32_t          return_flags );
 
 /******************************************************************************/
 void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
                                 G3DSPLINE        *spline,
                                 G3DSPLINESEGMENT *seg,
-                                uint32_t          engine_flags,
+                                uint64_t engine_flags,
                                 uint32_t          return_flags );
 void addSplineSegment_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void addSplineSegment_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void addSplineSegment_free ( void *data, uint32_t commit );
 void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass );
 URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
@@ -625,14 +590,14 @@ URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
 /******************************************************************************/
 void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
                                          G3DSPLINE        *spline,
-                                         uint32_t          engine_flags,
+                                         uint64_t engine_flags,
                                          uint32_t          return_flags );
 void roundSplinePoint_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void roundSplinePoint_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void roundSplinePoint_free ( void *data, uint32_t commit );
 void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp );
 URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
@@ -645,10 +610,10 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
                          G3DMESH *mes,
                          uint32_t splID,
                          uint32_t keep,
-                         uint32_t engine_flags,
+                         uint64_t engine_flags,
                          uint32_t return_flags );
-void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
-void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
+void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
 void splitMesh_free ( void *data, uint32_t commit );
 void urmSplitMesh_free ( URMSPLITMESH *sms );
 URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes, 
@@ -659,7 +624,7 @@ URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes,
 /******************************************************************************/
 void g3durm_spline_revert ( G3DURMANAGER *urm, 
                             G3DSPLINE    *spline,
-                            uint32_t      engine_flags,
+                            uint64_t engine_flags,
                             uint32_t      return_flags );
 
 /******************************************************************************/
@@ -671,15 +636,15 @@ void urmObjectPose_free ( URMOBJECTPOSE *op );
 void objectPose_free ( void *data, uint32_t commit );
 void objectPose_undo ( G3DURMANAGER *urm, 
                        void         *data,
-                       uint32_t      engine_flags );
+                       uint64_t engine_flags );
 void objectPose_redo ( G3DURMANAGER *urm, 
                        void         *data,
-                       uint32_t      engine_flags );
+                       uint64_t engine_flags );
 void g3durm_object_pose ( G3DURMANAGER *urm,
                           LIST         *lobj,
                           float         frame,
                           uint32_t      key_flags,
-                          uint32_t      engine_flags,
+                          uint64_t engine_flags,
                           uint32_t      return_flags );
 
 /******************************************************************************/
@@ -688,13 +653,13 @@ void urmObjectRemoveKeys_free ( URMOBJECTREMOVEKEYS *ork );
 void objectRemoveKeys_free ( void *data, uint32_t commit );
 void objectRemoveKeys_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void objectRemoveKeys_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags );
+                             uint64_t engine_flags );
 void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
                                             LIST         *lobj,
-                                            uint32_t      engine_flags,
+                                            uint64_t engine_flags,
                                             uint32_t      return_flags );
 
 /******************************************************************************/
@@ -703,8 +668,8 @@ URMMOVEPOINT *g3durm_spline_movePoint ( G3DURMANAGER *urm,
                                         uint32_t      save_type,
                                         uint32_t      return_flags );
 void urmmovepoint_saveState ( URMMOVEPOINT *ump, uint32_t save_time );
-void movePoint_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
-void movePoint_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags );
+void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
+void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
 void movePoint_free ( void *data, uint32_t commit );
 void urmmovepoint_free ( URMMOVEPOINT *ump );
 URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
@@ -721,7 +686,7 @@ void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
 void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
                                    G3DMESH      *mes,
                                    const char   *name,
-                                   uint32_t      engine_flags,
+                                   uint64_t      engine_flags,
                                    uint32_t      return_flags );
 
 /******************************************************************************/
@@ -729,42 +694,42 @@ void urmremovetexture_free ( URMREMOVETEXTURE *udt );
 void g3durm_mesh_deleteTexture ( G3DURMANAGER *urm,
                                  G3DMESH      *mes,
                                  G3DTEXTURE   *tex, 
-                                 uint32_t      engine_flags,
+                                 uint64_t      engine_flags,
                                  uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_mesh_addTexture ( G3DURMANAGER *urm,
                               G3DMESH      *mes,
                               G3DTEXTURE   *tex,
-                              uint32_t      engine_flags,
+                              uint64_t      engine_flags,
                               uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_scene_addMaterial ( G3DURMANAGER *urm,
                                 G3DSCENE     *sce,
                                 G3DMATERIAL  *mat,
-                                uint32_t      engine_flags,
+                                uint64_t      engine_flags,
                                 uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_scene_removeMaterial ( G3DURMANAGER *urm,
                                    G3DSCENE     *sce,
                                    G3DMATERIAL  *mat,
-                                   uint32_t      engine_flags,
+                                   uint64_t      engine_flags,
                                    uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
                                G3DMESH      *mes,
                                G3DUVMAP     *uvmap, 
-                               uint32_t      engine_flags,
+                               uint64_t      engine_flags,
                                uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_mesh_addUVMap ( G3DURMANAGER *urm,
                             G3DMESH      *mes,
                             G3DUVMAP     *uvmap, 
-                            uint32_t      engine_flags,
+                            uint64_t      engine_flags,
                             uint32_t      return_flags );
 
 #endif

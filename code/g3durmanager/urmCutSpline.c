@@ -31,10 +31,10 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline, 
-                                 LIST      *laddedPoints,
-                                 LIST      *laddedSegments,
-                                 LIST      *lremovedSegments ) {
+static URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline, 
+                                        LIST      *laddedPoints,
+                                        LIST      *laddedSegments,
+                                        LIST      *lremovedSegments ) {
     uint32_t size = sizeof ( URMCUTSPLINE );
     URMCUTSPLINE *csp = ( URMCUTSPLINE * ) calloc ( 0x01, size );
 
@@ -53,13 +53,13 @@ URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline,
 }
 
 /******************************************************************************/
-void urmCutSpline_free ( URMCUTSPLINE *csp ) {
+static void urmCutSpline_free ( URMCUTSPLINE *csp ) {
     free ( csp );
 }
 
 /******************************************************************************/
-void cutSpline_free ( void    *data, 
-                      uint32_t commit ) {
+static void cutSpline_free ( void    *data, 
+                             uint32_t commit ) {
     URMCUTSPLINE *csp = ( URMCUTSPLINE * ) data;
 
     /*** Discard changes ***/
@@ -77,9 +77,9 @@ void cutSpline_free ( void    *data,
 }
 
 /******************************************************************************/
-void cutSpline_undo ( G3DURMANAGER *urm, 
-                      void         *data, 
-                      uint32_t      engine_flags ) {
+static void cutSpline_undo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMCUTSPLINE *csp = ( URMCUTSPLINE * ) data;
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
@@ -95,9 +95,9 @@ void cutSpline_undo ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void cutSpline_redo ( G3DURMANAGER *urm, 
-                      void         *data, 
-                      uint32_t      engine_flags ) {
+static void cutSpline_redo ( G3DURMANAGER *urm, 
+                             void         *data, 
+                             uint64_t      engine_flags ) {
     URMCUTSPLINE *csp = ( URMCUTSPLINE * ) data;
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
@@ -116,7 +116,7 @@ void cutSpline_redo ( G3DURMANAGER *urm,
 void g3durm_spline_cut ( G3DURMANAGER *urm,
                          G3DSPLINE    *spline, 
                          G3DFACE      *knife,
-                         uint32_t      engine_flags,
+                         uint64_t      engine_flags,
                          uint32_t      return_flags ) {
     URMCUTSPLINE *csp;
     LIST *laddedPoints = NULL;

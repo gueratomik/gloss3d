@@ -30,7 +30,8 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t eflags ) {
+G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, 
+                               uint64_t   engine_flags ) {
     G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
     G3DPRIMITIVE *cpypri;
     void *data;
@@ -52,14 +53,15 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, uint32_t eflags ) {
     ((G3DOBJECT*)cpypri)->type = ((G3DOBJECT*)pri)->type;
 
     /*** A primitive is a mesh ***/
-    g3dmesh_clone ( ( G3DMESH * ) pri, ( G3DMESH * ) cpypri, eflags );
+    g3dmesh_clone ( ( G3DMESH * ) pri, ( G3DMESH * ) cpypri, engine_flags );
 
 
     return ( G3DOBJECT * ) cpypri;
 }
 
 /******************************************************************************/
-G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t eflags ) {
+G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
+                                uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
     G3DMESH *mes;
 
@@ -68,7 +70,7 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t eflags ) {
 
     mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
                                               obj->name, 
-                                              eflags );
+                                              engine_flags );
 
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, NULL,
@@ -76,13 +78,13 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t eflags ) {
                           NULL,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, eflags );
+                          UPDATEVERTEXNORMAL, engine_flags );
 
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;
 
-        g3dobject_removeChild ( parent, obj, eflags );
-        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, eflags );
+        g3dobject_removeChild ( parent, obj, engine_flags );
+        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
     }
 
     /*** Restore the default copy function ***/
@@ -93,9 +95,10 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, uint32_t eflags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dprimitive_pick ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                             uint32_t   eflags ) {
-    g3dmesh_pick( obj, curcam, eflags );
+static uint32_t g3dprimitive_pick ( G3DOBJECT *obj, 
+                                    G3DCAMERA *curcam, 
+                                    uint64_t   engine_flags ) {
+    g3dmesh_pick( obj, curcam, engine_flags );
 
     return 0x00;
 }
@@ -103,11 +106,11 @@ uint32_t g3dprimitive_pick ( G3DOBJECT *obj, G3DCAMERA *curcam,
 /******************************************************************************/
 uint32_t g3dprimitive_draw ( G3DOBJECT *obj, 
                              G3DCAMERA *curcam, 
-                             uint32_t   eflags ) {
+                             uint64_t   engine_flags ) {
     uint32_t takenOver = 0x00;
 
-    if ( ( eflags & ONGOINGANIMATION ) == 0x00 ) {
-        takenOver = g3dobject_drawModifiers ( obj, curcam, eflags );
+    if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
+        takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
     }
 
     if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
@@ -120,7 +123,7 @@ uint32_t g3dprimitive_draw ( G3DOBJECT *obj,
     if ( takenOver & MODIFIERTAKESOVER ) {
         /*** ***/
     } else {
-        g3dmesh_drawObject ( ( G3DMESH * ) obj, curcam, eflags );
+        g3dmesh_drawObject ( ( G3DMESH * ) obj, curcam, engine_flags );
     }
 
     if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
@@ -140,9 +143,11 @@ void g3dprimitive_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
-                                                         void *data,
-                                                         uint32_t datalen ) {
+void g3dprimitive_init ( G3DPRIMITIVE *pri, 
+                         uint32_t     id,
+                         char        *name,
+                         void        *data,
+                         uint32_t     datalen ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
 
     pri->data    = data;
@@ -164,8 +169,10 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri, uint32_t id, char *name,
 }
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dprimitive_new ( uint32_t id, char *name, void *data,
-                                                          uint32_t datalen ) {
+G3DPRIMITIVE *g3dprimitive_new ( uint32_t id, 
+                                 char    *name, 
+                                 void    *data,
+                                 uint32_t datalen ) {
     G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) calloc ( 0x01, sizeof ( G3DPRIMITIVE ) );
 
     if ( pri == NULL ) {

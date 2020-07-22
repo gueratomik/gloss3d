@@ -99,7 +99,7 @@ void g3dlight_free ( G3DLIGHT *lig );
  */
 uint32_t g3dlight_draw ( G3DLIGHT  *lig, 
                          G3DCAMERA *cam,
-                         uint32_t   engine_flags );
+                         uint64_t engine_flags );
 
 /**
  * Create a new light from an existing one.
@@ -111,7 +111,7 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
 G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
                           uint32_t       id,
                           unsigned char *name,
-                          uint32_t       engine_flags );
+                          uint64_t engine_flags );
 
 void g3dlight_init ( G3DLIGHT *lig, 
                      uint32_t  id, 

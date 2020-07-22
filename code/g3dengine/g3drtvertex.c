@@ -38,11 +38,10 @@
  * belongs to a face that has been selected for example.
  */
 /******************************************************************************/
-void g3drtvertex_init ( G3DRTVERTEX *rtver, G3DVERTEX *ver,
-                                            uint32_t facsel,
-                                            uint32_t engine_flags ) {
-
-
+void g3drtvertex_init ( G3DRTVERTEX *rtver, 
+                        G3DVERTEX   *ver,
+                        uint32_t     facsel,
+                        uint64_t     engine_flags ) {
     if ( engine_flags & VIEWSKIN ) {
         rtver->r = 1.0f;
         rtver->g = /*( ver->flags & VERTEXPAINTED ) ? */ver->weight/* : 0.0f*/;

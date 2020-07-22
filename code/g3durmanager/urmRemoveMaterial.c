@@ -36,7 +36,7 @@
 /******************************************************************************/
 URMREMOVEMATERIAL *urmremovematerial_new ( G3DSCENE    *sce,
                                            G3DMATERIAL *mat,
-                                           uint32_t     engine_flags ) {
+                                           uint64_t engine_flags ) {
     uint32_t structsize = sizeof ( URMREMOVEMATERIAL );
     LIST *lobj = g3dmaterial_getObjects ( mat, sce );
     LIST *ltmpobj = lobj;
@@ -139,7 +139,7 @@ void removeMaterial_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_scene_removeMaterial ( G3DURMANAGER *urm,
                                    G3DSCENE     *sce,
                                    G3DMATERIAL  *mat,
-                                   uint32_t      engine_flags,
+                                   uint64_t engine_flags,
                                    uint32_t      return_flags ) {
     URMREMOVEMATERIAL *rma = urmremovematerial_new ( sce, mat, engine_flags );
 

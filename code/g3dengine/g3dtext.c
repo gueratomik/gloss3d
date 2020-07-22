@@ -130,7 +130,7 @@ void g3dtext_addCharacter ( G3DTEXT      *txt,
 void g3dtext_mergeCharacter ( G3DTEXT      *txt, 
                               G3DCHARACTER *chr,
                               uint32_t      invert, /* 0 or 1 */
-                              uint32_t      engine_flags ) {
+                              uint64_t engine_flags ) {
     G3DMESH *txtmes = ( G3DMESH * ) txt;
 
 
@@ -254,7 +254,7 @@ void g3dtext_empty ( G3DTEXT *txt ) {
 }
 
 /******************************************************************************/
-void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
+void g3dtext_setText ( G3DTEXT *txt, char *text, uint64_t engine_flags ) {
     uint32_t textLen = 0x00;
 
     if ( txt->text ) {
@@ -275,7 +275,7 @@ void g3dtext_setText ( G3DTEXT *txt, char *text, uint32_t engine_flags ) {
 /******************************************************************************/
 void g3dtext_addText ( G3DTEXT *txt, 
                        char    *addedString,
-                       uint32_t engine_flags ) {
+                       uint64_t engine_flags ) {
     char *newString = malloc ( strlen ( txt->text ) + 
                                strlen ( addedString ) + 0x01 );
     uint32_t fromCharacter = 0x00;
@@ -305,7 +305,7 @@ void g3dtext_setFont ( G3DTEXT *txt,
                        char    *fontFaceName,
                        char    *fontFaceFile,
                        uint32_t fontFaceSize,
-                       uint32_t engine_flags ) {
+                       uint64_t engine_flags ) {
     #ifdef __linux__
     char *searchPath[] = { "/usr/share/fonts/X11/misc",
                            "/usr/share/fonts/X11/TTF",
@@ -412,7 +412,7 @@ void g3dtext_setFont ( G3DTEXT *txt,
 /******************************************************************************/
 void g3dtext_setSize ( G3DTEXT *txt,
                        uint32_t fontFaceSize,
-                       uint32_t engine_flags ) {
+                       uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
 
     /*** when size is changed, we need to recreate the whole mesh ***/
@@ -436,7 +436,7 @@ void g3dtext_setSize ( G3DTEXT *txt,
 /******************************************************************************/
 void g3dtext_setRoundness ( G3DTEXT *txt,
                             uint32_t roundness,
-                            uint32_t engine_flags ) {
+                            uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
 
     /*** when roundess is changed, we need to recreate the whole mesh ***/
@@ -452,7 +452,7 @@ void g3dtext_setRoundness ( G3DTEXT *txt,
 /******************************************************************************/
 void g3dtext_setThickness ( G3DTEXT *txt,
                             float    newThickness,
-                            uint32_t engine_flags ) {
+                            uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     float oldThickness = txt->thickness;
 
@@ -503,7 +503,7 @@ void g3dtext_setThickness ( G3DTEXT *txt,
 G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                           uint32_t       code,
                                           GLUtesselator *tobj,
-                                          uint32_t       engine_flags ) {
+                                          uint64_t engine_flags ) {
     G3DCHARACTER *chr = g3dtext_getCharacterByCode ( txt, code );
     uint32_t   verDataSize = sizeof ( GLdouble ) * 0x03;
     uint32_t   n_points;
@@ -818,14 +818,14 @@ static void CALLBACK g3dtext_endGroup( void *object_data ) {
 /******************************************************************************/
 /*void g3dtext_generate_draw ( G3DOBJECT *obj, 
                              G3DCAMERA *curcma,
-                             uint32_t engine_flags ) {
+                             uint64_t engine_flags ) {
     g3dtext_generate ( obj, engine_flags );
 }*/
 
 /******************************************************************************/
 void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
                                       float         thickness,
-                                      uint32_t      engine_flags ) {
+                                      uint64_t engine_flags ) {
     uint32_t nbOriginalVertices = chr->nbver;
     uint32_t nbOriginalEdges = chr->nbedg;
 
@@ -928,7 +928,7 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
 void g3dtext_generate ( G3DOBJECT *obj,
                         uint32_t   fromCharacter,
                         uint32_t   toCharacter,
-                        uint32_t   engine_flags ) {
+                        uint64_t engine_flags ) {
     G3DTEXT *txt = ( G3DTEXT * ) obj;
     uint32_t i;
 
@@ -1002,7 +1002,7 @@ void g3dtext_configure ( G3DTEXT *txt,
                          uint32_t fontFaceSize,
                          float    thickness,
                          uint32_t roundness,
-                         uint32_t engine_flags ) {
+                         uint64_t engine_flags ) {
     txt->roundness = roundness;
     txt->thickness = thickness;
 
@@ -1017,7 +1017,7 @@ void g3dtext_configure ( G3DTEXT *txt,
 void g3dtext_init ( G3DTEXT *txt, 
                     uint32_t id, 
                     char    *name,
-                    uint32_t engine_flags ) {
+                    uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) txt;
 
     /*** TODO: add more parameters (function pointers) to g3dmesh_init ***/
@@ -1044,7 +1044,7 @@ void g3dtext_init ( G3DTEXT *txt,
 /******************************************************************************/
 G3DTEXT *g3dtext_new ( uint32_t id, 
                        char    *name,
-                       uint32_t engine_flags ) {
+                       uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     G3DTEXT *txt = ( G3DTEXT * ) calloc ( 0x01, sizeof ( G3DTEXT ) );
 

@@ -31,12 +31,13 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH *mes, LIST *loriver,
-                                                   LIST *loldfac,
-                                                   LIST *lnewver,
-                                                   LIST *lnewfac,
-                                                   G3DVECTOR *oldpos,
-                                                   G3DVECTOR *newpos ) {
+static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes, 
+                                            LIST      *loriver,
+                                            LIST      *loldfac,
+                                            LIST      *lnewver,
+                                            LIST      *lnewfac,
+                                            G3DVECTOR *oldpos,
+                                            G3DVECTOR *newpos ) {
     uint32_t structsize = sizeof ( URMEXTRUDEMESH );
 
     URMEXTRUDEMESH *ems = ( URMEXTRUDEMESH * ) calloc ( 0x01, structsize );
@@ -60,7 +61,7 @@ URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH *mes, LIST *loriver,
 }
 
 /******************************************************************************/
-void urmextrudemesh_free ( URMEXTRUDEMESH *ems ) {
+static void urmextrudemesh_free ( URMEXTRUDEMESH *ems ) {
     list_free ( &ems->loriver, NULL );
     list_free ( &ems->loldfac, NULL );
     list_free ( &ems->lnewver, NULL );
@@ -74,7 +75,8 @@ void urmextrudemesh_free ( URMEXTRUDEMESH *ems ) {
 }
 
 /******************************************************************************/
-void extrudeMesh_free ( void *data, uint32_t commit ) {
+static void extrudeMesh_free ( void    *data, 
+                               uint32_t commit ) {
     URMEXTRUDEMESH *ems = ( URMEXTRUDEMESH * ) data;
 
     /*** Discard changes ***/
@@ -89,7 +91,9 @@ void extrudeMesh_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void extrudeMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void extrudeMesh_undo ( G3DURMANAGER *urm, 
+                               void         *data, 
+                               uint64_t      engine_flags ) {
     URMEXTRUDEMESH *ems = ( URMEXTRUDEMESH * ) data;
     G3DMESH *mes = ems->mes;
 
@@ -118,7 +122,9 @@ void extrudeMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void extrudeMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void extrudeMesh_redo ( G3DURMANAGER *urm, 
+                               void         *data, 
+                               uint64_t      engine_flags ) {
     URMEXTRUDEMESH *ems = ( URMEXTRUDEMESH * ) data;
     G3DMESH *mes = ems->mes;
 
@@ -147,14 +153,15 @@ void extrudeMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3durm_mesh_extrude ( G3DURMANAGER *urm, G3DMESH *mes,
-                                              LIST *loriver,
-                                              LIST *loldfac,
-                                              LIST *lnewver,
-                                              LIST *lnewfac,
-                                              G3DVECTOR *oldpos,
-                                              G3DVECTOR *newpos,
-                                              uint32_t return_flags ) {
+void g3durm_mesh_extrude ( G3DURMANAGER *urm, 
+                           G3DMESH      *mes,
+                           LIST         *loriver,
+                           LIST         *loldfac,
+                           LIST         *lnewver,
+                           LIST         *lnewfac,
+                           G3DVECTOR    *oldpos,
+                           G3DVECTOR    *newpos,
+                           uint32_t      return_flags ) {
     URMEXTRUDEMESH *ems;
 
     ems = urmextrudemesh_new ( mes, loriver,

@@ -75,7 +75,7 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
-    rps->gui->flags |= LOADFULLRESIMAGES;
+    rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
     /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
     /*gtf.action.wait = 0x00;*/
@@ -87,7 +87,7 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
     r3dscene_render_frame_t ( rps->rsce );
 
-    rps->gui->flags &= (~LOADFULLRESIMAGES);
+    rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
     return NULL;
 }
@@ -96,7 +96,7 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
-    rps->gui->flags |= LOADFULLRESIMAGES;
+    rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
     /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
     /*gtf.action.wait = 0x00;*/
@@ -108,7 +108,7 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 
     r3dscene_render_sequence_t ( rps->rsce );
 
-    rps->gui->flags &= (~LOADFULLRESIMAGES);
+    rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
     return NULL;
 }

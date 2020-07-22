@@ -467,7 +467,7 @@ typedef struct _G3DPROCEDURALNOISE {
 
 /******************************************************************************/
 typedef struct _G3DCHANNEL {
-    uint32_t       flags;
+    uint64_t engine_flags;
     G3DCOLOR       solid;
     G3DIMAGE      *image;
     G3DPROCEDURAL *proc;
@@ -476,7 +476,7 @@ typedef struct _G3DCHANNEL {
 /******************************************************************************/
 typedef struct _G3DMATERIAL {
     uint32_t   id;
-    uint32_t   flags;
+    uint64_t engine_flags;
     char      *name;
     G3DCHANNEL diffuse;
     G3DCHANNEL ambient;
@@ -501,7 +501,7 @@ typedef struct _G3DFACEGROUP {
 /******************************************************************************/
 typedef struct _G3DKEY {
     uint32_t id;    /*** should NEVER be trusted ***/
-    uint32_t flags;
+    uint64_t engine_flags;
     float frame;
     G3DVECTOR pos;
     G3DVECTOR rot;
@@ -522,12 +522,12 @@ typedef struct _G3DRTVERTEX {
     G3DTINYVECTOR nor;
     G3DTINYVECTOR pos;
     uint32_t      id;
-    uint32_t      flags;
+    uint64_t engine_flags;
 } G3DRTVERTEX;
 
 /******************************************************************************/
 typedef struct _G3DVERTEX {
-    uint32_t flags;
+    uint64_t engine_flags;
     uint32_t id;      /*** Vertex ID - Should never be trusted !        ***/
     uint32_t geoID;   /*** geomtry ID, all types included               ***/
     G3DVECTOR  pos;   /*** Vertex position                              ***/
@@ -574,7 +574,7 @@ typedef struct _G3DMESH   G3DMESH;
 typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
-    uint32_t flags;         /*** selected or not etc ... ***/
+    uint64_t engine_flags;         /*** selected or not etc ... ***/
     char *name;             /*** Object's name           ***/
     G3DVECTOR pos;          /*** Object center position  ***/
     G3DVECTOR rot;          /*** Object center angles    ***/
@@ -673,7 +673,7 @@ struct _G3DUVSET {
 
 /******************************************************************************/
 typedef struct _G3DTEXTURE {
-    uint32_t      flags;
+    uint64_t engine_flags;
     G3DMATERIAL  *mat;
     G3DFACEGROUP *facgrp;
     G3DUVMAP     *map;
@@ -746,7 +746,7 @@ typedef struct _G3DRTTRIANGLEUVW {
 /******************************************************************************/
 typedef struct _G3DEDGE {
     uint32_t   id;
-    uint32_t   flags;
+    uint64_t engine_flags;
     uint32_t   nbfac;                /*** number of connected faces           ***/
     LIST      *lfac;                 /*** Face list                           ***/
     G3DVERTEX *ver[0x02];    /*** Our edge is made of 2 vertices      ***/
@@ -773,7 +773,7 @@ typedef struct _G3DCUTEDGE {
 /******************************************************************************/
 typedef struct _G3DHEIGHT {
     float elevation;
-    uint32_t flags;
+    uint64_t engine_flags;
 } G3DHEIGHT;
 
 /******************************************************************************/
@@ -786,7 +786,7 @@ typedef struct _G3DHEIGHTMAP {
 typedef struct _G3DFACE {
     uint32_t         id;           /*** face ID                             ***/
     uint32_t         typeID;
-    uint32_t         flags;        /*** selected or not                     ***/
+    uint64_t engine_flags;        /*** selected or not                     ***/
     uint32_t         nbver;        /*** number of vertices and edges        ***/
     G3DVERTEX       *ver[0x04];    /*** vertices array                      ***/
     G3DEDGE         *edg[0x04];    /*** edges array                         ***/
@@ -926,7 +926,7 @@ typedef struct _G3DWEIGHT {
 /******************************************************************************/
 typedef struct _G3DWEIGHTGROUP {
     uint32_t id;    /*** should never be trusted ***/
-    uint32_t flags;
+    uint64_t engine_flags;
     G3DMESH *mes;
     char *name;
     LIST *lwei;
@@ -1017,7 +1017,7 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     uint32_t     nbFacesPerQuad;
     uint32_t     cpuID;
     uint32_t     subdiv_level;
-    uint32_t     engine_flags;
+    uint64_t engine_flags;
     uint32_t    *qua_indexes; /*** Quad subindexes - used for sculpting ***/
     uint32_t    *tri_indexes; /*** Triangles subindexes  - used for sculpting ***/
 } G3DSUBDIVISIONTHREAD;

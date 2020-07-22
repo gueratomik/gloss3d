@@ -278,7 +278,7 @@ void common_g3duiview_useSelectedCamera ( G3DUIVIEW *view,
 
 /******************************************************************************/
 void common_g3duiview_showRenderingArea ( G3DUI   *gui,
-                                          uint32_t engine_flags ) {
+                                          uint64_t engine_flags ) {
     R3DRENDERSETTINGS *rsg = gui->currsg;
     float renderRatio = ( float ) rsg->output.width / rsg->output.height;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
@@ -322,7 +322,7 @@ void common_g3duiview_showGL ( G3DUIVIEW    *view,
                                G3DCAMERA    *cam,
                                G3DMOUSETOOL *mou,
                                uint32_t      current,
-                               uint32_t      engine_flags ) {
+                               uint64_t      engine_flags ) {
     int VPX[0x04];
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );

@@ -33,7 +33,7 @@
 /******************************************************************************/
 URMADDMATERIAL *urmaddmaterial_new ( G3DSCENE    *sce,
                                      G3DMATERIAL *mat,
-                                     uint32_t     engine_flags ) {
+                                     uint64_t engine_flags ) {
     uint32_t structsize = sizeof ( URMADDMATERIAL );
 
     URMADDMATERIAL *uam = ( URMADDMATERIAL * ) calloc ( 0x01, structsize );
@@ -86,7 +86,7 @@ void addMaterial_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_scene_addMaterial ( G3DURMANAGER *urm,
                                 G3DSCENE     *sce,
                                 G3DMATERIAL  *mat,
-                                uint32_t      engine_flags,
+                                uint64_t engine_flags,
                                 uint32_t      return_flags ) {
     URMADDMATERIAL *uam = urmaddmaterial_new ( sce, mat, engine_flags );
 

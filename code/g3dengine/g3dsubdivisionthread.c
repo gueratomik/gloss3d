@@ -53,7 +53,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              nbFacesPerQuad,
                                  uint32_t              cpuID,
                                  uint32_t              subdiv_level,
-                                 uint32_t              engine_flags ) {
+                                 uint64_t engine_flags ) {
     std->mes                   = mes;
     std->rtvermem              = rtvermem;
     std->nbrtver               = nbrtver;
@@ -98,7 +98,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     nbFacesPerQuad,
                                                  uint32_t     cpuID,
                                                  uint32_t     subdiv_level,
-                                                 uint32_t     engine_flags ) {
+                                                 uint64_t engine_flags ) {
     uint32_t structSize = sizeof ( G3DSUBDIVISIONTHREAD );
     G3DSUBDIVISIONTHREAD *std = (G3DSUBDIVISIONTHREAD *) calloc ( 0x01,
                                                                   structSize );

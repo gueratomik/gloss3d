@@ -33,7 +33,7 @@
 void common_timelinedata_deleteKey ( G3DUI *gui, TIMELINEDATA *tdata ) {
     g3durm_objectList_removeSelectedKeys ( gui->urm, 
                                            gui->sce->lsel, 
-                                           gui->flags,
+                                           gui->engine_flags,
                                            REDRAWTIMELINE | REDRAWVIEW );
 
 

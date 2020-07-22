@@ -141,7 +141,7 @@ void common_g3duikeyedit_keyCbk ( G3DUI *gui, const char *field,
             ltmpkey = ltmpkey->next;
         }
 
-        g3dobject_anim_r ( ( G3DOBJECT * ) obj, gui->curframe, gui->flags );
+        g3dobject_anim_r ( ( G3DOBJECT * ) obj, gui->curframe, gui->engine_flags );
 
 
         g3dui_redrawGLViews ( gui );

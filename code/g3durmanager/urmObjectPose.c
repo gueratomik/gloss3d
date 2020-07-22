@@ -85,7 +85,7 @@ void objectPose_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void objectPose_undo ( G3DURMANAGER *urm, 
                        void         *data,
-                       uint32_t      engine_flags ) {
+                       uint64_t engine_flags ) {
     LIST *ltmpop = ( LIST * ) data;
 
     while ( ltmpop ) {
@@ -105,7 +105,7 @@ void objectPose_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void objectPose_redo ( G3DURMANAGER *urm, 
                        void         *data,
-                       uint32_t      engine_flags ) {
+                       uint64_t engine_flags ) {
     LIST *ltmpop = ( LIST * ) data;
 
     while ( ltmpop ) {
@@ -128,7 +128,7 @@ void g3durm_object_pose ( G3DURMANAGER *urm,
                           LIST         *lobj,
                           float         frame,
                           uint32_t      key_flags,
-                          uint32_t      engine_flags,
+                          uint64_t engine_flags,
                           uint32_t      return_flags ) {
     LIST *ltmpobj = lobj;
     LIST *lop = NULL;

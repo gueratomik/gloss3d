@@ -45,7 +45,7 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 
 /******************************************************************************/
 void g3dimage_getVideoSize ( G3DIMAGE *image,
-                             uint32_t  engine_flags ) {
+                             uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     char commandLine[BUFFERLEN];
 
@@ -100,7 +100,7 @@ static void loadFrame ( char     *animationFileName,
                         uint32_t  previewToFrame,
                         uint32_t  endFrame,
                         uint32_t  frameRate,
-                        uint32_t  engine_flags ) {
+                        uint64_t engine_flags ) {
     uint32_t nbRequestedFrames = previewToFrame - previewFromFrame;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float    millis  = ( 1000 * ( previewFromFrame - startFrame ) ) / frameRate;
@@ -210,7 +210,7 @@ void g3dimage_loadPreviews ( G3DIMAGE *image,
                              uint32_t  sceneStartFrame,
                              uint32_t  sceneEndFrame,
                              uint32_t  sceneFramesPerSecond,
-                             uint32_t  engine_flags ) {
+                             uint64_t engine_flags ) {
     uint32_t bytesPerPreview = ( image->previewHeight * 
                                  image->previewWidth  * 
                                  image->previewBytesPerPixel );
@@ -247,7 +247,7 @@ void g3dimage_animate ( G3DIMAGE *image,
                         float     currentFrame,
                         float     sceneEndFrame,
                         float     sceneFramesPerSecond,
-                        uint32_t  engine_flags ) {
+                        uint64_t engine_flags ) {
     uint32_t deltaFrame = ( currentFrame - sceneStartFrame );
     uint32_t bytesPerPreview = ( image->previewHeight * 
                                  image->previewWidth  * 

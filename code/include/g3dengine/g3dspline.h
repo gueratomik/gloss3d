@@ -59,27 +59,27 @@ typedef G3DCURVEPOINT   G3DSPLINEPOINT;
 G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline, 
                             uint32_t       id, 
                             char          *name, 
-                            uint32_t       engine_flags );
+                            uint64_t engine_flags );
 uint32_t g3dspline_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint32_t   engine_flags );
+                          uint64_t engine_flags );
 void g3dspline_free ( G3DOBJECT *obj );
 void g3dspline_init ( G3DSPLINE *spline, 
                       uint32_t   id, 
                       char      *name,
                       uint32_t   type,
-                      uint32_t   engine_flags );
+                      uint64_t engine_flags );
 G3DSPLINE *g3dspline_new ( uint32_t id, 
                            char    *name, 
                            uint32_t type, 
-                           uint32_t engine_flags );
+                           uint64_t engine_flags );
 void g3dspline_update ( G3DSPLINE *spl,
                         LIST      *lpt,
                         uint32_t   update_flags,
-                        uint32_t   eflags );
+                        uint64_t engine_flags );
 void g3dspline_moveAxis ( G3DSPLINE *spl, 
                           double    *PREVMVX, /* previous world matrix */
-                          uint32_t   eflags );
+                          uint64_t engine_flags );
 
 #ifdef __cplusplus
 }

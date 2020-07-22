@@ -34,7 +34,7 @@
 /******************************************************************************/
 void g3dmorpher_setParent ( G3DSUBDIVIDER *sdr, 
                             G3DOBJECT     *parent,
-                            uint32_t       engine_flags ) {
+                            uint64_t engine_flags ) {
     /*if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
         g3dsubdivider_activate ( sdr, engine_flags );
     }*/
@@ -49,7 +49,7 @@ uint32_t g3dmorpher_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver
                                                   void (*Dump) ( G3DFACE *,
                                                                  void * ),
                                                   void *data,
-                                                  uint32_t engine_flags ) {
+                                                  uint64_t engine_flags ) {
 
 }
 
@@ -57,55 +57,55 @@ uint32_t g3dmorpher_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver
 G3DMESH *g3dmorpher_commit ( G3DMORPHER    *mpr, 
                              uint32_t       commitMeshID,
                              unsigned char *commitMeshName,
-                             uint32_t       engine_flags ) {
+                             uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 G3DMORPHER *g3dmorpher_copy ( G3DMORPHER *mpr,
-                              uint32_t    engine_flags ) {
+                              uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
 void g3dmorpher_startUpdate ( G3DMORPHER *mpr,
-                              uint32_t    engine_flags ) {
+                              uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 void g3dmorpher_update ( G3DMORPHER *mpr,
-                         uint32_t    engine_flags ) {
+                         uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 void g3dmorpher_endUpdate ( G3DMORPHER *mpr,
-                            uint32_t    engine_flags ) {
+                            uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
-                             uint32_t    engine_flags ) {
+                             uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 void g3dmorpher_activate ( G3DMORPHER *mpr,
-                           uint32_t    engine_flags ) {
+                           uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 void g3dmorpher_deactivate ( G3DMORPHER *mpr,
-                             uint32_t    engine_flags ) {
+                             uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
 uint32_t g3dmorpher_draw ( G3DMORPHER *mpr, 
                            G3DCAMERA  *cam,
-                           uint32_t    engine_flags ) {
+                           uint64_t engine_flags ) {
 
     return MODIFIERTAKESOVER;
 }
@@ -114,7 +114,7 @@ uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
 void g3dmorpher_init ( G3DMORPHER *mpr, 
                        uint32_t    id, 
                        char       *name, 
-                       uint32_t    engine_flags ) {
+                       uint64_t engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) mpr;
 
     g3dmodifier_init ( mod, G3DMORPHERTYPE, id, name, DRAWBEFORECHILDREN,
@@ -139,7 +139,7 @@ void g3dmorpher_init ( G3DMORPHER *mpr,
 /******************************************************************************/
 G3DMORPHER *g3dmorpher_new ( uint32_t id, 
                              char    *name, 
-                             uint32_t engine_flags ) {
+                             uint64_t engine_flags ) {
     uint32_t structSize = sizeof ( G3DMORPHER );
     G3DMORPHER *mpr = ( G3DMORPHER * ) calloc ( 0x01, structSize );
 

@@ -39,7 +39,7 @@
 static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce, 
                                                     G3DURMANAGER *urm,
                                                     uint32_t pick_flags,
-                                                    uint32_t engine_flags ) {
+                                                    uint64_t engine_flags ) {
     G3DOBJECT *obj = pob->obj;
     G3DOBJECT *oldobj = g3dscene_getLastSelected ( sce );
     LIST *lselold, *lselnew;
@@ -141,16 +141,17 @@ static uint32_t inRectangle ( G3DUIRECTANGLE *rec, uint32_t xm, uint32_t ym ) {
 }
 
 /******************************************************************************/
-PICKEDOBJECT *pickobject ( uint32_t x, uint32_t y,
-                                       uint32_t xsep,
-                                       uint32_t xm,
-                                       uint32_t ym,
-                                       uint32_t strwidth,
-                                       G3DOBJECT *obj,
-                                       G3DSCENE *sce,
-                                       G3DURMANAGER *urm,
-                                       uint32_t pick_flags,
-                                       uint32_t engine_flags ) {
+PICKEDOBJECT *pickobject ( uint32_t x, 
+                           uint32_t y,
+                           uint32_t xsep,
+                           uint32_t xm,
+                           uint32_t ym,
+                           uint32_t strwidth,
+                           G3DOBJECT *obj,
+                           G3DSCENE *sce,
+                           G3DURMANAGER *urm,
+                           uint32_t pick_flags,
+                           uint64_t engine_flags ) {
     LISTEDOBJECT *lob = common_g3duilist_sizeListedObject ( obj, x, y, xsep, strwidth, 0x00 );
     static PICKEDOBJECT pob;
     uint32_t nbtex = 0x00;

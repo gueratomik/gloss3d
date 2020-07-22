@@ -93,7 +93,7 @@ void r3dscene_cancelRender ( R3DSCENE *rsce ) {
 /******************************************************************************/
 void r3dscene_import ( R3DSCENE *rsce, 
                        uint32_t  dump_flags,
-                       uint32_t  engine_flags ) {
+                       uint64_t  engine_flags ) {
     LIST *ltmp = ((R3DOBJECT*)rsce)->obj->lchildren;
     static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
                                 0.0f, 1.0f, 0.0f, 0.0f,

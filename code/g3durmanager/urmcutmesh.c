@@ -31,9 +31,10 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMCUTMESH *urmcutmesh_new ( G3DMESH *mes, LIST *loldfac,
-                                           LIST *lnewver,
-                                           LIST *lnewfac ) {
+static URMCUTMESH *urmcutmesh_new ( G3DMESH *mes,
+                                    LIST    *loldfac,
+                                    LIST    *lnewver,
+                                    LIST    *lnewfac ) {
     uint32_t structsize = sizeof ( URMCUTMESH );
 
     URMCUTMESH *cms = ( URMCUTMESH * ) calloc ( 0x01, structsize );
@@ -54,7 +55,7 @@ URMCUTMESH *urmcutmesh_new ( G3DMESH *mes, LIST *loldfac,
 }
 
 /******************************************************************************/
-void urmcutmesh_free ( URMCUTMESH *cms ) {
+static void urmcutmesh_free ( URMCUTMESH *cms ) {
     list_free ( &cms->loldfac, NULL );
     list_free ( &cms->lnewver, NULL );
     list_free ( &cms->lnewfac, NULL );
@@ -63,7 +64,8 @@ void urmcutmesh_free ( URMCUTMESH *cms ) {
 }
 
 /******************************************************************************/
-void cutMesh_free ( void *data, uint32_t commit ) {
+static void cutMesh_free ( void    *data, 
+                           uint32_t commit ) {
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
 
     if ( commit ) {
@@ -77,7 +79,9 @@ void cutMesh_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void cutMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void cutMesh_undo ( G3DURMANAGER *urm, 
+                           void         *data, 
+                           uint64_t      engine_flags ) {
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) cms->mes;
     G3DMESH *mes = cms->mes;
@@ -106,7 +110,9 @@ void cutMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void cutMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void cutMesh_redo ( G3DURMANAGER *urm, 
+                           void         *data, 
+                           uint64_t      engine_flags ) {
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
     G3DOBJECT *obj = ( G3DOBJECT * ) cms->mes;
     G3DMESH *mes = cms->mes;
@@ -135,17 +141,24 @@ void cutMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
-                                          G3DFACE *knife,
-                                          int restricted,
-                                          uint32_t flags,
-                                          uint32_t return_flags ) {
+void g3durm_mesh_cut ( G3DURMANAGER *urm, 
+                       G3DMESH      *mes,
+                       G3DFACE      *knife,
+                       int           restricted,
+                       uint64_t      engine_flags,
+                       uint32_t      return_flags ) {
     LIST *loldfac = NULL,
          *lnewver = NULL, 
          *lnewfac = NULL;
     URMCUTMESH *cms;
 
-    g3dmesh_cut ( mes, knife, &loldfac, &lnewver, &lnewfac, restricted, flags );
+    g3dmesh_cut ( mes, 
+                  knife, 
+                 &loldfac,
+                 &lnewver,
+                 &lnewfac, 
+                  restricted, 
+                  engine_flags );
 
     g3dmesh_update ( mes, NULL,
                           NULL,
@@ -153,7 +166,7 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm, G3DMESH *mes,
                           UPDATEFACEPOSITION |
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, flags );
+                          RESETMODIFIERS, engine_flags );
 
     cms = urmcutmesh_new ( mes, loldfac, lnewver, lnewfac );
 

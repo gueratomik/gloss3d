@@ -52,7 +52,7 @@ void common_g3duimeshedit_useIsoLinesCbk ( G3DUI *gui ) {
         g3dmesh_update ( mes, NULL,
                               NULL,
                               NULL,
-                              0x00, gui->flags );
+                              0x00, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -140,7 +140,7 @@ void common_g3duimeshedit_subdivLevelCbk ( G3DUI *gui, int level ) {
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->flags );*/
+        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
     }
 
     g3dui_unsetHourGlass ( gui );

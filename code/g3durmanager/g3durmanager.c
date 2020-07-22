@@ -100,14 +100,15 @@ void g3durmanager_free ( G3DURMANAGER *urm ) {
 }
 
 /******************************************************************************/
-uint32_t g3durmanager_undo ( G3DURMANAGER *urm, uint32_t flags ) {
+uint32_t g3durmanager_undo ( G3DURMANAGER *urm, 
+                             uint64_t      engine_flags ) {
     G3DURITEM *uri = urm->lcurprocs->data;
 
 
     if ( uri == NULL ) {
         fprintf ( stderr, "g3durmanager_undo: hit the end of the list\n" );
     } else {
-        if ( uri->undo ) uri->undo ( urm, uri->data, flags );
+        if ( uri->undo ) uri->undo ( urm, uri->data, engine_flags );
 
         /*** changes were undone, so not commited ***/
         uri->commit = 0x00;
@@ -121,7 +122,8 @@ uint32_t g3durmanager_undo ( G3DURMANAGER *urm, uint32_t flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3durmanager_redo ( G3DURMANAGER *urm, uint32_t flags ) {
+uint32_t g3durmanager_redo ( G3DURMANAGER *urm, 
+                             uint64_t      engine_flags ) {
     if ( urm->lcurprocs->prev ) {
         G3DURITEM *uri ;
 
@@ -129,7 +131,7 @@ uint32_t g3durmanager_redo ( G3DURMANAGER *urm, uint32_t flags ) {
 
         uri = urm->lcurprocs->data;
 
-        if ( uri->redo ) uri->redo ( urm, uri->data, flags );
+        if ( uri->redo ) uri->redo ( urm, uri->data, engine_flags );
 
         /*** changes were done, so commited ***/
         uri->commit = 0x01;
@@ -144,10 +146,15 @@ uint32_t g3durmanager_redo ( G3DURMANAGER *urm, uint32_t flags ) {
 
 /******************************************************************************/
 void g3durmanager_push ( G3DURMANAGER *urm, 
-                         void (*undofunc) ( G3DURMANAGER *, void *, uint32_t ),
-                         void (*redofunc) ( G3DURMANAGER *, void *, uint32_t ),
-                         void (*freefunc) ( void *, uint32_t ),
-                         void *data, uint32_t return_flags ) {
+                         void   (*undofunc) ( G3DURMANAGER *urm, 
+                                              void         *data,
+                                              uint64_t      engine_flags ),
+                         void   (*redofunc) ( G3DURMANAGER *urm, 
+                                              void         *data, 
+                                              uint64_t      engine_flags ),
+                         void   (*freefunc) ( void *, uint32_t ),
+                         void    *data, 
+                         uint32_t return_flags ) {
 
     G3DURITEM *uri = g3duritem_new ( undofunc,
                                      redofunc,
@@ -172,8 +179,8 @@ void g3durmanager_push ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-G3DURITEM *g3duritem_new ( void (*undofunc) ( G3DURMANAGER *, void *, uint32_t ),
-                           void (*redofunc) ( G3DURMANAGER *, void *, uint32_t ),
+G3DURITEM *g3duritem_new ( void (*undofunc) ( G3DURMANAGER *, void *, uint64_t ),
+                           void (*redofunc) ( G3DURMANAGER *, void *, uint64_t ),
                            void (*freefunc) ( void *, uint32_t ), 
                            void *data,
                            uint32_t return_flags ) {

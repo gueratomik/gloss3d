@@ -72,7 +72,7 @@ void moveUVs_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
     G3DMESH *mes = ((G3DOBJECT*)uvmap)->parent;
@@ -98,7 +98,7 @@ void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
     G3DMESH *mes = ((G3DOBJECT*)uvmap)->parent;

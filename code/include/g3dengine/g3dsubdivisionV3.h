@@ -134,7 +134,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
                                       uint32_t        subdiv_flags,
-                                      uint32_t        engine_flags );
+                                      uint64_t        engine_flags );
 
 #ifdef __cplusplus
 }

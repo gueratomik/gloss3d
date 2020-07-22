@@ -68,14 +68,14 @@ void createFacegroup_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void createFacegroup_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void createFacegroup_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) data;
 
     g3dmesh_removeFacegroup ( ucf->mes, ucf->facgrp );
 }
 
 /******************************************************************************/
-void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMCREATEFACEGROUP *ucf = ( URMCREATEFACEGROUP * ) data;
 
     g3dmesh_addFacegroup ( ucf->mes, ucf->facgrp );
@@ -85,7 +85,7 @@ void createFacegroup_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags
 void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
                                    G3DMESH      *mes,
                                    const char   *name,
-                                   uint32_t      engine_flags,
+                                   uint64_t engine_flags,
                                    uint32_t      return_flags ) {
     G3DFACEGROUP *facgrp = g3dfacegroup_new ( name, mes->lselfac );
     URMCREATEFACEGROUP *ucf;

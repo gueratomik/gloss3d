@@ -37,12 +37,12 @@ static uint32_t createVertex_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
                                     G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
-                                    uint32_t      engine_flags );
+                                    uint64_t      engine_flags );
 static int createVertex_tool ( G3DMOUSETOOL *mou, 
                                G3DSCENE     *sce, 
                                G3DCAMERA    *cam,
                                G3DURMANAGER *urm, 
-                               uint32_t      flags, 
+                               uint64_t      engine_flags, 
                                G3DEvent     *event );
 
 /******************************************************************************/
@@ -72,7 +72,7 @@ static uint32_t createVertex_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
                                     G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
-                                    uint32_t      engine_flags ) {
+                                    uint64_t      engine_flags ) {
 
     return 0x00;
 }
@@ -82,7 +82,7 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                                G3DSCENE     *sce, 
                                G3DCAMERA    *cam,
                                G3DURMANAGER *urm, 
-                               uint32_t      flags, 
+                               uint64_t      engine_flags, 
                                G3DEvent     *event ) {
     /*G3DURMANAGER *urm = gdt->urm;*/
     static GLdouble MVX[0x10], PJX[0x10];
@@ -158,7 +158,7 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                                                  spline,
                                                  pt,
                                                  seg,
-                                                 flags,
+                                                 engine_flags,
                                                  REDRAWVIEW );
                     }
 
@@ -180,7 +180,7 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                                               UPDATEFACEPOSITION |
                                               UPDATEFACENORMAL   |
                                               UPDATEVERTEXNORMAL |
-                                              RESETMODIFIERS, flags );
+                                              RESETMODIFIERS, engine_flags );
 
                         /*** add this action to the undo redo stack ***/
                         /*createVertex_push ( urm, mes, ver );*/

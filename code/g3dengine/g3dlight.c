@@ -33,7 +33,7 @@
 G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
                           uint32_t       id,
                           unsigned char *name,
-                          uint32_t       engine_flags ) {
+                          uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) lig;
     G3DLIGHT  *ligcpy = g3dlight_new ( id, name );
 
@@ -49,7 +49,7 @@ G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig,
 }
 
 /******************************************************************************/
-static void g3dlight_pickObject ( G3DLIGHT *lig, uint32_t eflags ) {
+static void g3dlight_pickObject ( G3DLIGHT *lig, uint64_t engine_flags ) {
     g3dpick_setName (  ( uint64_t ) lig );
 
     g3dpick_drawLine (  1.0f, 0.0f, 0.0f,
@@ -87,19 +87,19 @@ static void g3dlight_pickObject ( G3DLIGHT *lig, uint32_t eflags ) {
 /******************************************************************************/
 uint32_t g3dlight_pick ( G3DLIGHT  *lig,
                          G3DCAMERA *cam, 
-                         uint32_t   eflags ) {
+                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     if ( obj->type & OBJECTSELECTED ) {
-        if ( eflags & VIEWOBJECT ) g3dlight_pickObject   ( lig, eflags );
+        if ( engine_flags & VIEWOBJECT ) g3dlight_pickObject   ( lig, engine_flags );
     } else {
-        if ( eflags & VIEWOBJECT ) g3dlight_pickObject   ( lig, eflags );
+        if ( engine_flags & VIEWOBJECT ) g3dlight_pickObject   ( lig, engine_flags );
     }
 }
 
 /******************************************************************************/
 static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
-                                         uint32_t   engine_flags ) {
+                                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
     float intensity = lig->intensity;
     float pos[0x04] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -136,7 +136,7 @@ static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
 /******************************************************************************/
 static uint32_t g3dlight_drawSpot ( G3DLIGHT  *lig,
                                     G3DCAMERA *cam, 
-                                    uint32_t   engine_flags ) {
+                                    uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     float spotRadius = sin ( lig->spotAngle * M_PI / 180 ) * lig->spotLength;
@@ -201,7 +201,7 @@ static uint32_t g3dlight_drawSpot ( G3DLIGHT  *lig,
 /******************************************************************************/
 static uint32_t g3dlight_drawOmni ( G3DLIGHT  *lig,
                                     G3DCAMERA *cam, 
-                                    uint32_t   engine_flags ) {
+                                    uint64_t engine_flags ) {
 
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
@@ -258,7 +258,7 @@ static uint32_t g3dlight_drawOmni ( G3DLIGHT  *lig,
 /******************************************************************************/
 uint32_t g3dlight_draw ( G3DLIGHT  *lig,
                          G3DCAMERA *cam, 
-                         uint32_t   engine_flags ) {
+                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     if ( obj->flags & SPOTLIGHT ) {
@@ -341,12 +341,12 @@ void g3dlight_setSpot ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
-void g3dlight_activate ( G3DLIGHT *lig, uint32_t engine_flags ) {
+void g3dlight_activate ( G3DLIGHT *lig, uint64_t engine_flags ) {
     g3dlight_turnOn ( lig );
 }
 
 /******************************************************************************/
-void g3dlight_deactivate ( G3DLIGHT *lig, uint32_t engine_flags ) {
+void g3dlight_deactivate ( G3DLIGHT *lig, uint64_t engine_flags ) {
     g3dlight_turnOff ( lig );
 }
 

@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
-                            uint32_t   engine_flags ) {
+                            uint64_t engine_flags ) {
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     G3DCAMERA *newcam = g3dcamera_new ( objcam->id, 
                                         objcam->name, 
@@ -78,7 +78,8 @@ void g3dcamera_setPivot ( G3DCAMERA *cam, float x, float y, float z ) {
 }
 
 /******************************************************************************/
-void g3dcamera_updateViewingMatrix ( G3DCAMERA *cam, uint32_t flags ) {
+void g3dcamera_updateViewingMatrix ( G3DCAMERA *cam, 
+                                     uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR viewpos = { cam->viewpos.x, 
                           cam->viewpos.y,
@@ -95,11 +96,12 @@ void g3dcamera_updateViewingMatrix ( G3DCAMERA *cam, uint32_t flags ) {
 
     g3dvector_matrix ( &viewpos, ROTX, &obj->pos );
 
-    g3dobject_updateMatrix_r ( obj, flags );
+    g3dobject_updateMatrix_r ( obj, engine_flags );
 }
 
 /******************************************************************************/
-void g3dcamera_view ( G3DCAMERA *cam, uint32_t flags ) {
+void g3dcamera_view ( G3DCAMERA *cam, 
+                      uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR vec;
     G3DVECTOR rot, pos;
@@ -109,7 +111,8 @@ void g3dcamera_view ( G3DCAMERA *cam, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
+void g3dcamera_project ( G3DCAMERA *cam, 
+                         uint64_t   engine_flags ) {
     if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
         int VPX[0x10];
         float dist;
@@ -129,7 +132,7 @@ void g3dcamera_project ( G3DCAMERA *cam, uint32_t flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint32_t flags ) {
+uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint64_t engine_flags ) {
     GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
                                 {  0.25, -0.5,  0.5 },
                                 { -0.25, -0.5,  0.5 },
@@ -190,18 +193,20 @@ uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint32_t flags ) {
 /******************************************************************************/
 uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
                           G3DCAMERA *curcam, 
-                          uint32_t   eflags ) {
+                          uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
 
     if ( obj->type & OBJECTSELECTED ) {
-        if ( eflags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, eflags );
+        if ( engine_flags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, engine_flags );
     } else {
-        if ( eflags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, eflags );
+        if ( engine_flags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, engine_flags );
     }
 }
 
 /******************************************************************************/
-uint32_t g3dcamera_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dcamera_draw ( G3DOBJECT *obj,
+                          G3DCAMERA *curcam, 
+                          uint64_t   engine_flags ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) obj;
     GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
                                 {  0.25, -0.5,  0.5 },

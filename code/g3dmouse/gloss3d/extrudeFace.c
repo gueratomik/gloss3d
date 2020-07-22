@@ -38,18 +38,18 @@ static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou,
                                    G3DSCENE     *sce, 
                                    G3DCAMERA    *cam,
                                    G3DURMANAGER *urm, 
-                                   uint32_t      engine_flags );
+                                   uint64_t      engine_flags );
 static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
                                     G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
-                                    uint32_t      engine_flags );
+                                    uint64_t      engine_flags );
 static int extrudeFace_tool  ( G3DMOUSETOOL *mou, 
                                G3DSCENE     *sce, 
                                G3DCAMERA    *cam,
                                G3DURMANAGER *urm, 
-                               uint32_t      flags,
-                               G3DEvent      *event );
+                               uint64_t      engine_flags,
+                               G3DEvent     *event );
 
 /******************************************************************************/
 G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
@@ -100,7 +100,7 @@ static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou,
                                    G3DSCENE     *sce, 
                                    G3DCAMERA    *cam,
                                    G3DURMANAGER *urm, 
-                                   uint32_t      engine_flags ) {
+                                   uint64_t      engine_flags ) {
     G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
 
     ef->inner = 0x00;
@@ -113,7 +113,7 @@ static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
                                     G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
-                                    uint32_t      engine_flags ) {
+                                    uint64_t      engine_flags ) {
     G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
 
     ef->inner = 0x01;
@@ -126,8 +126,8 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                                G3DSCENE     *sce, 
                                G3DCAMERA    *cam,
                                G3DURMANAGER *urm, 
-                               uint32_t      flags,
-                               G3DEvent      *event ) {
+                               uint64_t      engine_flags,
+                               G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static int32_t xold, yold;
@@ -156,7 +156,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
     G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
 
     /*** This tool can only be used in face mode ***/
-    if ( ( flags & VIEWFACE ) == 0x00 ) return FALSE;
+    if ( ( engine_flags & VIEWFACE ) == 0x00 ) return FALSE;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -185,13 +185,13 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL |
                                           COMPUTEUVMAPPING   |
-                                          RESETMODIFIERS, flags );
+                                          RESETMODIFIERS, engine_flags );
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
                     nbver = list_count ( lver );
 
-                    g3dobject_startUpdateModifiers_r ( obj, flags );
+                    g3dobject_startUpdateModifiers_r ( obj, engine_flags );
 
                     /*** for undo redo ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos ); 
@@ -259,13 +259,13 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                     }
                 }
 
-                g3dobject_updateModifiers_r ( obj, flags );
+                g3dobject_updateModifiers_r ( obj, engine_flags );
 
                 if ( mes->onGeometryMove ) {
                      mes->onGeometryMove ( mes, lselver, 
                                                 NULL, 
                                                 lselfac, 
-                                                flags );
+                                                engine_flags );
                 }
             }
 
@@ -284,7 +284,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                                             newpos,
                                             REDRAWVIEW );
 
-            g3dobject_endUpdateModifiers_r ( obj, flags );
+            g3dobject_endUpdateModifiers_r ( obj, engine_flags );
 
             g3dmesh_updateBbox ( mes );
 

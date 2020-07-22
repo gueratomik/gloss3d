@@ -29,6 +29,9 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
+                                     uint64_t       engine_flags );
+
 #ifdef UNUSED
     if ( mes->subdiv && ( objmes->flags & BUFFEREDSUBDIVISION ) ) {
         /*** only update subdivided polygons from the just picked vertices ***/
@@ -48,7 +51,7 @@
 /******************************************************************************/
 void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
                                G3DOBJECT     *parent,
-                               uint32_t       engine_flags ) {
+                               uint64_t engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
         g3dsubdivider_activate ( sdr, engine_flags );
     }
@@ -75,7 +78,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                   void (*Dump) ( G3DFACE *,
                                                                  void * ),
                                                   void *data,
-                                                  uint32_t engine_flags ) {
+                                                  uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -241,7 +244,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr, 
                                 uint32_t       commitMeshID,
                                 unsigned char *commitMeshName,
-                                uint32_t       engine_flags ) {
+                                uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     G3DMESH *commitMesh = NULL;
@@ -344,8 +347,9 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
-                                                     uint32_t flags ) {
+void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, 
+                                 LIST          *lfac,
+                                 uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -359,7 +363,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
         pthread_t tid[MAX_SUBDIVISION_THREADS]; /*** let's say, max 32 threads ***/
         pthread_attr_t attr;
         uint32_t i;
-        uint32_t engine_flags = flags;
+        uint64_t engine_flags = engine_flags;
 
         if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
             /*** Force the flag in case our mesh does not need displacement ***/
@@ -433,7 +437,8 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, LIST *lfac,
 }
 
 /******************************************************************************/
-void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
+                                  uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -491,15 +496,16 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
-                                    uint32_t       engine_flags ) {
+static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
+                                           uint64_t       engine_flags ) {
     G3DOBJECT *objsdr = ( G3DOBJECT * ) sdr;
 
     return g3dsubdivider_new ( objsdr->id, objsdr->name, engine_flags );
 }
 
 /******************************************************************************/
-void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr,
+                                         uint64_t      engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
@@ -528,17 +534,20 @@ void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, 
+                                   uint64_t       engine_flags ) {
     g3dsubdivider_fillBuffers ( sdr, sdr->lsubfac, engine_flags );
 }
 
 /******************************************************************************/
-void g3dsubdivider_endUpdate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static void g3dsubdivider_endUpdate ( G3DSUBDIVIDER *sdr, 
+                                      uint64_t       engine_flags ) {
     list_free ( &sdr->lsubfac, NULL );
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, 
+                                       uint64_t       engine_flags ) {
     if ( sdr->subdiv_preview > 0x00 ) {
         g3dsubdivider_allocBuffers ( sdr, engine_flags );
         g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
@@ -546,7 +555,8 @@ uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
+                                     uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -558,14 +568,16 @@ void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, uint32_t engine_flags ) {
+static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, 
+                                       uint64_t       engine_flags ) {
 
 }
 
 /******************************************************************************/
-static void bindMaterials ( G3DMESH *mes, G3DFACE *fac, 
-                                          G3DRTUV *rtuvmem,
-                                          uint32_t engine_flags ) {
+static void bindMaterials ( G3DMESH *mes, 
+                            G3DFACE *fac, 
+                            G3DRTUV *rtuvmem,
+                            uint64_t engine_flags ) {
     static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
                    blackSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
@@ -681,9 +693,10 @@ I dont't know why.
 }
 
 /******************************************************************************/
-static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac, 
-                                            G3DRTUV *rtuvmem,
-                                            uint32_t engine_flags ) {
+static void unbindMaterials ( G3DMESH *mes, 
+                              G3DFACE *fac, 
+                              G3DRTUV *rtuvmem,
+                              uint64_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
 
@@ -744,11 +757,12 @@ static void unbindMaterials ( G3DMESH *mes, G3DFACE *fac,
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
-                                                  uint32_t   engine_flags ) {
+uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
+                              G3DCAMERA     *cam,
+                              uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-    uint32_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
+    uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
                           ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
 
     if ( obj->flags & OBJECTINACTIVE ) return 0x00;
@@ -831,7 +845,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr, G3DCAMERA *cam,
 void g3dsubdivider_init ( G3DSUBDIVIDER *sdr, 
                           uint32_t       id, 
                           char          *name, 
-                          uint32_t       engine_flags ) {
+                          uint64_t       engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
 
     sdr->subdiv_preview = 0x01;
@@ -860,7 +874,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t id, 
                                    char    *name, 
-                                   uint32_t engine_flags ) {
+                                   uint64_t engine_flags ) {
     uint32_t structSize = sizeof ( G3DSUBDIVIDER );
     G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) calloc ( 0x01, structSize );
 

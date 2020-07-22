@@ -377,14 +377,15 @@ static void Dump ( G3DFACE *fac, void *data ) {
 }
 
 /******************************************************************************/
-R3DMESH *r3dmesh_new ( G3DMESH *mes, uint32_t id,
-                                     double  *wmatrix,
-                                     double  *cmatrix, /* camera world matrix */
-                                     double  *wnormix,
-                                     double  *pmatrix, /* camera proj matrix */
-                                     int     *vmatrix, /* camera viewport */
-                                     uint32_t dump_flags,
-                                     uint32_t engine_flags ) {
+R3DMESH *r3dmesh_new ( G3DMESH *mes, 
+                       uint32_t id,
+                       double  *wmatrix,
+                       double  *cmatrix, /* camera world matrix */
+                       double  *wnormix,
+                       double  *pmatrix, /* camera proj matrix */
+                       int     *vmatrix, /* camera viewport */
+                       uint32_t dump_flags,
+                       uint64_t engine_flags ) {
 
     uint32_t structsize = sizeof ( R3DMESH );
     R3DMESH *rms   = ( R3DMESH * ) calloc ( 0x01, structsize );

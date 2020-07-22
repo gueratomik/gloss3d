@@ -848,7 +848,9 @@ void geometryStartElement ( void *userData, const XML_Char *name,
     XMLGEOMETRY *xgeo = xmldata_getLastGeometry ( xdt );
 
     if ( strcmp ( name, "mesh" ) == 0x00 ) {
-        xgeo->obj = ( G3DOBJECT * ) g3dmesh_new ( 0x01, xgeo->id, xdt->flags );
+        xgeo->obj = ( G3DOBJECT * ) g3dmesh_new ( 0x01, 
+                                                  xgeo->id, 
+                                                  xdt->engine_flags );
 
         xmldata_pushElementHandlers ( xdt, meshStartElement,
                                            meshEndElement );
@@ -914,7 +916,7 @@ void endElement ( void *userData, const XML_Char *name ) {
 }
 
 /******************************************************************************/
-XMLDATA *xmldata_new ( uint32_t flags ) {
+XMLDATA *xmldata_new ( uint64_t engine_flags ) {
     XMLDATA *xdt = ( XMLDATA * ) calloc ( 0x01, sizeof ( XMLDATA ) );
 
     if ( xdt == NULL ) {
@@ -925,7 +927,7 @@ XMLDATA *xmldata_new ( uint32_t flags ) {
 
     xdt->parser = XML_ParserCreate ( NULL );
 
-    xdt->flags = flags;
+    xdt->engine_flags = engine_flags;
 
     /*** set default handlers on the top of the handlers stack ***/
     xmldata_pushElementHandlers ( xdt, startElement, endElement );
@@ -970,7 +972,8 @@ void xmldata_free ( XMLDATA *xdt ) {
 }
 
 /******************************************************************************/
-G3DSCENE *xmldata_convert ( XMLDATA *xdt, uint32_t engine_flags ) {
+G3DSCENE *xmldata_convert ( XMLDATA *xdt, 
+                            uint64_t engine_flags ) {
     G3DSCENE *sce = g3dscene_new ( 0x00, "COLLADA" );
     LIST *ltmp = xdt->lgeometry;
 
@@ -986,7 +989,8 @@ G3DSCENE *xmldata_convert ( XMLDATA *xdt, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-G3DSCENE *g3dscene_importCollada ( const char *filename, uint32_t flags ) {
+G3DSCENE *g3dscene_importCollada ( const char *filename, 
+                                   uint64_t    engine_flags ) {
     char buf[BUFSIZE];
     int len;
     int done;
@@ -1000,7 +1004,7 @@ G3DSCENE *g3dscene_importCollada ( const char *filename, uint32_t flags ) {
         return NULL;
     }
 
-    xdt = xmldata_new ( flags );
+    xdt = xmldata_new ( engine_flags );
 
     do {
         len = fread ( buf, 0x01, sizeof ( buf ), fxml );
@@ -1024,13 +1028,13 @@ G3DSCENE *g3dscene_importCollada ( const char *filename, uint32_t flags ) {
 
     } while ( done == 0x00 );
 
-    sce = xmldata_convert ( xdt, flags );
+    sce = xmldata_convert ( xdt, engine_flags );
 
     xmldata_free ( xdt );
 
     fclose ( fxml );
 
-    g3dscene_updateMeshes ( sce, flags );
+    g3dscene_updateMeshes ( sce, engine_flags );
 
     return sce;
 }

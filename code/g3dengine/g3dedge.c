@@ -31,7 +31,8 @@
 
 /******************************************************************************/
 /*** returns the first face that is NOT cmp ***/
-G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg, G3DFACE *cmp ) {
+G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg,
+                                G3DFACE *cmp ) {
     LIST *ltmpfac = edg->lfac;
 
     while ( ltmpfac ) {
@@ -74,7 +75,9 @@ LIST *g3dedge_getFacesFromList ( LIST *ledg ) {
 }
 
 /******************************************************************************/
-void g3dedge_replaceVertex ( G3DEDGE *edg, G3DVERTEX *ref, G3DVERTEX *sub ) {
+void g3dedge_replaceVertex ( G3DEDGE   *edg,
+                             G3DVERTEX *ref,
+                             G3DVERTEX *sub ) {
     int i;
 
     if ( edg->ver[0x00] == ref ) {
@@ -111,8 +114,9 @@ LIST *g3dedge_getVerticesFromList ( LIST *ledg ) {
 }
 
 /******************************************************************************/
-void g3dedge_drawSimple ( G3DEDGE *edg, uint32_t object_flags,
-                                        uint32_t engine_flags ) {
+void g3dedge_drawSimple ( G3DEDGE *edg,
+                          uint32_t object_flags,
+                          uint64_t engine_flags ) {
     G3DVERTEX *v0 = edg->ver[0x00],
               *v1 = edg->ver[0x01];
 
@@ -128,7 +132,8 @@ void g3dedge_drawSimple ( G3DEDGE *edg, uint32_t object_flags,
 }
 
 /******************************************************************************/
-void g3dedge_draw ( G3DEDGE *edg, uint32_t flags ) {
+void g3dedge_draw ( G3DEDGE *edg,
+                    uint64_t engine_flags ) {
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
     glColor3ub ( 0xFF, 0x00, 0x00 );
@@ -158,14 +163,16 @@ void g3dedge_unsetSelected ( G3DEDGE *edg ) {
 }*/
 
 /******************************************************************************/
-void g3dedge_removeFace ( G3DEDGE *edg, G3DFACE *fac ) {
+void g3dedge_removeFace ( G3DEDGE *edg,
+                          G3DFACE *fac ) {
     list_remove ( &edg->lfac, fac );
 
     edg->nbfac--;
 }
 
 /******************************************************************************/
-void g3dedge_addFace ( G3DEDGE *edg, G3DFACE *fac ) {
+void g3dedge_addFace ( G3DEDGE *edg,
+                       G3DFACE *fac ) {
     list_insert ( &edg->lfac, fac );
 
     edg->nbfac++;
@@ -232,7 +239,8 @@ uint32_t g3dedge_isBorder ( G3DEDGE *edg ) {
 }
 
 /******************************************************************************/
-void g3dedge_getSubdivisionNormal ( G3DEDGE *edg, G3DVECTOR *nor ) {
+void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
+                                    G3DVECTOR *nor ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
     G3DVECTOR navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
@@ -273,7 +281,8 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE *edg, G3DVECTOR *nor ) {
 }
 
 /******************************************************************************/
-void g3dedge_getSubdivisionPosition ( G3DEDGE *edg, G3DVECTOR *pos ) {
+void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
+                                      G3DVECTOR *pos ) {
     float xposmid, yposmid, zposmid;
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
@@ -328,7 +337,8 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE *edg, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
-uint32_t g3dedge_getAveragePosition ( G3DEDGE *edg, G3DVECTOR *vout ) {
+uint32_t g3dedge_getAveragePosition ( G3DEDGE   *edg,
+                                      G3DVECTOR *vout ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
     G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
@@ -340,7 +350,8 @@ uint32_t g3dedge_getAveragePosition ( G3DEDGE *edg, G3DVECTOR *vout ) {
 }
 
 /******************************************************************************/
-uint32_t g3dedge_getAverageNormal ( G3DEDGE *edg, G3DVECTOR *vout ) {
+uint32_t g3dedge_getAverageNormal ( G3DEDGE   *edg,
+                                    G3DVECTOR *vout ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
     G3DVECTOR *n0 = &v0->nor,
@@ -352,7 +363,9 @@ uint32_t g3dedge_getAverageNormal ( G3DEDGE *edg, G3DVECTOR *vout ) {
 }
 
 /******************************************************************************/
-uint32_t g3dege_hasVertices ( G3DEDGE *edg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
+uint32_t g3dege_hasVertices ( G3DEDGE   *edg,
+                              G3DVERTEX *v0,
+                              G3DVERTEX *v1 ) {
     if ( ( ( edg->ver[0x00] == v0 ) && ( edg->ver[0x01] == v1 ) ) || 
          ( ( edg->ver[0x01] == v0 ) && ( edg->ver[0x00] == v1 ) ) ) {
 
@@ -363,7 +376,9 @@ uint32_t g3dege_hasVertices ( G3DEDGE *edg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
 }
 
 /******************************************************************************/
-G3DEDGE *g3dedge_seek ( LIST *lis, G3DVERTEX *v0, G3DVERTEX *v1 ) {
+G3DEDGE *g3dedge_seek ( LIST      *lis,
+                        G3DVERTEX *v0,
+                        G3DVERTEX *v1 ) {
     LIST *ltmp = lis;
 
     while ( ltmp ) {
@@ -391,7 +406,8 @@ void g3dedge_free ( G3DEDGE *edg ) {
 }
 
 /******************************************************************************/
-G3DEDGE *g3dedge_new ( G3DVERTEX *v0, G3DVERTEX *v1 ) {
+G3DEDGE *g3dedge_new ( G3DVERTEX *v0,
+                       G3DVERTEX *v1 ) {
     G3DEDGE *edg = ( G3DEDGE * ) calloc ( 0x01, sizeof ( G3DEDGE ) );
 
     if ( edg == NULL ) {
@@ -419,7 +435,7 @@ void g3dcutedge_free ( G3DCUTEDGE *cut ) {
 }
 
 /******************************************************************************/
-G3DCUTEDGE *g3dcutedge_new ( G3DEDGE *edg,
+G3DCUTEDGE *g3dcutedge_new ( G3DEDGE   *edg,
                              G3DVERTEX *ver ) {
     G3DCUTEDGE *ced = ( G3DCUTEDGE * ) calloc ( 0x01, sizeof ( G3DCUTEDGE ) );
 
@@ -436,7 +452,8 @@ G3DCUTEDGE *g3dcutedge_new ( G3DEDGE *edg,
 }
 
 /******************************************************************************/
-G3DCUTEDGE *g3dcutedge_seek ( LIST *lis, G3DEDGE *edg ) {
+G3DCUTEDGE *g3dcutedge_seek ( LIST    *lis,
+                              G3DEDGE *edg ) {
     LIST *ltmp = lis;
 
     while ( ltmp ) {

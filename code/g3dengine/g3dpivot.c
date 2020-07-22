@@ -36,8 +36,9 @@ void g3dpivot_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-uint32_t g3dpivot_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, 
-                                     uint32_t engine_flags ) {
+uint32_t g3dpivot_draw ( G3DOBJECT *obj, 
+                         G3DCAMERA *curcam, 
+                         uint64_t   engine_flags ) {
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
     glColor3ub  ( 0xFF, 0x00, 0xFF );
@@ -93,7 +94,7 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
 void g3dpivot_init ( G3DPIVOT  *piv, 
                      G3DCAMERA *cam, 
                      G3DVECTOR *pos, 
-                     uint32_t   engine_flags ) {
+                     uint64_t engine_flags ) {
     G3DOBJECT *objpiv   = ( G3DOBJECT * ) piv;
     G3DOBJECT *objcam   = ( G3DOBJECT * ) cam;
     G3DOBJECT *yaxisobj = objpiv;
@@ -167,7 +168,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 /******************************************************************************/
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
                          G3DVECTOR *pos, 
-                         uint32_t   engine_flags ) {
+                         uint64_t   engine_flags ) {
     G3DPIVOT *piv = ( G3DPIVOT * ) calloc ( 0x01, sizeof ( G3DPIVOT ) );
 
     if ( piv == NULL ) {

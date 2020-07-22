@@ -43,7 +43,7 @@ void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme,
         if ( mou->init ) {
             uint32_t msk = mou->init ( mou, gui->sce,
                                            &uvme->cam,
-                                            uvme->uvurm, uvme->flags );
+                                            uvme->uvurm, uvme->engine_flags );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
         }
@@ -260,7 +260,7 @@ void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme ) {
 void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_undo ( uvme->uvurm, uvme->flags );
+    return_value = g3durmanager_undo ( uvme->uvurm, uvme->engine_flags );
 
     common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
 
@@ -281,7 +281,7 @@ void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme ) {
 void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_redo ( uvme->uvurm, uvme->flags );
+    return_value = g3durmanager_redo ( uvme->uvurm, uvme->engine_flags );
 
     common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
 
@@ -396,7 +396,7 @@ void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme,
 	
     uvme->uvurm = g3durmanager_new ( uvme->gui->conf.undolevel );
 
-    uvme->flags = VIEWVERTEXUV;
+    uvme->engine_flags = VIEWVERTEXUV;
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
 
@@ -447,7 +447,7 @@ void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
-                                      uint32_t          engine_flags ) {
+                                      uint64_t          engine_flags ) {
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
     L3DMOUSETOOLSELECTRANDOM *seltool = common_g3dui_getMouseTool ( gui, SELECTRANDOMTOOL );
 
@@ -465,83 +465,83 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
             G3DMATERIAL *mat = tex->mat;
 
             if ( mat ) {
-                G3DCHANNEL *chn = &mat->diffuse;
-                float whRatio = 1.0f;
+                uint32_t channelID = GETCHANNEL(engine_flags);
+                G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
-                glEnable ( GL_TEXTURE_2D );
+                if ( chn ) {
+                    float whRatio = 1.0f;
 
-                if ( chn->flags & USEIMAGECOLOR ) {
-                    if ( chn->image ) {
-                        glBindTexture ( GL_TEXTURE_2D, chn->image->id );
+                    glEnable ( GL_TEXTURE_2D );
 
-                        if ( chn->image->height ) {
-                            whRatio = ( chn->image->width / 
-                                        chn->image->height );
+                    if ( chn->flags & USEIMAGECOLOR ) {
+                        if ( chn->image ) {
+                            glBindTexture ( GL_TEXTURE_2D, chn->image->id );
+
+                            if ( chn->image->height ) {
+                                whRatio = ( chn->image->width / 
+                                            chn->image->height );
+                            }
+
+                            /*** disable bilinear filtering ***/
+                            glTexParameteri ( GL_TEXTURE_2D, 
+                                              GL_TEXTURE_MIN_FILTER, 
+                                              GL_NEAREST );
+                            glTexParameteri( GL_TEXTURE_2D, 
+                                             GL_TEXTURE_MAG_FILTER, 
+                                             GL_NEAREST );
+
+                            glMatrixMode(GL_PROJECTION);
+                            glLoadIdentity();
+                            g3dcamera_project ( &uvme->cam, 0x00  );
+
+                            glMatrixMode ( GL_MODELVIEW );
+                            glLoadIdentity ( );
+
+                            /*** preserve image aspect ratio ***/
+                            uvme->cam.obj.sca.y = whRatio;
+
+                            g3dobject_updateMatrix ( &uvme->cam.obj );
+
+                            g3dcamera_view ( &uvme->cam, 0x00  );
+
+                            glEnable ( GL_COLOR_MATERIAL );
+                            glColor3ub ( 0xFF, 0xFF, 0xFF );
+
+                            glBegin ( GL_QUADS );
+                            glTexCoord2f ( 0.0f, 0.0f );
+                            glVertex3f   ( 0.0f, 0.0f, 0.0f );
+                            glTexCoord2f ( 1.0f, 0.0f );
+                            glVertex3f   ( 1.0f, 0.0f, 0.0f );
+                            glTexCoord2f ( 1.0f, 1.0f );
+                            glVertex3f   ( 1.0f, 1.0f, 0.0f );
+                            glTexCoord2f ( 0.0f, 1.0f );
+                            glVertex3f   ( 0.0f, 1.0f, 0.0f );
+                            glEnd ( );
+
+                            /*** reenable bilinear filtering ***/
+                            glTexParameteri ( GL_TEXTURE_2D, 
+                                              GL_TEXTURE_MIN_FILTER, 
+                                              GL_NEAREST_MIPMAP_LINEAR );
+                            glTexParameteri( GL_TEXTURE_2D, 
+                                             GL_TEXTURE_MAG_FILTER, 
+                                             GL_LINEAR );
+
+                            glDisable ( GL_TEXTURE_2D );
+
+                            glBegin ( GL_LINE_LOOP );
+                            glVertex3f   ( 0.0f, 0.0f, 0.0f );
+                            glVertex3f   ( 1.0f, 0.0f, 0.0f );
+                            glVertex3f   ( 1.0f, 1.0f, 0.0f );
+                            glVertex3f   ( 0.0f, 1.0f, 0.0f );
+                            glEnd ( );
+
+                            if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
+                            if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
                         }
                     }
+
+
                 }
-
-                if ( chn->flags & USEPROCEDURAL ) {
-                    if ( chn->proc->image.data ) {
-                        glBindTexture ( GL_TEXTURE_2D, chn->proc->image.id );
-                    }
-                }
-
-                /*** disable bilinear filtering ***/
-                glTexParameteri ( GL_TEXTURE_2D, 
-                                  GL_TEXTURE_MIN_FILTER, 
-                                  GL_NEAREST );
-                glTexParameteri( GL_TEXTURE_2D, 
-                                 GL_TEXTURE_MAG_FILTER, 
-                                 GL_NEAREST );
-
-                glMatrixMode(GL_PROJECTION);
-                glLoadIdentity();
-                g3dcamera_project ( &uvme->cam, 0x00  );
-
-                glMatrixMode ( GL_MODELVIEW );
-                glLoadIdentity ( );
-
-                /*** preserve image aspect ratio ***/
-                uvme->cam.obj.sca.y = whRatio;
-
-                g3dobject_updateMatrix ( &uvme->cam.obj );
-
-                g3dcamera_view ( &uvme->cam, 0x00  );
-
-                glEnable ( GL_COLOR_MATERIAL );
-                glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-                glBegin ( GL_QUADS );
-                glTexCoord2f ( 0.0f, 0.0f );
-                glVertex3f   ( 0.0f, 0.0f, 0.0f );
-                glTexCoord2f ( 1.0f, 0.0f );
-                glVertex3f   ( 1.0f, 0.0f, 0.0f );
-                glTexCoord2f ( 1.0f, 1.0f );
-                glVertex3f   ( 1.0f, 1.0f, 0.0f );
-                glTexCoord2f ( 0.0f, 1.0f );
-                glVertex3f   ( 0.0f, 1.0f, 0.0f );
-                glEnd ( );
-
-                /*** reenable bilinear filtering ***/
-                glTexParameteri ( GL_TEXTURE_2D, 
-                                  GL_TEXTURE_MIN_FILTER, 
-                                  GL_NEAREST_MIPMAP_LINEAR );
-                glTexParameteri( GL_TEXTURE_2D, 
-                                 GL_TEXTURE_MAG_FILTER, 
-                                 GL_LINEAR );
-
-                glDisable ( GL_TEXTURE_2D );
-
-                glBegin ( GL_LINE_LOOP );
-                glVertex3f   ( 0.0f, 0.0f, 0.0f );
-                glVertex3f   ( 1.0f, 0.0f, 0.0f );
-                glVertex3f   ( 1.0f, 1.0f, 0.0f );
-                glVertex3f   ( 0.0f, 1.0f, 0.0f );
-                glEnd ( );
-
-                if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
-                if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
             }
         }
     }

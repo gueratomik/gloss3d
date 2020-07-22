@@ -70,7 +70,7 @@ void addSplineSegment_free ( void *data, uint32_t commit ) {
 /******************************************************************************/
 void addSplineSegment_undo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
     g3dcurve_removeSegment ( ass->spline->curve, ass->seg );
@@ -82,7 +82,7 @@ void addSplineSegment_undo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void addSplineSegment_redo ( G3DURMANAGER *urm, 
                              void         *data,
-                             uint32_t      engine_flags ) {
+                             uint64_t engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
     g3dcurve_addSegment ( ass->spline->curve, ass->seg );
@@ -95,7 +95,7 @@ void addSplineSegment_redo ( G3DURMANAGER *urm,
 void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
                                 G3DSPLINE        *spline,
                                 G3DSPLINESEGMENT *seg,
-                                uint32_t          engine_flags,
+                                uint64_t engine_flags,
                                 uint32_t          return_flags ) {
     URMADDSPLINESEGMENT *ass; /* hehe */
 

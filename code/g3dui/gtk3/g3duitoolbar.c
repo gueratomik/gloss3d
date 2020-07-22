@@ -54,8 +54,8 @@ static void xAxisCbk ( GtkWidget *widget, gpointer user_data ) {
     int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( status ) gui->flags |=   XAXIS;
-    else          gui->flags &= (~XAXIS);
+    if ( status ) gui->engine_flags |=   XAXIS;
+    else          gui->engine_flags &= (~XAXIS);
 }
 
 /******************************************************************************/
@@ -63,8 +63,8 @@ static void yAxisCbk ( GtkWidget *widget, gpointer user_data ) {
     int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( status ) gui->flags |=   YAXIS;
-    else          gui->flags &= (~YAXIS);
+    if ( status ) gui->engine_flags |=   YAXIS;
+    else          gui->engine_flags &= (~YAXIS);
 }
 
 /******************************************************************************/
@@ -72,8 +72,8 @@ static void zAxisCbk ( GtkWidget *widget, gpointer user_data ) {
     int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( status ) gui->flags |=   ZAXIS;
-    else          gui->flags &= (~ZAXIS);
+    if ( status ) gui->engine_flags |=   ZAXIS;
+    else          gui->engine_flags &= (~ZAXIS);
 }
 
 /******************************************************************************/

@@ -440,7 +440,7 @@ void g3dui_makeEditableCbk ( Widget w, XtPointer client, XtPointer call ) {
 /*static void armXAxiscbk ( Widget w, XtPointer client, XtPointer call ) {
     G3DUI *gui = ( G3DUI * ) client;
 
-    gui->flags |= XAXIS;
+    gui->engine_flags |= XAXIS;
 }*/
 
 /******************************************************************************/
@@ -451,9 +451,9 @@ static void disarmXAxiscbk ( Widget w, XtPointer client, XtPointer call ) {
     XtVaGetValues ( w, XmNset, &status, NULL );
 
     if ( status ) {
-        gui->flags |= XAXIS;
+        gui->engine_flags |= XAXIS;
     } else {
-        gui->flags &= (~XAXIS);
+        gui->engine_flags &= (~XAXIS);
     }
 }
 
@@ -465,9 +465,9 @@ static void disarmYAxiscbk ( Widget w, XtPointer client, XtPointer call ) {
     XtVaGetValues ( w, XmNset, &status, NULL );
 
     if ( status ) {
-        gui->flags |= YAXIS;
+        gui->engine_flags |= YAXIS;
     } else {
-        gui->flags &= (~YAXIS);
+        gui->engine_flags &= (~YAXIS);
     }
 }
 
@@ -479,9 +479,9 @@ static void disarmZAxiscbk ( Widget w, XtPointer client, XtPointer call ) {
     XtVaGetValues ( w, XmNset, &status, NULL );
 
     if ( status ) {
-        gui->flags |= ZAXIS;
+        gui->engine_flags |= ZAXIS;
     } else {
-        gui->flags &= (~ZAXIS);
+        gui->engine_flags &= (~ZAXIS);
     }
 }
 

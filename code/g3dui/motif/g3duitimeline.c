@@ -81,7 +81,7 @@ static void Input ( Widget w, XtPointer client,
             /*** disable buffered subdivision whatever happens. because  ***/
             /*** in animation mode they are slower than their on-the-fly ***/
             /*** counterparts (re-enabled in ButtonReleased ***/
-            gui->flags |= ONGOINGANIMATION;
+            gui->engine_flags |= ONGOINGANIMATION;
 
             pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
                                                                   bev->y,
@@ -132,7 +132,7 @@ static void Input ( Widget w, XtPointer client,
                         gui->curframe += ( xacc / ( int32_t ) tdata->nbpix );
 
                         g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
-                                                                gui->flags );
+                                                                gui->engine_flags );
 
                         g3dui_updateCoords  ( gui );
                         g3dui_redrawGLViews ( gui );
@@ -168,7 +168,7 @@ static void Input ( Widget w, XtPointer client,
                     int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
 
                     /*** Recompute buffered subdivided Meshes ***/
-                    g3dscene_updateBufferedMeshes ( sce, gui->flags );
+                    g3dscene_updateBufferedMeshes ( sce, gui->engine_flags );
 
                     /*** After dragging the cursor, move ***/
                     /*** the pointer to its position.    ***/
@@ -194,10 +194,10 @@ static void Input ( Widget w, XtPointer client,
             }
 
             /*** disable animation mode whatever happens ***/
-            gui->flags &= (~ONGOINGANIMATION);
+            gui->engine_flags &= (~ONGOINGANIMATION);
 
             /*** Recompute buffered subdivided Meshes ***/
-            g3dscene_updateBufferedMeshes ( sce, gui->flags );
+            g3dscene_updateBufferedMeshes ( sce, gui->engine_flags );
 
 /*** Need for keyboard input !!! ***/
 XmProcessTraversal(w, XmTRAVERSE_CURRENT);
@@ -252,7 +252,7 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
             }
 
             /*** disable animation mode whatever happens ***/
-            gui->flags &= (~ONGOINGANIMATION);
+            gui->engine_flags &= (~ONGOINGANIMATION);
 
             oncursor = onkey = dragging = 0x00;
 

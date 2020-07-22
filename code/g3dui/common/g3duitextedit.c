@@ -46,9 +46,9 @@ void common_g3duitextedit_setTextCbk ( G3DUI *gui, char *newText ) {
             g3dui_setHourGlass ( gui );
 
             if ( firstOccurence == newText ) {
-                g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->flags );
+                g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->engine_flags );
             } else {
-                g3dtext_setText ( txt, newText, gui->flags );
+                g3dtext_setText ( txt, newText, gui->engine_flags );
             }
 
             g3dui_unsetHourGlass ( gui );
@@ -70,7 +70,7 @@ void common_g3duitextedit_thicknessCbk ( G3DUI *gui, float thickness ) {
         G3DTEXT *txt = ( G3DTEXT * ) obj;
         g3dui_setHourGlass ( gui );
 
-        g3dtext_setThickness ( txt, thickness, gui->flags );
+        g3dtext_setThickness ( txt, thickness, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -91,7 +91,7 @@ void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dtext_setRoundness ( txt, roundness, gui->flags );
+        g3dtext_setRoundness ( txt, roundness, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -112,7 +112,7 @@ void common_g3duitextedit_sizeCbk ( G3DUI *gui, uint32_t size ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dtext_setSize ( txt, size, gui->flags );
+        g3dtext_setSize ( txt, size, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 

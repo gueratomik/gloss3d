@@ -72,7 +72,7 @@ typedef struct _G3DIMAGE {
  * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
  */
 G3DIMAGE *g3dimage_newFromJpeg ( const char *filename,
-                                 uint32_t    engine_flags );
+                                 uint64_t engine_flags );
 
 
 /**
@@ -104,7 +104,7 @@ void g3dimage_animate ( G3DIMAGE *image,
                         float     currentFrame,
                         float     endFrame,
                         float     frameRate,
-                        uint32_t  engine_flags );
+                        uint64_t engine_flags );
 
 /**
  * Create a G3DIMAGE depending on the file extension.

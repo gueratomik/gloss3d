@@ -48,7 +48,7 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
                                            gui->curframe,
                                            rsg->output.endframe,
                                            rsg->output.fps,
-                                           gui->flags );
+                                           gui->engine_flags );
     }
 }
 
@@ -79,7 +79,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
 
         /* reset object position at the first frame */
         if ( gui->curframe != resetFrame ) {
-            g3dobject_anim_r ( sce, resetFrame, gui->flags );
+            g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
 
         rsce = r3dscene_new ( rsg, 0x00, 0x00 );
@@ -132,13 +132,13 @@ void common_g3dui_selectAllCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
 
     /*** select all objects ***/
-    if ( gui->flags & VIEWOBJECT ) {
-        g3dscene_unselectAllObjects ( sce, gui->flags );
-        g3dscene_selectAllObjects   ( sce, gui->flags );
+    if ( gui->engine_flags & VIEWOBJECT ) {
+        g3dscene_unselectAllObjects ( sce, gui->engine_flags );
+        g3dscene_selectAllObjects   ( sce, gui->engine_flags );
     }
 
     /*** select all vertices ***/
-    if ( gui->flags & VIEWVERTEX ) {
+    if ( gui->engine_flags & VIEWVERTEX ) {
         G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
         if ( obj && obj->type == G3DMESHTYPE ) {
@@ -150,7 +150,7 @@ void common_g3dui_selectAllCbk ( G3DUI *gui ) {
     }
 
     /*** select all edges ***/
-    if ( gui->flags & VIEWEDGE ) {
+    if ( gui->engine_flags & VIEWEDGE ) {
         G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
         if ( obj && obj->type == G3DMESHTYPE ) {
@@ -162,7 +162,7 @@ void common_g3dui_selectAllCbk ( G3DUI *gui ) {
     }
 
     /*** select all vertices ***/
-    if ( gui->flags & VIEWFACE ) {
+    if ( gui->engine_flags & VIEWFACE ) {
         G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
         if ( obj && obj->type == G3DMESHTYPE ) {
@@ -360,27 +360,27 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
         }
 
         if ( strcmp ( filedesc, FILEDESC_3DS ) == 0x00 ) {
-            gui->sce = g3dscene_import3ds ( filename, gui->flags );
+            gui->sce = g3dscene_import3ds ( filename, gui->engine_flags );
         }
 
         if ( strcmp ( filedesc, FILEDESC_OBJ ) == 0x00 ) {
-            gui->sce = g3dscene_importObj ( filename, gui->flags );
+            gui->sce = g3dscene_importObj ( filename, gui->engine_flags );
         }
 #ifdef HAVE_EXPAT_H
         if ( strcmp ( filedesc, FILEDESC_DAE ) == 0x00 ) {
-            gui->sce = g3dscene_importCollada ( filename, gui->flags );
+            gui->sce = g3dscene_importCollada ( filename, gui->engine_flags );
         }
 #endif
 #ifdef HAVE_C4D_H
         if ( strcmp ( filedesc, FILEDESC_C4D ) == 0x00 ) {
-            gui->sce = g3dscene_importC4D ( filename, gui->flags );
+            gui->sce = g3dscene_importC4D ( filename, gui->engine_flags );
         }
 #endif
         if ( strcmp ( filedesc, FILEDESC_V1 ) == 0x00 ) {
             gui->sce = g3dscene_open ( filename, 
                                        NULL, 
                                        NULL, 
-                                       gui->flags );
+                                       gui->engine_flags );
         }
 
         if ( gui->sce ) {
@@ -510,7 +510,7 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         list_insert ( &lext, r3dext   );
         list_insert ( &lext, g3duiext );
 
-        gui->sce = g3dscene_importv2 ( filename, NULL, lext, gui->flags );
+        gui->sce = g3dscene_importv2 ( filename, NULL, lext, gui->engine_flags );
     }
 
     if ( lrsg ) {
@@ -592,7 +592,7 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dscene_importv2 ( filename, gui->sce, limportExtensions, gui->flags );
+        g3dscene_importv2 ( filename, gui->sce, limportExtensions, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 
@@ -656,7 +656,7 @@ void common_g3dui_setMouseTool ( G3DUI        *gui,
         if ( mou->init ) {
             uint32_t msk = mou->init ( mou, gui->sce, 
                                             cam, 
-                                            gui->urm, gui->flags );
+                                            gui->urm, gui->engine_flags );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
         }
@@ -711,12 +711,12 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
 
     if ( msk & NOBUFFEREDSUBDIVISION ) {
         /*** this should be replace by some MEANINGFUL mask ***/
-        gui->flags |= ONGOINGANIMATION;
+        gui->engine_flags |= ONGOINGANIMATION;
     }
 
     if ( msk & BUFFEREDSUBDIVISIONOK ) {
         /*** this should be replace by some MEANINGFUL mask ***/
-        gui->flags &= (~ONGOINGANIMATION);
+        gui->engine_flags &= (~ONGOINGANIMATION);
     }
 }
 

@@ -33,7 +33,7 @@
 G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline, 
                             uint32_t       id, 
                             char          *name, 
-                            uint32_t       engine_flags ) {
+                            uint64_t engine_flags ) {
     G3DOBJECT *obj       = ( G3DOBJECT * ) spline;
     G3DSPLINE *newSpline = g3dspline_new ( id, name, obj->flags, engine_flags );
 
@@ -45,7 +45,7 @@ G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline,
 /******************************************************************************/
 uint32_t g3dspline_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint32_t   engine_flags ) {
+                          uint64_t engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) obj;
 
     if ( obj->flags & OBJECTSELECTED ) {
@@ -70,11 +70,11 @@ uint32_t g3dspline_pick ( G3DOBJECT *obj,
 void g3dspline_update ( G3DSPLINE *spl,
                         LIST      *lpt,
                         uint32_t   update_flags,
-                        uint32_t   eflags ) {
+                        uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
     if ( update_flags & RESETMODIFIERS ) {
-        g3dobject_modify_r ( obj, eflags );
+        g3dobject_modify_r ( obj, engine_flags );
     }
 
     if ( update_flags & UPDATEMODIFIERS ) {
@@ -83,9 +83,9 @@ void g3dspline_update ( G3DSPLINE *spl,
 
         spl->curve->lselpt = ( lpt == NULL ) ? spl->curve->lpt : lpt;
 
-        g3dobject_startUpdateModifiers_r ( spl, eflags );
-        g3dobject_updateModifiers_r      ( spl, eflags );
-        g3dobject_endUpdateModifiers_r   ( spl, eflags );
+        g3dobject_startUpdateModifiers_r ( spl, engine_flags );
+        g3dobject_updateModifiers_r      ( spl, engine_flags );
+        g3dobject_endUpdateModifiers_r   ( spl, engine_flags );
 
         /*** restore selected items ***/
         spl->curve->lselpt = ltmpselpt;
@@ -95,7 +95,7 @@ void g3dspline_update ( G3DSPLINE *spl,
 /******************************************************************************/
 void g3dspline_moveAxis ( G3DSPLINE *spl, 
                           double    *PREVMVX, /* previous world matrix */
-                          uint32_t   eflags ) {
+                          uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     LIST *ltmppt = spl->curve->lpt;
     double DIFFMVX[0x10];
@@ -103,7 +103,7 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
     g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
 
     /*** move object for children ***/
-    g3dobject_moveAxis ( obj, PREVMVX, eflags );
+    g3dobject_moveAxis ( obj, PREVMVX, engine_flags );
 
     while ( ltmppt ) {
         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
@@ -128,13 +128,13 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
     }
 
     /*g3dmesh_updateBbox ( mes );*/
-    g3dspline_update ( spl, NULL, RESETMODIFIERS, eflags );
+    g3dspline_update ( spl, NULL, RESETMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
 uint32_t g3dspline_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint32_t   engine_flags ) {
+                          uint64_t engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) obj;
     LIST *ltmpseg = spline->curve->lseg;
 
@@ -189,7 +189,7 @@ void g3dspline_init ( G3DSPLINE *spline,
                       uint32_t   id, 
                       char      *name,
                       uint32_t   type,
-                      uint32_t   engine_flags ) {
+                      uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spline;
 
     g3dobject_init ( obj, G3DSPLINETYPE, id, name, DRAWBEFORECHILDREN | type,
@@ -211,7 +211,7 @@ void g3dspline_init ( G3DSPLINE *spline,
 G3DSPLINE *g3dspline_new ( uint32_t id, 
                            char    *name, 
                            uint32_t type, 
-                           uint32_t engine_flags ) {
+                           uint64_t engine_flags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) calloc ( 0x01, sizeof ( G3DSPLINE ) );
 
     if ( spline == NULL ) {

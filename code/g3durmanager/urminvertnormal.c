@@ -31,7 +31,7 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
+static URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
     uint32_t structsize = sizeof ( URMINVERTNORMAL );
 
     URMINVERTNORMAL *ins = ( URMINVERTNORMAL * ) calloc ( 0x01, structsize );
@@ -50,22 +50,24 @@ URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-void urminvertnormal_free ( URMINVERTNORMAL *ins ) {
+static void urminvertnormal_free ( URMINVERTNORMAL *ins ) {
     list_free ( &ins->lfac, NULL );
 
     free ( ins );
 }
 
 /******************************************************************************/
-void invertNormal_free ( void *data, uint32_t commit ) {
+static void invertNormal_free ( void    *data, 
+                                uint32_t commit ) {
     URMINVERTNORMAL *ins = ( URMINVERTNORMAL * ) data;
 
     urminvertnormal_free ( ins );
 }
 
 /******************************************************************************/
-void invertNormal_undo ( G3DURMANAGER *urm, void *data,
-                                            uint32_t engine_flags ) {
+static void invertNormal_undo ( G3DURMANAGER *urm, 
+                                void         *data,
+                                uint64_t      engine_flags ) {
     URMINVERTNORMAL *ins = ( URMINVERTNORMAL * ) data;
     G3DMESH *mes = ins->mes;
 
@@ -82,16 +84,18 @@ void invertNormal_undo ( G3DURMANAGER *urm, void *data,
 }
 
 /******************************************************************************/
-void invertNormal_redo ( G3DURMANAGER *urm, void *data,
-                                            uint32_t engine_flags ) {
+static void invertNormal_redo ( G3DURMANAGER *urm, 
+                                void         *data,
+                                uint64_t      engine_flags ) {
 
     invertNormal_undo ( urm, data, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, G3DMESH *mes,
-                                                   uint32_t engine_flags,
-                                                   uint32_t return_flags ) {
+void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, 
+                                G3DMESH      *mes,
+                                uint64_t      engine_flags,
+                                uint32_t      return_flags ) {
     URMINVERTNORMAL *ins;
 
     /*** Triagulate and unTriagulate feature use ***/

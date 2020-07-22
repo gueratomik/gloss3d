@@ -31,10 +31,11 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, LIST *loldver,
-                                                      LIST *lnewver,
-                                                      LIST *loldfac,
-                                                      LIST *lnewfac ) {
+static URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, 
+                                              LIST     *loldver,
+                                              LIST     *lnewver,
+                                              LIST     *loldfac,
+                                              LIST     *lnewfac ) {
     uint32_t structsize = sizeof ( URMWELDVERTICES );
 
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) calloc ( 0x01, structsize );
@@ -56,12 +57,12 @@ URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, LIST *loldver,
 }
 
 /******************************************************************************/
-void urmweldvertices_free ( URMWELDVERTICES *wvs ) {
+static void urmweldvertices_free ( URMWELDVERTICES *wvs ) {
     free ( wvs );
 }
 
 /******************************************************************************/
-void weldVertices_free ( void *data, uint32_t commit ) {
+static void weldVertices_free ( void *data, uint32_t commit ) {
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) data;
 
     if ( commit ) {
@@ -80,7 +81,9 @@ void weldVertices_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void weldVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void weldVertices_undo ( G3DURMANAGER *urm, 
+                                void         *data, 
+                                uint64_t      engine_flags ) {
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) data;
     G3DMESH *mes = wvs->mes;
 
@@ -111,7 +114,9 @@ void weldVertices_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 }
 
 /******************************************************************************/
-void weldVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+static void weldVertices_redo ( G3DURMANAGER *urm, 
+                                void         *data,
+                                uint64_t      engine_flags ) {
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) data;
     G3DMESH *mes = wvs->mes;
 
@@ -143,9 +148,10 @@ void weldVertices_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) 
 
 /******************************************************************************/
 void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm, 
-                                        G3DMESH *mes, uint32_t type,
-                                                      uint32_t engine_flags,
-                                                      uint32_t return_flags ) {
+                                        G3DMESH      *mes, 
+                                        uint32_t      type,
+                                        uint64_t      engine_flags,
+                                        uint32_t      return_flags ) {
     URMWELDVERTICES *wvs;
     LIST *loldver = list_copy ( mes->lselver );
     LIST *loldfac = NULL,
@@ -178,8 +184,8 @@ void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
                                          G3DMESH      *mes, 
                                          uint32_t      type,
                                          float         distance,
-                                         uint32_t engine_flags,
-                                         uint32_t return_flags ) {
+                                         uint64_t      engine_flags,
+                                         uint32_t      return_flags ) {
     URMWELDVERTICES *wvs;
     LIST *loldver = NULL;
     LIST *loldfac = NULL,

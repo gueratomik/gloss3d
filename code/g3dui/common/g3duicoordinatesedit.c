@@ -43,7 +43,7 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
     if ( obj ) {
         g3dui_setHourGlass ( gui );
 
-        if ( gui->flags & VIEWOBJECT ) {
+        if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce->lsel,
                                                                 UTOSAVETRANSLATION,
@@ -55,12 +55,12 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
             if ( axis == G3DUIYAXIS ) obj->pos.y = val;
             if ( axis == G3DUIZAXIS ) obj->pos.z = val;
 
-            g3dobject_updateMatrix_r ( obj, gui->flags );
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
 
             urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }
 
-        if ( gui->flags & VIEWVERTEX ) {
+        if ( gui->engine_flags & VIEWVERTEX ) {
             if ( obj->type == G3DMESHTYPE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 uint32_t axis_flags = 0x00;
@@ -77,7 +77,7 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
 
                 g3dvertex_copyPositionFromList ( mes->lselver, &oldpos );
 
-                g3dmesh_moveVerticesTo ( mes, mes->lselver, &avg, &to, absolute, axis_flags, gui->flags );
+                g3dmesh_moveVerticesTo ( mes, mes->lselver, &avg, &to, absolute, axis_flags, gui->engine_flags );
 
                 g3dvertex_copyPositionFromList ( mes->lselver, &newpos );
 
@@ -107,7 +107,7 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
     if ( obj ) {
         g3dui_setHourGlass ( gui );
 
-        if ( gui->flags & VIEWOBJECT ) {
+        if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce->lsel,
                                                                 UTOSAVEROTATION,
@@ -119,7 +119,7 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
             if ( axis == G3DUIYAXIS ) obj->rot.y = val;
             if ( axis == G3DUIZAXIS ) obj->rot.z = val;
 
-            g3dobject_updateMatrix_r ( obj, gui->flags );
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
 
             urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }
@@ -143,7 +143,7 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
     if ( obj ) {
         g3dui_setHourGlass ( gui );
 
-        if ( gui->flags & VIEWOBJECT ) {
+        if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce->lsel,
                                                                 UTOSAVESCALING,
@@ -153,7 +153,7 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
             if ( axis == G3DUIYAXIS ) obj->sca.y = val;
             if ( axis == G3DUIZAXIS ) obj->sca.z = val;
 
-            g3dobject_updateMatrix_r ( obj, gui->flags );
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
 
             urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
         }

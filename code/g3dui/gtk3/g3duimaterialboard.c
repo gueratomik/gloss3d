@@ -70,7 +70,7 @@ static void addMaterialCbk ( GtkWidget *widget, gpointer user_data ) {
     g3durm_scene_addMaterial ( gui->urm,
                                gui->sce, 
                                mat,
-                               gui->flags,
+                               gui->engine_flags,
                                REBUILDMATERIALLIST );
 
     while ( ltmpmatlist ) {

@@ -69,7 +69,7 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
             g3dmesh_update ( mes, NULL,
                                   NULL,
                                   NULL,
-                                  RESETMODIFIERS, gui->flags );
+                                  RESETMODIFIERS, gui->engine_flags );
 
             ltmpuvmap = ltmpuvmap->next;
         }

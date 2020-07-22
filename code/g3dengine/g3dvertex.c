@@ -660,24 +660,25 @@ uint32_t g3dvertex_copyPositionFromList ( LIST *lver,
 }
 
 /******************************************************************************/
-G3DVERTEX *g3dvertex_copy ( G3DVERTEX *ver, uint32_t flags ) {
+G3DVERTEX *g3dvertex_copy ( G3DVERTEX *ver, 
+                            uint64_t   engine_flags ) {
     G3DVERTEX *cpy = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
 
-    if ( flags & SETPOSITION ) {
+    if ( engine_flags & SETPOSITION ) {
         memcpy ( &cpy->pos, &ver->pos, sizeof ( G3DVECTOR ) );
     }
 
-    if ( flags & SETNORMAL ) {
+    if ( engine_flags & SETNORMAL ) {
         memcpy ( &cpy->nor, &ver->nor, sizeof ( G3DVECTOR ) );
     }
 
-    if ( flags & SETEDGELIST ) {
+    if ( engine_flags & SETEDGELIST ) {
         cpy->ledg = ver->ledg;
 
         cpy->nbedg = ver->nbedg;
     }
 
-    if ( flags & SETFACELIST ) {
+    if ( engine_flags & SETFACELIST ) {
         cpy->lfac = ver->lfac;
 
         cpy->nbfac = ver->nbfac;
@@ -799,7 +800,8 @@ void g3dvertex_copyPos ( G3DVERTEX *dst, G3DVERTEX *src ) {
 }
 
 /*****************************************************************************/
-void g3dvertex_normal ( G3DVERTEX *ver, uint32_t flags ) {
+void g3dvertex_normal ( G3DVERTEX *ver, 
+                        uint64_t   engine_flags ) {
     float norx = 0.0f, posx = 0.0f,
           nory = 0.0f, posy = 0.0f,
           norz = 0.0f, posz = 0.0f,
@@ -811,14 +813,14 @@ void g3dvertex_normal ( G3DVERTEX *ver, uint32_t flags ) {
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
 
-        if ( ( flags & NOVERTEXNORMAL ) == 0x00 ) {
+        if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
             norx = ( norx + fac->nor.x );
             nory = ( nory + fac->nor.y );
             norz = ( norz + fac->nor.z );
             /*norw = ( norw + cen->nor.w );*/
         }
 
-        if ( flags & COMPUTEFACEPOINT ) {
+        if ( engine_flags & COMPUTEFACEPOINT ) {
             posx = ( posx + fac->pos.x );
             posy = ( posy + fac->pos.y );
             posz = ( posz + fac->pos.z );
@@ -842,14 +844,14 @@ void g3dvertex_normal ( G3DVERTEX *ver, uint32_t flags ) {
         /*** some optimization ***/
         if ( ver->nbfac != 0x04 ) nbfacdiv = ( 1.0f / ver->nbfac );
 
-        if ( ( flags & NOVERTEXNORMAL ) == 0x00 ) {
+        if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
             ver->nor.x = norx * nbfacdiv;
             ver->nor.y = nory * nbfacdiv;
             ver->nor.z = norz * nbfacdiv;
             ver->nor.w = 1.0f;
         }
 
-        if ( flags & COMPUTEFACEPOINT ) {
+        if ( engine_flags & COMPUTEFACEPOINT ) {
             ver->facpnt.x = posx * nbfacdiv;
             ver->facpnt.y = posy * nbfacdiv;
             ver->facpnt.z = posz * nbfacdiv;
@@ -858,7 +860,7 @@ void g3dvertex_normal ( G3DVERTEX *ver, uint32_t flags ) {
 
         ver->surface = surface * nbfacdiv;
 
-        if ( flags & COMPUTEEDGEPOINT ) {
+        if ( engine_flags & COMPUTEEDGEPOINT ) {
             LIST *ltmp = ver->ledg;
             float nbedgdiv = 0.25f;
 
@@ -895,7 +897,7 @@ void g3dvertex_normal ( G3DVERTEX *ver, uint32_t flags ) {
             ver->edgpnt.w  = 1.0f;*/
         }
 
-        if ( ( flags & NOVERTEXNORMAL ) == 0x00 ) {
+        if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
             g3dvector_normalize ( &ver->nor, NULL );
         }
     }

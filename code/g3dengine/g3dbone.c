@@ -61,7 +61,7 @@ LIST *g3dbone_getVertexList ( G3DBONE *bon, G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 
-                                       uint32_t engine_flags ) {
+                                       uint64_t engine_flags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DBONE   *cloned = g3dbone_new ( 0x00, objbon->name, bon->len );
 
@@ -98,9 +98,10 @@ void g3dbone_anim ( G3DOBJECT *obj, G3DKEY *prevkey,    /*** previous key ***/
 }
 
 /******************************************************************************/
-G3DBONE *g3dbone_mirror ( G3DBONE *bon, uint32_t orientation,
-                                        uint32_t recurse,
-                                        uint32_t engine_flags ) {
+G3DBONE *g3dbone_mirror ( G3DBONE *bon, 
+                          uint32_t orientation,
+                          uint32_t recurse,
+                          uint64_t engine_flags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DBONE   *mir = g3dbone_clone ( bon, recurse, engine_flags );
     G3DOBJECT *objmir = ( G3DOBJECT * ) mir;
@@ -125,7 +126,8 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon, uint32_t orientation,
 /******************************************************************************/
 /*** Do not use this function when the whole skeleton is updated ***/
 /*** Use it only when one bone is updated ***/
-void g3dbone_updateVertexNormals ( G3DBONE *bon, uint32_t flags ) {
+void g3dbone_updateVertexNormals ( G3DBONE *bon, 
+                                   uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
     LIST *ltmpbon = obj->lchildren;
     LIST *ltmprig = bon->lrig;
@@ -140,7 +142,7 @@ void g3dbone_updateVertexNormals ( G3DBONE *bon, uint32_t flags ) {
 
             /*** This compute the position of a vertex after all the bones ***/
             /*** it belongs to have been transformed ***/
-            g3dvertex_normal ( wei->ver, flags );
+            g3dvertex_normal ( wei->ver, engine_flags );
 
             ltmpwei = ltmpwei->next;
         }
@@ -154,7 +156,7 @@ void g3dbone_updateVertexNormals ( G3DBONE *bon, uint32_t flags ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpbon->data;
 
         if ( child->type == G3DBONETYPE ) {
-            g3dbone_updateVertexNormals ( ( G3DBONE * ) child, flags );
+            g3dbone_updateVertexNormals ( ( G3DBONE * ) child, engine_flags );
         }
 
         ltmpbon = ltmpbon->next;
@@ -228,7 +230,8 @@ void g3dbone_updateFaces ( G3DBONE *bon ) {
 /******************************************************************************/
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
-void g3dbone_transform ( G3DOBJECT *obj, uint32_t flags ) {
+void g3dbone_transform ( G3DOBJECT *obj, 
+                         uint64_t   engine_flags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
 
     g3dbone_update ( bon );
@@ -388,7 +391,9 @@ void g3dbone_reset_r ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-uint32_t g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dbone_draw ( G3DOBJECT *obj, 
+                        G3DCAMERA *curcam, 
+                        uint64_t   engine_flags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
@@ -400,7 +405,7 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     int i;
 
     /*** displaying bones could be annoying ***/
-    if ( flags & HIDEBONES ) return 0x00;
+    if ( engine_flags & HIDEBONES ) return 0x00;
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -495,7 +500,8 @@ LIST *g3dbone_seekWeightGroups ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *bon, uint32_t id ) {
+G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *bon, 
+                                              uint32_t id ) {
     LIST *lmes = g3dbone_seekMeshHierarchy ( bon );
     LIST *ltmpmes = lmes;
     uint32_t nb = 0x00;
@@ -525,7 +531,8 @@ G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *bon, uint32_t id ) {
 
 /******************************************************************************/
 void g3dbone_getMeshExtendedFaces_r ( G3DBONE *bon, 
-                                      G3DMESH *mes, LIST **lextfac ) {
+                                      G3DMESH *mes, 
+                                      LIST   **lextfac ) {
     LIST *ltmprig = bon->lrig;
     LIST *ltmpobj = ((G3DOBJECT*)bon)->lchildren;
 
@@ -565,7 +572,8 @@ void g3dbone_getMeshExtendedFaces_r ( G3DBONE *bon,
 }
 
 /******************************************************************************/
-void g3dbone_getMeshes_r ( G3DBONE *bon, LIST **lmes ) {
+void g3dbone_getMeshes_r ( G3DBONE *bon, 
+                           LIST   **lmes ) {
     LIST *ltmprig = bon->lrig;
     LIST *ltmpobj = ((G3DOBJECT*)bon)->lchildren;
 
@@ -611,7 +619,8 @@ LIST *g3dbone_seekMeshHierarchy ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-G3DRIG *g3dbone_seekRig ( G3DBONE *bon, G3DWEIGHTGROUP *grp ) {
+G3DRIG *g3dbone_seekRig ( G3DBONE        *bon,
+                          G3DWEIGHTGROUP *grp ) {
     LIST *ltmp = bon->lrig;
 
     while ( ltmp ) {
@@ -629,7 +638,8 @@ G3DRIG *g3dbone_seekRig ( G3DBONE *bon, G3DWEIGHTGROUP *grp ) {
 }
 
 /******************************************************************************/
-G3DRIG *g3dbone_addWeightGroup ( G3DBONE *bon, G3DWEIGHTGROUP *grp ) {
+G3DRIG *g3dbone_addWeightGroup ( G3DBONE        *bon, 
+                                 G3DWEIGHTGROUP *grp ) {
     G3DRIG *rig = g3drig_new ( grp );
 
     list_insert ( &bon->lrig, rig );
@@ -640,7 +650,8 @@ G3DRIG *g3dbone_addWeightGroup ( G3DBONE *bon, G3DWEIGHTGROUP *grp ) {
 }
 
 /******************************************************************************/
-void g3dbone_removeWeightGroup ( G3DBONE *bon, G3DWEIGHTGROUP *grp ) {
+void g3dbone_removeWeightGroup ( G3DBONE        *bon, 
+                                 G3DWEIGHTGROUP *grp ) {
     G3DRIG *rig = g3dbone_seekRig ( bon, grp );
 
     list_remove ( &bon->lrig, rig );
@@ -658,7 +669,9 @@ void g3dbone_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-G3DBONE *g3dbone_new ( uint32_t id, char *name, float len ) {
+G3DBONE *g3dbone_new ( uint32_t id, 
+                       char    *name,
+                       float    len ) {
     G3DBONE   *bon = ( G3DBONE *   ) calloc ( 0x01, sizeof ( G3DBONE ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
 

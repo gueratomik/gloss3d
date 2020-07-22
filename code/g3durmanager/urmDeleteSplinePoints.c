@@ -31,9 +31,9 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline, 
-                                                   LIST      *lremovedPoints,
-                                                   LIST      *lremovedSegments ) {
+static URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline, 
+                                                          LIST      *lremovedPoints,
+                                                          LIST      *lremovedSegments ) {
     uint32_t size = sizeof ( URMDELETESPLINEPOINTS );
 
     URMDELETESPLINEPOINTS *dsp = ( URMDELETESPLINEPOINTS * ) calloc ( 0x01, 
@@ -53,13 +53,13 @@ URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline,
 }
 
 /******************************************************************************/
-void urmDeleteSplinePoints_free ( URMDELETESPLINEPOINTS *dsp ) {
+static void urmDeleteSplinePoints_free ( URMDELETESPLINEPOINTS *dsp ) {
     free ( dsp );
 }
 
 /******************************************************************************/
-void deleteSplinePoints_free ( void    *data, 
-                               uint32_t commit ) {
+static void deleteSplinePoints_free ( void    *data, 
+                                      uint32_t commit ) {
     URMDELETESPLINEPOINTS *dsp = ( URMDELETESPLINEPOINTS * ) data;
 
     /*** Discard changes ***/
@@ -75,9 +75,9 @@ void deleteSplinePoints_free ( void    *data,
 }
 
 /******************************************************************************/
-void deleteSplinePoints_undo ( G3DURMANAGER *urm, 
-                               void         *data, 
-                               uint32_t      engine_flags ) {
+static void deleteSplinePoints_undo ( G3DURMANAGER *urm, 
+                                      void         *data, 
+                                      uint64_t      engine_flags ) {
     URMDELETESPLINEPOINTS *dsp = ( URMDELETESPLINEPOINTS * ) data;
     G3DSPLINE *spline = ( G3DSPLINE * ) dsp->spline;
     LIST *ltmpRemovedPoints   = dsp->lremovedPoints;
@@ -106,9 +106,9 @@ void deleteSplinePoints_undo ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void deleteSplinePoints_redo ( G3DURMANAGER *urm, 
-                               void         *data, 
-                               uint32_t      engine_flags ) {
+static void deleteSplinePoints_redo ( G3DURMANAGER *urm, 
+                                      void         *data, 
+                                      uint64_t      engine_flags ) {
     URMDELETESPLINEPOINTS *dsp = ( URMDELETESPLINEPOINTS * ) data;
     G3DSPLINE *spline = ( G3DSPLINE * ) dsp->spline;
     LIST *ltmpRemovedPoints   = dsp->lremovedPoints;
@@ -140,15 +140,15 @@ void deleteSplinePoints_redo ( G3DURMANAGER *urm,
 void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                                   G3DSPLINE    *spline, 
                                   LIST         *lremovedPoints,
-                                  uint32_t      engine_flags,
+                                  uint64_t      engine_flags,
                                   uint32_t      return_flags ) {
     URMDELETESPLINEPOINTS *dsp;
     LIST *lremovedSegments = NULL;
 
     g3dcurve_deletePoints ( spline->curve, 
-                             lremovedPoints, 
-                            &lremovedSegments, 
-                             engine_flags );
+                            lremovedPoints, 
+                           &lremovedSegments, 
+                            engine_flags );
 
     /*** Rebuild the spline modifiers ***/
     g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );

@@ -30,7 +30,8 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dscene_updateMeshes ( G3DSCENE *sce, uint32_t engine_flags ) {
+void g3dscene_updateMeshes ( G3DSCENE *sce, 
+                             uint64_t  engine_flags ) {
     g3dobject_updateMeshes_r ( sce, engine_flags );
 }
 
@@ -149,8 +150,8 @@ uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout ) {
  
 /******************************************************************************/
 uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, 
-                                       double *matrix, 
-                                       uint32_t eflags ) {
+                                       double   *matrix, 
+                                       uint64_t  engine_flags ) {
     G3DVECTOR avgpos;
     uint32_t nbobj = g3dscene_getSelectionPosition ( sce, &avgpos );
     static uint32_t matrixSize = sizeof ( double ) * 0x10;
@@ -163,7 +164,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelVerPos, TRX );
@@ -171,7 +172,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
-            if ( eflags & VIEWEDGE ) {
+            if ( engine_flags & VIEWEDGE ) {
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelEdgPos, TRX );
@@ -179,7 +180,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
-            if ( eflags & VIEWFACE ) {
+            if ( engine_flags & VIEWFACE ) {
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &mes->avgSelFacPos, TRX );
@@ -187,7 +188,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
                 memcpy ( matrix, TMPX, matrixSize );
             }
 
-            if ( eflags & VIEWUVWMAP ) {
+            if ( engine_flags & VIEWUVWMAP ) {
                 G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
 
                 if ( map ) {
@@ -199,7 +200,7 @@ uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce,
         if ( obj->type & SPLINE ) {
             G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 double TRX[0x10], TMPX[0x10];
 
                 g3dvector_createTranslationMatrix ( &spl->curve->avgSelPtPos, TRX );
@@ -234,7 +235,9 @@ LIST *g3dscene_getAllMeshes ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-void g3dscene_selectTree ( G3DSCENE *sce, G3DOBJECT *obj, int same ) {
+void g3dscene_selectTree ( G3DSCENE  *sce, 
+                           G3DOBJECT *obj, 
+                           int       same ) {
     if ( same ) {
         g3dobject_getObjectsByType_r ( obj, obj->type, &sce->lsel );
     } else {
@@ -321,7 +324,8 @@ void g3dscene_freeMaterials ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, uint32_t engine_flags ) {
+void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
+                                      uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmp = sce->lsel;
 
@@ -338,7 +342,8 @@ void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dscene_invertSelection ( G3DSCENE *sce, uint32_t engine_flags ) {
+void g3dscene_invertSelection ( G3DSCENE *sce, 
+                                uint64_t  engine_flags ) {
     LIST *lselobj = list_copy ( sce->lsel );
     LIST *ltmpobj = lselobj;
 
@@ -359,14 +364,15 @@ void g3dscene_invertSelection ( G3DSCENE *sce, uint32_t engine_flags ) {
 }
 
 /*****************************************************************************/
-void g3dscene_unselectAllObjects ( G3DSCENE *sce, uint32_t flags ) {
+void g3dscene_unselectAllObjects ( G3DSCENE *sce, 
+                                   uint64_t  engine_flags ) {
     LIST *lsel    = list_copy ( sce->lsel );
     LIST *ltmpsel = lsel;
 
     while ( ltmpsel ) {
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmpsel->data;
 
-        g3dscene_unselectObject ( sce, sel, flags );
+        g3dscene_unselectObject ( sce, sel, engine_flags );
 
         ltmpsel = ltmpsel->next;
     }
@@ -376,7 +382,8 @@ void g3dscene_unselectAllObjects ( G3DSCENE *sce, uint32_t flags ) {
 }
 
 /*****************************************************************************/
-void g3dscene_selectAllObjects ( G3DSCENE *sce, uint32_t flags ) {
+void g3dscene_selectAllObjects ( G3DSCENE *sce, 
+                                 uint64_t  engine_flags ) {
     LIST *lobj = NULL;
 
     g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, 0x00, &lobj );
@@ -387,12 +394,13 @@ void g3dscene_selectAllObjects ( G3DSCENE *sce, uint32_t flags ) {
 
     /*** Scene was selected by g3dobject_getObjectsByType_r() ***/
     /*** so we have to unselect it ***/
-    g3dscene_unselectObject ( sce, ( G3DOBJECT * ) sce, flags );
+    g3dscene_unselectObject ( sce, ( G3DOBJECT * ) sce, engine_flags );
 }
 
 /*****************************************************************************/
-G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce, char *name,
-                                                        uint32_t flags ) {
+G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce, 
+                                         char     *name,
+                                         uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmp = obj->lchildren;
 
@@ -400,7 +408,7 @@ G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce, char *name,
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmp->data;
 
         if ( strcmp ( sel->name, name ) == 0x00 ) {
-            g3dscene_selectObject ( sce, sel, flags );
+            g3dscene_selectObject ( sce, sel, engine_flags );
 
             return sel;
         }
@@ -441,15 +449,18 @@ uint32_t g3dscene_getNextObjectID ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-void g3dscene_unselectObject ( G3DSCENE *sce, G3DOBJECT *obj, uint32_t flags ) {
+void g3dscene_unselectObject ( G3DSCENE *sce,
+                               G3DOBJECT *obj, 
+                               uint64_t   engine_flags ) {
     g3dobject_unsetSelected ( obj ); /*** unset SELECTION flags ***/
 
     list_remove ( &sce->lsel, obj );
 }
 
 /******************************************************************************/
-void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
-                                            uint32_t engine_flags ) {
+void g3dscene_selectObject ( G3DSCENE  *sce, 
+                             G3DOBJECT *obj,
+                             uint64_t   engine_flags ) {
     if ( obj != sce ) {
         if ( list_seek ( sce->lsel, obj ) == NULL ) {
             g3dobject_setSelected ( obj ); /*** set SELECTION flags ***/
@@ -480,12 +491,14 @@ void g3dscene_selectObject ( G3DSCENE *sce, G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
+uint32_t g3dscene_draw ( G3DOBJECT *obj, 
+                         G3DCAMERA *curcam, 
+                         uint64_t   engine_flags ) {
     G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DSCENE *sce = ( G3DSCENE * ) obj;
     LIST *ltmp = sce->lsel;
     double matrix[0x10];
-    uint32_t nbobj = g3dscene_getSelectionMatrix ( sce, matrix, flags );
+    uint32_t nbobj = g3dscene_getSelectionMatrix ( sce, matrix, engine_flags );
     G3DVECTOR sca;
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
@@ -497,22 +510,22 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t flags ) {
     glPushMatrix ( );
     glMultMatrixd ( matrix );
     glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
-    g3dcursor_draw ( &sce->csr, curcam, flags );
+    g3dcursor_draw ( &sce->csr, curcam, engine_flags );
     glPopMatrix ( );
 
     while ( ltmp ) {
         G3DOBJECT *selobj = ( G3DOBJECT * ) ltmp->data;
 
-        if ( selobj && ( ( flags & VIEWOBJECT ) ||
-                         ( flags & VIEWAXIS   ) ||
-                         ( flags & VIEWSKIN   ) ||
-                         ( flags & VIEWUVWMAP ) ) ) {
-            g3dobject_drawKeys ( selobj, curcam, flags );
+        if ( selobj && ( ( engine_flags & VIEWOBJECT ) ||
+                         ( engine_flags & VIEWAXIS   ) ||
+                         ( engine_flags & VIEWSKIN   ) ||
+                         ( engine_flags & VIEWUVWMAP ) ) ) {
+            g3dobject_drawKeys ( selobj, curcam, engine_flags );
 
             glPushMatrix ( );
             glMultMatrixd ( selobj->wmatrix );
-            if ( flags & VIEWOBJECT ) {
-                g3dbbox_draw ( &selobj->bbox, flags );
+            if ( engine_flags & VIEWOBJECT ) {
+                g3dbbox_draw ( &selobj->bbox, engine_flags );
             }
             glPopMatrix ( );
         }

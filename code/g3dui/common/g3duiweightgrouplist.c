@@ -141,7 +141,7 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
                                   NULL,
                                   UPDATEVERTEXNORMAL |
                                   UPDATEFACENORMAL |
-                                  RESETMODIFIERS, gui->flags );
+                                  RESETMODIFIERS, gui->engine_flags );
 
             /*list_free ( &lsub, NULL );*/
 
@@ -176,7 +176,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
             g3dmesh_update ( mes, lver,
                                   NULL,
                                   NULL,
-                                  UPDATEMODIFIERS, gui->flags );
+                                  UPDATEMODIFIERS, gui->engine_flags );
 
             list_free ( &lver, NULL );
         }
@@ -189,7 +189,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
         g3dmesh_update ( mes, lver,
                               NULL,
                               NULL,
-                              RESETMODIFIERS, gui->flags );
+                              RESETMODIFIERS, gui->engine_flags );
 
         list_free ( &lver, NULL );
 

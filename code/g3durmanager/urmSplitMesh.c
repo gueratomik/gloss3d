@@ -75,7 +75,7 @@ void splitMesh_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
     G3DMESH *mes = sms->mes;
 
@@ -103,7 +103,7 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
 }
 
 /******************************************************************************/
-void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
     G3DMESH *mes = sms->mes;
 
@@ -134,7 +134,7 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
                          G3DMESH      *mes,
                          uint32_t      splID,
                          uint32_t      keep,
-                         uint32_t      engine_flags,
+                         uint64_t engine_flags,
                          uint32_t      return_flags ) {
     URMSPLITMESH *sms;
     LIST *loldfac = NULL;

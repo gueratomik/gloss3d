@@ -31,7 +31,8 @@
 #include <g3dimport.h>
 
 /*****************************************************************************/
-G3DSCENE *g3dscene_import3ds ( const char *filename, uint32_t flags ) {
+G3DSCENE *g3dscene_import3ds ( const char *filename, 
+                               uint64_t    engine_flags ) {
     uint16_t chunkid;
     uint32_t chunklen;
     G3DVERTEX **ver = NULL;
@@ -75,8 +76,8 @@ G3DSCENE *g3dscene_import3ds ( const char *filename, uint32_t flags ) {
             } break;
 
             case 0x4100 :
-                mes = g3dmesh_new ( g3dscene_getNextObjectID ( sce ), "Mesh", flags );
-                g3dobject_addChild ( ( G3DOBJECT * ) sce, ( G3DOBJECT * ) mes, flags );
+                mes = g3dmesh_new ( g3dscene_getNextObjectID ( sce ), "Mesh", engine_flags );
+                g3dobject_addChild ( ( G3DOBJECT * ) sce, ( G3DOBJECT * ) mes, engine_flags );
             break;
 
             case 0x4110 : {
@@ -156,7 +157,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename, uint32_t flags ) {
 
     fclose ( fsrc );
 
-    g3dscene_updateMeshes ( sce, flags );
+    g3dscene_updateMeshes ( sce, engine_flags );
 
 
     return sce;

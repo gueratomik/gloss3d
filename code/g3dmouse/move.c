@@ -40,7 +40,7 @@ static int move_spline ( G3DSPLINE    *spl,
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
                          G3DURMANAGER *urm,
-                         uint32_t      eflags, 
+                         uint64_t engine_flags, 
                          G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -57,7 +57,7 @@ static int move_spline ( G3DSPLINE    *spl,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -75,7 +75,7 @@ static int move_spline ( G3DSPLINE    *spl,
             mouseXpress = bev->x;
             mouseYpress = bev->y;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 G3DPICKTOOL pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                               bev->x, VPX[0x03] - bev->y },
                                    .only_visible = 0x01,
@@ -84,7 +84,7 @@ static int move_spline ( G3DSPLINE    *spl,
                 uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
 
                 /*** simulate click and release ***/
-                pick_Item ( &pt, sce, cam, ctrlClick, eflags );
+                pick_Item ( &pt, sce, cam, ctrlClick, engine_flags );
 
                 /*** MUST be called after pick_item because based on ***/
                 /*** currently selected points ***/
@@ -108,7 +108,7 @@ static int move_spline ( G3DSPLINE    *spl,
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
             if ( mev->state & G3DButton1Mask ) {
-                if ( eflags & VIEWVERTEX ) {
+                if ( engine_flags & VIEWVERTEX ) {
                     LIST *ltmppt = spl->curve->lselpt;
                     double difx, dify, difz;
 
@@ -140,7 +140,7 @@ static int move_spline ( G3DSPLINE    *spl,
 
                 	g3dspline_update ( spl,
                                        NULL,
-                                       UPDATEMODIFIERS, eflags );
+                                       UPDATEMODIFIERS, engine_flags );
 
                     orix = newx;
                     oriy = newy;
@@ -152,7 +152,7 @@ static int move_spline ( G3DSPLINE    *spl,
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 urmmovepoint_saveState ( ump, UMPSAVESTATEAFTER );
             }
 
@@ -171,7 +171,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                   G3DSCENE     *sce, 
                   G3DCAMERA    *cam,
                   G3DURMANAGER *urm,
-                  uint32_t      eflags, 
+                  uint64_t engine_flags, 
                   G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -212,8 +212,8 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                         mouseXpress = xold = orix;
                         mouseYpress = yold = oriy;
 
-                        if ( eflags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
-                        if ( eflags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
+                        if ( engine_flags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
+                        if ( engine_flags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
 
                         /*** remember coords for undo-redo ***/
                         g3duv_copyUVFromList ( lseluv, &olduv );
@@ -233,8 +233,8 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                                           &newy,
                                           &newz );
 
-                            if ( ( eflags & VIEWVERTEXUV ) || 
-                                 ( eflags & VIEWFACEUV   ) ) {
+                            if ( ( engine_flags & VIEWVERTEXUV ) || 
+                                 ( engine_flags & VIEWFACEUV   ) ) {
                                 float udiff = ( float ) ( newx - orix ),
                                       vdiff = ( float ) ( newy - oriy );
                                 LIST *ltmpuv = lseluv;
@@ -270,7 +270,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             /*** get the undo/redo support ***/
                             void *tmpdata = mou->data;
                             mou->data = &pt;
-                            pickUV_tool ( mou, sce, cam, urm, eflags, event );
+                            pickUV_tool ( mou, sce, cam, urm, engine_flags, event );
                             mou->data = tmpdata;
 
                             /*** cancel arrays allocated for undo-redo ***/
@@ -313,7 +313,7 @@ static int move_mesh ( G3DMESH      *mes,
                        G3DSCENE     *sce, 
                        G3DCAMERA    *cam,
                        G3DURMANAGER *urm,
-                       uint32_t      eflags, 
+                       uint64_t engine_flags, 
                        G3DEvent     *event ) {
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
@@ -333,7 +333,7 @@ static int move_mesh ( G3DMESH      *mes,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -351,15 +351,15 @@ static int move_mesh ( G3DMESH      *mes,
             mouseXpress = bev->x;
             mouseYpress = bev->y;
 
-            if ( eflags & VIEWVERTEX ) {
+            if ( engine_flags & VIEWVERTEX ) {
                 lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
             }
 
-            if ( eflags & VIEWEDGE ) {
+            if ( engine_flags & VIEWEDGE ) {
                 lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
             }
 
-            if ( eflags & VIEWFACE ) {
+            if ( engine_flags & VIEWFACE ) {
                 lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
             }
 
@@ -376,16 +376,16 @@ static int move_mesh ( G3DMESH      *mes,
                            MVX, PJX, VPX,
                            &orix, &oriy, &oriz );
 
-            g3dobject_startUpdateModifiers_r ( mes, eflags );
+            g3dobject_startUpdateModifiers_r ( mes, engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
             if ( mev->state & G3DButton1Mask ) {
-                if ( ( eflags & VIEWVERTEX ) ||
-                     ( eflags & VIEWEDGE   ) ||
-                     ( eflags & VIEWFACE   ) ) {
+                if ( ( engine_flags & VIEWVERTEX ) ||
+                     ( engine_flags & VIEWEDGE   ) ||
+                     ( engine_flags & VIEWFACE   ) ) {
                     G3DVECTOR *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
@@ -408,9 +408,9 @@ static int move_mesh ( G3DMESH      *mes,
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                        if ( ( eflags & XAXIS ) && axis[0].w ) ver->pos.x += difx;
-                        if ( ( eflags & YAXIS ) && axis[1].w ) ver->pos.y += dify;
-                        if ( ( eflags & ZAXIS ) && axis[2].w ) ver->pos.z += difz;
+                        if ( ( engine_flags & XAXIS ) && axis[0].w ) ver->pos.x += difx;
+                        if ( ( engine_flags & YAXIS ) && axis[1].w ) ver->pos.y += dify;
+                        if ( ( engine_flags & ZAXIS ) && axis[2].w ) ver->pos.z += difz;
 
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
@@ -422,19 +422,19 @@ static int move_mesh ( G3DMESH      *mes,
                         }
 
                         /*** move the cursor as well ***/
-                        if ( eflags & VIEWVERTEX ) {
+                        if ( engine_flags & VIEWVERTEX ) {
                             mes->avgSelVerPos.x += ver->pos.x;
                             mes->avgSelVerPos.y += ver->pos.y;
                             mes->avgSelVerPos.z += ver->pos.z;
                         }
 
-                        if ( eflags & VIEWEDGE   ) {
+                        if ( engine_flags & VIEWEDGE   ) {
                             mes->avgSelEdgPos.x += ver->pos.x;
                             mes->avgSelEdgPos.y += ver->pos.y;
                             mes->avgSelEdgPos.z += ver->pos.z;
                         }
 
-                        if ( eflags & VIEWFACE   ) {
+                        if ( engine_flags & VIEWFACE   ) {
                             mes->avgSelFacPos.x += ver->pos.x;
                             mes->avgSelFacPos.y += ver->pos.y;
                             mes->avgSelFacPos.z += ver->pos.z;
@@ -446,32 +446,32 @@ static int move_mesh ( G3DMESH      *mes,
                     }
 
                     if ( nbver ) {
-                        if ( eflags & VIEWVERTEX ) {
+                        if ( engine_flags & VIEWVERTEX ) {
                             mes->avgSelVerPos.x /= nbver;
                             mes->avgSelVerPos.y /= nbver;
                             mes->avgSelVerPos.z /= nbver;
                         }
 
-                        if ( eflags & VIEWEDGE ) {
+                        if ( engine_flags & VIEWEDGE ) {
                             mes->avgSelEdgPos.x /= nbver;
                             mes->avgSelEdgPos.y /= nbver;
                             mes->avgSelEdgPos.z /= nbver;
                         }
 
-                        if ( eflags & VIEWFACE ) {
+                        if ( engine_flags & VIEWFACE ) {
                             mes->avgSelFacPos.x /= nbver;
                             mes->avgSelFacPos.y /= nbver;
                             mes->avgSelFacPos.z /= nbver;
                         }
                     }
 
-                    g3dobject_updateModifiers_r ( mes, eflags );
+                    g3dobject_updateModifiers_r ( mes, engine_flags );
 
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
                                                    lfac, 
-                                                   eflags );
+                                                   engine_flags );
                     }
 
                     orix = newx;
@@ -497,7 +497,7 @@ static int move_mesh ( G3DMESH      *mes,
                 /*** get the undo/redo support ***/
                 void *tmpdata = mou->data;
                 mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
+                pick_tool ( mou, sce, cam, urm, engine_flags, event );
                 mou->data = tmpdata;
             }
 
@@ -510,7 +510,7 @@ static int move_mesh ( G3DMESH      *mes,
 
             g3dmesh_updateBbox ( mes );
 
-            g3dobject_endUpdateModifiers_r ( mes, eflags );
+            g3dobject_endUpdateModifiers_r ( mes, engine_flags );
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );
@@ -537,7 +537,7 @@ int move_object ( LIST        *lobj,
                   G3DSCENE     *sce, 
                   G3DCAMERA    *cam,
                   G3DURMANAGER *urm,
-                  uint32_t      eflags, 
+                  uint64_t engine_flags, 
                   G3DEvent     *event ) {
     static G3DVECTOR vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f },
                      vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f, .w = 1.0f },
@@ -574,7 +574,7 @@ int move_object ( LIST        *lobj,
             glMatrixMode ( GL_PROJECTION );
             glPushMatrix ( );
             glLoadIdentity ( );
-            g3dcamera_project ( cam, eflags );
+            g3dcamera_project ( cam, engine_flags );
 
             glMatrixMode ( GL_MODELVIEW );
             glPushMatrix ( );
@@ -676,27 +676,27 @@ int move_object ( LIST        *lobj,
                     dif.y = ( lendpos.y - lstartpos.y );
                     dif.z = ( lendpos.z - lstartpos.z );
 
-                    if ( ( eflags & XAXIS ) && sce->csr.axis[0x00].w ) {
+                    if ( ( engine_flags & XAXIS ) && sce->csr.axis[0x00].w ) {
                         obj->pos.x += ( lvecx.x * dif.x * sca.x );
                         obj->pos.y += ( lvecx.y * dif.x * sca.x );
                         obj->pos.z += ( lvecx.z * dif.x * sca.x );
                     }
 
-                    if ( ( eflags & YAXIS ) && sce->csr.axis[0x01].w ) {
+                    if ( ( engine_flags & YAXIS ) && sce->csr.axis[0x01].w ) {
                         obj->pos.x += ( lvecy.x * dif.y * sca.y );
                         obj->pos.y += ( lvecy.y * dif.y * sca.y );
                         obj->pos.z += ( lvecy.z * dif.y * sca.y );
                     }
 
-                    if ( ( eflags & ZAXIS ) && sce->csr.axis[0x02].w ) {
+                    if ( ( engine_flags & ZAXIS ) && sce->csr.axis[0x02].w ) {
                         obj->pos.x += ( lvecz.x * dif.z * sca.z );
                         obj->pos.y += ( lvecz.y * dif.z * sca.z );
                         obj->pos.z += ( lvecz.z * dif.z * sca.z );
                     }
 
-                    g3dobject_updateMatrix_r ( obj, eflags );
+                    g3dobject_updateMatrix_r ( obj, engine_flags );
 
-                    if ( eflags & VIEWAXIS ) {
+                    if ( engine_flags & VIEWAXIS ) {
                         /*** in case this was in VIEWAXIS mode, we move ***/
                         /*** back the vertices were they were before,   ***/
                         /*** in world coord ***/
@@ -704,14 +704,14 @@ int move_object ( LIST        *lobj,
                             if ( obj->type == G3DMESHTYPE ) {
                                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                                g3dmesh_moveAxis ( mes, PREVWMVX, eflags );
+                                g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
                                 memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
                             }
 
                             if ( obj->type & SPLINE ) {
                                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                                g3dspline_moveAxis ( spl, PREVWMVX, eflags );
+                                g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
                                 memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
                             }
                         }
@@ -751,13 +751,13 @@ int move_object ( LIST        *lobj,
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
-                g3durmanager_undo ( urm, eflags );
+                g3durmanager_undo ( urm, engine_flags );
 
                 /*** we use pick_tool and not pick_Item in order to ***/
                 /*** get the undo/redo support ***/
                 void *tmpdata = mou->data;
                 mou->data = &pt;
-                pick_tool ( mou, sce, cam, urm, eflags, event );
+                pick_tool ( mou, sce, cam, urm, engine_flags, event );
                 mou->data = tmpdata;
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
@@ -774,7 +774,7 @@ int move_object ( LIST        *lobj,
 
 /******************************************************************************/
 int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
-                G3DURMANAGER *urm, uint32_t flags, G3DEvent *event ) {
+                G3DURMANAGER *urm, uint64_t engine_flags, G3DEvent *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/
@@ -792,27 +792,27 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                .weight = 0.0f,
                                .radius = PICKMINRADIUS };
 
-            pick_cursor ( &pt, sce, cam, flags );
+            pick_cursor ( &pt, sce, cam, engine_flags );
         } break;
 
         default :
         break;
     }
 
-    if ( flags & VIEWOBJECT ) {
-        return move_object ( sce->lsel, mou, sce, cam, urm, flags, event );
+    if ( engine_flags & VIEWOBJECT ) {
+        return move_object ( sce->lsel, mou, sce, cam, urm, engine_flags, event );
     }
 
     if ( obj ) {
-        if ( flags & VIEWAXIS ) {
+        if ( engine_flags & VIEWAXIS ) {
             LIST ldummy = { .next = NULL, 
                             .data = obj,
                             .prev = NULL };
 
-            return move_object ( &ldummy, mou, sce, cam, urm, flags, event );
+            return move_object ( &ldummy, mou, sce, cam, urm, engine_flags, event );
         }
 
-        if ( flags & VIEWUVWMAP ) {
+        if ( engine_flags & VIEWUVWMAP ) {
             if ( obj->type & MESH ) {
                 G3DMESH  *mes = ( G3DMESH * ) obj;
                 G3DUVMAP * map = g3dmesh_getSelectedUVMap ( mes );
@@ -822,24 +822,24 @@ int move_tool ( G3DMOUSETOOL *mou, G3DSCENE *sce, G3DCAMERA *cam,
                                     .data = map,
                                     .prev = NULL };
 
-                    return move_object ( &ldummy, mou, sce, cam, urm, flags, event );
+                    return move_object ( &ldummy, mou, sce, cam, urm, engine_flags, event );
                 }
             }
         }
 
-        if ( ( flags & VIEWVERTEX ) ||
-             ( flags & VIEWEDGE   ) ||
-             ( flags & VIEWFACE   ) ) {
+        if ( ( engine_flags & VIEWVERTEX ) ||
+             ( engine_flags & VIEWEDGE   ) ||
+             ( engine_flags & VIEWFACE   ) ) {
             if ( obj->type & SPLINE ) {
                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                return move_spline ( spl, mou, sce, cam, urm, flags, event );
+                return move_spline ( spl, mou, sce, cam, urm, engine_flags, event );
             }
 
             if ( ( obj->type & MESH ) && ( obj->type & EDITABLE ) ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                return move_mesh ( mes, mou, sce, cam, urm, flags, event );
+                return move_mesh ( mes, mou, sce, cam, urm, engine_flags, event );
             }
         }
     }

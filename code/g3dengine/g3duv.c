@@ -283,7 +283,7 @@ void g3duvmap_insertFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
 /* this is done in realtime, hence called directly by g3dface_bindMaterials */
 void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
                                                 G3DFACE  *fac,
-                                                uint32_t  engine_flags ) {
+                                                uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     uint32_t renderRectangleWidth  = sysinfo->renderRectangle[0x02].x -
                                      sysinfo->renderRectangle[0x00].x,
@@ -609,7 +609,9 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flags ) {
+uint32_t g3duvmap_draw ( G3DOBJECT *obj, 
+                         G3DCAMERA *curcam, 
+                         uint64_t   engine_flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
     if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return 0x00;
@@ -655,7 +657,8 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj, G3DCAMERA *curcam, uint32_t engine_flag
 }
 
 /******************************************************************************/
-void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
+void g3duvmap_transform ( G3DOBJECT *obj, 
+                          uint64_t   engine_flags ) {
     G3DOBJECT *parent = obj->parent;
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
@@ -669,7 +672,7 @@ void g3duvmap_transform ( G3DOBJECT *obj, uint32_t flags ) {
                              NULL,
                              NULL,
                              NULL,
-                             RESETMODIFIERS, flags );
+                             RESETMODIFIERS, engine_flags );
         }
     }
 }

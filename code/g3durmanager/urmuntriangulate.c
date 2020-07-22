@@ -31,8 +31,9 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes, LIST *loldfac,
-                                                       LIST *lnewfac ) {
+static URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes, 
+                                                LIST    *loldfac,
+                                                LIST    *lnewfac ) {
     uint32_t structsize = sizeof ( URMUNTRIANGULATE );
 
     URMUNTRIANGULATE *ums = ( URMUNTRIANGULATE * ) calloc ( 0x01, structsize );
@@ -52,7 +53,7 @@ URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes, LIST *loldfac,
 }
 
 /******************************************************************************/
-void urmuntriangulate_free ( URMUNTRIANGULATE *ums ) {
+static void urmuntriangulate_free ( URMUNTRIANGULATE *ums ) {
     list_free ( &ums->loldfac, NULL );
     list_free ( &ums->lnewfac, NULL );
 
@@ -73,7 +74,9 @@ void unTriangulate_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void unTriangulate_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void unTriangulate_undo ( G3DURMANAGER *urm, 
+                          void         *data, 
+                          uint64_t      engine_flags ) {
     URMUNTRIANGULATE *ums = ( URMUNTRIANGULATE * ) data;
     G3DMESH *mes = ums->mes;
 
@@ -102,7 +105,9 @@ void unTriangulate_undo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
 }
 
 /******************************************************************************/
-void unTriangulate_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags ) {
+void unTriangulate_redo ( G3DURMANAGER *urm, 
+                          void         *data, 
+                          uint64_t      engine_flags ) {
     URMUNTRIANGULATE *ums = ( URMUNTRIANGULATE * ) data;
     G3DMESH *mes = ums->mes;
 
@@ -131,9 +136,10 @@ void unTriangulate_redo ( G3DURMANAGER *urm, void *data, uint32_t engine_flags )
 }
 
 /******************************************************************************/
-void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, G3DMESH *mes,
-                                                    uint32_t engine_flags,
-                                                    uint32_t return_flags ) {
+void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, 
+                                 G3DMESH      *mes,
+                                 uint64_t      engine_flags,
+                                 uint32_t      return_flags ) {
     LIST *loldfac = NULL,
          *lnewfac = NULL;
     URMUNTRIANGULATE *ums;
@@ -152,6 +158,36 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, G3DMESH *mes,
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
+    ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
+
+    g3durmanager_push ( urm, unTriangulate_undo,
+                             unTriangulate_redo,
+                             unTriangulate_free, ums, return_flags );
+}
+
+/******************************************************************************/
+void g3durm_mesh_triangulate ( G3DURMANAGER *urm, 
+                               G3DMESH      *mes, 
+                               int           clockwise,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags ) {
+    LIST *loldfac = NULL,
+         *lnewfac = NULL;
+    URMTRIANGULATE *ums;
+
+    g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
+
+    /*** Rebuild the mesh with modifiers ***/
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, engine_flags );
+
+    /*** Triagulate and unTriagulate feature use ***/
+    /*** the same functions and data structures. ***/
     ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
 
     g3durmanager_push ( urm, unTriangulate_undo,

@@ -59,7 +59,7 @@ static void *play_t ( void *ptr ) {
 	    curframe += 1.0f;
 
         /*** skip sending event if animation has not completed yet ***/
-        if ( ( gui->flags & ONGOINGANIMATION ) == 0x00 ) {
+        if ( ( gui->engine_flags & ONGOINGANIMATION ) == 0x00 ) {
             static GOTOFRAME gtf;
 
             gtf.action.type = ACTION_GOTOFRAME;

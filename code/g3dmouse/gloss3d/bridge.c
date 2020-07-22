@@ -36,15 +36,15 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
                               G3DSCENE     *sce, 
                               G3DCAMERA    *cam,
                               G3DURMANAGER *urm, 
-                              uint32_t      engine_flags );
+                              uint64_t      engine_flags );
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
-                          uint32_t      flags );
+                          uint64_t      engine_flags );
 static int bridge_tool  ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
-                          uint32_t      eflags,
+                          uint64_t      engine_flags,
                           G3DEvent     *event );
 
 /******************************************************************************/
@@ -74,7 +74,7 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
                               G3DSCENE     *sce, 
                               G3DCAMERA    *cam,
                               G3DURMANAGER *urm, 
-                              uint32_t      engine_flags ) {
+                              uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
     bt->ver[0x00] = 
@@ -92,7 +92,7 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
 /******************************************************************************/
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
-                          uint32_t      flags ) {
+                          uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
     if ( bt && bt->draw ) {
@@ -141,7 +141,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
                             G3DSCENE     *sce, 
                             G3DCAMERA    *cam,
                             G3DURMANAGER *urm, 
-                            uint32_t      flags,
+                            uint64_t      engine_flags,
                             G3DEvent     *event ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
@@ -169,7 +169,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
 
             g3dcurve_unselectAllPoints ( spl->curve );
 
-            pick_Item ( &ptool, sce, cam, 0x00, flags );
+            pick_Item ( &ptool, sce, cam, 0x00, engine_flags );
 
             /*** remember our object for the drawing part ***/
             /*** because we need its world matrix.      ***/
@@ -221,7 +221,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
                         g3durm_spline_addSegment ( urm,
                                                    spline,
                                                    seg,
-                                                   flags,
+                                                   engine_flags,
                                                    REDRAWVIEW );
                     }
                 }
@@ -248,7 +248,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
-                          uint32_t      flags,
+                          uint64_t      engine_flags,
                           G3DEvent     *event ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
@@ -279,7 +279,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                 g3dmesh_unselectAllVertices ( mes );
             }
 
-            pick_Item ( &ptool, sce, cam, 0x00, flags );
+            pick_Item ( &ptool, sce, cam, 0x00, engine_flags );
 
             /*** remember our Mesh for the drawing part ***/
             /*** because we need its world matrix.      ***/
@@ -381,7 +381,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                                           UPDATEFACEPOSITION |
                                           UPDATEFACENORMAL   |
                                           UPDATEVERTEXNORMAL |
-                                          RESETMODIFIERS, flags );
+                                          RESETMODIFIERS, engine_flags );
 
                     /*** be ready for another bridging ***/
                     ver[0x00] = tmpver2;
@@ -409,22 +409,22 @@ static int bridge_tool  ( G3DMOUSETOOL *mou,
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
-                          uint32_t      eflags,
+                          uint64_t      engine_flags,
                           G3DEvent     *event ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( obj ) {
-        if ( eflags & VIEWVERTEX ) {
+        if ( engine_flags & VIEWVERTEX ) {
             if ( obj->type == G3DMESHTYPE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                return bridge_mesh ( mes, mou, sce, cam, urm, eflags, event );
+                return bridge_mesh ( mes, mou, sce, cam, urm, engine_flags, event );
             }
 
             if ( obj->type & SPLINE ) {
                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                return bridge_spline ( obj, mou, sce, cam, urm, eflags, event );
+                return bridge_spline ( obj, mou, sce, cam, urm, engine_flags, event );
             }
         }
     }

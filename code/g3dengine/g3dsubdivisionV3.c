@@ -74,7 +74,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                                G3DRTUV       *rtUVs,
                                                uint32_t       subdiv_level,
                                                uint32_t       subdiv_flags,
-                                               uint32_t       engine_flags );
+                                               uint64_t engine_flags );
 static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv, 
                                        G3DMESH        *mes,
                                        G3DFACE        *fac,
@@ -135,7 +135,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             uint32_t       *nbOuterVertices,
                                             uint32_t        curdiv,
                                             uint32_t        subdiv_flags,
-                                            uint32_t        engine_flags );
+                                            uint64_t engine_flags );
 
 /******************************************************************************/
 /******************************************************************************/
@@ -354,7 +354,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                                G3DRTUV       *rtUVs,
                                                uint32_t       subdiv_level,
                                                uint32_t       subdiv_flags,
-                                               uint32_t       engine_flags ) {
+                                               uint64_t engine_flags ) {
     uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
     uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
     uint32_t nbUniqueVerticesPerEdge;
@@ -966,7 +966,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             uint32_t       *nbOuterVertices,
                                             uint32_t        curdiv,
                                             uint32_t        subdiv_flags,
-                                            uint32_t        engine_flags ) {
+                                            uint64_t engine_flags ) {
     G3DFACE *oldadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DFACE *newadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DSUBFACE *memOuterFaces = outerFaces;
@@ -1076,7 +1076,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
                                       uint32_t        subdiv_flags,
-                                      uint32_t        engine_flags ) {
+                                      uint64_t engine_flags ) {
     uint32_t nbInnerFaces    = 0x01      , nbOuterFaces    = 0x00;
     uint32_t nbInnerEdges    = fac->nbver, nbOuterEdges    = 0x00;
     uint32_t nbInnerVertices = fac->nbver, nbOuterVertices = 0x00;
