@@ -107,42 +107,42 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /******************************* Engine Flags *********************************/
 
 
-#define VIEWOBJECT         ( 1        )
-#define VIEWVERTEX         ( 1  <<  1 )
-#define VIEWEDGE           ( 1  <<  2 )
-#define VIEWFACE           ( 1  <<  3 )
-#define VIEWFACENORMAL     ( 1  <<  4 )
-#define VIEWVERTEXNORMAL   ( 1  <<  5 )
+#define VIEWOBJECT         ((uint64_t)1        )
+#define VIEWVERTEX         ((uint64_t)1  <<  1 )
+#define VIEWEDGE           ((uint64_t)1  <<  2 )
+#define VIEWFACE           ((uint64_t)1  <<  3 )
+#define VIEWFACENORMAL     ((uint64_t)1  <<  4 )
+#define VIEWVERTEXNORMAL   ((uint64_t)1  <<  5 )
 #define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define VIEWSKIN           ( 1  <<  6 )
-#define VIEWUVWMAP         ( 1  <<  7 )
+#define VIEWSKIN           ((uint64_t)1  <<  6 )
+#define VIEWUVWMAP         ((uint64_t)1  <<  7 )
 
-#define VIEWAXIS           ( 1  <<  9 )
-#define VIEWSCULPT         ( 1  << 10 )
-#define VIEWPOSE           ( 1  << 11 )
+#define VIEWAXIS           ((uint64_t)1  <<  9 )
+#define VIEWSCULPT         ((uint64_t)1  << 10 )
+#define VIEWPOSE           ((uint64_t)1  << 11 )
 #define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                              VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
                              VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
                              VIEWPOSE  | VIEWAXIS )
-#define SELECTMODE         ( 1  << 12 )
-#define XAXIS              ( 1  << 13 )
-#define YAXIS              ( 1  << 14 ) 
-#define ZAXIS              ( 1  << 15 )
-#define G3DMULTITHREADING  ( 1  << 16 )
-#define KEEPVISIBLEONLY    ( 1  << 17 )
-#define SYMMETRYVIEW       ( 1  << 18 )
-#define ONGOINGANIMATION   ( 1  << 19 ) /*** This helps us to ***/
+#define SELECTMODE         ((uint64_t)1  << 12 )
+#define XAXIS              ((uint64_t)1  << 13 )
+#define YAXIS              ((uint64_t)1  << 14 ) 
+#define ZAXIS              ((uint64_t)1  << 15 )
+#define G3DMULTITHREADING  ((uint64_t)1  << 16 )
+#define KEEPVISIBLEONLY    ((uint64_t)1  << 17 )
+#define SYMMETRYVIEW       ((uint64_t)1  << 18 )
+#define ONGOINGANIMATION   ((uint64_t)1  << 19 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES          ( 1  << 20 )
-#define HIDEGRID           ( 1  << 21 )
-#define NOLIGHTING         ( 1  << 22 )
-#define NODISPLACEMENT     ( 1  << 23 )
-#define NOTEXTURE          ( 1  << 24 )
-#define LOADFULLRESIMAGES  ( 1  << 25 ) /* used by the renderer especially for animated textures */
-#define NODRAWPOLYGON      ( 1  << 26 )
-#define NOBACKGROUNDIMAGE  ( 1  << 27 )
+#define HIDEBONES          ((uint64_t)1  << 20 )
+#define HIDEGRID           ((uint64_t)1  << 21 )
+#define NOLIGHTING         ((uint64_t)1  << 22 )
+#define NODISPLACEMENT     ((uint64_t)1  << 23 )
+#define NOTEXTURE          ((uint64_t)1  << 24 )
+#define LOADFULLRESIMAGES  ((uint64_t)1  << 25 ) /* used by the renderer especially for animated textures */
+#define NODRAWPOLYGON      ((uint64_t)1  << 26 )
+#define NOBACKGROUNDIMAGE  ((uint64_t)1  << 27 )
 
 /******************************* UVMAp Editor flags ***************************/
 #define VIEWVERTEXUV       ( 1  << 28 )
@@ -156,10 +156,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define BUMPCHANNELID           0x04
 #define REFLECTIONCHANNELID     0x05
 #define REFRACTIONCHANNELID     0x06
-#define UVCHANNELMASK      ( ( 1  << 30 ) | \
-                             ( 1  << 31 ) | \
-                             ( 1  << 32 ) | \
-                             ( 1  << 33 ) )
+#define UVCHANNELMASK      ( ((uint64_t)1  << 30 ) | \
+                             ((uint64_t)1  << 31 ) | \
+                             ((uint64_t)1  << 32 ) | \
+                             ((uint64_t)1  << 33 ) )
 #define SHOWCHANNEL(f,a)  (f=(f&(~UVCHANNELMASK)|((uint64_t)a<<30)))
 #define GETCHANNEL(f)    ((f&UVCHANNELMASK)>>30)
 
@@ -665,15 +665,15 @@ typedef struct _G3DSPLINE G3DSPLINE;
 typedef struct _G3DKEY    G3DKEY;
 typedef struct _G3DCURVE  G3DCURVE;
 
-#define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint32_t))f)
+#define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
 #define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint32_t))f)
-#define COMMIT_CALLBACK(f)     ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char *,uint32_t))f)
-#define ADDCHILD_CALLBACK(f)   ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint32_t))f)
-#define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint32_t))f)
-#define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint32_t))f)
+#define COMMIT_CALLBACK(f)     ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char *,uint64_t))f)
+#define ADDCHILD_CALLBACK(f)   ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
+#define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
+#define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
-#define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint32_t))f)
+#define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -1204,10 +1204,10 @@ struct _G3DKEY {
 /******************************************************************************/
 
 
-#define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*,uint32_t))f)
-#define STARTUPDATE_CALLBACK(f)  ((void(*)     (G3DMODIFIER*,uint32_t))f)
-#define UPDATE_CALLBACK(f)       ((void(*)     (G3DMODIFIER*,uint32_t))f)
-#define ENDUPDATE_CALLBACK(f)    ((void(*)     (G3DMODIFIER*,uint32_t))f)
+#define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*,uint64_t))f)
+#define STARTUPDATE_CALLBACK(f)  ((void(*)     (G3DMODIFIER*,uint64_t))f)
+#define UPDATE_CALLBACK(f)       ((void(*)     (G3DMODIFIER*,uint64_t))f)
+#define ENDUPDATE_CALLBACK(f)    ((void(*)     (G3DMODIFIER*,uint64_t))f)
 
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
@@ -1985,6 +1985,7 @@ void       g3dobject_init ( G3DOBJECT   *obj,
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags );
+void g3dobject_removeKey ( G3DOBJECT *obj, G3DKEY *key );
 /* modifier is reposnible for the drawing */
 #define MODIFIERTAKESOVER ( 1 << 0 ) 
 /* modifier hides original vertices and thus needs some transparency */
@@ -2003,6 +2004,9 @@ void g3dobject_drawCenter ( G3DOBJECT *obj,
 void       g3dobject_getObjectsByType_r    ( G3DOBJECT *, uint32_t, LIST ** );
 void       g3dobject_unsetSelected         ( G3DOBJECT * );
 void       g3dobject_setSelected           ( G3DOBJECT * );
+uint32_t g3dobject_pick ( G3DOBJECT *obj, 
+                          G3DCAMERA *curcam, 
+                          uint64_t engine_flags );
 void g3dobject_anim_r ( G3DOBJECT *obj,
                         float      frame,
                         uint64_t  engine_flags );
@@ -2307,6 +2311,8 @@ void       g3dmesh_getSelectedFacesWorldPosition    ( G3DMESH *, G3DVECTOR * );
 void       g3dmesh_getSelectedFacesLocalPosition    ( G3DMESH *, G3DVECTOR * );
 G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *, uint32_t, LIST **,
                                                                LIST ** );
+void g3dmesh_removeTexture ( G3DMESH    *mes,
+                             G3DTEXTURE *tex );
 void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
                                       float   distance,
                                       LIST **lnewver,
@@ -2791,33 +2797,33 @@ void g3dprocedural_fill ( G3DPROCEDURAL *, uint32_t,
                                            uint32_t, uint32_t );
 
 /******************************************************************************/
-void g3dmodifier_init ( G3DMODIFIER *,
-                        uint32_t     ,
-                        uint32_t     ,
-                        char        *,
-                        uint32_t     ,
+void g3dmodifier_init ( G3DMODIFIER *mod,
+                        uint32_t     type,
+                        uint32_t     id,
+                        char        *name,
+                        uint32_t     object_flags,
                         uint32_t   (*Draw)        ( G3DOBJECT *, G3DCAMERA *, 
-                                                                 uint32_t ),
+                                                                 uint64_t ),
                         void       (*Free)        ( G3DOBJECT * ),
                         void       (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
-                                                                 uint32_t ),
+                                                                 uint64_t ),
                         void       (*Pose)        ( G3DOBJECT *, G3DKEY * ),
                         G3DOBJECT* (*Copy)        ( G3DOBJECT *, uint32_t,
                                                                  const char *,
-                                                                 uint32_t ),
-                        void       (*Activate)    ( G3DOBJECT *, uint32_t ),
-                        void       (*Deactivate)  ( G3DOBJECT *, uint32_t ),
+                                                                 uint64_t ),
+                        void       (*Activate)    ( G3DOBJECT *, uint64_t ),
+                        void       (*Deactivate)  ( G3DOBJECT *, uint64_t ),
                         G3DOBJECT* (*Commit)      ( G3DOBJECT *, uint32_t,
                                                                  const char *,
-                                                                 uint32_t ),
+                                                                 uint64_t ),
                         void       (*AddChild)    ( G3DOBJECT *, G3DOBJECT *,
-                                                                 uint32_t ),
+                                                                 uint64_t ),
                         void       (*SetParent)   ( G3DOBJECT *, G3DOBJECT *, 
-                                                                 uint32_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint32_t ),
-                        void       (*StartUpdate) ( G3DMODIFIER *, uint32_t ),
-                        void       (*Update)      ( G3DMODIFIER *, uint32_t ),
-                        void       (*EndUpdate)   ( G3DMODIFIER *, uint32_t ) );
+                                                                 uint64_t ),
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ),
+                        void       (*StartUpdate) ( G3DMODIFIER *, uint64_t ),
+                        void       (*Update)      ( G3DMODIFIER *, uint64_t ),
+                        void       (*EndUpdate)   ( G3DMODIFIER *, uint64_t ) );
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );

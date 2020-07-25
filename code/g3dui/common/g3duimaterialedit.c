@@ -231,7 +231,7 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
     if ( gui->lock ) return;
 
     if ( cha ) {
-        G3DIMAGE *colimg = g3dimage_new ( filename, 0x01 );
+        G3DIMAGE *colimg = g3dimage_load ( filename, 0x01 );
 
         if ( bindGL ) g3dimage_bind ( colimg );
 
@@ -239,6 +239,8 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
             LIST *ltmpmat = gui->lmatlist;
 
             cha->image = colimg;
+
+            g3dchannel_enableImageColor ( cha );
 
             /*** Update Meshes that have this material   ***/
             /*** to rebuild Texture Coordinates. This is ***/

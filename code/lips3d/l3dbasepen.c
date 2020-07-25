@@ -41,7 +41,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint32_t       engineFlags );
+                              uint64_t engine_flags );
 static int l3dbasepen_move ( L3DOBJECT     *obj,
                              L3DPATTERN    *pattern,
                              uint32_t       fgcolor,
@@ -58,7 +58,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              int32_t       *updy,
                              int32_t       *updw,
                              int32_t       *updh,
-                             uint32_t       engineFlags );
+                             uint64_t engine_flags );
 static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 L3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
@@ -71,7 +71,7 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint32_t       engineFlags );
+                                uint64_t engine_flags );
 
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( ) {
@@ -86,6 +86,7 @@ L3DBASEPEN* l3dbasepen_new ( ) {
 
     l3dobject_init ( basepen,
                      1.0f,
+                     NULL,
                      l3dbasepen_press,
                      l3dbasepen_move,
                      l3dbasepen_release );
@@ -106,7 +107,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint32_t       engineFlags ) {
+                              uint64_t engine_flags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     basepen->oldx = x;
@@ -134,8 +135,8 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              int32_t       *updy,
                              int32_t       *updw,
                              int32_t       *updh,
-                             uint32_t       engineFlags ) {
-    if ( engineFlags & L3DBUTTON1PRESSED ) {
+                             uint64_t engine_flags ) {
+    if ( engine_flags & L3DBUTTON1PRESSED ) {
         /*y = 100;*/
         L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
         uint32_t size = pattern->size, half = size / 0x02;
@@ -171,7 +172,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                            bpp, 
                            mask,
                            zbuffer,
-                           engineFlags );
+                           engine_flags );
 
         basepen->oldx = x;
         basepen->oldy = y;
@@ -193,7 +194,7 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint32_t       engineFlags ) {
+                                uint64_t engine_flags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     return 0x00;

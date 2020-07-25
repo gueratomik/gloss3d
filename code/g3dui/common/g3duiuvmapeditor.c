@@ -57,6 +57,50 @@ void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
+void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DUI        *gui = uvme->gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( uvme->gui,
+                                                        SELECTRANDOMTOOL );
+
+    seltool->obj->reset ( seltool->obj, uvme->engine_flags );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+
+                if ( mat ) {
+                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
+                    G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
+
+                    if ( chn ) {
+                        if ( chn->flags & USEIMAGECOLOR ) {
+                            if ( chn->image ) {
+                                if ( chn->image->width && chn->image->height ) {
+                                    uint32_t size = chn->image->width *
+                                                    chn->image->height;
+                                    uvme->mask    = realloc ( uvme->mask   , size );
+                                    uvme->zbuffer = realloc ( uvme->zbuffer, size );
+
+                                    memset ( uvme->mask, 0xFF, size );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
 
@@ -478,8 +522,8 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                             glBindTexture ( GL_TEXTURE_2D, chn->image->id );
 
                             if ( chn->image->height ) {
-                                whRatio = ( chn->image->width / 
-                                            chn->image->height );
+                                whRatio = ( float )  chn->image->width / 
+                                                     chn->image->height;
                             }
 
                             /*** disable bilinear filtering ***/
@@ -528,12 +572,12 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
                             glDisable ( GL_TEXTURE_2D );
 
-                            glBegin ( GL_LINE_LOOP );
+                            /*glBegin ( GL_LINE_LOOP );
                             glVertex3f   ( 0.0f, 0.0f, 0.0f );
                             glVertex3f   ( 1.0f, 0.0f, 0.0f );
                             glVertex3f   ( 1.0f, 1.0f, 0.0f );
                             glVertex3f   ( 0.0f, 1.0f, 0.0f );
-                            glEnd ( );
+                            glEnd ( );*/
 
                             if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
                             if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );

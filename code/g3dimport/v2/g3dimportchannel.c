@@ -64,9 +64,9 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     /*** generate a power of two image for the diffuse ***/
                     /*** channel because of OpenGL limitations ***/
                     if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
-                        gid->currentChannel->image = g3dimage_new ( name, 1 );
+                        gid->currentChannel->image = g3dimage_load ( name, 1 );
                     } else {
-                        gid->currentChannel->image = g3dimage_new ( name, 0 );
+                        gid->currentChannel->image = g3dimage_load ( name, 0 );
                     }
 
                     free ( name );

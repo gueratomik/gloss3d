@@ -41,7 +41,7 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       bpp,
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint32_t       engineFlags ) {
+                         uint64_t engine_flags ) {
     if ( ( x > 0x00 ) && ( x < width  ) &&
          ( y > 0x00 ) && ( y < height ) ) {
         uint8_t A = ( color & 0xFF000000 ) >> 24;
@@ -89,7 +89,7 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
                          uint32_t       bpp, 
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint32_t    engineFlags ) {
+                         uint64_t engine_flags ) {
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
     uint8_t G = ( color & 0x0000FF00 ) >>  8;
@@ -153,7 +153,7 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       bpp, 
                             unsigned char *mask,
                             unsigned char *zbuffer,
-                            uint32_t    engineFlags ) {
+                            uint64_t engine_flags ) {
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
     uint8_t G = ( color & 0x0000FF00 ) >>  8;
@@ -207,7 +207,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                        uint32_t       bpp, 
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint32_t       engineFlags ) {
+                       uint64_t engine_flags ) {
 
     int32_t dx  = ( x2 - x1 ),
             ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
@@ -238,7 +238,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                                bpp,
                                mask,
                                zbuffer,
-                               engineFlags );
+                               engine_flags );
 
             cumul += ddy;
             x     += px;
@@ -261,7 +261,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                                bpp,
                                mask,
                                zbuffer,
-                               engineFlags );
+                               engine_flags );
 
             cumul += ddx;
             y     += py;

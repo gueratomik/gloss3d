@@ -62,6 +62,7 @@ if HAVE_GTK3
                             gtk3/g3duiboneedit.c \
                             gtk3/g3duibonelinker.c \
                             gtk3/g3duicameraedit.c \
+                            gtk3/g3duichannelimagedialog.c \
                             gtk3/g3duicom.c \
                             gtk3/g3duicoordinatesedit.c \
                             gtk3/g3duicubeedit.c \

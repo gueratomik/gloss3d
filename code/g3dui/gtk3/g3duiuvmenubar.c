@@ -134,6 +134,102 @@ GtkWidget *createUVEditMenu ( GtkWidget        *bar,
 }
 
 /******************************************************************************/
+static void loadImageByChannelIDCbk ( GtkWidget *widget, 
+                                      gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
+
+                g3dui_loadImageForChannel ( gui, chn );
+
+                /*** resize selection mask and zbuffer ***/
+                common_g3duiuvmapeditor_resizeBuffers ( uvme );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void createChannelImageCbk ( GtkWidget *widget, 
+                                    gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
+
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+                createChannelImage ( dial, 
+                                     uvme, 
+                                     chn, 
+                                     "Channel Image", 0, 0, 200, 96 );
+
+                gtk_widget_show ( dial );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+GtkWidget *createUVFileMenu ( GtkWidget        *bar,
+                              G3DUIUVMAPEDITOR *uvme,
+                              char             *name,
+                              gint              width ) {
+    GtkWidget *menu = gtk_menu_new ( );
+    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_File" );
+    int height = gtk_widget_get_allocated_height ( item );
+
+    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
+
+    gtk_widget_set_size_request ( item, width, height );
+
+    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
+
+    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
+
+    g3dui_addMenuButton ( menu, uvme, MENU_CREATECHANNELIMAGE, width, G_CALLBACK(createChannelImageCbk) );
+    g3dui_addMenuButton ( menu, uvme, MENU_OPENCHANNELIMAGE  , width, G_CALLBACK(loadImageByChannelIDCbk) );
+    /*g3dui_addMenuButton ( menu, uvme, MENU_SAVECHANNELIMAGE  , width, G_CALLBACK(g3duiuvmapeditor_saveChannelImageCbk) );
+    g3dui_addMenuButton ( menu, uvme, MENU_SAVECHANNELIMAGEAS, width, G_CALLBACK(g3duiuvmapeditor_saveChannelImageAsCbk) );
+    g3dui_addMenuButton ( menu, uvme, MENU_LEAVELIPS3D       , width, G_CALLBACK(g3duiuvmapeditor_exitLIPS3DCbk) );*/
+
+    gtk_widget_show ( item );
+    gtk_widget_show ( menu );
+
+
+
+    return menu;
+}
+
+/******************************************************************************/
 /*GtkWidget *createUVFileMenu ( GtkWidget        *bar,
                               G3DUIUVMAPEDITOR *uvme,
                               char             *name,
@@ -191,7 +287,7 @@ GtkWidget *createUVMenuBar ( GtkWidget        *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
 
-    /*createUVFileMenu ( bar, uvme, "FileMenu" , 60 );*/
+    createUVFileMenu ( bar, uvme, "FileMenu" , 60 );
     createUVEditMenu ( bar, uvme, "EditMenu" , 60 );
     /*createUVHelpMenu ( bar, gui, "HelpMenu" , 90 );*/
 

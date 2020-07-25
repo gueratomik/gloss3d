@@ -346,7 +346,37 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    uint64_t engine_flags );
 
 /******************************************************************************/
+G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( );
+G3DMOUSETOOLPICK *g3dmousetoolpick_new ( );
+G3DMOUSETOOLCREATESPHERE *g3dmousetoolcreatesphere_new ( );
+G3DMOUSETOOLCREATECUBE *g3dmousetoolcreatecube_new ( );
+G3DMOUSETOOLCREATEPLANE *g3dmousetoolcreateplane_new ( );
+G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( );
+G3DMOUSETOOLCREATETUBE *g3dmousetoolcreatetube_new ( );
+G3DMOUSETOOLCREATETORUS *g3dmousetoolcreatetorus_new ( );
+G3DMOUSETOOLCREATEBONE *g3dmousetoolcreatebone_new ( );
+G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( );
+G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( );
+G3DMOUSETOOLREVERTSPLINE *g3dmousetoolrevertspline_new ( );
+G3DMOUSETOOLBRIDGE *g3dmousetoolbridge_new ( );
+G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( );
+G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( );
+G3DMOUSETOOLUNTRIANGULATE *g3dmousetooluntriangulate_new ( );
+G3DMOUSETOOLTRIANGULATE *g3dmousetooltriangulate_new ( );
+G3DMOUSETOOLROUNDSPLINEPOINT *g3dmousetoolroundsplinepoint_new ( );
+G3DMOUSETOOLWELDVERTICES *g3dmousetoolweldvertices_new ( );
+G3DMOUSETOOLWELDNEIGHBOURS *g3dmousetoolweldneighbours_new ( );
+G3DMOUSETOOLINVERTNORMAL *g3dmousetoolinvertnormal_new ( );
+G3DMOUSETOOLCREATEFACEGROUP *g3dmousetoolcreatefacegroup_new ( );
+G3DMOUSETOOLMOVE *g3dmousetoolmove_new ( );
+G3DMOUSETOOLSCALE *g3dmousetoolscale_new ( );
+G3DMOUSETOOLROTATE *g3dmousetoolrotate_new ( );
+G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( );
+G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( );
+G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( );
+G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
 
+/******************************************************************************/
 L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( );
 L3DMOUSETOOLPEN          *l3dmousetoolpen_new ( );
 L3DMOUSETOOLERASER       *l3dmousetooleraser_new ( );

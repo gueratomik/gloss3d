@@ -74,7 +74,7 @@ typedef struct _G3DIMPORTDATA {
     uint32_t        currentWeightgroupID;
     uint32_t        currentFacegroupID;
     uint32_t        currentUVMapID;
-    uint32_t        engineFlags;
+    uint64_t        engineFlags;
     uint32_t        indentLevel;
     LIST           *lext;
 } G3DIMPORTDATA;
@@ -119,6 +119,10 @@ void g3dimportsubdivider ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportsplinerevolver ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportdata_incrementIndentLevel ( G3DIMPORTDATA *gid );
+void g3dimportdata_decrementIndentLevel ( G3DIMPORTDATA *gid );
 
 G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
                                              void (*read)( G3DIMPORTDATA *gid,
@@ -130,5 +134,25 @@ void g3dimportextension_free ( G3DIMPORTEXTENSION *ext );
 G3DIMPORTEXTENSION *g3dimportextension_getFromList ( uint32_t signature,
                                                      LIST    *lext );
 void g3dimportextension ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+
+char *readEntry ( FILE *fsrc );
+
+/******************************************************************************/
+G3DSCENE *g3dscene_open ( const char *filename,
+                          G3DSCENE   *mergedScene,
+                          LIST       *lextensions,
+                          uint32_t    flags );
+
+/*****************************< 3DStudio .3ds FILES >**************************/
+G3DSCENE *g3dscene_import3ds ( const char *filename, 
+                               uint64_t    engine_flags );
+
+/*****************************< Wavefront .obj FILES >*************************/
+G3DSCENE *g3dscene_importObj( const char *filename, 
+                              uint64_t    engine_flags );
+
+/************************* Collada .DAE FILES *********************************/
+G3DSCENE *g3dscene_importCollada ( const char *filename, 
+                                   uint64_t    engine_flags );
 
 #endif

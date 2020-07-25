@@ -45,6 +45,7 @@ extern "C" {
  */
 /******************************************************************************/
 typedef struct _G3DIMAGE {
+    uint32_t flags;
     char    *filename;
     uint32_t width;
     uint32_t height;
@@ -64,15 +65,6 @@ typedef struct _G3DIMAGE {
 } G3DIMAGE;
 
 /******************************************************************************/
-
-/**
- * Create a G3DIMAGE from a jpeg file.
- * @param filename the jpeg file name.
- * @param engine_flags the 3D engine flags.
- * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
- */
-G3DIMAGE *g3dimage_newFromJpeg ( const char *filename,
-                                 uint64_t engine_flags );
 
 
 /**
@@ -112,8 +104,13 @@ void g3dimage_animate ( G3DIMAGE *image,
  * @param poweroftwo.
  * @return the allocated G3DIMAGE. Can be freed with g3dimage_free(...).
  */
-G3DIMAGE *g3dimage_new ( const char *filename,
-                         uint32_t    poweroftwo );
+G3DIMAGE *g3dimage_load ( const char *filename,
+                          uint32_t    poweroftwo );
+
+G3DIMAGE * g3dimage_new ( uint32_t width, 
+                          uint32_t height, 
+                          uint32_t bpp,
+                          uint32_t bindGL );
 
 #ifdef __cplusplus
 }

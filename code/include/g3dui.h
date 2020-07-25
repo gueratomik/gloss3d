@@ -583,6 +583,12 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_UVSETFROMFACE        "Select UV Set from selected faces"
 #define MENU_FACEFROMUVSET        "Select faces from selected UV Set"
 
+#define MENU_CREATECHANNELIMAGE   "Create image for channel"
+#define MENU_OPENCHANNELIMAGE     "Load image in channel"
+#define MENU_SAVECHANNELIMAGE     "Save image"
+#define MENU_SAVECHANNELIMAGEAS   "Save image as..."
+#define MENU_LEAVELIPS3D          "Exit LIPS3D"
+
 /******************************************************************************/
 #define MARGIN 0x02
 #define MARGDB ( MARGIN << 0x01 )
@@ -1593,5 +1599,7 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps );
 
 void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme );
+
+void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme );
 
 #endif

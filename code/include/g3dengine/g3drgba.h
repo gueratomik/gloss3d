@@ -84,6 +84,8 @@ void g3drgba_toColor ( G3DRGBA *rgba, G3DCOLOR *color );
  */
 uint32_t g3drgba_toLong ( G3DRGBA *rgba );
 
+void g3drgba_fromLong ( G3DRGBA *rgba, uint32_t color );
+
 #ifdef __cplusplus
 }
 #endif

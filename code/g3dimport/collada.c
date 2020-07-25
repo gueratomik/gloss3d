@@ -56,7 +56,7 @@ XMLPOLYLIST *xmlpolylist_new ( uint32_t nbpoly, uint32_t triangulate ) {
     XMLPOLYLIST *xply = ( XMLPOLYLIST * ) calloc ( 0x01, structsize );
 
     if ( xply == NULL ) {
-        fprintf ( stderr, "xmlpolylist_new: memory allocation failed\n" );
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
 
         return NULL;
     }
@@ -71,8 +71,7 @@ XMLPOLYLIST *xmlpolylist_new ( uint32_t nbpoly, uint32_t triangulate ) {
             /*** storing the number of vertices per polygon.            ***/
             xply->itab = ( uint32_t * ) calloc ( nbpoly, sizeof ( uint32_t ) );
             if ( xply->itab == NULL ) {
-                fprintf ( stderr, "xmlpolylist_new: itab mem allocation \
-failed\n" );
+                fprintf ( stderr, "%s: mem allocation failed\n", __func__ );
 
                 free ( xply );
 

@@ -32,6 +32,8 @@
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
                       float       pressure,
+                      int (*reset) ( L3DOBJECT     *obj,
+                                     uint64_t engine_flags ),
                       int (*press) ( L3DOBJECT     *obj,
                                      L3DPATTERN    *pattern,
                                      uint32_t       fgcolor,
@@ -44,7 +46,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                      uint32_t       bpp,
                                      unsigned char *mask,
                                      unsigned char *zbuffer,
-                                     uint32_t       engineFlags ),
+                                     uint64_t engine_flags ),
                      int (*move) ( L3DOBJECT     *obj,
                                    L3DPATTERN    *pattern,
                                    uint32_t       fgcolor,
@@ -61,7 +63,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                    int32_t       *updy,
                                    int32_t       *updw,
                                    int32_t       *updh,
-                                   uint32_t       engineFlags ),
+                                   uint64_t engine_flags ),
                      int (*release) ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
@@ -74,7 +76,8 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t       engineFlags ) ) {
+                                      uint64_t engine_flags ) ) {
+    obj->reset    = reset;
     obj->press    = press;
     obj->move     = move;
     obj->release  = release;

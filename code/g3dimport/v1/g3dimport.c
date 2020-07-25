@@ -388,7 +388,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
                 readf ( imgname, chunklen, 0x01, fsrc );
 
-                curchannel->image = g3dimage_new ( imgname, powerOfTwo );
+                curchannel->image = g3dimage_load ( imgname, powerOfTwo );
 
                 /*** Search the image in the current path if not found ***/
                 if ( curchannel->image == NULL ) {
@@ -421,7 +421,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                     strcat ( imgname, "/"  );
                     strcat ( imgname, workimg );
 
-                    curchannel->image = g3dimage_new ( imgname, 0x01 );
+                    curchannel->image = g3dimage_load ( imgname, 0x01 );
 
                     free ( workdirmem );
                     free ( workimgmem );

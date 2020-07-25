@@ -521,7 +521,7 @@ GtkWidget *createMeshPoseList ( GtkWidget *parent, G3DUI *gui,
                                                    gint width,
                                                    gint height );
 
-void       createIntegerText     ( GtkWidget *, G3DUI *,
+GtkWidget *createIntegerText     ( GtkWidget *, G3DUI *,
                                                 char *,
                                                 gint, gint,
                                                 gint, gint,
@@ -529,7 +529,7 @@ void       createIntegerText     ( GtkWidget *, G3DUI *,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
 
-void       createFloatText       ( GtkWidget *, G3DUI *,
+GtkWidget *createFloatText       ( GtkWidget *, G3DUI *,
                                                 char *,
                                                 double, double,
                                                 gint, gint,
@@ -655,6 +655,9 @@ void g3dui_updateKeyEdit                 ( G3DUI * );
 void g3dui_redrawAllWeightGroupList      ( G3DUI * );
 void g3dui_redrawAllMeshPoseList         ( G3DUI * );
 
+void g3dui_loadImageForChannel ( G3DUI      *gui,
+                                 G3DCHANNEL *chan );
+
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
 
@@ -729,7 +732,7 @@ void g3duiuvmapeditor_undoCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_redoCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_uv2verCbk ( GtkWidget *widget, gpointer user_data );
 void g3duiuvmapeditor_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
-void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv );
+
 
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
                              G3DUIUVMAPEDITOR *uvme,
@@ -746,4 +749,48 @@ GtkWidget *createFgBgButton ( GtkWidget *parent,
                               gint       y,
                               gint       width,
                               gint       height );
+
+GtkWidget* createChannelImage ( GtkWidget        *parent,
+                                G3DUIUVMAPEDITOR *uvme,
+                                G3DCHANNEL       *chn,
+                                char             *name,
+                                gint              x,
+                                gint              y,
+                                gint              width,
+                                gint              height );
+
+GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent, 
+                                      G3DUI     *gui,
+                                      char      *name,
+                                      gint       x,
+                                      gint       y,
+                                      gint       width,
+                                      gint       height );
+
+GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent, 
+                                      G3DUI     *gui,
+                                      char      *name,
+                                      gint       x,
+                                      gint       y,
+                                      gint       width,
+                                      gint       height );
+
+GtkWidget *createPatternList ( GtkWidget        *parent, 
+                               G3DUIUVMAPEDITOR *uvme,
+                               char             *name,
+                               gint              x,
+                               gint              y,
+                               gint              width,
+                               gint              height );
+
+GtkWidget* createProceduralChessEdit ( GtkWidget           *parent,
+                                       G3DUI               *gui,
+                                       G3DPROCEDURALCHESS *chess,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
 #endif

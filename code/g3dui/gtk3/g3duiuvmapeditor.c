@@ -64,50 +64,6 @@ gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget,
                                      gpointer   user_data );
 
 /******************************************************************************/
-void g3duiuvmapeditor_resizeBuffers ( GtkUVMapEditor *guv ) {
-    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
-    G3DUI        *gui = uvme->gui;
-    G3DUIGTK3    *ggt = ( G3DUIGTK3    * ) gui->toolkit_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
-
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        if ( obj->type & MESH ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
-
-            /*** try the first texture in case no texture is selected ***/
-            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
-
-            if ( tex ) {
-                G3DMATERIAL *mat = tex->mat;
-
-                if ( mat ) {
-                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
-                    G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
-
-                    if ( chn ) {
-                        if ( chn->flags & USEIMAGECOLOR ) {
-                            if ( chn->image ) {
-                                if ( chn->image->width && chn->image->height ) {
-                                    uint32_t size = chn->image->width *
-                                                    chn->image->height;
-                                    uvme->mask    = realloc ( uvme->mask   , size );
-                                    uvme->zbuffer = realloc ( uvme->zbuffer, size );
-
-                                    memset ( uvme->mask, 0xFF, size );
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/******************************************************************************/
 void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
     G3DUI        *gui = uvme->gui;
@@ -657,7 +613,7 @@ static void selectChannelCbk( GtkWidget *widget,
     }
 
     /*** resize selection mask and zbuffer ***/
-    g3duiuvmapeditor_resizeBuffers ( gtk_widget_get_parent ( widget ) );
+    common_g3duiuvmapeditor_resizeBuffers ( uvme );
 }
 
 /******************************************************************************/
@@ -869,7 +825,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     gtk_container_add ( GTK_CONTAINER(parent), guv );
 
     /*** size mask and z buffers ***/
-    g3duiuvmapeditor_resizeBuffers ( guv );
+    common_g3duiuvmapeditor_resizeBuffers ( uvme );
 
 
     return guv;

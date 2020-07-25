@@ -75,6 +75,8 @@ void l3dsysinfo_setBackgroundColor ( L3DSYSINFO *sysinfo, uint32_t bgcolor );
 /******************************************************************************/
 typedef struct _L3DOBJECT {
     float       pressure;
+    int (*reset)   ( struct _L3DOBJECT *obj,
+                     uint64_t engine_flags );
     int (*press)   ( struct _L3DOBJECT *obj,
                      L3DPATTERN        *pattern,
                      uint32_t           fgcolor,
@@ -87,7 +89,7 @@ typedef struct _L3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     uint32_t           engineFlags );
+                     uint64_t engine_flags );
     int (*move)    ( struct _L3DOBJECT *obj,
                      L3DPATTERN        *pattern,
                      uint32_t           fgcolor,
@@ -104,7 +106,7 @@ typedef struct _L3DOBJECT {
                      int32_t           *updy,
                      int32_t           *updw,
                      int32_t           *updh,
-                     uint32_t           engineFlags );
+                     uint64_t engine_flags );
     int (*release) ( struct _L3DOBJECT *obj,
                      L3DPATTERN        *pattern,
                      uint32_t           fgcolor,
@@ -117,7 +119,7 @@ typedef struct _L3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     uint32_t           engineFlags );
+                     uint64_t engine_flags );
 } L3DOBJECT;
 
 /******************************************************************************/
@@ -184,7 +186,7 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       bpp,
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint32_t       engineFlags );
+                         uint64_t engine_flags );
 
 /******************************************************************************/
 int l3core_paintCircle ( L3DPATTERN    *pattern,
@@ -198,7 +200,7 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
                          uint32_t       bpp, 
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint32_t       engineFlags );
+                         uint64_t engine_flags );
 
 /******************************************************************************/
 int l3core_paintRectangle ( L3DPATTERN    *pattern,
@@ -214,7 +216,7 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       bpp, 
                             unsigned char *mask,
                             unsigned char *zbuffer,
-                            uint32_t       engineFlags );
+                            uint64_t engine_flags );
 
 /******************************************************************************/
 int l3core_paintLine ( L3DPATTERN    *pat,
@@ -230,7 +232,7 @@ int l3core_paintLine ( L3DPATTERN    *pat,
                        uint32_t       bpp, 
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint32_t       engineFlags );
+                       uint64_t engine_flags );
 
 /******************************************************************************/
 int l3dpattern_paint ( L3DPATTERN    *pattern,
@@ -244,7 +246,7 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                        uint32_t       bpp,
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint32_t       engineFlags );
+                       uint64_t engine_flags );
 void l3dpattern_generatePlainRectangle ( L3DPATTERN *pattern );
 void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern );
 void l3dpattern_resize ( L3DPATTERN *pattern, uint32_t size );
@@ -258,6 +260,8 @@ L3DPLAINCIRCLEPATTERN    *l3dplaincirclepattern_new    ( uint32_t size );
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
                       float       pressure,
+                      int (*reset)  ( L3DOBJECT     *obj,
+                                      uint64_t       engine_flags ),
                       int (*press)  ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
@@ -270,7 +274,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t       engineFlags ),
+                                      uint64_t       engine_flags ),
                       int (*move)   ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
@@ -287,7 +291,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       int32_t       *updy,
                                       int32_t       *updw,
                                       int32_t       *updh,
-                                      uint32_t       engineFlags ),
+                                      uint64_t       engine_flags ),
                      int (*release) ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
@@ -300,7 +304,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t       engineFlags ) );
+                                      uint64_t       engine_flags ) );
 
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( );

@@ -161,10 +161,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/mousetool/g3duipicktooledit.c \
 	common/mousetool/g3duisculpttooledit.c gtk3/g3dui.c \
 	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c \
-	gtk3/g3duicameraedit.c gtk3/g3duicom.c \
-	gtk3/g3duicoordinatesedit.c gtk3/g3duicubeedit.c \
-	gtk3/g3duicurrentedit.c gtk3/g3duicylinderedit.c \
-	gtk3/g3duiffdedit.c gtk3/g3duifgbgbutton.c gtk3/g3duikeyedit.c \
+	gtk3/g3duicameraedit.c gtk3/g3duichannelimagedialog.c \
+	gtk3/g3duicom.c gtk3/g3duicoordinatesedit.c \
+	gtk3/g3duicubeedit.c gtk3/g3duicurrentedit.c \
+	gtk3/g3duicylinderedit.c gtk3/g3duiffdedit.c \
+	gtk3/g3duifgbgbutton.c gtk3/g3duikeyedit.c \
 	gtk3/g3duilightedit.c gtk3/g3duilist.c gtk3/g3duimainboard.c \
 	gtk3/g3duimaterialboard.c gtk3/g3duimaterialedit.c \
 	gtk3/g3duimateriallist.c gtk3/g3duimenubar.c \
@@ -232,8 +233,9 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/mousetool/g3duisculpttooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duibonelinker.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicameraedit.lo gtk3/g3duicom.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicoordinatesedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duicameraedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duichannelimagedialog.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duicom.lo gtk3/g3duicoordinatesedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duicubeedit.lo gtk3/g3duicurrentedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duifgbgbutton.lo gtk3/g3duikeyedit.lo \
@@ -344,7 +346,9 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo \
 	gtk3/$(DEPDIR)/g3dui.Plo gtk3/$(DEPDIR)/g3duiboneedit.Plo \
 	gtk3/$(DEPDIR)/g3duibonelinker.Plo \
-	gtk3/$(DEPDIR)/g3duicameraedit.Plo gtk3/$(DEPDIR)/g3duicom.Plo \
+	gtk3/$(DEPDIR)/g3duicameraedit.Plo \
+	gtk3/$(DEPDIR)/g3duichannelimagedialog.Plo \
+	gtk3/$(DEPDIR)/g3duicom.Plo \
 	gtk3/$(DEPDIR)/g3duicoordinatesedit.Plo \
 	gtk3/$(DEPDIR)/g3duicubeedit.Plo \
 	gtk3/$(DEPDIR)/g3duicurrentedit.Plo \
@@ -625,6 +629,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiboneedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duibonelinker.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicameraedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duichannelimagedialog.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicom.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicoordinatesedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duicubeedit.c \
@@ -874,6 +879,8 @@ gtk3/g3duibonelinker.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duicameraedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duichannelimagedialog.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duicom.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duicoordinatesedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1052,6 +1059,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiboneedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duibonelinker.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicameraedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duichannelimagedialog.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicom.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicoordinatesedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duicubeedit.Plo@am__quote@ # am--include-marker
@@ -1334,6 +1342,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiboneedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duibonelinker.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicameraedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duichannelimagedialog.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicom.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicoordinatesedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicubeedit.Plo
@@ -1484,6 +1493,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiboneedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duibonelinker.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicameraedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duichannelimagedialog.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicom.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicoordinatesedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duicubeedit.Plo

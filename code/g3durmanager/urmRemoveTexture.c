@@ -119,7 +119,7 @@ void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
                                  G3DMESH      *mes,
                                  G3DTEXTURE   *tex, 
-                                 uint64_t engine_flags,
+                                 uint64_t      engine_flags,
                                  uint32_t      return_flags ) {
     LIST *loldselobj = NULL;
     URMREMOVETEXTURE *urt;

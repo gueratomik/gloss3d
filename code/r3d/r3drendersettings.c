@@ -647,7 +647,7 @@ void r3drendersettings_read ( G3DIMPORTDATA *gid,
 
                 g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
 
-                rsg->background.image = g3dimage_new ( buffer, 1 );
+                rsg->background.image = g3dimage_load ( buffer, 1 );
                 /* 
                  * make it an opengl texture. We'll use it
                  * for the opengl views 

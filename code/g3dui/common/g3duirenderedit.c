@@ -388,7 +388,7 @@ void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
             g3dimage_free ( rsg->background.image );
         }
 
-        rsg->background.image = g3dimage_new ( filename, 1 );
+        rsg->background.image = g3dimage_load ( filename, 1 );
         /*** make it an opengl texture. We'll use it for the opengl views ***/
         g3dimage_bind ( rsg->background.image );
 

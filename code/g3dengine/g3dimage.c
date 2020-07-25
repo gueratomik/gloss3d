@@ -411,12 +411,12 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 }
 
 /******************************************************************************/
-G3DIMAGE *g3dimage_new ( const char *filename, uint32_t bindGL ) {
+G3DIMAGE *g3dimage_load ( const char *filename, uint32_t bindGL ) {
     G3DIMAGE *img = ( G3DIMAGE * ) calloc ( 0x01, sizeof ( G3DIMAGE ) );
     char *extension = strrchr ( filename, '.' );
 
     if ( img == NULL ) {
-        fprintf ( stderr, "g3dimage_new(): calloc failed\n" );
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
 
         return NULL;
     }
@@ -440,6 +440,41 @@ G3DIMAGE *g3dimage_new ( const char *filename, uint32_t bindGL ) {
              ( strcasecmp ( extension, ".flv" ) == 0x00 ) ) {
             g3dimage_initFromVideo ( img, filename, bindGL );
         }
+    }
+
+    return img;
+}
+
+/******************************************************************************/
+G3DIMAGE * g3dimage_new ( uint32_t width, 
+                          uint32_t height, 
+                          uint32_t bpp,
+                          uint32_t bindGL ) {
+    void *memarea =  calloc ( 0x01, sizeof ( G3DIMAGE ) );
+    G3DIMAGE *img = ( G3DIMAGE * ) memarea;
+    uint32_t memsize;
+
+    if ( img == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+
+        return NULL;
+    }
+
+    img->width         = width;
+    img->height        = height;
+    img->bytesPerPixel = ( bpp / 0x08 );
+    img->bytesPerLine  = width * img->bytesPerPixel;
+
+    memsize = img->height * img->bytesPerLine;
+
+    img->data = malloc ( memsize );
+
+    memset ( img->data, 0xFF, memsize );
+
+    if ( bindGL ) {
+        glGenTextures ( 0x01, &img->id );
+
+        g3dimage_bind ( img );
     }
 
     return img;

@@ -691,7 +691,7 @@ void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void urmremovetexture_free ( URMREMOVETEXTURE *udt );
-void g3durm_mesh_deleteTexture ( G3DURMANAGER *urm,
+void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
                                  G3DMESH      *mes,
                                  G3DTEXTURE   *tex, 
                                  uint64_t      engine_flags,

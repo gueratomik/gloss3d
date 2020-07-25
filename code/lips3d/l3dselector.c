@@ -37,6 +37,8 @@
 #define LINEFORCEBIT  0x10
 #define LINEBITMASK   0x0F
 
+static int l3dselector_reset ( L3DSELECTOR *sel,
+                               uint64_t     engine_flags );
 static int l3dselector_press ( L3DOBJECT     *obj,
                                L3DPATTERN    *pattern,
                                uint32_t       fgcolor,
@@ -49,7 +51,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                uint32_t       bpp,
                                unsigned char *mask,
                                unsigned char *zbuffer,
-                               uint32_t       engineFlags );
+                               uint64_t engine_flags );
 static int l3dselector_move ( L3DOBJECT     *obj,
                               L3DPATTERN    *pattern,
                               uint32_t       fgcolor,
@@ -66,7 +68,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               int32_t       *updy,
                               int32_t       *updw,
                               int32_t       *updh,
-                              uint32_t       engineFlags );
+                              uint64_t engine_flags );
 static int l3dselector_release ( L3DOBJECT     *obj,
                                  L3DPATTERN    *pattern,
                                  uint32_t       fgcolor,
@@ -79,7 +81,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  uint32_t       bpp,
                                  unsigned char *mask,
                                  unsigned char *zbuffer,
-                                 uint32_t       engineFlags );
+                                 uint64_t engine_flags );
 
 /******************************************************************************/
 static void l3dselectorpoint_free ( L3DSELECTORPOINT *pt ) {
@@ -267,6 +269,7 @@ L3DSELECTOR* l3dselector_new ( ) {
 
     l3dobject_init ( sel,
                      0.0f,
+                     l3dselector_reset,
                      l3dselector_press,
                      l3dselector_move,
                      l3dselector_release );
@@ -384,7 +387,8 @@ static void l3dselector_generateMask (  L3DSELECTOR   *sel,
 }
 
 /******************************************************************************/
-static int l3dselector_reset ( L3DSELECTOR *sel ) {
+static int l3dselector_reset ( L3DSELECTOR *sel,
+                               uint64_t     engine_flags ) {
     sel->closed = 0x00;
 
     sel->firstPoint = sel->lastPoint = NULL;
@@ -409,7 +413,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                uint32_t       bpp,
                                unsigned char *mask,
                                unsigned char *zbuffer,
-                               uint32_t       engineFlags ) {
+                               uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( sel->closed ) {
@@ -443,7 +447,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               int32_t       *updy,
                               int32_t       *updw,
                               int32_t       *updh,
-                              uint32_t       engineFlags ) {
+                              uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
@@ -527,7 +531,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  uint32_t       bpp,
                                  unsigned char *mask,
                                  unsigned char *zbuffer,
-                                 uint32_t       engineFlags ) {
+                                 uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
     static uint64_t oldmilliseconds;
     static int32_t oldx, oldy;
@@ -608,7 +612,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
         if ( list_count ( sel->llines ) <= 0x02 ) {
             memset ( mask, 0xFF, width * height );
 
-            l3dselector_reset ( sel );
+            l3dselector_reset ( sel, engine_flags );
         } else {
             l3dselector_findMinMax ( sel );
             l3dselector_generateMask ( sel, width, height, mask );

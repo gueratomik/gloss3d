@@ -158,7 +158,7 @@ GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent,
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) parent;
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
-    GtkWidget *grp;
+    GtkWidget *grp = NULL;
 
     gtk_widget_set_name ( bar, name );
 

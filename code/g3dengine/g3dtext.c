@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 #include <glib.h>
+#include <libgen.h> /* for basename() */
 
 /******************************************************************************/
 G3DCHARACTER *g3dcharacter_new ( uint32_t code ) {

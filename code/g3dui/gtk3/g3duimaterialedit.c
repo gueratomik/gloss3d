@@ -284,50 +284,62 @@ static void displacementToggleCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void displacementImageCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+void g3dui_loadImageForChannel ( G3DUI      *gui,
+                                 G3DCHANNEL *chan ) {
     G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkFileFilter *filter = gtk_file_filter_new ();
-    GtkWidget *dialog;
-    gint       res;
 
-    dialog = gtk_file_chooser_dialog_new ( "Open File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
+    if ( chan ) {
+        GtkFileFilter *filter = gtk_file_filter_new ();
+        GtkWidget *dialog;
+        gint       res;
 
-    /* extension filters */
-    gtk_file_filter_add_pattern ( filter, "*.jpg" );
-    gtk_file_filter_add_pattern ( filter, "*.png" );
-    gtk_file_filter_add_pattern ( filter, "*.avi" );
-    gtk_file_filter_add_pattern ( filter, "*.mkv" );
-    gtk_file_filter_add_pattern ( filter, "*.flv" );
-    gtk_file_filter_add_pattern ( filter, "*.gif" );
-    gtk_file_filter_add_pattern ( filter, "*.mp4" );
-    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
+        dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                               GTK_WINDOW(ggt->top),
+                            /*** from ristretto-0.3.5/src/main_window.c ***/
+                                               GTK_FILE_CHOOSER_ACTION_OPEN,
+                                               "_Cancel", 
+                                               GTK_RESPONSE_CANCEL,
+                                               "_Open", 
+                                               GTK_RESPONSE_OK,
+                                               NULL );
 
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+        /* extension filters */
+        gtk_file_filter_add_pattern ( filter, "*.jpg" );
+        gtk_file_filter_add_pattern ( filter, "*.png" );
+        gtk_file_filter_add_pattern ( filter, "*.avi" );
+        gtk_file_filter_add_pattern ( filter, "*.mkv" );
+        gtk_file_filter_add_pattern ( filter, "*.flv" );
+        gtk_file_filter_add_pattern ( filter, "*.gif" );
+        gtk_file_filter_add_pattern ( filter, "*.mp4" );
+        gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
 
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+        res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
-         if ( gui->selmat ) {
+        if ( res == GTK_RESPONSE_OK ) {
+            GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+            const char     *filename = gtk_file_chooser_get_filename ( chooser );
+
             common_g3dui_channelChooseImageCbk ( gui,
-                                        	&gui->selmat->displacement,
-                                        	 filename,
-                                        	 0x00 );
+                                        	     chan,
+                                        	     filename,
+                                        	     0x00 );
+
+            g_free    ( ( gpointer ) filename );
         }
 
-        g_free    ( ( gpointer ) filename );
+        gtk_widget_destroy ( dialog );
     }
 
-    gtk_widget_destroy ( dialog );
+    g3dui_updateMaterialEdit ( gui );
+}
+
+/******************************************************************************/
+static void displacementImageCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        g3dui_loadImageForChannel ( gui, &gui->selmat->displacement );
+    }
 }
 
 /******************************************************************************/
@@ -538,48 +550,10 @@ static void alphaToggleCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void alphaImageCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkFileFilter *filter = gtk_file_filter_new ();
-    GtkWidget *dialog;
-    gint       res;
 
-    dialog = gtk_file_chooser_dialog_new ( "Open File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    /* extension filters */
-    gtk_file_filter_add_pattern ( filter, "*.jpg" );
-    gtk_file_filter_add_pattern ( filter, "*.png" );
-    gtk_file_filter_add_pattern ( filter, "*.avi" );
-    gtk_file_filter_add_pattern ( filter, "*.mkv" );
-    gtk_file_filter_add_pattern ( filter, "*.flv" );
-    gtk_file_filter_add_pattern ( filter, "*.gif" );
-    gtk_file_filter_add_pattern ( filter, "*.mp4" );
-    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char     *filename = gtk_file_chooser_get_filename ( chooser );
-
-        if ( gui->selmat ) {
-            common_g3dui_channelChooseImageCbk ( gui,
-                                        	    &gui->selmat->alpha,
-                                        	    filename,
-                                        	    0x00 );
-        }
-
-        g_free    ( ( gpointer ) filename );
+    if ( gui->selmat ) {
+        g3dui_loadImageForChannel ( gui, &gui->selmat->alpha );
     }
-
-    gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
@@ -790,48 +764,10 @@ static void bumpToggleCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void bumpImageCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkFileFilter *filter = gtk_file_filter_new ();
-    GtkWidget *dialog;
-    gint       res;
 
-    dialog = gtk_file_chooser_dialog_new ( "Open File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    /* extension filters */
-    gtk_file_filter_add_pattern ( filter, "*.jpg" );
-    gtk_file_filter_add_pattern ( filter, "*.png" );
-    gtk_file_filter_add_pattern ( filter, "*.avi" );
-    gtk_file_filter_add_pattern ( filter, "*.mkv" );
-    gtk_file_filter_add_pattern ( filter, "*.flv" );
-    gtk_file_filter_add_pattern ( filter, "*.gif" );
-    gtk_file_filter_add_pattern ( filter, "*.mp4" );
-    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char     *filename = gtk_file_chooser_get_filename ( chooser );
-
-        if ( gui->selmat ) {
-            common_g3dui_channelChooseImageCbk ( gui,
-                                        	&gui->selmat->bump,
-                                        	 filename,
-                                        	 0x00 );
-        }
-
-        g_free    ( ( gpointer ) filename );
+    if ( gui->selmat ) {
+        g3dui_loadImageForChannel ( gui, &gui->selmat->bump );
     }
-
-    gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
@@ -1156,48 +1092,10 @@ static GtkWidget *createSpecularPanel ( GtkWidget *parent, G3DUI *gui,
 /******************************************************************************/
 static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkFileFilter *filter = gtk_file_filter_new ();
-    GtkWidget *dialog;
-    gint       res;
 
-    dialog = gtk_file_chooser_dialog_new ( "Open File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    /* extension filters */
-    gtk_file_filter_add_pattern ( filter, "*.jpg" );
-    gtk_file_filter_add_pattern ( filter, "*.png" );
-    gtk_file_filter_add_pattern ( filter, "*.avi" );
-    gtk_file_filter_add_pattern ( filter, "*.mkv" );
-    gtk_file_filter_add_pattern ( filter, "*.flv" );
-    gtk_file_filter_add_pattern ( filter, "*.gif" );
-    gtk_file_filter_add_pattern ( filter, "*.mp4" );
-    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char     *filename = gtk_file_chooser_get_filename ( chooser );
-
-        if ( gui->selmat ) {
-            common_g3dui_channelChooseImageCbk ( gui,
-                                        	&gui->selmat->diffuse,
-                                        	 filename,
-                                        	 0x01 );
-        }
-
-        g_free    ( ( gpointer ) filename );
+    if ( gui->selmat ) {
+        g3dui_loadImageForChannel ( gui, &gui->selmat->diffuse );
     }
-
-    gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/

@@ -132,8 +132,10 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     gid.lext = lextension;
     gid.currentScene = ( mergedScene ) ? mergedScene : 
-                                         g3dscene_new ( gid.currentObjectID++, 
+                                         g3dscene_new ( gid.currentObjectID, 
                                                         "Scene" );
+    gid.currentObjectID++;
+
     gid.engineFlags  = VIEWOBJECT;
 
     g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );

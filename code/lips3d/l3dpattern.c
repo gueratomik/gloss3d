@@ -41,7 +41,7 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                        uint32_t       bpp,
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint32_t       engineFlags ) {
+                       uint64_t engine_flags ) {
     int32_t x1, x2, y1, y2, xm, ym, xp, yp;
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
@@ -60,7 +60,7 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                             bpp, 
                             mask,
                             zbuffer,
-                            engineFlags );
+                            engine_flags );
     } else {
         int32_t halfSize = pattern->size / 0x02;
 

@@ -652,7 +652,7 @@ GtkWidget *createNumericText ( GtkWidget *parent, G3DUI *gui,
 
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
-void createIntegerText ( GtkWidget *parent, G3DUI *gui, 
+GtkWidget *createIntegerText ( GtkWidget *parent, G3DUI *gui, 
                                             char  *name,
                                             gint   min, 
                                             gint   max,
@@ -676,11 +676,13 @@ void createIntegerText ( GtkWidget *parent, G3DUI *gui,
                                          y, 
                                          labwidth, 
                                          txtwidth, 
-                                         cbk );}
+                                         cbk );
+    return btn;
+}
 
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
-void createFloatText ( GtkWidget *parent, G3DUI  *gui, 
+GtkWidget *createFloatText ( GtkWidget *parent, G3DUI  *gui, 
                                           char   *name,
                                           gdouble min, 
                                           gdouble max,
@@ -706,6 +708,8 @@ void createFloatText ( GtkWidget *parent, G3DUI  *gui,
                                          cbk );
 
     gtk_spin_button_set_digits ( GTK_SPIN_BUTTON(btn), 3 );
+
+    return btn;
 }
 
 /******************************************************************************/
@@ -1092,7 +1096,7 @@ void g3dui_resizeUVMapEditors ( G3DUI *gui ) {
         GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
 
         /*** resize buffers ***/
-        g3duiuvmapeditor_resizeBuffers ( guv );
+        common_g3duiuvmapeditor_resizeBuffers ( &guv->uvme );
 
         ltmp = ltmp->next;
     }

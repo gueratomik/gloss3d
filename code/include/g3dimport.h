@@ -192,19 +192,7 @@ G3DSCENE *g3dscene_importC4D ( const char * );
 
 /*****************************< Gloss3D .G3D FILES >***************************/
 
-/******************************************************************************/
-G3DSCENE *g3dscene_open ( const char *filename,
-                          G3DSCENE   *mergedScene,
-                          LIST       *lextensions,
-                          uint32_t    flags );
 
-/*****************************< 3DStudio .3ds FILES >**************************/
-G3DSCENE *g3dscene_import3ds ( const char *filename, 
-                               uint64_t    engine_flags );
-
-/*****************************< Wavefront .obj FILES >*************************/
-G3DSCENE *g3dscene_importObj( const char *filename, 
-                              uint64_t    engine_flags );
 
 /*** neded by g3duiconf ***/
 char *readEntry ( FILE *fsrc );
