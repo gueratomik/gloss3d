@@ -83,6 +83,8 @@
 
 /*** dont set the tool as the current one ***/
 #define MOUSETOOLNOCURRENT ( 1  << 0  )
+#define MOUSETOOLREADONLY  ( 1  << 1  )
+#define MOUSETOOLREADWRITE ( 1  << 2  )
 
 #define G3DKeyPress      0x01
 #define G3DKeyRelease    0x02

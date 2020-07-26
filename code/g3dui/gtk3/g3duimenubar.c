@@ -871,6 +871,10 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
     GtkWidget *dialog;
     gint       res;
 
+    if ( g3dui_saveAlteredImages ( gui ) ) {
+        return TRUE;
+    }
+
     dialog = gtk_message_dialog_new ( NULL,
                                       GTK_DIALOG_MODAL,
                                       GTK_MESSAGE_QUESTION,

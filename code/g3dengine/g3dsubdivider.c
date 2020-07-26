@@ -363,7 +363,6 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
         pthread_t tid[MAX_SUBDIVISION_THREADS]; /*** let's say, max 32 threads ***/
         pthread_attr_t attr;
         uint32_t i;
-        uint64_t engine_flags = engine_flags;
 
         if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
             /*** Force the flag in case our mesh does not need displacement ***/
@@ -373,7 +372,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
         /*** init face list ***/
         g3dmesh_getNextFace ( mes, ltmpfac );
 
-        if ( sif->nbcpu < 0x02 ) {
+        if ( /*sif->nbcpu < 0x02*/ 1 ) {
             uint32_t cpuID = 0x00;
             g3dsubdivisionthread_init ( &std[0x00], mes,
                                                     sdr->rtvermem,

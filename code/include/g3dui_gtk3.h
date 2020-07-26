@@ -793,4 +793,6 @@ GtkWidget* createProceduralChessEdit ( GtkWidget           *parent,
                                        gint                height,
                                        uint32_t            bindGL );
 
+uint32_t g3dui_saveAlteredImages ( G3DUI *gui );
+
 #endif

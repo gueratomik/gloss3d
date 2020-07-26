@@ -42,6 +42,192 @@ static void     gtk_glossui_size_allocate ( GtkWidget *, GtkAllocation * );
 static void     gtk_glossui_show          ( GtkWidget * );
 
 /******************************************************************************/
+uint32_t g3dui_saveChannelImageAs ( G3DUI    *gui,
+                                    G3DIMAGE *img ) {
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Save file as ...",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        static char     filenameext[0x400] = { 0x00 };
+
+        /*** default to JPG ***/
+        if ( ( strcasestr ( filename, ".jpg"  ) == NULL ) ||
+             ( strcasestr ( filename, ".jpeg" ) == NULL ) ||
+             ( strcasestr ( filename, ".png"  ) == NULL ) ) {
+            snprintf ( filenameext, sizeof ( filenameext ), "%s.jpg", filename );
+
+            g3dimage_setFileName ( img, filenameext );
+
+            img->flags |= JPGIMAGE;
+        } else {
+            if ( strcasestr ( filename, ".jpg"  ) ||
+                 strcasestr ( filename, ".jpeg" ) ) {
+                img->flags |= JPGIMAGE;
+            }
+
+            if ( strcasestr ( filename, ".png" ) ) {
+                img->flags |= PNGIMAGE;
+            }
+
+            g3dimage_setFileName ( img, filename );
+        }
+
+        g3dimage_writeToDisk ( img );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
+                                         char       *materialName,
+                                         char       *channelName,
+                                         G3DCHANNEL *chn,
+                                         uint32_t    confirm ) {
+    if ( chn->image ) {
+        G3DIMAGE *img = chn->image;
+
+        if ( ( img->flags & ALTEREDIMAGE ) ||
+             ( img->filename == NULL     ) ) {
+            char *imageName = ( img->filename ) ? img->filename : "Untitled";
+            uint32_t confirmed = 0x00;
+            char str[0x400];
+
+            snprintf ( str, 
+                       sizeof ( str ),
+                       "Save image \"%s\" for channel \"%s:%s\" ?",
+                       imageName,
+                       materialName,
+                       channelName );
+
+            if ( confirm ) {
+                gint response;
+                GtkWidget *dial;
+                dial = gtk_message_dialog_new ( NULL,
+                                                GTK_DIALOG_MODAL | 
+                                                GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                GTK_MESSAGE_QUESTION,
+                                                GTK_BUTTONS_NONE,
+                                                str );
+
+                gtk_dialog_add_buttons ( dial,
+                                         GTK_STOCK_YES,
+                                         GTK_RESPONSE_YES,
+                                         GTK_STOCK_NO,
+                                         GTK_RESPONSE_NO,
+                                         GTK_STOCK_CANCEL,
+                                         GTK_RESPONSE_CANCEL,
+                                         NULL );
+
+                gtk_window_set_title ( GTK_WINDOW ( dial ), "Save image ?" );
+
+                response = gtk_dialog_run ( GTK_DIALOG ( dial ) );
+
+                switch ( response ) {
+                    case GTK_RESPONSE_YES:
+                        confirmed = 0x01;
+                    break;
+
+                    case GTK_RESPONSE_NO:
+                    break;
+
+                    case GTK_RESPONSE_CANCEL:
+                        gtk_widget_destroy ( dial );
+
+                        return 0x01;
+                    break;
+
+                    default : 
+                    break;
+                }
+
+                gtk_widget_destroy ( dial );
+            } else {
+                confirmed = 0x01;
+            }
+
+            if ( confirmed ) {
+                if ( img->filename ) {
+                    g3dimage_writeToDisk ( img );
+                } else {
+                    g3dui_saveChannelImageAs ( gui, img );
+                }
+            }
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dui_saveAlteredImages ( G3DUI *gui ) {
+    LIST *ltmpmat = gui->sce->lmat;
+    uint32_t ret = 0x00;
+
+    while ( ltmpmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Diffuse",
+                                              &mat->diffuse,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Specular",
+                                              &mat->specular,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Displacement",
+                                              &mat->displacement,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Bump",
+                                              &mat->bump,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Alpha",
+                                              &mat->alpha,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Reflection",
+                                              &mat->reflection,
+                                               0x01 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name, "Refraction",
+                                               &mat->refraction,
+                                               0x01 );
+
+        ltmpmat = ltmpmat->next;
+    }
+
+    return ret;
+}
+
+/******************************************************************************/
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name) {
     if ( strcmp ( gtk_widget_get_name ( parent ), name ) == 0 ) {
         return parent;
@@ -1637,7 +1823,6 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );
 
-
     /******************/
 
     gtk_widget_get_allocation ( widget, &allocation );
@@ -1736,10 +1921,4 @@ GtkWidget *gtk_glossui_new ( const char *filename ) {
     }
 
     return widget;
-}
-
-/******************************************************************************/
-void g3dui_init ( G3DUI *gui, G3DSCENE *sce ) {
-    gui->sce    = sce;
-    gui->engine_flags |= VIEWOBJECT;
 }

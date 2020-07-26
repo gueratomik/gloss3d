@@ -68,7 +68,7 @@ L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( ) {
                         NULL,
                         selector_draw,
                         pen_tool,
-                        0x00 );
+                        MOUSETOOLREADONLY );
 
     ltool->obj = l3dselector_new ( );
 
@@ -93,7 +93,7 @@ L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
                         NULL,
                         NULL,
                         pen_tool,
-                        0x00 );
+                        MOUSETOOLREADWRITE );
 
     ltool->obj = l3dbasepen_new ( );
 
@@ -118,7 +118,7 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
                         NULL,
                         NULL,
                         eraser_tool,
-                        0x00 );
+                        MOUSETOOLREADWRITE );
 
     ltool->obj = l3dbasepen_new ( );
 
@@ -220,6 +220,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                         if ( chn ) {
                             if ( chn->flags & USEIMAGECOLOR ) {
                                 if ( chn->image ) {
+                                    chn->image->flags |= ALTEREDIMAGE;
+
                                     gluUnProject ( bev->x, 
                                                    VPX[0x03] - bev->y, 
                                                    0.0f,
@@ -289,6 +291,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                     G3DIMAGE *image = chn->image;
                                     uint32_t retval = 0x00;
                                     uint32_t l3dFlags = 0x00;
+
+                                    chn->image->flags |= ALTEREDIMAGE;
 
                                     l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
 
@@ -395,6 +399,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                         if ( chn ) {
                             if ( chn->flags & USEIMAGECOLOR ) {
                                 if ( chn->image ) {
+                                    chn->image->flags |= ALTEREDIMAGE;
+
                                     gluUnProject ( bev->x, 
                                                    VPX[0x03] - bev->y, 
                                                    0.0f,

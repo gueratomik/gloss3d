@@ -1643,6 +1643,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
         loopID++;
     } while ( subdiv_level-- );
+
 /*init = 0x01;
 old_level = subdiv_level;*/
     return nbInnerFaces;

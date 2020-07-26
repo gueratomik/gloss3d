@@ -44,6 +44,27 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 */
 
 /******************************************************************************/
+void g3dimage_setFileName ( G3DIMAGE *img, 
+                            char     *filename ) {
+    img->filename = strdup ( filename );
+}
+
+/******************************************************************************/
+void g3dimage_writeToDisk ( G3DIMAGE *img ) {
+    if ( img->flags & STILLIMAGE ) {
+        if ( img->flags & JPGIMAGE ) {
+            g3dcore_writeJpeg ( img->filename,
+                                img->width,
+                                img->height,
+                                img->bytesPerPixel,
+                                img->data );
+
+            img->flags = img->flags & (~ALTEREDIMAGE);
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dimage_getVideoSize ( G3DIMAGE *image,
                              uint64_t engine_flags ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
@@ -295,6 +316,8 @@ void g3dimage_initFromVideo ( G3DIMAGE   *image,
                               uint32_t    bindGL ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
+    image->flags |= ANIMATEDIMAGE;
+
     g3dimage_getVideoSize ( image, 0x00 );
 
     image->bytesPerLine = ( image->width * image->bytesPerPixel );
@@ -333,6 +356,8 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
              jpgheight,
              jpgdepth;
     GLint max;
+
+    img->flags |= ( STILLIMAGE | JPGIMAGE );
 
     g3dcore_loadJpeg ( filename, &jpgwidth,
                                  &jpgheight,
@@ -459,6 +484,8 @@ G3DIMAGE * g3dimage_new ( uint32_t width,
 
         return NULL;
     }
+
+    img->flags |= STILLIMAGE;
 
     img->width         = width;
     img->height        = height;

@@ -35,6 +35,13 @@
 #ifndef _G3DIMAGE_H_
 #define _G3DIMAGE_H_
 
+/********************************* Image flags ********************************/
+#define ALTEREDIMAGE  ( 1 << 0 )
+#define ANIMATEDIMAGE ( 1 << 1 )
+#define STILLIMAGE    ( 1 << 2 )
+#define JPGIMAGE      ( 1 << 3 )
+#define PNGIMAGE      ( 1 << 4 )
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -111,6 +118,9 @@ G3DIMAGE * g3dimage_new ( uint32_t width,
                           uint32_t height, 
                           uint32_t bpp,
                           uint32_t bindGL );
+
+void g3dimage_setFileName ( G3DIMAGE *img, 
+                            char     *filename );
 
 #ifdef __cplusplus
 }

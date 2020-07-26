@@ -113,19 +113,19 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VIEWFACE           ((uint64_t)1  <<  3 )
 #define VIEWFACENORMAL     ((uint64_t)1  <<  4 )
 #define VIEWVERTEXNORMAL   ((uint64_t)1  <<  5 )
-#define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
+#define VIEWNORMALS        ((uint64_t)VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define VIEWSKIN           ((uint64_t)1  <<  6 )
 #define VIEWUVWMAP         ((uint64_t)1  <<  7 )
 
 #define VIEWAXIS           ((uint64_t)1  <<  9 )
 #define VIEWSCULPT         ((uint64_t)1  << 10 )
 #define VIEWPOSE           ((uint64_t)1  << 11 )
-#define VIEWDETAILS        ( VIEWUVWMAP | VIEWSKIN | \
-                             VIEWVERTEX | VIEWEDGE | VIEWFACE | \
-                             VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define MODEMASK           ( VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
-                             VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
-                             VIEWPOSE  | VIEWAXIS )
+#define VIEWDETAILS        ((uint64_t)VIEWUVWMAP | VIEWSKIN | \
+                                      VIEWVERTEX | VIEWEDGE | VIEWFACE | \
+                                      VIEWFACENORMAL | VIEWVERTEXNORMAL )
+#define MODEMASK           ((uint64_t)VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
+                                      VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
+                                      VIEWPOSE  | VIEWAXIS )
 #define SELECTMODE         ((uint64_t)1  << 12 )
 #define XAXIS              ((uint64_t)1  << 13 )
 #define YAXIS              ((uint64_t)1  << 14 ) 
@@ -145,9 +145,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NOBACKGROUNDIMAGE  ((uint64_t)1  << 27 )
 
 /******************************* UVMAp Editor flags ***************************/
-#define VIEWVERTEXUV       ( 1  << 28 )
-#define VIEWFACEUV         ( 1  << 29 )
-#define UVMODEMASK         ( VIEWVERTEXUV | VIEWFACEUV )
+#define VIEWVERTEXUV       ((uint64_t)1  << 28 )
+#define VIEWFACEUV         ((uint64_t)1  << 29 )
+#define UVMODEMASK         ((uint64_t)VIEWVERTEXUV | VIEWFACEUV )
 
 #define DIFFUSECHANNELID        0x00
 #define SPECULARCHANNELID       0x01
