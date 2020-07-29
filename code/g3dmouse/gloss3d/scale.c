@@ -324,6 +324,14 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
 
                         list_free ( &lseluv, NULL );
 
+                        /** TODO: do this only for subdivided meshes ***/
+                        g3dmesh_update ( ((G3DOBJECT*)uvmap)->parent, 
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         RESETMODIFIERS, 
+                                         engine_flags );
+
                         olduv = newuv = NULL;
                     } return REDRAWVIEW            | 
                              REDRAWCOORDS          | 

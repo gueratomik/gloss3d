@@ -238,6 +238,7 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
                  REFLECTION_ENABLED |
                  REFRACTION_ENABLED;
 
+    mat->alpha.name = "alpha";
     mat->alpha.flags           = USEIMAGECOLOR;
     mat->alpha.solid.r = 
     mat->alpha.solid.g = 
@@ -245,18 +246,21 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->alpha.solid.a = 1.0f;
 
     /*** default material color is gray ***/
+    mat->diffuse.name = "diffuse";
     mat->diffuse.flags         = USESOLIDCOLOR;
     mat->diffuse.solid.r       = 0.5f;
     mat->diffuse.solid.g       = 0.5f;
     mat->diffuse.solid.b       = 0.5f;
     mat->diffuse.solid.a       = 1.0f;
 
+    mat->specular.name = "specular";
     mat->specular.flags        = USESOLIDCOLOR;
     mat->specular.solid.r      = 1.0f;
     mat->specular.solid.g      = 1.0f;
     mat->specular.solid.b      = 1.0f;
     mat->specular.solid.a      = 1.0f;
 
+    mat->bump.name = "bump";
     mat->bump.flags            = USEIMAGECOLOR;
     mat->bump.solid.r          = 1.0f;
     mat->bump.solid.g          = 1.0f;
@@ -264,24 +268,28 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->bump.solid.a          = 1.0f;
 
     /*** default ambient ***/
+    mat->ambient.name = "ambient";
     mat->ambient.flags         = USESOLIDCOLOR;
     mat->ambient.solid.r       = 0.8f;
     mat->ambient.solid.g       = 0.8f;
     mat->ambient.solid.b       = 0.8f;
     mat->ambient.solid.a       = 1.0f;
 
+    mat->displacement.name = "displacement";
     mat->displacement.flags    = USEIMAGECOLOR;
     mat->displacement.solid.r  = 
     mat->displacement.solid.g  = 
     mat->displacement.solid.b  = 
     mat->displacement.solid.a  = 0.25f;
 
+    mat->reflection.name = "reflection";
     mat->reflection.flags      = USESOLIDCOLOR;
     mat->reflection.solid.r    = 0.0f;
     mat->reflection.solid.g    = 0.0f;
     mat->reflection.solid.b    = 0.0f;
     mat->reflection.solid.a    = 0.0f;
 
+    mat->refraction.name = "refraction";
     mat->refraction.flags      = USESOLIDCOLOR;
     mat->refraction.solid.r    = 1.0f;
     mat->refraction.solid.g    = 1.0f;

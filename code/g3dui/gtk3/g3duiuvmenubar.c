@@ -134,8 +134,8 @@ GtkWidget *createUVEditMenu ( GtkWidget        *bar,
 }
 
 /******************************************************************************/
-static void loadImageByChannelIDCbk ( GtkWidget *widget, 
-                                      gpointer   user_data ) {
+void g3duiuvmapeditor_loadImageByChannelIDCbk ( GtkWidget *widget, 
+                                                gpointer   user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
     G3DUI *gui = ( G3DUI * ) uvme->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
@@ -165,8 +165,8 @@ static void loadImageByChannelIDCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static void createChannelImageCbk ( GtkWidget *widget, 
-                                    gpointer   user_data ) {
+void g3duiuvmapeditor_createChannelImageCbk ( GtkWidget *widget, 
+                                              gpointer   user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
     G3DUI *gui = ( G3DUI * ) uvme->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
@@ -215,8 +215,8 @@ GtkWidget *createUVFileMenu ( GtkWidget        *bar,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    g3dui_addMenuButton ( menu, uvme, MENU_CREATECHANNELIMAGE, width, G_CALLBACK(createChannelImageCbk) );
-    g3dui_addMenuButton ( menu, uvme, MENU_OPENCHANNELIMAGE  , width, G_CALLBACK(loadImageByChannelIDCbk) );
+    g3dui_addMenuButton ( menu, uvme, MENU_CREATECHANNELIMAGE, width, G_CALLBACK(g3duiuvmapeditor_createChannelImageCbk) );
+    g3dui_addMenuButton ( menu, uvme, MENU_OPENCHANNELIMAGE  , width, G_CALLBACK(g3duiuvmapeditor_loadImageByChannelIDCbk) );
     /*g3dui_addMenuButton ( menu, uvme, MENU_SAVECHANNELIMAGE  , width, G_CALLBACK(g3duiuvmapeditor_saveChannelImageCbk) );
     g3dui_addMenuButton ( menu, uvme, MENU_SAVECHANNELIMAGEAS, width, G_CALLBACK(g3duiuvmapeditor_saveChannelImageAsCbk) );
     g3dui_addMenuButton ( menu, uvme, MENU_LEAVELIPS3D       , width, G_CALLBACK(g3duiuvmapeditor_exitLIPS3DCbk) );*/

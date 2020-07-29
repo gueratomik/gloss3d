@@ -55,6 +55,70 @@
 #include <xpm/eraser.xpm>
 
 /******************************************************************************/
+void g3duiuvmapeditor_saveasCbk ( GtkWidget *widget, 
+                                  gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
+
+                g3dui_saveChannelAlteredImage ( gui,
+                                                mat->name,
+                                                chn,
+                                                0x00,
+                                                0x01 );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void g3duiuvmapeditor_saveCbk ( GtkWidget *widget, 
+                                gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
+
+                g3dui_saveChannelAlteredImage ( gui,
+                                                mat->name,
+                                                chn,
+                                                0x00,
+                                                0x00 );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent, 
                                       G3DUI     *gui,
                                       char      *name,
@@ -74,29 +138,43 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
 
-   /********************************/
-
-    addToolBarPushButton   ( bar, uvme, MENU_UNDO   , undo_xpm  , g3duiuvmapeditor_undoCbk );
+    addToolBarPushButton   ( bar, uvme, MENU_NEWSCENE  , newfile_xpm, g3duiuvmapeditor_createChannelImageCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_REDO   , redo_xpm  , g3duiuvmapeditor_redoCbk );
+    addToolBarPushButton   ( bar, uvme, MENU_OPENFILE  , openfile_xpm, g3duiuvmapeditor_loadImageByChannelIDCbk );
 
    /********************************/
 
-    addToolBarToggleButton ( bar, uvme, PICKUVTOOL  , pick_xpm  , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarPushButton   ( bar, uvme, MENU_SAVEFILEAS, saveas_xpm, g3duiuvmapeditor_saveasCbk   );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, uvme, MENU_SAVEFILE  , save_xpm  , g3duiuvmapeditor_saveCbk );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, uvme, MENU_UNDO     , undo_xpm  , g3duiuvmapeditor_undoCbk );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, uvme, MENU_REDO     , redo_xpm  , g3duiuvmapeditor_redoCbk );
+
+   /********************************/
+
+    addToolBarToggleButton ( bar, uvme, PICKUVTOOL    , pick_xpm  , g3duiuvmapeditor_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, MOVEUVTOOL  , move_xpm  , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, MOVEUVTOOL    , move_xpm  , g3duiuvmapeditor_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SCALEUVTOOL , scale_xpm , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, SCALEUVTOOL   , scale_xpm , g3duiuvmapeditor_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL , rotate_xpm , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL  , rotate_xpm , g3duiuvmapeditor_setUVMouseTool );
 
     /********************************/
 

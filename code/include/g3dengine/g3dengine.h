@@ -154,8 +154,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define DISPLACEMENTCHANNELID   0x02
 #define ALPHACHANNELID          0x03
 #define BUMPCHANNELID           0x04
-#define REFLECTIONCHANNELID     0x05
-#define REFRACTIONCHANNELID     0x06
+#define AMBIENTCHANNELID        0x05
+#define REFLECTIONCHANNELID     0x06
+#define REFRACTIONCHANNELID     0x07
 #define UVCHANNELMASK      ( ((uint64_t)1  << 30 ) | \
                              ((uint64_t)1  << 31 ) | \
                              ((uint64_t)1  << 32 ) | \
@@ -595,6 +596,7 @@ typedef struct _G3DPROCEDURALBRICK {
 /******************************************************************************/
 typedef struct _G3DCHANNEL {
     uint32_t        flags;
+    char          *name;
     G3DCOLOR       solid;
     G3DIMAGE      *image;
     G3DPROCEDURAL *proc;

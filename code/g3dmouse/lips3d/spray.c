@@ -429,6 +429,13 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                 }
                             }
                         }
+
+                        if ( channelID == DISPLACEMENTCHANNELID ) {
+                        /** TODO: do this only for subdivided meshes ***/
+                            g3dmaterial_updateMeshes ( mat, 
+                                                       sce, 
+                                                       engine_flags );
+                        }
                     }
                 }
             }

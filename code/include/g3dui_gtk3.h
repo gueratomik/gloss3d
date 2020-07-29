@@ -794,5 +794,16 @@ GtkWidget* createProceduralChessEdit ( GtkWidget           *parent,
                                        uint32_t            bindGL );
 
 uint32_t g3dui_saveAlteredImages ( G3DUI *gui );
+uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
+                                         char       *materialName,
+                                         G3DCHANNEL *chn,
+                                         uint32_t    ask,
+                                         uint32_t    rename );
+
+void g3duiuvmapeditor_loadImageByChannelIDCbk ( GtkWidget *widget, 
+                                                gpointer   user_data );
+
+void g3duiuvmapeditor_createChannelImageCbk ( GtkWidget *widget, 
+                                              gpointer   user_data );
 
 #endif

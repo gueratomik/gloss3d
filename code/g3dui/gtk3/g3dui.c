@@ -68,8 +68,8 @@ uint32_t g3dui_saveChannelImageAs ( G3DUI    *gui,
         static char     filenameext[0x400] = { 0x00 };
 
         /*** default to JPG ***/
-        if ( ( strcasestr ( filename, ".jpg"  ) == NULL ) ||
-             ( strcasestr ( filename, ".jpeg" ) == NULL ) ||
+        if ( ( strcasestr ( filename, ".jpg"  ) == NULL ) &&
+             ( strcasestr ( filename, ".jpeg" ) == NULL ) &&
              ( strcasestr ( filename, ".png"  ) == NULL ) ) {
             snprintf ( filenameext, sizeof ( filenameext ), "%s.jpg", filename );
 
@@ -100,78 +100,84 @@ uint32_t g3dui_saveChannelImageAs ( G3DUI    *gui,
 /******************************************************************************/
 uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
                                          char       *materialName,
-                                         char       *channelName,
                                          G3DCHANNEL *chn,
-                                         uint32_t    confirm ) {
+                                         uint32_t    ask,
+                                         uint32_t    rename ) {
+
     if ( chn->image ) {
         G3DIMAGE *img = chn->image;
+        uint32_t doSave = 0x00;
 
-        if ( ( img->flags & ALTEREDIMAGE ) ||
-             ( img->filename == NULL     ) ) {
-            char *imageName = ( img->filename ) ? img->filename : "Untitled";
-            uint32_t confirmed = 0x00;
-            char str[0x400];
+        if ( rename == 0x00 ) {
+            if ( ( img->flags & ALTEREDIMAGE ) ||
+                 ( img->filename == NULL     ) ) {
+                char *imageName = ( img->filename ) ? img->filename : 
+                                                      "Untitled";
+                char str[0x400];
 
-            snprintf ( str, 
-                       sizeof ( str ),
-                       "Save image \"%s\" for channel \"%s:%s\" ?",
-                       imageName,
-                       materialName,
-                       channelName );
+                snprintf ( str, 
+                           sizeof ( str ),
+                           "Save image \"%s\" for channel \"%s:%s\" ?",
+                           imageName,
+                           materialName,
+                           chn->name );
 
-            if ( confirm ) {
-                gint response;
-                GtkWidget *dial;
-                dial = gtk_message_dialog_new ( NULL,
-                                                GTK_DIALOG_MODAL | 
-                                                GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                GTK_MESSAGE_QUESTION,
-                                                GTK_BUTTONS_NONE,
-                                                str );
+                if ( ask ) {
+                    gint response;
+                    GtkWidget *dial;
+                    dial = gtk_message_dialog_new ( NULL,
+                                                    GTK_DIALOG_MODAL | 
+                                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_MESSAGE_QUESTION,
+                                                    GTK_BUTTONS_NONE,
+                                                    str );
 
-                gtk_dialog_add_buttons ( dial,
-                                         GTK_STOCK_YES,
-                                         GTK_RESPONSE_YES,
-                                         GTK_STOCK_NO,
-                                         GTK_RESPONSE_NO,
-                                         GTK_STOCK_CANCEL,
-                                         GTK_RESPONSE_CANCEL,
-                                         NULL );
+                    gtk_dialog_add_buttons ( dial,
+                                             GTK_STOCK_YES,
+                                             GTK_RESPONSE_YES,
+                                             GTK_STOCK_NO,
+                                             GTK_RESPONSE_NO,
+                                             GTK_STOCK_CANCEL,
+                                             GTK_RESPONSE_CANCEL,
+                                             NULL );
 
-                gtk_window_set_title ( GTK_WINDOW ( dial ), "Save image ?" );
+                    gtk_window_set_title ( GTK_WINDOW ( dial ), "Save image ?" );
 
-                response = gtk_dialog_run ( GTK_DIALOG ( dial ) );
+                    response = gtk_dialog_run ( GTK_DIALOG ( dial ) );
 
-                switch ( response ) {
-                    case GTK_RESPONSE_YES:
-                        confirmed = 0x01;
-                    break;
+                    switch ( response ) {
+                        case GTK_RESPONSE_YES:
+                            doSave = 0x01;
+                        break;
 
-                    case GTK_RESPONSE_NO:
-                    break;
+                        case GTK_RESPONSE_NO:
+                        break;
 
-                    case GTK_RESPONSE_CANCEL:
-                        gtk_widget_destroy ( dial );
+                        case GTK_RESPONSE_CANCEL:
+                            gtk_widget_destroy ( dial );
 
-                        return 0x01;
-                    break;
+                            return 0x01;
+                        break;
 
-                    default : 
-                    break;
-                }
+                        default : 
+                        break;
+                    }
 
-                gtk_widget_destroy ( dial );
-            } else {
-                confirmed = 0x01;
-            }
-
-            if ( confirmed ) {
-                if ( img->filename ) {
-                    g3dimage_writeToDisk ( img );
+                    gtk_widget_destroy ( dial );
                 } else {
-                    g3dui_saveChannelImageAs ( gui, img );
+                    doSave = 0x01;
+                }
+
+                if ( doSave ) {
+                    if ( img->filename ) {
+                        g3dimage_writeToDisk ( img );
+                    } else {
+                        g3dui_saveChannelImageAs ( gui, img );
+                    }
                 }
             }
+        } else {
+            g3dui_saveChannelImageAs ( gui, img );
         }
     }
 
@@ -187,39 +193,52 @@ uint32_t g3dui_saveAlteredImages ( G3DUI *gui ) {
         G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Diffuse",
+                                               mat->name,
                                               &mat->diffuse,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Specular",
+                                               mat->name,
                                               &mat->specular,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Displacement",
+                                               mat->name,
                                               &mat->displacement,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Bump",
+                                               mat->name,
                                               &mat->bump,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Alpha",
+                                               mat->name,
                                               &mat->alpha,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Reflection",
+                                               mat->name,
                                               &mat->reflection,
-                                               0x01 );
+                                               0x01,
+                                               0x00 );
 
         ret += g3dui_saveChannelAlteredImage ( gui, 
-                                               mat->name, "Refraction",
-                                               &mat->refraction,
-                                               0x01 );
+                                               mat->name,
+                                              &mat->refraction,
+                                               0x01,
+                                               0x00 );
+
+        ret += g3dui_saveChannelAlteredImage ( gui, 
+                                               mat->name,
+                                              &mat->ambient,
+                                               0x01,
+                                               0x00 );
 
         ltmpmat = ltmpmat->next;
     }
