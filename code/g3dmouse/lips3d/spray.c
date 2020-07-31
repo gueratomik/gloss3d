@@ -51,10 +51,10 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
                             uint64_t engine_flags );
 
 /******************************************************************************/
-L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( ) {
-    uint32_t structsize = sizeof ( L3DMOUSETOOLSELECTRANDOM );
+L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( ) {
+    uint32_t structsize = sizeof ( L3DMOUSETOOLSELECTOR );
     void *memarea = calloc ( 0x01, structsize );
-    L3DMOUSETOOLSELECTRANDOM *sr =  ( L3DMOUSETOOLSELECTRANDOM * ) memarea;
+    L3DMOUSETOOLSELECTOR *sr =  ( L3DMOUSETOOLSELECTOR * ) memarea;
     L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
 
     if ( sr == NULL ) {
@@ -62,7 +62,7 @@ L3DMOUSETOOLSELECTRANDOM *l3dmousetoolselectrandom_new ( ) {
     }
 
     l3dmousetool_init ( ltool,
-                        SELECTRANDOMTOOL,
+                        SELECTTOOL,
                         's',
                         NULL,
                         NULL,
@@ -130,7 +130,7 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
                             uint64_t engine_flags ) {
-    L3DMOUSETOOLSELECTRANDOM *sr =  ( L3DMOUSETOOLSELECTRANDOM * ) gtool;
+    L3DMOUSETOOLSELECTOR *sr =  ( L3DMOUSETOOLSELECTOR * ) gtool;
     L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
     L3DSELECTOR *sel = ( L3DSELECTOR * ) ltool->obj;
     LIST *ltmplin = sel->llines;
@@ -220,8 +220,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                         if ( chn ) {
                             if ( chn->flags & USEIMAGECOLOR ) {
                                 if ( chn->image ) {
-                                    chn->image->flags |= ALTEREDIMAGE;
-
+                                    uint32_t retval;
                                     gluUnProject ( bev->x, 
                                                    VPX[0x03] - bev->y, 
                                                    0.0f,
@@ -237,21 +236,26 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                              chn->image->width * 
                                              chn->image->height);
 
-                                    ltool->obj->press ( ltool->obj,
-                                                        pattern,
-                                                        fgcolor,
-                                                        bgcolor,
-                                                        mx * chn->image->width,
-                                                        my * chn->image->height,
-                                                        chn->image->data,
-                                                        chn->image->width,
-                                                        chn->image->height,
-                                                        chn->image->bytesPerPixel * 0x08,
-                                                        mou->mask,
-                                                        mou->zbuffer,
-                                                        0x00 );
+                                    retval = ltool->obj->press ( ltool->obj,
+                                                                 pattern,
+                                                                 fgcolor,
+                                                                 bgcolor,
+                                                                 mx * chn->image->width,
+                                                                 my * chn->image->height,
+                                                                 chn->image->data,
+                                                                 chn->image->width,
+                                                                 chn->image->height,
+                                                                 chn->image->bytesPerPixel * 0x08,
+                                                                 mou->mask,
+                                                                 mou->zbuffer,
+                                                                 0x00 );
 
-                                    g3dimage_bind ( chn->image );
+                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
+                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                        g3dimage_bind ( chn->image );
+
+                                        chn->image->flags |= ALTEREDIMAGE;
+                                    }
                                 }
                             }
                         }
@@ -291,8 +295,6 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                     G3DIMAGE *image = chn->image;
                                     uint32_t retval = 0x00;
                                     uint32_t l3dFlags = 0x00;
-
-                                    chn->image->flags |= ALTEREDIMAGE;
 
                                     l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
 
@@ -366,6 +368,11 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                             glDisable ( GL_TEXTURE_2D );
                                         }
                                     }
+
+                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
+                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                        chn->image->flags |= ALTEREDIMAGE;
+                                    }
                                 }
                             }
                         }
@@ -399,7 +406,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                         if ( chn ) {
                             if ( chn->flags & USEIMAGECOLOR ) {
                                 if ( chn->image ) {
-                                    chn->image->flags |= ALTEREDIMAGE;
+                                    uint32_t retval;
 
                                     gluUnProject ( bev->x, 
                                                    VPX[0x03] - bev->y, 
@@ -411,21 +418,28 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                   &my,
                                                   &mz );
 
-                                    ltool->obj->release ( ltool->obj,
-                                                          pattern,
-                                                          fgcolor,
-                                                          bgcolor,
-                                                          mx * chn->image->width,
-                                                          my * chn->image->height,
-                                                          chn->image->data,
-                                                          chn->image->width,
-                                                          chn->image->height,
-                                                          chn->image->bytesPerPixel * 0x08,
-                                                          mou->mask,
-                                                          mou->zbuffer,
-                                                          0x00 );
+                                    retval = ltool->obj->release ( ltool->obj,
+                                                                   pattern,
+                                                                   fgcolor,
+                                                                   bgcolor,
+                                                                   mx * chn->image->width,
+                                                                   my * chn->image->height,
+                                                                   chn->image->data,
+                                                                   chn->image->width,
+                                                                   chn->image->height,
+                                                                   chn->image->bytesPerPixel * 0x08,
+                                                                   mou->mask,
+                                                                   mou->zbuffer,
+                                                                   0x00 );
 
-                                    g3dimage_bind ( chn->image );
+
+
+                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
+                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                        g3dimage_bind ( chn->image );
+
+                                        chn->image->flags |= ALTEREDIMAGE;
+                                    }
                                 }
                             }
                         }

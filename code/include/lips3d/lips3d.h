@@ -144,19 +144,31 @@ typedef struct _L3DSELECTORLINE {
 } L3DSELECTORLINE;
 
 /******************************************************************************/
+
+typedef enum {
+    SELECTORMODERANDOM,
+    SELECTORMODESQUARE,
+    SELECTORMODECIRCLE,
+    SELECTORMODELASSO
+} L3DSELECTORMODEENUM;
+
 typedef struct _L3DSELECTOR {
-    L3DOBJECT         obj;
-    L3DSELECTORPOINT *firstPoint;
-    L3DSELECTORPOINT *lastPoint;
-    L3DSELECTORLINE  *firstLine;
-    L3DSELECTORLINE  *lastLine;
-    LIST             *llines;
-    LIST             *lpoints;
-    uint32_t          closed;
-    int32_t           xmax;
-    int32_t           ymax;
-    int32_t           xmin;
-    int32_t           ymin;
+    L3DOBJECT           obj;
+    L3DSELECTORMODEENUM mode;
+    uint32_t            closed;
+    L3DSELECTORPOINT   *firstPoint;
+    L3DSELECTORPOINT   *lastPoint;
+    L3DSELECTORLINE    *firstLine;
+    L3DSELECTORLINE    *lastLine;
+    LIST               *llines;
+    LIST               *lpoints;
+    int32_t             xmax;
+    int32_t             ymax;
+    int32_t             xmin;
+    int32_t             ymin;
+    /*** for square mode ***/
+    L3DSELECTORPOINT    *sqpt[0x04];
+    L3DSELECTORLINE     *sqlin[0x04];
 } L3DSELECTOR;
 
 /******************************************************************************/
@@ -309,5 +321,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( );
 L3DSELECTOR* l3dselector_new ( );
+void l3dselector_setMode ( L3DSELECTOR        *sel,
+                           L3DSELECTORMODEENUM mode );
 
 #endif

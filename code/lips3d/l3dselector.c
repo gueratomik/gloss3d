@@ -37,6 +37,8 @@
 #define LINEFORCEBIT  0x10
 #define LINEBITMASK   0x0F
 
+static void l3dselector_findMinMax ( L3DSELECTOR *sel );
+
 static int l3dselector_reset ( L3DSELECTOR *sel,
                                uint64_t     engine_flags );
 static int l3dselector_press ( L3DOBJECT     *obj,
@@ -257,6 +259,12 @@ L3DSELECTORLINE* l3dselectorline_new ( L3DSELECTORPOINT *srcpt,
 }
 
 /******************************************************************************/
+void l3dselector_setMode ( L3DSELECTOR        *sel,
+                           L3DSELECTORMODEENUM mode ) {
+    sel->mode = mode;
+}
+
+/******************************************************************************/
 L3DSELECTOR* l3dselector_new ( ) {
     uint32_t structSize = sizeof ( L3DSELECTOR );
     L3DSELECTOR *sel = ( L3DSELECTOR * ) calloc ( 0x01, structSize );
@@ -266,6 +274,8 @@ L3DSELECTOR* l3dselector_new ( ) {
 
         return NULL;
     }
+
+    sel->mode = SELECTORMODERANDOM;
 
     l3dobject_init ( sel,
                      0.0f,
@@ -282,6 +292,8 @@ static void l3dselector_generateMask (  L3DSELECTOR   *sel,
                                         uint32_t       width, 
                                         uint32_t       height,
                                         unsigned char *mask ) {
+    l3dselector_findMinMax ( sel );
+
     uint32_t selWidth  = abs ( sel->xmax - sel->xmin ) + 0x01,
              selHeight = abs ( sel->ymax - sel->ymin ) + 0x01;
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
@@ -401,53 +413,148 @@ static int l3dselector_reset ( L3DSELECTOR *sel,
 }
 
 /******************************************************************************/
-static int l3dselector_press ( L3DOBJECT     *obj,
-                               L3DPATTERN    *pattern,
-                               uint32_t       fgcolor,
-                               uint32_t       bgcolor,
-                               int32_t        x,
-                               int32_t        y,
-                               unsigned char *buffer, 
-                               uint32_t       width, 
-                               uint32_t       height,
-                               uint32_t       bpp,
-                               unsigned char *mask,
-                               unsigned char *zbuffer,
-                               uint64_t engine_flags ) {
+static int l3dselector_pressSquare ( L3DOBJECT     *obj,
+                                     L3DPATTERN    *pattern,
+                                     uint32_t       fgcolor,
+                                     uint32_t       bgcolor,
+                                     int32_t        x,
+                                     int32_t        y,
+                                     unsigned char *buffer, 
+                                     uint32_t       width, 
+                                     uint32_t       height,
+                                     uint32_t       bpp,
+                                     unsigned char *mask,
+                                     unsigned char *zbuffer,
+                                     uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
-    if ( sel->closed ) {
-        sel->closed = 0x00;
+    if ( sel->closed == 0x00 ) {
+        L3DSELECTORPOINT *pt;
+        L3DSELECTORLINE *lin;
 
-        sel->firstPoint = sel->lastPoint = NULL;
+        sel->sqpt[0x00] = l3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x01] = l3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x02] = l3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x03] = l3dselectorpoint_new ( x, y, width, height );
 
-        sel->firstLine = sel->lastLine = NULL;
+        sel->firstPoint = sel->sqpt[0x00];
+        sel->lastPoint  = sel->sqpt[0x03];
 
-        list_free ( &sel->llines , l3dselectorline_free  );
-        list_free ( &sel->lpoints, l3dselectorpoint_free );
+        list_insert ( &sel->lpoints, sel->sqpt[0x00] );
+        list_insert ( &sel->lpoints, sel->sqpt[0x01] );
+        list_insert ( &sel->lpoints, sel->sqpt[0x02] );
+        list_insert ( &sel->lpoints, sel->sqpt[0x03] );
+
+        sel->sqlin[0x00] = l3dselectorline_new ( sel->sqpt[0x00], 
+                                                 sel->sqpt[0x01] );
+        sel->sqlin[0x01] = l3dselectorline_new ( sel->sqpt[0x01], 
+                                                 sel->sqpt[0x02] );
+        sel->sqlin[0x02] = l3dselectorline_new ( sel->sqpt[0x02], 
+                                                 sel->sqpt[0x03] );
+        sel->sqlin[0x03] = l3dselectorline_new ( sel->sqpt[0x03], 
+                                                 sel->sqpt[0x00] );
+
+        list_insert ( &sel->llines, sel->sqlin[0x00] );
+        list_insert ( &sel->llines, sel->sqlin[0x01] );
+        list_insert ( &sel->llines, sel->sqlin[0x02] );
+        list_insert ( &sel->llines, sel->sqlin[0x03] );
+
+        sel->firstLine = sel->sqlin[0x00];
+        sel->lastLine  = sel->sqlin[0x03];
+
+        sel->closed = 0x01;
+    } else {
+        /*** Note: we put this here but normally the reset callback should
+             also do the job ***/
+        l3dselector_reset ( sel, engine_flags );
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dselector_move ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
-                              uint32_t       fgcolor,
-                              uint32_t       bgcolor,
-                              int32_t        x,
-                              int32_t        y,
-                              unsigned char *buffer, 
-                              uint32_t       width, 
-                              uint32_t       height,
-                              uint32_t       bpp,
-                              unsigned char *mask,
-                              unsigned char *zbuffer,
-                              int32_t       *updx,
-                              int32_t       *updy,
-                              int32_t       *updw,
-                              int32_t       *updh,
-                              uint64_t engine_flags ) {
+static int l3dselector_pressRandom ( L3DOBJECT     *obj,
+                                     L3DPATTERN    *pattern,
+                                     uint32_t       fgcolor,
+                                     uint32_t       bgcolor,
+                                     int32_t        x,
+                                     int32_t        y,
+                                     unsigned char *buffer, 
+                                     uint32_t       width, 
+                                     uint32_t       height,
+                                     uint32_t       bpp,
+                                     unsigned char *mask,
+                                     unsigned char *zbuffer,
+                                     uint64_t       engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    if ( sel->closed ) {
+        l3dselector_reset ( sel, engine_flags );
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static int l3dselector_moveSquare ( L3DOBJECT     *obj,
+                                    L3DPATTERN    *pattern,
+                                    uint32_t       fgcolor,
+                                    uint32_t       bgcolor,
+                                    int32_t        x,
+                                    int32_t        y,
+                                    unsigned char *buffer, 
+                                    uint32_t       width, 
+                                    uint32_t       height,
+                                    uint32_t       bpp,
+                                    unsigned char *mask,
+                                    unsigned char *zbuffer,
+                                    int32_t       *updx,
+                                    int32_t       *updy,
+                                    int32_t       *updw,
+                                    int32_t       *updh,
+                                    uint64_t engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    if ( engine_flags & L3DBUTTON1PRESSED ) {
+        if ( sel->closed ) {
+            float u = ( float ) x / width,
+                  v = ( float ) y / height;
+
+            sel->sqpt[0x02]->x = x;
+            sel->sqpt[0x02]->u = u;
+
+            sel->sqpt[0x02]->y = y;
+            sel->sqpt[0x02]->v = v;
+
+            sel->sqpt[0x01]->x = x;
+            sel->sqpt[0x01]->u = u;
+
+            sel->sqpt[0x03]->y = y;
+            sel->sqpt[0x03]->v = v;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static int l3dselector_moveRandom ( L3DOBJECT     *obj,
+                                    L3DPATTERN    *pattern,
+                                    uint32_t       fgcolor,
+                                    uint32_t       bgcolor,
+                                    int32_t        x,
+                                    int32_t        y,
+                                    unsigned char *buffer, 
+                                    uint32_t       width, 
+                                    uint32_t       height,
+                                    uint32_t       bpp,
+                                    unsigned char *mask,
+                                    unsigned char *zbuffer,
+                                    int32_t       *updx,
+                                    int32_t       *updy,
+                                    int32_t       *updw,
+                                    int32_t       *updh,
+                                    uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
@@ -519,19 +626,41 @@ static void l3dselector_findMinMax ( L3DSELECTOR *sel ) {
 }
 
 /******************************************************************************/
-static int l3dselector_release ( L3DOBJECT     *obj,
-                                 L3DPATTERN    *pattern,
-                                 uint32_t       fgcolor,
-                                 uint32_t       bgcolor,
-                                 int32_t        x,
-                                 int32_t        y,
-                                 unsigned char *buffer, 
-                                 uint32_t       width, 
-                                 uint32_t       height,
-                                 uint32_t       bpp,
-                                 unsigned char *mask,
-                                 unsigned char *zbuffer,
-                                 uint64_t engine_flags ) {
+static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
+                                       L3DPATTERN    *pattern,
+                                       uint32_t       fgcolor,
+                                       uint32_t       bgcolor,
+                                       int32_t        x,
+                                       int32_t        y,
+                                       unsigned char *buffer, 
+                                       uint32_t       width, 
+                                       uint32_t       height,
+                                       uint32_t       bpp,
+                                       unsigned char *mask,
+                                       unsigned char *zbuffer,
+                                       uint64_t engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    /* the if statement is need only in case we get a release without a press */
+    if ( sel->closed ) {
+        l3dselector_generateMask ( sel, width, height, mask );
+    }
+}
+
+/******************************************************************************/
+static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
+                                       L3DPATTERN    *pattern,
+                                       uint32_t       fgcolor,
+                                       uint32_t       bgcolor,
+                                       int32_t        x,
+                                       int32_t        y,
+                                       unsigned char *buffer, 
+                                       uint32_t       width, 
+                                       uint32_t       height,
+                                       uint32_t       bpp,
+                                       unsigned char *mask,
+                                       unsigned char *zbuffer,
+                                       uint64_t engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
     static uint64_t oldmilliseconds;
     static int32_t oldx, oldy;
@@ -614,7 +743,6 @@ static int l3dselector_release ( L3DOBJECT     *obj,
 
             l3dselector_reset ( sel, engine_flags );
         } else {
-            l3dselector_findMinMax ( sel );
             l3dselector_generateMask ( sel, width, height, mask );
         }
     }
@@ -622,6 +750,186 @@ static int l3dselector_release ( L3DOBJECT     *obj,
     oldx = x;
     oldy = y;
     gettime ( &oldmilliseconds );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static int l3dselector_press ( L3DOBJECT     *obj,
+                               L3DPATTERN    *pattern,
+                               uint32_t       fgcolor,
+                               uint32_t       bgcolor,
+                               int32_t        x,
+                               int32_t        y,
+                               unsigned char *buffer, 
+                               uint32_t       width, 
+                               uint32_t       height,
+                               uint32_t       bpp,
+                               unsigned char *mask,
+                               unsigned char *zbuffer,
+                               uint64_t engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    switch ( sel->mode ) {
+        case SELECTORMODERANDOM :
+            return l3dselector_pressRandom ( obj,
+                                             pattern,
+                                             fgcolor,
+                                             bgcolor,
+                                             x,
+                                             y,
+                                             buffer, 
+                                             width, 
+                                             height,
+                                             bpp,
+                                             mask,
+                                             zbuffer,
+                                             engine_flags );
+        break;
+
+        case SELECTORMODESQUARE :
+            return l3dselector_pressSquare ( obj,
+                                             pattern,
+                                             fgcolor,
+                                             bgcolor,
+                                             x,
+                                             y,
+                                             buffer, 
+                                             width, 
+                                             height,
+                                             bpp,
+                                             mask,
+                                             zbuffer,
+                                             engine_flags );
+        break;
+
+        default :
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static int l3dselector_move ( L3DOBJECT     *obj,
+                              L3DPATTERN    *pattern,
+                              uint32_t       fgcolor,
+                              uint32_t       bgcolor,
+                              int32_t        x,
+                              int32_t        y,
+                              unsigned char *buffer, 
+                              uint32_t       width, 
+                              uint32_t       height,
+                              uint32_t       bpp,
+                              unsigned char *mask,
+                              unsigned char *zbuffer,
+                              int32_t       *updx,
+                              int32_t       *updy,
+                              int32_t       *updw,
+                              int32_t       *updh,
+                              uint64_t engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    switch ( sel->mode ) {
+        case SELECTORMODERANDOM :
+            return l3dselector_moveRandom ( obj,
+                                            pattern,
+                                            fgcolor,
+                                            bgcolor,
+                                            x,
+                                            y,
+                                            buffer, 
+                                            width, 
+                                            height,
+                                            bpp,
+                                            mask,
+                                            zbuffer,
+                                            updx,
+                                            updy,
+                                            updw,
+                                            updh,
+                                            engine_flags );
+        break;
+
+        case SELECTORMODESQUARE :
+            return l3dselector_moveSquare ( obj,
+                                            pattern,
+                                            fgcolor,
+                                            bgcolor,
+                                            x,
+                                            y,
+                                            buffer, 
+                                            width, 
+                                            height,
+                                            bpp,
+                                            mask,
+                                            zbuffer,
+                                            updx,
+                                            updy,
+                                            updw,
+                                            updh,
+                                            engine_flags );
+        break;
+
+        default :
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static int l3dselector_release ( L3DOBJECT     *obj,
+                                 L3DPATTERN    *pattern,
+                                 uint32_t       fgcolor,
+                                 uint32_t       bgcolor,
+                                 int32_t        x,
+                                 int32_t        y,
+                                 unsigned char *buffer, 
+                                 uint32_t       width, 
+                                 uint32_t       height,
+                                 uint32_t       bpp,
+                                 unsigned char *mask,
+                                 unsigned char *zbuffer,
+                                 uint64_t engine_flags ) {
+    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+
+    switch ( sel->mode ) {
+        case SELECTORMODERANDOM :
+            return l3dselector_releaseRandom ( obj,
+                                               pattern,
+                                               fgcolor,
+                                               bgcolor,
+                                               x,
+                                               y,
+                                               buffer, 
+                                               width, 
+                                               height,
+                                               bpp,
+                                               mask,
+                                               zbuffer,
+                                               engine_flags );
+        break;
+
+        case SELECTORMODESQUARE :
+            return l3dselector_releaseSquare ( obj,
+                                               pattern,
+                                               fgcolor,
+                                               bgcolor,
+                                               x,
+                                               y,
+                                               buffer, 
+                                               width, 
+                                               height,
+                                               bpp,
+                                               mask,
+                                               zbuffer,
+                                               engine_flags );
+        break;
+
+        default :
+        break;
+    }
 
     return 0x00;
 }

@@ -176,9 +176,11 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
 
         basepen->oldx = x;
         basepen->oldy = y;
+
+        return L3DUPDATESUBIMAGE;
     }
 
-    return L3DUPDATESUBIMAGE;
+    return 0x00;
 }
 
 /******************************************************************************/

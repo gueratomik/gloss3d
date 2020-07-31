@@ -61,7 +61,7 @@ void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme ) {
     G3DUI        *gui = uvme->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
     L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( uvme->gui,
-                                                        SELECTRANDOMTOOL );
+                                                        SELECTTOOL );
 
     seltool->obj->reset ( seltool->obj, uvme->engine_flags );
 
@@ -361,7 +361,7 @@ void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme,
 void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
                                            int32_t           x, 
                                            int32_t           xold ) {
-    uvme->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.00005f );
+    uvme->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
 
     if ( uvme->cam.ortho.z < 0.0001f ) uvme->cam.ortho.z = 0.0001f;
 
@@ -493,7 +493,7 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
                                       G3DMOUSETOOL     *mou,
                                       uint64_t          engine_flags ) {
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
-    L3DMOUSETOOLSELECTRANDOM *seltool = common_g3dui_getMouseTool ( gui, SELECTRANDOMTOOL );
+    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 

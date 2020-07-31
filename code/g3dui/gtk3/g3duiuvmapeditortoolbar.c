@@ -55,6 +55,38 @@
 #include <xpm/eraser.xpm>
 
 /******************************************************************************/
+static void setSquareSelectorCbk ( GtkWidget *widget, 
+                                   gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+
+    if ( gui->lock ) return;
+
+    if ( uvmou ) {
+        l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODESQUARE );
+
+        g3duiuvmapeditor_setUVMouseTool ( widget, user_data );
+    }
+}
+
+/******************************************************************************/
+static void setRandomSelectorCbk ( GtkWidget *widget, 
+                                   gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+
+    if ( gui->lock ) return;
+
+    if ( uvmou ) {
+        l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODERANDOM );
+
+        g3duiuvmapeditor_setUVMouseTool ( widget, user_data );
+    }
+}
+
+/******************************************************************************/
 void g3duiuvmapeditor_saveasCbk ( GtkWidget *widget, 
                                   gpointer   user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
@@ -178,11 +210,11 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SELECTAREATOOL, selectarea_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, SELECTTOOL, selectarea_xpm, setSquareSelectorCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SELECTRANDOMTOOL, selectrandom_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, uvme, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
 
     /********************************/
 
