@@ -39,8 +39,9 @@
 #define ALTEREDIMAGE  ( 1 << 0 )
 #define ANIMATEDIMAGE ( 1 << 1 )
 #define STILLIMAGE    ( 1 << 2 )
-#define JPGIMAGE      ( 1 << 3 )
-#define PNGIMAGE      ( 1 << 4 )
+#define GLIMAGE       ( 1 << 3 ) /*** OpenGL binded bit ***/
+#define JPGIMAGE      ( 1 << 4 )
+#define PNGIMAGE      ( 1 << 5 )
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,6 +122,10 @@ G3DIMAGE * g3dimage_new ( uint32_t width,
 
 void g3dimage_setFileName ( G3DIMAGE *img, 
                             char     *filename );
+
+void g3dimage_resize ( G3DIMAGE *image, 
+                       uint32_t  newWidth, 
+                       uint32_t  newHeight );
 
 #ifdef __cplusplus
 }

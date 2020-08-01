@@ -643,7 +643,14 @@ static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
 
     /* the if statement is need only in case we get a release without a press */
     if ( sel->closed ) {
-        l3dselector_generateMask ( sel, width, height, mask );
+        if ( ( sel->sqpt[0x00]->x == sel->sqpt[0x03]->x ) &&
+             ( sel->sqpt[0x00]->y == sel->sqpt[0x03]->y ) ) {
+            memset ( mask, 0xFF, width * height );
+
+            l3dselector_reset ( sel, engine_flags );
+        } else {
+            l3dselector_generateMask ( sel, width, height, mask );
+        }
     }
 }
 

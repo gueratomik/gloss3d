@@ -32,6 +32,52 @@
 #define CLEARCOLOR 100
 
 /******************************************************************************/
+G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DUI        *gui = uvme->gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+
+                if ( mat ) {
+                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
+                    G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
+
+                    if ( chn ) {
+                        return chn;
+                    }
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+G3DIMAGE *common_g3duiuvmapeditor_getWorkingImage ( G3DUIUVMAPEDITOR *uvme ) {
+    G3DCHANNEL *chn = common_g3duiuvmapeditor_getWorkingChannel ( uvme );
+
+    if ( chn ) {
+        if ( chn->flags & USEIMAGECOLOR ) {
+            if ( chn->image ) {
+                return chn->image;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme, 
                                               G3DCAMERA        *cam, 
                                               G3DMOUSETOOL     *mou ) {
@@ -57,45 +103,57 @@ void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
+void common_g3duiuvmapeditor_fillWithColor ( G3DUIUVMAPEDITOR *uvme, 
+                                             uint32_t          color ) {
+    G3DIMAGE *img = common_g3duiuvmapeditor_getWorkingImage ( uvme );
+
+    if ( img ) {
+        unsigned char R = ( color & 0x00FF0000 ) >> 0x10,
+                      G = ( color & 0x0000FF00 ) >> 0x08,
+                      B = ( color & 0x000000FF ) >> 0x00;
+        uint32_t i, j;
+
+        for ( i = 0x00; i < img->height; i++ ) {
+            for ( j = 0x00; j < img->width; j++ ) {
+                uint32_t offset = ( i * img->width ) + j;
+
+                if ( uvme->mask[offset] ) {
+                    switch ( img->bytesPerPixel ) {
+                        case 0x03 : {
+                            unsigned char (*buffer)[0x03] = img->data;
+
+                            buffer[offset][0x00] = R;
+                            buffer[offset][0x01] = G;
+                            buffer[offset][0x02] = B;
+                        } break;
+
+                        default :
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( img->flags & GLIMAGE ) g3dimage_bind ( img );
+    }
+}
+
+/******************************************************************************/
 void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DUI        *gui = uvme->gui;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+    G3DIMAGE *img = common_g3duiuvmapeditor_getWorkingImage ( uvme );
     L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( uvme->gui,
                                                         SELECTTOOL );
 
     seltool->obj->reset ( seltool->obj, uvme->engine_flags );
 
-    if ( obj ) {
-        if ( obj->type & MESH ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+    if ( img ) {
+        if ( img->width && img->height ) {
+            uint32_t size = img->width *
+                            img->height;
+            uvme->mask    = realloc ( uvme->mask   , size );
+            uvme->zbuffer = realloc ( uvme->zbuffer, size );
 
-            /*** try the first texture in case no texture is selected ***/
-            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
-
-            if ( tex ) {
-                G3DMATERIAL *mat = tex->mat;
-
-                if ( mat ) {
-                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
-                    G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
-
-                    if ( chn ) {
-                        if ( chn->flags & USEIMAGECOLOR ) {
-                            if ( chn->image ) {
-                                if ( chn->image->width && chn->image->height ) {
-                                    uint32_t size = chn->image->width *
-                                                    chn->image->height;
-                                    uvme->mask    = realloc ( uvme->mask   , size );
-                                    uvme->zbuffer = realloc ( uvme->zbuffer, size );
-
-                                    memset ( uvme->mask, 0xFF, size );
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            memset ( uvme->mask, 0xFF, size );
         }
     }
 }

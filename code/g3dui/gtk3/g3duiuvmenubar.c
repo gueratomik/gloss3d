@@ -57,6 +57,84 @@ GtkWidget *createUVHelpMenu ( GtkWidget *bar, G3DUI *gui,
 }
 
 /******************************************************************************/
+void g3duiuvmapeditor_resizeChannelImageCbk ( GtkWidget *widget, 
+                                              gpointer   user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    G3DCHANNEL *chn = common_g3duiuvmapeditor_getWorkingChannel ( uvme );
+
+    if ( chn ) {
+        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+        createChannelImage ( dial, 
+                             uvme, 
+                             chn,
+                             0x01,
+                             "Channel Image", 0, 0, 200, 96 );
+
+        gtk_widget_show ( dial );
+    }
+}
+
+/******************************************************************************/
+void g3duiuvmapeditor_fgfillCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+
+    common_g3duiuvmapeditor_fillWithColor ( uvme, sysinfo->fgcolor );
+}
+
+/******************************************************************************/
+void g3duiuvmapeditor_bgfillCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+
+    common_g3duiuvmapeditor_fillWithColor ( uvme, sysinfo->bgcolor );
+}
+
+/******************************************************************************/
+GtkWidget *createUVImageMenu ( GtkWidget        *bar,
+                               G3DUIUVMAPEDITOR *uvme,
+                               char             *name,
+                               gint              width ) {
+    GtkWidget *menu = gtk_menu_new ( );
+    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Image" );
+    int height = gtk_widget_get_allocated_height ( item );
+
+    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
+
+    gtk_widget_set_size_request ( item, width, height );
+
+    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
+
+    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
+
+    g3dui_addMenuButton ( menu, 
+                          uvme, 
+                          MENU_RESIZEIMAGE, 
+                          width, 
+                          G_CALLBACK ( g3duiuvmapeditor_resizeChannelImageCbk ) );
+
+    g3dui_addMenuButton ( menu, 
+                          uvme, 
+                          MENU_FGFILL, 
+                          width, 
+                          G_CALLBACK ( g3duiuvmapeditor_fgfillCbk ) );
+
+    g3dui_addMenuButton ( menu, 
+                          uvme, 
+                          MENU_BGFILL, 
+                          width, 
+                          G_CALLBACK ( g3duiuvmapeditor_bgfillCbk ) );
+
+    gtk_widget_show ( item );
+    gtk_widget_show ( menu );
+
+
+
+    return menu;
+}
+
+/******************************************************************************/
 void g3duiuvmapeditor_fac2uvsetCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
 
@@ -98,7 +176,7 @@ GtkWidget *createUVEditMenu ( GtkWidget        *bar,
                               char             *name,
                               gint              width ) {
     GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Edit" );
+    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Mapping" );
     int height = gtk_widget_get_allocated_height ( item );
 
     gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
@@ -168,33 +246,18 @@ void g3duiuvmapeditor_loadImageByChannelIDCbk ( GtkWidget *widget,
 void g3duiuvmapeditor_createChannelImageCbk ( GtkWidget *widget, 
                                               gpointer   user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = ( G3DUI * ) uvme->gui;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+    G3DCHANNEL *chn = common_g3duiuvmapeditor_getWorkingChannel ( uvme );
 
-    if ( obj ) {
-        if ( obj->type & MESH ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
-            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+    if ( chn ) {
+        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
 
-            /*** try the first texture in case no texture is selected ***/
-            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+        createChannelImage ( dial, 
+                             uvme, 
+                             chn,
+                             0x00,
+                             "Channel Image", 0, 0, 200, 96 );
 
-            if ( tex ) {
-                G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
-                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
-
-                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-
-                createChannelImage ( dial, 
-                                     uvme, 
-                                     chn, 
-                                     "Channel Image", 0, 0, 200, 96 );
-
-                gtk_widget_show ( dial );
-            }
-        }
+        gtk_widget_show ( dial );
     }
 }
 
@@ -287,8 +350,10 @@ GtkWidget *createUVMenuBar ( GtkWidget        *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
 
-    createUVFileMenu ( bar, uvme, "FileMenu" , 60 );
-    createUVEditMenu ( bar, uvme, "EditMenu" , 60 );
+    createUVFileMenu  ( bar, uvme, "FileMenu"  , 60 );
+    createUVEditMenu  ( bar, uvme, "EditMenu"  , 60 );
+    createUVImageMenu ( bar, uvme, "ImageMenu" , 60 );
+
     /*createUVHelpMenu ( bar, gui, "HelpMenu" , 90 );*/
 
     gtk_widget_show ( bar );

@@ -178,6 +178,52 @@ static void loadFrame ( char     *animationFileName,
 }
 
 /******************************************************************************/
+void g3dimage_resize ( G3DIMAGE *img, 
+                       uint32_t  newWidth, 
+                       uint32_t  newHeight ) {
+    uint32_t newMemsize = newWidth * newHeight * img->bytesPerPixel;
+    unsigned char *data = ( unsigned char * ) malloc ( newMemsize );
+    float wratio = ( float ) img->width  / newWidth,
+          hratio = ( float ) img->height / newHeight;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < newHeight; i++ ) {
+        uint32_t oi = i * hratio;
+
+        for ( j = 0x00; j < newWidth; j++ ) {
+            uint32_t oj = j * wratio;
+            uint32_t newOffset = (  i * newWidth   ) +  j;
+            uint32_t oldOffset = ( oi * img->width ) + oj;
+
+            switch ( img->bytesPerPixel ) {
+                case 0x03 : {
+                    unsigned char (*newData)[0x03] = data;
+                    unsigned char (*oldData)[0x03] = img->data;
+
+                    newData[newOffset][0x00] = oldData[oldOffset][0x00];
+                    newData[newOffset][0x01] = oldData[oldOffset][0x01];
+                    newData[newOffset][0x02] = oldData[oldOffset][0x02];
+                } break;
+
+                default :
+                break;
+            }
+        }
+    }
+
+    free ( img->data );
+
+    img->width        = newWidth;
+    img->height       = newHeight;
+    img->data         = data;
+    img->bytesPerLine = img->bytesPerPixel * newWidth;
+
+    if ( img->flags & GLIMAGE ) g3dimage_bind ( img );
+
+    img->flags |= ALTEREDIMAGE;
+}
+
+/******************************************************************************/
 void g3dimage_bind ( G3DIMAGE *image ) {
     glEnable ( GL_TEXTURE_2D );
 
@@ -316,7 +362,7 @@ void g3dimage_initFromVideo ( G3DIMAGE   *image,
                               uint32_t    bindGL ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
-    image->flags |= ANIMATEDIMAGE;
+    image->flags |= ( ANIMATEDIMAGE | ( ( bindGL ) ? GLIMAGE : 0x00 ) ); 
 
     g3dimage_getVideoSize ( image, 0x00 );
 
@@ -357,7 +403,7 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
              jpgdepth;
     GLint max;
 
-    img->flags |= ( STILLIMAGE | JPGIMAGE );
+    img->flags |= ( STILLIMAGE | JPGIMAGE | ( ( bindGL ) ? GLIMAGE : 0x00 ) );
 
     g3dcore_loadJpeg ( filename, &jpgwidth,
                                  &jpgheight,
@@ -372,7 +418,7 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
 
     img->bytesPerPixel = jpgdepth;
 
-    /*** power of two is co;;ented out. All images must be of power of two ***/
+    /*** power of two is commented out. All images must be of power of two ***/
     if ( /*poweroftwo &&*/ ( jpgdepth == 0x03 ) ) {
         uint32_t imgwidth  = g3dcore_getNextPowerOfTwo ( jpgwidth  ),
                  imgheight = g3dcore_getNextPowerOfTwo ( jpgheight );
@@ -485,7 +531,7 @@ G3DIMAGE * g3dimage_new ( uint32_t width,
         return NULL;
     }
 
-    img->flags |= STILLIMAGE;
+    img->flags |= ( STILLIMAGE | ( ( bindGL ) ? GLIMAGE : 0x00 ) );
 
     img->width         = width;
     img->height        = height;
