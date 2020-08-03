@@ -503,7 +503,7 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
-printf("%s %d %d %d %d\n", child_name, gdkrec.x, gdkrec.y, gdkrec.width, gdkrec.height );
+
         if ( strcmp ( child_name, "MOUSETOOL" ) == 0x00 ) {
             gdkrec.x       = uvme->toolrec.x;
             gdkrec.y       = uvme->toolrec.y;

@@ -126,8 +126,15 @@ void g3duipatternlist_input ( GtkWidget *widget,
             if ( preview ) {
                 L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
+                /*** resize to the size of the pattern used until now ***/
+                if ( sysinfo->pattern ) {
+                    l3dpattern_resize ( preview->pat, sysinfo->pattern->size );
+                }
+
                 l3dsysinfo_setPattern ( sysinfo, preview->pat );
                 /*uvme->selpat = preview->pat; */
+
+                g3duiuvmapeditor_updateMouseToolEdit ( uvme );
             }
         } break;
 

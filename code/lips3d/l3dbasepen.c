@@ -84,8 +84,9 @@ L3DBASEPEN* l3dbasepen_new ( ) {
         return NULL;
     }
 
+    basepen->pressure    = 1.0f;
+
     l3dobject_init ( basepen,
-                     1.0f,
                      NULL,
                      l3dbasepen_press,
                      l3dbasepen_move,
@@ -161,7 +162,7 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
 
         l3core_paintLine ( pattern,
                            fgcolor,
-                           obj->pressure,
+                           basepen->pressure,
                            basepen->oldx,
                            basepen->oldy,
                            x,

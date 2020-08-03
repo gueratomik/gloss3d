@@ -74,7 +74,6 @@ void l3dsysinfo_setBackgroundColor ( L3DSYSINFO *sysinfo, uint32_t bgcolor );
 
 /******************************************************************************/
 typedef struct _L3DOBJECT {
-    float       pressure;
     int (*reset)   ( struct _L3DOBJECT *obj,
                      uint64_t engine_flags );
     int (*press)   ( struct _L3DOBJECT *obj,
@@ -125,6 +124,7 @@ typedef struct _L3DOBJECT {
 /******************************************************************************/
 typedef struct _L3DBASEPEN {
     L3DOBJECT obj;
+    float     pressure;
     int32_t   oldx;
     int32_t   oldy;
 } L3DBASEPEN;
@@ -271,7 +271,6 @@ L3DPLAINCIRCLEPATTERN    *l3dplaincirclepattern_new    ( uint32_t size );
 
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
-                      float       pressure,
                       int (*reset)  ( L3DOBJECT     *obj,
                                       uint64_t       engine_flags ),
                       int (*press)  ( L3DOBJECT     *obj,

@@ -31,7 +31,6 @@
 
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
-                      float       pressure,
                       int (*reset) ( L3DOBJECT     *obj,
                                      uint64_t engine_flags ),
                       int (*press) ( L3DOBJECT     *obj,
@@ -81,6 +80,4 @@ void l3dobject_init ( L3DOBJECT  *obj,
     obj->press    = press;
     obj->move     = move;
     obj->release  = release;
-
-    obj->pressure = pressure;
 }

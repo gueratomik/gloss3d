@@ -1615,5 +1615,7 @@ void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme,
                                             float             radius );
 void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme, 
                                               float             pressure );
+void common_g3duipentooledit_setIncrementalCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                                 uint32_t          inc );
 
 #endif

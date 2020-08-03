@@ -278,7 +278,6 @@ L3DSELECTOR* l3dselector_new ( ) {
     sel->mode = SELECTORMODERANDOM;
 
     l3dobject_init ( sel,
-                     0.0f,
                      l3dselector_reset,
                      l3dselector_press,
                      l3dselector_move,

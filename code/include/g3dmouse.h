@@ -279,12 +279,8 @@ typedef struct _L3DMOUSETOOL {
 /******************************************************************************/
 typedef struct _L3DMOUSETOOLPEN {
     L3DMOUSETOOL ltool;
-} L3DMOUSETOOLPEN;
-
-/******************************************************************************/
-typedef struct _L3DMOUSETOOLERASER {
-    L3DMOUSETOOL ltool;
-} L3DMOUSETOOLERASER;
+    uint32_t     incremental;
+} L3DMOUSETOOLPEN, L3DMOUSETOOLERASER;
 
 /******************************************************************************/
 void g3dmousetool_init ( G3DMOUSETOOL *gtool,

@@ -187,6 +187,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
     static G3DOBJECT *obj;
     static G3DMESH *mes;
     L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mou;
+    L3DMOUSETOOLPEN *pen = ( L3DMOUSETOOLPEN * ) mou;
     double mx, my, mz;
     static int subRect[0x04];
     static double oldx, oldy;
@@ -308,26 +309,28 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                   &my,
                                                   &mz );
 
-                                    if ( mev->state & G3DButton1Mask ) {
-                                        static double oldVector[0x02];
-                                               double newVector[0x02];
+                                    if ( pen->incremental ) {
+                                        if ( mev->state & G3DButton1Mask ) {
+                                            static double oldVector[0x02];
+                                                   double newVector[0x02];
 
-                                        newVector[0x00] = mev->x - oldx;
-                                        newVector[0x01] = mev->y - oldy;
+                                            newVector[0x00] = mev->x - oldx;
+                                            newVector[0x01] = mev->y - oldy;
 
-                                        /*** If we are going in the opposite direction, then reset the zbuffer. ***/
-                                        /*** This allows for a second pass of the pencil ***/
-                                        if ( ( ( newVector[0x00] * 
-                                                 oldVector[0x00] ) +
-                                               ( newVector[0x01] * 
-                                                 oldVector[0x01] ) ) < 0x00 ) {
-                                            memset ( mou->zbuffer, 
-                                                     0x00, 
-                                                     image->width * image->height );
+                                            /*** If we are going in the opposite direction, then reset the zbuffer. ***/
+                                            /*** This allows for a second pass of the pencil ***/
+                                            if ( ( ( newVector[0x00] * 
+                                                     oldVector[0x00] ) +
+                                                   ( newVector[0x01] * 
+                                                     oldVector[0x01] ) ) < 0x00 ) {
+                                                memset ( mou->zbuffer, 
+                                                         0x00, 
+                                                         image->width * image->height );
+                                            }
+
+                                            oldVector[0x00] = newVector[0x00];
+                                            oldVector[0x01] = newVector[0x01];
                                         }
-
-                                        oldVector[0x00] = newVector[0x00];
-                                        oldVector[0x01] = newVector[0x01];
                                     }
 
                                     retval = ltool->obj->move ( ltool->obj,

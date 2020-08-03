@@ -30,6 +30,18 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3duipentooledit_setIncrementalCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                                 uint32_t          inc ) {
+    L3DMOUSETOOLPEN *pen = common_g3dui_getMouseTool ( uvme->gui, PENTOOL );
+
+    if ( uvme->gui->lock ) return;
+
+    if ( pen ) {
+        pen->incremental = inc;
+    }
+}
+
+/******************************************************************************/
 void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme, 
                                             float             radius ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
@@ -47,6 +59,8 @@ void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme,
     if ( uvme->gui->lock ) return;
 
     if ( mou ) {
-        mou->obj->pressure = pressure;
+        L3DBASEPEN *bpobj = ( L3DBASEPEN * ) mou->obj;
+
+        bpobj->pressure = pressure;
     }
 }

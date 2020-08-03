@@ -29,8 +29,19 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITPENTOOLRADIUS   "Radius"
-#define EDITPENTOOLPRESSURE "Pressure"
+#define EDITPENTOOLRADIUS      "Radius"
+#define EDITPENTOOLPRESSURE    "Pressure"
+#define EDITPENTOOLINCREMENTAL "Incremental"
+
+
+/******************************************************************************/
+static void setIncrementalCbk  ( GtkWidget *widget, 
+                                 gpointer   user_data ) {
+    int incremental = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+
+    common_g3duipentooledit_setIncrementalCbk ( uvme, incremental );
+}
 
 /******************************************************************************/
 static void setRadiusCbk  ( GtkWidget *widget, 
@@ -72,11 +83,25 @@ void updatePenToolEdit ( GtkWidget        *widget,
             }
         }
 
+        if ( GTK_IS_CHECK_BUTTON(child) ) {
+            GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+            if ( strcmp ( child_name, EDITPENTOOLINCREMENTAL ) == 0x00 ) {
+                if ( pen->incremental ) {
+                    gtk_toggle_button_set_active ( tbn, TRUE  );
+                } else {
+                    gtk_toggle_button_set_active ( tbn, FALSE );
+                }
+            }
+        }
+
         if ( GTK_IS_SCALE (child) ) {
             GtkRange *ran = GTK_RANGE(child);
 
             if ( strcmp ( child_name, EDITPENTOOLPRESSURE ) == 0x00 ) {
-                gtk_range_set_value ( ran, ( tool->obj->pressure * 100.0f ) );
+                L3DBASEPEN *bpobj = ( L3DBASEPEN * ) tool->obj;
+
+                gtk_range_set_value ( ran, ( bpobj->pressure * 100.0f ) );
             }
         }
 
@@ -114,13 +139,22 @@ GtkWidget *createPenToolEdit ( GtkWidget        *parent,
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), uvme );
 
+
+    createSimpleLabel ( frm, uvme, EDITPENTOOLPRESSURE,
+                        0x00, 
+                        0x00, 
+                        0x60,
+                        24 );
     createHorizontalScale ( frm, uvme, EDITPENTOOLPRESSURE,
-                                  0,   0, 256,  32,
+                                 96,   0, 160,  24,
                                  0.0f, 100.0f, 1.0f, setPressureCbk );
 
     createIntegerText     ( frm, uvme, EDITPENTOOLRADIUS, 
                                   0, 256,
-                                  0, 32,   96,  32, setRadiusCbk );
+                                  0, 24, 96,  32, setRadiusCbk );
+
+    createToggleLabel     ( frm, uvme, EDITPENTOOLINCREMENTAL,
+                                  0, 48, 96,  24, setIncrementalCbk );
 
 
     gtk_widget_show ( frm );
