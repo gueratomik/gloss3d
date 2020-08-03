@@ -469,7 +469,7 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DSCENE     *sce, 
                       G3DCAMERA    *cam,
                       G3DURMANAGER *urm,
-                      uint64_t engine_flags, 
+                      uint64_t      engine_flags, 
                       G3DEvent     *event ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 

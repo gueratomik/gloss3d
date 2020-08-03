@@ -64,6 +64,21 @@ gboolean g3duiuvmapeditor_destroyGL ( GtkWidget *widget,
                                      gpointer   user_data );
 
 /******************************************************************************/
+void g3duiuvmapeditor_updateMouseToolEdit ( G3DUIUVMAPEDITOR *uvme ) {
+    LIST *ltmpwidget = uvme->lmtools;
+
+    while ( ltmpwidget ) {
+        GtkWidget *widget = ( GtkWidget * ) ltmpwidget->data;
+
+        updateL3DMouseTool ( widget, uvme );
+
+        ltmpwidget = ltmpwidget->next;
+    }
+
+    /*g3dui_redrawWidgetList ( uvme->gui, uvme->lmtools );*/
+}
+
+/******************************************************************************/
 void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
     G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
     G3DUI        *gui = uvme->gui;
@@ -103,6 +118,8 @@ void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
     } else {
         fprintf ( stderr, "No such mousetool %s\n", name );
     }
+
+    g3duiuvmapeditor_updateMouseToolEdit ( uvme );
 }
 
 /******************************************************************************/
@@ -486,6 +503,15 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
+printf("%s %d %d %d %d\n", child_name, gdkrec.x, gdkrec.y, gdkrec.width, gdkrec.height );
+        if ( strcmp ( child_name, "MOUSETOOL" ) == 0x00 ) {
+            gdkrec.x       = uvme->toolrec.x;
+            gdkrec.y       = uvme->toolrec.y;
+            gdkrec.width   = uvme->toolrec.width;
+            gdkrec.height  = uvme->toolrec.height;
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
 
         if ( strcmp ( child_name, "CHANNELSELECTION" ) == 0x00 ) {
             gdkrec.x       = MODEBARBUTTONSIZE;
@@ -819,6 +845,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     createChannelSelection ( guv, uvme, "CHANNELSELECTION", 0x00, 0x00, 0x80 );
 
     createFgBgButton ( guv, gui, "FGBGBUTTON", 0x00, 0x00, 0x30, 0x30 );
+    createL3DMouseToolEdit ( guv, uvme, "MOUSETOOL", 0x00, 0x00, 256, 256 );
 
     gtk_widget_show ( guv );
 

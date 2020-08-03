@@ -451,8 +451,8 @@ Widget createRenderWindow   ( Widget, G3DUI *, char *, Dimension, Dimension,
 Widget createCoordinatesEdit( Widget, G3DUI *, char *, Dimension, Dimension,
                                                        Dimension, Dimension );
 
-void   updateCurrentMouseTool ( Widget, G3DUI * );
-Widget createCurrentMouseTool ( Widget, G3DUI *, char *, Dimension, Dimension,
+void   updateG3DMouseTool ( Widget, G3DUI * );
+Widget createG3DMouseToolEdit ( Widget, G3DUI *, char *, Dimension, Dimension,
                                                          Dimension, Dimension );
 
 void   updateRenderEdit     ( Widget, G3DUI * );

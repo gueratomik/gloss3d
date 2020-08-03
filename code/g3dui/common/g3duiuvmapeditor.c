@@ -135,6 +135,8 @@ void common_g3duiuvmapeditor_fillWithColor ( G3DUIUVMAPEDITOR *uvme,
         }
 
         if ( img->flags & GLIMAGE ) g3dimage_bind ( img );
+
+        img->flags |= ALTEREDIMAGE;
     }
 }
 

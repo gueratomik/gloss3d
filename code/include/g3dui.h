@@ -885,6 +885,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     char          *mask;
     char          *zbuffer;
     L3DPATTERN    *selpat;
+    LIST         *lmtools; /*** list of mousetools widget ***/
 } G3DUIUVMAPEDITOR;
 
 /******************************* g3duiview.c **********************************/
@@ -1609,5 +1610,10 @@ void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme );
 G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme );
 G3DIMAGE *common_g3duiuvmapeditor_getWorkingImage   ( G3DUIUVMAPEDITOR *uvme );
 void common_g3duiuvmapeditor_fgfill ( G3DUIUVMAPEDITOR *uvme );
+
+void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                            float             radius );
+void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                              float             pressure );
 
 #endif

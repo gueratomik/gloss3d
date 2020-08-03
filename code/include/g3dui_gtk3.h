@@ -400,8 +400,8 @@ void       updateRenderEdit       ( GtkWidget *, G3DUI * );
 GtkWidget *createRenderEdit       ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-void       updateCurrentMouseTool ( GtkWidget *, G3DUI * );
-GtkWidget *createCurrentMouseTool ( GtkWidget *, G3DUI *, char *, gint, gint, 
+void       updateG3DMouseTool ( GtkWidget *, G3DUI * );
+GtkWidget *createG3DMouseToolEdit ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
 void       updateCutMeshToolEdit  ( GtkWidget *, G3DUI * );
@@ -806,5 +806,26 @@ void g3duiuvmapeditor_loadImageByChannelIDCbk ( GtkWidget *widget,
 
 void g3duiuvmapeditor_createChannelImageCbk ( GtkWidget *widget, 
                                               gpointer   user_data );
+
+GtkWidget *createPenToolEdit ( GtkWidget        *parent, 
+                               G3DUIUVMAPEDITOR *uvme,
+                               char             *name,
+                               gint              x,
+                               gint              y,
+                               gint              width,
+                               gint              height );
+
+void updatePenToolEdit ( GtkWidget        *widget,
+                         G3DUIUVMAPEDITOR *uvme );
+
+GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
+                                    G3DUIUVMAPEDITOR *uvme,
+                                    char             *name,
+                                    gint              x,
+                                    gint              y,
+                                    gint              width,
+                                    gint              height );
+
+void g3duiuvmapeditor_updateMouseToolEdit ( G3DUIUVMAPEDITOR *uvme );
 
 #endif

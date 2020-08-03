@@ -72,12 +72,13 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget *createCurrentMouseTool ( GtkWidget *parent, G3DUI *gui,
-                                                       char *name,
-                                                       gint x,
-                                                       gint y,
-                                                       gint width,
-                                                       gint height ) {
+GtkWidget *createG3DMouseToolEdit ( GtkWidget *parent, 
+                                    G3DUI     *gui,
+                                    char *name,
+                                    gint x,
+                                    gint y,
+                                    gint width,
+                                    gint height ) {
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle frmrec = { 0, 0, 320, 256 };
     GtkWidget *label = gtk_label_new ( name );

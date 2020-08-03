@@ -71,7 +71,7 @@ void updateCurrentMouseTool ( Widget w, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-Widget createCurrentMouseTool ( Widget parent, G3DUI *gui, 
+Widget createG3DMouseToolEdit ( Widget parent, G3DUI *gui, 
                                                char *name,
                                                Dimension x,
                                                Dimension y,

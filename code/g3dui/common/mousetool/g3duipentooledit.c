@@ -27,48 +27,26 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui_gtk3.h>
+#include <g3dui.h>
 
 /******************************************************************************/
-GtkWidget *createObjectBoard ( GtkWidget *parent, G3DUI *gui,
-                                                  char *name,
-                                                  gint x,
-                                                  gint y,
-                                                  gint width,
-                                                  gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *label = gtk_label_new ( name );
-    GtkWidget *curedit, *objlist, *tab, *frm;
+void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                            float             radius ) {
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
-    frm = gtk_fixed_new ( );
+    if ( uvme->gui->lock ) return;
 
-    gtk_widget_set_name ( frm, name );
+    l3dpattern_resize ( sysinfo->pattern, radius );
+}
 
-    gtk_widget_size_allocate ( frm, &gdkrec );
+/******************************************************************************/
+void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme, 
+                                              float             pressure ) {
+    L3DMOUSETOOL *mou = common_g3dui_getMouseTool ( uvme->gui, PENTOOL );
 
-    createObjectList ( frm, gui, "Objects", 0x00, 0x00, 0x140, 0x140 );
+    if ( uvme->gui->lock ) return;
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(parent), frm, label );
-
-
-    /**** BOTTOM TABs ****/
-    tab = gtk_notebook_new ( );
-
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
-
-    gdkrec.width  = 0x140;
-    gdkrec.height = 0x140;
-
-    gtk_widget_size_allocate ( tab, &gdkrec );
-
-    gtk_fixed_put ( GTK_FIXED(frm), tab, 0x00, 0x140 );
-
-    createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
-    createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
-    createG3DMouseToolEdit ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
-
-    gtk_widget_show_all ( frm );
-
-
-    return frm;
+    if ( mou ) {
+        mou->obj->pressure = pressure;
+    }
 }

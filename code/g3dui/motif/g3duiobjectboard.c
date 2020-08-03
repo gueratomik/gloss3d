@@ -64,7 +64,7 @@ Widget createObjectBoard ( Widget parent, G3DUI *gui, char *name,
 
     createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
     createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
-    createCurrentMouseTool ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
+    createG3DMouseToolEdit ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
 
 
     XtManageChild ( frm );

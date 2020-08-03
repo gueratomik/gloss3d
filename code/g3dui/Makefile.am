@@ -54,9 +54,11 @@ if HAVE_GTK3
                             common/g3duiviewexport.c \
                             common/g3duiweightgrouplist.c \
                             common/g3duiwireframeedit.c \
-                            common/mousetool/g3duicurrentmousetool.c \
+                            common/mousetool/g3duig3dmousetooledit.c \
+                            common/mousetool/g3duil3dmousetooledit.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
+                            common/mousetool/g3duipentooledit.c \
                             common/mousetool/g3duisculpttooledit.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboneedit.c \
@@ -110,9 +112,11 @@ if HAVE_GTK3
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/g3duiwireframeedit.c \
                             gtk3/r3dpreview.c \
-                            gtk3/mousetool/g3duicurrentmousetool.c \
+                            gtk3/mousetool/g3duig3dmousetooledit.c \
+                            gtk3/mousetool/g3duil3dmousetooledit.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
+                            gtk3/mousetool/g3duipentooledit.c \
                             gtk3/mousetool/g3duisculpttooledit.c
 endif
 
