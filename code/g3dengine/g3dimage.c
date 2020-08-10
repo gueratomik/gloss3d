@@ -44,6 +44,80 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 */
 
 /******************************************************************************/
+void g3dimage_merge ( G3DIMAGE *dstimg,
+                      G3DIMAGE *srcimg,
+                      uint32_t  xoffset,
+                      uint32_t  yoffset ) {
+    unsigned char (*dstdata)[0x03] = dstimg->data,
+                  (*srcdata)[0x03] = srcimg->data;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < srcimg->height; i++ ) {
+        uint32_t di = ( i + yoffset );
+
+        for ( j = 0x00; j < srcimg->width; j++ ) {
+            uint32_t dj = ( j + xoffset );
+
+            if ( ( di < dstimg->height ) &&
+                 ( dj < dstimg->width  ) ) {
+                uint32_t dstoffset = ( di * dstimg->width ) + dj,
+                         srcoffset = (  i * srcimg->width ) + j;
+
+                dstdata[dstoffset][0x00] = srcdata[srcoffset][0x00];
+                dstdata[dstoffset][0x01] = srcdata[srcoffset][0x01];
+                dstdata[dstoffset][0x02] = srcdata[srcoffset][0x02];
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+G3DIMAGE *g3dimage_getSubImage ( G3DIMAGE *srcimg,
+                                 uint32_t  x1,
+                                 uint32_t  y1,
+                                 uint32_t  x2,
+                                 uint32_t  y2 ) {
+    uint32_t subwidth  = ( x2 - x1 ) + 0x01,
+             subheight = ( y2 - y1 ) + 0x01;
+    G3DIMAGE *subimg = g3dimage_new ( subwidth, 
+                                      subheight,
+                                      srcimg->bytesPerPixel * 0x08,
+                                      0x00 );
+    unsigned char (*subdata)[0x03] = subimg->data,
+                  (*imgdata)[0x03] = srcimg->data;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < subheight; i++ ) {
+        uint32_t si = ( i + y1 );
+
+        for ( j = 0x00; j < subwidth; j++ ) {
+            uint32_t sj = ( j + x1 );
+
+            uint32_t suboffset = (  i * subwidth      ) +  j,
+                     imgoffset = ( si * srcimg->width ) + sj;
+
+            subdata[suboffset][0x00] = imgdata[imgoffset][0x00];
+            subdata[suboffset][0x01] = imgdata[imgoffset][0x01];
+            subdata[suboffset][0x02] = imgdata[imgoffset][0x02];
+        }
+    }
+
+    return subimg;
+}
+
+/******************************************************************************/
+G3DIMAGE *g3dimage_copy ( G3DIMAGE *img ) {
+    G3DIMAGE *cpy = g3dimage_new ( img->width, 
+                                   img->height,
+                                   img->bytesPerPixel * 0x08,
+                                   0x00 );
+
+    memcpy ( cpy->data, img->data, img->height * img->bytesPerLine );
+
+    return cpy;
+}
+
+/******************************************************************************/
 void g3dimage_setFileName ( G3DIMAGE *img, 
                             char     *filename ) {
     img->filename = strdup ( filename );

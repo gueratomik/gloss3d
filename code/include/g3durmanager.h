@@ -732,4 +732,14 @@ void g3durm_mesh_addUVMap ( G3DURMANAGER *urm,
                             uint64_t      engine_flags,
                             uint32_t      return_flags );
 
+/******************************************************************************/
+void g3durm_image_paint ( G3DURMANAGER *urm, 
+                          G3DIMAGE     *img,
+                          G3DIMAGE     *bufimg,
+                          int32_t       x1,
+                          int32_t       y1,
+                          int32_t       x2,
+                          int32_t       y2,
+                          uint32_t      return_flags );
+
 #endif

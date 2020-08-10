@@ -126,6 +126,16 @@ void g3dimage_setFileName ( G3DIMAGE *img,
 void g3dimage_resize ( G3DIMAGE *image, 
                        uint32_t  newWidth, 
                        uint32_t  newHeight );
+G3DIMAGE *g3dimage_copy ( G3DIMAGE *img );
+G3DIMAGE *g3dimage_getSubImage ( G3DIMAGE *img,
+                                 uint32_t  x1,
+                                 uint32_t  y1,
+                                 uint32_t  x2,
+                                 uint32_t  y2 );
+void g3dimage_merge ( G3DIMAGE *dstimg,
+                      G3DIMAGE *srcimg,
+                      uint32_t  xoffset,
+                      uint32_t  yoffset );
 
 #ifdef __cplusplus
 }

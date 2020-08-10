@@ -41,7 +41,8 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint64_t engine_flags );
+                              uint32_t      *updcoord,
+                              uint64_t       engine_flags );
 static int l3dbasepen_move ( L3DOBJECT     *obj,
                              L3DPATTERN    *pattern,
                              uint32_t       fgcolor,
@@ -54,11 +55,8 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
-                             int32_t       *updx,
-                             int32_t       *updy,
-                             int32_t       *updw,
-                             int32_t       *updh,
-                             uint64_t engine_flags );
+                             uint32_t      *updcoord,
+                             uint64_t       engine_flags );
 static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 L3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
@@ -71,7 +69,8 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint64_t engine_flags );
+                                uint32_t      *updcoord,
+                                uint64_t       engine_flags );
 
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( ) {
@@ -108,7 +107,8 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint64_t engine_flags ) {
+                              uint32_t      *updcoord,
+                              uint64_t       engine_flags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
     basepen->oldx = x;
@@ -116,7 +116,33 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
 
     memset ( zbuffer, 0x00, width * height );
 
-    return 0x00;
+    if ( updcoord ) {
+        if ( l3dcore_setUpdateArea ( x,
+                                     y,
+                                     x, 
+                                     y, 
+                                     width, 
+                                     height, 
+                                     updcoord, 
+                                     pattern->size ) == 0x00 ) {
+            return 0x00;
+        }
+    }
+
+    l3dpattern_paint ( pattern,
+                       fgcolor,
+                       basepen->pressure,
+                       x,
+                       y,
+                       buffer,
+                       width,
+                       height,
+                       bpp,
+                       mask,
+                       zbuffer,
+                       engine_flags );
+
+    return L3DUPDATESUBIMAGE;
 }
 
 /******************************************************************************/
@@ -132,33 +158,24 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
-                             int32_t       *updx,
-                             int32_t       *updy,
-                             int32_t       *updw,
-                             int32_t       *updh,
-                             uint64_t engine_flags ) {
+                             uint32_t      *updcoord,
+                             uint64_t       engine_flags ) {
     if ( engine_flags & L3DBUTTON1PRESSED ) {
         /*y = 100;*/
         L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
-        uint32_t size = pattern->size, half = size / 0x02;
-        /*** we use some margin because fro some unknown reason, glTexSubImage2D ***/
-        /*** does not seem to copy the subimage completely ***/
-        uint32_t margin = 10; 
-        int32_t x1 = ( x < basepen->oldx ) ? x - half : basepen->oldx - half,
-                y1 = ( y < basepen->oldy ) ? y - half : basepen->oldy - half,
-                x2 = ( x > basepen->oldx ) ? x + half : basepen->oldx + half,
-                y2 = ( y > basepen->oldy ) ? y + half : basepen->oldy + half;
 
-        if ( updx ) (*updx) = x1;
-        if ( updy ) (*updy) = y1;
-        if ( updw ) (*updw) = ( x2 - x1 ) + 1;
-        if ( updh ) (*updh) = ( y2 - y1 ) + 1;
-
-        if ( (*updx) < 0x00 ) (*updx) = 0x00;
-        if ( (*updy) < 0x00 ) (*updy) = 0x00;
-
-        if ( ( (*updx) + (*updw) ) > width  ) (*updw) = width  - (*updx);
-        if ( ( (*updy) + (*updh) ) > height ) (*updh) = height - (*updy);
+        if ( updcoord ) {
+            if ( l3dcore_setUpdateArea ( basepen->oldx,
+                                         basepen->oldy,
+                                         x, 
+                                         y, 
+                                         width, 
+                                         height, 
+                                         updcoord, 
+                                         pattern->size ) == 0x00 ) {
+                return 0x00;
+            }
+        }
 
         l3core_paintLine ( pattern,
                            fgcolor,
@@ -197,8 +214,22 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint64_t engine_flags ) {
+                                uint32_t      *updcoord,
+                                uint64_t       engine_flags ) {
     L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
 
-    return 0x00;
+    if ( updcoord ) {
+        if ( l3dcore_setUpdateArea ( x,
+                                     y,
+                                     x, 
+                                     y, 
+                                     width, 
+                                     height, 
+                                     updcoord, 
+                                     pattern->size ) == 0x00 ) {
+            return 0x00;
+        }
+    }
+
+    return L3DUPDATESUBIMAGE;
 }

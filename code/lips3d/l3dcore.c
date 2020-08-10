@@ -30,6 +30,48 @@
 #include <lips3d/lips3d.h>
 
 /******************************************************************************/
+/*** return 0x01 to request for update, 0x00 otherzise ***/
+uint32_t l3dcore_setUpdateArea ( int32_t   x1,
+                                 int32_t   y1,
+                                 int32_t   x2,
+                                 int32_t   y2,
+                                 uint32_t  width,
+                                 uint32_t  height,
+                                 int32_t  *updcoord, 
+                                 uint32_t  size ) {
+    int32_t xmin = ( x1 < x2 ) ? x1 : x2,
+            ymin = ( y1 < y2 ) ? y1 : y2,
+            xmax = ( x1 > x2 ) ? x1 : x2,
+            ymax = ( y1 > y2 ) ? y1 : y2;
+    int32_t radius = ( size % 0x02 ) ? ( size / 0x02 ) + 0x01 :
+                                       ( size / 0x02 );
+
+    xmin = xmin - radius;
+    xmax = xmax + radius;
+    ymin = ymin - radius;
+    ymax = ymax + radius;
+
+    if ( xmin > ( int32_t ) width   ) return 0x00;
+    if ( ymin > ( int32_t ) height  ) return 0x00;
+
+    if ( xmax < ( int32_t ) 0x00    ) return 0x00;
+    if ( ymax < ( int32_t ) 0x00    ) return 0x00;
+
+    if ( xmin < ( int32_t ) 0x00    ) xmin = 0x00;
+    if ( ymin < ( int32_t ) 0x00    ) ymin = 0x00;
+
+    if ( xmax >= width  ) xmax = width  - 1;
+    if ( ymax >= height ) ymax = height - 1;
+
+    updcoord[0x00] = xmin;
+    updcoord[0x01] = ymin;
+    updcoord[0x02] = xmax;
+    updcoord[0x03] = ymax;
+
+    return 0x01;
+}
+
+/******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       color,
                          float          pressure,
@@ -153,7 +195,7 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       bpp, 
                             unsigned char *mask,
                             unsigned char *zbuffer,
-                            uint64_t engine_flags ) {
+                            uint64_t       engine_flags ) {
     uint8_t A = ( color & 0xFF000000 ) >> 24;
     uint8_t R = ( color & 0x00FF0000 ) >> 16;
     uint8_t G = ( color & 0x0000FF00 ) >>  8;

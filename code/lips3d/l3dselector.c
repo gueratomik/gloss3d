@@ -53,6 +53,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                uint32_t       bpp,
                                unsigned char *mask,
                                unsigned char *zbuffer,
+                               uint32_t      *updcoord,
                                uint64_t engine_flags );
 static int l3dselector_move ( L3DOBJECT     *obj,
                               L3DPATTERN    *pattern,
@@ -66,10 +67,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              int32_t       *updx,
-                              int32_t       *updy,
-                              int32_t       *updw,
-                              int32_t       *updh,
+                              uint32_t      *updcoord,
                               uint64_t engine_flags );
 static int l3dselector_release ( L3DOBJECT     *obj,
                                  L3DPATTERN    *pattern,
@@ -83,6 +81,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  uint32_t       bpp,
                                  unsigned char *mask,
                                  unsigned char *zbuffer,
+                                 uint32_t      *updcoord,
                                  uint64_t engine_flags );
 
 /******************************************************************************/
@@ -424,7 +423,8 @@ static int l3dselector_pressSquare ( L3DOBJECT     *obj,
                                      uint32_t       bpp,
                                      unsigned char *mask,
                                      unsigned char *zbuffer,
-                                     uint64_t engine_flags ) {
+                                     uint32_t      *updcoord,
+                                     uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
@@ -484,6 +484,7 @@ static int l3dselector_pressRandom ( L3DOBJECT     *obj,
                                      uint32_t       bpp,
                                      unsigned char *mask,
                                      unsigned char *zbuffer,
+                                     uint32_t      *updcoord,
                                      uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
@@ -507,11 +508,8 @@ static int l3dselector_moveSquare ( L3DOBJECT     *obj,
                                     uint32_t       bpp,
                                     unsigned char *mask,
                                     unsigned char *zbuffer,
-                                    int32_t       *updx,
-                                    int32_t       *updy,
-                                    int32_t       *updw,
-                                    int32_t       *updh,
-                                    uint64_t engine_flags ) {
+                                    uint32_t      *updcoord,
+                                    uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( engine_flags & L3DBUTTON1PRESSED ) {
@@ -549,11 +547,8 @@ static int l3dselector_moveRandom ( L3DOBJECT     *obj,
                                     uint32_t       bpp,
                                     unsigned char *mask,
                                     unsigned char *zbuffer,
-                                    int32_t       *updx,
-                                    int32_t       *updy,
-                                    int32_t       *updw,
-                                    int32_t       *updh,
-                                    uint64_t engine_flags ) {
+                                    uint32_t      *updcoord,
+                                    uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
@@ -637,7 +632,8 @@ static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
                                        uint32_t       bpp,
                                        unsigned char *mask,
                                        unsigned char *zbuffer,
-                                       uint64_t engine_flags ) {
+                                       uint32_t      *updcoord,
+                                       uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     /* the if statement is need only in case we get a release without a press */
@@ -666,7 +662,8 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
                                        uint32_t       bpp,
                                        unsigned char *mask,
                                        unsigned char *zbuffer,
-                                       uint64_t engine_flags ) {
+                                       uint32_t      *updcoord,
+                                       uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
     static uint64_t oldmilliseconds;
     static int32_t oldx, oldy;
@@ -773,7 +770,8 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                uint32_t       bpp,
                                unsigned char *mask,
                                unsigned char *zbuffer,
-                               uint64_t engine_flags ) {
+                               uint32_t      *updcoord,
+                               uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
@@ -790,6 +788,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                              bpp,
                                              mask,
                                              zbuffer,
+                                             updcoord,
                                              engine_flags );
         break;
 
@@ -806,6 +805,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                              bpp,
                                              mask,
                                              zbuffer,
+                                             updcoord,
                                              engine_flags );
         break;
 
@@ -829,11 +829,8 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              int32_t       *updx,
-                              int32_t       *updy,
-                              int32_t       *updw,
-                              int32_t       *updh,
-                              uint64_t engine_flags ) {
+                              uint32_t      *updcoord,
+                              uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
@@ -850,10 +847,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                                             bpp,
                                             mask,
                                             zbuffer,
-                                            updx,
-                                            updy,
-                                            updw,
-                                            updh,
+                                            updcoord,
                                             engine_flags );
         break;
 
@@ -870,10 +864,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                                             bpp,
                                             mask,
                                             zbuffer,
-                                            updx,
-                                            updy,
-                                            updw,
-                                            updh,
+                                            updcoord,
                                             engine_flags );
         break;
 
@@ -897,7 +888,8 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  uint32_t       bpp,
                                  unsigned char *mask,
                                  unsigned char *zbuffer,
-                                 uint64_t engine_flags ) {
+                                 uint32_t      *updcoord,
+                                 uint64_t       engine_flags ) {
     L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
@@ -914,6 +906,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                                bpp,
                                                mask,
                                                zbuffer,
+                                               updcoord,
                                                engine_flags );
         break;
 
@@ -930,6 +923,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                                bpp,
                                                mask,
                                                zbuffer,
+                                               updcoord,
                                                engine_flags );
         break;
 

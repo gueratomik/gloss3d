@@ -189,15 +189,14 @@ int basepen_tool ( G3DMOUSETOOL *mou,
     L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mou;
     L3DMOUSETOOLPEN *pen = ( L3DMOUSETOOLPEN * ) mou;
     double mx, my, mz;
-    static int subRect[0x04];
+    int32_t updcoord[0x04];
     static double oldx, oldy;
+    static G3DIMAGE *bckimg; /** image for undo redo ***/
+    static uint32_t x1, y1, x2, y2;
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-
-            subRect[0x00] = subRect[0x02] = bev->x;
-            subRect[0x01] = subRect[0x03] = bev->y;
 
             glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
             glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
@@ -237,6 +236,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                              chn->image->width * 
                                              chn->image->height);
 
+                                    bckimg = g3dimage_copy ( chn->image );
+
                                     retval = ltool->obj->press ( ltool->obj,
                                                                  pattern,
                                                                  fgcolor,
@@ -249,7 +250,13 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                                  chn->image->bytesPerPixel * 0x08,
                                                                  mou->mask,
                                                                  mou->zbuffer,
+                                                                 updcoord,
                                                                  0x00 );
+
+                                    x1 = updcoord[0x00];
+                                    y1 = updcoord[0x01];
+                                    x2 = updcoord[0x02];
+                                    y2 = updcoord[0x03];
 
                                     if ( ( retval & L3DUPDATESUBIMAGE ) || 
                                          ( retval & L3DUPDATEIMAGE    ) ) {
@@ -270,10 +277,6 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
-            int32_t subx, suby, subw, subh;
-
-            subRect[0x02] = mev->x;
-            subRect[0x03] = mev->y;
 
             obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
 
@@ -345,31 +348,36 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                                 image->bytesPerPixel * 0x08,
                                                                 mou->mask,
                                                                 mou->zbuffer,
-                                                               &subx,
-                                                               &suby,
-                                                               &subw,
-                                                               &subh,
+                                                                updcoord,
                                                                 l3dFlags );
 
+                                    if ( updcoord[0x00] < x1 ) x1 = updcoord[0x00];
+                                    if ( updcoord[0x01] < y1 ) y1 = updcoord[0x01];
+                                    if ( updcoord[0x02] > x2 ) x2 = updcoord[0x02];
+                                    if ( updcoord[0x03] > y2 ) y2 = updcoord[0x03];
+
                                     if ( retval & L3DUPDATESUBIMAGE ) {
-                                        if ( ( subx < image->width  ) &&
-                                             ( suby < image->height ) ) {
-                                            glEnable ( GL_TEXTURE_2D );
-                                            glBindTexture ( GL_TEXTURE_2D, image->id );
-                                            glActiveTexture( image->id ); 
-                                            glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
-                                            glTexSubImage2D ( GL_TEXTURE_2D, 
-                                                              0x00,
-                                                              subx,
-                                                              suby,
-                                                              subw,
-                                                              subh,
-                                                              GL_RGB,
-                                                              GL_UNSIGNED_BYTE,
-                                                              image->data + ( suby * image->bytesPerLine ) + ( subx * image->bytesPerPixel ) );
-                                            glBindTexture ( GL_TEXTURE_2D, 0x00 );
-                                            glDisable ( GL_TEXTURE_2D );
-                                        }
+                                        uint32_t updw = updcoord[0x02] - 
+                                                        updcoord[0x00] + 0x01,
+                                                 updh = updcoord[0x03] - 
+                                                        updcoord[0x01] + 0x01;
+
+
+                                        glEnable ( GL_TEXTURE_2D );
+                                        glBindTexture ( GL_TEXTURE_2D, image->id );
+                                        glActiveTexture( image->id ); 
+                                        glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
+                                        glTexSubImage2D ( GL_TEXTURE_2D, 
+                                                          0x00,
+                                                          updcoord[0x00],
+                                                          updcoord[0x01],
+                                                          updw,
+                                                          updh,
+                                                          GL_RGB,
+                                                          GL_UNSIGNED_BYTE,
+                                                          image->data + ( updcoord[0x01] * image->bytesPerLine ) + ( updcoord[0x00] * image->bytesPerPixel ) );
+                                        glBindTexture ( GL_TEXTURE_2D, 0x00 );
+                                        glDisable ( GL_TEXTURE_2D );
                                     }
 
                                     if ( ( retval & L3DUPDATESUBIMAGE ) || 
@@ -382,9 +390,6 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                     }
                 }
             }
-
-            subRect[0x00] = subRect[0x02];
-            subRect[0x01] = subRect[0x03];
 
             oldx = mev->x;
             oldy = mev->y;
@@ -433,15 +438,25 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                                    chn->image->bytesPerPixel * 0x08,
                                                                    mou->mask,
                                                                    mou->zbuffer,
+                                                                   updcoord,
                                                                    0x00 );
-
-
 
                                     if ( ( retval & L3DUPDATESUBIMAGE ) || 
                                          ( retval & L3DUPDATEIMAGE    ) ) {
                                         g3dimage_bind ( chn->image );
 
                                         chn->image->flags |= ALTEREDIMAGE;
+
+                                        g3durm_image_paint ( urm, 
+                                                             chn->image,
+                                                             bckimg,
+                                                             x1,
+                                                             y1,
+                                                             x2,
+                                                             y2,
+                                                             REDRAWVIEW );
+
+                                        g3dimage_free ( bckimg );
                                     }
                                 }
                             }
@@ -456,6 +471,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                     }
                 }
             }
+
+            bckimg = NULL;
 
             /*obj = NULL; */
         } return REDRAWVIEW;

@@ -88,6 +88,7 @@ typedef struct _L3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
+                     uint32_t          *updcoord,
                      uint64_t engine_flags );
     int (*move)    ( struct _L3DOBJECT *obj,
                      L3DPATTERN        *pattern,
@@ -101,10 +102,7 @@ typedef struct _L3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     int32_t           *updx,
-                     int32_t           *updy,
-                     int32_t           *updw,
-                     int32_t           *updh,
+                     uint32_t          *updcoord,
                      uint64_t engine_flags );
     int (*release) ( struct _L3DOBJECT *obj,
                      L3DPATTERN        *pattern,
@@ -118,6 +116,7 @@ typedef struct _L3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
+                     uint32_t          *updcoord,
                      uint64_t engine_flags );
 } L3DOBJECT;
 
@@ -198,7 +197,7 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
                          uint32_t       bpp,
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint64_t engine_flags );
+                         uint64_t       engine_flags );
 
 /******************************************************************************/
 int l3core_paintCircle ( L3DPATTERN    *pattern,
@@ -212,7 +211,7 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
                          uint32_t       bpp, 
                          unsigned char *mask,
                          unsigned char *zbuffer,
-                         uint64_t engine_flags );
+                         uint64_t       engine_flags );
 
 /******************************************************************************/
 int l3core_paintRectangle ( L3DPATTERN    *pattern,
@@ -228,7 +227,7 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
                             uint32_t       bpp, 
                             unsigned char *mask,
                             unsigned char *zbuffer,
-                            uint64_t engine_flags );
+                            uint64_t       engine_flags );
 
 /******************************************************************************/
 int l3core_paintLine ( L3DPATTERN    *pat,
@@ -244,7 +243,7 @@ int l3core_paintLine ( L3DPATTERN    *pat,
                        uint32_t       bpp, 
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint64_t engine_flags );
+                       uint64_t       engine_flags );
 
 /******************************************************************************/
 int l3dpattern_paint ( L3DPATTERN    *pattern,
@@ -258,7 +257,7 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                        uint32_t       bpp,
                        unsigned char *mask,
                        unsigned char *zbuffer,
-                       uint64_t engine_flags );
+                       uint64_t       engine_flags );
 void l3dpattern_generatePlainRectangle ( L3DPATTERN *pattern );
 void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern );
 void l3dpattern_resize ( L3DPATTERN *pattern, uint32_t size );
@@ -285,6 +284,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
+                                      uint32_t      *updcoord,
                                       uint64_t       engine_flags ),
                       int (*move)   ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
@@ -298,10 +298,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      int32_t       *updx,
-                                      int32_t       *updy,
-                                      int32_t       *updw,
-                                      int32_t       *updh,
+                                      uint32_t      *updcoord,
                                       uint64_t       engine_flags ),
                      int (*release) ( L3DOBJECT     *obj,
                                       L3DPATTERN    *pattern,
@@ -315,6 +312,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
+                                      uint32_t      *updcoord,
                                       uint64_t       engine_flags ) );
 
 /******************************************************************************/
@@ -322,5 +320,13 @@ L3DBASEPEN* l3dbasepen_new ( );
 L3DSELECTOR* l3dselector_new ( );
 void l3dselector_setMode ( L3DSELECTOR        *sel,
                            L3DSELECTORMODEENUM mode );
+uint32_t l3dcore_setUpdateArea ( int32_t   x1,
+                                 int32_t   y1,
+                                 int32_t   x2,
+                                 int32_t   y2,
+                                 uint32_t  width,
+                                 uint32_t  height,
+                                 int32_t  *updcoord, 
+                                 uint32_t  size );
 
 #endif
