@@ -2870,49 +2870,56 @@ void g3dmesh_pickVertexUVs ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                              uint64_t engine_flags ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glPointSize ( 3.0f );
 
-    if ( uvmap ) {
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
         LIST *ltmpfac = mes->lfac;
 
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+        if ( uvmap ) {
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
 
-            if ( uvs ) {
-                if ( uvs->map == uvmap ) {
-                    int i;
+                if ( uvs ) {
+                    if ( uvs->map == uvmap ) {
+                        /*if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
+                             ( ( tex->flags & TEXTURERESTRICTED   ) &&
+                               ( fac->textureSlots & tex->slotBit ) ) ) {*/
+                            int i;
 
-                    glColor3ub ( 0x00, 0x00, 0x00 );
-                    glBegin ( GL_LINES );
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        int n = ( i + 0x01 ) % fac->nbver;
+                            glColor3ub ( 0x00, 0x00, 0x00 );
+                            glBegin ( GL_LINES );
+                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                                int n = ( i + 0x01 ) % fac->nbver;
 
-                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
-                        glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
-                    }
-                    glEnd ( );
+                                glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+                                glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
+                            }
+                            glEnd ( );
 
-                    glBegin ( GL_POINTS );
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        if ( uvs->veruv[i].flags & UVSELECTED ) {
-                            glColor3ub ( 0xFF, 0x00, 0x00 );
-                        } else {
-                            glColor3ub ( 0x00, 0x00, 0xFF );
+                            glBegin ( GL_POINTS );
+                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                                if ( uvs->veruv[i].flags & UVSELECTED ) {
+                                    glColor3ub ( 0xFF, 0x00, 0x00 );
+                                } else {
+                                    glColor3ub ( 0x00, 0x00, 0xFF );
+                                }
+
+                                glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+
+
+                            }
+                            glEnd ( );
                         }
-
-                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
-
-
-                    }
-                    glEnd ( );
+                    /*}*/
                 }
-            }
 
-            ltmpfac = ltmpfac->next;
+                ltmpfac = ltmpfac->next;
+            }
         }
     }
 

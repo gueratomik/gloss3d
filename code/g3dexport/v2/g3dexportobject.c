@@ -141,9 +141,12 @@ static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged,
                                           FILE           *fdst ) {
     LIST *ltmpuvmap = mes->luvmap;
     uint32_t size = 0x00;
+    uint32_t uvmapID = 0x00;
 
     while ( ltmpuvmap ) {
         G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        ((G3DOBJECT*)uvmap)->id = uvmapID++;
 
         size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_ENTRY,
                                        g3dexportuvmap,
