@@ -43,7 +43,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              nbrtedg,
                                  G3DRTQUAD            *rtquamem,
                                  uint32_t              nbrtfac,
-                                 G3DRTUV              *rtuvmem,
+                                 G3DRTUV              *rtluim,
                                  uint32_t              nbrtuv,
                                  uint32_t              nbVerticesPerTriangle,
                                  uint32_t              nbVerticesPerQuad,
@@ -61,7 +61,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
     std->nbrtedg               = nbrtedg;
     std->rtquamem              = rtquamem;
     std->nbrtfac               = nbrtfac;
-    std->rtuvmem               = rtuvmem;
+    std->rtluim               = rtluim;
     std->nbrtuv                = nbrtuv;
     std->nbVerticesPerTriangle = nbVerticesPerTriangle;
     std->nbVerticesPerQuad     = nbVerticesPerQuad;
@@ -88,7 +88,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     nbrtedg,
                                                  G3DRTQUAD   *rtquamem,
                                                  uint32_t     nbrtfac,
-                                                 G3DRTUV     *rtuvmem,
+                                                 G3DRTUV     *rtluim,
                                                  uint32_t     nbrtuv,
                                                  uint32_t     nbVerticesPerTriangle,
                                                  uint32_t     nbVerticesPerQuad,
@@ -116,7 +116,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                      nbrtedg,
                                      rtquamem,
                                      nbrtfac,
-                                     rtuvmem,
+                                     rtluim,
                                      nbrtuv,
                                      nbVerticesPerTriangle,
                                      nbVerticesPerQuad,
@@ -141,7 +141,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
     G3DFACE *fac;
 
     while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
-        G3DRTUV     *rtuvmem  = NULL;
+        G3DRTUV     *rtluim  = NULL;
         G3DRTVERTEX *rtvermem = NULL;
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
@@ -151,13 +151,13 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         if ( fac->nbver == 0x03 ) {
             rtvermem = sdt->rtvermem + ( fac->typeID * sdt->nbVerticesPerTriangle );
             rtquamem = sdt->rtquamem + ( fac->typeID * sdt->nbFacesPerTriangle );
-            rtuvmem  = sdt->rtuvmem  + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
+            rtluim  = sdt->rtluim  + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
         } else {
             rtvermem = sdt->rtvermem + ( mes->nbtri  * sdt->nbVerticesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbVerticesPerQuad );
             rtquamem = sdt->rtquamem + ( mes->nbtri  * sdt->nbFacesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbFacesPerQuad );
-            rtuvmem  = sdt->rtuvmem  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
+            rtluim  = sdt->rtluim  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
                                        ( fac->typeID * sdt->nbVerticesPerQuad * nbuvmap );
 
         }
@@ -168,7 +168,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                           rtquamem,
                                           rtedgmem,
                                           rtvermem,
-                                          rtuvmem,
+                                          rtluim,
                                           NULL,
                                           NULL,
                                           NULL,

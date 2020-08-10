@@ -30,11 +30,11 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duipentooledit_setIncrementalCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setIncrementalCbk ( L3DUI *lui, 
                                                  uint32_t          inc ) {
-    L3DMOUSETOOLPEN *pen = common_g3dui_getMouseTool ( uvme->gui, PENTOOL );
+    L3DMOUSETOOLPEN *pen = common_g3dui_getMouseTool ( lui->gui, PENTOOL );
 
-    if ( uvme->gui->lock ) return;
+    if ( lui->gui->lock ) return;
 
     if ( pen ) {
         pen->incremental = inc;
@@ -42,21 +42,21 @@ void common_g3duipentooledit_setIncrementalCbk ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setRadiusCbk ( L3DUI *lui, 
                                             float             radius ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
-    if ( uvme->gui->lock ) return;
+    if ( lui->gui->lock ) return;
 
     l3dpattern_resize ( sysinfo->pattern, radius );
 }
 
 /******************************************************************************/
-void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setPressureCbk ( L3DUI *lui, 
                                               float             pressure ) {
-    L3DMOUSETOOL *mou = common_g3dui_getMouseTool ( uvme->gui, PENTOOL );
+    L3DMOUSETOOL *mou = common_g3dui_getMouseTool ( lui->gui, PENTOOL );
 
-    if ( uvme->gui->lock ) return;
+    if ( lui->gui->lock ) return;
 
     if ( mou ) {
         L3DBASEPEN *bpobj = ( L3DBASEPEN * ) mou->obj;

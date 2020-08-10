@@ -1256,7 +1256,7 @@ typedef struct _G3DSUBDIVIDER {
     uint32_t     nbrtedg;
     G3DRTVERTEX *rtvermem;
     uint32_t     nbrtver;
-    G3DRTUV     *rtuvmem;
+    G3DRTUV     *rtluim;
     uint32_t     nbrtuv;
     uint32_t     nbVerticesPerTriangle;
     uint32_t     nbVerticesPerQuad;

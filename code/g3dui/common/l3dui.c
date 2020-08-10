@@ -32,9 +32,9 @@
 #define CLEARCOLOR 100
 
 /******************************************************************************/
-G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DUI        *gui = uvme->gui;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui ) {
+    G3DUI        *gui = lui->gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
 
     if ( obj ) {
         if ( obj->type & MESH ) {
@@ -48,7 +48,7 @@ G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme ) {
                 G3DMATERIAL *mat = tex->mat;
 
                 if ( mat ) {
-                    uint32_t channelID = GETCHANNEL(uvme->engine_flags);
+                    uint32_t channelID = GETCHANNEL(lui->engine_flags);
                     G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
                     if ( chn ) {
@@ -63,8 +63,8 @@ G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-G3DIMAGE *common_g3duiuvmapeditor_getWorkingImage ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DCHANNEL *chn = common_g3duiuvmapeditor_getWorkingChannel ( uvme );
+G3DIMAGE *common_l3dui_getWorkingImage ( L3DUI *lui ) {
+    G3DCHANNEL *chn = common_l3dui_getWorkingChannel ( lui );
 
     if ( chn ) {
         if ( chn->flags & USEIMAGECOLOR ) {
@@ -78,18 +78,18 @@ G3DIMAGE *common_g3duiuvmapeditor_getWorkingImage ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_setUVMouseTool ( L3DUI *lui, 
                                               G3DCAMERA        *cam, 
                                               G3DMOUSETOOL     *mou ) {
-    G3DUI *gui = uvme->gui;
+    G3DUI *gui = lui->gui;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->init ) {
             uint32_t msk = mou->init ( mou, gui->sce,
-                                           &uvme->cam,
-                                            uvme->uvurm, uvme->engine_flags );
+                                           &lui->cam,
+                                            lui->uvurm, lui->engine_flags );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
         }
@@ -103,9 +103,9 @@ void common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_fillWithColor ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_fillWithColor ( L3DUI *lui, 
                                              uint32_t          color ) {
-    G3DIMAGE *img = common_g3duiuvmapeditor_getWorkingImage ( uvme );
+    G3DIMAGE *img = common_l3dui_getWorkingImage ( lui );
 
     if ( img ) {
         unsigned char R = ( color & 0x00FF0000 ) >> 0x10,
@@ -117,7 +117,7 @@ void common_g3duiuvmapeditor_fillWithColor ( G3DUIUVMAPEDITOR *uvme,
             for ( j = 0x00; j < img->width; j++ ) {
                 uint32_t offset = ( i * img->width ) + j;
 
-                if ( uvme->mask[offset] ) {
+                if ( lui->mask[offset] ) {
                     switch ( img->bytesPerPixel ) {
                         case 0x03 : {
                             unsigned char (*buffer)[0x03] = img->data;
@@ -141,28 +141,28 @@ void common_g3duiuvmapeditor_fillWithColor ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DIMAGE *img = common_g3duiuvmapeditor_getWorkingImage ( uvme );
-    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( uvme->gui,
+void common_l3dui_resizeBuffers ( L3DUI *lui ) {
+    G3DIMAGE *img = common_l3dui_getWorkingImage ( lui );
+    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( lui->gui,
                                                         SELECTTOOL );
 
-    seltool->obj->reset ( seltool->obj, uvme->engine_flags );
+    seltool->obj->reset ( seltool->obj, lui->engine_flags );
 
     if ( img ) {
         if ( img->width && img->height ) {
             uint32_t size = img->width *
                             img->height;
-            uvme->mask    = realloc ( uvme->mask   , size );
-            uvme->zbuffer = realloc ( uvme->zbuffer, size );
+            lui->mask    = realloc ( lui->mask   , size );
+            lui->zbuffer = realloc ( lui->zbuffer, size );
 
-            memset ( uvme->mask, 0xFF, size );
+            memset ( lui->mask, 0xFF, size );
         }
     }
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
 
     if ( obj ) {
 
@@ -195,7 +195,7 @@ void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme ) {
                 lselnew = list_copy ( mes->lselfac );
 
                 /*** remember selection ***/
-                g3durm_mesh_pickFaces  ( uvme->gui->urm, 
+                g3durm_mesh_pickFaces  ( lui->gui->urm, 
                                          mes,
                                          lselold,
                                          lselnew,
@@ -208,8 +208,8 @@ void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
 
     if ( obj ) {
 
@@ -243,7 +243,7 @@ void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme ) {
                 lselnew = list_copy ( curmap->lseluvset );
 
                 /*** remember selection ***/
-                g3durm_uvmap_pickUVSets  ( uvme->uvurm, 
+                g3durm_uvmap_pickUVSets  ( lui->uvurm, 
                                            curmap,
                                            lselold,
                                            lselnew,
@@ -256,8 +256,8 @@ void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+void common_l3dui_uv2verCbk ( L3DUI *lui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -295,7 +295,7 @@ void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme ) {
                 lselnew = list_copy ( mes->lselver );
 
                 /*** remember selection ***/
-                g3durm_mesh_pickVertices  ( uvme->gui->urm,
+                g3durm_mesh_pickVertices  ( lui->gui->urm,
                                             mes,
                                             lselold,
                                             lselnew,
@@ -308,8 +308,8 @@ void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( uvme->gui->sce );
+void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
 
     if ( obj ) {
 
@@ -348,7 +348,7 @@ void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme ) {
                 lselnew = list_copy ( curmap->lseluv );
 
                 /*** remember selection ***/
-                g3durm_uvmap_pickUVs  ( uvme->uvurm, 
+                g3durm_uvmap_pickUVs  ( lui->uvurm, 
                                         curmap,
                                         lselold,
                                         lselnew,
@@ -361,12 +361,12 @@ void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme ) {
+void common_l3dui_undoCbk ( L3DUI *lui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_undo ( uvme->uvurm, uvme->engine_flags );
+    return_value = g3durmanager_undo ( lui->uvurm, lui->engine_flags );
 
-    common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
+    common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
 
     /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
@@ -382,12 +382,12 @@ void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme ) {
+void common_l3dui_redoCbk ( L3DUI *lui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_redo ( uvme->uvurm, uvme->engine_flags );
+    return_value = g3durmanager_redo ( lui->uvurm, lui->engine_flags );
 
-    common_g3dui_interpretMouseToolReturnFlags ( uvme->gui, return_value );
+    common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
 
     /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
@@ -403,38 +403,38 @@ void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme ) {
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_moveSideward ( L3DUI *lui, 
                                             int32_t           x, 
                                             int32_t           y, 
                                             int32_t           xold, 
                                             int32_t           yold ) {
-    uvme->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
-    uvme->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
+    lui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
+    lui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
 
-    common_g3duiuvmapeditor_setCanevas ( uvme );
+    common_l3dui_setCanevas ( lui );
 }
 
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_moveForward ( L3DUI *lui, 
                                            int32_t           x, 
                                            int32_t           xold ) {
-    uvme->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
+    lui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
 
-    if ( uvme->cam.ortho.z < 0.0001f ) uvme->cam.ortho.z = 0.0001f;
+    if ( lui->cam.ortho.z < 0.0001f ) lui->cam.ortho.z = 0.0001f;
 
-    uvme->cam.ortho.x = uvme->cam.ortho.z;
-    uvme->cam.ortho.y = uvme->cam.ortho.z;
+    lui->cam.ortho.x = lui->cam.ortho.z;
+    lui->cam.ortho.y = lui->cam.ortho.z;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
 
-    common_g3duiuvmapeditor_setCanevas ( uvme );
+    common_l3dui_setCanevas ( lui );
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme ) {
+void common_l3dui_setCanevas ( L3DUI *lui ) {
 
 }
 
@@ -446,13 +446,13 @@ void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme ) {
 /* we need to track the mouse after a click, something I think, will be easier*/
 /* to achieve that way. I might be wrong though :-/.                          */
 /******************************************************************************/
-int common_g3duiuvmapeditor_getCurrentButton ( G3DUIUVMAPEDITOR *uvme,
+int common_l3dui_getCurrentButton ( L3DUI *lui,
                                                int x,
                                                int y ) {
     int i;
 
     for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
-        G3DUIRECTANGLE *rec = &uvme->rec[i];
+        G3DUIRECTANGLE *rec = &lui->rec[i];
 
         if ( ( ( x >= rec->x ) && ( x <= ( rec->x + rec->width  ) ) ) &&
              ( ( y >= rec->y ) && ( y <= ( rec->y + rec->height ) ) ) ) {
@@ -464,91 +464,91 @@ int common_g3duiuvmapeditor_getCurrentButton ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme ) {
+void common_l3dui_destroyGL ( L3DUI *lui ) {
 
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_init ( L3DUI *lui, 
                                     uint32_t          width,
                                     uint32_t          height ) {
-    uvme->buttonID = -1;
+    lui->buttonID = -1;
 
     /*** as we use an identity projection matrix, the coorinates system will ***/
     /*** be from -1.0f to 1.0f. So we have to move our UVMAP to the center ***/
     /*** of this coordinates system by shifting it by 0.5f ***/
-    uvme->cam.obj.pos.x =  0.5f;
-    uvme->cam.obj.pos.y =  0.5f;
-    uvme->cam.obj.pos.z =  0.0f;
+    lui->cam.obj.pos.x =  0.5f;
+    lui->cam.obj.pos.y =  0.5f;
+    lui->cam.obj.pos.z =  0.0f;
 
-    uvme->cam.obj.rot.x = 0.0f;
-    uvme->cam.obj.rot.y = 0.0f;
-    uvme->cam.obj.rot.z = 0.0f;
+    lui->cam.obj.rot.x = 0.0f;
+    lui->cam.obj.rot.y = 0.0f;
+    lui->cam.obj.rot.z = 0.0f;
 
-    uvme->cam.obj.sca.x = 1.0f;
-    uvme->cam.obj.sca.y = 1.0f;
-    uvme->cam.obj.sca.z = 1.0f;
+    lui->cam.obj.sca.x = 1.0f;
+    lui->cam.obj.sca.y = 1.0f;
+    lui->cam.obj.sca.z = 1.0f;
 
-    uvme->cam.obj.flags |= CAMERAORTHOGRAPHIC;
-	uvme->cam.ortho.x = 0.0f;
-    uvme->cam.ortho.y = 0.0f;
-    uvme->cam.ortho.z = 0.001f;
-    uvme->cam.znear   = -1000.0f;
-    uvme->cam.zfar    = 1000.0f;
+    lui->cam.obj.flags |= CAMERAORTHOGRAPHIC;
+	lui->cam.ortho.x = 0.0f;
+    lui->cam.ortho.y = 0.0f;
+    lui->cam.ortho.z = 0.001f;
+    lui->cam.znear   = -1000.0f;
+    lui->cam.zfar    = 1000.0f;
 	
-	uvme->cam.obj.name = "UVMapEditor Camera";
+	lui->cam.obj.name = "UVMapEditor Camera";
 	
-    uvme->uvurm = g3durmanager_new ( uvme->gui->conf.undolevel );
+    lui->uvurm = g3durmanager_new ( lui->gui->conf.undolevel );
 
-    uvme->engine_flags = VIEWVERTEXUV;
+    lui->engine_flags = VIEWVERTEXUV;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &uvme->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
 
     /*** projection matrix will never change ***/
-    g3dcore_identityMatrix ( uvme->cam.pmatrix );
+    g3dcore_identityMatrix ( lui->cam.pmatrix );
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_resize ( L3DUI *lui, 
                                       uint32_t          width, 
                                       uint32_t          height ) {
     int i, xpos = ( width - BUTTONSIZE - L3DPATTERNBOARDWIDTH ), brd = 0x02;
 
     /*** set rectangle position for each button ***/
     for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
-        uvme->rec[i].x      = xpos;
-        uvme->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
-        uvme->rec[i].width  = BUTTONSIZE;
-        uvme->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
+        lui->rec[i].x      = xpos;
+        lui->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
+        lui->rec[i].width  = BUTTONSIZE;
+        lui->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
     }
 
-    uvme->arearec.x      = MODEBARBUTTONSIZE;
-    uvme->arearec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT + BUTTONSIZE;
-    uvme->arearec.width  = width - MODEBARBUTTONSIZE - L3DBOARDWIDTH;
-    uvme->arearec.height = height - uvme->arearec.y;
+    lui->arearec.x      = MODEBARBUTTONSIZE;
+    lui->arearec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT + BUTTONSIZE;
+    lui->arearec.width  = width - MODEBARBUTTONSIZE - L3DBOARDWIDTH;
+    lui->arearec.height = height - lui->arearec.y;
 
-    uvme->patternrec.x      = uvme->arearec.x + uvme->arearec.width;
-    uvme->patternrec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT;
-    uvme->patternrec.width  = L3DBOARDWIDTH;
-    uvme->patternrec.height = L3DPATTERNBOARDHEIGHT;
-
-
-    uvme->fgbgrec.x      = uvme->arearec.x + uvme->arearec.width + ( L3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
-    uvme->fgbgrec.y      = uvme->patternrec.y + uvme->patternrec.height;
-    uvme->fgbgrec.width  = 0x30;
-    uvme->fgbgrec.height = 0x30;
-
-    uvme->toolrec.x      = uvme->patternrec.x;
-    uvme->toolrec.y      = uvme->patternrec.y + uvme->patternrec.height + 0x30;
-    uvme->toolrec.width  = L3DPATTERNBOARDWIDTH;
-    uvme->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT - 0x30;
+    lui->patternrec.x      = lui->arearec.x + lui->arearec.width;
+    lui->patternrec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT;
+    lui->patternrec.width  = L3DBOARDWIDTH;
+    lui->patternrec.height = L3DPATTERNBOARDHEIGHT;
 
 
-    common_g3duiuvmapeditor_setCanevas ( uvme );
+    lui->fgbgrec.x      = lui->arearec.x + lui->arearec.width + ( L3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
+    lui->fgbgrec.y      = lui->patternrec.y + lui->patternrec.height;
+    lui->fgbgrec.width  = 0x30;
+    lui->fgbgrec.height = 0x30;
+
+    lui->toolrec.x      = lui->patternrec.x;
+    lui->toolrec.y      = lui->patternrec.y + lui->patternrec.height + 0x30;
+    lui->toolrec.width  = L3DPATTERNBOARDWIDTH;
+    lui->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT - 0x30;
+
+
+    common_l3dui_setCanevas ( lui );
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
+void common_l3dui_showGL ( L3DUI *lui,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
                                       uint64_t          engine_flags ) {
@@ -559,7 +559,6 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
         G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
         /*** try the first texture in case no texture is selected ***/
@@ -596,17 +595,17 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 
                             glMatrixMode(GL_PROJECTION);
                             glLoadIdentity();
-                            g3dcamera_project ( &uvme->cam, 0x00  );
+                            g3dcamera_project ( &lui->cam, 0x00  );
 
                             glMatrixMode ( GL_MODELVIEW );
                             glLoadIdentity ( );
 
                             /*** preserve image aspect ratio ***/
-                            uvme->cam.obj.sca.y = whRatio;
+                            lui->cam.obj.sca.y = whRatio;
 
-                            g3dobject_updateMatrix ( &uvme->cam.obj );
+                            g3dobject_updateMatrix ( &lui->cam.obj );
 
-                            g3dcamera_view ( &uvme->cam, 0x00  );
+                            g3dcamera_view ( &lui->cam, 0x00  );
 
                             glEnable ( GL_COLOR_MATERIAL );
                             glColor3ub ( 0xFF, 0xFF, 0xFF );
@@ -660,17 +659,17 @@ void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_sizeGL ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_sizeGL ( L3DUI *lui, 
                                       uint32_t          width, 
                                       uint32_t          height ) {
     glViewport ( 0, 0, width, height );
 
-    uvme->arearec.width   = width;
-    uvme->arearec.height  = height;
+    lui->arearec.width   = width;
+    lui->arearec.height  = height;
 }
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_initGL ( G3DUIUVMAPEDITOR *uvme ) {
+void common_l3dui_initGL ( L3DUI *lui ) {
     float clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
     /*** Set clear color for the OpenGL Window ***/

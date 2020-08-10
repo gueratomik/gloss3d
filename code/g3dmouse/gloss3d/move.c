@@ -245,120 +245,127 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( uvmap ) {
-                switch ( event->type ) {
-                    case G3DButtonPress : {
-                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
 
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                        glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                        glGetIntegerv ( GL_VIEWPORT, VPX );
+            if ( tex ) {
+                G3DUVMAP *uvmap = tex->map;
 
-                        gluUnProject ( bev->x, 
-                                       bev->y, 
-                                       0.0f,
-                                       MVX,
-                                       PJX,
-                                       VPX,
-                                      &orix,
-                                      &oriy,
-                                      &oriz );
+                if ( uvmap ) {
+                    switch ( event->type ) {
+                        case G3DButtonPress : {
+                            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                        mouseXpress = xold = bev->x;
-                        mouseYpress = yold = bev->y;
+                            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+                            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                            glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                        if ( engine_flags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
-                        if ( engine_flags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
-
-                        /*** remember coords for undo-redo ***/
-                        g3duv_copyUVFromList ( lseluv, &olduv );
-                    } return REDRAWVIEW;
-
-                    case G3DMotionNotify : {
-                        G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
-
-                        if ( mev->state & G3DButton1Mask ) {
-                            gluUnProject ( mev->x, 
-                                           mev->y, 
+                            gluUnProject ( bev->x, 
+                                           bev->y, 
                                            0.0f,
                                            MVX,
                                            PJX,
                                            VPX,
-                                          &newx,
-                                          &newy,
-                                          &newz );
+                                          &orix,
+                                          &oriy,
+                                          &oriz );
 
-                            if ( ( engine_flags & VIEWVERTEXUV ) || 
-                                 ( engine_flags & VIEWFACEUV   ) ) {
-                                float udiff = ( float ) ( newx - orix ),
-                                      vdiff = ( float ) ( newy - oriy );
-                                LIST *ltmpuv = lseluv;
+                            mouseXpress = xold = bev->x;
+                            mouseYpress = yold = bev->y;
 
-                                while ( ltmpuv ) {
-                                    G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+                            if ( engine_flags & VIEWVERTEXUV ) lseluv = list_copy ( uvmap->lseluv );
+                            if ( engine_flags & VIEWFACEUV   ) lseluv = g3duvset_getUVsFromList ( uvmap->lseluvset );
 
-                                    uv->u += udiff;
-                                    uv->v -= vdiff;
+                            /*** remember coords for undo-redo ***/
+                            g3duv_copyUVFromList ( lseluv, &olduv );
+                        } return REDRAWVIEW;
 
-                                    ltmpuv = ltmpuv->next;
+                        case G3DMotionNotify : {
+                            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+                            if ( mev->state & G3DButton1Mask ) {
+                                gluUnProject ( mev->x, 
+                                               mev->y, 
+                                               0.0f,
+                                               MVX,
+                                               PJX,
+                                               VPX,
+                                              &newx,
+                                              &newy,
+                                              &newz );
+
+                                if ( ( engine_flags & VIEWVERTEXUV ) || 
+                                     ( engine_flags & VIEWFACEUV   ) ) {
+                                    float udiff = ( float ) ( newx - orix ),
+                                          vdiff = ( float ) ( newy - oriy );
+                                    LIST *ltmpuv = lseluv;
+
+                                    while ( ltmpuv ) {
+                                        G3DUV *uv = ( G3DUV * ) ltmpuv->data;
+
+                                        uv->u += udiff;
+                                        uv->v -= vdiff;
+
+                                        ltmpuv = ltmpuv->next;
+                                    }
                                 }
+
+                                orix = newx;
+                                oriy = newy;
+                            }
+                        } return REDRAWUVMAPEDITOR;
+
+                        case G3DButtonRelease : {
+                            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                            /*** simulate click and release ***/
+                            if ( ( bev->x == mouseXpress ) && 
+                                 ( bev->y == mouseYpress ) ) {
+                                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                                   bev->x, VPX[0x03] - bev->y },
+                                                        .only_visible = 0x00,
+                                                        .weight = 0.0f,
+                                                        .radius = PICKMINRADIUS };
+
+                                pickUV_tool ( &pt, sce, cam, urm, engine_flags, event );
+
+                                /*** cancel arrays allocated for undo-redo ***/
+                                if ( olduv ) free ( olduv );
+                            } else {
+                                /*** remember coords for undo-redo ***/
+                                g3duv_copyUVFromList ( lseluv, &newuv );
+
+                                g3durm_uvmap_moveUVList ( urm,
+                                                          uvmap, 
+                                                          lseluv,
+                                                          olduv, 
+                                                          newuv, 
+                                                          REDRAWVIEW |
+                                                          REDRAWUVMAPEDITOR );
                             }
 
-                            orix = newx;
-                            oriy = newy;
-                        }
-                    } return REDRAWUVMAPEDITOR;
+                            list_free ( &lseluv, NULL );
 
-                    case G3DButtonRelease : {
-                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                            /** TODO: do this only for subdivided meshes ***/
+                            g3dmesh_update ( ((G3DOBJECT*)uvmap)->parent, 
+                                             NULL,
+                                             NULL,
+                                             NULL,
+                                             RESETMODIFIERS, 
+                                             engine_flags );
 
-                        /*** simulate click and release ***/
-                        if ( ( bev->x == mouseXpress ) && 
-                             ( bev->y == mouseYpress ) ) {
-                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                               bev->x, VPX[0x03] - bev->y },
-                                                    .only_visible = 0x00,
-                                                    .weight = 0.0f,
-                                                    .radius = PICKMINRADIUS };
+                            olduv = newuv = NULL;
+                        } return REDRAWVIEW            | 
+                                 REDRAWCOORDS          | 
+                                 BUFFEREDSUBDIVISIONOK | 
+                                 REDRAWCURRENTOBJECT   | 
+                                 REDRAWUVMAPEDITOR;
 
-                            pickUV_tool ( &pt, sce, cam, urm, engine_flags, event );
-
-                            /*** cancel arrays allocated for undo-redo ***/
-                            if ( olduv ) free ( olduv );
-                        } else {
-                            /*** remember coords for undo-redo ***/
-                            g3duv_copyUVFromList ( lseluv, &newuv );
-
-                            g3durm_uvmap_moveUVList ( urm,
-                                                      uvmap, 
-                                                      lseluv,
-                                                      olduv, 
-                                                      newuv, 
-                                                      REDRAWVIEW |
-                                                      REDRAWUVMAPEDITOR );
-                        }
-
-                        list_free ( &lseluv, NULL );
-
-                        /** TODO: do this only for subdivided meshes ***/
-                        g3dmesh_update ( ((G3DOBJECT*)uvmap)->parent, 
-                                         NULL,
-                                         NULL,
-                                         NULL,
-                                         RESETMODIFIERS, 
-                                         engine_flags );
-
-                        olduv = newuv = NULL;
-                    } return REDRAWVIEW            | 
-                             REDRAWCOORDS          | 
-                             BUFFEREDSUBDIVISIONOK | 
-                             REDRAWCURRENTOBJECT   | 
-                             REDRAWUVMAPEDITOR;
-
-                    default :
-                    break;
+                        default :
+                        break;
+                    }
                 }
             }
         }

@@ -34,7 +34,7 @@
 
 /******************************************************************************/
 typedef struct _CHANNELIMAGEDATA {
-    G3DUIUVMAPEDITOR *uvme;
+    L3DUI *lui;
     G3DCHANNEL       *chn;
     uint32_t          width;
     uint32_t          height;
@@ -45,7 +45,7 @@ typedef struct _CHANNELIMAGEDATA {
 static void updateChannelImageDialog ( GtkWidget        *widget, 
                                        CHANNELIMAGEDATA *cid ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DUI *gui = cid->uvme->gui;
+    G3DUI *gui = cid->lui->gui;
 
     /*** prevents a loop ***/
     gui->lock = 0x01;
@@ -72,7 +72,7 @@ static void updateChannelImageDialog ( GtkWidget        *widget,
 }
 
 /******************************************************************************/
-CHANNELIMAGEDATA *channelimagedata_new ( G3DUIUVMAPEDITOR *uvme, 
+CHANNELIMAGEDATA *channelimagedata_new ( L3DUI *lui, 
                                          G3DCHANNEL       *chn,
                                          uint32_t          resize ) {
     void *memarea = calloc ( 0x01, sizeof ( CHANNELIMAGEDATA ) );
@@ -84,7 +84,7 @@ CHANNELIMAGEDATA *channelimagedata_new ( G3DUIUVMAPEDITOR *uvme,
         return NULL;
     }
  
-    cid->uvme   = uvme;
+    cid->lui   = lui;
     cid->chn    = chn;
     cid->resize = resize;
 
@@ -105,7 +105,7 @@ static void widthCbk ( GtkWidget *widget,
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     uint32_t width = ( uint32_t ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     CHANNELIMAGEDATA *cid = ( CHANNELIMAGEDATA * ) user_data;
-    G3DUI *gui = cid->uvme->gui;
+    G3DUI *gui = cid->lui->gui;
 
     if ( gui->lock ) return;
 
@@ -120,7 +120,7 @@ static void heightCbk ( GtkWidget *widget,
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     uint32_t height = ( uint32_t ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     CHANNELIMAGEDATA *cid = ( CHANNELIMAGEDATA * ) user_data;
-    G3DUI *gui = cid->uvme->gui;
+    G3DUI *gui = cid->lui->gui;
 
     if ( gui->lock ) return;
 
@@ -134,7 +134,7 @@ static void okCbk ( GtkWidget *widget,
                     gpointer   user_data ) {
     CHANNELIMAGEDATA *cid = ( CHANNELIMAGEDATA * ) user_data;
     G3DCHANNEL *chn = ( G3DCHANNEL * ) cid->chn;
-    G3DUI *gui = cid->uvme->gui;
+    G3DUI *gui = cid->lui->gui;
 
     if ( cid->resize ) {
         if ( cid->chn->flags & USEIMAGECOLOR ) {
@@ -161,7 +161,7 @@ static void okCbk ( GtkWidget *widget,
     g3dui_updateMaterialEdit ( gui );
 
    /*** resize selection mask and zbuffer ***/
-   common_g3duiuvmapeditor_resizeBuffers ( cid->uvme );
+   common_l3dui_resizeBuffers ( cid->lui );
 
     gtk_widget_destroy ( gtk_widget_get_ancestor ( widget, GTK_TYPE_WINDOW ) );
 }
@@ -219,7 +219,7 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 GtkWidget* createChannelImage ( GtkWidget        *parent,
-                                G3DUIUVMAPEDITOR *uvme,
+                                L3DUI *lui,
                                 G3DCHANNEL       *chn,
                                 uint32_t          resize,
                                 char             *name,
@@ -227,7 +227,7 @@ GtkWidget* createChannelImage ( GtkWidget        *parent,
                                 gint              y,
                                 gint              width,
                                 gint              height ) {
-    CHANNELIMAGEDATA *cid = channelimagedata_new ( uvme, chn, resize );
+    CHANNELIMAGEDATA *cid = channelimagedata_new ( lui, chn, resize );
     GdkRectangle gdkrec = { 0, 0, width, height };
     GtkWidget *frm = gtk_fixed_new ( ), *wbtn, *hbtn;
 
@@ -241,7 +241,7 @@ GtkWidget* createChannelImage ( GtkWidget        *parent,
     wbtn = createIntegerText ( frm, cid, WIDTHBUTTONNAME , 0, 8192, 8,  0,   0, 96, widthCbk  );
     hbtn = createIntegerText ( frm, cid, HEIGHTBUTTONNAME, 0, 8192, 8, 24,   0, 96, heightCbk );
 
-    createSimpleLabel ( frm, uvme->gui, "", 0, 48, 128, 24 );
+    createSimpleLabel ( frm, lui->gui, "", 0, 48, 128, 24 );
 
     createPushButton ( frm, cid, "OK", 60, 72, 32, 24, okCbk );
 
@@ -257,7 +257,7 @@ GtkWidget* createChannelImage ( GtkWidget        *parent,
         gtk_spin_button_set_value ( hbtn, cid->height );
     }
 
-    uvme->gui->lock = 0x00;
+    lui->gui->lock = 0x00;
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), cid );
     g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), cid );

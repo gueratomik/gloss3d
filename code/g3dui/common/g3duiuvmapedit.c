@@ -38,40 +38,36 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmpuvmap = mes->luvmap;
+        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
 
-        while ( ltmpuvmap ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
-
+        if ( ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) == 0x00 ) {
             /*** 0 ***/
             if ( strcmp ( projection, FLATPROJECTION        ) == 0x00 ) {
-                map->projection = UVMAPFLAT;
+                uvmap->projection = UVMAPFLAT;
             }
 
             /*** 1 ***/
             if ( strcmp ( projection, SPHERICALPROJECTION   ) == 0x00 ) {
-                map->projection = UVMAPSPHERICAL;
+                uvmap->projection = UVMAPSPHERICAL;
             }
 
             /*** 2 ***/
             if ( strcmp ( projection, CYLINDRICALPROJECTION ) == 0x00 ) {
-                map->projection = UVMAPCYLINDRICAL;
+                uvmap->projection = UVMAPCYLINDRICAL;
             }
 
             /*** 2 ***/
             if ( strcmp ( projection, BACKGROUNDPROJECTION ) == 0x00 ) {
-                map->projection = UVMAPBACKGROUND;
+                uvmap->projection = UVMAPBACKGROUND;
             }
 
-            g3duvmap_applyProjection ( map, mes );
+            g3duvmap_applyProjection ( uvmap, mes );
 
             /*** might need to recompute displacement ***/
             g3dmesh_update ( mes, NULL,
                                   NULL,
                                   NULL,
                                   RESETMODIFIERS, gui->engine_flags );
-
-            ltmpuvmap = ltmpuvmap->next;
         }
 
         g3dui_redrawGLViews ( gui );
@@ -87,18 +83,12 @@ void common_g3duiuvmap_lockUVMapCbk ( G3DUI *gui ) {
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmpuvmap = mes->luvmap;
+        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
 
-        while ( ltmpuvmap ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
-
-            if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
-                g3duvmap_unfix ( map );
-            } else {
-                g3duvmap_fix   ( map );
-            }
-
-            ltmpuvmap = ltmpuvmap->next;
+        if ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) {
+            g3duvmap_unfix ( uvmap );
+        } else {
+            g3duvmap_fix   ( uvmap );
         }
     }
 }

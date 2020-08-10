@@ -52,7 +52,7 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     uint32_t     nbrtedg;
     G3DRTQUAD   *rtquamem;
     uint32_t     nbrtfac;
-    G3DRTUV     *rtuvmem;
+    G3DRTUV     *rtluim;
     uint32_t     nbrtuv;
     uint32_t     nbVerticesPerTriangle;
     uint32_t     nbVerticesPerQuad;
@@ -84,7 +84,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
  * @param nbrtedg number of edges in the array.
  * @param rtquamem G3DRTQUAD array to fill. Indexes vertices by Id.
  * @param nbrtfac number of quads in the array.
- * @param rtuvmem G3DRTUV array to fill.
+ * @param rtluim G3DRTUV array to fill.
  * @param nbrtuv number of uvs in the array.
  * @param nbVerticesPerTriangle number of vertices per triangle.
  * @param nbVerticesPerQuad number of vertices per quad.
@@ -104,7 +104,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              nbrtedg,
                                  G3DRTQUAD            *rtquamem,
                                  uint32_t              nbrtfac,
-                                 G3DRTUV              *rtuvmem,
+                                 G3DRTUV              *rtluim,
                                  uint32_t              nbrtuv,
                                  uint32_t              nbVerticesPerTriangle,
                                  uint32_t              nbVerticesPerQuad,
@@ -125,7 +125,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
  * @param nbrtedg number of edges in the array.
  * @param rtquamem G3DRTQUAD array to fill. Indexes vertices by Id.
  * @param nbrtfac number of quads in the array.
- * @param rtuvmem G3DRTUV array to fill.
+ * @param rtluim G3DRTUV array to fill.
  * @param nbrtuv number of uvs in the array.
  * @param nbVerticesPerTriangle number of vertices per triangle.
  * @param nbVerticesPerQuad number of vertices per quad.
@@ -145,7 +145,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     nbrtedg,
                                                  G3DRTQUAD   *rtquamem,
                                                  uint32_t     nbrtfac,
-                                                 G3DRTUV     *rtuvmem,
+                                                 G3DRTUV     *rtluim,
                                                  uint32_t     nbrtuv,
                                                  uint32_t     nbVerticesPerTriangle,
                                                  uint32_t     nbVerticesPerQuad,

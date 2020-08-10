@@ -30,6 +30,18 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+static void runLIPS3DCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+
+    createUVMapEditor ( dial, gui, "LIPS3D", 1024, 576 );
+
+    gtk_widget_show ( dial );
+    gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
+}
+
+/******************************************************************************/
 static void restrictCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -159,6 +171,24 @@ void updateTextureEdit ( GtkWidget *widget, G3DUI *gui ) {
                                 gtk_toggle_button_set_active ( tbn, TRUE  );
                             } else {
                                 gtk_toggle_button_set_active ( tbn, FALSE );
+                            }
+                        }
+                    }
+
+                    if ( GTK_IS_BUTTON(child) ) {
+                        GtkButton *tbn = GTK_BUTTON(child);
+
+                        if ( strcmp ( child_name, EDITUVMAPEDITOR ) == 0x00 ) {
+                             G3DUVMAP *uvmap = tex->map;
+
+                            if ( uvmap ) {
+                                if ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) {
+                                    gtk_widget_set_sensitive ( tbn, TRUE  );
+                                } else {
+                                    gtk_widget_set_sensitive ( tbn, FALSE );
+                                }
+                            } else {
+                                gtk_widget_set_sensitive ( tbn, FALSE );
                             }
                         }
                     }
@@ -376,6 +406,11 @@ GtkWidget* createTextureEdit ( GtkWidget *parent, G3DUI *gui,
     createToggleLabel    ( frm, gui, EDITTEXTUREREPEAT,
                                       0, 64,  64,  24, repeatCbk );
     createFaceGroupFrame ( frm, gui,  0, 88, 286, 140 );
+
+    createPushButton  ( frm, gui, 
+                             EDITUVMAPEDITOR,
+                              0, 228, 286, 18,
+                             runLIPS3DCbk );
 
     gui->lock = 0x00;
 

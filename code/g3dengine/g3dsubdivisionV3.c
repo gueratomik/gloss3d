@@ -912,7 +912,7 @@ static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
     newfac->fac.nbuvs = fac->nbuvs;
 
     /*  to uncomment */
-    /*newfac->fac.rtuvmem  = fac->rtuvmem*/;
+    /*newfac->fac.rtluim  = fac->rtluim*/;
 }
 
 /******************************************************************************/

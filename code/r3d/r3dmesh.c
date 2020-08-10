@@ -394,6 +394,8 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes,
     uint32_t n = 0x00, i;
     R3DFACE **rfcarray = NULL;
     R3DDUMP rdump;
+    uint32_t mapID = 0x00;
+    LIST *ltmpuvmap = mes->luvmap;
 
     if ( rms == NULL ) {
         fprintf ( stderr, "r3dmesh_new: malloc failed\n" );
@@ -411,6 +413,14 @@ R3DMESH *r3dmesh_new ( G3DMESH *mes,
     rdump.vmatrix = vmatrix;
     rdump.dump_flags = dump_flags;
     rdump.engine_flags = engine_flags;
+
+    while ( ltmpuvmap ) {
+        G3DUVMAP *uvmap = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        uvmap->mapID = mapID++;
+
+        ltmpuvmap = ltmpuvmap->next;
+    }
 
     g3dmesh_dump ( mes, Alloc, Dump, &rdump, engine_flags );
 

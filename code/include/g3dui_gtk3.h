@@ -192,7 +192,7 @@ GtkWidget *gtk_view_getGLArea ( GtkWidget *widget );
 /************************** GTK UVMap Editor Widget ***************************/
 typedef struct _GtkUVMapEditor {
     GtkFixed  parent_instance;
-    G3DUIUVMAPEDITOR uvme;
+    L3DUI lui;
     cairo_surface_t *surface;
 } GtkUVMapEditor;
 
@@ -631,7 +631,7 @@ void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *,
 
 void gtk3_g3dui_setMode   ( GtkWidget *, gpointer );
 void g3dui_setMouseTool   ( GtkWidget *, gpointer );
-void g3duiuvmapeditor_setUVMouseTool ( GtkWidget *, gpointer );
+void l3dui_setUVMouseTool ( GtkWidget *, gpointer );
 gboolean gtk3_showGL      ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL          ( GtkWidget *, gpointer );
 void gtk3_sizeGL          ( GtkWidget *, GdkRectangle *, gpointer );
@@ -728,14 +728,14 @@ R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
-void g3duiuvmapeditor_undoCbk ( GtkWidget *widget, gpointer user_data );
-void g3duiuvmapeditor_redoCbk ( GtkWidget *widget, gpointer user_data );
-void g3duiuvmapeditor_uv2verCbk ( GtkWidget *widget, gpointer user_data );
-void g3duiuvmapeditor_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
+void l3dui_undoCbk ( GtkWidget *widget, gpointer user_data );
+void l3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
+void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
+void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
 
 
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
-                             G3DUIUVMAPEDITOR *uvme,
+                             L3DUI *lui,
                              char             *name,
                              gint              x,
                              gint              y,
@@ -751,7 +751,7 @@ GtkWidget *createFgBgButton ( GtkWidget *parent,
                               gint       height );
 
 GtkWidget* createChannelImage ( GtkWidget        *parent,
-                                G3DUIUVMAPEDITOR *uvme,
+                                L3DUI *lui,
                                 G3DCHANNEL       *chn,
                                 uint32_t          resize,
                                 char             *name,
@@ -777,7 +777,7 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
                                       gint       height );
 
 GtkWidget *createPatternList ( GtkWidget        *parent, 
-                               G3DUIUVMAPEDITOR *uvme,
+                               L3DUI *lui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -801,14 +801,14 @@ uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
                                          uint32_t    ask,
                                          uint32_t    rename );
 
-void g3duiuvmapeditor_loadImageByChannelIDCbk ( GtkWidget *widget, 
+void l3dui_loadImageByChannelIDCbk ( GtkWidget *widget, 
                                                 gpointer   user_data );
 
-void g3duiuvmapeditor_createChannelImageCbk ( GtkWidget *widget, 
+void l3dui_createChannelImageCbk ( GtkWidget *widget, 
                                               gpointer   user_data );
 
 GtkWidget *createPenToolEdit ( GtkWidget        *parent, 
-                               G3DUIUVMAPEDITOR *uvme,
+                               L3DUI *lui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -816,16 +816,16 @@ GtkWidget *createPenToolEdit ( GtkWidget        *parent,
                                gint              height );
 
 void updatePenToolEdit ( GtkWidget        *widget,
-                         G3DUIUVMAPEDITOR *uvme );
+                         L3DUI *lui );
 
 GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
-                                    G3DUIUVMAPEDITOR *uvme,
+                                    L3DUI *lui,
                                     char             *name,
                                     gint              x,
                                     gint              y,
                                     gint              width,
                                     gint              height );
 
-void g3duiuvmapeditor_updateMouseToolEdit ( G3DUIUVMAPEDITOR *uvme );
+void l3dui_updateMouseToolEdit ( L3DUI *lui );
 
 #endif

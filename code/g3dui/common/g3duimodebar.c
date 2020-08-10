@@ -39,15 +39,15 @@
 #include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
-void common_g3duiuvmapeditor_setMode ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_setMode ( L3DUI *lui, 
                                        const char       *modename ) {
-    uint64_t curflags = uvme->engine_flags & (~UVMODEMASK);
+    uint64_t curflags = lui->engine_flags & (~UVMODEMASK);
     uint64_t newmode = 0x00;
 
     if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEXUV;
     if ( strcmp ( modename, MODE_VIEWFACE   ) == 0x00 ) newmode = VIEWFACEUV;
 
-    uvme->engine_flags = ( curflags | newmode );
+    lui->engine_flags = ( curflags | newmode );
 }
 
 /******************************************************************************/

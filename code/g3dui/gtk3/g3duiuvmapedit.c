@@ -48,18 +48,6 @@ static void lockUVMapCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void uvmapEditorCbk ( GtkWidget *widget, gpointer user_data ) {
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-
-    createUVMapEditor ( dial, gui, "UVMAPEDITOR", 1024, 576 );
-
-    gtk_widget_show ( dial );
-    gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
-}
-
-/******************************************************************************/
 void createProjectionSelection ( GtkWidget *parent, G3DUI *gui, 
                                                     char *name,
                                                     gint x, gint y,
@@ -144,18 +132,6 @@ void updateUVMapEdit ( GtkWidget *widget, G3DUI *gui ) {
                         }
                     }
 
-                    if ( GTK_IS_BUTTON(child) ) {
-                        GtkButton *tbn = GTK_BUTTON(child);
-
-                        if ( strcmp ( child_name, EDITUVMAPEDITOR ) == 0x00 ) {
-                            if ( ((G3DOBJECT*)map)->flags & UVMAPFIXED ) {
-                                gtk_widget_set_sensitive ( tbn, TRUE  );
-                            } else {
-                                gtk_widget_set_sensitive ( tbn, FALSE );
-                            }
-                        }
-                    }
-
                     if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
                         GtkComboBox *cmb = GTK_COMBO_BOX(child);
 
@@ -233,11 +209,6 @@ GtkWidget *createUVMapEdit ( GtkWidget *parent, G3DUI *gui,
 
     createToggleLabel         ( frm, gui, EDITUVMAPFIXED,
                                 0,  48, 96, 20, lockUVMapCbk );
-
-    createPushButton  ( frm, gui, 
-                             EDITUVMAPEDITOR,
-                              96, 48, 96, 18,
-                             uvmapEditorCbk );
 
     gui->lock = 0x00;
 

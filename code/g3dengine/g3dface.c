@@ -219,7 +219,7 @@ void g3dface_initSubface ( G3DFACE      *fac,
     subfac->fac.nbuvs = 0;
 
     /* to uncomment */
-    /*subfac->rtuvmem = fac->rtuvmem;*/
+    /*subfac->rtluim = fac->rtluim;*/
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         if ( fac->ver[i] == oriver ) {
@@ -313,9 +313,9 @@ void g3dface_allocSubdividedUVSets ( G3DFACE *fac,
     uint32_t structsize = sizeof ( G3DRTUV );
 
     /*** TODO - here it should be fac->nbtex instead of fac->nbuvs ***/
-    /*fac->rtuvmem = realloc ( fac->rtuvmem, fac->nbuvs * nbrtfac * structsize );*/
+    /*fac->rtluim = realloc ( fac->rtluim, fac->nbuvs * nbrtfac * structsize );*/
 
-    /*if ( fac->rtuvmem == NULL ) {*/
+    /*if ( fac->rtluim == NULL ) {*/
         fprintf ( stderr, "g3dface_allocSubdividedUVSets: realloc failed\n" );
     /*}*/
 }

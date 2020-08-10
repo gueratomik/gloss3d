@@ -94,7 +94,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         /*** Get the temporary subdivision arrays for CPU #0 ***/
         G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
         G3DMESH     *mes      = ( G3DMESH * ) parent;
-        G3DRTUV     *rtuvmem  = NULL;
+        G3DRTUV     *rtluim  = NULL;
         G3DRTVERTEX *rtvermem = NULL;
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
@@ -145,7 +145,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
             rtquamem = realloc ( rtquamem, nbFacesPerFace    * sizeof ( G3DRTQUAD   ) );
 
             if ( nbuvmap ) {
-                rtuvmem  = realloc ( rtuvmem , nbVerticesPerFace * 
+                rtluim  = realloc ( rtluim , nbVerticesPerFace * 
                                                nbuvmap           * sizeof ( G3DRTUV ) );
             }
 
@@ -155,7 +155,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                         rtquamem,
                                                         rtedgmem,
                                                         rtvermem,
-                                                        rtuvmem,
+                                                        rtluim,
                                                         NULL,
                                                         NULL,
                                                         NULL,
@@ -213,8 +213,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                     dumpUvs[nbuvs].map = uvs->map;
 
                     for ( k = 0x00; k < 0x04; k++ ) {
-                        dumpUvs[nbuvs].veruv[k].u = rtuvmem[(offset + rtquamem[i].rtver[k])].u;
-                        dumpUvs[nbuvs].veruv[k].v = rtuvmem[(offset + rtquamem[i].rtver[k])].v;
+                        dumpUvs[nbuvs].veruv[k].u = rtluim[(offset + rtquamem[i].rtver[k])].u;
+                        dumpUvs[nbuvs].veruv[k].v = rtluim[(offset + rtquamem[i].rtver[k])].v;
                     }
 
                     ldumpUvs[nbuvs].data  = &dumpUvs[nbuvs];
@@ -234,7 +234,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         if ( rtvermem ) free ( rtvermem );
         if ( rtedgmem ) free ( rtedgmem );
         if ( rtquamem ) free ( rtquamem );
-        if ( rtuvmem  ) free ( rtuvmem  );
+        if ( rtluim  ) free ( rtluim  );
     }
 
     return MODIFIERTAKESOVER;
@@ -381,7 +381,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                     sdr->nbrtedg,
                                                     sdr->rtquamem,
                                                     sdr->nbrtfac,
-                                                    sdr->rtuvmem,
+                                                    sdr->rtluim,
                                                     sdr->nbrtuv,
                                                     sdr->nbVerticesPerTriangle,
                                                     sdr->nbVerticesPerQuad,
@@ -409,7 +409,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                      sdr->nbrtedg,
                                                      sdr->rtquamem,
                                                      sdr->nbrtfac,
-                                                     sdr->rtuvmem,
+                                                     sdr->rtluim,
                                                      sdr->nbrtuv,
                                                      sdr->nbVerticesPerTriangle,
                                                      sdr->nbVerticesPerQuad,
@@ -465,7 +465,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
         sdr->rtquamem = realloc ( sdr->rtquamem, ( sdr->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
         sdr->rtedgmem = realloc ( sdr->rtedgmem, ( sdr->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
         sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( G3DRTVERTEX ) ) );
-        sdr->rtuvmem  = realloc ( sdr->rtuvmem , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
+        sdr->rtluim  = realloc ( sdr->rtluim , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
     ((G3DMESH*)sdr)->nbuvmap = mes->nbuvmap;
     /*while ( ltmpfac ) {
@@ -480,13 +480,13 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
             rtedgmem += quaEdges;
             rtvermem += quaVertices;
 
-            if ( fac->nbuvs ) fac->rtuvmem = ( G3DRTUV * ) realloc ( fac->rtuvmem, quaVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
+            if ( fac->nbuvs ) fac->rtluim = ( G3DRTUV * ) realloc ( fac->rtluim, quaVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
         } else {
             rtquamem += triFaces;
             rtedgmem += triEdges;
             rtvermem += triVertices;
 
-            if ( fac->nbuvs ) fac->rtuvmem = ( G3DRTUV * ) realloc ( fac->rtuvmem, triVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
+            if ( fac->nbuvs ) fac->rtluim = ( G3DRTUV * ) realloc ( fac->rtluim, triVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
         }
 
         ltmpfac = ltmpfac->next;
@@ -575,7 +575,7 @@ static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 static void bindMaterials ( G3DMESH *mes, 
                             G3DFACE *fac, 
-                            G3DRTUV *rtuvmem,
+                            G3DRTUV *rtluim,
                             uint64_t engine_flags ) {
     static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
@@ -681,7 +681,7 @@ I dont't know why.
                 #endif
                 glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
 
-                glTexCoordPointer ( 0x02, GL_FLOAT, 0x00, rtuvmem );
+                glTexCoordPointer ( 0x02, GL_FLOAT, 0x00, rtluim );
 
                 arbid++;
             }
@@ -694,7 +694,7 @@ I dont't know why.
 /******************************************************************************/
 static void unbindMaterials ( G3DMESH *mes, 
                               G3DFACE *fac, 
-                              G3DRTUV *rtuvmem,
+                              G3DRTUV *rtluim,
                               uint64_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
@@ -783,7 +783,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
             G3DRTVERTEX *rtvermem = NULL;
             G3DRTEDGE   *rtedgmem = NULL;
             G3DRTQUAD   *rtquamem = NULL;
-            G3DRTUV     *rtuvmem  = NULL;
+            G3DRTUV     *rtluim  = NULL;
             uint32_t     nbrtfac;
             GLint arbid = GL_TEXTURE0_ARB;
             LIST *ltmptex = mes->ltex;
@@ -793,20 +793,20 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
                 nbrtfac  = sdr->nbFacesPerTriangle;
                 rtvermem = sdr->rtvermem + ( fac->typeID * sdr->nbVerticesPerTriangle );
                 rtquamem = sdr->rtquamem + ( fac->typeID * sdr->nbFacesPerTriangle );
-                rtuvmem  = sdr->rtuvmem  + ( fac->typeID * sdr->nbVerticesPerTriangle * nbuvmap );
+                rtluim  = sdr->rtluim  + ( fac->typeID * sdr->nbVerticesPerTriangle * nbuvmap );
             } else {
                 nbrtfac  = sdr->nbFacesPerQuad;
                 rtvermem = sdr->rtvermem + ( mes->nbtri  * sdr->nbVerticesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbVerticesPerQuad );
                 rtquamem = sdr->rtquamem + ( mes->nbtri  * sdr->nbFacesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbFacesPerQuad );
-                rtuvmem  = sdr->rtuvmem  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
+                rtluim  = sdr->rtluim  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
                                            ( fac->typeID * sdr->nbVerticesPerQuad * nbuvmap );
             }
 
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
                 if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
-                    bindMaterials ( mes, fac, rtuvmem, engine_flags );
+                    bindMaterials ( mes, fac, rtluim, engine_flags );
                 }
  
                 glEnableClientState ( GL_NORMAL_ARRAY );
@@ -825,7 +825,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
                 glDisableClientState ( GL_NORMAL_ARRAY );
 
                 if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
-                    unbindMaterials ( mes, fac, rtuvmem, engine_flags );
+                    unbindMaterials ( mes, fac, rtluim, engine_flags );
                 }
             }
 

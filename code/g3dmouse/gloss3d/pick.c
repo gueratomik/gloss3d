@@ -297,14 +297,24 @@ static uint32_t actionSelectVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 
 /******************************************************************************/
 static uint32_t actionSelectVertexUV ( uint64_t name, MESHPICKDATA *mpd ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mpd->mes );
-    G3DUV *uv = ( G3DUV * ) name;
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mpd->mes );
 
-    if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
-        g3duvmap_selectUV ( uvmap, uv );
-    } else {
-        if ( mpd->flags & CTRLCLICK ) {
-            g3duvmap_unselectUV ( uvmap, uv );
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mpd->mes );
+
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
+
+        if ( uvmap ) {
+            G3DUV *uv = ( G3DUV * ) name;
+
+            if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
+                g3duvmap_selectUV ( uvmap, uv );
+            } else {
+                if ( mpd->flags & CTRLCLICK ) {
+                    g3duvmap_unselectUV ( uvmap, uv );
+                }
+            }
         }
     }
 
@@ -313,14 +323,24 @@ static uint32_t actionSelectVertexUV ( uint64_t name, MESHPICKDATA *mpd ) {
 
 /******************************************************************************/
 static uint32_t actionSelectFaceUV ( uint64_t name, MESHPICKDATA *mpd ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mpd->mes );
-    G3DUVSET *uvset = ( G3DUVSET * ) name;
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mpd->mes );
 
-    if ( ( uvset->flags & UVSETSELECTED ) == 0x00 ) {
-        g3duvmap_selectUVSet ( uvmap, uvset );
-    } else {
-        if ( mpd->flags & CTRLCLICK ) {
-            g3duvmap_unselectUVSet ( uvmap, uvset );
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mpd->mes );
+
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
+
+        if ( uvmap ) {
+            G3DUVSET *uvset = ( G3DUVSET * ) name;
+
+            if ( ( uvset->flags & UVSETSELECTED ) == 0x00 ) {
+                g3duvmap_selectUVSet ( uvmap, uvset );
+            } else {
+                if ( mpd->flags & CTRLCLICK ) {
+                    g3duvmap_unselectUVSet ( uvmap, uvset );
+                }
+            }
         }
     }
 
@@ -472,15 +492,29 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     if ( engine_flags & VIEWEDGE     ) g3dmesh_unselectAllEdges    ( mes );
                     if ( engine_flags & VIEWVERTEX   ) g3dmesh_unselectAllVertices ( mes );
                     if ( engine_flags & VIEWVERTEXUV ) {
-                        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+                        G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-                        if ( uvmap ) g3duvmap_unselectAllUVs ( uvmap );
+                        /*** try the first texture in case no texture is selected ***/
+                        if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+                        if ( tex ) {
+                            G3DUVMAP *uvmap = tex->map;
+
+                            if ( uvmap ) g3duvmap_unselectAllUVs ( uvmap );
+                        }
                     }
 
                     if ( engine_flags & VIEWFACEUV ) {
-                        G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+                        G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-                        if ( uvmap ) g3duvmap_unselectAllUVSets ( uvmap );
+                        /*** try the first texture in case no texture is selected ***/
+                        if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+                        if ( tex ) {
+                            G3DUVMAP *uvmap = tex->map;
+
+                            if ( uvmap ) g3duvmap_unselectAllUVSets ( uvmap );
+                        }
                     }
                 }
 
@@ -708,75 +742,82 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( uvmap ) {
-	            switch ( event->type ) {
-                    case G3DButtonPress : {
-        	            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
 
-        	            glGetIntegerv ( GL_VIEWPORT, VPX );
+            if ( tex ) {
+                G3DUVMAP *uvmap = tex->map;
 
-        	            pt->start = 0x01;
+                if ( uvmap ) {
+	                switch ( event->type ) {
+                        case G3DButtonPress : {
+        	                G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-        	            startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
-                    } return REDRAWALL;
+        	                glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                    case G3DMotionNotify : {
-        	        /*** if G3DButtonPress was called ***/
-        	            if ( pt->start ) {
-                                G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
-                                glGetIntegerv ( GL_VIEWPORT, VPX );
+        	                pt->start = 0x01;
 
-                                shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
+        	                startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
+                        } return REDRAWALL;
 
-                                return REDRAWUVMAPEDITOR;
-        	            }
-                    } return 0x00;
+                        case G3DMotionNotify : {
+        	            /*** if G3DButtonPress was called ***/
+        	                if ( pt->start ) {
+                                    G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+                                    glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                    case G3DButtonRelease : {
-        	            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                        uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
-                        LIST *lselold = NULL, *lselnew = NULL;
+                                    shapeSelectionRectangle ( mev->x, VPX[0x03] - mev->y, pt->coord );
 
-        		        if ( engine_flags & VIEWVERTEXUV ) {
-                            lselold = list_copy ( uvmap->lseluv );
+                                    return REDRAWUVMAPEDITOR;
+        	                }
+                        } return 0x00;
 
-                	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+                        case G3DButtonRelease : {
+        	                G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                            uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
+                            LIST *lselold = NULL, *lselnew = NULL;
 
-                            lselnew = list_copy ( uvmap->lseluv );
+        		            if ( engine_flags & VIEWVERTEXUV ) {
+                                lselold = list_copy ( uvmap->lseluv );
 
-                	        /*** remember selection ***/
-                	        g3durm_uvmap_pickUVs  ( urm, uvmap,
-                                                	     lselold,
-                                                	     lselnew,
-                                                	     VIEWVERTEXUV,
-                                                         REDRAWVIEW |
-                                                         REDRAWUVMAPEDITOR );
-                        }
+                	            pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-        		        if ( engine_flags & VIEWFACEUV ) {
-                            lselold = list_copy ( uvmap->lseluvset );
+                                lselnew = list_copy ( uvmap->lseluv );
 
-                	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+                	            /*** remember selection ***/
+                	            g3durm_uvmap_pickUVs  ( urm, uvmap,
+                                                	         lselold,
+                                                	         lselnew,
+                                                	         VIEWVERTEXUV,
+                                                             REDRAWVIEW |
+                                                             REDRAWUVMAPEDITOR );
+                            }
 
-                            lselnew = list_copy ( uvmap->lseluvset );
+        		            if ( engine_flags & VIEWFACEUV ) {
+                                lselold = list_copy ( uvmap->lseluvset );
 
-                	        /*** remember selection ***/
-                	        g3durm_uvmap_pickUVSets ( urm, uvmap,
-                                                	     lselold,
-                                                	     lselnew,
-                                                	     VIEWFACEUV,
-                                                         REDRAWVIEW |
-                                                         REDRAWUVMAPEDITOR );
-                        }
+                	            pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-        	            pt->start = 0x00;
-                    } return REDRAWALL;
+                                lselnew = list_copy ( uvmap->lseluvset );
 
-                    default :
-                    break;
-	            }
+                	            /*** remember selection ***/
+                	            g3durm_uvmap_pickUVSets ( urm, uvmap,
+                                                	         lselold,
+                                                	         lselnew,
+                                                	         VIEWFACEUV,
+                                                             REDRAWVIEW |
+                                                             REDRAWUVMAPEDITOR );
+                            }
+
+        	                pt->start = 0x00;
+                        } return REDRAWALL;
+
+                        default :
+                        break;
+	                }
+                }
             }
         }
     }

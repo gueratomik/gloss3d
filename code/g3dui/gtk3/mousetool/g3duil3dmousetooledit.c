@@ -31,9 +31,9 @@
 
 /******************************************************************************/
 void updateL3DMouseTool ( GtkWidget        *widget, 
-                          G3DUIUVMAPEDITOR *uvme ) {
+                          L3DUI *lui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = uvme->gui->uvmou;
+    G3DMOUSETOOL *mou = lui->gui->uvmou;
 
     if ( mou ) {
         while ( children ) {
@@ -41,7 +41,7 @@ void updateL3DMouseTool ( GtkWidget        *widget,
             const char *child_name = gtk_widget_get_name ( child );
 
             if ( strcmp ( child_name, mou->name ) == 0x00 ) {
-                if ( strcmp ( mou->name, PENTOOL ) == 0x00 ) updatePenToolEdit ( child, uvme );
+                if ( strcmp ( mou->name, PENTOOL ) == 0x00 ) updatePenToolEdit ( child, lui );
 
                 gtk_widget_show ( child );
             } else {
@@ -65,20 +65,20 @@ void updateL3DMouseTool ( GtkWidget        *widget,
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
+    L3DUI *lui = ( L3DUI * ) user_data;
 
-    updateL3DMouseTool ( widget, uvme );
+    updateL3DMouseTool ( widget, lui );
 }
 
 /******************************************************************************/
 GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
-                                    G3DUIUVMAPEDITOR *uvme,
+                                    L3DUI *lui,
                                     char             *name,
                                     gint              x,
                                     gint              y,
                                     gint              width,
                                     gint              height ) {
-    G3DUI *gui = uvme->gui;
+    G3DUI *gui = lui->gui;
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle frmrec = { 0, 0, 256, 256 };
     GtkWidget *label = gtk_label_new ( name );
@@ -104,13 +104,13 @@ GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent,
     gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scr), frm );
 #endif
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), uvme );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), lui );
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-    createPenToolEdit ( frm, uvme, PENTOOL, 0, 0, 256, 192 );
+    createPenToolEdit ( frm, lui, PENTOOL, 0, 0, 256, 192 );
 
-    list_insert ( &uvme->lmtools, frm );
+    list_insert ( &lui->lmtools, frm );
 
     gtk_widget_show ( frm );
     gtk_widget_show ( scr );

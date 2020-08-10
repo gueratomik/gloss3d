@@ -2753,35 +2753,41 @@ uint32_t g3dmesh_isDisplaced ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_pickFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-    if ( uvmap ) {
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
         LIST *ltmpfac = mes->lfac;
 
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+        if ( uvmap ) {
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
 
-            if ( uvs ) {
-                if ( uvs->map == uvmap ) {
-                    g3dpick_setName ( ( uint64_t ) uvs );
-                    g3dpick_drawFace ( fac->nbver, 
-                                       uvs->veruv[0].u, 
-                                       uvs->veruv[0].v,
-                                       0.0f,
-                                       uvs->veruv[1].u,
-                                       uvs->veruv[1].v,
-                                       0.0f,
-                                       uvs->veruv[2].u,
-                                       uvs->veruv[2].v,
-                                       0.0f,
-                     ( fac->ver[3] ) ? uvs->veruv[3].u : 0.0f,
-                     ( fac->ver[3] ) ? uvs->veruv[3].v : 0.0f,
-                                       0.0f );
+                if ( uvs ) {
+                    if ( uvs->map == uvmap ) {
+                        g3dpick_setName ( ( uint64_t ) uvs );
+                        g3dpick_drawFace ( fac->nbver, 
+                                           uvs->veruv[0].u, 
+                                           uvs->veruv[0].v,
+                                           0.0f,
+                                           uvs->veruv[1].u,
+                                           uvs->veruv[1].v,
+                                           0.0f,
+                                           uvs->veruv[2].u,
+                                           uvs->veruv[2].v,
+                                           0.0f,
+                         ( fac->ver[3] ) ? uvs->veruv[3].u : 0.0f,
+                         ( fac->ver[3] ) ? uvs->veruv[3].v : 0.0f,
+                                           0.0f );
+                    }
                 }
-            }
 
-            ltmpfac = ltmpfac->next;
+                ltmpfac = ltmpfac->next;
+            }
         }
     }
 }
@@ -2789,88 +2795,10 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_drawFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
-
-    glPushAttrib ( GL_ALL_ATTRIB_BITS );
-    glPointSize ( 3.0f );
-
-    if ( uvmap ) {
-        LIST *ltmpfac = mes->lfac;
-
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
-
-            if ( uvs ) {
-                if ( uvs->map == uvmap ) {
-                    int i;
-
-                    glColor3ub ( 0x00, 0x00, 0x00 );
-                    glBegin ( GL_LINES );
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        int n = ( i + 0x01 ) % fac->nbver;
-
-                        glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
-                        glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
-                    }
-                    glEnd ( );
-
-                    glBegin ( GL_POINTS );
-                    if ( uvs->flags & UVSETSELECTED ) {
-                        glColor3ub ( 0xFF, 0x7F, 0x00 );
-                    } else {
-                        glColor3ub ( 0x00, 0x00, 0x00 );
-                    }
-
-                    glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
-                                   uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
-                                 ( uvs->veruv[0].v + uvs->veruv[1].v + 
-                                   uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
-                    glEnd ( );
-                }
-            }
-
-            ltmpfac = ltmpfac->next;
-        }
-    }
-
-    glPopAttrib ( );
-}
-
-/******************************************************************************/
-void g3dmesh_pickVertexUVs ( G3DMESH *mes,
-                             uint64_t engine_flags ) {
-    G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
-
-    if ( uvmap ) {
-        LIST *ltmpfac = mes->lfac;
-
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
-
-            if ( uvs ) {
-                if ( uvs->map == uvmap ) {
-                    int i;
-
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
-                        g3dpick_drawPoint ( uvs->veruv[i].u, 
-                                            uvs->veruv[i].v, 
-                                            0.0f );
-                    }
-                }
-            }
-
-            ltmpfac = ltmpfac->next;
-        }
-    }
-}
-
-/******************************************************************************/
-void g3dmesh_drawVertexUVs ( G3DMESH *mes,
-                             uint64_t engine_flags ) {
     G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glPointSize ( 3.0f );
@@ -2886,9 +2814,102 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
 
                 if ( uvs ) {
                     if ( uvs->map == uvmap ) {
-                        /*if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
+                        int i;
+
+                        glColor3ub ( 0x00, 0x00, 0x00 );
+                        glBegin ( GL_LINES );
+                        for ( i = 0x00; i < fac->nbver; i++ ) {
+                            int n = ( i + 0x01 ) % fac->nbver;
+
+                            glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+                            glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
+                        }
+                        glEnd ( );
+
+                        glBegin ( GL_POINTS );
+                        if ( uvs->flags & UVSETSELECTED ) {
+                            glColor3ub ( 0xFF, 0x7F, 0x00 );
+                        } else {
+                            glColor3ub ( 0x00, 0x00, 0x00 );
+                        }
+
+                        glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
+                                       uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
+                                     ( uvs->veruv[0].v + uvs->veruv[1].v + 
+                                       uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
+                        glEnd ( );
+                    }
+                }
+
+                ltmpfac = ltmpfac->next;
+            }
+        }
+    }
+
+    glPopAttrib ( );
+}
+
+/******************************************************************************/
+void g3dmesh_pickVertexUVs ( G3DMESH *mes,
+                             uint64_t engine_flags ) {
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
+        LIST *ltmpfac = mes->lfac;
+
+        if ( uvmap ) { 
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+                if ( uvs ) {
+                    if ( uvs->map == uvmap ) {
+                        int i;
+
+                        for ( i = 0x00; i < fac->nbver; i++ ) {
+                            g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
+                            g3dpick_drawPoint ( uvs->veruv[i].u, 
+                                                uvs->veruv[i].v, 
+                                                0.0f );
+                        }
+                    }
+                }
+
+                ltmpfac = ltmpfac->next;
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_drawVertexUVs ( G3DMESH *mes,
+                             uint64_t engine_flags ) {
+    G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+    /*** try the first texture in case no texture is selected ***/
+    if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glPointSize ( 3.0f );
+
+    if ( tex ) {
+        G3DUVMAP *uvmap = tex->map;
+        LIST *ltmpfac = mes->lfac;
+
+        if ( uvmap ) {
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                G3DUVSET *uvs = g3dface_getUVSet ( fac, uvmap );
+
+                if ( uvs ) {
+                    if ( uvs->map == uvmap ) {
+                        if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
-                               ( fac->textureSlots & tex->slotBit ) ) ) {*/
+                               ( fac->textureSlots & tex->slotBit ) ) ) {
                             int i;
 
                             glColor3ub ( 0x00, 0x00, 0x00 );
@@ -2915,7 +2936,7 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                             }
                             glEnd ( );
                         }
-                    /*}*/
+                    }
                 }
 
                 ltmpfac = ltmpfac->next;

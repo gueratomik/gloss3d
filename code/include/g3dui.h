@@ -451,7 +451,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITUVMAPPROJECTION   "Projection"
 #define EDITUVMAPNAME         "Name"
 #define EDITUVMAPFIXED        "Fixed"
-#define EDITUVMAPEDITOR       "Edit UV Map"
+#define EDITUVMAPEDITOR       "Edit texture and UVs in LIPS3D"
 #define CYLINDRICALPROJECTION "Cylindrical"
 #define SPHERICALPROJECTION   "Spherical"
 #define FLATPROJECTION        "Flat"
@@ -861,7 +861,7 @@ typedef struct _G3DUIVIEW {
 #define UVMAPTRANSLATEBUTTON 0x00
 #define UVMAPZOOMBUTTON      0x01
 
-typedef struct _G3DUIUVMAPEDITOR {
+typedef struct _L3DUI {
     uint64_t       engine_flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
@@ -886,7 +886,7 @@ typedef struct _G3DUIUVMAPEDITOR {
     char          *zbuffer;
     L3DPATTERN    *selpat;
     LIST         *lmtools; /*** list of mousetools widget ***/
-} G3DUIUVMAPEDITOR;
+} L3DUI;
 
 /******************************* g3duiview.c **********************************/
 void common_g3duiview_resize ( G3DUIVIEW *, uint32_t, uint32_t );
@@ -1110,7 +1110,7 @@ void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );
-void      common_g3duiuvmapeditor_setUVMouseTool ( G3DUIUVMAPEDITOR *uvme, 
+void      common_l3dui_setUVMouseTool ( L3DUI *lui, 
                                                    G3DCAMERA    *cam, 
                                                    G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
@@ -1118,7 +1118,7 @@ void      common_g3dui_setFileName          ( G3DUI *, const char * );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
                                                        uint32_t );
 void      common_g3dui_setMode              ( G3DUI *, const char * );
-void common_g3duiuvmapeditor_setMode ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_setMode ( L3DUI *lui, 
                                        const char       *modename );
 void      common_g3dui_dispatchGLMenuButton ( G3DUI *, G3DMOUSETOOL *,
                                                        uint32_t );
@@ -1483,36 +1483,36 @@ void g3dui_read ( G3DIMPORTDATA *gid,
                   G3DUI         *gui );
 
 /******************************************************************************/
-LIST *common_g3duiuvmapeditor_getUV ( G3DSCENE *sce,
+LIST *common_l3dui_getUV ( G3DSCENE *sce,
                                       int32_t           xm,
                                       int32_t           ym,
                                       uint32_t          width,
                                       uint32_t          height );
-void common_g3duiuvmapeditor_plotUVSet ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_plotUVSet ( L3DUI *lui, 
                                          G3DUVSET         *uvset );
-void common_g3duiuvmapeditor_plotUV ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_plotUV ( L3DUI *lui, 
                                       G3DUV            *uv );
-void common_g3duiuvmapeditor_showGL ( G3DUIUVMAPEDITOR *uvme,
+void common_l3dui_showGL ( L3DUI *lui,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
                                       uint64_t engine_flags );
-void common_g3duiuvmapeditor_initGL ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_sizeGL ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_initGL ( L3DUI *lui );
+void common_l3dui_sizeGL ( L3DUI *lui, 
                                       uint32_t          width, 
                                       uint32_t          height );
-void common_g3duiuvmapeditor_resize ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_resize ( L3DUI *lui, 
                                       uint32_t          width, 
                                       uint32_t          height );
-void common_g3duiuvmapeditor_init ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_init ( L3DUI *lui, 
                                     uint32_t          width,
                                     uint32_t          height );
-int common_g3duiuvmapeditor_getCurrentButton ( G3DUIUVMAPEDITOR *uvme,
+int common_l3dui_getCurrentButton ( L3DUI *lui,
                                                int x,
                                                int y );
-void common_g3duiuvmapeditor_moveForward ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_moveForward ( L3DUI *lui, 
                                            int32_t           x, 
                                            int32_t           xold );
-void common_g3duiuvmapeditor_moveSideward ( G3DUIUVMAPEDITOR *uvme, 
+void common_l3dui_moveSideward ( L3DUI *lui, 
                                             int32_t           x, 
                                             int32_t           y, 
                                             int32_t           xold, 
@@ -1567,13 +1567,13 @@ void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,
                                                              int    level );
 void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
                                                              int    level );
-void common_g3duiuvmapeditor_setCanevas ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_destroyGL ( G3DUIUVMAPEDITOR *uvme );
+void common_l3dui_setCanevas ( L3DUI *lui );
+void common_l3dui_destroyGL ( L3DUI *lui );
 
-void common_g3duiuvmapeditor_uv2verCbk ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_ver2uvCbk ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_uvset2facCbk ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_fac2uvsetCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_l3dui_uv2verCbk ( L3DUI *lui );
+void common_l3dui_ver2uvCbk ( L3DUI *lui );
+void common_l3dui_uvset2facCbk ( L3DUI *lui );
+void common_l3dui_fac2uvsetCbk ( L3DUI *lui );
 
 /******************************************************************************/
 void common_g3duicameraedit_dofEnableCbk ( G3DUI *gui );
@@ -1602,20 +1602,20 @@ void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
 void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui );
 void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps );
 
-void common_g3duiuvmapeditor_redoCbk ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_undoCbk ( G3DUIUVMAPEDITOR *uvme );
+void common_l3dui_redoCbk ( L3DUI *lui );
+void common_l3dui_undoCbk ( L3DUI *lui );
 
-void common_g3duiuvmapeditor_resizeBuffers ( G3DUIUVMAPEDITOR *uvme );
+void common_l3dui_resizeBuffers ( L3DUI *lui );
 
-G3DIMAGE *common_g3duiuvmapeditor_getWorkingChannel ( G3DUIUVMAPEDITOR *uvme );
-G3DIMAGE *common_g3duiuvmapeditor_getWorkingImage   ( G3DUIUVMAPEDITOR *uvme );
-void common_g3duiuvmapeditor_fgfill ( G3DUIUVMAPEDITOR *uvme );
+G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui );
+G3DIMAGE *common_l3dui_getWorkingImage   ( L3DUI *lui );
+void common_l3dui_fgfill ( L3DUI *lui );
 
-void common_g3duipentooledit_setRadiusCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setRadiusCbk ( L3DUI *lui, 
                                             float             radius );
-void common_g3duipentooledit_setPressureCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setPressureCbk ( L3DUI *lui, 
                                               float             pressure );
-void common_g3duipentooledit_setIncrementalCbk ( G3DUIUVMAPEDITOR *uvme, 
+void common_g3duipentooledit_setIncrementalCbk ( L3DUI *lui, 
                                                  uint32_t          inc );
 
 #endif

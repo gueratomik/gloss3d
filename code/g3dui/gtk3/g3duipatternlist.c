@@ -110,8 +110,8 @@ void g3duipatternlist_input ( GtkWidget *widget,
                               gpointer   user_data ) {
     PATTERNLISTDATA *pdata = g_object_get_data ( G_OBJECT(widget),
                                                  GTK3WIDGETDATA );
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = lui->gui;
 
     switch ( gdkev->type ) {
         case GDK_BUTTON_PRESS : {
@@ -132,9 +132,9 @@ void g3duipatternlist_input ( GtkWidget *widget,
                 }
 
                 l3dsysinfo_setPattern ( sysinfo, preview->pat );
-                /*uvme->selpat = preview->pat; */
+                /*lui->selpat = preview->pat; */
 
-                g3duiuvmapeditor_updateMouseToolEdit ( uvme );
+                l3dui_updateMouseToolEdit ( lui );
             }
         } break;
 
@@ -249,8 +249,8 @@ static void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                                   GTK3WIDGETDATA );
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     LIST *ltmppreview = pdata->lpreview;
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI    *gui = uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI    *gui = lui->gui;
     G3DSCENE *sce = gui->sce;
     GtkAllocation allocation;
     uint32_t x = 0x00, y = 0x00;
@@ -268,7 +268,7 @@ static void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
         GTK3PATTERNPREVIEW *preview = ( GTK3PATTERNPREVIEW * ) ltmppreview->data;
         uint32_t selected = 0x00;
 
-        if ( preview->pat == uvme->selpat ) {
+        if ( preview->pat == lui->selpat ) {
             selected = 0x01;
         }
 
@@ -283,8 +283,8 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
     PATTERNLISTDATA *pdata = g_object_get_data ( G_OBJECT(widget),
                                                   GTK3WIDGETDATA );
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI    *gui = uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI    *gui = lui->gui;
     int i;
 
     /*** Render with button style ***/
@@ -311,7 +311,7 @@ static void Resize ( GtkWidget *widget, GdkRectangle *allocation,
 
 /******************************************************************************/
 GtkWidget *createPatternList ( GtkWidget        *parent, 
-                               G3DUIUVMAPEDITOR *uvme,
+                               L3DUI *lui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -365,19 +365,19 @@ GtkWidget *createPatternList ( GtkWidget        *parent,
     l3dsysinfo_setPattern ( sysinfo, pdata->patterns[0x00] );
 
     g_signal_connect ( G_OBJECT (drw), "draw"      ,
-                                       G_CALLBACK(Draw), uvme );
+                                       G_CALLBACK(Draw), lui );
 
     g_signal_connect ( G_OBJECT (drw), "realize"      ,
-                                       G_CALLBACK(Realize), uvme );
+                                       G_CALLBACK(Realize), lui );
 
     g_signal_connect ( G_OBJECT (drw), "size-allocate",
-                                       G_CALLBACK(Resize), uvme );
+                                       G_CALLBACK(Resize), lui );
 
     /*g_signal_connect ( G_OBJECT (drw), "motion_notify_event" , G_CALLBACK (materialista_input), gui );*/
-    g_signal_connect ( G_OBJECT (drw), "button_press_event"  , G_CALLBACK (g3duipatternlist_input), uvme );
-    g_signal_connect ( G_OBJECT (drw), "button_release_event", G_CALLBACK (g3duipatternlist_input), uvme );
-    g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (g3duipatternlist_input), uvme );
-    g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (g3duipatternlist_input), uvme );
+    g_signal_connect ( G_OBJECT (drw), "button_press_event"  , G_CALLBACK (g3duipatternlist_input), lui );
+    g_signal_connect ( G_OBJECT (drw), "button_release_event", G_CALLBACK (g3duipatternlist_input), lui );
+    g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (g3duipatternlist_input), lui );
+    g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (g3duipatternlist_input), lui );
 
     gtk_widget_set_size_request ( drw, drwrec.width, drwrec.height );
 

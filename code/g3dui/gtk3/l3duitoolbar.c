@@ -57,8 +57,8 @@
 /******************************************************************************/
 static void setSquareSelectorCbk ( GtkWidget *widget, 
                                    gpointer   user_data ) {
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) lui->gui;
     L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     if ( gui->lock ) return;
@@ -66,15 +66,15 @@ static void setSquareSelectorCbk ( GtkWidget *widget,
     if ( uvmou ) {
         l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODESQUARE );
 
-        g3duiuvmapeditor_setUVMouseTool ( widget, user_data );
+        l3dui_setUVMouseTool ( widget, user_data );
     }
 }
 
 /******************************************************************************/
 static void setRandomSelectorCbk ( GtkWidget *widget, 
                                    gpointer   user_data ) {
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) lui->gui;
     L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     if ( gui->lock ) return;
@@ -82,15 +82,15 @@ static void setRandomSelectorCbk ( GtkWidget *widget,
     if ( uvmou ) {
         l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODERANDOM );
 
-        g3duiuvmapeditor_setUVMouseTool ( widget, user_data );
+        l3dui_setUVMouseTool ( widget, user_data );
     }
 }
 
 /******************************************************************************/
-void g3duiuvmapeditor_saveasCbk ( GtkWidget *widget, 
+void l3dui_saveasCbk ( GtkWidget *widget, 
                                   gpointer   user_data ) {
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) lui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
@@ -105,7 +105,7 @@ void g3duiuvmapeditor_saveasCbk ( GtkWidget *widget,
 
             if ( tex ) {
                 G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                uint32_t chnID = GETCHANNEL(lui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
                 g3dui_saveChannelAlteredImage ( gui,
@@ -119,10 +119,10 @@ void g3duiuvmapeditor_saveasCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void g3duiuvmapeditor_saveCbk ( GtkWidget *widget, 
+void l3dui_saveCbk ( GtkWidget *widget, 
                                 gpointer   user_data ) {
-    G3DUIUVMAPEDITOR *uvme = ( G3DUIUVMAPEDITOR * ) user_data;
-    G3DUI *gui = ( G3DUI * ) uvme->gui;
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) lui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
@@ -137,7 +137,7 @@ void g3duiuvmapeditor_saveCbk ( GtkWidget *widget,
 
             if ( tex ) {
                 G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(uvme->engine_flags);
+                uint32_t chnID = GETCHANNEL(lui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
                 g3dui_saveChannelAlteredImage ( gui,
@@ -159,7 +159,7 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
                                       gint       width,
                                       gint       height ) {
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) parent;
-    G3DUIUVMAPEDITOR *uvme = &guv->uvme;
+    L3DUI *lui = &guv->lui;
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp = NULL;
@@ -170,63 +170,63 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
 
-    addToolBarPushButton   ( bar, uvme, MENU_NEWSCENE  , newfile_xpm, g3duiuvmapeditor_createChannelImageCbk );
+    addToolBarPushButton   ( bar, lui, MENU_NEWSCENE  , newfile_xpm, l3dui_createChannelImageCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_OPENFILE  , openfile_xpm, g3duiuvmapeditor_loadImageByChannelIDCbk );
+    addToolBarPushButton   ( bar, lui, MENU_OPENFILE  , openfile_xpm, l3dui_loadImageByChannelIDCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_SAVEFILEAS, saveas_xpm, g3duiuvmapeditor_saveasCbk   );
+    addToolBarPushButton   ( bar, lui, MENU_SAVEFILEAS, saveas_xpm, l3dui_saveasCbk   );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_SAVEFILE  , save_xpm  , g3duiuvmapeditor_saveCbk );
+    addToolBarPushButton   ( bar, lui, MENU_SAVEFILE  , save_xpm  , l3dui_saveCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_UNDO     , undo_xpm  , g3duiuvmapeditor_undoCbk );
+    addToolBarPushButton   ( bar, lui, MENU_UNDO     , undo_xpm  , l3dui_undoCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, uvme, MENU_REDO     , redo_xpm  , g3duiuvmapeditor_redoCbk );
+    addToolBarPushButton   ( bar, lui, MENU_REDO     , redo_xpm  , l3dui_redoCbk );
 
    /********************************/
 
-    addToolBarToggleButton ( bar, uvme, PICKUVTOOL    , pick_xpm  , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, PICKUVTOOL    , pick_xpm  , l3dui_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, MOVEUVTOOL    , move_xpm  , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, MOVEUVTOOL    , move_xpm  , l3dui_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SCALEUVTOOL   , scale_xpm , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, SCALEUVTOOL   , scale_xpm , l3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, ROTATEUVTOOL  , rotate_xpm , g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, ROTATEUVTOOL  , rotate_xpm , l3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SELECTTOOL, selectarea_xpm, setSquareSelectorCbk );
+    addToolBarToggleButton ( bar, lui, SELECTTOOL, selectarea_xpm, setSquareSelectorCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
+    addToolBarToggleButton ( bar, lui, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, PENTOOL, pen_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, PENTOOL, pen_xpm, l3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, BUCKETTOOL, bucket_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, BUCKETTOOL, bucket_xpm, l3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, uvme, ERASERTOOL, eraser_xpm, g3duiuvmapeditor_setUVMouseTool );
+    addToolBarToggleButton ( bar, lui, ERASERTOOL, eraser_xpm, l3dui_setUVMouseTool );
 
 
 
