@@ -694,14 +694,16 @@ GtkWidget *createFrame ( GtkWidget *parent, G3DUI *gui,
 
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
-void createCharText ( GtkWidget *parent, G3DUI *gui,
-                                               char *name,
-                                               gint x, gint y,
-                                               gint labwidth,
-                                               gint txtwidth,
-                                               void (*cbk)( GtkWidget *,
-                                                            GdkEvent  *, 
-                                                            gpointer ) ) {
+GtkWidget *createCharText ( GtkWidget *parent, 
+                            G3DUI     *gui,
+                            char      *name,
+                            gint      x, 
+                            gint      y,
+                            gint      labwidth,
+                            gint      txtwidth,
+                            void (*cbk)( GtkWidget *,
+                                         GdkEvent  *, 
+                                         gpointer ) ) {
     GdkRectangle brec = { 0x00, 0x00, txtwidth, 0x12 };
     GtkWidget *ent = gtk_entry_new ( );
 
@@ -731,6 +733,8 @@ void createCharText ( GtkWidget *parent, G3DUI *gui,
     }
 
     gtk_widget_show ( ent );
+
+    return ent;
 }
 
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/

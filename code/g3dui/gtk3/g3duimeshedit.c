@@ -141,68 +141,116 @@ static void createWeightgroupsPanel ( GtkWidget *parent,
     createPushButton ( pan, gui, "-", 246,  60, 32, 24, deleteWeightGroupCbk );
 }
 
+/******************************************************************************/
 #define EDITFACEGROUP     "Facegroups"
 #define EDITFACEGROUPNAME "Facegroup Name"
 #define EDITFACEGROUPLIST "Facegroup list"
 
+/******************************************************************************/
+typedef struct _FACEGROUPPANELDATA {
+    G3DUI     *gui;
+    GtkWidget *panelWidget;
+    GtkWidget *listWidget;
+    GtkWidget *nameWidget;
+} FACEGROUPPANELDATA;
+
+/******************************************************************************/
+static FACEGROUPPANELDATA* facegrouppaneldata_new ( G3DUI     *gui, 
+                                                    GtkWidget *panel ) {
+    void *memarea = calloc ( 0x01, sizeof ( FACEGROUPPANELDATA ) );
+    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA *  ) memarea;
+
+    if ( fpd == NULL ) {
+        printf ( stderr, "%s: memory allocation failed\n");
+
+        return NULL;
+    }
+
+    fpd->gui         = gui;
+    fpd->panelWidget = panel;
+
+    return fpd;
+}
+
+/******************************************************************************/
 typedef struct _FACEGROUPDATA {
-    G3DMESH      *mes;
-    G3DFACEGROUP *facgrp;
-    G3DUI        *gui;
+    G3DMESH            *mes;
+    G3DFACEGROUP       *facgrp;
+    FACEGROUPPANELDATA *fpd;
 } FACEGROUPDATA;
 
+/******************************************************************************/
+static FACEGROUPDATA *facegroupdata_new ( FACEGROUPPANELDATA *fpd,
+                                          G3DMESH            *mes, 
+                                          G3DFACEGROUP       *facgrp ) {
+    FACEGROUPDATA *fgd = calloc ( 0x01, sizeof ( FACEGROUPDATA ) );
+
+    if ( fgd == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+
+        return NULL;
+    }
+
+    fgd->mes    = mes;
+    fgd->facgrp = facgrp;
+    fgd->fpd    = fpd;
+
+
+    return fgd;
+}
+
+/******************************************************************************/
 static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
 static void selectFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
 static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
 static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
-static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
-                                                       G3DUI     *gui );
-static void updateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
-                                                     G3DUI     *gui );
-static void updateFaceGroupFrameFixedScrolled ( GtkWidget *scrolled,
-                                                G3DUI     *gui );
-static void updateFaceGroupFrameFixed ( GtkWidget *frame, G3DUI *gui );
-static void updateFaceGroupFrame ( GtkWidget *frame, G3DUI *gui );
+static void populateFacegroupsList ( FACEGROUPPANELDATA *fpd );
+static void updateFacegroupsList   ( FACEGROUPPANELDATA *fpd );
+static void createFacegroupsList   ( GtkWidget          *frm, 
+                                     FACEGROUPPANELDATA *fpd,
+                                     gint                x,
+                                     gint                y,
+                                     gint                width,
+                                     gint                height );
+
+/******************************************************************************/
+static void updateFacegroupsName ( FACEGROUPPANELDATA *fpd ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+
+    fpd->gui->lock = 0x01;
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+            if ( facgrp ) {
+                gtk_entry_set_text ( fpd->nameWidget, facgrp->name );
+            }
+        }
+    }
+
+    fpd->gui->lock = 0x00;
+}
 
 /******************************************************************************/
 static void updateFacegroupsPanel ( GtkWidget *fixed, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(fixed) );
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    FACEGROUPPANELDATA *fpd = g_object_get_data ( G_OBJECT ( fixed ), 
+                                                  EDITMESHFACEGROUPS );
 
-    if ( obj ) {
-        if ( obj->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
 
-            while ( children ) {
-                GtkWidget *child = ( GtkWidget * ) children->data;
-                const char *child_name = gtk_widget_get_name ( child );
-
-                if ( GTK_IS_ENTRY ( child ) ) {
-                    if ( strcmp ( child_name, EDITFACEGROUPNAME ) == 0x00 ) {
-                        G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
-
-                        if ( facgrp ) {
-                            gtk_entry_set_text ( child, facgrp->name );
-                        }
-                    }
-                }
-
-                if ( GTK_IS_SCROLLED_WINDOW ( child ) ) {
-                    if ( strcmp ( child_name, EDITFACEGROUPLIST ) == 0x00 ) {
-                        updateFaceGroupFrameFixedScrolled ( child, gui );
-                    }
-                }
-
-                children =  g_list_next ( children );
-            }
-        }
-    }
+    updateFacegroupsName ( fpd );
+    updateFacegroupsList ( fpd );
 }
 
 /******************************************************************************/
 static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+
+    if ( fpd->gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -213,13 +261,15 @@ static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
         }
     }
 
-    updateFacegroupsPanel ( gtk_widget_get_parent ( widget ), gui );
+    updateFacegroupsList ( fpd );
 }
 
 /******************************************************************************/
 static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+
+    if ( fpd->gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -235,8 +285,10 @@ static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+
+    if ( fpd->gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -249,11 +301,12 @@ static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
         }
     }
 
-    updateFacegroupsPanel ( gtk_widget_get_parent ( widget ), gui );
+    updateFacegroupsList ( fpd );
 }
 
 /******************************************************************************/
-static void setFacegroupLabel ( GtkWidget *label, G3DFACEGROUP *facgrp ) {
+static void setFacegroupLabel ( GtkWidget    *label, 
+                                G3DFACEGROUP *facgrp ) {
     char text[0x100] = { 0x00 };
 
     if ( facgrp->flags & FACEGROUPSELECTED ) snprintf ( text, 0x100, "<span foreground=\"red\">%s</span>", facgrp->name );
@@ -268,13 +321,16 @@ static gboolean selectFacegroupCbk ( GtkWidget *widget,
                                      GdkEvent  *event,
                                      gpointer   user_data ) {
     FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
-    GtkWidget *fixed = gtk_widget_get_parent ( widget );
+
+    if ( fgd->fpd->gui->lock ) return;
 
     g3dmesh_unselectAllFacegroups ( fgd->mes );
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS :
-            g3dmesh_selectFacegroup ( fgd->mes, fgd->facgrp );
+            g3dmesh_selectFacegroup ( fgd->mes, 
+                                      fgd->facgrp );
+
             g3dmesh_selectFacesFromSelectedFacegroups ( fgd->mes );
         break;
 
@@ -288,9 +344,10 @@ static gboolean selectFacegroupCbk ( GtkWidget *widget,
         break;
     }
 
-    g3dui_redrawGLViews ( fgd->gui );
+    g3dui_redrawGLViews ( fgd->fpd->gui );
 
-    updateFaceGroupFrameFixedScrolledFixed ( fixed, fgd->gui );
+    updateFacegroupsList ( fgd->fpd );
+    updateFacegroupsName ( fgd->fpd );
 
     return TRUE;
 }
@@ -300,6 +357,10 @@ static void destroyFacegroupCbk ( GtkWidget *widget,
                                   gpointer   user_data ) {
     FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
 
+    if ( fgd->fpd->gui->lock ) return;
+
+    updateFacegroupsList ( fgd->fpd );
+
     free ( fgd );
 }
 
@@ -308,31 +369,34 @@ static void nameFacegroupCbk  ( GtkWidget *widget,
                                 GdkEvent  *event, 
                                 gpointer   user_data ) {
     const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
+    FACEGROUPPANELDATA *fpd = ( G3DUI * ) user_data;
+    G3DUI *gui = fpd->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     if ( gui->lock ) return;
 
-    if ( obj ) {
-        if ( obj->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+ /** string should not be empty, or else the user wont be able to click ***/
+    if ( strlen ( grpname ) ) {
+        if ( obj ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
 
-            if ( facgrp ) {
-                if ( facgrp->name ) free ( facgrp->name );
+                if ( facgrp ) {
+                    if ( facgrp->name ) free ( facgrp->name );
 
-                facgrp->name = strdup ( grpname );
+                    facgrp->name = strdup ( grpname );
+                }
             }
         }
     }
 
-    updateFacegroupsPanel ( gtk_widget_get_parent ( widget ), gui );
+    updateFacegroupsPanel ( fpd->panelWidget, fpd->gui );
 }
 
 /******************************************************************************/
-static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
-                                                       G3DUI     *gui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+static void populateFacegroupsList ( FACEGROUPPANELDATA *fpd ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -346,18 +410,14 @@ static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed,
                 G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
                 GtkWidget *label = gtk_label_new ( facgrp->name );
                 GtkEventBox *eventBox = gtk_event_box_new ();
-                GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x10 };
-                FACEGROUPDATA *fgd = calloc ( 0x01, sizeof ( FACEGROUPDATA ) );
-
-                fgd->mes    = mes;
-                fgd->facgrp = facgrp;
-                fgd->gui    = gui;
+                GdkRectangle lrec = { 0x00, 0x00, 0x100, 0x10 };
+                FACEGROUPDATA *fgd = facegroupdata_new ( fpd, mes, facgrp );
 
                 setFacegroupLabel ( label, facgrp );
 
-                gtk_container_add (GTK_CONTAINER(eventBox), label);
+                gtk_container_add (GTK_CONTAINER(eventBox), label );
 
-                gtk_fixed_put ( fixed, eventBox, 0, y );
+                gtk_fixed_put ( fpd->listWidget, eventBox, 0, y );
 
                 gtk_widget_size_allocate ( eventBox, &lrec );
                 gtk_widget_size_allocate ( label   , &lrec );
@@ -378,18 +438,19 @@ static void populateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed,
             frec.height = y;
 			
             if ( frec.height ) {
-                gtk_widget_set_size_request ( fixed, frec.width, frec.height );
+                gtk_widget_set_size_request ( fpd->listWidget, frec.width, frec.height );
 			}
         }
     }
 
-    gtk_widget_show_all ( fixed );
+    gtk_widget_show_all ( fpd->listWidget );
 }
 
 /******************************************************************************/
-static void updateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed, 
-                                                     G3DUI     *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(fixed) );
+static void updateFacegroupsList ( FACEGROUPPANELDATA *fpd ) {
+    GList *children = gtk_container_get_children ( fpd->listWidget );
+
+    fpd->gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -399,30 +460,18 @@ static void updateFaceGroupFrameFixedScrolledFixed ( GtkWidget *fixed,
         children =  g_list_next ( children );
     }
 
-    populateFaceGroupFrameFixedScrolledFixed ( fixed, gui );
+    populateFacegroupsList ( fpd );
+
+    fpd->gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void updateFaceGroupFrameFixedScrolled ( GtkWidget *scrolled,
-                                                G3DUI     *gui ) {
-    GtkWidget *viewport = gtk_bin_get_child(GTK_BIN(scrolled));
-#ifdef __linux__
-    GtkWidget *fixed = gtk_bin_get_child(GTK_BIN(viewport));
-#endif
-
-#ifdef __MINGW32__
-    GtkWidget *fixed = gtk_bin_get_child(scrolled);
-#endif
-    updateFaceGroupFrameFixedScrolledFixed ( fixed, gui );
-}
-
-/******************************************************************************/
-static void createFaceGroupFrameFixedScrolled ( GtkWidget *frm, 
-                                                G3DUI     *gui,
-                                                gint       x,
-                                                gint       y,
-                                                gint       width,
-                                                gint       height ) {
+static void createFacegroupsList ( GtkWidget          *frm, 
+                                   FACEGROUPPANELDATA *fpd,
+                                   gint                x,
+                                   gint                y,
+                                   gint                width,
+                                   gint                height ) {
     GtkWidget *scrolled = gtk_scrolled_window_new ( NULL, NULL );
     GdkRectangle srec = { 0x00, 0x00, width, height };
     GtkWidget *fixed = gtk_fixed_new ( );
@@ -440,6 +489,8 @@ static void createFaceGroupFrameFixedScrolled ( GtkWidget *frm,
     gtk_widget_set_name ( fixed   , EDITFACEGROUPLIST );
 
     gtk_widget_show_all ( scrolled );
+
+    fpd->listWidget = fixed;
 }
 
 /******************************************************************************/
@@ -449,17 +500,34 @@ static void createFacegroupsPanel ( GtkWidget *parent,
                                     gint       y,
                                     gint       width,
                                     gint       height ) {
-    GtkWidget *pan;
+    GtkWidget *pan = createPanel ( parent, 
+                                   gui, 
+                                   EDITMESHFACEGROUPS, 
+                                   x, 
+                                   y, 
+                                   width, 
+                                   height );
 
-    pan = createPanel ( parent, gui, EDITMESHFACEGROUPS, x, y, width, height );
+    FACEGROUPPANELDATA *fpd = facegrouppaneldata_new ( gui, pan );
 
-    createCharText ( pan, gui, EDITFACEGROUPNAME, 0, 0, 96, 132, nameFacegroupCbk );
+    g_object_set_data ( G_OBJECT ( pan ),
+                        EDITMESHFACEGROUPS, 
+                        fpd );
 
-    createFaceGroupFrameFixedScrolled ( pan, gui, 0, 36, 212, 128 );
+    fpd->nameWidget = createCharText ( pan, 
+                                       fpd, 
+                                       EDITFACEGROUPNAME, 
+                                       0, 
+                                       0, 
+                                       96, 
+                                       132, 
+                                       nameFacegroupCbk );
 
-    createPushButton ( pan, gui, "Create", 216,  36, 64, 18, createFaceGroupCbk );
-    createPushButton ( pan, gui, "Update", 216,  60, 64, 18, updateFaceGroupCbk );
-    createPushButton ( pan, gui, "Delete", 216,  84, 64, 18, deleteFaceGroupCbk );
+    createFacegroupsList ( pan, fpd, 0, 36, 212, 128 );
+
+    createPushButton ( pan, fpd, "Create", 216,  36, 64, 18, createFaceGroupCbk );
+    createPushButton ( pan, fpd, "Update", 216,  60, 64, 18, updateFaceGroupCbk );
+    createPushButton ( pan, fpd, "Delete", 216,  84, 64, 18, deleteFaceGroupCbk );
    /* createPushButton ( pan, gui, "Select", 216, 108, 64, 18, selectFaceGroupCbk ); */
 }
 

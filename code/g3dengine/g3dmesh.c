@@ -2769,20 +2769,24 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
 
                 if ( uvs ) {
                     if ( uvs->map == uvmap ) {
-                        g3dpick_setName ( ( uint64_t ) uvs );
-                        g3dpick_drawFace ( fac->nbver, 
-                                           uvs->veruv[0].u, 
-                                           uvs->veruv[0].v,
-                                           0.0f,
-                                           uvs->veruv[1].u,
-                                           uvs->veruv[1].v,
-                                           0.0f,
-                                           uvs->veruv[2].u,
-                                           uvs->veruv[2].v,
-                                           0.0f,
-                         ( fac->ver[3] ) ? uvs->veruv[3].u : 0.0f,
-                         ( fac->ver[3] ) ? uvs->veruv[3].v : 0.0f,
-                                           0.0f );
+                        if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
+                             ( ( tex->flags & TEXTURERESTRICTED   ) &&
+                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                            g3dpick_setName ( ( uint64_t ) uvs );
+                            g3dpick_drawFace ( fac->nbver, 
+                                               uvs->veruv[0].u, 
+                                               uvs->veruv[0].v,
+                                               0.0f,
+                                               uvs->veruv[1].u,
+                                               uvs->veruv[1].v,
+                                               0.0f,
+                                               uvs->veruv[2].u,
+                                               uvs->veruv[2].v,
+                                               0.0f,
+                             ( fac->ver[3] ) ? uvs->veruv[3].u : 0.0f,
+                             ( fac->ver[3] ) ? uvs->veruv[3].v : 0.0f,
+                                               0.0f );
+                        }
                     }
                 }
 
@@ -2814,30 +2818,34 @@ void g3dmesh_drawFaceUVs ( G3DMESH *mes,
 
                 if ( uvs ) {
                     if ( uvs->map == uvmap ) {
-                        int i;
+                        if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
+                             ( ( tex->flags & TEXTURERESTRICTED   ) &&
+                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                            int i;
 
-                        glColor3ub ( 0x00, 0x00, 0x00 );
-                        glBegin ( GL_LINES );
-                        for ( i = 0x00; i < fac->nbver; i++ ) {
-                            int n = ( i + 0x01 ) % fac->nbver;
-
-                            glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
-                            glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
-                        }
-                        glEnd ( );
-
-                        glBegin ( GL_POINTS );
-                        if ( uvs->flags & UVSETSELECTED ) {
-                            glColor3ub ( 0xFF, 0x7F, 0x00 );
-                        } else {
                             glColor3ub ( 0x00, 0x00, 0x00 );
-                        }
+                            glBegin ( GL_LINES );
+                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                                int n = ( i + 0x01 ) % fac->nbver;
 
-                        glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
-                                       uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
-                                     ( uvs->veruv[0].v + uvs->veruv[1].v + 
-                                       uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
-                        glEnd ( );
+                                glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
+                                glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
+                            }
+                            glEnd ( );
+
+                            glBegin ( GL_POINTS );
+                            if ( uvs->flags & UVSETSELECTED ) {
+                                glColor3ub ( 0xFF, 0x7F, 0x00 );
+                            } else {
+                                glColor3ub ( 0x00, 0x00, 0x00 );
+                            }
+
+                            glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
+                                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
+                                         ( uvs->veruv[0].v + uvs->veruv[1].v + 
+                                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
+                            glEnd ( );
+                        }
                     }
                 }
 
@@ -2868,13 +2876,17 @@ void g3dmesh_pickVertexUVs ( G3DMESH *mes,
 
                 if ( uvs ) {
                     if ( uvs->map == uvmap ) {
-                        int i;
+                        if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
+                             ( ( tex->flags & TEXTURERESTRICTED   ) &&
+                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                            int i;
 
-                        for ( i = 0x00; i < fac->nbver; i++ ) {
-                            g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
-                            g3dpick_drawPoint ( uvs->veruv[i].u, 
-                                                uvs->veruv[i].v, 
-                                                0.0f );
+                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                                g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
+                                g3dpick_drawPoint ( uvs->veruv[i].u, 
+                                                    uvs->veruv[i].v, 
+                                                    0.0f );
+                            }
                         }
                     }
                 }

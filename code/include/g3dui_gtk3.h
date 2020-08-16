@@ -537,13 +537,16 @@ GtkWidget *createFloatText       ( GtkWidget *, G3DUI *,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
 
-void       createCharText        ( GtkWidget *, G3DUI *,
-                                                char *,
-                                                gint, gint,
-                                                gint, gint,
-                                                void (*)( GtkWidget *, 
-                                                          GdkEvent  *,
-                                                          gpointer ) );
+GtkWidget *createCharText ( GtkWidget *parent, 
+                            G3DUI     *gui,
+                            char      *name,
+                            gint      x, 
+                            gint      y,
+                            gint      labwidth,
+                            gint      txtwidth,
+                            void (*cbk)( GtkWidget *,
+                                         GdkEvent  *, 
+                                         gpointer ) );
 
 void createTextField ( GtkWidget *parent, 
                        G3DUI     *gui,
