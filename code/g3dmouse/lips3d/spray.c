@@ -51,6 +51,31 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
                             uint64_t engine_flags );
 
 /******************************************************************************/
+L3DMOUSETOOLBUCKET *l3dmousetoolbucket_new ( ) {
+    uint32_t structsize = sizeof ( L3DMOUSETOOLBUCKET );
+    void *memarea = calloc ( 0x01, structsize );
+    L3DMOUSETOOLBUCKET *mtb =  ( L3DMOUSETOOLBUCKET * ) memarea;
+    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mtb;
+
+    if ( mtb == NULL ) {
+        fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
+    }
+
+    l3dmousetool_init ( ltool,
+                        BUCKETTOOL,
+                        's',
+                        NULL,
+                        NULL,
+                        NULL,
+                        pen_tool,
+                        MOUSETOOLREADWRITE );
+
+    ltool->obj = l3dbucket_new ( );
+
+    return mtb;
+}
+
+/******************************************************************************/
 L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( ) {
     uint32_t structsize = sizeof ( L3DMOUSETOOLSELECTOR );
     void *memarea = calloc ( 0x01, structsize );

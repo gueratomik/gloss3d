@@ -283,6 +283,12 @@ typedef struct _L3DMOUSETOOLPEN {
 } L3DMOUSETOOLPEN, L3DMOUSETOOLERASER;
 
 /******************************************************************************/
+typedef struct _L3DMOUSETOOLBUCKET {
+    L3DMOUSETOOL ltool;
+    uint8_t      tolerance;
+} L3DMOUSETOOLBUCKET;
+
+/******************************************************************************/
 void g3dmousetool_init ( G3DMOUSETOOL *gtool,
                          char *name, char key, const char **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *,
@@ -377,5 +383,6 @@ G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
 L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( );
 L3DMOUSETOOLPEN          *l3dmousetoolpen_new ( );
 L3DMOUSETOOLERASER       *l3dmousetooleraser_new ( );
+L3DMOUSETOOLBUCKET *l3dmousetoolbucket_new ( );
 
 #endif

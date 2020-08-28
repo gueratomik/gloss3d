@@ -121,6 +121,12 @@ typedef struct _L3DOBJECT {
 } L3DOBJECT;
 
 /******************************************************************************/
+typedef struct _L3DBUCKET {
+    L3DOBJECT obj;
+    uint8_t   tolerance;
+} L3DBUCKET;
+
+/******************************************************************************/
 typedef struct _L3DBASEPEN {
     L3DOBJECT obj;
     float     pressure;
@@ -183,7 +189,24 @@ typedef struct _L3DPLAINCIRCLEPATTERN {
 /******************************************************************************/
 typedef struct _L3DFADEDCIRCLEPATTERN {
     L3DPATTERN pattern;
+    float radius;
+    float fullPartRate;
 } L3DFADEDCIRCLEPATTERN;
+
+/******************************************************************************/
+/*** for brushes generated and exported using GIMP C export feature ***/
+typedef struct _L3DGIMPBRUSH {
+  unsigned int  width;
+  unsigned int  height;
+  unsigned int  bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
+  unsigned char pixel_data[];
+} L3DGIMPBRUSH;
+
+/******************************************************************************/
+typedef struct _L3DBRUSHPATTERN {
+    L3DPATTERN    pattern;
+    L3DGIMPBRUSH *brush;
+} L3DBRUSHPATTERN;
 
 /******************************************************************************/
 int l3dcore_paintPoint ( L3DPATTERN    *pattern,
@@ -265,8 +288,13 @@ void l3dpattern_init ( L3DPATTERN *pattern,
                        uint32_t    size,
                        void(*generate)(L3DPATTERN*));
 L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size );
-L3DFADEDCIRCLEPATTERN    *l3dfadedcirclepattern_new    ( uint32_t size );
+L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size, 
+                                                   float    radius,
+                                                   float    fullPartRate );
 L3DPLAINCIRCLEPATTERN    *l3dplaincirclepattern_new    ( uint32_t size );
+
+L3DBRUSHPATTERN *l3dbrushpattern_new ( uint32_t      size, 
+                                       L3DGIMPBRUSH *brush );
 
 /******************************************************************************/
 void l3dobject_init ( L3DOBJECT  *obj,
@@ -317,6 +345,7 @@ void l3dobject_init ( L3DOBJECT  *obj,
 
 /******************************************************************************/
 L3DBASEPEN* l3dbasepen_new ( );
+L3DBUCKET* l3dbucket_new ( );
 L3DSELECTOR* l3dselector_new ( );
 void l3dselector_setMode ( L3DSELECTOR        *sel,
                            L3DSELECTORMODEENUM mode );

@@ -166,10 +166,42 @@ void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern ) {
 }
 
 /******************************************************************************/
+void l3dpattern_generateBrush ( L3DPATTERN *pattern ) {
+    L3DBRUSHPATTERN *bp = ( L3DBRUSHPATTERN * ) pattern;
+    float hratio = ( float ) bp->brush->height / pattern->size,
+          wratio = ( float ) bp->brush->width  / pattern->size;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < pattern->size; i++ ) {
+        uint32_t bi = i * hratio;
+
+        for ( j = 0x00; j < pattern->size; j++ ) {
+            uint32_t bj = j * wratio;
+            uint32_t poffset = (  i * pattern->size    ) +  j;
+            uint32_t boffset = ( bi * bp->brush->width ) + bj;
+
+            switch ( bp->brush->bytes_per_pixel ) {
+                case 0x03 : {
+                    unsigned char (*bdata)[0x03] = bp->brush->pixel_data;
+
+                    pattern->buffer[poffset] = ( bdata[boffset][0x00] + 
+                                                 bdata[boffset][0x01] + 
+                                                 bdata[boffset][0x02] ) / 0x03;
+                } break;
+
+                default :
+                break;
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 void l3dpattern_generateFadedCircle ( L3DPATTERN *pattern ) {
-    uint32_t radius = pattern->size / 0x02;
-    uint32_t xp = radius, yp = radius;
-    uint32_t x, y, rdiff = ( radius * radius );
+    L3DFADEDCIRCLEPATTERN *fcp = ( L3DFADEDCIRCLEPATTERN * ) pattern;
+    uint32_t rad = pattern->size / 0x02;
+    uint32_t xp = rad, yp = rad;
+    uint32_t x, y, rdiff = ( rad * rad ) * fcp->radius;
     uint32_t x1 = 0x00, x2 = pattern->size;
     uint32_t y1 = 0x00, y2 = pattern->size;
 
@@ -182,9 +214,16 @@ void l3dpattern_generateFadedCircle ( L3DPATTERN *pattern ) {
             uint32_t offset = ( y * pattern->size ) + x;
 
             if ( ( xdiff + ydiff ) <= rdiff ) {
-                float fade = 1.0f - ( sqrt ( xdiff + ydiff ) / radius );
+                float fade = ( 1.0f - sqrt ( xdiff + 
+                                             ydiff ) / rad );
 
-                pattern->buffer[offset] = 0xFF * fade;
+                if ( fcp->fullPartRate ) fade /= fcp->fullPartRate;
+
+                if ( fade > 1.0f ) {
+                    pattern->buffer[offset] = 0xFF;
+                } else {
+                    pattern->buffer[offset] = 0xFF * fade;
+                }
             }
         }
     }
@@ -256,7 +295,9 @@ L3DPLAINCIRCLEPATTERN *l3dplaincirclepattern_new ( uint32_t size ) {
 }
 
 /******************************************************************************/
-L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size ) {
+L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size, 
+                                                   float    radius,
+                                                   float    fullPartRate ) {
     uint32_t structSize = sizeof ( L3DFADEDCIRCLEPATTERN );
     L3DFADEDCIRCLEPATTERN *fcp;
 
@@ -268,10 +309,35 @@ L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size ) {
         return NULL;
     }
 
+    fcp->radius = radius;
+    fcp->fullPartRate = fullPartRate;
+
     l3dpattern_init ( ( L3DPATTERN * ) fcp, 
                                        size, 
                                        l3dpattern_generateFadedCircle );
 
 
     return fcp;
+}
+
+/******************************************************************************/
+L3DBRUSHPATTERN *l3dbrushpattern_new ( uint32_t      size, 
+                                       L3DGIMPBRUSH *brush ) {
+    uint32_t structSize = sizeof ( L3DBRUSHPATTERN );
+    L3DBRUSHPATTERN *bp = ( L3DBRUSHPATTERN * ) calloc ( 0x01, structSize );
+
+    if ( bp == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+
+        return NULL;
+    }
+
+    bp->brush = brush;
+
+    l3dpattern_init ( ( L3DPATTERN * ) bp, 
+                                       size, 
+                                       l3dpattern_generateBrush );
+
+
+    return bp;
 }

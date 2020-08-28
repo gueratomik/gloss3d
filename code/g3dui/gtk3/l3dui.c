@@ -737,7 +737,7 @@ gboolean gtk_uvmapeditor_destroy ( GtkWidget *widget, gpointer   user_data ) {
     list_remove ( &gui->luvmapeditor,  guv );
 
     /*** Free the undo-redo stack ***/
-    g3durmanager_free ( guv->lui.uvurm );
+    /*g3durmanager_free ( guv->lui.uvurm );*/
 
     return FALSE;
 }
@@ -966,7 +966,7 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
             uint32_t msk = gui->uvmou->tool ( gui->uvmou, 
                                               gui->sce,
                                               &lui->cam,
-                                              lui->uvurm,
+                                              /*lui->uvurm*/gui->urm,
                                               lui->engine_flags, &g3dev );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );

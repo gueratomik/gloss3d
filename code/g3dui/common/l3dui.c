@@ -89,7 +89,8 @@ void common_l3dui_setUVMouseTool ( L3DUI *lui,
         if ( mou->init ) {
             uint32_t msk = mou->init ( mou, gui->sce,
                                            &lui->cam,
-                                            lui->uvurm, lui->engine_flags );
+                                            /*lui->uvurm*/
+                                            gui->urm, lui->engine_flags );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
         }
@@ -243,7 +244,8 @@ void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
                 lselnew = list_copy ( curmap->lseluvset );
 
                 /*** remember selection ***/
-                g3durm_uvmap_pickUVSets  ( lui->uvurm, 
+                g3durm_uvmap_pickUVSets  ( /*lui->uvurm*/
+                                           lui->gui->urm, 
                                            curmap,
                                            lselold,
                                            lselnew,
@@ -348,7 +350,8 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
                 lselnew = list_copy ( curmap->lseluv );
 
                 /*** remember selection ***/
-                g3durm_uvmap_pickUVs  ( lui->uvurm, 
+                g3durm_uvmap_pickUVs  ( /*lui->uvurm*/
+                                        lui->gui->urm, 
                                         curmap,
                                         lselold,
                                         lselnew,
@@ -364,7 +367,7 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
 void common_l3dui_undoCbk ( L3DUI *lui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_undo ( lui->uvurm, lui->engine_flags );
+    return_value = g3durmanager_undo ( /*lui->uvurm*/lui->gui->urm, lui->engine_flags );
 
     common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
 
@@ -385,7 +388,7 @@ void common_l3dui_undoCbk ( L3DUI *lui ) {
 void common_l3dui_redoCbk ( L3DUI *lui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_redo ( lui->uvurm, lui->engine_flags );
+    return_value = g3durmanager_redo ( /*lui->uvurm*/lui->gui->urm, lui->engine_flags );
 
     common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
 
@@ -498,7 +501,7 @@ void common_l3dui_init ( L3DUI *lui,
 	
 	lui->cam.obj.name = "UVMapEditor Camera";
 	
-    lui->uvurm = g3durmanager_new ( lui->gui->conf.undolevel );
+    /*lui->uvurm = g3durmanager_new ( lui->gui->conf.undolevel );*/
 
     lui->engine_flags = VIEWVERTEXUV;
 

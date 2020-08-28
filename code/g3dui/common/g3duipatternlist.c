@@ -29,6 +29,13 @@
 #include <config.h>
 #include <g3dui.h>
 
+#include <xpm/brush_0.c>
+#include <xpm/brush_1.c>
+#include <xpm/brush_2.c>
+#include <xpm/brush_3.c>
+#include <xpm/brush_4.c>
+#include <xpm/brush_5.c>
+
 /******************************************************************************/
 PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size ) {
     uint32_t structsize = sizeof ( PATTERNLISTDATA );
@@ -46,19 +53,18 @@ PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size ) {
     pdata->preview_width  = size  + ( pdata->preview_border * 0x02 );
     pdata->preview_height = size  + ( pdata->preview_border * 0x02 );
 
-    pdata->patterns[0x00] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x01] = l3dplaincirclepattern_new    ( size );
-    pdata->patterns[0x02] = l3dfadedcirclepattern_new    ( size );
-    pdata->patterns[0x03] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x04] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x05] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x06] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x07] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x08] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x09] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x0A] = l3dplainrectanglepattern_new ( size );
     pdata->patterns[0x0B] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x0C] = l3dplainrectanglepattern_new ( size );
+    pdata->patterns[0x0A] = l3dplaincirclepattern_new    ( size );
+    pdata->patterns[0x09] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.00f );
+    pdata->patterns[0x08] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.10f );
+    pdata->patterns[0x07] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.25f );
+    pdata->patterns[0x06] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.50f );
+    pdata->patterns[0x05] = l3dbrushpattern_new          ( size, &brush_0 );
+    pdata->patterns[0x04] = l3dbrushpattern_new          ( size, &brush_1 );
+    pdata->patterns[0x03] = l3dbrushpattern_new          ( size, &brush_2 );
+    pdata->patterns[0x02] = l3dbrushpattern_new          ( size, &brush_3 );
+    pdata->patterns[0x01] = l3dbrushpattern_new          ( size, &brush_4 );
+    pdata->patterns[0x00] = l3dbrushpattern_new          ( size, &brush_5 );
 
     return pdata;
 }
