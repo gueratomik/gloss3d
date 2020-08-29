@@ -29,94 +29,82 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITBUCKETTOOLTOLERANCE "Tolerance"
+
 /******************************************************************************/
-void updateL3DMouseTool ( GtkWidget        *widget, 
-                          L3DUI *lui ) {
+static void setToleranceCbk  ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    int tolerance = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    L3DUI *lui = ( L3DUI * ) user_data;
+
+    common_g3duibuckettooledit_setToleranceCbk ( lui, tolerance );
+}
+
+/******************************************************************************/
+void updateBucketToolEdit ( GtkWidget *widget,
+                            L3DUI     *lui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = lui->gui->uvmou;
+    L3DMOUSETOOL *tool = common_g3dui_getMouseTool ( lui->gui, BUCKETTOOL );
+    L3DMOUSETOOLBUCKET *mtb = ( L3DMOUSETOOLBUCKET * ) tool;
+    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
-    if ( mou ) {
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
+    /*** prevent a loop ***/
+    lui->gui->lock = 0x01;
 
-            if ( strcmp ( child_name, mou->name ) == 0x00 ) {
-                if ( strcmp ( mou->name, PENTOOL    ) == 0x00 ) updatePenToolEdit    ( child, lui );
-                if ( strcmp ( mou->name, BUCKETTOOL ) == 0x00 ) updateBucketToolEdit ( child, lui );
+    while ( children ) {
+        GtkWidget *child = ( GtkWidget * ) children->data;
+        const char *child_name = gtk_widget_get_name ( child );
 
-                gtk_widget_show ( child );
-            } else {
-                gtk_widget_hide ( child );
+        if ( GTK_IS_SPIN_BUTTON(child) ) {
+            GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
+
+            if ( strcmp ( child_name, EDITBUCKETTOOLTOLERANCE   ) == 0x00 ) {
+                L3DBUCKET *bkt = mtb->ltool.obj;
+
+                gtk_spin_button_set_value ( spb, bkt->tolerance );
             }
-
-            children =  g_list_next ( children );
         }
-    /*** Hide all children widgets if no object is selected ***/
-    } else {
 
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-
-            gtk_widget_hide ( child );
-
-            children =  g_list_next ( children );
-        }
+        children =  g_list_next ( children );
     }
+
+    lui->gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     L3DUI *lui = ( L3DUI * ) user_data;
 
-    updateL3DMouseTool ( widget, lui );
+    updateBucketToolEdit ( widget, lui );
 }
 
 /******************************************************************************/
-GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
-                                    L3DUI *lui,
-                                    char             *name,
-                                    gint              x,
-                                    gint              y,
-                                    gint              width,
-                                    gint              height ) {
-    G3DUI *gui = lui->gui;
-    GdkRectangle scrrec = { 0, 0, width, height };
-    GdkRectangle frmrec = { 0, 0, 256, 256 };
-    GtkWidget *label = gtk_label_new ( name );
-    GtkWidget *scr, *frm;
-
-    scr = gtk_scrolled_window_new ( NULL, NULL );
-
-    gtk_widget_set_name ( scr, name );
-
-    gtk_widget_set_size_request ( scr, scrrec.width, scrrec.height );
-
-    gtk_fixed_put ( parent, scr, x, y );
+GtkWidget *createBucketToolEdit ( GtkWidget        *parent, 
+                                  L3DUI *lui,
+                                  char             *name,
+                                  gint              x,
+                                  gint              y,
+                                  gint              width,
+                                  gint              height ) {
+    GdkRectangle gdkrec = { x, y, width, height };
+    GtkWidget *frm, *ptf, *fix;
 
     frm = gtk_fixed_new ( );
 
     gtk_widget_set_name ( frm, name );
 
-    gtk_widget_size_allocate ( frm, &frmrec );
+    gtk_widget_size_allocate ( frm, &gdkrec );
 
-#if GTK_CHECK_VERSION(3,8,0)
-    gtk_container_add ( GTK_CONTAINER(scr), frm );
-#else
-    gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scr), frm );
-#endif
+    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), lui );
 
-    /*** This is type dependent: hidden if not of ***/
-    /*** selected object type showed otherwise.   ***/
-    createPenToolEdit    ( frm, lui, PENTOOL   , 0, 0, 256, 192 );
-    createBucketToolEdit ( frm, lui, BUCKETTOOL, 0, 0, 256, 192 );
-
-    list_insert ( &lui->lmtools, frm );
+    createIntegerText     ( frm, lui, EDITBUCKETTOOLTOLERANCE, 
+                                  0, 256,
+                                  0, 24, 96,  32, setToleranceCbk );
 
     gtk_widget_show ( frm );
-    gtk_widget_show ( scr );
 
 
-    return scr;
+    return frm;
 }

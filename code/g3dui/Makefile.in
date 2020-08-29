@@ -160,6 +160,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/g3duipicktooledit.c \
 	common/mousetool/g3duipentooledit.c \
+	common/mousetool/g3duibuckettooledit.c \
 	common/mousetool/g3duisculpttooledit.c gtk3/g3dui.c \
 	gtk3/g3duiboneedit.c gtk3/g3duibonelinker.c \
 	gtk3/g3duicameraedit.c gtk3/g3duichannelimagedialog.c \
@@ -190,6 +191,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duipentooledit.c \
+	gtk3/mousetool/g3duibuckettooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiexport.lo \
@@ -234,6 +236,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/mousetool/g3duicutmeshtooledit.lo \
 @HAVE_GTK3_TRUE@	common/mousetool/g3duipicktooledit.lo \
 @HAVE_GTK3_TRUE@	common/mousetool/g3duipentooledit.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/g3duibuckettooledit.lo \
 @HAVE_GTK3_TRUE@	common/mousetool/g3duisculpttooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duiboneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duibonelinker.lo \
@@ -276,6 +279,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duicutmeshtooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duipicktooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duipentooledit.lo \
+@HAVE_GTK3_TRUE@	gtk3/mousetool/g3duibuckettooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duisculpttooledit.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
@@ -345,6 +349,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duiweightgrouplist.Plo \
 	common/$(DEPDIR)/g3duiwireframeedit.Plo \
 	common/$(DEPDIR)/l3dui.Plo \
+	common/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo \
 	common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo \
 	common/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo \
 	common/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo \
@@ -398,6 +403,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo \
 	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo gtk3/$(DEPDIR)/l3dui.Plo \
 	gtk3/$(DEPDIR)/l3duitoolbar.Plo gtk3/$(DEPDIR)/r3dpreview.Plo \
+	gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo \
@@ -633,6 +639,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/mousetool/g3duicutmeshtooledit.c \
 @HAVE_GTK3_TRUE@                            common/mousetool/g3duipicktooledit.c \
 @HAVE_GTK3_TRUE@                            common/mousetool/g3duipentooledit.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/g3duibuckettooledit.c \
 @HAVE_GTK3_TRUE@                            common/mousetool/g3duisculpttooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiboneedit.c \
@@ -691,6 +698,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duicutmeshtooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duipicktooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duipentooledit.c \
+@HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duibuckettooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duisculpttooledit.c
 
 all: all-am
@@ -880,6 +888,9 @@ common/mousetool/g3duipicktooledit.lo:  \
 common/mousetool/g3duipentooledit.lo:  \
 	common/mousetool/$(am__dirstamp) \
 	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/g3duibuckettooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
 common/mousetool/g3duisculpttooledit.lo:  \
 	common/mousetool/$(am__dirstamp) \
 	common/mousetool/$(DEPDIR)/$(am__dirstamp)
@@ -1006,6 +1017,8 @@ gtk3/mousetool/g3duipicktooledit.lo: gtk3/mousetool/$(am__dirstamp) \
 	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/g3duipentooledit.lo: gtk3/mousetool/$(am__dirstamp) \
 	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
+gtk3/mousetool/g3duibuckettooledit.lo: gtk3/mousetool/$(am__dirstamp) \
+	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/g3duisculpttooledit.lo: gtk3/mousetool/$(am__dirstamp) \
 	gtk3/mousetool/$(DEPDIR)/$(am__dirstamp)
 
@@ -1072,6 +1085,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/l3dui.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo@am__quote@ # am--include-marker
@@ -1130,6 +1144,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/l3dui.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/l3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/r3dpreview.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo@am__quote@ # am--include-marker
@@ -1359,6 +1374,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f common/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f common/$(DEPDIR)/l3dui.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo
@@ -1417,6 +1433,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/l3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/l3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/r3dpreview.Plo
+	-rm -f gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo
@@ -1514,6 +1531,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f common/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f common/$(DEPDIR)/l3dui.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
 	-rm -f common/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo
@@ -1572,6 +1590,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/l3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/l3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/r3dpreview.Plo
+	-rm -f gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duil3dmousetooledit.Plo

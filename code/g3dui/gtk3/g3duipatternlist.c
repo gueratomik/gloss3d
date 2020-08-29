@@ -362,7 +362,7 @@ GtkWidget *createPatternList ( GtkWidget        *parent,
         patternlistdata_addPreview ( pdata,  pdata->patterns[i] );
     }
 
-    l3dsysinfo_setPattern ( sysinfo, pdata->patterns[0x00] );
+    l3dsysinfo_setPattern ( sysinfo, pdata->patterns[0x07] );
 
     g_signal_connect ( G_OBJECT (drw), "draw"      ,
                                        G_CALLBACK(Draw), lui );

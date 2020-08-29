@@ -132,6 +132,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/axismode.xpm \
                        xpm/bonico.xpm \
                        xpm/bridge.xpm \
+                       xpm/bucket.xpm \
                        xpm/camico.xpm \
                        xpm/cube.xpm \
                        xpm/cubico.xpm \
@@ -142,6 +143,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/disico.xpm \
                        xpm/edgemode.xpm \
                        xpm/enaico.xpm \
+                       xpm/eraser.xpm \
                        xpm/extrude.xpm \
                        xpm/eyeopn.xpm \
                        xpm/eyesht.xpm \
@@ -160,6 +162,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/nextframe.xpm \
                        xpm/objectmode.xpm \
                        xpm/openfile.xpm \
+                       xpm/pen.xpm \
                        xpm/pick.xpm \
                        xpm/playanim.xpm \
                        xpm/plnico.xpm \
@@ -175,6 +178,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/scale.xpm \
                        xpm/scnico.xpm \
                        xpm/sculptmode.xpm \
+                       xpm/selectarea.xpm \
+                       xpm/selectrandom.xpm \
                        xpm/shor.xpm \
                        xpm/skinmode.xpm \
                        xpm/sobj.xpm \
@@ -187,8 +192,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/subico.xpm \
                        xpm/symico.xpm \
                        xpm/torico.xpm \
-                       xpm/tubico.xpm \
                        xpm/translate_view.xpm \
+                       xpm/tubico.xpm \
                        xpm/txtico.xpm \
                        xpm/undo.xpm \
                        xpm/unzoomtime.xpm \
@@ -200,7 +205,13 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/yaxis.xpm \
                        xpm/zaxis.xpm \
                        xpm/zoomtime.xpm \
-                       xpm/zoom_view.xpm
+                       xpm/zoom_view.xpm \
+                       xpm/brush_0.c \
+                       xpm/brush_1.c \
+                       xpm/brush_2.c \
+                       xpm/brush_3.c \
+                       xpm/brush_4.c \
+                       xpm/brush_5.c
 
 
 backup:

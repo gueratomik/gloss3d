@@ -59,6 +59,7 @@ if HAVE_GTK3
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
                             common/mousetool/g3duipentooledit.c \
+                            common/mousetool/g3duibuckettooledit.c \
                             common/mousetool/g3duisculpttooledit.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboneedit.c \
@@ -117,6 +118,7 @@ if HAVE_GTK3
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
                             gtk3/mousetool/g3duipentooledit.c \
+                            gtk3/mousetool/g3duibuckettooledit.c \
                             gtk3/mousetool/g3duisculpttooledit.c
 endif
 

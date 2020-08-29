@@ -552,6 +552,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_RESETBONE            "Reset Bone"
 #define MENU_RESETBONETREE        "Whole tree"
 #define MENU_RESETBONEONLY        "This bone only"
+#define MENU_UNSELECTAREA         "Unselect area"
 
 #define MENU_ADDUVWMAP            "Add UVW Map"
 
@@ -1617,5 +1618,8 @@ void common_g3duipentooledit_setPressureCbk ( L3DUI *lui,
                                               float             pressure );
 void common_g3duipentooledit_setIncrementalCbk ( L3DUI *lui, 
                                                  uint32_t          inc );
+
+void common_g3duibuckettooledit_setToleranceCbk ( L3DUI   *lui, 
+                                                  uint32_t tolerance );
 
 #endif

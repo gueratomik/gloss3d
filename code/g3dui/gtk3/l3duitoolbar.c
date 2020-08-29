@@ -53,6 +53,7 @@
 #include <xpm/pen.xpm>
 #include <xpm/bucket.xpm>
 #include <xpm/eraser.xpm>
+#include <xpm/unselectarea.xpm>
 
 /******************************************************************************/
 static void setSquareSelectorCbk ( GtkWidget *widget, 
@@ -97,7 +98,6 @@ void l3dui_saveasCbk ( GtkWidget *widget,
     if ( obj ) {
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
             G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
             /*** try the first texture in case no texture is selected ***/
@@ -129,7 +129,6 @@ void l3dui_saveCbk ( GtkWidget *widget,
     if ( obj ) {
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *uvmap = g3dmesh_getSelectedUVMap ( mes );
             G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
             /*** try the first texture in case no texture is selected ***/
@@ -145,6 +144,33 @@ void l3dui_saveCbk ( GtkWidget *widget,
                                                 chn,
                                                 0x00,
                                                 0x00 );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void l3dui_unselectAreaCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    L3DUI *lui = ( L3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) lui->gui;
+    G3DUIGTK3 *ggt = gui->toolkit_data;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            /*** try the first texture in case no texture is selected ***/
+            if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
+
+            if ( tex ) {
+                G3DMATERIAL *mat = tex->mat;
+                uint32_t chnID = GETCHANNEL(lui->engine_flags);
+                G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
+
+                common_l3dui_resizeBuffers ( lui );
             }
         }
     }
@@ -215,6 +241,10 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
     /********************************/
 
     addToolBarToggleButton ( bar, lui, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
+
+    /********************************/
+
+    addToolBarPushButton   ( bar, lui, MENU_UNSELECTAREA, unselectarea_xpm  , l3dui_unselectAreaCbk );
 
     /********************************/
 

@@ -75,9 +75,6 @@ static int l3dbucket_release ( L3DOBJECT     *obj,
                                  uint64_t engine_flags );
 
 /******************************************************************************/
-/* https://www.thecrazyprogrammer.com/2017/02/flood-fill-algorithm-in-c.html */
-/* I use the naive implementation because I'm too tired to find something */
-/* better right now. Thw work on Gloss3D has been exhausting. */
 static void floodFill ( int32_t        x,
                         int32_t        y,
                         unsigned char *buffer,
@@ -93,84 +90,103 @@ static void floodFill ( int32_t        x,
                         uint8_t        newG,
                         uint8_t        newB,
                         uint8_t        tolerance ) {
+    uint32_t maxItems = 0xFFFF;
+    int32_t (*stack)[0x02] = calloc ( 0x01, sizeof ( int32_t ) * 2 * maxItems );
+
     if ( ( x >= 0x00 ) && ( x < width  ) &&
          ( y >= 0x00 ) && ( y < height ) ) {
         uint32_t offset = ( y * width ) + x;
+        uint32_t nbItems = 0x00;
+        uint32_t curItem = 0x00;
+        uint32_t i;
 
         if ( mask[offset] ) {
-            if ( zbuffer[offset] == 0x00 ) {
-                switch ( bpp ) {
-                    case 0x18 : {
-                        unsigned char (*buffer24)[0x03] = buffer;
+            stack[nbItems][0x00] = x;
+            stack[nbItems][0x01] = y;
 
-                        if ( ( buffer24[offset][0x00] >= ( oldR - tolerance ) ) &&
-                             ( buffer24[offset][0x00] <= ( oldR + tolerance ) ) &&
-                             ( buffer24[offset][0x01] >= ( oldG - tolerance ) ) &&
-                             ( buffer24[offset][0x01] <= ( oldG + tolerance ) ) &&
-                             ( buffer24[offset][0x02] >= ( oldB - tolerance ) ) &&
-                             ( buffer24[offset][0x02] <= ( oldB + tolerance ) ) ) {
-                            buffer24[offset][0x00] = newR;
-                            buffer24[offset][0x01] = newG;
-                            buffer24[offset][0x02] = newB;
+            nbItems++;
 
-                            zbuffer[offset] = 0xFF;
+            zbuffer[offset] = 0xFF;
+        }
 
-                            floodFill ( x + 0x01, 
-                                        y,
-                                        buffer,
-                                        width,
-                                        height,
-                                        bpp,
-                                        mask,
-                                        zbuffer,
-                                        oldR, oldG, oldB,
-                                        newR, newG, newB,
-                                        tolerance );
+        while ( curItem < nbItems ) {
+            int32_t sx = stack[curItem][0x00],
+                    sy = stack[curItem][0x01];
+            int32_t pos[0x04][0x02] = {{ sx + 1, sy     },
+                                       { sx    , sy + 1 },
+                                       { sx - 1, sy     },
+                                       { sx    , sy - 1 }};
 
-                            floodFill ( x, 
-                                        y + 0x01,
-                                        buffer,
-                                        width,
-                                        height,
-                                        bpp,
-                                        mask,
-                                        zbuffer,
-                                        oldR, oldG, oldB,
-                                        newR, newG, newB,
-                                        tolerance );
+            for ( i = 0x00; i < 0x04; i++ ) {
+                int32_t nx = pos[i][0x00],
+                        ny = pos[i][0x01];
 
-                            floodFill ( x - 0x01, 
-                                        y,
-                                        buffer,
-                                        width,
-                                        height,
-                                        bpp,
-                                        mask,
-                                        zbuffer,
-                                        oldR, oldG, oldB,
-                                        newR, newG, newB,
-                                        tolerance );
+                if ( ( nx >= 0x00 ) && ( nx < width  ) &&
+                     ( ny >= 0x00 ) && ( ny < height ) ) {
+                    uint32_t noffset = ( ny * width ) + nx;
 
-                            floodFill ( x, 
-                                        y - 0x01,
-                                        buffer,
-                                        width,
-                                        height,
-                                        bpp,
-                                        mask,
-                                        zbuffer,
-                                        oldR, oldG, oldB,
-                                        newR, newG, newB,
-                                        tolerance );
-	                    }
-                    } break;
+                    if ( mask[noffset] ) {
+                        if ( zbuffer[noffset] == 0x00 ) {
+                            switch ( bpp ) {
+                                case 0x18 : {
+                                    unsigned char (*buffer24)[0x03] = buffer;
 
-                    default :
-                    break;
+                                    if ( ( buffer24[noffset][0x00] >= ( oldR - tolerance ) ) &&
+                                         ( buffer24[noffset][0x00] <= ( oldR + tolerance ) ) &&
+                                         ( buffer24[noffset][0x01] >= ( oldG - tolerance ) ) &&
+                                         ( buffer24[noffset][0x01] <= ( oldG + tolerance ) ) &&
+                                         ( buffer24[noffset][0x02] >= ( oldB - tolerance ) ) &&
+                                         ( buffer24[noffset][0x02] <= ( oldB + tolerance ) ) ) {
+
+                                        stack[nbItems][0x00] = nx;
+                                        stack[nbItems][0x01] = ny;
+
+                                        nbItems++;
+
+                                        zbuffer[noffset] = 0xFF;
+
+                                        if ( nbItems == maxItems ) {
+                                            maxItems += 0xFFFF;
+
+                                            stack = realloc ( stack, sizeof ( int32_t ) * 2 * maxItems );
+                                        }
+                                    }
+                                } break;
+
+                                default : 
+                                break;
+                            }
+                        }
+                    }
                 }
+            }
+
+            curItem++;
+        }
+
+        /*** Note: the 2nd step is not necessary and the whole algo could ***/
+        /*** fit in one step. this is just for better code clarity ***/
+        for ( i = 0x00; i < nbItems; i++ ) {
+            int32_t sx = stack[i][0x00],
+                    sy = stack[i][0x01];
+            uint32_t soffset = ( sy * width ) + sx;
+
+            switch ( bpp ) {
+                case 0x18 : {
+                    unsigned char (*buffer24)[0x03] = buffer;
+
+                    buffer24[soffset][0x00] = newR;
+                    buffer24[soffset][0x01] = newG;
+                    buffer24[soffset][0x02] = newB;
+                } break;
+
+                default :
+                break;
             }
         }
     }
+
+    free ( stack );
 }
 
 /******************************************************************************/
@@ -183,6 +199,8 @@ L3DBUCKET* l3dbucket_new ( ) {
 
         return NULL;
     }
+
+    bkt->tolerance = 0x04;
 
     l3dobject_init ( bkt,
                      l3dbucket_reset,

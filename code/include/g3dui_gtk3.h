@@ -821,6 +821,17 @@ GtkWidget *createPenToolEdit ( GtkWidget        *parent,
 void updatePenToolEdit ( GtkWidget        *widget,
                          L3DUI *lui );
 
+GtkWidget *createBucketToolEdit ( GtkWidget        *parent, 
+                                  L3DUI *lui,
+                                  char             *name,
+                                  gint              x,
+                                  gint              y,
+                                  gint              width,
+                                  gint              height );
+
+void updateBucketToolEdit ( GtkWidget *widget,
+                            L3DUI     *lui );
+
 GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
                                     L3DUI *lui,
                                     char             *name,

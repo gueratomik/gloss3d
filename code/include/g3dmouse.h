@@ -285,7 +285,6 @@ typedef struct _L3DMOUSETOOLPEN {
 /******************************************************************************/
 typedef struct _L3DMOUSETOOLBUCKET {
     L3DMOUSETOOL ltool;
-    uint8_t      tolerance;
 } L3DMOUSETOOLBUCKET;
 
 /******************************************************************************/
