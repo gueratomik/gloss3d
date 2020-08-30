@@ -163,6 +163,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
 
     glPushAttrib ( GL_ENABLE_BIT ); 
 
+    glDisable ( GL_DEPTH_TEST );
     glColor3ub ( 0xFF, 0xFF, 0xFF );
     glLineStipple ( 1, 0x5555 );
     glEnable ( GL_LINE_STIPPLE );

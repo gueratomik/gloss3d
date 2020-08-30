@@ -196,6 +196,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/tubico.xpm \
                        xpm/txtico.xpm \
                        xpm/undo.xpm \
+                       xpm/unselectarea.xpm \
                        xpm/unzoomtime.xpm \
                        xpm/uvwmapmode.xpm \
                        xpm/vertexmode.xpm \
