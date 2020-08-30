@@ -68,21 +68,38 @@ uint32_t g3dui_saveChannelImageAs ( G3DUI    *gui,
         static char     filenameext[0x400] = { 0x00 };
 
         /*** default to JPG ***/
+    #ifdef __linux__
         if ( ( strcasestr ( filename, ".jpg"  ) == NULL ) &&
              ( strcasestr ( filename, ".jpeg" ) == NULL ) &&
              ( strcasestr ( filename, ".png"  ) == NULL ) ) {
+    #endif
+    #ifdef __MINGW32__
+        if ( ( StrStrIA ( filename, ".jpg"  ) == NULL ) &&
+             ( StrStrIA ( filename, ".jpeg" ) == NULL ) &&
+             ( StrStrIA ( filename, ".png"  ) == NULL ) ) {
+    #endif
             snprintf ( filenameext, sizeof ( filenameext ), "%s.jpg", filename );
 
             g3dimage_setFileName ( img, filenameext );
 
             img->flags |= JPGIMAGE;
         } else {
+    #ifdef __linux__
             if ( strcasestr ( filename, ".jpg"  ) ||
                  strcasestr ( filename, ".jpeg" ) ) {
+    #endif
+    #ifdef __MINGW32__
+            if ( StrStrIA ( filename, ".jpg"  ) ||
+                 StrStrIA ( filename, ".jpeg" ) ) {
+    #endif
                 img->flags |= JPGIMAGE;
             }
-
+    #ifdef __linux__
             if ( strcasestr ( filename, ".png" ) ) {
+    #endif
+    #ifdef __MINGW32__
+            if ( StrStrIA ( filename, ".png" ) ) {
+    #endif
                 img->flags |= PNGIMAGE;
             }
 
