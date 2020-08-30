@@ -34,6 +34,8 @@
 /******************************************************************************/
 /******************************************************************************/
 
+void (*myGLActiveTexture)( GLenum texture ) = NULL;
+
 static int pen_tool ( G3DMOUSETOOL *mou, 
                       G3DSCENE     *sce, 
                       G3DCAMERA    *cam,
@@ -163,6 +165,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
 
     glPushAttrib ( GL_ENABLE_BIT ); 
 
+    glDisable ( GL_DEPTH_TEST );
     glColor3ub ( 0xFF, 0xFF, 0xFF );
     glLineStipple ( 1, 0x5555 );
     glEnable ( GL_LINE_STIPPLE );
@@ -218,6 +221,15 @@ int basepen_tool ( G3DMOUSETOOL *mou,
     static double oldx, oldy;
     static G3DIMAGE *bckimg; /** image for undo redo ***/
     static uint32_t x1, y1, x2, y2;
+
+    if ( myGLActiveTexture == NULL ) {
+#ifdef __MINGW32__
+        myGLActiveTexture = wglGetProcAddress( "glActiveTexture" );
+#endif
+#ifdef __linux__
+	    myGLActiveTexture = glActiveTexture;
+#endif
+    }
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -390,7 +402,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
                                         glEnable ( GL_TEXTURE_2D );
                                         glBindTexture ( GL_TEXTURE_2D, image->id );
-                                        glActiveTexture( image->id ); 
+                                        myGLActiveTexture( image->id ); 
                                         glPixelStorei ( GL_UNPACK_ROW_LENGTH, image->width );
                                         glTexSubImage2D ( GL_TEXTURE_2D, 
                                                           0x00,
