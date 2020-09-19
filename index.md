@@ -44,7 +44,9 @@ Multithreaded Raytracer : ugly an still has a lot of artefacts and missing featu
 
 ### Building from sources
 
-`configure --prefix=/usr/local --with-gtk3
+```
+configure --prefix=/usr/local --with-gtk3
 make
 make install
-gloss3d-gtk3`
+gloss3d-gtk3
+
