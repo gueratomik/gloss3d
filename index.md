@@ -13,6 +13,8 @@ catmull-clark subdivision, incremental and adaptive (adaptive mode is experiment
 Free-From Deformer cage
 Symmetry modifier
 
+![Image](http://velotrip.free.fr/GLOSS3D/Gloss3D_modifier_stack_20170212.png)
+
 ### Texturing :
 
 Color, specular and displacement channel. JPG file only. No procedural textures yet. Displacement works in subdivided mode. No bump / alpha channels yet.
