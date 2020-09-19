@@ -2,7 +2,7 @@
 
 Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
 
-### Markdown
+### Features
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
