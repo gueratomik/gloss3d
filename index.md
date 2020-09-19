@@ -53,4 +53,4 @@ configure --prefix=/usr/local --with-gtk3
 make
 make install
 gloss3d-gtk3
-
+```
