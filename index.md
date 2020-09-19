@@ -17,6 +17,8 @@ Symmetry modifier
 
 Color, specular and displacement channel. JPG file only. No procedural textures yet. Displacement works in subdivided mode. No bump / alpha channels yet.
 
+[Image](http://velotrip.free.fr/Gloss3D_with_LIPS.png)
+
 ### Animation:
 
 Skeletal animation
