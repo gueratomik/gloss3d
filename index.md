@@ -1,8 +1,6 @@
-## Welcome to GitHub Pages
+## Welcome to Gloss3D project page
 
-You can use the [editor on GitHub](https://github.com/gueratomik/gloss3d/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
 
 ### Markdown
 
