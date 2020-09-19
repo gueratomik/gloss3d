@@ -27,20 +27,28 @@ Skeletal animation
 Weight painting
 Key loops
 
+![Image](http://velotrip.free.fr/gloss3d_animation.png)
+
 ### Rendering
 
 Multithreaded Raytracer : ugly an still has a lot of artefacts and missing features as you will notice in the below screenshots.
 
+![Image](http://velotrip.free.fr/GLOSS3D/Gloss3d_trex_wireframe_lighting_20170212.png)
+
 ### Supported File format :
 
-.G3D file format import / export
-.3DS import (partial support)
-.OBJ import / export (partial support)
-.DAE (Collada) import (experimental)
+- G3D file format import / export
+- 3DS import (partial support)
+- OBJ import / export (partial support)
+- DAE (Collada) import (experimental)
 
+### Building from sources
 
 ```markdown
-Syntax highlighted code block
+configure --prefix=/usr/local --with-gtk3
+make
+make install
+gloss3d-gtk3
 
 # Header 1
 ## Header 2
