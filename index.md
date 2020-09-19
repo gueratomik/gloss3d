@@ -18,15 +18,15 @@ Download prebuilt packages from Sourceforge here : [https://sourceforge.net/proj
 
 ### Texturing :
 
-Color, specular and displacement channel. JPG file only. No procedural textures yet. Displacement works in subdivided mode. No bump / alpha channels yet.
+- Use your own texture image or generate procedural ones.
 
 ![Image](http://velotrip.free.fr/Gloss3D_with_LIPS.png)
 
 ### Animation:
 
-Skeletal animation
-Weight painting
-Key loops
+- Skeletal animation
+- Weight painting
+- Key loops
 
 ![Image](http://velotrip.free.fr/gloss3d_animation.png)
 
