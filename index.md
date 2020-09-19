@@ -2,9 +2,38 @@
 
 Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
 
-### Features
+## Features
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Modeling :
+
+extrude
+cut
+untriangulate / triangulate
+catmull-clark subdivision, incremental and adaptive (adaptive mode is experimental)
+Free-From Deformer cage
+Symmetry modifier
+
+### Texturing :
+
+Color, specular and displacement channel. JPG file only. No procedural textures yet. Displacement works in subdivided mode. No bump / alpha channels yet.
+
+### Animation:
+
+Skeletal animation
+Weight painting
+Key loops
+
+### Rendering
+
+Multithreaded Raytracer : ugly an still has a lot of artefacts and missing features as you will notice in the below screenshots.
+
+### Supported File format :
+
+.G3D file format import / export
+.3DS import (partial support)
+.OBJ import / export (partial support)
+.DAE (Collada) import (experimental)
+
 
 ```markdown
 Syntax highlighted code block
