@@ -2,6 +2,10 @@
 
 Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
 
+### Download
+
+Download prebuilt packages from Sourceforge here : [https://sourceforge.net/projects/gloss3d/](https://sourceforge.net/projects/gloss3d/)
+
 ## Features
 
 ### Modeling :
@@ -31,7 +35,7 @@ Key loops
 
 ### Rendering
 
-Multithreaded Raytracer : ugly an still has a lot of artefacts and missing features as you will notice in the below screenshots.
+Multithreaded Raytracer with motion blur, fog, wireframe rendering and a few other things. This is still under development and misses many features, but still renders !
 
 ![Image](http://velotrip.free.fr/GLOSS3D/Gloss3d_trex_wireframe_lighting_20170212.png)
 
