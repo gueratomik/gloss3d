@@ -1,6 +1,8 @@
-## Welcome to Gloss3D project page
 
 ![Image](http://velotrip.free.fr/gloss3Dlogo_test_sans_serif_true2_mini.jpg) 
+
+## Welcome to Gloss3D project page
+
 ![Image](http://gloss3d.free.fr/img/lindows.png) 
 
 Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
