@@ -7,7 +7,7 @@ Gloss3D is an open-source 3D modeler tool with some texturing, animation and ren
 
 ### Download
 
-Download prebuilt packages or source [here](https://sourceforge.net/projects/gloss3d/)
+Download source code or prebuilt packages for Ubuntu, CentOS or Windows [here](https://sourceforge.net/projects/gloss3d/)
 
 ## Features
 
