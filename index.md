@@ -10,12 +10,9 @@ Download prebuilt packages from Sourceforge here : [https://sourceforge.net/proj
 
 ### Modeling :
 
-extrude
-cut
-untriangulate / triangulate
-catmull-clark subdivision, incremental and adaptive (adaptive mode is experimental)
-Free-From Deformer cage
-Symmetry modifier
+- Polygonal modeling tools (cut, extrude ...)
+- Catmull-clark subdivision.
+- Free-From Deformer cage
 
 ![Image](http://velotrip.free.fr/GLOSS3D/Gloss3D_modifier_stack_20170212.png)
 
