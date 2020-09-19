@@ -44,33 +44,7 @@ Multithreaded Raytracer : ugly an still has a lot of artefacts and missing featu
 
 ### Building from sources
 
-```markdown
-configure --prefix=/usr/local --with-gtk3
+`configure --prefix=/usr/local --with-gtk3
 make
 make install
-gloss3d-gtk3
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/gueratomik/gloss3d/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+gloss3d-gtk3`
