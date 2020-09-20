@@ -56,5 +56,5 @@ gloss3d-gtk3
 ```
 
 ### Contact
-[Url](mailto:contact at gloss3d.net)
+[Link](mailto:contact at gloss3d.net)
 
