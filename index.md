@@ -57,5 +57,5 @@ gloss3d-gtk3
 
 ### Contact
 
-Feel free to [contact us](mailto:contact%20at%20gloss3d.net)
+Feel free to [contact us](mailto:contact@gloss3d.net)
 
