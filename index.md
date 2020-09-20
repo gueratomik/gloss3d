@@ -11,7 +11,7 @@ Download source code or prebuilt packages for Ubuntu, CentOS or Windows [here](h
 
 ## Features
 
-### Modeling :
+### Modeling
 
 - Polygonal modeling tools (cut, extrude ...)
 - Catmull-clark subdivision.
@@ -19,13 +19,13 @@ Download source code or prebuilt packages for Ubuntu, CentOS or Windows [here](h
 
 ![Image](http://velotrip.free.fr/GLOSS3D/Gloss3D_modifier_stack_20170212.png)
 
-### Texturing :
+### Texturing
 
 - Use your own texture image or generate procedural ones.
 
 ![Image](http://velotrip.free.fr/Gloss3D_with_LIPS.png)
 
-### Animation:
+### Animation
 
 - Skeletal animation
 - Weight painting
@@ -54,3 +54,7 @@ make
 make install
 gloss3d-gtk3
 ```
+
+### Contact
+[Url](mailto:contact at gloss3d.net)
+
