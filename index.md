@@ -21,7 +21,7 @@ Download source code or prebuilt packages for Ubuntu, CentOS or Windows [here](h
 
 ### Texturing
 
-- Use your own texture image or generate procedural ones.
+- Draw your own texture, use a random image or generate procedural ones.
 
 ![Image](http://velotrip.free.fr/Gloss3D_with_LIPS.png)
 
