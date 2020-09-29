@@ -1,5 +1,5 @@
 
-![Image](http://velotrip.free.fr/gloss3Dlogo_test_sans_serif_true2_mini.jpg) 
+![Image](http://velotrip.free.fr/gloss3Dlogo_test_sans_serif_true3_mini.jpg) 
 
 ## Welcome to Gloss3D project page
 
