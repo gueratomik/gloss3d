@@ -251,7 +251,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                        rsg->output.depth,
                                                        rsg->output.fps,
                                                        rsg->output.endframe - rsg->output.startframe,
+#ifdef __MINGW32__
                                                       &gui->cvars,
+#endif
                                                        buf,
                                                        sysinfo->ffmpegPath,
                                                        sysinfo->ffplayPath );

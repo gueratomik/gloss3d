@@ -359,7 +359,7 @@ static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer use
 /******************************************************************************/
 static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-
+#ifdef __MINGW32__
     gui->cvars.cbSize = sizeof ( COMPVARS );
 
     ICCompressorChoose( gdk_win32_window_get_handle  ( gtk_widget_get_window ( widget ) ),
@@ -370,6 +370,7 @@ static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
                         NULL,
                        &gui->cvars,
                         "Choose output video format" );
+#endif
 }
 
 /******************************************************************************/
