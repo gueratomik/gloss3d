@@ -33,11 +33,16 @@ static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
 
 /******************************************************************************/
 static void formatCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
     G3DUI *gui = ( G3DUI * ) user_data;
     const char *str = gtk_combo_box_text_get_active_text ( cmbt );
 
     common_g3duirenderedit_formatCbk ( gui, str );
+    
+    gui->lock = 0x01;
+    updateSaveOutputForm ( parent, gui );
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
@@ -352,6 +357,22 @@ static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer use
 }
 
 /******************************************************************************/
+static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    gui->cvars.cbSize = sizeof ( COMPVARS );
+
+    ICCompressorChoose( gdk_win32_window_get_handle  ( gtk_widget_get_window ( widget ) ),
+                        ICMF_CHOOSE_ALLCOMPRESSORS | 
+                        ICMF_CHOOSE_DATARATE |
+                        ICMF_CHOOSE_KEYFRAME,
+                        NULL,
+                        NULL,
+                       &gui->cvars,
+                        "Choose output video format" );
+}
+
+/******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
@@ -373,7 +394,25 @@ void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
                     }
                 }
             }
+            
+#ifdef __MINGW32__
+            if ( GTK_IS_BUTTON(child) ) {
+                GtkButton *pbn = GTK_BUTTON(child);
 
+                if ( strcmp ( child_name, EDITRENDERCODEC ) == 0x00 ) {
+                    if ( rsg->flags & RENDERSAVE ) {
+                        if ( rsg->output.format == RENDERTOIMAGE ) {
+                            gtk_widget_set_sensitive ( pbn, FALSE  );
+                        }
+                        if ( rsg->output.format == RENDERTOVIDEO ) {
+                            gtk_widget_set_sensitive ( pbn, TRUE  );
+                        }
+                    } else {
+                        gtk_widget_set_sensitive ( pbn, FALSE );
+                    }
+                }
+            }
+#endif
             if ( GTK_IS_ENTRY(child) ) {
                 GtkEntry *ent = GTK_ENTRY(child);
 
@@ -433,8 +472,13 @@ static GtkWidget *createSaveOutputForm ( GtkWidget *parent, G3DUI *gui,
     createRenderFormat( frm, gui, EDITRENDERFORMAT,
                                0, 24, 96,  64, formatCbk );
 
+#ifdef __MINGW32__
+    createPushButton   ( frm, gui, EDITRENDERCODEC,
+                               96, 48,
+                              96, 18, chooseCodecCbk );
+#endif
     createCharText    ( frm, gui, EDITRENDEROUTPUT,
-                               0, 48, 96, 200, outputCbk );
+                               0, 72, 96, 200, outputCbk );
 
 
     return frm;
@@ -1253,11 +1297,12 @@ void createGeneralPanel ( GtkWidget *parent,
                                0.0f, FLT_MAX,
                                0, 144, 96,  64, ratioCbk );
 
-    createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
+    createBackgroundForm ( pan, gui, EDITRENDERBACKGROUNDFRAME,
                                0, 168, 256,  96 );
 
-    createBackgroundForm ( pan, gui, EDITRENDERBACKGROUNDFRAME,
+    createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
                                0, 264, 256,  96 );
+
 }
 
 /******************************************************************************/

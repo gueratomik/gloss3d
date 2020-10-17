@@ -613,7 +613,7 @@ void r3drendersettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_FILE : {
-                char *buffer = calloc ( 0x01, chunkSize );
+                char *buffer = calloc ( 0x01, chunkSize + 1 );
 
                 g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
 
@@ -643,7 +643,7 @@ void r3drendersettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_BACKGROUND_IMAGE : {
-                char *buffer = calloc ( 0x01, chunkSize );
+                char *buffer = calloc ( 0x01, chunkSize + 1 );
 
                 g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
 

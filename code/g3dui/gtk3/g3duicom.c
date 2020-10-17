@@ -79,14 +79,7 @@ void g3duicom_handleAction ( GtkWidget *widget, gpointer ptr,
         break;
     }
 
-    /*action->wait = 0x00;*/
-#ifdef  __MINGW32__
-    ReleaseMutex(action->done);
-#endif
-#ifdef __linux__
-    /*** wake up waiting process **/
     pthread_mutex_unlock ( &action->done );
-#endif
 }
 
 /******************************************************************************/
@@ -103,42 +96,21 @@ static gboolean emitAction ( G3DUIACTION *action ) {
 void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
-#ifdef __linux__
-    /* commented out: init is now done statically. See filtergotoframe_draw() */
-    /*pthread_mutex_init ( &action->done, NULL );*/
-    pthread_mutex_lock ( &action->done );
-#endif
-    /* using POSIX mutes crashes under Windows so we use Windows mutex */
-#ifdef  __MINGW32__
-    action->done = CreateMutex( NULL,              // default security attributes
-                                FALSE,             // initially not owned
-                                NULL );             // unnamed mutex
-#endif
+    pthread_mutex_lock(&action->done);
 
     /*** Because OpenGL only works within the main context, we ***/
     /*** cannot call g_signal_emit_by_name() directly, we have to ***/
     /*** call g_main_context_invoke_full() that calls a wrapper to ***/
     /*** g_signal_emit_by_name() ***/
     g_main_context_invoke_full ( NULL,
-                                 G_PRIORITY_DEFAULT, 
+                                 G_PRIORITY_HIGH, 
                     (GSourceFunc)emitAction,
                                  action,
                                  NULL );
 
     /** wait until completion **/
-#ifdef  __MINGW32__
-    WaitForSingleObject( action->done, INFINITE );
-    ReleaseMutex(action->done);
-    CloseHandle(action->done);
-#endif
-#ifdef __linux__
     pthread_mutex_lock    ( &action->done );
     pthread_mutex_unlock  ( &action->done );
-
-    /** destry after the action is completed ***/
-    /* commented out: init is now done statically. See filtergotoframe_draw() */
-    /*pthread_mutex_destroy ( &action->done );*/
-#endif
 }
 
 /******************************************************************************/

@@ -67,6 +67,7 @@
 #endif
 #ifdef __MINGW32__
 #include <windows.h>
+#include <vfw.h>
 #endif 
 
 /******************************************************************************/
@@ -838,6 +839,9 @@ typedef struct _FILTERTOFFMPEG {
     #ifdef __MINGW32__
     HANDLE pipefd[0x02];
     HANDLE tid;
+    COMPVARS  *cvars;
+    PAVIFILE pavi;
+    PAVISTREAM pstm,ptmp;
     #endif
 } FILTERTOFFMPEG;
 
@@ -1059,17 +1063,26 @@ DWORD           filtertoffmpeg_listen_t ( FILTERTOFFMPEG * );
 R3DFILTER      *r3dfilter_toFfmpeg_new  ( uint32_t, uint32_t, 
                                                     uint32_t, 
                                                     uint32_t,
-                                                    uint32_t, 
+                                                    uint32_t,
+                                                    uint32_t  nbFrames,
+                                                   #ifdef __MINGW32__
+                                                    COMPVARS *cvars,
+                                                   #endif
                                                     char *, 
                                                     char *, 
                                                     char * );
-FILTERTOFFMPEG *filtertoffmpeg_new      ( uint32_t, uint32_t, 
-                                                    uint32_t, 
-                                                    uint32_t,
-                                                    uint32_t,
-                                                    char *,
-                                                    char *,
-                                                    char * );
+FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t  flags, 
+                                     uint32_t  width, 
+                                     uint32_t  height,
+                                     uint32_t  depth,
+                                     uint32_t  fps,
+                                     uint32_t  nbFrames,
+                                     #ifdef __MINGW32__
+                                     COMPVARS *cvars,
+                                     #endif
+                                     char     *exportpath,
+                                     char     *ffmpegpath,
+                                     char     *ffplaypath );
 uint32_t        filtertoffmpeg_draw     ( R3DFILTER *, R3DSCENE *,
                                                        float,
                                                        unsigned char *,

@@ -102,7 +102,7 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
     /*gtf.action.wait = 0x00;*/
     gtf.action.type = ACTION_GOTOFRAME;
     gtf.action.gui  = rps->gui;
-    gtf.frame       = rps->gui->curframe;
+    gtf.frame       = rps->gui->currsg->output.startframe;
 
     g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 

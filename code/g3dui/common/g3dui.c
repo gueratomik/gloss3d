@@ -78,6 +78,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
         #endif
 
         /* reset object position at the first frame */
+        /* Note: does not seem to work very well */
         if ( gui->curframe != resetFrame ) {
             g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
@@ -311,21 +312,21 @@ void common_g3dui_exportfileokcbk ( G3DUI *gui, const char *filedesc,
     printf ( "Exporting to %s of type %s ...\n", filename, filedesc );
 
     if ( strcmp ( filedesc, FILEDESC_POV ) == 0x00 ) {
-        g3dscene_exportPov ( gui->sce, filename, "/*Made with Gloss3D*/\n\n", 0 );
+        g3dscene_exportPov ( gui->sce, filename, "/*Made with Gloss3D-" PACKAGE_VERSION "*/\n\n", 0 );
     }
 
     if ( strcmp ( filedesc, FILEDESC_OBJ ) == 0x00 ) {
-        g3dscene_exportObj ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );
+        g3dscene_exportObj ( gui->sce, filename, "#Made with Gloss3D-" PACKAGE_VERSION "\n\n", 0 );
     }
 
     if ( strcmp ( filedesc, FILEDESC_STA ) == 0x00 ) {
-        g3dscene_exportStlA ( gui->sce, filename, "#Made with Gloss3D\n\n", 0 );
+        g3dscene_exportStlA ( gui->sce, filename, "#Made with Gloss3D-" PACKAGE_VERSION "\n\n", 0 );
     }
 
     if ( strcmp ( filedesc, FILEDESC_V1 ) == 0x00 ) {
         g3dscene_write ( gui->sce,
                          gui->filename, 
-                         "Made with GLOSS3D",
+                         "Made with Gloss3D-" PACKAGE_VERSION,
                          NULL,
                          0x00 );
     }

@@ -161,6 +161,10 @@ R3DFILTER *r3dfilter_toFfmpeg_new ( uint32_t flags,
                                     uint32_t height,
                                     uint32_t depth,
                                     uint32_t fps,
+                                    uint32_t nbFrames,
+                                    #ifdef __MINGW32__
+                                    COMPVARS *cvars,
+                                    #endif
                                     char *exportpath,
                                     char *ffmpegpath,
                                     char *ffplaypath ) {
@@ -168,6 +172,10 @@ R3DFILTER *r3dfilter_toFfmpeg_new ( uint32_t flags,
                                                       height,
                                                       depth,
                                                       fps,
+                                                      nbFrames,
+                                                      #ifdef __MINGW32__
+                                                      cvars,
+                                                      #endif
                                                       exportpath,
                                                       ffmpegpath,
                                                       ffplaypath );
@@ -189,14 +197,18 @@ R3DFILTER *r3dfilter_toFfmpeg_new ( uint32_t flags,
 }
 
 /******************************************************************************/
-FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags, 
-                                     uint32_t width, 
-                                     uint32_t height,
-                                     uint32_t depth,
-                                     uint32_t fps,
-                                     char *exportpath,
-                                     char *ffmpegpath,
-                                     char *ffplaypath ) {
+FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t  flags, 
+                                     uint32_t  width, 
+                                     uint32_t  height,
+                                     uint32_t  depth,
+                                     uint32_t  fps,
+                                     uint32_t  nbFrames,
+                                     #ifdef __MINGW32__
+                                     COMPVARS *cvars,
+                                     #endif
+                                     char     *exportpath,
+                                     char     *ffmpegpath,
+                                     char     *ffplaypath ) {
     uint32_t structsize = sizeof ( FILTERTOFFMPEG );
     FILTERTOFFMPEG *ftf = ( FILTERTOFFMPEG * ) calloc ( 0x01, structsize );
     #ifdef __linux__
@@ -289,6 +301,7 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
     }
 #endif
 #ifdef __MINGW32__
+    #ifdef unused
     HANDLE _stdin_rd = NULL;
     HANDLE _stdin_wr = NULL;
     HANDLE _stdout_rd = NULL;
@@ -307,13 +320,82 @@ FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t flags,
     SetHandleInformation ( ftf->pipefd[0x01], HANDLE_FLAG_INHERIT, 0 );
 
     SetStdHandle ( STD_INPUT_HANDLE, ftf->pipefd[0x00] );
+    #endif
+    BITMAPINFO         binfo;
+    AVICOMPRESSOPTIONS asopt;
+    AVISTREAMINFO      asinfo;
 
-    hdl = CreateThread ( NULL, 
-                         0x00,
-                         (LPTHREAD_START_ROUTINE) filtertoffmpeg_listen_t, 
-                         ftf,
-                         0x00,
-                         NULL );
+    ftf->cvars = cvars;
+
+    asinfo.fccType = streamtypeVIDEO;
+    asinfo.fccHandler = comptypeDIB;
+    asinfo.dwFlags = 0;
+    asinfo.dwCaps = 0;
+    asinfo.wPriority = 0;
+    asinfo.wLanguage = 0;
+    asinfo.dwScale = 1;
+    asinfo.dwRate = fps;
+    asinfo.dwStart = 0;
+    asinfo.dwLength = nbFrames;
+    asinfo.dwInitialFrames = 0 ;
+    asinfo.dwSuggestedBufferSize = 0;
+    asinfo.dwQuality = -1;
+    asinfo.dwSampleSize = 0;
+    asinfo.rcFrame.left = 0x00;
+    asinfo.rcFrame.top = 0x00;
+    asinfo.rcFrame.right = width;
+    asinfo.rcFrame.bottom = height;
+    asinfo.dwEditCount = 0;
+    asinfo.dwFormatChangeCount = 0;
+
+    snprintf( asinfo.szName, 64, "Video #1");
+
+    binfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    binfo.bmiHeader.biWidth = width;
+    binfo.bmiHeader.biHeight = height;
+    binfo.bmiHeader.biPlanes = 1;
+    binfo.bmiHeader.biBitCount = 24;
+    binfo.bmiHeader.biCompression = BI_RGB;
+    binfo.bmiHeader.biSizeImage = width * height * 0x03;
+    binfo.bmiHeader.biXPelsPerMeter = 0;
+    binfo.bmiHeader.biYPelsPerMeter = 0;
+    binfo.bmiHeader.biClrUsed = 0;
+    binfo.bmiHeader.biClrImportant = 0;
+
+    asopt.fccType          = streamtypeVIDEO;
+    asopt.fccHandler       = ftf->cvars->fccHandler;
+    asopt.dwKeyFrameEvery  = ftf->cvars->lKey;
+    asopt.dwQuality        = ftf->cvars->lQ;
+    asopt.dwBytesPerSecond = ftf->cvars->lDataRate;
+    asopt.dwFlags          = ( ( ftf->cvars->lDataRate > 0 ) ? AVICOMPRESSF_DATARATE  : 0 ) |
+                             ( ( ftf->cvars->lKey      > 0 ) ? AVICOMPRESSF_KEYFRAMES : 0 );
+    asopt.lpFormat          = NULL;
+    asopt.cbFormat          = 0;
+    asopt.lpParms           = ftf->cvars->lpState;
+    asopt.cbParms           = ftf->cvars->cbState;
+    asopt.dwInterleaveEvery = 0;
+
+    AVIFileInit();
+
+    AVIFileOpen ( &ftf->pavi, 
+                   ftf->exportpath,
+                   OF_CREATE | 
+                   OF_WRITE,
+                   NULL );
+
+    AVIFileCreateStream ( ftf->pavi, 
+                         &ftf->pstm,
+                         &asinfo );
+
+    AVIMakeCompressedStream ( &ftf->ptmp,
+                               ftf->pstm,
+                              &asopt,
+                               NULL );
+
+    AVIStreamSetFormat (  ftf->ptmp,
+                          0,
+                         &binfo.bmiHeader, 
+                          sizeof ( BITMAPINFOHEADER ) );
 #endif
 
     return ftf;
@@ -333,10 +415,15 @@ uint32_t filtertoffmpeg_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     uint32_t bufsize = ( height * width  * ( depth >> 0x03 ) );
     uint32_t wbytes, wret;
 
+    
     #ifdef __linux__
     write ( ftf->pipefd[0x01], img, bufsize );
     #endif
     #ifdef __MINGW32__
+    BOOL isKeyFrame;
+    LONG maxFrameSize = 0x0FFFFFFF;
+
+    #ifdef unused
     wret = WriteFile ( ftf->pipefd[0x01], /* handle to pipe           */
                        img,               /* buffer to write from     */
                        bufsize,           /* number of bytes to write */
@@ -346,6 +433,35 @@ uint32_t filtertoffmpeg_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     if ( ( wret == 0x00 ) || ( wbytes != bufsize ) ) {
         fprintf ( stderr, "Failure writing to pipe: %s", GetLastError( ) ); 
     }
+    #endif
+
+    /* we must invert the image for using the Windows Video Compression API */
+    unsigned char *invimg = malloc ( bufsize );
+    uint32_t si, di, j;
+    
+    for ( si = 0x00, di = ( height - 1 ); si < height; si++, di-- ) {
+        for ( j = 0x00; j < width; j++ ) {
+            switch ( depth ) {
+                case 0x18: {
+                    unsigned long srcoffset = ( si * width ) + j,
+                                  dstoffset = ( di * width ) + j;
+                    unsigned char (*srcimg)[0x03] = img,
+                                  (*dstimg)[0x03] = invimg;
+                                  
+                    dstimg[dstoffset][0x02] = srcimg[srcoffset][0x00];
+                    dstimg[dstoffset][0x01] = srcimg[srcoffset][0x01];
+                    dstimg[dstoffset][0x00] = srcimg[srcoffset][0x02];
+                } break;
+
+                default :
+                break;
+            }
+        }
+    }
+    
+    AVIStreamWrite ( ftf->ptmp, (LONG) frameID, 1, invimg, bufsize, AVIIF_KEYFRAME, NULL, NULL);
+
+    free ( invimg );
 
     #endif
 
@@ -366,8 +482,18 @@ void filtertoffmpeg_free ( R3DFILTER *fil ) {
     wait ( NULL );
     #endif
     #ifdef __MINGW32__
+    
+    #ifdef unused
     CloseHandle ( ftf->pipefd[0x00] );
     CloseHandle ( ftf->pipefd[0x01] );
+    #endif
+
+    AVIStreamRelease ( ftf->ptmp );
+    AVIStreamRelease ( ftf->pstm );
+    AVIFileRelease   ( ftf->pavi );
+    AVIFileExit();
+    /*ICCompressorFree(&cv);*/
+    
     #endif
 
     printf ( "Closed\n" );

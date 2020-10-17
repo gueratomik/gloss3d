@@ -250,6 +250,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                        rsg->output.height,
                                                        rsg->output.depth,
                                                        rsg->output.fps,
+                                                       rsg->output.endframe - rsg->output.startframe,
+                                                      &gui->cvars,
                                                        buf,
                                                        sysinfo->ffmpegPath,
                                                        sysinfo->ffplayPath );

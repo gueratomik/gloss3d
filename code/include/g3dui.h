@@ -236,6 +236,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITRENDERFPS              "Framerate"
 #define EDITRENDEROUTPUT           "Output file"
 #define EDITRENDERFORMAT           "Format"
+#define EDITRENDERCODEC            "Codec"
 #define EDITRENDERWIDTH            "Render width"
 #define EDITRENDERHEIGHT           "Render height"
 #define EDITRENDERRATIO            "W/H ratio"
@@ -715,6 +716,7 @@ typedef struct _G3DUI {
 #ifdef __MINGW32__
     HGLRC          sharedCtx; /* shared context for textures */
     HANDLE         playthreadid;
+    COMPVARS       cvars;
 #endif
     LIST *lrsg; /*** list of render settings ***/
     R3DRENDERSETTINGS *currsg; /*** current render settings ***/
@@ -745,12 +747,7 @@ G3DMOUSETOOL *common_g3dui_getMouseTool ( G3DUI *, const char * );
 typedef struct _G3DUIACTION {
     uint32_t wait;
     uint32_t type;
-#ifdef __linux__
     pthread_mutex_t done;
-#endif
-#ifdef  __MINGW32__
-    HANDLE done; 
-#endif
     G3DUI *gui;
 } G3DUIACTION;
 

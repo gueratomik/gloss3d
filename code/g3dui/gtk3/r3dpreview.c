@@ -45,7 +45,7 @@ uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
              scrH = cam->vmatrix[0x03];
     uint32_t height = rsce->area.height;
     G3DUI *gui = ( G3DUI * ) fil->data;
-    static DUMPSCREEN dsn;
+    static DUMPSCREEN dsn = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
     uint32_t i, j;
 
     dsn.action.type = ACTION_DUMPSCREEN;
@@ -81,7 +81,7 @@ uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     }
 
     free ( dsn.buffer );
- 
+
     return 0x02; /** don't raytrace ***/
 }
 
