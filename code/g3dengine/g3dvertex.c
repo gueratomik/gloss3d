@@ -132,19 +132,22 @@ void g3dvertex_removeExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
 }
 
 /******************************************************************************/
-/*G3DEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver, uint32_t extensionName ) {
-    G3DEXTENSION *extension = ver->extension;
+G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver,
+                                             uint32_t   name ) {
+    LIST *ltmpext = ver->lext;
 
-    while ( extension ) {
-        if ( extension->name == extensionName ) {
-            return extension;
+    while ( lext ) {
+        G3DVERTEXEXTENSION *ext = ( G3DVERTEXEXTENSION * ) ltmpext->data;
+
+        if ( ext->name == name ) {
+            return ext;
         }
 
-        extension = extension->next;
+        ltmpext = ltmpext->next;
     }
 
     return NULL;
-}*/
+}
 
 /******************************************************************************/
 /*G3DEXTENSION *g3dvertex_removeExtension ( G3DVERTEX *ver, uint32_t extensionName ) {

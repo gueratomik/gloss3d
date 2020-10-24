@@ -785,7 +785,7 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
         ltmp = ltmp->next;
     }
 
-    /*if ( obj->anim ) obj->anim ( obj, prevkey, nextkey );*/
+    if ( obj->anim ) obj->anim ( obj, frame );
 }
 
 /******************************************************************************/

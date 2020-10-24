@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -26,15 +26,58 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#include <config.h>
-#include <g3dengine/g3dengine.h>
 
+/**
+ * @file
+ */
 
 /******************************************************************************/
-void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
-                               uint32_t            name ) {
-    ext->name = name;
+#ifndef _G3DMORPHER_H_
+#define _G3DMORPHER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    return ext;
+/******************************************************************************/
+typedef struct _G3DMORPHERVERTEXPOSE {
+    G3DVECTOR pos;
+    G3DVECTOR nor;
+    uint32_t  enabled;
+} G3DMORPHERVERTEXPOSE;
+
+/******************************************************************************/
+typedef struct _G3DMORPHERMESHPOSE {
+    char                 *name;
+    G3DMORPHERVERTEXPOSE *vpose;
+} G3DMORPHERMESHPOSE;
+
+/**
+ * @struct G3DMORPHER
+ * @brief A modifier to revolve a spline
+ */
+typedef struct _G3DMORPHER {
+    G3DMODIFIER         mod;  /*** G3DMORPHER inherits G3DMODIFIER        ***/
+    uint32_t            extensionName;
+    LIST               *lver;
+    uint32_t            verID;
+    LIST               *lmpose;
+    G3DMORPHERMESHPOSE *selmpose;
+} G3DMORPHER;
+
+G3DMORPHERMESHPOSE *g3dmorpherpose_new ( uint32_t nbver );
+void g3dmorpher_addVertex ( G3DMORPHER *mpr,
+                            G3DVERTEX  *ver );
+void g3dmorpher_selectMeshPoseByRank ( G3DMORPHER *mpr,
+                                       uint32_t    rank );
+G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER *mpr,
+                                                 G3DVERTEX  *ver );
+G3DMORPHER *g3dmorpher_new ( uint32_t id, 
+                             char    *name, 
+                             uint64_t engine_flags );
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

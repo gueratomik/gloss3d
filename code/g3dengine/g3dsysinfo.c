@@ -33,6 +33,13 @@
 #define FFMPEGPATHLEN 0x200
 
 /******************************************************************************/
+uint32_t g3dsysinfo_requestExtensionName ( ) {
+    G3DSYSINFO *g3dsysinfo_get ( );
+
+    return sysinfo->extensionName++;
+}
+
+/******************************************************************************/
 void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *info, 
                                         float       sceneStartFrame,
                                         float       sceneCurrentFrame,

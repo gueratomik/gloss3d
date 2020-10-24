@@ -63,6 +63,7 @@ typedef struct _G3DSYSINFO {
     G3DCAMERA       *defaultCamera; /* used for backgroung uvw mapping */
     G3DSCENE *sce; /*** used only for debugging purpose ***/
     uint32_t debug;
+    uint32_t extensionName;
 } G3DSYSINFO;
 
 /******************************************************************************/
@@ -106,6 +107,8 @@ void g3dsysinfo_processAnimatedImages ( G3DSYSINFO *sysinfo,
  * @param sysinfo a pointer to the G3DSYSINFO structure.
  */
 void g3dsysinfo_reset ( G3DSYSINFO *sysinfo );
+
+uint32_t g3dsysinfo_requestExtensionName ( );
 
 #ifdef __cplusplus
 }

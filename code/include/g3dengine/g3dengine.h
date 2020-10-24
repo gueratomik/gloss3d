@@ -326,6 +326,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define KEYPOSITION  ( 1 << 2 )
 #define KEYROTATION  ( 1 << 3 )
 #define KEYSCALING   ( 1 << 4 )
+#define KEYDATA      ( 1 << 5 )
 
 /****************************** Object flags **********************************/
 /*
@@ -676,6 +677,7 @@ typedef struct _G3DCURVE  G3DCURVE;
 #define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
 #define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
+#define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -702,8 +704,7 @@ typedef struct _G3DOBJECT {
     /*** Object selection ***/
     void     (*pick)          ( struct _G3DOBJECT *, struct _G3DCAMERA *,
                                                      uint64_t );
-    /*void (*anim)( struct _G3DOBJECT *, G3DKEY *,*/   /*** previous key ***/
-                                       /*G3DKEY * );*/ /*** next key     ***/
+    void (*anim)( struct _G3DOBJECT *, float frame );
     void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
     /* Object copy */
     struct _G3DOBJECT*(*copy) ( struct _G3DOBJECT *, uint32_t,
@@ -1118,75 +1119,11 @@ struct _G3DMESH {
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
+#include <g3dengine/g3dmorpher.h>
 
 /******************************************************************************/
-#define MESHPOSEEXTENSION 0x01
-
-/******************************************************************************/
-typedef struct _G3DMESHPOSE {
-    char    *name;
-    uint32_t id;
-    uint32_t  flags;
-} G3DMESHPOSE;
-
-/******************************************************************************/
-typedef struct _G3DVERTEXPOSE {
-    G3DMESHPOSE *mps;
-    G3DVECTOR    pos; /* vertex position */
-} G3DVERTEXPOSE;
-
-/******************************************************************************/
-typedef struct _G3DOBJECTEXTENSION {
-    uint32_t   id; /* extension ( name + unit ) */
-    void     (*transform) ( G3DOBJECT *obj,
-                            uint64_t engine_flags );
-    uint32_t (*draw)      ( G3DOBJECT *obj,
-                            G3DCAMERA *cam,
-                            uint64_t engine_flags );
-} G3DOBJECTEXTENSION;
-
-/******************************************************************************/
-typedef struct _G3DMESHPOSEEXTENSION {
-    G3DOBJECTEXTENSION ext;
-    LIST              *lmps;
-    uint32_t           nbmps;
-    uint32_t           mpsid;
-    G3DMESHPOSE       *curmps; /*** current selected mesh pose ***/
-} G3DMESHPOSEEXTENSION;
-
-/******************************************************************************/
-#define VERTEXPOSEEXTENSION 0x01
-
-/******************************************************************************/
-typedef struct _G3DVERTEXEXTENSION {
-    uint32_t id; /* extension id ( name + unit ) */
-} G3DVERTEXEXTENSION;
-
-/******************************************************************************/
-typedef struct _G3DVERTEXPOSEEXTENSION {
-    G3DVERTEXEXTENSION ext;
-    LIST             *lvps;
-} G3DVERTEXPOSEEXTENSION;
-
-/******************************************************************************/
-void g3dobjectextension_init ( G3DOBJECTEXTENSION *ext,
-                               uint16_t            name, 
-                               uint16_t            unit );
-G3DMESHPOSEEXTENSION *g3dmeshposeextension_new ( );
-G3DMESHPOSE *g3dmeshposeextension_createPose ( G3DMESHPOSEEXTENSION *ext,
-                                               char                 *name );
-void *g3dmeshposeextension_removePose ( G3DMESHPOSEEXTENSION *ext,
-                                        G3DMESHPOSE          *mps );
-void g3dmeshposeextension_selectPose ( G3DMESHPOSEEXTENSION *ext, 
-                                       G3DMESHPOSE *mps );
-void g3dmeshposeextension_unselectPose ( G3DMESHPOSEEXTENSION *ext, 
-                                         G3DMESHPOSE *mps );
-
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
-                               uint16_t            name, 
-                               uint16_t            unit );
-G3DVERTEXPOSEEXTENSION *g3dvertexposeextension_new ( uint16_t unit );
-
+                               uint32_t            name );
 
 /******************************************************************************/
 struct _G3DKEY {
@@ -1201,6 +1138,11 @@ struct _G3DKEY {
     G3DCURVEPOINT rotCurvePoint;
     G3DCURVEPOINT scaCurvePoint;
     void *data; /*** private datas ***/
+    union {
+        int64_t  s64;
+        uint64_t u64;
+        void    *ptr;
+    } data;
 };
 
 /******************************************************************************/
