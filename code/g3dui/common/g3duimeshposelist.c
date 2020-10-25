@@ -29,8 +29,10 @@
 #include <config.h>
 #include <g3dui.h>
 
+
+#ifdef unused
 /******************************************************************************/
-G3DMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
+G3DMORPHERMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
                                                     float  mouse_x,
                                                     float  mouse_y ) {
     G3DSCENE *sce = gui->sce;
@@ -40,14 +42,14 @@ G3DMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
 
         if ( ext ) {
             LIST *ltmpmps = ext->lmps;
             float y = 0;
 
             while ( ltmpmps ) {
-                G3DMESHPOSE *mps = ( G3DMESHPOSE * ) ltmpmps->data;
+                G3DMORPHERMESHPOSE *mps = ( G3DMORPHERMESHPOSE * ) ltmpmps->data;
                 float y1, y2;
 
                 y1 = y;
@@ -76,7 +78,7 @@ void common_g3duimeshposelist_deleteCurrentPoseCbk ( G3DUI *gui ) {
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
 
         if ( ext ) {
             if ( ext->curmps ) {
@@ -97,7 +99,7 @@ void common_g3duimeshposelist_createPoseCbk ( G3DUI *gui ) {
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
 
         if ( ext ) {
             char buf[0x20];
@@ -121,7 +123,7 @@ void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
 
         if ( ext ) {
             if ( ext->curmps ) {
@@ -142,11 +144,11 @@ void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui ) {
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
 
         if ( ext ) {
             if ( ext->curmps ) {
-                G3DMESHPOSE *curmps = ext->curmps;
+                G3DMORPHERMESHPOSE *curmps = ext->curmps;
 
                 g3dmeshposeextension_removePose ( ext, curmps );
 
@@ -166,7 +168,7 @@ void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps ) {
+void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMORPHERMESHPOSE *mps ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
@@ -174,13 +176,13 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps ) {
     if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESHPOSEEXTENSION *ext = ( G3DMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
-        G3DMESHPOSE *curmps = ext->curmps;
+        G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
+        G3DMORPHERMESHPOSE *curmps = ext->curmps;
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         /*** deselect previsouly selected meshpose ***/
         if ( ext->curmps ) {
-            G3DMESHPOSE *curmps = ext->curmps;
+            G3DMORPHERMESHPOSE *curmps = ext->curmps;
 
             g3dmeshposeextension_unselectPose ( ext, curmps );
 
@@ -203,3 +205,5 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps ) {
         g3dui_updateAllCurrentEdit ( gui );
     }
 }
+
+#endif

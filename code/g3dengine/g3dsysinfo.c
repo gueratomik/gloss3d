@@ -34,7 +34,7 @@
 
 /******************************************************************************/
 uint32_t g3dsysinfo_requestExtensionName ( ) {
-    G3DSYSINFO *g3dsysinfo_get ( );
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     return sysinfo->extensionName++;
 }

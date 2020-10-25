@@ -39,8 +39,8 @@ typedef struct _VERTEXPOSEEXTENSION {
 static VERTEXPOSEEXTENSION *vertexposeextension_new ( uint32_t extensionName,
                                                       uint32_t verID ) {
     uint32_t size = sizeof ( VERTEXPOSEEXTENSION );
-    G3DVERTEXPOSEEXTENSION *vpx = ( VERTEXPOSEEXTENSION * ) calloc ( 0x01, 
-                                                                     size );
+    VERTEXPOSEEXTENSION *vpx = ( VERTEXPOSEEXTENSION * ) calloc ( 0x01, 
+                                                                  size );
 
     if ( vpx == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__);
@@ -56,13 +56,20 @@ static VERTEXPOSEEXTENSION *vertexposeextension_new ( uint32_t extensionName,
 }
 
 /******************************************************************************/
+static void vertexposeextension_free ( VERTEXPOSEEXTENSION *vpx ) {
+    free ( vpx );
+}
+
+
+/******************************************************************************/
 static void g3dmorphermeshpose_realloc ( G3DMORPHERMESHPOSE *mpose,
                                          uint32_t            nbver ) {
     mpose->vpose = realloc ( mpose->vpose, sizeof ( G3DMORPHERVERTEXPOSE * ) );
 }
 
 /******************************************************************************/
-G3DMORPHERMESHPOSE *g3dmorpherpose_new ( uint32_t nbver ) {
+G3DMORPHERMESHPOSE *g3dmorphermeshpose_new ( uint32_t nbver, 
+                                             char    *name ) {
     void *memarea = calloc ( 0x01, sizeof ( G3DMORPHERMESHPOSE ) );
     G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) memarea;
 
@@ -72,26 +79,39 @@ G3DMORPHERMESHPOSE *g3dmorpherpose_new ( uint32_t nbver ) {
         return NULL;
     }
  
-    mpose->name  = strdup ("Pose");
+    mpose->name  = strdup ( name );
 
-    g3dmorpherpose_realloc ( mpose, nbver );
+    if ( nbver ) {
+        g3dmorphermeshpose_realloc ( mpose, nbver );
+    }
 
 
     return mpose;
 }
 
 /******************************************************************************/
+static void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose ) {
+    if ( mpose->vpose ) free ( mpose->vpose );
+
+    free ( mpose );
+}
+
+/******************************************************************************/
+static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
+                                      G3DVERTEX  *ver ) {
+    /*** Note: the vertex keeps its extension because the verID attached ***/
+    /*** to it must be kept, as the array of poses is never shrunk ***/
+    /*** This eases undo / redo ***/
+
+    list_remove ( &mpr->lver, ver );
+}
+
+/******************************************************************************/
 void g3dmorpher_addVertex ( G3DMORPHER *mpr,
                             G3DVERTEX  *ver ) {
-    VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
-                                                        mpr->extensionName );
     LIST *ltmpmpose = mpr->lmpose;
 
-    if ( vxt == NULL ) {
-        vxt = vertexposeextension_new ( mpr->extensionName, mpr->verID++ );
-
-        g3dvertex_addExtension ( ver, vxt );
-    }
+    list_insert ( &mpr->lver, ver );
 
     /*** note: each vertex has an allocated slot in all poses, even if ***/
     /*** unused. We then need to reallocate all poses ***/
@@ -105,19 +125,89 @@ void g3dmorpher_addVertex ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-void g3dmorpher_selectMeshPoseByRank ( G3DMORPHER *mpr,
-                                       uint32_t    rank ) {
+uint64_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < 64; i++ ) {
+        uint64_t slotBit = mpr->meshPoseSlots & ( 1 << i );
+
+        if ( slotBit == 0x00 ) {
+            return ( uint64_t ) 1 << i;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+void g3dmorpher_removeMeshPose ( G3DMORPHER         *mpr, 
+                                 G3DMORPHERMESHPOSE *mpose ) {
+    mpr->meshPoseSlots &= (~mpose->slotBit);
+
+    list_remove ( &mpr->lmpose, mpose );
+
+    mpose->slotBit = 0x00;
+}
+
+/******************************************************************************/
+void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr, 
+                              G3DMORPHERMESHPOSE *mpose,
+                              uint64_t            slotBit ) {
+    mpose->slotBit = slotBit;
+
+    list_insert ( &mpr->lmpose, mpose );
+
+    mpr->meshPoseSlots |= mpose->slotBit;
+}
+
+/******************************************************************************/
+uint64_t g3dmorpher_createMeshPose ( G3DMORPHER *mpr, 
+                                     char       *name ) {
+    uint64_t slotBit = g3dmorpher_getAvailableSlot ( mpr );
+
+    if ( slotBit ) {
+        G3DMORPHERMESHPOSE *mpose = g3dmorphermeshpose_new ( mpr->verID, name );
+
+        g3dmorpher_addMeshPose ( mpr, mpose, slotBit );
+
+        return  slotBit;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+G3DMORPHERMESHPOSE *g3dmorpher_getMeshPoseByRank ( G3DMORPHER *mpr,
+                                                   uint32_t    rank ) {
     LIST *ltmpmpose = mpr->lmpose;
 
     while ( ltmpmpose ) {
         G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) ltmpmpose->data;
 
-        if ( (id--) == 0x00 ) {
-            mpr->selmpose = mpose;
+        if ( (rank--) == 0x00 ) {
+            return mpose;
         }
 
         ltmpmpose = ltmpmpose->next;
     }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dmorpher_selectMeshPoseByRank ( G3DMORPHER *mpr,
+                                       uint32_t    rank ) {
+    G3DMORPHERMESHPOSE *mpose = g3dmorpher_getMeshPoseByRank ( mpr, rank );
+
+    if ( mpose ) {
+        mpr->selmpose = mpose;
+    }
+}
+
+/******************************************************************************/
+void g3dmorpher_selectMeshPose ( G3DMORPHER         *mpr,
+                                 G3DMORPHERMESHPOSE *mpose ) {
+    mpr->selmpose = mpose;
 }
 
 /******************************************************************************/
@@ -127,14 +217,47 @@ G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER *mpr,
         VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
                                                             mpr->extensionName );
 
-        return &mpr->selmpose->vpose[vxt->verID];
+        if ( vxt ) {
+            if ( mpr->selmpose->vpose[vxt->verID].enabled ) {
+                return &mpr->selmpose->vpose[vxt->verID];
+            }
+        }
     }
 
     return NULL;
 }
 
 /******************************************************************************/
-static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
+void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
+                                G3DVERTEX          *ver,
+                                G3DVECTOR          *vpos ) {
+    VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                        mpr->extensionName );
+
+    if ( vxt == NULL ) {
+        vxt = vertexposeextension_new ( mpr->extensionName, mpr->verID++ );
+
+        g3dvertex_addExtension ( ver, vxt );
+
+        g3dmorpher_addVertex ( mpr, ver );
+    }
+
+    if ( mpr->selmpose ) {
+        mpr->selmpose->vpose[vxt->verID].pos.x = vpos->x;
+        mpr->selmpose->vpose[vxt->verID].pos.y = vpos->y;
+        mpr->selmpose->vpose[vxt->verID].pos.z = vpos->z;
+
+        mpr->selmpose->vpose[vxt->verID].enabled = 0x01;
+    }
+}
+
+/******************************************************************************/
+G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr ) {
+    return mpr->selmpose;
+}
+
+/******************************************************************************/
+static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     LIST *ltmpver = mpr->lver;
     G3DKEY *prevKey = NULL,
@@ -147,8 +270,8 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        VERTEXPOSEEXTENSION vxt = g3dvertex_getExtension ( ver, 
-                                                           mpr->extensionName );\
+        VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                            mpr->extensionName );\
         LIST *ltmpmpose = mpr->lmpose;
         uint32_t nbCurrPose = 0x00;
         uint32_t nbPrevPose = 0x00;
@@ -169,7 +292,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
 
             /*** if framekey not NULL, we are on the frame ***/
             if ( currKey ) {
-                if ( currKey->data.u64 & mpose->slotID ) {
+                if ( currKey->data.u64 & mpose->slotBit ) {
                     if ( mpose->vpose[vxt->verID].enabled ) {
                         currpos.x += mpose->vpose[vxt->verID].pos.x;
                         currpos.y += mpose->vpose[vxt->verID].pos.y;
@@ -184,7 +307,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
                 }
              } else {
                 if ( prevKey && nextKey ) {
-                    if ( prevKey->data.u64 & mpose->slotID ) {
+                    if ( prevKey->data.u64 & mpose->slotBit ) {
                         if ( mpose->vpose[vxt->verID].enabled ) {
                             prevpos.x += mpose->vpose[vxt->verID].pos.x;
                             prevpos.y += mpose->vpose[vxt->verID].pos.y;
@@ -198,7 +321,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
                         }
                     }
 
-                    if ( nextKey->data.u64 & mpose->slotID ) {
+                    if ( nextKey->data.u64 & mpose->slotBit ) {
                         if ( mpose->vpose[vxt->verID].enabled ) {
                             nextpos.x += mpose->vpose[vxt->verID].pos.x;
                             nextpos.y += mpose->vpose[vxt->verID].pos.y;
@@ -234,7 +357,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float anim ) {
             if ( prevKey && nextKey ) {
                 float pRatio = (          frame - nextKey->frame ) / 
                                ( nextKey->frame - prevKey->frame ),
-                      nRatio = 1.0f - prevPart;
+                      nRatio = 1.0f - pRatio;
 
                 if ( nbPrevPose ) {
                     prevpos.x /= nbPrevPose;
@@ -327,36 +450,109 @@ static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
+static void g3dmorpher_free ( G3DMORPHER *mpr ) {
+    LIST *ltmpver = mpr->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX* ) ltmpver->data;
+        G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                           mpr->extensionName );
+
+        g3dvertex_removeExtension ( ver, vxt );
+
+        ltmpver = ltmpver->next;
+    }
+
+    list_free ( &mpr->lver  , vertexposeextension_free );
+    list_free ( &mpr->lmpose, g3dmorphermeshpose_free  );
+}
+
+/******************************************************************************/
+static void g3dmorpher_pickVertices ( G3DMORPHER *mpr,
+                                      uint64_t    engine_flags ) {
+    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+        LIST *ltmpver = mes->lver;
+
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            G3DMORPHERVERTEXPOSE *vpose = g3dmorpher_getVertexPose ( mpr,
+                                                                     ver );
+
+            g3dpick_setName ( ( uint64_t ) ver );
+
+            /*if ( ver->flags & VERTEXSKINNED ) {
+                g3dpick_drawPoint ( ver->skn.x, 
+                                    ver->skn.y, 
+                                    ver->skn.z );
+            } else {
+                g3dpick_drawPoint ( ver->pos.x, 
+                                    ver->pos.y, 
+                                    ver->pos.z );
+            }*/
+
+            if ( vpose ) {
+                g3dpick_drawPoint ( vpose->pos.x, 
+                                    vpose->pos.y, 
+                                    vpose->pos.z );
+            } else {
+                g3dpick_drawPoint ( ver->pos.x, 
+                                    ver->pos.y, 
+                                    ver->pos.z );
+            }
+
+
+            ltmpver = ltmpver->next;
+        }
+    }
+}
+
+/******************************************************************************/
+static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr, 
+                                  G3DCAMERA  *curcam, 
+                                  uint64_t    engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        if ( engine_flags & VIEWVERTEX   ) {
+            g3dmorpher_pickVertices ( mpr, engine_flags );
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr, 
                                   G3DCAMERA  *cam,
                                   uint64_t    engine_flags ) {
-    G3ODBJECT *obj = ( G3DOBJECT * ) mpr;
+    G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
 
     if ( obj->parent ) {
-        if ( obj->parent->type & G3DMESH ) {
-            if ( obj->flags & SELECTED ) {
+        if ( obj->parent->type == G3DMESHTYPE ) {
+            if ( obj->flags & OBJECTSELECTED ) {
                 G3DMESH *mes = ( obj->parent );
                 LIST *ltmpfac = mes->lfac;
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                    uint32_t i;
 
-                    if ( fac->nberv == 0x03 ) {
+                    if ( fac->nbver == 0x03 ) {
                         glBegin ( GL_TRIANGLES );
                     } else {
                         glBegin ( GL_QUADS );
                     }
 
                     for ( i = 0x00; i < fac->nbver; i++ ) {
-                        VERTEXPOSEEXTENSION *vxt;
+                        G3DMORPHERVERTEXPOSE *vpose;
 
                         /*** small optimization to avoid func call ***/
-                        vxt = ( ver->lext ) ? g3dvertex_getExtension ( fac->ver[i], 
-                                                                       mpr->extensionName ) : NULL;
+                        vpose = ( fac->ver[i]->lext ) ? g3dmorpher_getVertexPose ( mpr, fac->ver[i] ) : NULL;
 
-                        if ( vxt )  {
-                            glNormal3fv ( &vxt->nor );
-                            glVertex3fv ( &vxt->pos );
+                        if ( vpose && vpose->enabled )  {
+                            glNormal3fv ( &vpose->nor );
+                            glVertex3fv ( &vpose->pos );
                         } else {
                             glNormal3fv ( &fac->ver[i]->nor );
                             glVertex3fv ( &fac->ver[i]->pos );
@@ -369,34 +565,36 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                 }
 
                 if ( engine_flags & VIEWVERTEX   ) {
-                    LIST *ltmpver = mes->lver;
+                    if ( mpr->selmpose ) {
+                        LIST *ltmpver = mes->lver;
 
-                    glPushAttrib( GL_ALL_ATTRIB_BITS );
+                        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
-                    glDisable   ( GL_LIGHTING );
-                    glColor3ub  ( 0x00, 0xFF, 0x00 );
-                    glPointSize ( 4.0f );
+                        glDisable   ( GL_LIGHTING );
+                        glPointSize ( 4.0f );
 
-                    glBegin ( GL_POINTS );
-                    while ( ltmpver ) {
-                        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                        VERTEXPOSEEXTENSION *vxt;
+                        glBegin ( GL_POINTS );
+                        while ( ltmpver ) {
+                            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                            G3DMORPHERVERTEXPOSE *vpose;
 
-                        /*** small optimization to avoid func call ***/
-                        vxt = ( ver->lext ) ? g3dvertex_getExtension ( ver, 
-                                                                       mpr->extensionName ) : NULL;
+                            /*** small optimization to avoid func call ***/
+                            vpose = ( ver->lext ) ? g3dmorpher_getVertexPose ( mpr, ver ) : NULL;
 
-                        if ( vxt ) {
-                            glVertex3fv ( ( GLfloat * ) &vxt->pos );
-                        } else {
-                            glVertex3fv ( ( GLfloat * ) &ver->pos );
+                            if ( vpose && vpose->enabled ) {
+                                glColor3ub  ( 0x00, 0xFF, 0x00 );
+                                glVertex3fv ( ( GLfloat * ) &vpose->pos );
+                            } else {
+                                glColor3ub  ( 0x00, 0x00, 0xFF );
+                                glVertex3fv ( ( GLfloat * ) &ver->pos );
+                            }
+
+                            ltmpver = ltmpver->next;
                         }
+                        glEnd ( );
 
-                        ltmpver = ltmpver->next;
+                        glPopAttrib ( );
                     }
-                    glEnd ( );
-
-                    glPopAttrib ( );
                 }
 
                 return MODIFIERTAKESOVER;
@@ -414,21 +612,28 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
                               uint64_t engine_flags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) mpr;
 
-    g3dmodifier_init ( mod, G3DMORPHERTYPE, id, name, DRAWBEFORECHILDREN,
-                                           DRAW_CALLBACK(g3dmorpher_draw),
-                                                         NULL,
-                                                         NULL,
-                                                         NULL,
-                                           COPY_CALLBACK(NULL),
-                                       ACTIVATE_CALLBACK(g3dmorpher_activate),
-                                     DEACTIVATE_CALLBACK(g3dmorpher_deactivate),
-                                         COMMIT_CALLBACK(NULL),
-                                                         NULL,
-                                      SETPARENT_CALLBACK(g3dmorpher_setParent),
-                                         MODIFY_CALLBACK(g3dmorpher_modify),
-                                    STARTUPDATE_CALLBACK(g3dmorpher_startUpdate),
-                                         UPDATE_CALLBACK(g3dmorpher_update),
-                                      ENDUPDATE_CALLBACK(g3dmorpher_endUpdate) );
+    g3dmodifier_init ( mod, 
+                       G3DMORPHERTYPE, 
+                       id, 
+                       name, 
+                       DRAWBEFORECHILDREN  | 
+                       OBJECTNOTRANSLATION | 
+                       OBJECTNOROTATION    |
+                       OBJECTNOSCALING,
+         DRAW_CALLBACK(g3dmorpher_draw),
+         FREE_CALLBACK(g3dmorpher_free),
+         PICK_CALLBACK(g3dmorpher_pick),
+                       NULL,
+         COPY_CALLBACK(NULL),
+     ACTIVATE_CALLBACK(g3dmorpher_activate),
+   DEACTIVATE_CALLBACK(g3dmorpher_deactivate),
+       COMMIT_CALLBACK(NULL),
+                       NULL,
+    SETPARENT_CALLBACK(g3dmorpher_setParent),
+       MODIFY_CALLBACK(g3dmorpher_modify),
+  STARTUPDATE_CALLBACK(g3dmorpher_startUpdate),
+       UPDATE_CALLBACK(g3dmorpher_update),
+    ENDUPDATE_CALLBACK(g3dmorpher_endUpdate) );
 
     ((G3DOBJECT*)mpr)->anim = ANIM_CALLBACK(g3dmorpher_anim);
 
@@ -445,7 +650,7 @@ G3DMORPHER *g3dmorpher_new ( uint32_t id,
     G3DMORPHER *mpr = ( G3DMORPHER * ) calloc ( 0x01, structSize );
 
     if ( mpr == NULL ) {
-        fprintf ( stderr, "g3dmorpher_new: calloc failed\n" );
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
 
         return NULL;
     }

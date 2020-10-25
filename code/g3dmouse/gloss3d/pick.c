@@ -419,6 +419,36 @@ static uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
 }
 
 /******************************************************************************/
+typedef struct _MORPHERPICKDATA {
+    G3DMORPHER *mpr;
+    uint32_t   flags;
+} MORPHERPICKDATA;
+
+/******************************************************************************/
+static uint32_t actionSelectVertexForPose ( uint64_t         name, 
+                                            MORPHERPICKDATA *mpd ) {
+    if ( ((G3DOBJECT*)mpd->mpr)->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpd->mpr)->parent;
+        G3DVERTEX *ver = ( G3DVERTEX * ) name;
+
+        if ( ( ver->flags & VERTEXSELECTED ) == 0x00 ) {
+            g3dmesh_selectVertex ( mes, ver );
+        } else {
+            if ( mpd->flags & CTRLCLICK ) {
+                g3dmesh_unselectVertex ( mes, ver );
+            }
+        }
+
+        if ( g3dmorpher_getVertexPose ( mpd->mpr, ver ) == NULL ) {
+            g3dmorpher_addVertexPose ( mpd->mpr, ver, &ver->pos );
+        }
+    }
+
+    return 0x01;
+}
+
+
+/******************************************************************************/
 /*** We basically draw the scene in 2D with pointer values as pixels ***/
 void pick_Item ( G3DMOUSETOOLPICK *pt, 
                  G3DSCENE         *sce, 
@@ -539,23 +569,23 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWFACE ) {
-        	            g3dpick_setAction ( actionSelectFace, &mpd );
-        	            g3dobject_pick ( sce, cam, VIEWFACE );
+        	        g3dpick_setAction ( actionSelectFace, &mpd );
+        	        g3dobject_pick ( sce, cam, VIEWFACE );
 		        }
 
 		        if ( engine_flags & VIEWEDGE ) {
-        	            g3dpick_setAction ( actionSelectEdge, &mpd );
-        	            g3dobject_pick ( sce, cam, VIEWEDGE );
+        	        g3dpick_setAction ( actionSelectEdge, &mpd );
+        	        g3dobject_pick ( sce, cam, VIEWEDGE );
 		        }
 
 		        if ( engine_flags & VIEWVERTEX ) {
-        	            g3dpick_setAction ( actionSelectVertex, &mpd );
-        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( actionSelectVertex, &mpd );
+        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
 		        }
 
 		        if ( engine_flags & VIEWSKIN ) {
-        	            g3dpick_setAction ( actionPaintVertex, &mpd );
-        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( actionPaintVertex, &mpd );
+        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
 		        }
 	        }
 
@@ -571,9 +601,30 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWVERTEX ) {
-        	            g3dpick_setAction ( actionSelectPoint, &spd );
-        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( actionSelectPoint, &spd );
+        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
 		        }
+	        }
+
+	        if ( obj->type & MORPHER ) {
+        	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+                if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+                    G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+        	        MORPHERPICKDATA mpd = { .mpr   =  mpr,
+                        	                .flags = 0x00 };
+
+                    if ( ctrlClick ) {
+                        mpd.flags |= CTRLCLICK;
+                    } else {
+                        g3dmesh_unselectAllVertices ( mes );
+                    }
+
+		            if ( engine_flags & VIEWVERTEX ) {
+        	            g3dpick_setAction ( actionSelectVertexForPose, &mpd );
+        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+		            }
+                }
 	        }
 	    }
     }
@@ -895,6 +946,18 @@ int pick_tool ( G3DMOUSETOOL *mou,
         	    }
 
         	    if ( obj ) {
+                    if ( obj->type & MORPHER ) {
+                	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+        		        if ( engine_flags & VIEWVERTEX ) {
+                	        /*lselold = list_copy ( spl->curve->lselpt );*/
+
+                	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+
+                	        /*lselnew = list_copy ( spl->curve->lselpt );*/
+                	    }
+                    }
+
                     if ( obj->type & SPLINE ) {
                 	    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 

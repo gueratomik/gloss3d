@@ -136,7 +136,7 @@ G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *ver,
                                              uint32_t   name ) {
     LIST *ltmpext = ver->lext;
 
-    while ( lext ) {
+    while ( ltmpext ) {
         G3DVERTEXEXTENSION *ext = ( G3DVERTEXEXTENSION * ) ltmpext->data;
 
         if ( ext->name == name ) {

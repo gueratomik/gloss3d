@@ -514,13 +514,6 @@ GtkWidget *createRadioLabel     ( GtkWidget *, G3DUI *,
                                                 void (*)( GtkWidget *, 
                                                           gpointer ) );
 
-GtkWidget *createMeshPoseList ( GtkWidget *parent, G3DUI *gui,
-                                                   char *name,
-                                                   gint x,
-                                                   gint y,
-                                                   gint width,
-                                                   gint height );
-
 GtkWidget *createIntegerText     ( GtkWidget *, G3DUI *,
                                                 char *,
                                                 gint, gint,
@@ -841,5 +834,15 @@ GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent,
                                     gint              height );
 
 void l3dui_updateMouseToolEdit ( L3DUI *lui );
+
+GtkWidget *createMorpherEdit ( GtkWidget *parent,
+                               G3DUI     *gui,
+                               char      *name,
+                               gint       x,
+                               gint       y,
+                               gint       width,
+                               gint       height );
+void updateMorpherEdit ( GtkWidget *widget, 
+                         G3DUI     *gui );
 
 #endif

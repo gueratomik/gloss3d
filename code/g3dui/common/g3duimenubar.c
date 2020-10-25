@@ -324,6 +324,33 @@ void common_g3dui_addBoneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3dui_addMorpherCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DURMANAGER *urm = gui->urm;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    uint32_t pid = g3dscene_getNextObjectID ( sce );
+    G3DMORPHER *mpr = g3dmorpher_new ( pid, "Morpher", gui->engine_flags );
+
+    if ( obj ) {
+        if ( obj->type == G3DMESHTYPE ) {
+            G3DMESH  *mes = ( G3DMESH * ) obj;
+
+            g3durm_object_addChild ( urm, sce, gui->engine_flags, 
+                                               ( REDRAWVIEW |
+                                                 REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                               ( G3DOBJECT * ) NULL,
+                                               ( G3DOBJECT * ) obj,
+                                               ( G3DOBJECT * ) mpr );
+        }
+    }
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+}
+
+/******************************************************************************/
 void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;

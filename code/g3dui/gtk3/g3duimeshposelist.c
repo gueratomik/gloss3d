@@ -52,6 +52,8 @@
 #include <xpm/enaico.xpm>
 #include <xpm/disico.xpm>
 
+#ifdef unused
+
 /******************************************************************************/
 static uint32_t drawMeshPoses ( GtkStyleContext *context, 
                                 cairo_t         *cr,
@@ -251,3 +253,5 @@ GtkWidget *createMeshPoseList ( GtkWidget *parent, G3DUI *gui,
 
     return scr;
 }
+
+#endif

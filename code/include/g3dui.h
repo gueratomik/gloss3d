@@ -482,6 +482,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITSCULPTTOOLPRESSURE "Pressure"
 #define EDITSCULPTTOOLRADIUS   "Radius"
 
+#define EDITMORPHER            "Morpher"
+
 
 #define MODE_VIEWOBJECT "Object mode"
 #define MODE_VIEWVERTEX "Vertex mode"
@@ -545,6 +547,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDSPLINEREVOLVER    "Add Spline Revolver"
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
 #define MENU_ADDFFDBOX            "Add FFD Box"
+#define MENU_ADDMORPHER           "Add Morpher"
 #define MENU_ASSIGNFFD            "Assign FFD"
 #define MENU_RESETFFD             "Reset FFD"
 #define MENU_FIXBONE              "Fix Bone"
@@ -1154,6 +1157,7 @@ void      common_g3dui_addSymmetryCbk         ( G3DUI * );
 void      common_g3dui_resetBoneTreeCbk       ( G3DUI * );
 void      common_g3dui_resetBoneCbk           ( G3DUI * );
 void      common_g3dui_fixBoneTreeCbk         ( G3DUI * );
+void      common_g3dui_addMorpherCbk          ( G3DUI * );
 void      common_g3dui_fixBoneCbk             ( G3DUI * );
 void      common_g3dui_mirrorWeightGroupCbk   ( G3DUI *, const char * );
 void      common_g3dui_setMaterialCbk         ( G3DUI * );
@@ -1590,7 +1594,7 @@ uint32_t common_g3duiview_blockSize ( G3DUIVIEW *view );
 void common_g3duiview_writeBlock ( G3DUIVIEW *view, FILE *fdst );
 
 /******************************************************************************/
-G3DMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
+G3DMORPHERMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
                                                     float  mouse_x,
                                                     float  mouse_y );
 void common_g3duimeshposelist_deleteCurrentPoseCbk ( G3DUI *gui );
@@ -1598,7 +1602,7 @@ void common_g3duimeshposelist_createPoseCbk ( G3DUI *gui );
 void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
                                                      char  *mpsname );
 void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui );
-void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMESHPOSE *mps );
+void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMORPHERMESHPOSE *mps );
 
 void common_l3dui_redoCbk ( L3DUI *lui );
 void common_l3dui_undoCbk ( L3DUI *lui );

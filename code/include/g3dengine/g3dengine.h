@@ -165,33 +165,34 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define GETCHANNEL(f)    ((f&UVCHANNELMASK)>>30)
 
 /******************************* Object Types *********************************/
-#define OBJECT         (  1       )
-#define PRIMITIVE      (  1 << 1  )
-#define SPHERE         (  1 << 2  )
-#define TORUS          (  1 << 3  )
-#define MESH           (  1 << 4  )
-#define CAMERA         (  1 << 5  )
-#define SCENE          (  1 << 6  )
-#define BONE           (  1 << 7  )
-#define LIGHT          (  1 << 8  )
-#define SPOT           (  1 << 9  )
-#define CUBE           (  1 << 10 )
-#define SYMMETRY       (  1 << 11 )
-#define CYLINDER       (  1 << 12 )
-#define MODIFIER       (  1 << 13 )
-#define FFD            (  1 << 14 )
-#define PLANE          (  1 << 15 )
-#define CONE           (  1 << 16 )
-#define UVMAP          (  1 << 17 )
-#define PIVOT          (  1 << 18 )
-#define SUBDIVIDER     (  1 << 19 )
-#define WIREFRAME      (  1 << 20 )
-#define MULTIPLIER     (  1 << 21 )
-#define EDITABLE       (  1 << 22 )
-#define SPLINE         (  1 << 23 )
-#define SPLINEREVOLVER (  1 << 24 )
-#define TEXT           (  1 << 25 )
-#define TUBE           (  1 << 26 )
+#define OBJECT         ( ( uint64_t )  1       )
+#define PRIMITIVE      ( ( uint64_t )  1 << 1  )
+#define SPHERE         ( ( uint64_t )  1 << 2  )
+#define TORUS          ( ( uint64_t )  1 << 3  )
+#define MESH           ( ( uint64_t )  1 << 4  )
+#define CAMERA         ( ( uint64_t )  1 << 5  )
+#define SCENE          ( ( uint64_t )  1 << 6  )
+#define BONE           ( ( uint64_t )  1 << 7  )
+#define LIGHT          ( ( uint64_t )  1 << 8  )
+#define SPOT           ( ( uint64_t )  1 << 9  )
+#define CUBE           ( ( uint64_t )  1 << 10 )
+#define SYMMETRY       ( ( uint64_t )  1 << 11 )
+#define CYLINDER       ( ( uint64_t )  1 << 12 )
+#define MODIFIER       ( ( uint64_t )  1 << 13 )
+#define FFD            ( ( uint64_t )  1 << 14 )
+#define PLANE          ( ( uint64_t )  1 << 15 )
+#define CONE           ( ( uint64_t )  1 << 16 )
+#define UVMAP          ( ( uint64_t )  1 << 17 )
+#define PIVOT          ( ( uint64_t )  1 << 18 )
+#define SUBDIVIDER     ( ( uint64_t )  1 << 19 )
+#define WIREFRAME      ( ( uint64_t )  1 << 20 )
+#define MULTIPLIER     ( ( uint64_t )  1 << 21 )
+#define EDITABLE       ( ( uint64_t )  1 << 22 )
+#define SPLINE         ( ( uint64_t )  1 << 23 )
+#define SPLINEREVOLVER ( ( uint64_t )  1 << 24 )
+#define TEXT           ( ( uint64_t )  1 << 25 )
+#define TUBE           ( ( uint64_t )  1 << 26 )
+#define MORPHER        ( ( uint64_t )  1 << 27 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
@@ -217,6 +218,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
 #define G3DSPLINETYPE         ( OBJECT | SPLINE )
 #define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
+#define G3DMORPHERTYPE        ( OBJECT | MESH | MODIFIER | MORPHER )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -1119,9 +1121,12 @@ struct _G3DMESH {
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
-#include <g3dengine/g3dmorpher.h>
 
 /******************************************************************************/
+typedef struct _G3DVERTEXEXTENSION {
+    uint32_t name;
+} G3DVERTEXEXTENSION;
+
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
                                uint32_t            name );
 
@@ -1137,7 +1142,6 @@ struct _G3DKEY {
     G3DCURVEPOINT posCurvePoint;
     G3DCURVEPOINT rotCurvePoint;
     G3DCURVEPOINT scaCurvePoint;
-    void *data; /*** private datas ***/
     union {
         int64_t  s64;
         uint64_t u64;
@@ -1188,6 +1192,7 @@ typedef struct _G3DWIREFRAME {
 } G3DWIREFRAME;
 
 #include <g3dengine/g3dsplinerevolver.h>
+#include <g3dengine/g3dmorpher.h>
 
 /******************************************************************************/
 typedef struct _G3DSUBDIVIDER {
@@ -2046,13 +2051,6 @@ void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     G3DKEY   **prevKey,
                                     G3DKEY   **nextKey,
                                     uint32_t   key_flags );
-void g3dobject_addExtension ( G3DOBJECT          *obj, 
-                              G3DOBJECTEXTENSION *ext );
-void g3dobject_removeExtension ( G3DOBJECT          *obj, 
-                                 G3DOBJECTEXTENSION *ext );
-G3DOBJECTEXTENSION *g3dobject_getExtensionByID ( G3DOBJECT *obj, 
-                                                 uint32_t   name,
-                                                 uint32_t   unit );
 void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis );
 
 /******************************************************************************/

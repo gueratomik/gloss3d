@@ -35,7 +35,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
-                      g3dmeshpose.c \
+                      g3dmorpher.c \
                       g3dmodifier.c \
                       g3dobject.c \
                       g3dpick.c \

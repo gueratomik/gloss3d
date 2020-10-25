@@ -137,7 +137,7 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dcutface.lo g3dcylinder.lo g3dedge.lo g3dextension.lo \
 	g3dface.lo g3dfacegroup.lo g3dffd.lo g3dheightmap.lo \
 	g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo g3dmaterial.lo \
-	g3dmesh.lo g3dmeshpose.lo g3dmodifier.lo g3dobject.lo \
+	g3dmesh.lo g3dmorpher.lo g3dmodifier.lo g3dobject.lo \
 	g3dpick.lo g3dpivot.lo g3dplane.lo g3dprimitive.lo \
 	g3dprocedural.lo g3dproceduralbrick.lo \
 	g3dproceduralchessboard.lo g3dproceduralnoise.lo \
@@ -182,7 +182,7 @@ am__depfiles_remade = ./$(DEPDIR)/g2dvector.Plo \
 	./$(DEPDIR)/g3dimage.Plo ./$(DEPDIR)/g3dkey.Plo \
 	./$(DEPDIR)/g3dlight.Plo ./$(DEPDIR)/g3dlookup.Plo \
 	./$(DEPDIR)/g3dmaterial.Plo ./$(DEPDIR)/g3dmesh.Plo \
-	./$(DEPDIR)/g3dmeshpose.Plo ./$(DEPDIR)/g3dmodifier.Plo \
+	./$(DEPDIR)/g3dmodifier.Plo ./$(DEPDIR)/g3dmorpher.Plo \
 	./$(DEPDIR)/g3dobject.Plo ./$(DEPDIR)/g3dpick.Plo \
 	./$(DEPDIR)/g3dpivot.Plo ./$(DEPDIR)/g3dplane.Plo \
 	./$(DEPDIR)/g3dprimitive.Plo ./$(DEPDIR)/g3dprocedural.Plo \
@@ -403,7 +403,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dlookup.c \
                       g3dmaterial.c \
                       g3dmesh.c \
-                      g3dmeshpose.c \
+                      g3dmorpher.c \
                       g3dmodifier.c \
                       g3dobject.c \
                       g3dpick.c \
@@ -543,8 +543,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dlookup.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmaterial.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmesh.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmeshpose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmodifier.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dmorpher.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dobject.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dpick.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dpivot.Plo@am__quote@ # am--include-marker
@@ -769,8 +769,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/g3dlookup.Plo
 	-rm -f ./$(DEPDIR)/g3dmaterial.Plo
 	-rm -f ./$(DEPDIR)/g3dmesh.Plo
-	-rm -f ./$(DEPDIR)/g3dmeshpose.Plo
 	-rm -f ./$(DEPDIR)/g3dmodifier.Plo
+	-rm -f ./$(DEPDIR)/g3dmorpher.Plo
 	-rm -f ./$(DEPDIR)/g3dobject.Plo
 	-rm -f ./$(DEPDIR)/g3dpick.Plo
 	-rm -f ./$(DEPDIR)/g3dpivot.Plo
@@ -875,8 +875,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/g3dlookup.Plo
 	-rm -f ./$(DEPDIR)/g3dmaterial.Plo
 	-rm -f ./$(DEPDIR)/g3dmesh.Plo
-	-rm -f ./$(DEPDIR)/g3dmeshpose.Plo
 	-rm -f ./$(DEPDIR)/g3dmodifier.Plo
+	-rm -f ./$(DEPDIR)/g3dmorpher.Plo
 	-rm -f ./$(DEPDIR)/g3dobject.Plo
 	-rm -f ./$(DEPDIR)/g3dpick.Plo
 	-rm -f ./$(DEPDIR)/g3dpivot.Plo

@@ -171,10 +171,11 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duilightedit.c gtk3/g3duilist.c gtk3/g3duimainboard.c \
 	gtk3/g3duimaterialboard.c gtk3/g3duimaterialedit.c \
 	gtk3/g3duimateriallist.c gtk3/g3duimenubar.c \
-	gtk3/g3duimeshedit.c gtk3/g3duimeshposelist.c \
-	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
-	gtk3/g3duiobjectedit.c gtk3/g3duipatternlist.c \
-	gtk3/g3duiplaneedit.c gtk3/g3duiproceduralbrickedit.c \
+	gtk3/g3duimeshedit.c gtk3/g3duimorpheredit.c \
+	gtk3/g3duimeshposelist.c gtk3/g3duimodebar.c \
+	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
+	gtk3/g3duipatternlist.c gtk3/g3duiplaneedit.c \
+	gtk3/g3duiproceduralbrickedit.c \
 	gtk3/g3duiproceduralchessedit.c gtk3/g3duiquad.c \
 	gtk3/g3duirenderedit.c gtk3/g3duirenderprocess.c \
 	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
@@ -251,7 +252,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimateriallist.lo gtk3/g3duimenubar.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimeshedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duimeshedit.lo gtk3/g3duimorpheredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimeshposelist.lo gtk3/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo \
@@ -377,6 +378,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duimeshedit.Plo \
 	gtk3/$(DEPDIR)/g3duimeshposelist.Plo \
 	gtk3/$(DEPDIR)/g3duimodebar.Plo \
+	gtk3/$(DEPDIR)/g3duimorpheredit.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectboard.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectedit.Plo \
 	gtk3/$(DEPDIR)/g3duipatternlist.Plo \
@@ -662,6 +664,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimateriallist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimeshedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duimorpheredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectboard.c \
@@ -939,6 +942,8 @@ gtk3/g3duimenubar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimeshedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duimorpheredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimeshposelist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimodebar.lo: gtk3/$(am__dirstamp) \
@@ -1115,6 +1120,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimeshedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimodebar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimorpheredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectboard.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duipatternlist.Plo@am__quote@ # am--include-marker
@@ -1404,6 +1410,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimodebar.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duipatternlist.Plo
@@ -1561,6 +1568,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimodebar.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duipatternlist.Plo
