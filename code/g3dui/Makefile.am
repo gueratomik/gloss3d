@@ -83,6 +83,7 @@ if HAVE_GTK3
                             gtk3/g3duimenubar.c \
                             gtk3/g3duimeshedit.c \
                             gtk3/g3duimorpheredit.c \
+                            gtk3/g3duikeymorpheredit.c \
                             gtk3/g3duimeshposelist.c \
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \

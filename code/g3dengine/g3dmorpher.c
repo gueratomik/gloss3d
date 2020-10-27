@@ -64,7 +64,16 @@ static void vertexposeextension_free ( VERTEXPOSEEXTENSION *vpx ) {
 /******************************************************************************/
 static void g3dmorphermeshpose_realloc ( G3DMORPHERMESHPOSE *mpose,
                                          uint32_t            nbver ) {
-    mpose->vpose = realloc ( mpose->vpose, sizeof ( G3DMORPHERVERTEXPOSE * ) );
+    uint32_t nbnewver = nbver - mpose->nbver;
+
+    mpose->vpose = realloc ( mpose->vpose, 
+                             sizeof ( G3DMORPHERVERTEXPOSE ) * nbver );
+
+    memset ( mpose->vpose + mpose->nbver, 
+             0x00, 
+             sizeof ( G3DMORPHERVERTEXPOSE ) * nbnewver );
+
+    mpose->nbver = nbver;
 }
 
 /******************************************************************************/
@@ -356,7 +365,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
         } else {
             if ( prevKey && nextKey ) {
                 float pRatio = (          frame - nextKey->frame ) / 
-                               ( nextKey->frame - prevKey->frame ),
+                               ( prevKey->frame - nextKey->frame ),
                       nRatio = 1.0f - pRatio;
 
                 if ( nbPrevPose ) {
@@ -379,15 +388,19 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
                     nextnor.z /= nbNextPose;
                 }
 
-                ver->pos.x = ( prevpos.x * pRatio ) + ( nextpos.x * nRatio );
-                ver->pos.y = ( prevpos.y * pRatio ) + ( nextpos.y * nRatio );
-                ver->pos.z = ( prevpos.z * pRatio ) + ( nextpos.z * nRatio );
+                if ( nbPrevPose && nbNextPose ) {
+                    ver->pos.x = ( prevpos.x * pRatio ) + ( nextpos.x * nRatio );
+                    ver->pos.y = ( prevpos.y * pRatio ) + ( nextpos.y * nRatio );
+                    ver->pos.z = ( prevpos.z * pRatio ) + ( nextpos.z * nRatio );
 
-                ver->nor.x = ( prevnor.x * pRatio ) + ( nextnor.x * nRatio );
-                ver->nor.y = ( prevnor.y * pRatio ) + ( nextnor.y * nRatio );
-                ver->nor.z = ( prevnor.z * pRatio ) + ( nextnor.z * nRatio );
+                    ver->nor.x = ( prevnor.x * pRatio ) + ( nextnor.x * nRatio );
+                    ver->nor.y = ( prevnor.y * pRatio ) + ( nextnor.y * nRatio );
+                    ver->nor.z = ( prevnor.z * pRatio ) + ( nextnor.z * nRatio );
+                }
             }
         }
+
+        ltmpver = ltmpver->next;
     }
 }
 
@@ -460,10 +473,12 @@ static void g3dmorpher_free ( G3DMORPHER *mpr ) {
 
         g3dvertex_removeExtension ( ver, vxt );
 
+        vertexposeextension_free ( vxt );
+
         ltmpver = ltmpver->next;
     }
 
-    list_free ( &mpr->lver  , vertexposeextension_free );
+    list_free ( &mpr->lver  , NULL );
     list_free ( &mpr->lmpose, g3dmorphermeshpose_free  );
 }
 
@@ -520,6 +535,12 @@ static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr,
     }
 
     return 0x00;
+}
+
+/******************************************************************************/
+static void g3dmorpher_pose ( G3DMORPHER *mpr, 
+                              G3DKEY     *key ) {
+
 }
 
 /******************************************************************************/
@@ -623,7 +644,7 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
          DRAW_CALLBACK(g3dmorpher_draw),
          FREE_CALLBACK(g3dmorpher_free),
          PICK_CALLBACK(g3dmorpher_pick),
-                       NULL,
+         POSE_CALLBACK(g3dmorpher_pose),
          COPY_CALLBACK(NULL),
      ACTIVATE_CALLBACK(g3dmorpher_activate),
    DEACTIVATE_CALLBACK(g3dmorpher_deactivate),

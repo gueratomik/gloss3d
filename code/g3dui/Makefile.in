@@ -172,10 +172,10 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duimaterialboard.c gtk3/g3duimaterialedit.c \
 	gtk3/g3duimateriallist.c gtk3/g3duimenubar.c \
 	gtk3/g3duimeshedit.c gtk3/g3duimorpheredit.c \
-	gtk3/g3duimeshposelist.c gtk3/g3duimodebar.c \
-	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
-	gtk3/g3duipatternlist.c gtk3/g3duiplaneedit.c \
-	gtk3/g3duiproceduralbrickedit.c \
+	gtk3/g3duikeymorpheredit.c gtk3/g3duimeshposelist.c \
+	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
+	gtk3/g3duiobjectedit.c gtk3/g3duipatternlist.c \
+	gtk3/g3duiplaneedit.c gtk3/g3duiproceduralbrickedit.c \
 	gtk3/g3duiproceduralchessedit.c gtk3/g3duiquad.c \
 	gtk3/g3duirenderedit.c gtk3/g3duirenderprocess.c \
 	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
@@ -253,6 +253,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimateriallist.lo gtk3/g3duimenubar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimeshedit.lo gtk3/g3duimorpheredit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duikeymorpheredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimeshposelist.lo gtk3/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo \
@@ -369,6 +370,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiffdedit.Plo \
 	gtk3/$(DEPDIR)/g3duifgbgbutton.Plo \
 	gtk3/$(DEPDIR)/g3duikeyedit.Plo \
+	gtk3/$(DEPDIR)/g3duikeymorpheredit.Plo \
 	gtk3/$(DEPDIR)/g3duilightedit.Plo gtk3/$(DEPDIR)/g3duilist.Plo \
 	gtk3/$(DEPDIR)/g3duimainboard.Plo \
 	gtk3/$(DEPDIR)/g3duimaterialboard.Plo \
@@ -665,6 +667,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimeshedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimorpheredit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duikeymorpheredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectboard.c \
@@ -944,6 +947,8 @@ gtk3/g3duimeshedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimorpheredit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duikeymorpheredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimeshposelist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimodebar.lo: gtk3/$(am__dirstamp) \
@@ -1110,6 +1115,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiffdedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duifgbgbutton.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duikeyedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duikeymorpheredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duilightedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duilist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimainboard.Plo@am__quote@ # am--include-marker
@@ -1400,6 +1406,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiffdedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duifgbgbutton.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duikeyedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duikeymorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duilightedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duilist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimainboard.Plo
@@ -1558,6 +1565,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiffdedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duifgbgbutton.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duikeyedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duikeymorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duilightedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duilist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimainboard.Plo

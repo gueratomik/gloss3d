@@ -460,6 +460,14 @@ GtkWidget* createProceduralBrickEdit ( GtkWidget           *parent,
                                        uint32_t            bindGL );
 
 
+GtkWidget* createKeyMorpherEdit ( GtkWidget *parent,
+                                  G3DKEY    *key,
+                                  G3DUI     *gui,
+                                  gint       x,
+                                  gint       y,
+                                  gint       width,
+                                  gint       height );
+
 /******************************************************************************/
 GtkWidget *createHorizontalScale ( GtkWidget *, G3DUI *,
                                                 char *,
@@ -540,6 +548,7 @@ GtkWidget *createCharText ( GtkWidget *parent,
                             void (*cbk)( GtkWidget *,
                                          GdkEvent  *, 
                                          gpointer ) );
+
 
 void createTextField ( GtkWidget *parent, 
                        G3DUI     *gui,

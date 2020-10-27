@@ -29,6 +29,31 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITKEYDATA "Key Data"
+
+/******************************************************************************/
+static void editKeyDataCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( obj->lselkey ) {
+                G3DKEY *key = obj->lselkey->data;
+
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+                createKeyMorpherEdit ( dial, key, gui, 0, 0, 416, 192 );
+
+                gtk_widget_show ( dial );
+            }
+        }
+    }
+}
+
 /******************************************************************************/
 static void usePosCbk ( GtkWidget *widget, gpointer user_data ) {
     gboolean rpos = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
@@ -261,6 +286,8 @@ GtkWidget* createKeyEdit ( GtkWidget *parent, G3DUI *gui,
                                                     160, 104,
                                                       0,
                                                      32, loopFrameCbk );
+
+    createPushButton  ( frm, gui, EDITKEYDATA, 0, 128, 32, 18, editKeyDataCbk );
 
     gui->lock = 0x00;
 
