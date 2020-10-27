@@ -143,7 +143,7 @@ am__objects_1 = v1/g3dexport.lo v2/g3dexportextension.lo \
 	v2/g3dexportsymmetry.lo v2/g3dexportsubdivider.lo \
 	v2/g3dexportspline.lo v2/g3dexportsplinerevolver.lo \
 	v2/g3dexporttext.lo v2/g3dexportwireframe.lo \
-	v2/g3dexportffd.lo stl.lo pov.lo obj.lo
+	v2/g3dexportffd.lo v2/g3dexportmorpher.lo stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -176,6 +176,7 @@ am__depfiles_remade = ./$(DEPDIR)/obj.Plo ./$(DEPDIR)/pov.Plo \
 	v2/$(DEPDIR)/g3dexportmaterial.Plo \
 	v2/$(DEPDIR)/g3dexportmesh.Plo \
 	v2/$(DEPDIR)/g3dexportmodifiers.Plo \
+	v2/$(DEPDIR)/g3dexportmorpher.Plo \
 	v2/$(DEPDIR)/g3dexportobject.Plo \
 	v2/$(DEPDIR)/g3dexportprimitive.Plo \
 	v2/$(DEPDIR)/g3dexportscene.Plo \
@@ -382,6 +383,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v1/g3dexport.c \
                             v2/g3dexporttext.c \
                             v2/g3dexportwireframe.c \
                             v2/g3dexportffd.c \
+                            v2/g3dexportmorpher.c \
                             stl.c \
                             pov.c \
                             obj.c
@@ -497,6 +499,8 @@ v2/g3dexporttext.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportwireframe.lo: v2/$(am__dirstamp) \
 	v2/$(DEPDIR)/$(am__dirstamp)
 v2/g3dexportffd.lo: v2/$(am__dirstamp) v2/$(DEPDIR)/$(am__dirstamp)
+v2/g3dexportmorpher.lo: v2/$(am__dirstamp) \
+	v2/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dexport.la: $(libgloss_g3dexport_la_OBJECTS) $(libgloss_g3dexport_la_DEPENDENCIES) $(EXTRA_libgloss_g3dexport_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dexport_la_OBJECTS) $(libgloss_g3dexport_la_LIBADD) $(LIBS)
@@ -526,6 +530,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmaterial.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmesh.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmodifiers.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportmorpher.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportobject.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportprimitive.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dexportscene.Plo@am__quote@ # am--include-marker
@@ -722,6 +727,7 @@ distclean: distclean-am
 	-rm -f v2/$(DEPDIR)/g3dexportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmesh.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmodifiers.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportmorpher.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportobject.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportprimitive.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportscene.Plo
@@ -792,6 +798,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v2/$(DEPDIR)/g3dexportmaterial.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmesh.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportmodifiers.Plo
+	-rm -f v2/$(DEPDIR)/g3dexportmorpher.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportobject.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportprimitive.Plo
 	-rm -f v2/$(DEPDIR)/g3dexportscene.Plo

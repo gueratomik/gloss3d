@@ -151,7 +151,7 @@ static void createMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
             if ( mpose == NULL ) {
                 fprintf ( stderr, "%s: could not create pose\n" );
             } else {
-                g3dmorpher_selectMeshPoseByRank ( mpr, 0x00 );
+                g3dmorpher_selectMeshPose ( mpr, mpose );
             }
         }
     }

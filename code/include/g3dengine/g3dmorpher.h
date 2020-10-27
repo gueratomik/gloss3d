@@ -62,6 +62,7 @@ typedef struct _G3DMORPHER {
     G3DMODIFIER         mod;  /*** G3DMORPHER inherits G3DMODIFIER        ***/
     uint32_t            extensionName;
     LIST               *lver;
+    uint32_t            nbver;
     uint32_t            verID;
     LIST               *lmpose;
     G3DMORPHERMESHPOSE *selmpose;
@@ -72,15 +73,16 @@ G3DMORPHERMESHPOSE *g3dmorphermeshpose_new ( uint32_t nbver,
                                              char    *name );
 void g3dmorpher_selectMeshPoseByRank ( G3DMORPHER *mpr,
                                        uint32_t    rank );
-G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER *mpr,
-                                                 G3DVERTEX  *ver );
+G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER         *mpr,
+                                                 G3DVERTEX          *ver,
+                                                 G3DMORPHERMESHPOSE *mpose );
 G3DMORPHER *g3dmorpher_new ( uint32_t id, 
                              char    *name, 
                              uint64_t engine_flags );
 
 uint64_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr );
-uint64_t g3dmorpher_createMeshPose ( G3DMORPHER *mpr, 
-                                     char       *name );
+G3DMORPHERMESHPOSE *g3dmorpher_createMeshPose ( G3DMORPHER *mpr, 
+                                                char       *name );
 void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr, 
                               G3DMORPHERMESHPOSE *mpose,
                               uint64_t            slotBit );
@@ -96,6 +98,7 @@ void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
 void g3dmorpher_addVertex ( G3DMORPHER *mpr,
                             G3DVERTEX  *ver );
 G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr );
+uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose );
 
 #ifdef __cplusplus
 }

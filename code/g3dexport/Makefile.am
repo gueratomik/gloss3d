@@ -27,6 +27,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v1/g3dexport.c \
                             v2/g3dexporttext.c \
                             v2/g3dexportwireframe.c \
                             v2/g3dexportffd.c \
+                            v2/g3dexportmorpher.c \
                             stl.c \
                             pov.c \
                             obj.c
