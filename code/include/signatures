@@ -291,13 +291,17 @@ SIG_ROOT=0x44335347
 ------------------------------- facegroupID (uint32_t)
 
 ------------------- SIG_OBJECT_MORPHER
------------------------ SIG_OBJECT_MORPHER_VERTICES
---------------------------- Number of Vertices  ( uint32_t )
---------------------------- Array( uint32_t[VERTEXID] )
+----------------------- SIG_OBJECT_MORPHER_VERTEX_COUNT
+--------------------------- nbver (uint32_t)
 ----------------------- SIG_OBJECT_MORPHER_MESHPOSE_ENTRY
+--------------------------- SIG_OBJECT_MORPHER_MESHPOSE_NAME
+------------------------------- Name ( char[] )
 --------------------------- SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY
 ------------------------------- Number of Vertices  ( uint32_t )
 ------------------------------- Array( uint32_t(verID)-float(x)-float(y)-float(z))
+----------------------- SIG_OBJECT_MORPHER_RESETPOSITIONS
+--------------------------- Number of saved Positions  ( uint32_t )
+--------------------------- Array( uint32_t(verID)-float(orix)-float(oriy)-float(oriz))
 
 ----------- SIG_OBJECT_TRANSFORMATION
 --------------- Position ( float-float-float-float )

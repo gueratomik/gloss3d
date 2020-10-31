@@ -52,8 +52,15 @@ static void selectMeshPoseCbk ( GtkWidget *widget,
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-            if ( active == TRUE  ) mpd->key->data.u64 |=   mpd->mpose->slotBit;
-            if ( active == FALSE ) mpd->key->data.u64 &= (~mpd->mpose->slotBit);
+            if ( active == TRUE  ) {
+                g3dmorpherkey_enableMeshPose  ( mpd->key, 
+                                                mpd->mpose->slotID );
+            }
+
+            if ( active == FALSE ) {
+                g3dmorpherkey_disableMeshPose ( mpd->key, 
+                                                mpd->mpose->slotID );
+            }
         }
     }
 
@@ -66,6 +73,13 @@ static void destroyMeshPoseCbk ( GtkWidget *widget,
     MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
 
     free ( mpd );
+}
+
+/******************************************************************************/
+static void rateCbk ( GtkWidget *widget, gpointer user_data ) {
+    const char *field_name = gtk_widget_get_name ( widget );
+    float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
 }
 
 /******************************************************************************/
@@ -87,21 +101,30 @@ static void populateMeshPoseList ( GtkWidget *fixed,
             while ( ltmpmpose ) {
                 G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) ltmpmpose->data;
                 GtkWidget *checkButton = gtk_check_button_new_with_label ( mpose->name );
-                GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x10 };
+                GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x18 };
                 MESHPOSEDATA *mpd = calloc ( 0x01, sizeof ( MESHPOSEDATA ) );
+                GtkWidget *rate;
 
-                if ( key->data.u64 & mpose->slotBit ) {
-                    gtk_toggle_button_set_active ( checkButton, TRUE  );
-                } else {
-                    gtk_toggle_button_set_active ( checkButton, FALSE );
-                }
+
 
                 mpd->mpr   = mpr;
                 mpd->mpose = mpose;
                 mpd->gui   = gui;
                 mpd->key   = key;
 
-                gtk_fixed_put ( fixed, checkButton, 0, y );
+                rate = createFloatText ( fixed, mpd, "Rate", 0.0f, 100.0f, 0, y, 32, 64, rateCbk );
+
+                if ( g3dmorpherkey_isMeshPoseEnabled ( key, mpose->slotID ) ) {
+                    gtk_toggle_button_set_active ( checkButton, TRUE  );
+                    gtk_widget_set_sensitive     ( rate       , TRUE  );
+                } else {
+                    gtk_toggle_button_set_active ( checkButton, FALSE );
+                    gtk_widget_set_sensitive     ( rate       , FALSE );
+                }
+
+                gtk_spin_button_set_value ( rate, g3dmorpherkey_getMeshPoseRate ( key, mpose->slotID ) * 100.0f );
+
+                gtk_fixed_put ( fixed, checkButton, 128, y );
 
                 gtk_widget_size_allocate ( checkButton, &lrec );
 

@@ -281,6 +281,8 @@ void g3dkey_getTransformationFromList ( LIST *lkey, G3DVECTOR *pos,
 
 /******************************************************************************/
 void g3dkey_free ( G3DKEY *key ) {
+    if ( key->free ) key->free ( key );
+
     free ( key );
 }
 

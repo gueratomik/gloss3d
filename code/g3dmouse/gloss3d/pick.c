@@ -439,8 +439,8 @@ static uint32_t actionSelectVertexForPose ( uint64_t         name,
             }
         }
 
-        if ( g3dmorpher_getVertexPose ( mpd->mpr, ver, NULL ) == NULL ) {
-            g3dmorpher_addVertexPose ( mpd->mpr, ver, &ver->pos );
+        if ( g3dmorpher_getVertexPose ( mpd->mpr, ver, NULL, NULL ) == NULL ) {
+            g3dmorpher_addVertexPose ( mpd->mpr, ver, NULL, &ver->pos );
         }
     }
 

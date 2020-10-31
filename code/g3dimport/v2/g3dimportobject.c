@@ -199,6 +199,18 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                 g3dimportffd ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
+            case SIG_OBJECT_MORPHER : {
+                gid->currentObject = g3dmorpher_new ( gid->currentObjectID++ ,
+                                                      gid->currentObjectName,
+                                                      gid->engineFlags );
+
+                g3dobject_addChild ( gid->parentObject, 
+                                     gid->currentObject, 
+                                     gid->engineFlags );
+
+                g3dimportmorpher ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
             /*** Unknown object type. Create a null object ***/
             default : {
                 gid->currentObject = g3dobject_new ( gid->currentObjectID++, 

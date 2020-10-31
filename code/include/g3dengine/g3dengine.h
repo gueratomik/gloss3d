@@ -1142,6 +1142,7 @@ struct _G3DKEY {
     G3DCURVEPOINT posCurvePoint;
     G3DCURVEPOINT rotCurvePoint;
     G3DCURVEPOINT scaCurvePoint;
+    void (*free) ( struct _G3DKEY * );
     union {
         int64_t  s64;
         uint64_t u64;

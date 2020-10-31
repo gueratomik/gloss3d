@@ -30,6 +30,18 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportmorpher_meshPoseName ( G3DEXPORTDATA      *ged,
+                                                G3DMORPHERMESHPOSE *mpose,
+                                                uint32_t            flags,
+                                                FILE               *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwrite ( mpose->name, strlen ( mpose->name ), 0x01, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
                                                     G3DMORPHERMESHPOSE *mpose,
                                                     uint32_t            flags,
@@ -45,7 +57,8 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
         G3DMORPHERVERTEXPOSE *vpose = g3dmorpher_getVertexPose ( mpr, 
                                                                  ver,
-                                                                 mpose );
+                                                                 mpose,
+                                                                 NULL );
 
         /*** vpose can be null if vertex pos is not enabled in that pose ***/
         if ( vpose ) {
@@ -68,6 +81,13 @@ static uint32_t g3dexportmorpher_meshPose ( G3DEXPORTDATA      *ged,
                                             FILE               *fdst ) {
     uint32_t size = 0x00;
 
+    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
+                                   g3dexportmorpher_meshPoseName,
+                                   ged,
+                                   mpose,
+                                   0xFFFFFFFF,
+                                   fdst );
+
     size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY,
                                    g3dexportmorpher_meshPoseGeometry,
                                    ged,
@@ -80,10 +100,10 @@ static uint32_t g3dexportmorpher_meshPose ( G3DEXPORTDATA      *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_vertices ( G3DEXPORTDATA *ged,
-                                            G3DMORPHER    *mpr,
-                                            uint32_t       flags,
-                                            FILE          *fdst ) {
+static uint32_t g3dexportmorpher_resetPositions ( G3DEXPORTDATA *ged,
+                                                  G3DMORPHER    *mpr,
+                                                  uint32_t       flags,
+                                                  FILE          *fdst ) {
     LIST *ltmpver = mpr->lver;
     uint32_t size = 0x00;
 
@@ -91,11 +111,29 @@ static uint32_t g3dexportmorpher_vertices ( G3DEXPORTDATA *ged,
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DVECTOR resetPosition;
 
-        size += g3dexport_fwritel ( &ver->id, fdst );
+        g3dmorpher_getVertexResetPosition ( mpr, ver, &resetPosition );
+
+        size += g3dexport_fwritel ( &ver->id        , fdst );
+        size += g3dexport_fwritef ( &resetPosition.x, fdst );
+        size += g3dexport_fwritef ( &resetPosition.y, fdst );
+        size += g3dexport_fwritef ( &resetPosition.z, fdst );
 
         ltmpver = ltmpver->next;
     }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmorpher_vertexCount ( G3DEXPORTDATA *ged,
+                                               G3DMORPHER    *mpr,
+                                               uint32_t       flags,
+                                               FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &mpr->nbver, fdst );
 
     return size;
 }
@@ -108,8 +146,8 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
     LIST *ltmpmpose = mpr->lmpose;
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_VERTICES,
-                                   g3dexportmorpher_vertices,
+    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
+                                   g3dexportmorpher_vertexCount,
                                    ged,
                                    mpr,
                                    0xFFFFFFFF,
@@ -127,6 +165,13 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
 
         ltmpmpose = ltmpmpose->next;
     }
+
+    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_RESETPOSITIONS,
+                                   g3dexportmorpher_resetPositions,
+                                   ged,
+                                   mpr,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     return size;
 }

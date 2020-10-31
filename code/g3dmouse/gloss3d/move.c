@@ -470,7 +470,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                             G3DMORPHERVERTEXPOSE *vpose;
 
-                            vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL );
+                            vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL, NULL );
 
                             if ( vpose ) {
                                 if ( ( engine_flags & XAXIS ) && axis[0].w ) vpose->pos.x += difx;
