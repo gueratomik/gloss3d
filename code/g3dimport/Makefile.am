@@ -25,6 +25,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v1/g3dimport.c \
                             v2/g3dimportsplinerevolver.c \
                             v2/g3dimporttext.c \
                             v2/g3dimportffd.c \
+                            v2/g3dimportkey.c \
                             v2/g3dimportmorpher.c \
                             v2/g3dimportwireframe.c \
                             v2/g3dimportextension.c \

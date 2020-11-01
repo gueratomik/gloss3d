@@ -1879,13 +1879,21 @@ uint32_t g3dkey_getFlagFromList           ( LIST *, uint32_t );
 uint32_t g3dkey_getUsePositionFromList    ( LIST * );
 uint32_t g3dkey_getUseRotationFromList    ( LIST * );
 uint32_t g3dkey_getUseScalingFromList     ( LIST * );
+uint32_t g3dkey_getUseDataFromList        ( LIST * );
 void     g3dkey_setFlagFromList           ( LIST *, uint32_t );
 void     g3dkey_unsetFlagFromList         ( LIST *, uint32_t );
 void     g3dkey_setUsePositionFromList    ( LIST * );
 void     g3dkey_setUseRotationFromList    ( LIST * );
 void     g3dkey_setUseScalingFromList     ( LIST * );
+void     g3dkey_enableTranslation         ( G3DKEY *key );
+void     g3dkey_disableTranslation        ( G3DKEY *key );
+void     g3dkey_enableRotation            ( G3DKEY *key );
+void     g3dkey_disableRotation           ( G3DKEY *key );
+void     g3dkey_enableScaling             ( G3DKEY *key );
+void     g3dkey_disableScaling            ( G3DKEY *key );
+void     g3dkey_enableData                ( G3DKEY *key );
+void     g3dkey_disableData               ( G3DKEY *key );
 
-/******************************************************************************/
 G3DKEY *g3dobject_pose ( G3DOBJECT *obj, 
                          float      frame,
                          G3DVECTOR *pos,

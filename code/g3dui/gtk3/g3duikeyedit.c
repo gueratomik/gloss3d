@@ -29,7 +29,8 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITKEYDATA "Key Data"
+#define EDITKEYDATA   "Edit"
+#define ENABLEKEYDATA "Enable Key Data"
 
 /******************************************************************************/
 static void editKeyDataCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -82,6 +83,15 @@ static void useScaCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void useDatCbk ( GtkWidget *widget, gpointer user_data ) {
+    gboolean rsca = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( rsca ) common_g3duikeyedit_setKeyTransformationsCbk   ( gui, KEYDATA );
+    else        common_g3duikeyedit_unsetKeyTransformationsCbk ( gui, KEYDATA );
+}
+
+/******************************************************************************/
 static void loopFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     float frm = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -129,6 +139,7 @@ void updateKeyEdit ( GtkWidget *widget, G3DUI *gui ) {
             uint32_t usePos = g3dkey_getUsePositionFromList ( obj->lselkey );
             uint32_t useRot = g3dkey_getUseRotationFromList ( obj->lselkey );
             uint32_t useSca = g3dkey_getUseScalingFromList  ( obj->lselkey );
+            uint32_t useDat = g3dkey_getUseDataFromList     ( obj->lselkey );
 
             loopFlag = g3dkey_getLoopFrameFromList ( obj->lselkey, &loopFrame );
 
@@ -157,6 +168,10 @@ void updateKeyEdit ( GtkWidget *widget, G3DUI *gui ) {
 
                 if ( strcmp ( child_name, EDITKEYSCALING ) == 0x00 ) {
                     gtk_toggle_button_set_active ( tgb, useSca );
+                }
+
+                if ( strcmp ( child_name, ENABLEKEYDATA ) == 0x00 ) {
+                    gtk_toggle_button_set_active ( tgb, useDat );
                 }
             }
 
@@ -287,7 +302,11 @@ GtkWidget* createKeyEdit ( GtkWidget *parent, G3DUI *gui,
                                                       0,
                                                      32, loopFrameCbk );
 
-    createPushButton  ( frm, gui, EDITKEYDATA, 0, 128, 32, 18, editKeyDataCbk );
+    createToggleLabel ( frm, gui, ENABLEKEYDATA, 8, 128,
+                                                    128,
+                                                     20, useDatCbk );
+
+    createPushButton  ( frm, gui, EDITKEYDATA, 160, 128, 32, 18, editKeyDataCbk );
 
     gui->lock = 0x00;
 

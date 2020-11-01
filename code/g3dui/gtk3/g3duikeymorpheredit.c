@@ -80,6 +80,11 @@ static void rateCbk ( GtkWidget *widget, gpointer user_data ) {
     const char *field_name = gtk_widget_get_name ( widget );
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
+
+    if ( mpd->gui->lock == 0x00 ) {
+        g3dmorpherkey_setMeshPoseRate ( mpd->key,
+                                        mpd->mpose->slotID, val / 100.0f );
+    }
 }
 
 /******************************************************************************/

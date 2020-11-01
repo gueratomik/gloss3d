@@ -30,6 +30,46 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dkey_enableTranslation ( G3DKEY *key ) {
+    key->flags |= KEYPOSITION;
+}
+
+/******************************************************************************/
+void g3dkey_disableTranslation ( G3DKEY *key ) {
+    key->flags &= (~KEYPOSITION);
+}
+
+/******************************************************************************/
+void g3dkey_enableRotation ( G3DKEY *key ) {
+    key->flags |= KEYROTATION;
+}
+
+/******************************************************************************/
+void g3dkey_disableRotation ( G3DKEY *key ) {
+    key->flags &= (~KEYROTATION);
+}
+
+/******************************************************************************/
+void g3dkey_enableScaling ( G3DKEY *key ) {
+    key->flags |= KEYSCALING;
+}
+
+/******************************************************************************/
+void g3dkey_disableScaling ( G3DKEY *key ) {
+    key->flags &= (~KEYSCALING);
+}
+
+/******************************************************************************/
+void g3dkey_enableData ( G3DKEY *key ) {
+    key->flags |= KEYDATA;
+}
+
+/******************************************************************************/
+void g3dkey_disableData ( G3DKEY *key ) {
+    key->flags &= (~KEYDATA);
+}
+
+/******************************************************************************/
 void g3dkey_recordPosCurvePoint ( G3DKEY *key, G3DVECTOR *pos ) {
     memcpy ( &key->posCurvePoint.pos, pos, sizeof ( G3DVECTOR ) );
 }
@@ -170,6 +210,11 @@ uint32_t g3dkey_getFlagFromList ( LIST *lkey, uint32_t flag ) {
     }
 
     return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dkey_getUseDataFromList ( LIST *lkey ) {
+    return g3dkey_getFlagFromList ( lkey, KEYDATA );
 }
 
 /******************************************************************************/

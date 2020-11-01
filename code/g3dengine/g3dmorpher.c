@@ -497,13 +497,23 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
 
                 if ( mkd->options[mpose->slotID].enabled ) {
                     if ( mpose->vpose[vxt->verID].enabled ) {
-                        currpos.x += mpose->vpose[vxt->verID].pos.x;
-                        currpos.y += mpose->vpose[vxt->verID].pos.y;
-                        currpos.z += mpose->vpose[vxt->verID].pos.z;
+                        float crate = g3dmorpherkey_getMeshPoseRate ( currKey, mpose->slotID );
+                        float cinvRate = 1.0f - crate;
+                        G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                                          .y = mpose->vpose[vxt->verID].pos.y,
+                                          .z = mpose->vpose[vxt->verID].pos.z };
 
-                        currnor.x += mpose->vpose[vxt->verID].nor.x;
+                        pos.x = ( pos.x * crate ) + ( vxt->resetPosition.x * cinvRate );
+                        pos.y = ( pos.y * crate ) + ( vxt->resetPosition.y * cinvRate );
+                        pos.z = ( pos.z * crate ) + ( vxt->resetPosition.z * cinvRate );
+
+                        currpos.x += pos.x;
+                        currpos.y += pos.y;
+                        currpos.z += pos.z;
+
+                        /*currnor.x += mpose->vpose[vxt->verID].nor.x;
                         currnor.y += mpose->vpose[vxt->verID].nor.y;
-                        currnor.z += mpose->vpose[vxt->verID].nor.z;
+                        currnor.z += mpose->vpose[vxt->verID].nor.z;*/
 
                         nbCurrPose++;
                     }
@@ -516,13 +526,23 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
 
                     if ( pmkd->options[mpose->slotID].enabled ) {
                         if ( mpose->vpose[vxt->verID].enabled ) {
-                            prevpos.x += mpose->vpose[vxt->verID].pos.x;
-                            prevpos.y += mpose->vpose[vxt->verID].pos.y;
-                            prevpos.z += mpose->vpose[vxt->verID].pos.z;
+                            float prate = g3dmorpherkey_getMeshPoseRate ( prevKey, mpose->slotID );
+                            float pinvRate = 1.0f - prate;
+                            G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                                              .y = mpose->vpose[vxt->verID].pos.y,
+                                              .z = mpose->vpose[vxt->verID].pos.z };
 
-                            prevnor.x += mpose->vpose[vxt->verID].nor.x;
+                            pos.x = ( pos.x * prate ) + ( vxt->resetPosition.x * pinvRate );
+                            pos.y = ( pos.y * prate ) + ( vxt->resetPosition.y * pinvRate );
+                            pos.z = ( pos.z * prate ) + ( vxt->resetPosition.z * pinvRate );
+
+                            prevpos.x += pos.x;
+                            prevpos.y += pos.y;
+                            prevpos.z += pos.z;
+
+                            /*prevnor.x += mpose->vpose[vxt->verID].nor.x;
                             prevnor.y += mpose->vpose[vxt->verID].nor.y;
-                            prevnor.z += mpose->vpose[vxt->verID].nor.z;
+                            prevnor.z += mpose->vpose[vxt->verID].nor.z;*/
 
                             nbPrevPose++;
                         }
@@ -530,13 +550,23 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
 
                     if ( nmkd->options[mpose->slotID].enabled ) {
                         if ( mpose->vpose[vxt->verID].enabled ) {
-                            nextpos.x += mpose->vpose[vxt->verID].pos.x;
-                            nextpos.y += mpose->vpose[vxt->verID].pos.y;
-                            nextpos.z += mpose->vpose[vxt->verID].pos.z;
+                            float nrate = g3dmorpherkey_getMeshPoseRate ( nextKey, mpose->slotID );
+                            float ninvRate = 1.0f - nrate;
+                            G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                                              .y = mpose->vpose[vxt->verID].pos.y,
+                                              .z = mpose->vpose[vxt->verID].pos.z };
 
-                            nextnor.x += mpose->vpose[vxt->verID].nor.x;
+                            pos.x = ( pos.x * nrate ) + ( vxt->resetPosition.x * ninvRate );
+                            pos.y = ( pos.y * nrate ) + ( vxt->resetPosition.y * ninvRate );
+                            pos.z = ( pos.z * nrate ) + ( vxt->resetPosition.z * ninvRate );
+
+                            nextpos.x += pos.x;
+                            nextpos.y += pos.y;
+                            nextpos.z += pos.z;
+
+                            /*nextnor.x += mpose->vpose[vxt->verID].nor.x;
                             nextnor.y += mpose->vpose[vxt->verID].nor.y;
-                            nextnor.z += mpose->vpose[vxt->verID].nor.z;
+                            nextnor.z += mpose->vpose[vxt->verID].nor.z;*/
 
                             nbNextPose++;
                         }
@@ -549,9 +579,6 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
 
         if ( currKey ) {
             if ( nbCurrPose ) {
-                float rate = g3dmorpherkey_getMeshPoseRate ( currKey, mpose->slotID );
-                float invRate = 1.0f - rate;
-
                 currpos.x /= nbCurrPose;
                 currpos.y /= nbCurrPose;
                 currpos.z /= nbCurrPose;
@@ -559,10 +586,6 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
                 currnor.x /= nbCurrPose;
                 currnor.y /= nbCurrPose;
                 currnor.z /= nbCurrPose;
-
-                currpos.x = ( currpos.x * rate ) + ( vxt->resetPosition.x * invRate );
-                currpos.y = ( currpos.y * rate ) + ( vxt->resetPosition.y * invRate );
-                currpos.z = ( currpos.z * rate ) + ( vxt->resetPosition.z * invRate );
 
                 memcpy ( &ver->pos, &currpos, sizeof ( G3DVECTOR ) );
                 memcpy ( &ver->nor, &currnor, sizeof ( G3DVECTOR ) );
@@ -574,37 +597,23 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
                       nRatio = 1.0f - pRatio;
 
                 if ( nbPrevPose ) {
-                    float prate = g3dmorpherkey_getMeshPoseRate ( prevKey, mpose->slotID );
-                    float pinvRate = 1.0f - prate;
-
                     prevpos.x /= nbPrevPose;
                     prevpos.y /= nbPrevPose;
                     prevpos.z /= nbPrevPose;
 
-                    prevnor.x /= nbPrevPose;
+                    /*prevnor.x /= nbPrevPose;
                     prevnor.y /= nbPrevPose;
-                    prevnor.z /= nbPrevPose;
-
-                    prevpos.x = ( prevpos.x * prate ) + ( vxt->resetPosition.x * pinvRate );
-                    prevpos.y = ( prevpos.y * prate ) + ( vxt->resetPosition.y * pinvRate );
-                    prevpos.z = ( prevpos.z * prate ) + ( vxt->resetPosition.z * pinvRate );
+                    prevnor.z /= nbPrevPose;*/
                 }
 
                 if ( nbNextPose ) {
-                    float nrate = g3dmorpherkey_getMeshPoseRate ( nextKey, mpose->slotID );
-                    float ninvRate = 1.0f - nrate;
-
                     nextpos.x /= nbNextPose;
                     nextpos.y /= nbNextPose;
                     nextpos.z /= nbNextPose;
 
-                    nextnor.x /= nbNextPose;
+                    /*nextnor.x /= nbNextPose;
                     nextnor.y /= nbNextPose;
-                    nextnor.z /= nbNextPose;
-
-                    nextpos.x = ( nextpos.x * nrate ) + ( vxt->resetPosition.x * ninvRate );
-                    nextpos.y = ( nextpos.y * nrate ) + ( vxt->resetPosition.y * ninvRate );
-                    nextpos.z = ( nextpos.z * nrate ) + ( vxt->resetPosition.z * ninvRate );
+                    nextnor.z /= nbNextPose;*/
                 }
 
                 if ( nbPrevPose && nbNextPose ) {
@@ -612,9 +621,9 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
                     ver->pos.y = ( prevpos.y * pRatio ) + ( nextpos.y * nRatio );
                     ver->pos.z = ( prevpos.z * pRatio ) + ( nextpos.z * nRatio );
 
-                    ver->nor.x = ( prevnor.x * pRatio ) + ( nextnor.x * nRatio );
+                    /*ver->nor.x = ( prevnor.x * pRatio ) + ( nextnor.x * nRatio );
                     ver->nor.y = ( prevnor.y * pRatio ) + ( nextnor.y * nRatio );
-                    ver->nor.z = ( prevnor.z * pRatio ) + ( nextnor.z * nRatio );
+                    ver->nor.z = ( prevnor.z * pRatio ) + ( nextnor.z * nRatio );*/
                 }
             }
         }

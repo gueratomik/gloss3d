@@ -171,6 +171,11 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
                             uint32_t       flags, 
                             FILE          *fdst );
 
+uint32_t g3dexportkey ( G3DEXPORTDATA *ged, 
+                        G3DKEY        *key, 
+                        uint32_t       flags, 
+                        FILE          *fdst );
+
 uint32_t g3dexport_fwrited ( double *d, FILE *stream );
 uint32_t g3dexport_fwritef ( float *f, FILE *stream );
 uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream );

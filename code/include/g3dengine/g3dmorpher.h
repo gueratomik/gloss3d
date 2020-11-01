@@ -51,6 +51,7 @@ typedef struct _G3DMORPHERVERTEXPOSE {
 
 /******************************************************************************/
 typedef struct _G3DMORPHERMESHPOSE {
+    uint32_t              id;
     char                 *name;
     G3DMORPHERVERTEXPOSE *vpose;
     uint64_t              slotID;

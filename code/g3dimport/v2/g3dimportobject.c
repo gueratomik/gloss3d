@@ -373,9 +373,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_KEYS : {
-            } break;
-
-            case SIG_OBJECT_KEY_ENTRY : {
+                g3dimportkey ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_KEY_TRANSFORMATION : {

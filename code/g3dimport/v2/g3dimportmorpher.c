@@ -46,6 +46,9 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_OBJECT_MORPHER_MESHPOSES : {
+            } break;
+
             case SIG_OBJECT_MORPHER_MESHPOSE_ENTRY : {
             } break;
 

@@ -75,10 +75,10 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPose ( G3DEXPORTDATA      *ged,
-                                            G3DMORPHERMESHPOSE *mpose,
-                                            uint32_t            flags,
-                                            FILE               *fdst ) {
+static uint32_t g3dexportmorpher_meshPoseEntry ( G3DEXPORTDATA      *ged,
+                                                 G3DMORPHERMESHPOSE *mpose,
+                                                 uint32_t            flags,
+                                                 FILE               *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
@@ -94,6 +94,34 @@ static uint32_t g3dexportmorpher_meshPose ( G3DEXPORTDATA      *ged,
                                    mpose,
                                    0xFFFFFFFF,
                                    fdst );
+
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmorpher_meshPoses ( G3DEXPORTDATA *ged,
+                                             G3DMORPHER    *mpr,
+                                             uint32_t       flags,
+                                             FILE          *fdst ) {
+    LIST *ltmpmpose = mpr->lmpose;
+    uint32_t poseID = 0x00;
+    uint32_t size = 0x00;
+
+    while ( ltmpmpose ) {
+        G3DMORPHERMESHPOSE *mpose = ltmpmpose->data;
+
+        mpose->id = poseID++;
+
+        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_ENTRY,
+                                       g3dexportmorpher_meshPoseEntry,
+                                       ged,
+                                       mpose,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpmpose = ltmpmpose->next;
+    }
 
 
     return size;
@@ -146,32 +174,28 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
     LIST *ltmpmpose = mpr->lmpose;
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
-                                   g3dexportmorpher_vertexCount,
-                                   ged,
-                                   mpr,
-                                   0xFFFFFFFF,
-                                   fdst );
-
-    while ( ltmpmpose ) {
-        G3DMORPHERMESHPOSE *mpose = ltmpmpose->data;
-
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_ENTRY,
-                                       g3dexportmorpher_meshPose,
+    if ( mpr->lmpose ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
+                                       g3dexportmorpher_vertexCount,
                                        ged,
-                                       mpose,
+                                       mpr,
                                        0xFFFFFFFF,
                                        fdst );
 
-        ltmpmpose = ltmpmpose->next;
-    }
+        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSES,
+                                       g3dexportmorpher_meshPoses,
+                                       ged,
+                                       mpr,
+                                       0xFFFFFFFF,
+                                       fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_RESETPOSITIONS,
-                                   g3dexportmorpher_resetPositions,
-                                   ged,
-                                   mpr,
-                                   0xFFFFFFFF,
-                                   fdst );
+        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_RESETPOSITIONS,
+                                       g3dexportmorpher_resetPositions,
+                                       ged,
+                                       mpr,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
 
     return size;
 }

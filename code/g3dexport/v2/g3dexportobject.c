@@ -162,74 +162,6 @@ static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keysKeyLoop ( G3DEXPORTDATA *ged, 
-                                              G3DKEY        *key,
-                                              uint32_t       flags, 
-                                              FILE          *fdst ) {
-    uint32_t size = 0x00;
-
-    size += g3dexport_fwritef ( &key->loopFrame, fdst );
-
-    return size;
-}
-
-/******************************************************************************/
-static uint32_t g3dexportobject_keysKeyTransformation ( G3DEXPORTDATA *ged, 
-                                                        G3DKEY        *key, 
-                                                        uint32_t       flags, 
-                                                        FILE          *fdst ) {
-    uint32_t usepos = ( key->flags & KEYPOSITION ) ? 0x01 : 0x00;
-    uint32_t userot = ( key->flags & KEYROTATION ) ? 0x01 : 0x00;
-    uint32_t usesca = ( key->flags & KEYSCALING  ) ? 0x01 : 0x00;
-    uint32_t size = 0x00;
-
-    size += g3dexport_fwritef ( &key->frame, fdst );
-
-    size += g3dexport_fwritef ( &key->pos.x, fdst );
-    size += g3dexport_fwritef ( &key->pos.y, fdst );
-    size += g3dexport_fwritef ( &key->pos.z, fdst );
-    size += g3dexport_fwritel ( &usepos    , fdst );
-
-    size += g3dexport_fwritef ( &key->rot.x, fdst );
-    size += g3dexport_fwritef ( &key->rot.y, fdst );
-    size += g3dexport_fwritef ( &key->rot.z, fdst );
-    size += g3dexport_fwritel ( &userot    , fdst );
-
-    size += g3dexport_fwritef ( &key->sca.x, fdst );
-    size += g3dexport_fwritef ( &key->sca.y, fdst );
-    size += g3dexport_fwritef ( &key->sca.z, fdst );
-    size += g3dexport_fwritel ( &usesca    , fdst );
-
-    return size;
-}
-
-/******************************************************************************/
-static uint32_t g3dexportobject_keysKey ( G3DEXPORTDATA *ged, 
-                                          G3DKEY        *key, 
-                                          uint32_t       flags, 
-                                          FILE          *fdst ) {
-    uint32_t size = 0x00;
-
-    size += g3dexport_writeChunk ( SIG_OBJECT_KEY_TRANSFORMATION,
-                                   g3dexportobject_keysKeyTransformation,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
-
-    if ( key->flags & KEYLOOP ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_KEY_LOOP,
-                                       g3dexportobject_keysKeyLoop,
-                                       ged,
-                                       key,
-                                       0xFFFFFFFF,
-                                       fdst );
-    }
-
-    return size;
-}
-
-/******************************************************************************/
 static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged, 
                                        G3DOBJECT     *obj, 
                                        uint32_t       flags, 
@@ -244,7 +176,7 @@ static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged,
         key->id = keyID++;
 
         size += g3dexport_writeChunk ( SIG_OBJECT_KEY_ENTRY,
-                                       g3dexportobject_keysKey,
+                                       g3dexportkey,
                                        ged,
                                        key,
                                        0xFFFFFFFF,
