@@ -295,6 +295,39 @@ int32_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
+G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
+                                                 G3DMORPHERMESHPOSE *mpose,
+                                                 LIST               *lver ) {
+    if ( mpose == NULL ) mpose = mpr->selmpose;
+
+    if ( mpose ) {
+        uint32_t nbver = list_count ( lver );
+
+        if ( nbver ) {
+            G3DVECTOR *pos = ( G3DVECTOR * ) calloc ( nbver, sizeof ( G3DVECTOR ) );
+            uint32_t verID = 0x00;
+            LIST *ltmpver = lver;
+
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                G3DMORPHERVERTEXPOSE *vpose = g3dmorpher_getVertexPose ( mpr,
+                                                                         ver,
+                                                                         mpose,
+                                                                         NULL );
+
+                memcpy ( &pos[verID++], &vpose->pos, sizeof ( G3DVECTOR ) );
+
+                ltmpver = ltmpver->next;
+            }
+
+            return pos;
+        }        
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 static void g3dmorpher_takeSlot ( G3DMORPHER *mpr, 
                                   uint64_t    slotID ) {
     mpr->meshPoseSlots |= ((uint64_t) 1 << slotID );
@@ -803,13 +836,40 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
             if ( obj->flags & OBJECTSELECTED ) {
                 G3DMESH *mes = ( obj->parent );
                 LIST *ltmpfac = mes->lfac;
+                LIST *ltmpedg = mes->ledg;
 
                 glPushAttrib( GL_ALL_ATTRIB_BITS );
                 glDisable   ( GL_LIGHTING );
                 glPointSize ( 4.0f );
 
-                glColor3ub  ( 0x80, 0x80, 0x80 );
+                /*** show lines in all modes ***/
+                glBegin ( GL_LINES );
+                glColor3ub  ( 0x00, 0x00, 0x00 );
+                while ( ltmpedg ) {
+                    G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+                    uint32_t i;
 
+                    for ( i = 0x00; i < 0x02; i++ ) {
+                        G3DVERTEX *ver = edg->ver[i];
+                        G3DMORPHERVERTEXPOSE *vpose;
+                        uint32_t nbpose = 0x00;
+
+                        /*** small optimization to avoid func call ***/
+                        vpose = ( ver->lext ) ? g3dmorpher_getVertexPose ( mpr, ver, NULL, &nbpose ) : NULL;
+
+                        if ( vpose ) {
+                            glVertex3fv ( ( GLfloat * ) &vpose->pos );
+                        } else {
+                            glVertex3fv ( ( GLfloat * ) &ver->pos );
+                        }
+                    }
+
+                    ltmpedg = ltmpedg->next;
+                }
+                glEnd ( );
+
+                /*** show faces in all modes ***/
+                glColor3ub  ( 0x80, 0x80, 0x80 );
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     uint32_t i;
@@ -844,32 +904,6 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                 if ( engine_flags & VIEWVERTEX   ) {
                     if ( mpr->selmpose ) {
                         LIST *ltmpver = mes->lver;
-                        LIST *ltmpedg = mes->ledg;
-
-                        glBegin ( GL_LINES );
-                        glColor3ub  ( 0x00, 0x00, 0x00 );
-                        while ( ltmpedg ) {
-                            G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
-                            uint32_t i;
-
-                            for ( i = 0x00; i < 0x02; i++ ) {
-                                G3DVERTEX *ver = edg->ver[i];
-                                G3DMORPHERVERTEXPOSE *vpose;
-                                uint32_t nbpose = 0x00;
-
-                                /*** small optimization to avoid func call ***/
-                                vpose = ( ver->lext ) ? g3dmorpher_getVertexPose ( mpr, ver, NULL, &nbpose ) : NULL;
-
-                                if ( vpose ) {
-                                    glVertex3fv ( ( GLfloat * ) &vpose->pos );
-                                } else {
-                                    glVertex3fv ( ( GLfloat * ) &ver->pos );
-                                }
-                            }
-
-                            ltmpedg = ltmpedg->next;
-                        }
-                        glEnd ( );
 
                         glBegin ( GL_POINTS );
                         while ( ltmpver ) {
@@ -881,7 +915,12 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                             vpose = ( ver->lext ) ? g3dmorpher_getVertexPose ( mpr, ver, NULL, &nbpose ) : NULL;
 
                             if ( vpose ) {
-                                glColor3ub  ( 0x00, 0xFF, 0x00 );
+                                if ( ver->flags & VERTEXSELECTED ) {
+                                    glColor3ub  ( 0xFF, 0x00, 0x00 );
+                                } else {
+                                    glColor3ub  ( 0x00, 0xFF, 0x00 );
+                                }
+
                                 glVertex3fv ( ( GLfloat * ) &vpose->pos );
                             } else {
                                 if ( nbpose ) glColor3ub  ( 0xFF, 0x00, 0xFF );

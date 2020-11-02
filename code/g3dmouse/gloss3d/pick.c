@@ -509,7 +509,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
             if ( pt->only_visible ) g3dpick_enableDepthTest  ( );
             else                    g3dpick_disableDepthTest ( );
 
-	        if ( obj->type & MESH ) {
+	        if ( ( obj->type == G3DMESHTYPE ) ||
+                 ( obj->type == G3DFFDTYPE  ) ) {
         	    G3DMESH *mes = ( G3DMESH * ) obj;
         	    MESHPICKDATA mpd = { .mes    = mes,
                         	         .weight = pt->weight,
@@ -589,7 +590,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 		        }
 	        }
 
-	        if ( obj->type & SPLINE ) {
+	        if ( obj->type == G3DSPLINETYPE ) {
         	    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
         	    SPLINEPICKDATA spd = { .spl   =  ( G3DSPLINE * ) obj,
                         	           .flags = 0x00 };
@@ -606,7 +607,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 		        }
 	        }
 
-	        if ( obj->type & MORPHER ) {
+	        if ( obj->type == G3DMORPHERTYPE ) {
         	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
                 if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {

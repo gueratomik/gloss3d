@@ -231,7 +231,13 @@ void common_g3dui_channelChooseImageCbk ( G3DUI      *gui,
     if ( gui->lock ) return;
 
     if ( cha ) {
-        G3DIMAGE *colimg = g3dimage_load ( filename, 0x01 );
+        G3DIMAGE *colimg = g3dscene_getImage ( gui->sce, filename );
+
+        if ( colimg == NULL ) {
+            colimg = g3dimage_load ( filename, 0x01 );
+
+            g3dscene_registerImage ( gui->sce, colimg );
+        }
 
         if ( bindGL ) g3dimage_bind ( colimg );
 

@@ -491,6 +491,48 @@ void g3dscene_selectObject ( G3DSCENE  *sce,
 }
 
 /******************************************************************************/
+G3DIMAGE *g3dscene_getImage ( G3DSCENE *sce, 
+                              char     *filename ) {
+    LIST *ltmpimg = sce->limg;
+
+    while ( ltmpimg ) {
+        G3DIMAGE *img = ( G3DIMAGE * ) ltmpimg->data;
+
+        if ( img->filename ) {
+            if ( strcmp ( img->filename, filename ) == 0x00 ) {
+                return img;
+            }
+        }
+
+        ltmpimg = ltmpimg->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dscene_registerImage ( G3DSCENE *sce, 
+                              G3DIMAGE *img ) {
+    if ( img->nbuse == 0x00 ) {
+        list_insert ( &sce->limg, img );
+    }
+
+    img->nbuse++;
+}
+
+/******************************************************************************/
+void g3dscene_unregisterImage ( G3DSCENE *sce, 
+                                G3DIMAGE *img ) {
+    img->nbuse--;
+
+    if ( img->nbuse == 0x00 ) {
+        list_remove ( &sce->limg, img );
+
+        g3dimage_free ( img );
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dscene_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          uint64_t   engine_flags ) {

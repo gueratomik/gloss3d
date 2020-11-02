@@ -56,18 +56,31 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dchannel_enableImageColor ( gid->currentChannel );
 
                 if ( chunkSize ) {
-                    G3DIMAGE *image = gid->currentChannel->image;
                     char *name = ( char * ) calloc ( 0x01, chunkSize + 0x01 );
+                    G3DIMAGE *image;
 
                     g3dimport_fread ( name, chunkSize, 0x01, fsrc );
 
                     /*** generate a power of two image for the diffuse ***/
                     /*** channel because of OpenGL limitations ***/
-                    if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
+                    /*if ( gid->currentChannel == &gid->currentMaterial->diffuse ) {
                         gid->currentChannel->image = g3dimage_load ( name, 1 );
                     } else {
                         gid->currentChannel->image = g3dimage_load ( name, 0 );
+                    }*/
+
+                    image = g3dscene_getImage ( gid->currentScene, name );
+
+                    if ( image == NULL ) {
+                        /*** Note: we generate only power of 2 images ***/
+                        /*** regardless of their use. because images ***/
+                        /*** are shared between materials ***/
+                        image = g3dimage_load ( name, 1 );
+
+                        g3dscene_registerImage ( gid->currentScene, image );
                     }
+
+                    gid->currentChannel->image = image;
 
                     free ( name );
                 }

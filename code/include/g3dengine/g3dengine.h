@@ -1329,6 +1329,7 @@ typedef struct _G3DSCENE {
     G3DOBJECT obj;    /*** Scene inherits G3DOBJECT    ***/
     LIST *lsel;       /*** Selected objects            ***/
     LIST *lmat;       /*** list of materials           ***/
+    LIST *limg;       /*** list of images              ***/
     uint32_t nbmat;
     uint32_t childid; /*** Children object IDs counter ***/
     G3DCURSOR csr;
@@ -2503,6 +2504,12 @@ void g3dscene_updateMeshes ( G3DSCENE *sce,
 void       g3dscene_exportStlA               ( G3DSCENE *, const char *,
                                                            const char *, 
                                                            uint32_t );
+G3DIMAGE *g3dscene_getImage ( G3DSCENE *sce, 
+                              char     *filename );
+void g3dscene_registerImage ( G3DSCENE *sce, 
+                              G3DIMAGE *img );
+void g3dscene_unregisterImage ( G3DSCENE *sce, 
+                                G3DIMAGE *img );
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );

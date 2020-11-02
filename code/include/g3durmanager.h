@@ -675,6 +675,15 @@ void urmmovepoint_free ( URMMOVEPOINT *ump );
 URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
 
 /******************************************************************************/
+void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
+                                   G3DMORPHER         *mpr,
+                                   G3DMORPHERMESHPOSE *mpose,
+                                   LIST               *lver,
+                                   G3DVECTOR          *oldpos,
+                                   G3DVECTOR          *newpos,
+                                   uint32_t            return_flags );
+
+/******************************************************************************/
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,

@@ -146,14 +146,15 @@ static void okCbk ( GtkWidget *widget,
         }
     } else {
         if ( chn->image ) {
-            /*** Todo: allow undo / redo ? ***/
-            g3dimage_free ( chn->image );
+            g3dscene_unregisterImage ( gui->sce, chn->image );
         }
     /*** note: image is binded to GL lib in order to view it in the editor ***/
         chn->image = g3dimage_new ( g3dcore_getNextPowerOfTwo ( cid->width ), 
                                     g3dcore_getNextPowerOfTwo ( cid->height ), 
                                     24, 
                                     0x01 );
+
+        g3dscene_registerImage ( gui->sce, chn->image );
     }
 
     g3dchannel_enableImageColor ( chn );
@@ -165,43 +166,6 @@ static void okCbk ( GtkWidget *widget,
 
     gtk_widget_destroy ( gtk_widget_get_ancestor ( widget, GTK_TYPE_WINDOW ) );
 }
-
-#ifdef unused
-/******************************************************************************/
-void g3dui_saveChannelImageAs ( G3DUI      *gui, 
-                                G3DCHANNEL *chn ) {
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    dialog = gtk_file_chooser_dialog_new ( "Save image ...",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_SAVE,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
-                                                     TRUE );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        char           *filename = gtk_file_chooser_get_filename ( chooser );
-
-        /** Bind GL is true because we need to display ***/
-        chn->image = g3dimage_load ( filename, 0x01 );
-
-        g_free    ( filename );
-    }
-
-    gtk_widget_destroy ( dialog );
-}
-#endif
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {

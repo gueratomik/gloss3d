@@ -70,6 +70,7 @@ typedef struct _G3DIMAGE {
     uint32_t previewBytesPerPixel;
     float    previewFromFrame;
     float    previewToFrame;
+    uint32_t nbuse; /*** number of times used ***/
 } G3DIMAGE;
 
 /******************************************************************************/

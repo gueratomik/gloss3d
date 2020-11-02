@@ -364,6 +364,179 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
+static int rotate_morpher ( G3DMORPHER       *mpr,
+                            G3DMOUSETOOL     *mou, 
+                            G3DSCENE         *sce, 
+                            G3DCAMERA        *cam,
+                            G3DURMANAGER     *urm,
+                            uint64_t engine_flags, 
+                            G3DEvent         *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static double mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
+    static LIST *lver, *lfac, *ledg;
+    static G3DVECTOR *oldpos;
+    static G3DVECTOR *newpos;
+    static G3DVECTOR pivot;
+
+    if ( obj->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) obj->parent;
+
+        if ( ( mpr->selmpose ) && 
+             ( mes->lselver  ) ) {
+            switch ( event->type ) {
+                case G3DButtonPress : {
+                    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                    G3DVECTOR avgpos;
+
+                    glMatrixMode ( GL_PROJECTION );
+                    glPushMatrix ( );
+                    glLoadIdentity ( );
+                    g3dcamera_project ( cam, engine_flags );
+
+                    glMatrixMode ( GL_MODELVIEW );
+                    glPushMatrix ( );
+                    g3dcamera_view ( cam, HIDEGRID );
+                    glMultMatrixd ( obj->wmatrix );
+
+                    glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+                    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                    glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                    glPopMatrix ( );
+                    glMatrixMode ( GL_PROJECTION );
+                    glPopMatrix ( );
+
+                    mouseXpress = orix = bev->x;
+                    mouseYpress = bev->y;
+
+                    if ( engine_flags & VIEWVERTEX ) {
+                        lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+                    }
+
+                    g3dvertex_getAveragePositionFromList ( lver, &pivot );
+
+                    oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                   NULL, 
+                                                                   lver );
+
+                    /*g3dvertex_copyPositionFromList       ( lver, &oldpos );
+
+                    lfac = g3dvertex_getFacesFromList  ( lver );
+                    ledg = g3dface_getEdgesFromList    ( lfac );
+
+                    g3dobject_startUpdateModifiers_r ( mes, engine_flags );*/
+                } return REDRAWVIEW;
+
+                case G3DMotionNotify : {
+                    G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+                    newx = mev->x;
+
+                    if ( mev->state & G3DButton1Mask ) {
+                        if ( ( engine_flags & VIEWVERTEX ) ||
+                             ( engine_flags & VIEWEDGE   ) ||
+                             ( engine_flags & VIEWFACE   ) ) {
+                            G3DVECTOR *axis = sce->csr.axis;
+                            LIST *ltmpver = lver;
+                            double difx, dify, difz;
+                            double ROTX[0x10];
+
+                            if ( ( engine_flags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
+                            if ( ( engine_flags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
+                            if ( ( engine_flags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
+
+                            glMatrixMode ( GL_MODELVIEW );
+                            glPushMatrix ( );
+                            glLoadIdentity ( );
+                            glTranslatef ( pivot.x, pivot.y, pivot.z );
+                            glRotatef ( difx, 1.0f, 0.0f, 0.0f );
+                            glRotatef ( dify, 0.0f, 1.0f, 0.0f );
+                            glRotatef ( difz, 0.0f, 0.0f, 1.0f );
+                            glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
+                            glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
+                            glPopMatrix ( );
+
+                            while ( ltmpver ) {
+                                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                                G3DMORPHERVERTEXPOSE *vpose;
+
+                                vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL, NULL );
+
+                                if ( vpose ) {
+                                    G3DVECTOR verpos = { .x = vpose->pos.x,
+                                                         .y = vpose->pos.y,
+                                                         .z = vpose->pos.z, 1.0f };
+                                    G3DVECTOR newpos;
+
+                                    g3dvector_matrix ( &verpos, ROTX, &newpos );
+
+                                    vpose->pos.x = newpos.x;
+                                    vpose->pos.y = newpos.y;
+                                    vpose->pos.z = newpos.z;
+
+                                    /*if ( ver->flags & VERTEXSKINNED ) {
+                                        g3dvertex_computeSkinnedPosition ( ver );
+                                    }*/
+                                }
+
+                                ltmpver = ltmpver->next;
+                            }
+
+                            orix = newx;
+                        }
+                    }
+                } return REDRAWVIEW;
+
+                case G3DButtonRelease : {
+                    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                    /*** simulate click and release ***/
+                    if ( ( bev->x == mouseXpress ) && 
+                         ( bev->y == mouseYpress ) ) {
+                        G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                           bev->x, VPX[0x03] - bev->y },
+                                                .only_visible = 0x01,
+                                                .weight = 0.0f,
+                                                .radius = PICKMINRADIUS };
+
+                        pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                    }
+
+                    newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                   NULL, 
+                                                                   lver );
+
+                    g3durm_morpher_moveVertices ( urm,
+                                                  mpr,
+                                                  mpr->selmpose,
+                                                  lver,
+                                                  oldpos, 
+                                                  newpos, 
+                                                  REDRAWVIEW );
+
+                    list_free ( &lver, NULL );
+
+                    oldpos = newpos = NULL;
+                } return REDRAWVIEW            | 
+                         REDRAWCOORDS          | 
+                         BUFFEREDSUBDIVISIONOK | 
+                         REDRAWCURRENTOBJECT   | 
+                         REDRAWUVMAPEDITOR;
+
+                default :
+                break;
+            }
+        }
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 static int rotate_mesh ( G3DMESH          *mes,
                          G3DMOUSETOOL     *mou, 
                          G3DSCENE         *sce, 
@@ -805,6 +978,12 @@ static int rotate_tool ( G3DMOUSETOOL *mou,
         if ( ( engine_flags & VIEWVERTEX ) ||
              ( engine_flags & VIEWEDGE   ) ||
              ( engine_flags & VIEWFACE   ) ) {
+            if ( obj->type & MORPHER ) {
+                G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+                return rotate_morpher ( mpr, mou, sce, cam, urm, engine_flags, event );
+            }
+
             if ( obj->type & SPLINE ) {
                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 

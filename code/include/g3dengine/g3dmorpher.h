@@ -124,6 +124,9 @@ float g3dmorpherkey_getMeshPoseRate ( G3DKEY  *key,
                                      uint32_t slotID );
 uint32_t g3dmorpherkey_isMeshPoseEnabled ( G3DKEY  *key,
                                            uint32_t slotID );
+G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
+                                                 G3DMORPHERMESHPOSE *mpose,
+                                                 LIST               *lver );
 
 #ifdef __cplusplus
 }
