@@ -35,6 +35,7 @@ static void g3dwireframe_activate ( G3DWIREFRAME *wir,
 /******************************************************************************/
 void g3dwireframe_setParent ( G3DWIREFRAME *wir,
                               G3DOBJECT    *parent,
+                              G3DOBJECT    *oldParent,
                               uint64_t      engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) wir ) ) {
         g3dwireframe_activate ( wir, engine_flags );

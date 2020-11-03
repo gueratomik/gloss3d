@@ -70,9 +70,7 @@ void g3dsplinerevolver_startUpdate ( G3DSPLINEREVOLVER *srv,
                                      uint64_t engine_flags );
 G3DSPLINEREVOLVER *g3dsplinerevolver_copy ( G3DSPLINEREVOLVER *srv,
                                             uint64_t engine_flags );
-void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
-                                   G3DOBJECT         *parent,
-                                   uint64_t engine_flags );
+
 G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name );
 void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv, 
                                    uint64_t engine_flags );

@@ -178,6 +178,18 @@ void g3dmorpher_getVertexResetPosition ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
+void g3dmorpher_setVertexResetPosition ( G3DMORPHER *mpr,
+                                         G3DVERTEX  *ver,
+                                         G3DVECTOR  *pos ) {
+    VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                        mpr->extensionName );
+
+    vxt->resetPosition.x = pos->x;
+    vxt->resetPosition.y = pos->y;
+    vxt->resetPosition.z = pos->z;
+}
+
+/******************************************************************************/
 uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose ) {
     uint32_t total = 0x00;
     uint32_t i;
@@ -229,8 +241,32 @@ G3DMORPHERMESHPOSE *g3dmorphermeshpose_new ( uint32_t nbver,
 /******************************************************************************/
 static void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose ) {
     if ( mpose->vpose ) free ( mpose->vpose );
+    if ( mpose->name  ) free ( mpose->name  );
 
     free ( mpose );
+}
+
+/******************************************************************************/
+static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
+    LIST *ltmpver = mpr->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                           mpr->extensionName );
+
+        g3dvertex_removeExtension ( ver, vxt );
+
+        vertexposeextension_free ( vxt );
+
+        ltmpver = ltmpver->next;
+    }
+
+    list_free ( &mpr->lver, NULL );
+
+    list_free ( &mpr->lmpose, g3dmorphermeshpose_free );
+
+    mpr->selmpose = NULL;
 }
 
 /******************************************************************************/
@@ -691,10 +727,14 @@ static void g3dmorpher_pose ( G3DMORPHER *mpr,
 /******************************************************************************/
 static void g3dmorpher_setParent ( G3DMORPHER *mpr, 
                                    G3DOBJECT  *parent,
+                                   G3DOBJECT  *oldParent,
                                    uint64_t    engine_flags ) {
     /*if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
         g3dsubdivider_activate ( sdr, engine_flags );
     }*/
+    if ( parent != oldParent ) {
+        g3dmorpher_reset ( mpr );
+    }
 }
 
 /******************************************************************************/
@@ -748,22 +788,7 @@ static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
 
 /******************************************************************************/
 static void g3dmorpher_free ( G3DMORPHER *mpr ) {
-    LIST *ltmpver = mpr->lver;
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX* ) ltmpver->data;
-        G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
-                                                           mpr->extensionName );
-
-        g3dvertex_removeExtension ( ver, vxt );
-
-        vertexposeextension_free ( vxt );
-
-        ltmpver = ltmpver->next;
-    }
-
-    list_free ( &mpr->lver  , NULL );
-    list_free ( &mpr->lmpose, g3dmorphermeshpose_free  );
+    g3dmorpher_reset ( mpr );
 }
 
 /******************************************************************************/
@@ -869,7 +894,7 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                 glEnd ( );
 
                 /*** show faces in all modes ***/
-                glColor3ub  ( 0x80, 0x80, 0x80 );
+                glColor3ub  ( 0x40, 0x40, 0x40 );
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     uint32_t i;

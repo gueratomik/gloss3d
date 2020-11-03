@@ -73,7 +73,9 @@ void objectPose_free ( void *data, uint32_t commit ) {
         if ( commit == 0x00 ) {
             g3dkey_free ( op->key );
         } else {
-            g3dkey_free ( op->overwrittenKey );
+            if ( op->overwrittenKey ) {
+                g3dkey_free ( op->overwrittenKey );
+            }
         }
 
         ltmpop = ltmpop->next;

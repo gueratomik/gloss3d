@@ -96,6 +96,26 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 }
             } break;
 
+            case SIG_OBJECT_MORPHER_RESETPOSITIONS : {
+                uint32_t nbver;
+                uint32_t i;
+
+                g3dimport_freadl ( &nbver, fsrc );
+                for ( i = 0x00; i < nbver; i++ ) {
+                    uint32_t verID;
+                    G3DVECTOR vpos;
+
+                    g3dimport_freadl ( &verID, fsrc );
+                    g3dimport_freadl ( &vpos.x, fsrc );
+                    g3dimport_freadl ( &vpos.y, fsrc );
+                    g3dimport_freadl ( &vpos.z, fsrc );
+
+                    g3dmorpher_setVertexResetPosition ( mpr,
+                                                        gid->currentVertexArray[verID],
+                                                       &vpos );
+                }
+            } break;
+
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;

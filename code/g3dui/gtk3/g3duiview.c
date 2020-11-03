@@ -1667,7 +1667,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                   cam, 
                                   mou, 
                                   current,
-                                  gui->engine_flags /*| view->engine_flags*/ );
+                                  gui->engine_flags | view->engine_flags );
     }
     /*************************************/
 

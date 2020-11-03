@@ -51,7 +51,8 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
                                G3DOBJECT     *parent,
-                               uint64_t engine_flags ) {
+                               G3DOBJECT     *oldParent,
+                               uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
         g3dsubdivider_activate ( sdr, engine_flags );
     }
@@ -850,7 +851,10 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     sdr->subdiv_preview = 0x01;
     sdr->subdiv_render  = 0x01;
 
-    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN | 
+    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN  |
+                                                         OBJECTNOTRANSLATION | 
+                                                         OBJECTNOROTATION    |
+                                                         OBJECTNOSCALING     |
                                                          SYNCLEVELS,
                                            DRAW_CALLBACK(g3dsubdivider_draw),
                                                          NULL,

@@ -30,6 +30,73 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+static uint32_t g3duiview_flagsOption ( G3DEXPORTDATA *ged,
+                                        uint32_t       option,
+                                        uint32_t       flags, 
+                                        FILE          *fdst ) {
+    return g3dexport_fwritel ( &option, fdst );
+}
+
+/******************************************************************************/
+static uint32_t g3duiview_flags ( G3DEXPORTDATA *ged,
+                                  G3DUIVIEW     *view,
+                                  uint32_t       flags, 
+                                  FILE          *fdst ) {
+    uint32_t showTextures   = ( view->engine_flags & NOTEXTURE         ) ? 0 : 1;
+    uint32_t showNormals    = ( view->engine_flags & VIEWNORMALS       ) ? 1 : 0;
+    uint32_t showBones      = ( view->engine_flags & HIDEBONES         ) ? 0 : 1;
+    uint32_t showGrid       = ( view->engine_flags & HIDEGRID          ) ? 0 : 1;
+    uint32_t showBackground = ( view->engine_flags & NOBACKGROUNDIMAGE ) ? 0 : 1;
+    uint32_t showLighting   = ( view->engine_flags & NOLIGHTING        ) ? 0 : 1;
+    uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWTEXTURES,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showTextures,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWNORMALS,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showNormals,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWBONES,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showBones,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWGRID,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showGrid,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWBACKGROUND,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showBackground,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_G3DUI_VIEW_FLAGS_SHOWLIGHTING,
+                                   g3duiview_flagsOption,
+                                   ged,
+                                   showLighting,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3duiview_cameraPosition ( G3DEXPORTDATA *ged,
                                            G3DVECTOR     *pos,
                                            uint32_t       flags, 
@@ -92,18 +159,6 @@ static uint32_t g3duiview_useCamera ( G3DEXPORTDATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexport_fwritel ( &obj->id, fdst );
-
-    return size;
-}
-
-/******************************************************************************/
-static uint32_t g3duiview_flags ( G3DEXPORTDATA *ged,
-                                  G3DUIVIEW     *view,
-                                  uint32_t       flags, 
-                                  FILE          *fdst ) {
-    uint32_t size = 0x00;
-
-    size += g3dexport_fwritel ( &view->engine_flags, fdst );
 
     return size;
 }
@@ -228,6 +283,12 @@ void g3dui_read ( G3DIMPORTDATA *gid,
                   G3DUI         *gui ) {
     uint32_t chunkSignature, chunkSize;
     LIST *ltmpview = gui->lview;
+    uint32_t showBackground;
+    uint32_t showLighting;
+    uint32_t showTextures;
+    uint32_t showNormals;
+    uint32_t showBones;
+    uint32_t showGrid;
     G3DUIVIEW *view;
 
     g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
@@ -249,8 +310,53 @@ void g3dui_read ( G3DIMPORTDATA *gid,
             break;
 
             case SIG_G3DUI_VIEW_FLAGS : {
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWTEXTURES : {
                 if ( view ) {
-                    g3dimport_freadl ( &view->engine_flags, fsrc );
+                    g3dimport_freadl ( &showTextures, fsrc );
+
+                    view->engine_flags |= ( showTextures ) ? 0 : NOTEXTURE;
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWNORMALS : {
+                if ( view ) {
+                    g3dimport_freadl ( &showNormals, fsrc );
+
+                    view->engine_flags |= ( showNormals ) ? VIEWNORMALS : 0;
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWBONES : {
+                if ( view ) {
+                    g3dimport_freadl ( &showBones, fsrc );
+
+                    view->engine_flags |= ( showBones ) ? 0 : HIDEBONES;
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWGRID : {
+                if ( view ) {
+                    g3dimport_freadl ( &showGrid, fsrc );
+
+                    view->engine_flags |= ( showGrid ) ? 0 : HIDEGRID;
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWBACKGROUND : {
+                if ( view ) {
+                    g3dimport_freadl ( &showBackground, fsrc );
+
+                    view->engine_flags |= ( showBackground ) ? 0 : NOBACKGROUNDIMAGE;
+                }
+            } break;
+
+            case SIG_G3DUI_VIEW_FLAGS_SHOWLIGHTING : {
+                if ( view ) {
+                    g3dimport_freadl ( &showLighting, fsrc );
+
+                    view->engine_flags |= ( showLighting ) ? 0 : NOLIGHTING;
                 }
             } break;
 

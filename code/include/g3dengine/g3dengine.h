@@ -675,7 +675,7 @@ typedef struct _G3DCURVE  G3DCURVE;
 #define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint32_t))f)
 #define COMMIT_CALLBACK(f)     ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char *,uint64_t))f)
 #define ADDCHILD_CALLBACK(f)   ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
-#define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
+#define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,G3DOBJECT*,uint64_t))f)
 #define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
 #define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
@@ -721,10 +721,13 @@ typedef struct _G3DOBJECT {
     struct _G3DOBJECT *(*commit) ( struct _G3DOBJECT *, uint32_t,
                                                         const char *,
                                                         uint64_t );
-    void  (*addChild)         ( struct _G3DOBJECT *, struct _G3DOBJECT *,
-                                                     uint64_t );
-    void  (*setParent)        ( struct _G3DOBJECT *, struct _G3DOBJECT *, 
-                                                     uint64_t );
+    void  (*addChild)         ( struct _G3DOBJECT *obj, 
+                                struct _G3DOBJECT *child,
+                                         uint64_t  engine_flags );
+    void  (*setParent)        ( struct _G3DOBJECT *child, 
+                                struct _G3DOBJECT *parent,
+                                struct _G3DOBJECT *oldParent, 
+                                         uint64_t  engine_flags );
     struct _G3DOBJECT *parent; /*** Parent Object ***/
     LIST *lchildren;        /*** List of children ***/
     G3DBBOX bbox;
@@ -1941,8 +1944,10 @@ void       g3dobject_init ( G3DOBJECT   *obj,
                                                                    uint32_t ),
                             void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
                                                                    uint32_t ),
-                            void       (*SetParent) ( G3DOBJECT *, G3DOBJECT *, 
-                                                                   uint32_t ) );
+                            void       (*SetParent) ( G3DOBJECT *,
+                                                      G3DOBJECT *,
+                                                      G3DOBJECT *,
+                                                      uint32_t ) );
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags );
@@ -2778,8 +2783,10 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                                  uint64_t ),
                         void       (*AddChild)    ( G3DOBJECT *, G3DOBJECT *,
                                                                  uint64_t ),
-                        void       (*SetParent)   ( G3DOBJECT *, G3DOBJECT *, 
-                                                                 uint64_t ),
+                        void       (*SetParent)   ( G3DOBJECT *, 
+                                                    G3DOBJECT *, 
+                                                    G3DOBJECT *, 
+                                                    uint64_t ),
                         uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ),
                         void       (*StartUpdate) ( G3DMODIFIER *, uint64_t ),
                         void       (*Update)      ( G3DMODIFIER *, uint64_t ),

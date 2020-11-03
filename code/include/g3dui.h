@@ -93,7 +93,14 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define SIG_G3DUI                             0x3D3D0000
 #define SIG_G3DUI_VIEWS                          0x10000000
 #define SIG_G3DUI_VIEW_ENTRY                          0x11000000
-#define SIG_G3DUI_VIEW_FLAGS                              0x11100000
+/*Deprecated: #define SIG_G3DUI_VIEW_FLAGS                0x11100000 */
+#define SIG_G3DUI_VIEW_FLAGS                              0x11400000
+#define SIG_G3DUI_VIEW_FLAGS_SHOWTEXTURES                     0x11401000 /*(bool)uint32_t*/
+#define SIG_G3DUI_VIEW_FLAGS_SHOWNORMALS                      0x11402000 /*(bool)uint32_t*/
+#define SIG_G3DUI_VIEW_FLAGS_SHOWBONES                        0x11403000 /*(bool)uint32_t*/
+#define SIG_G3DUI_VIEW_FLAGS_SHOWGRID                         0x11404000 /*(bool)uint32_t*/
+#define SIG_G3DUI_VIEW_FLAGS_SHOWBACKGROUND                   0x11405000 /*(bool)uint32_t*/
+#define SIG_G3DUI_VIEW_FLAGS_SHOWLIGHTING                     0x11406000
 #define SIG_G3DUI_VIEW_CAMERA                             0x11200000
 #define SIG_G3DUI_VIEW_CAMERA_POSITION                        0x11210000 /* float-float-float */
 #define SIG_G3DUI_VIEW_CAMERA_ROTATION                        0x11220000 /* float-float-float */

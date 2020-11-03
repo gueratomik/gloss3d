@@ -51,11 +51,13 @@ static void subdivRenderCbk  ( GtkWidget *widget, gpointer user_data ) {
     int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( level >= 0x00 ) {
-        common_g3duisubdivideredit_subdivRenderCbk ( gui, level );
-    }
+    if ( gui->lock == 0x00 ) {
+        if ( level >= 0x00 ) {
+            common_g3duisubdivideredit_subdivRenderCbk ( gui, level );
+        }
 
-    updateSubdivisionForm ( parent, gui );
+        updateSubdivisionForm ( parent, gui );
+    }
 }
 
 /******************************************************************************/
@@ -64,11 +66,13 @@ static void subdivPreviewCbk  ( GtkWidget *widget, gpointer user_data ) {
     int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     G3DUI *gui    = ( G3DUI * ) user_data;
 
-    if ( level >= 0x00 ) {
-        common_g3duisubdivideredit_subdivPreviewCbk ( gui, level );
-    }
+    if ( gui->lock == 0x00 ) {
+        if ( level >= 0x00 ) {
+            common_g3duisubdivideredit_subdivPreviewCbk ( gui, level );
+        }
 
-    updateSubdivisionForm ( parent, gui );
+        updateSubdivisionForm ( parent, gui );
+    }
 }
 
 /******************************************************************************/
@@ -143,14 +147,14 @@ static void createSubdivisionFrame ( GtkWidget *frm, G3DUI *gui,
 
     sdf = createFrame ( frm, gui, EDITSUBDIVIDER       , x,   y, width, height );
 
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0, 12,
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0, 9,
                                                          0,   0, 128, 32,
                                                        subdivPreviewCbk );
 
     createToggleLabel ( sdf, gui, EDITSUBDIVIDERSYNC   , 230,  12,  20, 20,
                                                        subdivSyncCbk );
 
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0, 8,
+    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0, 9,
                                                          0,  24, 128, 32,
                                                        subdivRenderCbk );
 

@@ -382,39 +382,39 @@ static int scale_morpher ( G3DMORPHER       *mpr,
              ( mes->lselver  ) ) {
             switch ( event->type ) {
                 case G3DButtonPress : {
-                    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                    G3DVECTOR avgpos;
-
-                    glMatrixMode ( GL_PROJECTION );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    g3dcamera_project ( cam, engine_flags );
-
-                    glMatrixMode ( GL_MODELVIEW );
-                    glPushMatrix ( );
-                    g3dcamera_view ( cam, HIDEGRID );
-                    glMultMatrixd ( obj->wmatrix );
-
-                    glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                    glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                    glPopMatrix ( );
-                    glMatrixMode ( GL_PROJECTION );
-                    glPopMatrix ( );
-
-                    mouseXpress = orix = bev->x;
-                    mouseYpress = bev->y;
-
                     if ( engine_flags & VIEWVERTEX ) {
+                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                        G3DVECTOR avgpos;
+
+                        glMatrixMode ( GL_PROJECTION );
+                        glPushMatrix ( );
+                        glLoadIdentity ( );
+                        g3dcamera_project ( cam, engine_flags );
+
+                        glMatrixMode ( GL_MODELVIEW );
+                        glPushMatrix ( );
+                        g3dcamera_view ( cam, HIDEGRID );
+                        glMultMatrixd ( obj->wmatrix );
+
+                        glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+                        glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                        glPopMatrix ( );
+                        glMatrixMode ( GL_PROJECTION );
+                        glPopMatrix ( );
+
+                        mouseXpress = orix = bev->x;
+                        mouseYpress = bev->y;
+
                         lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+
+                        oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                       NULL, 
+                                                                       lver );
+
+                        g3dvertex_getAveragePositionFromList ( lver, &pivot );
                     }
-
-                    oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                   NULL, 
-                                                                   lver );
-
-                    g3dvertex_getAveragePositionFromList ( lver, &pivot );
                 } return REDRAWVIEW;
 
                 case G3DMotionNotify : {
@@ -423,9 +423,7 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                     newx = mev->x;
 
                     if ( mev->state & G3DButton1Mask ) {
-                        if ( ( engine_flags & VIEWVERTEX ) ||
-                             ( engine_flags & VIEWEDGE   ) ||
-                             ( engine_flags & VIEWFACE   ) ) {
+                        if ( engine_flags & VIEWVERTEX ) {
                             G3DVECTOR *axis = sce->csr.axis;
                             LIST *ltmpver = lver;
                             double difx, dify, difz;
@@ -454,36 +452,38 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                 } return REDRAWVIEW;
 
                 case G3DButtonRelease : {
-                    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                    if ( engine_flags & VIEWVERTEX ) {
+                        G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                    /*** simulate click and release ***/
-                    if ( ( bev->x == mouseXpress ) && 
-                         ( bev->y == mouseYpress ) ) {
-                        G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                           bev->x, VPX[0x03] - bev->y },
-                                                .only_visible = 0x01,
-                                                .weight = 0.0f,
-                                                .radius = PICKMINRADIUS };
+                        /*** simulate click and release ***/
+                        if ( ( bev->x == mouseXpress ) && 
+                             ( bev->y == mouseYpress ) ) {
+                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
+                                                               bev->x, VPX[0x03] - bev->y },
+                                                    .only_visible = 0x01,
+                                                    .weight = 0.0f,
+                                                    .radius = PICKMINRADIUS };
 
-                        pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                            pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                        }
+
+                        newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                       NULL, 
+                                                                       lver );
+
+
+                        g3durm_morpher_moveVertices ( urm,
+                                                      mpr,
+                                                      mpr->selmpose,
+                                                      lver,
+                                                      oldpos, 
+                                                      newpos, 
+                                                      REDRAWVIEW );
+
+                        list_free ( &lver, NULL );
+
+                        oldpos = newpos = NULL;
                     }
-
-                    newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                   NULL, 
-                                                                   lver );
-
-
-                    g3durm_morpher_moveVertices ( urm,
-                                                  mpr,
-                                                  mpr->selmpose,
-                                                  lver,
-                                                  oldpos, 
-                                                  newpos, 
-                                                  REDRAWVIEW );
-
-                    list_free ( &lver, NULL );
-
-                    oldpos = newpos = NULL;
                 } return REDRAWVIEW            | 
                          REDRAWCOORDS          | 
                          BUFFEREDSUBDIVISIONOK | 

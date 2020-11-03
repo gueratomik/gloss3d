@@ -34,34 +34,114 @@
 #define EDITMORPHERPOSEFRAME "Morpher Poses"
 #define EDITMORPHERPOSELIST  "Morpher Pose List"
 
+static void updateKeyMorpherEdit ( GtkWidget *widget, 
+                                   gpointer   user_data );
+
+/******************************************************************************/
+typedef struct _MORPHERKEYDATA {
+    LIST       *lmpd; /*** list of Mesh Pose Data ***/
+    GtkWidget  *meshPoseList;
+    G3DKEY     *key;
+    G3DMORPHER *mpr;
+    G3DUI      *gui;
+} MORPHERKEYDATA;
+
+/******************************************************************************/
+static MORPHERKEYDATA *morpherkeydata_new ( G3DMORPHER *mpr,
+                                            G3DKEY     *key,
+                                            G3DUI      *gui ) {
+    MORPHERKEYDATA *mkd = calloc ( 0x01, sizeof ( MORPHERKEYDATA ) );
+
+    if ( mkd == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
+
+        return NULL;
+    }
+
+    mkd->mpr = mpr;
+    mkd->key = key;
+    mkd->gui = gui;
+
+    return mkd;
+}
+
+/******************************************************************************/
 typedef struct _MESHPOSEDATA {
-    G3DMORPHER         *mpr;
+    MORPHERKEYDATA     *mkd;
     G3DMORPHERMESHPOSE *mpose;
-    G3DKEY             *key;
-    G3DUI              *gui;
+    GtkWidget          *rateWidget;
+    GtkWidget          *enableWidget;
 } MESHPOSEDATA;
+
+/******************************************************************************/
+static MESHPOSEDATA *meshposedata_new ( MORPHERKEYDATA     *mkd,
+                                        G3DMORPHERMESHPOSE *mpose ) {
+    MESHPOSEDATA *mpd = calloc ( 0x01, sizeof ( MESHPOSEDATA ) );
+
+    mpd->mkd   = mkd;
+    mpd->mpose = mpose;
+
+    return mpd;
+}
+
+/******************************************************************************/
+static void meshposedata_free ( MESHPOSEDATA *mpd ) {
+    free ( mpd );
+}
+
+/******************************************************************************/
+static MESHPOSEDATA *morpherkeydata_getMeshPoseData ( MORPHERKEYDATA     *mkd,
+                                                      G3DMORPHERMESHPOSE *mpose ) {
+    LIST *ltmpmpd = mkd->lmpd;
+
+    while ( ltmpmpd ) {
+        MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) ltmpmpd->data;
+
+        if ( mpd->mpose == mpose ) return mpd;
+
+        ltmpmpd = ltmpmpd->next;
+    } 
+
+    return NULL;
+}
+
+/******************************************************************************/
+static void morpherkeydata_addMeshPoseData ( MORPHERKEYDATA *mkd,
+                                             MESHPOSEDATA   *mpd ) {
+    list_insert ( &mkd->lmpd, mpd );
+}
+
+/******************************************************************************/
+static void morpherkeydata_removeMeshPoseData ( MORPHERKEYDATA *mkd,
+                                                MESHPOSEDATA   *mpd ) {
+    list_remove ( &mkd->lmpd, mpd );
+}
+
+/******************************************************************************/
+static MESHPOSEDATA *morpherkeydata_free ( MORPHERKEYDATA *mkd ) {
+    list_free ( &mkd->lmpd, meshposedata_free );
+
+    return NULL;
+}
 
 /******************************************************************************/
 static void selectMeshPoseCbk ( GtkWidget *widget, 
                                 gpointer   user_data ) {
     gboolean active = gtk_toggle_button_get_active (widget);
     MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( mpd->gui->sce );
 
-    if ( obj ) {
-        if ( obj->type == G3DMORPHERTYPE ) {
-            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-
-            if ( active == TRUE  ) {
-                g3dmorpherkey_enableMeshPose  ( mpd->key, 
-                                                mpd->mpose->slotID );
-            }
-
-            if ( active == FALSE ) {
-                g3dmorpherkey_disableMeshPose ( mpd->key, 
-                                                mpd->mpose->slotID );
-            }
+    if ( mpd->mkd->gui->lock == 0x00 ) {
+        if ( active == TRUE  ) {
+            g3dmorpherkey_enableMeshPose  ( mpd->mkd->key, 
+                                            mpd->mpose->slotID );
         }
+
+        if ( active == FALSE ) {
+            g3dmorpherkey_disableMeshPose ( mpd->mkd->key, 
+                                            mpd->mpose->slotID );
+        }
+
+        updateKeyMorpherEdit ( mpd->mkd->meshPoseList, mpd->mkd );
     }
 
     /*g3dui_redrawGLViews ( fgd->gui );*/
@@ -72,7 +152,7 @@ static void destroyMeshPoseCbk ( GtkWidget *widget,
                                   gpointer   user_data ) {
     MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
 
-    free ( mpd );
+    meshposedata_free ( mpd );
 }
 
 /******************************************************************************/
@@ -81,86 +161,20 @@ static void rateCbk ( GtkWidget *widget, gpointer user_data ) {
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     MESHPOSEDATA *mpd = ( MESHPOSEDATA * ) user_data;
 
-    if ( mpd->gui->lock == 0x00 ) {
-        g3dmorpherkey_setMeshPoseRate ( mpd->key,
+    if ( mpd->mkd->gui->lock == 0x00 ) {
+        g3dmorpherkey_setMeshPoseRate ( mpd->mkd->key,
                                         mpd->mpose->slotID, val / 100.0f );
     }
 }
 
 /******************************************************************************/
-static void populateMeshPoseList ( GtkWidget *fixed,
-                                   G3DKEY    *key,
-                                   G3DUI     *gui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
-
-    gui->lock = 0x01;
-
-    if ( obj ) {
-        if ( obj->type == G3DMORPHERTYPE ) {
-            GdkRectangle frec = { 0x00, 0x00, 0x00, 0x00 };
-            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-            LIST *ltmpmpose = mpr->lmpose;
-            uint32_t maxWidth = 0x00;
-            uint32_t y = 0x00;
-
-            while ( ltmpmpose ) {
-                G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) ltmpmpose->data;
-                GtkWidget *checkButton = gtk_check_button_new_with_label ( mpose->name );
-                GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x18 };
-                MESHPOSEDATA *mpd = calloc ( 0x01, sizeof ( MESHPOSEDATA ) );
-                GtkWidget *rate;
-
-
-
-                mpd->mpr   = mpr;
-                mpd->mpose = mpose;
-                mpd->gui   = gui;
-                mpd->key   = key;
-
-                rate = createFloatText ( fixed, mpd, "Rate", 0.0f, 100.0f, 0, y, 32, 64, rateCbk );
-
-                if ( g3dmorpherkey_isMeshPoseEnabled ( key, mpose->slotID ) ) {
-                    gtk_toggle_button_set_active ( checkButton, TRUE  );
-                    gtk_widget_set_sensitive     ( rate       , TRUE  );
-                } else {
-                    gtk_toggle_button_set_active ( checkButton, FALSE );
-                    gtk_widget_set_sensitive     ( rate       , FALSE );
-                }
-
-                gtk_spin_button_set_value ( rate, g3dmorpherkey_getMeshPoseRate ( key, mpose->slotID ) * 100.0f );
-
-                gtk_fixed_put ( fixed, checkButton, 128, y );
-
-                gtk_widget_size_allocate ( checkButton, &lrec );
-
-                g_signal_connect ( checkButton, "toggled", G_CALLBACK(selectMeshPoseCbk) , mpd );
-                g_signal_connect ( checkButton, "destroy", G_CALLBACK(destroyMeshPoseCbk), mpd );
-
-                y += lrec.height;
-
-                ltmpmpose = ltmpmpose->next;
-            }
-
-            frec.width  = 100;
-            frec.height = y;
-
-            gtk_widget_size_allocate ( fixed, &frec );
-        }
-    }
-
-    gui->lock = 0x00;
-
-    gtk_widget_show_all ( fixed );
-}
-
-/******************************************************************************/
-static void createMeshPoseFrame ( GtkWidget *frm, 
-                                  G3DKEY    *key,
-                                  G3DUI     *gui,
-                                  gint       x,
-                                  gint       y,
-                                  gint       width,
-                                  gint       height ) {
+static GtkWidget *createMeshPoseFrame ( GtkWidget *frm, 
+                                        G3DKEY    *key,
+                                        G3DUI     *gui,
+                                        gint       x,
+                                        gint       y,
+                                        gint       width,
+                                        gint       height ) {
     GtkWidget *scrolled = gtk_scrolled_window_new ( NULL, NULL );
     GdkRectangle srec = { 0x00, 0x00, width, height };
     GtkWidget *fixed = gtk_fixed_new ( );
@@ -180,32 +194,117 @@ static void createMeshPoseFrame ( GtkWidget *frm,
     gtk_widget_set_name ( scrolled, EDITMORPHERPOSELIST );
     gtk_widget_set_name ( fixed   , EDITMORPHERPOSELIST );
 
-    populateMeshPoseList ( fixed, key, gui );
-
     gtk_widget_show_all ( scrolled );
+
+    return fixed;
 }
 
 /******************************************************************************/
-static void Destroy ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void updateKeyMorpherEdit ( GtkWidget *widget, 
+                                   gpointer   user_data ) {
+    MORPHERKEYDATA *mkd = ( MORPHERKEYDATA * ) user_data;
+    GdkRectangle frec = { 0x00, 0x00, 0x00, 0x00 };
+    LIST *ltmpmpose = mkd->mpr->lmpose;
+    uint32_t y = 0x00;
+
+    mkd->gui->lock = 0x01;
+
+    while ( ltmpmpose ) {
+        G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) ltmpmpose->data;
+        MESHPOSEDATA *mpd = morpherkeydata_getMeshPoseData ( mkd, 
+                                                             mpose );
+        GdkRectangle lrec = { 0x00, 0x00, 0x00, 0x18 };
+        float rate;
+
+        if ( mpd == NULL ) {
+            mpd = meshposedata_new ( mkd, mpose );
+
+            morpherkeydata_addMeshPoseData ( mkd, mpd );
+
+            mpd->enableWidget = gtk_check_button_new_with_label ( mpose->name );
+
+            gtk_fixed_put ( mkd->meshPoseList, 
+                            mpd->enableWidget, 
+                            0x00,
+                            0x00 );
+
+            mpd->rateWidget = createFloatText ( mkd->meshPoseList, 
+                                                mpd, 
+                                               "", 
+                                                0.0f,
+                                                100.0f,
+                                                0x00, 0x00,
+                                                32,
+                                                64, rateCbk );
+
+            g_signal_connect ( mpd->enableWidget, 
+                               "toggled", 
+                               G_CALLBACK(selectMeshPoseCbk), mpd );
+        }
+
+        gtk_fixed_move ( mkd->meshPoseList,
+                         mpd->enableWidget,
+                         128, y );
+
+        gtk_fixed_move ( mkd->meshPoseList,
+                         mpd->rateWidget,
+                         0  , y );
+
+        if ( g3dmorpherkey_isMeshPoseEnabled ( mkd->key, mpose->slotID ) ) {
+            gtk_toggle_button_set_active ( mpd->enableWidget, TRUE );
+            gtk_widget_set_sensitive     ( mpd->rateWidget  , TRUE );
+        } else {
+            gtk_toggle_button_set_active ( mpd->enableWidget, FALSE );
+            gtk_widget_set_sensitive     ( mpd->rateWidget  , FALSE );
+        }
+
+        rate = g3dmorpherkey_getMeshPoseRate ( mkd->key, 
+                                               mpose->slotID ) * 100.0f;
+
+        gtk_spin_button_set_value ( mpd->rateWidget, rate );
+
+        y += lrec.height;
+
+        ltmpmpose = ltmpmpose->next;
+    }
+
+    frec.width  = 100;
+    frec.height = y;
+
+    gtk_widget_size_allocate ( mkd->meshPoseList, &frec );
+
+    gtk_widget_show_all ( mkd->meshPoseList );
+
+    mkd->gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void Destroy ( GtkWidget *widget, 
+                      gpointer   user_data ) {
+    MORPHERKEYDATA *mkd = ( MORPHERKEYDATA * ) user_data;
 
-    /*updateKeyMorpherEdit ( widget, gui );*/
+    morpherkeydata_free ( mkd );
 }
 
 /******************************************************************************/
-GtkWidget* createKeyMorpherEdit ( GtkWidget *parent,
-                                  G3DKEY    *key,
-                                  G3DUI     *gui,
-                                  gint       x,
-                                  gint       y,
-                                  gint       width,
-                                  gint       height ) {
+static void Realize ( GtkWidget *widget, 
+                      gpointer   user_data ) {
+    MORPHERKEYDATA *mkd = ( MORPHERKEYDATA * ) user_data;
+
+    updateKeyMorpherEdit ( widget, mkd );
+}
+
+/******************************************************************************/
+GtkWidget* createKeyMorpherEdit ( GtkWidget  *parent,
+                                  G3DMORPHER *mpr,
+                                  G3DKEY     *key,
+                                  G3DUI      *gui,
+                                  gint        x,
+                                  gint        y,
+                                  gint        width,
+                                  gint        height ) {
     GdkRectangle gdkrec = { 0, 0, width, height };
+    MORPHERKEYDATA *mkd = morpherkeydata_new ( mpr, key, gui );
     GtkWidget *frm = gtk_fixed_new ( );
 
     gtk_widget_set_name ( frm, EDITMORPHERKEY );
@@ -219,12 +318,12 @@ GtkWidget* createKeyMorpherEdit ( GtkWidget *parent,
     /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
     gui->lock = 0x01;
 
-    createMeshPoseFrame ( frm, key, gui, 0, 88, 286, 140 );
+    mkd->meshPoseList = createMeshPoseFrame ( frm, key, gui, 0, 0, 416, 180 );
 
     gui->lock = 0x00;
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
-    g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), gui );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), mkd );
+    g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), mkd );
 
     gtk_container_add ( GTK_CONTAINER(parent), frm );
 

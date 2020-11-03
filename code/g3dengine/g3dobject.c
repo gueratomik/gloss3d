@@ -1081,6 +1081,8 @@ void g3dobject_drawCenter ( G3DOBJECT *obj,
 void g3dobject_appendChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
                              uint64_t   engine_flags ) {
+    G3DOBJECT *oldParent = child->parent;
+
     list_append ( &obj->lchildren, child );
 
     child->parent = obj;
@@ -1089,14 +1091,22 @@ void g3dobject_appendChild ( G3DOBJECT *obj,
         g3dlight_turnOn ( ( G3DLIGHT * ) child );
     }
 
-    if ( obj->addChild    ) obj->addChild  ( obj  , child, engine_flags );
-    if ( child->setParent ) obj->setParent ( child, obj  , engine_flags );
+    if ( obj->addChild    ) obj->addChild  ( obj, 
+                                             child,
+                                             engine_flags );
+
+    if ( child->setParent ) child->setParent ( child, 
+                                               obj, 
+                                               oldParent, 
+                                               engine_flags );
 }
 
 /******************************************************************************/
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
                           uint64_t   engine_flags ) {
+    G3DOBJECT *oldParent = child->parent;
+
     list_insert ( &obj->lchildren, child );
 
     child->parent = obj;
@@ -1105,8 +1115,14 @@ void g3dobject_addChild ( G3DOBJECT *obj,
         g3dlight_turnOn ( ( G3DLIGHT * ) child );
     }
 
-    if ( obj->addChild    ) obj->addChild  ( obj  , child, engine_flags );
-    if ( child->setParent ) obj->setParent ( child, obj  , engine_flags );
+    if ( obj->addChild    ) obj->addChild  ( obj, 
+                                             child,
+                                             engine_flags );
+
+    if ( child->setParent ) child->setParent ( child, 
+                                               obj, 
+                                               oldParent, 
+                                               engine_flags );
 }
 
 /******************************************************************************/
@@ -1595,8 +1611,10 @@ void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child,
 }
 
 /******************************************************************************/
-void g3dobject_default_setParent ( G3DOBJECT *obj, G3DOBJECT *parent, 
-                                                   uint64_t engine_flags ) {
+void g3dobject_default_setParent ( G3DOBJECT *obj, 
+                                   G3DOBJECT *parent, 
+                                   G3DOBJECT *oldParent, 
+                                   uint64_t   engine_flags ) {
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
@@ -1624,8 +1642,10 @@ void g3dobject_init ( G3DOBJECT   *obj,
                                                              uint32_t ),
                       void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
                                                              uint32_t ),
-                      void       (*SetParent) ( G3DOBJECT *, G3DOBJECT *, 
-                                                             uint32_t ) ) {
+                      void       (*SetParent) ( G3DOBJECT *, 
+                                                G3DOBJECT *, 
+                                                G3DOBJECT *, 
+                                                uint32_t ) ) {
     obj->type  = type;
     obj->id    = id;
     obj->flags = object_flags;

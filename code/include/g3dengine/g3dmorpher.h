@@ -110,7 +110,9 @@ uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_getVertexResetPosition ( G3DMORPHER *mpr,
                                          G3DVERTEX  *ver,
                                          G3DVECTOR  *pos );
-
+void g3dmorpher_setVertexResetPosition ( G3DMORPHER *mpr,
+                                         G3DVERTEX  *ver,
+                                         G3DVECTOR  *pos );
 int32_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr );
 
 void g3dmorpherkey_enableMeshPose ( G3DKEY  *key,

@@ -47,7 +47,7 @@ static void editKeyDataCbk ( GtkWidget *widget, gpointer user_data ) {
 
                 GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
 
-                createKeyMorpherEdit ( dial, key, gui, 0, 0, 416, 192 );
+                createKeyMorpherEdit ( dial, mpr, key, gui, 0, 0, 416, 192 );
 
                 gtk_widget_show ( dial );
             }

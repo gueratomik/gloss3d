@@ -30,9 +30,10 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
-                                   G3DOBJECT         *parent,
-                                   uint64_t engine_flags ) {
+static void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
+                                          G3DOBJECT         *parent,
+                                          G3DOBJECT         *oldParent,
+                                          uint64_t           engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) srv ) ) {
         g3dsplinerevolver_activate ( srv, engine_flags );
     }
