@@ -113,10 +113,9 @@ static void updateMeshPoseName ( MESHPOSEPANELDATA *mpd ) {
     if ( obj ) {
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-            G3DMORPHERMESHPOSE *mpose = g3dmesh_getLastSelectedFacegroup ( mpr );
 
-            if ( mpose ) {
-                gtk_entry_set_text ( mpd->nameWidget, mpose->name );
+            if ( mpr->selmpose ) {
+                gtk_entry_set_text ( mpd->nameWidget, mpr->selmpose->name );
             }
         }
     }

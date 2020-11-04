@@ -414,7 +414,8 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                         mouseXpress = orix = bev->x;
                         mouseYpress = bev->y;
 
-                        lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+                        lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
+                                                                        NULL );
 
                         g3dvertex_getAveragePositionFromList ( lver, &pivot );
 

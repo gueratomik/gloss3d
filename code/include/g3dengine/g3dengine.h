@@ -2069,6 +2069,10 @@ void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     G3DKEY   **nextKey,
                                     uint32_t   key_flags );
 void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis );
+void g3dobject_browse ( G3DOBJECT  *obj,
+                        uint32_t  (*action)(G3DOBJECT *, void *, uint64_t ),
+                        void       *data,
+                        uint64_t    engine_flags );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );
@@ -2515,6 +2519,15 @@ void g3dscene_registerImage ( G3DSCENE *sce,
                               G3DIMAGE *img );
 void g3dscene_unregisterImage ( G3DSCENE *sce, 
                                 G3DIMAGE *img );
+void g3dscene_updateMeshesFromImage ( G3DSCENE *sce,
+                                      G3DIMAGE *img,
+                                      uint64_t  engine_flags );
+void g3dscene_processAnimatedImages ( G3DSCENE *sce, 
+                                      float     sceneStartFrame,
+                                      float     sceneCurrentFrame,
+                                      float     sceneEndFrame,
+                                      float     sceneFramesPerSecond,
+                                      uint64_t  engine_flags );
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );

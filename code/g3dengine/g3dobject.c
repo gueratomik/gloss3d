@@ -119,6 +119,29 @@ void g3dobject_endUpdateModifiers_r ( G3DOBJECT *obj,
     }
 }
 
+
+/******************************************************************************/
+void g3dobject_browse ( G3DOBJECT  *obj,
+                        uint32_t (*action)(G3DOBJECT *, void *, uint64_t ),
+                        void       *data,
+                        uint64_t    engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    if ( action ) {
+        if ( action ( obj, data, engine_flags ) == 0x01 ) {
+            return;
+        }
+    }
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        g3dobject_browse ( child, action, data, engine_flags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
 /******************************************************************************/
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;

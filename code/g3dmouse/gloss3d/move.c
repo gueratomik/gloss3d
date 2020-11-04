@@ -424,7 +424,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
                         mouseXpress = bev->x;
                         mouseYpress = bev->y;
 
-                        lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
+                        lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
+                                                                        NULL );
                         /*lver = mpr->lver;*/
 
 
@@ -919,43 +920,45 @@ int move_object ( LIST        *lobj,
                     dif.y = ( lendpos.y - lstartpos.y );
                     dif.z = ( lendpos.z - lstartpos.z );
 
-                    if ( ( engine_flags & XAXIS ) && sce->csr.axis[0x00].w ) {
-                        obj->pos.x += ( lvecx.x * dif.x * sca.x );
-                        obj->pos.y += ( lvecx.y * dif.x * sca.x );
-                        obj->pos.z += ( lvecx.z * dif.x * sca.x );
-                    }
+                    if ( ( obj->flags & OBJECTNOTRANSLATION ) == 0x00 ) {
+                        if ( ( engine_flags & XAXIS ) && sce->csr.axis[0x00].w ) {
+                            obj->pos.x += ( lvecx.x * dif.x * sca.x );
+                            obj->pos.y += ( lvecx.y * dif.x * sca.x );
+                            obj->pos.z += ( lvecx.z * dif.x * sca.x );
+                        }
 
-                    if ( ( engine_flags & YAXIS ) && sce->csr.axis[0x01].w ) {
-                        obj->pos.x += ( lvecy.x * dif.y * sca.y );
-                        obj->pos.y += ( lvecy.y * dif.y * sca.y );
-                        obj->pos.z += ( lvecy.z * dif.y * sca.y );
-                    }
+                        if ( ( engine_flags & YAXIS ) && sce->csr.axis[0x01].w ) {
+                            obj->pos.x += ( lvecy.x * dif.y * sca.y );
+                            obj->pos.y += ( lvecy.y * dif.y * sca.y );
+                            obj->pos.z += ( lvecy.z * dif.y * sca.y );
+                        }
 
-                    if ( ( engine_flags & ZAXIS ) && sce->csr.axis[0x02].w ) {
-                        obj->pos.x += ( lvecz.x * dif.z * sca.z );
-                        obj->pos.y += ( lvecz.y * dif.z * sca.z );
-                        obj->pos.z += ( lvecz.z * dif.z * sca.z );
-                    }
+                        if ( ( engine_flags & ZAXIS ) && sce->csr.axis[0x02].w ) {
+                            obj->pos.x += ( lvecz.x * dif.z * sca.z );
+                            obj->pos.y += ( lvecz.y * dif.z * sca.z );
+                            obj->pos.z += ( lvecz.z * dif.z * sca.z );
+                        }
 
-                    g3dobject_updateMatrix_r ( obj, engine_flags );
+                        g3dobject_updateMatrix_r ( obj, engine_flags );
 
-                    if ( engine_flags & VIEWAXIS ) {
-                        /*** in case this was in VIEWAXIS mode, we move ***/
-                        /*** back the vertices were they were before,   ***/
-                        /*** in world coord ***/
-                        if ( nbobj == 0x01 ) {
-                            if ( obj->type == G3DMESHTYPE ) {
-                                G3DMESH *mes = ( G3DMESH * ) obj;
+                        if ( engine_flags & VIEWAXIS ) {
+                            /*** in case this was in VIEWAXIS mode, we move ***/
+                            /*** back the vertices were they were before,   ***/
+                            /*** in world coord ***/
+                            if ( nbobj == 0x01 ) {
+                                if ( obj->type == G3DMESHTYPE ) {
+                                    G3DMESH *mes = ( G3DMESH * ) obj;
 
-                                g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
-                            }
+                                    g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
 
-                            if ( obj->type & SPLINE ) {
-                                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+                                if ( obj->type & SPLINE ) {
+                                    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                                g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
-                                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
+                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                }
                             }
                         }
                     }

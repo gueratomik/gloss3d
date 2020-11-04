@@ -116,13 +116,13 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
-                    if ( mat->flags & BUMP_ENABLED ) {
-                        g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba, 0x01 );
+                /*if ( mat->flags & BUMP_ENABLED ) {
+                    g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba, 0x01 );
 
                     p->pos.x += ( rgba.r * mat->bump.solid.r );
                     p->pos.y += ( rgba.r * mat->bump.solid.g );
                     p->pos.z += ( rgba.r * mat->bump.solid.b );
-                }
+                }*/
 
                 p->diff = 0.0f;
                 p->spec = 0.0f;
@@ -212,7 +212,9 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                         rgba.b *= mat->alpha.solid.b;
                     }
 
-                    trans = ( ( float ) ( ( rgba.r + rgba.g + rgba.b ) / ( 3 * 255.0f ) ) );
+                    trans = ( ( float ) ( ( rgba.r + 
+                                            rgba.g + 
+                                            rgba.b ) / ( 3 * 255.0f ) ) );
 
                     R = GRAY + ( ( (int32_t) R - GRAY ) * ( trans ) );
                     G = GRAY + ( ( (int32_t) G - GRAY ) * ( trans ) );

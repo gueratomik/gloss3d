@@ -581,6 +581,71 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+static uint32_t updateMeshesFromImage ( G3DOBJECT *obj, 
+                                        G3DIMAGE  *img,
+                                        uint64_t   engine_flags ) {
+
+    if ( ( obj->type == G3DMESHTYPE ) ||
+         ( obj->type  & PRIMITIVE   ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+        LIST *ltmptex = mes->ltex;
+
+        while ( ltmptex ) {
+            G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
+
+            if ( tex->mat->displacement.image == img ) {
+                g3dmesh_update ( mes, NULL,
+                                      NULL,
+                                      NULL,
+                                      RESETMODIFIERS, engine_flags );
+            }
+
+            ltmptex = ltmptex->next;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+void g3dscene_updateMeshesFromImage ( G3DSCENE *sce,
+                                      G3DIMAGE *img,
+                                      uint64_t  engine_flags ) {
+    g3dobject_browse ( sce, updateMeshesFromImage, img, engine_flags );
+}
+
+/******************************************************************************/
+void g3dscene_processAnimatedImages ( G3DSCENE *sce, 
+                                      float     sceneStartFrame,
+                                      float     sceneCurrentFrame,
+                                      float     sceneEndFrame,
+                                      float     sceneFramesPerSecond,
+                                      uint64_t  engine_flags ) {
+    LIST *ltpmimg = sce->limg;
+
+    while ( ltpmimg ) {
+        G3DIMAGE *img = ( G3DIMAGE * ) ltpmimg->data;
+
+        if ( img->flags & ANIMATEDIMAGE ) {
+            g3dimage_animate ( img,
+                               sceneStartFrame, 
+                               sceneCurrentFrame,
+                               sceneEndFrame,
+                               sceneFramesPerSecond,
+                               engine_flags );
+
+            g3dimage_bind ( img );
+
+            if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
+                g3dscene_updateMeshesFromImage ( sce, img, engine_flags );
+            }
+        }
+
+        ltpmimg = ltpmimg->next;
+    }
+}
+
+/******************************************************************************/
 void g3dscene_free ( G3DOBJECT *obj ) {
     G3DSCENE *sce = ( G3DSCENE * ) obj;
 

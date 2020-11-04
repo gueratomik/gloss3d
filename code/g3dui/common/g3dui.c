@@ -43,12 +43,12 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     if ( rsg ) {
-        g3dsysinfo_processAnimatedImages ( sysinfo, 
-                                           rsg->output.startframe,
-                                           gui->curframe,
-                                           rsg->output.endframe,
-                                           rsg->output.fps,
-                                           gui->engine_flags );
+        g3dscene_processAnimatedImages ( gui->sce, 
+                                         rsg->output.startframe,
+                                         gui->curframe,
+                                         rsg->output.endframe,
+                                         rsg->output.fps,
+                                         gui->engine_flags );
     }
 }
 
@@ -550,6 +550,7 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
     if ( gui->sce ) {
         common_g3dui_setFileName ( gui, filename );
 
+        g3dui_updateGLViewsMenu    ( gui );
         g3dui_clearMaterials ( gui );
         g3dui_redrawGLViews (  gui );
         g3dui_importMaterials ( gui );

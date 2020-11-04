@@ -44,6 +44,84 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 */
 
 /******************************************************************************/
+void g3dimage_convertToNormalMap ( G3DIMAGE *srcimg ) {
+    unsigned char (*dstdata)[0x03] = calloc ( srcimg->height, 
+                                              srcimg->bytesPerLine ),
+                  (*srcdata)[0x03] = srcimg->data;
+    G2DVECTOR pattern[0x04][0x03] = { { { .x =  0, .y =  0 },
+                                        { .x =  1, .y =  0 },
+                                        { .x =  0, .y =  1 } },
+                                      { { .x =  0, .y =  0 },
+                                        { .x =  0, .y =  1 },
+                                        { .x = -1, .y =  0 } },
+                                      { { .x =  0, .y =  0 },
+                                        { .x =  0, .y = -1 },
+                                        { .x =  1, .y =  0 } },
+                                      { { .x =  0, .y =  0 },
+                                        { .x = -1, .y =  0 },
+                                        { .x =  0, .y = -1 } } };
+    uint32_t midx = srcimg->width  / 2,
+             midy = srcimg->height / 2;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < srcimg->height; i++ ) {
+        uint32_t m = ( i / midy );
+
+        for ( j = 0x00; j < srcimg->width; j++ ) {
+            uint32_t n = ( j / midx );
+            uint32_t patidx = ( m * 0x02 ) + n;
+            G2DVECTOR *curpat = pattern[patidx];
+            G2DVECTOR pt[0x03] = { { .x = j + curpat[0].x, 
+                                     .y = i + curpat[0].y },
+                                   { .x = j + curpat[1].x,
+                                     .y = i + curpat[1].y },
+                                   { .x = j + curpat[2].x, 
+                                     .y = i + curpat[2].y } };
+            uint32_t offset = ( i * srcimg->width ) + j;
+            uint32_t offset0 = ( ( pt[0].y * srcimg->width ) + pt[0].x ),
+                     offset1 = ( ( pt[1].y * srcimg->width ) + pt[1].x ),
+                     offset2 = ( ( pt[2].y * srcimg->width ) + pt[2].x );
+            uint32_t R0 = srcdata[offset0][0],
+                     G0 = srcdata[offset0][1],
+                     B0 = srcdata[offset0][2],
+                     AVG0 = ( R0 + G0 + B0 ) / 3;
+            uint32_t R1 = srcdata[offset1][0],
+                     G1 = srcdata[offset1][1],
+                     B1 = srcdata[offset1][2],
+                     AVG1 = ( R1 + G1 + B1 ) / 3;
+            uint32_t R2 = srcdata[offset2][0],
+                     G2 = srcdata[offset2][1],
+                     B2 = srcdata[offset2][2],
+                     AVG2 = ( R2 + G2 + B2 ) / 3;
+            G3DVECTOR vec[0x02];
+            G3DVECTOR res;
+                                      
+            vec[0x00].x = ( float ) curpat[0x01].x;
+            vec[0x00].y = ( float ) curpat[0x01].y;
+            vec[0x00].z = ( float ) AVG1 - AVG0;
+
+            vec[0x01].x = ( float ) curpat[0x02].x;
+            vec[0x01].y = ( float ) curpat[0x02].y;
+            vec[0x01].z = ( float ) AVG2 - AVG0;
+
+            g3dvector_cross ( &vec[0x00], &vec[0x01], &res );
+
+            g3dvector_normalize ( &res, NULL );
+
+            res.x = ( res.x / 2 ) + 0.5f;
+            res.y = ( res.y / 2 ) + 0.5f;
+            res.z = ( res.z / 2 ) + 0.5f;
+
+            dstdata[offset][0x00] = ( res.x * 255.0f );
+            dstdata[offset][0x01] = ( res.y * 255.0f );
+            dstdata[offset][0x02] = ( res.z * 255.0f );
+        }
+    }
+
+    srcimg->data = dstdata;
+}
+
+/******************************************************************************/
 void g3dimage_merge ( G3DIMAGE *dstimg,
                       G3DIMAGE *srcimg,
                       uint32_t  xoffset,
@@ -463,8 +541,6 @@ void g3dimage_initFromVideo ( G3DIMAGE   *image,
 
     /* Load a first set of previews */
     g3dimage_loadPreviews ( image, 0, NBPREVIEWS, 0, 24, 24, 0x00 );
-
-    list_insert ( &sysinfo->lanimatedImages, image );
 }
 
 /******************************************************************************/

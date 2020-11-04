@@ -102,8 +102,7 @@ void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
                                 G3DVECTOR          *vpos );
 void g3dmorpher_removeVertexPose ( G3DMORPHER         *mpr,
                                    G3DVERTEX          *ver,
-                                   G3DMORPHERMESHPOSE *mpose,
-                                   G3DVECTOR          *vpos );
+                                   G3DMORPHERMESHPOSE *mpose );
 
 G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr );
 uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose );
@@ -129,6 +128,10 @@ uint32_t g3dmorpherkey_isMeshPoseEnabled ( G3DKEY  *key,
 G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
                                                  G3DMORPHERMESHPOSE *mpose,
                                                  LIST               *lver );
+LIST *g3dmorpher_getMeshPoseSelectedVertices ( G3DMORPHER *mpr,
+                                               G3DMORPHERMESHPOSE *mpose );
+LIST *g3dmorpher_getMeshPoseVertices ( G3DMORPHER         *mpr,
+                                       G3DMORPHERMESHPOSE *mpose );
 
 #ifdef __cplusplus
 }
