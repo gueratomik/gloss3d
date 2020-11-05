@@ -858,7 +858,7 @@ uint32_t r3dray_inOctree ( R3DRAY *, R3DOCTREE *, R3DPOINT *, R3DPOINT * );
 uint32_t r3dray_inOctreeSimple ( R3DRAY *, R3DOCTREE * );
 uint32_t r3dray_intersectOctree ( R3DRAY *, R3DMESH *, R3DOCTREE *,/* R3DPOINT *, R3DPOINT *,*/ R3DFACE *, uint32_t );
 void r3dray_getOctrees ( R3DRAY *, LIST *, LIST ** );
-uint32_t r3dray_illumination ( R3DRAY *, R3DSCENE *, R3DRGBA *, R3DRGBA *, R3DFACE *, uint32_t, LIST * );
+uint32_t r3dray_illumination ( R3DRAY *, R3DSCENE *, G3DVECTOR *, R3DRGBA *, R3DRGBA *, R3DFACE *, uint32_t, LIST * );
 void r3dray_intersect ( R3DRAY *, R3DSCENE * );
 uint32_t r3dray_reflect ( R3DRAY *, R3DRAY * );
 void r3dray_refract ( R3DRAY *, R3DRAY *, float );
@@ -876,7 +876,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                               float    backgroundImageWidthRatio,
                               R3DRGBA *diffuse,
                               R3DRGBA *specular,
-                              R3DRGBA *bump,
+                              G3DVECTOR *bump,
                               R3DRGBA *reflection,
                               R3DRGBA *refraction,
                               R3DRGBA *alpha,

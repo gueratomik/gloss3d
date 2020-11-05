@@ -44,7 +44,114 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 */
 
 /******************************************************************************/
-void g3dimage_convertToNormalMap ( G3DIMAGE *srcimg ) {
+void g3dimage_getNormal ( G3DIMAGE  *img,
+                          float      x, 
+                          float      y,
+                          G3DVECTOR *nor ) {
+/* Patterns for our vector depending on were we are on the image, to prevent:
+   a forbidden memory access.
+
+  0 for upper left, 1 for upper right, 2 for lower left, 3 for lower right.
+
+0 = **    1 = **
+    *          *
+
+2 = *     3 =  *
+    **        **
+*/
+    static G2DVECTOR pattern[0x04][0x03] = { { { .x =  0, .y =  0 },
+                                               { .x =  1, .y =  0 },
+                                               { .x =  0, .y =  1 } },
+                                             { { .x =  0, .y =  0 },
+                                               { .x =  0, .y =  1 },
+                                               { .x = -1, .y =  0 } },
+                                             { { .x =  0, .y =  0 },
+                                               { .x =  0, .y = -1 },
+                                               { .x =  1, .y =  0 } },
+                                             { { .x =  0, .y =  0 },
+                                               { .x = -1, .y =  0 },
+                                               { .x =  0, .y = -1 } } };
+    uint32_t midx = img->width  / 2,
+             midy = img->height / 2;
+    uint32_t m = ( y / midy );
+    uint32_t n = ( x / midx );
+    /*** we divide the image in 4 areas to pick the right pattern ***/
+    uint32_t patidx = ( m * 0x02 ) + n;
+    G2DVECTOR *curpat = pattern[patidx];
+    G2DVECTOR pt[0x03] = { { .x = x + curpat[0].x, 
+                             .y = y + curpat[0].y },
+                           { .x = x + curpat[1].x,
+                             .y = y + curpat[1].y },
+                           { .x = x + curpat[2].x, 
+                             .y = y + curpat[2].y } };
+    uint32_t offset = ( y * img->width ) + x;
+    uint32_t offset0 = ( ( pt[0].y * img->width ) + pt[0].x ),
+             offset1 = ( ( pt[1].y * img->width ) + pt[1].x ),
+             offset2 = ( ( pt[2].y * img->width ) + pt[2].x );
+    uint32_t AVG0, AVG1, AVG2;
+    G3DVECTOR vec[0x02];
+
+    switch ( img->bytesPerPixel ) {
+        case 0x04 : {
+            unsigned char (*imgdata)[0x04] = img->data;
+            uint32_t R0 = imgdata[offset0][0],
+                     G0 = imgdata[offset0][1],
+                     B0 = imgdata[offset0][2];
+            uint32_t R1 = imgdata[offset1][0],
+                     G1 = imgdata[offset1][1],
+                     B1 = imgdata[offset1][2];
+            uint32_t R2 = imgdata[offset2][0],
+                     G2 = imgdata[offset2][1],
+                     B2 = imgdata[offset2][2];
+
+            AVG0 = ( R0 + G0 + B0 ) / 3;
+            AVG1 = ( R1 + G1 + B1 ) / 3;
+            AVG2 = ( R2 + G2 + B2 ) / 3;
+        } break;
+
+        case 0x03 : {
+            unsigned char (*imgdata)[0x03] = img->data;
+            uint32_t R0 = imgdata[offset0][0],
+                     G0 = imgdata[offset0][1],
+                     B0 = imgdata[offset0][2];
+            uint32_t R1 = imgdata[offset1][0],
+                     G1 = imgdata[offset1][1],
+                     B1 = imgdata[offset1][2];
+            uint32_t R2 = imgdata[offset2][0],
+                     G2 = imgdata[offset2][1],
+                     B2 = imgdata[offset2][2];
+
+            AVG0 = ( R0 + G0 + B0 ) / 3;
+            AVG1 = ( R1 + G1 + B1 ) / 3;
+            AVG2 = ( R2 + G2 + B2 ) / 3;
+        } break;
+
+        case 0x01 : {
+            unsigned char *imgdata = img->data;
+            AVG0 = imgdata[offset0];
+            AVG1 = imgdata[offset1];
+            AVG2 = imgdata[offset2];
+        } break;
+
+        default : {
+        } break;
+    }
+
+    vec[0x00].x = ( float ) curpat[0x01].x;
+    vec[0x00].y = ( float ) curpat[0x01].y;
+    vec[0x00].z = ( float ) AVG1 - AVG0;
+
+    vec[0x01].x = ( float ) curpat[0x02].x;
+    vec[0x01].y = ( float ) curpat[0x02].y;
+    vec[0x01].z = ( float ) AVG2 - AVG0;
+
+    g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
+
+    g3dvector_normalize ( nor, NULL );
+}
+
+/******************************************************************************/
+/*void g3dimage_convertToNormalMap ( G3DIMAGE *srcimg ) {
     unsigned char (*dstdata)[0x03] = calloc ( srcimg->height, 
                                               srcimg->bytesPerLine ),
                   (*srcdata)[0x03] = srcimg->data;
@@ -119,7 +226,7 @@ void g3dimage_convertToNormalMap ( G3DIMAGE *srcimg ) {
     }
 
     srcimg->data = dstdata;
-}
+}*/
 
 /******************************************************************************/
 void g3dimage_merge ( G3DIMAGE *dstimg,

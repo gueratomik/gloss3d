@@ -30,6 +30,46 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dchannel_getNormal ( G3DCHANNEL *cha, 
+                            float       u,
+                            float       v,
+                            G3DVECTOR  *nor,
+                            uint32_t    repeat ) {
+    uint32_t channelFlags = cha->flags;
+
+    g3dvector_init ( nor, 0.0f, 0.0f, 1.0f, 1.0f );
+
+    if ( repeat == 0x00 ) {
+        if ( ( u < 0.0f ) || ( u > 1.0f ) ||
+             ( v < 0.0f ) || ( v > 1.0f ) ) {
+            channelFlags = USESOLIDCOLOR;
+        }
+    }
+
+    if ( channelFlags & USEIMAGECOLOR ) {
+        G3DIMAGE *colimg = cha->image;
+        if ( colimg && colimg->width && colimg->height ) {
+            int32_t imgx = ((int32_t)((float)u * colimg->width  )) % colimg->width;
+            int32_t imgy = ((int32_t)((float)v * colimg->height )) % colimg->height;
+
+            if ( imgx < 0x00 ) imgx = colimg->width  - imgx;
+            if ( imgy < 0x00 ) imgy = colimg->height - imgy;
+
+            g3dimage_getNormal ( colimg, imgx, imgy, nor );
+        }
+    }
+
+    if ( channelFlags & USEPROCEDURAL ) {
+        G3DPROCEDURAL *proc = cha->proc;
+        G3DCOLOR color;
+
+        if ( proc ) {
+            g3dprocedural_getNormal ( proc, u, v, nor, 0.01f );
+        }
+    }
+}
+
+/******************************************************************************/
 G3DPROCEDURAL *g3dchannel_setProcedural ( G3DCHANNEL    *cha, 
                                           G3DPROCEDURAL *proc ) {
     G3DPROCEDURAL *previous = cha->proc;

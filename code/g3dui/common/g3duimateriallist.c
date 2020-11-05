@@ -116,13 +116,41 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
-                /*if ( mat->flags & BUMP_ENABLED ) {
-                    g3dchannel_getColor ( &mat->bump, p->u, p->v, &rgba, 0x01 );
+                if ( mat->flags & BUMP_ENABLED ) {
+                    G3DVECTOR tangent;
+                    G3DVECTOR binomial;
+                    G3DVECTOR bumpnor, finbump;
+                    double TBN[0x09];
+                    float strength;
 
-                    p->pos.x += ( rgba.r * mat->bump.solid.r );
-                    p->pos.y += ( rgba.r * mat->bump.solid.g );
-                    p->pos.z += ( rgba.r * mat->bump.solid.b );
-                }*/
+                    strength = mat->bump.solid.r;
+
+                    tangent.x = p->nor.x + 0.1f;
+                    tangent.y = p->nor.y;
+                    tangent.z = - ( ( ( tangent.x * p->nor.x ) +
+                                      ( tangent.y * p->nor.y ) ) / p->nor.z );
+
+                    g3dvector_normalize ( &tangent, NULL );
+                    g3dvector_cross     ( &p->nor, &tangent, &binomial );
+
+                    TBN[0x00] = tangent.x;
+                    TBN[0x01] = tangent.y;
+                    TBN[0x02] = tangent.z;
+                    TBN[0x03] = binomial.x;
+                    TBN[0x04] = binomial.y;
+                    TBN[0x05] = binomial.z;
+                    TBN[0x06] = p->nor.x;
+                    TBN[0x07] = p->nor.y;
+                    TBN[0x08] = p->nor.z;
+
+                    g3dchannel_getNormal ( &mat->bump, p->u, p->v, &bumpnor, 0x00 );
+
+                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
+
+                    p->nor.x = ( p->nor.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
+                    p->nor.y = ( p->nor.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
+                    p->nor.z = ( p->nor.z * ( 1.0f - strength ) ) + ( finbump.z * strength );
+                }
 
                 p->diff = 0.0f;
                 p->spec = 0.0f;

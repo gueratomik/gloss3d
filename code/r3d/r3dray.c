@@ -136,7 +136,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
                                   float    backgroundImageWidthRatio,
                                   R3DRGBA *diffuse,
                                   R3DRGBA *specular,
-                                  R3DRGBA *bump,
+                                  G3DVECTOR *bump,
                                   R3DRGBA *reflection,
                                   R3DRGBA *refraction,
                                   R3DRGBA *alpha,
@@ -153,7 +153,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 
     memset ( diffuse   , 0x00, sizeof ( R3DRGBA ) );
     memset ( specular  , 0x00, sizeof ( R3DRGBA ) );
-    memset ( bump      , 0x00, sizeof ( R3DRGBA ) );
+    memset ( bump      , 0x00, sizeof ( G3DVECTOR ) );
     memset ( reflection, 0x00, sizeof ( R3DRGBA ) );
     memset ( refraction, 0x00, sizeof ( R3DRGBA ) );
     memset ( alpha     , 0x00, sizeof ( R3DRGBA ) );
@@ -233,12 +233,12 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
         }
 
         if ( mat->flags & BUMP_ENABLED ) {
-            g3dchannel_getColor ( &mat->bump, avgu, avgv, &retval, repeat );
+            G3DVECTOR bumpnor;
+            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat );
 
-            bump->r += retval.r;
-            bump->g += retval.g;
-            bump->b += retval.b;
-            bump->a += retval.a;
+            bump->x += bumpnor.x;
+            bump->y += bumpnor.y;
+            bump->z += bumpnor.z;
 
             divBump++;
         }
@@ -303,10 +303,9 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
     }
 
     if ( divBump ) {
-        bump->r /= divBump;
-        bump->g /= divBump;
-        bump->b /= divBump;
-        bump->a /= divBump;
+        bump->x /= divBump;
+        bump->y /= divBump;
+        bump->z /= divBump;
     }
 
     if ( divReflection ) {
@@ -398,12 +397,13 @@ void r3dray_refract ( R3DRAY *ray, R3DRAY *rout, float eta ) {
 }
 
 /******************************************************************************/
-uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce, 
-                                            R3DRGBA  *col,
-                                            R3DRGBA  *spc,
-                                            R3DFACE  *discard,
-                                            uint32_t  nbhop,
-                                            LIST     *ltex ) {
+uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
+                                            G3DVECTOR *bumpnor,
+                                            R3DRGBA   *col,
+                                            R3DRGBA   *spc,
+                                            R3DFACE   *discard,
+                                            uint32_t   nbhop,
+                                            LIST      *ltex ) {
     LIST *ltmptex = ltex;
     LIST *ltmprlt = rsce->lrlt;
     LIST *lrob = rsce->lrob;
@@ -507,6 +507,49 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE *rsce,
 
                 memcpy ( &spcray.nor, &ray->nor, sizeof ( R3DVECTOR      ) );
                 memcpy ( &spcray.pnt, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
+
+                if ( mat->flags & BUMP_ENABLED ) {
+                    G3DVECTOR tangent;
+                    G3DVECTOR binomial;
+                    G3DVECTOR finbump;
+                    G3DVECTOR raynor = { .x = ray->nor.x,
+                                         .y = ray->nor.y,
+                                         .z = ray->nor.z,
+                                         .w = 1.0f };
+                    double TBN[0x09];
+                    float strength;
+
+                    strength = mat->bump.solid.r;
+
+                    tangent.x = raynor.x + 0.1f;
+                    tangent.y = raynor.y;
+                    tangent.z = - ( ( ( tangent.x * raynor.x ) +
+                                      ( tangent.y * raynor.y ) ) / raynor.z );
+
+                    g3dvector_normalize ( &tangent, NULL );
+                    g3dvector_cross     ( &raynor, &tangent, &binomial );
+
+                    TBN[0x00] = tangent.x;
+                    TBN[0x01] = tangent.y;
+                    TBN[0x02] = tangent.z;
+                    TBN[0x03] = binomial.x;
+                    TBN[0x04] = binomial.y;
+                    TBN[0x05] = binomial.z;
+                    TBN[0x06] = raynor.x;
+                    TBN[0x07] = raynor.y;
+                    TBN[0x08] = raynor.z;
+
+                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
+
+/*printf("tangent:"); g3dvector_print ( &tangent );
+printf("binomial:"); g3dvector_print ( &binomial );
+printf("raynor:"); g3dvector_print ( &raynor );
+printf("finbump:"); g3dvector_print ( &finbump );*/
+
+                    spcray.nor.x = ( raynor.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
+                    spcray.nor.y = ( raynor.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
+                    spcray.nor.z = ( raynor.z * ( 1.0f - strength ) ) + ( finbump.z * strength );
+                }
 
                 spcray.dir.x = ( ray->pnt.x - rlt->pos.x );
                 spcray.dir.y = ( ray->pnt.y - rlt->pos.y );
@@ -764,6 +807,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
                                      uint32_t  query_flags ) {
     R3DRGBA col = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0xFF };
     R3DRGBA spc = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0xFF };
+    G3DVECTOR bump = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     LIST *ltmprob = rsce->lrob;
     R3DOBJECT *hitrob = NULL;
     R3DFACE   *hitrfc = NULL;
@@ -806,7 +850,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
         }
 
         if ( ray->flags & INTERSECT ) {
-            G3DRGBA diffuse, specular, bump, reflection, refraction, alpha;
+            G3DRGBA diffuse, specular, reflection, refraction, alpha;
+            R3DVECTOR bump;
             R3DOBJECT *rob = hitrob;
             R3DMESH *rms = ( rob->obj->type & MESH ) ? ( R3DMESH * ) rob : NULL;
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
@@ -933,7 +978,7 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             if ( ( query_flags & RAYQUERYLIGHTING ) &&
                  ( rob->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
-                r3dray_illumination ( ray, rsce, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
+                r3dray_illumination ( ray, rsce, &bump, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
             } else {
                 col.r = col.g = col.b = 255;
                 spc.r = spc.g = spc.b = 0;

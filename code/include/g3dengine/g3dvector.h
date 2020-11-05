@@ -131,6 +131,8 @@ void g3dvector_free ( void * );
  */
 void g3dvector_matrix ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
 
+void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
+
 /**
  * Get the length of a vector.
  * @param vec a pointer to a vector.

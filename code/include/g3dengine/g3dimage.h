@@ -138,6 +138,11 @@ void g3dimage_merge ( G3DIMAGE *dstimg,
                       uint32_t  xoffset,
                       uint32_t  yoffset );
 
+void g3dimage_getNormal ( G3DIMAGE  *img,
+                          float      x, 
+                          float      y,
+                          G3DVECTOR *nor );
+
 #ifdef __cplusplus
 }
 #endif

@@ -61,7 +61,7 @@ static uint32_t materiallistdata_arrangePreviews ( MATERIALLISTDATA *mdata,
                                                    uint32_t win_width,
                                                    uint32_t win_height ) {
     LIST *ltmppreview = mdata->lpreview;
-    uint32_t maxheight = 0x00;
+    uint32_t maxheight = 0x00, maxwidth = 0x00;
 
     while ( ltmppreview ) {
         GTK3MATERIALPREVIEW *preview = ( GTK3MATERIALPREVIEW * ) ltmppreview->data;
@@ -78,6 +78,10 @@ static uint32_t materiallistdata_arrangePreviews ( MATERIALLISTDATA *mdata,
             maxheight = win_y + mdata->preview_height;
         }
 
+        if ( win_x + mdata->preview_width > maxwidth ) {
+            maxwidth = win_x + mdata->preview_width;
+        }
+
         if ( ( win_width - win_x ) < mdata->preview_width ) {
             win_y += mdata->preview_height;
 
@@ -87,7 +91,7 @@ static uint32_t materiallistdata_arrangePreviews ( MATERIALLISTDATA *mdata,
         ltmppreview = ltmppreview->next;
     }
 
-    return maxheight;
+    return ( maxheight << 0x10 ) | maxwidth;
 }
 
 /******************************************************************************/
@@ -427,14 +431,17 @@ static void Resize ( GtkWidget *widget, GdkRectangle *allocation,
                                         gpointer user_data ) {
     MATERIALLISTDATA *mdata = g_object_get_data ( G_OBJECT(widget),
                                                   GTK3WIDGETDATA );
-    uint32_t maxheight;
+    uint32_t maxsize, maxheight, maxwidth;
 
-    maxheight = materiallistdata_arrangePreviews ( mdata, allocation->x,
-                                                          allocation->y,
-                                                          allocation->width,
-                                                          allocation->height );
+    maxsize = materiallistdata_arrangePreviews ( mdata, allocation->x,
+                                                        allocation->y,
+                                                        allocation->width,
+                                                        allocation->height );
 
-    gtk_widget_set_size_request ( widget, allocation->width, maxheight );
+    maxheight = ( maxsize & 0xFFFF0000 ) >> 0x10;
+    maxwidth  = ( maxsize & 0x0000FFFF );
+
+    gtk_widget_set_size_request ( widget, maxwidth, maxheight );
 }
 
 /******************************************************************************/

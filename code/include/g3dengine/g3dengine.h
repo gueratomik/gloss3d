@@ -2773,6 +2773,11 @@ void g3dprocedural_init ( G3DPROCEDURAL *,
 void g3dprocedural_fill ( G3DPROCEDURAL *, uint32_t,
                                            uint32_t,
                                            uint32_t, uint32_t );
+void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
+                               float          u,
+                               float          v,
+                               G3DVECTOR     *nor,
+                               float          prec );
 
 /******************************************************************************/
 void g3dmodifier_init ( G3DMODIFIER *mod,
@@ -2828,6 +2833,11 @@ void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
                                 float       u,
                                 float       v,
                                 G3DVECTOR  *vout );
+void g3dchannel_getNormal ( G3DCHANNEL *cha, 
+                            float       u,
+                            float       v,
+                            G3DVECTOR  *nor,
+                            uint32_t    repeat );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

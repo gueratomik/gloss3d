@@ -30,6 +30,84 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
+                               float          u,
+                               float          v,
+                               G3DVECTOR     *nor,
+                               float          prec ) {
+/* Patterns for our vector depending on were we are on the image, to prevent:
+   a forbidden memory access.
+
+  0 for upper left, 1 for upper right, 2 for lower left, 3 for lower right.
+
+0 = **    1 = **
+    *          *
+
+2 = *     3 =  *
+    **        **
+*/
+    G3DVECTOR pattern[0x04][0x03] = { { { .x =  0.0f, .y =  0.0f },
+                                        { .x =  prec, .y =  0.0f },
+                                        { .x =  0.0f, .y =  prec } },
+                                      { { .x =  0.0f, .y =  0.0f },
+                                        { .x =  0.0f, .y =  prec },
+                                        { .x = -prec, .y =  0.0f } },
+                                      { { .x =  0.0f, .y =  0.0f },
+                                        { .x =  0.0f, .y = -prec },
+                                        { .x =  prec, .y =  0.0f } },
+                                      { { .x =  0.0f, .y =  0.0f },
+                                        { .x = -prec, .y =  0.0f },
+                                        { .x =  0.0f, .y = -prec } } };
+    float bu = ( u > 0.0f ) ? u - (int) u : 1.0f - ( u - (int) u ),
+          bv = ( v > 0.0f ) ? v - (int) v : 1.0f - ( v - (int) v );
+    uint32_t m = (bv*2);
+    uint32_t n = (bu*2);
+    /*** we divide the image in 4 areas to pick the right pattern ***/
+    uint32_t patidx = ( m * 0x02 ) + n;
+    G3DVECTOR *curpat = pattern[patidx];
+    G3DVECTOR pt[0x03] = { { .x = bu + curpat[0].x, 
+                             .y = bv + curpat[0].y },
+                           { .x = bu + curpat[1].x,
+                             .y = bv + curpat[1].y },
+                           { .x = bu + curpat[2].x, 
+                             .y = bv + curpat[2].y } };
+    G3DCOLOR color0, color1, color2;
+    G3DRGBA rgba0, rgba1, rgba2;
+    float AVG0, AVG1, AVG2;
+    G3DVECTOR vec[0x02];
+
+
+    proc->getColor ( proc, pt[0x00].x, 
+                           pt[0x00].y, 0.0f, &color0 );
+
+    proc->getColor ( proc, pt[0x01].x, 
+                           pt[0x01].y, 0.0f, &color1 );
+
+    proc->getColor ( proc, pt[0x02].x, 
+                           pt[0x02].y, 0.0f, &color2 );
+
+    g3dcolor_toRGBA ( &color0, &rgba0 );
+    g3dcolor_toRGBA ( &color1, &rgba1 );
+    g3dcolor_toRGBA ( &color2, &rgba2 );
+
+    AVG0 = ( rgba0.r + rgba0.g + rgba0.b ) / 3;
+    AVG1 = ( rgba1.r + rgba1.g + rgba1.b ) / 3;
+    AVG2 = ( rgba2.r + rgba2.g + rgba2.b ) / 3;
+
+    vec[0x00].x = ( float ) curpat[0x01].x;
+    vec[0x00].y = ( float ) curpat[0x01].y;
+    vec[0x00].z = ( float ) AVG1 - AVG0;
+
+    vec[0x01].x = ( float ) curpat[0x02].x;
+    vec[0x01].y = ( float ) curpat[0x02].y;
+    vec[0x01].z = ( float ) AVG2 - AVG0;
+
+    g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
+
+    g3dvector_normalize ( nor, NULL );
+}
+
+/******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *proc, 
                           uint32_t       type,
                           void         (*func)( G3DPROCEDURAL *, 

@@ -167,6 +167,23 @@ void g3dtinyvector_matrix ( G3DTINYVECTOR *vec, double *matrix,
 }
 
 /******************************************************************************/
+void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout) {
+    vout->x = ( ( vec->x * matrix[0x00] ) + 
+                ( vec->y * matrix[0x03] ) + 
+                ( vec->z * matrix[0x06] ) );
+
+    vout->y = ( ( vec->x * matrix[0x01] ) + 
+                ( vec->y * matrix[0x04] ) + 
+                ( vec->z * matrix[0x07] ) );
+
+    vout->z = ( ( vec->x * matrix[0x02] ) + 
+                ( vec->y * matrix[0x05] ) + 
+                ( vec->z * matrix[0x08] ) );
+
+    vout->w = 1.0f;
+}
+
+/******************************************************************************/
 void g3dvector_matrix ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout) {
     vout->x = ( ( vec->x * matrix[0x00] ) + 
                 ( vec->y * matrix[0x04] ) + 

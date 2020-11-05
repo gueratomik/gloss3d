@@ -767,10 +767,6 @@ static void bumpImageCbk ( GtkWidget *widget, gpointer user_data ) {
 
     if ( gui->selmat ) {
         g3dui_loadImageForChannel ( gui, &gui->selmat->bump );
-
-        g3dimage_convertToNormalMap ( gui->selmat->bump.image );
-
-        g3dimage_bind ( gui->selmat->bump.image );
     }
 }
 
