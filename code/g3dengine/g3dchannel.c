@@ -64,7 +64,7 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
         G3DCOLOR color;
 
         if ( proc ) {
-            g3dprocedural_getNormal ( proc, u, v, nor, 0.01f );
+            g3dprocedural_getNormal ( proc, u, v, nor, 0.005f );
         }
     }
 }

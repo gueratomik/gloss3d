@@ -121,9 +121,7 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                     G3DVECTOR binomial;
                     G3DVECTOR bumpnor, finbump;
                     double TBN[0x09];
-                    float strength;
-
-                    strength = mat->bump.solid.r;
+                    float strength = mat->bump.solid.r;
 
                     tangent.x = p->nor.x + 0.1f;
                     tangent.y = p->nor.y;

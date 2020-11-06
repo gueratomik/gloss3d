@@ -88,7 +88,7 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
     uint32_t offset0 = ( ( pt[0].y * img->width ) + pt[0].x ),
              offset1 = ( ( pt[1].y * img->width ) + pt[1].x ),
              offset2 = ( ( pt[2].y * img->width ) + pt[2].x );
-    uint32_t AVG0, AVG1, AVG2;
+    int32_t AVG0, AVG1, AVG2;
     G3DVECTOR vec[0x02];
 
     switch ( img->bytesPerPixel ) {
@@ -139,11 +139,11 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
 
     vec[0x00].x = ( float ) curpat[0x01].x;
     vec[0x00].y = ( float ) curpat[0x01].y;
-    vec[0x00].z = ( float ) AVG1 - AVG0;
+    vec[0x00].z = ( float )( AVG1 - AVG0 ) / 255.0f;
 
     vec[0x01].x = ( float ) curpat[0x02].x;
     vec[0x01].y = ( float ) curpat[0x02].y;
-    vec[0x01].z = ( float ) AVG2 - AVG0;
+    vec[0x01].z = ( float )( AVG2 - AVG0 ) / 255.0f;
 
     g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
 

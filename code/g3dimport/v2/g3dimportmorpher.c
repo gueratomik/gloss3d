@@ -74,6 +74,10 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY : {
+                G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
+                /*** Note: this is not efficient and should be ***/
+                /*** buffered somewhere ***/
+                G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
                 uint32_t nbver;
                 uint32_t i;
 
@@ -90,13 +94,21 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     g3dimport_freadl ( &vpos.z, fsrc );
 
                     g3dmorpher_addVertexPose ( mpr,
-                                               gid->currentVertexArray[verID],
+                                               ver[verID],
                                                mpose,
                                               &vpos );
                 }
+
+                /*** Note: this is not efficient and should be ***/
+                /*** buffered somewhere ***/
+                if ( ver ) free ( ver );
             } break;
 
             case SIG_OBJECT_MORPHER_RESETPOSITIONS : {
+                G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
+                /*** Note: this is not efficient and should be ***/
+                /*** buffered somewhere ***/
+                G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
                 uint32_t nbver;
                 uint32_t i;
 
@@ -111,9 +123,13 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     g3dimport_freadl ( &vpos.z, fsrc );
 
                     g3dmorpher_setVertexResetPosition ( mpr,
-                                                        gid->currentVertexArray[verID],
+                                                        ver[verID],
                                                        &vpos );
                 }
+
+                /*** Note: this is not efficient and should be ***/
+                /*** buffered somewhere ***/
+                if ( ver ) free ( ver );
             } break;
 
             default : {

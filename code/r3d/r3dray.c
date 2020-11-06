@@ -398,6 +398,7 @@ void r3dray_refract ( R3DRAY *ray, R3DRAY *rout, float eta ) {
 
 /******************************************************************************/
 uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
+                                            R3DOBJECT *hitrob,
                                             G3DVECTOR *bumpnor,
                                             R3DRGBA   *col,
                                             R3DRGBA   *spc,
@@ -436,8 +437,123 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
         luxray.intensity = 1.0f;
         luxray.flags     = 0x00;
 
+
+
+        while ( ltmptex ) {
+            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
+            G3DMATERIAL *mat = tex->mat;
+
+            if ( tex->map ) {
+                uint32_t mapID = tex->map->mapID;
+
+                /*** specular ***/
+                if ( mat ) {
+                    R3DVECTOR camray;
+
+                    memcpy ( &spcray.nor, &ray->nor, sizeof ( R3DVECTOR      ) );
+                    memcpy ( &spcray.pnt, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
+
+                    if ( mat->flags & BUMP_ENABLED ) {
+                        G3DVECTOR tangent;
+                        G3DVECTOR binomial;
+                        G3DVECTOR finbump;
+                        G3DVECTOR raynor = { .x = ray->nor.x,
+                                             .y = ray->nor.y,
+                                             .z = ray->nor.z,
+                                             .w = 1.0f };
+                        R3DMESH *rms = ( R3DMESH * ) hitrob;
+                        R3DVECTOR *p0 = &rms->rver[ray->rfc->rverID[0x00]].pos,
+                                  *p1 = &rms->rver[ray->rfc->rverID[0x01]].pos,
+                                  *p2 = &rms->rver[ray->rfc->rverID[0x02]].pos;
+                        R3DUVSET *ruvs = &ray->rfc->ruvs[mapID];
+                        R3DUV *w0 = &ruvs->uv[0x00],
+                              *w1 = &ruvs->uv[0x01],
+                              *w2 = &ruvs->uv[0x02];
+                        double TBN[0x09];
+                        float strength = mat->bump.solid.r;
+    /*** see "Computing Tangent Space Basis Vectors for an Arbitrary Mesh" ***/
+                        /*** XYZ system ***/
+                        float x1 = p1->x - p0->x;
+                        float x2 = p2->x - p0->x;
+                        float y1 = p1->y - p0->y;
+                        float y2 = p2->y - p0->y;
+                        float z1 = p1->z - p0->z;
+                        float z2 = p2->z - p0->z;
+                        /*** UVs  system ****/
+                        float s1 = w1->u - w0->u;
+                        float s2 = w2->u - w0->u;
+                        float t1 = w1->v - w0->v;
+                        float t2 = w2->v - w0->v;
+                        float r = 1.0f / (s1 * t2 - s2 * t1 );
+                        tangent.x = (t2 * x1 - t1 * x2) * r;
+                        tangent.y = (t2 * y1 - t1 * y2) * r;
+                        tangent.z = (t2 * z1 - t1 * z2) * r;
+
+                        binomial.x = (s1 * x2 - s2 * x1) * r, 
+                        binomial.y = (s1 * y2 - s2 * y1) * r,
+                        binomial.z = (s1 * z2 - s2 * z1) * r;
+
+                        g3dvector_normalize ( &tangent , NULL );
+                        g3dvector_normalize ( &binomial, NULL );
+
+                        TBN[0x00] = tangent.x;
+                        TBN[0x01] = tangent.y;
+                        TBN[0x02] = tangent.z;
+                        TBN[0x03] = binomial.x;
+                        TBN[0x04] = binomial.y;
+                        TBN[0x05] = binomial.z;
+                        TBN[0x06] = raynor.x;
+                        TBN[0x07] = raynor.y;
+                        TBN[0x08] = raynor.z;
+
+                        g3dvector_matrix3 ( bumpnor, TBN, &finbump );
+
+                        spcray.nor.x = ( raynor.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
+                        spcray.nor.y = ( raynor.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
+                        spcray.nor.z = ( raynor.z * ( 1.0f - strength ) ) + ( finbump.z * strength );
+                    }
+
+                    spcray.dir.x = ( ray->pnt.x - rlt->pos.x );
+                    spcray.dir.y = ( ray->pnt.y - rlt->pos.y );
+                    spcray.dir.z = ( ray->pnt.z - rlt->pos.z );
+
+                    r3dtinyvector_normalize ( &spcray.dir, NULL );
+
+                    if ( r3dray_reflect ( &spcray, &refray ) ) {
+
+        /*** COMMENTED: Normalizing already in r3dray_reflect() ***/
+                        /*r3dtinyvector_normalize ( &refray.dir, NULL );*/
+
+                        camray.x = ( rcam->pos.x - ray->pnt.x );
+                        camray.y = ( rcam->pos.y - ray->pnt.y );
+                        camray.z = ( rcam->pos.z - ray->pnt.z );
+
+                        r3dtinyvector_normalize ( &camray, NULL );
+
+                        dot = g3dvector_scalar ( ( G3DVECTOR * ) &refray.dir,
+                                                 ( G3DVECTOR * ) &camray ) * spotFactor;
+
+                        if ( dot > 0.0f ) {
+                            G3DLIGHT *lig = ((R3DOBJECT*)rlt)->obj;
+                            float specularCoefficient = pow ( dot, mat->shininess );
+                                uint32_t R = ( lig->specularColor.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
+                                         G = ( lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
+                                         B = ( lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
+
+                            spc->r += R;
+                            spc->g += G,
+                            spc->b += B;
+                        }
+
+                    }
+                }
+            }
+
+            ltmptex = ltmptex->next;
+        }
+
         dot = g3dvector_scalar ( ( G3DVECTOR * ) &luxray.dir, 
-                                 ( G3DVECTOR * ) &ray->nor );
+                                 ( G3DVECTOR * ) &spcray.nor );
 
         if ( objlig->flags & SPOTLIGHT ) {
             float spotAngle;
@@ -494,98 +610,6 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
                 col->r += ( lig->diffuseColor.r * rate ),
                 col->g += ( lig->diffuseColor.g * rate ),
                 col->b += ( lig->diffuseColor.b * rate );
-            }
-        }
-
-        while ( ltmptex ) {
-            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
-            G3DMATERIAL *mat = tex->mat;
-
-            /*** specular ***/
-            if ( mat ) {
-                R3DVECTOR camray;
-
-                memcpy ( &spcray.nor, &ray->nor, sizeof ( R3DVECTOR      ) );
-                memcpy ( &spcray.pnt, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
-
-                if ( mat->flags & BUMP_ENABLED ) {
-                    G3DVECTOR tangent;
-                    G3DVECTOR binomial;
-                    G3DVECTOR finbump;
-                    G3DVECTOR raynor = { .x = ray->nor.x,
-                                         .y = ray->nor.y,
-                                         .z = ray->nor.z,
-                                         .w = 1.0f };
-                    double TBN[0x09];
-                    float strength;
-
-                    strength = mat->bump.solid.r;
-
-                    tangent.x = raynor.x + 0.1f;
-                    tangent.y = raynor.y;
-                    tangent.z = - ( ( ( tangent.x * raynor.x ) +
-                                      ( tangent.y * raynor.y ) ) / raynor.z );
-
-                    g3dvector_normalize ( &tangent, NULL );
-                    g3dvector_cross     ( &raynor, &tangent, &binomial );
-
-                    TBN[0x00] = tangent.x;
-                    TBN[0x01] = tangent.y;
-                    TBN[0x02] = tangent.z;
-                    TBN[0x03] = binomial.x;
-                    TBN[0x04] = binomial.y;
-                    TBN[0x05] = binomial.z;
-                    TBN[0x06] = raynor.x;
-                    TBN[0x07] = raynor.y;
-                    TBN[0x08] = raynor.z;
-
-                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
-
-/*printf("tangent:"); g3dvector_print ( &tangent );
-printf("binomial:"); g3dvector_print ( &binomial );
-printf("raynor:"); g3dvector_print ( &raynor );
-printf("finbump:"); g3dvector_print ( &finbump );*/
-
-                    spcray.nor.x = ( raynor.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
-                    spcray.nor.y = ( raynor.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
-                    spcray.nor.z = ( raynor.z * ( 1.0f - strength ) ) + ( finbump.z * strength );
-                }
-
-                spcray.dir.x = ( ray->pnt.x - rlt->pos.x );
-                spcray.dir.y = ( ray->pnt.y - rlt->pos.y );
-                spcray.dir.z = ( ray->pnt.z - rlt->pos.z );
-
-                r3dtinyvector_normalize ( &spcray.dir, NULL );
-
-                if ( r3dray_reflect ( &spcray, &refray ) ) {
-
-    /*** COMMENTED: Normalizing already in r3dray_reflect() ***/
-                    /*r3dtinyvector_normalize ( &refray.dir, NULL );*/
-
-                    camray.x = ( rcam->pos.x - ray->pnt.x );
-                    camray.y = ( rcam->pos.y - ray->pnt.y );
-                    camray.z = ( rcam->pos.z - ray->pnt.z );
-
-                    r3dtinyvector_normalize ( &camray, NULL );
-
-                    dot = g3dvector_scalar ( ( G3DVECTOR * ) &refray.dir,
-                                             ( G3DVECTOR * ) &camray ) * spotFactor;
-
-                    if ( dot > 0.0f ) {
-                        G3DLIGHT *lig = ((R3DOBJECT*)rlt)->obj;
-                        float specularCoefficient = pow ( dot, mat->shininess );
-                            uint32_t R = ( lig->specularColor.r * mat->specular_level * mat->specular.solid.r * specularCoefficient ),
-                                     G = ( lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
-                                     B = ( lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
-
-                        spc->r += R;
-                        spc->g += G,
-                        spc->b += B;
-                    }
-
-                }
-
-                ltmptex = ltmptex->next;
             }
         }
 
@@ -851,7 +875,6 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
         if ( ray->flags & INTERSECT ) {
             G3DRGBA diffuse, specular, reflection, refraction, alpha;
-            R3DVECTOR bump;
             R3DOBJECT *rob = hitrob;
             R3DMESH *rms = ( rob->obj->type & MESH ) ? ( R3DMESH * ) rob : NULL;
             LIST *ltex = ((G3DMESH*)hitrob->obj)->ltex;
@@ -978,7 +1001,8 @@ uint32_t r3dray_shoot ( R3DRAY *ray, R3DSCENE *rsce,
 
             if ( ( query_flags & RAYQUERYLIGHTING ) &&
                  ( rob->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
-                r3dray_illumination ( ray, rsce, &bump, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
+
+                r3dray_illumination ( ray, rsce, rob, &bump, &col, &spc, hitrfc, nbhop + 0x01, ltex  );
             } else {
                 col.r = col.g = col.b = 255;
                 spc.r = spc.g = spc.b = 0;

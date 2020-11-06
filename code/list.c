@@ -63,6 +63,29 @@ void list_execargdata ( LIST *lis, void (*func) (void *, void *), void *arg ) {
 }
 
 /******************************************************************************/
+void **list_to_reversed_array ( LIST *lis ) {
+    int    nbnod = list_count ( lis );
+    void **ptr = NULL;
+
+    if ( nbnod ) {
+        ptr = ( void ** ) calloc ( nbnod, sizeof ( void * ) );
+        int i = nbnod;
+
+        if ( ptr == NULL ) {
+            fprintf ( stderr, "list_to_array: memory allocation failed\n" );
+        }
+
+        while ( lis ) {
+            ptr[--i] = lis->data;
+
+            lis = lis->next;
+        }
+    }
+
+    return ptr;   
+}
+
+/******************************************************************************/
 void **list_to_array ( LIST *lis ) {
     int    nbnod = list_count ( lis );
     void **ptr = NULL;

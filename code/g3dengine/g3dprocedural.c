@@ -73,7 +73,7 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                              .y = bv + curpat[2].y } };
     G3DCOLOR color0, color1, color2;
     G3DRGBA rgba0, rgba1, rgba2;
-    float AVG0, AVG1, AVG2;
+    int32_t AVG0, AVG1, AVG2;
     G3DVECTOR vec[0x02];
 
 
@@ -96,11 +96,12 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 
     vec[0x00].x = ( float ) curpat[0x01].x;
     vec[0x00].y = ( float ) curpat[0x01].y;
-    vec[0x00].z = ( float ) AVG1 - AVG0;
+    vec[0x00].z = ( float ) ( AVG1 - AVG0 ) / 255.0f;
 
     vec[0x01].x = ( float ) curpat[0x02].x;
     vec[0x01].y = ( float ) curpat[0x02].y;
-    vec[0x01].z = ( float ) AVG2 - AVG0;
+    /*** Note: negated to use blacks as creases ***/
+    vec[0x01].z = ( float ) ( AVG2 - AVG0 ) / 255.0f;
 
     g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
 

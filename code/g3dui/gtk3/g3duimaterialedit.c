@@ -850,7 +850,7 @@ static void updateBumpPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITBUMPIMAGE ) == 0x00 ) {
-                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                    if ( mat->bump.flags & USEIMAGECOLOR ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -858,7 +858,7 @@ static void updateBumpPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITBUMPPROCEDURAL ) == 0x00 ) {
-                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                    if ( mat->bump.flags & USEPROCEDURAL ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
