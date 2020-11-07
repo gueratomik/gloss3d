@@ -378,8 +378,7 @@ static int scale_morpher ( G3DMORPHER       *mpr,
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
-        if ( ( mpr->selmpose ) && 
-             ( mes->lselver  ) ) {
+        if ( mpr->selmpose ) {
             switch ( event->type ) {
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
@@ -410,11 +409,13 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                         lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
                                                                         NULL );
 
-                        oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                       NULL, 
-                                                                       lver );
+                        if ( lver ) {
+                            oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                           NULL, 
+                                                                           lver );
 
-                        g3dvertex_getAveragePositionFromList ( lver, &pivot );
+                            g3dvertex_getAveragePositionFromList ( lver, &pivot );
+                        }
                     }
                 } return REDRAWVIEW;
 
@@ -468,20 +469,22 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                             pick_tool ( &pt, sce, cam, urm, engine_flags, event );
                         }
 
-                        newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                       NULL, 
-                                                                       lver );
+                        if ( lver ) {
+                            newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                           NULL, 
+                                                                           lver );
 
 
-                        g3durm_morpher_moveVertices ( urm,
-                                                      mpr,
-                                                      mpr->selmpose,
-                                                      lver,
-                                                      oldpos, 
-                                                      newpos, 
-                                                      REDRAWVIEW );
+                            g3durm_morpher_moveVertices ( urm,
+                                                          mpr,
+                                                          mpr->selmpose,
+                                                          lver,
+                                                          oldpos, 
+                                                          newpos, 
+                                                          REDRAWVIEW );
 
-                        list_free ( &lver, NULL );
+                            list_free ( &lver, NULL );
+                        }
 
                         oldpos = newpos = NULL;
                     }

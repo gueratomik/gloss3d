@@ -234,7 +234,7 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 
         if ( mat->flags & BUMP_ENABLED ) {
             G3DVECTOR bumpnor;
-            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat );
+            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat, 0.001f, 0.001f );
 
             bump->x += bumpnor.x;
             bump->y += bumpnor.y;
@@ -470,7 +470,11 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
                               *w1 = &ruvs->uv[0x01],
                               *w2 = &ruvs->uv[0x02];
                         double TBN[0x09];
-                        float strength = mat->bump.solid.r;
+/*                        float umax = ( w0->u > w1->u ) ? ( w0->u > w2->u ) ? w0->u : ( w1->u > w2->u ) ? w1->u : w2->u;
+                        float umin = ( w0->u < w1->u ) ? ( w0->u < w2->u ) ? w0->u : ( w1->u < w2->u ) ? w1->u : w2->u;
+                        float vmax = ( w0->v > w1->v ) ? ( w0->v > w2->v ) ? w0->v : ( w1->v > w2->v ) ? w1->v : w2->v;
+                        float vmin = ( w0->v < w1->v ) ? ( w0->v < w2->v ) ? w0->v : ( w1->v < w2->v ) ? w1->v : w2->v;
+*/                        float strength = mat->bump.solid.r;
     /*** see "Computing Tangent Space Basis Vectors for an Arbitrary Mesh" ***/
                         /*** XYZ system ***/
                         float x1 = p1->x - p0->x;

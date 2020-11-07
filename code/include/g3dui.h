@@ -415,7 +415,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITDIFFUSEPROCEDURAL      EDITCHANNELPROCEDURAL
 #define EDITDIFFUSEPROCEDURALTYPE  EDITCHANNELPROCEDURALTYPE
 #define EDITDIFFUSEPROCEDURALRES   EDITCHANNELPROCEDURALRES
-#define EDITDIFFUSEPROCEDURALEDIT  "Edit"
+#define EDITDIFFUSEPROCEDURALEDIT  "Procedural diffuse settings"
 
 #define EDITSPECULAR            "Specularity"
 #define EDITSPECULARSHININESS   "Shininess"
@@ -429,6 +429,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITDISPLACEMENTIMAGE      EDITCHANNELIMAGE
 #define EDITDISPLACEMENTPROCEDURAL EDITCHANNELPROCEDURAL
 #define EDITDISPLACEMENTSTRENGTH   "Strength"
+#define EDITDISPLACEMENTPROCEDURALEDIT  "Procedural displacement settings"
 
 #define EDITBUMP                   "Bump"
 #define EDITBUMPENABLED            "Enable Bump Channel"
@@ -436,6 +437,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITBUMPIMAGE               EDITCHANNELIMAGE
 #define EDITBUMPPROCEDURAL          EDITCHANNELPROCEDURAL
 #define EDITBUMPSTRENGTH           "Strength"
+#define EDITBUMPPROCEDURALEDIT  "Procedural bump settings"
 
 #define EDITALPHA                   "Alpha"
 #define EDITALPHAENABLED            "Enable Alpha Channel"
@@ -443,6 +445,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITALPHAIMAGE               EDITCHANNELIMAGE
 #define EDITALPHAPROCEDURAL          EDITCHANNELPROCEDURAL
 #define EDITALPHASTRENGTH           "Opacity"
+#define EDITALPHAPROCEDURALEDIT  "Procedural alpha settings"
 
 #define EDITREFLECTION             "Reflection"
 #define EDITREFLECTIONSTRENGTH     "Strength"

@@ -212,6 +212,42 @@ void g3dobject_printCoordinates ( G3DOBJECT *obj ) {
 }*/
 
 /******************************************************************************/
+uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj, 
+                                   G3DCAMERA *cam,
+                                   uint64_t   engine_flags  ) {
+    LIST *ltmpchildren = obj->lchildren;
+    uint32_t ret = 0x00;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            if ( ( child->flags & OBJECTINVISIBLE ) == 0x00 ) {
+                if ( child->pick ) {
+                    G3DMODIFIER *modChild = ( G3DMODIFIER * ) child;
+                    double MVX[0x10];
+
+                    glPushMatrix ( );
+                    glMultMatrixd ( child->lmatrix );
+
+                    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+
+                    g3dpick_setModelviewMatrix ( MVX );
+
+                    ret |= g3dmodifier_pick ( modChild, cam, engine_flags );
+
+                    glPopMatrix ( );
+                }
+            }
+        }
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    return ret;
+}
+
+/******************************************************************************/
 uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
                                    uint64_t   engine_flags  ) {
@@ -229,7 +265,7 @@ uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj,
                     glPushMatrix ( );
                     glMultMatrixd ( child->lmatrix );
 
-                    ret = g3dmodifier_draw ( modChild, cam, engine_flags );
+                    ret |= g3dmodifier_draw ( modChild, cam, engine_flags );
 
                     glPopMatrix ( );
                 }
@@ -1067,6 +1103,16 @@ void g3dobject_unsetSelected ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+void g3dobject_setInactive ( G3DOBJECT *obj ) {
+    obj->flags |= OBJECTINACTIVE;
+}
+
+/******************************************************************************/
+void g3dobject_setActive ( G3DOBJECT *obj ) {
+    obj->flags &= (~OBJECTINACTIVE);
+}
+
+/******************************************************************************/
 void g3dobject_drawCenter ( G3DOBJECT *obj,
                             uint64_t engine_flags ) {
     /*** no need to draw this in picking mode ***/
@@ -1333,8 +1379,14 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     g3dpick_setModelviewMatrix ( MVX );
 
-    if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-        obj->pick ( obj, curcam, engine_flags );
+    /*** Modifiers must be explicitely drawn by their parent object ***/
+    /*** by using g3dobject_pickModifiers() ***/
+    if ( ( obj->type & MODIFIER ) == 0x00 ) {
+        if ( obj->flags & DRAWBEFORECHILDREN ) {
+            if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
+                obj->pick ( obj, curcam, engine_flags );
+            }
+        }
     }
 
     while ( ltmpchildren ) {
@@ -1343,6 +1395,16 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
         g3dobject_pick ( sub, curcam, engine_flags );
 
         ltmpchildren = ltmpchildren->next;
+    }
+
+    /*** Modifiers must be explicitely drawn by their parent object ***/
+    /*** by using g3dmesh_drawModifiers_r() ***/
+    if ( ( obj->type & MODIFIER ) == 0x00 ) {
+        if ( obj->flags & DRAWAFTERCHILDREN ) {
+            if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
+                obj->pick ( obj, curcam, engine_flags );
+            }
+        }
     }
 
     glPopMatrix ( );
@@ -1723,7 +1785,7 @@ uint32_t g3dobject_isActive ( G3DOBJECT *obj ) {
 void g3dobject_activate ( G3DOBJECT *obj,
                           uint64_t   engine_flags ) {
     if ( obj->flags & OBJECTINACTIVE ) {
-        obj->flags &= (~OBJECTINACTIVE);
+        g3dobject_setActive ( obj );
 
         if ( obj->activate ) obj->activate ( obj, engine_flags );
     }
@@ -1733,7 +1795,7 @@ void g3dobject_activate ( G3DOBJECT *obj,
 void g3dobject_deactivate ( G3DOBJECT *obj, 
                             uint64_t   engine_flags ) {
     if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
-        obj->flags |= OBJECTINACTIVE;
+        g3dobject_setInactive ( obj );
 
         if ( obj->deactivate ) obj->deactivate ( obj, engine_flags );
     }

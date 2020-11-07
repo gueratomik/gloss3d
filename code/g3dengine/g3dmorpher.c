@@ -890,6 +890,59 @@ static void g3dmorpher_free ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
+static void g3dmorpher_pickObject ( G3DMORPHER *mpr,
+                                    uint64_t    engine_flags ) {
+    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+        LIST *ltmpfac = mes->lfac;
+
+        g3dpick_setName (  ( uint64_t ) mpr );
+
+        while ( ltmpfac ) {
+            G3DVECTOR *pos[0x04] = { NULL, NULL, NULL, NULL };
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            uint32_t i;
+
+            for ( i = 0x00; i < fac->nbver; i++ ) {
+                G3DVERTEX *ver = fac->ver[i];
+
+                /*** "if" statement to speed up things a bit ***/
+                if ( ver->lext ) {
+                    G3DMORPHERVERTEXPOSE *vp = g3dmorpher_getVertexPose ( mpr,
+                                                                          ver,
+                                                                          NULL,
+                                                                          NULL );
+                    if ( vp ) {
+                        pos[i] = &vp->pos;
+                    } else {
+                        pos[i] = &ver->pos;
+                    }
+                } else {
+                    pos[i] = &ver->pos;
+                }
+            }
+
+            g3dpick_drawFace ( fac->nbver, 
+                               pos[0x00]->x, 
+                               pos[0x00]->y,
+                               pos[0x00]->z,
+                               pos[0x01]->x, 
+                               pos[0x01]->y,
+                               pos[0x01]->z,
+                               pos[0x02]->x, 
+                               pos[0x02]->y,
+                               pos[0x02]->z,
+               ( pos[0x03] ) ? pos[0x03]->x : 0.0f,
+               ( pos[0x03] ) ? pos[0x03]->y : 0.0f,
+               ( pos[0x03] ) ? pos[0x03]->z : 0.0f );
+
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+}
+
+/******************************************************************************/
 static void g3dmorpher_pickVertices ( G3DMORPHER *mpr,
                                       uint64_t    engine_flags ) {
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
@@ -941,6 +994,12 @@ static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr,
         if ( engine_flags & VIEWVERTEX   ) {
             g3dmorpher_pickVertices ( mpr, engine_flags );
         }
+
+        if ( engine_flags & VIEWOBJECT ) {
+            g3dmorpher_pickObject ( mpr, engine_flags );
+        }
+
+        return MODIFIERTAKESOVER;
     }
 
     return 0x00;

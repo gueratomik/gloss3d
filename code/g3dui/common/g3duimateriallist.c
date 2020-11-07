@@ -141,7 +141,7 @@ void common_g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                     TBN[0x07] = p->nor.y;
                     TBN[0x08] = p->nor.z;
 
-                    g3dchannel_getNormal ( &mat->bump, p->u, p->v, &bumpnor, 0x00 );
+                    g3dchannel_getNormal ( &mat->bump, p->u, p->v, &bumpnor, 0x00, 0.01f, 0.01f );
 
                     g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
 

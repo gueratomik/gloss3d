@@ -34,7 +34,9 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
                             float       u,
                             float       v,
                             G3DVECTOR  *nor,
-                            uint32_t    repeat ) {
+                            uint32_t    repeat,
+                            float       precU,
+                            float       precV ) {
     uint32_t channelFlags = cha->flags;
 
     g3dvector_init ( nor, 0.0f, 0.0f, 1.0f, 1.0f );
@@ -64,7 +66,7 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
         G3DCOLOR color;
 
         if ( proc ) {
-            g3dprocedural_getNormal ( proc, u, v, nor, 0.005f );
+            g3dprocedural_getNormal ( proc, u, v, nor, precU, precV );
         }
     }
 }
@@ -148,80 +150,6 @@ void g3dchannel_getColor ( G3DCHANNEL *cha, float    u,
             g3dcolor_toRGBA ( &color, rgba );
         } else {
             g3dcolor_toRGBA ( &cha->solid, rgba );
-        }
-    }
-}
-
-/******************************************************************************/
-void g3dchannel_getBumpVector ( G3DCHANNEL *cha,
-                                G3DVECTOR  *ray,
-                                float       u,
-                                float       v,
-                                G3DVECTOR  *vout ) {
-    G3DIMAGE *image = NULL;
-
-    if ( cha->flags & USEIMAGECOLOR ) {
-        image = cha->image;
-    }
-
-    if ( cha->flags & USEPROCEDURAL ) {
-        if ( cha->proc ) {
-            image = &cha->proc->image;
-        }
-    }
-
-    if ( image ) {
-        if ( image->width && image->height ) {
-            int32_t imgx = ((int32_t)((float)u * image->width  )) % image->width;
-            int32_t imgy = ((int32_t)((float)v * image->height )) % image->height;
-            int32_t imgxn = ( imgx + 0x01 ) % image->width;
-            int32_t imgyn = ( imgy + 0x01 ) % image->height;
-
-            if ( imgx  < 0x00 ) imgx  = image->width  - imgx;
-            if ( imgy  < 0x00 ) imgy  = image->height - imgy;
-            if ( imgxn < 0x00 ) imgxn = image->width  - imgxn;
-            if ( imgyn < 0x00 ) imgyn = image->height - imgyn;
-
-            uint32_t offset = ( imgy * image->bytesPerLine  ) +
-                              ( imgx * image->bytesPerPixel );
-
-            uint32_t offsetxn = ( imgy  * image->bytesPerLine  ) +
-                                ( imgxn * image->bytesPerPixel );
-
-            uint32_t offsetyn = ( imgyn * image->bytesPerLine  ) +
-                                ( imgx  * image->bytesPerPixel );
-
-            uint32_t col = ( ( uint32_t ) image->data[offset+0x00] + 
-                                          image->data[offset+0x01] + 
-                                          image->data[offset+0x02] ) / 0x03;
-
-            uint32_t colxn = ( ( uint32_t ) image->data[offsetxn+0x00] + 
-                                            image->data[offsetxn+0x01] + 
-                                            image->data[offsetxn+0x02] ) / 0x03;
-
-            uint32_t colyn = ( ( uint32_t ) image->data[offsetyn+0x00] + 
-                                            image->data[offsetyn+0x01] + 
-                                            image->data[offsetyn+0x02] ) / 0x03;
-
-            G3DVECTOR tvec = { 1, 0, (float) colxn - col, 1.0f };
-            G3DVECTOR bvec = { 0, 1, (float) colyn - col, 1.0f };
-            G3DVECTOR nvec;
-
-            g3dvector_cross ( &tvec, &bvec, &nvec );
-
-            double    TBN[0x10] = { tvec.x, bvec.x, nvec.x, 0.0f,
-                                    tvec.y, bvec.y, nvec.y, 0.0f,  
-                                    tvec.z, bvec.z, nvec.z, 0.0f,  
-                                    0.0f  , 0.0f  , 0.0f  , 1.0f };
-            G3DVECTOR rout;
-
-            g3dvector_matrix ( ray, TBN, &rout );
-
-            vout->x = rout.x * nvec.x;
-            vout->y = rout.y * nvec.y;
-            vout->z = rout.z * nvec.z;
-
-            g3dvector_normalize ( vout, NULL );
         }
     }
 }

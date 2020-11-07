@@ -937,12 +937,12 @@ int pick_tool ( G3DMOUSETOOL *mou,
                         lselnew = list_copy ( sce->lsel );
 
                         if ( lselold || lselnew ) {
-                	    /*** remember selection ***/
-                	    g3durm_scene_pickObject  ( urm, sce,
-                                                	    lselold,
-                                                	    lselnew,
-                                                	    engine_flags,
-                                                	    REDRAWVIEW );
+                	        /*** remember selection ***/
+                            g3durm_scene_pickObject  ( urm, sce,
+                                                	        lselold,
+                                                	        lselnew,
+                                                	        engine_flags,
+                                                	        REDRAWVIEW );
                         }
         	    }
 
@@ -950,13 +950,24 @@ int pick_tool ( G3DMOUSETOOL *mou,
                     if ( obj->type & MORPHER ) {
                 	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-        		        if ( engine_flags & VIEWVERTEX ) {
-                	        /*lselold = list_copy ( spl->curve->lselpt );*/
+                        if ( obj->parent->type == G3DMESHTYPE ) {
+                            G3DMESH *mes = obj->parent;
 
-                	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+        		            if ( engine_flags & VIEWVERTEX ) {
+                	            lselold = list_copy ( mes->lselver );
 
-                	        /*lselnew = list_copy ( spl->curve->lselpt );*/
-                	    }
+                	            pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+
+                	            lselnew = list_copy ( mes->lselver );
+
+                	            /*** remember selection ***/
+                	            g3durm_mesh_pickVertices  ( urm, mes,
+                                                	             lselold,
+                                                	             lselnew,
+                                                	             engine_flags,
+                                                	             REDRAWVIEW );
+                	        }
+                        }
                     }
 
                     if ( obj->type & SPLINE ) {

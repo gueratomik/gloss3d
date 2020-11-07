@@ -29,6 +29,40 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/******************************************************************************/
+static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
+    glDisableClientState ( GL_VERTEX_ARRAY );
+    glDisableClientState ( GL_COLOR_ARRAY  );
+    glDisableClientState ( GL_NORMAL_ARRAY );
+    glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+
+    if ( sdr->rtvermem ) free ( sdr->rtvermem );
+    if ( sdr->rtedgmem ) free ( sdr->rtedgmem );
+    if ( sdr->rtquamem ) free ( sdr->rtquamem );
+    if ( sdr->rtluim   ) free ( sdr->rtluim   );
+
+    sdr->rtvermem = NULL;
+    sdr->rtedgmem = NULL;
+    sdr->rtquamem = NULL;
+    sdr->rtluim   = NULL;
+
+    sdr->nbrtuv                = 0x00;
+    sdr->nbVerticesPerTriangle = 0x00;
+    sdr->nbVerticesPerQuad     = 0x00;
+    sdr->nbEdgesPerTriangle    = 0x00;
+    sdr->nbEdgesPerQuad        = 0x00;
+    sdr->nbFacesPerTriangle    = 0x00;
+    sdr->nbFacesPerQuad        = 0x00;
+
+    ((G3DMESH*)sdr)->nbuvmap = 0x00;
+}
+
+/******************************************************************************/
+static void g3dsubdivider_free ( G3DSUBDIVIDER *sdr ) {
+    g3dsubdivider_reset ( sdr );
+}
+
+/******************************************************************************/
 static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
                                      uint64_t       engine_flags );
 
@@ -54,6 +88,8 @@ void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr,
                                G3DOBJECT     *oldParent,
                                uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
+        g3dsubdivider_reset ( sdr );
+
         g3dsubdivider_activate ( sdr, engine_flags );
     }
 }
@@ -570,7 +606,7 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, 
                                        uint64_t       engine_flags ) {
-
+    g3dsubdivider_reset ( sdr );
 }
 
 /******************************************************************************/
@@ -857,7 +893,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          OBJECTNOSCALING     |
                                                          SYNCLEVELS,
                                            DRAW_CALLBACK(g3dsubdivider_draw),
-                                                         NULL,
+                                           FREE_CALLBACK(g3dsubdivider_free),
                                                          NULL,
                                                          NULL,
                                            COPY_CALLBACK(g3dsubdivider_copy),

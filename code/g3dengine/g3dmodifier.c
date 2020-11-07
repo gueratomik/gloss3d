@@ -51,6 +51,23 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
 }
 
 /******************************************************************************/
+uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
+                            G3DCAMERA   *cam, 
+                            uint64_t     engine_flags ) {
+    G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
+    uint32_t takenOver = g3dobject_pickModifiers ( obj, cam, engine_flags );
+
+    if ( ( ( obj->type == G3DFFDTYPE ) && ( obj->flags & OBJECTSELECTED ) ) ||
+         ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) ) {
+        if ( obj->pick ) {
+            takenOver |= obj->pick ( obj, cam, engine_flags );
+        }
+    }
+
+    return takenOver;
+}
+
+/******************************************************************************/
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags ) {

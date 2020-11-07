@@ -3229,16 +3229,21 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
                         G3DCAMERA *curcam, 
                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    uint32_t takenOver = 0x00;
 
-    if ( obj->flags & OBJECTSELECTED ) {
-        if ( engine_flags & VIEWOBJECT   ) g3dmesh_pickObject   ( mes, engine_flags );
-        if ( engine_flags & VIEWFACE     ) g3dmesh_pickFaces    ( mes, engine_flags );
-        if ( engine_flags & VIEWEDGE     ) g3dmesh_pickEdges    ( mes, engine_flags );
-        if ( engine_flags & VIEWVERTEX   ) g3dmesh_pickVertices ( mes, engine_flags );
-        if ( engine_flags & VIEWSKIN     ) g3dmesh_pickVertices ( mes, engine_flags );
-        /*if ( engine_flags & VIEWVERTEXUV ) g3dmesh_pickUVs      ( mes, engine_flags );*/
-    } else {
-        if ( engine_flags & VIEWOBJECT ) g3dmesh_pickObject   ( mes, engine_flags );
+    takenOver = g3dobject_pickModifiers ( obj, curcam, engine_flags );
+
+    if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
+        if ( obj->flags & OBJECTSELECTED ) {
+            if ( engine_flags & VIEWOBJECT   ) g3dmesh_pickObject   ( mes, engine_flags );
+            if ( engine_flags & VIEWFACE     ) g3dmesh_pickFaces    ( mes, engine_flags );
+            if ( engine_flags & VIEWEDGE     ) g3dmesh_pickEdges    ( mes, engine_flags );
+            if ( engine_flags & VIEWVERTEX   ) g3dmesh_pickVertices ( mes, engine_flags );
+            if ( engine_flags & VIEWSKIN     ) g3dmesh_pickVertices ( mes, engine_flags );
+            /*if ( engine_flags & VIEWVERTEXUV ) g3dmesh_pickUVs      ( mes, engine_flags );*/
+        } else {
+            if ( engine_flags & VIEWOBJECT ) g3dmesh_pickObject   ( mes, engine_flags );
+        }
     }
 
     return 0x00;

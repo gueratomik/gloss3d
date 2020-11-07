@@ -395,8 +395,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
-        if ( ( mpr->selmpose ) && 
-             ( mes->lselver  ) ) {
+        if ( mpr->selmpose ) {
             switch ( event->type ) {
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
@@ -428,22 +427,23 @@ static int move_morpher ( G3DMORPHER   *mpr,
                                                                         NULL );
                         /*lver = mpr->lver;*/
 
+                        if ( lver ) {
+                            oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                           NULL, 
+                                                                           lver );
 
-                        oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                       NULL, 
-                                                                       lver );
+                            g3dvertex_getAveragePositionFromList ( lver, &avgpos );
 
-                        g3dvertex_getAveragePositionFromList ( lver, &avgpos );
+                            /*lfac = g3dvertex_getFacesFromList  ( lver );
+                            ledg = g3dface_getEdgesFromList    ( lfac );*/
 
-                        /*lfac = g3dvertex_getFacesFromList  ( lver );
-                        ledg = g3dface_getEdgesFromList    ( lfac );*/
-
-                        gluProject ( avgpos.x, avgpos.y, avgpos.z, MVX, PJX, VPX, &winx, &winy, &winz );
-                        gluUnProject ( ( GLdouble ) bev->x,
-                                       ( GLdouble ) VPX[0x03] - bev->y,
-                                       ( GLdouble ) winz,
-                                       MVX, PJX, VPX,
-                                       &orix, &oriy, &oriz );
+                            gluProject ( avgpos.x, avgpos.y, avgpos.z, MVX, PJX, VPX, &winx, &winy, &winz );
+                            gluUnProject ( ( GLdouble ) bev->x,
+                                           ( GLdouble ) VPX[0x03] - bev->y,
+                                           ( GLdouble ) winz,
+                                           MVX, PJX, VPX,
+                                           &orix, &oriy, &oriz );
+                        }
 
                         /*g3dobject_startUpdateModifiers_r ( mes, engine_flags );*/
                     }
@@ -526,18 +526,20 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             pick_tool ( &pt, sce, cam, urm, engine_flags, event );
                         }
 
-                        newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                       NULL, 
-                                                                       lver );
+                        if ( lver ) {
+                            newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                           NULL, 
+                                                                           lver );
 
-                        g3durm_morpher_moveVertices ( urm,
-                                                      mpr,
-                                                      mpr->selmpose,
-                                                      lver,
-                                                      oldpos, 
-                                                      newpos, 
-                                                      REDRAWVIEW );
-                        list_free ( &lver, NULL );
+                            g3durm_morpher_moveVertices ( urm,
+                                                          mpr,
+                                                          mpr->selmpose,
+                                                          lver,
+                                                          oldpos, 
+                                                          newpos, 
+                                                          REDRAWVIEW );
+                            list_free ( &lver, NULL );
+                        }
 
                         oldpos = newpos = NULL;
                     }

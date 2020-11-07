@@ -36,6 +36,9 @@ static void imageColorCbk       ( GtkWidget *, gpointer  );
 static void proceduralCbk       ( GtkWidget *, gpointer  );
 static void chooseImageCbk      ( GtkWidget *, gpointer  );
 
+static void editChannelProceduralCbk ( GtkWidget *widget, 
+                                       gpointer   user_data );
+
 /******************************************************************************/
 static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -418,6 +421,20 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
+                if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
+                    if ( mat->displacement.flags & USEPROCEDURAL ) {
+                        if ( mat->displacement.proc ) {
+                            G3DPROCEDURAL *proc = mat->displacement.proc;
+
+                            gtk_combo_box_set_active ( cbt, proc->type );
+                        }
+                    }
+                }
+            }
+
             if ( GTK_IS_RADIO_BUTTON ( child ) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
@@ -535,6 +552,11 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                                104,
                                                64,
                                                displacementProceduralResCbk );
+          /*** Procedural settings **/
+          createPushButton  ( pan, gui, 
+                                   EDITDISPLACEMENTPROCEDURALEDIT,
+                                   104, 144, 96, 18,
+                                   editChannelProceduralCbk );
 
 
     return pan;
@@ -627,6 +649,20 @@ static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
 
                                 free ( imgpath );
                             }
+                        }
+                    }
+                }
+            }
+
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
+                if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
+                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                        if ( mat->alpha.proc ) {
+                            G3DPROCEDURAL *proc = mat->alpha.proc;
+
+                            gtk_combo_box_set_active ( cbt, proc->type );
                         }
                     }
                 }
@@ -750,6 +786,12 @@ static GtkWidget *createAlphaPanel ( GtkWidget *parent, G3DUI *gui,
                                                64,
                                                alphaProceduralResCbk );
 
+          /*** Procedural settings **/
+          createPushButton  ( pan, gui, 
+                                   EDITALPHAPROCEDURALEDIT,
+                                   104, 144, 96, 18,
+                                   editChannelProceduralCbk );
+
 
     return pan;
 }
@@ -793,11 +835,11 @@ static void bumpProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
 
     if ( gui->selmat ) {
         common_g3dui_materialEnableProceduralCbk ( gui, &gui->selmat->bump );
-	common_g3dui_materialChooseProceduralCbk ( gui,
-                                        	  &gui->selmat->bump,
-                                        	   procType, 
-                                        	   procRes,
-                                                   0x01 );
+	    common_g3dui_materialChooseProceduralCbk ( gui,
+                                        	      &gui->selmat->bump,
+                                        	       procType, 
+                                        	       procRes,
+                                                       0x01 );
     }
 
     g3dui_unsetHourGlass ( gui );
@@ -841,6 +883,20 @@ static void updateBumpPanel ( GtkWidget *widget, G3DUI *gui ) {
 
                                 free ( imgpath );
                             }
+                        }
+                    }
+                }
+            }
+
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
+                if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
+                    if ( mat->bump.flags & USEPROCEDURAL ) {
+                        if ( mat->bump.proc ) {
+                            G3DPROCEDURAL *proc = mat->bump.proc;
+
+                            gtk_combo_box_set_active ( cbt, proc->type );
                         }
                     }
                 }
@@ -951,18 +1007,24 @@ static GtkWidget *createBumpPanel ( GtkWidget *parent, G3DUI *gui,
                                    bumpProceduralCbk );
 
           createProceduralTypeSelection ( pan, gui, 
-                                               EDITDIFFUSEPROCEDURALTYPE,
+                                               EDITCHANNELPROCEDURALTYPE,
                                                0, 96,
                                                104,
                                                64,
                                                bumpProceduralTypeCbk );
 
           createProceduralResSelection  ( pan, gui, 
-                                               EDITDIFFUSEPROCEDURALRES,
+                                               EDITCHANNELPROCEDURALRES,
                                                0, 120,
                                                104,
                                                64,
                                                bumpProceduralResCbk );
+
+          /*** Procedural settings **/
+          createPushButton  ( pan, gui, 
+                                   EDITBUMPPROCEDURALEDIT,
+                                   104, 144, 96, 18,
+                                   editChannelProceduralCbk );
 
 
     return pan;
@@ -1099,36 +1161,67 @@ static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void editDiffuseProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+static void editChannelProceduralCbk ( GtkWidget *widget, 
+                                       gpointer   user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
     G3DUI *gui = ( G3DUI * ) user_data;
+    char *wname = gtk_widget_get_name ( widget );
 
     if ( gui->selmat ) {
         G3DMATERIAL *mat = gui->selmat;
+        G3DCHANNEL *cha = NULL;
 
-        if ( mat->diffuse.proc ) {
-            switch ( mat->diffuse.proc->type ) {
-                case PROCEDURALBRICK :
-                    createProceduralBrickEdit ( dial,
-                                                gui,
-                                                mat->diffuse.proc, 
-                                                "Procedural Brick",
-                                                0, 0, 350, 35, 0x01 );
-                break;
+        if ( strcmp ( wname, EDITDIFFUSEPROCEDURALEDIT ) == 0x00 ) {
+            cha = &mat->diffuse;
+        }
 
-                case PROCEDURALCHESS :
-                    createProceduralChessEdit ( dial,
-                                                gui,
-                                                mat->diffuse.proc, 
-                                                "Procedural Chess",
-                                                0, 0, 350, 35, 0x01 );
-                break;
+        if ( strcmp ( wname, EDITDISPLACEMENTPROCEDURALEDIT ) == 0x00 ) {
+            cha = &mat->displacement;
+        }
 
-                default :
-                break;
+        if ( strcmp ( wname, EDITBUMPPROCEDURALEDIT ) == 0x00 ) {
+            cha = &mat->bump;
+        }
+
+        if ( strcmp ( wname, EDITALPHAPROCEDURALEDIT ) == 0x00 ) {
+            cha = &mat->alpha;
+        }
+
+        if ( cha ) {
+            if (cha->proc ) {
+                G3DPROCEDURAL *proc = cha->proc;
+
+                switch ( proc->type ) {
+                    case PROCEDURALBRICK :
+                        createProceduralBrickEdit ( dial,
+                                                    gui,
+                                                    cha->proc, 
+                                                    "Procedural Brick",
+                                                    0, 0, 350, 35, 0x01 );
+                    break;
+
+                    case PROCEDURALCHESS :
+                        createProceduralChessEdit ( dial,
+                                                    gui,
+                                                    cha->proc, 
+                                                    "Procedural Chess",
+                                                    0, 0, 350, 35, 0x01 );
+                    break;
+
+                    /*case PROCEDURALNOISE :
+                        createProceduralNoiseEdit ( dial,
+                                                    gui,
+                                                    cha->proc, 
+                                                    "Procedural Noise",
+                                                    0, 0, 350, 35, 0x01 );
+                    break;*/
+
+                    default :
+                    break;
+                }
+
             }
-
         }
 
         gtk_widget_show ( dial );
@@ -1247,6 +1340,20 @@ static void updateDiffuseColorPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
+                GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(child);
+
+                if ( strcmp ( child_name, EDITCHANNELPROCEDURALTYPE ) == 0x00 ) {
+                    if ( mat->diffuse.flags & USEPROCEDURAL ) {
+                        if ( mat->diffuse.proc ) {
+                            G3DPROCEDURAL *proc = mat->diffuse.proc;
+
+                            gtk_combo_box_set_active ( cbt, proc->type );
+                        }
+                    }
+                }
+            }
+
             if ( GTK_IS_RADIO_BUTTON ( child ) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
@@ -1347,11 +1454,11 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget *parent, G3DUI *gui,
                                                64,
                                                diffuseProceduralTypeCbk );
 
-          /*** Image chooser button **/
+          /*** Procedural settings **/
           createPushButton  ( pan, gui, 
                                    EDITDIFFUSEPROCEDURALEDIT,
                                    104, 96, 96, 18,
-                                   editDiffuseProceduralCbk );
+                                   editChannelProceduralCbk );
 
           /*createProceduralResSelection  ( pan, gui, 
                                                EDITDIFFUSEPROCEDURALRES,

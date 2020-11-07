@@ -441,9 +441,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define USECHANNELMASK       ( USESOLIDCOLOR | USEIMAGECOLOR | USEPROCEDURAL )
 
 /******************************* Procedural types *****************************/
-#define PROCEDURALNOISE        0x01
-#define PROCEDURALCHESS        0x02
-#define PROCEDURALBRICK        0x03
+#define PROCEDURALNOISE        0x00
+#define PROCEDURALCHESS        0x01
+#define PROCEDURALBRICK        0x02
 
 /******************************************************************************/
 #define _GETVERTEX(mes,ltmpver) \
@@ -704,7 +704,7 @@ typedef struct _G3DOBJECT {
     /*** Free memory function ***/
     void     (*free)          ( struct _G3DOBJECT * );
     /*** Object selection ***/
-    void     (*pick)          ( struct _G3DOBJECT *, struct _G3DCAMERA *,
+    uint32_t     (*pick)      ( struct _G3DOBJECT *, struct _G3DCAMERA *,
                                                      uint64_t );
     void (*anim)( struct _G3DOBJECT *, float frame );
     void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
@@ -1948,6 +1948,9 @@ void       g3dobject_init ( G3DOBJECT   *obj,
                                                       G3DOBJECT *,
                                                       G3DOBJECT *,
                                                       uint32_t ) );
+uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj, 
+                                   G3DCAMERA *cam,
+                                   uint64_t   engine_flags  );
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags );
@@ -2777,7 +2780,8 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                float          u,
                                float          v,
                                G3DVECTOR     *nor,
-                               float          prec );
+                               float          precU,
+                               float          precV );
 
 /******************************************************************************/
 void g3dmodifier_init ( G3DMODIFIER *mod,
@@ -2814,6 +2818,9 @@ uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             uint64_t     engine_flags );
 void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                             uint64_t     engine_flags );
+uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
+                            G3DCAMERA   *cam, 
+                            uint64_t     engine_flags );
 
 /******************************************************************************/
 G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
@@ -2837,7 +2844,9 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
                             float       u,
                             float       v,
                             G3DVECTOR  *nor,
-                            uint32_t    repeat );
+                            uint32_t    repeat,
+                            float       precU,
+                            float       precV );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

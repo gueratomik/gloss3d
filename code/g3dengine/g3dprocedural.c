@@ -34,7 +34,8 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                float          u,
                                float          v,
                                G3DVECTOR     *nor,
-                               float          prec ) {
+                               float          precU,
+                               float          precV ) {
 /* Patterns for our vector depending on were we are on the image, to prevent:
    a forbidden memory access.
 
@@ -46,18 +47,18 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 2 = *     3 =  *
     **        **
 */
-    G3DVECTOR pattern[0x04][0x03] = { { { .x =  0.0f, .y =  0.0f },
-                                        { .x =  prec, .y =  0.0f },
-                                        { .x =  0.0f, .y =  prec } },
-                                      { { .x =  0.0f, .y =  0.0f },
-                                        { .x =  0.0f, .y =  prec },
-                                        { .x = -prec, .y =  0.0f } },
-                                      { { .x =  0.0f, .y =  0.0f },
-                                        { .x =  0.0f, .y = -prec },
-                                        { .x =  prec, .y =  0.0f } },
-                                      { { .x =  0.0f, .y =  0.0f },
-                                        { .x = -prec, .y =  0.0f },
-                                        { .x =  0.0f, .y = -prec } } };
+    G3DVECTOR pattern[0x04][0x03] = { { { .x =   0.0f, .y =   0.0f },
+                                        { .x =  precU, .y =   0.0f },
+                                        { .x =   0.0f, .y =  precV } },
+                                      { { .x =   0.0f, .y =   0.0f },
+                                        { .x =   0.0f, .y =  precV },
+                                        { .x = -precU, .y =   0.0f } },
+                                      { { .x =   0.0f, .y =   0.0f },
+                                        { .x =   0.0f, .y = -precV },
+                                        { .x =  precU, .y =   0.0f } },
+                                      { { .x =   0.0f, .y =   0.0f },
+                                        { .x = -precU, .y =   0.0f },
+                                        { .x =   0.0f, .y = -precV } } };
     float bu = ( u > 0.0f ) ? u - (int) u : 1.0f - ( u - (int) u ),
           bv = ( v > 0.0f ) ? v - (int) v : 1.0f - ( v - (int) v );
     uint32_t m = (bv*2);
