@@ -45,6 +45,7 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce,
                                                                 sce->lsel,
                                                                 UTOSAVETRANSLATION,
                                                                 REDRAWVIEW );
@@ -109,6 +110,7 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce,
                                                                 sce->lsel,
                                                                 UTOSAVEROTATION,
                                                                 REDRAWVIEW );
@@ -145,6 +147,7 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         if ( gui->engine_flags & VIEWOBJECT ) {
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
+                                                                sce,
                                                                 sce->lsel,
                                                                 UTOSAVESCALING,
                                                                 REDRAWVIEW );

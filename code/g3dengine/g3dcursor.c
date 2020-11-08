@@ -51,6 +51,18 @@ void g3dcursor_pick ( G3DCURSOR *csr,
 
     ratio = g3dvector_length ( &oripos ) * 0.125f; ***/
 
+    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
+        csr->ratio = cam->ortho.z * 200.0f;
+    } else {
+        /*g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );*/
+
+        /*oripos.x = pivot->x - campos.x;
+        oripos.y = pivot->y - campos.y;
+        oripos.z = pivot->z - campos.z;*/
+
+        csr->ratio = 1.0f/*g3dvector_length ( &oripos ) * 0.00250 * curcam->focal*/;
+    }
+
     csr->axis[0x00].w = 0.0f;
     csr->axis[0x01].w = 0.0f;
     csr->axis[0x02].w = 0.0f;
@@ -79,6 +91,8 @@ void g3dcursor_init ( G3DCURSOR *csr ) {
     g3dvector_init ( &csr->axis[0x00], 1.0f, 0.0f, 0.0f, 1.0f );
     g3dvector_init ( &csr->axis[0x01], 0.0f, 1.0f, 0.0f, 1.0f );
     g3dvector_init ( &csr->axis[0x02], 0.0f, 0.0f, 1.0f, 1.0f );
+
+    g3dcore_identityMatrix ( csr->matrix );
 }
 
 /*****************************************************************************/
@@ -101,7 +115,7 @@ void g3dcursor_draw ( G3DCURSOR *csr,
     if ( ((G3DOBJECT*)curcam)->flags & CAMERAORTHOGRAPHIC ) {
         csr->ratio = curcam->ortho.z * 200.0f;
     } else {
-        g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );
+        /*g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );*/
 
         /*oripos.x = pivot->x - campos.x;
         oripos.y = pivot->y - campos.y;

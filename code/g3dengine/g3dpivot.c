@@ -93,7 +93,7 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
 /*** Camera's world ZAxis, so we get nice rotation ***/
 void g3dpivot_init ( G3DPIVOT  *piv, 
                      G3DCAMERA *cam, 
-                     G3DVECTOR *pos, 
+                     G3DCURSOR *csr, 
                      uint64_t engine_flags ) {
     G3DOBJECT *objpiv   = ( G3DOBJECT * ) piv;
     G3DOBJECT *objcam   = ( G3DOBJECT * ) cam;
@@ -107,6 +107,10 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     G3DVECTOR sign;
     double RMX[0x10];
     double LCX[0x10];
+    G3DVECTOR localpos = { csr->pivot.x, 
+                           csr->pivot.y, 
+                           csr->pivot.z, 
+                           1.0f };
 
     g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", DRAWBEFORECHILDREN,
                                                           g3dpivot_draw,
@@ -122,9 +126,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 
     piv->cam = cam;
 
-    objpiv->pos.x = pos->x;
-    objpiv->pos.y = pos->y;
-    objpiv->pos.z = pos->z;
+    g3dvector_matrix ( &localpos, csr->matrix, &objpiv->pos );
 
     g3dobject_addChild ( yaxisobj, xaxisobj, engine_flags );
     g3dobject_addChild ( xaxisobj, locam   , engine_flags );

@@ -225,22 +225,36 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
     G3DVECTOR pivot;
     uint32_t nbobj = g3dscene_getPositionFromSelectedObjects ( sce, &pivot );
 
-    memcpy ( &sce->csr.pivot, &pivot, sizeof ( G3DVECTOR ) );
-
     if ( nbobj == 0x01 ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
         G3DVECTOR localpos = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+        if ( engine_flags & VIEWOBJECT ) {
+            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+
+            memcpy ( &sce->csr.matrix, 
+                     &obj->wmatrix, sizeof ( double ) * 0x10 );
+        }
+
         if ( engine_flags & VIEWVERTEX ) {
-            g3dscene_getPositionFromSelectedVertices ( sce, &localpos );
+            g3dscene_getPositionFromSelectedVertices ( sce, &sce->csr.pivot );
+
+            memcpy ( sce->csr.matrix,
+                     obj->wmatrix, sizeof ( double ) * 0x10 );
         }
 
         if ( engine_flags & VIEWEDGE ) {
-            g3dscene_getPositionFromSelectedEdges ( sce, &localpos );
+            g3dscene_getPositionFromSelectedEdges ( sce, &sce->csr.pivot );
+
+            memcpy ( sce->csr.matrix, 
+                     obj->wmatrix, sizeof ( double ) * 0x10 );
         }
 
         if ( engine_flags & VIEWFACE ) {
-            g3dscene_getPositionFromSelectedFaces ( sce, &localpos );
+            g3dscene_getPositionFromSelectedFaces ( sce, &sce->csr.pivot );
+
+            memcpy ( sce->csr.matrix, 
+                     obj->wmatrix, sizeof ( double ) * 0x10 );
         }
 
         if ( engine_flags & VIEWUVWMAP ) {
@@ -251,14 +265,19 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
                 if ( map ) {
                     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-                    localpos.x = objmap->pos.x;
-                    localpos.y = objmap->pos.y;
-                    localpos.z = objmap->pos.z;
+                    sce->csr.pivot.x = objmap->pos.x;
+                    sce->csr.pivot.y = objmap->pos.y;
+                    sce->csr.pivot.z = objmap->pos.z;
+
+                    memcpy ( sce->csr.matrix, 
+                             objmap->wmatrix, sizeof ( double ) * 0x10 );
                 }
             }
         }
+    } else {
+        memcpy ( &sce->csr.pivot, &pivot, sizeof ( G3DVECTOR ) );
 
-        g3dvector_matrix ( &localpos, obj->wmatrix, &sce->csr.pivot );
+        g3dcore_identityMatrix ( sce->csr.matrix );
     }
 
     return nbobj;
@@ -613,9 +632,12 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
     /*glMultMatrixd ( matrix );
     glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
 
+    glMultMatrixd ( sce->csr.matrix );
+
     glTranslatef ( sce->csr.pivot.x, 
                    sce->csr.pivot.y, 
                    sce->csr.pivot.z );
+
     g3dcursor_draw ( &sce->csr, curcam, engine_flags );
 
     glPopMatrix ( );

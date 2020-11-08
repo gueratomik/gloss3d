@@ -684,18 +684,26 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
 
-    glMultMatrixd ( MVX );
+    glMultMatrixd ( sce->csr.matrix );
+
+    glTranslatef ( sce->csr.pivot.x, 
+                   sce->csr.pivot.y, 
+                   sce->csr.pivot.z );
+
+    /*glMultMatrixd ( MVX );*/
     /*glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
-    g3dpick_setModelviewMatrix  ( MVX   );
     g3dpick_setViewportMatrix   ( VPX   );
     g3dpick_setProjectionMatrix ( PJX   );
     g3dpick_setAreaMatrix       ( pt->coord );
 
     /*** clear must be called once the VPX is set ***/
     g3dpick_clear ( );
+
+    /*** this must be called after g3dpick_clear ***/
+    g3dpick_setModelviewMatrix  ( MVX   );
 
     g3dpick_setAction ( actionSelectAxis, &sce->csr );
     g3dcursor_pick ( &sce->csr, cam, engine_flags );

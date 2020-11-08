@@ -139,7 +139,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
         G3DSUBFACE   *srvFaces;
         uint32_t     i, j, k = 0x00;
         uint32_t     revolvedVertexId = 0x00;
-        G3DEDGE   *(*edgeLookupTable)[0x04];
+        G3DEDGE   *(*edgeLookupTable)[0x04] = NULL;
         uint32_t     uniqueVertexId = 0x00;
 
         if ( nbRevolvedVertices && nbRevolvedEdges && nbRevolvedFaces ) {

@@ -810,7 +810,7 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                 switch ( view->buttonID ) {
                     case ROTATEBUTTON : {
                         /*** pivot for rotation ***/
-                        piv = g3dpivot_new ( cam, &sce->csr.pivot, gui->engine_flags );
+                        piv = g3dpivot_new ( cam, &sce->csr, gui->engine_flags );
 
                         /*g3dobject_addChild ( sce, piv );*/
                     } break;

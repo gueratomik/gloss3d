@@ -373,6 +373,7 @@ static int scale_morpher ( G3DMORPHER       *mpr,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
+    static G3DVECTOR localPivot;
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -408,6 +409,9 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                         lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
                                                                         NULL );
 
+                        g3dvertex_getAveragePositionFromList ( lver, 
+                                                              &localPivot );
+
                         if ( lver ) {
                             oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
                                                                            NULL, 
@@ -438,9 +442,9 @@ static int scale_morpher ( G3DMORPHER       *mpr,
 
                                 vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL, NULL );
 
-                                vpose->pos.x = sce->csr.pivot.x + ( ( oldpos[verID].x - sce->csr.pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
-                                vpose->pos.y = sce->csr.pivot.y + ( ( oldpos[verID].y - sce->csr.pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
-                                vpose->pos.z = sce->csr.pivot.z + ( ( oldpos[verID].z - sce->csr.pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+                                vpose->pos.x = localPivot.x + ( ( oldpos[verID].x - localPivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
+                                vpose->pos.y = localPivot.y + ( ( oldpos[verID].y - localPivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
+                                vpose->pos.z = localPivot.z + ( ( oldpos[verID].z - localPivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
 
                                 verID++;
 
@@ -517,6 +521,7 @@ static int scale_mesh ( G3DMESH          *mes,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
+    static G3DVECTOR localPivot;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -556,6 +561,8 @@ static int scale_mesh ( G3DMESH          *mes,
                 lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
             }
 
+            g3dvertex_getAveragePositionFromList ( lver, &localPivot );
+
             g3dvertex_copyPositionFromList       ( lver, &oldpos );
  
             lfac = g3dvertex_getFacesFromList  ( lver );
@@ -585,9 +592,9 @@ static int scale_mesh ( G3DMESH          *mes,
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                        ver->pos.x = sce->csr.pivot.x + ( ( oldpos[verID].x - sce->csr.pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
-                        ver->pos.y = sce->csr.pivot.y + ( ( oldpos[verID].y - sce->csr.pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
-                        ver->pos.z = sce->csr.pivot.z + ( ( oldpos[verID].z - sce->csr.pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+                        ver->pos.x = localPivot.x + ( ( oldpos[verID].x - localPivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
+                        ver->pos.y = localPivot.y + ( ( oldpos[verID].y - localPivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
+                        ver->pos.z = localPivot.z + ( ( oldpos[verID].z - localPivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
 
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
@@ -685,6 +692,7 @@ static int scale_object ( LIST        *lobj,
 
             /*** Record and undo procedure and record the current state ***/
             uto = g3durm_object_transform ( urm,
+                                            sce,
                                             lobj,
                                             UTOSAVESCALING, 
                                             REDRAWVIEW );

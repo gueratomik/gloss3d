@@ -209,6 +209,7 @@ typedef struct _URMADDUVMAP {
 
 typedef struct _URMTRANSFORMOBJECT {
     LIST      *lobj;
+    G3DSCENE  *sce;
     G3DVECTOR *oldpos;
     G3DVECTOR *oldrot;
     G3DVECTOR *oldsca;
@@ -460,11 +461,13 @@ void g3durm_mesh_extrude ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time );
-URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm, 
+URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
+                                              G3DSCENE     *sce,
                                               LIST         *lobj,
                                               uint32_t      save_type,
                                               uint32_t      return_flags );
-URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm, 
+URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm,
+                                             G3DSCENE     *sce,
                                              G3DUVMAP     *uvmap,
                                              uint32_t      save_type,
                                              uint32_t      return_flags );

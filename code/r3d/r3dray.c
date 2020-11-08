@@ -418,6 +418,8 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
         R3DRAY luxray, spcray, refray, camray;
         float spotFactor = 1.0f;
         float dot;
+        uint32_t nbmat = 0x00;
+        R3DRGBA ltspc = { 0x00, 0x00, 0x00, 0x00 };
 
         memset ( &luxray, 0x00, sizeof ( R3DRAY ) );
 
@@ -437,7 +439,9 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
         luxray.intensity = 1.0f;
         luxray.flags     = 0x00;
 
-
+        /*** init also here for objects without a texture ***/
+        memcpy ( &spcray.nor, &ray->nor, sizeof ( R3DVECTOR      ) );
+        memcpy ( &spcray.pnt, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
 
         while ( ltmptex ) {
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -450,6 +454,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
                 if ( mat ) {
                     R3DVECTOR camray;
 
+                    /*** init here for objects with a texture ***/
                     memcpy ( &spcray.nor, &ray->nor, sizeof ( R3DVECTOR      ) );
                     memcpy ( &spcray.pnt, &ray->pnt, sizeof ( R3DDOUBLEPOINT ) );
 
@@ -544,17 +549,28 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
                                          G = ( lig->specularColor.g * mat->specular_level * mat->specular.solid.g * specularCoefficient ),
                                          B = ( lig->specularColor.b * mat->specular_level * mat->specular.solid.b * specularCoefficient );
 
-                            spc->r += R;
-                            spc->g += G,
-                            spc->b += B;
+                            ltspc.r += R;
+                            ltspc.g += G,
+                            ltspc.b += B;
                         }
-
                     }
+
+                    nbmat++;
                 }
             }
 
             ltmptex = ltmptex->next;
         }
+
+        if ( nbmat ) {
+            ltspc.r /= nbmat;
+            ltspc.g /= nbmat;
+            ltspc.b /= nbmat;
+        }
+
+        spc->r += ltspc.r;
+        spc->g += ltspc.g;
+        spc->b += ltspc.b;
 
         dot = g3dvector_scalar ( ( G3DVECTOR * ) &luxray.dir, 
                                  ( G3DVECTOR * ) &spcray.nor );
@@ -616,6 +632,7 @@ uint32_t r3dray_illumination ( R3DRAY *ray, R3DSCENE  *rsce,
                 col->b += ( lig->diffuseColor.b * rate );
             }
         }
+
 
         ltmprlt = ltmprlt->next;
     }

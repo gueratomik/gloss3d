@@ -106,7 +106,6 @@ static int move_spline ( G3DSPLINE    *spl,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     static URMMOVEPOINT *ump;
-    static G3DVECTOR  objpos;
     static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     switch ( event->type ) {
@@ -133,8 +132,6 @@ static int move_spline ( G3DSPLINE    *spl,
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
-
-            g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
             if ( engine_flags & VIEWVERTEX ) {
                 G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
@@ -211,11 +208,6 @@ static int move_spline ( G3DSPLINE    *spl,
                         sce->csr.pivot.x /= nbpt;
                         sce->csr.pivot.y /= nbpt;
                         sce->csr.pivot.z /= nbpt;
-
-                        /*** add the object world pos ***/
-                        sce->csr.pivot.x += objpos.x;
-                        sce->csr.pivot.y += objpos.y;
-                        sce->csr.pivot.z += objpos.z;
                     }
 
                 	g3dspline_update ( spl,
@@ -414,7 +406,6 @@ static int move_morpher ( G3DMORPHER   *mpr,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR  objpos;
     static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     if ( obj->parent->type == G3DMESHTYPE ) {
@@ -447,8 +438,6 @@ static int move_morpher ( G3DMORPHER   *mpr,
 
                         mouseXpress = bev->x;
                         mouseYpress = bev->y;
-
-                        g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
                         lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
                                                                         NULL );
@@ -496,7 +485,9 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             dify = ( newy - oriy );
                             difz = ( newz - oriz );
 
-                            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                            /*** update cursor matrix ***/
+                            memcpy ( sce->csr.matrix, 
+                                     obj->wmatrix, sizeof ( double ) * 0x10 );
 
                             while ( ltmpver ) {
                                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -508,13 +499,14 @@ static int move_morpher ( G3DMORPHER   *mpr,
                                     if ( ( engine_flags & XAXIS ) && axis[0].w ) vpose->pos.x += difx;
                                     if ( ( engine_flags & YAXIS ) && axis[1].w ) vpose->pos.y += dify;
                                     if ( ( engine_flags & ZAXIS ) && axis[2].w ) vpose->pos.z += difz;
+
+
+                                    sce->csr.pivot.x += vpose->pos.x;
+                                    sce->csr.pivot.y += vpose->pos.y;
+                                    sce->csr.pivot.z += vpose->pos.z;
+
+                                    nbver++;
                                 }
-
-                                sce->csr.pivot.x += vpose->pos.x;
-                                sce->csr.pivot.y += vpose->pos.y;
-                                sce->csr.pivot.z += vpose->pos.z;
-
-                                nbver++;
 
                                 ltmpver = ltmpver->next;
                             }
@@ -523,11 +515,6 @@ static int move_morpher ( G3DMORPHER   *mpr,
                                 sce->csr.pivot.x /= nbver;
                                 sce->csr.pivot.y /= nbver;
                                 sce->csr.pivot.z /= nbver;
-
-                                /*** add the object world pos ***/
-                                sce->csr.pivot.x += objpos.x;
-                                sce->csr.pivot.y += objpos.y;
-                                sce->csr.pivot.z += objpos.z;
                             }
 
                             orix = newx;
@@ -602,7 +589,6 @@ static int move_mesh ( G3DMESH      *mes,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR  objpos;
     static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     switch ( event->type ) {
@@ -630,8 +616,6 @@ static int move_mesh ( G3DMESH      *mes,
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
-
-            g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
             if ( engine_flags & VIEWVERTEX ) {
                 lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
@@ -714,11 +698,6 @@ static int move_mesh ( G3DMESH      *mes,
                         sce->csr.pivot.x /= nbver;
                         sce->csr.pivot.y /= nbver;
                         sce->csr.pivot.z /= nbver;
-
-                        /*** add the object world pos ***/
-                        sce->csr.pivot.x += objpos.x;
-                        sce->csr.pivot.y += objpos.y;
-                        sce->csr.pivot.z += objpos.z;
                     }
 
                     g3dobject_updateModifiers_r ( mes, engine_flags );
@@ -811,6 +790,7 @@ int move_object ( LIST        *lobj,
 
             /*** Record and undo procedure and record the current state ***/
             uto = g3durm_object_transform ( urm,
+                                            sce,
                                             lobj,
                                             UTOSAVETRANSLATION, 
                                             REDRAWVIEW );

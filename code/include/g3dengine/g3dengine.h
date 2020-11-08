@@ -837,6 +837,7 @@ typedef struct _G3DSYMMETRY {
 typedef struct _G3DCURSOR {
     G3DVECTOR pivot;
     G3DVECTOR axis[0x03];
+    double    matrix[0x10];
     float     ratio;
 } G3DCURSOR;
 
@@ -2738,7 +2739,7 @@ uint32_t g3dpivot_draw ( G3DOBJECT *obj,
                          uint64_t   engine_flags );
 void g3dpivot_init ( G3DPIVOT  *piv, 
                      G3DCAMERA *cam, 
-                     G3DVECTOR *pos, 
+                     G3DCURSOR *csr, 
                      uint64_t engine_flags );
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
                          G3DVECTOR *pos, 

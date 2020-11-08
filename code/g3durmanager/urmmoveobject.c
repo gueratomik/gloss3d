@@ -31,8 +31,9 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
-                                                    uint32_t   save_type ) {
+static URMTRANSFORMOBJECT *urmtransformobject_new ( G3DSCENE *sce,
+                                                    LIST     *lobj,
+                                                    uint32_t  save_type ) {
     uint32_t structsize = sizeof ( URMTRANSFORMOBJECT );
 
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) calloc ( 0x01, structsize );
@@ -45,6 +46,7 @@ static URMTRANSFORMOBJECT *urmtransformobject_new ( LIST      *lobj,
 
     uto->lobj      = lobj;
     uto->save_type = save_type;
+    uto->sce       = sce;
 
     return uto;
 }
@@ -87,31 +89,33 @@ static void transformObject_undo ( G3DURMANAGER *urm,
 
         }
 
-	if ( uto->save_type & UTOSAVETRANSLATION ) {
-	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
+        if ( uto->save_type & UTOSAVETRANSLATION ) {
+	        memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
         }
 
-	if ( uto->save_type & UTOSAVEROTATION ) {
-	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
+	    if ( uto->save_type & UTOSAVEROTATION ) {
+	        memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
         }
 
-	if ( uto->save_type & UTOSAVESCALING ) {
-	    memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR ) );
+	    if ( uto->save_type & UTOSAVESCALING ) {
+	        memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR ) );
         }
 
-	g3dobject_updateMatrix_r ( obj, 0x00 );
+	    g3dobject_updateMatrix_r ( obj, 0x00 );
 
-	/*** keep vertices at the same location if we are in axis mode ***/
-	if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
+	    /*** keep vertices at the same location if we are in axis mode ***/
+        if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
             /*g3dmesh_transformAxis ( mes, OLDWORLDMVX, flags );*/
-	}
+	    }
 
         i++;
 
         ltmpobj = ltmpobj->next;
     }
+
+    g3dscene_updatePivot ( uto->sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -130,31 +134,33 @@ static void transformObject_redo ( G3DURMANAGER *urm,
 
         }
 
-	if ( uto->save_type & UTOSAVETRANSLATION ) {
-	    memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
+        if ( uto->save_type & UTOSAVETRANSLATION ) {
+            memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
         }
 
-	if ( uto->save_type & UTOSAVEROTATION ) {
-	    memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );
+        if ( uto->save_type & UTOSAVEROTATION ) {
+            memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );
         }
 
-	if ( uto->save_type & UTOSAVESCALING ) {
-	    memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR ) );
+        if ( uto->save_type & UTOSAVESCALING ) {
+            memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR ) );
         }
 
-	g3dobject_updateMatrix_r ( obj, 0x00 );
+        g3dobject_updateMatrix_r ( obj, 0x00 );
 
-	/*** keep vertices at the same location if we are in axis mode ***/
-	if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
+        /*** keep vertices at the same location if we are in axis mode ***/
+        if ( ( uto->save_type & UTOSAVEAXIS ) && ( obj->type & MESH ) ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
             /*g3dmesh_transformAxis ( mes, OLDWORLDMVX, flags );*/
-	}
+        }
 
         i++;
 
         ltmpobj = ltmpobj->next;
     }
+
+    g3dscene_updatePivot ( uto->sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -230,13 +236,14 @@ void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time ) {
 }
 
 /******************************************************************************/
-URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm, 
+URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
+                                              G3DSCENE     *sce,
                                               LIST         *lobj,
                                               uint32_t      save_type,
                                               uint32_t      return_flags ) {
     URMTRANSFORMOBJECT *uto;
 
-    uto = urmtransformobject_new ( list_copy ( lobj ), save_type );
+    uto = urmtransformobject_new ( sce, list_copy ( lobj ), save_type );
 
     g3durmanager_push ( urm, transformObject_undo,
                              transformObject_redo,
@@ -246,7 +253,8 @@ URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm, 
+URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm,
+                                             G3DSCENE     *sce,
                                              G3DUVMAP     *uvmap,
                                              uint32_t      save_type,
                                              uint32_t      return_flags ) {
@@ -255,7 +263,7 @@ URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm,
 
     list_insert ( &luvmap, uvmap );
 
-    uto = g3durm_object_transform ( urm, luvmap, save_type, return_flags );
+    uto = g3durm_object_transform ( urm, sce, luvmap, save_type, return_flags );
 
     list_free ( &luvmap, NULL );
 
