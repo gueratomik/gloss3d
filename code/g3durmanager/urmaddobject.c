@@ -206,4 +206,6 @@ void g3durm_object_addChildren ( G3DURMANAGER *urm,
 
         ltmpobj = ltmpobj->next;
     }
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }

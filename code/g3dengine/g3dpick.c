@@ -93,7 +93,6 @@ static G3DPICK *g3dpick_get ( ) {
 /******************************************************************************/
 void g3dpick_buildFrustrum ( ) {
     G3DPICK *pick = g3dpick_get ( );
-    G3DSYSINFO *sinfo = g3dsysinfo_get ( );
     /*static int frustrum = 0x00;
     G3DVECTOR znear = { 0.0f, 0.0f, -1.0f, 1.0f },
               zfar  = { 0.0f, 0.0f,  1.0f, 1.0f };*/
@@ -109,7 +108,6 @@ void g3dpick_buildFrustrum ( ) {
                                     0.0f, 0.0f, 0.0f, 1.0f };
         G3DDOUBLEVECTOR scr3Dnear[0x04];
         G3DDOUBLEVECTOR scr3Dfar[0x04];
-        G3DOBJECT *objcam = sinfo->defaultCamera;
     /*G3DMESH *mes = g3dmesh_new ( 0x00, "frustrum", 0x00 );
     G3DVERTEX *ver[0x08];
     G3DFACE *fac[0x06];*/

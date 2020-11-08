@@ -459,7 +459,6 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
     static double MVX[0x10];
     static double PJX[0x10];
 
-
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
     closeSelectionRectangle ( pt, VPX, engine_flags );
@@ -475,18 +474,22 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
     glLoadIdentity ( );
     g3dcamera_view ( cam, 0x00 );
 
-    g3dpick_setProjectionMatrix ( PJX   );
+    /*** Note: calling setViewportMatrix before setProjectionMatrix ***/
+    /*** is mandatory ***/
     g3dpick_setViewportMatrix   ( VPX   );
+    g3dpick_setProjectionMatrix ( PJX   );
     g3dpick_setAreaMatrix       ( pt->coord );
 
+    /*** clear must be called once the VPX is set ***/
     g3dpick_clear ( );
 
     if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&
          ( ( engine_flags & VIEWFACEUV   ) == 0x00 ) ) {
         if ( pt->only_visible ) {
+            g3dpick_enableDepthTest  ( );
             g3dpick_setAction ( NULL, NULL );
             g3dobject_pick ( sce, cam, VIEWOBJECT );
-            g3dpick_setEpsilon ( 0.00001f );
+            g3dpick_setEpsilon ( 0.0001f );
         }
     }
 
@@ -656,14 +659,12 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     static double PJX[0x10];
     G3DVECTOR sca;
 
-    g3dpick_clear ( );
-
-    g3dscene_getSelectionMatrix ( sce, MVX, engine_flags );
+    /*g3dscene_getSelectionMatrix ( sce, MVX, engine_flags );*/
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
     /*** by scaling the cursor matrix with the inverse scale factors ***/
     /*** same code as in g3dscene_draw ( ). Should be factorized ***/
-    g3dcore_getMatrixScale ( MVX, &sca );
+    /*g3dcore_getMatrixScale ( MVX, &sca );*/
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -684,14 +685,17 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     g3dcamera_view ( cam, 0x00 );
 
     glMultMatrixd ( MVX );
-    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
+    /*glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
     g3dpick_setModelviewMatrix  ( MVX   );
-    g3dpick_setProjectionMatrix ( PJX   );
     g3dpick_setViewportMatrix   ( VPX   );
+    g3dpick_setProjectionMatrix ( PJX   );
     g3dpick_setAreaMatrix       ( pt->coord );
+
+    /*** clear must be called once the VPX is set ***/
+    g3dpick_clear ( );
 
     g3dpick_setAction ( actionSelectAxis, &sce->csr );
     g3dcursor_pick ( &sce->csr, cam, engine_flags );
@@ -839,7 +843,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
                                 lselnew = list_copy ( uvmap->lseluv );
 
                 	            /*** remember selection ***/
-                	            g3durm_uvmap_pickUVs  ( urm, uvmap,
+                	            g3durm_uvmap_pickUVs  ( urm, sce, uvmap,
                                                 	         lselold,
                                                 	         lselnew,
                                                 	         VIEWVERTEXUV,
@@ -855,7 +859,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
                                 lselnew = list_copy ( uvmap->lseluvset );
 
                 	            /*** remember selection ***/
-                	            g3durm_uvmap_pickUVSets ( urm, uvmap,
+                	            g3durm_uvmap_pickUVSets ( urm, sce, uvmap,
                                                 	         lselold,
                                                 	         lselnew,
                                                 	         VIEWFACEUV,
@@ -961,11 +965,15 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	            lselnew = list_copy ( mes->lselver );
 
                 	            /*** remember selection ***/
-                	            g3durm_mesh_pickVertices  ( urm, mes,
-                                                	             lselold,
-                                                	             lselnew,
-                                                	             engine_flags,
-                                                	             REDRAWVIEW );
+                                if ( mes->lselver ) {
+                	                g3durm_mesh_pickVertices  ( urm, 
+                                                                sce, 
+                                                                mes,
+                                                                lselold,
+                                                                lselnew,
+                                                                engine_flags,
+                                                                REDRAWVIEW );
+                                }
                 	        }
                         }
                     }
@@ -979,6 +987,16 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
                 	        lselnew = list_copy ( spl->curve->lselpt );
+
+                            if ( spl->curve->lselpt ) {
+                                g3durm_spline_pickPoints ( urm,
+                                                           sce,
+                                                           spl,
+                                                           lselold,
+                                                           lselnew,
+                                                           engine_flags,
+                                                           REDRAWVIEW );
+                            }
                 	    }
                     }
 
@@ -993,16 +1011,16 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                 	        lselnew = list_copy ( mes->lselver );
 
-                            g3dvertex_getAveragePositionFromList (lselnew,
-                                                                 &mes->avgSelVerPos );
-
-
                 	        /*** remember selection ***/
-                	        g3durm_mesh_pickVertices  ( urm, mes,
-                                                	         lselold,
-                                                	         lselnew,
-                                                	         engine_flags,
-                                                	         REDRAWVIEW );
+                            if ( mes->lselver ) {
+                	            g3durm_mesh_pickVertices  ( urm, 
+                                                            sce, 
+                                                            mes,
+                                                            lselold,
+                                                            lselnew,
+                                                            engine_flags,
+                                                            REDRAWVIEW );
+                            }
         		        }
 
         		    /*********************************/
@@ -1028,23 +1046,30 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                 	        lselnew = list_copy ( mes->lselfac );
 
-                            g3dface_getAveragePositionFromList (lselnew,
-                                                                &mes->avgSelFacPos );
-
                 	        /*** remember selection ***/
-                	        g3durm_mesh_pickFaces  ( urm, mes,
-                                                	      lselold,
-                                                	      lselnew,
-                                                	      engine_flags,
-                                                	      REDRAWVIEW );
+                            if ( mes->lselfac ) {
+                	            g3durm_mesh_pickFaces  ( urm, 
+                                                         sce, 
+                                                         mes,
+                                                         lselold,
+                                                         lselnew,
+                                                         engine_flags,
+                                                         REDRAWVIEW );
 
-                	        g3dmesh_update ( mes, NULL,
-                                        	      NULL,
-                                        	      NULL,
-                                        	      RESETMODIFIERS, engine_flags );
+                	            g3dmesh_update ( mes, 
+                                                 NULL,
+                                        	     NULL,
+                                        	     NULL,
+                                        	     RESETMODIFIERS, 
+                                                 engine_flags );
+                            }
+
+
         	            }
                     }
         	    }
+
+                g3dscene_updatePivot ( sce, engine_flags );
 
         	    /*** Push our selected items into the undo/redo stack ***/
         	    /*pick_push ( urm, obj, lselold, lselnew, gdt->flags );*/

@@ -835,6 +835,7 @@ typedef struct _G3DSYMMETRY {
 
 /******************************************************************************/
 typedef struct _G3DCURSOR {
+    G3DVECTOR pivot;
     G3DVECTOR axis[0x03];
     float     ratio;
 } G3DCURSOR;
@@ -1098,9 +1099,6 @@ struct _G3DMESH {
     uint32_t nbtex;
     uint32_t nbuvmap;
     uint32_t textureSlots; /*** available texture slots ***/
-    G3DVECTOR avgSelVerPos; /* average selected vertex position */
-    G3DVECTOR avgSelEdgPos; /* average selected vertex position */
-    G3DVECTOR avgSelFacPos; /* average selected vertex position */
     float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
@@ -1356,7 +1354,6 @@ typedef struct _G3DCAMERADOF {
 struct _G3DCAMERA {
     G3DOBJECT obj;                   /*** Camera inherits G3DOBJECT ***/
     G3DOBJECT *target;               /*** Camera's target           ***/
-    G3DVECTOR pivot;
     G3DVECTOR viewpos;
     G3DVECTOR viewrot;
     float focal, ratio, znear, zfar; /*** Camera's lense settings   ***/
@@ -2472,6 +2469,10 @@ uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout );
 uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, 
                                        double   *matrix, 
                                        uint64_t  engine_flags );
+uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
+                                          uint64_t   engine_flags );
+void g3dscene_updatePivot ( G3DSCENE  *sce,
+                            uint64_t   engine_flags );
 void       g3dscene_free ( G3DOBJECT * );
 uint32_t g3dscene_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
@@ -2553,10 +2554,13 @@ void       g3dcamera_import   ( G3DCAMERA *, G3DCAMERA * );
 void g3dcamera_setOrtho ( G3DCAMERA *cam,
                           uint32_t   width, 
                           uint32_t   height );
+void g3dcamera_updatePivotFromScene ( G3DCAMERA *cam, 
+                                      G3DSCENE  *sce,
+                                      uint64_t   engine_flags );
 
 /******************************************************************************/
 void g3dcursor_draw ( G3DCURSOR *csr, 
-                      G3DCAMERA *curcam, 
+                      G3DCAMERA *curcam,
                       uint64_t   engine_flags );
 void g3dcursor_pick ( G3DCURSOR *csr, 
                       G3DCAMERA *cam, 

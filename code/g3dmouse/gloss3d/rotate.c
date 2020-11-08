@@ -380,7 +380,6 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR pivot;
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -417,8 +416,6 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                                                                         NULL );
 
                         if ( lver ) {
-                            g3dvertex_getAveragePositionFromList ( lver, &pivot );
-
                             oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
                                                                            NULL, 
                                                                            lver );
@@ -452,11 +449,15 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                             glMatrixMode ( GL_MODELVIEW );
                             glPushMatrix ( );
                             glLoadIdentity ( );
-                            glTranslatef ( pivot.x, pivot.y, pivot.z );
+                            glTranslatef (  sce->csr.pivot.x, 
+                                            sce->csr.pivot.y, 
+                                            sce->csr.pivot.z );
                             glRotatef ( difx, 1.0f, 0.0f, 0.0f );
                             glRotatef ( dify, 0.0f, 1.0f, 0.0f );
                             glRotatef ( difz, 0.0f, 0.0f, 1.0f );
-                            glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
+                            glTranslatef ( -sce->csr.pivot.x,
+                                           -sce->csr.pivot.y, 
+                                           -sce->csr.pivot.z );
                             glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
                             glPopMatrix ( );
 
@@ -557,7 +558,6 @@ static int rotate_mesh ( G3DMESH          *mes,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR pivot;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -597,7 +597,6 @@ static int rotate_mesh ( G3DMESH          *mes,
                 lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
             }
 
-            g3dvertex_getAveragePositionFromList ( lver, &pivot );
             g3dvertex_copyPositionFromList       ( lver, &oldpos );
  
             lfac = g3dvertex_getFacesFromList  ( lver );
@@ -627,11 +626,15 @@ static int rotate_mesh ( G3DMESH          *mes,
                     glMatrixMode ( GL_MODELVIEW );
                     glPushMatrix ( );
                     glLoadIdentity ( );
-                    glTranslatef ( pivot.x, pivot.y, pivot.z );
+                    glTranslatef (  sce->csr.pivot.x, 
+                                    sce->csr.pivot.y, 
+                                    sce->csr.pivot.z );
                     glRotatef ( difx, 1.0f, 0.0f, 0.0f );
                     glRotatef ( dify, 0.0f, 1.0f, 0.0f );
                     glRotatef ( difz, 0.0f, 0.0f, 1.0f );
-                    glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
+                    glTranslatef ( -sce->csr.pivot.x, 
+                                   -sce->csr.pivot.y, 
+                                   -sce->csr.pivot.z );
                     glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
                     glPopMatrix ( );
 
@@ -732,7 +735,7 @@ static int rotate_object ( LIST        *lobj,
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz, pivot;
+    static G3DVECTOR lvecx, lvecy, lvecz;
     static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
@@ -752,8 +755,6 @@ static int rotate_object ( LIST        *lobj,
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
             /***/
-
-            g3dscene_getSelectionPosition ( sce, &pivot );
 
             mouseXpress = orix = bev->x;
             mouseYpress = bev->y;
@@ -802,11 +803,15 @@ static int rotate_object ( LIST        *lobj,
                     glMatrixMode ( GL_MODELVIEW );
                     glPushMatrix ( );
                     glLoadIdentity ( );
-                    glTranslatef ( pivot.x, pivot.y, pivot.z );
+                    glTranslatef (  sce->csr.pivot.x, 
+                                    sce->csr.pivot.y,
+                                    sce->csr.pivot.z );
                     glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
                     glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
                     glRotatef ( dif.z, 0.0f, 0.0f, 1.0f );
-                    glTranslatef ( -pivot.x, -pivot.y, -pivot.z );
+                    glTranslatef ( -sce->csr.pivot.x, 
+                                   -sce->csr.pivot.y, 
+                                   -sce->csr.pivot.z );
                     glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
                     glPopMatrix ( );
                 }

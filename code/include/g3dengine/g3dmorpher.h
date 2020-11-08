@@ -132,6 +132,13 @@ LIST *g3dmorpher_getMeshPoseSelectedVertices ( G3DMORPHER *mpr,
                                                G3DMORPHERMESHPOSE *mpose );
 LIST *g3dmorpher_getMeshPoseVertices ( G3DMORPHER         *mpr,
                                        G3DMORPHERMESHPOSE *mpose );
+G3DMORPHERMESHPOSE *g3dmorphermeshpose_copy ( G3DMORPHERMESHPOSE *mpose );
+G3DMORPHERMESHPOSE *g3dmorpher_copyMeshPose ( G3DMORPHER         *mpr,
+                                              G3DMORPHERMESHPOSE *mpose );
+void g3dmorpher_selectMeshVerticesFromPose ( G3DMORPHER         *mpr,
+                                             G3DMORPHERMESHPOSE *mpose );
+void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
+                                                         G3DVECTOR  *pos );
 
 #ifdef __cplusplus
 }

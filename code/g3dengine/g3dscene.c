@@ -116,7 +116,8 @@ void g3dscene_turnLightsOff ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout ) {
+static uint32_t g3dscene_getPositionFromSelectedObjects ( G3DSCENE  *sce, 
+                                                          G3DVECTOR *vout ) {
     LIST *ltmpobj = sce->lsel;
     uint32_t nbobj = 0x00;
 
@@ -147,72 +148,126 @@ uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout ) {
 
     return nbobj;
 }
- 
+
 /******************************************************************************/
-uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, 
-                                       double   *matrix, 
-                                       uint64_t  engine_flags ) {
-    G3DVECTOR avgpos;
-    uint32_t nbobj = g3dscene_getSelectionPosition ( sce, &avgpos );
+static void g3dscene_getPositionFromSelectedVertices ( G3DSCENE  *sce,
+                                                       G3DVECTOR *pos ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        switch ( obj->type ) {
+            case G3DMESHTYPE :
+            case G3DFFDTYPE  : {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                g3dvertex_getAveragePositionFromList ( mes->lselver, 
+                                                       pos );
+            } break;
+
+            case G3DSPLINETYPE : {
+                G3DSPLINE *spl = ( G3DSPLINE * ) obj;
+
+                g3dcurvepoint_getAveragePositionFromList ( spl->curve->lselpt, 
+                                                           pos );
+            } break;
+
+            case G3DMORPHERTYPE : {
+                G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+                g3dmorpher_getAveragePositionFromSelectedVertices ( mpr,
+                                                                    pos );
+            } break;
+
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+static void g3dscene_getPositionFromSelectedFaces ( G3DSCENE  *sce,
+                                                    G3DVECTOR *pos ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        switch ( obj->type ) {
+            case G3DMESHTYPE :
+            case G3DFFDTYPE  : {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                g3dface_getAveragePositionFromList ( mes->lselfac, pos );
+            } break;
+
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+static void g3dscene_getPositionFromSelectedEdges ( G3DSCENE  *sce,
+                                                    G3DVECTOR *pos ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        switch ( obj->type ) {
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
+                                          uint64_t   engine_flags ) {
     static uint32_t matrixSize = sizeof ( double ) * 0x10;
+    double TRX[0x10], TMPX[0x10];
+    G3DVECTOR pivot;
+    uint32_t nbobj = g3dscene_getPositionFromSelectedObjects ( sce, &pivot );
+
+    memcpy ( &sce->csr.pivot, &pivot, sizeof ( G3DVECTOR ) );
 
     if ( nbobj == 0x01 ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-        
-        memcpy ( matrix, obj->wmatrix, matrixSize );
+        G3DVECTOR localpos = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-        if ( obj->type & MESH ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
+        if ( engine_flags & VIEWVERTEX ) {
+            g3dscene_getPositionFromSelectedVertices ( sce, &localpos );
+        }
 
-            if ( engine_flags & VIEWVERTEX ) {
-                double TRX[0x10], TMPX[0x10];
+        if ( engine_flags & VIEWEDGE ) {
+            g3dscene_getPositionFromSelectedEdges ( sce, &localpos );
+        }
 
-                g3dvector_createTranslationMatrix ( &mes->avgSelVerPos, TRX );
-                g3dcore_multmatrix ( TRX, matrix, TMPX );
-                memcpy ( matrix, TMPX, matrixSize );
-            }
+        if ( engine_flags & VIEWFACE ) {
+            g3dscene_getPositionFromSelectedFaces ( sce, &localpos );
+        }
 
-            if ( engine_flags & VIEWEDGE ) {
-                double TRX[0x10], TMPX[0x10];
-
-                g3dvector_createTranslationMatrix ( &mes->avgSelEdgPos, TRX );
-                g3dcore_multmatrix ( TRX, matrix, TMPX );
-                memcpy ( matrix, TMPX, matrixSize );
-            }
-
-            if ( engine_flags & VIEWFACE ) {
-                double TRX[0x10], TMPX[0x10];
-
-                g3dvector_createTranslationMatrix ( &mes->avgSelFacPos, TRX );
-                g3dcore_multmatrix ( TRX, matrix, TMPX );
-                memcpy ( matrix, TMPX, matrixSize );
-            }
-
-            if ( engine_flags & VIEWUVWMAP ) {
+        if ( engine_flags & VIEWUVWMAP ) {
+            if ( obj->type & MESH ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
                 G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
 
                 if ( map ) {
-                    memcpy ( matrix, ((G3DOBJECT*)map)->wmatrix, matrixSize );
+                    G3DOBJECT *objmap = ( G3DOBJECT * ) map;
+
+                    localpos.x = objmap->pos.x;
+                    localpos.y = objmap->pos.y;
+                    localpos.z = objmap->pos.z;
                 }
             }
         }
 
-        if ( obj->type & SPLINE ) {
-            G3DSPLINE *spl = ( G3DSPLINE * ) obj;
-
-            if ( engine_flags & VIEWVERTEX ) {
-                double TRX[0x10], TMPX[0x10];
-
-                g3dvector_createTranslationMatrix ( &spl->curve->avgSelPtPos, TRX );
-                g3dcore_multmatrix ( matrix, TRX, TMPX );
-                memcpy ( matrix, TMPX, matrixSize );
-            }
-        }
-    } else {
-        g3dvector_createTranslationMatrix ( &avgpos, matrix );
+        g3dvector_matrix ( &localpos, obj->wmatrix, &sce->csr.pivot );
     }
 
     return nbobj;
+}
+
+/******************************************************************************/
+void g3dscene_updatePivot ( G3DSCENE  *sce,
+                            uint64_t   engine_flags ) {
+    g3dscene_getPivotFromSelection ( sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -455,6 +510,8 @@ void g3dscene_unselectObject ( G3DSCENE *sce,
     g3dobject_unsetSelected ( obj ); /*** unset SELECTION flags ***/
 
     list_remove ( &sce->lsel, obj );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -487,6 +544,8 @@ void g3dscene_selectObject ( G3DSCENE  *sce,
         } else {
             printf ( "This object is selected already !\n" );
         }
+
+        g3dscene_updatePivot ( sce, engine_flags );
     }
 }
 
@@ -539,20 +598,26 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
     G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DSCENE *sce = ( G3DSCENE * ) obj;
     LIST *ltmp = sce->lsel;
-    double matrix[0x10];
-    uint32_t nbobj = g3dscene_getSelectionMatrix ( sce, matrix, engine_flags );
+    /*double matrix[0x10];
+    uint32_t nbobj = g3dscene_getSelectionMatrix ( sce, matrix, engine_flags );*/
     G3DVECTOR sca;
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
     /*** by scaling the cursor matrix with the inverse scale factors ***/
-    g3dcore_getMatrixScale ( matrix, &sca );
+    /*g3dcore_getMatrixScale ( matrix, &sca );
 
-    g3dvector_matrix ( &zero, matrix, &curcam->pivot );
+    /*g3dvector_matrix ( &zero, matrix, &curcam->pivot );*/
 
     glPushMatrix ( );
-    glMultMatrixd ( matrix );
-    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );
+
+    /*glMultMatrixd ( matrix );
+    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
+
+    glTranslatef ( sce->csr.pivot.x, 
+                   sce->csr.pivot.y, 
+                   sce->csr.pivot.z );
     g3dcursor_draw ( &sce->csr, curcam, engine_flags );
+
     glPopMatrix ( );
 
     while ( ltmp ) {

@@ -626,8 +626,6 @@ void common_g3dui_addCameraCbk ( G3DUI *gui, G3DCAMERA *currentCamera ) {
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) cam );
 
-    memcpy ( &cam->pivot, &currentCamera->pivot, sizeof ( G3DVECTOR ) );
-
     /*g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam );*/
 
     /*** Below functions are called in g3durm_object_addChild ... ***/

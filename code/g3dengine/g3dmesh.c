@@ -3871,19 +3871,7 @@ void g3dmesh_unselectVertex ( G3DMESH   *mes,
 
     ver->flags &= ~(VERTEXSELECTED);
 
-    mes->avgSelVerPos.x = ( mes->avgSelVerPos.x * mes->nbselver ) - ver->pos.x;
-    mes->avgSelVerPos.y = ( mes->avgSelVerPos.y * mes->nbselver ) - ver->pos.y;
-    mes->avgSelVerPos.z = ( mes->avgSelVerPos.z * mes->nbselver ) - ver->pos.z;
-
     mes->nbselver--;
-
-    if ( mes->nbselver ) {
-        mes->avgSelVerPos.x /= mes->nbselver;
-        mes->avgSelVerPos.y /= mes->nbselver;
-        mes->avgSelVerPos.z /= mes->nbselver;
-    } else {
-        mes->avgSelVerPos.x = mes->avgSelVerPos.y = mes->avgSelVerPos.z = 0.0f;
-    }
 }
 
 /******************************************************************************/
@@ -3895,15 +3883,7 @@ void g3dmesh_selectVertex ( G3DMESH   *mes,
 
     ver->flags |= VERTEXSELECTED;
 
-    mes->avgSelVerPos.x = ( mes->avgSelVerPos.x * mes->nbselver ) + ver->pos.x;
-    mes->avgSelVerPos.y = ( mes->avgSelVerPos.y * mes->nbselver ) + ver->pos.y;
-    mes->avgSelVerPos.z = ( mes->avgSelVerPos.z * mes->nbselver ) + ver->pos.z;
-
     mes->nbselver++;
-
-    mes->avgSelVerPos.x /= mes->nbselver;
-    mes->avgSelVerPos.y /= mes->nbselver;
-    mes->avgSelVerPos.z /= mes->nbselver;
 }
 
 /******************************************************************************/
@@ -3964,19 +3944,7 @@ void g3dmesh_unselectFace ( G3DMESH *mes,
 
     list_remove ( &mes->lselfac, fac );
 
-    mes->avgSelFacPos.x = ( mes->avgSelFacPos.x * mes->nbselfac ) - fac->pos.x;
-    mes->avgSelFacPos.y = ( mes->avgSelFacPos.y * mes->nbselfac ) - fac->pos.y;
-    mes->avgSelFacPos.z = ( mes->avgSelFacPos.z * mes->nbselfac ) - fac->pos.z;
-
     mes->nbselfac--;
-
-    if ( mes->nbselfac ) {
-        mes->avgSelFacPos.x /= mes->nbselfac;
-        mes->avgSelFacPos.y /= mes->nbselfac;
-        mes->avgSelFacPos.z /= mes->nbselfac;
-    } else {
-        mes->avgSelFacPos.x = mes->avgSelFacPos.y = mes->avgSelFacPos.z = 0.0f;
-    }
 }
 
 /******************************************************************************/
@@ -3986,15 +3954,7 @@ void g3dmesh_selectFace ( G3DMESH *mes,
 
     list_append ( &mes->lselfac, fac );
 
-    mes->avgSelFacPos.x = ( mes->avgSelFacPos.x * mes->nbselfac ) + fac->pos.x;
-    mes->avgSelFacPos.y = ( mes->avgSelFacPos.y * mes->nbselfac ) + fac->pos.y;
-    mes->avgSelFacPos.z = ( mes->avgSelFacPos.z * mes->nbselfac ) + fac->pos.z;
-
     mes->nbselfac++;
-
-    mes->avgSelFacPos.x /= mes->nbselfac;
-    mes->avgSelFacPos.y /= mes->nbselfac;
-    mes->avgSelFacPos.z /= mes->nbselfac;
 }
 
 /******************************************************************************/
@@ -4012,19 +3972,7 @@ void g3dmesh_unselectEdge ( G3DMESH *mes,
 
     list_remove ( &mes->lseledg, edg );
 
-    mes->avgSelEdgPos.x = ( mes->avgSelEdgPos.x * mes->nbseledg ) - edg->pos.x;
-    mes->avgSelEdgPos.y = ( mes->avgSelEdgPos.y * mes->nbseledg ) - edg->pos.y;
-    mes->avgSelEdgPos.z = ( mes->avgSelEdgPos.z * mes->nbseledg ) - edg->pos.z;
-
     mes->nbseledg--;
-
-    if ( mes->nbseledg ) {
-        mes->avgSelEdgPos.x /= mes->nbseledg;
-        mes->avgSelEdgPos.y /= mes->nbseledg;
-        mes->avgSelEdgPos.z /= mes->nbseledg;
-    } else {
-        mes->avgSelEdgPos.x = mes->avgSelEdgPos.y = mes->avgSelEdgPos.z = 0.0f;
-    }
 }
 
 /******************************************************************************/
@@ -4033,15 +3981,7 @@ void g3dmesh_selectEdge ( G3DMESH *mes, G3DEDGE *edg ) {
 
     list_append ( &mes->lseledg, edg );
 
-    mes->avgSelEdgPos.x = ( mes->avgSelEdgPos.x * mes->nbseledg ) + edg->pos.x;
-    mes->avgSelEdgPos.y = ( mes->avgSelEdgPos.y * mes->nbseledg ) + edg->pos.y;
-    mes->avgSelEdgPos.z = ( mes->avgSelEdgPos.z * mes->nbseledg ) + edg->pos.z;
-
     mes->nbseledg++;
-
-    mes->avgSelEdgPos.x /= mes->nbseledg;
-    mes->avgSelEdgPos.y /= mes->nbseledg;
-    mes->avgSelEdgPos.z /= mes->nbseledg;
 }
 
 /******************************************************************************/
@@ -4056,10 +3996,6 @@ void g3dmesh_unselectAllFaces ( G3DMESH *mes ) {
     list_free ( &mes->lselfac, (void(*)(void*)) g3dface_unsetSelected );
 
     mes->nbselfac = 0x00;
-
-    mes->avgSelFacPos.x = 0.0f;
-    mes->avgSelFacPos.y = 0.0f;
-    mes->avgSelFacPos.z = 0.0f;
 }
 
 /******************************************************************************/
@@ -4074,10 +4010,6 @@ void g3dmesh_unselectAllVertices ( G3DMESH *mes ) {
     list_free ( &mes->lselver, (void(*)(void*)) g3dvertex_unsetSelected );
 
     mes->nbselver = 0x00;
-
-    mes->avgSelVerPos.x = 0.0f;
-    mes->avgSelVerPos.y = 0.0f;
-    mes->avgSelVerPos.z = 0.0f;
 }
 
 /******************************************************************************/

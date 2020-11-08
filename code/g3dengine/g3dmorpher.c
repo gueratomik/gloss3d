@@ -196,6 +196,45 @@ static LIST *g3dmoprher_getMeshPoseVertices ( G3DMORPHER         *mpr,
 }
 
 /******************************************************************************/
+void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
+                                                         G3DVECTOR  *pos ) {
+    LIST *ltmpver = mpr->lver;
+    uint32_t count = 0x00;
+
+    pos->x = 0.0f;
+    pos->y = 0.0f;
+    pos->z = 0.0f;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+        if ( ver->flags & VERTEXSELECTED ) {
+            VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                                mpr->extensionName );
+            if ( vxt ) {
+                if ( mpr->selmpose ) {
+                    if ( mpr->selmpose->vpose[vxt->verID].enabled ) {
+                        count++;
+
+                        pos->x += mpr->selmpose->vpose[vxt->verID].pos.x;
+                        pos->y += mpr->selmpose->vpose[vxt->verID].pos.y;
+                        pos->z += mpr->selmpose->vpose[vxt->verID].pos.z;
+                    }
+                }
+            }
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    if ( count ) {
+        pos->x /= count;
+        pos->y /= count;
+        pos->z /= count;
+    }
+}
+
+/******************************************************************************/
 LIST *g3dmorpher_getMeshPoseSelectedVertices ( G3DMORPHER         *mpr,
                                                G3DMORPHERMESHPOSE *mpose ) {
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
@@ -469,12 +508,16 @@ void g3dmorpher_removeMeshPose ( G3DMORPHER         *mpr,
     /*mpose->slotID = 0x00;*/
 
     g3dmorpher_freeSlot ( mpr, mpose->slotID );
+
+    if ( mpr->selmpose == mpose ) mpr->selmpose = NULL;
 }
 
 /******************************************************************************/
 void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr, 
                               G3DMORPHERMESHPOSE *mpose,
                               uint64_t            slotID ) {
+    uint32_t i;
+
     mpose->slotID = slotID;
 
     list_insert ( &mpr->lmpose, mpose );
@@ -482,6 +525,27 @@ void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr,
     /*mpr->meshPoseSlots |= mpose->slotID;*/
 
     g3dmorpher_takeSlot ( mpr, mpose->slotID );
+
+    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+        LIST *ltmpver = mes->lver;
+
+        /*** if the pose already contains vertex data, for example in case of ***/
+        /*** redoing an action by readding the mesh pose, increase pose count ***/
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                                mpr->extensionName );
+
+            if ( vxt ) {
+                if ( mpose->vpose[vxt->verID].enabled ) {
+                    vxt->nbpose++;
+                }
+            }
+
+            ltmpver = ltmpver->next;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -501,6 +565,37 @@ G3DMORPHERMESHPOSE *g3dmorpher_createMeshPose ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
+G3DMORPHERMESHPOSE *g3dmorphermeshpose_copy ( G3DMORPHERMESHPOSE *mpose ) {
+    G3DMORPHERMESHPOSE *newpose = g3dmorphermeshpose_new ( mpose->maxVerCount, 
+                                                           mpose->name );
+    uint32_t memsize = sizeof ( G3DMORPHERVERTEXPOSE ) * mpose->maxVerCount;
+
+    memcpy ( newpose->vpose, mpose->vpose, memsize );
+
+    return newpose;
+}
+
+/******************************************************************************/
+G3DMORPHERMESHPOSE *g3dmorpher_copyMeshPose ( G3DMORPHER         *mpr,
+                                              G3DMORPHERMESHPOSE *mpose ) {
+    G3DMORPHERMESHPOSE *newpose = NULL;
+
+    if ( mpose == NULL ) mpose = mpr->selmpose;
+
+    if ( mpose ) {
+        int32_t slotID = g3dmorpher_getAvailableSlot ( mpr );
+
+        if ( slotID > -1 ) {
+            newpose = g3dmorphermeshpose_copy ( mpose );
+
+            g3dmorpher_addMeshPose ( mpr, newpose, slotID );
+        }
+    }
+
+    return newpose;
+}
+
+/******************************************************************************/
 G3DMORPHERMESHPOSE *g3dmorpher_getMeshPoseByRank ( G3DMORPHER *mpr,
                                                    uint32_t    rank ) {
     LIST *ltmpmpose = mpr->lmpose;
@@ -516,6 +611,35 @@ G3DMORPHERMESHPOSE *g3dmorpher_getMeshPoseByRank ( G3DMORPHER *mpr,
     }
 
     return NULL;
+}
+
+/******************************************************************************/
+void g3dmorpher_selectMeshVerticesFromPose ( G3DMORPHER         *mpr,
+                                             G3DMORPHERMESHPOSE *mpose ) {
+    if ( mpose == NULL ) mpose = mpr->selmpose;
+
+    if ( mpose ) {
+        if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
+            LIST *ltmpver = mes->lver;
+
+            g3dmesh_unselectAllVertices ( mes );
+
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                                    mpr->extensionName );
+
+                if ( vxt ) {
+                    if ( mpose->vpose[vxt->verID].enabled ) {
+                        g3dmesh_selectVertex ( mes, ver );
+                    }
+                }
+
+                ltmpver = ltmpver->next;
+            }
+        }
+    }
 }
 
 /******************************************************************************/

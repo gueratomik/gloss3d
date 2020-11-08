@@ -190,7 +190,7 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
                                              gui->engine_flags,
                                              REDRAWVIEW );
 
-                g3dmesh_unselectAllVertices ( spline );
+                g3dcurve_unselectAllPoints ( spline->curve );
             }
         }
 

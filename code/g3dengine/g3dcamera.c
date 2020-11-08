@@ -40,8 +40,6 @@ G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
                                         cam->znear, 
                                         cam->zfar );
 
-    memcpy ( &newcam->pivot, &cam->pivot, sizeof ( cam->pivot ) );
-
     return newcam;
 }
 
@@ -68,13 +66,6 @@ void g3dcamera_grid2D_r ( float ubeg, float uend,
         glVertex3f ( ubeg, i, 0.0f );
         glVertex3f ( uend, i, 0.0f );
     }
-}
-
-/******************************************************************************/
-void g3dcamera_setPivot ( G3DCAMERA *cam, float x, float y, float z ) {
-    cam->pivot.x = x;
-    cam->pivot.y = y;
-    cam->pivot.z = z;
 }
 
 /******************************************************************************/
@@ -376,9 +367,6 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
     cam->ortho.x = 0.0f;
     cam->ortho.y = 0.0f;
     cam->ortho.z = 0.00750f;
-
-
-    g3dvector_init ( &cam->pivot, 0.0f, 0.0f, 0.0f, 1.0f );
 
 
     return cam;

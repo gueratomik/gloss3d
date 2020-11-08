@@ -481,11 +481,11 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
         uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
-        g3dtriangle_evalSubdivision ( sdr->subdiv_preview, 
+        g3dtriangle_evalSubdivision (  sdr->subdiv_preview, 
                                       &sdr->nbFacesPerTriangle, 
                                       &sdr->nbEdgesPerTriangle,
                                       &sdr->nbVerticesPerTriangle );
-        g3dquad_evalSubdivision     ( sdr->subdiv_preview,
+        g3dquad_evalSubdivision     (  sdr->subdiv_preview,
                                       &sdr->nbFacesPerQuad, 
                                       &sdr->nbEdgesPerQuad,
                                       &sdr->nbVerticesPerQuad );

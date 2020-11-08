@@ -30,6 +30,34 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dcurvepoint_getAveragePositionFromList ( LIST *lpt, G3DVECTOR *pos ) {
+    uint32_t nb = 0x00;
+    LIST *ltmppt = lpt;
+
+    pos->x = 0.0f;
+    pos->y = 0.0f;
+    pos->z = 0.0f;
+
+    while ( ltmppt ) {
+        G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+
+        pos->x += pt->pos.x;
+        pos->y += pt->pos.y;
+        pos->z += pt->pos.z;
+
+        nb++;
+
+        ltmppt = ltmppt->next;
+    }
+
+    if ( nb ) {
+        pos->x /= nb;
+        pos->y /= nb;
+        pos->z /= nb;
+    }
+}
+
+/******************************************************************************/
 G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve, 
                                         G3DCURVEPOINT *p0,
                                         G3DCURVEPOINT *p1 ) {

@@ -170,7 +170,6 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
             if ( obj ) {
                 if ( obj->type & MESH ) {
                     LIST *ltmpver;
-                    G3DVECTOR pivot;
 
                     mes = ( G3DMESH * ) obj;
 
@@ -231,9 +230,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                     LIST *ltmpver = lver, *ltmpdir = ldir;
                     float diff = ( float ) mev->x - xold;
 
-                    mes->avgSelFacPos.x =
-                    mes->avgSelFacPos.y =
-                    mes->avgSelFacPos.z = 0.0f;
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -244,18 +241,18 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                         ver->pos.y = ver->pos.y + ( dir->y * diff / factor );
                         ver->pos.z = ver->pos.z + ( dir->z * diff / factor );
 
-                        mes->avgSelFacPos.x += ver->pos.x;
-                        mes->avgSelFacPos.y += ver->pos.y;
-                        mes->avgSelFacPos.z += ver->pos.z;
+                        sce->csr.pivot.x += ver->pos.x;
+                        sce->csr.pivot.y += ver->pos.y;
+                        sce->csr.pivot.z += ver->pos.z;
 
                         ltmpver = ltmpver->next;
                         ltmpdir = ltmpdir->next;
                     }
 
                     if ( nbver ) {
-                        mes->avgSelFacPos.x /= nbver;
-                        mes->avgSelFacPos.y /= nbver;
-                        mes->avgSelFacPos.z /= nbver;
+                        sce->csr.pivot.x /= nbver;
+                        sce->csr.pivot.y /= nbver;
+                        sce->csr.pivot.z /= nbver;
                     }
                 }
 

@@ -89,23 +89,25 @@ void g3dcursor_reset ( G3DCURSOR *csr ) {
 
 /*****************************************************************************/
 void g3dcursor_draw ( G3DCURSOR *csr, 
-                      G3DCAMERA *curcam, 
+                      G3DCAMERA *curcam,
                       uint64_t   engine_flags ) {
     int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
     G3DVECTOR oripos = { 0.0f, 0.0f, 0.0f, 1.0f }, campos;
     float ratio = 1.0f;
     uint32_t i;
 
+
+
     if ( ((G3DOBJECT*)curcam)->flags & CAMERAORTHOGRAPHIC ) {
         csr->ratio = curcam->ortho.z * 200.0f;
     } else {
         g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );
 
-        oripos.x = curcam->pivot.x - campos.x;
-        oripos.y = curcam->pivot.y - campos.y;
-        oripos.z = curcam->pivot.z - campos.z;
+        /*oripos.x = pivot->x - campos.x;
+        oripos.y = pivot->y - campos.y;
+        oripos.z = pivot->z - campos.z;*/
 
-        csr->ratio = g3dvector_length ( &oripos ) * 0.00250 * curcam->focal;
+        csr->ratio = 1.0f/*g3dvector_length ( &oripos ) * 0.00250 * curcam->focal*/;
     }
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );

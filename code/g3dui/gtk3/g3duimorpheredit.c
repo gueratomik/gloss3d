@@ -95,6 +95,8 @@ static gboolean selectMeshPoseCbk ( GtkWidget *widget,
                                     gpointer   user_data );
 static void updateMeshPoseCbk  ( GtkWidget *widget, gpointer user_data );
 static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data );
+static void copyMeshPoseCbk  ( GtkWidget *widget, gpointer user_data );
+static void selectMeshPoseVerticesCbk  ( GtkWidget *widget, gpointer user_data );
 static void populateMeshPoseList ( MESHPOSEPANELDATA *mpd );
 static void updateMeshPoseList   ( MESHPOSEPANELDATA *mpd );
 static void createMeshPoseList   ( GtkWidget          *frm, 
@@ -159,25 +161,6 @@ static void createMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void updateMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
-    MESHPOSEPANELDATA *mpd = ( MESHPOSEPANELDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( mpd->gui->sce );
-
-    if ( mpd->gui->lock ) return;
-
-    if ( obj ) {
-        if ( obj->type == G3DMORPHERTYPE ) {
-            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-            /*G3DMORPHERMESHPOSE *mpose = g3dmesh_getLastSelectedFacegroup ( mpr );
-
-            if ( mpose ) {
-                g3dmeshpose_setFaceList ( mpose, mpr->lselfac );
-            } */
-        }
-    }
-}
-
-/******************************************************************************/
 static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
     MESHPOSEPANELDATA *mpd = ( MESHPOSEPANELDATA * ) user_data;
     G3DOBJECT *obj = g3dscene_getLastSelected ( mpd->gui->sce );
@@ -190,13 +173,60 @@ static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
 
             if ( mpr->selmpose ) {
                 g3dmorpher_removeMeshPose ( mpr, mpr->selmpose );
-
-                mpr->selmpose = NULL;
             }
         }
     }
 
     updateMeshPoseList ( mpd );
+
+    g3dui_redrawGLViews ( mpd->gui );
+}
+
+/******************************************************************************/
+static void copyMeshPoseCbk  ( GtkWidget *widget,
+                               gpointer   user_data ) {
+    MESHPOSEPANELDATA *mpd = ( MESHPOSEPANELDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mpd->gui->sce );
+
+    if ( mpd->gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( mpr->selmpose ) {
+                G3DMORPHERMESHPOSE *mpose = g3dmorpher_copyMeshPose ( mpr, 
+                                                                      mpr->selmpose );
+
+                mpr->selmpose = mpose;
+            }
+        }
+    }
+
+    updateMeshPoseList ( mpd );
+
+    g3dui_redrawGLViews ( mpd->gui );
+}
+
+/******************************************************************************/
+static void selectMeshPoseVerticesCbk  ( GtkWidget *widget, 
+                                         gpointer   user_data ) {
+    MESHPOSEPANELDATA *mpd = ( MESHPOSEPANELDATA * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mpd->gui->sce );
+
+    if ( mpd->gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( mpr->selmpose ) {
+                g3dmorpher_selectMeshVerticesFromPose ( mpr, mpr->selmpose );
+            }
+        }
+    }
+
+    g3dui_redrawGLViews ( mpd->gui );
 }
 
 /******************************************************************************/
@@ -416,9 +446,36 @@ static void createMeshPosePanel ( GtkWidget *parent,
 
     createMeshPoseList ( pan, mpd, 0, 36, 212, 128 );
 
-    createPushButton ( pan, mpd, "Create", 216,  36, 64, 18, createMeshPoseCbk );
-    createPushButton ( pan, mpd, "Update", 216,  60, 64, 18, updateMeshPoseCbk );
-    createPushButton ( pan, mpd, "Delete", 216,  84, 64, 18, deleteMeshPoseCbk );
+    createPushButton ( pan, 
+                       mpd,
+                      "Create",
+                       216, 36,
+                       64 , 18, createMeshPoseCbk );
+
+    /*createPushButton ( pan,
+                       mpd,
+                      "Update",
+                       216, 60, 
+                       64 , 18, updateMeshPoseCbk );*/
+
+    createPushButton ( pan, 
+                       mpd,
+                      "Delete",
+                       216, 60,
+                       64 , 18, deleteMeshPoseCbk );
+
+    createPushButton ( pan,
+                       mpd,
+                      "Copy",
+                       216, 84,
+                       64 ,  18, copyMeshPoseCbk );
+
+    createPushButton ( pan,
+                       mpd,
+                      "Select vertices",
+                       216, 108,
+                       64 ,  18, selectMeshPoseVerticesCbk );
+
    /* createPushButton ( pan, gui, "Select", 216, 108, 64, 18, selectFaceGroupCbk ); */
 }
 

@@ -373,7 +373,6 @@ static int scale_morpher ( G3DMORPHER       *mpr,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR pivot;
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -413,8 +412,6 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                             oldpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
                                                                            NULL, 
                                                                            lver );
-
-                            g3dvertex_getAveragePositionFromList ( lver, &pivot );
                         }
                     }
                 } return REDRAWVIEW;
@@ -441,9 +438,9 @@ static int scale_morpher ( G3DMORPHER       *mpr,
 
                                 vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL, NULL );
 
-                                vpose->pos.x = pivot.x + ( ( oldpos[verID].x - pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
-                                vpose->pos.y = pivot.y + ( ( oldpos[verID].y - pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
-                                vpose->pos.z = pivot.z + ( ( oldpos[verID].z - pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+                                vpose->pos.x = sce->csr.pivot.x + ( ( oldpos[verID].x - sce->csr.pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
+                                vpose->pos.y = sce->csr.pivot.y + ( ( oldpos[verID].y - sce->csr.pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
+                                vpose->pos.z = sce->csr.pivot.z + ( ( oldpos[verID].z - sce->csr.pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
 
                                 verID++;
 
@@ -520,7 +517,6 @@ static int scale_mesh ( G3DMESH          *mes,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
-    static G3DVECTOR pivot;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -560,7 +556,6 @@ static int scale_mesh ( G3DMESH          *mes,
                 lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
             }
 
-            g3dvertex_getAveragePositionFromList ( lver, &pivot );
             g3dvertex_copyPositionFromList       ( lver, &oldpos );
  
             lfac = g3dvertex_getFacesFromList  ( lver );
@@ -590,9 +585,9 @@ static int scale_mesh ( G3DMESH          *mes,
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                        ver->pos.x = pivot.x + ( ( oldpos[verID].x - pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
-                        ver->pos.y = pivot.y + ( ( oldpos[verID].y - pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
-                        ver->pos.z = pivot.z + ( ( oldpos[verID].z - pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+                        ver->pos.x = sce->csr.pivot.x + ( ( oldpos[verID].x - sce->csr.pivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
+                        ver->pos.y = sce->csr.pivot.y + ( ( oldpos[verID].y - sce->csr.pivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
+                        ver->pos.z = sce->csr.pivot.z + ( ( oldpos[verID].z - sce->csr.pivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
 
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
@@ -678,7 +673,7 @@ static int scale_object ( LIST        *lobj,
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz, pivot;
+    static G3DVECTOR lvecx, lvecy, lvecz;
     static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
@@ -696,8 +691,6 @@ static int scale_object ( LIST        *lobj,
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
             /***/
-
-            g3dscene_getSelectionPosition ( sce, &pivot );
 
             mouseXpress = orix = bev->x;
             mouseYpress = bev->y;

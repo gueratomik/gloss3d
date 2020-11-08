@@ -106,6 +106,8 @@ static int move_spline ( G3DSPLINE    *spl,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     static URMMOVEPOINT *ump;
+    static G3DVECTOR  objpos;
+    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -131,6 +133,8 @@ static int move_spline ( G3DSPLINE    *spl,
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
+
+            g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
             if ( engine_flags & VIEWVERTEX ) {
                 G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
@@ -166,8 +170,10 @@ static int move_spline ( G3DSPLINE    *spl,
 
             if ( mev->state & G3DButton1Mask ) {
                 if ( engine_flags & VIEWVERTEX ) {
+                    G3DVECTOR *axis = sce->csr.axis;
                     LIST *ltmppt = spl->curve->lselpt;
                     double difx, dify, difz;
+                    uint32_t nbpt = 0x00;
 
                     gluUnProject ( ( GLdouble ) mev->x,
                                ( GLdouble ) VPX[0x03] - mev->y,
@@ -188,11 +194,28 @@ static int move_spline ( G3DSPLINE    *spl,
                     while ( ltmppt ) {
                         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-                        pt->pos.x += difx;
-                        pt->pos.y += dify;
-                        pt->pos.z += difz;
+                        if ( ( engine_flags & XAXIS ) && axis[0].w ) pt->pos.x += difx;
+                        if ( ( engine_flags & YAXIS ) && axis[1].w ) pt->pos.y += dify;
+                        if ( ( engine_flags & ZAXIS ) && axis[2].w ) pt->pos.z += difz;
+
+                        sce->csr.pivot.x += pt->pos.x;
+                        sce->csr.pivot.y += pt->pos.y;
+                        sce->csr.pivot.z += pt->pos.z;
+
+                        nbpt++;
 
                         ltmppt = ltmppt->next;
+                    }
+
+                    if ( nbpt ) {
+                        sce->csr.pivot.x /= nbpt;
+                        sce->csr.pivot.y /= nbpt;
+                        sce->csr.pivot.z /= nbpt;
+
+                        /*** add the object world pos ***/
+                        sce->csr.pivot.x += objpos.x;
+                        sce->csr.pivot.y += objpos.y;
+                        sce->csr.pivot.z += objpos.z;
                     }
 
                 	g3dspline_update ( spl,
@@ -391,6 +414,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
+    static G3DVECTOR  objpos;
+    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -422,6 +447,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
 
                         mouseXpress = bev->x;
                         mouseYpress = bev->y;
+
+                        g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
                         lver = g3dmorpher_getMeshPoseSelectedVertices ( mpr,
                                                                         NULL );
@@ -469,7 +496,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             dify = ( newy - oriy );
                             difz = ( newz - oriz );
 
-                            memset ( &((G3DMESH*)mpr)->avgSelVerPos, 0x00, sizeof ( G3DVECTOR ) );
+                            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
                             while ( ltmpver ) {
                                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -483,12 +510,9 @@ static int move_morpher ( G3DMORPHER   *mpr,
                                     if ( ( engine_flags & ZAXIS ) && axis[2].w ) vpose->pos.z += difz;
                                 }
 
-                                /*** move the cursor as well ***/
-                                if ( engine_flags & VIEWVERTEX ) {
-                                    ((G3DMESH*)mpr)->avgSelVerPos.x += vpose->pos.x;
-                                    ((G3DMESH*)mpr)->avgSelVerPos.y += vpose->pos.y;
-                                    ((G3DMESH*)mpr)->avgSelVerPos.z += vpose->pos.z;
-                                }
+                                sce->csr.pivot.x += vpose->pos.x;
+                                sce->csr.pivot.y += vpose->pos.y;
+                                sce->csr.pivot.z += vpose->pos.z;
 
                                 nbver++;
 
@@ -496,11 +520,14 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             }
 
                             if ( nbver ) {
-                                if ( engine_flags & VIEWVERTEX ) {
-                                    ((G3DMESH*)mpr)->avgSelVerPos.x /= nbver;
-                                    ((G3DMESH*)mpr)->avgSelVerPos.y /= nbver;
-                                    ((G3DMESH*)mpr)->avgSelVerPos.z /= nbver;
-                                }
+                                sce->csr.pivot.x /= nbver;
+                                sce->csr.pivot.y /= nbver;
+                                sce->csr.pivot.z /= nbver;
+
+                                /*** add the object world pos ***/
+                                sce->csr.pivot.x += objpos.x;
+                                sce->csr.pivot.y += objpos.y;
+                                sce->csr.pivot.z += objpos.z;
                             }
 
                             orix = newx;
@@ -575,6 +602,8 @@ static int move_mesh ( G3DMESH      *mes,
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR *oldpos;
     static G3DVECTOR *newpos;
+    static G3DVECTOR  objpos;
+    static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -601,6 +630,8 @@ static int move_mesh ( G3DMESH      *mes,
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
+
+            g3dvector_matrix ( &origin, &obj->wmatrix, &objpos );
 
             if ( engine_flags & VIEWVERTEX ) {
                 lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
@@ -652,9 +683,7 @@ static int move_mesh ( G3DMESH      *mes,
                     dify = ( newy - oriy );
                     difz = ( newz - oriz );
 
-                    memset ( &mes->avgSelVerPos, 0x00, sizeof ( G3DVECTOR ) );
-                    memset ( &mes->avgSelEdgPos, 0x00, sizeof ( G3DVECTOR ) );
-                    memset ( &mes->avgSelFacPos, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -672,24 +701,9 @@ static int move_mesh ( G3DMESH      *mes,
                             g3dvertex_computeSkinnedPosition ( ver );
                         }
 
-                        /*** move the cursor as well ***/
-                        if ( engine_flags & VIEWVERTEX ) {
-                            mes->avgSelVerPos.x += ver->pos.x;
-                            mes->avgSelVerPos.y += ver->pos.y;
-                            mes->avgSelVerPos.z += ver->pos.z;
-                        }
-
-                        if ( engine_flags & VIEWEDGE   ) {
-                            mes->avgSelEdgPos.x += ver->pos.x;
-                            mes->avgSelEdgPos.y += ver->pos.y;
-                            mes->avgSelEdgPos.z += ver->pos.z;
-                        }
-
-                        if ( engine_flags & VIEWFACE   ) {
-                            mes->avgSelFacPos.x += ver->pos.x;
-                            mes->avgSelFacPos.y += ver->pos.y;
-                            mes->avgSelFacPos.z += ver->pos.z;
-                        }
+                        sce->csr.pivot.x += ver->pos.x;
+                        sce->csr.pivot.y += ver->pos.y;
+                        sce->csr.pivot.z += ver->pos.z;
 
                         nbver++;
 
@@ -697,23 +711,14 @@ static int move_mesh ( G3DMESH      *mes,
                     }
 
                     if ( nbver ) {
-                        if ( engine_flags & VIEWVERTEX ) {
-                            mes->avgSelVerPos.x /= nbver;
-                            mes->avgSelVerPos.y /= nbver;
-                            mes->avgSelVerPos.z /= nbver;
-                        }
+                        sce->csr.pivot.x /= nbver;
+                        sce->csr.pivot.y /= nbver;
+                        sce->csr.pivot.z /= nbver;
 
-                        if ( engine_flags & VIEWEDGE ) {
-                            mes->avgSelEdgPos.x /= nbver;
-                            mes->avgSelEdgPos.y /= nbver;
-                            mes->avgSelEdgPos.z /= nbver;
-                        }
-
-                        if ( engine_flags & VIEWFACE ) {
-                            mes->avgSelFacPos.x /= nbver;
-                            mes->avgSelFacPos.y /= nbver;
-                            mes->avgSelFacPos.z /= nbver;
-                        }
+                        /*** add the object world pos ***/
+                        sce->csr.pivot.x += objpos.x;
+                        sce->csr.pivot.y += objpos.y;
+                        sce->csr.pivot.z += objpos.z;
                     }
 
                     g3dobject_updateModifiers_r ( mes, engine_flags );
@@ -794,7 +799,7 @@ int move_object ( LIST        *lobj,
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz, pivot;
+    static G3DVECTOR lvecx, lvecy, lvecz;
     static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
@@ -834,12 +839,9 @@ int move_object ( LIST        *lobj,
             glMatrixMode ( GL_PROJECTION );
             glPopMatrix ( );
 
-            /*** TOTO: change the call below to use camera.pivot ****/
-            g3dscene_getSelectionPosition ( sce, &pivot );
-
-            gluProject ( pivot.x, 
-                         pivot.y, 
-                         pivot.z, MVX, PJX, VPX, &winx, &winy, &winz );
+            gluProject ( sce->csr.pivot.x, 
+                         sce->csr.pivot.y, 
+                         sce->csr.pivot.z, MVX, PJX, VPX, &winx, &winy, &winz );
 
             gluUnProject ( ( GLdouble ) bev->x,
                            ( GLdouble ) VPX[0x03] - bev->y,
@@ -967,6 +969,10 @@ int move_object ( LIST        *lobj,
 
                     ltmpobj = ltmpobj->next;
                 }
+
+                /*** Note: that's not super efficient to have this call here **/
+                /*** but I'm too lazy to think of anything else ***/
+                g3dscene_updatePivot ( sce, engine_flags );
 
                 memcpy ( &startpos, &endpos, sizeof ( G3DDOUBLEVECTOR ) );
             }

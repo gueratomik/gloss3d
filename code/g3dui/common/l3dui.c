@@ -196,7 +196,8 @@ void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
                 lselnew = list_copy ( mes->lselfac );
 
                 /*** remember selection ***/
-                g3durm_mesh_pickFaces  ( lui->gui->urm, 
+                g3durm_mesh_pickFaces  ( lui->gui->urm,
+                                         lui->gui->sce,
                                          mes,
                                          lselold,
                                          lselnew,
@@ -245,7 +246,8 @@ void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
 
                 /*** remember selection ***/
                 g3durm_uvmap_pickUVSets  ( /*lui->uvurm*/
-                                           lui->gui->urm, 
+                                           lui->gui->urm,
+                                           lui->gui->sce,
                                            curmap,
                                            lselold,
                                            lselnew,
@@ -298,6 +300,7 @@ void common_l3dui_uv2verCbk ( L3DUI *lui ) {
 
                 /*** remember selection ***/
                 g3durm_mesh_pickVertices  ( lui->gui->urm,
+                                            lui->gui->sce,
                                             mes,
                                             lselold,
                                             lselnew,
@@ -352,6 +355,7 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
                 /*** remember selection ***/
                 g3durm_uvmap_pickUVs  ( /*lui->uvurm*/
                                         lui->gui->urm, 
+                                        lui->gui->sce,
                                         curmap,
                                         lselold,
                                         lselnew,

@@ -114,6 +114,9 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         }
     }
 
+    /*** reposition camera pivot ***/
+    g3dscene_updatePivot ( sce, gui->engine_flags );
+
     /* unset the mouse tool */
     /* 
      * COMMENTED OUT: not sure if that's wise. Some tools are compatible with
