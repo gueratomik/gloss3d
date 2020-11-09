@@ -216,6 +216,7 @@ typedef struct _URMTRANSFORMOBJECT {
     G3DVECTOR *newpos;
     G3DVECTOR *newrot;
     G3DVECTOR *newsca;
+    uint32_t   restoreAxis;
 } URMTRANSFORMOBJECT;
 
 /******************************************************************************/
@@ -468,6 +469,10 @@ URMTRANSFORMOBJECT *g3durm_uvmap_transform ( G3DURMANAGER *urm,
                                              G3DSCENE     *sce,
                                              G3DUVMAP     *uvmap,
                                              uint32_t      return_flags );
+URMTRANSFORMOBJECT *g3durm_axis_transform ( G3DURMANAGER *urm,
+                                            G3DSCENE     *sce,
+                                            LIST         *lobj,
+                                            uint32_t      return_flags );
 
 /******************************************************************************/
 void unTriangulate_free ( void *data, uint32_t commit );

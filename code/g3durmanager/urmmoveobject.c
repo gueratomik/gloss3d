@@ -32,7 +32,8 @@
 
 /******************************************************************************/
 static URMTRANSFORMOBJECT *urmtransformobject_new ( G3DSCENE *sce,
-                                                    LIST     *lobj ) {
+                                                    LIST     *lobj,
+                                                    uint32_t  restoreAxis ) {
     uint32_t structsize = sizeof ( URMTRANSFORMOBJECT );
 
     URMTRANSFORMOBJECT *uto = ( URMTRANSFORMOBJECT * ) calloc ( 0x01, structsize );
@@ -43,8 +44,9 @@ static URMTRANSFORMOBJECT *urmtransformobject_new ( G3DSCENE *sce,
         return NULL;
     }
 
-    uto->lobj      = lobj;
-    uto->sce       = sce;
+    uto->lobj        = lobj;
+    uto->sce         = sce;
+    uto->restoreAxis = restoreAxis;
 
     return uto;
 }
@@ -81,13 +83,25 @@ static void transformObject_undo ( G3DURMANAGER *urm,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
+        double OLDWORLDMVX[0x10];
+
+        memcpy ( OLDWORLDMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
 
 	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
 	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
 	    memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR ) );
 
 	    g3dobject_updateMatrix_r ( obj, 0x00 );
+
+        if ( uto->restoreAxis ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                g3dmesh_moveAxis ( mes, OLDWORLDMVX, engine_flags );
+
+                g3dmesh_updateBbox ( mes );
+            }
+        }
 
         i++;
 
@@ -107,13 +121,25 @@ static void transformObject_redo ( G3DURMANAGER *urm,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        double OLDWORLDMVX[0x10], OLDLOCALMVX[0x10];
+        double OLDWORLDMVX[0x10];
+
+        memcpy ( OLDWORLDMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
 
         memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
         memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );
         memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR ) );
 
         g3dobject_updateMatrix_r ( obj, 0x00 );
+
+        if ( uto->restoreAxis ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+
+                g3dmesh_moveAxis ( mes, OLDWORLDMVX, engine_flags );
+
+                g3dmesh_updateBbox ( mes );
+            }
+        }
 
         i++;
 
@@ -176,13 +202,29 @@ void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time ) {
 }
 
 /******************************************************************************/
+URMTRANSFORMOBJECT *g3durm_axis_transform ( G3DURMANAGER *urm,
+                                            G3DSCENE     *sce,
+                                            LIST         *lobj,
+                                            uint32_t      return_flags ) {
+    URMTRANSFORMOBJECT *uto;
+
+    uto = urmtransformobject_new ( sce, list_copy ( lobj ), 0x01 );
+
+    g3durmanager_push ( urm, transformObject_undo,
+                             transformObject_redo,
+                             transformObject_free, uto, return_flags );
+
+    return uto;
+}
+
+/******************************************************************************/
 URMTRANSFORMOBJECT *g3durm_object_transform ( G3DURMANAGER *urm,
                                               G3DSCENE     *sce,
                                               LIST         *lobj,
                                               uint32_t      return_flags ) {
     URMTRANSFORMOBJECT *uto;
 
-    uto = urmtransformobject_new ( sce, list_copy ( lobj ) );
+    uto = urmtransformobject_new ( sce, list_copy ( lobj ), 0x00 );
 
     g3durmanager_push ( urm, transformObject_undo,
                              transformObject_redo,

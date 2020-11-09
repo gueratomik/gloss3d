@@ -792,10 +792,17 @@ int move_object ( LIST        *lobj,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             /*** Record and undo procedure and record the current state ***/
-            uto = g3durm_object_transform ( urm,
-                                            sce,
-                                            lobj,
-                                            REDRAWVIEW );
+            if ( engine_flags & VIEWAXIS ) {
+                uto = g3durm_axis_transform ( urm,
+                                              sce,
+                                              lobj,
+                                              REDRAWVIEW );
+            } else {
+                uto = g3durm_object_transform ( urm,
+                                                sce,
+                                                lobj,
+                                                REDRAWVIEW );
+            }
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
             /***/

@@ -229,7 +229,8 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
         G3DVECTOR localpos = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-        if ( engine_flags & VIEWOBJECT ) {
+        if ( ( engine_flags & VIEWAXIS   ) ||
+             ( engine_flags & VIEWOBJECT ) ) {
             memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
             memcpy ( &sce->csr.matrix, 
