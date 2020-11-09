@@ -151,6 +151,7 @@ static int move_spline ( G3DSPLINE    *spl,
                                                 UMPSAVESELECTEDPOINTS |
                                                 UMPSAVECURRENTHANDLE,
                                                 REDRAWVIEW );
+
                 urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
 
                 gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
@@ -187,6 +188,8 @@ static int move_spline ( G3DSPLINE    *spl,
                         spl->curve->curhan->pos.y += dify;
                         spl->curve->curhan->pos.z += difz;
                     }
+
+                   memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
                     while ( ltmppt ) {
                         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
@@ -792,7 +795,6 @@ int move_object ( LIST        *lobj,
             uto = g3durm_object_transform ( urm,
                                             sce,
                                             lobj,
-                                            UTOSAVETRANSLATION, 
                                             REDRAWVIEW );
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );

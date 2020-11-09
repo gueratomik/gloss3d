@@ -47,7 +47,6 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce,
                                                                 sce->lsel,
-                                                                UTOSAVETRANSLATION,
                                                                 REDRAWVIEW );
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
@@ -112,7 +111,6 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce,
                                                                 sce->lsel,
-                                                                UTOSAVEROTATION,
                                                                 REDRAWVIEW );
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
@@ -149,7 +147,6 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
             URMTRANSFORMOBJECT *uto = g3durm_object_transform ( urm,
                                                                 sce,
                                                                 sce->lsel,
-                                                                UTOSAVESCALING,
                                                                 REDRAWVIEW );
 
             if ( axis == G3DUIXAXIS ) obj->sca.x = val;

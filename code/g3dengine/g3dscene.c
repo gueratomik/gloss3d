@@ -413,6 +413,8 @@ void g3dscene_deleteSelectedObjects ( G3DSCENE *sce,
     }
 
     list_free ( &sce->lsel, NULL );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -435,6 +437,8 @@ void g3dscene_invertSelection ( G3DSCENE *sce,
     }
 
     list_free ( &lselobj, NULL );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }
 
 /*****************************************************************************/
@@ -453,6 +457,8 @@ void g3dscene_unselectAllObjects ( G3DSCENE *sce,
 
     list_free ( &sce->lsel, NULL );
     list_free ( &lsel     , NULL );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }
 
 /*****************************************************************************/
@@ -469,6 +475,8 @@ void g3dscene_selectAllObjects ( G3DSCENE *sce,
     /*** Scene was selected by g3dobject_getObjectsByType_r() ***/
     /*** so we have to unselect it ***/
     g3dscene_unselectObject ( sce, ( G3DOBJECT * ) sce, engine_flags );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 }
 
 /*****************************************************************************/

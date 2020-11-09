@@ -31,11 +31,6 @@
 
 /******************************************************************************/
 static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
-    glDisableClientState ( GL_VERTEX_ARRAY );
-    glDisableClientState ( GL_COLOR_ARRAY  );
-    glDisableClientState ( GL_NORMAL_ARRAY );
-    glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
-
     if ( sdr->rtvermem ) free ( sdr->rtvermem );
     if ( sdr->rtedgmem ) free ( sdr->rtedgmem );
     if ( sdr->rtquamem ) free ( sdr->rtquamem );

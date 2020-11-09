@@ -764,7 +764,6 @@ static int rotate_object ( LIST        *lobj,
             uto = g3durm_object_transform ( urm,
                                             sce,
                                             lobj,
-                                            UTOSAVEROTATION, 
                                             REDRAWVIEW );
 
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
