@@ -35,6 +35,8 @@
 #define EDITMESHPOSENAME  "Pose name"
 #define EDITMESHPOSELIST  "Pose list"
 
+#define EDITFUNCTIONSPANEL "Functions"
+
 /******************************************************************************/
 typedef struct _MESHPOSEPANELDATA {
     G3DUI     *gui;
@@ -452,12 +454,6 @@ static void createMeshPosePanel ( GtkWidget *parent,
                        216, 36,
                        64 , 18, createMeshPoseCbk );
 
-    /*createPushButton ( pan,
-                       mpd,
-                      "Update",
-                       216, 60, 
-                       64 , 18, updateMeshPoseCbk );*/
-
     createPushButton ( pan, 
                        mpd,
                       "Delete",
@@ -476,7 +472,70 @@ static void createMeshPosePanel ( GtkWidget *parent,
                        216, 108,
                        64 ,  18, selectMeshPoseVerticesCbk );
 
+
    /* createPushButton ( pan, gui, "Select", 216, 108, 64, 18, selectFaceGroupCbk ); */
+}
+
+/******************************************************************************/
+static void optimizeCbk ( GtkWidget *widget,
+                          gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            g3dmorpher_optimize ( mpr );
+        }
+    }
+}
+
+/******************************************************************************/
+static void restoreCbk ( GtkWidget *widget,
+                         gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            g3dmorpher_restore ( mpr );
+        }
+    }
+}
+
+/******************************************************************************/
+static void createFunctionsPanel ( GtkWidget *parent, 
+                                   G3DUI     *gui,
+                                   gint       x,
+                                   gint       y,
+                                   gint       width,
+                                   gint       height ) {
+    GtkWidget *pan = createPanel ( parent, 
+                                   gui, 
+                                   EDITFUNCTIONSPANEL, 
+                                   x, 
+                                   y, 
+                                   width, 
+                                   height );
+
+    createPushButton ( pan, 
+                       gui,
+                      "Optimize",
+                       216, 0,
+                       64 , 18, optimizeCbk );
+
+    createPushButton ( pan, 
+                       gui,
+                      "Restore",
+                       216, 24,
+                       64 , 18, restoreCbk );
 }
 
 /******************************************************************************/
@@ -536,6 +595,7 @@ GtkWidget *createMorpherEdit ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
 
     createMeshPosePanel   ( tab, gui, 0, 0, width, height );
+    createFunctionsPanel   ( tab, gui, 0, 0, width, height );
 
     gtk_widget_show ( tab );
 

@@ -56,6 +56,7 @@ typedef struct _G3DMORPHERMESHPOSE {
     G3DMORPHERVERTEXPOSE *vpose;
     uint64_t              slotID;
     uint32_t              maxVerCount;
+    uint32_t              nbver;
 } G3DMORPHERMESHPOSE;
 
 /**
@@ -139,6 +140,8 @@ void g3dmorpher_selectMeshVerticesFromPose ( G3DMORPHER         *mpr,
                                              G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
                                                          G3DVECTOR  *pos );
+void g3dmorpher_optimize ( G3DMORPHER *mpr );
+void g3dmorpher_restore ( G3DMORPHER *mpr );
 
 #ifdef __cplusplus
 }

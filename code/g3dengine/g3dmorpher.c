@@ -29,6 +29,9 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
+                                      G3DVERTEX  *ver );
+
 /******************************************************************************/
 typedef struct _VERTEXPOSEEXTENSION {
     G3DVERTEXEXTENSION ext;
@@ -235,6 +238,55 @@ void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
+/*** Note: we do not optimize the verID counter and meshpose size, this would */
+/* corrupt the undo redo stack I believe */
+void g3dmorpher_optimize ( G3DMORPHER *mpr ) {
+    LIST *ltmpver = mpr->lver;
+    
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        LIST *ltmpvernext = ltmpver->next;
+        VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                            mpr->extensionName );
+
+        /*** we only test if the number of pose equals 1 because it cannot ***/
+        /*** equals 0. If it does, it means there is a bug somewhere, and ***/
+        /*** in my philosophy, we don't hide bugs ***/
+        if ( vxt->nbpose == 0x01 ) {
+            LIST *ltmpmpose = mpr->lmpose;
+
+            ver->pos.x = vxt->resetPosition.x;
+            ver->pos.y = vxt->resetPosition.y;
+            ver->pos.z = vxt->resetPosition.z;
+
+            while ( ltmpmpose ) {
+                G3DMORPHERMESHPOSE *mpose = ltmpmpose->data;
+
+                /*** this also calls removeVertex() once nbpose equals 0 ***/
+                g3dmorpher_removeVertexPose ( mpr, ver, mpose );
+
+                ltmpmpose = ltmpmpose->next;
+            }
+        }
+
+        ltmpver = ltmpvernext;
+    }
+
+    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+
+        g3dmesh_update ( mes,
+                         NULL,
+                         NULL,
+                         NULL,
+                         UPDATEFACEPOSITION |
+                         UPDATEFACENORMAL   |
+                         UPDATEVERTEXNORMAL |
+                         RESETMODIFIERS, 0x00 );
+    }
+}
+
+/******************************************************************************/
 LIST *g3dmorpher_getMeshPoseSelectedVertices ( G3DMORPHER         *mpr,
                                                G3DMORPHERMESHPOSE *mpose ) {
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
@@ -280,18 +332,6 @@ void g3dmorpher_setVertexResetPosition ( G3DMORPHER *mpr,
     vxt->resetPosition.x = pos->x;
     vxt->resetPosition.y = pos->y;
     vxt->resetPosition.z = pos->z;
-}
-
-/******************************************************************************/
-uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose ) {
-    uint32_t total = 0x00;
-    uint32_t i;
-
-    for ( i = 0x00; i < mpose->maxVerCount; i++ ) {
-        if ( mpose->vpose[i].enabled ) total++;
-    }
-
-    return total;
 }
 
 /******************************************************************************/
@@ -369,6 +409,25 @@ static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
+void g3dmorpher_restore ( G3DMORPHER *mpr ) {
+    LIST *ltmpver = mpr->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+                                                           mpr->extensionName );
+        VERTEXPOSEEXTENSION *vpx = ( VERTEXPOSEEXTENSION * ) vxt;
+
+        /*** restore original vertex position ***/
+        ver->pos.x = vpx->resetPosition.x;
+        ver->pos.y = vpx->resetPosition.y;
+        ver->pos.z = vpx->resetPosition.z;
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
 static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
                                       G3DVERTEX  *ver ) {
     /*** Note: the vertex loses its extension but mesh poses dont get shrunk **/
@@ -377,6 +436,8 @@ static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
                                                        mpr->extensionName );
 
     g3dvertex_removeExtension ( ver, vxt );
+
+    /*** TODO: free vxt ***/
 
     list_remove ( &mpr->lver, ver );
 
@@ -540,6 +601,8 @@ void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr,
             if ( vxt ) {
                 if ( mpose->vpose[vxt->verID].enabled ) {
                     vxt->nbpose++;
+
+                    mpose->nbver++;
                 }
             }
 
@@ -694,15 +757,19 @@ void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
     if ( mpose ) {
         if ( vxt == NULL ) {
             vxt = g3dmorpher_addVertex ( mpr, ver );
-
-            vxt->nbpose++;
         }
 
-        mpose->vpose[vxt->verID].pos.x = vpos->x;
-        mpose->vpose[vxt->verID].pos.y = vpos->y;
-        mpose->vpose[vxt->verID].pos.z = vpos->z;
+        vxt->nbpose++;
 
-        mpose->vpose[vxt->verID].enabled = 0x01;
+        if ( mpose->vpose[vxt->verID].enabled == 0x00 ) {
+            mpose->vpose[vxt->verID].pos.x = vpos->x;
+            mpose->vpose[vxt->verID].pos.y = vpos->y;
+            mpose->vpose[vxt->verID].pos.z = vpos->z;
+
+            mpose->vpose[vxt->verID].enabled = 0x01;
+
+            mpose->nbver++;
+        }
     }
 }
 
@@ -717,9 +784,13 @@ void g3dmorpher_removeVertexPose ( G3DMORPHER         *mpr,
 
     if ( mpose ) {
         if ( vxt ) {
-            mpose->vpose[vxt->verID].enabled = 0x00;
+            if ( mpose->vpose[vxt->verID].enabled == 0x01 ) {
+                mpose->vpose[vxt->verID].enabled = 0x00;
 
-            vxt->nbpose--;
+                mpose->nbver--;
+
+                vxt->nbpose--;
+            }
 
             if ( vxt->nbpose == 0x00 ) {
                 g3dmorpher_removeVertex ( mpr, ver );

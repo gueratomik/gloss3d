@@ -46,12 +46,11 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
                                                     G3DMORPHERMESHPOSE *mpose,
                                                     uint32_t            flags,
                                                     FILE               *fdst ) {
-    uint32_t vcount = g3dmorphermeshpose_getVertexPoseCount ( mpose );
     G3DMORPHER *mpr = ( G3DMORPHER * ) ged->currentObject;
     LIST *ltmpver = mpr->lver;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &vcount, fdst );
+    size += g3dexport_fwritel ( &mpose->nbver, fdst );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
