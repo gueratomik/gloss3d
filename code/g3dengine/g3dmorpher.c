@@ -387,7 +387,9 @@ static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
         G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
                                                            mpr->extensionName );
+
         VERTEXPOSEEXTENSION *vpx = ( VERTEXPOSEEXTENSION * ) vxt;
+
 
         g3dvertex_removeExtension ( ver, vxt );
 
@@ -396,7 +398,7 @@ static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
         ver->pos.y = vpx->resetPosition.y;
         ver->pos.z = vpx->resetPosition.z;
 
-        vertexposeextension_free ( vxt );
+        vertexposeextension_free ( vpx );
 
         ltmpver = ltmpver->next;
     }
@@ -406,6 +408,7 @@ static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
     list_free ( &mpr->lmpose, g3dmorphermeshpose_free );
 
     mpr->selmpose = NULL;
+
 }
 
 /******************************************************************************/

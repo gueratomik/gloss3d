@@ -1235,10 +1235,10 @@ void g3dobject_importTransformations ( G3DOBJECT *dst, G3DOBJECT *src ) {
 void g3dobject_free ( G3DOBJECT *obj ) {
     printf ( "freeing memory for object %s\n", obj->name );
 
+    list_free ( &obj->lchildren, (void(*)(void*)) g3dobject_free );
+
     if ( obj->free ) obj->free ( obj );
     if ( obj->name ) free ( obj->name );
-
-    list_free ( &obj->lchildren, (void(*)(void*)) g3dobject_free );
 
     free ( obj );
 }

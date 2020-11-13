@@ -499,7 +499,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
         sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( G3DRTVERTEX ) ) );
         sdr->rtluim  = realloc ( sdr->rtluim , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
-    ((G3DMESH*)sdr)->nbuvmap = mes->nbuvmap;
+        ((G3DMESH*)sdr)->nbuvmap = mes->nbuvmap;
     /*while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 

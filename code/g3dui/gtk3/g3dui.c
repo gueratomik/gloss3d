@@ -1601,6 +1601,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     GtkCssProvider *provider = gtk_css_provider_new ();
     static const gchar *myCSS = { "* {                      \n"
     #ifdef __linux__
+
                                   "    font-family: Lucida Sans; \n"
                                   "    font-size: 10px; \n"
     #endif

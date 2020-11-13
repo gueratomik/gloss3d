@@ -57,6 +57,7 @@
 #include <xpm/srvico.xpm>
 #include <xpm/txtico.xpm>
 #include <xpm/tubico.xpm>
+#include <xpm/morpher.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -401,7 +402,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
                      *camico, *scnico, *mapico, 
                      *objico, *subico, *wirico, 
                      *splico, *srvico, *txtico,
-                     *tubico;
+                     *tubico, *mrpico;
 
     /*********************** Inited once and for all **************************/
     if ( bonico == NULL ) bonico = gdk_pixbuf_new_from_xpm_data ( bonico_xpm );
@@ -425,6 +426,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
     if ( srvico == NULL ) srvico = gdk_pixbuf_new_from_xpm_data ( srvico_xpm );
     if ( txtico == NULL ) txtico = gdk_pixbuf_new_from_xpm_data ( txtico_xpm );
     if ( tubico == NULL ) tubico = gdk_pixbuf_new_from_xpm_data ( tubico_xpm );
+    if ( mrpico == NULL ) mrpico = gdk_pixbuf_new_from_xpm_data ( morpher_xpm );
    /***************************************************************************/
 
     switch ( obj->type ) {
@@ -448,6 +450,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
         case G3DSPLINEREVOLVERTYPE : objico = srvico; break;
         case G3DTEXTTYPE           : objico = txtico; break;
         case G3DTUBETYPE           : objico = tubico; break;
+        case G3DMORPHERTYPE        : objico = mrpico; break;
         default                    : objico = defico; break;
     }
 
