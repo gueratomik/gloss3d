@@ -768,4 +768,25 @@ void g3durm_image_paint ( G3DURMANAGER *urm,
                           int32_t       y2,
                           uint32_t      return_flags );
 
+/******************************************************************************/
+void g3durm_morpher_createMeshPose ( G3DURMANAGER *urm,
+                                     G3DSCENE     *sce,
+                                     G3DMORPHER   *mpr,
+                                     uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_morpher_removeMeshPose ( G3DURMANAGER       *urm,
+                                     G3DSCENE           *sce,
+                                     G3DMORPHER         *mpr,
+                                     G3DMORPHERMESHPOSE *mpose,
+                                     uint32_t            return_flags );
+
+/******************************************************************************/
+void g3durm_morpher_addVertexPose ( G3DURMANAGER       *urm,
+                                    G3DSCENE           *sce,
+                                    G3DMORPHER         *mpr,
+                                    G3DMORPHERMESHPOSE *mpose,
+                                    LIST               *lver,
+                                    uint32_t            return_flags );
+
 #endif

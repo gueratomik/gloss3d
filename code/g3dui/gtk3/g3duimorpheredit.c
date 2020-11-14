@@ -149,13 +149,11 @@ static void createMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
     if ( obj ) {
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-            G3DMORPHERMESHPOSE *mpose = g3dmorpher_createMeshPose ( mpr, "Pose" );
 
-            if ( mpose == NULL ) {
-                fprintf ( stderr, "%s: could not create pose\n" );
-            } else {
-                g3dmorpher_selectMeshPose ( mpr, mpose );
-            }
+            g3durm_morpher_createMeshPose ( mpd->gui->urm,
+                                            mpd->gui->sce,
+                                            mpr,
+                                            REDRAWVIEW | REDRAWCURRENTOBJECT );
         }
     }
 
@@ -174,7 +172,12 @@ static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
             if ( mpr->selmpose ) {
-                g3dmorpher_removeMeshPose ( mpr, mpr->selmpose );
+                g3durm_morpher_removeMeshPose ( mpd->gui->urm,
+                                                mpd->gui->sce,
+                                                mpr,
+                                                mpr->selmpose,
+                                                REDRAWVIEW | 
+                                                REDRAWCURRENTOBJECT );
             }
         }
     }

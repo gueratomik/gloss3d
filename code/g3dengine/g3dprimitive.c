@@ -153,7 +153,7 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri,
     pri->data    = data;
     pri->datalen = datalen;
 
-    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN ,
                                         DRAW_CALLBACK(g3dprimitive_draw),
                                         FREE_CALLBACK(g3dprimitive_free),
                                         PICK_CALLBACK(g3dprimitive_pick),

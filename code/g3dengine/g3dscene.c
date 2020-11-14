@@ -632,20 +632,22 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
     /*** by scaling the cursor matrix with the inverse scale factors ***/
-    /*g3dcore_getMatrixScale ( matrix, &sca );
+    g3dcore_getMatrixScale ( sce->csr.matrix, &sca );
 
     /*g3dvector_matrix ( &zero, matrix, &curcam->pivot );*/
 
     glPushMatrix ( );
-
-    /*glMultMatrixd ( matrix );
-    glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
 
     glMultMatrixd ( sce->csr.matrix );
 
     glTranslatef ( sce->csr.pivot.x, 
                    sce->csr.pivot.y, 
                    sce->csr.pivot.z );
+
+    /*** scale cursor to object's scale ***/
+    glScalef ( 1.0f / sca.x,
+               1.0f / sca.y,
+               1.0f / sca.z );
 
     g3dcursor_draw ( &sce->csr, curcam, engine_flags );
 

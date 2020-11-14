@@ -54,13 +54,9 @@ void g3dcursor_pick ( G3DCURSOR *csr,
     if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
         csr->ratio = cam->ortho.z * 200.0f;
     } else {
-        /*g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );*/
+        float distanceToCursor = g3dcamera_getDistanceToCursor ( cam, csr ); 
 
-        /*oripos.x = pivot->x - campos.x;
-        oripos.y = pivot->y - campos.y;
-        oripos.z = pivot->z - campos.z;*/
-
-        csr->ratio = 1.0f/*g3dvector_length ( &oripos ) * 0.00250 * curcam->focal*/;
+        csr->ratio = distanceToCursor * 0.00250 * cam->focal;
     }
 
     csr->axis[0x00].w = 0.0f;
@@ -103,7 +99,7 @@ void g3dcursor_reset ( G3DCURSOR *csr ) {
 
 /*****************************************************************************/
 void g3dcursor_draw ( G3DCURSOR *csr, 
-                      G3DCAMERA *curcam,
+                      G3DCAMERA *cam,
                       uint64_t   engine_flags ) {
     int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
     G3DVECTOR oripos = { 0.0f, 0.0f, 0.0f, 1.0f }, campos;
@@ -112,16 +108,12 @@ void g3dcursor_draw ( G3DCURSOR *csr,
 
 
 
-    if ( ((G3DOBJECT*)curcam)->flags & CAMERAORTHOGRAPHIC ) {
-        csr->ratio = curcam->ortho.z * 200.0f;
+    if ( ((G3DOBJECT*)cam)->flags & CAMERAORTHOGRAPHIC ) {
+        csr->ratio = cam->ortho.z * 200.0f;
     } else {
-        /*g3dvector_matrix ( &oripos, ((G3DOBJECT*)curcam)->wmatrix, &campos );*/
+        float distanceToCursor = g3dcamera_getDistanceToCursor ( cam, csr ); 
 
-        /*oripos.x = pivot->x - campos.x;
-        oripos.y = pivot->y - campos.y;
-        oripos.z = pivot->z - campos.z;*/
-
-        csr->ratio = 1.0f/*g3dvector_length ( &oripos ) * 0.00250 * curcam->focal*/;
+        csr->ratio = distanceToCursor * 0.00250 * cam->focal;
     }
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );

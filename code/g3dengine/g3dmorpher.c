@@ -372,7 +372,7 @@ G3DMORPHERMESHPOSE *g3dmorphermeshpose_new ( uint32_t nbver,
 }
 
 /******************************************************************************/
-static void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose ) {
+void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose ) {
     if ( mpose->vpose ) free ( mpose->vpose );
     if ( mpose->name  ) free ( mpose->name  );
 
@@ -390,15 +390,18 @@ static void g3dmorpher_reset ( G3DMORPHER *mpr ) {
 
         VERTEXPOSEEXTENSION *vpx = ( VERTEXPOSEEXTENSION * ) vxt;
 
-
-        g3dvertex_removeExtension ( ver, vxt );
+    /*** Note: a vertex loses its extension only when the memory associated ***/
+    /*** to this vertex is freed. This eases undo/redo A LOT, because we dont */
+    /*** have to generate a new verID for this VERTEXPOSEEXTENSION ***/
+    /*** The followng lines is commented out just as a reminder ***/
+        /*** g3dvertex_removeExtension ( ver, vxt ); ***/
 
         /*** restore original vertex position ***/
         ver->pos.x = vpx->resetPosition.x;
         ver->pos.y = vpx->resetPosition.y;
         ver->pos.z = vpx->resetPosition.z;
 
-        vertexposeextension_free ( vpx );
+        /*** vertexposeextension_free ( vpx ); see comment above ***/
 
         ltmpver = ltmpver->next;
     }
@@ -433,14 +436,14 @@ void g3dmorpher_restore ( G3DMORPHER *mpr ) {
 /******************************************************************************/
 static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
                                       G3DVERTEX  *ver ) {
-    /*** Note: the vertex loses its extension but mesh poses dont get shrunk **/
-    /*** because the morpher->verID keeps incrementing and never shrinks. ***/
-    G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
+    /*** Note: a vertex loses its extension only when the memory associated ***/
+    /*** to this vertex is freed. This eases undo/redo A LOT, because we dont */
+    /*** have to generate a new verID for this VERTEXPOSEEXTENSION ***/
+    /*** The followng lines are commented out just as a reminder ***/
+    /*G3DVERTEXEXTENSION *vxt = g3dvertex_getExtension ( ver, 
                                                        mpr->extensionName );
 
-    g3dvertex_removeExtension ( ver, vxt );
-
-    /*** TODO: free vxt ***/
+    g3dvertex_removeExtension ( ver, vxt );*/
 
     list_remove ( &mpr->lver, ver );
 
@@ -589,6 +592,9 @@ void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr,
     /*mpr->meshPoseSlots |= mpose->slotID;*/
 
     g3dmorpher_takeSlot ( mpr, mpose->slotID );
+
+    /*** adjust the array. This is useful when undoing a deletion e.g ***/
+    g3dmorphermeshpose_realloc ( mpose, mpr->verID );
 
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
@@ -814,6 +820,9 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
     G3DKEY *prevKey = NULL,
            *nextKey = NULL,
            *currKey = NULL;
+
+    if ( g3dobject_isActive ( mpr ) == 0x00 ) return;
+
 
     g3dobject_getKeys ( obj, frame, &currKey,
                                     &prevKey, 
@@ -1079,7 +1088,7 @@ static void g3dmorpher_activate ( G3DMORPHER *mpr,
 /******************************************************************************/
 static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
                                     uint64_t engine_flags ) {
-
+    g3dmorpher_restore ( mpr );
 }
 
 /******************************************************************************/
@@ -1375,6 +1384,7 @@ G3DMORPHER *g3dmorpher_new ( uint32_t id,
     }
 
     g3dmorpher_init ( mpr, id, name, engine_flags );
+
 
     return mpr;
 }

@@ -143,7 +143,8 @@ am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
 	urmAddTexture.lo urmRemoveTexture.lo urmPaintImage.lo \
 	urmAddUVMap.lo urmMorpherMoveVertices.lo urmRemoveUVMap.lo \
-	urmAddMaterial.lo urmRemoveMaterial.lo urmCreateFacegroup.lo
+	urmAddMaterial.lo urmAddMeshPose.lo urmRemoveMaterial.lo \
+	urmCreateFacegroup.lo
 am_libgloss_g3durmanager_la_OBJECTS = $(am__objects_1)
 libgloss_g3durmanager_la_OBJECTS =  \
 	$(am_libgloss_g3durmanager_la_OBJECTS)
@@ -167,7 +168,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
-	./$(DEPDIR)/urmAddMaterial.Plo \
+	./$(DEPDIR)/urmAddMaterial.Plo ./$(DEPDIR)/urmAddMeshPose.Plo \
 	./$(DEPDIR)/urmAddSplinePoint.Plo \
 	./$(DEPDIR)/urmAddSplineSegment.Plo \
 	./$(DEPDIR)/urmAddTexture.Plo ./$(DEPDIR)/urmAddUVMap.Plo \
@@ -399,6 +400,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmMorpherMoveVertices.c \
                                urmRemoveUVMap.c \
                                urmAddMaterial.c \
+                               urmAddMeshPose.c \
                                urmRemoveMaterial.c \
                                urmCreateFacegroup.c
 
@@ -482,6 +484,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3durmanager.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddMaterial.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddMeshPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplinePoint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplineSegment.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddTexture.Plo@am__quote@ # am--include-marker
@@ -681,6 +684,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/g3durmanager.Plo
 	-rm -f ./$(DEPDIR)/urmAddMaterial.Plo
+	-rm -f ./$(DEPDIR)/urmAddMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
 	-rm -f ./$(DEPDIR)/urmAddTexture.Plo
@@ -760,6 +764,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/g3durmanager.Plo
 	-rm -f ./$(DEPDIR)/urmAddMaterial.Plo
+	-rm -f ./$(DEPDIR)/urmAddMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
 	-rm -f ./$(DEPDIR)/urmAddTexture.Plo

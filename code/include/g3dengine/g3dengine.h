@@ -218,7 +218,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
 #define G3DSPLINETYPE         ( OBJECT | SPLINE )
 #define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
-#define G3DMORPHERTYPE        ( OBJECT | MESH | MODIFIER | MORPHER )
+/*** we dont need the MESH bit for the morpher modifier, that way it is ***/
+/*** ignore by g3dobject_getByType(), and mororver, it doesn't use vertex ***/
+/*** list or face list or edge list ***/
+#define G3DMORPHERTYPE        ( OBJECT        | MODIFIER | MORPHER )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -346,6 +349,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define OBJECTNOROTATION        (  1 << 7  )
 #define OBJECTNOSCALING         (  1 << 8  )
 #define OBJECTNOSHADING         (  1 << 9  )
+
 /*** Private flags ***/
 /*** Bone flags ***/
 #define BONEFIXED             (  1 << 17 )
@@ -354,6 +358,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MESHUSEISOLINES       (  1 << 20 )
 #define MESHGEOMETRYONLY      (  1 << 21 )
 #define MESHGEOMETRYINARRAYS  (  1 << 22 ) /* use arrays instead of lists */
+
 /*** Light flags ***/
 #define LIGHTON               (  1 << 17 )
 #define LIGHTCASTSHADOWS      (  1 << 18 )
@@ -2549,8 +2554,6 @@ void       g3dcamera_setGrid  ( G3DCAMERA *, void (*)(G3DCAMERA *, uint64_t) );
 void g3dcamera_project ( G3DCAMERA *cam, 
                          uint64_t   engine_flags );
 void       g3dcamera_setPivot ( G3DCAMERA *, float, float, float );
-void g3dcamera_updateViewingMatrix ( G3DCAMERA *cam, 
-                                     uint64_t   engine_flags );
 void       g3dcamera_import   ( G3DCAMERA *, G3DCAMERA * );
 void g3dcamera_setOrtho ( G3DCAMERA *cam,
                           uint32_t   width, 
@@ -2558,6 +2561,8 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
 void g3dcamera_updatePivotFromScene ( G3DCAMERA *cam, 
                                       G3DSCENE  *sce,
                                       uint64_t   engine_flags );
+float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam, 
+                                      G3DCURSOR *csr );
 
 /******************************************************************************/
 void g3dcursor_draw ( G3DCURSOR *csr, 

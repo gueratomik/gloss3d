@@ -1778,7 +1778,7 @@ void g3dobject_init ( G3DOBJECT   *obj,
 
 /******************************************************************************/
 uint32_t g3dobject_isActive ( G3DOBJECT *obj ) {
-    return ( ( obj->flags & OBJECTINACTIVE ) == 0x00 );
+    return ( obj->flags & OBJECTINACTIVE ) ? 0x00 : 0x01;
 }
 
 /******************************************************************************/

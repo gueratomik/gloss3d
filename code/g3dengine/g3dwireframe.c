@@ -539,7 +539,11 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, DRAWBEFORECHILDREN | TRIANGULAR,
+    g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, DRAWBEFORECHILDREN  | 
+                                                        OBJECTNOTRANSLATION | 
+                                                        OBJECTNOROTATION    |
+                                                        OBJECTNOSCALING     |
+                                                        TRIANGULAR,
                                                         g3dwireframe_draw,
                                                         g3dwireframe_free,
                                                         NULL,

@@ -663,8 +663,7 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
     /*** by scaling the cursor matrix with the inverse scale factors ***/
-    /*** same code as in g3dscene_draw ( ). Should be factorized ***/
-    /*g3dcore_getMatrixScale ( MVX, &sca );*/
+    g3dcore_getMatrixScale ( sce->csr.matrix, &sca );
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -690,8 +689,10 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    sce->csr.pivot.y, 
                    sce->csr.pivot.z );
 
-    /*glMultMatrixd ( MVX );*/
-    /*glScalef ( 1.0f / sca.x, 1.0f / sca.y, 1.0f / sca.z );*/
+    /*** scale cursor to object's scale ***/
+    glScalef ( 1.0f / sca.x,
+               1.0f / sca.y,
+               1.0f / sca.z );
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 

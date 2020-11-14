@@ -44,6 +44,31 @@ G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
+float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam, 
+                                      G3DCURSOR *csr ) {
+    G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    G3DVECTOR campos;
+    G3DVECTOR csrpos;
+    G3DVECTOR distance;
+
+    g3dvector_matrix ( &origin, ((G3DOBJECT*)cam)->wmatrix, &campos );
+
+    g3dvector_matrix ( &origin, csr->matrix, &csrpos );
+
+    distance.x = ( csrpos.x - campos.x );
+    distance.y = ( csrpos.y - campos.y );
+    distance.z = ( csrpos.z - campos.z );
+
+    return g3dvector_length ( &distance );
+}
+
+/******************************************************************************/
+static void g3dcamera_transform ( G3DCAMERA *cam, 
+                                  uint64_t   engine_flags ) {
+
+}
+
+/******************************************************************************/
 /*** Copy camera position, rotation, scaling and focal ***/
 void g3dcamera_import ( G3DCAMERA *dst, G3DCAMERA *src ) {
     g3dobject_importTransformations ( ( G3DOBJECT * ) dst, 
@@ -66,28 +91,6 @@ void g3dcamera_grid2D_r ( float ubeg, float uend,
         glVertex3f ( ubeg, i, 0.0f );
         glVertex3f ( uend, i, 0.0f );
     }
-}
-
-/******************************************************************************/
-void g3dcamera_updateViewingMatrix ( G3DCAMERA *cam, 
-                                     uint64_t   engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    G3DVECTOR viewpos = { cam->viewpos.x, 
-                          cam->viewpos.y,
-                          cam->viewpos.z, 1.0f };
-    double ROTX[0x10];
-    float angle;
-
-    /*** find camera position ***/
-    glLoadIdentity ( );
-    glRotatef ( cam->viewrot.z, 0.0f, 0.0f, 1.0f );
-    glRotatef ( cam->viewrot.y, 0.0f, 1.0f, 0.0f );
-    glRotatef ( cam->viewrot.x, 1.0f, 0.0f, 0.0f );
-    glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
-
-    g3dvector_matrix ( &viewpos, ROTX, &obj->pos );
-
-    g3dobject_updateMatrix_r ( obj, engine_flags );
 }
 
 /******************************************************************************/
@@ -353,6 +356,9 @@ G3DCAMERA *g3dcamera_new ( uint32_t id, char *name,
                                                    NULL,
                                                    NULL,
                                                    NULL );
+
+    obj->transform = g3dcamera_transform;
+
 
     cam->focal = focal;
     cam->ratio = ratio;
