@@ -733,8 +733,12 @@ GtkWidget *gtk_uvmapeditor_new ( ) {
 gboolean gtk_uvmapeditor_destroy ( GtkWidget *widget, gpointer   user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
+    G3DUIGTK3      *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
 
     list_remove ( &gui->luvmapeditor,  guv );
+
+
+    ggt->currentUVMouseToolButton = NULL;
 
     /*** Free the undo-redo stack ***/
     /*g3durmanager_free ( guv->lui.uvurm );*/

@@ -169,41 +169,45 @@ void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
 
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( curmap ) {
-                LIST *ltmpfac = mes->lfac;
-                LIST *lselold, *lselnew;
+            if ( tex ) {
+                G3DUVMAP *curmap = tex->map;
 
-                lselold = list_copy ( mes->lselfac );
+                if ( curmap ) {
+                    LIST *ltmpfac = mes->lfac;
+                    LIST *lselold, *lselnew;
 
-                g3dmesh_unselectAllFaces ( mes );
+                    lselold = list_copy ( mes->lselfac );
 
-                while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
-                    int i;
+                    g3dmesh_unselectAllFaces ( mes );
 
-                    if ( uvset->flags & UVSETSELECTED ) {
-                        if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
-                            g3dmesh_selectFace ( mes, fac );
+                    while ( ltmpfac ) {
+                        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                        G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                        int i;
+
+                        if ( uvset->flags & UVSETSELECTED ) {
+                            if ( ( fac->flags & FACESELECTED ) == 0x00 ) {
+                                g3dmesh_selectFace ( mes, fac );
+                            }
                         }
+
+                        ltmpfac = ltmpfac->next;
                     }
 
-                    ltmpfac = ltmpfac->next;
+                    lselnew = list_copy ( mes->lselfac );
+
+                    /*** remember selection ***/
+                    g3durm_mesh_pickFaces  ( lui->gui->urm,
+                                             lui->gui->sce,
+                                             mes,
+                                             lselold,
+                                             lselnew,
+                                             VIEWFACE,
+                                             REDRAWVIEW |
+                                             REDRAWUVMAPEDITOR );
                 }
-
-                lselnew = list_copy ( mes->lselfac );
-
-                /*** remember selection ***/
-                g3durm_mesh_pickFaces  ( lui->gui->urm,
-                                         lui->gui->sce,
-                                         mes,
-                                         lselold,
-                                         lselnew,
-                                         VIEWFACE,
-                                         REDRAWVIEW |
-                                         REDRAWUVMAPEDITOR );
             }
         }
     }
@@ -217,43 +221,47 @@ void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
 
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( curmap ) {
-                LIST *ltmpfac = mes->lfac;
-                LIST *lselold, *lselnew;
+            if ( tex ) {
+                G3DUVMAP *curmap = tex->map;
 
-                lselold = list_copy ( curmap->lseluvset );
+                if ( curmap ) {
+                    LIST *ltmpfac = mes->lfac;
+                    LIST *lselold, *lselnew;
 
-                g3duvmap_unselectAllUVSets ( curmap );
+                    lselold = list_copy ( curmap->lseluvset );
 
-                while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                    int i;
+                    g3duvmap_unselectAllUVSets ( curmap );
 
-                    if ( fac->flags & FACESELECTED ) {
-                        G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                    while ( ltmpfac ) {
+                        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                        int i;
 
-                        if ( ( uvset->flags & UVSETSELECTED ) == 0x00 ) {
-                            g3duvmap_selectUVSet ( curmap, uvset );
+                        if ( fac->flags & FACESELECTED ) {
+                            G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+
+                            if ( ( uvset->flags & UVSETSELECTED ) == 0x00 ) {
+                                g3duvmap_selectUVSet ( curmap, uvset );
+                            }
                         }
+
+                        ltmpfac = ltmpfac->next;
                     }
 
-                    ltmpfac = ltmpfac->next;
+                    lselnew = list_copy ( curmap->lseluvset );
+
+                    /*** remember selection ***/
+                    g3durm_uvmap_pickUVSets  ( /*lui->uvurm*/
+                                               lui->gui->urm,
+                                               lui->gui->sce,
+                                               curmap,
+                                               lselold,
+                                               lselnew,
+                                               VIEWFACEUV,
+                                               REDRAWVIEW |
+                                               REDRAWUVMAPEDITOR );
                 }
-
-                lselnew = list_copy ( curmap->lseluvset );
-
-                /*** remember selection ***/
-                g3durm_uvmap_pickUVSets  ( /*lui->uvurm*/
-                                           lui->gui->urm,
-                                           lui->gui->sce,
-                                           curmap,
-                                           lselold,
-                                           lselnew,
-                                           VIEWFACEUV,
-                                           REDRAWVIEW |
-                                           REDRAWUVMAPEDITOR );
             }
         }
     }
@@ -266,47 +274,51 @@ void common_l3dui_uv2verCbk ( L3DUI *lui ) {
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( curmap ) {
-                LIST *ltmpfac = mes->lfac;
-                LIST *lselold, *lselnew;
+            if ( tex ) {
+                G3DUVMAP *curmap = tex->map;
 
-                lselold = list_copy ( mes->lselver );
+                if ( curmap ) {
+                    LIST *ltmpfac = mes->lfac;
+                    LIST *lselold, *lselnew;
 
-                g3dmesh_unselectAllVertices ( mes );
+                    lselold = list_copy ( mes->lselver );
 
-                while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
-                    int i;
+                    g3dmesh_unselectAllVertices ( mes );
 
-                    for ( i = 0x00; i < uvset->nbuv; i++ ) {
-                        G3DUV *uv = &uvset->veruv[i];
+                    while ( ltmpfac ) {
+                        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                        G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                        int i;
 
-                        if ( uv->flags & UVSELECTED ) {
-                            G3DVERTEX *ver = fac->ver[i];
+                        for ( i = 0x00; i < uvset->nbuv; i++ ) {
+                            G3DUV *uv = &uvset->veruv[i];
 
-                            if ( ( ver->flags & VERTEXSELECTED ) == 0x00 ) {
-                                g3dmesh_selectVertex ( mes, ver );
+                            if ( uv->flags & UVSELECTED ) {
+                                G3DVERTEX *ver = fac->ver[i];
+
+                                if ( ( ver->flags & VERTEXSELECTED ) == 0x00 ) {
+                                    g3dmesh_selectVertex ( mes, ver );
+                                }
                             }
                         }
+
+                        ltmpfac = ltmpfac->next;
                     }
 
-                    ltmpfac = ltmpfac->next;
+                    lselnew = list_copy ( mes->lselver );
+
+                    /*** remember selection ***/
+                    g3durm_mesh_pickVertices  ( lui->gui->urm,
+                                                lui->gui->sce,
+                                                mes,
+                                                lselold,
+                                                lselnew,
+                                                VIEWVERTEX,
+                                                REDRAWVIEW |
+                                                REDRAWUVMAPEDITOR );
                 }
-
-                lselnew = list_copy ( mes->lselver );
-
-                /*** remember selection ***/
-                g3durm_mesh_pickVertices  ( lui->gui->urm,
-                                            lui->gui->sce,
-                                            mes,
-                                            lselold,
-                                            lselnew,
-                                            VIEWVERTEX,
-                                            REDRAWVIEW |
-                                            REDRAWUVMAPEDITOR );
             }
         }
     }
@@ -320,48 +332,52 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
 
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *curmap = g3dmesh_getSelectedUVMap ( mes );
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
-            if ( curmap ) {
-                LIST *ltmpfac = mes->lfac;
-                LIST *lselold, *lselnew;
+            if ( tex ) {
+                G3DUVMAP *curmap = tex->map;
 
-                lselold = list_copy ( curmap->lseluv );
+                if ( curmap ) {
+                    LIST *ltmpfac = mes->lfac;
+                    LIST *lselold, *lselnew;
 
-                g3duvmap_unselectAllUVs ( curmap );
+                    lselold = list_copy ( curmap->lseluv );
 
-                while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                    G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
-                    int i;
+                    g3duvmap_unselectAllUVs ( curmap );
 
-                    for ( i = 0x00; i < fac->nbver; i++ ) {
-                        G3DVERTEX *ver = fac->ver[i];
+                    while ( ltmpfac ) {
+                        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                        G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
+                        int i;
 
-                        if ( ver->flags & VERTEXSELECTED ) {
-                            G3DUV *uv = &uvset->veruv[i];
+                        for ( i = 0x00; i < fac->nbver; i++ ) {
+                            G3DVERTEX *ver = fac->ver[i];
 
-                            if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
-                                g3duvmap_selectUV ( curmap, uv );
+                            if ( ver->flags & VERTEXSELECTED ) {
+                                G3DUV *uv = &uvset->veruv[i];
+
+                                if ( ( uv->flags & UVSELECTED ) == 0x00 ) {
+                                    g3duvmap_selectUV ( curmap, uv );
+                                }
                             }
                         }
+
+                        ltmpfac = ltmpfac->next;
                     }
 
-                    ltmpfac = ltmpfac->next;
+                    lselnew = list_copy ( curmap->lseluv );
+
+                    /*** remember selection ***/
+                    g3durm_uvmap_pickUVs  ( /*lui->uvurm*/
+                                            lui->gui->urm, 
+                                            lui->gui->sce,
+                                            curmap,
+                                            lselold,
+                                            lselnew,
+                                            VIEWVERTEXUV,
+                                            REDRAWVIEW |
+                                            REDRAWUVMAPEDITOR );
                 }
-
-                lselnew = list_copy ( curmap->lseluv );
-
-                /*** remember selection ***/
-                g3durm_uvmap_pickUVs  ( /*lui->uvurm*/
-                                        lui->gui->urm, 
-                                        lui->gui->sce,
-                                        curmap,
-                                        lselold,
-                                        lselnew,
-                                        VIEWVERTEXUV,
-                                        REDRAWVIEW |
-                                        REDRAWUVMAPEDITOR );
             }
         }
     }
@@ -430,7 +446,7 @@ void common_l3dui_moveForward ( L3DUI *lui,
                                            int32_t           xold ) {
     lui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
 
-    if ( lui->cam.ortho.z < 0.0001f ) lui->cam.ortho.z = 0.0001f;
+    if ( lui->cam.ortho.z < 0.00001f ) lui->cam.ortho.z = 0.00001f;
 
     lui->cam.ortho.x = lui->cam.ortho.z;
     lui->cam.ortho.y = lui->cam.ortho.z;

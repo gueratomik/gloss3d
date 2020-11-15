@@ -36,6 +36,9 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
     uint32_t totalVertexCount = 0x00;
     G3DMORPHERMESHPOSE *mpose;
+    char mposename[0x100] = { 0 };
+
+    if ( chunkEnd == ftell ( fsrc ) ) return;
 
     g3dimportdata_incrementIndentLevel ( gid );
 
@@ -49,28 +52,32 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_MORPHER_MESHPOSES : {
             } break;
 
-            case SIG_OBJECT_MORPHER_MESHPOSE_ENTRY : {
-            } break;
-
             case SIG_OBJECT_MORPHER_VERTEX_COUNT : {
-
                 g3dimport_freadl ( &totalVertexCount, fsrc );
             } break;
 
+            case SIG_OBJECT_MORPHER_MESHPOSE_ENTRY : {
+            } break;
+
             case SIG_OBJECT_MORPHER_MESHPOSE_NAME : {
+                memset ( mposename, 0x00, sizeof ( mposename ) );
 
-                char name[0x100] = { 0 };
+                g3dimport_fread ( mposename, chunkSize, 0x01, fsrc );
+            } break;
 
-                g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+            case SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID : {
+                uint32_t slotID = 0x00;
 
-                mpose = g3dmorphermeshpose_new ( totalVertexCount, name );
+                g3dimport_freadl ( &slotID, fsrc );
+
+                mpose = g3dmorphermeshpose_new ( totalVertexCount, mposename );
 
                 /*** Note: directly using g3dmorpher_addMeshPose() instead ***/
                 /*** of g3dmorpher_createMeshPose prevents us from having ***/
                 /*** multiple realloc calls when adding the vertices ***/
                 g3dmorpher_addMeshPose ( mpr, 
                                          mpose,
-                                         g3dmorpher_getAvailableSlot ( mpr ) );
+                                         slotID );
             } break;
 
             case SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY : {

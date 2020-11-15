@@ -54,6 +54,8 @@
 #include <xpm/bucket.xpm>
 #include <xpm/eraser.xpm>
 #include <xpm/unselectarea.xpm>
+#include <xpm/saveimageas.xpm>
+#include <xpm/saveimage.xpm>
 
 /******************************************************************************/
 static void setSquareSelectorCbk ( GtkWidget *widget, 
@@ -88,7 +90,7 @@ static void setRandomSelectorCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_saveasCbk ( GtkWidget *widget, 
+void l3dui_saveimageasCbk ( GtkWidget *widget, 
                                   gpointer   user_data ) {
     L3DUI *lui = ( L3DUI * ) user_data;
     G3DUI *gui = ( G3DUI * ) lui->gui;
@@ -119,7 +121,7 @@ void l3dui_saveasCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_saveCbk ( GtkWidget *widget, 
+void l3dui_saveimageCbk ( GtkWidget *widget, 
                                 gpointer   user_data ) {
     L3DUI *lui = ( L3DUI * ) user_data;
     G3DUI *gui = ( G3DUI * ) lui->gui;
@@ -204,11 +206,19 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_SAVEFILEAS, saveas_xpm, l3dui_saveasCbk   );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILEAS, saveas_xpm, g3dui_saveascbk   );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_SAVEFILE  , save_xpm  , l3dui_saveCbk );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILE  , save_xpm  , g3dui_savefilecbk );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, lui, MENU_SAVEIMAGEAS, saveimageas_xpm, l3dui_saveimageasCbk   );
+
+   /********************************/
+
+    addToolBarPushButton   ( bar, lui, MENU_SAVEIMAGE, saveimage_xpm, l3dui_saveimageCbk   );
 
    /********************************/
 

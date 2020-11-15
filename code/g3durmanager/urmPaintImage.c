@@ -117,9 +117,13 @@ void g3durm_image_paint ( G3DURMANAGER *urm,
                           int32_t       x2,
                           int32_t       y2,
                           uint32_t      return_flags ) {
-    URMPAINTIMAGE *pim = urmpaintimage_new ( img, bufimg, x1, y1, x2, y2 );
+    if ( ( x1 != x2 ) &&
+         ( y1 != y2 ) ) {
+        URMPAINTIMAGE *pim = urmpaintimage_new ( img, bufimg, x1, y1, 
+                                                              x2, y2 );
 
-    g3durmanager_push ( urm, paintImage_undo,
-                             paintImage_redo,
-                             paintImage_free, pim, return_flags );
+        g3durmanager_push ( urm, paintImage_undo,
+                                 paintImage_redo,
+                                 paintImage_free, pim, return_flags );
+    }
 }

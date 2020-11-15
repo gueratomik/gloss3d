@@ -492,6 +492,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             memcpy ( sce->csr.matrix, 
                                      obj->wmatrix, sizeof ( double ) * 0x10 );
 
+                            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+
                             while ( ltmpver ) {
                                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                                 G3DMORPHERVERTEXPOSE *vpose;

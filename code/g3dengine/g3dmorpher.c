@@ -242,7 +242,7 @@ void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
 /* corrupt the undo redo stack I believe */
 void g3dmorpher_optimize ( G3DMORPHER *mpr ) {
     LIST *ltmpver = mpr->lver;
-    
+
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
         LIST *ltmpvernext = ltmpver->next;
@@ -453,15 +453,21 @@ static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
 /******************************************************************************/
 static VERTEXPOSEEXTENSION *g3dmorpher_addVertex ( G3DMORPHER *mpr,
                                                    G3DVERTEX  *ver ) {
+    VERTEXPOSEEXTENSION *vxt =  g3dvertex_getExtension ( ver, 
+                                                         mpr->extensionName );
     LIST *ltmpmpose = mpr->lmpose;
-    VERTEXPOSEEXTENSION *vxt = vertexposeextension_new ( mpr->extensionName, 
-                                                         mpr->verID++ );
+
+
+    if ( vxt == NULL ) {
+        vxt = vertexposeextension_new ( mpr->extensionName, 
+                                        mpr->verID++ );
+
+        g3dvertex_addExtension ( ver, vxt );
+    }
 
     list_insert ( &mpr->lver, ver );
 
     mpr->nbver++;
-
-    g3dvertex_addExtension ( ver, vxt );
 
     /*** backup position for later reseting if needed ***/
     vxt->resetPosition.x = ver->pos.x;
@@ -804,10 +810,14 @@ void g3dmorpher_removeVertexPose ( G3DMORPHER         *mpr,
                 mpose->nbver--;
 
                 vxt->nbpose--;
-            }
 
-            if ( vxt->nbpose == 0x00 ) {
-                g3dmorpher_removeVertex ( mpr, ver );
+                /** this musted be nested in the above if statement ***/
+                /** otherwise the vertex could be removed multiple times ***/
+                /** when we scan mutiple poses and thus mpr->nbver would be ***/
+                /** decremented more than needed **/
+                if ( vxt->nbpose == 0x00 ) {
+                    g3dmorpher_removeVertex ( mpr, ver );
+                }
             }
         }
     }

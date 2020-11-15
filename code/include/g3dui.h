@@ -516,6 +516,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_SAVEFILEAS  "Save as"
 #define MENU_EXPORTSCENE "_Export"
 #define MENU_EXIT        "Exit"
+#define MENU_SAVEIMAGE    "Save image"
+#define MENU_SAVEIMAGEAS  "Save image as"
 
 #define MENU_UNDO                 "Undo"
 #define MENU_REDO                 "Redo"

@@ -42,6 +42,18 @@ static uint32_t g3dexportmorpher_meshPoseName ( G3DEXPORTDATA      *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportmorpher_meshPoseSlotID ( G3DEXPORTDATA      *ged,
+                                                  G3DMORPHERMESHPOSE *mpose,
+                                                  uint32_t            flags,
+                                                  FILE               *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &mpose->slotID, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
                                                     G3DMORPHERMESHPOSE *mpose,
                                                     uint32_t            flags,
@@ -82,6 +94,13 @@ static uint32_t g3dexportmorpher_meshPoseEntry ( G3DEXPORTDATA      *ged,
 
     size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
                                    g3dexportmorpher_meshPoseName,
+                                   ged,
+                                   mpose,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID,
+                                   g3dexportmorpher_meshPoseSlotID,
                                    ged,
                                    mpose,
                                    0xFFFFFFFF,
