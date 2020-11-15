@@ -104,7 +104,6 @@ uint32_t g3durmanager_undo ( G3DURMANAGER *urm,
                              uint64_t      engine_flags ) {
     G3DURITEM *uri = urm->lcurprocs->data;
 
-
     if ( uri == NULL ) {
         fprintf ( stderr, "g3durmanager_undo: hit the end of the list\n" );
     } else {

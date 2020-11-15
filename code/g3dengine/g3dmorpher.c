@@ -335,8 +335,8 @@ void g3dmorpher_setVertexResetPosition ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorphermeshpose_realloc ( G3DMORPHERMESHPOSE *mpose,
-                                         uint32_t            maxVerCount ) {
+void g3dmorphermeshpose_realloc ( G3DMORPHERMESHPOSE *mpose,
+                                  uint32_t            maxVerCount ) {
     uint32_t nbnewver = maxVerCount - mpose->maxVerCount;
 
     mpose->vpose = realloc ( mpose->vpose, 
@@ -593,9 +593,6 @@ void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr,
 
     g3dmorpher_takeSlot ( mpr, mpose->slotID );
 
-    /*** adjust the array. This is useful when undoing a deletion e.g ***/
-    g3dmorphermeshpose_realloc ( mpose, mpr->verID );
-
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
         LIST *ltmpver = mes->lver;
@@ -766,6 +763,14 @@ void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
     if ( mpose ) {
         if ( vxt == NULL ) {
             vxt = g3dmorpher_addVertex ( mpr, ver );
+        } else {
+            /*** Vertex always keep their extension, but have been removed ***/
+            /*** from the Morpher. Add it back if it belongs to no pose ***/
+            if ( vxt->nbpose == 0x00 ) {
+                list_insert ( &mpr->lver, ver );
+
+                mpr->nbver++;
+            }
         }
 
         vxt->nbpose++;

@@ -143,6 +143,8 @@ void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
 void g3dmorpher_optimize ( G3DMORPHER *mpr );
 void g3dmorpher_restore ( G3DMORPHER *mpr );
 void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose );
+void g3dmorphermeshpose_realloc ( G3DMORPHERMESHPOSE *mpose,
+                                  uint32_t            maxVerCount );
 
 #ifdef __cplusplus
 }

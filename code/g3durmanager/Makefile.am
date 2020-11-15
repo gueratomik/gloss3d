@@ -38,6 +38,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmRemoveUVMap.c \
                                urmAddMaterial.c \
                                urmAddMeshPose.c \
-                               urmAddVertexPose.c \
+                               urmSelectVertexPose.c \
+                               urmSelectMeshPose.c \
                                urmRemoveMaterial.c \
                                urmCreateFacegroup.c

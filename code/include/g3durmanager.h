@@ -772,6 +772,7 @@ void g3durm_image_paint ( G3DURMANAGER *urm,
 void g3durm_morpher_createMeshPose ( G3DURMANAGER *urm,
                                      G3DSCENE     *sce,
                                      G3DMORPHER   *mpr,
+                                     uint32_t      engine_flags,
                                      uint32_t      return_flags );
 
 /******************************************************************************/
@@ -779,14 +780,35 @@ void g3durm_morpher_removeMeshPose ( G3DURMANAGER       *urm,
                                      G3DSCENE           *sce,
                                      G3DMORPHER         *mpr,
                                      G3DMORPHERMESHPOSE *mpose,
+                                     uint32_t            engine_flags,
                                      uint32_t            return_flags );
 
 /******************************************************************************/
-void g3durm_morpher_addVertexPose ( G3DURMANAGER       *urm,
-                                    G3DSCENE           *sce,
-                                    G3DMORPHER         *mpr,
-                                    G3DMORPHERMESHPOSE *mpose,
-                                    LIST               *lver,
-                                    uint32_t            return_flags );
+void g3durm_morpher_selectVertexPose ( G3DURMANAGER       *urm,
+                                       G3DSCENE           *sce,
+                                       G3DMORPHER         *mpr,
+                                       G3DMORPHERMESHPOSE *mpose,
+                                       LIST               *lmprver,
+                                       LIST               *lselold,
+                                       LIST               *lselnew,
+                                       uint32_t            return_flags );
+
+/******************************************************************************/
+void g3durm_morpher_moveVertexPose ( G3DURMANAGER       *urm,
+                                     G3DSCENE           *sce,
+                                     G3DMORPHER         *mpr,
+                                     G3DMORPHERMESHPOSE *mpose,
+                                     LIST               *lver,
+                                     G3DVECTOR          *oldpos,
+                                     G3DVECTOR          *newpos,
+                                     uint32_t            return_flags );
+
+/******************************************************************************/
+void g3durm_morpher_selectMeshPose ( G3DURMANAGER       *urm,
+                                     G3DSCENE           *sce,
+                                     G3DMORPHER         *mpr,
+                                     G3DMORPHERMESHPOSE *newmpose,
+                                     uint32_t            engine_flags,
+                                     uint32_t            return_flags );
 
 #endif

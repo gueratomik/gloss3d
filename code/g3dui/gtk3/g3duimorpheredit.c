@@ -153,6 +153,7 @@ static void createMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
             g3durm_morpher_createMeshPose ( mpd->gui->urm,
                                             mpd->gui->sce,
                                             mpr,
+                                            mpd->gui->engine_flags,
                                             REDRAWVIEW | REDRAWCURRENTOBJECT );
         }
     }
@@ -176,6 +177,7 @@ static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
                                                 mpd->gui->sce,
                                                 mpr,
                                                 mpr->selmpose,
+                                                mpd->gui->engine_flags,
                                                 REDRAWVIEW | 
                                                 REDRAWCURRENTOBJECT );
             }
@@ -227,6 +229,9 @@ static void selectMeshPoseVerticesCbk  ( GtkWidget *widget,
 
             if ( mpr->selmpose ) {
                 g3dmorpher_selectMeshVerticesFromPose ( mpr, mpr->selmpose );
+
+                g3dscene_updatePivot ( mpd->gui->sce, 
+                                       mpd->gui->engine_flags );
             }
         }
     }
@@ -252,13 +257,19 @@ static gboolean selectMeshPoseCbk ( GtkWidget *widget,
                                     GdkEvent  *event,
                                     gpointer   user_data ) {
     MESHPOSEDATA *fgd = ( MESHPOSEDATA * ) user_data;
+    G3DUI *gui = fgd->mpd->gui;
 
     if ( fgd->mpd->gui->lock ) return;
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS :
-            g3dmorpher_selectMeshPose ( fgd->mpr,
-                                        fgd->mpose );
+
+            g3durm_morpher_selectMeshPose ( gui->urm,
+                                            gui->sce,
+                                            fgd->mpr,
+                                            fgd->mpose,
+                                            gui->engine_flags,
+                                            REDRAWVIEW | REDRAWCURRENTOBJECT );
         break;
 
 /* can't get it to work :(
@@ -531,13 +542,13 @@ static void createFunctionsPanel ( GtkWidget *parent,
     createPushButton ( pan, 
                        gui,
                       "Optimize",
-                       216, 0,
+                       0, 4,
                        64 , 18, optimizeCbk );
 
     createPushButton ( pan, 
                        gui,
                       "Restore",
-                       216, 24,
+                       0, 28,
                        64 , 18, restoreCbk );
 }
 

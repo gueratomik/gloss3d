@@ -112,6 +112,8 @@ static void addMeshPose_undo ( G3DURMANAGER *urm,
 
     g3dmorpher_removeMeshPose ( amp->mpr, 
                                 amp->mpose );
+
+    g3dscene_updatePivot ( amp->sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -127,18 +129,26 @@ static void addMeshPose_redo ( G3DURMANAGER *urm,
                  amp->vpose, ssize * amp->maxVerCount );
     }
 
+    /*** adjust the array in case it grew in the meantime ***/
+    g3dmorphermeshpose_realloc ( amp->mpose, amp->mpr->verID );
+
     g3dmorpher_addMeshPose ( amp->mpr, 
                              amp->mpose,
                              amp->mpose->slotID );
+
+    g3dscene_updatePivot ( amp->sce, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_morpher_createMeshPose ( G3DURMANAGER *urm,
                                      G3DSCENE     *sce,
                                      G3DMORPHER   *mpr,
+                                     uint32_t      engine_flags,
                                      uint32_t      return_flags ) {
     G3DMORPHERMESHPOSE *mpose = g3dmorpher_createMeshPose ( mpr, "Pose" );
     URMADDMESHPOSE *amp;
+
+    g3dscene_updatePivot ( sce, engine_flags );
 
     amp = urmaddmeshpose_new ( sce, mpr, mpose );
 
@@ -152,12 +162,15 @@ void g3durm_morpher_removeMeshPose ( G3DURMANAGER       *urm,
                                      G3DSCENE           *sce,
                                      G3DMORPHER         *mpr,
                                      G3DMORPHERMESHPOSE *mpose,
+                                     uint32_t            engine_flags,
                                      uint32_t            return_flags ) {
     URMADDMESHPOSE *amp;
 
     amp = urmaddmeshpose_new ( sce, mpr, mpose );
 
     g3dmorpher_removeMeshPose ( mpr, mpose );
+
+    g3dscene_updatePivot ( sce, engine_flags );
 
     /*** note the reversed order of undo / redo callbacks & the free() func ***/
     g3durmanager_push ( urm, addMeshPose_redo,

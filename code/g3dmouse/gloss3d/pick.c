@@ -960,13 +960,15 @@ int pick_tool ( G3DMOUSETOOL *mou,
         	    }
 
         	    if ( obj ) {
-                    if ( obj->type & MORPHER ) {
+                    if ( obj->type == G3DMORPHERTYPE ) {
                 	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
                         if ( obj->parent->type == G3DMESHTYPE ) {
                             G3DMESH *mes = obj->parent;
 
         		            if ( engine_flags & VIEWVERTEX ) {
+                                LIST *lmprver = list_copy ( mpr->lver );
+
                 	            lselold = list_copy ( mes->lselver );
 
                 	            pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
@@ -974,14 +976,15 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	            lselnew = list_copy ( mes->lselver );
 
                 	            /*** remember selection ***/
-                                if ( mes->lselver ) {
-                	                g3durm_mesh_pickVertices  ( urm, 
-                                                                sce, 
-                                                                mes,
-                                                                lselold,
-                                                                lselnew,
-                                                                engine_flags,
-                                                                REDRAWVIEW );
+                                if ( lselold || lselnew ) {
+                                    g3durm_morpher_selectVertexPose ( urm,
+                                                                      sce,
+                                                                      mpr,
+                                                                      mpr->selmpose,
+                                                                      lmprver,
+                                                                      lselold,
+                                                                      lselnew,
+                                                                      REDRAWVIEW );
                                 }
                 	        }
                         }
@@ -997,7 +1000,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                 	        lselnew = list_copy ( spl->curve->lselpt );
 
-                            if ( spl->curve->lselpt ) {
+                            if ( lselold || lselnew ) {
                                 g3durm_spline_pickPoints ( urm,
                                                            sce,
                                                            spl,
@@ -1021,7 +1024,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	        lselnew = list_copy ( mes->lselver );
 
                 	        /*** remember selection ***/
-                            if ( mes->lselver ) {
+                            if ( lselold || lselnew ) {
                 	            g3durm_mesh_pickVertices  ( urm, 
                                                             sce, 
                                                             mes,
@@ -1056,7 +1059,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	        lselnew = list_copy ( mes->lselfac );
 
                 	        /*** remember selection ***/
-                            if ( mes->lselfac ) {
+                            if ( lselold || lselnew ) {
                 	            g3durm_mesh_pickFaces  ( urm, 
                                                          sce, 
                                                          mes,

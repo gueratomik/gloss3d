@@ -92,6 +92,8 @@ void common_g3duicoordinatesedit_posCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         g3dui_redrawGLViews ( gui );
     }
+
+    g3dscene_updatePivot ( sce, gui->engine_flags );
 }
 
 /******************************************************************************/
@@ -128,6 +130,8 @@ void common_g3duicoordinatesedit_rotCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         g3dui_redrawGLViews ( gui );
     }
+
+    g3dscene_updatePivot ( sce, gui->engine_flags );
 }
 
 /******************************************************************************/
@@ -162,4 +166,6 @@ void common_g3duicoordinatesedit_scaCbk ( G3DUI *gui, G3DUIAXIS axis,
 
         g3dui_redrawGLViews ( gui );
     }
+
+    g3dscene_updatePivot ( sce, gui->engine_flags );
 }

@@ -468,24 +468,24 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                                                     .radius = PICKMINRADIUS };
 
                             pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                        } else {
+                            if ( lver ) {
+                                newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
+                                                                               NULL, 
+                                                                               lver );
+
+
+                                g3durm_morpher_moveVertices ( urm,
+                                                              mpr,
+                                                              mpr->selmpose,
+                                                              lver,
+                                                              oldpos, 
+                                                              newpos, 
+                                                              REDRAWVIEW );
+                            }
                         }
 
-                        if ( lver ) {
-                            newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
-                                                                           NULL, 
-                                                                           lver );
-
-
-                            g3durm_morpher_moveVertices ( urm,
-                                                          mpr,
-                                                          mpr->selmpose,
-                                                          lver,
-                                                          oldpos, 
-                                                          newpos, 
-                                                          REDRAWVIEW );
-
-                            list_free ( &lver, NULL );
-                        }
+                        list_free ( &lver, NULL );
 
                         oldpos = newpos = NULL;
                     }

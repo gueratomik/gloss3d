@@ -30,96 +30,89 @@
 #include <config.h>
 #include <g3durmanager.h>
 
-typedef struct _URMADDVERTEXPOSE {
+typedef struct _URMSELECTMESHPOSE {
     G3DSCENE           *sce;
     G3DMORPHER         *mpr;
-    G3DMORPHERMESHPOSE *mpose;
-    LIST              *lver;
-} URMADDVERTEXPOSE;
+    G3DMORPHERMESHPOSE *oldmpose;
+    G3DMORPHERMESHPOSE *newmpose;
+} URMSELECTMESHPOSE;
 
 /******************************************************************************/
-static URMADDVERTEXPOSE *urmaddvertexpose_new ( G3DSCENE           *sce,
-                                                G3DMORPHER         *mpr,
-                                                G3DMORPHERMESHPOSE *mpose,
-                                                LIST               *lver ) {
-    uint32_t structsize = sizeof ( URMADDVERTEXPOSE );
+static URMSELECTMESHPOSE *urmselectmeshpose_new ( G3DSCENE      *sce,
+                                                  G3DMORPHER    *mpr,
+                                             G3DMORPHERMESHPOSE *newmpose ) {
+    uint32_t ssize = sizeof ( URMSELECTMESHPOSE );
 
-    URMADDVERTEXPOSE *avp = ( URMADDVERTEXPOSE * ) calloc ( 0x01, structsize );
+    URMSELECTMESHPOSE *smp = ( URMSELECTMESHPOSE * ) calloc ( 0x01, ssize );
 
-    if ( avp == NULL ) {
+    if ( smp == NULL ) {
         fprintf ( stderr, "%s: memory allocation falied\n", __func__ );
 
         return NULL;
     }
 
-    avp->sce   = sce;
-    avp->mpr   = mpr;
-    avp->mpose = mpose;
-    avp->lver  = list_copy  ( lver );
+    smp->sce      = sce;
+    smp->mpr      = mpr;
+    smp->oldmpose = mpr->selmpose;
+    smp->newmpose = newmpose;
 
-    return avp;
+    return smp;
 }
 
 /******************************************************************************/
-static void urmaddvertexpose_free ( URMADDVERTEXPOSE *avp ) {
-    free ( avp );
+static void urmselectmeshpose_free ( URMSELECTMESHPOSE *smp ) {
+    free ( smp );
 }
 
 /******************************************************************************/
-static void addVertexPose_free ( void *data, uint32_t commit ) {
-    URMADDVERTEXPOSE *avp = ( URMADDVERTEXPOSE * ) data;
+static void selectMeshPose_free ( void *data, uint32_t commit ) {
+    URMSELECTMESHPOSE *smp = ( URMSELECTMESHPOSE * ) data;
 
-    if ( commit ) {
-        list_free ( &avp->lver, NULL );
+    urmselectmeshpose_free ( smp );
+}
+
+/******************************************************************************/
+static void selectMeshPose_undo ( G3DURMANAGER *urm, 
+                                    void         *data, 
+                                    uint64_t      engine_flags ) {
+    URMSELECTMESHPOSE *smp = ( URMSELECTMESHPOSE * ) data;
+
+    g3dmorpher_selectMeshPose ( smp->mpr, smp->oldmpose );
+
+    g3dscene_updatePivot ( smp->sce, engine_flags );
+}
+
+/******************************************************************************/
+static void selectMeshPose_redo ( G3DURMANAGER *urm, 
+                                    void         *data, 
+                                    uint64_t      engine_flags ) {
+    URMSELECTMESHPOSE *smp = ( URMSELECTMESHPOSE * ) data;
+
+    g3dmorpher_selectMeshPose ( smp->mpr, smp->newmpose );
+
+    g3dscene_updatePivot ( smp->sce, engine_flags );
+}
+
+/******************************************************************************/
+void g3durm_morpher_selectMeshPose ( G3DURMANAGER       *urm,
+                                     G3DSCENE           *sce,
+                                     G3DMORPHER         *mpr,
+                                     G3DMORPHERMESHPOSE *newmpose,
+                                     uint32_t            engine_flags,
+                                     uint32_t            return_flags ) {
+    URMSELECTMESHPOSE *smp;
+
+    if ( newmpose ) {
+        smp = urmselectmeshpose_new ( sce, 
+                                      mpr,
+                                      newmpose );
+
+        g3dmorpher_selectMeshPose ( mpr, newmpose );
+
+        g3dscene_updatePivot ( sce, engine_flags );
+
+        g3durmanager_push ( urm, selectMeshPose_undo,
+                                 selectMeshPose_redo,
+                                 selectMeshPose_free, smp, return_flags );
     }
-
-    urmaddvertexpose_free ( avp );
-}
-
-/******************************************************************************/
-static void addVertexPose_undo ( G3DURMANAGER *urm, 
-                                 void         *data, 
-                                 uint64_t      engine_flags ) {
-    URMADDVERTEXPOSE *avp = ( URMADDVERTEXPOSE * ) data;
-    LIST *ltmpver = avp->lver;
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-        g3dmorpher_removeVertexPose ( avp->mpr, ver, avp->mpose );
-
-        ltmpver = ltmpver->next;
-    }
-}
-
-/******************************************************************************/
-static void addVertexPose_redo ( G3DURMANAGER *urm, 
-                                 void         *data, 
-                                 uint64_t      engine_flags ) {
-    URMADDVERTEXPOSE *avp = ( URMADDVERTEXPOSE * ) data;
-    LIST *ltmpver = avp->lver;
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-        g3dmorpher_addVertexPose ( avp->mpr, ver, avp->mpose, &ver->pos );
-
-        ltmpver = ltmpver->next;
-    }
-}
-
-/******************************************************************************/
-void g3durm_morpher_addVertexPose ( G3DURMANAGER       *urm,
-                                    G3DSCENE           *sce,
-                                    G3DMORPHER         *mpr,
-                                    G3DMORPHERMESHPOSE *mpose,
-                                    LIST               *lver,
-                                    uint32_t            return_flags ) {
-    URMADDVERTEXPOSE *avp;
-
-    avp = urmaddvertexpose_new ( sce, mpr, mpose, lver );
-
-    g3durmanager_push ( urm, addVertexPose_undo,
-                             addVertexPose_redo,
-                             addVertexPose_free, avp, return_flags );
 }
