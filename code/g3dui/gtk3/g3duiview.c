@@ -507,6 +507,16 @@ static void createVertexModeSplineMenu ( GtkWidget *widget, G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static void createVertexModeMorpherMenu ( GtkWidget *widget, G3DUI *gui ) {
+    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
+    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODEMORPHERMENUNAME );
+    G3DUIVIEW *view = &gvw->view;
+
+    list_insert ( &gui->lVertexModeMorpherMenu, menu );
+    list_insert ( &view->lmenu  , menu );
+}
+
+/******************************************************************************/
 static void createVertexModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
     GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
     GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODEMESHMENUNAME );
@@ -601,6 +611,10 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
 
                 if ( selObj->type == G3DMESHTYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMESHMENUNAME ) == 0x00 ) curmenu = menu;
+                }
+
+                if ( selObj->type == G3DMORPHERTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMORPHERMENUNAME ) == 0x00 ) curmenu = menu;
                 }
             }
 
@@ -1237,12 +1251,13 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     /*gdk_window_add_filter ( gtk_widget_get_window ( area ), gtk_area_filter, gui );*/
 
-    createObjectMenu           ( area, gui );
-    createVertexModeSplineMenu ( area, gui );
-    createVertexModeMeshMenu   ( area, gui );
-    createEdgeModeMeshMenu     ( area, gui );
-    createFaceModeMeshMenu     ( area, gui );
-    createSculptModeMeshMenu   ( area, gui );
+    createObjectMenu            ( area, gui );
+    createVertexModeSplineMenu  ( area, gui );
+    createVertexModeMorpherMenu ( area, gui );
+    createVertexModeMeshMenu    ( area, gui );
+    createEdgeModeMeshMenu      ( area, gui );
+    createFaceModeMeshMenu      ( area, gui );
+    createSculptModeMeshMenu    ( area, gui );
 
     g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), gui );
     g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (gtk3_initGL ), gui );

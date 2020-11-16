@@ -616,11 +616,12 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 /******************************************************************************/
 void common_g3dui_dispatchGLMenuButton ( G3DUI *gui, G3DMOUSETOOL *mou, 
                                                      uint32_t tool_flags ) {
-    uint32_t vertexModeSplineFlags = ( VERTEXMODETOOL | SPLINETOOL ),
-             vertexModeMeshFlags   = ( VERTEXMODETOOL | MESHTOOL   ),
-             edgeModeMeshFlags     = ( EDGEMODETOOL   | MESHTOOL   ),
-             faceModeMeshFlags     = ( FACEMODETOOL   | MESHTOOL   ),
-             sculptModeMeshFlags   = ( SCULPTMODETOOL | MESHTOOL   );
+    uint32_t vertexModeSplineFlags  = ( VERTEXMODETOOL | SPLINETOOL  ),
+             vertexModeMeshFlags    = ( VERTEXMODETOOL | MESHTOOL    ),
+             edgeModeMeshFlags      = ( EDGEMODETOOL   | MESHTOOL    ),
+             faceModeMeshFlags      = ( FACEMODETOOL   | MESHTOOL    ),
+             sculptModeMeshFlags    = ( SCULPTMODETOOL | MESHTOOL    ),
+             vertexModeMorpherFlags = ( VERTEXMODETOOL | MORPHERTOOL );
 
 
     if ( tool_flags & ( OBJECTMODETOOL ) ) {
@@ -645,6 +646,10 @@ void common_g3dui_dispatchGLMenuButton ( G3DUI *gui, G3DMOUSETOOL *mou,
 
     if ( ( tool_flags & vertexModeSplineFlags ) == vertexModeSplineFlags ) {
         addMenuListButton ( gui, gui->lVertexModeSplineMenu, mou );
+    }
+
+    if ( ( tool_flags & vertexModeMorpherFlags ) == vertexModeMorpherFlags ) {
+        addMenuListButton ( gui, gui->lVertexModeMorpherMenu, mou );
     }
 }
 
@@ -839,6 +844,14 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
                                 g3dmousetoolrevertspline_new ( ),
                                 VERTEXMODETOOL |
                                 SPLINETOOL     |
+                                GLMENUTOOL );
+
+    /********************************/
+
+    common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolremovevertexpose_new ( ),
+                                VERTEXMODETOOL |
+                                MORPHERTOOL     |
                                 GLMENUTOOL );
 
     /********************************/

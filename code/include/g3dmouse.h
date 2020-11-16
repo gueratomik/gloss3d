@@ -58,6 +58,7 @@
 #define CUTMESHTOOL                  "Cutter"
 #define CREATEVERTEXTOOL             "Create Vertex (ctrl+click)"
 #define REVERTSPLINETOOL             "Revert Spline"
+#define REMOVEVERTEXPOSETOOL         "Remove from pose"
 #define BRIDGETOOL                   "Bridge"
 #define PAINTWEIGHTTOOL              "Paint Weight"
 #define UNTRIANGULATETOOL            "Untriangulate"
@@ -199,7 +200,8 @@ typedef struct _G3DMOUSETOOL {
   G3DMOUSETOOLSCALE,
   G3DMOUSETOOLSCALEUV,
   G3DMOUSETOOLROTATE,
-  G3DMOUSETOOLROTATEUV;
+  G3DMOUSETOOLROTATEUV,
+  G3DMOUSETOOLREMOVEVERTEXPOSE;
 
 /******************************************************************************/
 typedef struct _G3DMOUSETOOLBRIDGE {

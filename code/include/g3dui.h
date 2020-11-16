@@ -128,6 +128,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define SCULPTMODEMESHMENUNAME  "Sculpt_Mode_Mesh_Menu"
 
 #define VERTEXMODESPLINEMENUNAME  "Vertex_Mode_Spline_Menu"
+#define VERTEXMODEMORPHERMENUNAME "Vertex_Mode_Mopher_Menu"
 
 #define OPTIONMENUNAME  "Option_Menu"
 #define SHADINGMENUNAME "Shading_Menu"
@@ -196,6 +197,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define SCULPTMODETOOL ( 1 << 5 )
 #define MESHTOOL       ( 1 << 6 )
 #define SPLINETOOL     ( 1 << 7 )
+#define MORPHERTOOL    ( 1 << 8 )
 
 #define EDITGLVIEWMODE   "Display Mode"
 #define EDITGLVIEWCAMERA "Use camera"
@@ -692,6 +694,8 @@ typedef struct _G3DUI {
     LIST         *lSculptModeMeshMenu;
     /* context menu for splines */
     LIST         *lVertexModeSplineMenu;
+    /* context menu for morphers */
+    LIST         *lVertexModeMorpherMenu;
     /**********************/
     LIST         *lmtools; /*** list of mousetools widget ***/
     LIST         *lview;

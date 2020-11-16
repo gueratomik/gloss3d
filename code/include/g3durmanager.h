@@ -811,4 +811,12 @@ void g3durm_morpher_selectMeshPose ( G3DURMANAGER       *urm,
                                      uint32_t            engine_flags,
                                      uint32_t            return_flags );
 
+/******************************************************************************/
+void g3durm_morpher_removeVertexPose ( G3DURMANAGER       *urm,
+                                       G3DSCENE           *sce,
+                                       G3DMORPHER         *mpr,
+                                       G3DMORPHERMESHPOSE *mpose,
+                                       uint32_t            engine_flags,
+                                       uint32_t            return_flags );
+
 #endif
