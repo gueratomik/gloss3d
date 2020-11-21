@@ -576,7 +576,7 @@ typedef struct _G3DPROCEDURALNOISE {
     G3DPROCEDURAL procedural;
     G3DCOLOR color1;
     G3DCOLOR color2;
-    float (*gradients)[2];
+    G3DVECTOR *gradients;
     uint32_t nbGradientX;
     uint32_t nbGradientY;
 } G3DPROCEDURALNOISE;
