@@ -2149,15 +2149,15 @@ static uint32_t proceduralnoise_blocksize ( G3DPROCEDURAL *proc ) {
 static void proceduralnoise_writeblock ( G3DPROCEDURALNOISE *proc, 
                                          FILE               *fdst ) {
 
-    writef ( &proc->color1.r, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color1.g, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color1.b, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color1.a, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x00].r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x00].g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x00].b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x00].a, sizeof ( uint32_t ), 0x01, fdst );
 
-    writef ( &proc->color2.r, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color2.g, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color2.b, sizeof ( uint32_t ), 0x01, fdst );
-    writef ( &proc->color2.a, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x01].r, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x01].g, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x01].b, sizeof ( uint32_t ), 0x01, fdst );
+    writef ( &proc->colorPair[0x00][0x01].a, sizeof ( uint32_t ), 0x01, fdst );
 }
 
 /******************************************************************************/

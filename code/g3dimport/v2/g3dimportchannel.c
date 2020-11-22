@@ -90,10 +90,75 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dchannel_enableProcedural ( gid->currentChannel );
             } break;
 
-            case SIG_CHANNEL_PROCEDURAL_CHESS : {
-                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
+            case SIG_CHANNEL_PROCEDURAL_NOISE : {
+                G3DPROCEDURAL *proc = g3dproceduralnoise_new ( );
 
                 g3dchannel_setProcedural ( gid->currentChannel, proc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIR_COUNT : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+
+                g3dimport_freadl ( &noise->nbColors, fsrc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+
+                g3dimport_freadl ( &noise->nbOctaves, fsrc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+
+                g3dimport_freadl ( &noise->interpolation, fsrc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+                uint32_t nbGradientX,
+                         nbGradientY;
+
+                g3dimport_freadl ( &nbGradientX, fsrc );
+                g3dimport_freadl ( &nbGradientY, fsrc );
+
+                /*** this means it will be called twice, once during ***/
+                /*** texture creation, and once here ***/
+                g3dproceduralnoise_buildGradients ( noise, 
+                                                    nbGradientX, 
+                                                    nbGradientY );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIRS : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+                uint32_t i;
+
+                for ( i = 0x00; i < noise->nbColors; i++ ) {
+                    g3dimport_freadf ( &noise->colorPair[i][0x00].r, fsrc );
+                    g3dimport_freadf ( &noise->colorPair[i][0x00].g, fsrc ); 
+                    g3dimport_freadf ( &noise->colorPair[i][0x00].b, fsrc ); 
+                    g3dimport_freadf ( &noise->colorPair[i][0x00].a, fsrc );
+
+                    g3dimport_freadf ( &noise->colorPair[i][0x01].r, fsrc );
+                    g3dimport_freadf ( &noise->colorPair[i][0x01].g, fsrc ); 
+                    g3dimport_freadf ( &noise->colorPair[i][0x01].b, fsrc ); 
+                    g3dimport_freadf ( &noise->colorPair[i][0x01].a, fsrc ); 
+                }
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_NOISE_THRESHOLDS : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
+                uint32_t i;
+
+                for ( i = 0x00; i < noise->nbColors; i++ ) {
+                     g3dimport_freadf ( &noise->threshold[i], fsrc );
+                }
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY : {

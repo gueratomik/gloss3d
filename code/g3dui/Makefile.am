@@ -92,6 +92,7 @@ if HAVE_GTK3
                             gtk3/g3duiplaneedit.c \
                             gtk3/g3duiproceduralbrickedit.c \
                             gtk3/g3duiproceduralchessedit.c \
+                            gtk3/g3duiproceduralnoiseedit.c \
                             gtk3/g3duiquad.c \
                             gtk3/g3duirenderedit.c \
                             gtk3/g3duirenderprocess.c \

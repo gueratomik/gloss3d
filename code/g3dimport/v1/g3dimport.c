@@ -345,15 +345,15 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
 
 
-                readf ( &noise->color1.r, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color1.g, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color1.b, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color1.a, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x00].r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x00].g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x00].b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x00].a, sizeof ( uint32_t ), 0x01, fsrc );
 
-                readf ( &noise->color2.r, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color2.g, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color2.b, sizeof ( uint32_t ), 0x01, fsrc );
-                readf ( &noise->color2.a, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x01].r, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x01].g, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x01].b, sizeof ( uint32_t ), 0x01, fsrc );
+                readf ( &noise->colorPair[0x00][0x01].a, sizeof ( uint32_t ), 0x01, fsrc );
             } break;
 
             case SOLIDCOLORSIG : {

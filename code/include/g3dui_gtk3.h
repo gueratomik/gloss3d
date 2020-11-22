@@ -800,6 +800,16 @@ GtkWidget* createProceduralChessEdit ( GtkWidget           *parent,
                                        gint                height,
                                        uint32_t            bindGL );
 
+GtkWidget* createProceduralNoiseEdit ( GtkWidget           *parent,
+                                       G3DUI               *gui,
+                                       G3DPROCEDURALNOISE *noise,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
 uint32_t g3dui_saveAlteredImages ( G3DUI *gui );
 uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
                                          char       *materialName,

@@ -572,13 +572,21 @@ typedef struct _G3DPROCEDURAL {
 } G3DPROCEDURAL;
 
 /******************************************************************************/
+#define MAXNOISECOLORS 0x04
+#define NOISE_INTERPOLATION_LINEAR 0x00
+#define NOISE_INTERPOLATION_FADE   0x01
+#define NOISE_INTERPOLATION_COSINE 0x02
+
 typedef struct _G3DPROCEDURALNOISE {
     G3DPROCEDURAL procedural;
-    G3DCOLOR color1;
-    G3DCOLOR color2;
-    G3DVECTOR *gradients;
-    uint32_t nbGradientX;
-    uint32_t nbGradientY;
+    G3DCOLOR      colorPair[MAXNOISECOLORS][0x02];
+    float         threshold[MAXNOISECOLORS];
+    uint32_t      nbColors;
+    uint32_t      nbOctaves;
+    uint32_t      interpolation;
+    G3DVECTOR    *gradients;
+    uint32_t      nbGradientX;
+    uint32_t      nbGradientY;
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
@@ -2867,6 +2875,8 @@ void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick,
 void g3dproceduralchess_copySettings ( G3DPROCEDURALCHESS *chess, 
                                        G3DPROCEDURALCHESS *pout );
 void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *chess, 
+                                       G3DPROCEDURALNOISE *pout );
+void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *noise, 
                                        G3DPROCEDURALNOISE *pout );
 
 /******************************************************************************/

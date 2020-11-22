@@ -30,38 +30,94 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportchannel_proceduralNoiseGeometry ( G3DEXPORTDATA *ged,
-                                                           G3DCHANNEL    *cha,
-                                                           uint32_t       flags, 
-                                                           FILE          *fdst ) {
+static uint32_t g3dexportchannel_proceduralNoiseColorPairs ( G3DEXPORTDATA *ged,
+                                                             G3DCHANNEL    *cha,
+                                                             uint32_t       flags, 
+                                                             FILE          *fdst ) {
     G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
     uint32_t size = 0x00;
+    uint32_t i;
 
+    for ( i = 0x00; i < noise->nbColors; i++ ) {
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x00].r, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x00].g, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x00].b, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x00].a, fdst );
+
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x01].r, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x01].g, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x01].b, fdst );
+        size += g3dexport_fwritef ( &noise->colorPair[i][0x01].a, fdst );
+    }
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportchannel_proceduralNoiseColors ( G3DEXPORTDATA *ged,
-                                                         G3DCHANNEL    *cha,
-                                                         uint32_t       flags, 
-                                                         FILE          *fdst ) {
+static uint32_t g3dexportchannel_proceduralNoiseThresholds ( G3DEXPORTDATA *ged,
+                                                             G3DCHANNEL    *cha,
+                                                             uint32_t       flags, 
+                                                             FILE          *fdst ) {
     G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
-    G3DCOLOR color1, color2;
+    uint32_t size = 0x00;
+    uint32_t i;
+
+    for ( i = 0x00; i < noise->nbColors; i++ ) {
+        size += g3dexport_fwritef ( &noise->threshold[i], fdst );
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportchannel_proceduralNoiseColorPairCount ( G3DEXPORTDATA *ged,
+                                                                 G3DCHANNEL    *cha,
+                                                                 uint32_t       flags, 
+                                                                 FILE          *fdst ) {
+    G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
     uint32_t size = 0x00;
 
-    g3drgba_toColor ( &noise->color1, &color1 );
-    g3drgba_toColor ( &noise->color2, &color2 );
+    size += g3dexport_fwritel ( &noise->nbColors, fdst );
 
-    size += g3dexport_fwritef ( &color1.r, fdst );
-    size += g3dexport_fwritef ( &color1.g, fdst );
-    size += g3dexport_fwritef ( &color1.b, fdst );
-    size += g3dexport_fwritef ( &color1.a, fdst );
+    return size;
+}
 
-    size += g3dexport_fwritef ( &color2.r, fdst );
-    size += g3dexport_fwritef ( &color2.g, fdst );
-    size += g3dexport_fwritef ( &color2.b, fdst );
-    size += g3dexport_fwritef ( &color2.a, fdst );
+/******************************************************************************/
+static uint32_t g3dexportchannel_proceduralNoiseOctaves ( G3DEXPORTDATA *ged,
+                                                          G3DCHANNEL    *cha,
+                                                          uint32_t       flags, 
+                                                          FILE          *fdst ) {
+    G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &noise->nbOctaves, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportchannel_proceduralNoiseInterpolation ( G3DEXPORTDATA *ged,
+                                                                G3DCHANNEL    *cha,
+                                                                uint32_t       flags, 
+                                                                FILE          *fdst ) {
+    G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &noise->interpolation, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportchannel_proceduralNoiseGradients ( G3DEXPORTDATA *ged,
+                                                            G3DCHANNEL    *cha,
+                                                            uint32_t       flags, 
+                                                            FILE          *fdst ) {
+    G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) cha->proc;
+    uint32_t size = 0x00;
+
+    size += g3dexport_fwritel ( &noise->nbGradientX, fdst );
+    size += g3dexport_fwritel ( &noise->nbGradientY, fdst );
 
     return size;
 }
@@ -73,19 +129,48 @@ static uint32_t g3dexportchannel_proceduralNoise ( G3DEXPORTDATA *ged,
                                                    FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_COLORS,
-                                   g3dexportchannel_proceduralNoiseColors,
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIR_COUNT,
+                                   g3dexportchannel_proceduralNoiseColorPairCount,
                                    ged,
                                    cha,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_GEOMETRY,
-                                   g3dexportchannel_proceduralNoiseGeometry,
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIRS,
+                                   g3dexportchannel_proceduralNoiseColorPairs,
                                    ged,
                                    cha,
                                    0xFFFFFFFF,
                                    fdst );
+
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_THRESHOLDS,
+                                   g3dexportchannel_proceduralNoiseThresholds,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES,
+                                   g3dexportchannel_proceduralNoiseOctaves,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION,
+                                   g3dexportchannel_proceduralNoiseInterpolation,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexport_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS,
+                                   g3dexportchannel_proceduralNoiseGradients,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+
     return size;
 }
 

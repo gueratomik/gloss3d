@@ -1209,13 +1209,13 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
                                                     0, 0, 350, 35, 0x01 );
                     break;
 
-                    /*case PROCEDURALNOISE :
+                    case PROCEDURALNOISE :
                         createProceduralNoiseEdit ( dial,
                                                     gui,
                                                     cha->proc, 
                                                     "Procedural Noise",
                                                     0, 0, 350, 35, 0x01 );
-                    break;*/
+                    break;
 
                     default :
                     break;

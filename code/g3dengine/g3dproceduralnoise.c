@@ -34,8 +34,25 @@
 #define s_curve(t) ( t * t * (3. - 2. * t) )
 
 /******************************************************************************/
-static double fade ( double t ) {
+/*static double fade ( double t ) {
     return t * t * t * (t * (t * 6 - 15) + 10);
+}*/
+
+/******************************************************************************/
+void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *noise, 
+                                       G3DPROCEDURALNOISE *pout ) {
+    uint32_t settingsSize = sizeof ( G3DPROCEDURALNOISE ) - 
+                            sizeof ( G3DPROCEDURAL );
+
+    memcpy ( ( char * ) pout  + sizeof ( G3DPROCEDURAL ),
+             ( char * ) noise + sizeof ( G3DPROCEDURAL ), settingsSize );
+}
+
+/******************************************************************************/
+static float fade ( float p1, float p2, float p ) {
+   float m = ( 1 - cos ( p * M_PI ) ) / 2.0f;
+
+   return ( p1 * ( 1 - m ) + p2 * m );
 }
 
 /******************************************************************************/
@@ -111,14 +128,14 @@ static float g3dproceduralnoise_perlin ( G3DPROCEDURALNOISE *noise,
     n0  = g3dproceduralnoise_dotGradients ( noise, x0, y0, rx, ry );
     n1  = g3dproceduralnoise_dotGradients ( noise, x1, y0, rx, ry );
 
-    ix0 = lerp ( n0, n1, sx );
+    ix0 = fade ( n0, n1, sx );
 
     n0  = g3dproceduralnoise_dotGradients ( noise, x0, y1, rx, ry );
     n1  = g3dproceduralnoise_dotGradients ( noise, x1, y1, rx, ry );
 
-    ix1 = lerp ( n0, n1, sx );
+    ix1 = fade ( n0, n1, sx );
 
-    return lerp ( ix0, ix1, sy );
+    return fade ( ix0, ix1, sy );
 }
 
 /******************************************************************************/
@@ -136,10 +153,9 @@ static void getColor ( G3DPROCEDURAL *proc,
     float amp = 1.0f;
     float max = 0.0f; /*** used to normalize total ***/
     uint32_t i;
-    uint32_t nbOctaves = 6;
     float frq = 1.0f;
 
-    for ( i = 0x00; i < nbOctaves; i++ ) {
+    for ( i = 0x00; i < noise->nbOctaves; i++ ) {
         total += g3dproceduralnoise_perlin ( noise,
                                             ( float ) x * nbGradX * frq , 
                                             ( float ) y * nbGradY * frq ) * amp;
@@ -153,19 +169,25 @@ static void getColor ( G3DPROCEDURAL *proc,
         float coef    = ( ( ( total / max ) * 0.5f ) + 0.5f );
         float invcoef = 1.0f - coef;
 
+        for ( i = 0x00; i < noise->nbColors; i++ ) {
+            if ( coef <= noise->threshold[i] ) {
+                color->r = ( noise->colorPair[i][0x00].r *    coef ) + 
+                           ( noise->colorPair[i][0x01].r * invcoef );
 
-        color->r = ( noise->color1.r * coef    ) + 
-                   ( noise->color2.r * invcoef );
-        color->g = ( noise->color1.g * coef    ) + 
-                   ( noise->color2.g * invcoef );
-        color->b = ( noise->color1.b * coef    ) + 
-                   ( noise->color2.b * invcoef );
+                color->g = ( noise->colorPair[i][0x00].g *    coef ) + 
+                           ( noise->colorPair[i][0x01].g * invcoef );
+
+                color->b = ( noise->colorPair[i][0x00].b *    coef ) + 
+                           ( noise->colorPair[i][0x01].b * invcoef );
+            }
+        }
     }
 }
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
     G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) calloc ( 0x01, sizeof ( G3DPROCEDURALNOISE ) );
+    uint32_t i;
 
     if ( noise == NULL ) {
         fprintf ( stderr, "g3dproceduralnoise_new(): calloc failed\n" );
@@ -178,8 +200,24 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
     /*** Build default normal vectors (gradients) ***/
     g3dproceduralnoise_buildGradients ( noise, 0x10, 0x10 );
 
-    noise->color1.r = noise->color1.g = noise->color1.b = ( float ) 0xFF / 255.0f;
-    noise->color2.r = noise->color2.g = noise->color2.b = ( float ) 0x00 / 255.0f;
+    /*** init all color slots ***/
+    for ( i = 0x00; i < MAXNOISECOLORS; i++ ) {
+        noise->colorPair[i][0x00].r = 
+        noise->colorPair[i][0x00].g = 
+        noise->colorPair[i][0x00].b = ( float ) 0xFF / 255.0f;
+
+        noise->colorPair[i][0x01].r = 
+        noise->colorPair[i][0x01].g = 
+        noise->colorPair[i][0x01].b = ( float ) 0x00 / 255.0f;
+
+        noise->threshold[i] = 1.0f;
+    }
+
+    noise->nbColors  = 0x01;
+    noise->nbOctaves = 0x01;
+
+    noise->interpolation = NOISE_INTERPOLATION_COSINE;
+
 
     return noise;
 }
