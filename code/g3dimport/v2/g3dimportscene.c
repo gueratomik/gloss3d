@@ -165,6 +165,11 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     fclose ( fsrc );
 
+    if ( gid.currentVertexArray ) free ( gid.currentVertexArray );
+    if ( gid.currentEdgeArray   ) free ( gid.currentEdgeArray   );
+    if ( gid.currentFaceArray   ) free ( gid.currentFaceArray   );
+    if ( gid.currentPointArray  ) free ( gid.currentPointArray  );
+ 
     /* apply modifiers, compute normals */
     g3dobject_updateMeshes_r ( gid.currentScene, flags );
 

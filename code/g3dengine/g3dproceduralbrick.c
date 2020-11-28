@@ -50,6 +50,10 @@ static void getColor ( G3DPROCEDURAL *proc,
                        double         z,
                        G3DCOLOR      *color ) {
     G3DPROCEDURALBRICK *pbd = ( G3DPROCEDURALBRICK * ) proc;
+
+    x = ( x >= 0.0f ) ? ( x - ( int ) x ) : ( 1.0f - ( x - ( int ) x ) );
+    y = ( y >= 0.0f ) ? ( y - ( int ) y ) : ( 1.0f - ( y - ( int ) y ) );
+
     float brickSizeU = ( 1.0f / pbd->nbBricksPerLine );
     float halfBrickU = brickSizeU / 2;
     float brickSizeV = ( 1.0f / pbd->nbLines         );

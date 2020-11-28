@@ -65,6 +65,7 @@ typedef struct _G3DIMPORTDATA {
     G3DWEIGHTGROUP *currentWeightgroup;
     G3DFACEGROUP   *currentFacegroup;
     G3DVERTEX     **currentVertexArray;
+    G3DEDGE       **currentEdgeArray;
     G3DFACE       **currentFaceArray;
     G3DMATERIAL   **currentMaterialArray;
     G3DCURVEPOINT **currentPointArray;

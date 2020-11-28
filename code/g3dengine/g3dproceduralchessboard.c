@@ -50,6 +50,10 @@ static void getColor ( G3DPROCEDURAL *proc,
                        double         z,
                        G3DCOLOR      *color ) {
     G3DPROCEDURALCHESS *cbd = ( G3DPROCEDURALCHESS * ) proc;
+
+    x = ( x >= 0.0f ) ? ( x - ( int ) x ) : ( 1.0f - ( x - ( int ) x ) );
+    y = ( y >= 0.0f ) ? ( y - ( int ) y ) : ( 1.0f - ( y - ( int ) y ) );
+
     float posu = x * ( cbd->udiv * 2 ),
           posv = y * ( cbd->vdiv * 2 );
     uint32_t evenu = ( ( ( uint32_t ) posu ) % 2 ) ? 0 : 1,

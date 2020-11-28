@@ -149,9 +149,16 @@ SIG_ROOT=0x44335347
 --------------------------- SIG_OBJECT_MESH_GEOMETRY_VERTICES
 ------------------------------- Number of Vertices  ( uint32_t )
 ------------------------------- Array ( float-float-float-uint32_t )
+--------------------------- SIG_OBJECT_MESH_GEOMETRY_EDGES
+------------------------------- Number of Edges  ( uint32_t )
+------------------------------- Array ( uint32_t-uint32_t-uint32_t )
 --------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS
 ------------------------------- Number of Polygons ( uint32_t )
 ------------------------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
+--------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES
+------------------------------- Number of Polygons ( uint32_t )
+------------------------------- Array ( ver: uint32_t-uint32_t-uint32_t-uint32_t,
+                                        edg: uint32_t-uint32_t-uint32_t-uint32_t )
 ----------------------- SIG_OBJECT_MESH_WEIGHTGROUPS
 --------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
 ------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_NAME

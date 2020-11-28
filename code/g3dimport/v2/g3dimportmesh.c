@@ -158,6 +158,37 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dmesh_updateBbox ( mes );
             } break;
 
+            case SIG_OBJECT_MESH_GEOMETRY_EDGES : {
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
+                uint32_t nbedg;
+                uint32_t i;
+
+                g3dimport_freadl ( &nbedg, fsrc );
+
+                gid->currentEdgeArray = ( G3DEDGE ** ) realloc ( gid->currentEdgeArray, nbedg * sizeof ( G3DEDGE * ) );
+
+                for ( i = 0x00; i < nbedg; i++ ) {
+                    uint32_t v0ID, v1ID, unused;
+                    G3DEDGE *edg;
+
+                    g3dimport_freadl ( &v0ID,   fsrc );
+                    g3dimport_freadl ( &v1ID,   fsrc );
+                    g3dimport_freadl ( &unused, fsrc );
+
+                    edg = g3dedge_new ( gid->currentVertexArray[v0ID],
+                                        gid->currentVertexArray[v1ID] );
+
+                    gid->currentEdgeArray[i] = edg;
+
+                    gid->currentEdgeArray[i]->id    = i;
+                    /*gid->currentEdgexArray[i]->flags = unused; */
+
+                    g3dmesh_addEdge ( mes, edg );
+                }
+            } break;
+
+            case SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES :
+            /*** kept for legacy ***/
             case SIG_OBJECT_MESH_GEOMETRY_POLYGONS : {
                 G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
                 uint32_t nbfac;
@@ -189,7 +220,32 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     gid->currentFaceArray[i] = fac;
 
-                    g3dmesh_addFace ( mes, fac );
+                    if ( chunkSignature == SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES ) {
+                        uint32_t e0ID, e1ID, e2ID, e3ID;
+
+                        g3dimport_freadl ( &e0ID, fsrc );
+                        g3dimport_freadl ( &e1ID, fsrc );
+                        g3dimport_freadl ( &e2ID, fsrc );
+                        g3dimport_freadl ( &e3ID, fsrc );
+
+                        if ( e2ID == e3ID ) {
+                            g3dmesh_addFaceWithEdges ( mes, 
+                                                       fac,
+                                                       gid->currentEdgeArray[e0ID],
+                                                       gid->currentEdgeArray[e1ID],
+                                                       gid->currentEdgeArray[e2ID],
+                                                       NULL );
+                        } else {
+                            g3dmesh_addFaceWithEdges ( mes, 
+                                                       fac,
+                                                       gid->currentEdgeArray[e0ID],
+                                                       gid->currentEdgeArray[e1ID],
+                                                       gid->currentEdgeArray[e2ID],
+                                                       gid->currentEdgeArray[e3ID] );
+                        }
+                    } else {
+                        g3dmesh_addFace ( mes, fac );
+                    }
                 }
 
                 g3dmesh_update ( mes, NULL,

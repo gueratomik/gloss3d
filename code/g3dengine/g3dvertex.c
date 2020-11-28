@@ -222,40 +222,44 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                 float factor;
 
                                 if ( mat->flags & DISPLACEMENT_ENABLED ) {
+                                    if ( mat->displacement.flags & USEPROCEDURAL ) {
+                                        if ( mat->displacement.proc ) {
+                                            G3DPROCEDURAL *proc = mat->displacement.proc;
+                                            G3DCOLOR col;
+                      
+                                            /*disimg = &mat->displacement.proc->image;*/
+                                            proc->getColor ( proc, uv->u, 
+                                                                   uv->v, 0.0f, &col );
+                                            gray = ( col.r + col.g + col.b ) * 255.0f / 3.0f;
+                                        }
+                                    }
+
                                     if ( mat->displacement.flags & USEIMAGECOLOR ) {
                                         disimg = mat->displacement.image;
-                                    }
-    
-                                    if ( mat->displacement.flags & USEPROCEDURAL ) {
-                                        /* Way too slow to query directly the procedure, */
-                                        /* instead we query the generated image */
-                                        if ( mat->displacement.proc ) {
-                                            disimg = &mat->displacement.proc->image;
-                                        }
-                                    }
 
-                                    if ( disimg && disimg->width && disimg->height ) {
-                                        uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
-                                        uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
+                                        if ( disimg && disimg->width && disimg->height ) {
+                                            uint32_t imgx = ((uint32_t)((float)uv->u * disimg->width  )) % disimg->width;
+                                            uint32_t imgy = ((uint32_t)((float)uv->v * disimg->height )) % disimg->height;
 
-                                        if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
-                                        if ( imgy < 0x00 ) imgy = disimg->height - imgy;
+                                            if ( imgx < 0x00 ) imgx = disimg->width  - imgx;
+                                            if ( imgy < 0x00 ) imgy = disimg->height - imgy;
 
-                                        uint32_t offset = ( imgy * disimg->width  ) + imgx;
+                                            uint32_t offset = ( imgy * disimg->width  ) + imgx;
 
-                                        /*** This depth part should be optimized ***/
-                                        if ( disimg->bytesPerPixel == 0x03 ) {
-                                            unsigned char (*data)[0x03] = (unsigned char (*)[3]) disimg->data;
+                                            /*** This depth part should be optimized ***/
+                                            if ( disimg->bytesPerPixel == 0x03 ) {
+                                                unsigned char (*data)[0x03] = (unsigned char (*)[3]) disimg->data;
 
-                                            gray = ( data[offset][0x00] +
-                                                     data[offset][0x01] +
-                                                     data[offset][0x02] ) * ONETHIRD;
-                                        }
-   
-                                        if ( disimg->bytesPerPixel == 0x01 ) {
-                                            unsigned char (*data)[0x01] = (unsigned char (*)[1]) disimg->data;
+                                                gray = ( data[offset][0x00] +
+                                                         data[offset][0x01] +
+                                                         data[offset][0x02] ) * ONETHIRD;
+                                            }
 
-                                            gray = data[offset][0x00];
+                                            if ( disimg->bytesPerPixel == 0x01 ) {
+                                                unsigned char (*data)[0x01] = (unsigned char (*)[1]) disimg->data;
+
+                                                gray = data[offset][0x00];
+                                            }
                                         }
                                     }
                                 }

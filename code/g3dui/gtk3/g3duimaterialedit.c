@@ -1164,7 +1164,6 @@ static void diffuseImageColorCbk ( GtkWidget *widget, gpointer user_data ) {
 static void editChannelProceduralCbk ( GtkWidget *widget, 
                                        gpointer   user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
     G3DUI *gui = ( G3DUI * ) user_data;
     char *wname = gtk_widget_get_name ( widget );
 
@@ -1190,11 +1189,13 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
 
         if ( cha ) {
             if (cha->proc ) {
+                GtkWidget *dial = gtk_dialog_new ( );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
                 G3DPROCEDURAL *proc = cha->proc;
 
                 switch ( proc->type ) {
                     case PROCEDURALBRICK :
-                        createProceduralBrickEdit ( dial,
+                        createProceduralBrickEdit ( box,
                                                     gui,
                                                     cha->proc, 
                                                     "Procedural Brick",
@@ -1202,7 +1203,7 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
                     break;
 
                     case PROCEDURALCHESS :
-                        createProceduralChessEdit ( dial,
+                        createProceduralChessEdit ( box,
                                                     gui,
                                                     cha->proc, 
                                                     "Procedural Chess",
@@ -1210,7 +1211,7 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
                     break;
 
                     case PROCEDURALNOISE :
-                        createProceduralNoiseEdit ( dial,
+                        createProceduralNoiseEdit ( box,
                                                     gui,
                                                     cha->proc, 
                                                     "Procedural Noise",
@@ -1221,10 +1222,21 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
                     break;
                 }
 
+
+                g_signal_connect_swapped (dial,
+                                          "response",
+                                          G_CALLBACK (gtk_widget_destroy),
+                                          dial);
+
+                gtk_dialog_run ( dial );
+
+                if ( strcmp ( wname, EDITDISPLACEMENTPROCEDURALEDIT ) == 0x00 ) {
+                    g3dmaterial_updateMeshes ( mat, 
+                                               gui->sce, 
+                                               gui->engine_flags );
+                }
             }
         }
-
-        gtk_widget_show ( dial );
     }
 }
 

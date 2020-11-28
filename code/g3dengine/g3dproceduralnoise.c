@@ -69,8 +69,8 @@ void g3dproceduralnoise_buildGradients ( G3DPROCEDURALNOISE *noise,
 
     for ( x = 0x00; x < noise->nbGradientX; x++ ) {
         for ( y = 0x00; y < noise->nbGradientY; y++ ) {
-            float random = 2920.f * sin ( x * 21942.f + y * 171324.f + 8912.f ) *
-                                    cos ( x * 23157.f * y * 217832.f + 9758.f );
+            /*** From wikipedia b/c unfortunately I'm no genius in Maths ***/
+            float random = 2920.f * sin(x * 21942.f + y * 171324.f + 8912.f) * cos(x * 23157.f * y * 217832.f + 9758.f);
             uint32_t offset = ( y * noise->nbGradientX ) + x;
 
             noise->gradients[offset].x = cos(random);
@@ -94,14 +94,17 @@ static float g3dproceduralnoise_dotGradients ( G3DPROCEDURALNOISE *noise,
                                                int  iy,
                                                float x, 
                                                float y ) {
-    uint32_t offset = ( iy * noise->nbGradientX ) + ix;
-    /* Compute the distance vector */
-    float dx = x - ( float ) ix;
-    float dy = y - ( float ) iy;
+    uint32_t offset = ( ( iy % noise->nbGradientY ) * noise->nbGradientX ) + 
+                        ( ix % noise->nbGradientX );
+    /*** Compute the distance vector. Note: we cast x and y and dont use ix ***/
+    /*** because ix and iy are modulos and we dont want modulos to compute ***/
+    /*** vectors ***/
+    float dx = x - ( int ) ix;
+    float dy = y - ( int ) iy;
+    float dot = ( dx * noise->gradients[offset].x + 
+                  dy * noise->gradients[offset].y );
 
-    /* Compute the dot-product */
-    return ( dx * noise->gradients[offset].x + 
-             dy * noise->gradients[offset].y );
+    return dot;
 }
 
 /******************************************************************************/
@@ -109,15 +112,15 @@ static float g3dproceduralnoise_dotGradients ( G3DPROCEDURALNOISE *noise,
 static float g3dproceduralnoise_perlin ( G3DPROCEDURALNOISE *noise, 
                                          float                   x, 
                                          float                   y ) {
-    int lenx = ( x == 0.0f ) ?  0.0f : (int) x / noise->nbGradientX,
-        leny = ( y == 0.0f ) ?  0.0f : (int) y / noise->nbGradientY;
+    float lenx = ( x == 0.0f ) ?  0.0f : (int) x / noise->nbGradientX,
+          leny = ( y == 0.0f ) ?  0.0f : (int) y / noise->nbGradientY;
     float rx = x - ( lenx * noise->nbGradientX ),
           ry = y - ( leny * noise->nbGradientY );
     /*** Determine grid cell coordinates ***/
-    int x0 = (int) rx;
-    int x1 = x0 + 1;
-    int y0 = (int) ry;
-    int y1 = y0 + 1;
+    int x0 = ((int) rx);
+    int x1 = (x0 + 1 );
+    int y0 = ((int) ry);
+    int y1 = (y0 + 1);
     /*** Determine interpolation weights ***/
     float sx =  ( rx - ( float ) x0 );
     float sy =  ( ry - ( float ) y0 );
@@ -155,10 +158,15 @@ static void getColor ( G3DPROCEDURAL *proc,
     uint32_t i;
     float frq = 1.0f;
 
+    x = ( x >= 0.0f ) ? ( x - ( int ) x ) : ( 1.0f - ( x - ( int ) x ) );
+    y = ( y >= 0.0f ) ? ( y - ( int ) y ) : ( 1.0f - ( y - ( int ) y ) );
+
     for ( i = 0x00; i < noise->nbOctaves; i++ ) {
-        total += g3dproceduralnoise_perlin ( noise,
-                                            ( float ) x * nbGradX * frq , 
-                                            ( float ) y * nbGradY * frq ) * amp;
+        float p =  g3dproceduralnoise_perlin ( noise,
+                                     ( float ) x * nbGradX * frq , 
+                                     ( float ) y * nbGradY * frq ) * amp;
+
+        total += p;
         max += amp;
 
         amp *= persistence;
@@ -358,23 +366,12 @@ static void getColor ( G3DPROCEDURAL *proc,
     double coef = 0.0f;
     int i, j;
 
+    x = ( x >= 0.0f ) ? ( x - ( int ) x ) : ( 1.0f - ( x - ( int ) x ) );
+    y = ( y >= 0.0f ) ? ( y - ( int ) y ) : ( 1.0f - ( y - ( int ) y ) );
+
     color->r = (float) ( (float) noise ( x * noise ( y * 255, 2 ) * 255, 1 ) );
     color->g = (float) ( (float) noise ( x * noise ( y * 255, 2 ) * 255, 1 ) );
     color->b = (float) ( (float) noise ( x * noise ( y * 255, 2 ) * 255, 1 ) );
-
-/*    if ( init == 0x00 ) {
-        for ( i = 0; i < 256 ; i++) {
-            p[256+i] = p[i] = permutation[i];
-        }
-
-        init = 0x01;
-    }
-
-    coef = fbm ( x, y, 0.1f );
-
-    color->r = ( pns->color1.r * coef ) + ( pns->color2.r * ( 1.0f - coef ) );
-    color->g = ( pns->color1.g * coef ) + ( pns->color2.g * ( 1.0f - coef ) );
-    color->b = ( pns->color1.b * coef ) + ( pns->color2.b * ( 1.0f - coef ) );*/
 }
 
 /******************************************************************************/
@@ -387,7 +384,7 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( ( G3DPROCEDURAL * )noi, PROCEDURALNOISE, getColor );
+    g3dprocedural_init ( ( G3DPROCEDURAL * ) noi, PROCEDURALNOISE, getColor );
 
     noise->nbGradientX = 0x10;
     noise->nbGradientY = 0x10;

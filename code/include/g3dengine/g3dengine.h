@@ -2181,6 +2181,12 @@ G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
 void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
 void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );
 void       g3dmesh_addFace              ( G3DMESH *, G3DFACE * );
+void       g3dmesh_addFaceWithEdges     ( G3DMESH *mes, 
+                                          G3DFACE *fac,
+                                          G3DEDGE *edg0,
+                                          G3DEDGE *edg1,
+                                          G3DEDGE *edg2,
+                                          G3DEDGE *edg3 );
 void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
                                                      G3DUVMAP     * );

@@ -184,11 +184,12 @@ static void octavesCbk ( GtkWidget *widget, gpointer user_data ) {
 static void xGradientsCbk ( GtkWidget *widget, gpointer user_data ) {
     int nbGradientX = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON ( widget ) );
     PROCEDURALEDIT *ped = ( PROCEDURALEDIT * ) user_data;
+    int nbGradientY = ped->noise->nbGradientY;
 
     /*** prevent a loop ***/
     if ( ped->gui->lock ) return;
 
-    ped->noise->nbGradientX = nbGradientX;
+    g3dproceduralnoise_buildGradients ( ped->noise, nbGradientX, nbGradientY );
 
     g3dproceduralnoise_copySettings ( ped->noise, &ped->dummy );
 
@@ -203,11 +204,12 @@ static void xGradientsCbk ( GtkWidget *widget, gpointer user_data ) {
 static void yGradientsCbk ( GtkWidget *widget, gpointer user_data ) {
     int nbGradientY = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON ( widget ) );
     PROCEDURALEDIT *ped = ( PROCEDURALEDIT * ) user_data;
+    int nbGradientX = ped->noise->nbGradientX;
 
     /*** prevent a loop ***/
     if ( ped->gui->lock ) return;
 
-    ped->noise->nbGradientY = nbGradientY;
+    g3dproceduralnoise_buildGradients ( ped->noise, nbGradientX, nbGradientY );
 
     g3dproceduralnoise_copySettings ( ped->noise, &ped->dummy );
 
@@ -383,8 +385,8 @@ GtkWidget* createProceduralNoiseEdit ( GtkWidget           *parent,
 
     ped->areaWidget = createDrawingArea ( frm, ped, "preview" , 256, 0, 256, 256, previewCbk    );
 
-    createIntegerText ( frm, ped, UGRADIENTS,  1, 16, 0,  0, 96, 48, xGradientsCbk );
-    createIntegerText ( frm, ped, VGRADIENTS,  1, 16, 0, 24, 96, 48, yGradientsCbk );
+    createIntegerText ( frm, ped, UGRADIENTS,  1, 255, 0,  0, 96, 48, xGradientsCbk );
+    createIntegerText ( frm, ped, VGRADIENTS,  1, 255, 0, 24, 96, 48, yGradientsCbk );
 
     createIntegerText ( frm, ped, OCTAVES   ,  1, 10, 0, 48, 96, 48, octavesCbk );
     createIntegerText ( frm, ped, NBPAIRS   ,  1, MAXNOISECOLORS, 0, 72, 96, 48, nbpairsCbk );

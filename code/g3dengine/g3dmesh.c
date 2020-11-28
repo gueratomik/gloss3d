@@ -3713,6 +3713,49 @@ void g3dmesh_addFace ( G3DMESH *mes,
 }
 
 /******************************************************************************/
+void g3dmesh_addFaceWithEdges ( G3DMESH *mes, 
+                                G3DFACE *fac,
+                                G3DEDGE *edg0,
+                                G3DEDGE *edg1,
+                                G3DEDGE *edg2,
+                                G3DEDGE *edg3 ) {
+    uint32_t i;
+
+    list_insert ( &mes->lfac, fac );
+
+    fac->id = mes->nbfac++;
+
+    if ( fac->nbver == 0x03 ) {
+        list_insert ( &mes->ltri, fac );
+
+        fac->typeID = mes->nbtri++;
+    }
+
+    if ( fac->nbver == 0x04 ) {
+        list_insert ( &mes->lqua, fac );
+
+        fac->typeID = mes->nbqua++;
+    }
+
+    fac->edg[0x00] = edg0;
+    fac->edg[0x01] = edg1;
+    fac->edg[0x02] = edg2;
+
+    g3dedge_addFace ( edg0, fac );
+    g3dedge_addFace ( edg1, fac );
+    g3dedge_addFace ( edg2, fac );
+
+    if ( fac->nbver == 0x04 ) {
+        fac->edg[0x03] = edg3;
+
+        g3dedge_addFace ( edg3, fac );
+    }
+
+    /*** Create UVSets if required ***/
+    g3dmesh_assignFaceUVSets ( mes, fac );
+}
+
+/******************************************************************************/
 void g3dmesh_free ( G3DOBJECT *obj ) {
     G3DMESH *mes = ( G3DMESH * ) obj;
 

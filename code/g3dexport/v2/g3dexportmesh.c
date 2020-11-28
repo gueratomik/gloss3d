@@ -199,6 +199,40 @@ static uint32_t g3dexportmesh_weightgroups ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportmesh_geometryPolygonsWithEdges ( G3DEXPORTDATA *ged, 
+                                                          G3DMESH       *mes, 
+                                                          uint32_t       flags, 
+                                                          FILE          *fdst ) {
+    LIST *ltmpfac = mes->lfac;
+    uint32_t size = 0x00;
+    uint32_t fid = 0x00;
+
+    size += g3dexport_fwritel ( &mes->nbfac, fdst );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        /*** write twice the last vertex in case of a triangle ***/
+        uint32_t idx[0x04] = { 0, 1, 2, ( fac->nbver == 0x03 ) ? 2 : 3 };
+
+        fac->id = fid++;
+
+        size += g3dexport_fwritel ( &fac->ver[idx[0x00]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->ver[idx[0x01]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->ver[idx[0x02]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->ver[idx[0x03]]->id, fdst );
+
+        size += g3dexport_fwritel ( &fac->edg[idx[0x00]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->edg[idx[0x01]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->edg[idx[0x02]]->id, fdst );
+        size += g3dexport_fwritel ( &fac->edg[idx[0x03]]->id, fdst );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportmesh_geometryPolygons ( G3DEXPORTDATA *ged, 
                                                  G3DMESH       *mes, 
                                                  uint32_t       flags, 
@@ -222,6 +256,34 @@ static uint32_t g3dexportmesh_geometryPolygons ( G3DEXPORTDATA *ged,
         size += g3dexport_fwritel ( &fac->ver[idx[0x03]]->id, fdst );
 
         ltmpfac = ltmpfac->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportmesh_geometryEdges ( G3DEXPORTDATA *ged, 
+                                              G3DMESH       *mes, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
+    LIST *ltmpedg = mes->ledg;
+    uint32_t size = 0x00;
+    uint32_t eid = 0x00;
+
+    size += g3dexport_fwritel ( &mes->nbedg, fdst );
+
+    while ( ltmpedg ) {
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+        uint32_t flags = 0x00;
+
+        edg->id = eid++;
+
+        size += g3dexport_fwritel ( &edg->ver[0x00]->id, fdst );
+        size += g3dexport_fwritel ( &edg->ver[0x01]->id, fdst );
+        /*** Currently unused. For later use, just in case ***/
+        size += g3dexport_fwritel ( &flags, fdst );
+
+        ltmpedg = ltmpedg->next;
     }
 
     return size;
@@ -271,9 +333,18 @@ static uint32_t g3dexportmesh_geometry ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
+    if ( mes->ledg ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_EDGES,
+                                       g3dexportmesh_geometryEdges,
+                                       ged,
+                                       mes,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
     if ( mes->lfac ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS,
-                                       g3dexportmesh_geometryPolygons,
+        size += g3dexport_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES,
+                                       g3dexportmesh_geometryPolygonsWithEdges,
                                        ged,
                                        mes,
                                        0xFFFFFFFF,
