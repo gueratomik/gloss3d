@@ -49,7 +49,15 @@ typedef struct _G3DVECTOR {
     float y;
     float z;
     float w;
-} G3DVECTOR, G3DPOINT, G3DQUATERNION;
+} G3DVECTOR, G3DPOINT;
+
+/******************************************************************************/
+typedef struct _G3DQUATERNION {
+    float yaw;
+    float pitch;
+    float roll;
+    float w;
+} G3DQUATERNION;
 
 /******************************************************************************/
 /**

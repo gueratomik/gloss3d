@@ -313,6 +313,8 @@ LIST *g3dscene_getAllMeshes ( G3DSCENE *sce ) {
 void g3dscene_selectTree ( G3DSCENE  *sce, 
                            G3DOBJECT *obj, 
                            int       same ) {
+    g3dscene_unselectAllObjects ( sce, 0x00 );
+
     if ( same ) {
         g3dobject_getObjectsByType_r ( obj, obj->type, &sce->lsel );
     } else {
@@ -752,6 +754,18 @@ void g3dscene_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+static void g3dscene_anim ( G3DSCENE *sce, 
+                            float     frame, 
+                            uint64_t  engine_flags ) {
+    /*** cursor axis update not needed in edit mode ***/
+    if ( ( ( engine_flags & VIEWVERTEX ) == 0x00 ) &&
+         ( ( engine_flags & VIEWEDGE   ) == 0x00 ) &&
+         ( ( engine_flags & VIEWFACE   ) == 0x00 ) ) {
+        g3dscene_getPivotFromSelection ( sce, engine_flags );
+    }
+}
+
+/******************************************************************************/
 G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     G3DSCENE *sce = ( G3DSCENE * ) calloc ( 0x01, sizeof ( G3DSCENE ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
@@ -776,6 +790,7 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
 
     g3dcursor_init ( &sce->csr );
 
+    ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
     return sce;
 }

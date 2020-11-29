@@ -829,7 +829,9 @@ G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
-static void g3dmorpher_anim ( G3DMORPHER *mpr, float frame ) {
+static void g3dmorpher_anim ( G3DMORPHER *mpr, 
+                              float       frame, 
+                              uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     LIST *ltmpver = mpr->lver;
     G3DKEY *prevKey = NULL,

@@ -335,20 +335,21 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /****************************** Object flags **********************************/
 /*
- * first 16 bits are public
+ * first 16 bits are shared
  * next 12 bits are object defined
  * Last 4 bits are user defined
  */
 #define OBJECTSELECTED          (  1       )
-#define OBJECTNOSYMMETRY        (  1 << 1  )
-#define OBJECTINVISIBLE         (  1 << 2  )
-#define OBJECTINACTIVE          (  1 << 3  )
-#define DRAWBEFORECHILDREN      (  1 << 4  )
-#define DRAWAFTERCHILDREN       (  1 << 5  )
-#define OBJECTNOTRANSLATION     (  1 << 6  )
-#define OBJECTNOROTATION        (  1 << 7  )
-#define OBJECTNOSCALING         (  1 << 8  )
-#define OBJECTNOSHADING         (  1 << 9  )
+#define OBJECTNOSYMMETRY        (  1 <<  1 )
+#define OBJECTINVISIBLE         (  1 <<  2 )
+#define OBJECTINACTIVE          (  1 <<  3 )
+#define DRAWBEFORECHILDREN      (  1 <<  4 )
+#define DRAWAFTERCHILDREN       (  1 <<  5 )
+#define OBJECTNOTRANSLATION     (  1 <<  6 )
+#define OBJECTNOROTATION        (  1 <<  7 )
+#define OBJECTNOSCALING         (  1 <<  8 )
+#define OBJECTNOSHADING         (  1 <<  9 )
+#define OBJECTUSEQUATERNION     (  1 << 10 )
 
 /*** Private flags ***/
 /*** Bone flags ***/
@@ -692,7 +693,7 @@ typedef struct _G3DCURVE  G3DCURVE;
 #define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
 #define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
-#define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float))f)
+#define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float,uint64_t))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -719,7 +720,7 @@ typedef struct _G3DOBJECT {
     /*** Object selection ***/
     uint32_t     (*pick)      ( struct _G3DOBJECT *, struct _G3DCAMERA *,
                                                      uint64_t );
-    void (*anim)( struct _G3DOBJECT *, float frame );
+    void (*anim)( struct _G3DOBJECT *, float frame, uint64_t );
     void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
     /* Object copy */
     struct _G3DOBJECT*(*copy) ( struct _G3DOBJECT *, uint32_t,

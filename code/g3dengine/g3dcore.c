@@ -34,7 +34,7 @@
 
 /******************************************************************************/
 /*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
-/* Note: yaw (Y), pitch (X), roll (Z) */
+/* Note: yaw (y), pitch (x), roll (z) */
 void g3dcore_eulerToQuaternion ( G3DVECTOR *angles, G3DQUATERNION *qout ) {
     double pitch = angles->x;
     double yaw   = angles->y;
@@ -47,11 +47,11 @@ void g3dcore_eulerToQuaternion ( G3DVECTOR *angles, G3DQUATERNION *qout ) {
     double cr = cos ( roll  * 0.5f );
     double sr = sin ( roll  * 0.5f );
 
-    qout->w = cr * cp * cy + sr * sp * sy;
-    qout->x = cr * sp * cy + sr * cp * sy;
-    qout->y = cr * cp * sy - sr * sp * cy;
-    qout->z = sr * cp * cy - cr * sp * sy;
-
+    qout->w     = cr * cp * cy + sr * sp * sy;
+    qout->roll  = sr * cp * cy - cr * sp * sy;
+    qout->pitch = cr * sp * cy + sr * cp * sy;
+    qout->yaw   = cr * cp * sy - sr * sp * cy;
+ 
     g3dquaternion_normalize ( qout );
 }
 

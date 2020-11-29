@@ -733,6 +733,8 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                                &nextkey, KEYROTATION );
 
     if ( framekey ) {
+        obj->flags &= (~OBJECTUSEQUATERNION);
+
         memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR ) );
     } else {
         if ( prevkey && nextkey ) {
@@ -743,6 +745,8 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
                             ( nextkey->frame - prevkey->frame ) );
             G3DQUATERNION qsrc, qdst, qout;
             G3DVECTOR rot;
+
+            obj->flags |= OBJECTUSEQUATERNION;
 
             g3dcore_eulerInDegreesToQuaternion ( &prevkey->rot,
                                                  &qsrc );
@@ -759,13 +763,18 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
 
 g3dquaternion_print ( &qdst );*/
 
-
-            /*g3dquaternion_slerp ( &qsrc, &qdst, ratio, &qout );*/
+            g3dquaternion_slerp ( &qsrc, &qdst, ratio, &qout );
 
 /*printf("%f\n", ratio );*/
-/*g3dquaternion_print ( &qsrc );
+g3dvector_print ( &nextkey->rot );
+
+/*g3dquaternion_print ( &qsrc );*/
 g3dquaternion_print ( &qdst );
-g3dquaternion_print ( &qout );*/
+/*g3dquaternion_print ( &qout );*/
+
+
+            /*g3dquaternion_normalize ( &qout );*/
+            g3dquaternion_toEulerInDegrees ( &qout, &obj->rot );
 
             /*g3dquaternion_convert ( &qout, RMX );
             glLoadMatrixd ( RMX );*/
@@ -844,7 +853,7 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
         ltmp = ltmp->next;
     }
 
-    if ( obj->anim ) obj->anim ( obj, frame );
+    if ( obj->anim ) obj->anim ( obj, frame, engine_flags );
 }
 
 /******************************************************************************/
@@ -1299,7 +1308,9 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
     glLoadIdentity ( );
     glTranslatef ( obj->pos.x, obj->pos.y, obj->pos.z );
 
-    g3dobject_buildRotationMatrix ( obj );
+    if ( ( obj->flags & OBJECTUSEQUATERNION ) == 0x00 ) {
+        g3dobject_buildRotationMatrix ( obj );
+    }
 
     glMultMatrixd ( obj->rmatrix );
 
