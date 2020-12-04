@@ -44,8 +44,8 @@ void g3dquaternion_print ( G3DQUATERNION *qua ) {
 
 /******************************************************************************/
 /*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
-void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
-    /* roll (Z-axis rotation) */
+void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DDOUBLEVECTOR *rot ) {
+    /* roll */
     double sinr_cosp = 2.0f *        ( ( qua->w     * qua->roll  ) + 
                                        ( qua->pitch * qua->yaw   ) );
     double cosr_cosp = 1.0f - 2.0f * ( ( qua->roll  * qua->roll  ) +
@@ -53,7 +53,7 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
 
     rot->z = atan2 ( sinr_cosp, cosr_cosp );
 
-    /* pitch (X-axis rotation) */
+    /* pitch */
     double sinp = 2 * ( ( qua->w * qua->pitch ) - ( qua->yaw * qua->roll ) );
 
     if ( fabs ( sinp ) >= 1 ) {
@@ -63,7 +63,7 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
         rot->x = asin ( sinp );
     }
 
-    /* yaw (Y-axis rotation) */
+    /* yaw */
     double siny_cosp = 2.0f *        ( ( qua->w     * qua->yaw   ) + 
                                        ( qua->roll  * qua->pitch ) );
     double cosy_cosp = 1.0f - 2.0f * ( ( qua->pitch * qua->pitch ) + 
@@ -73,7 +73,8 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
 }
 
 /******************************************************************************/
-void g3dquaternion_toEulerInDegrees ( G3DQUATERNION *qua, G3DVECTOR *rot ) {
+void g3dquaternion_toEulerInDegrees ( G3DQUATERNION   *qua,
+                                      G3DDOUBLEVECTOR *rot ) {
     g3dquaternion_toEuler ( qua, rot );
 
     rot->x = rot->x * 180.0f / M_PI;
@@ -194,15 +195,15 @@ void Quaternion::FromEuler(float pitch, float yaw, float roll)
 void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
     double TMPX[0x10];
 
-    float roll2      = qua->roll  * qua->roll;
-    float pitch2     = qua->pitch * qua->pitch;
-    float yaw2       = qua->yaw   * qua->yaw;
-    float rollPitch  = qua->roll  * qua->pitch;
-    float yawRoll    = qua->yaw   * qua->roll;
-    float pitchYaw   = qua->pitch * qua->yaw;
-    float angleRoll  = qua->w * qua->roll;
-    float anglePitch = qua->w * qua->pitch;
-    float angleYaw   = qua->w * qua->yaw;
+    double roll2      = qua->roll  * qua->roll;
+    double pitch2     = qua->pitch * qua->pitch;
+    double yaw2       = qua->yaw   * qua->yaw;
+    double rollPitch  = qua->roll  * qua->pitch;
+    double yawRoll    = qua->yaw   * qua->roll;
+    double pitchYaw   = qua->pitch * qua->yaw;
+    double angleRoll  = qua->w * qua->roll;
+    double anglePitch = qua->w * qua->pitch;
+    double angleYaw   = qua->w * qua->yaw;
   
     matrix[0x00] = 1.0f - 2.0f * ( pitch2 + yaw2 );
     matrix[0x01] = 2.0f * ( rollPitch - angleYaw );
@@ -221,8 +222,8 @@ void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
     matrix[0x0E] = 0.0f;
     matrix[0x0F] = 1.0f;
 
-    /*g3dcore_transposeMatrix ( matrix, TMPX );
-    memcpy ( matrix, TMPX, sizeof ( TMPX ) );*/
+    g3dcore_transposeMatrix ( matrix, TMPX );
+    memcpy ( matrix, TMPX, sizeof ( TMPX ) );
 }
 
 /******************************************************************************/
@@ -282,20 +283,20 @@ void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
 }*/
 
 /******************************************************************************/
-float g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 ) {
+double g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 ) {
     return ( ( q0->pitch * q1->pitch ) + ( q0->yaw * q1->yaw ) +
              ( q0->roll  * q1->roll  ) + ( q0->w   * q1->w   ) );
 }
 
 /******************************************************************************/
-float g3dquaternion_length ( G3DQUATERNION *qua ) {
+double g3dquaternion_length ( G3DQUATERNION *qua ) {
     return sqrt ( ( qua->pitch * qua->pitch ) + ( qua->yaw * qua->yaw ) +
                   ( qua->roll  * qua->roll  ) + ( qua->w   * qua->w   ) );
 }
 
 /******************************************************************************/
 void g3dquaternion_normalize ( G3DQUATERNION *qua ) {
-    float len = g3dquaternion_length ( qua );
+    double len = g3dquaternion_length ( qua );
 
     if ( len ) {
         qua->pitch = ( qua->pitch / len );

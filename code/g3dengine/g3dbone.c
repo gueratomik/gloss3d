@@ -391,6 +391,67 @@ void g3dbone_reset_r ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
+static uint32_t g3dbone_pickObject ( G3DBONE   *bon, 
+                                     G3DCAMERA *curcam, 
+                                     uint64_t   engine_flags ) {
+    float ybase = bon->len * 0.1f;
+    float xbase = ybase;
+    float zbase = ybase;
+    float ver[0x04][0x03] = { {  xbase, ybase,  zbase },
+                              {  xbase, ybase, -zbase },
+                              { -xbase, ybase, -zbase },
+                              { -xbase, ybase,  zbase } };
+    int i;
+
+    /*** displaying bones could be annoying ***/
+    if ( engine_flags & HIDEBONES ) return 0x00;
+
+    g3dpick_setName (  ( uint64_t ) bon );
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        int n = ( i + 0x01 ) % 0x04;
+
+        g3dpick_drawLine ( 0.0f, 
+                           bon->len, 
+                           0.0f,
+                           ver[i][0x00], 
+                           ver[i][0x01], 
+                           ver[i][0x02] );
+
+        g3dpick_drawLine ( 0.0f, 
+                           0.0f, 
+                           0.0f,
+                           ver[i][0x00], 
+                           ver[i][0x01], 
+                           ver[i][0x02] );
+
+        g3dpick_drawLine ( ver[i][0x00], 
+                           ver[i][0x01], 
+                           ver[i][0x02],
+                           ver[n][0x00], 
+                           ver[n][0x01], 
+                           ver[n][0x02] );
+    }
+
+    return 0x00;
+}
+
+
+/******************************************************************************/
+static uint32_t g3dbone_pick ( G3DBONE *bon,
+                               G3DCAMERA *cam, 
+                               uint64_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
+
+    if ( obj->type & OBJECTSELECTED ) {
+        if ( engine_flags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engine_flags );
+    } else {
+        if ( engine_flags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engine_flags );
+    }
+}
+
+
+/******************************************************************************/
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
                         uint64_t   engine_flags ) {
@@ -684,7 +745,7 @@ G3DBONE *g3dbone_new ( uint32_t id,
     g3dobject_init ( obj, G3DBONETYPE, id, name, DRAWBEFORECHILDREN,
                                                  g3dbone_draw,
                                                  g3dbone_free,
-                                                 NULL,
+                                   PICK_CALLBACK(g3dbone_pick),
                                                  NULL,
                                                  NULL,
                                                  NULL,

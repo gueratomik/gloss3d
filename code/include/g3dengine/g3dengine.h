@@ -1398,10 +1398,12 @@ void g3dquaternion_slerp ( G3DQUATERNION *q0,
                            G3DQUATERNION *q1, 
                            double          t,
                            G3DQUATERNION *qout );
-void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR *rot );
-void g3dquaternion_toEulerInDegrees ( G3DQUATERNION *qua, G3DVECTOR *rot );
-void g3dcore_eulerToQuaternion ( G3DVECTOR *angles, G3DQUATERNION *qout );
-void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR     *angles, 
+void g3dquaternion_toEuler ( G3DQUATERNION   *qua,
+                                      G3DDOUBLEVECTOR *rot );
+void g3dquaternion_toEulerInDegrees ( G3DQUATERNION   *qua,
+                                      G3DDOUBLEVECTOR *rot );
+void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout );
+void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles, 
                                           G3DQUATERNION *qout );
 void       g3dcore_grid3D   ( uint64_t engine_flags );
 void       g3dcore_gridXY   ( uint64_t engine_flags );
@@ -1453,7 +1455,7 @@ double g3ddoublevector_scalar ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR * );
 void g3ddoublevector_cross ( G3DDOUBLEVECTOR *, G3DDOUBLEVECTOR *, 
                                                 G3DDOUBLEVECTOR * );
 void g3ddoublevector_normalize ( G3DDOUBLEVECTOR *vec, float *len );
-
+void g3ddoublevector_print ( G3DDOUBLEVECTOR *vec );
 
 /******************************************************************************/
 void g3dquaternion_multiply ( G3DQUATERNION *, G3DQUATERNION *,
@@ -1462,9 +1464,9 @@ void g3dquaternion_inverse ( G3DQUATERNION *, G3DQUATERNION * );
 void g3dquaternion_set ( G3DQUATERNION *, float , float, float );
 void g3dquaternion_convert ( G3DQUATERNION *, double * );
 void g3dquaternion_init ( G3DQUATERNION *, float, float, float, float );
-float g3dquaternion_length ( G3DQUATERNION *qua );
+double g3dquaternion_length ( G3DQUATERNION *qua );
 void g3dquaternion_normalize ( G3DQUATERNION *qua );
-float g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 );
+double g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 );
 void g3dquaternion_print ( G3DQUATERNION *qua );
 
 /******************************************************************************/

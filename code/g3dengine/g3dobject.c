@@ -744,14 +744,20 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
             G3DQUATERNION qsrc, qdst, qout;
-            G3DVECTOR rot;
+            G3DDOUBLEVECTOR prevrot = { prevkey->rot.x,
+                                        prevkey->rot.y,
+                                        prevkey->rot.z },
+                            nextrot = { nextkey->rot.x,
+                                        nextkey->rot.y,
+                                        nextkey->rot.z };
+            G3DDOUBLEVECTOR rot;
 
             obj->flags |= OBJECTUSEQUATERNION;
 
-            g3dcore_eulerInDegreesToQuaternion ( &prevkey->rot,
+            g3dcore_eulerInDegreesToQuaternion ( &prevrot,
                                                  &qsrc );
 
-            g3dcore_eulerInDegreesToQuaternion ( &nextkey->rot,
+            g3dcore_eulerInDegreesToQuaternion ( &nextrot,
                                                  &qdst );
 
             g3dcubicsegment_getPoint ( csg, ratio, &obj->rot );
@@ -759,40 +765,43 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
             glPushMatrix ( );
             glLoadIdentity ( );
 
-/*g3dquaternion_print ( &qsrc );
-
-g3dquaternion_print ( &qdst );*/
-
             g3dquaternion_slerp ( &qsrc, &qdst, ratio, &qout );
 
-/*printf("%f\n", ratio );*/
-g3dvector_print ( &nextkey->rot );
-
-/*g3dquaternion_print ( &qsrc );*/
-g3dquaternion_print ( &qdst );
-/*g3dquaternion_print ( &qout );*/
-
-
             /*g3dquaternion_normalize ( &qout );*/
-            g3dquaternion_toEulerInDegrees ( &qout, &obj->rot );
+            /*g3dquaternion_toEulerInDegrees ( &qsrc, &rot );
 
-            /*g3dquaternion_convert ( &qout, RMX );
-            glLoadMatrixd ( RMX );*/
+g3ddoublevector_print ( &prevrot );
+g3dquaternion_print ( &qsrc );
+g3ddoublevector_print ( &rot );*/
 
-            /*g3dquaternion_toEulerInDegrees ( &qout, &obj->rot );*/
+            g3dquaternion_convert ( &qout, obj->rmatrix );
+
+/*printf("origin\n");
+g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
+/*printf("vector\n");
+g3dvector_print ( &prevkey->rot );
+printf("quaternion\n");
+g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
+            /*glLoadMatrixd ( RMX );*/
+
+            g3dquaternion_toEulerInDegrees ( &qout, &rot );
+
+            obj->rot.x = rot.z;
+            obj->rot.y = rot.x;
+            obj->rot.z = rot.y;
 
 /*g3dquaternion_toEulerInDegrees ( &qsrc, &rot );
 
 g3dvector_print ( &prevkey->rot );
 g3dvector_print ( &rot );*/
 
-            glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
+            /*glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
             glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
-            glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
+            glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );*/
 
             /*glRotatef ( qout.w * 180 / M_PI, qout.x, qout.y, qout.z );*/
 
-            glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
+            /*glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );*/
             glPopMatrix ( );
         }
     }
@@ -1256,25 +1265,66 @@ void g3dobject_free ( G3DOBJECT *obj ) {
 void g3dobject_buildRotationMatrix ( G3DOBJECT *obj ) {
     double TMPX[0x10];
     G3DQUATERNION qua;
-    G3DVECTOR rot;
+    G3DVECTOR rotX = { 1.0f, 0.0f, 0.0f, 1.0f }, matX,
+              rotY = { 0.0f, 1.0f, 0.0f, 1.0f }, matY,
+              rotZ = { 0.0f, 0.0f, 1.0f, 1.0f }, matZ;
 
     glPushMatrix ( );
     glLoadIdentity ( );
 
-    /*printf("%s\n", obj->name );*/
-    
-    glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
-    glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
-    glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
-    
-   /*g3dcore_eulerInDegreesToQuaternion ( &obj->rot, &qua );
-    g3dquaternion_toEulerInDegrees     ( &qua, &rot );
+    /********************************************/
 
-    g3dvector_print ( &obj->rot );
-    g3dvector_print ( &rot );*/
+    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
+
+    g3dvector_matrix ( &rotY, TMPX, &matY );
+
+    /*** g3dvector_matrix overwirtes the w member, so we have to use some ***/
+    /*** temporary vector to prevent overwriting the w member ***/
+    obj->rotYAxis.x = matY.x;
+    obj->rotYAxis.y = matY.y;
+    obj->rotYAxis.z = matY.z;
+
+    glRotatef ( obj->rotYAxis.w, 0.0f, 
+                                 1.0f, 
+                                 0.0f );
+
+    /********************************************/
+
+    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
+
+    g3dvector_matrix ( &rotZ, TMPX, &matZ );
+
+    obj->rotZAxis.x = matZ.x;
+    obj->rotZAxis.y = matZ.y;
+    obj->rotZAxis.z = matZ.z;
+
+    glRotatef ( obj->rotZAxis.w, 0.0f, 
+                                 0.0f, 
+                                 1.0f );
+
+    /********************************************/
+    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
+
+    g3dvector_matrix ( &rotX, TMPX, &matX );
+
+    /*** g3dvector_matrix overwirtes the w member, so we have to use some ***/
+    /*** temporary vector to prevent overwriting the w member ***/
+    obj->rotXAxis.x = matX.x;
+    obj->rotXAxis.y = matX.y;
+    obj->rotXAxis.z = matX.z;
+
+    glRotatef ( obj->rotXAxis.w, 1.0f, 
+                                 0.0f,
+                                 0.0f );
+
+
+
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
     glPopMatrix ( );
+
+    /*printf("%s origin\n", __func__);
+    g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
 
     /*g3dcore_printMatrix ( obj->rmatrix, 4, 4 );
     g3dcore_printMatrix ( TMPX, 4, 4 );*/
