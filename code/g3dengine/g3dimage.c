@@ -45,8 +45,8 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 
 /******************************************************************************/
 void g3dimage_getNormal ( G3DIMAGE  *img,
-                          float      x, 
-                          float      y,
+                          uint32_t   x, 
+                          uint32_t   y,
                           G3DVECTOR *nor ) {
 /* Patterns for our vector depending on were we are on the image, to prevent:
    a forbidden memory access.

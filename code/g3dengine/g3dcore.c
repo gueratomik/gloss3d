@@ -34,13 +34,13 @@
 
 /******************************************************************************/
 /*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
-/* Note: yaw (y), pitch (x), roll (z) */
+/* Note: yaw (z), pitch (y), roll (x) */
 void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout ) {
-    double pitch = angles->z;
-    double yaw   = angles->x;
-    double roll  = angles->y;
+    double yaw   = angles->z;
+    double pitch = angles->y;
+    double roll  = angles->x;
     /* Abbreviations for the various angular functions */
-    /*double cy = cos ( yaw   * 0.5f );
+    double cy = cos ( yaw   * 0.5f );
     double sy = sin ( yaw   * 0.5f );
     double cp = cos ( pitch * 0.5f );
     double sp = sin ( pitch * 0.5f );
@@ -51,31 +51,6 @@ void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout ) 
     qout->roll  = sr * cp * cy - cr * sp * sy;
     qout->pitch = cr * sp * cy + sr * cp * sy;
     qout->yaw   = cr * cp * sy - sr * sp * cy;
- printf("%f %f %f %f\n", qout->w, qout->roll, qout->pitch, qout->yaw);
-    g3dquaternion_normalize ( qout );*/
-
-/*printf("%f %f %f\n", pitch, yaw, roll);
-    if ( pitch < 0.0f ) pitch = - pitch;
-    if ( yaw   < 0.0f ) yaw   = - yaw;
-    if ( roll  < 0.0f ) roll  = - roll;
-
-    if ( pitch > 1.0f ) pitch = 2.0f - pitch;
-    if ( yaw   > 1.0f ) yaw   = 2.0f - yaw;
-    if ( roll  > 1.0f ) roll  = 2.0f - roll;*/
-
-	float sinp = sin(pitch * 0.5f );
-	float siny = sin(yaw   * 0.5f );
-	float sinr = sin(roll  * 0.5f );
-	float cosp = cos(pitch * 0.5f );
-	float cosy = cos(yaw   * 0.5f );
-	float cosr = cos(roll  * 0.5f );
- 
-	qout->w     = cosr * cosp * cosy + sinr * sinp * siny;
-
-	qout->pitch = sinr * cosp * cosy - cosr * sinp * siny;
-	qout->yaw   = cosr * sinp * cosy + sinr * cosp * siny;
-	qout->roll  = cosr * cosp * siny - sinr * sinp * cosy;
-
 
     g3dquaternion_normalize ( qout );
 }
@@ -909,15 +884,27 @@ void g3dcore_getMatrixRotation ( double *matrix, G3DVECTOR *rot ) {
         *(ptr+2) /= sca.z;
     }
 
+/** Many thanks to https://www.geometrictools.com/Documentation/EulerAngles.pdf ***/
+/*** Note: OpenGL Matrix indexes are inverted compared to the latter document ***/
+/*** Note2: my rotation matrix order is ZYX ***/
+
+    rot->y = asin  ( -mtmp[0x02] );
+    rot->x = atan2 (  mtmp[0x06], mtmp[0x0A] );
+    rot->z = atan2 (  mtmp[0x01], mtmp[0x00] );
+
+
+/*
     rot->y = ( float ) asin ( mtmp[0x08] );
 
-    if( mtmp[0x08] == 1.0f || mtmp[0x08] == -1.0f ) {
+    if ( ( mtmp[0x08] ==  1.0f ) || 
+         ( mtmp[0x08] == -1.0f ) ) {
         rot->x = ( float ) atan2 ( -mtmp[0x01], mtmp[0x06] );
         rot->z = 0.0f;
     }else{
         rot->x = ( float ) atan2 ( -mtmp[0x09], mtmp[0x0A] );
         rot->z = ( float ) atan2 ( -mtmp[0x04], mtmp[0x00] );
     }
+*/
 
     rot->x = rot->x * ( 180 / M_PI );
     rot->y = rot->y * ( 180 / M_PI );

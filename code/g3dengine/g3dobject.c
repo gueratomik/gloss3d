@@ -733,8 +733,6 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                                &nextkey, KEYROTATION );
 
     if ( framekey ) {
-        obj->flags &= (~OBJECTUSEQUATERNION);
-
         memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR ) );
     } else {
         if ( prevkey && nextkey ) {
@@ -752,8 +750,6 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                         nextkey->rot.z };
             G3DDOUBLEVECTOR rot;
 
-            obj->flags |= OBJECTUSEQUATERNION;
-
             g3dcore_eulerInDegreesToQuaternion ( &prevrot,
                                                  &qsrc );
 
@@ -762,47 +758,20 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
 
             g3dcubicsegment_getPoint ( csg, ratio, &obj->rot );
 
-            glPushMatrix ( );
-            glLoadIdentity ( );
-
             g3dquaternion_slerp ( &qsrc, &qdst, ratio, &qout );
 
-            /*g3dquaternion_normalize ( &qout );*/
-            /*g3dquaternion_toEulerInDegrees ( &qsrc, &rot );
-
-g3ddoublevector_print ( &prevrot );
-g3dquaternion_print ( &qsrc );
-g3ddoublevector_print ( &rot );*/
+/*printf("out\n");
+g3dquaternion_print ( &qout );
+g3dquaternion_toEulerInDegrees ( &qout, &rot );
+g3ddoublevector_print ( &rot ); */
 
             g3dquaternion_convert ( &qout, obj->rmatrix );
 
-/*printf("origin\n");
-g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
-/*printf("vector\n");
-g3dvector_print ( &prevkey->rot );
-printf("quaternion\n");
-g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
-            /*glLoadMatrixd ( RMX );*/
-
             g3dquaternion_toEulerInDegrees ( &qout, &rot );
 
-            obj->rot.x = rot.z;
-            obj->rot.y = rot.x;
-            obj->rot.z = rot.y;
-
-/*g3dquaternion_toEulerInDegrees ( &qsrc, &rot );
-
-g3dvector_print ( &prevkey->rot );
-g3dvector_print ( &rot );*/
-
-            /*glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
-            glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
-            glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );*/
-
-            /*glRotatef ( qout.w * 180 / M_PI, qout.x, qout.y, qout.z );*/
-
-            /*glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );*/
-            glPopMatrix ( );
+            obj->rot.x = rot.x;
+            obj->rot.y = rot.y;
+            obj->rot.z = rot.z;
         }
     }
 }
@@ -1272,53 +1241,9 @@ void g3dobject_buildRotationMatrix ( G3DOBJECT *obj ) {
     glPushMatrix ( );
     glLoadIdentity ( );
 
-    /********************************************/
-
-    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
-
-    g3dvector_matrix ( &rotY, TMPX, &matY );
-
-    /*** g3dvector_matrix overwirtes the w member, so we have to use some ***/
-    /*** temporary vector to prevent overwriting the w member ***/
-    obj->rotYAxis.x = matY.x;
-    obj->rotYAxis.y = matY.y;
-    obj->rotYAxis.z = matY.z;
-
-    glRotatef ( obj->rotYAxis.w, 0.0f, 
-                                 1.0f, 
-                                 0.0f );
-
-    /********************************************/
-
-    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
-
-    g3dvector_matrix ( &rotZ, TMPX, &matZ );
-
-    obj->rotZAxis.x = matZ.x;
-    obj->rotZAxis.y = matZ.y;
-    obj->rotZAxis.z = matZ.z;
-
-    glRotatef ( obj->rotZAxis.w, 0.0f, 
-                                 0.0f, 
-                                 1.0f );
-
-    /********************************************/
-    glGetDoublev ( GL_MODELVIEW_MATRIX, TMPX );
-
-    g3dvector_matrix ( &rotX, TMPX, &matX );
-
-    /*** g3dvector_matrix overwirtes the w member, so we have to use some ***/
-    /*** temporary vector to prevent overwriting the w member ***/
-    obj->rotXAxis.x = matX.x;
-    obj->rotXAxis.y = matX.y;
-    obj->rotXAxis.z = matX.z;
-
-    glRotatef ( obj->rotXAxis.w, 1.0f, 
-                                 0.0f,
-                                 0.0f );
-
-
-
+    glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
+    glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
+    glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
     glPopMatrix ( );
@@ -1358,9 +1283,7 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
     glLoadIdentity ( );
     glTranslatef ( obj->pos.x, obj->pos.y, obj->pos.z );
 
-    if ( ( obj->flags & OBJECTUSEQUATERNION ) == 0x00 ) {
-        g3dobject_buildRotationMatrix ( obj );
-    }
+    g3dobject_buildRotationMatrix ( obj );
 
     glMultMatrixd ( obj->rmatrix );
 

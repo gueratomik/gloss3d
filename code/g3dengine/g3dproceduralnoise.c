@@ -203,7 +203,7 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( ( G3DPROCEDURAL * ) noise, PROCEDURALNOISE, getColor );
+    g3dprocedural_init ( ( G3DPROCEDURAL * ) noise, PROCEDURALNOISE, 0x00, getColor );
 
     /*** Build default normal vectors (gradients) ***/
     g3dproceduralnoise_buildGradients ( noise, 0x10, 0x10 );
@@ -384,7 +384,7 @@ G3DPROCEDURALNOISE *g3dproceduralnoise_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( ( G3DPROCEDURAL * ) noi, PROCEDURALNOISE, getColor );
+    g3dprocedural_init ( ( G3DPROCEDURAL * ) noi, PROCEDURALNOISE, 0x00, getColor );
 
     noise->nbGradientX = 0x10;
     noise->nbGradientY = 0x10;

@@ -50,10 +50,7 @@ void common_g3duiview_spin ( G3DUIVIEW *view, float diffx ) {
     G3DVECTOR ovec = { 0.0f, 0.0f, 0.0f, 1.0f }, camp;
     GLdouble MVX[0x10];
 
-    obj->rot.z += ( diffx );
-
-
-    g3dobject_updateMatrix_r ( obj, 0x00 );
+    g3dcamera_spin ( cam, diffx );
 
     if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
 }

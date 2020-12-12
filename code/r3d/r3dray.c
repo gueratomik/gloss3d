@@ -234,7 +234,8 @@ uint32_t r3dray_getHitFaceColor ( R3DRAY  *ray,
 
         if ( mat->flags & BUMP_ENABLED ) {
             G3DVECTOR bumpnor;
-            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat, 0.001f, 0.001f );
+
+            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat, 0.01f, 0.01f, 0x00 );
 
             bump->x += bumpnor.x;
             bump->y += bumpnor.y;

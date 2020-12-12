@@ -36,7 +36,8 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
                             G3DVECTOR  *nor,
                             uint32_t    repeat,
                             float       precU,
-                            float       precV ) {
+                            float       precV,
+                            uint32_t    fromBuffer ) {
     uint32_t channelFlags = cha->flags;
 
     g3dvector_init ( nor, 0.0f, 0.0f, 1.0f, 1.0f );
@@ -66,7 +67,8 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
         G3DCOLOR color;
 
         if ( proc ) {
-            g3dprocedural_getNormal ( proc, u, v, nor, precU, precV );
+            g3dprocedural_getNormal ( proc, u, v, nor, precU, 
+                                                       precV, fromBuffer );
         }
     }
 }

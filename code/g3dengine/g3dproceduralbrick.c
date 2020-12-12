@@ -85,7 +85,7 @@ G3DPROCEDURALBRICK *g3dproceduralbrick_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( ( G3DPROCEDURAL * ) pbd, PROCEDURALBRICK, getColor );
+    g3dprocedural_init ( ( G3DPROCEDURAL * ) pbd, PROCEDURALBRICK, 0x00, getColor );
 
     /*** https://encycolorpedia.com/8b4f39 ***/
     pbd->brickColor.r   = ( float ) 0x8B / 255.0f;

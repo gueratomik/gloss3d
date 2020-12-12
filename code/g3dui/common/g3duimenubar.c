@@ -212,6 +212,7 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
     g3dui_redrawGLViews ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -321,6 +322,7 @@ void common_g3dui_addBoneCbk ( G3DUI *gui ) {
 
     g3dui_redrawObjectList ( gui );
     g3dui_redrawGLViews ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -348,6 +350,7 @@ void common_g3dui_addMorpherCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -401,6 +404,7 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -424,6 +428,7 @@ void common_g3dui_addSymmetryCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -457,6 +462,7 @@ void common_g3dui_addSubdividerCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -490,6 +496,7 @@ void common_g3dui_addWireframeCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -513,6 +520,7 @@ void common_g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -536,6 +544,7 @@ void common_g3dui_addSplineCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -569,6 +578,7 @@ void common_g3dui_addSplineRevolverCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -604,6 +614,7 @@ void common_g3dui_addTextCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -636,6 +647,7 @@ void common_g3dui_addCameraCbk ( G3DUI *gui, G3DCAMERA *currentCamera ) {
     g3dui_updateCoords         ( gui );
     g3dui_redrawObjectList     ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -660,6 +672,7 @@ void common_g3dui_addLightCbk ( G3DUI *gui ) {
     g3dui_updateCoords         ( gui );
     g3dui_redrawObjectList     ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -685,6 +698,7 @@ void common_g3dui_addCylinderCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -710,6 +724,7 @@ void common_g3dui_addTubeCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -733,6 +748,7 @@ void common_g3dui_addTorusCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -755,6 +771,7 @@ void common_g3dui_addSphereCbk ( G3DUI *gui ) {
     g3dui_updateCoords         ( gui );
     g3dui_redrawObjectList     ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -777,6 +794,7 @@ void common_g3dui_addCubeCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -800,6 +818,7 @@ void common_g3dui_addPlaneCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/
@@ -822,6 +841,7 @@ void common_g3dui_addNullCbk ( G3DUI *gui ) {
     g3dui_updateCoords ( gui );
     g3dui_redrawObjectList ( gui );
     g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
 }
 
 /******************************************************************************/

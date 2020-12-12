@@ -91,6 +91,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dcolor.h \
                        include/g3dengine/g3dcurve.h \
                        include/g3dengine/g3dengine.h \
+                       include/g3dengine/g3dmorpher.h \
                        include/g3dengine/g3dimage.h \
                        include/g3dengine/g3dlight.h \
                        include/g3dengine/g3dlookup.h \
@@ -174,7 +175,9 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/rotate_view.xpm \
                        xpm/rotate.xpm \
                        xpm/saveas.xpm \
+                       xpm/saveimageas.xpm \
                        xpm/save.xpm \
+                       xpm/saveimage.xpm \
                        xpm/scale.xpm \
                        xpm/scnico.xpm \
                        xpm/sculptmode.xpm \

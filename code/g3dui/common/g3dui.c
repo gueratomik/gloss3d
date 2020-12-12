@@ -1008,11 +1008,11 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
                                 CAMERAORTHOGRAPHIC | CAMERAXY | OBJECTNOROTATION,
                                 CAMERAORTHOGRAPHIC | CAMERAYZ | OBJECTNOROTATION,
                                 CAMERAORTHOGRAPHIC | CAMERAZX | OBJECTNOROTATION };
-    G3DVECTOR campos[0x04] = { {  -4.851479f,   1.710646f,   4.851479f, 1.0f },
+    G3DVECTOR campos[0x04] = { {       10.0f,        3.0f,       10.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f } },
-              camrot[0x04] = { { -19.422806f, -43.322395f, -13.599810f, 1.0f },
+              camrot[0x04] = { {    -12.516f,        45.0,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,      -90.0f,        0.0f, 1.0f },
                                {      -90.0f,        0.0f,        0.0f, 1.0f } },

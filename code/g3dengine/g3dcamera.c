@@ -30,6 +30,25 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dcamera_spin ( G3DCAMERA *cam, float diffz ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+    double ROTX[0x10];
+
+    glPushMatrix ( );
+    glLoadMatrixd ( obj->rmatrix );
+
+    glRotatef     ( diffz, 0.0f, 0.0f, 1.0f );
+
+    glGetDoublev  ( GL_MODELVIEW_MATRIX, ROTX );
+
+    g3dcore_getMatrixRotation ( ROTX, &obj->rot );
+
+    glPopMatrix ( );
+
+    g3dobject_updateMatrix_r ( obj, 0x00 );
+}
+
+/******************************************************************************/
 G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
                             uint64_t engine_flags ) {
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;

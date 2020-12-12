@@ -139,8 +139,8 @@ void g3dimage_merge ( G3DIMAGE *dstimg,
                       uint32_t  yoffset );
 
 void g3dimage_getNormal ( G3DIMAGE  *img,
-                          float      x, 
-                          float      y,
+                          uint32_t   x, 
+                          uint32_t   y,
                           G3DVECTOR *nor );
 
 #ifdef __cplusplus

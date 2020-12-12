@@ -819,9 +819,9 @@ static int rotate_object ( LIST        *lobj,
                     glTranslatef (  sce->csr.pivot.x, 
                                     sce->csr.pivot.y,
                                     sce->csr.pivot.z );
-                    glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
-                    glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
                     glRotatef ( dif.z, 0.0f, 0.0f, 1.0f );
+                    glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
+                    glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
                     glTranslatef ( -sce->csr.pivot.x, 
                                    -sce->csr.pivot.y, 
                                    -sce->csr.pivot.z );
@@ -835,22 +835,19 @@ static int rotate_object ( LIST        *lobj,
 
                     if ( ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                         if ( nbobj == 0x01 ) {
-                            obj->rotXAxis.w += dif.x;
-                            obj->rotYAxis.w += dif.y;
-                            obj->rotZAxis.w += dif.z;
-
-                            /*glPushMatrix ( );
+                            glPushMatrix ( );
                             glLoadMatrixd ( obj->rmatrix );
 
-                            glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
-                            glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
                             glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
+                            glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
+                            glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
 
-                            glGetDoublev  ( GL_MODELVIEW_MATRIX, obj->rmatrix );
+                            glGetDoublev  ( GL_MODELVIEW_MATRIX, ROTX );
 
-                            g3dcore_getMatrixRotation ( obj->rmatrix, &obj->rot );
+                            g3dcore_getMatrixRotation ( ROTX, &obj->rot );
 
-                            glPopMatrix ( ); */
+
+                            glPopMatrix ( );
                         } else {
                             G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
                             G3DVECTOR objpos;

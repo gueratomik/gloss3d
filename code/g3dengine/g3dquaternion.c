@@ -51,16 +51,16 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DDOUBLEVECTOR *rot ) {
     double cosr_cosp = 1.0f - 2.0f * ( ( qua->roll  * qua->roll  ) +
                                        ( qua->pitch * qua->pitch ) );
 
-    rot->z = atan2 ( sinr_cosp, cosr_cosp );
+    rot->x = atan2 ( sinr_cosp, cosr_cosp );
 
     /* pitch */
     double sinp = 2 * ( ( qua->w * qua->pitch ) - ( qua->yaw * qua->roll ) );
 
     if ( fabs ( sinp ) >= 1 ) {
         /* use 90 degrees if out of range*/
-        rot->x = copysign ( M_PI / 2.0f, sinp ); 
+        rot->y = copysign ( M_PI / 2.0f, sinp ); 
     } else {
-        rot->x = asin ( sinp );
+        rot->y = asin ( sinp );
     }
 
     /* yaw */
@@ -69,7 +69,7 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DDOUBLEVECTOR *rot ) {
     double cosy_cosp = 1.0f - 2.0f * ( ( qua->pitch * qua->pitch ) + 
                                        ( qua->yaw   * qua->yaw   ) );
 
-    rot->y = atan2 ( siny_cosp, cosy_cosp );
+    rot->z = atan2 ( siny_cosp, cosy_cosp );
 }
 
 /******************************************************************************/
@@ -264,23 +264,24 @@ void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
 }*/
 
 /******************************************************************************/
-/*void g3dquaternion_multiply ( G3DQUATERNION *qua0, G3DQUATERNION *qua1,
+void g3dquaternion_multiply ( G3DQUATERNION *qua0,
+                              G3DQUATERNION *qua1,
                               G3DQUATERNION *qout ) {
 
-    qout->x = ( qua0->w * qua1->x ) + ( qua0->x * qua1->w ) +
-              ( qua0->y * qua1->z ) - ( qua0->z * qua1->y );
+    qout->roll  = ( qua0->w     * qua1->roll  ) + ( qua0->roll  * qua1->w     ) +
+                  ( qua0->pitch * qua1->yaw   ) - ( qua0->yaw   * qua1->pitch );
 
-    qout->y = ( qua0->w * qua1->y ) + ( qua0->y * qua1->w ) +
-              ( qua0->z * qua1->x ) - ( qua0->x * qua1->z );
+    qout->pitch = ( qua0->w   * qua1->pitch   ) + ( qua0->pitch * qua1->w     ) +
+                  ( qua0->yaw * qua1->roll    ) - ( qua0->roll  * qua1->yaw   );
 
-    qout->z = ( qua0->w * qua1->z ) + ( qua0->z * qua1->w ) +
-              ( qua0->x * qua1->y ) - ( qua0->y * qua1->x );
+    qout->yaw   = ( qua0->w    * qua1->yaw    ) + ( qua0->yaw   * qua1->w     ) +
+                  ( qua0->roll * qua1->pitch  ) - ( qua0->pitch * qua1->roll  );
 
-    qout->w = ( qua0->w * qua1->w ) + ( qua0->x * qua1->x ) +
-              ( qua0->y * qua1->y ) - ( qua0->z * qua1->z );
+    qout->w     = ( qua0->w     * qua1->w     ) + ( qua0->roll  * qua1->roll  ) +
+                  ( qua0->pitch * qua1->pitch ) - ( qua0->yaw   * qua1->yaw   );
 
     g3dquaternion_normalize ( qout );
-}*/
+}
 
 /******************************************************************************/
 double g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 ) {

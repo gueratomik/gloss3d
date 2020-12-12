@@ -176,5 +176,7 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
     /*** Disable default light if there are some ligths ***/
     g3dscene_checkLights ( gid.currentScene );
 
+    g3dobject_anim_r ( gid.currentScene, 0, flags );
+
     return gid.currentScene;
 }

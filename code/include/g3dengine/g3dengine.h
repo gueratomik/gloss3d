@@ -349,7 +349,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define OBJECTNOROTATION        (  1 <<  7 )
 #define OBJECTNOSCALING         (  1 <<  8 )
 #define OBJECTNOSHADING         (  1 <<  9 )
-#define OBJECTUSEQUATERNION     (  1 << 10 )
 
 /*** Private flags ***/
 /*** Bone flags ***/
@@ -562,9 +561,11 @@ typedef struct _G3DBBOX {   /*** Bounding box   ***/
 
 #include <g3dengine/g3dimage.h>
 
+
 /******************************************************************************/
 typedef struct _G3DPROCEDURAL {
     uint32_t type;
+    uint32_t flags;
     void (*getColor)( struct _G3DPROCEDURAL *, double, 
                                                double, 
                                                double, G3DCOLOR * );
@@ -1402,6 +1403,9 @@ void g3dquaternion_toEuler ( G3DQUATERNION   *qua,
                                       G3DDOUBLEVECTOR *rot );
 void g3dquaternion_toEulerInDegrees ( G3DQUATERNION   *qua,
                                       G3DDOUBLEVECTOR *rot );
+void g3dquaternion_multiply ( G3DQUATERNION *qua0,
+                              G3DQUATERNION *qua1,
+                              G3DQUATERNION *qout );
 void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout );
 void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles, 
                                           G3DQUATERNION *qout );
@@ -2560,6 +2564,7 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
 G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );
 void g3dcamera_view ( G3DCAMERA *cam, 
                       uint64_t   engine_flags );
+void g3dcamera_spin ( G3DCAMERA *cam, float diffz );
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
                         uint64_t   engine_flags );
@@ -2795,6 +2800,7 @@ void           g3dsubdivider_setSyncSubdivision   ( G3DSUBDIVIDER * );
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *,
                           uint32_t       ,
+                          uint32_t       ,
                           void         (*)( G3DPROCEDURAL *, 
                                             double, 
                                             double, 
@@ -2808,7 +2814,8 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                float          v,
                                G3DVECTOR     *nor,
                                float          precU,
-                               float          precV );
+                               float          precV,
+                               uint32_t       fromBuffer );
 
 /******************************************************************************/
 void g3dmodifier_init ( G3DMODIFIER *mod,
@@ -2873,7 +2880,8 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
                             G3DVECTOR  *nor,
                             uint32_t    repeat,
                             float       precU,
-                            float       precV );
+                            float       precV,
+                            uint32_t    fromBuffer );
 
 /******************************************************************************/
 G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );

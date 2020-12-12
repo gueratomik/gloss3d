@@ -80,7 +80,7 @@ G3DPROCEDURALCHESS *g3dproceduralchess_new ( ) {
         return NULL;
     }
 
-    g3dprocedural_init ( ( G3DPROCEDURAL * ) cbd, PROCEDURALCHESS, getColor );
+    g3dprocedural_init ( ( G3DPROCEDURAL * ) cbd, PROCEDURALCHESS, 0x00, getColor );
 
     cbd->color1.r = cbd->color1.g = cbd->color1.b = ( float ) 0xFF / 255.0f;
     cbd->color2.r = cbd->color2.g = cbd->color2.b = ( float ) 0x00 / 255.0f;
