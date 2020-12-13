@@ -379,6 +379,7 @@ G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( );
 G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( );
 G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( );
 G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
+G3DMOUSETOOLREMOVEVERTEXPOSE *g3dmousetoolremovevertexpose_new ( );
 
 /******************************************************************************/
 L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( );
