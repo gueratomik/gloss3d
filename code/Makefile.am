@@ -24,7 +24,8 @@ SUBDIRS = g3dengine \
           g3dui \
           g3durmanager \
           lips3d \
-          r3d
+          r3d \
+          qiss3d
 #          r3dnet
 
 if HAVE_GTK3
@@ -39,7 +40,8 @@ if HAVE_GTK3
                          g3dui/libgloss-g3dui-gtk3.la \
                          g3durmanager/libgloss-g3durmanager.la \
                          r3d/libgloss-r3d.la \
-                         lips3d/libgloss-lips3d.la
+                         lips3d/libgloss-lips3d.la \
+                         qiss3d/libgloss-q3d.la
 #                         r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
@@ -58,7 +60,8 @@ if HAVE_MOTIF
                           g3dui/libgloss-g3dui-motif.la \
                           g3durmanager/libgloss-g3durmanager.la \
                           r3d/libgloss-r3d.la \
-                          lips3d/libgloss-lips3d.la
+                          lips3d/libgloss-lips3d.la \
+                          qiss3d/libgloss-q3d.la
 #                          r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
@@ -78,7 +81,8 @@ if HAVE_WIN32
                           g3dcom/libgloss-g3dcom.la \
                           g3dui/libgloss-g3dui-gtk3.la \
                           g3durmanager/libgloss-g3durmanager.la \
-                          r3d/libgloss-r3d.la
+                          r3d/libgloss-r3d.la \
+                          qiss3d/libgloss-q3d.la
 #                          r3dnet/libgloss-r3dnet.la
 
     BINGLOSS3D_C_FILES   = main.c \
@@ -118,6 +122,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3durmanager.h \
                        include/list.h \
                        include/r3d.h \
+                       include/q3d.h \
                        include/r3dnet.h \
                        include/TabbedBook.h \
                        include/ColorEdit.h \
