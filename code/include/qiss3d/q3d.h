@@ -149,39 +149,53 @@ typedef struct _Q3DRAY {
 /******************************************************************************/
 typedef struct _Q3DOBJECT {
     Q3DBOUNDING qbounding;
+    uint64_t    flags;
+    double      MVX[0x10];
     void (*free) (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
-                          struct _Q3DRAY    *ray, uint64_t render_flags );
+                                  Q3DRAY    *ray, 
+                                  uint64_t   render_flags );
 } Q3DOBJECT;
 
 /******************************************************************************/
-#define Q3DOCTREE_TRIANGLEARRAY ( 1 << 0 )
-#define Q3DOCTREE_TRIANGLELIST  ( 1 << 1 )
+#define Q3DOCTREE_HASNODES      ( 1 << 0 )
+#define Q3DOCTREE_HASTRIANGLES  ( 1 << 1 )
+#define Q3DOCTREE_TRIANGLEARRAY ( 1 << 2 )
+#define Q3DOCTREE_TRIANGLELIST  ( 1 << 3 )
 
 typedef struct _Q3DOCTREE {
-    uint32_t           flags;
-    Q3DVECTOR          min;
-    Q3DVECTOR          max;
-    Q3DVECTOR          d; /*** to store the d value of 3 separation planes  ***/
-                          /*** which is the average between the min and max ***/
-                          /*** values of 1 dimension ***/
-    uint32_t           capacity;
-    uin32_t           *qtriID; /*** we use IDs in order to save RAM on ***/
-                               /*** 64bits systemes ***/
-    uint32_t           nbtri;
-    struct _Q3DOCTREE *node[0x08];
+    uint32_t  flags;
+    Q3DVECTOR min;
+    Q3DVECTOR max;
+    uint32_t  capacity;
+    uint32_t  nbtri;
+    union {
+        struct _Q3DOCTREE *node[0x08];
+                uint32_t   qtriID[0x00];
+    } children;
 } Q3DOCTREE;
 
 /******************************************************************************/
+typedef struct _Q3DVERTEXSET {
+    Q3DVERTEX  *qver;
+    float       frame;
+    Q3DOCTREE  *qoct;
+} Q3DVERTEXSET;
+
+/******************************************************************************/
 typedef struct _Q3DMESH {
-    Q3DOBJECT     qobj;
-    uint32_t      nbVertexSet; /*** can have multiple sets of vertices ***/
-    Q3DVERTEX   **qver;
     uint32_t      nbqver;
-    Q3DTRIANGLE **qtri;
+    Q3DTRIANGLE  *qtri;
     uint32_t      nbqtri;
-    Q3DOCTREE     qoct;
+    uint32_t      nbVertexSet; /*** can have multiple sets of vertices ***/
+    Q3DVERTEXSET *vertexSet;
 } Q3DMESH;
+
+/******************************************************************************/
+typedef struct _Q3DSOLID {
+    Q3DOBJECT    qobj;
+    Q3DMESH     *qmes;
+} Q3DSOLID;
 
 /******************************************************************************/
 typedef struct _Q3DSCENE {
