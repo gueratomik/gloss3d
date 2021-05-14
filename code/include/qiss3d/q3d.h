@@ -84,8 +84,9 @@
 typedef G3DVECTOR Q3DVECTOR;
 typedef G3DVECTOR Q3DPLANE;
 
-#define q3dvector_cross g3dvector_cross
+#define q3dvector_cross     g3dvector_cross
 #define q3dvector_normalize g3dvector_normalize
+#define q3dvector_scalar    g3dvector_scalar
 
 typedef struct _Q3DLINE {
     Q3DVECTOR src;
@@ -120,10 +121,32 @@ typedef struct _Q3DVERTEX {
 } Q3DVERTEX;
 
 /******************************************************************************/
+typedef struct _Q3DUV {
+    float u, v;
+} Q3DUV;
+
+/******************************************************************************/
+typedef struct _Q3DUVSET {
+    Q3DUV uv[0x03];
+} Q3DUVSET;
+
+/******************************************************************************/
+#define Q3DTRIANGLESMOOTH       ( 1      )
+#define Q3DTRIANGLEFLAT         ( 1 << 1 )
+#define Q3DTRIANGLEFROMTRIANGLE ( 1 << 3 )
+#define Q3DTRIANGLEFROMQUAD     ( 1 << 4 )
+#define Q3DTRIANGLEHITATSTART   ( 1 << 6 )
+#define Q3DTRIANGLEFROMQUADONE  ( 1 << 7 )
+#define Q3DTRIANGLEFROMQUADTWO  ( 1 << 8 )
+
+/******************************************************************************/
 typedef struct _Q3DTRIANGLE {
     uint32_t  flags;
     uint32_t  qverID[0x03];  /* Use IDs to save memory (for arch >= 64 bits) */
     Q3DVECTOR nor;
+    Q3DUVSET *quvs;
+    float     surface;
+    uint32_t  textureSlots;
 } Q3DTRIANGLE;
 
 /******************************************************************************/
@@ -148,12 +171,17 @@ typedef struct _Q3DRAY {
 
 /******************************************************************************/
 typedef struct _Q3DOBJECT {
+    LIST       *lchildren;
     Q3DBOUNDING qbounding;
     uint64_t    flags;
     double      MVX[0x10];
+    double     WMVX[0x10];
+    double    IWMVX[0x10];
     void (*free) (struct _Q3DOBJECT *);
+    void (*bound) (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
                                   Q3DRAY    *ray, 
+                                  float      frame,
                                   uint64_t   render_flags );
 } Q3DOBJECT;
 
@@ -184,18 +212,22 @@ typedef struct _Q3DVERTEXSET {
 
 /******************************************************************************/
 typedef struct _Q3DMESH {
+    Q3DOBJECT     qobj;
+    uint32_t      nbVertexSet; /*** can have multiple sets of vertices ***/
+    Q3DVERTEXSET *vertexSet;
     uint32_t      nbqver;
     Q3DTRIANGLE  *qtri;
     uint32_t      nbqtri;
-    uint32_t      nbVertexSet; /*** can have multiple sets of vertices ***/
-    Q3DVERTEXSET *vertexSet;
+    Q3DUVSET     *quvs;
+    uint32_t      nbquvs;
+    uint32_t      nbmap;
+    Q3DTRIANGLE  *curtri;
 } Q3DMESH;
 
 /******************************************************************************/
-typedef struct _Q3DSOLID {
-    Q3DOBJECT    qobj;
-    Q3DMESH     *qmes;
-} Q3DSOLID;
+typedef struct _Q3DSPHERE {
+    Q3DMESH qmes;
+} Q3DSPHERE;
 
 /******************************************************************************/
 typedef struct _Q3DSCENE {

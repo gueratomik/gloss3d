@@ -48,32 +48,6 @@ static uint32_t q3dsolid_intersectMesh ( Q3DSOLID *qsol,
 }
 
 /******************************************************************************/
-Q3DSOLID *q3dsolid_newFromMesh ( Q3DMESH  *qmes,
-                                 uint32_t  id,
-                                 double    MVX[0x10],
-                                 uint32_t  vertexSet ) {
-    Q3DSOLID *qsol = q3dsolid_new ( id, MVX );
-
-    if ( qsol ) {
-        qsol->qmes = qmes;
-        qsol->qoct = q3doctree_new ( xmin, 
-                                     ymin,
-                                     zmin,
-                                     xmax,
-                                     ymax, 
-                                     zmax );
-
-        q3doctree_buildRoot ( qsol->qoct,
-                              q3dmesh_getTriangles     ( qsol->qmes ),
-                              q3dmesh_getTriangleCount ( qsol->qmes ),
-                              q3dmesh_getVertices      ( qsol->qmes, vertexSet ),
-                              0x40 );
-    }
-
-    return qsol;
-}
-
-/******************************************************************************/
 void q3dsolid_init ( Q3DSOLID *qsol,
                      uint32_t  id, 
                      double    MVX[0x10] ) {
@@ -92,6 +66,33 @@ Q3DSOLID *q3dsolid_new ( uint32_t id,
     }
 
     q3dsolid_init ( qsol );
+
+
+    return qsol;
+}
+
+/******************************************************************************/
+Q3DSOLID *q3dsolid_newFromMesh ( Q3DMESH  *qmes,
+                                 uint32_t  id,
+                                 double    MVX[0x10],
+                                 float     frame ) {
+    Q3DSOLID *qsol = q3dsolid_new ( id, MVX );
+
+    if ( qsol ) {
+        qsol->qmes = qmes;
+        qsol->qoct = q3doctree_new ( xmin, 
+                                     ymin,
+                                     zmin,
+                                     xmax,
+                                     ymax, 
+                                     zmax );
+
+        q3doctree_buildRoot ( qsol->qoct,
+                              q3dmesh_getTriangles     ( qsol->qmes ),
+                              q3dmesh_getTriangleCount ( qsol->qmes ),
+                              q3dmesh_getVertices      ( qsol->qmes, frame ),
+                              0x40 );
+    }
 
     return qsol;
 }

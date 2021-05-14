@@ -29,71 +29,138 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
-/******************************************************************************/
-static void q3dmesh_allocVertexSet ( Q3DMESH *qmes, 
-                                     float    frame ) {
-    uint32_t vertexSetID = 
-    uint32_t structSize = sizeof ( Q3DVERTEXSET );
-    uint32_t arraySize  = ++qmes->nbVertexSet * structSize;
+/******************************* Dump flags ***********************************/
+#define GEOMETRYONLY ( 1      )
 
-    qmes->vertexSet = ( Q3DVERTEXSET * ) realloc ( arraySize );
+/******************************************************************************/
+typedef struct _Q3DDUMP {
+    Q3DMESH *qmes;
+    float    frame;
+    uint32_t dump_flags;
+} Q3DDUMP;
+
+/******************************************************************************/
+void q3dmesh_free ( Q3DMESH *qmes ) {
+
+}
+
+/******************************************************************************/
+void q3dmesh_bound ( Q3DMESH *qmes ) {
+    /*** does nothing. The bounding volume is built on init ***/
+}
+
+/******************************************************************************/
+uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
+                             Q3DRAY  *ray, 
+                             float    frame,
+                             uint64_t render_flags ) {
+
+}
+
+/******************************************************************************/
+Q3DVERTEXSET *q3dmesh_getVertexSet ( Q3DMESH *qmes, 
+                                     float    frame ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < qmes->nbVertexSet; i++ ) {
+        if ( qmes->vertexSet[i].frame == frame ) {
+            return &qmes->vertexSet[i];
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void q3dmesh_addVertexSet ( Q3DMESH *qmes, 
+                            float    frame ) {
+    uint32_t structSize  = sizeof ( Q3DVERTEXSET );
+    uint32_t vertexSetID = qmes->nbVertexSet;
+    uint32_t arraySize   = (++qmes->nbVertexSet) * structSize;
+
+    qmes->vertexSet = ( Q3DVERTEXSET * ) realloc ( qmes->vertexSet, arraySize );
+
+    if ( qmes->nbqver ) {
+        Q3DVERTEX *qver = ( Q3DVERTEX * ) calloc ( qmes->nbqver,
+                                                   sizeof ( Q3DVERTEX ) );
+
+        qmes->vertexSet[vertexSetID].qver  = qver;
+        qmes->vertexSet[vertexSetID].frame = frame;
+    }
+}
+
+/******************************************************************************/
+Q3DVERTEX *q3dmesh_getVertices ( Q3DMESH *qmes, 
+                                 float    frame ) {
+    Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
+
+    return qverset->qver;
+}
+
+/******************************************************************************/
+Q3DVERTEX *q3dmesh_getTriangles ( Q3DMESH *qmes ) {
+    return qmes->qtri;
+}
+
+/******************************************************************************/
+uint32_t q3dmesh_getTriangleCount ( Q3DMESH *qmes ) {
+    return qmes->nbqtri;
 }
 
 /******************************************************************************/
 static void q3dmesh_allocArrays ( Q3DMESH *qmes,
-                                  uint32_t nbver,
-                                  uint32_t nbtri ) {
-    G3DMESH *mes = ( G3DMESH * ) qmes->mes;
-    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
-    uint32_t nbuvs  = ( nbtri * nbuvmap );
-    uint32_t memsize = ( nbver * sizeof ( Q3DVERTEX   ) ) +
-                       ( nbtri * sizeof ( Q3DTRIANGLE ) ) + 
-                       ( nbuvs * sizeof ( Q3DUVSET    ) );
-
+                                  float    frame,
+                                  uint32_t nbqver,
+                                  uint32_t nbqtri ) {
+    G3DMESH *mes      = ( G3DMESH * ) qobject_getObject ( qmes );
+    uint32_t nbuvmap  = g3dmesh_getUVMapCount ( mes );
+    uint32_t nbquvs   = ( nbqtri * nbuvmap );
+    uint32_t memsize  = ( nbqver * sizeof ( Q3DVERTEX   ) ) +
+                        ( nbqtri * sizeof ( Q3DTRIANGLE ) ) + 
+                        ( nbquvs * sizeof ( Q3DUVSET    ) );
     uint32_t i;
 
-    qmes->nbqver = nbver;
+    qmes->nbqver = nbqver;
 
-    q3dmesh_allocVertexSet ( qmes );
+    q3dmesh_addVertexSet ( qmes, frame );
 
-    qmes->qver = ( Q3DVERTEX   * ) calloc ( nbver, sizeof ( Q3DVERTEX   ) );
-    qmes->qtri = ( Q3DTRIANGLE * ) calloc ( nbtri, sizeof ( Q3DTRIANGLE ) );
+    qmes->qtri = ( Q3DTRIANGLE * ) calloc ( nbqtri, sizeof ( Q3DTRIANGLE ) );
 
-    if ( nbruvs ) {
-        rms->ruvs = ( R3DUVSET * ) calloc ( nbruvs, sizeof ( R3DUVSET ) );
-
-        for ( i = 0x00; i < nbrfac; i++ ) {
-            rms->rfac[i].ruvs = &rms->ruvs[(i * nbuvmap)];
-        }
-    }
-
-    rms->curfac = rms->rfac;
-
-/*#ifdef VERBOSE*/
-    printf ( "r3dvertex count: %lu\n", nbrver);
-    printf ( "r3dface   count: %lu\n", nbrfac);
-    printf ( "r3duvset  count: %lu\n", nbruvs);
-
-    if ( memsize < 1024 ) {
-        printf ( "R3DMESH memory: %d Bytes\n", memsize );
-    } else if ( memsize < 1048576 ) {
-        printf ( "R3DMESH memory: %.2f KBytes\n", ( float ) memsize / 1024 );
-    } else if ( memsize < 1073741824 ) {
-        printf ( "R3DMESH memory: %.2f MBytes\n", ( float ) memsize / 1048576 );
-    } else {
-        printf ( "R3DMESH memory: %.2f GBytes\n", ( float ) memsize / 1073741824 );
-    }
-/*#endif*/
-
-    if ( rms->rfac == NULL ) {
-        fprintf ( stderr, "r3dmesh_allocFaces: memory allocation failed\n" );
+    if ( qmes->qtri == NULL ) {
+        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
 
         return;
     }
 
-    rms->nbrfac = nbrfac;
-    rms->nbrver = nbrver;
-    rms->nbruvs = nbruvs;
+    if ( nbquvs ) {
+        qmes->quvs = ( Q3DUVSET * ) calloc ( nbquvs, sizeof ( Q3DUVSET ) );
+
+        for ( i = 0x00; i < nbqtri; i++ ) {
+            qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
+        }
+    }
+
+    qmes->curtri = qmes->qtri;
+
+/*#ifdef VERBOSE*/
+    printf ( "q3dvertex count: %lu\n", nbqver );
+    printf ( "q3dface   count: %lu\n", nbqtri );
+    printf ( "q3duvset  count: %lu\n", nbquvs );
+
+    if ( memsize < 1024 ) {
+        printf ( "Q3DMESH mem: %d Bytes\n"   ,           memsize              );
+    } else if ( memsize < 1048576 ) {
+        printf ( "Q3DMESH mem: %.2f KBytes\n", ( float ) memsize / 1024       );
+    } else if ( memsize < 1073741824 ) {
+        printf ( "Q3DMESH mem: %.2f MBytes\n", ( float ) memsize / 1048576    );
+    } else {
+        printf ( "Q3DMESH mem: %.2f GBytes\n", ( float ) memsize / 1073741824 );
+    }
+/*#endif*/
+
+    qmes->nbqtri = nbqtri;
+    qmes->nbqver = nbqver;
+    qmes->nbquvs = nbquvs;
 }
 
 /******************************************************************************/
@@ -101,26 +168,116 @@ static void Alloc ( uint32_t nbver,
                     uint32_t nbtri, 
                     uint32_t nbqua,
                     uint32_t nbuv,
-                    void *data ) {
+                    void    *data ) {
     Q3DDUMP *qdump = ( Q3DDUMP * ) data;
-    Q3DMESH *qmes = qdump->qmes;
+    Q3DMESH *qmes  = qdump->qmes;
+    float    frame = qdump->frame;
 
-    if ( rms ) {
-        q3dmesh_allocArrays ( qmes, nbver, nbtri + ( nbqua * 0x02 ) );
+    q3dmesh_allocArrays ( qmes, frame, nbver, nbtri + ( nbqua * 0x02 ) );
+}
+
+/******************************************************************************/
+static void Dump ( G3DFACE *fac, void *data ) {
+    uint32_t polyCount = ( fac->nbver == 0x03 ) 0x01 : 0x02;
+    Q3DDUMP *qdump = ( Q3DDUMP * ) data;
+    Q3DMESH *qmes  = qdump->qmes;
+    uint32_t i, j;
+    Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, qdump->frame );
+
+    /*** each QUAD gives birth to 2 triangles ***/
+    for ( i = 0x00; i < polyCount; i++ ) {
+        static uint32_t idx[0x02][0x03] = { { 0x00, 0x01, 0x02 },
+                                            { 0x02, 0x03, 0x00 } };
+        LIST *ltmpuvs = fac->luvs;
+        uint32_t qverID[0x03] = { fac->ver[idx[i][0x00]]->id,
+                                  fac->ver[idx[i][0x01]]->id,
+                                  fac->ver[idx[i][0x02]]->id };
+        Q3DVERTEX *qver[0x03] = { &qverset->qver[qverID[0x00]],
+                                  &qverset->qver[qverID[0x01]],
+                                  &qverset->qver[qverID[0x02]] };
+        float length;
+
+        qmes->curtri->qverID[0x00] = verID[0x00];
+        qmes->curtri->qverID[0x01] = verID[0x01];
+        qmes->curtri->qverID[0x02] = verID[0x02];
+
+        qmes->curtri->textureSlots = fac->textureSlots;
+
+        qmes->curtri->flags |= ( polyCount == 0x01 ) ? QTRIANGLEFROMTRIANGLE : 
+                                                       QTRIANGLEFROMQUAD;
+
+        /*** this flag helps us to rebuild a quad from a RFACE and ***/
+        /*** the face that follows in the array. Used for outlining ***/
+        if ( i == 0x00 ) qmes->curtri->flags |= QTRIANGLEFROMQUADONE;
+        if ( i == 0x01 ) qmes->curtri->flags |= QTRIANGLEFROMQUADTWO;
+
+        q3dtriangle_normal ( qmes->curtri, qverset->qver, &length );
+
+        qmes->curtri->surface = length;
+
+        /*** d is a part of a Mathematical Face Equation.  ***/
+        /*** Useful for detecting face / line intersection ***/
+        qmes->curtri->nor.w = - ( ( qmes->curtri->nor.x * qver[0x00]->pos.x ) + 
+                                  ( qmes->curtri->nor.y * qver[0x00]->pos.y ) + 
+                                  ( qmes->curtri->nor.z * qver[0x00]->pos.z ) );
+
+        /* 
+         * no need uv coords when using, let's say,
+         * the vector motion blur
+         */
+        if ( ( qdump->dump_flags & GEOMETRYONLY ) == 0x00 ) {
+            while ( ltmpuvs ) {
+                G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                uint32_t uvmapID = uvs->map->mapID;
+
+                qmes->curtri->quvs[uvmapID].uv[0x00].u = uvs->veruv[verID[0x00]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x00].v = uvs->veruv[verID[0x00]].v;
+
+                qmes->curtri->quvs[uvmapID].uv[0x01].u = uvs->veruv[verID[0x01]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x01].v = uvs->veruv[verID[0x01]].v;
+
+                qmes->curtri->quvs[uvmapID].uv[0x02].u = uvs->veruv[verID[0x02]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x02].v = uvs->veruv[verID[0x02]].v;
+
+                ltmpuvs = ltmpuvs->next;
+            }
+        }
+
+        qmes->curtri++;
     }
 }
 
 /******************************************************************************/
-void q3dmesh_init ( Q3DMESH *qmes, G3DMESH *mes ) {
-    g3dmesh_dump ( mes, 
+void q3dmesh_init ( Q3DMESH *qmes, 
+                    G3DMESH *mes,
+                    uint32_t id,
+                    uint64_t flags,
+                    float    frame ) {
+    Q3DDUMP qdump = { .qmes  = qmes,
+                      .frame = frame };
+
+    q3dobject_init ( qmes,
+                     mes,
+                     id,
+                     flags,
+                     q3dmesh_free,
+                     q3dmesh_bound,
+                     q3dmesh_intersect );
+
+    g3dmesh_dump ( mes,
                    Alloc,
                    Dump,
                   &rdump,
                    engine_flags );
+
+    
 }
 
 /******************************************************************************/
-Q3DMESH *q3dmesh_new ( G3DMESH *mes ) {
+Q3DMESH *q3dmesh_new ( G3DMESH *mes,
+                       uint32_t id,
+                       uint64_t flags,
+                       float    frame ) {
     Q3DMESH *qmes = ( Q3DMESH * ) calloc ( 0x01, sizeof ( Q3DMESH ) );
 
     if ( qmes == NULL ) {
@@ -129,18 +286,8 @@ Q3DMESH *q3dmesh_new ( G3DMESH *mes ) {
         return NULL;
     }
 
-    q3dmesh_init ( qmes, mes );
+    q3dmesh_init ( qmes, mes, frame );
 
-    return qmes;
-}
-
-/******************************************************************************/
-Q3DMESH *q3dmesh_newFromMesh ( G3DMESH *mes ) {
-    Q3DMESH *qmes = q3dmesh_new ( mes );
-
-    if ( qmes ) {
-        
-    }
 
     return qmes;
 }
