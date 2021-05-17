@@ -30,6 +30,36 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+void qobject_intersect_r ( Q3DOBJECT *qobj,
+                           Q3DRAY    *qray,
+                           float      frame,
+                           uint64_t   render_flags ) {
+    Q3DRAY locqray;
+
+    memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
+
+    q3dvector_matrix ( qray->ori, qobj->IMVX , &locqray.ori );
+    q3dvector_matrix ( qray->dir, qobj->TIVMX, &locqray.dir );
+
+    if ( qobj->intersect ) {
+        qobj->intersect ( qobj, &locqray, frame, render_flags );
+    }
+
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+
+        qobject_intersect_r ( qchild, &locqray, frame, render_flags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    qray->color    = locqray.color;
+    qray->distance = locqray.distance;
+    qray->qobj     = locqray.qobj;
+    qray->surface  = locqray.surface;
+}
+
+/******************************************************************************/
 G3DOBJECT *qobject_getObject ( Q3DOBJECT *qobj ) {
     return qobj->obj;
 }
@@ -40,7 +70,6 @@ void q3dobject_init ( Q3DOBJECT *qobj,
                       uint32_t   id,
                       uint64_t   flags,
                       void     (*Free)      ( Q3DOBJECT * ),
-                      void     (*Bound)     ( Q3DOBJECT * ),
                       void     (*Intersect) ( Q3DOBJECT *obj, 
                                               Q3DRAY    *ray,
                                               float      frame,
@@ -50,39 +79,64 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     qobj->flags = flags;
 
     qobj->free      = Free;
-    qobj->bound     = Bound;
     qobj->intersect = Intersect;
+
+    g3dcore_invertMatrix ( obj->lmatrix, qobj->IMVX );
+    g3dcore_transposeMatrix ( qobj->IMVX, qobj->TIMVX );
+}
+
+/******************************************************************************/
+Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj ) {
+    Q3DOBJECT *qobj = ( Q3DOBJECT * ) calloc ( 0x01, sizeof ( Q3DOBJECT ) );
+
+    if ( qobj == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
+
+        return NULL;
+    }
+
+    q3dobject_init ( qobj,
+                     obj,
+                     id,
+                     flags,
+                     q3dobject_free,
+                     q3dobject_intersect );
+
+    return qobj;
 }
 
 /******************************************************************************/
 Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
                                 float      frame ) {
     LIST *ltmpchildren = obj->lchildren;
-
-
-    while ( ltmpchildren ) {
-        G3DOBJECT *child  = ( G3DOBJECT * ) ltmpchildren->data;
-        Q3DOBJECT *qchild = q3dobject_import_r ( child, frame );
-
-        ltmpchildren = ltmpchildren->next;
-    }
+    Q3DOBJECT *qobj;
 
     switch ( obj->type ) {
         case G3DMESHTYPE : {
             G3DMESH *mes = ( G3DMESH * ) obj;
             Q3DMESH *qmes = q3dmesh_new ( mes, frame );
 
-            q3dobject_addChild ( );
+            qobj = qmes;
         } break;
 
-        case G3DSYMMETRYTYPE :
+        case G3DSYMMETRYTYPE : {
+            G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
+            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym );
 
-        break;
+            qobj = qsym;
+        } break;
 
         default : {
-
-
+            qobj = q3dobject_new ( obj );
         } break;
     }
 
+    while ( ltmpchildren ) {
+        G3DOBJECT *child  = ( G3DOBJECT * ) ltmpchildren->data;
+        Q3DOBJECT *qchild = q3dobject_import_r ( child, frame );
+
+        q3dobject_addChild ( qobj, qchild );
+
+        ltmpchildren = ltmpchildren->next;
+    }
 }

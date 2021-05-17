@@ -30,60 +30,71 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-/*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/
-/*** rayplane_intersection.htm                                              ***/
-/******************************************************************************/
-uint32_t q3dplane_intersectLine ( Q3DPLANE   *qpla, 
-                                  Q3DLINE    *qlin, 
-                                  Q3DVECTOR3 *qpnt ) {
-    float vo = ( qpla->x * qlin->src.x ) +
-               ( qpla->y * qlin->src.y ) +
-               ( qpla->z * qlin->src.z ) + qpla->w,
-          vd = ( qpla->x * qlin->dir.x ) + 
-               ( qpla->y * qlin->dir.y ) +
-               ( qpla->z * qlin->dir.z );
-    uint32_t ret;
-    float t;
+static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
 
-    if ( vd == 0.0f ) return 0x00;
-
-    t = - ( vo / vd );
-
-    if ( t > 0.0f ) {
-        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
-
-        return 0x01;
-    }
-
-    return 0x00;
 }
 
 /******************************************************************************/
-uint32_t q3dplane_intersectSegment ( Q3DPLANE   *qpla, 
-                                     Q3DLINE    *qlin, 
-                                     Q3DVECTOR3 *qpnt ) {
-    float vo = ( qpla->x * qlin->src.x ) +
-               ( qpla->y * qlin->src.y ) +
-               ( qpla->z * qlin->src.z ) + qpla->w,
-          vd = ( qpla->x * qlin->dir.x ) + 
-               ( qpla->y * qlin->dir.y ) +
-               ( qpla->z * qlin->dir.z );
-    uint32_t ret;
-    float t;
+static void q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
+                                    Q3DRAY      *qray,
+                                    float        frame,
+                                    uint64_t     render_flags ) {
+    Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
+    Q3DRAY symqray;
 
-    if ( vd == 0.0f ) return 0x00;
+    memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
 
-    t = - ( vo / vd );
+    q3dvector_matrix ( qray->ori, qsym->ISMVX , &symqray.ori );
+    q3dvector_matrix ( qray->dir, qsym->TISMVX, &symqray.dir );
 
-    if ( ( t > 0.0f ) && ( t < 1.0f ) ) {
-        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        return 0x01;
+        q3dobject_intersect_r ( qchild, &symqray, frame, render_flags );
+
+        ltmpchildren = ltmpchildren->next;
     }
 
-    return 0x00;
+    qray->color    = symqray.color;
+    qray->distance = symqray.distance;
+    qray->qobj     = symqray.qobj;
+    qray->surface  = symqray.surface;
+}
+
+/******************************************************************************/
+void q3dsymmetry_init ( Q3DSYMMETRY *qsym, 
+                        G3DSYMMETRY *sym,
+                        uint32_t     id,
+                        uint64_t     flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
+    double TMPX[0x10], ITMPX[0x10];
+
+    q3dobject_init ( qsym,
+                     sym,
+                     id,
+                     flags,
+                     q3dsymmetry_free,
+                     q3dsymmetry_intersect );
+
+    g3dcore_multMatrix ( obj->lmatrix, sym->smatrix, TMPX );
+    g3dcore_invertMatrix ( TMPX, qsym->ISMVX );
+    g3dcore_transposeMatrix ( qsym->ISMVX, qsym->TISMVX );
+}
+
+/******************************************************************************/
+Q3DSYMMETRY *q3dsymmetry_new ( G3DSYMMETRY *sym,
+                               uint32_t     id,
+                               uint64_t     flags ) {
+    Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) calloc ( 0x01, sizeof ( Q3DSYMMETRY ) );
+
+    if ( qsym == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
+
+        return NULL;
+    }
+
+    q3dsymmetry_init ( qsym, sym, id, flags );
+
+
+    return qsym;
 }

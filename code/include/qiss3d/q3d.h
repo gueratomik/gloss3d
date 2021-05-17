@@ -81,24 +81,42 @@
 #include <list.h>
 #include <g3dengine/g3dengine.h>
 
-typedef G3DVECTOR Q3DVECTOR;
-typedef G3DVECTOR Q3DPLANE;
+#define q3dvector3_cross     g3dtinyvector_cross
+#define q3dvector3_normalize g3dtinyvector_normalize
+#define q3dvector3_scalar    g3dtinyvector_scalar
+#define q3dvector3_matrix    g3dtinyvector_matrix
 
-#define q3dvector_cross     g3dvector_cross
-#define q3dvector_normalize g3dvector_normalize
-#define q3dvector_scalar    g3dvector_scalar
+#define q3dvector4_cross     g3dvector_cross
+#define q3dvector4_normalize g3dvector_normalize
+#define q3dvector4_scalar    g3dvector_scalar
 
+/******************************************************************************/
+typedef struct _Q3DVECTOR3 {
+    float x; 
+    float y;
+    float z;
+} Q3DVECTOR3;
+
+/******************************************************************************/
+typedef struct _Q3DPLANE {
+    float x; 
+    float y;
+    float z;
+    float w;
+} Q3DPLANE, Q3DVECTOR4;
+
+/******************************************************************************/
 typedef struct _Q3DLINE {
-    Q3DVECTOR src;
-    Q3DVECTOR dir;
+    Q3DVECTOR3 src;
+    Q3DVECTOR3 dir;
 } Q3DLINE;
 
 /******************************************************************************/
 typedef struct _Q3DBBOX {
     uint32_t  flags;
-    Q3DVECTOR min;
-    Q3DVECTOR max;
-    Q3DVECTOR pln[0x06];
+    Q3DVECTOR3 min;
+    Q3DVECTOR3 max;
+    Q3DPLANE   pln[0x06];
 } Q3DBBOX;
 
 /******************************************************************************/
@@ -108,6 +126,9 @@ typedef struct _Q3DBSPHERE {
 } Q3DBSPHERE;
 
 /******************************************************************************/
+#define Q3DBOUNDING_FLAGS_BBOX_BIT    ( 1 << 0 )
+#define Q3DBOUNDING_FLAGS_BSPHERE_BIT ( 1 << 1 )
+
 typedef union _Q3DBOUNDING {
     uint32_t   flags;
     Q3DBSPHERE sphere;
@@ -116,8 +137,8 @@ typedef union _Q3DBOUNDING {
 
 /******************************************************************************/
 typedef struct _Q3DVERTEX {
-    Q3DVECTOR pos;
-    Q3DVECTOR nor;
+    Q3DVECTOR3 pos;
+    Q3DVECTOR3 nor;
 } Q3DVERTEX;
 
 /******************************************************************************/
@@ -143,7 +164,7 @@ typedef struct _Q3DUVSET {
 typedef struct _Q3DTRIANGLE {
     uint32_t  flags;
     uint32_t  qverID[0x03];  /* Use IDs to save memory (for arch >= 64 bits) */
-    Q3DVECTOR nor;
+    Q3DVECTOR3 nor;
     Q3DUVSET *quvs;
     float     surface;
     uint32_t  textureSlots;
@@ -152,7 +173,7 @@ typedef struct _Q3DTRIANGLE {
 /******************************************************************************/
 typedef union _Q3DSURFACE {
     uint32_t    flags;
-    Q3DTRIANGLE tri;
+    Q3DTRIANGLE triangle;
 } Q3DSURFACE;
 
 /******************************************************************************/
@@ -160,9 +181,9 @@ typedef union _Q3DSURFACE {
 
 typedef struct _Q3DRAY {
     uint32_t    flags;
-    Q3DVECTOR   ori; /*** origin ***/
-    Q3DVECTOR   pnt; /*** intersection point ***/
-    Q3DVECTOR   dir; /*** direction vector ***/
+    Q3DVECTOR3  ori; /*** origin ***/
+    Q3DVECTOR3  dir; /*** direction vector ***/
+    Q3DOBJECT  *qobj;
     Q3DSURFACE *surface;
     float       distance; /*** hit distance for Z sorting ***/
     float       energy;
@@ -171,19 +192,23 @@ typedef struct _Q3DRAY {
 
 /******************************************************************************/
 typedef struct _Q3DOBJECT {
-    LIST       *lchildren;
-    Q3DBOUNDING qbounding;
-    uint64_t    flags;
-    double      MVX[0x10];
-    double     WMVX[0x10];
-    double    IWMVX[0x10];
-    void (*free) (struct _Q3DOBJECT *);
-    void (*bound) (struct _Q3DOBJECT *);
-    uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
-                                  Q3DRAY    *ray, 
-                                  float      frame,
-                                  uint64_t   render_flags );
+    uint64_t flags;
+    LIST    *lchildren;
+    double   IMVX[0x10];
+    double  TIMVX[0x10];
+    void   (*free)     (struct _Q3DOBJECT *);
+    void   (*intersect)(struct _Q3DOBJECT *obj, 
+                                Q3DRAY    *ray, 
+                                float      frame,
+                                uint64_t   render_flags);
 } Q3DOBJECT;
+
+/******************************************************************************/
+typedef struct _Q3DSYMMETRY {
+    Q3DOBJECT qobj;
+    double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
+    double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
+} Q3DSYMMETRY;
 
 /******************************************************************************/
 #define Q3DOCTREE_HASNODES      ( 1 << 0 )
@@ -192,11 +217,12 @@ typedef struct _Q3DOBJECT {
 #define Q3DOCTREE_TRIANGLELIST  ( 1 << 3 )
 
 typedef struct _Q3DOCTREE {
-    uint32_t  flags;
-    Q3DVECTOR min;
-    Q3DVECTOR max;
-    uint32_t  capacity;
-    uint32_t  nbtri;
+    uint32_t   flags;
+    Q3DVECTOR3 min;
+    Q3DVECTOR3 max;
+    Q3DVECTOR3 epsilon;
+    uint32_t   capacity;
+    uint32_t   nbqtri;
     union {
         struct _Q3DOCTREE *node[0x08];
                 uint32_t   qtriID[0x00];
@@ -207,7 +233,8 @@ typedef struct _Q3DOCTREE {
 typedef struct _Q3DVERTEXSET {
     Q3DVERTEX  *qver;
     float       frame;
-    Q3DOCTREE  *qoct;
+    Q3DOCTREE   qoct;
+    Q3DBOUNDING qbnd;
 } Q3DVERTEXSET;
 
 /******************************************************************************/

@@ -45,16 +45,17 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 }
 
 /******************************************************************************/
-void q3dmesh_bound ( Q3DMESH *qmes ) {
-    /*** does nothing. The bounding volume is built on init ***/
-}
+void q3dmesh_intersect ( Q3DMESH *qmes,
+                         Q3DRAY  *qray, 
+                         float    frame,
+                         uint64_t render_flags ) {
+    Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
-/******************************************************************************/
-uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
-                             Q3DRAY  *ray, 
-                             float    frame,
-                             uint64_t render_flags ) {
-
+    q3doctree_intersect_r ( qverset->qoct, 
+                            qray,
+                            qmes->qtri,
+                            qverset->qver,
+                            render_flags );
 }
 
 /******************************************************************************/
@@ -86,6 +87,14 @@ void q3dmesh_addVertexSet ( Q3DMESH *qmes,
 
         qmes->vertexSet[vertexSetID].qver  = qver;
         qmes->vertexSet[vertexSetID].frame = frame;
+
+        qmes->vertexSet[vertexSetID].min.x = FLT_MAX;
+        qmes->vertexSet[vertexSetID].min.y = FLT_MAX;
+        qmes->vertexSet[vertexSetID].min.z = FLT_MAX;
+
+        qmes->vertexSet[vertexSetID].max.x = FLT_MIN;
+        qmes->vertexSet[vertexSetID].max.y = FLT_MIN;
+        qmes->vertexSet[vertexSetID].max.z = FLT_MIN;
     }
 }
 
@@ -189,17 +198,49 @@ static void Dump ( G3DFACE *fac, void *data ) {
         static uint32_t idx[0x02][0x03] = { { 0x00, 0x01, 0x02 },
                                             { 0x02, 0x03, 0x00 } };
         LIST *ltmpuvs = fac->luvs;
-        uint32_t qverID[0x03] = { fac->ver[idx[i][0x00]]->id,
-                                  fac->ver[idx[i][0x01]]->id,
-                                  fac->ver[idx[i][0x02]]->id };
+        uint32_t qverID0 = fac->ver[idx[i][0x00]]->id,
+                 qverID1 = fac->ver[idx[i][0x01]]->id,
+                 qverID2 = fac->ver[idx[i][0x02]]->id;
         Q3DVERTEX *qver[0x03] = { &qverset->qver[qverID[0x00]],
                                   &qverset->qver[qverID[0x01]],
                                   &qverset->qver[qverID[0x02]] };
         float length;
 
-        qmes->curtri->qverID[0x00] = verID[0x00];
-        qmes->curtri->qverID[0x01] = verID[0x01];
-        qmes->curtri->qverID[0x02] = verID[0x02];
+        qmes->curtri->textureSlots = fac->textureSlots;
+
+        for ( j = 0x00; j < 0x03; j++ ) {
+            G3DVERTEX *ver = fac->ver[idx[i][j]];
+            float scalar = fabs ( g3dvector_scalar ( &ver->nor,
+                                                     &fac->nor ) );
+            float gouraudScalarLimit = mes->gouraudScalarLimit;
+            G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
+                                                              &ver->pos,
+                      *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
+                                                               &ver->nor;
+            Q3DVERTEX *curqver = &qmes->qver[qmes->curfac->qverID[j]];
+
+            curqver->pos.x = pos->x;
+            curqver->pos.y = pos->y;
+            curqver->pos.z = pos->z;
+
+            curqver->nor.x = nor->x;
+            curqver->nor.y = nor->y;
+            curqver->nor.z = nor->z;
+
+            if ( curqver->pos.x < qverset->min.x ) qverset->min.x = curqver->pos.x;
+            if ( curqver->pos.y < qverset->min.y ) qverset->min.y = curqver->pos.y;
+            if ( curqver->pos.z < qverset->min.z ) qverset->min.z = curqver->pos.z;
+
+            if ( curqver->pos.x > qverset->max.x ) qverset->max.x = curqver->pos.x;
+            if ( curqver->pos.y > qverset->max.y ) qverset->max.y = curqver->pos.y;
+            if ( curqver->pos.z > qverset->max.z ) qverset->max.z = curqver->pos.z;
+        }
+
+        q3dtriangle_init ( qmes->curtri,
+                           qdump->qver,
+                           qverID0,
+                           qverID1,
+                           qverID2 );
 
         qmes->curtri->textureSlots = fac->textureSlots;
 
@@ -210,16 +251,6 @@ static void Dump ( G3DFACE *fac, void *data ) {
         /*** the face that follows in the array. Used for outlining ***/
         if ( i == 0x00 ) qmes->curtri->flags |= QTRIANGLEFROMQUADONE;
         if ( i == 0x01 ) qmes->curtri->flags |= QTRIANGLEFROMQUADTWO;
-
-        q3dtriangle_normal ( qmes->curtri, qverset->qver, &length );
-
-        qmes->curtri->surface = length;
-
-        /*** d is a part of a Mathematical Face Equation.  ***/
-        /*** Useful for detecting face / line intersection ***/
-        qmes->curtri->nor.w = - ( ( qmes->curtri->nor.x * qver[0x00]->pos.x ) + 
-                                  ( qmes->curtri->nor.y * qver[0x00]->pos.y ) + 
-                                  ( qmes->curtri->nor.z * qver[0x00]->pos.z ) );
 
         /* 
          * no need uv coords when using, let's say,
@@ -252,7 +283,8 @@ void q3dmesh_init ( Q3DMESH *qmes,
                     G3DMESH *mes,
                     uint32_t id,
                     uint64_t flags,
-                    float    frame ) {
+                    float    frame,
+                    uint32_t octreeCapacity ) {
     Q3DDUMP qdump = { .qmes  = qmes,
                       .frame = frame };
 
@@ -261,23 +293,33 @@ void q3dmesh_init ( Q3DMESH *qmes,
                      id,
                      flags,
                      q3dmesh_free,
-                     q3dmesh_bound,
                      q3dmesh_intersect );
 
     g3dmesh_dump ( mes,
                    Alloc,
                    Dump,
                   &rdump,
-                   engine_flags );
+                   /*dump_flags*/0x00 );
 
-    
+    if ( qmes->nbqtri ) {
+        Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
+
+        q3dvertexset_buildBoundingBox ( qverset );
+
+        q3dvertexset_buildOctree      ( qverset,
+                                        qmes->qtri, 
+                                        qmes->nbqtri,
+                                        qmes->qver,
+                                        octreeCapacity );
+    }
 }
 
 /******************************************************************************/
 Q3DMESH *q3dmesh_new ( G3DMESH *mes,
                        uint32_t id,
                        uint64_t flags,
-                       float    frame ) {
+                       float    frame,
+                       uint32_t octreeCapacity ) {
     Q3DMESH *qmes = ( Q3DMESH * ) calloc ( 0x01, sizeof ( Q3DMESH ) );
 
     if ( qmes == NULL ) {
@@ -286,7 +328,7 @@ Q3DMESH *q3dmesh_new ( G3DMESH *mes,
         return NULL;
     }
 
-    q3dmesh_init ( qmes, mes, frame );
+    q3dmesh_init ( qmes, mes, id, flags, frame, octreeCapacity );
 
 
     return qmes;

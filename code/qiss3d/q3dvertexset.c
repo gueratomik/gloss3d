@@ -30,60 +30,25 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-/*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/
-/*** rayplane_intersection.htm                                              ***/
-/******************************************************************************/
-uint32_t q3dplane_intersectLine ( Q3DPLANE   *qpla, 
-                                  Q3DLINE    *qlin, 
-                                  Q3DVECTOR3 *qpnt ) {
-    float vo = ( qpla->x * qlin->src.x ) +
-               ( qpla->y * qlin->src.y ) +
-               ( qpla->z * qlin->src.z ) + qpla->w,
-          vd = ( qpla->x * qlin->dir.x ) + 
-               ( qpla->y * qlin->dir.y ) +
-               ( qpla->z * qlin->dir.z );
-    uint32_t ret;
-    float t;
-
-    if ( vd == 0.0f ) return 0x00;
-
-    t = - ( vo / vd );
-
-    if ( t > 0.0f ) {
-        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
-
-        return 0x01;
-    }
-
-    return 0x00;
+void q3dvertexset_buildBoundingBox ( Q3DVERTEXSET *qverset ) {
+    q3dbounding_initBBox ( &qverset->qbnd,
+                            qverset->min.x, 
+                            qverset->min.y, 
+                            qverset->min.z,
+                            qverset->max.x, 
+                            qverset->max.y, 
+                            qverset->max.z );
 }
 
 /******************************************************************************/
-uint32_t q3dplane_intersectSegment ( Q3DPLANE   *qpla, 
-                                     Q3DLINE    *qlin, 
-                                     Q3DVECTOR3 *qpnt ) {
-    float vo = ( qpla->x * qlin->src.x ) +
-               ( qpla->y * qlin->src.y ) +
-               ( qpla->z * qlin->src.z ) + qpla->w,
-          vd = ( qpla->x * qlin->dir.x ) + 
-               ( qpla->y * qlin->dir.y ) +
-               ( qpla->z * qlin->dir.z );
-    uint32_t ret;
-    float t;
-
-    if ( vd == 0.0f ) return 0x00;
-
-    t = - ( vo / vd );
-
-    if ( ( t > 0.0f ) && ( t < 1.0f ) ) {
-        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
-
-        return 0x01;
-    }
-
-    return 0x00;
+void q3dvertexset_buildOctree ( Q3DVERTEXSET *qverset,
+                                Q3DTRIANGLE  *qtri, 
+                                uint32_t      nbqtri,
+                                Q3DVERTEX    *qver,
+                                uint32_t      capacity ) {
+    q3doctree_buildRoot ( &qverset->qoct,
+                           qtri, 
+                           nbqtri,
+                           qver,
+                           capacity );
 }

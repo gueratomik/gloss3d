@@ -29,6 +29,153 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
+/******************************************************************************/
+/*******************************************************************************
+www.soe.ucsc.edu/classes/cmps160/Fall10/resources/barycentricInterpolation.pdf
+*******************************************************************************/
+/******************************************************************************/
+uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri, 
+                               Q3DVERTEX   *qver, 
+                               Q3DVECTOR3  *qpnt,
+                               float       *RAT0,
+                               float       *RAT1,
+                               float       *RAT2 ) {
+    uint32_t qverID0 = qtri->qverID[0x00],
+             qverID1 = qtri->qverID[0x01],
+             qverID2 = qtri->qverID[0x02];
+    Q3DVECTOR3 V0P = { .x = ( qpnt->x - qver[qverID0].pos.x ),
+                       .y = ( qpnt->y - qver[qverID0].pos.y ),
+                       .z = ( qpnt->z - qver[qverID0].pos.z ),
+                       .w = 1.0f },
+               V1P = { .x = ( qpnt->x - qver[qverID1].pos.x ),
+                       .y = ( qpnt->y - qver[qverID1].pos.y ),
+                       .z = ( qpnt->z - qver[qverID1].pos.z ),
+                       .w = 1.0f },
+               V2P = { .x = ( qpnt->x - qver[qverID2].pos.x ),
+                       .y = ( qpnt->y - qver[qverID2].pos.y ),
+                       .z = ( qpnt->z - qver[qverID2].pos.z ),
+                       .w = 1.0f },
+              V0V1 = { .x = ( qver[qverID1].pos.x - qver[qverID0].pos.x ),
+                       .y = ( qver[qverID1].pos.y - qver[qverID0].pos.y ),
+                       .z = ( qver[qverID1].pos.z - qver[qverID0].pos.z ),
+                       .w = 1.0f },
+              V1V2 = { .x = ( qver[qverID2].pos.x - qver[qverID1].pos.x ),
+                       .y = ( qver[qverID2].pos.y - qver[qverID1].pos.y ),
+                       .z = ( qver[qverID2].pos.z - qver[qverID1].pos.z ),
+                       .w = 1.0f },
+              V2V0 = { .x = ( qver[qverID0].pos.x - qver[qverID2].pos.x ),
+                       .y = ( qver[qverID0].pos.y - qver[qverID2].pos.y ),
+                       .z = ( qver[qverID0].pos.z - qver[qverID2].pos.z ),
+                       .w = 1.0f };
+    Q3DVECTOR3 DOT0, DOT1, DOT2, DOTF;
+    double LENF, LEN0, LEN1, LEN2;
+
+    q3dvector3_cross ( &V0V1, &V1P, &DOT2 );
+    q3dvector3_cross ( &V1V2, &V2P, &DOT0 );
+    q3dvector3_cross ( &V2V0, &V0P, &DOT1 );
+
+    /*** rfc->surface contains the value of the face surface ***/
+    LENF = rfc->surface;
+
+    LEN0 = q3dvector3_length ( &DOT0 );
+    LEN1 = q3dvector3_length ( &DOT1 );
+    LEN2 = q3dvector3_length ( &DOT2 );
+
+    /*if ( rfc->flags & RFACEMIRRORED ) {
+        g3ddoublevector_invert ( &DOT0 );
+        g3ddoublevector_invert ( &DOT1 );
+        g3ddoublevector_invert ( &DOT2 );
+    }*/
+
+    if ( LENF ) {
+        if ( ( q3dvector3_scalar ( &DOT0, &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3_scalar ( &DOT1, &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3_scalar ( &DOT2, &qtri->nor ) >= 0.0f ) ) {
+        /*** return subtriangles surface ratio if needed ***/
+            if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
+            if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );
+            if ( RAT2 ) (*RAT2) = (float)( LEN2 / LENF );
+
+            return 0x01;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+/*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/
+/*** rayplane_intersection.htm                                              ***/
+/******************************************************************************/
+uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
+                                 Q3DVERTEX   *qver, 
+                                 Q3DRAY      *qray,
+                                 uint32_t     query_flags ) {
+    double vo = ( rfc->nor.x * ray->ori.x ) +
+                ( rfc->nor.y * ray->ori.y ) +
+                ( rfc->nor.z * ray->ori.z ) + rfc->d,
+           vd = ( rfc->nor.x * ray->dir.x ) + 
+                ( rfc->nor.y * ray->dir.y ) +
+                ( rfc->nor.z * ray->dir.z );
+    float invert = 1.0f;
+    uint32_t ret;
+    double t;
+
+    if ( vd == 0.0f ) return 0x00;
+
+    t = - ( vo / vd );
+
+    if ( t > 0.0f ) {
+        Q3DVECTOR qpnt = { .x = qray->ori.x + ( qray->dir.x * t ),
+                           .y = qray->ori.y + ( qray->dir.y * t ),
+                           .z = qray->ori.z + ( qray->dir.z * t ) };
+
+        /* when we render backface as well */
+        if ( ( vd > 0.0f ) && ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
+            invert = -1.0f;
+        }
+
+        if ( ( vd < 0.0f ) || ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
+            if ( t < ray->distance ) {
+                float RAT0, RAT1, RAT2;
+
+                if ( q3dtriangle_pointIn ( qtri,
+                                           qver,
+                                          &qpnt,
+                                          &RAT0, 
+                                          &RAT1,
+                                          &RAT2 ) ) {
+                    /*** Interpolation ratios ***/
+                    qray->ratio[0x00] = RAT0;
+                    qray->ratio[0x01] = RAT1;
+                    qray->ratio[0x02] = RAT2;
+
+                    qray->surface  = qtri;
+                    qray->distance = t;
+
+                    /*** intersection occured, let's remember it ***/
+                    qray->flags |= Q3DRAY_HAS_HIT_BIT;
+/*
+                    qray->nor.x = ( ( RAT0 * qtri->rvernor[0].x * invert ) + 
+                                    ( RAT1 * qtri->rvernor[1].x * invert ) + 
+                                    ( RAT2 * qtri->rvernor[2].x * invert ) );
+
+                    qray->nor.y = ( ( RAT0 * qtri->rvernor[0].y * invert ) + 
+                                    ( RAT1 * qtri->rvernor[1].y * invert ) + 
+                                    ( RAT2 * qtri->rvernor[2].y * invert ) );
+
+                    qray->nor.z = ( ( RAT0 * qtri->rvernor[0].z * invert ) + 
+                                    ( RAT1 * qtri->rvernor[1].z * invert ) + 
+                                    ( RAT2 * qtri->rvernor[2].z * invert ) );
+*/
+                    return 0x01;
+                }
+            }
+        }
+    }
+
+    return 0x00;
+}
 
 /******************************************************************************/
 void q3dtriangle_init ( Q3DTRIANGLE  *qtri,
@@ -44,16 +191,7 @@ void q3dtriangle_init ( Q3DTRIANGLE  *qtri,
                        .y = qver[qverID2]->pos.y - qver[qverID0]->pos.y,
                        .z = qver[qverID2]->pos.z - qver[qverID0]->pos.z,
                        .w = 0.0f },
-              pos = {  .x = ( qver[qverID0]->pos.x +
-                              qver[qverID1]->pos.x +
-                              qver[qverID2]->pos.x ) / 3,
-                       .y = ( qver[qverID0]->pos.y +
-                              qver[qverID1]->pos.y +
-                              qver[qverID2]->pos.y ) / 3,
-                       .z = ( qver[qverID0]->pos.z +
-                              qver[qverID1]->pos.z +
-                              qver[qverID2]->pos.z ) / 3,
-                       .w = 0.0f },
+              vout;
 
     qtri->qverID[0x00] = qverID0;
     qtri->qverID[0x01] = qverID1;
@@ -61,11 +199,11 @@ void q3dtriangle_init ( Q3DTRIANGLE  *qtri,
 
     q3dvector_cross ( &v0v1, &v0v2, &vout );
 
-    q3dvector_normalize ( &vout, &qtri->nor, NULL );
+    q3dvector_normalize ( &vout, &qtri->nor, qtri->surface );
 
-    qtri->nor.w = - ( ( qtri->nor.x * pos.x ) + 
-                      ( qtri->nor.y * pos.y ) + 
-                      ( qtri->nor.z * pos.z ) );
+    qtri->nor.w = - ( ( qtri->nor.x * qver[qverID0].pos.x ) + 
+                      ( qtri->nor.y * qver[qverID0].pos.y ) + 
+                      ( qtri->nor.z * qver[qverID0].pos.z ) );
 }
 
 /******************************************************************************/
