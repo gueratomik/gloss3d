@@ -203,7 +203,8 @@ void q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                              Q3DRAY      *qray,
                              Q3DTRIANGLE *qtri,
                              Q3DVERTEX   *qver,
-                             uint32_t     render_flags ) {
+                             uint64_t     query_flags,
+                             uint64_t     render_flags ) {
     Q3DLINE qlin = { .ori = { .x = qray->ori.x,
                               .y = qray->ori.y,
                               .z = qray->ori.z },
@@ -257,7 +258,12 @@ void q3doctree_intersect_r ( Q3DOCTREE   *qoct,
             for ( i = 0x00; i < qoct->nbqtri; i++ ) {
                 uint32_t qtriID = qoct->children.qtriID[i];
 
-                
+                if ( q3dtriangle_intersect ( &qtri[qtriID],
+                                              qver, 
+                                              qray,
+                                              uint64_t query_flags,
+                                              uint64_t render_flags ) ) {
+                }
             }
         }
     }

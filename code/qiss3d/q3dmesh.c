@@ -48,6 +48,7 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 void q3dmesh_intersect ( Q3DMESH *qmes,
                          Q3DRAY  *qray, 
                          float    frame,
+                         uint64_t query_flags,
                          uint64_t render_flags ) {
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
@@ -55,6 +56,7 @@ void q3dmesh_intersect ( Q3DMESH *qmes,
                             qray,
                             qmes->qtri,
                             qverset->qver,
+                            query_flags,
                             render_flags );
 }
 
@@ -186,7 +188,8 @@ static void Alloc ( uint32_t nbver,
 }
 
 /******************************************************************************/
-static void Dump ( G3DFACE *fac, void *data ) {
+static void Dump ( G3DFACE *fac, 
+                   void    *data ) {
     uint32_t polyCount = ( fac->nbver == 0x03 ) 0x01 : 0x02;
     Q3DDUMP *qdump = ( Q3DDUMP * ) data;
     Q3DMESH *qmes  = qdump->qmes;
@@ -282,7 +285,7 @@ static void Dump ( G3DFACE *fac, void *data ) {
 void q3dmesh_init ( Q3DMESH *qmes, 
                     G3DMESH *mes,
                     uint32_t id,
-                    uint64_t flags,
+                    uint64_t object_flags,
                     float    frame,
                     uint32_t octreeCapacity ) {
     Q3DDUMP qdump = { .qmes  = qmes,
@@ -291,7 +294,7 @@ void q3dmesh_init ( Q3DMESH *qmes,
     q3dobject_init ( qmes,
                      mes,
                      id,
-                     flags,
+                     object_flags,
                      q3dmesh_free,
                      q3dmesh_intersect );
 
@@ -304,10 +307,10 @@ void q3dmesh_init ( Q3DMESH *qmes,
     if ( qmes->nbqtri ) {
         Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
-        q3dvertexset_buildBoundingBox ( qverset );
+        /*q3dvertexset_buildBoundingBox ( qverset );*/
 
         q3dvertexset_buildOctree      ( qverset,
-                                        qmes->qtri, 
+                                        qmes->qtri,
                                         qmes->nbqtri,
                                         qmes->qver,
                                         octreeCapacity );
@@ -317,7 +320,7 @@ void q3dmesh_init ( Q3DMESH *qmes,
 /******************************************************************************/
 Q3DMESH *q3dmesh_new ( G3DMESH *mes,
                        uint32_t id,
-                       uint64_t flags,
+                       uint64_t object_flags,
                        float    frame,
                        uint32_t octreeCapacity ) {
     Q3DMESH *qmes = ( Q3DMESH * ) calloc ( 0x01, sizeof ( Q3DMESH ) );
@@ -328,7 +331,7 @@ Q3DMESH *q3dmesh_new ( G3DMESH *mes,
         return NULL;
     }
 
-    q3dmesh_init ( qmes, mes, id, flags, frame, octreeCapacity );
+    q3dmesh_init ( qmes, mes, id, object_flags, frame, octreeCapacity );
 
 
     return qmes;

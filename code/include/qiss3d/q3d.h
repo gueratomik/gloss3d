@@ -90,6 +90,8 @@
 #define q3dvector4_normalize g3dvector_normalize
 #define q3dvector4_scalar    g3dvector_scalar
 
+typedef R3DRENDERSETTINGS Q3DRENDERSETTINGS;
+
 /******************************************************************************/
 typedef struct _Q3DVECTOR3 {
     float x; 
@@ -200,6 +202,7 @@ typedef struct _Q3DOBJECT {
     void   (*intersect)(struct _Q3DOBJECT *obj, 
                                 Q3DRAY    *ray, 
                                 float      frame,
+                                uint64_t   query_flags,
                                 uint64_t   render_flags);
 } Q3DOBJECT;
 
@@ -258,9 +261,33 @@ typedef struct _Q3DSPHERE {
 
 /******************************************************************************/
 typedef struct _Q3DSCENE {
-    LIST *lobj;
-    LIST *lfilter;
+    Q3DOBJECT qobj;
 } Q3DSCENE;
+
+/******************************************************************************/
+typedef struct _Q3DLIGHT {
+    Q3DOBJECT qobj;
+    G3DVECTOR pos; /*** Face position in World coord ***/
+    G3DVECTOR zvec; /*** light orientation vector for spots (Z-oriented) ***/
+} R3DLIGHT;
+
+
+/******************************************************************************/
+typedef struct _Q3DCAMERA {
+    Q3DOBJECT qobj;
+    double MVX[0x10];
+    double PJX[0x10];
+    Q3DVECTOR3 pos;
+    int VPX[4];
+} Q3DCAMERA;
+
+/******************************************************************************/
+typedef struct _Q3DINTERPOLATION {
+    Q3DVECTOR3 src;
+    Q3DVECTOR3 srcdif;
+    Q3DVECTOR3 dst;
+    Q3DVECTOR3 dstdif;
+} Q3DINTERPOLATION;
 
 /******************************************************************************/
 typedef struct _Q3DFILTER {
@@ -277,7 +304,50 @@ typedef struct _Q3DFILTER {
                               uint32_t );
     void (*free)( struct _Q3DFILTER *qsce );
     void  *data;
-} R3DFILTER;
+} Q3DFILTER;
+
+/******************************************************************************/
+typedef struct _Q3DZBUFFER {
+    float    depth;
+    uint32_t qobjID;
+    uint32_t qtriID;
+} Q3DZBUFFER;
+
+/******************************************************************************/
+typedef struct _Q3DAREA {
+    Q3DCAMERA       *qcam;
+    unsigned char   *img;
+    Q3DZBUFFER      *zBuffer;
+    uint32_t         x1, y1;
+    uint32_t         x2, y2;
+    uint32_t         scanline; /*** varies from y1 to y2 ***/
+    Q3DINTERPOLATION pol[0x02]; /*** interpolation factors between viewport ***/
+                                /*** rays 0 -> 3 and 1 -> 2. See r3dcamera.c **/
+                                /*** for viewport rays coordinates.         ***/
+    pthread_mutex_t lock;
+    uint32_t        width;
+    uint32_t        height;
+    uint32_t        depth;
+} Q3DAREA;
+
+/******************************************************************************/
+typedef struct _Q3DJOB {
+    Q3DAREA            qarea;
+    Q3DRENDERSETTINGS *qrsg;
+    LIST              *lqlig; /*** list of render lights  ***/
+    LIST              *lqfil;
+    LIST              *lthread; /*** list of render areas thread***/
+    float              curframe;
+    uint32_t           cancelled;
+    uint32_t           threaded;
+    uint32_t           running;/*** set to 0 to cancel rendering ***/
+    /*** list of render children, in case of motionblur e.g ***/
+    /*** There might be several renderthread, e.g when      ***/
+    /*** using motion blur effect. So we need to have       ***/
+    /*** there identifier put into this list in case we     ***/
+    /*** want to cancel the rendering process.              ***/
+    LIST *lsubssce;
+} Q3DJOB;
 
 #endif
  

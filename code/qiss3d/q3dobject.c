@@ -30,9 +30,23 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+static void q3dobject_default_free ( Q3DOBJECT *qobj ) {
+
+}
+
+/******************************************************************************/
+static void qobject_default_intersect ( Q3DOBJECT *qobj,
+                                        Q3DRAY    *qray,
+                                        float      frame,
+                                        uint64_t   query_flags,
+                                        uint64_t   render_flags ) {
+}
+
+/******************************************************************************/
 void qobject_intersect_r ( Q3DOBJECT *qobj,
                            Q3DRAY    *qray,
                            float      frame,
+                           uint64_t   query_flags,
                            uint64_t   render_flags ) {
     Q3DRAY locqray;
 
@@ -42,13 +56,21 @@ void qobject_intersect_r ( Q3DOBJECT *qobj,
     q3dvector_matrix ( qray->dir, qobj->TIVMX, &locqray.dir );
 
     if ( qobj->intersect ) {
-        qobj->intersect ( qobj, &locqray, frame, render_flags );
+        qobj->intersect ( qobj, 
+                         &locqray, 
+                          frame, 
+                          query_flags,
+                          render_flags );
     }
 
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        qobject_intersect_r ( qchild, &locqray, frame, render_flags );
+        qobject_intersect_r ( qchild, 
+                             &locqray, 
+                              frame,
+                              query_flags,
+                              render_flags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -73,6 +95,7 @@ void q3dobject_init ( Q3DOBJECT *qobj,
                       void     (*Intersect) ( Q3DOBJECT *obj, 
                                               Q3DRAY    *ray,
                                               float      frame,
+                                              uint64_t   query_flags,
                                               uint64_t   render_flags ) ) {
     qobj->obj   = obj;
     qobj->id    = id;
@@ -99,8 +122,8 @@ Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj ) {
                      obj,
                      id,
                      flags,
-                     q3dobject_free,
-                     q3dobject_intersect );
+                     q3dobject_default_free,
+                     q3dobject_default_intersect );
 
     return qobj;
 }
@@ -114,7 +137,7 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
     switch ( obj->type ) {
         case G3DMESHTYPE : {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            Q3DMESH *qmes = q3dmesh_new ( mes, frame );
+            Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
 
             qobj = qmes;
         } break;
@@ -124,6 +147,15 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
             Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym );
 
             qobj = qsym;
+        } break;
+
+        case G3DSCENETYPE : {
+            G3DSCENE *sce = ( G3DSCENE * ) obj;
+            Q3DSCENE *qsce = q3dscene_new ( sce,
+                                            0x00,
+                                            0x00 );
+
+            qobj = qsce;
         } break;
 
         default : {

@@ -38,6 +38,7 @@ static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
 static void q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
                                     Q3DRAY      *qray,
                                     float        frame,
+                                    uint64_t     query_flags,
                                     uint64_t     render_flags ) {
     Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
     Q3DRAY symqray;
@@ -65,7 +66,7 @@ static void q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
 void q3dsymmetry_init ( Q3DSYMMETRY *qsym, 
                         G3DSYMMETRY *sym,
                         uint32_t     id,
-                        uint64_t     flags ) {
+                        uint64_t     object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sym;
     double TMPX[0x10], ITMPX[0x10];
 
@@ -84,7 +85,7 @@ void q3dsymmetry_init ( Q3DSYMMETRY *qsym,
 /******************************************************************************/
 Q3DSYMMETRY *q3dsymmetry_new ( G3DSYMMETRY *sym,
                                uint32_t     id,
-                               uint64_t     flags ) {
+                               uint64_t     object_flags ) {
     Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) calloc ( 0x01, sizeof ( Q3DSYMMETRY ) );
 
     if ( qsym == NULL ) {

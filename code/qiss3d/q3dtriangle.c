@@ -110,13 +110,13 @@ uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri,
 uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                                  Q3DVERTEX   *qver, 
                                  Q3DRAY      *qray,
-                                 uint32_t     query_flags ) {
-    double vo = ( rfc->nor.x * ray->ori.x ) +
-                ( rfc->nor.y * ray->ori.y ) +
-                ( rfc->nor.z * ray->ori.z ) + rfc->d,
-           vd = ( rfc->nor.x * ray->dir.x ) + 
-                ( rfc->nor.y * ray->dir.y ) +
-                ( rfc->nor.z * ray->dir.z );
+                                 uint64_t     query_flags ) {
+    double vo = ( qtri->nor.x * qray->ori.x ) +
+                ( qtri->nor.y * qray->ori.y ) +
+                ( qtri->nor.z * qray->ori.z ) + qtri->d,
+           vd = ( qtri->nor.x * qray->dir.x ) + 
+                ( qtri->nor.y * qray->dir.y ) +
+                ( qtri->nor.z * qray->dir.z );
     float invert = 1.0f;
     uint32_t ret;
     double t;
@@ -136,7 +136,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
         }
 
         if ( ( vd < 0.0f ) || ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
-            if ( t < ray->distance ) {
+            if ( t < qray->distance ) {
                 float RAT0, RAT1, RAT2;
 
                 if ( q3dtriangle_pointIn ( qtri,

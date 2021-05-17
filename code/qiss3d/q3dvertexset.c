@@ -47,7 +47,8 @@ void q3dvertexset_buildOctree ( Q3DVERTEXSET *qverset,
                                 Q3DVERTEX    *qver,
                                 uint32_t      capacity ) {
     q3doctree_buildRoot ( &qverset->qoct,
-                           qtri, 
+                           qtri,
+                           NULL,
                            nbqtri,
                            qver,
                            capacity );
