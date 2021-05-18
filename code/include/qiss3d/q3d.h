@@ -90,7 +90,160 @@
 #define q3dvector4_normalize g3dvector_normalize
 #define q3dvector4_scalar    g3dvector_scalar
 
+/******************************* filter flags *********************************/
+#define FILTERLINE   ( 1      )
+#define FILTERIMAGE  ( 1 << 1 )
+#define FILTERBEFORE ( 1 << 2 )
+#define ENABLEFILTER ( 1 << 3 )
+
+/******************************************************************************/
+#define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
+#define MOTIONBLURFILTERNAME "Motion Blur"
+#define TOWINDOWFILTERNAME   "to Window"
+#define TOSTATUSBARFILTERNAME "To status bar"
+#define TOFFMPEGFILTERNAME   "to FFMpeg"
+#define TOBUFFERFILTERNAME   "to Buffer"
+#define WRITEIMAGEFILTERNAME "Write Image"
+#define GOTOFRAMEFILTERNAME  "Go to Frame" /*** This is toolkit dependent ***/
+#define PREVIEWFILTERNAME    "Preview"
+#define DOFFILTERNAME        "Depth of field"
+
+/******************************************************************************/
 typedef R3DRENDERSETTINGS Q3DRENDERSETTINGS;
+
+/********************************** G3DUIRENDERSETTINGS flags *****************/
+#define RENDERDEFAULT     ( 1       )
+#define RENDERPREVIEW     ( 1 <<  1 )
+#define RENDERSAVE        ( 1 <<  2 )
+#define ENABLEMOTIONBLUR  ( 1 <<  3 )
+#define SCENEMOTIONBLUR   ( 1 <<  4 )
+#define VECTORMOTIONBLUR  ( 1 <<  5 )
+#define RENDERWIREFRAME   ( 1 <<  6 )
+#define WIREFRAMELIGHTING ( 1 <<  7 )
+#define RENDERFOG         ( 1 <<  8 )
+#define RENDERDOF         ( 1 <<  9 )
+
+
+/******************************************************************************/
+#define RENDERTOIMAGE 0x00
+#define RENDERTOVIDEO 0x01
+
+/*********************** Export to g3d file ***********************************/
+#define SIG_RENDERSETTINGS_EXTENSION                    0x3D0C0000
+#define SIG_RENDERSETTINGS_ENTRY                            0x10000000
+#define SIG_RENDERSETTINGS_FLAGS                                0x11000000 /* uint64_t */
+#define SIG_RENDERSETTINGS_OUTPUT                               0x12000000
+#define SIG_RENDERSETTINGS_OUTPUT_FPS                               0x12100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_SIZE                              0x12200000 /* uint32_t, uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_FRAME                             0x12300000 /* float, float */
+#define SIG_RENDERSETTINGS_OUTPUT_FILE                              0x12400000 /* char[]   */
+#define SIG_RENDERSETTINGS_OUTPUT_FORMAT                            0x12500000 /* uint32_t */
+#define SIG_RENDERSETTINGS_OUTPUT_RATIO                             0x12600000 /* float    */
+#define SIG_RENDERSETTINGS_BACKGROUND                           0x13000000
+#define SIG_RENDERSETTINGS_BACKGROUND_MODE                          0x13100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_BACKGROUND_COLOR                         0x13200000 /* uint32_t */
+#define SIG_RENDERSETTINGS_BACKGROUND_IMAGE                         0x13300000 /* char[]   */
+#define SIG_RENDERSETTINGS_WIREFRAME                            0x14000000
+#define SIG_RENDERSETTINGS_WIREFRAME_COLOR                          0x14100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_WIREFRAME_THICKNESS                      0x14200000 /* float    */
+#define SIG_RENDERSETTINGS_MOTIONBLUR                           0x15000000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH                      0x15100000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS                    0x15200000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES                       0x15300000
+#define SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE               0x15400000
+#define SIG_RENDERSETTINGS_FOG                                  0x16000000
+#define SIG_RENDERSETTINGS_FOG_FLAGS                                0x16100000 /* uint64_t */
+#define SIG_RENDERSETTINGS_FOG_NEAR                                 0x16200000 /* float    */
+#define SIG_RENDERSETTINGS_FOG_FAR                                  0x16300000 /* float    */
+#define SIG_RENDERSETTINGS_FOG_COLOR                                0x16400000 /* uint32_t */
+#define SIG_RENDERSETTINGS_DOF                                  0x17000000
+
+/******************************************************************************/
+
+/* R3DFOGSETTINGS flags */
+#define FOGAFFECTSBACKGROUND     ( 1       )
+
+typedef struct _Q3DFOGSETTINGS {
+    uint64_t flags;
+    float    fnear; /* far is a C keyword. Use prefix f */
+    float    ffar; /* far is a C keyword. Use prefix f */
+    uint32_t color;
+    float    strength;
+} Q3DFOGSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DDOFSETTINGS {
+    uint64_t flags;
+    float    dnear;
+    float    dfar;
+    uint32_t radius;
+} Q3DDOFSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DBACKGROUNDSETTINGS {
+    uint32_t   mode;
+    uint32_t   color;
+    G3DIMAGE  *image;
+    float      widthRatio;
+} Q3DBACKGROUNDSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DWIREFRAMESETTINGS {
+    uint32_t color;
+    float    thickness;
+} Q3DWIREFRAMESETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DINPUTSETTINGS {
+    G3DSCENE  *sce;
+    G3DCAMERA *cam;
+    LIST      *lfilters;
+} Q3DINPUTSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DOUTPUTSETTINGS {
+    uint32_t fps; /*** frame per second ***/
+    uint32_t x1; 
+    uint32_t y1;
+    uint32_t x2;
+    uint32_t y2;
+    uint32_t width; 
+    uint32_t height;
+    uint32_t depth;
+    float    startframe;
+    float    endframe;
+    char    *outfile;
+    uint32_t format;
+    float    ratio;
+} Q3DOUTPUTSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DMOTIONBLURSETTINGS {
+    uint32_t strength;   /*** motion blur strength ***/
+    uint32_t iterations; /*** motion blur iterations ( for scene mode ) ***/
+    uint32_t vMotionBlurSamples; /* vector mode sampling */
+    float    vMotionBlurSubSamplingRate; /* vector mode sampling */
+} Q3DMOTIONBLURSETTINGS;
+
+/******************************************************************************/
+typedef struct _Q3DSETTINGS {
+    uint64_t              flags;
+    Q3DINPUTSETTINGS      input;
+    Q3DOUTPUTSETTINGS     output;
+    Q3DBACKGROUNDSETTINGS background;
+    Q3DWIREFRAMESETTINGS  wireframe;
+    Q3DMOTIONBLURSETTINGS motionBlur;
+    Q3DFOGSETTINGS        fog;
+    Q3DDOFSETTINGS        dof;
+    LIST    *lfilter;
+    /*int      pipefd[0x02];*/
+} Q3DSETTINGS;
+
+/****************************** q3dsettings.c *************************/
+Q3DSETTINGS *q3dsettings_new ( );
+void q3dsettings_free ( Q3DSETTINGS *qrsg );
+void q3dsettings_copy ( Q3DSETTINGS *qdst,
+                        Q3DSETTINGS *qsrc );
 
 /******************************************************************************/
 typedef struct _Q3DVECTOR3 {
@@ -179,7 +332,9 @@ typedef union _Q3DSURFACE {
 } Q3DSURFACE;
 
 /******************************************************************************/
-#define Q3DRAY_FIRSTRAY      ( 1 << 0 )
+#define Q3DRAY_PRIMARY_BIT  ( 1 << 0 )
+#define Q3DRAY_HAS_HIT_BIT  ( 1 << 1 )
+
 
 typedef struct _Q3DRAY {
     uint32_t    flags;
@@ -198,12 +353,12 @@ typedef struct _Q3DOBJECT {
     LIST    *lchildren;
     double   IMVX[0x10];
     double  TIMVX[0x10];
-    void   (*free)     (struct _Q3DOBJECT *);
-    void   (*intersect)(struct _Q3DOBJECT *obj, 
-                                Q3DRAY    *ray, 
-                                float      frame,
-                                uint64_t   query_flags,
-                                uint64_t   render_flags);
+    void     (*free)     (struct _Q3DOBJECT *);
+    uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
+                                  Q3DRAY    *ray, 
+                                  float      frame,
+                                  uint64_t   query_flags,
+                                  uint64_t   render_flags);
 } Q3DOBJECT;
 
 /******************************************************************************/
@@ -307,27 +462,22 @@ typedef struct _Q3DFILTER {
 } Q3DFILTER;
 
 /******************************************************************************/
-typedef struct _Q3DZBUFFER {
-    float    depth;
-    uint32_t qobjID;
-    uint32_t qtriID;
-} Q3DZBUFFER;
-
-/******************************************************************************/
 typedef struct _Q3DAREA {
     Q3DCAMERA       *qcam;
+    Q3DZENGINE      *qzen;
     unsigned char   *img;
-    Q3DZBUFFER      *zBuffer;
+
     uint32_t         x1, y1;
     uint32_t         x2, y2;
     uint32_t         scanline; /*** varies from y1 to y2 ***/
     Q3DINTERPOLATION pol[0x02]; /*** interpolation factors between viewport ***/
                                 /*** rays 0 -> 3 and 1 -> 2. See r3dcamera.c **/
                                 /*** for viewport rays coordinates.         ***/
-    pthread_mutex_t lock;
-    uint32_t        width;
-    uint32_t        height;
-    uint32_t        depth;
+    pthread_mutex_t  lock;
+    uint32_t         width;
+    uint32_t         height;
+    uint32_t         depth;
+    Q3DPLANE         frustrum[CLIPPINGPLANES];
 } Q3DAREA;
 
 /******************************************************************************/
@@ -346,7 +496,7 @@ typedef struct _Q3DJOB {
     /*** using motion blur effect. So we need to have       ***/
     /*** there identifier put into this list in case we     ***/
     /*** want to cancel the rendering process.              ***/
-    LIST *lsubssce;
+    LIST              *lsubjob;
 } Q3DJOB;
 
 #endif

@@ -45,19 +45,25 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 }
 
 /******************************************************************************/
-void q3dmesh_intersect ( Q3DMESH *qmes,
-                         Q3DRAY  *qray, 
-                         float    frame,
-                         uint64_t query_flags,
-                         uint64_t render_flags ) {
+uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
+                             Q3DRAY  *qray, 
+                             float    frame,
+                             uint64_t query_flags,
+                             uint64_t render_flags ) {
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
-    q3doctree_intersect_r ( qverset->qoct, 
-                            qray,
-                            qmes->qtri,
-                            qverset->qver,
-                            query_flags,
-                            render_flags );
+    if ( q3doctree_intersect_r ( qverset->qoct, 
+                                 qray,
+                                 qmes->qtri,
+                                 qverset->qver,
+                                 query_flags,
+                                 render_flags ) ) {
+        qray->qobj = qmes;
+
+        return 0x01;
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -288,15 +294,26 @@ void q3dmesh_init ( Q3DMESH *qmes,
                     uint64_t object_flags,
                     float    frame,
                     uint32_t octreeCapacity ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     Q3DDUMP qdump = { .qmes  = qmes,
                       .frame = frame };
 
-    q3dobject_init ( qmes,
-                     mes,
-                     id,
-                     object_flags,
-                     q3dmesh_free,
-                     q3dmesh_intersect );
+    if ( ( obj->type == G3DSPHERETYPE   ) &&
+         ( obj->flags & SPHEREISPERFECT ) ) {
+        q3dobject_init ( qmes,
+                         mes,
+                         id,
+                         object_flags,
+                         q3dmesh_free,
+                         q3dsphere_intersect );
+    } else {
+        q3dobject_init ( qmes,
+                         mes,
+                         id,
+                         object_flags,
+                         q3dmesh_free,
+                         q3dmesh_intersect );
+    }
 
     g3dmesh_dump ( mes,
                    Alloc,

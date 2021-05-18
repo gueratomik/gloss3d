@@ -379,6 +379,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define CAMERAXY              (  1 << 20 )
 #define CAMERAYZ              (  1 << 21 )
 #define CAMERAZX              (  1 << 22 )
+/**** SPHERE flags ***/
+#define SPHEREISPERFECT       (  1 << 17 ) /* render perfect */
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )

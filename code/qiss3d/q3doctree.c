@@ -116,34 +116,7 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
         return 0x01;
     } else {
     /*** Otherwise, check if it crosses the sides of the octree ***/
-        Q3DVECTOR3 v0v1 = { .x = qver[qverID1].pos.x - qver[qverID0].pos.x,
-                            .y = qver[qverID1].pos.y - qver[qverID0].pos.y, 
-                            .z = qver[qverID1].pos.z - qver[qverID0].pos.z },
-                   v1v2 = { .x = qver[qverID2].pos.x - qver[qverID1].pos.x,
-                            .y = qver[qverID2].pos.y - qver[qverID1].pos.y, 
-                            .z = qver[qverID2].pos.z - qver[qverID1].pos.z },
-                   v2v0 = { .x = qver[qverID0].pos.x - qver[qverID2].pos.x,
-                            .y = qver[qverID0].pos.y - qver[qverID2].pos.y, 
-                            .z = qver[qverID0].pos.z - qver[qverID2].pos.z };
-        Q3DLINE lin[0x03] = { { .src = { .x = qver[qverID0].pos.x, 
-                                         .y = qver[qverID0].pos.y,
-                                         .z = qver[qverID0].pos.z },
-                                .dir = { .x = v0v1.x, 
-                                         .y = v0v1.y, 
-                                         .z = v0v1.z } },
-                              { .src = { .x = qver[qverID1].pos.x, 
-                                         .y = qver[qverID1].pos.y,
-                                         .z = qver[qverID1].pos.z },
-                                .dir = { .x = v1v2.x, 
-                                         .y = v1v2.y, 
-                                         .z = v1v2.z } },
-                              { .src = { .x = qver[qverID2].pos.x, 
-                                         .y = qver[qverID2].pos.y,
-                                         .z = qver[qverID2].pos.z },
-                                .dir = { .x = v2v0.x, 
-                                         .y = v2v0.y, 
-                                         .z = v2v0.z } } };
-        static Q3DPLANE plan[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
+        static Q3DPLANE qpln[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
                                        { .x =  0.0f, .y =  0.0f, .z = -1.0f },
                                        { .x =  0.0f, .y =  1.0f, .z =  0.0f },
                                        { .x =  0.0f, .y = -1.0f, .z =  0.0f },
@@ -151,20 +124,23 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
                                        { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
         uint32_t i;
 
-        plan[0x00].w = zmax;
-        plan[0x01].w = zmin;
-        plan[0x02].w = ymax;
-        plan[0x03].w = ymin;
-        plan[0x04].w = xmax;
-        plan[0x05].w = xmin;
+        qpln[0x00].w = zmax;
+        qpln[0x01].w = zmin;
+        qpln[0x02].w = ymax;
+        qpln[0x03].w = ymin;
+        qpln[0x04].w = xmax;
+        qpln[0x05].w = xmin;
 
         for ( i = 0x00; i < 0x06; i++ ) {
             Q3DVECTOR vout;
             uint32_t j;
 
             for ( j = 0x00; j < 0x03; j++ ) {
-                if ( q3dplane_intersectSegment ( &pla[i], 
-                                                 &lin[j], 
+                uint32_t k = ( j + 0x01 ) % 0x03;
+
+                if ( q3dplane_intersectSegment ( &qpln[i], 
+                                                 &qver[j].pos,
+                                                 &qver[k].pos,
                                                  &vout ) ) {
                     if ( ( vout.x >= xmin ) &&
                          ( vout.x <= xmax ) &&
@@ -199,18 +175,19 @@ static uint32_t pointIn ( Q3DOCTREE  *qoct,
 }
 
 /******************************************************************************/
-void q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
-                             Q3DRAY      *qray,
-                             Q3DTRIANGLE *qtri,
-                             Q3DVERTEX   *qver,
-                             uint64_t     query_flags,
-                             uint64_t     render_flags ) {
+uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
+                                 Q3DRAY      *qray,
+                                 Q3DTRIANGLE *qtri,
+                                 Q3DVERTEX   *qver,
+                                 uint64_t     query_flags,
+                                 uint64_t     render_flags ) {
     Q3DLINE qlin = { .ori = { .x = qray->ori.x,
                               .y = qray->ori.y,
                               .z = qray->ori.z },
                      .dir = { .x = qray->dir.x,
                               .y = qray->dir.y,
                               .z = qray->dir.z } };
+    uint32_t hit = 0x00;
 
     if ( qoct->flags & Q3DOCTREE_HASNODES ) {
         uint32_t i;
@@ -258,17 +235,16 @@ void q3doctree_intersect_r ( Q3DOCTREE   *qoct,
             for ( i = 0x00; i < qoct->nbqtri; i++ ) {
                 uint32_t qtriID = qoct->children.qtriID[i];
 
-                if ( q3dtriangle_intersect ( &qtri[qtriID],
-                                              qver, 
-                                              qray,
-                                              uint64_t query_flags,
-                                              uint64_t render_flags ) ) {
-                }
+                hit = q3dtriangle_intersect ( &qtri[qtriID],
+                                               qver, 
+                                               qray,
+                                               query_flags,
+                                               render_flags );
             }
         }
     }
 
-    return 0x00;
+    return ( hit ) ? 0x01 : 0x00;
 }
 
 /******************************************************************************/

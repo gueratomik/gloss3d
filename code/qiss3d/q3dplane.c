@@ -33,9 +33,9 @@
 /*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/
 /*** rayplane_intersection.htm                                              ***/
 /******************************************************************************/
-uint32_t q3dplane_intersectLine ( Q3DPLANE   *qpla, 
-                                  Q3DLINE    *qlin, 
-                                  Q3DVECTOR3 *qpnt ) {
+float q3dplane_intersectLine ( Q3DPLANE   *qpla, 
+                               Q3DLINE    *qlin, 
+                               Q3DVECTOR3 *qpnt ) {
     float vo = ( qpla->x * qlin->src.x ) +
                ( qpla->y * qlin->src.y ) +
                ( qpla->z * qlin->src.z ) + qpla->w,
@@ -45,7 +45,7 @@ uint32_t q3dplane_intersectLine ( Q3DPLANE   *qpla,
     uint32_t ret;
     float t;
 
-    if ( vd == 0.0f ) return 0x00;
+    if ( vd == 0.0f ) return 0.0f;
 
     t = - ( vo / vd );
 
@@ -54,36 +54,43 @@ uint32_t q3dplane_intersectLine ( Q3DPLANE   *qpla,
         qpnt->y = qlin->src.y + ( qlin->dir.y * t );
         qpnt->z = qlin->src.z + ( qlin->dir.z * t );
 
-        return 0x01;
+        return t;
     }
 
-    return 0x00;
+    return 0.0f;
 }
 
 /******************************************************************************/
-uint32_t q3dplane_intersectSegment ( Q3DPLANE   *qpla, 
-                                     Q3DLINE    *qlin, 
-                                     Q3DVECTOR3 *qpnt ) {
-    float vo = ( qpla->x * qlin->src.x ) +
-               ( qpla->y * qlin->src.y ) +
-               ( qpla->z * qlin->src.z ) + qpla->w,
-          vd = ( qpla->x * qlin->dir.x ) + 
-               ( qpla->y * qlin->dir.y ) +
-               ( qpla->z * qlin->dir.z );
+float q3dplane_intersectSegment ( Q3DPLANE   *qpla, 
+                                  Q3DVECTOR3 *pnt0,
+                                  Q3DVECTOR3 *pnt1,
+                                  Q3DVECTOR3 *qpnt ) {
+    Q3DLINE lin = { .src = { .x = pnt0->x,
+                             .y = pnt0->y,
+                             .z = pnt0->z },
+                    .dir = { .x = pnt1->x - pnt0->x,
+                             .y = pnt1->y - pnt0->y,
+                             .z = pnt1->z - pnt0->z } };
+    float vo = ( qpla->x * qlin.src.x ) +
+               ( qpla->y * qlin.src.y ) +
+               ( qpla->z * qlin.src.z ) + qpla->w,
+          vd = ( qpla->x * qlin.dir.x ) + 
+               ( qpla->y * qlin.dir.y ) +
+               ( qpla->z * qlin.dir.z );
     uint32_t ret;
     float t;
 
-    if ( vd == 0.0f ) return 0x00;
+    if ( vd == 0.0f ) return 0.0f;
 
     t = - ( vo / vd );
 
     if ( ( t > 0.0f ) && ( t < 1.0f ) ) {
-        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
+        qpnt->x = qlin.src.x + ( qlin.dir.x * t );
+        qpnt->y = qlin.src.y + ( qlin.dir.y * t );
+        qpnt->z = qlin.src.z + ( qlin.dir.z * t );
 
-        return 0x01;
+        return t;
     }
 
-    return 0x00;
+    return 0.0f;
 }
