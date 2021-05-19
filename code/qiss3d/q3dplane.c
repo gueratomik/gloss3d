@@ -33,9 +33,9 @@
 /*** From http://www.siggraph.org/education/materials/HyperGraph/raytrace/  ***/
 /*** rayplane_intersection.htm                                              ***/
 /******************************************************************************/
-float q3dplane_intersectLine ( Q3DPLANE   *qpla, 
-                               Q3DLINE    *qlin, 
-                               Q3DVECTOR3 *qpnt ) {
+float q3dplane_intersectLine ( Q3DPLANE    *qpla, 
+                               Q3DLINE     *qlin, 
+                               Q3DVECTOR3F *qpnt ) {
     float vo = ( qpla->x * qlin->src.x ) +
                ( qpla->y * qlin->src.y ) +
                ( qpla->z * qlin->src.z ) + qpla->w,
@@ -61,16 +61,16 @@ float q3dplane_intersectLine ( Q3DPLANE   *qpla,
 }
 
 /******************************************************************************/
-float q3dplane_intersectSegment ( Q3DPLANE   *qpla, 
-                                  Q3DVECTOR3 *pnt0,
-                                  Q3DVECTOR3 *pnt1,
-                                  Q3DVECTOR3 *qpnt ) {
-    Q3DLINE lin = { .src = { .x = pnt0->x,
-                             .y = pnt0->y,
-                             .z = pnt0->z },
-                    .dir = { .x = pnt1->x - pnt0->x,
-                             .y = pnt1->y - pnt0->y,
-                             .z = pnt1->z - pnt0->z } };
+float q3dplane_intersectSegment ( Q3DPLANE    *qpla, 
+                                  Q3DVECTOR3F *pnt0,
+                                  Q3DVECTOR3F *pnt1,
+                                  Q3DVECTOR3F *qpnt ) {
+    Q3DLINE qlin = { .src = { .x = pnt0->x,
+                              .y = pnt0->y,
+                              .z = pnt0->z },
+                     .dir = { .x = pnt1->x - pnt0->x,
+                              .y = pnt1->y - pnt0->y,
+                              .z = pnt1->z - pnt0->z } };
     float vo = ( qpla->x * qlin.src.x ) +
                ( qpla->y * qlin.src.y ) +
                ( qpla->z * qlin.src.z ) + qpla->w,

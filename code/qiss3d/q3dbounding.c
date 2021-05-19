@@ -75,13 +75,13 @@
 
 /******************************************************************************/
 static uint32_t pointInBBox ( Q3DBOUNDING *qbnd, 
-                              Q3DVECTOR3  *qpnt ) {
-    if ( ( qpnt->x >= qnbd->min.x ) && 
-         ( qpnt->z >= qnbd->min.y ) &&
-         ( qpnt->z >= qnbd->min.z ) &&
-         ( qpnt->x <= qnbd->max.x ) &&
-         ( qpnt->y <= qnbd->max.y ) &&
-         ( qpnt->z <= qnbd->max.z ) ) {
+                              Q3DVECTOR3F *qpnt ) {
+    if ( ( qpnt->x >= qbnd->box.min.x ) && 
+         ( qpnt->z >= qbnd->box.min.y ) &&
+         ( qpnt->z >= qbnd->box.min.z ) &&
+         ( qpnt->x <= qbnd->box.max.x ) &&
+         ( qpnt->y <= qbnd->box.max.y ) &&
+         ( qpnt->z <= qbnd->box.max.z ) ) {
 
         return 0x01;
     }
@@ -92,13 +92,13 @@ static uint32_t pointInBBox ( Q3DBOUNDING *qbnd,
 /******************************************************************************/
 uint32_t q3dbouding_intersect ( Q3DBOUNDING *qbnd, 
                                 Q3DRAY      *qray ) {
-    Q3DLINE qlin = { .ori = { .x = qray->ori.x,
+    Q3DLINE qlin = { .src = { .x = qray->ori.x,
                               .y = qray->ori.y,
                               .z = qray->ori.z },
                      .dir = { .x = qray->dir.x,
                               .y = qray->dir.y,
                               .z = qray->dir.z } };
-    Q3DVECTOR3 qpnt;
+    Q3DVECTOR3F qpnt;
     uint32_t i, hit;
 
     if ( pointInBBox ( qbnd, &qlin.ori ) {
@@ -132,7 +132,7 @@ void q3dbounding_initBBox ( Q3DBOUNDING     *qbnd,
                             float            xmax, 
                             float            ymax, 
                             float            zmax ) {
-    Q3DVECTOR3 epsilon = { .x = ( xmax - xmin ) * 0.05f;
+    Q3DVECTOR3F epsilon = { .x = ( xmax - xmin ) * 0.05f;
                            .y = ( ymax - ymin ) * 0.05f;
                            .z = ( zmax - zmin ) * 0.05f };
 

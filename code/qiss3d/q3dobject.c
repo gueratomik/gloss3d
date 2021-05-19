@@ -78,8 +78,8 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector_matrix ( qray->ori, qobj->IMVX , &locqray.ori );
-    q3dvector_matrix ( qray->dir, qobj->TIVMX, &locqray.dir );
+    q3dvector3f_matrix ( qray->ori, qobj->IMVX , &locqray.ori );
+    q3dvector3f_matrix ( qray->dir, qobj->TIVMX, &locqray.dir );
 
     if ( qobj->intersect ) {
         hit += qobj->intersect ( qobj, 

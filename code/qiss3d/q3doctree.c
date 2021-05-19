@@ -65,7 +65,7 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
-    Q3DVECTOR3 min = { .x = qver[qverID0].pos.x,
+    Q3DVECTOR3F min = { .x = qver[qverID0].pos.x,
                        .y = qver[qverID0].pos.y,
                        .z = qver[qverID0].pos.z },
                max = { .x = qver[qverID0].pos.x,
@@ -160,7 +160,7 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
 
 /******************************************************************************/
 static uint32_t pointIn ( Q3DOCTREE  *qoct, 
-                          Q3DVECTOR3 *qpnt ) {
+                          Q3DVECTOR3F *qpnt ) {
     if ( ( qpnt->x >= ( qoct->min.x - qoct->epsilon.x ) ) && 
          ( qpnt->z >= ( qoct->min.y - qoct->epsilon.y ) ) &&
          ( qpnt->z >= ( qoct->min.z - qoct->epsilon.y ) ) &&
@@ -207,7 +207,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                                        { .x =  1.0f, .y =  0.0f, .z =  0.0f },
                                        { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
         uint32_t i, hit = 0x00;
-        Q3DVECTOR3 qpnt;
+        Q3DVECTOR3F qpnt;
 
         qpln[0x00].w = zmax;
         qpln[0x01].w = zmin;
@@ -259,7 +259,7 @@ static void q3doctree_setNodes ( Q3DOCTREE *qoct,
     float xmid = ( xmin + xmax ) / 2.0f,
           ymid = ( ymin + ymax ) / 2.0f,
           zmid = ( zmin + zmax ) / 2.0f;
-    Q3DVECTOR3 coord[0x08][0x02] = { { { .x = xmin, .y = ymin, .z = zmin }, 
+    Q3DVECTOR3F coord[0x08][0x02] = { { { .x = xmin, .y = ymin, .z = zmin }, 
                                        { .x = xmid, .y = ymid, .z = zmid } },
                                      { { .x = xmid, .y = ymin, .z = zmin }, 
                                        { .x = xmax, .y = ymid, .z = zmid } },

@@ -143,21 +143,19 @@ void q3djob_cancel ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-void q3djob_free ( R3DOBJECT *rob ) {
-    Q3DJOB *qjob = ( Q3DJOB * ) rob;
-
+void q3djob_free ( Q3DJOB *qjob ) {
     /*** free all rendering threads - one per CPU ***/
     list_free ( &qjob->lthread, NULL );
 
-    q3dobject_free_r ( qsce );
+    q3dobject_free_r ( qjob->qsce );
 
-    free ( qjob->qarea.img );
-    free ( qjob->qarea.zBuffer );
+    if ( qjob->img ) free ( qjob->img );
 
-    q3dcamera_free ( qjob->qarea.qcam );
-#ifdef VERBOSE
+    q3darea_reset ( qjob->qarea );
+
+    q3dcamera_free   ( qjob->qcam );
+
     printf ("Q3DJOB Freed\n" );
-#endif
 }
 
 /******************************************************************************/
@@ -171,11 +169,11 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
 
     scanline = qarea->scanline++;
 
-    memcpy ( &pone->src, &qarea->pol[0x00].src, sizeof ( Q3DVECTOR3 ) );
-    memcpy ( &pone->dst, &qarea->pol[0x00].dst, sizeof ( Q3DVECTOR3 ) );
+    memcpy ( &pone->src, &qarea->pol[0x00].src, sizeof ( Q3DVECTOR3F ) );
+    memcpy ( &pone->dst, &qarea->pol[0x00].dst, sizeof ( Q3DVECTOR3F ) );
 
-    memcpy ( &ptwo->src, &qarea->pol[0x01].src, sizeof ( Q3DVECTOR3 ) );
-    memcpy ( &ptwo->dst, &qarea->pol[0x01].dst, sizeof ( Q3DVECTOR3 ) );
+    memcpy ( &ptwo->src, &qarea->pol[0x01].src, sizeof ( Q3DVECTOR3F ) );
+    memcpy ( &ptwo->dst, &qarea->pol[0x01].dst, sizeof ( Q3DVECTOR3F ) );
 
     q3dinterpolation_step ( &qarea->pol[0x00] );
     q3dinterpolation_step ( &qarea->pol[0x01] );
@@ -186,10 +184,11 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
 }
 
 /******************************************************************************/
-void rd3scene_filterline ( Q3DJOB *qjob, uint32_t from, 
-                                               uint32_t to,
-                                               uint32_t depth, 
-                                               uint32_t width ) {
+void q3djob_filterline ( Q3DJOB *qjob, 
+                         uint32_t from, 
+                         uint32_t to,
+                         uint32_t depth, 
+                         uint32_t width ) {
     LIST *ltmp = qjob->qrsg->input.lfilters;
     char *img = qjob->qarea.img;
 
@@ -198,7 +197,8 @@ void rd3scene_filterline ( Q3DJOB *qjob, uint32_t from,
     while ( ltmp ) {
         Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
 
-        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERLINE ) ) {
+        if ( ( fil->flags & ENABLEFILTER ) && 
+             ( fil->type  & FILTERLINE   ) ) {
             if ( fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return;
@@ -210,11 +210,12 @@ void rd3scene_filterline ( Q3DJOB *qjob, uint32_t from,
 }
 
 /******************************************************************************/
-void rd3scene_filterimage ( Q3DJOB *qjob, uint32_t from, 
-                                            uint32_t to,
-                                            uint32_t depth, 
-                                            uint32_t width ) {
-    LIST *ltmp = qjob->rsg->input.lfilters;
+void q3djob_filterimage ( Q3DJOB  *qjob, 
+                          uint32_t from, 
+                          uint32_t to,
+                          uint32_t depth, 
+                          uint32_t width ) {
+    LIST *ltmp = qjob->qrsg->input.lfilters;
     char *img = qjob->qarea.img;
 
     /*** Filter "CLEAN" must be run no matter what ***/
@@ -237,7 +238,8 @@ void rd3scene_filterimage ( Q3DJOB *qjob, uint32_t from,
         while ( ltmp ) {
             Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
 
-            if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERIMAGE ) ) {
+            if ( ( fil->flags & ENABLEFILTER ) && 
+                 ( fil->type  & FILTERIMAGE  ) ) {
                 if ( fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
                     /*** stop processing filters if 1 is returned ***/
                     return;
@@ -251,11 +253,11 @@ void rd3scene_filterimage ( Q3DJOB *qjob, uint32_t from,
 
 /******************************************************************************/
 static uint32_t q3djob_filterbefore ( Q3DJOB *qjob, 
-                                        uint32_t from, 
-                                        uint32_t to,
-                                        uint32_t depth, 
-                                        uint32_t width ) {
-    LIST *ltmp = qjob->rsg->input.lfilters;
+                                      uint32_t from, 
+                                      uint32_t to,
+                                      uint32_t depth, 
+                                      uint32_t width ) {
+    LIST *ltmp = qjob->qrsg->input.lfilters;
     char *img = qjob->qarea.img;
     uint32_t ret = 0x00;
 
@@ -264,7 +266,8 @@ static uint32_t q3djob_filterbefore ( Q3DJOB *qjob,
     while ( ltmp ) {
         Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
 
-        if ( ( fil->flags & ENABLEFILTER ) && ( fil->type & FILTERBEFORE ) ) {
+        if ( ( fil->flags & ENABLEFILTER ) && 
+             ( fil->type  & FILTERBEFORE ) ) {
 
             if ( ret = fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
@@ -282,7 +285,7 @@ static uint32_t q3djob_filterbefore ( Q3DJOB *qjob,
 void *q3djob_raytrace ( void *ptr ) {
     Q3DJOB *qjob = ( Q3DJOB * ) ptr;
     Q3DAREA *qarea = &qjob->qarea;
-    R3DINTERPOLATION pone, ptwo;
+    Q3DINTERPOLATION pone, ptwo;
     unsigned char *img = qarea->img;
     uint32_t scanline;
     uint32_t steps  = ( qarea->x2 - qarea->x1 );
@@ -300,7 +303,7 @@ void *q3djob_raytrace ( void *ptr ) {
                                                &ptwo ) ) <= qarea->y2 ) && qjob->running ) {
         unsigned char *imgptr = &img[(scanline*bytesperline)];
 
-        _R3DINTERPOLATION_BUILD ( &pone, &ptwo, steps );
+        _Q3DINTERPOLATION_BUILD ( &pone, &ptwo, steps );
 
         for ( i = qarea->x1; ( i <= qarea->x2 ) && qjob->running; i++ ) {
             uint32_t color;
@@ -333,7 +336,7 @@ void *q3djob_raytrace ( void *ptr ) {
             qray.distance = INFINITY;
 
             /*** but don't forget to normalize the latter **/
-            q3dvector3_normalize ( &qray.dir, &viewingDistance );
+            q3dvector3f_normalize ( &qray.dir, &viewingDistance );
 
             /*** shoot the ray ***/
             color = q3dray_shoot ( &qray, 
@@ -361,7 +364,7 @@ void *q3djob_raytrace ( void *ptr ) {
                 intersectionPointToSource.y = qpnt.y - pone.src.y;
                 intersectionPointToSource.z = qpnt.z - pone.src.z;
 
-                qarea->zBuffer[offset] = q3dvector_length ( &intersectionPointToSource );
+                qarea->zBuffer[offset] = q3dvector3f_length ( &intersectionPointToSource );
             } else {
                 qarea->zBuffer[offset] = INFINITY;
             }
@@ -411,7 +414,7 @@ void *q3djob_raytrace ( void *ptr ) {
             _R3DINTERPOLATION_STEP ( &pone );
         }
 
-        rd3scene_filterline ( qjob, scanline, scanline + 0x01, 0x18, width );
+        q3djob_filterline ( qjob, scanline, scanline + 0x01, 0x18, width );
     }
 
     /*** this is needed for memory release ***/
@@ -462,54 +465,23 @@ Q3DJOB *q3djob_new ( Q3DRENDERSETTINGS *qrsg ) {
         return NULL;
     }
 
-    /*** This 24bpp buffer will receive the raytraced pixel values ***/
-    if ( ( qjob->qarea.zBuffer = calloc ( qrsg->output.width *
-                                          qrsg->output.height,
-                                          sizeof ( Q3DZBUFFER ) ) ) == NULL ) {
-        fprintf ( stderr, "%s: ZBuffer memory allocation failed\n", __func__ );
-
-        free ( qjob->qarea.img );
-        free ( qjob );
-
-        return NULL;
-    }
-
-    for ( i = 0; i < qrsg->output.width * qrsg->output.height; i++ ) {
-        qjob->qarea.zBuffer[i].depth = INFINITY;
-    }
-
-    /*** viewing camera ***/
-    qjob->qarea.qcam = q3dcamera_new ( qrsg->input.cam, 
-                                       qrsg->output.width,
-                                       qrsg->output.height );
-
     qjob->curframe    = rsg->output.startframe;
-
-    /*** render square area ***/
-    qjob->qarea.x1     = qrsg->output.x1;
-    qjob->qarea.x2     = qrsg->output.x2;
-    qjob->qarea.y1     = qrsg->output.y1;
-    qjob->qarea.y2     = qrsg->output.y2;
-    qjob->qarea.width  = qrsg->output.width;
-    qjob->qarea.height = qrsg->output.height;
-    qjob->qarea.depth  = 0x18;
-
-    /*** first scan line ***/
-    qjob->qarea.scanline = qrsg->output.y1;
-
 
     qjob->running = 0x01;
 
-    /*** Compute the interpolation factors for rays ***/
-    q3darea_viewport ( &qjob->qarea, 
-                        qrsg->output.x1, 
-                        qrsg->output.y1, 
-                        qrsg->output.x2, 
-                        qrsg->output.y2, 
-                        qrsg->output.width,
-                        qrsg->output.height );
-
     qjob->qsce = q3dobject_import_r ( sce, qjob->curframe );
+
+    qjob->qcam = q3dcamera_new ( cam, width, height );
+
+    q3darea_init ( &qjob->qarea,
+                    qjob->qcam,
+                    qrsg->output.x1,
+                    qrsg->output.y1,
+                    qrsg->output.x2,
+                    qrsg->output.y2,
+                    qrsg->output.width,
+                    qrsg->output.height,
+                    0x18 );
 
 
     return qjob;
@@ -624,11 +596,11 @@ void q3djob_render ( Q3DJOB *qjob ) {
         q3djob_wait ( qjob );
     }
 
-    qd3scene_filterimage ( qjob, 
-                           qjob->qarea.y1, 
-                           qjob->qarea.y2,
-                           qjob->qarea.depth, 
-                           qjob->qarea.width );
+    q3djob_filterimage ( qjob, 
+                         qjob->qarea.y1, 
+                         qjob->qarea.y2,
+                         qjob->qarea.depth, 
+                         qjob->qarea.width );
 
     t = clock() - t;
 

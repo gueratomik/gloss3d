@@ -46,8 +46,8 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
 
     memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector_matrix ( qray->ori, qsym->ISMVX , &symqray.ori );
-    q3dvector_matrix ( qray->dir, qsym->TISMVX, &symqray.dir );
+    q3dvector3f_matrix ( qray->ori, qsym->ISMVX , &symqray.ori );
+    q3dvector3f_matrix ( qray->dir, qsym->TISMVX, &symqray.dir );
 
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;

@@ -42,9 +42,9 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
     SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
     float r2 = sds->radius * sds->radius;
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
-    float a =       q3dvector3_scalar ( &qray->dir, &qray->dir );
-    float b = 2.0 * q3dvector3_scalar ( &qray->ori, &qray->dir );
-    float c =       q3dvector3_scalar ( &qray->ori, &qray->ori ) - r2;
+    float a =       q3dvector3f_scalar ( &qray->dir, &qray->dir );
+    float b = 2.0 * q3dvector3f_scalar ( &qray->ori, &qray->dir );
+    float c =       q3dvector3f_scalar ( &qray->ori, &qray->ori ) - r2;
     float discriminant = ( b * b ) - ( 4 * a * c );
 
     if ( discriminant > 0.0f ) {
@@ -77,7 +77,7 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
 
             newqray.distance = INFINITY;
 
-            q3dvector_normalize ( &newqray.dir, NULL );
+            q3dvector3f_normalize ( &newqray.dir, NULL );
 
             q3dmesh_intersect ( qmes,
                                 newqray, 

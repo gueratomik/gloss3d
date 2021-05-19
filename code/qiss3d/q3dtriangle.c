@@ -36,14 +36,14 @@ www.soe.ucsc.edu/classes/cmps160/Fall10/resources/barycentricInterpolation.pdf
 /******************************************************************************/
 uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri, 
                                Q3DVERTEX   *qver, 
-                               Q3DVECTOR3  *qpnt,
+                               Q3DVECTOR3F  *qpnt,
                                float       *RAT0,
                                float       *RAT1,
                                float       *RAT2 ) {
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
-    Q3DVECTOR3 V0P = { .x = ( qpnt->x - qver[qverID0].pos.x ),
+    Q3DVECTOR3F V0P = { .x = ( qpnt->x - qver[qverID0].pos.x ),
                        .y = ( qpnt->y - qver[qverID0].pos.y ),
                        .z = ( qpnt->z - qver[qverID0].pos.z ),
                        .w = 1.0f },
@@ -67,19 +67,19 @@ uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri,
                        .y = ( qver[qverID0].pos.y - qver[qverID2].pos.y ),
                        .z = ( qver[qverID0].pos.z - qver[qverID2].pos.z ),
                        .w = 1.0f };
-    Q3DVECTOR3 DOT0, DOT1, DOT2, DOTF;
+    Q3DVECTOR3F DOT0, DOT1, DOT2, DOTF;
     double LENF, LEN0, LEN1, LEN2;
 
-    q3dvector3_cross ( &V0V1, &V1P, &DOT2 );
-    q3dvector3_cross ( &V1V2, &V2P, &DOT0 );
-    q3dvector3_cross ( &V2V0, &V0P, &DOT1 );
+    q3dvector3f_cross ( &V0V1, &V1P, &DOT2 );
+    q3dvector3f_cross ( &V1V2, &V2P, &DOT0 );
+    q3dvector3f_cross ( &V2V0, &V0P, &DOT1 );
 
     /*** rfc->surface contains the value of the face surface ***/
     LENF = rfc->surface;
 
-    LEN0 = q3dvector3_length ( &DOT0 );
-    LEN1 = q3dvector3_length ( &DOT1 );
-    LEN2 = q3dvector3_length ( &DOT2 );
+    LEN0 = q3dvector3f_length ( &DOT0 );
+    LEN1 = q3dvector3f_length ( &DOT1 );
+    LEN2 = q3dvector3f_length ( &DOT2 );
 
     /*if ( rfc->flags & RFACEMIRRORED ) {
         g3ddoublevector_invert ( &DOT0 );
@@ -88,9 +88,9 @@ uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri,
     }*/
 
     if ( LENF ) {
-        if ( ( q3dvector3_scalar ( &DOT0, &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3_scalar ( &DOT1, &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3_scalar ( &DOT2, &qtri->nor ) >= 0.0f ) ) {
+        if ( ( q3dvector3f_scalar ( &DOT0, &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3f_scalar ( &DOT1, &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3f_scalar ( &DOT2, &qtri->nor ) >= 0.0f ) ) {
         /*** return subtriangles surface ratio if needed ***/
             if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
             if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );
@@ -197,9 +197,9 @@ void q3dtriangle_init ( Q3DTRIANGLE  *qtri,
     qtri->qverID[0x01] = qverID1;
     qtri->qverID[0x02] = qverID2;
 
-    q3dvector_cross ( &v0v1, &v0v2, &vout );
+    q3dvector3f_cross ( &v0v1, &v0v2, &vout );
 
-    q3dvector_normalize ( &vout, &qtri->nor, qtri->surface );
+    q3dvector3f_normalize ( &vout, &qtri->nor, qtri->surface );
 
     qtri->nor.w = - ( ( qtri->nor.x * qver[qverID0].pos.x ) + 
                       ( qtri->nor.y * qver[qverID0].pos.y ) + 
