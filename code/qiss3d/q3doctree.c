@@ -342,8 +342,8 @@ static Q3DOCTREE *q3doctree_build ( Q3DOCTREE   *qoct,
             uint32_t structSize;
 
             structSize = sizeof ( Q3DOCTREE ) -
-                         sizeof ((Q3DOCTREE*)NULL)->children.node +
-                     ( ( sizeof ((Q3DOCTREE*)NULL)->children.qtriID) * qoct->nbqtri );
+                         sizeof ((Q3DOCTREE*)NULL)->children +
+                       ( sizeof ( uint32_t ) * qoct->nbqtri );
 
             qoct = ( Q3DOCTREE * ) realloc ( qoct, structSize );
 

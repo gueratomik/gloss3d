@@ -82,9 +82,9 @@ static uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri,
     }*/
 
     if ( LENF ) {
-        if ( ( q3dvector3f_scalar ( &DOT0, &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3f_scalar ( &DOT1, &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3f_scalar ( &DOT2, &qtri->nor ) >= 0.0f ) ) {
+        if ( ( q3dvector3f_scalar ( &DOT0, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3f_scalar ( &DOT1, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) && 
+             ( q3dvector3f_scalar ( &DOT2, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) ) {
         /*** return subtriangles surface ratio if needed ***/
             if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
             if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );
@@ -144,7 +144,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->ratio[0x01] = RAT1;
                     qray->ratio[0x02] = RAT2;
 
-                    qray->surface  = qtri;
+                    qray->surface  = ( Q3DSURFACE * ) qtri;
                     qray->distance = t;
 
                     /*** intersection occured, let's remember it ***/
@@ -189,7 +189,7 @@ void q3dtriangle_init ( Q3DTRIANGLE *qtri,
     qtri->qverID[0x01] = qverID1;
     qtri->qverID[0x02] = qverID2;
 
-    q3dvector3f_cross ( &v0v1, &v0v2, &qtri->nor );
+    q3dvector3f_cross ( &v0v1, &v0v2, ( Q3DVECTOR3F * ) &qtri->nor );
 
     q3dvector3f_normalize ( &vout, &qtri->surface );
 

@@ -53,6 +53,62 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui, 
+                                              Q3DSETTINGS *rsg,
+                                              G3DCAMERA   *cam,
+                                              float        resetFrame,
+                                              uint64_t     id,
+                                              uint32_t     sequence ) {
+    G3DSCENE *sce = gui->sce;
+
+    /*** Don't start a new render before the current one has finished ***/
+    /*if ( rpc == NULL ) {*/
+        G3DUIRENDERPROCESS *rps;
+        Q3DJOB *qjob  = NULL;
+        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+        pthread_attr_t attr;
+        pthread_t tid;
+
+        /*r3dfilter_setType ( towin, FILTERLINE );*/
+
+        pthread_attr_init ( &attr );
+
+        /*** start thread son all CPUs ***/
+        pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
+
+        /* reset object position at the first frame */
+        /* Note: does not seem to work very well */
+        if ( gui->curframe != resetFrame ) {
+            g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
+        }
+
+        qjob = q3djob_new ( rsg, 
+                            sce,
+                            cam,
+                            0x00 );
+
+        /*** Remember the thread id for cancelling on mouse input e.g ***/
+        /*** We use the widget as an ID ***/
+        rps = g3duirenderprocess_new ( id, gui, qjob, NULL/*towin*/, NULL/*tobuf*/ );
+
+        /*** launch rays in a thread ***/
+        if ( sequence ) {
+            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
+        } else {
+            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
+        }
+
+        /*** register the renderprocess so that we can cancel it ***/
+        list_insert ( &gui->lrps, rps );
+
+        /*** prepare to release resources after thread termination ***/
+        /*pthread_detach ( tid );*/
+    /*}*/
+
+    return rps;
+}
+
+/******************************************************************************/
 G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
                                           R3DRENDERSETTINGS *rsg,
                                           float              resetFrame,

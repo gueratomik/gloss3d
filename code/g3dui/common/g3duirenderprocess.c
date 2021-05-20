@@ -62,6 +62,7 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 
     rps->id   = id;
     rps->rsce = rsce;
+    rps->qjob = rsce;
 
     rps->gui = gui;
 
@@ -85,7 +86,8 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 
-    r3dscene_render_frame_t ( rps->rsce );
+    /*r3dscene_render_frame_t ( rps->rsce );*/
+    q3djob_render_frame_t ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 

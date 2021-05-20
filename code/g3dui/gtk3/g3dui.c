@@ -295,10 +295,10 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t width  = gtk_widget_get_allocated_width  ( ggt->curogl ),
              height = gtk_widget_get_allocated_height ( ggt->curogl );
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) ggt->curogl );
-    R3DFILTER *progressiveDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
+    Q3DFILTER *progressiveDisplay = q3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
     /*R3DFILTER *finalDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01, 0x00 );*/
     /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
-    R3DFILTER *clean = r3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
+    Q3DFILTER *clean = q3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
                                        NULL, 
                                        gui );
     LIST *lfilters = NULL;
@@ -306,15 +306,15 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
-    static R3DRENDERSETTINGS viewRsg;
+    static Q3DSETTINGS viewRsg;
     G3DCAMERA *cam = /*g3dui_getMainViewCamera ( gui )*/g3dui_getCurrentViewCamera ( gui );
 
     /* First cancel running render on that window  if any */
     if ( rps ) {
-        r3dscene_cancelRender ( rps->rsce );
+        q3djob_cancel ( rps->qjob );
     }
 
-    r3drendersettings_copy ( &viewRsg, gui->currsg );
+    q3dsettings_copy ( &viewRsg, gui->currsg );
 
     list_append ( &lfilters, progressiveDisplay );
     /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
@@ -338,7 +338,8 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     g3dui_setHourGlass ( gui );
 
-    rps = common_g3dui_render ( gui, &viewRsg,
+    rps = common_g3dui_render_q3d ( gui, &viewRsg,
+                                     cam,
                                      gui->curframe,
                         ( uint64_t ) ggt->curogl,
                                      0x00 );

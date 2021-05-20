@@ -30,50 +30,26 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static uint32_t q3dlight_intersect ( Q3DLIGHT *qlig,
-                                     Q3DRAY   *qray, 
-                                     float     frame,
-                                     uint64_t  query_flags,
-                                     uint64_t  render_flags ) {
+uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
+                          Q3DJOB     *qjob,
+                          Q3DSURFACE *sdiscard,
+                          uint32_t    nbhop,
+                          uint32_t    query_flags ) {
 
-    return 0x00;
-}
+    if ( query_flags & Q3DRAY_PRIMARY_BIT ) {
+        Q3DZBUFFER zout;
 
-/******************************************************************************/
-static void q3dlight_free ( Q3DLIGHT *qlig ) {
+        q3darea_getZBuffer ( &qjob->qarea, 
+                              qray->x, 
+                              qray->y,
+                             &zout );
 
-}
-
-/******************************************************************************/
-void q3dlight_init ( Q3DLIGHT *qlig, 
-                     G3DLIGHT *lig,
-                     uint32_t  id,
-                     uint64_t  object_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-    double TMPX[0x10], ITMPX[0x10];
-
-    q3dobject_init ( ( Q3DOBJECT * ) qlig,
-                     ( G3DOBJECT * ) lig,
-                     id,
-                     object_flags,
-    Q3DFREE_CALLBACK(q3dlight_free),
-Q3DINTERSECT_CALLBACK(q3dlight_intersect) );
-}
-
-/******************************************************************************/
-Q3DLIGHT *q3dlight_new ( G3DLIGHT *lig,
-                         uint32_t  id,
-                         uint64_t  object_flags ) {
-    Q3DLIGHT *qlig = ( Q3DLIGHT * ) calloc ( 0x01, sizeof ( Q3DLIGHT ) );
-
-    if ( qlig == NULL ) {
-        fprintf ( stderr, "%s: calloc failed\n", __func__);
-
-        return NULL;
+        if ( zout.z == INFINITY ) {
+            /*** not hit ***/
+        } else {
+            return 0xFFFFFFFF;
+        }
     }
 
-    q3dlight_init ( qlig, lig, id, object_flags );
-
-
-    return qlig;
+    return qjob->qrsg->background.color;
 }

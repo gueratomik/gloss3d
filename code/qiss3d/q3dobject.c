@@ -30,6 +30,11 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+void q3dobject_free ( Q3DOBJECT *qobj ) {
+    if ( qobj->free ) qobj->free ( qobj );
+}
+
+/******************************************************************************/
 void q3dobject_free_r ( Q3DOBJECT *qobj ) {
     LIST *ltmpchildren = qobj->lchildren;
 

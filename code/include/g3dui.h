@@ -61,6 +61,7 @@
 #include <list.h>
 #include <g3dengine/g3dengine.h>
 #include <r3d.h>
+#include <qiss3d/q3d.h>
 
 #ifdef __linux__
 #include <r3dnet.h>
@@ -790,6 +791,7 @@ typedef struct _DUMPSCREEN {
 typedef struct _G3DUIRENDERPROCESS {
     uint64_t   id;
     R3DSCENE  *rsce;
+    Q3DJOB    *qjob;
     G3DUI     *gui;
     /*R3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
     /*R3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
@@ -1489,6 +1491,13 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
                                           float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence );
+
+G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui, 
+                                              Q3DSETTINGS *rsg,
+                                              G3DCAMERA   *cam,
+                                              float        resetFrame,
+                                              uint64_t     id,
+                                              uint32_t     sequence );
 
 /******************************************************************************/
 uint32_t g3dui_write ( G3DEXPORTDATA *ged, 

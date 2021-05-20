@@ -49,14 +49,14 @@ Q3DFILTER *q3djob_getFilter ( Q3DJOB    *qjob,
 }
 
 /******************************************************************************/
-void q3djob_addSubJob ( Q3DJOB *qjob, 
-                        Q3DJOB *subqjob ) {
+void q3djob_addJob ( Q3DJOB *qjob, 
+                     Q3DJOB *subqjob ) {
     list_insert ( &qjob->lqjob, subqjob );
 }
 
 /******************************************************************************/
-void q3djob_removeSubJob ( Q3DJOB *qjob,
-                           Q3DJOB *subqjob ) {
+void q3djob_removeJob ( Q3DJOB *qjob,
+                        Q3DJOB *subqjob ) {
     list_remove ( &qjob->lqjob, subqjob );
 }
 
@@ -108,13 +108,13 @@ void q3djob_free ( Q3DJOB *qjob ) {
     /*** free all rendering threads - one per CPU ***/
     list_free ( &qjob->lthread, NULL );
 
-    q3dobject_free_r ( qjob->qsce );
+    q3dobject_free_r ( ( Q3DOBJECT * ) qjob->qsce );
 
     if ( qjob->img ) free ( qjob->img );
 
     q3darea_reset ( &qjob->qarea );
 
-    q3dcamera_free   ( qjob->qcam );
+    q3dobject_free   ( ( Q3DOBJECT * ) qjob->qcam );
 
     printf ("Q3DJOB Freed\n" );
 }
@@ -136,6 +136,7 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
     memcpy ( &ptwo->src, &qarea->pol[0x01].src, sizeof ( Q3DVECTOR3F ) );
     memcpy ( &ptwo->dst, &qarea->pol[0x01].dst, sizeof ( Q3DVECTOR3F ) );
 
+    /*** prepare the next call ***/
     q3dinterpolation_step ( &qarea->pol[0x00] );
     q3dinterpolation_step ( &qarea->pol[0x01] );
 
@@ -160,7 +161,7 @@ void q3djob_filterline ( Q3DJOB *qjob,
 
         if ( ( fil->flags & ENABLEFILTER ) && 
              ( fil->type  & FILTERLINE   ) ) {
-            if ( fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
+            if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return;
             }
@@ -187,7 +188,7 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
             if ( ( fil->flags & ENABLEFILTER ) && 
                  ( fil->type  & FILTERIMAGE  ) &&
                  ( strcmp ( fil->name, "CLEAN" ) == 0x00 ) ) {
-                if ( fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
+                if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
                     /*** stop processing filters if 1 is returned ***/
                     return;
                 }
@@ -201,7 +202,7 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
 
             if ( ( fil->flags & ENABLEFILTER ) && 
                  ( fil->type  & FILTERIMAGE  ) ) {
-                if ( fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
+                if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
                     /*** stop processing filters if 1 is returned ***/
                     return;
                 }
@@ -230,7 +231,7 @@ static uint32_t q3djob_filterbefore ( Q3DJOB *qjob,
         if ( ( fil->flags & ENABLEFILTER ) && 
              ( fil->type  & FILTERBEFORE ) ) {
 
-            if ( ret = fil->draw ( fil, qjob, qjob->curframe, img, from, to, depth, width ) ) {
+            if ( ret = fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
                 /*** stop processing filters if 1 is returned ***/
                 return ret;
             }
@@ -264,7 +265,7 @@ void *q3djob_raytrace ( void *ptr ) {
                                                &ptwo ) ) <= qarea->y2 ) && qjob->running ) {
         unsigned char *imgptr = &img[(scanline*bytesperline)];
 
-        _Q3DINTERPOLATION_BUILD ( &pone, &ptwo, steps );
+        q3dinterpolation_build ( &pone, &ptwo, steps );
 
         for ( i = qarea->x1; ( i <= qarea->x2 ) && qjob->running; i++ ) {
             uint32_t color;
@@ -300,17 +301,17 @@ void *q3djob_raytrace ( void *ptr ) {
             q3dvector3f_normalize ( &qray.dir, &viewingDistance );
 
             /*** shoot the ray ***/
-            color = q3dray_shoot ( &qray, 
-                                    qjob, 
-                                    NULL, 
-                                    0x00, 
-                                    Q3DRAY_PRIMARY_BIT /*|
-                                    RAYQUERYHIT            | 
-                                    RAYQUERYLIGHTING       |
-                                    RAYQUERYREFLECTION     |
-                                    RAYQUERYREFRACTION     |
-                                    RAYQUERYIGNOREBACKFACE |
-                                    outlineFlag*/ );
+            color = q3dray_shoot_r ( &qray,
+                                      qjob,
+                                      NULL,
+                                      0x00,
+                                      Q3DRAY_PRIMARY_BIT /*|
+                                      RAYQUERYHIT            | 
+                                      RAYQUERYLIGHTING       |
+                                      RAYQUERYREFLECTION     |
+                                      RAYQUERYREFRACTION     |
+                                      RAYQUERYIGNOREBACKFACE |
+                                      outlineFlag*/ );
 
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
@@ -360,7 +361,7 @@ void *q3djob_raytrace ( void *ptr ) {
             imgptr += 0x03;
 
             /*** be ready for the next ray ***/
-            _R3DINTERPOLATION_STEP ( &pone );
+            q3dinterpolation_step ( &pone );
         }
 
         q3djob_filterline ( qjob, scanline, scanline + 0x01, 0x18, width );
@@ -421,12 +422,13 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 
     qjob->running = 0x01;
 
-    qjob->qsce = q3dobject_import_r ( sce, qjob->curframe );
+    qjob->qsce = q3dscene_import ( sce, qjob->curframe );
 
     qjob->qcam = q3dcamera_new ( cam, qrsg->output.width, 
                                       qrsg->output.height );
 
     q3darea_init ( &qjob->qarea,
+                    qjob->qsce,
                     qjob->qcam,
                     qrsg->output.x1,
                     qrsg->output.y1,
@@ -434,7 +436,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                     qrsg->output.y2,
                     qrsg->output.width,
                     qrsg->output.height,
-                    0x18 );
+                    0x18,
+                    qjob->curframe );
 
 
     return qjob;
@@ -444,14 +447,14 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 void q3djob_render_t_free ( Q3DJOB *qjob ) {
     /*** free filters after rendering ***/
     if ( ( qjob->flags & NOFREEFILTERS ) == 0x00 ) {
-        list_free ( &qjob->qrsg->input.lfilters, q3dfilter_free );
+        list_free ( &qjob->qrsg->input.lfilters, (void(*)(void*))q3dfilter_free );
     }
 }
 
 /******************************************************************************/
 void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
-    G3DSCENE *sce  = ( G3DSCENE *  ) qobject_getObject ( qjob->qsce );
-    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( qjob->qcam );
+    G3DSCENE *sce  = ( G3DSCENE *  ) qobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
+    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
     uint32_t x1 = qjob->qarea.x1, 
              y1 = qjob->qarea.y1,
              x2 = qjob->qarea.x2,
@@ -477,7 +480,7 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
             nextqjob->curframe = i;
 
             /*** register this child rendeqjobne in case we need to cancel it ***/
-            q3djob_addSubRender ( qjob, nextqjob );
+            q3djob_addJob ( qjob, nextqjob );
 
             /*** Render the current frame ***/
             q3djob_render ( nextqjob );
@@ -485,7 +488,7 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
             /*** unregister this child rendeqjobne. No need to cancel it ***/
             /*** anymore after this step, all threads are over after ***/
             /*** q3djob_render().  ***/
-            q3djob_removeSubRender ( qjob, nextqjob );
+            q3djob_removeJob ( qjob, nextqjob );
 
             /*** Free the current frame ***/
             q3dobject_free  ( ( Q3DOBJECT * ) nextqjob );

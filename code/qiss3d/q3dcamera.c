@@ -29,4 +29,50 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
+/******************************************************************************/
+static uint32_t q3dcamera_intersect ( Q3DCAMERA *qcam,
+                                      Q3DRAY    *qray, 
+                                      float      frame,
+                                      uint64_t   query_flags,
+                                      uint64_t   render_flags ) {
 
+    return 0x00;
+}
+
+/******************************************************************************/
+static void q3dcamera_free ( Q3DCAMERA *qcam ) {
+
+}
+
+/******************************************************************************/
+void q3dcamera_init ( Q3DCAMERA *qcam, 
+                      G3DCAMERA *cam,
+                      uint32_t   id,
+                      uint64_t   object_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+
+    q3dobject_init ( ( Q3DOBJECT * ) qcam,
+                     ( G3DOBJECT * ) cam,
+                     id,
+                     object_flags,
+    Q3DFREE_CALLBACK(q3dcamera_free),
+Q3DINTERSECT_CALLBACK(q3dcamera_intersect) );
+}
+
+/******************************************************************************/
+Q3DCAMERA *q3dcamera_new ( G3DCAMERA *cam,
+                           uint32_t  id,
+                           uint64_t  object_flags ) {
+    Q3DCAMERA *qcam = ( Q3DCAMERA * ) calloc ( 0x01, sizeof ( Q3DCAMERA ) );
+
+    if ( qcam == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
+
+        return NULL;
+    }
+
+    q3dcamera_init ( qcam, cam, id, object_flags );
+
+
+    return qcam;
+}

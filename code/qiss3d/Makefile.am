@@ -23,4 +23,7 @@ LIBGLOSSQ3D_C_FILES = q3d.c \
                       q3dfilter.unix.c \
                       q3dlight.c \
                       q3dvector.c \
+                      q3dinterpolation.c \
+                      q3dcamera.c \
+                      q3dray.c \
                       q3dtriangle.c

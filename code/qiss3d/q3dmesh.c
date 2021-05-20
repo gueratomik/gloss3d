@@ -115,7 +115,7 @@ Q3DVERTEX *q3dmesh_getVertices ( Q3DMESH *qmes,
 }
 
 /******************************************************************************/
-Q3DVERTEX *q3dmesh_getTriangles ( Q3DMESH *qmes ) {
+Q3DTRIANGLE *q3dmesh_getTriangles ( Q3DMESH *qmes ) {
     return qmes->qtri;
 }
 
@@ -160,9 +160,9 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
     qmes->curtri = qmes->qtri;
 
 /*#ifdef VERBOSE*/
-    printf ( "q3dvertex count: %lu\n", nbqver );
-    printf ( "q3dface   count: %lu\n", nbqtri );
-    printf ( "q3duvset  count: %lu\n", nbquvs );
+    printf ( "q3dvertex count: %d\n", nbqver );
+    printf ( "q3dface   count: %d\n", nbqtri );
+    printf ( "q3duvset  count: %d\n", nbquvs );
 
     if ( memsize < 1024 ) {
         printf ( "Q3DMESH mem: %d Bytes\n"   ,           memsize              );

@@ -714,6 +714,7 @@ typedef struct _FILTERTOGDKWINDOW {
     GdkWindow       *gdkwin;
 } FILTERTOGDKWINDOW;
 
+Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *, uint32_t );
 R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *, uint32_t );
 void       filtertogdkwindow_free ( FILTERTOGDKWINDOW * );
 void       filtertogdkwindow_draw ( void *, R3DSCENE *, unsigned char *,

@@ -50,6 +50,12 @@ void q3dscene_addLight ( Q3DSCENE *qsce,
 }
 
 /******************************************************************************/
+Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
+                            float     frame ) {
+    return ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame );
+}
+
+/******************************************************************************/
 void q3dscene_init ( Q3DSCENE *qsce, 
                      G3DSCENE *sce,
                      uint32_t  id,

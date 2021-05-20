@@ -30,50 +30,31 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static uint32_t q3dlight_intersect ( Q3DLIGHT *qlig,
-                                     Q3DRAY   *qray, 
-                                     float     frame,
-                                     uint64_t  query_flags,
-                                     uint64_t  render_flags ) {
-
-    return 0x00;
-}
-
+/*** Find the interpolation factors between two vectors. R3DINTERPOLATION   ***/
+/*** structure receive an original position and interpolation factors       ***/
 /******************************************************************************/
-static void q3dlight_free ( Q3DLIGHT *qlig ) {
+void q3dinterpolation_build ( Q3DINTERPOLATION *rone,
+                              Q3DINTERPOLATION *rtwo,
+                              uint32_t          step ) {
+    /*** we store interpolation factors ***/
+    if ( step ) {
+        rone->srcdif.x = ( rtwo->src.x - rone->src.x ) / step;
+        rone->srcdif.y = ( rtwo->src.y - rone->src.y ) / step;
+        rone->srcdif.z = ( rtwo->src.z - rone->src.z ) / step;
 
-}
-
-/******************************************************************************/
-void q3dlight_init ( Q3DLIGHT *qlig, 
-                     G3DLIGHT *lig,
-                     uint32_t  id,
-                     uint64_t  object_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-    double TMPX[0x10], ITMPX[0x10];
-
-    q3dobject_init ( ( Q3DOBJECT * ) qlig,
-                     ( G3DOBJECT * ) lig,
-                     id,
-                     object_flags,
-    Q3DFREE_CALLBACK(q3dlight_free),
-Q3DINTERSECT_CALLBACK(q3dlight_intersect) );
-}
-
-/******************************************************************************/
-Q3DLIGHT *q3dlight_new ( G3DLIGHT *lig,
-                         uint32_t  id,
-                         uint64_t  object_flags ) {
-    Q3DLIGHT *qlig = ( Q3DLIGHT * ) calloc ( 0x01, sizeof ( Q3DLIGHT ) );
-
-    if ( qlig == NULL ) {
-        fprintf ( stderr, "%s: calloc failed\n", __func__);
-
-        return NULL;
+        rone->dstdif.x = ( rtwo->dst.x - rone->dst.x ) / step;
+        rone->dstdif.y = ( rtwo->dst.y - rone->dst.y ) / step;
+        rone->dstdif.z = ( rtwo->dst.z - rone->dst.z ) / step;
     }
+}
 
-    q3dlight_init ( qlig, lig, id, object_flags );
+/******************************************************************************/
+void q3dinterpolation_step ( Q3DINTERPOLATION *pol ) {
+    pol->src.x += pol->srcdif.x;
+    pol->src.y += pol->srcdif.y;
+    pol->src.z += pol->srcdif.z;
 
-
-    return qlig;
+    pol->dst.x += pol->dstdif.x;
+    pol->dst.y += pol->dstdif.y;
+    pol->dst.z += pol->dstdif.z;
 }

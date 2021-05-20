@@ -122,6 +122,36 @@ R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
 }
 
 /******************************************************************************/
+/*** This filter is declared in the g3dui layer because of GtkWidget struct***/
+Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill ) {
+    GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
+    GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
+    Q3DFILTER *fil;
+    uint32_t filterMode =  FILTERLINE | FILTERIMAGE;
+#ifdef __linux__
+    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      win      = gdk_x11_window_get_xid ( gdkwin );
+
+
+    fil = q3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
+                                      filtertowindow_draw,
+                                      filtertowindow_free, 
+                                      filtertowindow_new ( dis, win, active_fill ) );
+#endif
+
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+
+    fil = q3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
+                                      filtertowindow_draw,
+                                      filtertowindow_free, 
+                                      filtertowindow_new ( hWnd, active_fill ) );
+#endif
+
+    return fil;
+}
+
+/******************************************************************************/
 static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
     G3DUI *gui = ( G3DUI * ) user_data;
