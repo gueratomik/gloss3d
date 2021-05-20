@@ -44,18 +44,24 @@ static uint32_t q3dscene_intersect ( Q3DSCENE *qsce,
 }
 
 /******************************************************************************/
+void q3dscene_addLight ( Q3DSCENE *qsce, 
+                         Q3DLIGHT *qlig ) {
+    list_insert ( &qsce->llights, qlig );
+}
+
+/******************************************************************************/
 void q3dscene_init ( Q3DSCENE *qsce, 
                      G3DSCENE *sce,
                      uint32_t  id,
                      uint64_t  object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
 
-    q3dobject_init ( qsce,
-                     sce,
+    q3dobject_init ( ( Q3DOBJECT * ) qsce,
+                     ( G3DOBJECT * ) sce,
                      id,
-                     flags,
-                     q3dscene_free,
-                     q3dscene_intersect );
+                     object_flags,
+     Q3DFREE_CALLBACK(q3dscene_free),
+Q3DINTERSECT_CALLBACK(q3dscene_intersect) );
 }
 
 /******************************************************************************/
@@ -70,7 +76,7 @@ Q3DSCENE *q3dscene_new ( G3DSCENE *sce,
         return NULL;
     }
 
-    q3dscene_init ( qsce, sce, id, flags );
+    q3dscene_init ( qsce, sce, id, object_flags );
 
 
     return qsce;

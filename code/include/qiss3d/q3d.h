@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <float.h>
 #include <time.h>
 #include <math.h>
 #include <libgen.h>
@@ -84,14 +85,9 @@
 #include <g3dimportv2.h>
 #include <g3dcom.h>
 
-#define q3dvector3f_cross     g3dtinyvector_cross
-#define q3dvector3f_normalize g3dtinyvector_normalize
-#define q3dvector3f_scalar    g3dtinyvector_scalar
-#define q3dvector3f_matrix    g3dtinyvector_matrix
-
-#define q3dvector4_cross     g3dvector_cross
-#define q3dvector4_normalize g3dvector_normalize
-#define q3dvector4_scalar    g3dvector_scalar
+#define q3dvector4_cross     q3dvector3f_cross
+#define q3dvector4_normalize q3dvector3f_normalize
+#define q3dvector4_scalar    q3dvector3f_scalar
 
 /********************************* filter type ********************************/
 #define FILTERLINE   ( 1      )
@@ -116,6 +112,31 @@
 #define BACKGROUND_IMAGE     ( 1      )
 #define BACKGROUND_STRETCHED ( 1 << 1 )
 #define CLEARCOLOR 0x64
+
+/********************************* Triangle flags *****************************/
+#define TRIANGLESMOOTH       ( 1      )
+#define TRIANGLEFLAT         ( 1 << 1 )
+#define TRIANGLECONTAINER    ( 1 << 2 )
+#define TRIANGLEFROMTRIANGLE ( 1 << 3 )
+#define TRIANGLEFROMQUAD     ( 1 << 4 )
+#define TRIANGLEMIRRORED     ( 1 << 5 )
+#define TRIANGLEHITATSTART   ( 1 << 6 )
+#define TRIANGLEFROMQUADONE  ( 1 << 7 )
+#define TRIANGLEFROMQUADTWO  ( 1 << 8 )
+
+/********************************** Ray queries *******************************/
+#define RAYQUERYHIT             ( 1      )
+#define RAYQUERYLIGHTING        ( 1 << 1 ) /*** create a shadow vector?     ***/
+#define RAYQUERYREFLECTION      ( 1 << 2 ) /*** create a reflection vector? ***/
+#define RAYQUERYREFRACTION      ( 1 << 3 ) /*** create a refraction vector? ***/
+#define RAYQUERYNOCHECKIN       ( 1 << 4 )
+#define RAYQUERYOUTLINE         ( 1 << 5 )
+#define RAYQUERYIGNOREBACKFACE  ( 1 << 6 )
+#define RAYLUXRAY               ( 1 << 7 ) /*** For identifying ray's nature ***/
+#define RAYSTART                ( 1 << 8 ) /*** the first shoot of the ray ***/
+
+/******************************** Job Flags ***********************************/
+#define NOFREEFILTERS ( 1 << 15 )
 
 /******************************************************************************/
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
@@ -175,6 +196,14 @@
 #define SIG_RENDERSETTINGS_FOG_FAR                                  0x16300000 /* float    */
 #define SIG_RENDERSETTINGS_FOG_COLOR                                0x16400000 /* uint32_t */
 #define SIG_RENDERSETTINGS_DOF                                  0x17000000
+
+/******************************************************************************/
+#define Q3DFREE_CALLBACK(f)      ((void(*)(Q3DOBJECT*))f)
+#define Q3DINTERSECT_CALLBACK(f) ((uint32_t(*)(Q3DOBJECT*,\
+                                               Q3DRAY*,\
+                                               float,\
+                                               uint64_t,\
+                                               uint64_t))f)
 
 /******************************************************************************/
 typedef struct _Q3DRAY Q3DRAY;
@@ -289,16 +318,16 @@ typedef struct _Q3DSETTINGS {
 
 /******************************************************************************/
 typedef struct _Q3DBBOX {
-    uint32_t  flags;
+    uint32_t    flags;
     Q3DVECTOR3F min;
     Q3DVECTOR3F max;
-    Q3DPLANE   pln[0x06];
+    Q3DPLANE    qpln[0x06];
 } Q3DBBOX;
 
 /******************************************************************************/
 typedef struct _Q3DBSPHERE {
     uint32_t  flags;
-    float     diameter;
+    float     radius;
 } Q3DBSPHERE;
 
 /******************************************************************************/
@@ -338,12 +367,12 @@ typedef struct _Q3DUVSET {
 
 /******************************************************************************/
 typedef struct _Q3DTRIANGLE {
-    uint32_t  flags;
-    uint32_t  qverID[0x03];  /* Use IDs to save memory (for arch >= 64 bits) */
-    Q3DVECTOR3F nor;
-    Q3DUVSET *quvs;
-    float     surface;
-    uint32_t  textureSlots;
+    uint32_t    flags;
+    uint32_t    qverID[0x03];  /* Use IDs to save memory (for arch >= 64 bits) */
+    Q3DVECTOR4F nor;
+    Q3DUVSET   *quvs;
+    float       surface;
+    uint32_t    textureSlots;
 } Q3DTRIANGLE;
 
 /******************************************************************************/
@@ -354,10 +383,12 @@ typedef union _Q3DSURFACE {
 
 /******************************************************************************/
 typedef struct _Q3DOBJECT {
-    uint64_t flags;
-    LIST    *lchildren;
-    double   IMVX[0x10];
-    double  TIMVX[0x10];
+    G3DOBJECT *obj;
+    uint32_t   id;
+    uint64_t   flags;
+    LIST      *lchildren;
+    double     IMVX[0x10];
+    double     TIMVX[0x10];
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
                                   Q3DRAY    *ray, 
@@ -371,14 +402,16 @@ typedef struct _Q3DOBJECT {
 #define Q3DRAY_HAS_HIT_BIT  ( 1 << 1 )
 
 typedef struct _Q3DRAY {
-    uint32_t    flags;
-    Q3DVECTOR3F  ori; /*** origin ***/
+    uint32_t     flags;
+    Q3DVECTOR3F  src; /*** origin ***/
     Q3DVECTOR3F  dir; /*** direction vector ***/
-    Q3DOBJECT  *qobj;
-    Q3DSURFACE *surface;
-    float       distance; /*** hit distance for Z sorting ***/
-    float       energy;
-    int32_t     x, y;
+    Q3DOBJECT   *qobj;
+    Q3DSURFACE  *surface;
+    float        distance; /*** hit distance for Z sorting ***/
+    float        energy;
+    int32_t      x, y;
+    float        ratio[0x03];
+    uint32_t     color;
 } Q3DRAY;
 
 /******************************************************************************/
@@ -399,7 +432,6 @@ typedef struct _Q3DOCTREE {
     Q3DVECTOR3F min;
     Q3DVECTOR3F max;
     Q3DVECTOR3F epsilon;
-    uint32_t   capacity;
     uint32_t   nbqtri;
     union {
         struct _Q3DOCTREE *node[0x08];
@@ -411,8 +443,10 @@ typedef struct _Q3DOCTREE {
 typedef struct _Q3DVERTEXSET {
     Q3DVERTEX  *qver;
     float       frame;
-    Q3DOCTREE   qoct;
+    Q3DOCTREE  *qoct;
     Q3DBOUNDING qbnd;
+    Q3DVECTOR3F min;
+    Q3DVECTOR3F max;
 } Q3DVERTEXSET;
 
 /******************************************************************************/
@@ -437,6 +471,7 @@ typedef struct _Q3DSPHERE {
 /******************************************************************************/
 typedef struct _Q3DSCENE {
     Q3DOBJECT qobj;
+    LIST     *llights;
 } Q3DSCENE;
 
 /******************************************************************************/
@@ -444,8 +479,7 @@ typedef struct _Q3DLIGHT {
     Q3DOBJECT qobj;
     G3DVECTOR pos; /*** Face position in World coord ***/
     G3DVECTOR zvec; /*** light orientation vector for spots (Z-oriented) ***/
-} R3DLIGHT;
-
+} Q3DLIGHT;
 
 /******************************************************************************/
 typedef struct _Q3DCAMERA {
@@ -530,11 +564,11 @@ typedef struct _Q3DAREA {
 /******************************************************************************/
 typedef struct _Q3DJOB {
     Q3DAREA        qarea;
+    uint64_t       flags;
     Q3DCAMERA     *qcam;
     Q3DSCENE      *qsce;
     Q3DSETTINGS   *qrsg;
     unsigned char *img;
-    LIST          *lqlig; /*** list of render lights  ***/
     LIST          *lqfil;
     LIST          *lthread; /*** list of render areas thread***/
     float          curframe;
@@ -546,35 +580,270 @@ typedef struct _Q3DJOB {
     /*** using motion blur effect. So we need to have       ***/
     /*** there identifier put into this list in case we     ***/
     /*** want to cancel the rendering process.              ***/
-    LIST          *lsubjob;
+    LIST          *lqjob;
+    pthread_t      tid; /*** clean thread ID when cancelling e.g ***/
 } Q3DJOB;
 
 /******************************************************************************/
+double q3dvector3f_scalar    ( Q3DVECTOR3F *v0,
+                               Q3DVECTOR3F *v1 );
+void   q3dvector3f_cross     ( Q3DVECTOR3F *vone,
+                               Q3DVECTOR3F *vtwo,
+                               Q3DVECTOR3F *vout );
+void   q3dvector3f_normalize ( Q3DVECTOR3F *vec,
+                               float       *len );
+float  q3dvector3f_length    ( Q3DVECTOR3F *vec );
+void   q3dvector3f_matrix    ( Q3DVECTOR3F *vec,
+                               double      *matrix,
+                               Q3DVECTOR3F *vout );
+
+/******************************************************************************/
 Q3DSETTINGS *q3dsettings_new ( );
-void         q3dsettings_free ( Q3DSETTINGS *rsg );
-void         q3dsettings_copy ( Q3DSETTINGS *dst,
-                                Q3DSETTINGS *src );
-void         q3dsettings_read ( G3DIMPORTDATA *gid, 
-                                uint32_t       chunkEnd, 
-                                FILE          *fsrc,
-                                LIST         **lrsg );
+void         q3dsettings_free  ( Q3DSETTINGS *rsg );
+void         q3dsettings_copy  ( Q3DSETTINGS *dst,
+                                 Q3DSETTINGS *src );
+void         q3dsettings_read  ( G3DIMPORTDATA *gid, 
+                                 uint32_t       chunkEnd, 
+                                 FILE          *fsrc,
+                                 LIST         **lrsg );
 uint32_t     q3dsettings_write ( G3DEXPORTDATA *ged, 
                                  LIST          *lrsg, 
                                  uint32_t       flags, 
                                  FILE          *fdst );
 
 /******************************************************************************/
-uint32_t q3dbouding_intersect ( Q3DBOUNDING *qbnd, 
-                                Q3DRAY      *qray );
-void     q3dbounding_initBBox ( Q3DBOUNDING     *qbnd,
-                                float            xmin, 
-                                float            ymin, 
-                                float            zmin,
-                                float            xmax, 
-                                float            ymax, 
-                                float            zmax );
-void     q3dbounding_initBSphere ( Q3DBOUNDING     *qbnd,
-                                   float            radius );
+uint32_t q3dbouding_intersect    ( Q3DBOUNDING *qbnd, 
+                                   Q3DRAY      *qray );
+void     q3dbounding_initBBox    ( Q3DBOUNDING *qbnd,
+                                   float        xmin, 
+                                   float        ymin, 
+                                   float        zmin,
+                                   float        xmax, 
+                                   float        ymax, 
+                                   float        zmax );
+void     q3dbounding_initBSphere ( Q3DBOUNDING *qbnd,
+                                   float        radius );
 
+/******************************************************************************/
+uint32_t     q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
+                                     Q3DVERTEX   *qver, 
+                                     Q3DRAY      *qray,
+                                     uint64_t     query_flags );
+void         q3dtriangle_init      ( Q3DTRIANGLE *qtri,
+                                     Q3DVERTEX   *qver,
+                                     uint32_t     qverID0,
+                                     uint32_t     qverID1,
+                                     uint32_t     qverID2 );
+Q3DTRIANGLE *q3dtriangle_new       ( Q3DVERTEX *qver,
+                                     uint32_t   qverID0, 
+                                     uint32_t   qverID1, 
+                                     uint32_t   qverID2 );
+
+/******************************************************************************/
+void         q3dsymmetry_init ( Q3DSYMMETRY *qsym, 
+                                G3DSYMMETRY *sym,
+                                uint32_t     id,
+                                uint64_t     object_flags );
+Q3DSYMMETRY *q3dsymmetry_new  ( G3DSYMMETRY *sym,
+                                uint32_t     id,
+                                uint64_t     object_flags );
+
+/******************************************************************************/
+Q3DOCTREE *q3doctree_new         ( float xmin, 
+                                   float ymin,
+                                   float zmin,
+                                   float xmax,
+                                   float ymax, 
+                                   float zmax );
+void       q3doctree_init        ( Q3DOCTREE *qoct,
+                                   float      xmin, 
+                                   float      ymin,
+                                   float      zmin,
+                                   float      xmax,
+                                   float      ymax, 
+                                   float      zmax );
+Q3DOCTREE *q3doctree_buildRoot   ( Q3DOCTREE   *qoct,
+                                   Q3DTRIANGLE *qtri,
+                                   uint32_t     nbqtri,
+                                   Q3DVERTEX   *qver,
+                                   uint32_t     capacity );
+uint32_t   q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
+                                   Q3DRAY      *qray,
+                                   Q3DTRIANGLE *qtri,
+                                   Q3DVERTEX   *qver,
+                                   uint64_t     query_flags,
+                                   uint64_t     render_flags );
+uint32_t   q3doctree_free_r      ( Q3DOCTREE *qoct );
+
+/******************************************************************************/
+void q3dvertexset_buildBoundingBox ( Q3DVERTEXSET *qverset );
+void q3dvertexset_buildOctree      ( Q3DVERTEXSET *qverset,
+                                     Q3DTRIANGLE  *qtri, 
+                                     uint32_t      nbqtri,
+                                     uint32_t      capacity );
+
+/******************************************************************************/
+Q3DVERTEXSET *q3dmesh_getVertexSet     ( Q3DMESH *qmes, 
+                                         float    frame );
+void          q3dmesh_addVertexSet     ( Q3DMESH *qmes, 
+                                         float    frame );
+Q3DVERTEX    *q3dmesh_getVertices      ( Q3DMESH *qmes, 
+                                         float    frame );
+Q3DVERTEX    *q3dmesh_getTriangles     ( Q3DMESH *qmes );
+uint32_t      q3dmesh_getTriangleCount ( Q3DMESH *qmes );
+void          q3dmesh_init             ( Q3DMESH *qmes, 
+                                         G3DMESH *mes,
+                                         uint32_t id,
+                                         uint64_t object_flags,
+                                         float    frame,
+                                         uint32_t octreeCapacity );
+Q3DMESH      *q3dmesh_new              ( G3DMESH *mes,
+                                         uint32_t id,
+                                         uint64_t object_flags,
+                                         float    frame,
+                                         uint32_t octreeCapacity );
+
+/******************************************************************************/
+uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
+                               Q3DRAY  *qray, 
+                               float    frame,
+                               uint64_t query_flags,
+                               uint64_t render_flags );
+
+/******************************************************************************/
+void      q3dscene_init ( Q3DSCENE *qsce, 
+                          G3DSCENE *sce,
+                          uint32_t  id,
+                          uint64_t  object_flags );
+Q3DSCENE *q3dscene_new  ( G3DSCENE *sce,
+                          uint32_t  id,
+                          uint64_t  object_flags );
+void      q3dscene_addLight  ( Q3DSCENE *qsce, 
+                               Q3DLIGHT *qlig );
+
+/******************************************************************************/
+void q3dzengine_drawObject_r ( Q3DZENGINE *qzen, 
+                               Q3DOBJECT  *qobj,
+                               double     *MVX,
+                               double     *PJX,
+                               int        *VPX,
+                               float       frame );
+void q3dzengine_reset        ( Q3DZENGINE *qzen );
+void q3dzengine_init         ( Q3DZENGINE *qzen,
+                               double     *MVX,
+                               double     *PJX,
+                               int        *VPX,
+                               uint32_t    width,
+                               uint32_t    height );
+
+/******************************************************************************/
+float q3dplane_intersectSegment ( Q3DPLANE    *qpla, 
+                                  Q3DVECTOR3F *pnt0,
+                                  Q3DVECTOR3F *pnt1,
+                                  Q3DVECTOR3F *qpnt );
+float q3dplane_intersectLine    ( Q3DPLANE    *qpla, 
+                                  Q3DLINE     *qlin, 
+                                  Q3DVECTOR3F *qpnt );
+
+/******************************************************************************/
+void       q3dobject_free_r      ( Q3DOBJECT *qobj );
+void       q3dobject_addChild    ( Q3DOBJECT *qobj,
+                                   Q3DOBJECT *child );
+uint32_t   q3dobject_intersect_r ( Q3DOBJECT *qobj,
+                                   Q3DRAY    *qray,
+                                   float      frame,
+                                   uint64_t   query_flags,
+                                   uint64_t   render_flags );
+G3DOBJECT *qobject_getObject     ( Q3DOBJECT *qobj );
+void       q3dobject_init        ( Q3DOBJECT *qobj,
+                                   G3DOBJECT *obj,
+                                   uint32_t   id,
+                                   uint64_t   flags,
+                                   void     (*Free)      ( Q3DOBJECT * ),
+                                   uint32_t (*Intersect) ( Q3DOBJECT *obj, 
+                                                           Q3DRAY    *ray,
+                                                           float      frame,
+                                                           uint64_t   query_flags,
+                                                           uint64_t   render_flags ) );
+Q3DOBJECT *q3dobject_new         ( G3DOBJECT *obj, 
+                                   uint32_t   id,
+                                   uint64_t   flags );
+Q3DOBJECT *q3dobject_import_r    ( G3DOBJECT *obj,
+                                   float      frame );
+
+/******************************************************************************/
+void q3darea_reset    ( Q3DAREA *qarea );
+void q3darea_init     ( Q3DAREA   *qarea,
+                        Q3DCAMERA *qcam,
+                        uint32_t   x1,
+                        uint32_t   y1,
+                        uint32_t   x2,
+                        uint32_t   y2,
+                        uint32_t   width,
+                        uint32_t   height,
+                        uint32_t   depth );
+
+/******************************************************************************/
+Q3DFILTER *q3djob_getFilter          ( Q3DJOB     *qjob, 
+                                       const char *filtername );
+void       q3djob_addSubJob          ( Q3DJOB *qjob, 
+                                       Q3DJOB *subqjob );
+void       q3djob_removeSubJob       ( Q3DJOB *qjob,
+                                       Q3DJOB *subqjob );
+void       q3djob_end                ( Q3DJOB *qjob );
+void       q3djob_cancel             ( Q3DJOB *qjob );
+void       q3djob_wait               ( Q3DJOB *qjob );
+void       q3djob_cancel             ( Q3DJOB *qjob );
+void       q3djob_free               ( Q3DJOB *qjob );
+void       q3djob_filterline         ( Q3DJOB *qjob, 
+                                       uint32_t from, 
+                                       uint32_t to,
+                                       uint32_t depth, 
+                                       uint32_t width );
+void      *q3djob_raytrace           ( void *ptr );
+void       q3djob_createRenderThread ( Q3DJOB *qjob );
+Q3DJOB    *q3djob_new                ( Q3DSETTINGS *qrsg,
+                                       G3DSCENE    *sce,
+                                       G3DCAMERA   *cam,
+                                       uint64_t     flags );
+void       q3djob_render_t_free      ( Q3DJOB *qjob );
+void      *q3djob_render_sequence_t  ( Q3DJOB *qjob );
+void      *q3djob_render_frame_t     ( Q3DJOB *qjob );
+void       q3djob_render             ( Q3DJOB *qjob );
+
+/******************************************************************************/
+void       q3dfilter_enable    ( Q3DFILTER *fil );
+void       q3dfilter_disable   ( Q3DFILTER *fil );
+void       q3dfilter_setType   ( Q3DFILTER *fil, uint32_t type );
+Q3DFILTER *q3dfilter_getByName ( LIST *lfil, char *name );
+Q3DFILTER *q3dfilter_new       ( uint32_t   type, 
+                                 char      *name,
+                                 uint32_t (*draw)( Q3DFILTER *,
+                                                   Q3DSCENE *,
+                               /* Frame ID */      float,
+                               /*   Image data  */ unsigned char *,
+                               /* From scanline */ uint32_t,
+                               /*  To scanline  */ uint32_t,
+                               /*     Depth     */ uint32_t,
+                               /*     Width     */ uint32_t ),
+                                                   void (*Free)( Q3DFILTER * ),
+                                                   void  *data );
+void q3dfilter_free ( Q3DFILTER *fil );
+
+/******************************************************************************/
+    #ifdef __linux__
+Q3DFILTER *q3dfilter_toWindow_new ( Display *dis, 
+                                    Window   win, 
+                                    uint32_t active_fill );
+    #endif
+
+/******************************************************************************/
+void      q3dlight_init ( Q3DLIGHT *qlig, 
+                          G3DLIGHT *lig,
+                          uint32_t  id,
+                          uint64_t  object_flags );
+Q3DLIGHT *q3dlight_new  ( G3DLIGHT *lig,
+                          uint32_t  id,
+                          uint64_t  object_flags );
 #endif
  

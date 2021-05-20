@@ -38,13 +38,13 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
                                float    frame,
                                uint64_t query_flags,
                                uint64_t render_flags ) {
-    G3DPRIMITIVE     *pri = ( G3DPRIMITIVE * ) ((G3DOBJECT*)qmes)->obj;
+    G3DPRIMITIVE     *pri = ( G3DPRIMITIVE * ) ((Q3DOBJECT*)qmes)->obj;
     SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
     float r2 = sds->radius * sds->radius;
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
     float a =       q3dvector3f_scalar ( &qray->dir, &qray->dir );
-    float b = 2.0 * q3dvector3f_scalar ( &qray->ori, &qray->dir );
-    float c =       q3dvector3f_scalar ( &qray->ori, &qray->ori ) - r2;
+    float b = 2.0 * q3dvector3f_scalar ( &qray->src, &qray->dir );
+    float c =       q3dvector3f_scalar ( &qray->src, &qray->src ) - r2;
     float discriminant = ( b * b ) - ( 4 * a * c );
 
     if ( discriminant > 0.0f ) {
@@ -67,23 +67,23 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
         }
 
         if ( distance < qray->distance ) {
-            newqray.ori.x = qray->ori.x + ( qray->dir.x * distance );
-            newqray.ori.y = qray->ori.y + ( qray->dir.y * distance );
-            newqray.ori.z = qray->ori.z + ( qray->dir.z * distance );
+            newqray.src.x = qray->src.x + ( qray->dir.x * distance );
+            newqray.src.y = qray->src.y + ( qray->dir.y * distance );
+            newqray.src.z = qray->src.z + ( qray->dir.z * distance );
 
-            newqray.dir.x = - newqrqy.ori.x;
-            newqray.dir.y = - newqrqy.ori.y;
-            newqray.dir.z = - newqrqy.ori.z;
+            newqray.dir.x = - newqray.src.x;
+            newqray.dir.y = - newqray.src.y;
+            newqray.dir.z = - newqray.src.z;
 
             newqray.distance = INFINITY;
 
             q3dvector3f_normalize ( &newqray.dir, NULL );
 
-            q3dmesh_intersect ( qmes,
-                                newqray, 
-                                frame,
-                                query_flags,
-                                render_flags );
+            ((Q3DOBJECT*)qmes)->intersect ( ( Q3DOBJECT * ) qmes,
+                                           &newqray, 
+                                            frame,
+                                            query_flags,
+                                            render_flags );
 
             qray->surface     = newqray.surface;
             qray->distance    = distance;

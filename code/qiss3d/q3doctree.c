@@ -54,23 +54,18 @@
 
 
 /******************************************************************************/
-static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
-                             Q3DVERTEX   *qver
-                             float        xmin,
-                             float        ymin,
-                             float        zmin,
-                             float        xmax,
-                             float        ymax,
-                             float        zmax ) {
+static uint32_t triangleIn ( Q3DOCTREE   *qoct,
+                             Q3DTRIANGLE *qtri,
+                             Q3DVERTEX   *qver ) {
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
     Q3DVECTOR3F min = { .x = qver[qverID0].pos.x,
-                       .y = qver[qverID0].pos.y,
-                       .z = qver[qverID0].pos.z },
-               max = { .x = qver[qverID0].pos.x,
-                       .y = qver[qverID0].pos.y,
-                       .z = qver[qverID0].pos.z };
+                        .y = qver[qverID0].pos.y,
+                        .z = qver[qverID0].pos.z },
+                max = { .x = qver[qverID0].pos.x,
+                        .y = qver[qverID0].pos.y,
+                        .z = qver[qverID0].pos.z };
 
     /*** Rerieve  triangle's boundaries and leave immediately ***/
     /*** if outside the octree ***/
@@ -78,40 +73,40 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
     if ( qver[qverID1].pos.x < min.x ) min.x = qver[qverID1].pos.x;
     if ( qver[qverID2].pos.x < min.x ) min.x = qver[qverID2].pos.x;
 
-    if ( min.x > xmax ) return 0x00;
+    if ( min.x > qoct->max.x ) return 0x00;
 
     if ( qver[qverID1].pos.x > max.x ) max.x = qver[qverID1].pos.x;
     if ( qver[qverID2].pos.x > max.x ) max.x = qver[qverID2].pos.x;
 
-    if ( max.x < xmin ) return 0x00;
+    if ( max.x < qoct->min.x ) return 0x00;
 
     if ( qver[qverID1].pos.y < min.y ) min.y = qver[qverID1].pos.y;
     if ( qver[qverID2].pos.y < min.y ) min.y = qver[qverID2].pos.y;
 
-    if ( min.y > ymax ) return 0x00;
+    if ( min.y > qoct->max.y ) return 0x00;
 
     if ( qver[qverID1].pos.y > max.y ) max.y = qver[qverID1].pos.y;
     if ( qver[qverID2].pos.y > max.y ) max.y = qver[qverID2].pos.y;
 
-    if ( max.y < ymin ) return 0x00;
+    if ( max.y < qoct->min.y ) return 0x00;
 
     if ( qver[qverID1].pos.z < min.z ) min.z = qver[qverID1].pos.z;
     if ( qver[qverID2].pos.z < min.z ) min.z = qver[qverID2].pos.z;
 
-    if ( min.z > zmax ) return 0x00;
+    if ( min.z > qoct->max.z ) return 0x00;
 
     if ( qver[qverID1].pos.z > max.z ) max.z = qver[qverID1].pos.z;
     if ( qver[qverID2].pos.z > max.z ) max.z = qver[qverID2].pos.z;
 
-    if ( max.z < zmin ) return 0x00;
+    if ( max.z < qoct->min.z ) return 0x00;
 
      /*** if the polygon is entirely in the octree ***/
-    if ( ( min.x >= xmin ) &&
-         ( min.y >= ymin ) &&
-         ( min.z >= zmin ) &&
-         ( max.x <= xmax ) &&
-         ( max.y <= ymax ) &&
-         ( max.z <= zmax ) ) {
+    if ( ( min.x >= qoct->min.x ) &&
+         ( min.y >= qoct->min.y ) &&
+         ( min.z >= qoct->min.z ) &&
+         ( max.x <= qoct->max.x ) &&
+         ( max.y <= qoct->max.y ) &&
+         ( max.z <= qoct->max.z ) ) {
 
         return 0x01;
     } else {
@@ -124,15 +119,15 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
                                        { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
         uint32_t i;
 
-        qpln[0x00].w = zmax;
-        qpln[0x01].w = zmin;
-        qpln[0x02].w = ymax;
-        qpln[0x03].w = ymin;
-        qpln[0x04].w = xmax;
-        qpln[0x05].w = xmin;
+        qpln[0x00].w = qoct->max.z;
+        qpln[0x01].w = qoct->min.z;
+        qpln[0x02].w = qoct->max.y;
+        qpln[0x03].w = qoct->min.y;
+        qpln[0x04].w = qoct->max.x;
+        qpln[0x05].w = qoct->min.x;
 
         for ( i = 0x00; i < 0x06; i++ ) {
-            Q3DVECTOR vout;
+            Q3DVECTOR3F vout;
             uint32_t j;
 
             for ( j = 0x00; j < 0x03; j++ ) {
@@ -142,12 +137,12 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
                                                  &qver[j].pos,
                                                  &qver[k].pos,
                                                  &vout ) ) {
-                    if ( ( vout.x >= xmin ) &&
-                         ( vout.x <= xmax ) &&
-                         ( vout.y >= ymin ) &&
-                         ( vout.y <= ymax ) &&
-                         ( vout.z >= zmin ) &&
-                         ( vout.z <= zmax ) ) {
+                    if ( ( vout.x >= ( qoct->min.x - qoct->epsilon.x ) ) &&
+                         ( vout.x <= ( qoct->max.x + qoct->epsilon.x ) ) &&
+                         ( vout.y >= ( qoct->min.y - qoct->epsilon.y ) ) &&
+                         ( vout.y <= ( qoct->max.y + qoct->epsilon.y ) ) &&
+                         ( vout.z >= ( qoct->min.z - qoct->epsilon.z ) ) &&
+                         ( vout.z <= ( qoct->max.z + qoct->epsilon.z ) ) ) {
                         return 0x01;
                     }
                 }
@@ -162,8 +157,8 @@ static uint32_t triangleIn ( Q3DTRIANGLE *qtri,
 static uint32_t pointIn ( Q3DOCTREE  *qoct, 
                           Q3DVECTOR3F *qpnt ) {
     if ( ( qpnt->x >= ( qoct->min.x - qoct->epsilon.x ) ) && 
-         ( qpnt->z >= ( qoct->min.y - qoct->epsilon.y ) ) &&
-         ( qpnt->z >= ( qoct->min.z - qoct->epsilon.y ) ) &&
+         ( qpnt->y >= ( qoct->min.y - qoct->epsilon.y ) ) &&
+         ( qpnt->z >= ( qoct->min.z - qoct->epsilon.z ) ) &&
          ( qpnt->x <= ( qoct->max.x - qoct->epsilon.x ) ) &&
          ( qpnt->y <= ( qoct->max.y - qoct->epsilon.y ) ) &&
          ( qpnt->z <= ( qoct->max.z - qoct->epsilon.z ) ) ) {
@@ -175,15 +170,28 @@ static uint32_t pointIn ( Q3DOCTREE  *qoct,
 }
 
 /******************************************************************************/
+uint32_t q3doctree_free_r ( Q3DOCTREE *qoct ) {
+    uint32_t i;
+
+    if ( qoct->flags & Q3DOCTREE_HASNODES ) {
+        for ( i = 0x00; i < 0x08; i++ ) {
+            q3doctree_free_r ( qoct->children.node[i] );
+        }
+    }
+
+    free ( qoct );
+}
+
+/******************************************************************************/
 uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
                                  Q3DRAY      *qray,
                                  Q3DTRIANGLE *qtri,
                                  Q3DVERTEX   *qver,
                                  uint64_t     query_flags,
                                  uint64_t     render_flags ) {
-    Q3DLINE qlin = { .ori = { .x = qray->ori.x,
-                              .y = qray->ori.y,
-                              .z = qray->ori.z },
+    Q3DLINE qlin = { .src = { .x = qray->src.x,
+                              .y = qray->src.y,
+                              .z = qray->src.z },
                      .dir = { .x = qray->dir.x,
                               .y = qray->dir.y,
                               .z = qray->dir.z } };
@@ -194,7 +202,10 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
 
         for ( i = 0x00; i < 0x08; i++ ) {
             q3doctree_intersect_r ( qoct->children.node[i],
-                                    qray, 
+                                    qray,
+                                    qtri,
+                                    qver,
+                                    query_flags,
                                     render_flags );
         }
     }
@@ -207,25 +218,26 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                                        { .x =  1.0f, .y =  0.0f, .z =  0.0f },
                                        { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
         uint32_t i, hit = 0x00;
-        Q3DVECTOR3F qpnt;
 
-        qpln[0x00].w = zmax;
-        qpln[0x01].w = zmin;
-        qpln[0x02].w = ymax;
-        qpln[0x03].w = ymin;
-        qpln[0x04].w = xmax;
-        qpln[0x05].w = xmin;
+        qpln[0x00].w = qoct->max.z;
+        qpln[0x01].w = qoct->min.z;
+        qpln[0x02].w = qoct->max.y;
+        qpln[0x03].w = qoct->min.y;
+        qpln[0x04].w = qoct->max.x;
+        qpln[0x05].w = qoct->min.x;
 
-        if ( pointIn ( qoct, &qlin.ori ) ) {
+        if ( pointIn ( qoct, &qlin.src ) ) {
             hit++;
         }
 
         for ( i = 0x00, hit = 0x00; i < 0x06, hit < 0x02; i++ ) {
+            Q3DVECTOR3F qpnt;
+
             if ( q3dplane_intersectLine ( &qpln[i], 
                                           &qlin, 
-                                          &qpnt ) {
+                                          &qpnt ) ) {
 
-                if ( pointInBBox ( qbnd, &pnt ) ) {
+                if ( pointIn ( qoct, &qpnt ) ) {
                     hit++;
                 }
             }
@@ -238,8 +250,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                 hit = q3dtriangle_intersect ( &qtri[qtriID],
                                                qver, 
                                                qray,
-                                               query_flags,
-                                               render_flags );
+                                               query_flags );
             }
         }
     }
@@ -275,29 +286,30 @@ static void q3doctree_setNodes ( Q3DOCTREE *qoct,
                                        { .x = xmid, .y = ymax, .z = zmax } },
                                      { { .x = xmid, .y = ymid, .z = zmid }, 
                                        { .x = xmax, .y = ymax, .z = zmax } } };
+    uint32_t i;
 
     qoct->flags &= (~Q3DOCTREE_HASTRIANGLES);
     qoct->flags |=   Q3DOCTREE_HASNODES;
 
     for ( i = 0x00; i < 0x08; i++ ) {
-        qoct->node[i] = q3doctree_new ( capacity, 
-                                        coord[i][0x00].x,
-                                        coord[i][0x00].y,
-                                        coord[i][0x00].z,
-                                        coord[i][0x01].x,
-                                        coord[i][0x01].y,
-                                        coord[i][0x01].z );
+        qoct->children.node[i] = q3doctree_new ( coord[i][0x00].x,
+                                                 coord[i][0x00].y,
+                                                 coord[i][0x00].z,
+                                                 coord[i][0x01].x,
+                                                 coord[i][0x01].y,
+                                                 coord[i][0x01].z );
     }
 }
 
 /******************************************************************************/
-static void q3doctree_build ( Q3DOCTREE   *qoct, 
-                              Q3DTRIANGLE *qtri,
-                              uint32_t    *qtriID,
-                              uint32_t     nbqtri,
-                              Q3DVERTEX   *qver,
-                              uint32_t     capacity ) {
-    if ( nbtri ) {
+/******************* returns updated pointer in case of a realloc *************/
+static Q3DOCTREE *q3doctree_build ( Q3DOCTREE   *qoct, 
+                                    Q3DTRIANGLE *qtri,
+                                    uint32_t    *qtriID,
+                                    uint32_t     nbqtri,
+                                    Q3DVERTEX   *qver,
+                                    uint32_t     capacity ) {
+    if ( nbqtri ) {
         uint32_t *currentID;
         uint32_t i;
 
@@ -306,7 +318,7 @@ static void q3doctree_build ( Q3DOCTREE   *qoct,
         if ( currentID == NULL ) {
             fprintf ( stderr, "%s: calloc failed\n", __func__);
 
-            return;
+            return qoct;
         }
 
         qoct->nbqtri = 0x00;
@@ -314,14 +326,9 @@ static void q3doctree_build ( Q3DOCTREE   *qoct,
         for ( i = 0x00; i < nbqtri; i++ ) {
             uint32_t triangleID = ( qtriID ) ? qtriID[i] : i;
 
-            if ( triangleIn ( &qtri[triangleID],
-                               qver,
-                               qoct->min.x - qoct->epsilon.x,
-                               qoct->min.y - qoct->epsilon.y,
-                               qoct->min.z - qoct->epsilon.z,
-                               qoct->max.x + qoct->epsilon.x,
-                               qoct->max.y + qoct->epsilon.y,
-                               qoct->max.z + qoct->epsilon.z ) ) {
+            if ( triangleIn (  qoct,
+                              &qtri[triangleID],
+                               qver ) ) {
                 currentID[qoct->nbqtri++] = i;
             }
         }
@@ -329,50 +336,57 @@ static void q3doctree_build ( Q3DOCTREE   *qoct,
         /*** adjust octree's size to fit items if ***/
         /***  it won't have no children nodes     ***/
         /*** Note: id nbID == nbtri, then we are in a loop ***/
-        if ( ( qoct->nbqtri <= capacity ) || ( qoct->nbqtri == nbqtri ) ) {
+        if ( ( qoct->nbqtri <= capacity ) || 
+             ( qoct->nbqtri == nbqtri   ) ) {
             uint32_t arraySize = sizeof ( uint32_t ) * qoct->nbqtri;
+            uint32_t structSize;
 
             structSize = sizeof ( Q3DOCTREE ) -
                          sizeof ((Q3DOCTREE*)NULL)->children.node +
                      ( ( sizeof ((Q3DOCTREE*)NULL)->children.qtriID) * qoct->nbqtri );
 
-            qoct = ( Q3DOCTREE * ) realloc ( structSize );
+            qoct = ( Q3DOCTREE * ) realloc ( qoct, structSize );
 
             memcpy ( qoct->children.qtriID, currentID, arraySize );
         } else {
             q3doctree_setNodes ( qoct, capacity );
 
             for ( i = 0x00; i < 0x08; i++ ) {
-                q3doctree_distributeTriangles ( qoct->children.node[i],
-                                                qtri,
-                                                currentID,
-                                                nbID,
-                                                qver,
-                                                capacity );
+                Q3DOCTREE *child = qoct->children.node[i];
+
+                qoct->children.node[i] = q3doctree_build ( child,
+                                                           qtri,
+                                                           currentID,
+                                                           qoct->nbqtri,
+                                                           qver,
+                                                           capacity );
             }
         }
 
         free ( currentID );
     }
+
+    return qoct;
 }
 
 /******************************************************************************/
-void q3doctree_buildRoot ( Q3DOCTREE   *qoct,
-                           Q3DTRIANGLE *qtri,
-                           uint32_t     nbqtri,
-                           Q3DVERTEX   *qver,
-                           uint32_t     capacity ) {
-    q3doctree_build ( qoct, qtri, NULL, nbqtri, qver, capacity );
+/****************** return updated pointer in case of a realloc ***************/
+Q3DOCTREE *q3doctree_buildRoot ( Q3DOCTREE   *qoct,
+                                 Q3DTRIANGLE *qtri,
+                                 uint32_t     nbqtri,
+                                 Q3DVERTEX   *qver,
+                                 uint32_t     capacity ) {
+    return q3doctree_build ( qoct, qtri, NULL, nbqtri, qver, capacity );
 }
 
 /******************************************************************************/
 void q3doctree_init ( Q3DOCTREE *qoct,
-                      float      xmin, 
-                      float      ymin,
-                      float      zmin,
-                      float      xmax,
-                      float      ymax, 
-                      float      zmax ) {
+                      float xmin, 
+                      float ymin,
+                      float zmin,
+                      float xmax,
+                      float ymax, 
+                      float zmax ) {
     qoct->flags = Q3DOCTREE_HASTRIANGLES;
 
     qoct->min.x = xmin;

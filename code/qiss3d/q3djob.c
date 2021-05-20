@@ -30,40 +30,9 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-/*  GLOSS3D is free software: you can redistribute it and/or modify           */
-/*  it under the terms of the GNU General Public License as published by      */
-/*  the Free Software Foundation, either version 3 of the License, or         */
-/*  (at your option) any later version.                                       */
-/*                                                                            */
-/*  GLOSS3D is distributed in the hope that it will be useful,                */
-/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
-/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
-/*  GNU General Public License for more details.                              */
-/*                                                                            */
-/*  You should have received a copy of the GNU General Public License         */
-/*  along with GLOSS3D.  If not, see http://www.gnu.org/licenses/.            */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
-/*                                                                            */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
-/* Please avoid using global variables at all costs in this file, and never   */
-/* forget this :                                                              */
-/*                         Keep It Simple Stupid !                            */
-/*                                                                            */
-/******************************************************************************/
-#include <config.h>
-#include <r3d.h>
-
-/******************************************************************************/
 Q3DFILTER *q3djob_getFilter ( Q3DJOB    *qjob, 
                              const char *filtername ) {
-    LIST *ltmpfilters = qjob->rsg->input.lfilters;
+    LIST *ltmpfilters = qjob->qrsg->input.lfilters;
 
     while ( ltmpfilters ) {
         Q3DFILTER *fil = ( Q3DFILTER * ) ltmpfilters->data;
@@ -82,13 +51,13 @@ Q3DFILTER *q3djob_getFilter ( Q3DJOB    *qjob,
 /******************************************************************************/
 void q3djob_addSubJob ( Q3DJOB *qjob, 
                         Q3DJOB *subqjob ) {
-    list_insert ( &qjob->lsubqjob, subqjob );
+    list_insert ( &qjob->lqjob, subqjob );
 }
 
 /******************************************************************************/
 void q3djob_removeSubJob ( Q3DJOB *qjob,
                            Q3DJOB *subqjob ) {
-    list_remove ( &qjob->lsubqjob, subqjob );
+    list_remove ( &qjob->lqjob, subqjob );
 }
 
 /******************************************************************************/
@@ -99,17 +68,17 @@ void q3djob_end ( Q3DJOB *qjob ) {
 
 /******************************************************************************/
 void q3djob_cancel ( Q3DJOB *qjob ) {
-    LIST *ltmpsubqjob = qjob->lsubqjob;
+    LIST *ltmpqjob = qjob->lqjob;
 
     printf ( "Stopping rendering threads\n" );
 
-    while ( ltmpsubqjob ) {
-        Q3DJOB *subqjob = ( Q3DJOB * ) ltmpsubqjob->data;
+    while ( ltmpqjob ) {
+        Q3DJOB *subqjob = ( Q3DJOB * ) ltmpqjob->data;
 
         /*** wait for raytracing scanlines to finish ***/
         q3djob_end ( subqjob );
 
-        ltmpsubqjob = ltmpsubqjob->next;
+        ltmpqjob = ltmpqjob->next;
     }
 
     q3djob_end ( qjob );
@@ -135,14 +104,6 @@ void q3djob_wait ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-/******** Wait the end of the render process, ie the end of each thread *******/
-void q3djob_cancel ( Q3DJOB *qjob ) {
-    qjob->running = 0x00;
-
-    qjob->cancelled = 0x01;
-}
-
-/******************************************************************************/
 void q3djob_free ( Q3DJOB *qjob ) {
     /*** free all rendering threads - one per CPU ***/
     list_free ( &qjob->lthread, NULL );
@@ -151,7 +112,7 @@ void q3djob_free ( Q3DJOB *qjob ) {
 
     if ( qjob->img ) free ( qjob->img );
 
-    q3darea_reset ( qjob->qarea );
+    q3darea_reset ( &qjob->qarea );
 
     q3dcamera_free   ( qjob->qcam );
 
@@ -190,7 +151,7 @@ void q3djob_filterline ( Q3DJOB *qjob,
                          uint32_t depth, 
                          uint32_t width ) {
     LIST *ltmp = qjob->qrsg->input.lfilters;
-    char *img = qjob->qarea.img;
+    char *img = qjob->img;
 
     if ( qjob->running == 0x00 ) return;
 
@@ -210,13 +171,13 @@ void q3djob_filterline ( Q3DJOB *qjob,
 }
 
 /******************************************************************************/
-void q3djob_filterimage ( Q3DJOB  *qjob, 
-                          uint32_t from, 
-                          uint32_t to,
-                          uint32_t depth, 
-                          uint32_t width ) {
+static void q3djob_filterimage ( Q3DJOB  *qjob, 
+                                 uint32_t from, 
+                                 uint32_t to,
+                                 uint32_t depth, 
+                                 uint32_t width ) {
     LIST *ltmp = qjob->qrsg->input.lfilters;
-    char *img = qjob->qarea.img;
+    char *img = qjob->img;
 
     /*** Filter "CLEAN" must be run no matter what ***/
     if ( qjob->running == 0x00 ) {
@@ -258,7 +219,7 @@ static uint32_t q3djob_filterbefore ( Q3DJOB *qjob,
                                       uint32_t depth, 
                                       uint32_t width ) {
     LIST *ltmp = qjob->qrsg->input.lfilters;
-    char *img = qjob->qarea.img;
+    char *img = qjob->img;
     uint32_t ret = 0x00;
 
     if ( qjob->running == 0x00 ) return 0x00;
@@ -286,7 +247,7 @@ void *q3djob_raytrace ( void *ptr ) {
     Q3DJOB *qjob = ( Q3DJOB * ) ptr;
     Q3DAREA *qarea = &qjob->qarea;
     Q3DINTERPOLATION pone, ptwo;
-    unsigned char *img = qarea->img;
+    unsigned char *img = qjob->img;
     uint32_t scanline;
     uint32_t steps  = ( qarea->x2 - qarea->x1 );
     uint32_t width  = ( qarea->x2 - qarea->x1 ) + 0x01;
@@ -307,7 +268,7 @@ void *q3djob_raytrace ( void *ptr ) {
 
         for ( i = qarea->x1; ( i <= qarea->x2 ) && qjob->running; i++ ) {
             uint32_t color;
-            Q3DVECTOR intersectionPointToSource;
+            Q3DVECTOR3F intersectionPointToSource;
             Q3DRAY qray;
             float viewingDistance;
             uint32_t offset = ( scanline * qarea->width ) + i;
@@ -322,9 +283,9 @@ void *q3djob_raytrace ( void *ptr ) {
             /*** then set its source position ***/
             /*memcpy ( &ray.ori, &pone.src, sizeof ( R3DVECTOR ) );*/
 
-            qray.ori.x = pone.src.x;
-            qray.ori.y = pone.src.y;
-            qray.ori.z = pone.src.z;
+            qray.src.x = pone.src.x;
+            qray.src.y = pone.src.y;
+            qray.src.z = pone.src.z;
 
             /*** and its destination vector ***/
             qray.dir.x = ( pone.dst.x - pone.src.x );
@@ -355,20 +316,7 @@ void *q3djob_raytrace ( void *ptr ) {
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
             imgptr[0x02] = ( color & 0x000000FF );
 
-            if ( qray.flags & Q3DRAY_HAS_HIT_BIT ) {
-                Q3DVECTOR qpnt = { .x = qray.ori.x + ( qray.dir.x * qray.distance ),
-                                   .y = qray.ori.y + ( qray.dir.y * qray.distance ),
-                                   .z = qray.ori.z + ( qray.dir.z * qray.distance ) };
-
-                intersectionPointToSource.x = qpnt.x - pone.src.x;
-                intersectionPointToSource.y = qpnt.y - pone.src.y;
-                intersectionPointToSource.z = qpnt.z - pone.src.z;
-
-                qarea->zBuffer[offset] = q3dvector3f_length ( &intersectionPointToSource );
-            } else {
-                qarea->zBuffer[offset] = INFINITY;
-            }
-
+#ifdef unused
             if ( qjob->qrsg->flags & RENDERFOG ) {
                 uint32_t fogR = ( ( qjob->qrsg->fog.color & 0x00FF0000 ) >> 0x10 ),
                          fogG = ( ( qjob->qrsg->fog.color & 0x0000FF00 ) >> 0x08 ),
@@ -407,6 +355,7 @@ void *q3djob_raytrace ( void *ptr ) {
                 imgptr[0x01] = G;
                 imgptr[0x02] = B;
             }
+#endif
 
             imgptr += 0x03;
 
@@ -442,7 +391,10 @@ void q3djob_createRenderThread ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-Q3DJOB *q3djob_new ( Q3DRENDERSETTINGS *qrsg ) {
+Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg, 
+                     G3DSCENE    *sce,
+                     G3DCAMERA   *cam,
+                     uint64_t     flags ) {
     uint32_t structsize = sizeof ( Q3DJOB );
     uint32_t bytesperline = ( qrsg->output.width * 0x03 );
     Q3DJOB *qjob;
@@ -457,7 +409,7 @@ Q3DJOB *q3djob_new ( Q3DRENDERSETTINGS *qrsg ) {
     qjob->qrsg = qrsg;
 
     /*** This 24bpp buffer will receive the raytraced pixel values ***/
-    if ( ( qjob->qarea.img = calloc ( qrsg->output.height, bytesperline ) ) == NULL ) {
+    if ( ( qjob->img = calloc ( qrsg->output.height, bytesperline ) ) == NULL ) {
         fprintf ( stderr, "%s: image memory allocation failed\n", __func__ );
 
         free ( qjob );
@@ -465,13 +417,14 @@ Q3DJOB *q3djob_new ( Q3DRENDERSETTINGS *qrsg ) {
         return NULL;
     }
 
-    qjob->curframe    = rsg->output.startframe;
+    qjob->curframe = qrsg->output.startframe;
 
     qjob->running = 0x01;
 
     qjob->qsce = q3dobject_import_r ( sce, qjob->curframe );
 
-    qjob->qcam = q3dcamera_new ( cam, width, height );
+    qjob->qcam = q3dcamera_new ( cam, qrsg->output.width, 
+                                      qrsg->output.height );
 
     q3darea_init ( &qjob->qarea,
                     qjob->qcam,
@@ -490,15 +443,15 @@ Q3DJOB *q3djob_new ( Q3DRENDERSETTINGS *qrsg ) {
 /******************************************************************************/
 void q3djob_render_t_free ( Q3DJOB *qjob ) {
     /*** free filters after rendering ***/
-    if ( qjob->flags & NOFREEFILTERS ) == 0x00 ) {
+    if ( ( qjob->flags & NOFREEFILTERS ) == 0x00 ) {
         list_free ( &qjob->qrsg->input.lfilters, q3dfilter_free );
     }
 }
 
 /******************************************************************************/
 void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
-    G3DSCENE *sce  = ( G3DSCENE *  ) ((R3DOBJECT*)qjob)->obj;
-    G3DCAMERA *cam = ( G3DCAMERA * ) ((R3DOBJECT*)qjob->qarea.rcam)->obj;
+    G3DSCENE *sce  = ( G3DSCENE *  ) qobject_getObject ( qjob->qsce );
+    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( qjob->qcam );
     uint32_t x1 = qjob->qarea.x1, 
              y1 = qjob->qarea.y1,
              x2 = qjob->qarea.x2,
@@ -519,7 +472,7 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
         if ( qjob->running ) {
             Q3DJOB *nextqjob;
 
-            nextqjob = q3djob_new ( qjob->rsg, 0x00, NOFREEFILTERS );
+            nextqjob = q3djob_new ( qjob->qrsg, sce, cam, NOFREEFILTERS );
 
             nextqjob->curframe = i;
 

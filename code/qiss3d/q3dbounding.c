@@ -92,26 +92,26 @@ static uint32_t pointInBBox ( Q3DBOUNDING *qbnd,
 /******************************************************************************/
 uint32_t q3dbouding_intersect ( Q3DBOUNDING *qbnd, 
                                 Q3DRAY      *qray ) {
-    Q3DLINE qlin = { .src = { .x = qray->ori.x,
-                              .y = qray->ori.y,
-                              .z = qray->ori.z },
+    Q3DLINE qlin = { .src = { .x = qray->src.x,
+                              .y = qray->src.y,
+                              .z = qray->src.z },
                      .dir = { .x = qray->dir.x,
                               .y = qray->dir.y,
                               .z = qray->dir.z } };
     Q3DVECTOR3F qpnt;
     uint32_t i, hit;
 
-    if ( pointInBBox ( qbnd, &qlin.ori ) {
+    if ( pointInBBox ( qbnd, &qlin.src ) ) {
         hit++;
     }
 
     if ( qbnd->flags & Q3DBOUNDING_FLAGS_BBOX_BIT ) {
         for ( i = 0x00, hit = 0x00; i < 0x06, hit < 0x02; i++ ) {
-            if ( q3dplane_intersectLine ( &qbnd->bounding.box.pla[i], 
+            if ( q3dplane_intersectLine ( &qbnd->box.qpln[i], 
                                           &qlin, 
-                                          &qpnt ) {
+                                          &qpnt ) ) {
 
-                if ( pointInBBox ( qbnd, &pnt ) ) {
+                if ( pointInBBox ( qbnd, &qpnt ) ) {
                     hit++;
                 }
             }
@@ -132,39 +132,39 @@ void q3dbounding_initBBox ( Q3DBOUNDING     *qbnd,
                             float            xmax, 
                             float            ymax, 
                             float            zmax ) {
-    Q3DVECTOR3F epsilon = { .x = ( xmax - xmin ) * 0.05f;
-                           .y = ( ymax - ymin ) * 0.05f;
-                           .z = ( zmax - zmin ) * 0.05f };
+    Q3DVECTOR3F epsilon = { .x = ( xmax - xmin ) * 0.05f,
+                            .y = ( ymax - ymin ) * 0.05f,
+                            .z = ( zmax - zmin ) * 0.05f };
 
     memset ( qbnd, 0x00, sizeof ( Q3DBOUNDING ) );
 
     qbnd->flags = Q3DBOUNDING_FLAGS_BBOX_BIT;
 
-    qbnd->bounding.box.pla[0x00].z =  1.0f;
-    qbnd->bounding.box.pla[0x00].w =  zmax;
+    qbnd->box.qpln[0x00].z =  1.0f;
+    qbnd->box.qpln[0x00].w =  zmax;
 
-    qbnd->bounding.box.pla[0x01].z = -1.0f;
-    qbnd->bounding.box.pla[0x01].w =  zmin;
+    qbnd->box.qpln[0x01].z = -1.0f;
+    qbnd->box.qpln[0x01].w =  zmin;
 
-    qbnd->bounding.box.pla[0x02].y =  1.0f;
-    qbnd->bounding.box.pla[0x02].w =  ymax;
+    qbnd->box.qpln[0x02].y =  1.0f;
+    qbnd->box.qpln[0x02].w =  ymax;
 
-    qbnd->bounding.box.pla[0x03].y = -1.0f;
-    qbnd->bounding.box.pla[0x03].w =  ymin;
+    qbnd->box.qpln[0x03].y = -1.0f;
+    qbnd->box.qpln[0x03].w =  ymin;
 
-    qbnd->bounding.box.pla[0x04].x =  1.0f;
-    qbnd->bounding.box.pla[0x04].w =  xmax;
+    qbnd->box.qpln[0x04].x =  1.0f;
+    qbnd->box.qpln[0x04].w =  xmax;
 
-    qbnd->bounding.box.pla[0x05].x = -1.0f;
-    qbnd->bounding.box.pla[0x05].w =  xmin;
+    qbnd->box.qpln[0x05].x = -1.0f;
+    qbnd->box.qpln[0x05].w =  xmin;
 
-    qbnd->bounding.box.min.x = xmin - epsilon.x;
-    qbnd->bounding.box.min.y = ymin - epsilon.y;
-    qbnd->bounding.box.min.z = zmin - epsilon.z;
+    qbnd->box.min.x = xmin - epsilon.x;
+    qbnd->box.min.y = ymin - epsilon.y;
+    qbnd->box.min.z = zmin - epsilon.z;
 
-    qbnd->bounding.box.max.x = xmax + epsilon.x;
-    qbnd->bounding.box.max.y = ymax + epsilon.y;
-    qbnd->bounding.box.max.z = zmax + epsilon.z;
+    qbnd->box.max.x = xmax + epsilon.x;
+    qbnd->box.max.y = ymax + epsilon.y;
+    qbnd->box.max.z = zmax + epsilon.z;
 }
 
 /******************************************************************************/
@@ -174,5 +174,5 @@ void q3dbounding_initBSphere ( Q3DBOUNDING     *qbnd,
 
     qbnd->flags = Q3DBOUNDING_FLAGS_BSPHERE_BIT;
 
-    qbnd->bounding.sphere.radius = radius;
+    qbnd->sphere.radius = radius;
 }

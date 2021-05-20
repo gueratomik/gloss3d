@@ -30,80 +30,50 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
+static uint32_t q3dlight_intersect ( Q3DMESH *qmes,
+                                     Q3DRAY  *qray, 
+                                     float    frame,
+                                     uint64_t query_flags,
+                                     uint64_t render_flags ) {
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static void q3dlight_free ( Q3DLIGHT *qlig ) {
 
 }
 
 /******************************************************************************/
-static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
-                                        Q3DRAY      *qray,
-                                        float        frame,
-                                        uint64_t     query_flags,
-                                        uint64_t     render_flags ) {
-    Q3DOBJECT *qobjsym = ( Q3DOBJECT * ) qsym;
-    LIST *ltmpchildren = qobjsym->lchildren;
-    uint32_t hit = 0x00;
-    Q3DRAY symqray;
-
-    memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
-
-    q3dvector3f_matrix ( &qray->src, qsym->ISMVX , &symqray.src );
-    q3dvector3f_matrix ( &qray->dir, qsym->TISMVX, &symqray.dir );
-
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
-
-        hit += q3dobject_intersect_r ( qchild,
-                                      &symqray,
-                                       frame,
-                                       query_flags,
-                                       render_flags );
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    qray->color    = symqray.color;
-    qray->distance = symqray.distance;
-    qray->qobj     = symqray.qobj;
-    qray->surface  = symqray.surface;
-
-    return ( hit ) ? 0x01 : 0x00;
-}
-
-/******************************************************************************/
-void q3dsymmetry_init ( Q3DSYMMETRY *qsym, 
-                        G3DSYMMETRY *sym,
-                        uint32_t     id,
-                        uint64_t     object_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
+void q3dlight_init ( Q3DLIGHT *qlig, 
+                     G3DLIGHT *lig,
+                     uint32_t  id,
+                     uint64_t  object_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
     double TMPX[0x10], ITMPX[0x10];
 
-    q3dobject_init ( ( Q3DOBJECT * ) qsym,
-                     ( G3DOBJECT * ) sym,
+    q3dobject_init ( ( Q3DOBJECT * ) qlig,
+                     ( G3DOBJECT * ) lig,
                      id,
                      object_flags,
-    Q3DFREE_CALLBACK(q3dsymmetry_free),
-Q3DINTERSECT_CALLBACK(q3dsymmetry_intersect) );
-
-    g3dcore_multmatrix ( obj->lmatrix, sym->smatrix, TMPX );
-    g3dcore_invertMatrix ( TMPX, qsym->ISMVX );
-    g3dcore_transposeMatrix ( qsym->ISMVX, qsym->TISMVX );
+    Q3DFREE_CALLBACK(q3dlight_free),
+Q3DINTERSECT_CALLBACK(q3dlight_intersect) );
 }
 
 /******************************************************************************/
-Q3DSYMMETRY *q3dsymmetry_new ( G3DSYMMETRY *sym,
-                               uint32_t     id,
-                               uint64_t     object_flags ) {
-    Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) calloc ( 0x01, sizeof ( Q3DSYMMETRY ) );
+Q3DLIGHT *q3dlight_new ( G3DLIGHT *lig,
+                         uint32_t  id,
+                         uint64_t  object_flags ) {
+    Q3DLIGHT *qlig = ( Q3DLIGHT * ) calloc ( 0x01, sizeof ( Q3DLIGHT ) );
 
-    if ( qsym == NULL ) {
+    if ( qlig == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__);
 
         return NULL;
     }
 
-    q3dsymmetry_init ( qsym, sym, id, object_flags );
+    q3dlight_init ( qlig, lig, id, object_flags );
 
 
-    return qsym;
+    return qlig;
 }

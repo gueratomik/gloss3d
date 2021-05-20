@@ -29,17 +29,14 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
-
 /******************************************************************************/
-void q3dobject_free_r ( Q3DOBJECT *qobj,
-                        float      frame ) {
+void q3dobject_free_r ( Q3DOBJECT *qobj ) {
     LIST *ltmpchildren = qobj->lchildren;
-    Q3DOBJECT *qobj;
 
     if ( qobj->free ) qobj->free ( qobj );
 
     while ( ltmpchildren ) {
-        Q3DOBJECT *child  = ( Q3DOBJECT * ) ltmpchildren->data;
+        Q3DOBJECT *qchild  = ( Q3DOBJECT * ) ltmpchildren->data;
 
         q3dobject_free_r ( qchild );
 
@@ -59,11 +56,11 @@ static void q3dobject_default_free ( Q3DOBJECT *qobj ) {
 }
 
 /******************************************************************************/
-static uint32_t qobject_default_intersect ( Q3DOBJECT *qobj,
-                                            Q3DRAY    *qray,
-                                            float      frame,
-                                            uint64_t   query_flags,
-                                            uint64_t   render_flags ) {
+static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
+                                              Q3DRAY    *qray,
+                                              float      frame,
+                                              uint64_t   query_flags,
+                                              uint64_t   render_flags ) {
     return 0x00;
 }
 
@@ -73,13 +70,14 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
                                  float      frame,
                                  uint64_t   query_flags,
                                  uint64_t   render_flags ) {
+    LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector3f_matrix ( qray->ori, qobj->IMVX , &locqray.ori );
-    q3dvector3f_matrix ( qray->dir, qobj->TIVMX, &locqray.dir );
+    q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
+    q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
 
     if ( qobj->intersect ) {
         hit += qobj->intersect ( qobj, 
@@ -137,7 +135,9 @@ void q3dobject_init ( Q3DOBJECT *qobj,
 }
 
 /******************************************************************************/
-Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj ) {
+Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj, 
+                           uint32_t   id,
+                           uint64_t   flags ) {
     Q3DOBJECT *qobj = ( Q3DOBJECT * ) calloc ( 0x01, sizeof ( Q3DOBJECT ) );
 
     if ( qobj == NULL ) {
@@ -160,6 +160,7 @@ Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj ) {
 Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
                                 float      frame ) {
     LIST *ltmpchildren = obj->lchildren;
+    static Q3DSCENE *qsce;
     Q3DOBJECT *qobj;
 
     switch ( obj->type ) {
@@ -172,38 +173,43 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
             G3DMESH *mes = ( G3DMESH * ) obj;
             Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
 
-            qobj = qmes;
+            qobj = ( Q3DOBJECT * ) qmes;
         } break;
 
         case G3DSYMMETRYTYPE : {
             G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym );
+            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym, 0x00, 0x00 );
 
-            qobj = qsym;
+            qobj = ( Q3DOBJECT * ) qsym;
         } break;
 
         case G3DSPHERETYPE : {
-            if ( obj->flags & SPHEREISPERFECT ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
 
-            } else {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
-
-                qobj = qmes;
-            }        
+            qobj = ( Q3DOBJECT * ) qmes;
         } break;
 
         case G3DSCENETYPE : {
             G3DSCENE *sce = ( G3DSCENE * ) obj;
-            Q3DSCENE *qsce = q3dscene_new ( sce,
-                                            0x00,
-                                            0x00 );
+            qsce = q3dscene_new ( sce, 0x00, 0x00 );
 
-            qobj = qsce;
+            qobj = ( Q3DOBJECT * ) qsce;
+        } break;
+
+        case G3DLIGHTTYPE : {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+            Q3DLIGHT *qlig = q3dlight_new ( lig, 0x00, 0x00 );
+
+            /*** qsce is a static variable, so this recursive function ***/
+            /*** expects to have gone through a SCENE first ***/
+            q3dscene_addLight ( qsce, qlig );
+
+            qobj = ( Q3DOBJECT * ) qlig;
         } break;
 
         default : {
-            qobj = q3dobject_new ( obj );
+            qobj = q3dobject_new ( obj, 0x00, 0x00 );
         } break;
     }
 

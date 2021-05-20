@@ -49,6 +49,8 @@
 
 #include "signatures.h"
 
+#define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTDATA*,void*,uint32_t,FILE *))f)
+
 typedef struct _G3DEXPORTDATA {
     G3DSCENE  *currentScene;
     G3DOBJECT *currentObject;

@@ -45,11 +45,11 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 }
 
 /******************************************************************************/
-uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
-                             Q3DRAY  *qray, 
-                             float    frame,
-                             uint64_t query_flags,
-                             uint64_t render_flags ) {
+static uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
+                                    Q3DRAY  *qray, 
+                                    float    frame,
+                                    uint64_t query_flags,
+                                    uint64_t render_flags ) {
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
     if ( q3doctree_intersect_r ( qverset->qoct, 
@@ -58,7 +58,7 @@ uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
                                  qverset->qver,
                                  query_flags,
                                  render_flags ) ) {
-        qray->qobj = qmes;
+        qray->qobj = ( Q3DOBJECT * ) qmes;
 
         return 0x01;
     }
@@ -129,12 +129,12 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
                                   float    frame,
                                   uint32_t nbqver,
                                   uint32_t nbqtri ) {
-    G3DMESH *mes      = ( G3DMESH * ) qobject_getObject ( qmes );
-    uint32_t nbuvmap  = g3dmesh_getUVMapCount ( mes );
-    uint32_t nbquvs   = ( nbqtri * nbuvmap );
-    uint32_t memsize  = ( nbqver * sizeof ( Q3DVERTEX   ) ) +
-                        ( nbqtri * sizeof ( Q3DTRIANGLE ) ) + 
-                        ( nbquvs * sizeof ( Q3DUVSET    ) );
+    G3DMESH *mes     = ( G3DMESH * ) qobject_getObject ( ( Q3DOBJECT * ) qmes );
+    uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
+    uint32_t nbquvs  = ( nbqtri * nbuvmap );
+    uint32_t memsize = ( nbqver * sizeof ( Q3DVERTEX   ) ) +
+                       ( nbqtri * sizeof ( Q3DTRIANGLE ) ) + 
+                       ( nbquvs * sizeof ( Q3DUVSET    ) );
     uint32_t i;
 
     qmes->nbqver = nbqver;
@@ -196,9 +196,10 @@ static void Alloc ( uint32_t nbver,
 /******************************************************************************/
 static void Dump ( G3DFACE *fac, 
                    void    *data ) {
-    uint32_t polyCount = ( fac->nbver == 0x03 ) 0x01 : 0x02;
+    uint32_t polyCount = ( fac->nbver == 0x03 ) ? 0x01 : 0x02;
     Q3DDUMP *qdump = ( Q3DDUMP * ) data;
     Q3DMESH *qmes  = qdump->qmes;
+    G3DMESH *mes = (G3DMESH*) ((Q3DOBJECT*)qmes)->obj;
     uint32_t i, j;
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, qdump->frame );
 
@@ -207,9 +208,9 @@ static void Dump ( G3DFACE *fac,
         static uint32_t idx[0x02][0x03] = { { 0x00, 0x01, 0x02 },
                                             { 0x02, 0x03, 0x00 } };
         LIST *ltmpuvs = fac->luvs;
-        uint32_t qverID0 = fac->ver[idx[i][0x00]]->id,
-                 qverID1 = fac->ver[idx[i][0x01]]->id,
-                 qverID2 = fac->ver[idx[i][0x02]]->id;
+        uint32_t qverID[0x03] = { fac->ver[idx[i][0x00]]->id,
+                                  fac->ver[idx[i][0x01]]->id,
+                                  fac->ver[idx[i][0x02]]->id };
         Q3DVERTEX *qver[0x03] = { &qverset->qver[qverID[0x00]],
                                   &qverset->qver[qverID[0x01]],
                                   &qverset->qver[qverID[0x02]] };
@@ -226,7 +227,7 @@ static void Dump ( G3DFACE *fac,
                                                               &ver->pos,
                       *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
                                                                &ver->nor;
-            Q3DVERTEX *curqver = &qmes->qver[qmes->curfac->qverID[j]];
+            Q3DVERTEX *curqver = &qverset->qver[qverID[j]];
 
             curqver->pos.x = pos->x;
             curqver->pos.y = pos->y;
@@ -246,20 +247,20 @@ static void Dump ( G3DFACE *fac,
         }
 
         q3dtriangle_init ( qmes->curtri,
-                           qdump->qver,
-                           qverID0,
-                           qverID1,
-                           qverID2 );
+                           qverset->qver,
+                           qverID[0x00],
+                           qverID[0x01],
+                           qverID[0x02] );
 
         qmes->curtri->textureSlots = fac->textureSlots;
 
-        qmes->curtri->flags |= ( polyCount == 0x01 ) ? QTRIANGLEFROMTRIANGLE : 
-                                                       QTRIANGLEFROMQUAD;
+        qmes->curtri->flags |= ( polyCount == 0x01 ) ? TRIANGLEFROMTRIANGLE : 
+                                                       TRIANGLEFROMQUAD;
 
         /*** this flag helps us to rebuild a quad from a RFACE and ***/
         /*** the face that follows in the array. Used for outlining ***/
-        if ( i == 0x00 ) qmes->curtri->flags |= QTRIANGLEFROMQUADONE;
-        if ( i == 0x01 ) qmes->curtri->flags |= QTRIANGLEFROMQUADTWO;
+        if ( i == 0x00 ) qmes->curtri->flags |= TRIANGLEFROMQUADONE;
+        if ( i == 0x01 ) qmes->curtri->flags |= TRIANGLEFROMQUADTWO;
 
         /* 
          * no need uv coords when using, let's say,
@@ -270,14 +271,14 @@ static void Dump ( G3DFACE *fac,
                 G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
                 uint32_t uvmapID = uvs->map->mapID;
 
-                qmes->curtri->quvs[uvmapID].uv[0x00].u = uvs->veruv[verID[0x00]].u;
-                qmes->curtri->quvs[uvmapID].uv[0x00].v = uvs->veruv[verID[0x00]].v;
+                qmes->curtri->quvs[uvmapID].uv[0x00].u = uvs->veruv[idx[i][0x00]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x00].v = uvs->veruv[idx[i][0x00]].v;
 
-                qmes->curtri->quvs[uvmapID].uv[0x01].u = uvs->veruv[verID[0x01]].u;
-                qmes->curtri->quvs[uvmapID].uv[0x01].v = uvs->veruv[verID[0x01]].v;
+                qmes->curtri->quvs[uvmapID].uv[0x01].u = uvs->veruv[idx[i][0x01]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x01].v = uvs->veruv[idx[i][0x01]].v;
 
-                qmes->curtri->quvs[uvmapID].uv[0x02].u = uvs->veruv[verID[0x02]].u;
-                qmes->curtri->quvs[uvmapID].uv[0x02].v = uvs->veruv[verID[0x02]].v;
+                qmes->curtri->quvs[uvmapID].uv[0x02].u = uvs->veruv[idx[i][0x02]].u;
+                qmes->curtri->quvs[uvmapID].uv[0x02].v = uvs->veruv[idx[i][0x02]].v;
 
                 ltmpuvs = ltmpuvs->next;
             }
@@ -300,36 +301,36 @@ void q3dmesh_init ( Q3DMESH *qmes,
 
     if ( ( obj->type == G3DSPHERETYPE   ) &&
          ( obj->flags & SPHEREISPERFECT ) ) {
-        q3dobject_init ( qmes,
-                         mes,
+        q3dobject_init ( ( Q3DOBJECT * ) qmes,
+                         ( G3DOBJECT * ) mes,
                          id,
                          object_flags,
-                         q3dmesh_free,
-                         q3dsphere_intersect );
+        Q3DFREE_CALLBACK(q3dmesh_free),
+   Q3DINTERSECT_CALLBACK(q3dsphere_intersect) );
     } else {
-        q3dobject_init ( qmes,
-                         mes,
+        q3dobject_init ( ( Q3DOBJECT * ) qmes,
+                         ( G3DOBJECT * ) mes,
                          id,
                          object_flags,
-                         q3dmesh_free,
-                         q3dmesh_intersect );
+        Q3DFREE_CALLBACK(q3dmesh_free),
+   Q3DINTERSECT_CALLBACK(q3dmesh_intersect) );
     }
 
     g3dmesh_dump ( mes,
                    Alloc,
                    Dump,
-                  &rdump,
-                   /*dump_flags*/0x00 );
+                  &qdump,
+                   /*dump_flags*/0xFFFFFFFF );
 
     if ( qmes->nbqtri ) {
         Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
+        /* commented out : not needed. The octree does the job ***/
         /*q3dvertexset_buildBoundingBox ( qverset );*/
 
         q3dvertexset_buildOctree      ( qverset,
                                         qmes->qtri,
                                         qmes->nbqtri,
-                                        qmes->qver,
                                         octreeCapacity );
     }
 }

@@ -30,80 +30,82 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
-
+void q3dfilter_enable ( Q3DFILTER *fil ) {
+    fil->flags |= ENABLEFILTER;
 }
 
 /******************************************************************************/
-static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
-                                        Q3DRAY      *qray,
-                                        float        frame,
-                                        uint64_t     query_flags,
-                                        uint64_t     render_flags ) {
-    Q3DOBJECT *qobjsym = ( Q3DOBJECT * ) qsym;
-    LIST *ltmpchildren = qobjsym->lchildren;
-    uint32_t hit = 0x00;
-    Q3DRAY symqray;
+void q3dfilter_disable ( Q3DFILTER *fil ) {
+    fil->flags &= (~ENABLEFILTER);
+}
 
-    memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
+/******************************************************************************/
+void q3dfilter_setType ( Q3DFILTER *fil, uint32_t type ) {
+    fil->type = type;
+}
 
-    q3dvector3f_matrix ( &qray->src, qsym->ISMVX , &symqray.src );
-    q3dvector3f_matrix ( &qray->dir, qsym->TISMVX, &symqray.dir );
+/******************************************************************************/
+Q3DFILTER *q3dfilter_getByName ( LIST *lfil, char *name ) {
+    LIST *ltmpfil = lfil;
 
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+    while ( ltmpfil ) {
+        Q3DFILTER *fil = ( Q3DFILTER * ) ltmpfil->data;
 
-        hit += q3dobject_intersect_r ( qchild,
-                                      &symqray,
-                                       frame,
-                                       query_flags,
-                                       render_flags );
+        if ( strcmp ( fil->name, name ) == 0x00 ) {
+            return fil;
+        }
 
-        ltmpchildren = ltmpchildren->next;
+        ltmpfil = ltmpfil->next;
     }
 
-    qray->color    = symqray.color;
-    qray->distance = symqray.distance;
-    qray->qobj     = symqray.qobj;
-    qray->surface  = symqray.surface;
-
-    return ( hit ) ? 0x01 : 0x00;
+    return NULL;
 }
 
 /******************************************************************************/
-void q3dsymmetry_init ( Q3DSYMMETRY *qsym, 
-                        G3DSYMMETRY *sym,
-                        uint32_t     id,
-                        uint64_t     object_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
-    double TMPX[0x10], ITMPX[0x10];
+Q3DFILTER *q3dfilter_new ( uint32_t   type, 
+                           char      *name,
+                           uint32_t (*draw)( Q3DFILTER *,
+                                             Q3DSCENE *,
+                         /* Frame ID */      float,
+                         /*   Image data  */ unsigned char *,
+                         /* From scanline */ uint32_t,
+                         /*  To scanline  */ uint32_t,
+                         /*     Depth     */ uint32_t,
+                         /*     Width     */ uint32_t ),
+                                             void (*Free)( Q3DFILTER * ),
+                                             void  *data ) {
+    Q3DFILTER *fil = ( Q3DFILTER * ) calloc ( 0x01, sizeof ( Q3DFILTER ) );
 
-    q3dobject_init ( ( Q3DOBJECT * ) qsym,
-                     ( G3DOBJECT * ) sym,
-                     id,
-                     object_flags,
-    Q3DFREE_CALLBACK(q3dsymmetry_free),
-Q3DINTERSECT_CALLBACK(q3dsymmetry_intersect) );
-
-    g3dcore_multmatrix ( obj->lmatrix, sym->smatrix, TMPX );
-    g3dcore_invertMatrix ( TMPX, qsym->ISMVX );
-    g3dcore_transposeMatrix ( qsym->ISMVX, qsym->TISMVX );
-}
-
-/******************************************************************************/
-Q3DSYMMETRY *q3dsymmetry_new ( G3DSYMMETRY *sym,
-                               uint32_t     id,
-                               uint64_t     object_flags ) {
-    Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) calloc ( 0x01, sizeof ( Q3DSYMMETRY ) );
-
-    if ( qsym == NULL ) {
-        fprintf ( stderr, "%s: calloc failed\n", __func__);
+    if ( fil == NULL ) {
+        fprintf ( stderr, "q3dfilter_new: memory allocation failed\n" );
 
         return NULL;
     }
 
-    q3dsymmetry_init ( qsym, sym, id, object_flags );
+    q3dfilter_setType ( fil, type );
+
+    fil->draw  = draw;
+    fil->data  = data;
+    fil->free  = Free;
+    fil->name  = name;
+
+    q3dfilter_enable ( fil );
 
 
-    return qsym;
+    return fil;
+}
+
+/******************************************************************************/
+void q3dfilter_free ( Q3DFILTER *fil ) {
+    printf ( "freeing filter \"%s\" ...", fil->name );
+
+    if ( fil->free ) {
+        fil->free ( fil );
+
+        printf ( "done\n" );
+    } else {
+        printf ( "not required\n" );
+    }
+
+    free ( fil );
 }

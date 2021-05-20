@@ -33,15 +33,16 @@
 /*** This is responsible for RAY interpolation. We are not going to compute ***/
 /*** each ray from calls to gluProject, we just need the boundary rays, then **/
 /*** we build the other rays from those ones. It should be faster this way. ***/
-void q3darea_viewport ( Q3DAREA   *qarea, 
-                        Q3DCAMERA *qcam ) {
+static void q3darea_viewport ( Q3DAREA   *qarea, 
+                               Q3DCAMERA *qcam ) {
     uint32_t coords[0x04][0x02] = { { qarea->x1, qarea->y1 },
                                     { qarea->x2, qarea->y1 },
                                     { qarea->x2, qarea->y2 },
                                     { qarea->x1, qarea->y2 } };
-    G3DCAMERA *cam = ((Q3DOBJECT*)qcam)->obj;
+    G3DCAMERA *cam = qobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     Q3DINTERPOLATION vip[0x04];
+    double IWMVX[0x10];
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
@@ -51,9 +52,11 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
         /*** Get ray's foreground coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 0.0, objcam->MVX,
-                                           objcam->PJX,
-                                                   VPX, &rx, &ry, &rz );
+        gluUnProject ( x, qarea->height - y, 0.0f,
+                       objcam->iwmatrix,
+                       cam->pmatrix,
+                       qarea->VPX,
+                      &rx, &ry, &rz );
 
         vip[i].src.x = ( rx );
         vip[i].src.y = ( ry );
@@ -62,9 +65,11 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
         /*** Get ray's background coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, height - y, 1.0f, objcam->MVX, 
-                                            objcam->PJX,
-                                                    VPX, &rx, &ry, &rz );
+        gluUnProject ( x, qarea->height - y, 1.0f, 
+                       objcam->iwmatrix, 
+                       cam->pmatrix,
+                       qarea->VPX,
+                      &rx, &ry, &rz );
 
         vip[i].dst.x = ( rx );
         vip[i].dst.y = ( ry );
@@ -73,8 +78,8 @@ void q3darea_viewport ( Q3DAREA   *qarea,
     }
 
     /*** Viewport vertical interpolation ***/
-    q3dinterpolation_build ( &vip[0x00], &vip[0x03], y2 - y1 );
-    q3dinterpolation_build ( &vip[0x01], &vip[0x02], y2 - y1 );
+    q3dinterpolation_build ( &vip[0x00], &vip[0x03], qarea->y2 - qarea->y1 );
+    q3dinterpolation_build ( &vip[0x01], &vip[0x02], qarea->y2 - qarea->y1 );
 
     memcpy ( &qarea->pol[0x00], &vip[0x00], sizeof ( Q3DINTERPOLATION ) );
     memcpy ( &qarea->pol[0x01], &vip[0x01], sizeof ( Q3DINTERPOLATION ) );
@@ -82,13 +87,12 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
 /******************************************************************************/
 void q3darea_reset ( Q3DAREA *qarea ) {
-    q3dzengine_reset ( qarea->qzen );
+    q3dzengine_reset ( &qarea->qzen );
 }
 
 /******************************************************************************/
 void q3darea_init ( Q3DAREA   *qarea,
                     Q3DCAMERA *qcam,
-                    Q3DSCENE  *qsce,
                     uint32_t   x1,
                     uint32_t   y1,
                     uint32_t   x2,

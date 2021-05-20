@@ -29,34 +29,4 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
-/******************************************************************************/
-void q3dvertexset_buildBoundingBox ( Q3DVERTEXSET *qverset ) {
-    q3dbounding_initBBox ( &qverset->qbnd,
-                            qverset->min.x, 
-                            qverset->min.y, 
-                            qverset->min.z,
-                            qverset->max.x, 
-                            qverset->max.y, 
-                            qverset->max.z );
-}
 
-/******************************************************************************/
-void q3dvertexset_buildOctree ( Q3DVERTEXSET *qverset,
-                                Q3DTRIANGLE  *qtri, 
-                                uint32_t      nbqtri,
-                                uint32_t      capacity ) {
-
-    qverset->qoct = q3doctree_new ( qverset->min.x,
-                                    qverset->min.y,
-                                    qverset->min.z,
-                                    qverset->max.x,
-                                    qverset->max.y,
-                                    qverset->max.z );
-
-    /*** Note: q3doctree_buildRoot may realloc, hence the assignment ***/
-    qverset->qoct = q3doctree_buildRoot ( qverset->qoct,
-                                          qtri,
-                                          nbqtri,
-                                          qverset->qver,
-                                          capacity );
-}

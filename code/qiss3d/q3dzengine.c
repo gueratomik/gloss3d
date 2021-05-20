@@ -177,12 +177,14 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
                                    int         VPX[0x04],
                                    int32_t     y ) {
     Q3DZHLINE *hline = &qzen->hlines[y];
-    int32_t x1 = hline->p1.x, x2 = hline->p2.x;
+    int32_t x1 = hline->p1.x, 
+            x2 = hline->p2.x;
+    float   z1 = hline->p1.z;
     int32_t dx = x2 - x1, ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx );
     int32_t x = x1;
     double dz  = hline->p2.z - hline->p1.z, pz = ( dz / ddx );
     long  px = ( dx > 0x00 ) ? 1 : -1;
-    double z = hline->z1;
+    double z = z1;
     int i;
 
     for ( i = 0x00; i < ddx; i++ ) {
@@ -212,9 +214,6 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
-    Q3DVERTEX *qver[0x03] = { &qver[qverID0],
-                              &qver[qverID1],
-                              &qver[qverID2] };
     int32_t xmin = INT32_MAX,
             xmax = INT32_MIN,
             ymin = INT32_MAX,
@@ -223,19 +222,19 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
             bymax;
     Q3DVECTOR3F  pworld[0x03];
     Q3DVECTOR3F  lworld[0x03][0x02]; /*** line points ***/
-    Q3DVECTOR3F lscreen[0x03][0x02];
+    Q3DVECTOR3D lscreen[0x03][0x02];
     Q3DVECTOR3D pclip[0x02]; /*** clipping points ***/
     uint32_t nodraw = 0xFFFFFFFF;
     uint32_t nbClip = 0x00;
     uint32_t i, j;
 
-    q3dvector3f_matrix ( &qver[0x00]->pos, MVX, &pworld[0x00] );
-    q3dvector3f_matrix ( &qver[0x01]->pos, MVX, &pworld[0x01] );
-    q3dvector3f_matrix ( &qver[0x02]->pos, MVX, &pworld[0x02] );
+    q3dvector3f_matrix ( &qver[qverID0].pos, MVX, &pworld[0x00] );
+    q3dvector3f_matrix ( &qver[qverID1].pos, MVX, &pworld[0x01] );
+    q3dvector3f_matrix ( &qver[qverID2].pos, MVX, &pworld[0x02] );
 
     /*** Clip first, or else GluProject will return unwanted values ***/
     for ( i = 0x00; i < 0x03; i++ ) {
-        uint32_t n = ( i + 0x01 ) % nbver;
+        uint32_t n = ( i + 0x01 ) % 0x03;
         Q3DVECTOR3F *p1 = &pworld[i],
                     *p2 = &pworld[n];
         float distance = FLT_MAX;
@@ -270,10 +269,10 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
                     memcpy ( &lworld[i][0x01], p1, sizeof ( Q3DVECTOR3F ) );
                 }
 
-                t = g3dcore_intersect ( &qzen->frustrum[j],
-                                        &lworld[i][0x00],
-                                        &lworld[i][0x01],
-                                        &it );
+                t = q3dplane_intersectSegment ( &qzen->frustrum[j],
+                                                &lworld[i][0x00],
+                                                &lworld[i][0x01],
+                                                &it );
 
                 if (  ( t > 0.0f ) && ( t < distance ) ) {
                     /*** overwrite the outside point ***/
@@ -342,15 +341,15 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
     memset ( qzen->hlines + ymin, 0x00, sizeof ( Q3DZHLINE ) * ( bymax - 
                                                                  bymin - 1 ) );
 
-    for ( i = 0x00; i < nbver; i++ ) {
+    for ( i = 0x00; i < 0x03; i++ ) {
         if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
-            uint32_t n = ( i + 0x01 ) % nbver;
-            Q3DVECTOR3F pt1 = { .x = lscreen[i][0x00].x,
-                               .y = lscreen[i][0x00].y,
-                               .z = lscreen[i][0x00].z },
-                       pt2 = { .x = lscreen[i][0x01].x,
-                               .y = lscreen[i][0x01].y,
-                               .z = lscreen[i][0x01].z };
+            uint32_t n = ( i + 0x01 ) % 0x03;
+            Q3DZPOINT pt1 = { .x = lscreen[i][0x00].x,
+                              .y = lscreen[i][0x00].y,
+                              .z = lscreen[i][0x00].z },
+                      pt2 = { .x = lscreen[i][0x01].x,
+                              .y = lscreen[i][0x01].y,
+                              .z = lscreen[i][0x01].z };
 
             if ( pt1.x < pt2.x ) q3dzengine_line ( qzen, VPX, &pt1, &pt2 );
             else                 q3dzengine_line ( qzen, VPX, &pt2, &pt1 );
@@ -359,12 +358,12 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
 
     /*** Draw the new clipping line ***/
     if ( nbClip == 0x01 ) {
-        Q3DVECTOR3F pt1 = { .x = pclip[0x00].x,
-                           .y = pclip[0x00].y,
-                           .z = pclip[0x00].z },
-                   pt2 = { .x = pclip[0x01].x,
-                           .y = pclip[0x01].y,
-                           .z = pclip[0x01].z };
+        Q3DZPOINT pt1 = { .x = pclip[0x00].x,
+                          .y = pclip[0x00].y,
+                          .z = pclip[0x00].z },
+                  pt2 = { .x = pclip[0x01].x,
+                          .y = pclip[0x01].y,
+                          .z = pclip[0x01].z };
 
         if ( pt1.x < pt2.x ) q3dzengine_line ( qzen, VPX, &pt1, &pt2 );
         else                 q3dzengine_line ( qzen, VPX, &pt2, &pt1 );
@@ -382,11 +381,14 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
                                   Q3DMESH    *qmes,
                                   double     *MVX,
                                   double     *PJX,
-                                  int        *VPX ) {
+                                  int        *VPX,
+                                  float       frame ) {
+    uint32_t i;
+
     for ( i = 0x00; i < qmes->nbqtri; i++ ) {
         q3dzengine_drawTriangle ( qzen, 
                                  &qmes->qtri[i],
-                                  qmes->qver,
+                                  q3dmesh_getVertices ( qmes, frame ),
                                   MVX,
                                   PJX,
                                   VPX );
@@ -398,20 +400,22 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
                                Q3DOBJECT  *qobj,
                                double     *MVX,
                                double     *PJX,
-                               int        *VPX ) {
+                               int        *VPX,
+                               float       frame ) {
     LIST *ltmpchildren = qobj->lchildren;
     double WMVX[0x10];
 
     g3dcore_multmatrix ( MVX, qobj->obj->lmatrix, WMVX );
 
     if ( qobj->obj->type & MESH ) {
-        Q3DMSH *qmes = ( Q3DMESH * ) qobj;
+        Q3DMESH *qmes = ( Q3DMESH * ) qobj;
 
         q3dzengine_drawMesh ( qzen, 
                               qmes,
                               WMVX,
                               PJX,
-                              VPX );
+                              VPX,
+                              frame );
     }
 
     while ( ltmpchildren ) {
@@ -421,7 +425,8 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
                                   qchild,
                                   WMVX,
                                   PJX,
-                                  VPX );
+                                  VPX,
+                                  frame );
 
         ltmpchildren = ltmpchildren->next;
     }
