@@ -320,7 +320,7 @@ void q3dmesh_init ( Q3DMESH *qmes,
                    Alloc,
                    Dump,
                   &qdump,
-                   /*dump_flags*/0xFFFFFFFF );
+                   SUBDIVISIONCOMPUTE );
 
     if ( qmes->nbqtri ) {
         Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );

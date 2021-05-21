@@ -142,7 +142,6 @@ void q3darea_init ( Q3DAREA   *qarea,
                        width,
                        height );
 
-
     q3dzengine_drawObject_r ( &qarea->qzen,
                                qsce,
                                objcam->iwmatrix,

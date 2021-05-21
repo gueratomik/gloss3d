@@ -169,6 +169,7 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
     Q3DOBJECT *qobj;
 
     switch ( obj->type ) {
+        case G3DSPHERETYPE   :
         case G3DCUBETYPE     :
         case G3DPLANETYPE    :
         case G3DTORUSTYPE    :
@@ -176,35 +177,38 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
         case G3DTUBETYPE     :
         case G3DMESHTYPE     : {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
+            Q3DMESH *qmes = q3dmesh_new ( mes, 
+                                          qsce->qobjID++,
+                                          0x00,
+                                          frame,
+                                          0x40  );
 
             qobj = ( Q3DOBJECT * ) qmes;
         } break;
 
         case G3DSYMMETRYTYPE : {
             G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym, 0x00, 0x00 );
+            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym, 
+                                                  qsce->qobjID++,
+                                                  0x00 );
 
             qobj = ( Q3DOBJECT * ) qsym;
-        } break;
-
-        case G3DSPHERETYPE : {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            Q3DMESH *qmes = q3dmesh_new ( mes, 0x00, 0x00, frame, 0x40  );
-
-            qobj = ( Q3DOBJECT * ) qmes;
         } break;
 
         case G3DSCENETYPE : {
             G3DSCENE *sce = ( G3DSCENE * ) obj;
             qsce = q3dscene_new ( sce, 0x00, 0x00 );
 
+            qsce->qobjID++;
+
             qobj = ( Q3DOBJECT * ) qsce;
         } break;
 
         case G3DLIGHTTYPE : {
             G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-            Q3DLIGHT *qlig = q3dlight_new ( lig, 0x00, 0x00 );
+            Q3DLIGHT *qlig = q3dlight_new ( lig, 
+                                            qsce->qobjID++, 
+                                            0x00 );
 
             /*** qsce is a static variable, so this recursive function ***/
             /*** expects to have gone through a SCENE first ***/
@@ -214,7 +218,9 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
         } break;
 
         default : {
-            qobj = q3dobject_new ( obj, 0x00, 0x00 );
+            qobj = q3dobject_new ( obj, 
+                                   qsce->qobjID++, 
+                                   0x00 );
         } break;
     }
 

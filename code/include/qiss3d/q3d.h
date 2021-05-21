@@ -472,6 +472,7 @@ typedef struct _Q3DSPHERE {
 typedef struct _Q3DSCENE {
     Q3DOBJECT qobj;
     LIST     *llights;
+    uint32_t  qobjID;
 } Q3DSCENE;
 
 /******************************************************************************/

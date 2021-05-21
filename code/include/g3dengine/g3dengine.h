@@ -211,7 +211,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
                     /* ffd not flagged as mesh but still inherits from mesh */
 #define G3DFFDTYPE            ( OBJECT | MESH | MODIFIER | EDITABLE | FFD )
 #define G3DWIREFRAMETYPE      ( OBJECT | MESH | MODIFIER | WIREFRAME )
-#define G3DSUBDIVIDERTYPE     ( OBJECT | MESH | MODIFIER | SUBDIVIDER )
+#define G3DSUBDIVIDERTYPE     ( OBJECT        | MODIFIER | SUBDIVIDER )
 #define G3DSPLINEREVOLVERTYPE ( OBJECT | MESH | MODIFIER | SPLINEREVOLVER )
 #define G3DLIGHTTYPE          ( OBJECT | LIGHT )
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
