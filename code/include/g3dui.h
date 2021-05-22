@@ -1458,10 +1458,10 @@ void common_g3dui_loadConfiguration ( G3DUI *, char * );
 
 uint64_t getTotalMemory ( );
 
-uint32_t            common_g3dui_cancelRenderByID        ( G3DUI *, uint64_t   );
-uint32_t            common_g3dui_cancelRenderByScene     ( G3DUI *, R3DSCENE * );
-G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
-G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
+uint32_t            common_g3dui_cancelRenderByID        ( G3DUI *, uint64_t );
+uint32_t            common_g3dui_cancelRenderByJob       ( G3DUI *, Q3DJOB * );
+G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByJob   ( G3DUI *, Q3DJOB * );
+G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID    ( G3DUI *, uint64_t );
 
 /******************************************************************************/
 void common_g3duiwireframeedit_thicknessCbk ( G3DUI *, float );

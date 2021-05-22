@@ -304,13 +304,14 @@ G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID ( G3DUI *gui, uint64_t id 
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *gui, R3DSCENE *rsce ) {
+G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByJob ( G3DUI  *gui, 
+                                                         Q3DJOB *qjob ) {
     LIST *ltmprps = gui->lrps;
 
     while ( ltmprps ) {
         G3DUIRENDERPROCESS *rps = ( G3DUIRENDERPROCESS * ) ltmprps->data;
 
-        if ( rps->rsce == rsce ) {
+        if ( rps->qjob == qjob ) {
 
             return rps;
         }
@@ -322,11 +323,12 @@ G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByScene ( G3DUI *gui, R3DSCENE 
 }
 
 /******************************************************************************/
-uint32_t common_g3dui_cancelRenderByScene ( G3DUI *gui, R3DSCENE *rsce ) {
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByScene ( gui, rsce );
+uint32_t common_g3dui_cancelRenderByScene ( G3DUI *gui, 
+                                            Q3DJOB *qjob ) {
+    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByJob ( gui, qjob );
 
     if ( rps ) {
-        r3dscene_cancelRender ( rps->rsce );
+        q3djob_cancel ( rps->qjob );
 
         return 0x01;
     }
@@ -339,7 +341,7 @@ uint32_t common_g3dui_cancelRenderByID ( G3DUI *gui, uint64_t id ) {
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, id );
 
     if ( rps ) {
-        r3dscene_cancelRender ( rps->rsce );
+        q3djob_cancel ( rps->qjob );
 
         return 0x01;
     }

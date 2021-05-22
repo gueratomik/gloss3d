@@ -174,6 +174,8 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
 
 /****************************************************************************/
 static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
+                                   uint32_t    qobjID,
+                                   uint32_t    qtriID,
                                    int         VPX[0x04],
                                    int32_t     y ) {
     Q3DZHLINE *hline = &qzen->hlines[y];
@@ -195,7 +197,9 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
         if ( ( x >= VPX[0x00] ) && 
              ( x <  VPX[0x02] ) ) {
             if  ( z <= depth ) {
-                qzen->buffer[offset+x].z = z;
+                qzen->buffer[offset+x].z      = z;
+                qzen->buffer[offset+x].qobjID = qobjID;
+                qzen->buffer[offset+x].qtriID = qtriID;
             }
         }
 
@@ -206,6 +210,8 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
 
 /******************************************************************************/
 static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
+                                      uint32_t     qobjID,
+                                      uint32_t     qtriID,
                                       Q3DTRIANGLE *qtri,
                                       Q3DVERTEX   *qver,
                                       double      *MVX,
@@ -379,9 +385,37 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         /*** Much faster if we restrict to useful Y-axis boundaries ***/
         for ( i = /*VPX[0x01]*/bymin; i < /*VPX[0x03]*/bymax; i++ ) {
             if ( qzen->hlines[i].inited == 0x02 ){
-                q3dzengine_fillHLine ( qzen, VPX, i );
+                q3dzengine_fillHLine ( qzen, qobjID, qtriID, VPX, i );
             }
         }
+    }
+}
+
+/******************************************************************************/
+static void q3dzengine_drawSymmetry ( Q3DZENGINE  *qzen, 
+                                      Q3DSYMMETRY *qsym,
+                                      double      *MVX,
+                                      double      *PJX,
+                                      int         *VPX,
+                                      float        frame ) {
+    Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
+    LIST *ltmpchildren = qobj->lchildren;
+    G3DSYMMETRY *sym  = ( G3DSYMMETRY * ) q3dobject_getObject ( qobj );
+    double SMVX[0x10];
+
+    g3dcore_multmatrix ( sym->smatrix, MVX, SMVX );
+
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+
+        q3dzengine_drawObject_r ( qzen, 
+                                  qchild,
+                                  SMVX,
+                                  PJX,
+                                  VPX,
+                                  frame );
+
+        ltmpchildren = ltmpchildren->next;
     }
 }
 
@@ -398,7 +432,9 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
         uint32_t i;
 
         for ( i = 0x00; i < qmes->nbqtri; i++ ) {
-            q3dzengine_drawTriangle ( qzen, 
+            q3dzengine_drawTriangle ( qzen,
+                                      q3dobject_getID ( ( Q3DOBJECT * ) qmes ),
+                                      i,
                                      &qmes->qtri[i],
                                       qver,
                                       MVX,
@@ -429,6 +465,17 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
                               PJX,
                               VPX,
                               frame );
+    }
+
+    if ( qobj->obj->type == G3DSYMMETRYTYPE ) {
+        Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) qobj;
+
+        q3dzengine_drawSymmetry ( qzen, 
+                                  qsym,
+                                  WMVX,
+                                  PJX,
+                                  VPX,
+                                  frame );
     }
 
     while ( ltmpchildren ) {

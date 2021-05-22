@@ -348,15 +348,16 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-uint32_t g3dui_renderClean ( R3DFILTER *fil, R3DSCENE *rsce,
-                                             float frameID,
-                                             unsigned char *img, 
-                                             uint32_t from, 
-                                             uint32_t to, 
-                                             uint32_t depth, 
-                                             uint32_t width ) {
+uint32_t g3dui_renderClean ( Q3DFILTER     *fil, 
+                             Q3DJOB        *qjob,
+                             float          frameID,
+                             unsigned char *img, 
+                             uint32_t       from, 
+                             uint32_t       to, 
+                             uint32_t       depth, 
+                             uint32_t       width ) {
     G3DUI *gui = ( G3DUI * ) fil->data;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByScene ( gui, rsce );
+    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByJob ( gui, qjob );
 
     /*** clean renderprocess if any ***/
     if ( rps ) {

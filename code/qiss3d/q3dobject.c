@@ -30,6 +30,44 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+uint32_t q3dobject_getID ( Q3DOBJECT *qobj ) {
+    return qobj->id;
+}
+
+/******************************************************************************/
+void q3dobject_exec_r ( Q3DOBJECT *qobj, 
+                        void     (*func)( Q3DOBJECT *, void * ),
+                        void      *data ) {
+    LIST *ltmpchildren = qobj->lchildren;
+
+    if ( func ) func ( qobj, data );
+
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild  = ( Q3DOBJECT * ) ltmpchildren->data;
+
+        q3dobject_exec_r ( qchild, func, data );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
+uint32_t q3dobject_count_r ( Q3DOBJECT *qobj ) {
+    LIST *ltmpchildren = qobj->lchildren;
+    uint32_t total = 0x01;
+
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild  = ( Q3DOBJECT * ) ltmpchildren->data;
+
+        total += q3dobject_count_r ( qchild );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    return total;
+}
+
+/******************************************************************************/
 void q3dobject_free ( Q3DOBJECT *qobj ) {
     if ( qobj->free ) qobj->free ( qobj );
 }
@@ -113,7 +151,7 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
 }
 
 /******************************************************************************/
-G3DOBJECT *qobject_getObject ( Q3DOBJECT *qobj ) {
+G3DOBJECT *q3dobject_getObject ( Q3DOBJECT *qobj ) {
     return qobj->obj;
 }
 

@@ -50,7 +50,14 @@ static uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
                                     float    frame,
                                     uint64_t query_flags,
                                     uint64_t render_flags ) {
-    Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
+    Q3DVERTEXSET *qverset;
+
+    /*** Optimize for speed to avoid function call in most cases ***/
+    if ( frame == qmes->vertexSet[0x00].frame ) {
+        qverset = &qmes->vertexSet[0x00];
+    } else {
+        qverset = q3dmesh_getVertexSet ( qmes, frame );
+    }
 
     if ( q3doctree_intersect_r ( qverset->qoct, 
                                  qray,
@@ -129,7 +136,7 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
                                   float    frame,
                                   uint32_t nbqver,
                                   uint32_t nbqtri ) {
-    G3DMESH *mes     = ( G3DMESH * ) qobject_getObject ( ( Q3DOBJECT * ) qmes );
+    G3DMESH *mes     = ( G3DMESH * ) q3dobject_getObject ( ( Q3DOBJECT * ) qmes );
     uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
     uint32_t nbquvs  = ( nbqtri * nbuvmap );
     uint32_t memsize = ( nbqver * sizeof ( Q3DVERTEX   ) ) +

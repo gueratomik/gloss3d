@@ -30,6 +30,18 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+Q3DOBJECT *q3dscene_getObjectByID ( Q3DSCENE *qsce, 
+                                    uint32_t  id ) {
+    return qsce->qobjidx[id];
+}
+
+/******************************************************************************/
+static void indexObjects ( Q3DOBJECT *qobj, 
+                           Q3DSCENE  *qsce ) {
+    qsce->qobjidx[qobj->id] = qobj;
+}
+
+/******************************************************************************/
 static void q3dscene_free ( Q3DSCENE *qsce ) {
 
 }
@@ -52,7 +64,18 @@ void q3dscene_addLight ( Q3DSCENE *qsce,
 /******************************************************************************/
 Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
                             float     frame ) {
-    return ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame );
+    Q3DSCENE *qsce = ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame );
+    uint32_t objCount = q3dobject_count_r ( ( Q3DOBJECT * ) qsce );
+
+    /*** no need to check the number of objects. ***/
+    /*** There must be at least 1, the scene ***/
+    qsce->qobjidx = ( Q3DOBJECT ** ) calloc ( objCount, sizeof ( Q3DOBJECT * ) );
+
+    /*** build array to all qobjects for fast access ***/
+    q3dobject_exec_r ( qsce,(void(*)(Q3DOBJECT*,void*)) indexObjects, qsce );
+
+
+    return qsce;
 }
 
 /******************************************************************************/

@@ -49,7 +49,7 @@ static void q3darea_viewport ( Q3DAREA   *qarea,
                                     { qarea->x2, qarea->y1 },
                                     { qarea->x2, qarea->y2 },
                                     { qarea->x1, qarea->y2 } };
-    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( ( Q3DOBJECT * ) qcam );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     Q3DINTERPOLATION vip[0x04];
     double IWMVX[0x10];
@@ -112,7 +112,7 @@ void q3darea_init ( Q3DAREA   *qarea,
                     uint32_t   height,
                     uint32_t   depth,
                     float      frame ) {
-    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( ( Q3DOBJECT * ) qcam );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
     /*** render square area ***/

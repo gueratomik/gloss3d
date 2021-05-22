@@ -34,46 +34,46 @@
 www.soe.ucsc.edu/classes/cmps160/Fall10/resources/barycentricInterpolation.pdf
 *******************************************************************************/
 /******************************************************************************/
-static uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri, 
-                                      Q3DVERTEX   *qver, 
-                                      Q3DVECTOR3F  *qpnt,
-                                      float       *RAT0,
-                                      float       *RAT1,
-                                      float       *RAT2 ) {
+uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE  *qtri, 
+                               Q3DVERTEX    *qver, 
+                               Q3DVECTOR3F  *qpnt,
+                               float        *RAT0,
+                               float        *RAT1,
+                               float        *RAT2 ) {
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
     Q3DVECTOR3F V0P = { .x = ( qpnt->x - qver[qverID0].pos.x ),
-                       .y = ( qpnt->y - qver[qverID0].pos.y ),
-                       .z = ( qpnt->z - qver[qverID0].pos.z ) },
-               V1P = { .x = ( qpnt->x - qver[qverID1].pos.x ),
-                       .y = ( qpnt->y - qver[qverID1].pos.y ),
-                       .z = ( qpnt->z - qver[qverID1].pos.z ) },
-               V2P = { .x = ( qpnt->x - qver[qverID2].pos.x ),
-                       .y = ( qpnt->y - qver[qverID2].pos.y ),
-                       .z = ( qpnt->z - qver[qverID2].pos.z ) },
-              V0V1 = { .x = ( qver[qverID1].pos.x - qver[qverID0].pos.x ),
-                       .y = ( qver[qverID1].pos.y - qver[qverID0].pos.y ),
-                       .z = ( qver[qverID1].pos.z - qver[qverID0].pos.z ) },
-              V1V2 = { .x = ( qver[qverID2].pos.x - qver[qverID1].pos.x ),
-                       .y = ( qver[qverID2].pos.y - qver[qverID1].pos.y ),
-                       .z = ( qver[qverID2].pos.z - qver[qverID1].pos.z ) },
-              V2V0 = { .x = ( qver[qverID0].pos.x - qver[qverID2].pos.x ),
-                       .y = ( qver[qverID0].pos.y - qver[qverID2].pos.y ),
-                       .z = ( qver[qverID0].pos.z - qver[qverID2].pos.z ) };
+                        .y = ( qpnt->y - qver[qverID0].pos.y ),
+                        .z = ( qpnt->z - qver[qverID0].pos.z ) },
+                V1P = { .x = ( qpnt->x - qver[qverID1].pos.x ),
+                        .y = ( qpnt->y - qver[qverID1].pos.y ),
+                        .z = ( qpnt->z - qver[qverID1].pos.z ) },
+                V2P = { .x = ( qpnt->x - qver[qverID2].pos.x ),
+                        .y = ( qpnt->y - qver[qverID2].pos.y ),
+                        .z = ( qpnt->z - qver[qverID2].pos.z ) },
+               V0V1 = { .x = ( qver[qverID1].pos.x - qver[qverID0].pos.x ),
+                        .y = ( qver[qverID1].pos.y - qver[qverID0].pos.y ),
+                        .z = ( qver[qverID1].pos.z - qver[qverID0].pos.z ) },
+               V1V2 = { .x = ( qver[qverID2].pos.x - qver[qverID1].pos.x ),
+                        .y = ( qver[qverID2].pos.y - qver[qverID1].pos.y ),
+                        .z = ( qver[qverID2].pos.z - qver[qverID1].pos.z ) },
+               V2V0 = { .x = ( qver[qverID0].pos.x - qver[qverID2].pos.x ),
+                        .y = ( qver[qverID0].pos.y - qver[qverID2].pos.y ),
+                        .z = ( qver[qverID0].pos.z - qver[qverID2].pos.z ) };
     Q3DVECTOR3F DOT0, DOT1, DOT2, DOTF;
     double LENF, LEN0, LEN1, LEN2;
 
-    q3dvector3f_cross ( &V0V1, &V1P, &DOT2 );
-    q3dvector3f_cross ( &V1V2, &V2P, &DOT0 );
-    q3dvector3f_cross ( &V2V0, &V0P, &DOT1 );
+    Q3DVECTOR3F_CROSS ( &V0V1, &V1P, &DOT2 );
+    Q3DVECTOR3F_CROSS ( &V1V2, &V2P, &DOT0 );
+    Q3DVECTOR3F_CROSS ( &V2V0, &V0P, &DOT1 );
 
     /*** rfc->surface contains the value of the face surface ***/
     LENF = qtri->surface;
 
-    LEN0 = q3dvector3f_length ( &DOT0 );
-    LEN1 = q3dvector3f_length ( &DOT1 );
-    LEN2 = q3dvector3f_length ( &DOT2 );
+    LEN0 = Q3DVECTOR3F_LENGTH ( &DOT0 );
+    LEN1 = Q3DVECTOR3F_LENGTH ( &DOT1 );
+    LEN2 = Q3DVECTOR3F_LENGTH ( &DOT2 );
 
     /*if ( rfc->flags & RFACEMIRRORED ) {
         g3ddoublevector_invert ( &DOT0 );
@@ -81,17 +81,17 @@ static uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE *qtri,
         g3ddoublevector_invert ( &DOT2 );
     }*/
 
-    if ( LENF ) {
-        if ( ( q3dvector3f_scalar ( &DOT0, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3f_scalar ( &DOT1, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) && 
-             ( q3dvector3f_scalar ( &DOT2, ( Q3DVECTOR3F * ) &qtri->nor ) >= 0.0f ) ) {
+    if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF * 1.01f ) ) {
+        /*if ( ( Q3DVECTOR3F_SCALAR ( &DOT0, &qtri->nor ) >= 0.0f ) && 
+             ( Q3DVECTOR3F_SCALAR ( &DOT1, &qtri->nor ) >= 0.0f ) && 
+             ( Q3DVECTOR3F_SCALAR ( &DOT2, &qtri->nor ) >= 0.0f ) ) {*/
         /*** return subtriangles surface ratio if needed ***/
             if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
             if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );
             if ( RAT2 ) (*RAT2) = (float)( LEN2 / LENF );
 
             return 0x01;
-        }
+        /*}*/
     }
 
     return 0x00;
@@ -180,18 +180,17 @@ void q3dtriangle_init ( Q3DTRIANGLE *qtri,
     Q3DVECTOR3F v0v1 = { .x = qver[qverID1].pos.x - qver[qverID0].pos.x,
                          .y = qver[qverID1].pos.y - qver[qverID0].pos.y,
                          .z = qver[qverID1].pos.z - qver[qverID0].pos.z },
-                v0v2 = { .x = qver[qverID2].pos.x - qver[qverID0].pos.x,
-                         .y = qver[qverID2].pos.y - qver[qverID0].pos.y,
-                         .z = qver[qverID2].pos.z - qver[qverID0].pos.z },
-                vout;
+                v1v2 = { .x = qver[qverID2].pos.x - qver[qverID1].pos.x,
+                         .y = qver[qverID2].pos.y - qver[qverID1].pos.y,
+                         .z = qver[qverID2].pos.z - qver[qverID1].pos.z };
 
     qtri->qverID[0x00] = qverID0;
     qtri->qverID[0x01] = qverID1;
     qtri->qverID[0x02] = qverID2;
 
-    q3dvector3f_cross ( &v0v1, &v0v2, ( Q3DVECTOR3F * ) &qtri->nor );
+    q3dvector3f_cross ( &v0v1, &v1v2, ( Q3DVECTOR3F * ) &qtri->nor );
 
-    q3dvector3f_normalize ( &vout, &qtri->surface );
+    q3dvector3f_normalize ( &qtri->nor, &qtri->surface );
 
     qtri->nor.w = - ( ( qtri->nor.x * qver[qverID0].pos.x ) + 
                       ( qtri->nor.y * qver[qverID0].pos.y ) + 

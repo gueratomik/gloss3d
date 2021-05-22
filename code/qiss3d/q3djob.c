@@ -304,6 +304,7 @@ void *q3djob_raytrace ( void *ptr ) {
             color = q3dray_shoot_r ( &qray,
                                       qjob,
                                       NULL,
+                                      qjob->curframe,
                                       0x00,
                                       Q3DRAY_PRIMARY_BIT /*|
                                       RAYQUERYHIT            | 
@@ -453,8 +454,8 @@ void q3djob_render_t_free ( Q3DJOB *qjob ) {
 
 /******************************************************************************/
 void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
-    G3DSCENE *sce  = ( G3DSCENE *  ) qobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
-    G3DCAMERA *cam = ( G3DCAMERA * ) qobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
+    G3DSCENE *sce  = ( G3DSCENE *  ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
     uint32_t x1 = qjob->qarea.x1, 
              y1 = qjob->qarea.y1,
              x2 = qjob->qarea.x2,

@@ -667,7 +667,7 @@ void g3dui_loadImageForChannel ( G3DUI      *gui,
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
 
-uint32_t g3dui_renderClean ( R3DFILTER *, R3DSCENE *, float,
+uint32_t g3dui_renderClean ( Q3DFILTER *, Q3DJOB *, float,
                                                       unsigned char *, 
                                                       uint32_t, 
                                                       uint32_t, 
