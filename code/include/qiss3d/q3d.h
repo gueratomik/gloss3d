@@ -395,7 +395,7 @@ typedef struct _Q3DTRIANGLE {
 /******************************************************************************/
 typedef union _Q3DSURFACE {
     uint32_t    flags;
-    Q3DTRIANGLE triangle;
+    Q3DTRIANGLE tri;
 } Q3DSURFACE;
 
 /******************************************************************************/
@@ -417,6 +417,14 @@ typedef struct _Q3DOBJECT {
 } Q3DOBJECT;
 
 /******************************************************************************/
+typedef struct _Q3DINTERSECTION {
+    Q3DVECTOR3F src;
+    Q3DVECTOR3F dir;
+    Q3DOBJECT  *qobj;
+    Q3DSURFACE *qsur;
+} Q3DINTERSECTION;
+
+/******************************************************************************/
 #define Q3DRAY_PRIMARY_BIT  ( 1 << 0 )
 #define Q3DRAY_HAS_HIT_BIT  ( 1 << 1 )
 
@@ -425,7 +433,7 @@ typedef struct _Q3DRAY {
     Q3DVECTOR3F  src; /*** origin ***/
     Q3DVECTOR3F  dir; /*** direction vector ***/
     Q3DOBJECT   *qobj;
-    Q3DSURFACE  *surface;
+    Q3DSURFACE  *qsur;
     float        distance; /*** hit distance for Z sorting ***/
     float        energy;
     int32_t      x, y;
@@ -492,7 +500,7 @@ typedef struct _Q3DSPHERE {
 /******************************************************************************/
 typedef struct _Q3DSCENE {
     Q3DOBJECT   qobj;
-    LIST       *llights;
+    LIST       *llights; /*** list of lights ***/
     uint32_t    qobjID;
     Q3DOBJECT **qobjidx;
 } Q3DSCENE;
@@ -556,7 +564,7 @@ typedef struct _Q3DZBUFFER {
 } Q3DZBUFFER;
 
 /******************************************************************************/
-#define CLIPPINGPLANES 0x01
+#define CLIPPINGPLANES 0x05
 
 typedef struct _Q3DZENGINE {
     Q3DPLANE    frustrum[CLIPPINGPLANES];
@@ -759,6 +767,8 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
 void q3dzengine_reset        ( Q3DZENGINE *qzen );
 void q3dzengine_init         ( Q3DZENGINE *qzen,
                                double     *MVX,
+                               double     *IWMVX,
+                               double     *TIWMVX,
                                double     *PJX,
                                int        *VPX,
                                uint32_t    width,

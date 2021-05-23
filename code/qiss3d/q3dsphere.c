@@ -85,7 +85,7 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
                                             query_flags,
                                             render_flags );
 
-            qray->surface     = newqray.surface;
+            qray->qsur        = newqray.qsur;
             qray->distance    = distance;
 
             qray->ratio[0x00] = newqray.ratio[0x00];

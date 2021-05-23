@@ -29,30 +29,34 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
-#define CLIPPINGPLANES 0x01
-
 /******************************************************************************/
 static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
                                        double     *MVX,
+                                       double     *IWMVX,
+                                       double     *TIWMVX,
                                        double     *PJX,
                                        int        *VPX ) {
-    Q3DVECTOR3D scr2D[0x04] = { { .x = VPX[0x00], .y = VPX[0x01] },
-                                { .x = VPX[0x02], .y = VPX[0x01] },
-                                { .x = VPX[0x02], .y = VPX[0x03] },
-                                { .x = VPX[0x00], .y = VPX[0x03] } };
+    Q3DVECTOR3D scr2D[0x04] = { { .x = VPX[0x00]     , .y = VPX[0x01]     },
+                                { .x = VPX[0x02] - 5 , .y = VPX[0x01]     },
+                                { .x = VPX[0x02] - 5 , .y = VPX[0x03] - 5 },
+                                { .x = VPX[0x00]     , .y = VPX[0x03] - 5 } };
+    static Q3DVECTOR3F zero  = { 0.0f, 0.0f,  0.0f },
+                       pnear = { 0.0f, 0.0f, -1.0f };
     Q3DVECTOR3D scr3Dnear[0x04];
     Q3DVECTOR3D scr3Dfar[0x04];
-
+    Q3DVECTOR3F camori;
     double xDouble, yDouble, zDouble;
     int i;
 
     memset ( qzen->frustrum, 0x00, sizeof ( qzen->frustrum ) );
 
+    q3dvector3f_matrix ( &zero, MVX, &camori );
+
     for ( i = 0x00; i < 0x04; i++ ) {
         gluUnProject ( ( double ) scr2D[i].x,
                        ( double ) scr2D[i].y,
                        ( double ) 0.0f, /* zNear */
-                       MVX,
+                       IWMVX,
                        PJX,
                        VPX,
                       &scr3Dnear[i].x,
@@ -61,8 +65,8 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
 
         gluUnProject ( ( double ) scr2D[i].x,
                        ( double ) scr2D[i].y,
-                       ( double ) 0.4f, /* zFar */
-                       MVX,
+                       ( double ) 0.9999f, /* zFar */
+                       IWMVX,
                        PJX,
                        VPX,
                       &scr3Dfar[i].x,
@@ -70,21 +74,48 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
                       &scr3Dfar[i].z );
     }
 
+    for ( i = 0x00; i < 0x04; i++ ) {
+        uint32_t n = ( i + 0x01 ) % 0x04;
+        Q3DVECTOR3F nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
+                                   .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
+                                   .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
+                    nearTonear = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
+                                   .y = ( scr3Dnear[i].y - scr3Dnear[n].y ),
+                                   .z = ( scr3Dnear[i].z - scr3Dnear[n].z ) };
+        uint32_t fid = i + 0x01; /*** 0 is the near plane, 5 the far one ***/
+
+        q3dvector3f_cross ( &nearTofar,
+                            &nearTonear,
+                            &qzen->frustrum[fid] );
+
+        q3dvector3f_normalize ( &qzen->frustrum[fid], NULL );
+
+        /*** q3dvector3f_cross sets w to 1.0f. Set it to 0.0f ***/
+        qzen->frustrum[fid].w = - ( ( camori.x * qzen->frustrum[fid].x ) +
+                                    ( camori.y * qzen->frustrum[fid].y ) +
+                                    ( camori.z * qzen->frustrum[fid].z ) );
+    }
+
     gluUnProject ( 0.0f,
                    0.0f,
                    0.0f, /* zNear */
-                   MVX,
+                   IWMVX,
                    PJX,
                    VPX,
                   &xDouble,
                   &yDouble,
                   &zDouble );
 
-    qzen->frustrum[0x00].z = -1.0f;
-    qzen->frustrum[0x00].w = zDouble;
 
-    /*pick->frustrum[0x01].z =  1.0f;
-    pick->frustrum[0x01].w =  pick->zFar;*/
+    /*** Compute "near" plan ***/
+    q3dvector3f_matrix ( &pnear, TIWMVX, &qzen->frustrum[0x00] );
+
+    qzen->frustrum[0x00].w = - ( ( camori.x * qzen->frustrum[0x00].x ) +
+                                 ( camori.y * qzen->frustrum[0x00].y ) +
+                                 ( camori.z * qzen->frustrum[0x00].z ) );
+
+    /*qzen->frustrum[0x05].z =  1.0f;
+    qzen->frustrum[0x05].w =  qzen->zFar;*/
 }
 
 /******************************************************************************/
@@ -190,7 +221,7 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
     int i;
     uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] );
 
-    for ( i = 0x00; i < ddx; i++ ) {
+    for ( i = 0x00; i <= ddx; i++ ) {
         /*** add some epsilon against Z fghting ***/
         float depth = qzen->buffer[offset+x].z;
 
@@ -204,7 +235,7 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
         }
 
         x += px;
-        z  += pz;
+        z += pz;
     }
 }
 
@@ -255,7 +286,7 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         memcpy ( &lworld[i][0x00], p1, sizeof ( Q3DVECTOR3F ) );
         memcpy ( &lworld[i][0x01], p2, sizeof ( Q3DVECTOR3F ) );
 
-        for ( j = 0x00; j < CLIPPINGPLANES; j++ ) {
+        for ( j = 0x02; j < 3; j++ ) {
             /* Check if both points are inside the frustrum */
             s1 = ( qzen->frustrum[j].x * p1->x ) +
                  ( qzen->frustrum[j].y * p1->y ) +
@@ -347,12 +378,12 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         return;
     }
 
-    bymin = ( ymin < 0x00      ) ? 0x00      : ymin;
-    bymax = ( ymax > VPX[0x03] ) ? VPX[0x03] : ymax;
+    bymin = ( ymin < 0x00       ) ?             0x00 : ymin;
+    bymax = ( ymax >= VPX[0x03] ) ? VPX[0x03] - 0x01 : ymax;
 
-    if ( bymin != bymax ) {
-        memset ( qzen->hlines + ymin, 0x00, sizeof ( Q3DZHLINE ) * ( bymax - 
-                                                                     bymin - 1 ) );
+    if ( bymin < bymax ) {
+        memset ( qzen->hlines + bymin, 0x00, sizeof ( Q3DZHLINE ) * ( bymax - 
+                                                                      bymin ) );
 
         for ( i = 0x00; i < 0x03; i++ ) {
             if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
@@ -501,6 +532,8 @@ void q3dzengine_reset ( Q3DZENGINE *qzen ) {
 /******************************************************************************/
 void q3dzengine_init ( Q3DZENGINE *qzen,
                        double     *MVX,
+                       double     *IWMVX,
+                       double     *TIWMVX, /* Transpose inverse world Matrix */
                        double     *PJX,
                        int        *VPX,
                        uint32_t    width,
@@ -517,6 +550,6 @@ void q3dzengine_init ( Q3DZENGINE *qzen,
 
         qzen->hlines = ( Q3DZHLINE * ) calloc ( height, sizeof ( Q3DZHLINE ) );
 
-        q3dzengine_buildFrustrum ( qzen, MVX, PJX, VPX );
+        q3dzengine_buildFrustrum ( qzen, MVX, IWMVX, TIWMVX, PJX, VPX );
     }
 }

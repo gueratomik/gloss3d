@@ -81,7 +81,7 @@ uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE  *qtri,
         g3ddoublevector_invert ( &DOT2 );
     }*/
 
-    if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF * 1.01f ) ) {
+    if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF * 1.01 ) /*LENF*/ ) {
         /*if ( ( Q3DVECTOR3F_SCALAR ( &DOT0, &qtri->nor ) >= 0.0f ) && 
              ( Q3DVECTOR3F_SCALAR ( &DOT1, &qtri->nor ) >= 0.0f ) && 
              ( Q3DVECTOR3F_SCALAR ( &DOT2, &qtri->nor ) >= 0.0f ) ) {*/
@@ -144,7 +144,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->ratio[0x01] = RAT1;
                     qray->ratio[0x02] = RAT2;
 
-                    qray->surface  = ( Q3DSURFACE * ) qtri;
+                    qray->qsur     = ( Q3DSURFACE * ) qtri;
                     qray->distance = t;
 
                     /*** intersection occured, let's remember it ***/

@@ -147,7 +147,7 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     qray->color    = locqray.color;
     qray->distance = locqray.distance;
     qray->qobj     = locqray.qobj;
-    qray->surface  = locqray.surface;
+    qray->qsur     = locqray.qsur;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
     qray->ratio[0x01] = locqray.ratio[0x01];

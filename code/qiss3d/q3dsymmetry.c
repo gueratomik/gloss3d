@@ -65,7 +65,7 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
     qray->color    = symqray.color;
     qray->distance = symqray.distance;
     qray->qobj     = symqray.qobj;
-    qray->surface  = symqray.surface;
+    qray->qsur     = symqray.qsur;
 
     return ( hit ) ? 0x01 : 0x00;
 }

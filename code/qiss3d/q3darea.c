@@ -114,6 +114,7 @@ void q3darea_init ( Q3DAREA   *qarea,
                     float      frame ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+    Q3DOBJECT *qobjcam = ( Q3DOBJECT * ) qcam;
 
     /*** render square area ***/
     qarea->x1     = x1;
@@ -136,7 +137,9 @@ void q3darea_init ( Q3DAREA   *qarea,
     q3darea_viewport ( qarea, qcam );
 
     q3dzengine_init ( &qarea->qzen,
+                       objcam->wmatrix,
                        objcam->iwmatrix,
+                       qobjcam->TIWMVX,
                        cam->pmatrix,
                        qarea->VPX,
                        width,

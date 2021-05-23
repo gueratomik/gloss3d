@@ -244,10 +244,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
     if ( qoct->flags & Q3DOCTREE_HASTRIANGLES ) {
         for ( i = 0x00; i < qoct->nbqtri; i++ ) {
             uint32_t qtriID = qoct->children.qtriID[i];
-/*printf("%d %f %f %f %f\n", qoct->nbqtri, qtri[qtriID].nor.x,
-                                      qtri[qtriID].nor.y, 
-                                      qtri[qtriID].nor.z,
-                                      qtri[qtriID].nor.w);*/
+
             trihit += q3dtriangle_intersect ( &qtri[qtriID],
                                                qver, 
                                                qray,
@@ -383,13 +380,6 @@ void q3doctree_init ( Q3DOCTREE *qoct,
                       float x2,
                       float y2, 
                       float z2 ) {
-    Q3DPLANE qpln[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
-                            { .x =  0.0f, .y =  0.0f, .z = -1.0f },
-                            { .x =  0.0f, .y =  1.0f, .z =  0.0f },
-                            { .x =  0.0f, .y = -1.0f, .z =  0.0f },
-                            { .x =  1.0f, .y =  0.0f, .z =  0.0f },
-                            { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
-
     qoct->flags = Q3DOCTREE_HASTRIANGLES;
 
     qoct->min.x = ( x1 < x2 ) ? x1 : x2;
@@ -400,12 +390,12 @@ void q3doctree_init ( Q3DOCTREE *qoct,
     qoct->max.y = ( y1 < y2 ) ? y2 : y1;
     qoct->max.z = ( z1 < z2 ) ? z2 : z1;
 
-    qoct->d[0x00] = - ( qoct->max.z * qpln[0x00].z );
-    qoct->d[0x01] = - ( qoct->min.z * qpln[0x01].z );
-    qoct->d[0x02] = - ( qoct->max.y * qpln[0x02].y );
-    qoct->d[0x03] = - ( qoct->min.y * qpln[0x03].y );
-    qoct->d[0x04] = - ( qoct->max.x * qpln[0x04].x );
-    qoct->d[0x05] = - ( qoct->min.x * qpln[0x05].x );
+    qoct->d[0x00] = - ( qoct->max.z * BOXPLN[0x00].z );
+    qoct->d[0x01] = - ( qoct->min.z * BOXPLN[0x01].z );
+    qoct->d[0x02] = - ( qoct->max.y * BOXPLN[0x02].y );
+    qoct->d[0x03] = - ( qoct->min.y * BOXPLN[0x03].y );
+    qoct->d[0x04] = - ( qoct->max.x * BOXPLN[0x04].x );
+    qoct->d[0x05] = - ( qoct->min.x * BOXPLN[0x05].x );
 
     qoct->epsilon.x = ( qoct->max.x - qoct->min.x ) * 0.01f;
     qoct->epsilon.y = ( qoct->max.y - qoct->min.y ) * 0.01f;

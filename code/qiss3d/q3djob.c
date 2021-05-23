@@ -296,6 +296,7 @@ void *q3djob_raytrace ( void *ptr ) {
             /*** This value will be compared to the depth value of the hit  ***/
             /*** point. This allows us to pick the closest hit to the eye.  ***/
             qray.distance = INFINITY;
+            qray.flags    = Q3DRAY_PRIMARY_BIT;
 
             /*** but don't forget to normalize the latter **/
             q3dvector3f_normalize ( &qray.dir, &viewingDistance );
@@ -306,7 +307,7 @@ void *q3djob_raytrace ( void *ptr ) {
                                       NULL,
                                       qjob->curframe,
                                       0x00,
-                                      Q3DRAY_PRIMARY_BIT /*|
+                                      0x00 /* |
                                       RAYQUERYHIT            | 
                                       RAYQUERYLIGHTING       |
                                       RAYQUERYREFLECTION     |
