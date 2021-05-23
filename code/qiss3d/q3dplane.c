@@ -49,14 +49,12 @@ float q3dplane_intersectLine ( Q3DPLANE    *qpla,
 
     t = - ( vo / vd );
 
-    if ( qpnt ) {
-        if ( t > 0.0f ) {
-            qpnt->x = qlin->src.x + ( qlin->dir.x * t );
-            qpnt->y = qlin->src.y + ( qlin->dir.y * t );
-            qpnt->z = qlin->src.z + ( qlin->dir.z * t );
+    if ( t > 0.0f ) {
+        qpnt->x = qlin->src.x + ( qlin->dir.x * t );
+        qpnt->y = qlin->src.y + ( qlin->dir.y * t );
+        qpnt->z = qlin->src.z + ( qlin->dir.z * t );
 
-            return t;
-        }
+        return t;
     }
 
     return 0.0f;
@@ -86,14 +84,12 @@ float q3dplane_intersectSegment ( Q3DPLANE    *qpla,
 
     t = - ( vo / vd );
 
-    if ( qpnt ) {
-        if ( ( t > 0.0f ) && ( t < 1.0f ) ) {
-            qpnt->x = qlin.src.x + ( qlin.dir.x * t );
-            qpnt->y = qlin.src.y + ( qlin.dir.y * t );
-            qpnt->z = qlin.src.z + ( qlin.dir.z * t );
+    if ( ( t > 0.0f ) && ( t < 1.0f ) ) {
+        qpnt->x = qlin.src.x + ( qlin.dir.x * t );
+        qpnt->y = qlin.src.y + ( qlin.dir.y * t );
+        qpnt->z = qlin.src.z + ( qlin.dir.z * t );
 
-            return t;
-        }
+        return t;
     }
 
     return 0.0f;

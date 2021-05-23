@@ -122,6 +122,8 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
     q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
 
+    locqray.flags = 0x00;
+
     if ( qobj->intersect ) {
         hit += qobj->intersect ( qobj, 
                                 &locqray, 
@@ -146,6 +148,10 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     qray->distance = locqray.distance;
     qray->qobj     = locqray.qobj;
     qray->surface  = locqray.surface;
+
+    qray->ratio[0x00] = locqray.ratio[0x00];
+    qray->ratio[0x01] = locqray.ratio[0x01];
+    qray->ratio[0x02] = locqray.ratio[0x02];
 
     return ( hit ) ? 0x01 : 0x00;
 }
@@ -173,8 +179,12 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     qobj->free      = Free;
     qobj->intersect = Intersect;
 
-    g3dcore_invertMatrix ( obj->lmatrix, qobj->IMVX );
-    g3dcore_transposeMatrix ( qobj->IMVX, qobj->TIMVX );
+    g3dcore_invertMatrix    ( obj->lmatrix, qobj->IMVX  );
+    g3dcore_transposeMatrix ( qobj->IMVX  , qobj->TIMVX );
+
+    /*** Note: IWMVX could also be retrieved via obj->iwmatrix ***/
+    g3dcore_invertMatrix    ( obj->wmatrix, qobj->IWMVX  );
+    g3dcore_transposeMatrix ( qobj->IWMVX , qobj->TIWMVX );
 }
 
 /******************************************************************************/

@@ -246,7 +246,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     Q3DTRIANGLE *qtri = NULL;
     G3DMESH     *mes  = NULL;
 
-    if ( /*query_flags & Q3DRAY_PRIMARY_BIT */0) {
+    if ( query_flags & Q3DRAY_PRIMARY_BIT ) {
         Q3DZBUFFER zout;
 
         q3darea_getZBuffer ( &qjob->qarea, 
@@ -260,9 +260,32 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             qobj = q3dscene_getObjectByID ( qjob->qsce, zout.qobjID );
 
             if ( qobj->obj->type & MESH ) {
+                Q3DRAY locqray;
+
                 qmes = ( Q3DMESH * ) qobj;
                 mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
                 qtri = &qmes->qtri[zout.qtriID];
+
+                memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
+
+    q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
+    q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
+
+                /*** me must launch a ray to get surface color & UV coords ***/
+                if ( q3dtriangle_intersect ( qtri,
+                                             q3dmesh_getVertices( qmes, frame ),
+                                            &locqray,
+                                             query_flags ) ) {
+
+                    qray->color    = locqray.color;
+                    qray->distance = locqray.distance;
+                    qray->qobj     = locqray.qobj;
+                    qray->surface  = locqray.surface;
+
+                    qray->ratio[0x00] = locqray.ratio[0x00];
+                    qray->ratio[0x01] = locqray.ratio[0x01];
+                    qray->ratio[0x02] = locqray.ratio[0x02];
+                }
             }
         }
     } else {
@@ -282,30 +305,32 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
         }
     }
 
-    if ( qmes ) {
-        Q3DRGBA diffuse, specular, reflection, refraction, alpha;
-        Q3DVECTOR3F bump = { .x = 0.0f, 
-                             .y = 0.0f, 
-                             .z = 0.0f };
+    /*if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {*/
+        if ( qmes ) {
+            Q3DRGBA diffuse, specular, reflection, refraction, alpha;
+            Q3DVECTOR3F bump = { .x = 0.0f, 
+                                 .y = 0.0f, 
+                                 .z = 0.0f };
 
-        /*if ( q3dray_getSurfaceColor ( qray, 
-                                      qobj,
-                                      qtri,
-                                     &qjob->qarea,
-                                      qjob->qrsg->background.widthRatio,
-                                     &diffuse,
-                                     &specular,
-                                     &bump,
-                                     &reflection,
-                                     &refraction,
-                                     &alpha,
-                                      mes->ltex, 
-                                      query_flags ) ) {
-            return ( ( uint32_t ) ( diffuse.r << 0x10 ) | 
-                                  ( diffuse.g << 0x08 ) | 
-                                  ( diffuse.b         ) );
-        }*/ return 0xFF;
-    }
+            if ( q3dray_getSurfaceColor ( qray, 
+                                          qobj,
+                                          qtri,
+                                         &qjob->qarea,
+                                          qjob->qrsg->background.widthRatio,
+                                         &diffuse,
+                                         &specular,
+                                         &bump,
+                                         &reflection,
+                                         &refraction,
+                                         &alpha,
+                                          mes->ltex, 
+                                          query_flags ) ) {
+                return ( ( uint32_t ) ( diffuse.r << 0x10 ) | 
+                                      ( diffuse.g << 0x08 ) | 
+                                      ( diffuse.b         ) );
+            }
+        }
+    /*}*/
 
     return qjob->qrsg->background.color;
 }

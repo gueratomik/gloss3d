@@ -85,7 +85,7 @@ void q3dsymmetry_init ( Q3DSYMMETRY *qsym,
     Q3DFREE_CALLBACK(q3dsymmetry_free),
 Q3DINTERSECT_CALLBACK(q3dsymmetry_intersect) );
 
-    g3dcore_multmatrix ( obj->lmatrix, sym->smatrix, TMPX );
+    g3dcore_multmatrix ( sym->smatrix, obj->lmatrix, TMPX );
     g3dcore_invertMatrix ( TMPX, qsym->ISMVX );
     g3dcore_transposeMatrix ( qsym->ISMVX, qsym->TISMVX );
 }

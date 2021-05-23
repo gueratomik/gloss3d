@@ -406,6 +406,8 @@ typedef struct _Q3DOBJECT {
     LIST      *lchildren;
     double     IMVX[0x10];
     double     TIMVX[0x10];
+    double     IWMVX[0x10];
+    double    TIWMVX[0x10];
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
                                   Q3DRAY    *ray, 
@@ -446,11 +448,12 @@ typedef struct _Q3DSYMMETRY {
 #define Q3DOCTREE_TRIANGLELIST  ( 1 << 4 )
 
 typedef struct _Q3DOCTREE {
-    uint32_t   flags;
+    uint32_t    flags;
     Q3DVECTOR3F min;
     Q3DVECTOR3F max;
     Q3DVECTOR3F epsilon;
-    uint32_t   nbqtri;
+    uint32_t    nbqtri;
+    float       d[0x06]; /*** plane equation 'd' member ****/
     union {
         struct _Q3DOCTREE *node[0x08];
                 uint32_t   qtriID[0x00];

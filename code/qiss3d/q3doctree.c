@@ -52,14 +52,22 @@
 #endif
 
 /******************************************************************************/
+static Q3DPLANE BOXPLN[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
+                                 { .x =  0.0f, .y =  0.0f, .z = -1.0f },
+                                 { .x =  0.0f, .y =  1.0f, .z =  0.0f },
+                                 { .x =  0.0f, .y = -1.0f, .z =  0.0f },
+                                 { .x =  1.0f, .y =  0.0f, .z =  0.0f },
+                                 { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
+
+/******************************************************************************/
 static uint32_t pointIn ( Q3DOCTREE  *qoct, 
                           Q3DVECTOR3F *qpnt ) {
     if ( ( qpnt->x >= ( qoct->min.x - qoct->epsilon.x ) ) && 
          ( qpnt->y >= ( qoct->min.y - qoct->epsilon.y ) ) &&
          ( qpnt->z >= ( qoct->min.z - qoct->epsilon.z ) ) &&
-         ( qpnt->x <= ( qoct->max.x - qoct->epsilon.x ) ) &&
-         ( qpnt->y <= ( qoct->max.y - qoct->epsilon.y ) ) &&
-         ( qpnt->z <= ( qoct->max.z - qoct->epsilon.z ) ) ) {
+         ( qpnt->x <= ( qoct->max.x + qoct->epsilon.x ) ) &&
+         ( qpnt->y <= ( qoct->max.y + qoct->epsilon.y ) ) &&
+         ( qpnt->z <= ( qoct->max.z + qoct->epsilon.z ) ) ) {
 
         return 0x01;
     }
@@ -71,9 +79,9 @@ static uint32_t pointIn ( Q3DOCTREE  *qoct,
      ( ( (qpnt)->x >= ( (qoct)->min.x - (qoct)->epsilon.x ) ) && \
        ( (qpnt)->y >= ( (qoct)->min.y - (qoct)->epsilon.y ) ) && \
        ( (qpnt)->z >= ( (qoct)->min.z - (qoct)->epsilon.z ) ) && \
-       ( (qpnt)->x <= ( (qoct)->max.x - (qoct)->epsilon.x ) ) && \
-       ( (qpnt)->y <= ( (qoct)->max.y - (qoct)->epsilon.y ) ) && \
-       ( (qpnt)->z <= ( (qoct)->max.z - (qoct)->epsilon.z ) ) ) ? 0x01 : 0x00
+       ( (qpnt)->x <= ( (qoct)->max.x + (qoct)->epsilon.x ) ) && \
+       ( (qpnt)->y <= ( (qoct)->max.y + (qoct)->epsilon.y ) ) && \
+       ( (qpnt)->z <= ( (qoct)->max.z + (qoct)->epsilon.z ) ) ) ? 0x01 : 0x00
 
 /******************************************************************************/
 static uint32_t triangleIn ( Q3DOCTREE   *qoct,
@@ -123,44 +131,36 @@ static uint32_t triangleIn ( Q3DOCTREE   *qoct,
     if ( max.z < qoct->min.z ) return 0x00;
 
      /*** if the polygon is entirely in the octree ***/
-    if ( ( min.x >= qoct->min.x ) &&
-         ( min.y >= qoct->min.y ) &&
-         ( min.z >= qoct->min.z ) &&
-         ( max.x <= qoct->max.x ) &&
-         ( max.y <= qoct->max.y ) &&
-         ( max.z <= qoct->max.z ) ) {
+    if ( ( min.x >= ( qoct->min.x - qoct->epsilon.x ) ) &&
+         ( min.y >= ( qoct->min.y - qoct->epsilon.y ) ) &&
+         ( min.z >= ( qoct->min.z - qoct->epsilon.z ) ) &&
+         ( max.x <= ( qoct->max.x + qoct->epsilon.x ) ) &&
+         ( max.y <= ( qoct->max.y + qoct->epsilon.y ) ) &&
+         ( max.z <= ( qoct->max.z + qoct->epsilon.z ) ) ) {
 
         return 0x01;
     } else {
     /*** Otherwise, check if it crosses the sides of the octree ***/
-    /*** Planes must not be static because of multithreading ***/
-        Q3DPLANE qpln[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
-                                { .x =  0.0f, .y =  0.0f, .z = -1.0f },
-                                { .x =  0.0f, .y =  1.0f, .z =  0.0f },
-                                { .x =  0.0f, .y = -1.0f, .z =  0.0f },
-                                { .x =  1.0f, .y =  0.0f, .z =  0.0f },
-                                { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
         uint32_t i;
 
-        qpln[0x00].w = qoct->max.z;
-        qpln[0x01].w = qoct->min.z;
-        qpln[0x02].w = qoct->max.y;
-        qpln[0x03].w = qoct->min.y;
-        qpln[0x04].w = qoct->max.x;
-        qpln[0x05].w = qoct->min.x;
-
         for ( i = 0x00; i < 0x06; i++ ) {
+            Q3DPLANE qpln = { .x = BOXPLN[i].x,
+                              .y = BOXPLN[i].y,
+                              .z = BOXPLN[i].z,
+                              .w = qoct->d[i] };
             Q3DVECTOR3F vout;
             uint32_t j;
 
             for ( j = 0x00; j < 0x03; j++ ) {
                 uint32_t k = ( j + 0x01 ) % 0x03;
 
-                if ( q3dplane_intersectSegment ( &qpln[i], 
+                if ( q3dplane_intersectSegment ( &qpln, 
                                                  &qver[qverID[j]].pos,
                                                  &qver[qverID[k]].pos,
-                                                  NULL ) ) {
-                    return 0x01;
+                                                 &vout ) ) {
+                    if ( POINTIN(qoct,&vout)) {
+                        return 0x01;
+                    }
                 }
             }
         }
@@ -189,12 +189,6 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                                  Q3DVERTEX   *qver,
                                  uint64_t     query_flags,
                                  uint64_t     render_flags ) {
-    Q3DPLANE qpln[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
-                            { .x =  0.0f, .y =  0.0f, .z = -1.0f },
-                            { .x =  0.0f, .y =  1.0f, .z =  0.0f },
-                            { .x =  0.0f, .y = -1.0f, .z =  0.0f },
-                            { .x =  1.0f, .y =  0.0f, .z =  0.0f },
-                            { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
     Q3DLINE qlin = { .src = { .x = qray->src.x,
                               .y = qray->src.y,
                               .z = qray->src.z },
@@ -203,22 +197,19 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                               .z = qray->dir.z } };
     uint32_t hit = 0x00, trihit = 0x00, i;
 
-    qpln[0x00].w = qoct->max.z;
-    qpln[0x01].w = qoct->min.z;
-    qpln[0x02].w = qoct->max.y;
-    qpln[0x03].w = qoct->min.y;
-    qpln[0x04].w = qoct->max.x;
-    qpln[0x05].w = qoct->min.x;
-
     /*** check if ray is in octrree ***/
-    /*if ( POINTIN ( qoct, &qlin.src ) ) {
+    if ( POINTIN ( qoct, &qlin.src ) ) {
         hit++;
     }
 
     for ( i = 0x00; i < 0x06; i++ ) {
+        Q3DPLANE qpln = { .x = BOXPLN[i].x,
+                          .y = BOXPLN[i].y,
+                          .z = BOXPLN[i].z,
+                          .w = qoct->d[i] };
         Q3DVECTOR3F qpnt;
 
-        if ( q3dplane_intersectLine ( &qpln[i], 
+        if ( q3dplane_intersectLine ( &qpln, 
                                       &qlin, 
                                       &qpnt ) ) {
 
@@ -230,7 +221,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
         }
     }
 
-    if ( hit == 0x00 ) return 0x00;*/
+    if ( hit == 0x00 ) return 0x00;
     /*********************************/
 
     if ( qoct->flags & Q3DOCTREE_HASNODES ) {
@@ -392,6 +383,13 @@ void q3doctree_init ( Q3DOCTREE *qoct,
                       float x2,
                       float y2, 
                       float z2 ) {
+    Q3DPLANE qpln[0x06] = { { .x =  0.0f, .y =  0.0f, .z =  1.0f },
+                            { .x =  0.0f, .y =  0.0f, .z = -1.0f },
+                            { .x =  0.0f, .y =  1.0f, .z =  0.0f },
+                            { .x =  0.0f, .y = -1.0f, .z =  0.0f },
+                            { .x =  1.0f, .y =  0.0f, .z =  0.0f },
+                            { .x = -1.0f, .y =  0.0f, .z =  0.0f } };
+
     qoct->flags = Q3DOCTREE_HASTRIANGLES;
 
     qoct->min.x = ( x1 < x2 ) ? x1 : x2;
@@ -402,9 +400,21 @@ void q3doctree_init ( Q3DOCTREE *qoct,
     qoct->max.y = ( y1 < y2 ) ? y2 : y1;
     qoct->max.z = ( z1 < z2 ) ? z2 : z1;
 
-    qoct->epsilon.x = ( qoct->max.x - qoct->min.x ) * 0.05f;
-    qoct->epsilon.y = ( qoct->max.y - qoct->min.y ) * 0.05f;
-    qoct->epsilon.z = ( qoct->max.z - qoct->min.z ) * 0.05f;
+    qoct->d[0x00] = - ( qoct->max.z * qpln[0x00].z );
+    qoct->d[0x01] = - ( qoct->min.z * qpln[0x01].z );
+    qoct->d[0x02] = - ( qoct->max.y * qpln[0x02].y );
+    qoct->d[0x03] = - ( qoct->min.y * qpln[0x03].y );
+    qoct->d[0x04] = - ( qoct->max.x * qpln[0x04].x );
+    qoct->d[0x05] = - ( qoct->min.x * qpln[0x05].x );
+
+    qoct->epsilon.x = ( qoct->max.x - qoct->min.x ) * 0.01f;
+    qoct->epsilon.y = ( qoct->max.y - qoct->min.y ) * 0.01f;
+    qoct->epsilon.z = ( qoct->max.z - qoct->min.z ) * 0.01f;
+
+    /*** for perfectly flqt surfaces ***/
+    if ( qoct->epsilon.x == 0.0f ) qoct->epsilon.x = 0.01f;
+    if ( qoct->epsilon.y == 0.0f ) qoct->epsilon.y = 0.01f;
+    if ( qoct->epsilon.z == 0.0f ) qoct->epsilon.z = 0.01f;
 }
 
 /******************************************************************************/
