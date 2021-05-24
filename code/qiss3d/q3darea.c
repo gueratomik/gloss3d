@@ -30,6 +30,12 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 1.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f };
+
+/******************************************************************************/
 void q3darea_getZBuffer ( Q3DAREA *qarea, 
                           uint32_t    x, 
                           uint32_t    y,
@@ -37,6 +43,22 @@ void q3darea_getZBuffer ( Q3DAREA *qarea,
     uint32_t offset = ( y * qarea->width ) + x;
 
     memcpy ( zout, &qarea->qzen.buffer[offset], sizeof ( Q3DZBUFFER ) );
+}
+
+/******************************************************************************/
+void q3darea_getZBlock ( ) {
+    /*** due to imprecision, we have to query adjacent pixels for faces ***/
+    static int32_t block[0x09][0x02] = { { -1,  1 }, {  0,  1 }, {  1,  1 },
+                                         { -1,  0 }, {  0,  0 }, {  1,  0 },
+                                         { -1, -1 }, {  0, -1 }, {  1, -1 } };
+
+    /*for ( i = 0x00; i < 0x09; i++ ) {
+        int32_t ty = block[i][0x01],
+                tx = block[i][0x00];
+
+        if ( 
+        uint32_t offset = ( ty * qarea->width ) + tx;
+    }*/
 }
 
 /******************************************************************************/
@@ -62,7 +84,7 @@ static void q3darea_viewport ( Q3DAREA   *qarea,
 
         /*** Get ray's foreground coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, qarea->height - y, 0.0f,
+        gluUnProject ( x, qarea->height - y, cam->znear,
                        objcam->iwmatrix,
                        cam->pmatrix,
                        qarea->VPX,
@@ -137,9 +159,8 @@ void q3darea_init ( Q3DAREA   *qarea,
     q3darea_viewport ( qarea, qcam );
 
     q3dzengine_init ( &qarea->qzen,
-                       objcam->wmatrix,
-                       objcam->iwmatrix,
-                       qobjcam->TIWMVX,
+                       cam->znear,
+                       IDX,
                        cam->pmatrix,
                        qarea->VPX,
                        width,

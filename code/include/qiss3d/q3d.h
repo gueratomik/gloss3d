@@ -566,6 +566,9 @@ typedef struct _Q3DZBUFFER {
 /******************************************************************************/
 #define CLIPPINGPLANES 0x05
 
+#define FROMCLIPPINGPLANE 0x00
+#define TOCLIPPINGPLANE   0x01
+
 typedef struct _Q3DZENGINE {
     Q3DPLANE    frustrum[CLIPPINGPLANES];
     Q3DZBUFFER *buffer;
@@ -766,9 +769,8 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
                                float       frame );
 void q3dzengine_reset        ( Q3DZENGINE *qzen );
 void q3dzengine_init         ( Q3DZENGINE *qzen,
+                               float       znear,
                                double     *MVX,
-                               double     *IWMVX,
-                               double     *TIWMVX,
                                double     *PJX,
                                int        *VPX,
                                uint32_t    width,

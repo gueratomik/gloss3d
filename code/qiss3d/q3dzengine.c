@@ -30,18 +30,22 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 1.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f };
+
+/******************************************************************************/
 static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
+                                       float       znear,
                                        double     *MVX,
-                                       double     *IWMVX,
-                                       double     *TIWMVX,
                                        double     *PJX,
                                        int        *VPX ) {
-    Q3DVECTOR3D scr2D[0x04] = { { .x = VPX[0x00]     , .y = VPX[0x01]     },
-                                { .x = VPX[0x02] - 5 , .y = VPX[0x01]     },
-                                { .x = VPX[0x02] - 5 , .y = VPX[0x03] - 5 },
-                                { .x = VPX[0x00]     , .y = VPX[0x03] - 5 } };
-    static Q3DVECTOR3F zero  = { 0.0f, 0.0f,  0.0f },
-                       pnear = { 0.0f, 0.0f, -1.0f };
+
+    Q3DVECTOR3D scr2D[0x04] = { { .x = VPX[0x00] , .y = VPX[0x01] },
+                                { .x = VPX[0x02] , .y = VPX[0x01] },
+                                { .x = VPX[0x02] , .y = VPX[0x03] },
+                                { .x = VPX[0x00] , .y = VPX[0x03] } };
     Q3DVECTOR3D scr3Dnear[0x04];
     Q3DVECTOR3D scr3Dfar[0x04];
     Q3DVECTOR3F camori;
@@ -50,13 +54,11 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
 
     memset ( qzen->frustrum, 0x00, sizeof ( qzen->frustrum ) );
 
-    q3dvector3f_matrix ( &zero, MVX, &camori );
-
     for ( i = 0x00; i < 0x04; i++ ) {
         gluUnProject ( ( double ) scr2D[i].x,
-                       ( double ) scr2D[i].y,
+                       VPX[0x03] - ( double ) scr2D[i].y,
                        ( double ) 0.0f, /* zNear */
-                       IWMVX,
+                       MVX,
                        PJX,
                        VPX,
                       &scr3Dnear[i].x,
@@ -64,9 +66,9 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
                       &scr3Dnear[i].z );
 
         gluUnProject ( ( double ) scr2D[i].x,
-                       ( double ) scr2D[i].y,
-                       ( double ) 0.9999f, /* zFar */
-                       IWMVX,
+                       VPX[0x03] - ( double ) scr2D[i].y,
+                       ( double ) 1.0f, /* zFar */
+                       MVX,
                        PJX,
                        VPX,
                       &scr3Dfar[i].x,
@@ -76,46 +78,97 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
 
     for ( i = 0x00; i < 0x04; i++ ) {
         uint32_t n = ( i + 0x01 ) % 0x04;
-        Q3DVECTOR3F nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
-                                   .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
-                                   .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
-                    nearTonear = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
-                                   .y = ( scr3Dnear[i].y - scr3Dnear[n].y ),
-                                   .z = ( scr3Dnear[i].z - scr3Dnear[n].z ) };
+        Q3DVECTOR3F nearTofar    = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
+                                     .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
+                                     .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
+                    neariTonearn = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
+                                     .y = ( scr3Dnear[i].y - scr3Dnear[n].y ),
+                                     .z = ( scr3Dnear[i].z - scr3Dnear[n].z ) };
         uint32_t fid = i + 0x01; /*** 0 is the near plane, 5 the far one ***/
 
         q3dvector3f_cross ( &nearTofar,
-                            &nearTonear,
+                            &neariTonearn,
                             &qzen->frustrum[fid] );
 
         q3dvector3f_normalize ( &qzen->frustrum[fid], NULL );
 
         /*** q3dvector3f_cross sets w to 1.0f. Set it to 0.0f ***/
-        qzen->frustrum[fid].w = - ( ( camori.x * qzen->frustrum[fid].x ) +
-                                    ( camori.y * qzen->frustrum[fid].y ) +
-                                    ( camori.z * qzen->frustrum[fid].z ) );
+        qzen->frustrum[fid].w = 0.0f;
     }
+#ifdef unused
+G3DSYSINFO *sinfo = g3dsysinfo_get ( );
 
-    gluUnProject ( 0.0f,
-                   0.0f,
-                   0.0f, /* zNear */
-                   IWMVX,
-                   PJX,
-                   VPX,
-                  &xDouble,
-                  &yDouble,
-                  &zDouble );
+    G3DMESH *mes = g3dmesh_new ( 0x00, "frustrum", 0x00 );
+    G3DVERTEX *ver[0x08];
+    G3DFACE *fac[0x06];
 
+        ver[0] = g3dvertex_new ( scr3Dnear[0].x, scr3Dnear[0].y, scr3Dnear[0].z );
+        ver[1] = g3dvertex_new ( scr3Dnear[1].x, scr3Dnear[1].y, scr3Dnear[1].z );
+        ver[2] = g3dvertex_new ( scr3Dnear[2].x, scr3Dnear[2].y, scr3Dnear[2].z );
+        ver[3] = g3dvertex_new ( scr3Dnear[3].x, scr3Dnear[3].y, scr3Dnear[3].z );
+        ver[4] = g3dvertex_new ( scr3Dfar[0].x, scr3Dfar[0].y, scr3Dfar[0].z );
+        ver[5] = g3dvertex_new ( scr3Dfar[1].x, scr3Dfar[1].y, scr3Dfar[1].z );
+        ver[6] = g3dvertex_new ( scr3Dfar[2].x, scr3Dfar[2].y, scr3Dfar[2].z );
+        ver[7] = g3dvertex_new ( scr3Dfar[3].x, scr3Dfar[3].y, scr3Dfar[3].z );
+
+
+        g3dmesh_addVertex ( mes, ver[0] );
+        g3dmesh_addVertex ( mes, ver[1] );
+        g3dmesh_addVertex ( mes, ver[2] );
+        g3dmesh_addVertex ( mes, ver[3] );
+        g3dmesh_addVertex ( mes, ver[4] );
+        g3dmesh_addVertex ( mes, ver[5] );
+        g3dmesh_addVertex ( mes, ver[6] );
+        g3dmesh_addVertex ( mes, ver[7] );
+
+        fac[0x00] = g3dquad_new ( ver[0], ver[1], ver[2], ver[3] );
+        fac[0x01] = g3dquad_new ( ver[0], ver[4], ver[5], ver[1] );
+        fac[0x02] = g3dquad_new ( ver[1], ver[5], ver[6], ver[2] );
+        fac[0x03] = g3dquad_new ( ver[2], ver[6], ver[7], ver[3] );
+        fac[0x04] = g3dquad_new ( ver[3], ver[7], ver[4], ver[0] );
+        /*fac[0x05] = g3dquad_new ( ver[4], ver[5], ver[6], ver[7] );*/
+
+        g3dmesh_addFace ( mes, fac[0] );
+        g3dmesh_addFace ( mes, fac[1] );
+        g3dmesh_addFace ( mes, fac[2] );
+        g3dmesh_addFace ( mes, fac[3] );
+        g3dmesh_addFace ( mes, fac[4] );
+        /*g3dmesh_addFace ( mes, fac[5] );*/
+
+    /*** Rebuild the cut mesh ***/
+    g3dmesh_update ( mes, NULL,
+                          NULL,
+                          NULL,
+                          UPDATEFACEPOSITION |
+                          UPDATEFACENORMAL   |
+                          UPDATEVERTEXNORMAL |
+                          RESETMODIFIERS, 0x00 );
+
+        g3dobject_addChild ( sinfo->sce, mes, 0x00 );
+#endif
 
     /*** Compute "near" plan ***/
-    q3dvector3f_matrix ( &pnear, TIWMVX, &qzen->frustrum[0x00] );
+    Q3DVECTOR3F near0Tonear1 = { .x = ( scr3Dnear[3].x - scr3Dnear[2].x ),
+                                 .y = ( scr3Dnear[3].y - scr3Dnear[2].y ),
+                                 .z = ( scr3Dnear[3].z - scr3Dnear[2].z ) },
+                near0Tonear3 = { .x = ( scr3Dnear[0].x - scr3Dnear[2].x ),
+                                 .y = ( scr3Dnear[0].y - scr3Dnear[2].y ),
+                                 .z = ( scr3Dnear[0].z - scr3Dnear[2].z ) };
 
-    qzen->frustrum[0x00].w = - ( ( camori.x * qzen->frustrum[0x00].x ) +
-                                 ( camori.y * qzen->frustrum[0x00].y ) +
-                                 ( camori.z * qzen->frustrum[0x00].z ) );
+    /*Q3DVECTOR3F near0Tonear1 = { .x = ( scr3Dnear[1].x - scr3Dnear[0].x ),
+                                 .y = ( scr3Dnear[1].y - scr3Dnear[0].y ),
+                                 .z = ( scr3Dnear[1].z - scr3Dnear[0].z ) },
+                near0Tonear3 = { .x = ( scr3Dnear[3].x - scr3Dnear[0].x ),
+                                 .y = ( scr3Dnear[3].y - scr3Dnear[0].y ),
+                                 .z = ( scr3Dnear[3].z - scr3Dnear[0].z ) };*/
 
-    /*qzen->frustrum[0x05].z =  1.0f;
-    qzen->frustrum[0x05].w =  qzen->zFar;*/
+    q3dvector3f_cross ( &near0Tonear1,
+                        &near0Tonear3,
+                        &qzen->frustrum[0x00] );
+
+    q3dvector3f_normalize ( &qzen->frustrum[0x00], NULL );
+
+    qzen->frustrum[0x00].w = - znear;
 }
 
 /******************************************************************************/
@@ -248,10 +301,6 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
                                       double      *MVX,
                                       double      *PJX,
                                       int         *VPX ) {
-    static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
-                                0.0f, 1.0f, 0.0f, 0.0f,
-                                0.0f, 0.0f, 1.0f, 0.0f,
-                                0.0f, 0.0f, 0.0f, 1.0f };
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
@@ -281,21 +330,23 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         Q3DVECTOR3F *p1 = &pworld[i],
                     *p2 = &pworld[n];
         float distance = FLT_MAX;
-        float s1, s2;
 
         memcpy ( &lworld[i][0x00], p1, sizeof ( Q3DVECTOR3F ) );
         memcpy ( &lworld[i][0x01], p2, sizeof ( Q3DVECTOR3F ) );
 
-        for ( j = 0x02; j < 3; j++ ) {
+        /*** Note: FROMCLIPPINGPLANE = 0x00 and TOCLIPPINGPLANE = 0x01 ***/
+        /*** It means we only clip the front plane, for the other planes ***/
+        /*** this code does not work, we'll just clip 2D ***/
+        for ( j = FROMCLIPPINGPLANE; j < 1; j++ ) {
             /* Check if both points are inside the frustrum */
-            s1 = ( qzen->frustrum[j].x * p1->x ) +
-                 ( qzen->frustrum[j].y * p1->y ) +
-                 ( qzen->frustrum[j].z * p1->z ) + qzen->frustrum[j].w,
-            s2 = ( qzen->frustrum[j].x * p2->x ) +
-                 ( qzen->frustrum[j].y * p2->y ) +
-                 ( qzen->frustrum[j].z * p2->z ) + qzen->frustrum[j].w;
+            float s1 = ( qzen->frustrum[j].x * p1->x ) +
+                       ( qzen->frustrum[j].y * p1->y ) +
+                       ( qzen->frustrum[j].z * p1->z ) + qzen->frustrum[j].w;
+            float s2 = ( qzen->frustrum[j].x * p2->x ) +
+                       ( qzen->frustrum[j].y * p2->y ) +
+                       ( qzen->frustrum[j].z * p2->z ) + qzen->frustrum[j].w;
 
-            /*** line lies entirely on the right side of the plane ***/
+            /*** line lies entirely on the inner side of the plane ***/
             if ( ( s1 > 0.0f ) && ( s2 > 0.0f ) ) {
                 nodraw &= (~( 1 << i ));
             }
@@ -317,7 +368,7 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
                                                 &lworld[i][0x01],
                                                 &it );
 
-                if (  ( t > 0.0f ) && ( t < distance ) ) {
+                if (  ( t > 0.0f ) && ( t < 1.0f ) ) {
                     /*** overwrite the outside point ***/
                     memcpy ( &lworld[i][0x01], &it, sizeof ( Q3DVECTOR3F ) );
 
@@ -531,9 +582,8 @@ void q3dzengine_reset ( Q3DZENGINE *qzen ) {
 
 /******************************************************************************/
 void q3dzengine_init ( Q3DZENGINE *qzen,
+                       float       znear,
                        double     *MVX,
-                       double     *IWMVX,
-                       double     *TIWMVX, /* Transpose inverse world Matrix */
                        double     *PJX,
                        int        *VPX,
                        uint32_t    width,
@@ -550,6 +600,6 @@ void q3dzengine_init ( Q3DZENGINE *qzen,
 
         qzen->hlines = ( Q3DZHLINE * ) calloc ( height, sizeof ( Q3DZHLINE ) );
 
-        q3dzengine_buildFrustrum ( qzen, MVX, IWMVX, TIWMVX, PJX, VPX );
+        q3dzengine_buildFrustrum ( qzen, znear, MVX, PJX, VPX );
     }
 }
