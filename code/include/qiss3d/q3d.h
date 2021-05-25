@@ -128,14 +128,14 @@ typedef G3DRGBA         Q3DRGBA;
 
 /********************************** Ray queries *******************************/
 #define RAYQUERYHIT             ( 1      )
-#define RAYQUERYLIGHTING        ( 1 << 1 ) /*** create a shadow vector?     ***/
-#define RAYQUERYREFLECTION      ( 1 << 2 ) /*** create a reflection vector? ***/
-#define RAYQUERYREFRACTION      ( 1 << 3 ) /*** create a refraction vector? ***/
-#define RAYQUERYNOCHECKIN       ( 1 << 4 )
-#define RAYQUERYOUTLINE         ( 1 << 5 )
-#define RAYQUERYIGNOREBACKFACE  ( 1 << 6 )
-#define RAYLUXRAY               ( 1 << 7 ) /*** For identifying ray's nature ***/
-#define RAYSTART                ( 1 << 8 ) /*** the first shoot of the ray ***/
+#define RAYQUERYSURFACECOLOR    ( 1 << 1 )
+#define RAYQUERYLIGHTING        ( 1 << 2 ) /*** create a shadow vector?     ***/
+#define RAYQUERYREFLECTION      ( 1 << 3 ) /*** create a reflection vector? ***/
+#define RAYQUERYREFRACTION      ( 1 << 4 ) /*** create a refraction vector? ***/
+#define RAYQUERYNOCHECKIN       ( 1 << 5 )
+#define RAYQUERYOUTLINE         ( 1 << 6 )
+#define RAYQUERYIGNOREBACKFACE  ( 1 << 7 )
+#define RAYLUXRAY               ( 1 << 8 ) /*** For identifying ray's nature ***/
 
 /******************************** Job Flags ***********************************/
 #define NOFREEFILTERS ( 1 << 15 )

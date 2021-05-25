@@ -197,6 +197,8 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
             }
 
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
+                uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
+
                 if ( qzen->hlines[y].inited == 0x00 ) {
                     qzen->hlines[y].inited = 0x01;
 
@@ -229,6 +231,8 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
             }
 
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
+                uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
+
                 if ( qzen->hlines[y].inited == 0x00 ) {
                      qzen->hlines[y].inited = 0x01;
 

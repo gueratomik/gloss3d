@@ -307,12 +307,12 @@ void *q3djob_raytrace ( void *ptr ) {
                                       NULL,
                                       qjob->curframe,
                                       0x00,
-                                      0x00 /* |
-                                      RAYQUERYHIT            | 
+                                      RAYQUERYHIT |
+                                      RAYQUERYSURFACECOLOR   | 
                                       RAYQUERYLIGHTING       |
                                       RAYQUERYREFLECTION     |
                                       RAYQUERYREFRACTION     |
-                                      RAYQUERYIGNOREBACKFACE |
+                                      RAYQUERYIGNOREBACKFACE/* |
                                       outlineFlag*/ );
 
             imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;

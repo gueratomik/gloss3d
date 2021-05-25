@@ -33,6 +33,8 @@
 /*** Note: Source is in World coordinates ***/
 uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
                                Q3DJOB          *qjob,
+                               Q3DSURFACE      *sdiscard,
+                               float            frame,
                                Q3DVECTOR3F     *bumpnor,
                                Q3DRGBA         *diffuse,
                                Q3DRGBA         *specular,
@@ -48,9 +50,9 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
         Q3DOBJECT *qobjlig = ( Q3DOBJECT * ) qlig;
         G3DLIGHT  *lig     = ( G3DLIGHT *  ) q3dobject_getObject ( qobjlig );
          /*** QLight world position ***/
+        float distancetoLight;
         Q3DVECTOR3F qligwpos;
         Q3DRAY luxqray;
-        float dot;
 
         q3dvector3f_matrix ( &pzero, qobjlig->obj->wmatrix, &qligwpos );
 
@@ -65,16 +67,27 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
         luxqray.distance = INFINITY;
         luxqray.flags    = 0x00;
 
-        q3dvector3f_normalize ( &luxqray.dir, NULL );
+        q3dvector3f_normalize ( &luxqray.dir, &distancetoLight );
 
-        dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
+        q3dray_shoot_r ( &luxqray, 
+                          qjob,
+                          sdiscard,
+                          frame,
+                          nbhop,
+                          RAYQUERYHIT );
 
-        if ( dot > 0.0f ) {
-            float rate = dot * lig->intensity;
+        if ( ( ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) == 0x00 ) ||
+               ( ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) && 
+                 ( luxqray.distance < distancetoLight ) ) ) {
+            float dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
 
-            diffuse->r += ( lig->diffuseColor.r * rate ),
-            diffuse->g += ( lig->diffuseColor.g * rate ),
-            diffuse->b += ( lig->diffuseColor.b * rate );
+            if ( dot > 0.0f ) {
+                float rate = dot * lig->intensity;
+
+                diffuse->r += ( lig->diffuseColor.r * rate ),
+                diffuse->g += ( lig->diffuseColor.g * rate ),
+                diffuse->b += ( lig->diffuseColor.b * rate );
+            }
         }
 
         ltmpqlig = ltmpqlig->next;
@@ -311,7 +324,7 @@ void q3dray_getWorldIntersection ( Q3DRAY          *qray,
                                  ( qver[qverID[1]].nor.z * qray->ratio[1] ) +
                                  ( qver[qverID[2]].nor.z * qray->ratio[2] ) };
 
-        q3dvector3f_matrix ( &src, qray->qobj->IWMVX , &wisx->src );
+        q3dvector3f_matrix ( &src, qray->qobj->obj->wmatrix , &wisx->src );
         q3dvector3f_matrix ( &dir, qray->qobj->TIWMVX, &wisx->dir );
 
         wisx->qobj = qray->qobj;
@@ -330,118 +343,141 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     Q3DMESH     *qmes = NULL;
     Q3DTRIANGLE *qtri = NULL;
     G3DMESH     *mes  = NULL;
+    uint32_t raytrace = 0x00;
 
-    if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
-        Q3DZBUFFER zout;
+    if ( query_flags & RAYQUERYHIT ) {
+        if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+            Q3DZBUFFER zout;
 
-        q3darea_getZBuffer ( &qjob->qarea, 
-                              qray->x, 
-                              qray->y,
-                             &zout );
+            q3darea_getZBuffer ( &qjob->qarea, 
+                                  qray->x, 
+                                  qray->y,
+                                 &zout );
 
-        if ( zout.z == INFINITY ) {
-            /*** not hit ***/
+            if ( zout.z == INFINITY ) {
+                /*** not hit ***/
+            } else {
+                qobj = q3dscene_getObjectByID ( qjob->qsce, zout.qobjID );
+
+                if ( qobj->obj->type & MESH ) {
+                    Q3DRAY locqray;
+
+                    qmes = ( Q3DMESH * ) qobj;
+                    mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
+                    qtri = &qmes->qtri[zout.qtriID];
+
+                    memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
+
+                    q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
+                    q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
+
+                    /*** me must launch a ray to get surface color & UV coords ***/
+                    if ( q3dtriangle_intersect ( qtri,
+                                                 q3dmesh_getVertices( qmes, frame ),
+                                                &locqray,
+                                                 query_flags ) ) {
+
+                        qray->flags   |= Q3DRAY_HAS_HIT_BIT;
+
+                        qray->color    = locqray.color;
+                        qray->distance = locqray.distance;
+
+                        qray->qobj     = qobj;
+                        qray->qsur     = qtri;
+
+                        qray->ratio[0x00] = locqray.ratio[0x00];
+                        qray->ratio[0x01] = locqray.ratio[0x01];
+                        qray->ratio[0x02] = locqray.ratio[0x02];
+                    } else {
+                        /*** because of rasterization imprecision, there are ***/
+                        /*** cases, especially around the edges, were the buffer **/
+                        /*** is filled but were the ray does not hit. In that ***/
+                        /*** case, we have to raytrace the whole object to get ***/
+                        /*** the matching triangle. ***/
+
+                        raytrace = 0x01;
+                    }
+                }
+            }
         } else {
-            qobj = q3dscene_getObjectByID ( qjob->qsce, zout.qobjID );
+            raytrace = 0x01;
+        }
 
-            if ( qobj->obj->type & MESH ) {
-                Q3DRAY locqray;
+        if ( raytrace ) {
+            if ( q3dobject_intersect_r ( qjob->qsce,
+                                         qray,
+                                         frame,
+                                         query_flags,
+                                    /*render_flags*/0x00 ) ) {
+                qobj = qray->qobj;
 
-                qmes = ( Q3DMESH * ) qobj;
-                mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
-                qtri = &qmes->qtri[zout.qtriID];
+                if ( qobj->obj->type & MESH ) {
+                    qmes = ( Q3DMESH * ) qobj;
+                    mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
 
-                memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
-
-    q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
-    q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
-
-                /*** me must launch a ray to get surface color & UV coords ***/
-                if ( q3dtriangle_intersect ( qtri,
-                                             q3dmesh_getVertices( qmes, frame ),
-                                            &locqray,
-                                             query_flags ) ) {
-return 0xFF00FF;
-                    qray->color    = locqray.color;
-                    qray->distance = locqray.distance;
-
-                    qray->qobj     = qobj;
-                    qray->qsur     = qtri;
-
-                    qray->ratio[0x00] = locqray.ratio[0x00];
-                    qray->ratio[0x01] = locqray.ratio[0x01];
-                    qray->ratio[0x02] = locqray.ratio[0x02];
+                    qtri = qray->qsur;
                 }
             }
         }
-    } else {
-        if ( q3dobject_intersect_r ( qjob->qsce,
-                                     qray,
-                                     frame,
-                                     query_flags,
-                                /*render_flags*/0x00 ) ) {
-            qobj = qray->qobj;
 
-            if ( qobj->obj->type & MESH ) {
-                qmes = ( Q3DMESH * ) qobj;
-                mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
+        if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {
+            Q3DRGBA materialDiffuse    = { 0x80, 0x80, 0x80, 0x80 }, 
+                    materialSpecular   = { 0x80, 0x80, 0x80, 0x80 },
+                    materialReflection = { 0x80, 0x80, 0x80, 0x80 },
+                    materialRefraction = { 0x80, 0x80, 0x80, 0x80 },
+                    materialAlpha      = { 0x80, 0x80, 0x80, 0x80 };
+            Q3DVECTOR3F materialBump   = { .x = 0.0f, 
+                                           .y = 0.0f, 
+                                           .z = 0.0f };
+            Q3DRGBA lightDiffuse       = { 0x80, 0x80, 0x80, 0x80 },
+                    lightSpecular      = { 0x80, 0x80, 0x80, 0x80 };
+            Q3DRGBA diffuse            = { 0x80, 0x80, 0x80, 0x80 };
+            Q3DINTERSECTION wisx;
 
-                qtri = qray->qsur;
+            if ( query_flags & RAYQUERYSURFACECOLOR ) {
+
+
+                q3dray_getWorldIntersection ( qray, frame, &wisx );
+
+                q3dray_getSurfaceColor ( qray, 
+                                         qobj,
+                                         qtri,
+                                        &qjob->qarea,
+                                         qjob->qrsg->background.widthRatio,
+                                        &materialDiffuse,
+                                        &materialSpecular,
+                                        &materialBump,
+                                        &materialReflection,
+                                        &materialRefraction,
+                                        &materialAlpha,
+                                         mes->ltex, 
+                                         query_flags );
             }
+
+            if ( query_flags & RAYQUERYLIGHTING ) {
+                q3dray_illumination ( &wisx,
+                                       qjob,
+                                       qtri,
+                                       frame,
+                                       NULL,
+                                      &lightDiffuse,
+                                      &lightSpecular,
+                                       nbhop );
+            }
+
+            diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) /*+ ( ( lightSpecular.r * materialSpecular.r ) >> 0x08 )*/;
+            diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) /*+ ( ( lightSpecular.g * materialSpecular.g ) >> 0x08 )*/;
+            diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) /*+ ( ( lightSpecular.b * materialSpecular.b ) >> 0x08 )*/;
+
+            if ( diffuse.r > 0xFF ) diffuse.r = 0xFF;
+            if ( diffuse.g > 0xFF ) diffuse.g = 0xFF;
+            if ( diffuse.b > 0xFF ) diffuse.b = 0xFF;
+
+            return ( ( uint32_t ) ( diffuse.r << 0x10 ) | 
+                                  ( diffuse.g << 0x08 ) | 
+                                  ( diffuse.b         ) );
         }
     }
 
-    /*if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {*/
-    if ( qray->qobj && ( qray->qobj->obj->type & MESH ) ) {
-        Q3DVECTOR3F materialBump = { .x = 0.0f, 
-                                     .y = 0.0f, 
-                                     .z = 0.0f };
-        Q3DRGBA materialDiffuse, 
-                materialSpecular,
-                materialReflection,
-                materialRefraction,
-                materialAlpha;
-        Q3DRGBA lightDiffuse, 
-                lightSpecular;
-        Q3DRGBA diffuse;
-        Q3DINTERSECTION wisx;
-
-        q3dray_getWorldIntersection ( qray, frame, &wisx );
-
-        q3dray_getSurfaceColor ( qray, 
-                                 qobj,
-                                 qtri,
-                                &qjob->qarea,
-                                 qjob->qrsg->background.widthRatio,
-                                &materialDiffuse,
-                                &materialSpecular,
-                                &materialBump,
-                                &materialReflection,
-                                &materialRefraction,
-                                &materialAlpha,
-                                 mes->ltex, 
-                                 query_flags );
-
-         q3dray_illumination ( &wisx,
-                                qjob,
-                                NULL,
-                               &lightDiffuse,
-                               &lightSpecular,
-                                nbhop );
-
-        diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) /*+ ( ( lightSpecular.r * materialSpecular.r ) >> 0x08 )*/;
-        diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) /*+ ( ( lightSpecular.g * materialSpecular.g ) >> 0x08 )*/;
-        diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) /*+ ( ( lightSpecular.b * materialSpecular.b ) >> 0x08 )*/;
-
-        if ( diffuse.r > 0xFF ) diffuse.r = 0xFF;
-        if ( diffuse.g > 0xFF ) diffuse.g = 0xFF;
-        if ( diffuse.b > 0xFF ) diffuse.b = 0xFF;
-
-        return ( ( uint32_t ) ( diffuse.r << 0x10 ) | 
-                              ( diffuse.g << 0x08 ) | 
-                              ( diffuse.b         ) );
-    }
-    /*}*/
-
-    return /*qjob->qrsg->background.color*/0xFF;
+    return qjob->qrsg->background.color;
 }
