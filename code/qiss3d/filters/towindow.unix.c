@@ -30,23 +30,6 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-typedef struct _FILTERTOWINDOW {
-    Display *dis; 
-    Window win;
-    GC gc;
-    XShmSegmentInfo ssi;
-    XImage *ximg;
-    uint32_t active_fill; /*** active_fill means that we use XPutImage to ***/
-                          /*** the drawable. This can be desired for the ***/
-                          /*** OpenGL viewing window but not for the final ***/
-                          /*** rendering window because the latter can be ***/
-                          /*** resized during rendering, which would lead to***/
-                          /*** a crash. Passive fill means we generate an ***/
-                          /*** expose event and that's it. The widget is ***/
-                          /*** reponsible for showing the XImage on exposure***/
-} FILTERTOWINDOW;
-
-/******************************************************************************/
 #ifdef __linux__
 static void filtertowindow_allocXImage ( FILTERTOWINDOW *ftw, 
                                          Display        *dis, 
@@ -111,9 +94,9 @@ void filtertowindow_free (  Q3DFILTER *fil ) {
 }
 
 /******************************************************************************/
-static FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
-                                            Window   win, 
-                                            uint32_t active_fill ) {
+FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
+                                     Window   win, 
+                                     uint32_t active_fill ) {
 
     uint32_t structsize = sizeof ( FILTERTOWINDOW );
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) calloc ( 0x01, structsize );
@@ -136,14 +119,14 @@ static FILTERTOWINDOW *filtertowindow_new ( Display *dis,
 }
 
 /******************************************************************************/
-static uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
-                                      Q3DSCENE      *qsce,
-                                      float          frameID,
-                                      unsigned char *img, 
-                                      uint32_t       from, 
-                                      uint32_t       to, 
-                                      uint32_t       depth, 
-                                      uint32_t       width ) {
+uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
+                               Q3DJOB        *qjob,
+                               float          frameID,
+                               unsigned char *img, 
+                               uint32_t       from, 
+                               uint32_t       to, 
+                               uint32_t       depth, 
+                               uint32_t       width ) {
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
     uint32_t win_depth, win_width, win_height;

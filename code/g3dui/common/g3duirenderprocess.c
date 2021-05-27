@@ -31,26 +31,30 @@
 
 /******************************************************************************/
 void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
-    R3DFILTER *fil = r3dscene_getFilter ( rps->rsce, TOBUFFERFILTERNAME );
+#ifdef unusedQISS3D
+    Q3DFILTER *fil = q3djob_getFilter ( rps->qjob, TOBUFFERFILTERNAME );
 
     if ( fil ) {
+
         FILTERTOBUFFER *ftb = ( FILTERTOBUFFER * ) fil->data;
 
         r3draw_to_jpg ( ftb->rawimg, ftb->width,
                                      ftb->height,
                                      ftb->depth,
                                      filename );
+
     } else {
         fprintf ( stderr, "No buffer filter found !\n" );
     }
+#endif
 }
 
 /******************************************************************************/
 G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
                                              G3DUI     *gui,
-                                             R3DSCENE  *rsce,
-                                             R3DFILTER *filter_to_window,
-                                             R3DFILTER *filter_to_buffer ) {
+                                             Q3DJOB  *qjob,
+                                             Q3DFILTER *filter_to_window,
+                                             Q3DFILTER *filter_to_buffer ) {
     uint32_t size = sizeof ( G3DUIRENDERPROCESS );
     G3DUIRENDERPROCESS *rps = ( G3DUIRENDERPROCESS * ) calloc ( 0x01, size );
 
@@ -61,8 +65,7 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
     }
 
     rps->id   = id;
-    rps->rsce = rsce;
-    rps->qjob = rsce;
+    rps->qjob = qjob;
 
     rps->gui = gui;
 
@@ -108,7 +111,7 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 
-    r3dscene_render_sequence_t ( rps->rsce );
+    q3djob_render_sequence_t ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
@@ -122,7 +125,7 @@ void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
 
     /*if ( rps->filename ) free ( rps->filename );*/
 
-    r3dscene_render_t_free ( rps->rsce );
+    q3djob_render_t_free ( rps->qjob );
 
     /*free ( rps );*/
 }

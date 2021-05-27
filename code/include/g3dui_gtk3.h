@@ -75,10 +75,10 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <r3d.h>
+#include <qiss3d/q3d.h>
 
 #ifdef __linux__
-#include <r3dnet.h>
+/*#include <r3dnet.h>*/
 #endif
 
 #include <g3durmanager.h>
@@ -616,7 +616,7 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
                               GdkEvent  *event, 
                               gpointer   user_data );
 
-uint32_t g3dui_cancelRenderByScene ( G3DUI *, R3DSCENE * );
+uint32_t g3dui_cancelRenderByScene ( G3DUI *, Q3DJOB * );
 uint32_t g3dui_cancelRenderByID    ( G3DUI *, uint64_t   );
 void g3dui_redrawGLViews ( G3DUI * );
 void gtk_view_updateMenu ( GtkWidget * );
@@ -664,7 +664,7 @@ void g3dui_redrawAllMeshPoseList         ( G3DUI * );
 void g3dui_loadImageForChannel ( G3DUI      *gui,
                                  G3DCHANNEL *chan );
 
-G3DUIRENDERPROCESS *g3dui_getRenderProcessByScene ( G3DUI *, R3DSCENE * );
+G3DUIRENDERPROCESS *g3dui_getRenderProcessByScene ( G3DUI *, Q3DJOB * );
 G3DUIRENDERPROCESS *g3dui_getRenderProcessByID    ( G3DUI *, uint64_t   );
 
 uint32_t g3dui_renderClean ( Q3DFILTER *, Q3DJOB *, float,
@@ -715,9 +715,9 @@ typedef struct _FILTERTOGDKWINDOW {
 } FILTERTOGDKWINDOW;
 
 Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *, uint32_t );
-R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *, uint32_t );
+Q3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *, uint32_t );
 void       filtertogdkwindow_free ( FILTERTOGDKWINDOW * );
-void       filtertogdkwindow_draw ( void *, R3DSCENE *, unsigned char *,
+void       filtertogdkwindow_draw ( void *, Q3DJOB *, unsigned char *,
                                                         uint32_t, 
                                                         uint32_t, 
                                                         uint32_t, 
@@ -729,7 +729,7 @@ typedef struct _FILTERTOSTATUSBAR {
     float lastFrame;
 } FILTERTOSTATUSBAR;
 
-R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
+Q3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
 
 /******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );

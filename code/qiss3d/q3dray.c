@@ -53,6 +53,7 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
         float distancetoLight;
         Q3DVECTOR3F qligwpos;
         Q3DRAY luxqray;
+        uint32_t shadow = 0x00;
 
         q3dvector3f_matrix ( &pzero, qobjlig->obj->wmatrix, &qligwpos );
 
@@ -76,9 +77,15 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
                           nbhop,
                           RAYQUERYHIT );
 
-        if ( ( ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) == 0x00 ) ||
-               ( ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) && 
-                 ( luxqray.distance < distancetoLight ) ) ) {
+        if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
+            if ( luxqray.distance < distancetoLight ) {
+                shadow = 0x01;
+            }
+        } else {
+            shadow = 0x00;
+        }
+
+        if ( shadow == 0x00 ) {
             float dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
 
             if ( dot > 0.0f ) {
@@ -324,8 +331,10 @@ void q3dray_getWorldIntersection ( Q3DRAY          *qray,
                                  ( qver[qverID[1]].nor.z * qray->ratio[1] ) +
                                  ( qver[qverID[2]].nor.z * qray->ratio[2] ) };
 
-        q3dvector3f_matrix ( &src, qray->qobj->obj->wmatrix , &wisx->src );
+        /*q3dvector3f_matrix ( &src, qray->qobj->obj->wmatrix , &wisx->src );*/
         q3dvector3f_matrix ( &dir, qray->qobj->TIWMVX, &wisx->dir );
+
+        memcpy ( &wisx->src, &src, sizeof ( Q3DVECTOR3F ) );
 
         wisx->qobj = qray->qobj;
         wisx->qsur = qray->qsur;

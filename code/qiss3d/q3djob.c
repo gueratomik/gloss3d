@@ -30,21 +30,7 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-Q3DFILTER *q3djob_getFilter ( Q3DJOB    *qjob, 
-                             const char *filtername ) {
-    LIST *ltmpfilters = qjob->qrsg->input.lfilters;
-
-    while ( ltmpfilters ) {
-        Q3DFILTER *fil = ( Q3DFILTER * ) ltmpfilters->data;
-
-        if ( strcmp ( fil->name, filtername ) == 0x00 ) {
-
-           return fil;
-        }
-
-        ltmpfilters = ltmpfilters->next;
-    }
-
+Q3DFILTER *q3djob_getFilter ( Q3DJOB *qjob, const char *filtername ) {
     return NULL;
 }
 
@@ -147,27 +133,36 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
 
 /******************************************************************************/
 void q3djob_filterline ( Q3DJOB *qjob, 
-                         uint32_t from, 
-                         uint32_t to,
-                         uint32_t depth, 
-                         uint32_t width ) {
-    LIST *ltmp = qjob->qrsg->input.lfilters;
+                                uint32_t from, 
+                                uint32_t to,
+                                uint32_t depth, 
+                                uint32_t width ) {
     char *img = qjob->img;
+    uint32_t i;
 
     if ( qjob->running == 0x00 ) return;
 
-    while ( ltmp ) {
-        Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
+    for ( i = 0x00; i < MAXFILTERS; i++ ) {
+        Q3DFILTER *fil = qjob->flin[i];
 
-        if ( ( fil->flags & ENABLEFILTER ) && 
-             ( fil->type  & FILTERLINE   ) ) {
-            if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
-                /*** stop processing filters if 1 is returned ***/
-                return;
+        if ( fil ) {
+            if ( ( fil->flags & ENABLEFILTER ) && 
+                 ( fil->type  & FILTERLINE   ) ) {
+
+                if ( fil->draw ( fil, 
+                                 qjob, 
+                                 qjob->curframe, 
+                                 img, 
+                                 from, 
+                                 to, 
+                                 depth, 
+                                 width ) ) {
+
+                    /*** stop processing filters if 1 is returned ***/
+                    return;
+                }
             }
         }
-
-        ltmp = ltmp->next;
     }
 }
 
@@ -177,67 +172,65 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
                                  uint32_t to,
                                  uint32_t depth, 
                                  uint32_t width ) {
-    LIST *ltmp = qjob->qrsg->input.lfilters;
     char *img = qjob->img;
+    uint32_t i;
 
-    /*** Filter "CLEAN" must be run no matter what ***/
-    if ( qjob->running == 0x00 ) {
-        while ( ltmp ) {
-            Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
+    if ( qjob->running == 0x00 ) return;
 
+    for ( i = 0x00; i < MAXFILTERS; i++ ) {
+        Q3DFILTER *fil = qjob->fimg[i];
+
+        if ( fil ) {
             if ( ( fil->flags & ENABLEFILTER ) && 
-                 ( fil->type  & FILTERIMAGE  ) &&
-                 ( strcmp ( fil->name, "CLEAN" ) == 0x00 ) ) {
-                if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
+                 ( fil->type  & FILTERIMAGE   ) ) {
+                if ( fil->draw ( fil, 
+                                 qjob, 
+                                 qjob->curframe, 
+                                 img, 
+                                 from, 
+                                 to, 
+                                 depth, 
+                                 width ) ) {
                     /*** stop processing filters if 1 is returned ***/
                     return;
                 }
             }
-
-            ltmp = ltmp->next;
-        }
-    } else {
-        while ( ltmp ) {
-            Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
-
-            if ( ( fil->flags & ENABLEFILTER ) && 
-                 ( fil->type  & FILTERIMAGE  ) ) {
-                if ( fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
-                    /*** stop processing filters if 1 is returned ***/
-                    return;
-                }
-            }
-
-            ltmp = ltmp->next;
         }
     }
 }
 
 /******************************************************************************/
-static uint32_t q3djob_filterbefore ( Q3DJOB *qjob, 
+static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob, 
                                       uint32_t from, 
                                       uint32_t to,
                                       uint32_t depth, 
                                       uint32_t width ) {
-    LIST *ltmp = qjob->qrsg->input.lfilters;
     char *img = qjob->img;
-    uint32_t ret = 0x00;
+    uint32_t i;
 
     if ( qjob->running == 0x00 ) return 0x00;
 
-    while ( ltmp ) {
-        Q3DFILTER *fil = ( Q3DFILTER * ) ltmp->data;
+    for ( i = 0x00; i < MAXFILTERS; i++ ) {
+        Q3DFILTER *fil = qjob->fbef[i];
 
-        if ( ( fil->flags & ENABLEFILTER ) && 
-             ( fil->type  & FILTERBEFORE ) ) {
+        if ( fil ) {
+            if ( ( fil->flags & ENABLEFILTER ) && 
+                 ( fil->type  & FILTERBEFORE ) ) {
+                uint32_t ret;
 
-            if ( ret = fil->draw ( fil, qjob->qsce, qjob->curframe, img, from, to, depth, width ) ) {
-                /*** stop processing filters if 1 is returned ***/
-                return ret;
+                if ( ret = fil->draw ( fil,
+                                       qjob, 
+                                       qjob->curframe, 
+                                       img, 
+                                       from, 
+                                       to, 
+                                       depth, 
+                                       width ) ) {
+                    /*** stop processing filters if 1 is returned ***/
+                    return ret;
+                }
             }
         }
-
-        ltmp = ltmp->next;
     }
 
     return 0x00;
@@ -420,6 +413,17 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
+    /*** line filters ***/
+    qjob->flin[MAXFILTERS - 0x01] = qrsg->input.towindow;
+
+    /*** image filters ***/
+    qjob->fimg[MAXFILTERS - 0x03] = q3dfilter_simpleaa_new ( );
+    qjob->fimg[MAXFILTERS - 0x02] = qrsg->input.towindow;
+    qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.clean;
+
+    /*** before filters ***/
+
+
     qjob->curframe = qrsg->output.startframe;
 
     qjob->running = 0x01;
@@ -449,7 +453,9 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 void q3djob_render_t_free ( Q3DJOB *qjob ) {
     /*** free filters after rendering ***/
     if ( ( qjob->flags & NOFREEFILTERS ) == 0x00 ) {
+/*
         list_free ( &qjob->qrsg->input.lfilters, (void(*)(void*))q3dfilter_free );
+*/
     }
 }
 
@@ -463,7 +469,6 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
              y2 = qjob->qarea.y2;
     uint32_t width  = qjob->qarea.width,
              height = qjob->qarea.height;
-    LIST *lfilters = qjob->qrsg->input.lfilters;
     int32_t startframe = qjob->qrsg->output.startframe,
             endframe = qjob->qrsg->output.endframe;
     int32_t i, j;

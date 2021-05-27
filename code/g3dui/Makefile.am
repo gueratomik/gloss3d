@@ -115,7 +115,7 @@ if HAVE_GTK3
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/g3duiwireframeedit.c \
-                            gtk3/r3dpreview.c \
+                            gtk3/q3dpreview.c \
                             gtk3/mousetool/g3duig3dmousetooledit.c \
                             gtk3/mousetool/g3duil3dmousetooledit.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \

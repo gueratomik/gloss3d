@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 void common_g3duirenderedit_formatCbk ( G3DUI *gui, const char *format ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -46,7 +46,7 @@ void common_g3duirenderedit_formatCbk ( G3DUI *gui, const char *format ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_startFrameCbk ( G3DUI *gui, float frame ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -59,7 +59,7 @@ void common_g3duirenderedit_startFrameCbk ( G3DUI *gui, float frame ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_endFrameCbk ( G3DUI *gui, float frame ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -72,7 +72,7 @@ void common_g3duirenderedit_endFrameCbk ( G3DUI *gui, float frame ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -85,7 +85,7 @@ void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -98,7 +98,7 @@ void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -112,7 +112,7 @@ void common_g3duirenderedit_setWireframeLightingCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duirenderedit_wireframeThicknessCbk ( G3DUI *gui,
                                                     float  thickness ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -124,7 +124,7 @@ void common_g3duirenderedit_wireframeColorCbk ( G3DUI        *gui,
                                                 unsigned char R, 
                                                 unsigned char G, 
                                                 unsigned char B ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -135,7 +135,7 @@ void common_g3duirenderedit_wireframeColorCbk ( G3DUI        *gui,
 /******************************************************************************/
 void common_g3duirenderedit_setFogStrengthCbk ( G3DUI *gui, 
                                                 float strength ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -144,7 +144,7 @@ void common_g3duirenderedit_setFogStrengthCbk ( G3DUI *gui,
 
 /******************************************************************************/
 void common_g3duirenderedit_setFogCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -157,7 +157,7 @@ void common_g3duirenderedit_setFogCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -171,7 +171,7 @@ void common_g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
                                         float  ffar ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -181,7 +181,7 @@ void common_g3duirenderedit_fogFarCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3duirenderedit_fogNearCbk ( G3DUI *gui,
                                          float  fnear ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -193,7 +193,7 @@ void common_g3duirenderedit_fogColorCbk ( G3DUI        *gui,
                                           unsigned char R, 
                                           unsigned char G, 
                                           unsigned char B ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -202,7 +202,7 @@ void common_g3duirenderedit_fogColorCbk ( G3DUI        *gui,
 
 /******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -211,7 +211,7 @@ void common_g3duirenderedit_sceneMotionBlurCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -221,7 +221,7 @@ void common_g3duirenderedit_vectorMotionBlurCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI   *gui, 
                                                           uint32_t nbstep ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -231,7 +231,7 @@ void common_g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUI   *gui,
 /******************************************************************************/
 void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui, 
                                                     float strength ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -241,7 +241,7 @@ void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI   *gui, 
                                                          uint32_t nbSamples ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -251,7 +251,7 @@ void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI   *gui,
 /******************************************************************************/
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *gui, 
                                                                  float subSamplingRate ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -260,7 +260,7 @@ void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *gui,
 
 /******************************************************************************/
 void common_g3duirenderedit_fpsCbk ( G3DUI *gui, uint32_t fps ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -270,7 +270,7 @@ void common_g3duirenderedit_fpsCbk ( G3DUI *gui, uint32_t fps ) {
 /******************************************************************************/
 void common_g3duirenderedit_outputCbk ( G3DUI      *gui, 
                                         const char *outfile ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -281,7 +281,7 @@ void common_g3duirenderedit_outputCbk ( G3DUI      *gui,
 
 /******************************************************************************/
 void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -294,7 +294,7 @@ void common_g3duirenderedit_previewCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -308,7 +308,7 @@ void common_g3duirenderedit_saveCbk ( G3DUI *gui, uint32_t save ) {
 /******************************************************************************/
 void common_g3duirenderedit_widthCbk ( G3DUI   *gui, 
                                        uint32_t width ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -319,7 +319,7 @@ void common_g3duirenderedit_widthCbk ( G3DUI   *gui,
 /******************************************************************************/
 void common_g3duirenderedit_heightCbk ( G3DUI   *gui,
                                         uint32_t height ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -330,7 +330,7 @@ void common_g3duirenderedit_heightCbk ( G3DUI   *gui,
 /******************************************************************************/
 void common_g3duirenderedit_ratioCbk ( G3DUI *gui, 
                                        float  ratio ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -344,7 +344,7 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI        *gui,
                                             unsigned char R, 
                                             unsigned char G, 
                                             unsigned char B ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -355,7 +355,7 @@ void common_g3duirenderedit_backgroundCbk ( G3DUI        *gui,
 
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -366,7 +366,7 @@ void common_g3duirenderedit_setBackgroundColorModeCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
@@ -379,7 +379,7 @@ void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui ) {
 void common_g3duirenderedit_setBackgroundImageCbk ( G3DUI *gui,
                                                     char  *filename ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 

@@ -122,8 +122,6 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
     q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
 
-    locqray.flags = qray->flags;
-
     if ( qobj->intersect ) {
         hit += qobj->intersect ( qobj, 
                                 &locqray, 

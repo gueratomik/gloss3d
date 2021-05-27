@@ -316,7 +316,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
             /*** If there was a running render, cancel it and dont go further ***/
             if ( rps ) {
-                r3dscene_cancelRender ( rps->rsce );
+                q3djob_cancel ( rps->qjob );
             }
 
             lui->buttonID = common_l3dui_getCurrentButton ( lui, bev->x, 

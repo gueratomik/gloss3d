@@ -142,15 +142,16 @@ typedef G3DRGBA         Q3DRGBA;
 
 /******************************************************************************/
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
-#define MOTIONBLURFILTERNAME "Motion Blur"
-#define TOWINDOWFILTERNAME   "to Window"
-#define TOSTATUSBARFILTERNAME "To status bar"
-#define TOFFMPEGFILTERNAME   "to FFMpeg"
-#define TOBUFFERFILTERNAME   "to Buffer"
-#define WRITEIMAGEFILTERNAME "Write Image"
-#define GOTOFRAMEFILTERNAME  "Go to Frame" /*** This is toolkit dependent ***/
-#define PREVIEWFILTERNAME    "Preview"
-#define DOFFILTERNAME        "Depth of field"
+#define MOTIONBLURFILTERNAME       "Motion Blur"
+#define TOWINDOWFILTERNAME         "to Window"
+#define TOSTATUSBARFILTERNAME      "To status bar"
+#define TOFFMPEGFILTERNAME         "to FFMpeg"
+#define TOBUFFERFILTERNAME         "to Buffer"
+#define WRITEIMAGEFILTERNAME       "Write Image"
+#define GOTOFRAMEFILTERNAME        "Go to Frame" /*** This is toolkit dependent ***/
+#define PREVIEWFILTERNAME          "Preview"
+#define DOFFILTERNAME              "Depth of field"
+#define SIMPLEAAFILTERNAME         "Simple Anti-Aliasing"
 
 /********************************** G3DUIRENDERSETTINGS flags *****************/
 #define RENDERDEFAULT     ( 1       )
@@ -224,7 +225,8 @@ typedef G3DRGBA         Q3DRGBA;
 
 /******************************************************************************/
 typedef struct _Q3DRAY Q3DRAY;
-
+typedef struct _Q3DFILTER Q3DFILTER;
+typedef struct _Q3DJOB    Q3DJOB;
 
 /******************************************************************************/
 typedef struct _Q3DVECTOR3F {
@@ -291,7 +293,8 @@ typedef struct _Q3DWIREFRAMESETTINGS {
 typedef struct _Q3DINPUTSETTINGS {
     G3DSCENE  *sce;
     G3DCAMERA *cam;
-    LIST      *lfilters;
+    Q3DFILTER *towindow;
+    Q3DFILTER *clean;
 } Q3DINPUTSETTINGS;
 
 /******************************************************************************/
@@ -531,7 +534,7 @@ typedef struct _Q3DFILTER {
     uint32_t flags;
     char    *name;
     uint32_t (*draw)( struct _Q3DFILTER     *filter,
-                              Q3DSCENE      *qsce,
+                              Q3DJOB        *qjob,
                               float          frame,
                               unsigned char *buffer, 
                               uint32_t, 
@@ -573,6 +576,8 @@ typedef struct _Q3DZENGINE {
     Q3DPLANE    frustrum[CLIPPINGPLANES];
     Q3DZBUFFER *buffer;
     Q3DZHLINE  *hlines;
+    uint32_t    height;
+    uint32_t    width;
 } Q3DZENGINE;
 
 /******************************************************************************/
@@ -592,6 +597,8 @@ typedef struct _Q3DAREA {
 } Q3DAREA;
 
 /******************************************************************************/
+#define MAXFILTERS 0x40
+
 typedef struct _Q3DJOB {
     Q3DAREA        qarea;
     uint64_t       flags;
@@ -599,7 +606,9 @@ typedef struct _Q3DJOB {
     Q3DSCENE      *qsce;
     Q3DSETTINGS   *qrsg;
     unsigned char *img;
-    LIST          *lqfil;
+    Q3DFILTER     *flin[MAXFILTERS];
+    Q3DFILTER     *fimg[MAXFILTERS];
+    Q3DFILTER     *fbef[MAXFILTERS];
     LIST          *lthread; /*** list of render areas thread***/
     float          curframe;
     uint32_t       cancelled;
@@ -867,7 +876,7 @@ Q3DFILTER *q3dfilter_getByName ( LIST *lfil, char *name );
 Q3DFILTER *q3dfilter_new       ( uint32_t   type, 
                                  char      *name,
                                  uint32_t (*draw)( Q3DFILTER *,
-                                                   Q3DSCENE *,
+                                                   Q3DJOB    *,
                                /* Frame ID */      float,
                                /*   Image data  */ unsigned char *,
                                /* From scanline */ uint32_t,
@@ -884,6 +893,38 @@ Q3DFILTER *q3dfilter_toWindow_new ( Display *dis,
                                     Window   win, 
                                     uint32_t active_fill );
     #endif
+
+Q3DFILTER *q3dfilter_simpleaa_new ( );
+
+/******************************************************************************/
+typedef struct _FILTERTOWINDOW {
+    Display *dis; 
+    Window win;
+    GC gc;
+    XShmSegmentInfo ssi;
+    XImage *ximg;
+    uint32_t active_fill; /*** active_fill means that we use XPutImage to ***/
+                          /*** the drawable. This can be desired for the ***/
+                          /*** OpenGL viewing window but not for the final ***/
+                          /*** rendering window because the latter can be ***/
+                          /*** resized during rendering, which would lead to***/
+                          /*** a crash. Passive fill means we generate an ***/
+                          /*** expose event and that's it. The widget is ***/
+                          /*** reponsible for showing the XImage on exposure***/
+} FILTERTOWINDOW;
+
+uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
+                               Q3DJOB        *qjob,
+                               float          frameID,
+                               unsigned char *img, 
+                               uint32_t       from, 
+                               uint32_t       to, 
+                               uint32_t       depth, 
+                               uint32_t       width );
+FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
+                                     Window   win, 
+                                     uint32_t active_fill );
+void filtertowindow_free (  Q3DFILTER *fil );
 
 /******************************************************************************/
 void      q3dlight_init ( Q3DLIGHT *qlig, 

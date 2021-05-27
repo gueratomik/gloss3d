@@ -276,7 +276,7 @@ void common_g3duiview_useSelectedCamera ( G3DUIVIEW *view,
 /******************************************************************************/
 void common_g3duiview_showRenderingArea ( G3DUI   *gui,
                                           uint64_t engine_flags ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
     float renderRatio = ( float ) rsg->output.width / rsg->output.height;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     int32_t deltaWidth;
@@ -324,7 +324,7 @@ void common_g3duiview_showGL ( G3DUIVIEW    *view,
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
     G3DRGBA backgroundRGBA;
 
     sysinfo->sce = sce; /* for debugging purpose */

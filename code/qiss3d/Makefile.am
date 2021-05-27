@@ -20,7 +20,8 @@ LIBGLOSSQ3D_C_FILES = q3d.c \
                       q3darea.c \
                       q3djob.c \
                       q3dfilter.c \
-                      q3dfilter.unix.c \
+                      filters/towindow.unix.c \
+                      filters/simpleaa.c \
                       q3dlight.c \
                       q3dvector.c \
                       q3dinterpolation.c \

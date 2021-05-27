@@ -65,7 +65,7 @@ Q3DFILTER *q3dfilter_getByName ( LIST *lfil, char *name ) {
 Q3DFILTER *q3dfilter_new ( uint32_t   type, 
                            char      *name,
                            uint32_t (*draw)( Q3DFILTER *,
-                                             Q3DSCENE *,
+                                             Q3DJOB    *,
                          /* Frame ID */      float,
                          /*   Image data  */ unsigned char *,
                          /* From scanline */ uint32_t,

@@ -129,7 +129,7 @@ gloss3d_gtk3_OBJECTS = $(am_gloss3d_gtk3_OBJECTS)
 @HAVE_GTK3_TRUE@	g3dcom/libgloss-g3dcom.la \
 @HAVE_GTK3_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_GTK3_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@	r3d/libgloss-r3d.la lips3d/libgloss-lips3d.la \
+@HAVE_GTK3_TRUE@	lips3d/libgloss-lips3d.la \
 @HAVE_GTK3_TRUE@	qiss3d/libgloss-q3d.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -146,7 +146,7 @@ gloss3d_motif_OBJECTS = $(am_gloss3d_motif_OBJECTS)
 @HAVE_MOTIF_TRUE@	g3dcom/libgloss-g3dcom.la \
 @HAVE_MOTIF_TRUE@	g3dui/libgloss-g3dui-motif.la \
 @HAVE_MOTIF_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@	r3d/libgloss-r3d.la lips3d/libgloss-lips3d.la \
+@HAVE_MOTIF_TRUE@	lips3d/libgloss-lips3d.la \
 @HAVE_MOTIF_TRUE@	qiss3d/libgloss-q3d.la
 am__gloss3d_win32_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
 @HAVE_WIN32_TRUE@am_gloss3d_win32_OBJECTS = $(am__objects_1)
@@ -159,7 +159,7 @@ gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
 @HAVE_WIN32_TRUE@	g3dcom/libgloss-g3dcom.la \
 @HAVE_WIN32_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_WIN32_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@	r3d/libgloss-r3d.la qiss3d/libgloss-q3d.la
+@HAVE_WIN32_TRUE@	qiss3d/libgloss-q3d.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -428,7 +428,6 @@ SUBDIRS = g3dengine \
           g3dui \
           g3durmanager \
           lips3d \
-          r3d \
           qiss3d
 
 @HAVE_GTK3_TRUE@gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
@@ -439,7 +438,6 @@ SUBDIRS = g3dengine \
 @HAVE_GTK3_TRUE@                         g3dcom/libgloss-g3dcom.la \
 @HAVE_GTK3_TRUE@                         g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_GTK3_TRUE@                         g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@                         r3d/libgloss-r3d.la \
 @HAVE_GTK3_TRUE@                         lips3d/libgloss-lips3d.la \
 @HAVE_GTK3_TRUE@                         qiss3d/libgloss-q3d.la
 
@@ -465,7 +463,6 @@ SUBDIRS = g3dengine \
 @HAVE_MOTIF_TRUE@                          g3dcom/libgloss-g3dcom.la \
 @HAVE_MOTIF_TRUE@                          g3dui/libgloss-g3dui-motif.la \
 @HAVE_MOTIF_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@                          r3d/libgloss-r3d.la \
 @HAVE_MOTIF_TRUE@                          lips3d/libgloss-lips3d.la \
 @HAVE_MOTIF_TRUE@                          qiss3d/libgloss-q3d.la
 
@@ -477,7 +474,6 @@ SUBDIRS = g3dengine \
 @HAVE_WIN32_TRUE@                          g3dcom/libgloss-g3dcom.la \
 @HAVE_WIN32_TRUE@                          g3dui/libgloss-g3dui-gtk3.la \
 @HAVE_WIN32_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@                          r3d/libgloss-r3d.la \
 @HAVE_WIN32_TRUE@                          qiss3d/libgloss-q3d.la
 
 EXTRA_DIST = include/g3dexport.h \

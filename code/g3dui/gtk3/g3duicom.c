@@ -114,7 +114,7 @@ void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
 }
 
 /******************************************************************************/
-uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+uint32_t filtergotoframe_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
                                                 float frameID,
                                                 unsigned char *img, 
                                                 uint32_t from, 
@@ -136,10 +136,10 @@ uint32_t filtergotoframe_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 }
 
 /******************************************************************************/
-R3DFILTER *r3dfilter_gotoframe_new ( G3DUI* gui ) {
-    R3DFILTER *fil;
+Q3DFILTER *q3dfilter_gotoframe_new ( G3DUI* gui ) {
+    Q3DFILTER *fil;
 
-    fil = r3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,
+    fil = q3dfilter_new ( FILTERIMAGE, GOTOFRAMEFILTERNAME,
                                        filtergotoframe_draw,
                                        NULL,
                                        gui );

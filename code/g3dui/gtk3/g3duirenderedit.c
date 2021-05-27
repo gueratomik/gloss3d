@@ -93,36 +93,6 @@ void createRenderFormat ( GtkWidget *parent, G3DUI *gui,
 
 /******************************************************************************/
 /*** This filter is declared in the g3dui layer because of GtkWidget struct***/
-R3DFILTER *r3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill ) {
-    GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
-    GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
-    R3DFILTER *fil;
-    uint32_t filterMode =  FILTERLINE | FILTERIMAGE;
-#ifdef __linux__
-    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window      win      = gdk_x11_window_get_xid ( gdkwin );
-
-
-    fil = r3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
-                                      filtertowindow_draw,
-                                      filtertowindow_free, 
-                                      filtertowindow_new ( dis, win, active_fill ) );
-#endif
-
-#ifdef __MINGW32__
-    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-
-    fil = r3dfilter_new ( filterMode, TOWINDOWFILTERNAME,
-                                      filtertowindow_draw,
-                                      filtertowindow_free, 
-                                      filtertowindow_new ( hWnd, active_fill ) );
-#endif
-
-    return fil;
-}
-
-/******************************************************************************/
-/*** This filter is declared in the g3dui layer because of GtkWidget struct***/
 Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill ) {
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
@@ -296,7 +266,7 @@ static void Configure ( GtkWidget *widget, GdkEvent *event,
 /******************************************************************************/
 void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    R3DRENDERSETTINGS *rsg = ( R3DRENDERSETTINGS * ) gui->currsg;
+    Q3DSETTINGS *rsg = ( Q3DSETTINGS * ) gui->currsg;
     G3DCAMERA *mainCamera = g3dui_getMainViewCamera ( gui );
 
     if ( mainCamera ) {
@@ -412,7 +382,7 @@ void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
 
             if ( GTK_IS_TOGGLE_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
@@ -525,7 +495,7 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
@@ -693,7 +663,7 @@ static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
@@ -850,7 +820,7 @@ static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
 
             if ( GTK_IS_CHECK_BUTTON(child) ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
@@ -1065,7 +1035,7 @@ static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
             G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
             if ( GTK_IS_RADIO_BUTTON(child) ) {
@@ -1234,7 +1204,7 @@ static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
         const char *child_name = gtk_widget_get_name ( child );
 
         if ( gui->currsg ) {
-            R3DRENDERSETTINGS *rsg = gui->currsg;
+            Q3DSETTINGS *rsg = gui->currsg;
 
             if ( strcmp ( child_name, EDITRENDERSAVEOUTPUTFRAME ) == 0x00 ) {
                 updateSaveOutputFrame ( child, gui );

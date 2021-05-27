@@ -27,9 +27,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <r3d.h>
 #include <g3dui_gtk3.h>
 
+#ifdef unusedQISS3D
 /******************************************************************************/
 uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                               float frameID,
@@ -96,3 +96,4 @@ R3DFILTER *r3dfilter_preview_new ( G3DUI *gui ) {
 
     return fil;
 }
+#endif

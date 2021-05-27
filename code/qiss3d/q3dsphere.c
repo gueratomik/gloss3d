@@ -92,6 +92,9 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
             qray->ratio[0x01] = newqray.ratio[0x01];
             qray->ratio[0x02] = newqray.ratio[0x02];
 
+            /*** intersection occured, let's remember it ***/
+            qray->flags |= Q3DRAY_HAS_HIT_BIT;
+
             return 0x01;
         }
     }

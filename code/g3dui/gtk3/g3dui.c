@@ -301,7 +301,6 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     Q3DFILTER *clean = q3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
                                        NULL, 
                                        gui );
-    LIST *lfilters = NULL;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
@@ -316,15 +315,10 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     q3dsettings_copy ( &viewRsg, gui->currsg );
 
-    list_append ( &lfilters, progressiveDisplay );
-    /*list_append ( &lfilters, r3dfilter_VectorMotionBlur_new ( width, height) );
-    list_append ( &lfilters, finalDisplay );*/
-    list_append ( &lfilters, clean );
-
-
     viewRsg.input.sce      = gui->sce;
     viewRsg.input.cam      = cam;
-    viewRsg.input.lfilters = lfilters;
+    viewRsg.input.towindow = progressiveDisplay;
+    viewRsg.input.clean    = clean;
 
     viewRsg.background.widthRatio = backgroundWidthRatio;
 
@@ -1599,7 +1593,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     GtkGlossUI *glossui = ( GtkGlossUI * ) widget;
     G3DUI *gui = &glossui->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    R3DRENDERSETTINGS *rsg;
+    Q3DSETTINGS *rsg;
     GtkCssProvider *provider = gtk_css_provider_new ();
     static const gchar *myCSS = { "* {                      \n"
     #ifdef __linux__
@@ -1888,7 +1882,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
-    rsg = r3drendersettings_new ( ); /*** default render settings ***/
+    rsg = q3dsettings_new ( ); /*** default render settings ***/
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );

@@ -39,7 +39,7 @@
 
 /******************************************************************************/
 void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
     if ( rsg ) {
@@ -109,17 +109,18 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
-                                          R3DRENDERSETTINGS *rsg,
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
+                                          Q3DSETTINGS       *rsg,
                                           float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence ) {
-    G3DSCENE *sce = gui->sce;
+    G3DSCENE *sce = rsg->input.sce;
+    G3DCAMERA *cam = rsg->input.cam;
 
     /*** Don't start a new render before the current one has finished ***/
     /*if ( rpc == NULL ) {*/
         G3DUIRENDERPROCESS *rps;
-        R3DSCENE *rsce  = NULL;
+        Q3DJOB *qjob  = NULL;
         G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
         #ifdef __linux__
         pthread_attr_t attr;
@@ -139,16 +140,16 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
             g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
 
-        rsce = r3dscene_new ( rsg, 0x00, 0x00 );
+        qjob = q3djob_new ( rsg, sce, cam, 0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
-        rps = g3duirenderprocess_new ( id, gui, rsce, NULL/*towin*/, NULL/*tobuf*/ );
+        rps = g3duirenderprocess_new ( id, gui, qjob, NULL/*towin*/, NULL/*tobuf*/ );
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
             #ifdef __linux__
-            pthread_create ( &rps->rsce->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
+            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
             #endif
 
             #ifdef __MINGW32__
@@ -161,7 +162,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
             #endif
         } else {
             #ifdef __linux__
-            pthread_create ( &rps->rsce->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
+            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
             #endif
 
             #ifdef __MINGW32__
@@ -276,12 +277,12 @@ uint64_t getTotalMemory ( ) {
 }
 
 /******************************************************************************/
-void common_g3dui_useRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg ) {
+void common_g3dui_useRenderSettings ( G3DUI *gui, Q3DSETTINGS *rsg ) {
     gui->currsg = rsg;
 }
 
 /******************************************************************************/
-void common_g3dui_addRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg ) {
+void common_g3dui_addRenderSettings ( G3DUI *gui, Q3DSETTINGS *rsg ) {
     list_insert ( &gui->lrsg, rsg );
 }
 
@@ -480,7 +481,7 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
      * gui->lrsg is going to heck when we add a new set of render settings.
      */
     r3dext = g3dexportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                      r3drendersettings_write,
+                                      q3dsettings_write,
                                       gui->lrsg );
 
     g3duiext = g3dexportextension_new ( SIG_G3DUI,
@@ -555,11 +556,11 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
             g3dobject_free ( ( G3DOBJECT * ) gui->sce );
         }
 
-        list_free ( &gui->lrsg, r3drendersettings_free );
+        list_free ( &gui->lrsg, q3dsettings_free );
 
         /* import render settings module */
         r3dext = g3dimportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                          r3drendersettings_read,
+                                          q3dsettings_read,
                                          &lrsg );
         /* import G3DUI settings module */
         g3duiext = g3dimportextension_new ( SIG_G3DUI,
@@ -577,7 +578,7 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         LIST *ltmprsg = lrsg;
 
         while ( ltmprsg ) {
-            R3DRENDERSETTINGS *rsg = ( R3DRENDERSETTINGS * ) ltmprsg->data;
+            Q3DSETTINGS *rsg = ( Q3DSETTINGS * ) ltmprsg->data;
 
             /*if ( rsg->flags & RENDERDEFAULT ) {*/
                 gui->currsg = rsg;
@@ -593,7 +594,7 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
             ltmprsg = ltmprsg->next;
         }
     } else {
-        R3DRENDERSETTINGS *defaultRsg = r3drendersettings_new ( );
+        Q3DSETTINGS *defaultRsg = q3dsettings_new ( );
 
         common_g3dui_addRenderSettings ( gui, defaultRsg );
         common_g3dui_useRenderSettings ( gui, defaultRsg );
@@ -635,7 +636,7 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 
     /* import render settings module */
     r3dext = g3dimportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                      r3drendersettings_read,
+                                      q3dsettings_read,
                                      &gui->lrsg );
 
     list_insert ( &limportExtensions, r3dext );
@@ -1188,7 +1189,7 @@ void common_g3dui_resizeWidget ( G3DUI *gui, uint32_t width,
 /******************************************************************************/
 void common_g3dui_closeScene ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    R3DRENDERSETTINGS *rsg;
+    Q3DSETTINGS *rsg;
 
     /* reset background image and system values */
     g3dsysinfo_reset ( sysinfo );
@@ -1197,9 +1198,9 @@ void common_g3dui_closeScene ( G3DUI *gui ) {
 
     gui->sce = NULL;
 
-    if ( gui->lrsg ) list_free ( &gui->lrsg, r3drendersettings_free );
+    if ( gui->lrsg ) list_free ( &gui->lrsg, q3dsettings_free );
 
-    rsg = r3drendersettings_new ( );
+    rsg = q3dsettings_new ( );
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );

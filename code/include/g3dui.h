@@ -60,11 +60,10 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <r3d.h>
 #include <qiss3d/q3d.h>
 
 #ifdef __linux__
-#include <r3dnet.h>
+/*#include <r3dnet.h>*/
 #endif
 
 #include <g3durmanager.h>
@@ -739,7 +738,7 @@ typedef struct _G3DUI {
     COMPVARS       cvars;
 #endif
     LIST *lrsg; /*** list of render settings ***/
-    R3DRENDERSETTINGS *currsg; /*** current render settings ***/
+    Q3DSETTINGS *currsg; /*** current render settings ***/
     char *filename;
     int lock; /*** I use this for preventing loops on XmText fields ***/
     char *loadFile;
@@ -790,20 +789,19 @@ typedef struct _DUMPSCREEN {
 /*** render thread ***/
 typedef struct _G3DUIRENDERPROCESS {
     uint64_t   id;
-    R3DSCENE  *rsce;
     Q3DJOB    *qjob;
     G3DUI     *gui;
-    /*R3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
-    /*R3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
+    /*Q3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
+    /*Q3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
     char      *filename;
 } G3DUIRENDERPROCESS;
 
 /****************************** g3duirenderprocess.c **************************/
 G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t   id,
                                              G3DUI     *gui,
-                                             R3DSCENE  *rsce,
-                                             R3DFILTER *filter_to_window,
-                                             R3DFILTER *filter_to_buffer );
+                                             Q3DJOB  *qjob,
+                                             Q3DFILTER *filter_to_window,
+                                             Q3DFILTER *filter_to_buffer );
 void g3duirenderprocess_free     ( G3DUIRENDERPROCESS * );
 void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *, char * );
 void g3duirenderprocess_savejpg  ( G3DUIRENDERPROCESS *, char * );
@@ -1444,14 +1442,14 @@ void g3dui_updateMaterialEdit            ( G3DUI * );
 void g3dui_updateSelectedMaterialPreview ( G3DUI * );
 
 /******************************************************************************/
-uint32_t filterpreview_draw ( R3DFILTER *, R3DSCENE *,
+uint32_t filterpreview_draw ( Q3DFILTER *, Q3DJOB *,
                                               float,
                                               unsigned char (*)[0x03], 
                                               uint32_t, 
                                               uint32_t, 
                                               uint32_t, 
                                               uint32_t );
-R3DFILTER *r3dfilter_preview_new ( G3DUI *gui );
+Q3DFILTER *r3dfilter_preview_new ( G3DUI *gui );
 
 /******************************************************************************/
 void common_g3dui_loadConfiguration ( G3DUI *, char * );
@@ -1486,8 +1484,8 @@ void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *,
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *, 
                                                                  float );
 
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui, 
-                                          R3DRENDERSETTINGS *rsg,
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
+                                          Q3DSETTINGS *rsg,
                                           float              resetFrame,
                                           uint64_t           id,
                                           uint32_t           sequence );
@@ -1610,8 +1608,8 @@ void common_g3duicameraedit_dofNearBlurCbk ( G3DUI *gui, float nearBlur );
 void common_g3duicameraedit_dofRadiusCbk ( G3DUI *gui, uint32_t radius );
 
 /******************************************************************************/
-void common_g3dui_addRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg );
-void common_g3dui_useRenderSettings ( G3DUI *gui, R3DRENDERSETTINGS *rsg );
+void common_g3dui_addRenderSettings ( G3DUI *gui, Q3DSETTINGS *rsg );
+void common_g3dui_useRenderSettings ( G3DUI *gui, Q3DSETTINGS *rsg );
 void common_g3dui_processAnimatedImages ( G3DUI *gui );
 
 /******************************************************************************/

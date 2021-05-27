@@ -41,7 +41,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     /* rps might not be allocated yet by the map signal of the renderwindow */
     if ( rps ) {
-        R3DFILTER *fil = r3dscene_getFilter ( rps->rsce, TOWINDOWFILTERNAME );
+        Q3DFILTER *fil = q3djob_getFilter ( rps->qjob, TOWINDOWFILTERNAME );
 
         if ( fil ) {
             FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
@@ -116,7 +116,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 }
 
 /******************************************************************************/
-uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+uint32_t filtertostatusbar_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
                                                   float frameID,
                                                   unsigned char *img, 
                                                   uint32_t from, 
@@ -131,7 +131,7 @@ uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
     if ( ( from == 0x00 ) &&
          ( to   == 0x00 ) ) {
         snprintf ( str, 100, "Rendering frame %.2f (%.2f%%)", frameID,
-                                                              frameID / ( rsce->rsg->output.endframe - rsce->rsg->output.startframe ) * 100.0f );
+                                                              frameID / ( qjob->qrsg->output.endframe - qjob->qrsg->output.startframe ) * 100.0f );
     } else {
         /*** when called from "filter render image" event ***/
         if ( ( int ) tsb->lastFrame == ( int ) frameID ) {
@@ -145,7 +145,7 @@ uint32_t filtertostatusbar_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 }
 
 /******************************************************************************/
-void filtertostatusbar_free ( R3DFILTER *fil ) {
+void filtertostatusbar_free ( Q3DFILTER *fil ) {
     FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
 
     free ( tsb );
@@ -153,9 +153,10 @@ void filtertostatusbar_free ( R3DFILTER *fil ) {
 
 /******************************************************************************/
 /*** This filter is declared in the g3dui layer because of GtkWidget struct***/
-R3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame ) {
+Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame ) {
     FILTERTOSTATUSBAR *tsb = calloc ( 0x01, sizeof ( FILTERTOSTATUSBAR ) );
-    R3DFILTER *fil = r3dfilter_new ( FILTERBEFORE | FILTERIMAGE,
+
+    Q3DFILTER *fil = q3dfilter_new ( FILTERBEFORE | FILTERIMAGE,
                                      TOSTATUSBARFILTERNAME,
                                      filtertostatusbar_draw,
                                      filtertostatusbar_free, 
@@ -173,7 +174,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
-    R3DRENDERSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
     /*Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );*/
@@ -183,6 +184,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
 
     if ( rps == NULL ) {
+#ifdef unusedQISS3D
         /*** this filter is used for displaying ***/
         R3DFILTER *towin = r3dfilter_toGtkWidget_new ( widget, 0x00 );
         /*** This filter is used for saving images ***/
@@ -287,13 +289,12 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                 list_append ( &lfilters, toimg );
             }
         }
-
+#endif
         /*** COMMENTED - Cleaning is done when closing window ***/
         /*if ( clean ) list_append ( &lfilters, clean );*/
 
         rsg->input.sce      = gui->sce;
         rsg->input.cam      = cam;
-        rsg->input.lfilters = lfilters;
 
         rsg->background.widthRatio = 1.0f;
 
@@ -306,11 +307,12 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         g3dui_setHourGlass ( gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
+#ifdef unusedQISS3D
             /*** this filter tells the engine to go to the next frame ***/
             R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
 
             list_append ( &lfilters, tofrm );
-
+#endif
             /*** force starting at the first frame. **/
             /*** -1 is because the gotoframe filter will add 1 further. ***/
             /*** this should probably be changed ***/

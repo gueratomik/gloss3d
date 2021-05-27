@@ -891,7 +891,7 @@ FILTERTOWINDOW *filtertowindow_new ( HWND hWnd, uint32_t active_fill ) {
 }
 
 /******************************************************************************/
-uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
+static uint32_t filtertowindow_draw ( R3DFILTER *fil, R3DSCENE *rsce,
                                                float frameID,
                                                unsigned char *img, 
                                                uint32_t from, 

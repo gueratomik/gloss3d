@@ -46,22 +46,6 @@ void q3darea_getZBuffer ( Q3DAREA *qarea,
 }
 
 /******************************************************************************/
-void q3darea_getZBlock ( ) {
-    /*** due to imprecision, we have to query adjacent pixels for faces ***/
-    static int32_t block[0x09][0x02] = { { -1,  1 }, {  0,  1 }, {  1,  1 },
-                                         { -1,  0 }, {  0,  0 }, {  1,  0 },
-                                         { -1, -1 }, {  0, -1 }, {  1, -1 } };
-
-    /*for ( i = 0x00; i < 0x09; i++ ) {
-        int32_t ty = block[i][0x01],
-                tx = block[i][0x00];
-
-        if ( 
-        uint32_t offset = ( ty * qarea->width ) + tx;
-    }*/
-}
-
-/******************************************************************************/
 /*** This is responsible for RAY interpolation. We are not going to compute ***/
 /*** each ray from calls to gluProject, we just need the boundary rays, then **/
 /*** we build the other rays from those ones. It should be faster this way. ***/

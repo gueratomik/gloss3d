@@ -187,7 +187,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duitubeedit.c gtk3/g3duiuvmenubar.c \
 	gtk3/g3duiuvmapedit.c gtk3/l3dui.c gtk3/l3duitoolbar.c \
 	gtk3/g3duiview.c gtk3/g3duiweightgrouplist.c \
-	gtk3/g3duiwireframeedit.c gtk3/r3dpreview.c \
+	gtk3/g3duiwireframeedit.c gtk3/q3dpreview.c \
 	gtk3/mousetool/g3duig3dmousetooledit.c \
 	gtk3/mousetool/g3duil3dmousetooledit.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -277,7 +277,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiuvmapedit.lo gtk3/l3dui.lo \
 @HAVE_GTK3_TRUE@	gtk3/l3duitoolbar.lo gtk3/g3duiview.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiweightgrouplist.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiwireframeedit.lo gtk3/r3dpreview.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiwireframeedit.lo gtk3/q3dpreview.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duig3dmousetooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duil3dmousetooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duicutmeshtooledit.lo \
@@ -409,7 +409,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmenubar.Plo gtk3/$(DEPDIR)/g3duiview.Plo \
 	gtk3/$(DEPDIR)/g3duiweightgrouplist.Plo \
 	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo gtk3/$(DEPDIR)/l3dui.Plo \
-	gtk3/$(DEPDIR)/l3duitoolbar.Plo gtk3/$(DEPDIR)/r3dpreview.Plo \
+	gtk3/$(DEPDIR)/l3duitoolbar.Plo gtk3/$(DEPDIR)/q3dpreview.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo \
@@ -702,7 +702,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiweightgrouplist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiwireframeedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/r3dpreview.c \
+@HAVE_GTK3_TRUE@                            gtk3/q3dpreview.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duig3dmousetooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duil3dmousetooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duicutmeshtooledit.c \
@@ -1012,7 +1012,7 @@ gtk3/g3duiweightgrouplist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiwireframeedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
-gtk3/r3dpreview.lo: gtk3/$(am__dirstamp) \
+gtk3/q3dpreview.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/$(am__dirstamp):
 	@$(MKDIR_P) gtk3/mousetool
@@ -1162,7 +1162,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/l3dui.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/l3duitoolbar.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/r3dpreview.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/q3dpreview.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo@am__quote@ # am--include-marker
@@ -1454,7 +1454,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/l3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/l3duitoolbar.Plo
-	-rm -f gtk3/$(DEPDIR)/r3dpreview.Plo
+	-rm -f gtk3/$(DEPDIR)/q3dpreview.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
@@ -1614,7 +1614,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/l3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/l3duitoolbar.Plo
-	-rm -f gtk3/$(DEPDIR)/r3dpreview.Plo
+	-rm -f gtk3/$(DEPDIR)/q3dpreview.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duibuckettooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duig3dmousetooledit.Plo
