@@ -134,8 +134,13 @@ typedef G3DRGBA         Q3DRGBA;
 #define RAYQUERYREFRACTION      ( 1 << 4 ) /*** create a refraction vector? ***/
 #define RAYQUERYNOCHECKIN       ( 1 << 5 )
 #define RAYQUERYOUTLINE         ( 1 << 6 )
+#define RAYQUERYALL             ( RAYQUERYHIT          | \
+                                  RAYQUERYSURFACECOLOR | \
+                                  RAYQUERYLIGHTING     | \
+                                  RAYQUERYREFLECTION   | \
+                                  RAYQUERYREFRACTION )
 #define RAYQUERYIGNOREBACKFACE  ( 1 << 7 )
-#define RAYLUXRAY               ( 1 << 8 ) /*** For identifying ray's nature ***/
+
 
 /******************************** Job Flags ***********************************/
 #define NOFREEFILTERS ( 1 << 15 )
@@ -204,6 +209,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define Q3DFREE_CALLBACK(f)      ((void(*)(Q3DOBJECT*))f)
 #define Q3DINTERSECT_CALLBACK(f) ((uint32_t(*)(Q3DOBJECT*,\
                                                Q3DRAY*,\
+                                               Q3DSURFACE*,\
                                                float,\
                                                uint64_t,\
                                                uint64_t))f)
@@ -412,11 +418,12 @@ typedef struct _Q3DOBJECT {
     double     IWMVX[0x10];
     double    TIWMVX[0x10];
     void     (*free)     (struct _Q3DOBJECT *);
-    uint32_t (*intersect)(struct _Q3DOBJECT *obj, 
-                                  Q3DRAY    *ray, 
-                                  float      frame,
-                                  uint64_t   query_flags,
-                                  uint64_t   render_flags);
+    uint32_t (*intersect)(struct _Q3DOBJECT  *obj, 
+                                  Q3DRAY     *ray, 
+                                  Q3DSURFACE *discard, 
+                                  float       frame,
+                                  uint64_t    query_flags,
+                                  uint64_t    render_flags);
 } Q3DOBJECT;
 
 /******************************************************************************/
@@ -435,8 +442,8 @@ typedef struct _Q3DRAY {
     uint32_t     flags;
     Q3DVECTOR3F  src; /*** origin ***/
     Q3DVECTOR3F  dir; /*** direction vector ***/
-    Q3DOBJECT   *qobj;
-    Q3DSURFACE  *qsur;
+    uint32_t     qobjID;
+    uint32_t     qtriID;
     float        distance; /*** hit distance for Z sorting ***/
     float        energy;
     int32_t      x, y;
@@ -709,6 +716,7 @@ Q3DOCTREE *q3doctree_buildRoot   ( Q3DOCTREE   *qoct,
 uint32_t   q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
                                    Q3DRAY      *qray,
                                    Q3DTRIANGLE *qtri,
+                                   Q3DTRIANGLE *discard,
                                    Q3DVERTEX   *qver,
                                    uint64_t     query_flags,
                                    uint64_t     render_flags );
@@ -745,13 +753,20 @@ Q3DMESH      *q3dmesh_new              ( G3DMESH *mes,
                                          uint64_t object_flags,
                                          float    frame,
                                          uint32_t octreeCapacity );
+uint32_t      q3dmesh_intersect        ( Q3DMESH    *qmes,
+                                         Q3DRAY     *qray, 
+                                         Q3DSURFACE *discard,
+                                         float       frame,
+                                         uint64_t    query_flags,
+                                         uint64_t    render_flags );
 
 /******************************************************************************/
-uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
-                               Q3DRAY  *qray, 
-                               float    frame,
-                               uint64_t query_flags,
-                               uint64_t render_flags );
+uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
+                               Q3DRAY     *qray, 
+                               Q3DSURFACE *discard, 
+                               float       frame,
+                               uint64_t    query_flags,
+                               uint64_t    render_flags );
 
 /******************************************************************************/
 void      q3dscene_init      ( Q3DSCENE *qsce, 
@@ -799,11 +814,21 @@ void       q3dobject_free        ( Q3DOBJECT *qobj );
 void       q3dobject_free_r      ( Q3DOBJECT *qobj );
 void       q3dobject_addChild    ( Q3DOBJECT *qobj,
                                    Q3DOBJECT *child );
-uint32_t   q3dobject_intersect_r ( Q3DOBJECT *qobj,
-                                   Q3DRAY    *qray,
-                                   float      frame,
-                                   uint64_t   query_flags,
-                                   uint64_t   render_flags );
+uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
+                                              Q3DRAY     *qray,
+                                              Q3DSURFACE *discard,
+                                              uint32_t  (*cond)(Q3DOBJECT *, 
+                                                                void      *),
+                                              void       *condData,
+                                              float       frame,
+                                              uint64_t    query_flags,
+                                              uint64_t    render_flags );
+uint32_t   q3dobject_intersect_r ( Q3DOBJECT  *qobj,
+                                   Q3DRAY     *qray,
+                                   Q3DSURFACE *discard,
+                                   float       frame,
+                                   uint64_t    query_flags,
+                                   uint64_t    render_flags );
 G3DOBJECT *q3dobject_getObject   ( Q3DOBJECT *qobj );
 void       q3dobject_init        ( Q3DOBJECT *qobj,
                                    G3DOBJECT *obj,
@@ -925,6 +950,24 @@ FILTERTOWINDOW *filtertowindow_new ( Display *dis,
                                      Window   win, 
                                      uint32_t active_fill );
 void filtertowindow_free (  Q3DFILTER *fil );
+
+/******************************************************************************/
+Q3DFILTER *q3dfilter_writeImage_new ( const char *filename,
+                                      uint32_t    seq );
+
+/******************************************************************************/
+Q3DFILTER *q3dfilter_toFfmpeg_new ( uint32_t flags, 
+                                    uint32_t width, 
+                                    uint32_t height,
+                                    uint32_t depth,
+                                    uint32_t fps,
+                                    uint32_t nbFrames,
+                                    #ifdef __MINGW32__
+                                    COMPVARS *cvars,
+                                    #endif
+                                    char *exportpath,
+                                    char *ffmpegpath,
+                                    char *ffplaypath );
 
 /******************************************************************************/
 void      q3dlight_init ( Q3DLIGHT *qlig, 

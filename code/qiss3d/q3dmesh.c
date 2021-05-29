@@ -45,11 +45,12 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 }
 
 /******************************************************************************/
-static uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
-                                    Q3DRAY  *qray, 
-                                    float    frame,
-                                    uint64_t query_flags,
-                                    uint64_t render_flags ) {
+uint32_t q3dmesh_intersect ( Q3DMESH    *qmes,
+                             Q3DRAY     *qray,
+                             Q3DSURFACE *discard,
+                             float       frame,
+                             uint64_t    query_flags,
+                             uint64_t    render_flags ) {
     Q3DVERTEXSET *qverset;
 
     /*** Optimize for speed to avoid function call in most cases ***/
@@ -62,10 +63,11 @@ static uint32_t q3dmesh_intersect ( Q3DMESH *qmes,
     if ( q3doctree_intersect_r ( qverset->qoct, 
                                  qray,
                                  qmes->qtri,
+                                &discard->tri,
                                  qverset->qver,
                                  query_flags,
                                  render_flags ) ) {
-        qray->qobj = ( Q3DOBJECT * ) qmes;
+        qray->qobjID = ((Q3DOBJECT*)qmes)->id;
 
         return 0x01;
     }

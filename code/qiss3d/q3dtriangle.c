@@ -144,7 +144,6 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->ratio[0x01] = RAT1;
                     qray->ratio[0x02] = RAT2;
 
-                    qray->qsur     = ( Q3DSURFACE * ) qtri;
                     qray->distance = t;
 
                     /*** intersection occured, let's remember it ***/

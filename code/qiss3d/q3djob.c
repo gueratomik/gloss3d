@@ -299,7 +299,7 @@ void *q3djob_raytrace ( void *ptr ) {
                                       qjob,
                                       NULL,
                                       qjob->curframe,
-                                      0x00,
+                                      0x04,
                                       RAYQUERYHIT |
                                       RAYQUERYSURFACECOLOR   | 
                                       RAYQUERYLIGHTING       |
@@ -387,6 +387,65 @@ void q3djob_createRenderThread ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
+static void q3djob_initFilters ( Q3DJOB *qjob ) {
+    Q3DSETTINGS *qrsg   = qjob->qrsg;
+    Q3DFILTER *toimg    = NULL;
+    Q3DFILTER *toffmpeg = NULL;
+    Q3DFILTER *towindow = qrsg->input.towindow;
+    Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
+
+    if ( qrsg->flags & RENDERSAVE ) {
+        if ( qrsg->output.format == RENDERTOVIDEO ) {
+            G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+            char buf[0x1000];
+
+            snprintf ( buf, 0x1000, "%s.avi", qrsg->output.outfile );
+
+            toffmpeg = q3dfilter_toFfmpeg_new ( 0x00, 
+                                                qrsg->output.width,
+                                                qrsg->output.height,
+                                                qrsg->output.depth,
+                                                qrsg->output.fps,
+                                                qrsg->output.endframe - 
+                                                qrsg->output.startframe,
+    #ifdef __MINGW32__
+                                               &gui->cvars,
+    #endif
+                                                buf,
+                                                sysinfo->ffmpegPath,
+                                                sysinfo->ffplayPath );
+
+            if ( toffmpeg == NULL ) fprintf ( stderr, "FFMpeg not found!\n");
+        }
+
+        if ( qrsg->output.format == RENDERTOIMAGE ) {
+            static char buf[0x1000];
+
+            snprintf ( buf, 0x1000, "%s.jpg", qrsg->output.outfile );
+
+            if ( qrsg->output.startframe != qrsg->output.endframe ) {
+                toimg = q3dfilter_writeImage_new ( buf, 0x01 );
+            } else {
+                toimg = q3dfilter_writeImage_new ( buf, 0x00 );
+            }
+        }
+    }
+
+    /*** line filters ***/
+    qjob->flin[MAXFILTERS - 0x01] = qrsg->input.towindow;
+
+    /*** image filters ***/
+    qjob->fimg[MAXFILTERS - 0x05] = simpleAA; /*** simple anti aliasing ***/
+    qjob->fimg[MAXFILTERS - 0x04] = towindow; /*** output to widget    ***/
+    qjob->fimg[MAXFILTERS - 0x03] = toffmpeg; /*** output to ffmpeg    ***/
+    qjob->fimg[MAXFILTERS - 0x02] = toimg;    /*** write image to disk ***/
+    qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.clean;
+
+    /*** before filters ***/
+
+}
+
+/******************************************************************************/
 Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg, 
                      G3DSCENE    *sce,
                      G3DCAMERA   *cam,
@@ -413,17 +472,6 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
-    /*** line filters ***/
-    qjob->flin[MAXFILTERS - 0x01] = qrsg->input.towindow;
-
-    /*** image filters ***/
-    qjob->fimg[MAXFILTERS - 0x03] = q3dfilter_simpleaa_new ( );
-    qjob->fimg[MAXFILTERS - 0x02] = qrsg->input.towindow;
-    qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.clean;
-
-    /*** before filters ***/
-
-
     qjob->curframe = qrsg->output.startframe;
 
     qjob->running = 0x01;
@@ -444,6 +492,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                     qrsg->output.height,
                     0x18,
                     qjob->curframe );
+
+    q3djob_initFilters ( qjob );
 
 
     return qjob;

@@ -183,6 +183,8 @@ G3DPRIMITIVE *g3dsphere_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->type = G3DSPHERETYPE;
 
+    ((G3DOBJECT*)pri)->flags |= SPHEREISPERFECT;
+
     g3dsphere_build ( pri, slice, cap, radius );
 
 

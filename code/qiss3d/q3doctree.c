@@ -186,6 +186,7 @@ uint32_t q3doctree_free_r ( Q3DOCTREE *qoct ) {
 uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct, 
                                  Q3DRAY      *qray,
                                  Q3DTRIANGLE *qtri,
+                                 Q3DTRIANGLE *discard,
                                  Q3DVERTEX   *qver,
                                  uint64_t     query_flags,
                                  uint64_t     render_flags ) {
@@ -232,6 +233,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                 trihit += q3doctree_intersect_r ( qoct->children.node[i],
                                                   qray,
                                                   qtri,
+                                                  discard,
                                                   qver,
                                                   query_flags,
                                                   render_flags );
@@ -245,10 +247,18 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
         for ( i = 0x00; i < qoct->nbqtri; i++ ) {
             uint32_t qtriID = qoct->children.qtriID[i];
 
-            trihit += q3dtriangle_intersect ( &qtri[qtriID],
-                                               qver, 
-                                               qray,
-                                               query_flags );
+            if ( &qtri[qtriID] != discard ) {
+                uint32_t ret = q3dtriangle_intersect ( &qtri[qtriID],
+                                                        qver, 
+                                                        qray,
+                                                        query_flags );
+
+                if ( ret ) {
+                    qray->qtriID = qoct->children.qtriID[i];
+                }
+
+                trihit += ret;
+            }
         }
     }
 

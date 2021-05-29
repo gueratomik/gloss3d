@@ -43,17 +43,18 @@ uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
                                          { -1,  0 },             {  1,  0 },
                                          { -1, -1 }, {  0, -1 }, {  1, -1 } };
     uint32_t offset = ( y * qzen->width ) + x;
-    uint32_t qobjID = qzen->buffer[offset].qobjID;
     uint32_t i;
 
     if ( qzen->buffer[offset].z != INFINITY ) {
+        uint32_t qobjID = qzen->buffer[offset].qobjID;
+
         for ( i = 0x00; i < 0x08; i++ ) {
             int32_t tx = x + block[i][0x00],
                     ty = y + block[i][0x01];
 
-            if ( ( tx > 0x00         ) &&
+            if ( ( tx >= 0x00         ) &&
                  ( tx < qzen->width  ) &&
-                 ( ty > 0x00         ) &&
+                 ( ty >= 0x00         ) &&
                  ( ty < qzen->height ) ) {
                 uint32_t toffset = ( ty * qzen->width ) + tx;
 

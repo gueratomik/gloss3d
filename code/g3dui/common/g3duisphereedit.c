@@ -29,6 +29,33 @@
 #include <config.h>
 #include <g3dui.h>
 
+
+/******************************************************************************/
+void common_g3duisphereedit_togglePerfectCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    /*** prevent useless primitive building when XmTextSetString is called ***/
+    if ( gui->lock ) return;
+
+    if ( obj && ( obj->type == G3DSPHERETYPE ) ) {
+        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
+        SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
+
+        g3dui_setHourGlass ( gui );
+
+        if ( obj->flags & SPHEREISPERFECT ) {
+            obj->flags &= (~SPHEREISPERFECT);
+        } else {
+            obj->flags |=   SPHEREISPERFECT;
+        }
+
+        g3dui_unsetHourGlass ( gui );
+
+        g3dui_redrawGLViews ( gui );
+    }
+}
+
 /******************************************************************************/
 void common_g3duisphereedit_radiusCbk ( G3DUI *gui, float radius ) {
     G3DSCENE *sce = gui->sce;

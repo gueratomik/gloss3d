@@ -37,6 +37,7 @@ static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
 /******************************************************************************/
 static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
                                         Q3DRAY      *qray,
+                                        Q3DSURFACE  *discard,
                                         float        frame,
                                         uint64_t     query_flags,
                                         uint64_t     render_flags ) {
@@ -55,6 +56,7 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
 
         hit += q3dobject_intersect_r ( qchild,
                                       &symqray,
+                                       discard,
                                        frame,
                                        query_flags,
                                        render_flags );
@@ -64,8 +66,8 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
 
     qray->color    = symqray.color;
     qray->distance = symqray.distance;
-    qray->qobj     = symqray.qobj;
-    qray->qsur     = symqray.qsur;
+    qray->qobjID   = symqray.qobjID;
+    qray->qtriID   = symqray.qtriID;
 
     return ( hit ) ? 0x01 : 0x00;
 }

@@ -287,10 +287,11 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITTEXTUREREPEAT    "Repeat texture"
  
 /**** Widget names for SphereEdit TextField widgets ***/
-#define EDITSPHERE       "Edit Sphere"
-#define EDITSPHERECAPS   "Caps"
-#define EDITSPHERESLICES "Slices"
-#define EDITSPHERERADIUS "Radius"
+#define EDITSPHERE        "Edit Sphere"
+#define EDITSPHERECAPS    "Caps"
+#define EDITSPHERESLICES  "Slices"
+#define EDITSPHERERADIUS  "Radius"
+#define EDITSPHEREPERFECT "Render Perfect"
 
 /**** Widget names for CubeEdit TextField widget ***/
 #define EDITCUBE        "Edit Cube"
@@ -1272,9 +1273,10 @@ void common_g3duitextedit_thicknessCbk ( G3DUI *gui, float thickness );
 void common_g3duitextedit_setTextCbk   ( G3DUI *gui, char *text );
 
 /****************************** Sphere Edit ***********************************/
-void common_g3duisphereedit_radiusCbk ( G3DUI *, float );
-void common_g3duisphereedit_capCbk    ( G3DUI *, int   );
-void common_g3duisphereedit_sliceCbk  ( G3DUI *, int   );
+void common_g3duisphereedit_radiusCbk        ( G3DUI *gui, float );
+void common_g3duisphereedit_capCbk           ( G3DUI *gui, int   );
+void common_g3duisphereedit_sliceCbk         ( G3DUI *gui, int   );
+void common_g3duisphereedit_togglePerfectCbk ( G3DUI *gui );
 
 /****************************** Torus Edit ************************************/
 void common_g3duitorusedit_orientationCbk ( G3DUI *, const char * );

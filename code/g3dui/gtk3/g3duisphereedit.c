@@ -30,6 +30,13 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+static void togglePerfectCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duisphereedit_togglePerfectCbk ( gui );
+}
+
+/******************************************************************************/
 static void radiusCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     float rad = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
@@ -99,6 +106,19 @@ void updateSphereEdit ( GtkWidget *widget, G3DUI *gui ) {
                 }
             }
 
+
+            if ( GTK_IS_CHECK_BUTTON ( child ) ) {
+                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+
+                if ( strcmp ( name, EDITSPHEREPERFECT ) == 0x00 ) {
+                    if ( obj->flags & SPHEREISPERFECT ) {
+                        gtk_toggle_button_set_active ( tbn, TRUE  );
+                    } else {
+                        gtk_toggle_button_set_active ( tbn, FALSE );
+                    }
+                }
+            }
+
             children =  g_list_next ( children );
         }
     }
@@ -135,6 +155,10 @@ GtkWidget *createSphereEdit ( GtkWidget *parent, G3DUI *gui,
     createFloatText   ( frm, gui, EDITSPHERERADIUS, 0.0f, FLT_MAX,
                                                     0, 40,
                                                     96, 64, radiusCbk );
+
+    createToggleLabel ( frm, gui, EDITSPHEREPERFECT, 3, 60, 64, 24, togglePerfectCbk );
+
+
 
     gtk_widget_show ( frm );
 

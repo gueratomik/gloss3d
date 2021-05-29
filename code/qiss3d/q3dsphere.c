@@ -33,11 +33,12 @@
 Thanks to :
  https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/ 
 /******************************************************************************/
-uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
-                               Q3DRAY  *qray, 
-                               float    frame,
-                               uint64_t query_flags,
-                               uint64_t render_flags ) {
+uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
+                               Q3DRAY     *qray, 
+                               Q3DSURFACE *discard,
+                               float       frame,
+                               uint64_t    query_flags,
+                               uint64_t    render_flags ) {
     G3DPRIMITIVE     *pri = ( G3DPRIMITIVE * ) ((Q3DOBJECT*)qmes)->obj;
     SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
     float r2 = sds->radius * sds->radius;
@@ -79,23 +80,29 @@ uint32_t q3dsphere_intersect ( Q3DMESH *qmes,
 
             q3dvector3f_normalize ( &newqray.dir, NULL );
 
-            ((Q3DOBJECT*)qmes)->intersect ( ( Q3DOBJECT * ) qmes,
-                                           &newqray, 
-                                            frame,
-                                            query_flags,
-                                            render_flags );
+            /*** In case of a discarded face, the mesh would return 0 ***/
+            /*** We only want the ray to intersect it does not hit a ***/
+            /*** discarded face, otherwise there'll be small dots ***/
+            if ( q3dmesh_intersect ( qmes,
+                                    &newqray, 
+                                     discard,
+                                     frame,
+                                     query_flags,
+                                     render_flags ) ) {
 
-            qray->qsur        = newqray.qsur;
-            qray->distance    = distance;
+                 qray->qobjID      = newqray.qobjID;
+                 qray->qtriID      = newqray.qtriID;
+                 qray->distance    = distance;
 
-            qray->ratio[0x00] = newqray.ratio[0x00];
-            qray->ratio[0x01] = newqray.ratio[0x01];
-            qray->ratio[0x02] = newqray.ratio[0x02];
+                 qray->ratio[0x00] = newqray.ratio[0x00];
+                 qray->ratio[0x01] = newqray.ratio[0x01];
+                 qray->ratio[0x02] = newqray.ratio[0x02];
 
-            /*** intersection occured, let's remember it ***/
-            qray->flags |= Q3DRAY_HAS_HIT_BIT;
+                 /*** intersection occured, let's remember it ***/
+                 qray->flags |= Q3DRAY_HAS_HIT_BIT;
 
-            return 0x01;
+                return 0x01;
+            }
         }
     }
 

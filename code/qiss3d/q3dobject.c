@@ -108,11 +108,15 @@ static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
 }
 
 /******************************************************************************/
-uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
-                                 Q3DRAY    *qray,
-                                 float      frame,
-                                 uint64_t   query_flags,
-                                 uint64_t   render_flags ) {
+uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
+                                              Q3DRAY     *qray,
+                                              Q3DSURFACE *discard,
+                                              uint32_t  (*cond)(Q3DOBJECT *, 
+                                                                void      *),
+                                              void       *condData,
+                                              float       frame,
+                                              uint64_t    query_flags,
+                                              uint64_t    render_flags ) {
     LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
@@ -122,22 +126,28 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
     q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
 
-    if ( qobj->intersect ) {
-        hit += qobj->intersect ( qobj, 
-                                &locqray, 
-                                 frame, 
-                                 query_flags,
-                                 render_flags );
+    if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
+        if ( qobj->intersect ) {
+            hit += qobj->intersect ( qobj, 
+                                    &locqray, 
+                                     discard,
+                                     frame, 
+                                     query_flags,
+                                     render_flags );
+        }
     }
 
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        hit += q3dobject_intersect_r ( qchild, 
-                                      &locqray, 
-                                      frame,
-                                      query_flags,
-                                      render_flags );
+        hit += q3dobject_intersectWithCondition_r ( qchild, 
+                                                   &locqray,
+                                                    discard,
+                                                    cond,
+                                                    condData,
+                                                    frame,
+                                                    query_flags,
+                                                    render_flags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -145,14 +155,31 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT *qobj,
     qray->flags   |= locqray.flags;
     qray->color    = locqray.color;
     qray->distance = locqray.distance;
-    qray->qobj     = locqray.qobj;
-    qray->qsur     = locqray.qsur;
+    qray->qobjID   = locqray.qobjID;
+    qray->qtriID   = locqray.qtriID;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
     qray->ratio[0x01] = locqray.ratio[0x01];
     qray->ratio[0x02] = locqray.ratio[0x02];
 
     return ( hit ) ? 0x01 : 0x00;
+}
+
+/******************************************************************************/
+uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
+                                 Q3DRAY     *qray,
+                                 Q3DSURFACE *discard,
+                                 float       frame,
+                                 uint64_t    query_flags,
+                                 uint64_t    render_flags ) {
+    return q3dobject_intersectWithCondition_r ( qobj, 
+                                                qray,
+                                                discard,
+                                                NULL,
+                                                NULL,
+                                                frame,
+                                                query_flags,
+                                                render_flags );
 }
 
 /******************************************************************************/

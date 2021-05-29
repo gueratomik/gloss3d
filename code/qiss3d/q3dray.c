@@ -30,6 +30,34 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+static uint32_t q3dray_shootWithCondition_r ( Q3DRAY     *qray, 
+                                              Q3DJOB     *qjob,
+                                              Q3DSURFACE *sdiscard,
+                                              uint32_t  (*cond)(Q3DOBJECT*,
+                                                                void *),
+                                              void       *condData,
+                                              float       frame,
+                                              uint32_t    nbhop,
+                                              uint32_t    query_flags );
+
+/******************************************************************************/
+/*** Perfect spheres cannot shadow themselves. This helps us preventing self **/
+/*** shadowing that generates lots of small dots despite all precautions ***/
+static uint32_t excludeIfPerfectSphere ( Q3DOBJECT *qobj, void *data ) {
+    Q3DOBJECT *hitqobj = ( Q3DOBJECT * ) data;
+
+    if ( qobj == hitqobj ) {
+        if ( hitqobj->obj->type == G3DSPHERETYPE ) {
+            if ( hitqobj->obj->flags & SPHEREISPERFECT ) {
+                return 0x00;
+            }
+        }
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 /*** Note: Source is in World coordinates ***/
 uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
                                Q3DJOB          *qjob,
@@ -70,19 +98,23 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
 
         q3dvector3f_normalize ( &luxqray.dir, &distancetoLight );
 
-        q3dray_shoot_r ( &luxqray, 
-                          qjob,
-                          sdiscard,
-                          frame,
-                          nbhop,
-                          RAYQUERYHIT );
+        if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
+            q3dray_shootWithCondition_r ( &luxqray, 
+                                           qjob,
+                                           sdiscard,
+                                           excludeIfPerfectSphere,
+                                           wisx->qobj,
+                                           frame,
+                                           nbhop,
+                                           RAYQUERYHIT );
 
-        if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
-            if ( luxqray.distance < distancetoLight ) {
-                shadow = 0x01;
+            if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
+                if ( luxqray.distance < distancetoLight ) {
+                    shadow = 0x01;
+                }
+            } else {
+                shadow = 0x00;
             }
-        } else {
-            shadow = 0x00;
         }
 
         if ( shadow == 0x00 ) {
@@ -307,19 +339,22 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
 }
 
 /******************************************************************************/
-void q3dray_getWorldIntersection ( Q3DRAY          *qray,
-                                   float            frame,
-                                   Q3DINTERSECTION *wisx ) {
+static void q3dray_getWorldIntersection ( Q3DRAY          *qray,
+                                          Q3DSCENE        *qsce,
+                                          float            frame,
+                                          Q3DINTERSECTION *wisx ) {
+    Q3DOBJECT *qobj = qsce->qobjidx[qray->qobjID];
 
-    if ( qray->qobj->obj->type & MESH ) {
-        Q3DMESH *qmes = ( Q3DMESH * ) qray->qobj;
+    if ( qobj->obj->type & MESH ) {
+        Q3DMESH *qmes = ( Q3DMESH * ) qobj;
         Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
         Q3DVECTOR3F src = { .x = qray->src.x + ( qray->dir.x * qray->distance ),
                             .y = qray->src.y + ( qray->dir.y * qray->distance ),
                             .z = qray->src.z + ( qray->dir.z * qray->distance ) };
-        uint32_t qverID[0x03] = { qray->qsur->tri.qverID[0x00],
-                                  qray->qsur->tri.qverID[0x01],
-                                  qray->qsur->tri.qverID[0x02] };
+        Q3DTRIANGLE *qtri = &qmes->qtri[qray->qtriID];
+        uint32_t qverID[0x03] = { qtri->qverID[0x00],
+                                  qtri->qverID[0x01],
+                                  qtri->qverID[0x02] };
 
         Q3DVECTOR3F dir = { .x = ( qver[qverID[0]].nor.x * qray->ratio[0] ) +
                                  ( qver[qverID[1]].nor.x * qray->ratio[1] ) +
@@ -332,27 +367,66 @@ void q3dray_getWorldIntersection ( Q3DRAY          *qray,
                                  ( qver[qverID[2]].nor.z * qray->ratio[2] ) };
 
         /*q3dvector3f_matrix ( &src, qray->qobj->obj->wmatrix , &wisx->src );*/
-        q3dvector3f_matrix ( &dir, qray->qobj->TIWMVX, &wisx->dir );
+        q3dvector3f_matrix ( &dir, qobj->TIWMVX, &wisx->dir );
 
         memcpy ( &wisx->src, &src, sizeof ( Q3DVECTOR3F ) );
 
-        wisx->qobj = qray->qobj;
-        wisx->qsur = qray->qsur;
+        wisx->qobj = qobj;
+        wisx->qsur = qtri;
     }
 }
 
 /******************************************************************************/
-uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
-                          Q3DJOB     *qjob,
-                          Q3DSURFACE *sdiscard,
-                          float       frame,
-                          uint32_t    nbhop,
-                          uint32_t    query_flags ) {
+static uint32_t q3dray_reflect ( Q3DRAY          *qray,
+                                 Q3DINTERSECTION *wisx,
+                                 Q3DRAY          *qout ) {
+    float dot = q3dvector3f_scalar ( ( Q3DVECTOR3F * ) &qray->dir,
+                                     ( Q3DVECTOR3F * ) &wisx->dir );
+
+    if ( dot > 0.0f ) {
+        return 0x00;
+    } else {
+        float dotby2 = dot * 2.0f;
+
+        memset ( qout, 0x00, sizeof ( Q3DRAY ) );
+
+        /*** init the depth value for depth sorting ***/
+        qout->distance = INFINITY;
+
+        /*** reflected ray origin is parent ray intersection point ***/
+        memcpy ( &qout->src, &wisx->src, sizeof ( Q3DVECTOR3F ) );
+
+        qout->x = qray->x;
+        qout->y = qray->y;
+
+        /*** reflection formula ***/
+        qout->dir.x = qray->dir.x - ( dotby2 * wisx->dir.x );
+        qout->dir.y = qray->dir.y - ( dotby2 * wisx->dir.y );
+        qout->dir.z = qray->dir.z - ( dotby2 * wisx->dir.z );
+
+        q3dvector3f_normalize ( &qout->dir, NULL );
+
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+static uint32_t q3dray_shootWithCondition_r ( Q3DRAY     *qray, 
+                                              Q3DJOB     *qjob,
+                                              Q3DSURFACE *sdiscard,
+                                              uint32_t  (*cond)(Q3DOBJECT*,
+                                                                void *),
+                                              void       *condData,
+                                              float       frame,
+                                              uint32_t    nbhop,
+                                              uint32_t    query_flags ) {
     Q3DOBJECT   *qobj = NULL;
     Q3DMESH     *qmes = NULL;
     Q3DTRIANGLE *qtri = NULL;
     G3DMESH     *mes  = NULL;
     uint32_t raytrace = 0x00;
+    uint32_t updateZ = 0x00;
 
     if ( query_flags & RAYQUERYHIT ) {
         if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
@@ -391,8 +465,8 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         qray->color    = locqray.color;
                         qray->distance = locqray.distance;
 
-                        qray->qobj     = qobj;
-                        qray->qsur     = qtri;
+                        qray->qobjID   = zout.qobjID;
+                        qray->qtriID   = zout.qtriID;
 
                         qray->ratio[0x00] = locqray.ratio[0x00];
                         qray->ratio[0x01] = locqray.ratio[0x01];
@@ -405,6 +479,10 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         /*** the matching triangle. ***/
 
                         raytrace = 0x01;
+
+                        /*** update the Z buffer as well. Important for ***/
+                        /*** the anti aliasing filter for example ***/
+                        updateZ = 0x01;
                     }
                 }
             }
@@ -413,19 +491,31 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
         }
 
         if ( raytrace ) {
-            if ( q3dobject_intersect_r ( qjob->qsce,
-                                         qray,
-                                         frame,
-                                         query_flags,
-                                    /*render_flags*/0x00 ) ) {
-                qobj = qray->qobj;
+            if ( q3dobject_intersectWithCondition_r ( qjob->qsce,
+                                                      qray,
+                                                      sdiscard,
+                                                      cond,
+                                                      condData,
+                                                      frame,
+                                                      query_flags,
+                                                 /*render_flags*/0x00 ) ) {
+                qobj = qjob->qsce->qobjidx[qray->qobjID];
 
                 if ( qobj->obj->type & MESH ) {
                     qmes = ( Q3DMESH * ) qobj;
                     mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
 
-                    qtri = qray->qsur;
+                    qtri = &qmes->qtri[qray->qtriID];
                 }
+            }
+
+            if ( updateZ ) {
+                uint32_t offset = ( qray->y * qjob->qarea.qzen.width ) + qray->x;
+
+                qjob->qarea.qzen.buffer[offset].z = qray->distance;
+
+                qjob->qarea.qzen.buffer[offset].qobjID = qray->qobjID;
+                qjob->qarea.qzen.buffer[offset].qtriID = qray->qtriID;
             }
         }
 
@@ -444,9 +534,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             Q3DINTERSECTION wisx;
 
             if ( query_flags & RAYQUERYSURFACECOLOR ) {
-
-
-                q3dray_getWorldIntersection ( qray, frame, &wisx );
+                q3dray_getWorldIntersection ( qray, qjob->qsce, frame, &wisx );
 
                 q3dray_getSurfaceColor ( qray, 
                                          qobj,
@@ -461,6 +549,47 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                         &materialAlpha,
                                          mes->ltex, 
                                          query_flags );
+
+                if ( ( query_flags & RAYQUERYREFLECTION ) && nbhop ) {
+                    if ( ( materialReflection.r > 0x00 ) &&
+                         ( materialReflection.g > 0x00 ) &&
+                         ( materialReflection.b > 0x00 ) ) {
+                        Q3DRAY refqray;
+
+                        if ( q3dray_reflect ( qray,
+                                             &wisx,
+                                             &refqray ) ) {
+                            uint32_t rCol = q3dray_shootWithCondition_r ( &refqray,
+                                                                           qjob,
+                                                                           qtri,
+                                                                           excludeIfPerfectSphere,
+                                                                           qobj,
+                                                                           frame,
+                                                                         --nbhop,
+                                                                           RAYQUERYALL );
+                            Q3DRGBA rRefl = { .r = ( rCol & 0xFF0000 ) >> 0x10,
+                                              .g = ( rCol & 0x00FF00 ) >> 0x08,
+                                              .b = ( rCol & 0x0000FF ) };
+                            Q3DRGBA mDiff = { .r = materialDiffuse.r,
+                                              .g = materialDiffuse.g,
+                                              .b = materialDiffuse.b };
+                            Q3DRGBA mRefl = { .r = materialReflection.r,
+                                              .g = materialReflection.g,
+                                              .b = materialReflection.b };
+
+                            mDiff.r = ( mDiff.r * ( 0xFF - mRefl.r ) ) + 
+                                      ( rRefl.r *          mRefl.r ) >> 0x08;
+                            mDiff.g = ( mDiff.g * ( 0xFF - mRefl.g ) ) + 
+                                      ( rRefl.g *          mRefl.g ) >> 0x08;
+                            mDiff.b = ( mDiff.b * ( 0xFF - mRefl.b ) ) + 
+                                      ( rRefl.b *          mRefl.b ) >> 0x08;
+
+                            materialDiffuse.r = mDiff.r;
+                            materialDiffuse.g = mDiff.g;
+                            materialDiffuse.b = mDiff.b;
+                        }
+                    }
+                }
             }
 
             if ( query_flags & RAYQUERYLIGHTING ) {
@@ -489,4 +618,21 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     }
 
     return qjob->qrsg->background.color;
+}
+
+/******************************************************************************/
+uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
+                          Q3DJOB     *qjob,
+                          Q3DSURFACE *sdiscard,
+                          float       frame,
+                          uint32_t    nbhop,
+                          uint32_t    query_flags ) {
+    return q3dray_shootWithCondition_r ( qray,
+                                         qjob,
+                                         sdiscard,
+                                         NULL,
+                                         NULL,
+                                         frame,
+                                         nbhop,
+                                         query_flags );
 }

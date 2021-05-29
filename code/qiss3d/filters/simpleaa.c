@@ -45,6 +45,13 @@ static void saa ( unsigned char *srcimg,
     static int32_t block[0x08][0x02] = { { -1,  1 }, {  0,  1 }, {  1,  1 },
                                          { -1,  0 },             {  1,  0 },
                                          { -1, -1 }, {  0, -1 }, {  1, -1 } };
+
+    /*static int32_t block[0x18][0x02] = { { -2,  2 }, { -1,  2 }, {  0,  2 }, {  1,  2 }, {  2,  2 },
+                                         { -2,  1 }, { -1,  1 }, {  0,  1 }, {  1,  1 }, {  2,  1 },
+                                         { -2,  0 }, { -1,  0 },             {  1,  0 }, {  2,  0 },
+                                         { -2, -1 }, { -1, -1 }, {  0, -1 }, {  1, -1 }, {  2, -1 },
+                                         { -2, -2 }, { -1, -2 }, {  0, -2 }, {  1, -2 }, {  2, -2 } };*/
+
     uint32_t offset = ( y * width ) + x;
 
     switch ( depth ) {
@@ -53,7 +60,7 @@ static void saa ( unsigned char *srcimg,
             unsigned char (*refimg)[0x03] = srcimg,
                           (*saaimg)[0x03] = dstimg;
             /*** the pixel weighs x times more than adjacent pixels ***/
-            uint32_t weight = 0x10;
+            uint32_t weight = 0x01;
             uint32_t dstR = refimg[offset][0x00] * weight, 
                      dstG = refimg[offset][0x01] * weight,
                      dstB = refimg[offset][0x02] * weight;
@@ -61,8 +68,8 @@ static void saa ( unsigned char *srcimg,
             uint32_t i;
 
             for ( i = 0x00; i < 0x08; i++ ) {
-                int32_t tx = x + block[i][0x00],
-                        ty = y + block[i][0x01];
+                int32_t tx = ( int32_t ) x + block[i][0x00],
+                        ty = ( int32_t ) y + block[i][0x01];
 
                 if ( ( tx > 0x00 ) && ( tx < width  ) &&
                      ( ty > 0x00 ) && ( ty < height ) ) {
