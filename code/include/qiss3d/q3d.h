@@ -808,6 +808,10 @@ float q3dplane_intersectSegment ( Q3DPLANE    *qpla,
 float q3dplane_intersectLine    ( Q3DPLANE    *qpla, 
                                   Q3DLINE     *qlin, 
                                   Q3DVECTOR3F *qpnt );
+void  q3dplane_getRandomPoint   ( Q3DVECTOR3F *qpla,
+                                  Q3DVECTOR3F *qsrc,
+                                  float        radius,
+                                  Q3DVECTOR3F *qpnt );
 
 /******************************************************************************/
 void       q3dobject_free        ( Q3DOBJECT *qobj );

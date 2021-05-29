@@ -81,7 +81,9 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
         float distancetoLight;
         Q3DVECTOR3F qligwpos;
         Q3DRAY luxqray;
-        uint32_t shadow = 0x00;
+        float shadow = 0.0f;
+        float dot;
+        uint32_t i;
 
         q3dvector3f_matrix ( &pzero, qobjlig->obj->wmatrix, &qligwpos );
 
@@ -98,35 +100,80 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
 
         q3dvector3f_normalize ( &luxqray.dir, &distancetoLight );
 
-        if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
-            q3dray_shootWithCondition_r ( &luxqray, 
-                                           qjob,
-                                           sdiscard,
-                                           excludeIfPerfectSphere,
-                                           wisx->qobj,
-                                           frame,
-                                           nbhop,
-                                           RAYQUERYHIT );
+        dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
 
-            if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
-                if ( luxqray.distance < distancetoLight ) {
-                    shadow = 0x01;
+        if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
+            if ( dot > 0.0f ) {
+                q3dray_shootWithCondition_r ( &luxqray, 
+                                               qjob,
+                                               sdiscard,
+                                               excludeIfPerfectSphere,
+                                               wisx->qobj,
+                                               frame,
+                                               nbhop,
+                                               RAYQUERYHIT );
+
+                if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
+                    if ( luxqray.distance < distancetoLight ) {
+                        shadow = 1.0f;
+                    }
                 }
-            } else {
-                shadow = 0x00;
+            }
+
+            if ( 1 ) {
+                Q3DRAY areaqray = { .src = { .x = luxqray.src.x,
+                                             .y = luxqray.src.y,
+                                             .z = luxqray.src.z } };
+                float areashadow = 0.0f;
+
+                for ( i = 0x00; i < 0x10; i++ ) {
+                    Q3DVECTOR3F areadst;
+                    float areadot;
+
+                    q3dplane_getRandomPoint ( &luxqray.dir,
+                                              &qligwpos,
+                                               5.0f,
+                                              &areadst );
+
+                    areaqray.dir.x = areadst.x - areaqray.src.x;
+                    areaqray.dir.y = areadst.y - areaqray.src.y;
+                    areaqray.dir.z = areadst.z - areaqray.src.z;
+
+                    areaqray.distance = INFINITY;
+                    areaqray.flags    = 0x00;
+
+                    q3dvector3f_normalize ( &areaqray.dir, &distancetoLight );
+
+                    areadot = q3dvector3f_scalar ( &areaqray.dir, &wisx->dir );
+
+                    if ( areadot > 0.0f ) {
+                        q3dray_shootWithCondition_r ( &areaqray, 
+                                                       qjob,
+                                                       sdiscard,
+                                                       excludeIfPerfectSphere,
+                                                       wisx->qobj,
+                                                       frame,
+                                                       nbhop,
+                                                       RAYQUERYHIT );
+
+                        if ( areaqray.flags & Q3DRAY_HAS_HIT_BIT ) {
+                            if ( areaqray.distance < distancetoLight ) {
+                                areashadow += 1.0f;
+                            }
+                        }
+                    }
+                }
+
+                shadow = ( areashadow / 0x10 );
             }
         }
 
-        if ( shadow == 0x00 ) {
-            float dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
+        if ( dot > 0.0f ) {
+            float rate = dot * lig->intensity;
 
-            if ( dot > 0.0f ) {
-                float rate = dot * lig->intensity;
-
-                diffuse->r += ( lig->diffuseColor.r * rate ),
-                diffuse->g += ( lig->diffuseColor.g * rate ),
-                diffuse->b += ( lig->diffuseColor.b * rate );
-            }
+            diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
+            diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
+            diffuse->b += ( ( lig->diffuseColor.b * rate ) * ( 1.0f - shadow ) );
         }
 
         ltmpqlig = ltmpqlig->next;
