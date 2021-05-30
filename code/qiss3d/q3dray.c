@@ -59,7 +59,8 @@ static uint32_t excludeIfPerfectSphere ( Q3DOBJECT *qobj, void *data ) {
 
 /******************************************************************************/
 /*** Note: Source is in World coordinates ***/
-uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
+uint32_t q3dray_illumination ( Q3DRAY          *qray,
+                               Q3DINTERSECTION *wisx,
                                Q3DJOB          *qjob,
                                Q3DSURFACE      *sdiscard,
                                float            frame,
@@ -103,7 +104,7 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
         dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
 
         if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
-            if ( dot > 0.0f ) {
+            if ( /*dot > 0.0f*/0 ) {
                 q3dray_shootWithCondition_r ( &luxqray, 
                                                qjob,
                                                sdiscard,
@@ -126,13 +127,13 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
                                              .z = luxqray.src.z } };
                 float areashadow = 0.0f;
 
-                for ( i = 0x00; i < 0x10; i++ ) {
+                for ( i = 0x00; i < 0x08; i++ ) {
                     Q3DVECTOR3F areadst;
                     float areadot;
 
                     q3dplane_getRandomPoint ( &luxqray.dir,
                                               &qligwpos,
-                                               5.0f,
+                                              20.0f,
                                               &areadst );
 
                     areaqray.dir.x = areadst.x - areaqray.src.x;
@@ -164,7 +165,13 @@ uint32_t q3dray_illumination ( Q3DINTERSECTION *wisx,
                     }
                 }
 
-                shadow = ( areashadow / 0x10 );
+                /*shadow = ( areashadow / 0x08 );*/
+
+                if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                    uint32_t offset = ( qjob->qarea.width * qray->y ) + qray->x;
+
+                    qjob->qarea.softShadowRate[offset] = ( areashadow / 0x08 );
+                }
             }
         }
 
@@ -640,7 +647,8 @@ static uint32_t q3dray_shootWithCondition_r ( Q3DRAY     *qray,
             }
 
             if ( query_flags & RAYQUERYLIGHTING ) {
-                q3dray_illumination ( &wisx,
+                q3dray_illumination (  qray,
+                                      &wisx,
                                        qjob,
                                        qtri,
                                        frame,

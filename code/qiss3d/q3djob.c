@@ -393,6 +393,7 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     Q3DFILTER *toffmpeg = NULL;
     Q3DFILTER *towindow = qrsg->input.towindow;
     Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
+    Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
 
     if ( qrsg->flags & RENDERSAVE ) {
         if ( qrsg->output.format == RENDERTOVIDEO ) {
@@ -435,6 +436,7 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     qjob->flin[MAXFILTERS - 0x01] = qrsg->input.towindow;
 
     /*** image filters ***/
+    qjob->fimg[MAXFILTERS - 0x06] = softshadows; /*** simple anti aliasing ***/
     qjob->fimg[MAXFILTERS - 0x05] = simpleAA; /*** simple anti aliasing ***/
     qjob->fimg[MAXFILTERS - 0x04] = towindow; /*** output to widget    ***/
     qjob->fimg[MAXFILTERS - 0x03] = toffmpeg; /*** output to ffmpeg    ***/

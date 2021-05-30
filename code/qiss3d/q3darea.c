@@ -142,6 +142,8 @@ void q3darea_init ( Q3DAREA   *qarea,
     /*** Compute the interpolation factors for rays ***/
     q3darea_viewport ( qarea, qcam );
 
+    qarea->softShadowRate = calloc ( width * height, sizeof ( float ) );
+
     q3dzengine_init ( &qarea->qzen,
                        cam->znear,
                        IDX,

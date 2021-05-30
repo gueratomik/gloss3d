@@ -157,6 +157,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define PREVIEWFILTERNAME          "Preview"
 #define DOFFILTERNAME              "Depth of field"
 #define SIMPLEAAFILTERNAME         "Simple Anti-Aliasing"
+#define SOFTSHADOWSFILTERNAME      "Soft Shadows"
 
 /********************************** G3DUIRENDERSETTINGS flags *****************/
 #define RENDERDEFAULT     ( 1       )
@@ -590,6 +591,7 @@ typedef struct _Q3DZENGINE {
 /******************************************************************************/
 typedef struct _Q3DAREA {
     Q3DZENGINE       qzen;
+    float           *softShadowRate; /*** soft shadows buffer ***/
     int              VPX[0x04];
     uint32_t         x1, y1;
     uint32_t         x2, y2;
@@ -924,6 +926,7 @@ Q3DFILTER *q3dfilter_toWindow_new ( Display *dis,
     #endif
 
 Q3DFILTER *q3dfilter_simpleaa_new ( );
+Q3DFILTER *q3dfilter_softshadows_new ( );
 
 /******************************************************************************/
 typedef struct _FILTERTOWINDOW {
