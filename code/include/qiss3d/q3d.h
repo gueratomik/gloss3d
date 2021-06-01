@@ -236,6 +236,12 @@ typedef struct _Q3DFILTER Q3DFILTER;
 typedef struct _Q3DJOB    Q3DJOB;
 
 /******************************************************************************/
+typedef struct _Q3DVECTOR2F {
+    float x; 
+    float y;
+} Q3DVECTOR2F;
+
+/******************************************************************************/
 typedef struct _Q3DVECTOR3F {
     float x; 
     float y;
@@ -558,14 +564,20 @@ typedef struct _Q3DZPOINT {
     int32_t x;
     int32_t y;
     float   z;
-} Q3DZPOINT;
+} Q3DZPOINT, Q3DSPOINT;
 
 /******************************************************************************/
 typedef struct _Q3DZHLINE {
     Q3DZPOINT p1;
     Q3DZPOINT p2;
     int       inited;
-} Q3DZHLINE;
+} Q3DZHLINE, Q3DSHLINE;
+
+/******************************************************************************/
+typedef struct _Q3DSOFTSHADOW {
+    float    shadow;
+    uint32_t qobjID;
+} Q3DSOFTSHADOW;
 
 /******************************************************************************/
 typedef struct _Q3DZBUFFER {
@@ -591,7 +603,7 @@ typedef struct _Q3DZENGINE {
 /******************************************************************************/
 typedef struct _Q3DAREA {
     Q3DZENGINE       qzen;
-    float           *softShadowRate; /*** soft shadows buffer ***/
+    Q3DSOFTSHADOW   *qssh; /*** soft shadows buffer ***/
     int              VPX[0x04];
     uint32_t         x1, y1;
     uint32_t         x2, y2;

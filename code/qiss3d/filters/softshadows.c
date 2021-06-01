@@ -35,8 +35,9 @@ typedef struct _FILTERSOFTSHADOWS {
 } FILTERSOFTSHADOWS;
 
 /******************************************************************************/
-static void sss ( float         *softShadowRate,
-                  unsigned char *img,
+static void sss ( Q3DSOFTSHADOW *qssh,
+                  unsigned char *srcimg,
+                  unsigned char *dstimg,
                   uint32_t       width,
                   uint32_t       height,
                   uint32_t       depth,
@@ -74,14 +75,19 @@ static void sss ( float         *softShadowRate,
                                         { -5, -5 }, { -4, -5 }, { -3, -5 }, { -2, -5 }, { -1, -5 }, {  0, -5 }, {  1, -5 }, {  2, -5 }, { 3, -5 }, { 4, -5 }, { 5, -5 } };
     uint32_t offset = ( y * width ) + x;
 
+
     switch ( depth ) {
         case 0x18 :
         case 0x20 : {
-            unsigned char (*dstimg)[0x03] = img;
+            unsigned char (*refimg)[0x03] = srcimg,
+                          (*sssimg)[0x03] = dstimg;
             /*** the pixel weighs x times more than adjacent pixels ***/
             uint32_t weight = 0x01;
-            float    shadowRate = softShadowRate[offset] * weight;
+            uint32_t dstR = refimg[offset][0x00] * weight, 
+                     dstG = refimg[offset][0x01] * weight,
+                     dstB = refimg[offset][0x02] * weight;
             uint32_t nbs = weight;
+            float shadow = qssh[offset].shadow * weight;
             uint32_t i;
 
             for ( i = 0x00; i < 120; i++ ) {
@@ -92,17 +98,17 @@ static void sss ( float         *softShadowRate,
                      ( ty > 0x00 ) && ( ty < height ) ) {
                     uint32_t toffset = ( ty * width ) + tx;
 
-                    shadowRate += softShadowRate[toffset];
+                    if ( qssh[toffset].qobjID == qssh[offset].qobjID ) {
+                        shadow +=  qssh[toffset].shadow;
 
-                    nbs++;
+                        nbs++;
+                    }
                 }
             }
 
-            shadowRate /= nbs;
-
-            dstimg[offset][0x00] *= ( 1.0f - shadowRate );
-            dstimg[offset][0x01] *= ( 1.0f - shadowRate );
-            dstimg[offset][0x02] *= ( 1.0f - shadowRate );
+            sssimg[offset][0x00] *= ( 1.0f - ( shadow / nbs ) );
+            sssimg[offset][0x01] *= ( 1.0f - ( shadow / nbs ) );
+            sssimg[offset][0x02] *= ( 1.0f - ( shadow / nbs ) );
         } break;
 
         default :
@@ -147,13 +153,20 @@ static uint32_t filtersoftshadows_draw ( Q3DFILTER     *fil,
 
     if ( qjob->qarea.qzen.width && 
          qjob->qarea.qzen.height ) {
-        if ( qjob->qarea.softShadowRate ) {
+        uint32_t imgsize = qjob->qarea.qzen.width * 
+                           qjob->qarea.qzen.height * ( depth / 8 );
+        unsigned char *refimg = ( unsigned char * ) malloc ( imgsize );
+
+        memcpy ( refimg, img, imgsize );
+
+        if ( qjob->qarea.qssh ) {
             for ( i = from; i < to; i++ ) {
                 uint32_t offset = ( i * width );
 
                 for ( j = 0x00; j < width; j++ ) {
-                    if ( qjob->qarea.softShadowRate[offset+j] ) {
-                        sss ( qjob->qarea.softShadowRate,
+                    if ( qjob->qarea.qssh[offset+j].shadow ) {
+                        sss ( qjob->qarea.qssh,
+                              refimg,
                               img,
                               qjob->qarea.qzen.width,
                               qjob->qarea.qzen.height,
@@ -164,6 +177,8 @@ static uint32_t filtersoftshadows_draw ( Q3DFILTER     *fil,
                 }
             }
         }
+
+        free ( refimg );
     }
 
     return 0x00;

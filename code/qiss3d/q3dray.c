@@ -127,7 +127,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                              .z = luxqray.src.z } };
                 float areashadow = 0.0f;
 
-                for ( i = 0x00; i < 0x08; i++ ) {
+                for ( i = 0x00; i < 0x04; i++ ) {
                     Q3DVECTOR3F areadst;
                     float areadot;
 
@@ -165,12 +165,16 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                     }
                 }
 
-                /*shadow = ( areashadow / 0x08 );*/
+                /*shadow = ( areashadow / 0x04 );*/
 
-                if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
-                    uint32_t offset = ( qjob->qarea.width * qray->y ) + qray->x;
+                if ( areashadow ) {
+                    if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                        uint32_t offset = ( qray->y * qjob->qarea.width ) + 
+                                            qray->x;
 
-                    qjob->qarea.softShadowRate[offset] = ( areashadow / 0x08 );
+                        qjob->qarea.qssh[offset].shadow += ( areashadow / 0x04 );
+                        qjob->qarea.qssh[offset].qobjID  = wisx->qobj->id;
+                    }
                 }
             }
         }

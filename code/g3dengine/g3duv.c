@@ -343,7 +343,7 @@ void g3duvmap_getSphericalUV ( G3DUVMAP  *map,
 
     g3dvector_normalize ( &verLocPos, NULL );
 
-
+    /*** Why did I do that ?? I don't remember ***/
     verLocPos.x = ( float ) ( ( int ) ( verLocPos.x * 10000 ) ) / 10000;
     verLocPos.y = ( float ) ( ( int ) ( verLocPos.y * 10000 ) ) / 10000;
     verLocPos.z = ( float ) ( ( int ) ( verLocPos.z * 10000 ) ) / 10000;
