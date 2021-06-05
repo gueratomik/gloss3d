@@ -48,6 +48,9 @@ void q3dmesh_free ( Q3DMESH *qmes ) {
 uint32_t q3dmesh_intersect ( Q3DMESH    *qmes,
                              Q3DRAY     *qray,
                              Q3DSURFACE *discard,
+                             uint32_t  (*cond)(Q3DOBJECT *, 
+                                               void      *),
+                             void       *condData,
                              float       frame,
                              uint64_t    query_flags,
                              uint64_t    render_flags ) {

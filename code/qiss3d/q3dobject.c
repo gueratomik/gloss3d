@@ -101,6 +101,9 @@ static void q3dobject_default_free ( Q3DOBJECT *qobj ) {
 /******************************************************************************/
 static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
                                               Q3DRAY    *qray,
+                                              uint32_t  (*cond)(Q3DOBJECT *, 
+                                                                void      *),
+                                              void       *condData,
                                               float      frame,
                                               uint64_t   query_flags,
                                               uint64_t   render_flags ) {
@@ -108,30 +111,32 @@ static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
 }
 
 /******************************************************************************/
-uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
-                                              Q3DRAY     *qray,
-                                              Q3DSURFACE *discard,
-                                              uint32_t  (*cond)(Q3DOBJECT *, 
-                                                                void      *),
-                                              void       *condData,
-                                              float       frame,
-                                              uint64_t    query_flags,
-                                              uint64_t    render_flags ) {
+uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
+                                 Q3DRAY     *qray,
+                                 Q3DSURFACE *discard,
+                                 uint32_t  (*cond)(Q3DOBJECT *, 
+                                                   void      *),
+                                 void       *condData,
+                                 float       frame,
+                                 uint64_t    query_flags,
+                                 uint64_t    render_flags ) {
     LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector3f_matrix ( &qray->src, qobj->IMVX , &locqray.src );
-    q3dvector3f_matrix ( &qray->dir, qobj->TIMVX, &locqray.dir );
+    q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
+    q3dvector3f_matrix ( &qray->dir, qobj->TMVX, &locqray.dir );
 
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
         if ( qobj->intersect ) {
             hit += qobj->intersect ( qobj, 
                                     &locqray, 
                                      discard,
-                                     frame, 
+                                     cond,
+                                     condData,
+                                     frame,
                                      query_flags,
                                      render_flags );
         }
@@ -140,14 +145,14 @@ uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        hit += q3dobject_intersectWithCondition_r ( qchild, 
-                                                   &locqray,
-                                                    discard,
-                                                    cond,
-                                                    condData,
-                                                    frame,
-                                                    query_flags,
-                                                    render_flags );
+        hit += q3dobject_intersect_r ( qchild, 
+                                      &locqray,
+                                       discard,
+                                       cond,
+                                       condData,
+                                       frame,
+                                       query_flags,
+                                       render_flags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -166,23 +171,6 @@ uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
 }
 
 /******************************************************************************/
-uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
-                                 Q3DRAY     *qray,
-                                 Q3DSURFACE *discard,
-                                 float       frame,
-                                 uint64_t    query_flags,
-                                 uint64_t    render_flags ) {
-    return q3dobject_intersectWithCondition_r ( qobj, 
-                                                qray,
-                                                discard,
-                                                NULL,
-                                                NULL,
-                                                frame,
-                                                query_flags,
-                                                render_flags );
-}
-
-/******************************************************************************/
 G3DOBJECT *q3dobject_getObject ( Q3DOBJECT *qobj ) {
     return qobj->obj;
 }
@@ -195,6 +183,8 @@ void q3dobject_init ( Q3DOBJECT *qobj,
                       void     (*Free)      ( Q3DOBJECT * ),
                       uint32_t (*Intersect) ( Q3DOBJECT *obj, 
                                               Q3DRAY    *ray,
+                                              uint32_t (*cond)(Q3DOBJECT*,void*),
+                                              void      *condData,
                                               float      frame,
                                               uint64_t   query_flags,
                                               uint64_t   render_flags ) ) {
@@ -205,8 +195,12 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     qobj->free      = Free;
     qobj->intersect = Intersect;
 
-    g3dcore_invertMatrix    ( obj->lmatrix, qobj->IMVX  );
-    g3dcore_transposeMatrix ( qobj->IMVX  , qobj->TIMVX );
+    g3dcore_invertMatrix    ( obj->lmatrix, qobj->IMVX );
+    /*** When a point is multiplied by a matrix, we multiply its normal ***/
+    /*** by the transpose inverse. Here, the matrix is already the inverse ***/
+    /*** hence the inverse of the inverse is the matrix itself. We just ***/
+    /*** transpose it. ***/
+    g3dcore_transposeMatrix ( obj->lmatrix, qobj->TMVX );
 
     /*** Note: IWMVX could also be retrieved via obj->iwmatrix ***/
     g3dcore_invertMatrix    ( obj->wmatrix, qobj->IWMVX  );

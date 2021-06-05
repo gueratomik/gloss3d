@@ -38,17 +38,20 @@ static void q3dsymmetry_free ( Q3DSYMMETRY *qsym ) {
 static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
                                         Q3DRAY      *qray,
                                         Q3DSURFACE  *discard,
+                                        uint32_t   (*cond)(Q3DOBJECT*,void *),
+                                        void        *condData,
                                         float        frame,
                                         uint64_t     query_flags,
                                         uint64_t     render_flags ) {
     Q3DOBJECT *qobjsym = ( Q3DOBJECT * ) qsym;
+    G3DSYMMETRY *sym = ( G3DSYMMETRY * ) q3dobject_getObject ( qobjsym );
     LIST *ltmpchildren = qobjsym->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY symqray;
 
     memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector3f_matrix ( &qray->src, qsym->ISMVX , &symqray.src );
+    q3dvector3f_matrix ( &qray->src, sym->smatrix , &symqray.src );
     q3dvector3f_matrix ( &qray->dir, qsym->TISMVX, &symqray.dir );
 
     while ( ltmpchildren ) {
@@ -57,6 +60,8 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
         hit += q3dobject_intersect_r ( qchild,
                                       &symqray,
                                        discard,
+                                       cond,
+                                       condData,
                                        frame,
                                        query_flags,
                                        render_flags );
@@ -87,8 +92,8 @@ void q3dsymmetry_init ( Q3DSYMMETRY *qsym,
     Q3DFREE_CALLBACK(q3dsymmetry_free),
 Q3DINTERSECT_CALLBACK(q3dsymmetry_intersect) );
 
-    g3dcore_multmatrix ( sym->smatrix, obj->lmatrix, TMPX );
-    g3dcore_invertMatrix ( TMPX, qsym->ISMVX );
+    /*g3dcore_multmatrix ( obj->lmatrix, sym->smatrix, TMPX );*/
+    g3dcore_invertMatrix ( sym->smatrix, qsym->ISMVX );
     g3dcore_transposeMatrix ( qsym->ISMVX, qsym->TISMVX );
 }
 

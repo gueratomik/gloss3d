@@ -30,13 +30,54 @@
 #include <qiss3d/q3d.h>
 
 typedef struct _Q3DSHADOWUV {
-    float u, v;
+    double u, v;
 } Q3DSHADOWUV;
 
 typedef struct _Q3DSHADOWMAP {
     Q3DVECTOR3F wpos;
     Q3DSHLINE  *hlines;
+    Q3DSHADOWUV min;
+    Q3DSHADOWUV max;
 } Q3DSHADOWMAP
+
+/******************************************************************************/
+/******* http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere *******/
+static void q3dshadowmap_mapMinMax ( Q3DSHADOWMAP *qsmp,
+                                     Q3DMESH      *qmes,
+                                     float         frame ) {
+    Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
+    Q3DVECTOR3F boundaries[0x08] = { { qverset->min.x, qverset->min.y, qverset->min.z },
+                                     { qverset->max.x, qverset->min.y, qverset->min.z },
+                                     { qverset->min.x, qverset->max.y, qverset->min.z },
+                                     { qverset->max.x, qverset->max.y, qverset->min.z },
+                                     { qverset->min.x, qverset->min.y, qverset->max.z },
+                                     { qverset->max.x, qverset->min.y, qverset->max.z },
+                                     { qverset->min.x, qverset->max.y, qverset->max.z },
+                                     { qverset->max.x, qverset->max.y, qverset->max.z } };
+    uint32_t i;
+
+    qsmp->min.u = FLT_MAX;
+    qsmp->min.v = FLT_MAX;
+    qsmp->max.u = FLT_MIN;
+    qsmp->max.v = FLT_MIN;
+
+    for ( i = 0x00; i < 0x08; i++ ) {
+        Q3DVECTOR3D bnor = { boundaries[i].x - qsmp->wpos.x,
+                             boundaries[i].y - qsmp->wpos.y,
+                             boundaries[i].z - qsmp->wpos.z };
+        Q3DSHADOWUV buv;
+
+        q3dvector3d_normalize ( &bnor, NULL );
+
+        buv.u =   ( atan2f ( bnor.z, bnor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
+        buv.v = - ( asin   ( bnor.y         ) / (        M_PI ) ) + 0.5f;
+
+        if ( qsmp->min.u > buv.u ) qsmp->min.u = buv.u;
+        if ( qsmp->min.v > buv.v ) qsmp->min.v = buv.v;
+        if ( qsmp->max.u > buv.u ) qsmp->max.u = buv.u;
+        if ( qsmp->max.v > buv.v ) qsmp->max.v = buv.v;
+    }
+}
 
 /******************************************************************************/
 /******* http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere *******/
@@ -48,8 +89,9 @@ void q3dshadowmap_mapMesh ( Q3DSHADOWMAP *qsmp,
         uint32_t q3dvector3fSize = sizeof ( Q3DVECTOR3F );
         Q3DVECTOR3F *qverwpos = calloc ( qmes->nbqver, q3dvector3fSize );
         Q3DVECTOR3F *qtriwpos = calloc ( qmes->nbqtri, q3dvector3fSize );
-
         uint32_t i;
+
+        q3dshadowmap_mapMinMax ( qsmp, qmes, frame );
 
         for ( i = 0x00; i < qmes->nbqver; i++ ) {
             q3dvector3f ( &qverwpos[i], &qver[i].pos, q3dvector3fSize );
@@ -60,7 +102,7 @@ void q3dshadowmap_mapMesh ( Q3DSHADOWMAP *qsmp,
                                       qmes->qtri[i].qverID[0x01],
                                       qmes->qtri[i].qverID[0x02] };
             Q3DSHADOWUV veruv[0x03];
-            Q3DVECTOR3F trinor;
+            Q3DVECTOR3D trinor;
             Q3DSHADOWUV triuv;
             float avgu = 0.0f,
                   avgv = 0.0f;
@@ -79,28 +121,28 @@ void q3dshadowmap_mapMesh ( Q3DSHADOWMAP *qsmp,
             trinor.y = qtriwpos[i].y - qsmp->wpos.y;
             trinor.z = qtriwpos[i].z - qsmp->wpos.z;
 
-            q3dvector3f_normalize ( &trinor, NULL );
+            q3dvector3d_normalize ( &trinor, NULL );
 
             /*** UV Spherical coordinates ****/
             triuv.u =   ( atan2f ( trinor.z, trinor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
             triuv.v = - ( asin   ( trinor.y           ) / (        M_PI ) ) + 0.5f;
 
             for ( j = 0x00; j < 0x03; j++ ) {
-                Q3DVECTOR3F vernor = { qverwpos[qverID[j]].x - qsmp->wpos.x,
+                Q3DVECTOR3D vernor = { qverwpos[qverID[j]].x - qsmp->wpos.x,
                                        qverwpos[qverID[j]].y - qsmp->wpos.y,
                                        qverwpos[qverID[j]].z - qsmp->wpos.z };
 
-                q3dvector3f_normalize ( &vernor, NULL );
+                q3dvector3d_normalize ( &vernor, NULL );
 
                 /*** UV Spherical coordinates ****/
                 veruv[j].u =   ( atan2f ( vernor.z, vernor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 veruv[j].v = - ( asin   ( vernor.y           ) / (        M_PI ) ) + 0.5f;
 
-                veruv[j].u *= qsmp->width;
-                veruv[j].v *= qsmp->height;
-
                 avgu += veruv[j].u;
                 avgv += veruv[j].v;
+
+                veruv[j].u *= qsmp->width;
+                veruv[j].v *= qsmp->height;
             }
 
             triuv.u *= qsmp->width;
@@ -108,11 +150,11 @@ void q3dshadowmap_mapMesh ( Q3DSHADOWMAP *qsmp,
 
             /*** if the triangle is splitted in both sides of the map ***/
             /*** we have to test all best matches ***/
-            if ( ( int32_t ) triuv.u != ( int32_t ) avgu ) ) {
+           /*if ( ( int32_t ) triuv.u != ( int32_t ) avgu ) ) {
                 float best[0x03][0x02] = { { veruv[0x00].u, 1.0f - veruv[0x00].u,
                                              veruv[0x01].u, 1.0f - veruv[0x01].u,
                                              veruv[0x02].u, 1.0f - veruv[0x02].u };
-            }
+            }*/
         }
 
         free ( qtriwpos );

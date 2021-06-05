@@ -36,6 +36,9 @@ Thanks to :
 uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
                                Q3DRAY     *qray, 
                                Q3DSURFACE *discard,
+                               uint32_t  (*cond)(Q3DOBJECT *, 
+                                                 void      *),
+                               void       *condData,
                                float       frame,
                                uint64_t    query_flags,
                                uint64_t    render_flags ) {
@@ -86,6 +89,8 @@ uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
             if ( q3dmesh_intersect ( qmes,
                                     &newqray, 
                                      discard,
+                                     cond,
+                                     condData,
                                      frame,
                                      query_flags,
                                      render_flags ) ) {

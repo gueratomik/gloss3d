@@ -107,6 +107,17 @@ void q3darea_reset ( Q3DAREA *qarea ) {
 }
 
 /******************************************************************************/
+static uint32_t excludePerfectSpheres ( Q3DOBJECT *qobj, void *data ) {
+    if ( qobj->obj->type == G3DSPHERETYPE ) {
+        if ( qobj->obj->flags & SPHEREISPERFECT ) {
+            return 0x00;
+        }
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 void q3darea_init ( Q3DAREA   *qarea,
                     Q3DSCENE  *qsce,
                     Q3DCAMERA *qcam,
@@ -142,7 +153,7 @@ void q3darea_init ( Q3DAREA   *qarea,
     /*** Compute the interpolation factors for rays ***/
     q3darea_viewport ( qarea, qcam );
 
-    qarea->qssh = calloc ( width * height, sizeof ( Q3DSOFTSHADOW ) );
+    /*qarea->qssh = calloc ( width * height, sizeof ( Q3DSOFTSHADOW ) );*/
 
     q3dzengine_init ( &qarea->qzen,
                        cam->znear,
@@ -152,10 +163,12 @@ void q3darea_init ( Q3DAREA   *qarea,
                        width,
                        height );
 
-    q3dzengine_drawObject_r ( &qarea->qzen,
-                               qsce,
-                               objcam->iwmatrix,
-                               cam->pmatrix,
-                               qarea->VPX,
-                               frame );
+    q3dzengine_drawObjectWithCondition_r ( &qarea->qzen,
+                                            qsce,
+                                            objcam->iwmatrix,
+                                            cam->pmatrix,
+                                            qarea->VPX,
+                                            excludePerfectSpheres,
+                                            NULL,
+                                            frame );
 }

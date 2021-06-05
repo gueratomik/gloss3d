@@ -564,51 +564,75 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
 }
 
 /******************************************************************************/
+void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
+                                            Q3DOBJECT  *qobj,
+                                            double     *MVX,
+                                            double     *PJX,
+                                            int        *VPX,
+                                            uint32_t  (*cond)(Q3DOBJECT*,
+                                                              void *),
+                                            void       *condData,
+                                            float       frame ) {
+    LIST *ltmpchildren = qobj->lchildren;
+    double WMVX[0x10];
+
+    g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+
+    if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
+        if ( qobj->obj->type & MESH ) {
+            Q3DMESH *qmes = ( Q3DMESH * ) qobj;
+
+            q3dzengine_drawMesh ( qzen, 
+                                  qmes,
+                                  WMVX,
+                                  PJX,
+                                  VPX,
+                                  frame );
+        }
+
+        if ( qobj->obj->type == G3DSYMMETRYTYPE ) {
+            Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) qobj;
+
+            q3dzengine_drawSymmetry ( qzen, 
+                                      qsym,
+                                      WMVX,
+                                      PJX,
+                                      VPX,
+                                      frame );
+        }
+    }
+
+    while ( ltmpchildren ) {
+        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+
+        q3dzengine_drawObjectWithCondition_r ( qzen,
+                                               qchild,
+                                               WMVX,
+                                               PJX,
+                                               VPX,
+                                               cond,
+                                               condData,
+                                               frame );
+
+        ltmpchildren = ltmpchildren->next;
+    }
+}
+
+/******************************************************************************/
 void q3dzengine_drawObject_r ( Q3DZENGINE *qzen, 
                                Q3DOBJECT  *qobj,
                                double     *MVX,
                                double     *PJX,
                                int        *VPX,
                                float       frame ) {
-    LIST *ltmpchildren = qobj->lchildren;
-    double WMVX[0x10];
-
-    g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
-
-    if ( qobj->obj->type & MESH ) {
-        Q3DMESH *qmes = ( Q3DMESH * ) qobj;
-
-        q3dzengine_drawMesh ( qzen, 
-                              qmes,
-                              WMVX,
-                              PJX,
-                              VPX,
-                              frame );
-    }
-
-    if ( qobj->obj->type == G3DSYMMETRYTYPE ) {
-        Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) qobj;
-
-        q3dzengine_drawSymmetry ( qzen, 
-                                  qsym,
-                                  WMVX,
-                                  PJX,
-                                  VPX,
-                                  frame );
-    }
-
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
-
-        q3dzengine_drawObject_r ( qzen,
-                                  qchild,
-                                  WMVX,
-                                  PJX,
-                                  VPX,
-                                  frame );
-
-        ltmpchildren = ltmpchildren->next;
-    }
+    q3dzengine_drawObjectWithCondition_r ( qzen, 
+                                           qobj,
+                                           MVX,
+                                           PJX,
+                                           VPX,
+                                           NULL,
+                                           NULL,
+                                           frame );
 }
 
 /******************************************************************************/

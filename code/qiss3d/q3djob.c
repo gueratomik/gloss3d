@@ -298,6 +298,8 @@ void *q3djob_raytrace ( void *ptr ) {
             color = q3dray_shoot_r ( &qray,
                                       qjob,
                                       NULL,
+                                      NULL,
+                                      NULL,
                                       qjob->curframe,
                                       0x04,
                                       RAYQUERYHIT |
@@ -436,7 +438,7 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     qjob->flin[MAXFILTERS - 0x01] = qrsg->input.towindow;
 
     /*** image filters ***/
-    qjob->fimg[MAXFILTERS - 0x06] = softshadows; /*** simple anti aliasing ***/
+    /*qjob->fimg[MAXFILTERS - 0x06] = softshadows;*/ /*** simple anti aliasing ***/
     qjob->fimg[MAXFILTERS - 0x05] = simpleAA; /*** simple anti aliasing ***/
     qjob->fimg[MAXFILTERS - 0x04] = towindow; /*** output to widget    ***/
     qjob->fimg[MAXFILTERS - 0x03] = toffmpeg; /*** output to ffmpeg    ***/

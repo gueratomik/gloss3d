@@ -211,6 +211,8 @@ typedef G3DRGBA         Q3DRGBA;
 #define Q3DINTERSECT_CALLBACK(f) ((uint32_t(*)(Q3DOBJECT*,\
                                                Q3DRAY*,\
                                                Q3DSURFACE*,\
+                                           uint32_t (*cond)(Q3DOBJECT*,void*), \
+                                               void *condData, \
                                                float,\
                                                uint64_t,\
                                                uint64_t))f)
@@ -409,6 +411,11 @@ typedef struct _Q3DTRIANGLE {
 } Q3DTRIANGLE;
 
 /******************************************************************************/
+typedef struct _Q3DPATCH {
+    uint32_t    flags;
+} Q3DPATCH;
+
+/******************************************************************************/
 typedef union _Q3DSURFACE {
     uint32_t    flags;
     Q3DTRIANGLE tri;
@@ -421,13 +428,15 @@ typedef struct _Q3DOBJECT {
     uint64_t   flags;
     LIST      *lchildren;
     double     IMVX[0x10];
-    double     TIMVX[0x10];
+    double     TMVX[0x10];
     double     IWMVX[0x10];
     double    TIWMVX[0x10];
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT  *obj, 
                                   Q3DRAY     *ray, 
-                                  Q3DSURFACE *discard, 
+                                  Q3DSURFACE *discard,
+                                  uint32_t  (*cond)(struct _Q3DOBJECT*,void*),
+                                  void       *condData,
                                   float       frame,
                                   uint64_t    query_flags,
                                   uint64_t    render_flags);
@@ -511,7 +520,7 @@ typedef struct _Q3DMESH {
 
 /******************************************************************************/
 typedef struct _Q3DSPHERE {
-    Q3DMESH qmes;
+    Q3DMESH  qmes;
 } Q3DSPHERE;
 
 /******************************************************************************/
@@ -770,6 +779,8 @@ Q3DMESH      *q3dmesh_new              ( G3DMESH *mes,
 uint32_t      q3dmesh_intersect        ( Q3DMESH    *qmes,
                                          Q3DRAY     *qray, 
                                          Q3DSURFACE *discard,
+                                         uint32_t  (*cond)(Q3DOBJECT*,void*),
+                                         void       *condData,
                                          float       frame,
                                          uint64_t    query_flags,
                                          uint64_t    render_flags );
@@ -778,6 +789,8 @@ uint32_t      q3dmesh_intersect        ( Q3DMESH    *qmes,
 uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
                                Q3DRAY     *qray, 
                                Q3DSURFACE *discard, 
+                               uint32_t  (*cond)(Q3DOBJECT*,void*),
+                               void       *condData,
                                float       frame,
                                uint64_t    query_flags,
                                uint64_t    render_flags );
@@ -805,6 +818,15 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
                                double     *PJX,
                                int        *VPX,
                                float       frame );
+void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
+                                            Q3DOBJECT  *qobj,
+                                            double     *MVX,
+                                            double     *PJX,
+                                            int        *VPX,
+                                            uint32_t  (*cond)(Q3DOBJECT*,
+                                                              void *),
+                                            void       *condData,
+                                            float       frame );
 void q3dzengine_reset        ( Q3DZENGINE *qzen );
 void q3dzengine_init         ( Q3DZENGINE *qzen,
                                float       znear,
@@ -832,29 +854,25 @@ void       q3dobject_free        ( Q3DOBJECT *qobj );
 void       q3dobject_free_r      ( Q3DOBJECT *qobj );
 void       q3dobject_addChild    ( Q3DOBJECT *qobj,
                                    Q3DOBJECT *child );
-uint32_t q3dobject_intersectWithCondition_r ( Q3DOBJECT  *qobj,
-                                              Q3DRAY     *qray,
-                                              Q3DSURFACE *discard,
-                                              uint32_t  (*cond)(Q3DOBJECT *, 
-                                                                void      *),
-                                              void       *condData,
-                                              float       frame,
-                                              uint64_t    query_flags,
-                                              uint64_t    render_flags );
-uint32_t   q3dobject_intersect_r ( Q3DOBJECT  *qobj,
-                                   Q3DRAY     *qray,
-                                   Q3DSURFACE *discard,
-                                   float       frame,
-                                   uint64_t    query_flags,
-                                   uint64_t    render_flags );
+uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
+                                 Q3DRAY     *qray,
+                                 Q3DSURFACE *discard,
+                                 uint32_t  (*cond)(Q3DOBJECT *, 
+                                                   void      *),
+                                 void       *condData,
+                                 float       frame,
+                                 uint64_t    query_flags,
+                                 uint64_t    render_flags );
 G3DOBJECT *q3dobject_getObject   ( Q3DOBJECT *qobj );
 void       q3dobject_init        ( Q3DOBJECT *qobj,
                                    G3DOBJECT *obj,
                                    uint32_t   id,
                                    uint64_t   flags,
                                    void     (*Free)      ( Q3DOBJECT * ),
-                                   uint32_t (*Intersect) ( Q3DOBJECT *obj, 
+                                   uint32_t (*Intersect) ( Q3DOBJECT *obj,
                                                            Q3DRAY    *ray,
+                                                           uint32_t (*cond)(Q3DOBJECT*,void*),
+                                                           void      *condData,
                                                            float      frame,
                                                            uint64_t   query_flags,
                                                            uint64_t   render_flags ) );
@@ -1013,12 +1031,15 @@ void       q3dcamera_init ( Q3DCAMERA *qcam,
                             uint64_t   object_flags );
 
 /******************************************************************************/
-uint32_t q3dray_shoot_r ( Q3DRAY      *qray, 
-                          Q3DJOB      *qjob,
-                          Q3DSURFACE  *sdiscard,
-                          float        frame,
-                          uint32_t     nbhop,
-                          uint32_t     query_flags );
+uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
+                          Q3DJOB     *qjob,
+                          Q3DSURFACE *sdiscard,
+                          uint32_t  (*cond)(Q3DOBJECT*,
+                                            void *),
+                          void       *condData,
+                          float       frame,
+                          uint32_t    nbhop,
+                          uint32_t    query_flags );
 
 uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DMESH     *qmes,
