@@ -49,7 +49,6 @@ static uint32_t excludeIfPerfectSphere ( Q3DOBJECT *qobj, void *data ) {
 /******************************************************************************/
 /*** Note: Source is in World coordinates ***/
 uint32_t q3dray_illumination ( Q3DRAY          *qray,
-                               Q3DINTERSECTION *wisx,
                                Q3DJOB          *qjob,
                                Q3DSURFACE      *sdiscard,
                                float            frame,
@@ -77,9 +76,9 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 
         q3dvector3f_matrix ( &pzero, qobjlig->obj->wmatrix, &qligwpos );
 
-        luxqray.src.x   = wisx->src.x;
-        luxqray.src.y   = wisx->src.y;
-        luxqray.src.z   = wisx->src.z;
+        luxqray.src.x   = qray->isx.src.x;
+        luxqray.src.y   = qray->isx.src.y;
+        luxqray.src.z   = qray->isx.src.z;
 
         luxqray.dir.x   = qligwpos.x - luxqray.src.x;
         luxqray.dir.y   = qligwpos.y - luxqray.src.y;
@@ -90,7 +89,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 
         q3dvector3f_normalize ( &luxqray.dir, &distancetoLight );
 
-        dot = q3dvector3f_scalar ( &luxqray.dir, &wisx->dir );
+        dot = q3dvector3f_scalar ( &luxqray.dir, &qray->isx.dir );
 
         if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
             if ( dot > 0.0f ) {
@@ -98,7 +97,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                   qjob,
                                   sdiscard,
                                   excludeIfPerfectSphere,
-                                  wisx->qobj,
+                                  qray->isx.qobj,
                                   frame,
                                   nbhop,
                                   RAYQUERYHIT );
@@ -388,49 +387,10 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
 }
 
 /******************************************************************************/
-static void q3dray_getWorldIntersection ( Q3DRAY          *qray,
-                                          Q3DSCENE        *qsce,
-                                          float            frame,
-                                          Q3DINTERSECTION *wisx ) {
-    Q3DOBJECT *qobj = qsce->qobjidx[qray->qobjID];
-
-    if ( qobj->obj->type & MESH ) {
-        Q3DMESH *qmes = ( Q3DMESH * ) qobj;
-        Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
-        Q3DVECTOR3F src = { .x = qray->src.x + ( qray->dir.x * qray->distance ),
-                            .y = qray->src.y + ( qray->dir.y * qray->distance ),
-                            .z = qray->src.z + ( qray->dir.z * qray->distance ) };
-        Q3DTRIANGLE *qtri = &qmes->qtri[qray->qtriID];
-        uint32_t qverID[0x03] = { qtri->qverID[0x00],
-                                  qtri->qverID[0x01],
-                                  qtri->qverID[0x02] };
-
-        Q3DVECTOR3F dir = { .x = ( qver[qverID[0]].nor.x * qray->ratio[0] ) +
-                                 ( qver[qverID[1]].nor.x * qray->ratio[1] ) +
-                                 ( qver[qverID[2]].nor.x * qray->ratio[2] ),
-                            .y = ( qver[qverID[0]].nor.y * qray->ratio[0] ) +
-                                 ( qver[qverID[1]].nor.y * qray->ratio[1] ) +
-                                 ( qver[qverID[2]].nor.y * qray->ratio[2] ),
-                            .z = ( qver[qverID[0]].nor.z * qray->ratio[0] ) +
-                                 ( qver[qverID[1]].nor.z * qray->ratio[1] ) +
-                                 ( qver[qverID[2]].nor.z * qray->ratio[2] ) };
-
-        /*q3dvector3f_matrix ( &src, qray->qobj->obj->wmatrix , &wisx->src );*/
-        q3dvector3f_matrix ( &dir, qobj->TIWMVX, &wisx->dir );
-
-        memcpy ( &wisx->src, &src, sizeof ( Q3DVECTOR3F ) );
-
-        wisx->qobj = qobj;
-        wisx->qsur = qtri;
-    }
-}
-
-/******************************************************************************/
 static uint32_t q3dray_reflect ( Q3DRAY          *qray,
-                                 Q3DINTERSECTION *wisx,
                                  Q3DRAY          *qout ) {
     float dot = q3dvector3f_scalar ( ( Q3DVECTOR3F * ) &qray->dir,
-                                     ( Q3DVECTOR3F * ) &wisx->dir );
+                                     ( Q3DVECTOR3F * ) &qray->isx.dir );
 
     if ( dot > 0.0f ) {
         return 0x00;
@@ -443,15 +403,15 @@ static uint32_t q3dray_reflect ( Q3DRAY          *qray,
         qout->distance = INFINITY;
 
         /*** reflected ray origin is parent ray intersection point ***/
-        memcpy ( &qout->src, &wisx->src, sizeof ( Q3DVECTOR3F ) );
+        memcpy ( &qout->src, &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
 
         qout->x = qray->x;
         qout->y = qray->y;
 
         /*** reflection formula ***/
-        qout->dir.x = qray->dir.x - ( dotby2 * wisx->dir.x );
-        qout->dir.y = qray->dir.y - ( dotby2 * wisx->dir.y );
-        qout->dir.z = qray->dir.z - ( dotby2 * wisx->dir.z );
+        qout->dir.x = qray->dir.x - ( dotby2 * qray->isx.dir.x );
+        qout->dir.y = qray->dir.y - ( dotby2 * qray->isx.dir.y );
+        qout->dir.z = qray->dir.z - ( dotby2 * qray->isx.dir.z );
 
         q3dvector3f_normalize ( &qout->dir, NULL );
 
@@ -507,11 +467,11 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                              RAYQUERYHIT );
 
             if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {
-                qobj = q3dscene_getObjectByID ( qjob->qsce, qray->qobjID );
+                qobj = qray->isx.qobj;
 
                 qmes = ( Q3DMESH * ) qobj;
 
-                qtri = &qmes->qtri[qray->qtriID];
+                qtri = qray->isx.qsur;
             }
 
             q3darea_getZBuffer ( &qjob->qarea, 
@@ -549,8 +509,8 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         qray->color    = locqray.color;
                         qray->distance = locqray.distance;
 
-                        qray->qobjID   = zout.qobjID;
-                        qray->qtriID   = zout.qtriID;
+                        qray->isx.qobj  = qobj;
+                        qray->isx.qsur  = qtri;
 
                         qray->ratio[0x00] = locqray.ratio[0x00];
                         qray->ratio[0x01] = locqray.ratio[0x01];
@@ -579,12 +539,12 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                          frame,
                                          query_flags,
                                     /*render_flags*/0x00 ) ) {
-                qobj = q3dscene_getObjectByID ( qjob->qsce, qray->qobjID );
+                qobj = qray->isx.qobj;
 
                 if ( qobj->obj->type & MESH ) {
                     qmes = ( Q3DMESH * ) qobj;
 
-                    qtri = &qmes->qtri[qray->qtriID];
+                    qtri = qray->isx.qsur;
                 }
             }
         }
@@ -601,12 +561,9 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             Q3DRGBA lightDiffuse       = { 0x80, 0x80, 0x80, 0x80 },
                     lightSpecular      = { 0x80, 0x80, 0x80, 0x80 };
             Q3DRGBA diffuse            = { 0x80, 0x80, 0x80, 0x80 };
-            Q3DINTERSECTION wisx;
 
             if ( query_flags & RAYQUERYSURFACECOLOR ) {
                 G3DMESH *mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
-
-                q3dray_getWorldIntersection ( qray, qjob->qsce, frame, &wisx );
 
                 q3dray_getSurfaceColor ( qray, 
                                          qobj,
@@ -629,7 +586,6 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         Q3DRAY refqray;
 
                         if ( q3dray_reflect ( qray,
-                                             &wisx,
                                              &refqray ) ) {
                             uint32_t rCol = q3dray_shoot_r ( &refqray,
                                                               qjob,
@@ -666,7 +622,6 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
             if ( query_flags & RAYQUERYLIGHTING ) {
                 q3dray_illumination (  qray,
-                                      &wisx,
                                        qjob,
                                        qtri,
                                        frame,

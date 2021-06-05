@@ -70,7 +70,7 @@ uint32_t q3dmesh_intersect ( Q3DMESH    *qmes,
                                  qverset->qver,
                                  query_flags,
                                  render_flags ) ) {
-        qray->qobjID = ((Q3DOBJECT*)qmes)->id;
+        qray->isx.qobj = ( Q3DOBJECT * )qmes;
 
         return 0x01;
     }

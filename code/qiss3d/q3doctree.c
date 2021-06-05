@@ -254,7 +254,7 @@ uint32_t q3doctree_intersect_r ( Q3DOCTREE   *qoct,
                                                         query_flags );
 
                 if ( ret ) {
-                    qray->qtriID = qoct->children.qtriID[i];
+                    qray->isx.qsur = &qtri[qtriID];
                 }
 
                 trihit += ret;

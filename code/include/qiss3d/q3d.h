@@ -427,10 +427,11 @@ typedef struct _Q3DOBJECT {
     uint32_t   id;
     uint64_t   flags;
     LIST      *lchildren;
-    double     IMVX[0x10];
-    double     TMVX[0x10];
-    double     IWMVX[0x10];
-    double    TIWMVX[0x10];
+    double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
+    double     TMVX[0x10];  /*** Transpose ModelView Matrix         ***/
+    double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
+    double     IWMVX[0x10]; /*** Inverse World ModelView Matrix     ***/
+    double    TIWMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT  *obj, 
                                   Q3DRAY     *ray, 
@@ -455,16 +456,15 @@ typedef struct _Q3DINTERSECTION {
 #define Q3DRAY_HAS_HIT_BIT  ( 1 << 1 )
 
 typedef struct _Q3DRAY {
-    uint32_t     flags;
-    Q3DVECTOR3F  src; /*** origin ***/
-    Q3DVECTOR3F  dir; /*** direction vector ***/
-    uint32_t     qobjID;
-    uint32_t     qtriID;
-    float        distance; /*** hit distance for Z sorting ***/
-    float        energy;
-    int32_t      x, y;
-    float        ratio[0x03];
-    uint32_t     color;
+    uint32_t        flags;
+    Q3DVECTOR3F     src; /*** origin ***/
+    Q3DVECTOR3F     dir; /*** direction vector ***/
+    float           distance; /*** hit distance for Z sorting ***/
+    float           energy;
+    int32_t         x, y;
+    float           ratio[0x03];
+    Q3DINTERSECTION isx; /*** in world coordinates ***/
+    uint32_t        color;
 } Q3DRAY;
 
 /******************************************************************************/

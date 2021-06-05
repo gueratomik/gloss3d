@@ -139,7 +139,27 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                                           &RAT0, 
                                           &RAT1,
                                           &RAT2 ) ) {
-                    /*** Interpolation ratios ***/
+                    uint32_t qverID[0x03] = { qtri->qverID[0x00],
+                                              qtri->qverID[0x01],
+                                              qtri->qverID[0x02] };
+
+                    qray->isx.src.x = qpnt.x;
+                    qray->isx.src.y = qpnt.y;
+                    qray->isx.src.z = qpnt.z;
+
+                    qray->isx.dir.x = ( qver[qverID[0]].nor.x * RAT0 ) +
+                                      ( qver[qverID[1]].nor.x * RAT1 ) +
+                                      ( qver[qverID[2]].nor.x * RAT2 );
+                    qray->isx.dir.y = ( qver[qverID[0]].nor.y * RAT0 ) +
+                                      ( qver[qverID[1]].nor.y * RAT1 ) +
+                                      ( qver[qverID[2]].nor.y * RAT2 );
+                    qray->isx.dir.z = ( qver[qverID[0]].nor.z * RAT0 ) +
+                                      ( qver[qverID[1]].nor.z * RAT1 ) +
+                                      ( qver[qverID[2]].nor.z * RAT2 );
+printf("%f %f %f\n", qray->isx.dir.x, qray->isx.dir.y, qray->isx.dir.z );
+                    qray->isx.qsur = qtri;
+
+                    /*** save Interpolation ratios for UVs ***/
                     qray->ratio[0x00] = RAT0;
                     qray->ratio[0x01] = RAT1;
                     qray->ratio[0x02] = RAT2;
@@ -148,19 +168,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
 
                     /*** intersection occured, let's remember it ***/
                     qray->flags |= Q3DRAY_HAS_HIT_BIT;
-/*
-                    qray->nor.x = ( ( RAT0 * qtri->rvernor[0].x * invert ) + 
-                                    ( RAT1 * qtri->rvernor[1].x * invert ) + 
-                                    ( RAT2 * qtri->rvernor[2].x * invert ) );
-
-                    qray->nor.y = ( ( RAT0 * qtri->rvernor[0].y * invert ) + 
-                                    ( RAT1 * qtri->rvernor[1].y * invert ) + 
-                                    ( RAT2 * qtri->rvernor[2].y * invert ) );
-
-                    qray->nor.z = ( ( RAT0 * qtri->rvernor[0].z * invert ) + 
-                                    ( RAT1 * qtri->rvernor[1].z * invert ) + 
-                                    ( RAT2 * qtri->rvernor[2].z * invert ) );
-*/
+  
                     return 0x01;
                 }
             }

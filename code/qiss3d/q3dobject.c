@@ -160,12 +160,24 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     qray->flags   |= locqray.flags;
     qray->color    = locqray.color;
     qray->distance = locqray.distance;
-    qray->qobjID   = locqray.qobjID;
-    qray->qtriID   = locqray.qtriID;
+    qray->isx.qobj   = locqray.isx.qobj;
+    qray->isx.qsur   = locqray.isx.qsur;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
     qray->ratio[0x01] = locqray.ratio[0x01];
     qray->ratio[0x02] = locqray.ratio[0x02];
+
+    if ( hit ) {
+        Q3DVECTOR3F src = { .x = qray->isx.src.x,
+                            .y = qray->isx.src.y,
+                            .z = qray->isx.src.z },
+                    dir = { .x = qray->isx.dir.x,
+                            .y = qray->isx.dir.y,
+                            .z = qray->isx.dir.z };
+
+        q3dvector3f_matrix ( &src, qobj->obj->lmatrix, &qray->isx.src );
+        q3dvector3f_matrix ( &dir, qobj->TIMVX, &qray->isx.dir );
+    }
 
     return ( hit ) ? 0x01 : 0x00;
 }
@@ -196,6 +208,7 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     qobj->intersect = Intersect;
 
     g3dcore_invertMatrix    ( obj->lmatrix, qobj->IMVX );
+    g3dcore_transposeMatrix ( qobj->IMVX, qobj->TIMVX );
     /*** When a point is multiplied by a matrix, we multiply its normal ***/
     /*** by the transpose inverse. Here, the matrix is already the inverse ***/
     /*** hence the inverse of the inverse is the matrix itself. We just ***/
