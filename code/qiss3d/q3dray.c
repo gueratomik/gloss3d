@@ -74,7 +74,6 @@ static uint32_t q3dray_reflect ( Q3DRAY          *qray,
         qout->dir.z = qray->dir.z - ( dotby2 * qray->isx.dir.z );
 
         q3dvector3f_normalize ( &qout->dir, NULL );
-
     }
 
     return 0x01;
@@ -210,8 +209,6 @@ void q3dray_specular ( Q3DRAY      *qray,
         LIST *ltmptex = mes->ltex;
         uint32_t total = 0x00;
 
-        memset ( specular, 0x00, sizeof ( Q3DRGBA ) );
-
         while ( ltmptex ) {
             G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
             G3DMATERIAL *mat = tex->mat;
@@ -252,13 +249,21 @@ void q3dray_specular ( Q3DRAY      *qray,
                                               &retval,
                                                repeat );
 
-                        spcqray.src.x = qray->isx.src.x;
-                        spcqray.src.y = qray->isx.src.y;
-                        spcqray.src.z = qray->isx.src.z;
+                        spcqray.src.x = qlig->wpos.x;
+                        spcqray.src.y = qlig->wpos.y;
+                        spcqray.src.z = qlig->wpos.z;
 
                         spcqray.dir.x = ( qray->isx.src.x - qlig->wpos.x );
                         spcqray.dir.y = ( qray->isx.src.y - qlig->wpos.y );
                         spcqray.dir.z = ( qray->isx.src.z - qlig->wpos.z );
+
+                        spcqray.isx.src.x = qray->isx.src.x;
+                        spcqray.isx.src.y = qray->isx.src.y;
+                        spcqray.isx.src.z = qray->isx.src.z;
+
+                        spcqray.isx.dir.x = qray->isx.dir.x;
+                        spcqray.isx.dir.y = qray->isx.dir.y;
+                        spcqray.isx.dir.z = qray->isx.dir.z;
 
                         q3dvector3f_normalize ( &spcqray.dir, NULL );
 
@@ -427,10 +432,10 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 #endif
         }
 
-        q3dray_specular ( qray, qlig, qjob->qcam, specular );
-
         if ( dot > 0.0f ) {
             float rate = dot * lig->intensity;
+
+            q3dray_specular ( qray, qlig, qjob->qcam, specular );
 
             diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
             diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
@@ -770,7 +775,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                     materialRefraction = { 0x80, 0x80, 0x80, 0x80 },
                     materialAlpha      = { 0x80, 0x80, 0x80, 0x80 };
             Q3DRGBA lightDiffuse       = { 0x80, 0x80, 0x80, 0x80 },
-                    lightSpecular      = { 0x80, 0x80, 0x80, 0x80 };
+                    lightSpecular      = { 0x00, 0x00, 0x00, 0x00 };
             Q3DRGBA diffuse            = { 0x80, 0x80, 0x80, 0x80 };
 
             if ( query_flags & RAYQUERYSURFACECOLOR ) {

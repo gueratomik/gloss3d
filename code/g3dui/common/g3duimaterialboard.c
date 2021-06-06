@@ -32,41 +32,18 @@
 /******************************************************************************/
 void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    LIST *ltmpobj = sce->lsel;
     G3DMATERIAL *mat = gui->selmat;
 
-    if ( obj && mat ) {
-        if ( ( obj->type == G3DMESHTYPE ) ||
-             ( obj->type == G3DTEXTTYPE ) ||
-           ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
-            G3DMESH  *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *map = g3dmesh_getLastUVMap ( mes );
-            G3DTEXTURE *tex;
-
-            /*** A textured mesh should ALWAYS have a UVMAP.     ***/
-            /*** Likely design issue - to FIX when I have time ***/
-            if ( map == NULL ) {
-                map = g3duvmap_new ( "UVMap", UVMAPFLAT );
-
-                g3dmesh_addUVMap ( mes, map, NULL, gui->engine_flags );
-
-                g3dmesh_unselectAllUVMaps ( mes );
-                g3dmesh_selectUVMap ( mes, map );
-
-                common_g3duimenubar_fitUVMapCbk ( gui );
-
-                g3duvmap_applyProjection ( map, mes );
-            }
-
-            tex = g3dtexture_new ( mes, mat, map );
-
-            g3durm_mesh_addTexture ( gui->urm, 
-                                     mes, 
-                                     tex,
-                                     gui->engine_flags,
-                                     REDRAWVIEW | REDRAWLIST );
-        }
+    if ( mat ) {
+        g3durm_selection_addTexture ( gui->urm,
+                                      sce->lsel, 
+                                      mat,
+                                      gui->engine_flags,
+                                      REDRAWVIEW | REDRAWLIST );
     }
+
+    common_g3duimenubar_fitUVMapCbk ( gui );
 
     g3dui_redrawGLViews ( gui );
 }

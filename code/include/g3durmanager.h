@@ -165,12 +165,6 @@ typedef struct _URMREMOVETEXTURE {
 } URMREMOVETEXTURE;
 
 /******************************************************************************/
-typedef struct _URMADDTEXTURE {
-    G3DOBJECT   *obj;
-    G3DTEXTURE  *tex;
-} URMADDTEXTURE;
-
-/******************************************************************************/
 typedef struct _URMADDMATERIAL {
     G3DSCENE    *sce;
     G3DMATERIAL *mat;
@@ -725,7 +719,7 @@ void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_addTexture ( G3DURMANAGER *urm,
-                              G3DMESH      *mes,
+                              LIST         *lobj,
                               G3DTEXTURE   *tex,
                               uint64_t      engine_flags,
                               uint32_t      return_flags );
