@@ -169,6 +169,12 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimport_freadl ( &chess->vdiv, fsrc );
             } break;
 
+            case SIG_CHANNEL_PROCEDURAL_CHESS : {
+                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
+
+                g3dchannel_setProcedural ( gid->currentChannel, proc );
+            } break;
+
             case SIG_CHANNEL_PROCEDURAL_CHESS_COLORS : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;

@@ -40,8 +40,28 @@ typedef struct _Q3DDUMP {
 } Q3DDUMP;
 
 /******************************************************************************/
-void q3dmesh_free ( Q3DMESH *qmes ) {
+void q3dmesh_freeVertexSets ( Q3DMESH *qmes ) {
+    if ( qmes->nbVertexSet ) {
+        uint32_t i;
 
+        for ( i = 0x00; i < qmes->nbVertexSet; i++ ) {
+            Q3DVERTEXSET *qverset = &qmes->vertexSet[i];
+
+            q3doctree_free_r ( qverset->qoct );
+
+            if ( qverset->qver ) free ( qverset->qver );
+        }
+
+        free ( qmes->vertexSet );
+    }
+}
+
+/******************************************************************************/
+void q3dmesh_free ( Q3DMESH *qmes ) {
+    if ( qmes->quvs  ) free ( qmes->quvs );
+    if ( qmes->qtri  ) free ( qmes->qtri );
+
+    q3dmesh_freeVertexSets ( qmes );
 }
 
 /******************************************************************************/

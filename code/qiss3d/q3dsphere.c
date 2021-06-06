@@ -83,28 +83,46 @@ uint32_t q3dsphere_intersect ( Q3DMESH    *qmes,
 
             q3dvector3f_normalize ( &newqray.dir, NULL );
 
-            /*** In case of a discarded face, the mesh would return 0 ***/
+            qray->isx.src.x = newqray.src.x;
+            qray->isx.src.y = newqray.src.y;
+            qray->isx.src.z = newqray.src.z;
+
+            qray->isx.dir.x = -newqray.dir.x;
+            qray->isx.dir.y = -newqray.dir.y;
+            qray->isx.dir.z = -newqray.dir.z;
+
+            qray->distance = distance;
+
+            /*** intersection occured, let's remember it ***/
+            qray->flags |= Q3DRAY_HAS_HIT_BIT;
+
+
+            /*** We back off the ray's origin a bit because there were rare ***/
+            /*** situations where the ray started inside the sphere due to  ***/
+            /*** imprecision or displacement. 100.0f should cover even the  ***/
+            /*** most displaced surfaces ***/
+            newqray.src.x -= ( newqray.dir.x * 100.0f );
+            newqray.src.y -= ( newqray.dir.y * 100.0f );
+            newqray.src.z -= ( newqray.dir.z * 100.0f );
+
+
+            /*** Note: In case of a discarded face, the mesh would return 0 ***/
             /*** We only want the ray to intersect it does not hit a ***/
             /*** discarded face, otherwise there'll be small dots ***/
             if ( q3dmesh_intersect ( qmes,
                                     &newqray, 
-                                     discard,
+                                     NULL,
                                      cond,
                                      condData,
                                      frame,
                                      query_flags,
                                      render_flags ) ) {
-
                  qray->isx.qobj    = newqray.isx.qobj;
                  qray->isx.qsur    = newqray.isx.qsur;
-                 qray->distance    = distance;
 
                  qray->ratio[0x00] = newqray.ratio[0x00];
                  qray->ratio[0x01] = newqray.ratio[0x01];
                  qray->ratio[0x02] = newqray.ratio[0x02];
-
-                 /*** intersection occured, let's remember it ***/
-                 qray->flags |= Q3DRAY_HAS_HIT_BIT;
 
                 return 0x01;
             }

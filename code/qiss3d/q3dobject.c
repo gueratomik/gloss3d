@@ -70,11 +70,17 @@ uint32_t q3dobject_count_r ( Q3DOBJECT *qobj ) {
 /******************************************************************************/
 void q3dobject_free ( Q3DOBJECT *qobj ) {
     if ( qobj->free ) qobj->free ( qobj );
+
+    free ( qobj );
 }
 
 /******************************************************************************/
 void q3dobject_free_r ( Q3DOBJECT *qobj ) {
     LIST *ltmpchildren = qobj->lchildren;
+
+    if ( qobj->obj->name ) {
+        printf ( "Freeing render memory for:%s\n", qobj->obj->name );
+    }
 
     if ( qobj->free ) qobj->free ( qobj );
 
@@ -85,6 +91,8 @@ void q3dobject_free_r ( Q3DOBJECT *qobj ) {
 
         ltmpchildren = ltmpchildren->next;
     }
+
+    free ( qobj );
 }
 
 /******************************************************************************/
@@ -160,23 +168,17 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     qray->flags   |= locqray.flags;
     qray->color    = locqray.color;
     qray->distance = locqray.distance;
-    qray->isx.qobj   = locqray.isx.qobj;
-    qray->isx.qsur   = locqray.isx.qsur;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
     qray->ratio[0x01] = locqray.ratio[0x01];
     qray->ratio[0x02] = locqray.ratio[0x02];
 
     if ( hit ) {
-        Q3DVECTOR3F src = { .x = qray->isx.src.x,
-                            .y = qray->isx.src.y,
-                            .z = qray->isx.src.z },
-                    dir = { .x = qray->isx.dir.x,
-                            .y = qray->isx.dir.y,
-                            .z = qray->isx.dir.z };
+        qray->isx.qobj   = locqray.isx.qobj;
+        qray->isx.qsur   = locqray.isx.qsur;
 
-        q3dvector3f_matrix ( &src, qobj->obj->lmatrix, &qray->isx.src );
-        q3dvector3f_matrix ( &dir, qobj->TIMVX, &qray->isx.dir );
+        q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
+        q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
     }
 
     return ( hit ) ? 0x01 : 0x00;

@@ -47,12 +47,269 @@ static uint32_t excludeIfPerfectSphere ( Q3DOBJECT *qobj, void *data ) {
 }
 
 /******************************************************************************/
+static uint32_t q3dray_reflect ( Q3DRAY          *qray,
+                                 Q3DRAY          *qout ) {
+    float dot = q3dvector3f_scalar ( ( Q3DVECTOR3F * ) &qray->dir,
+                                     ( Q3DVECTOR3F * ) &qray->isx.dir );
+
+    if ( dot > 0.0f ) {
+        return 0x00;
+    } else {
+        float dotby2 = dot * 2.0f;
+
+        memset ( qout, 0x00, sizeof ( Q3DRAY ) );
+
+        /*** init the depth value for depth sorting ***/
+        qout->distance = INFINITY;
+
+        /*** reflected ray origin is parent ray intersection point ***/
+        memcpy ( &qout->src, &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
+
+        qout->x = qray->x;
+        qout->y = qray->y;
+
+        /*** reflection formula ***/
+        qout->dir.x = qray->dir.x - ( dotby2 * qray->isx.dir.x );
+        qout->dir.y = qray->dir.y - ( dotby2 * qray->isx.dir.y );
+        qout->dir.z = qray->dir.z - ( dotby2 * qray->isx.dir.z );
+
+        q3dvector3f_normalize ( &qout->dir, NULL );
+
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+void q3dray_bump ( Q3DRAY      *qray,
+                   float        frame,
+                   LIST        *ltex ) {
+    LIST *ltmptex = ltex;
+    Q3DVECTOR3F totbump = { 0.0f, 0.0f, 0.0f };
+    uint32_t total = 0x00;
+
+    while ( ltmptex ) {
+        G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
+        G3DMATERIAL *mat = tex->mat;
+        uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
+
+        if ( tex->map ) {
+            uint32_t mapID = tex->map->mapID;
+            float avgu = 0.0f,
+                  avgv = 0.0f;
+
+            switch ( tex->map->projection ) {
+                /*
+                 * In background mapping mode, we don't want any perspective
+                 * distorsion applied to the texture. That's why we retrieve
+                 * the UV coordinates from the screen.
+                 */
+                case UVMAPBACKGROUND : {
+                    /*** currently unsupported ****/
+                } break;
+
+                default: {
+                    avgu = ( ( qray->isx.qsur->tri.quvs[mapID].uv[0x00].u * qray->ratio[0x00] ) +
+                             ( qray->isx.qsur->tri.quvs[mapID].uv[0x01].u * qray->ratio[0x01] ) +
+                             ( qray->isx.qsur->tri.quvs[mapID].uv[0x02].u * qray->ratio[0x02] ) ),
+                    avgv = ( ( qray->isx.qsur->tri.quvs[mapID].uv[0x00].v * qray->ratio[0x00] ) +
+                             ( qray->isx.qsur->tri.quvs[mapID].uv[0x01].v * qray->ratio[0x01] ) +
+                             ( qray->isx.qsur->tri.quvs[mapID].uv[0x02].v * qray->ratio[0x02] ) );
+                } break;
+            }
+
+            if ( mat ) {
+                if ( mat->flags & BUMP_ENABLED ) {
+                    float strength = mat->bump.solid.r;
+                    Q3DVECTOR3F tangent;
+                    Q3DVECTOR3F binomial;
+                    G3DVECTOR bumpnor;
+                    G3DVECTOR finbump;
+                    Q3DMESH *qmes = ( Q3DMESH * ) qray->isx.qobj;
+                    Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
+                    Q3DVECTOR3F *p0 = &qver[qray->isx.qsur->tri.qverID[0x00]].pos,
+                                *p1 = &qver[qray->isx.qsur->tri.qverID[0x01]].pos,
+                                *p2 = &qver[qray->isx.qsur->tri.qverID[0x02]].pos;
+                    Q3DUVSET *quvs = &qray->isx.qsur->tri.quvs[mapID];
+                    Q3DUV *w0 = &quvs->uv[0x00],
+                          *w1 = &quvs->uv[0x01],
+                          *w2 = &quvs->uv[0x02];
+                    double TBN[0x09];
+                /*** see "Computing Tangent Space Basis Vectors for an Arbitrary Mesh" ***/
+                    /*** XYZ system ***/
+                    float x1 = p1->x - p0->x;
+                    float x2 = p2->x - p0->x;
+                    float y1 = p1->y - p0->y;
+                    float y2 = p2->y - p0->y;
+                    float z1 = p1->z - p0->z;
+                    float z2 = p2->z - p0->z;
+                    /*** UVs  system ****/
+                    float s1 = w1->u - w0->u;
+                    float s2 = w2->u - w0->u;
+                    float t1 = w1->v - w0->v;
+                    float t2 = w2->v - w0->v;
+                    float r = 1.0f / (s1 * t2 - s2 * t1 );
+                    tangent.x = (t2 * x1 - t1 * x2) * r;
+                    tangent.y = (t2 * y1 - t1 * y2) * r;
+                    tangent.z = (t2 * z1 - t1 * z2) * r;
+
+                    binomial.x = (s1 * x2 - s2 * x1) * r, 
+                    binomial.y = (s1 * y2 - s2 * y1) * r,
+                    binomial.z = (s1 * z2 - s2 * z1) * r;
+
+                    q3dvector3f_normalize ( &tangent , NULL );
+                    q3dvector3f_normalize ( &binomial, NULL );
+
+                    TBN[0x00] = tangent.x;
+                    TBN[0x01] = tangent.y;
+                    TBN[0x02] = tangent.z;
+                    TBN[0x03] = binomial.x;
+                    TBN[0x04] = binomial.y;
+                    TBN[0x05] = binomial.z;
+                    TBN[0x06] = qray->isx.dir.x;
+                    TBN[0x07] = qray->isx.dir.y;
+                    TBN[0x08] = qray->isx.dir.z;
+
+                    g3dchannel_getNormal ( &mat->bump,
+                                            avgu,
+                                            avgv,
+                                           &bumpnor,
+                                            repeat,
+                                            0.01f,
+                                            0.01f,
+                                            0x00 );
+
+                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
+
+                    totbump.x += ( qray->isx.dir.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
+                    totbump.y += ( qray->isx.dir.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
+                    totbump.z += ( qray->isx.dir.z * ( 1.0f - strength ) ) + ( finbump.z * strength );
+
+                    total++;
+                }
+            }
+        }
+
+        ltmptex = ltmptex->next;
+    }
+
+    if ( total ) {
+        qray->isx.dir.x = totbump.x / total;
+        qray->isx.dir.y = totbump.y / total;
+        qray->isx.dir.z = totbump.z / total;
+    }
+}
+
+/******************************************************************************/
+void q3dray_specular ( Q3DRAY      *qray,
+                       Q3DLIGHT    *qlig,
+                       Q3DCAMERA   *qcam,
+                       Q3DRGBA     *specular ) {
+    if ( qray->isx.qobj->obj->type & MESH ) {
+        G3DMESH *mes = ( G3DMESH * ) qray->isx.qobj->obj;
+        LIST *ltmptex = mes->ltex;
+        uint32_t total = 0x00;
+
+        memset ( specular, 0x00, sizeof ( Q3DRGBA ) );
+
+        while ( ltmptex ) {
+            G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
+            G3DMATERIAL *mat = tex->mat;
+            uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
+            Q3DRGBA retval;
+            Q3DRAY spcqray, refqray;
+
+            if ( tex->map ) {
+                uint32_t mapID = tex->map->mapID;
+                float avgu = 0.0f,
+                      avgv = 0.0f;
+
+                switch ( tex->map->projection ) {
+                    /*
+                     * In background mapping mode, we don't want any perspective
+                     * distorsion applied to the texture. That's why we retrieve
+                     * the UV coordinates from the screen.
+                     */
+                    case UVMAPBACKGROUND : {
+                        /*** currently unsupported ****/
+                    } break;
+
+                    default: {
+                        avgu = ( ( qray->isx.qsur->tri.quvs[mapID].uv[0x00].u * qray->ratio[0x00] ) +
+                                 ( qray->isx.qsur->tri.quvs[mapID].uv[0x01].u * qray->ratio[0x01] ) +
+                                 ( qray->isx.qsur->tri.quvs[mapID].uv[0x02].u * qray->ratio[0x02] ) ),
+                        avgv = ( ( qray->isx.qsur->tri.quvs[mapID].uv[0x00].v * qray->ratio[0x00] ) +
+                                 ( qray->isx.qsur->tri.quvs[mapID].uv[0x01].v * qray->ratio[0x01] ) +
+                                 ( qray->isx.qsur->tri.quvs[mapID].uv[0x02].v * qray->ratio[0x02] ) );
+                    } break;
+                }
+
+                if ( mat ) {
+                    if ( mat->flags & SPECULAR_ENABLED ) {
+                        g3dchannel_getColor ( &mat->specular, 
+                                               avgu, 
+                                               avgv, 
+                                              &retval,
+                                               repeat );
+
+                        spcqray.src.x = qray->isx.src.x;
+                        spcqray.src.y = qray->isx.src.y;
+                        spcqray.src.z = qray->isx.src.z;
+
+                        spcqray.dir.x = ( qray->isx.src.x - qlig->wpos.x );
+                        spcqray.dir.y = ( qray->isx.src.y - qlig->wpos.y );
+                        spcqray.dir.z = ( qray->isx.src.z - qlig->wpos.z );
+
+                        q3dvector3f_normalize ( &spcqray.dir, NULL );
+
+                        if ( q3dray_reflect ( &spcqray, &refqray ) ) {
+                            Q3DVECTOR3F qcamdir;
+                            float dot;
+
+                            qcamdir.x = ( qcam->wpos.x - qray->isx.src.x );
+                            qcamdir.y = ( qcam->wpos.y - qray->isx.src.y );
+                            qcamdir.z = ( qcam->wpos.z - qray->isx.src.z );
+
+                            q3dvector3f_normalize ( &qcamdir, NULL );
+
+                            dot = q3dvector3f_scalar ( &refqray.dir,
+                                                       &qcamdir ) /** spotFactor*/;
+
+                            if ( dot > 0.0f ) {
+                                G3DCOLOR color = { .r = ( float ) retval.r / 255,
+                                                   .g = ( float ) retval.g / 255,
+                                                   .b = ( float ) retval.b / 255 };
+                                G3DLIGHT *lig = q3dobject_getObject ( qlig );
+                                float specularCoefficient = pow ( dot, mat->shininess );
+                                    uint32_t R = ( lig->specularColor.r * mat->specular_level * color.r * specularCoefficient ),
+                                             G = ( lig->specularColor.g * mat->specular_level * color.g * specularCoefficient ),
+                                             B = ( lig->specularColor.b * mat->specular_level * color.b * specularCoefficient );
+
+                                specular->r += R;
+                                specular->g += G;
+                                specular->b += B;
+                            }
+                        }
+                    }
+                }
+            }
+
+            ltmptex = ltmptex->next;
+        }
+
+        if ( specular->r > 0xFF ) specular->r = 0xFF;
+        if ( specular->g > 0xFF ) specular->g = 0xFF;
+        if ( specular->b > 0xFF ) specular->b = 0xFF;
+        if ( specular->a > 0xFF ) specular->a = 0xFF;
+    }
+}
+
+/******************************************************************************/
 /*** Note: Source is in World coordinates ***/
 uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                Q3DJOB          *qjob,
                                Q3DSURFACE      *sdiscard,
                                float            frame,
-                               Q3DVECTOR3F     *bumpnor,
                                Q3DRGBA         *diffuse,
                                Q3DRGBA         *specular,
                                uint32_t         nbhop ) {
@@ -60,7 +317,6 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
     LIST *ltmpqlig = qjob->qsce->llights;
 
     memset ( diffuse , 0x00, sizeof ( Q3DRGBA ) );
-    memset ( specular, 0x00, sizeof ( Q3DRGBA ) );
 
     while ( ltmpqlig ) {
         Q3DLIGHT  *qlig    = ( Q3DLIGHT *  ) ltmpqlig->data;
@@ -70,6 +326,8 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
         float distancetoLight;
         Q3DVECTOR3F qligwpos;
         Q3DRAY luxqray;
+        Q3DRAY refqray;
+        Q3DRAY spcqray;
         float shadow = 0.0f;
         float dot;
         uint32_t i;
@@ -169,6 +427,8 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 #endif
         }
 
+        q3dray_specular ( qray, qlig, qjob->qcam, specular );
+
         if ( dot > 0.0f ) {
             float rate = dot * lig->intensity;
 
@@ -179,6 +439,10 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 
         ltmpqlig = ltmpqlig->next;
     }
+
+    if ( diffuse->r > 0xFF ) diffuse->r = 0xFF;
+    if ( diffuse->g > 0xFF ) diffuse->g = 0xFF;
+    if ( diffuse->b > 0xFF ) diffuse->b = 0xFF;
 }
 
 /******************************************************************************/
@@ -189,7 +453,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   float        backgroundImageWidthRatio,
                                   Q3DRGBA     *diffuse,
                                   Q3DRGBA     *specular,
-                                  G3DVECTOR   *bump,
                                   Q3DRGBA     *reflection,
                                   Q3DRGBA     *refraction,
                                   Q3DRGBA     *alpha,
@@ -206,7 +469,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
 
     memset ( diffuse   , 0x00, sizeof ( Q3DRGBA   ) );
     memset ( specular  , 0x00, sizeof ( Q3DRGBA   ) );
-    memset ( bump      , 0x00, sizeof ( G3DVECTOR ) );
     memset ( reflection, 0x00, sizeof ( Q3DRGBA   ) );
     memset ( refraction, 0x00, sizeof ( Q3DRGBA   ) );
     memset ( alpha     , 0x00, sizeof ( Q3DRGBA   ) );
@@ -286,18 +548,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             divSpecular++;
         }
 
-        if ( mat->flags & BUMP_ENABLED ) {
-            G3DVECTOR bumpnor;
-
-            g3dchannel_getNormal ( &mat->bump, avgu, avgv, &bumpnor, repeat, 0.01f, 0.01f, 0x00 );
-
-            bump->x += bumpnor.x;
-            bump->y += bumpnor.y;
-            bump->z += bumpnor.z;
-
-            divBump++;
-        }
-
         if ( mat->flags & REFLECTION_ENABLED ) {
             g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval, repeat );
 
@@ -357,12 +607,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         specular->a /= divSpecular;
     }
 
-    if ( divBump ) {
-        bump->x /= divBump;
-        bump->y /= divBump;
-        bump->z /= divBump;
-    }
-
     if ( divReflection ) {
         reflection->r /= divReflection;
         reflection->g /= divReflection;
@@ -381,40 +625,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         alpha->r /= ( divAlpha );
         alpha->g /= ( divAlpha );
         alpha->b /= ( divAlpha );
-    }
-
-    return 0x01;
-}
-
-/******************************************************************************/
-static uint32_t q3dray_reflect ( Q3DRAY          *qray,
-                                 Q3DRAY          *qout ) {
-    float dot = q3dvector3f_scalar ( ( Q3DVECTOR3F * ) &qray->dir,
-                                     ( Q3DVECTOR3F * ) &qray->isx.dir );
-
-    if ( dot > 0.0f ) {
-        return 0x00;
-    } else {
-        float dotby2 = dot * 2.0f;
-
-        memset ( qout, 0x00, sizeof ( Q3DRAY ) );
-
-        /*** init the depth value for depth sorting ***/
-        qout->distance = INFINITY;
-
-        /*** reflected ray origin is parent ray intersection point ***/
-        memcpy ( &qout->src, &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
-
-        qout->x = qray->x;
-        qout->y = qray->y;
-
-        /*** reflection formula ***/
-        qout->dir.x = qray->dir.x - ( dotby2 * qray->isx.dir.x );
-        qout->dir.y = qray->dir.y - ( dotby2 * qray->isx.dir.y );
-        qout->dir.z = qray->dir.z - ( dotby2 * qray->isx.dir.z );
-
-        q3dvector3f_normalize ( &qout->dir, NULL );
-
     }
 
     return 0x01;
@@ -512,6 +722,10 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         qray->isx.qobj  = qobj;
                         qray->isx.qsur  = qtri;
 
+                        q3dvector3f_matrix ( &locqray.isx.src, qhit->obj->wmatrix, &qray->isx.src );
+                        q3dvector3f_matrix ( &locqray.isx.dir, qhit->TIMVX       , &qray->isx.dir );
+
+
                         qray->ratio[0x00] = locqray.ratio[0x00];
                         qray->ratio[0x01] = locqray.ratio[0x01];
                         qray->ratio[0x02] = locqray.ratio[0x02];
@@ -555,9 +769,6 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                     materialReflection = { 0x80, 0x80, 0x80, 0x80 },
                     materialRefraction = { 0x80, 0x80, 0x80, 0x80 },
                     materialAlpha      = { 0x80, 0x80, 0x80, 0x80 };
-            Q3DVECTOR3F materialBump   = { .x = 0.0f, 
-                                           .y = 0.0f, 
-                                           .z = 0.0f };
             Q3DRGBA lightDiffuse       = { 0x80, 0x80, 0x80, 0x80 },
                     lightSpecular      = { 0x80, 0x80, 0x80, 0x80 };
             Q3DRGBA diffuse            = { 0x80, 0x80, 0x80, 0x80 };
@@ -572,12 +783,15 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                          qjob->qrsg->background.widthRatio,
                                         &materialDiffuse,
                                         &materialSpecular,
-                                        &materialBump,
                                         &materialReflection,
                                         &materialRefraction,
                                         &materialAlpha,
                                          mes->ltex, 
                                          query_flags );
+
+                q3dray_bump ( qray,
+                              frame,
+                              mes->ltex );
 
                 if ( ( query_flags & RAYQUERYREFLECTION ) && nbhop ) {
                     if ( ( materialReflection.r > 0x00 ) &&
@@ -625,15 +839,14 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                        qjob,
                                        qtri,
                                        frame,
-                                       NULL,
                                       &lightDiffuse,
                                       &lightSpecular,
                                        nbhop );
             }
 
-            diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) /*+ ( ( lightSpecular.r * materialSpecular.r ) >> 0x08 )*/;
-            diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) /*+ ( ( lightSpecular.g * materialSpecular.g ) >> 0x08 )*/;
-            diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) /*+ ( ( lightSpecular.b * materialSpecular.b ) >> 0x08 )*/;
+            diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) + lightSpecular.r;
+            diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) + lightSpecular.g;
+            diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) + lightSpecular.b;
 
             if ( diffuse.r > 0xFF ) diffuse.r = 0xFF;
             if ( diffuse.g > 0xFF ) diffuse.g = 0xFF;

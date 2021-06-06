@@ -533,14 +533,15 @@ typedef struct _Q3DSCENE {
 
 /******************************************************************************/
 typedef struct _Q3DLIGHT {
-    Q3DOBJECT qobj;
-    G3DVECTOR pos; /*** Face position in World coord ***/
-    G3DVECTOR zvec; /*** light orientation vector for spots (Z-oriented) ***/
+    Q3DOBJECT   qobj;
+    Q3DVECTOR3F wpos; /*** Face position in World coord ***/
+    G3DVECTOR   zvec; /*** light orientation vector for spots (Z-oriented) ***/
 } Q3DLIGHT;
 
 /******************************************************************************/
 typedef struct _Q3DCAMERA {
-    Q3DOBJECT qobj;
+    Q3DOBJECT   qobj;
+    Q3DVECTOR3F wpos; /*** world position ***/
 } Q3DCAMERA;
 
 /******************************************************************************/
@@ -1048,7 +1049,6 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   float        backgroundImageWidthRatio,
                                   Q3DRGBA     *diffuse,
                                   Q3DRGBA     *specular,
-                                  G3DVECTOR   *bump,
                                   Q3DRGBA     *reflection,
                                   Q3DRGBA     *refraction,
                                   Q3DRGBA     *alpha,

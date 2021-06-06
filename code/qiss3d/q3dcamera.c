@@ -49,7 +49,7 @@ void q3dcamera_init ( Q3DCAMERA *qcam,
                       G3DCAMERA *cam,
                       uint32_t   id,
                       uint64_t   object_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+    static Q3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f };
 
     q3dobject_init ( ( Q3DOBJECT * ) qcam,
                      ( G3DOBJECT * ) cam,
@@ -57,6 +57,8 @@ void q3dcamera_init ( Q3DCAMERA *qcam,
                      object_flags,
     Q3DFREE_CALLBACK(q3dcamera_free),
 Q3DINTERSECT_CALLBACK(q3dcamera_intersect) );
+
+    q3dvector3f_matrix ( &origin, ((G3DOBJECT*)cam)->wmatrix, &qcam->wpos );
 }
 
 /******************************************************************************/

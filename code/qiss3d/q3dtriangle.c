@@ -156,7 +156,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->isx.dir.z = ( qver[qverID[0]].nor.z * RAT0 ) +
                                       ( qver[qverID[1]].nor.z * RAT1 ) +
                                       ( qver[qverID[2]].nor.z * RAT2 );
-printf("%f %f %f\n", qray->isx.dir.x, qray->isx.dir.y, qray->isx.dir.z );
+
                     qray->isx.qsur = qtri;
 
                     /*** save Interpolation ratios for UVs ***/

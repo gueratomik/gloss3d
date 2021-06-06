@@ -368,6 +368,7 @@ void *q3djob_raytrace ( void *ptr ) {
     /*pthread_exit ( NULL );*/
 
 
+
     return NULL;
 }
 
@@ -561,6 +562,7 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
     /*** this is needed for memory release ***/
     pthread_exit ( NULL );
 
+    q3djob_free ( qjob );
 
     return NULL;
 }
@@ -574,8 +576,7 @@ void *q3djob_render_frame_t ( Q3DJOB *qjob ) {
 
     qjob->running = 0x00;
 
-
-
+    q3djob_free ( qjob );
 
     return NULL;
 }
