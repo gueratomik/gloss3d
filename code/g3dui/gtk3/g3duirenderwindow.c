@@ -41,7 +41,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     /* rps might not be allocated yet by the map signal of the renderwindow */
     if ( rps ) {
-        Q3DFILTER *fil = q3djob_getFilter ( rps->qjob, TOWINDOWFILTERNAME );
+        Q3DFILTER *fil = rps->qjob->qrsg->input.towindow;
 
         if ( fil ) {
             FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
@@ -184,23 +184,19 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
 
     if ( rps == NULL ) {
-#ifdef unusedQISS3D
+
         /*** this filter is used for displaying ***/
-        R3DFILTER *towin = r3dfilter_toGtkWidget_new ( widget, 0x00 );
+        Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
+
+        rsg->input.towindow = towin;
+
         /*** This filter is used for saving images ***/
-        R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
+        /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
                                                     rsg->output.height, 
                                                     rsg->output.depth, 
                                                     rsg->background.color );
-        /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
-        /*R3DFILTER *clean = r3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
-                                           NULL, 
-                                           gui );*/
-
-        LIST *lfilters = NULL;
 
         list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME), rsg->output.endframe ) );
-
 
         if (   ( rsg->flags & ENABLEMOTIONBLUR ) && 
              ( ( rsg->flags & RENDERPREVIEW    ) == 0x00 ) ) {
@@ -236,11 +232,9 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         if ( rsg->flags & RENDERPREVIEW ) {
             list_append ( &lfilters, r3dfilter_preview_new ( gui ) );
-        }
+        }*/
 
-        list_append ( &lfilters, tobuf );
-        list_append ( &lfilters, towin );
-
+#ifdef unusedQISS3D
         if ( rsg->flags & RENDERSAVE ) {
             if ( rsg->output.format == RENDERTOVIDEO ) {
                 R3DFILTER *ffmpg;
@@ -274,25 +268,23 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                 }
             }
 
+
             if ( rsg->output.format == RENDERTOIMAGE ) {
                 R3DFILTER *toimg;
-                char buf[0x100];
+                char buf[0x1000];
 
-                snprintf ( buf, 0x100, "%s.jpg", rsg->output.outfile );
+                snprintf ( buf, 0x1000, "%s.jpg", rsg->output.outfile );
 
                 if ( rsg->output.startframe != rsg->output.endframe ) {
-                    toimg = r3dfilter_writeImage_new ( buf, 0x01 );
+                    toimg = q3dfilter_writeImage_new ( buf, 0x01 );
                 } else {
-                    toimg = r3dfilter_writeImage_new ( buf, 0x00 );
+                    toimg = q3dfilter_writeImage_new ( buf, 0x00 );
                 }
 
                 list_append ( &lfilters, toimg );
             }
         }
 #endif
-        /*** COMMENTED - Cleaning is done when closing window ***/
-        /*if ( clean ) list_append ( &lfilters, clean );*/
-
         rsg->input.sce      = gui->sce;
         rsg->input.cam      = cam;
 
@@ -307,12 +299,11 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         g3dui_setHourGlass ( gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
-#ifdef unusedQISS3D
             /*** this filter tells the engine to go to the next frame ***/
-            R3DFILTER *tofrm = r3dfilter_gotoframe_new ( gui );
+            Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
-            list_append ( &lfilters, tofrm );
-#endif
+            rsg->input.toframe = toframe;
+
             /*** force starting at the first frame. **/
             /*** -1 is because the gotoframe filter will add 1 further. ***/
             /*** this should probably be changed ***/

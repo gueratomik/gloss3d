@@ -309,6 +309,7 @@ typedef struct _Q3DINPUTSETTINGS {
     G3DSCENE  *sce;
     G3DCAMERA *cam;
     Q3DFILTER *towindow;
+    Q3DFILTER *toframe;
     Q3DFILTER *clean;
 } Q3DINPUTSETTINGS;
 

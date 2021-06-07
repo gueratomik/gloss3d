@@ -30,11 +30,6 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-Q3DFILTER *q3djob_getFilter ( Q3DJOB *qjob, const char *filtername ) {
-    return NULL;
-}
-
-/******************************************************************************/
 void q3djob_addJob ( Q3DJOB *qjob, 
                      Q3DJOB *subqjob ) {
     list_insert ( &qjob->lqjob, subqjob );
@@ -444,7 +439,7 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     qjob->fimg[MAXFILTERS - 0x04] = towindow; /*** output to widget    ***/
     qjob->fimg[MAXFILTERS - 0x03] = toffmpeg; /*** output to ffmpeg    ***/
     qjob->fimg[MAXFILTERS - 0x02] = toimg;    /*** write image to disk ***/
-    qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.clean;
+    qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.toframe;    /*** write image to disk ***/
 
     /*** before filters ***/
 
