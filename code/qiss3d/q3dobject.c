@@ -131,6 +131,7 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
+    Q3DVECTOR3F src, dir;
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
@@ -177,9 +178,12 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         qray->isx.qobj   = locqray.isx.qobj;
         qray->isx.qsur   = locqray.isx.qsur;
 
+        /*** transform the intersection point into his coordinate system ***/
         q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
         q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
     }
+
+    
 
     return ( hit ) ? 0x01 : 0x00;
 }
@@ -246,7 +250,8 @@ Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj,
 
 /******************************************************************************/
 Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
-                                float      frame ) {
+                                float      frame,
+                                uint32_t   importFlags ) {
     LIST *ltmpchildren = obj->lchildren;
     static Q3DSCENE *qsce;
     Q3DOBJECT *qobj;
@@ -309,7 +314,7 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
 
     while ( ltmpchildren ) {
         G3DOBJECT *child  = ( G3DOBJECT * ) ltmpchildren->data;
-        Q3DOBJECT *qchild = q3dobject_import_r ( child, frame );
+        Q3DOBJECT *qchild = q3dobject_import_r ( child, frame, importFlags );
 
         q3dobject_addChild ( qobj, qchild );
 

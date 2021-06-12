@@ -160,13 +160,12 @@ uint32_t q3dmesh_getTriangleCount ( Q3DMESH *qmes ) {
 static void q3dmesh_allocArrays ( Q3DMESH *qmes,
                                   float    frame,
                                   uint32_t nbqver,
-                                  uint32_t nbqtri ) {
+                                  uint32_t nbqtri,
+                                  uint32_t dump_flags ) {
     G3DMESH *mes     = ( G3DMESH * ) q3dobject_getObject ( ( Q3DOBJECT * ) qmes );
     uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
     uint32_t nbquvs  = ( nbqtri * nbuvmap );
-    uint32_t memsize = ( nbqver * sizeof ( Q3DVERTEX   ) ) +
-                       ( nbqtri * sizeof ( Q3DTRIANGLE ) ) + 
-                       ( nbquvs * sizeof ( Q3DUVSET    ) );
+    uint32_t memsize = 0x00;
     uint32_t i;
 
     qmes->nbqver = nbqver;
@@ -181,15 +180,25 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
         return;
     }
 
-    if ( nbquvs ) {
-        qmes->quvs = ( Q3DUVSET * ) calloc ( nbquvs, sizeof ( Q3DUVSET ) );
-
-        for ( i = 0x00; i < nbqtri; i++ ) {
-            qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
-        }
-    }
+    qmes->nbqtri = nbqtri;
 
     qmes->curtri = qmes->qtri;
+
+    if ( ( dump_flags & GEOMETRYONLY ) == 0x00 ) {
+        if ( nbquvs ) {
+            qmes->quvs = ( Q3DUVSET * ) calloc ( nbquvs, sizeof ( Q3DUVSET ) );
+
+            for ( i = 0x00; i < nbqtri; i++ ) {
+                qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
+            }
+        }
+
+        qmes->nbquvs = nbquvs;
+    }
+
+    memsize = ( qmes->nbqver * sizeof ( Q3DVERTEX   ) ) +
+              ( qmes->nbqtri * sizeof ( Q3DTRIANGLE ) ) + 
+              ( qmes->nbquvs * sizeof ( Q3DUVSET    ) );
 
 /*#ifdef VERBOSE*/
     printf ( "q3dvertex count: %d\n", nbqver );
@@ -206,10 +215,6 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
         printf ( "Q3DMESH mem: %.2f GBytes\n", ( float ) memsize / 1073741824 );
     }
 /*#endif*/
-
-    qmes->nbqtri = nbqtri;
-    qmes->nbqver = nbqver;
-    qmes->nbquvs = nbquvs;
 }
 
 /******************************************************************************/
@@ -222,7 +227,11 @@ static void Alloc ( uint32_t nbver,
     Q3DMESH *qmes  = qdump->qmes;
     float    frame = qdump->frame;
 
-    q3dmesh_allocArrays ( qmes, frame, nbver, nbtri + ( nbqua * 0x02 ) );
+    q3dmesh_allocArrays ( qmes, 
+                          frame, 
+                          nbver, 
+                          nbtri + ( nbqua * 0x02 ), 
+                          qdump->dump_flags );
 }
 
 /******************************************************************************/

@@ -70,8 +70,8 @@ static void q3darea_viewport ( Q3DAREA   *qarea,
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
         gluUnProject ( x, qarea->height - y, cam->znear,
                        objcam->iwmatrix,
-                       cam->pmatrix,
-                       qarea->VPX,
+                       qcam->PJX,
+                       qcam->VPX,
                       &rx, &ry, &rz );
 
         vip[i].src.x = ( rx );
@@ -83,8 +83,8 @@ static void q3darea_viewport ( Q3DAREA   *qarea,
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
         gluUnProject ( x, qarea->height - y, 1.0f, 
                        objcam->iwmatrix, 
-                       cam->pmatrix,
-                       qarea->VPX,
+                       qcam->PJX,
+                       qcam->VPX,
                       &rx, &ry, &rz );
 
         vip[i].dst.x = ( rx );
@@ -142,10 +142,10 @@ void q3darea_init ( Q3DAREA   *qarea,
     qarea->height = height;
     qarea->depth  = depth;
 
-    qarea->VPX[0x00] = 0x00;
+    /*qarea->VPX[0x00] = 0x00;
     qarea->VPX[0x01] = 0x00;
     qarea->VPX[0x02] = qarea->width;
-    qarea->VPX[0x03] = qarea->height;
+    qarea->VPX[0x03] = qarea->height;*/
 
     /*** first scan line ***/
     qarea->scanline = y1;
@@ -158,16 +158,16 @@ void q3darea_init ( Q3DAREA   *qarea,
     q3dzengine_init ( &qarea->qzen,
                        cam->znear,
                        IDX,
-                       cam->pmatrix,
-                       qarea->VPX,
+                       qcam->PJX,
+                       qcam->VPX,
                        width,
                        height );
 
     q3dzengine_drawObjectWithCondition_r ( &qarea->qzen,
                                             qsce,
                                             objcam->iwmatrix,
-                                            cam->pmatrix,
-                                            qarea->VPX,
+                                            qcam->PJX,
+                                            qcam->VPX,
                                             excludePerfectSpheres,
                                             NULL,
                                             frame );

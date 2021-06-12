@@ -63,8 +63,9 @@ void q3dscene_addLight ( Q3DSCENE *qsce,
 
 /******************************************************************************/
 Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
-                            float     frame ) {
-    Q3DSCENE *qsce = ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame );
+                            float     frame,
+                            uint32_t  importFlags ) {
+    Q3DSCENE *qsce = ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame, importFlags );
     uint32_t objCount = q3dobject_count_r ( ( Q3DOBJECT * ) qsce );
 
     /*** no need to check the number of objects. ***/

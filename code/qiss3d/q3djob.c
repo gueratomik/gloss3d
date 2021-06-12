@@ -392,6 +392,11 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     Q3DFILTER *towindow = qrsg->input.towindow;
     Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
     Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
+    Q3DFILTER *vectormblur = q3dfilter_vmb_new ( qrsg->output.width,
+                                                 qrsg->output.height,
+                                                 1.0f,
+                                                 0x01,
+                                                 1.0f );
 
     if ( qrsg->flags & RENDERSAVE ) {
         if ( qrsg->output.format == RENDERTOVIDEO ) {
@@ -442,7 +447,7 @@ static void q3djob_initFilters ( Q3DJOB *qjob ) {
     qjob->fimg[MAXFILTERS - 0x01] = qrsg->input.toframe;    /*** write image to disk ***/
 
     /*** before filters ***/
-
+    qjob->fbef[MAXFILTERS - 0x01] = vectormblur;
 }
 
 /******************************************************************************/
@@ -478,7 +483,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 
     qjob->qsce = q3dscene_import ( sce, qjob->curframe );
 
-    qjob->qcam = q3dcamera_new ( cam, qrsg->output.width, 
+    qjob->qcam = q3dcamera_new ( cam, 0x00, 0x00,
+                                      qrsg->output.width, 
                                       qrsg->output.height );
 
     q3darea_init ( &qjob->qarea,

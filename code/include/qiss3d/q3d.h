@@ -472,6 +472,7 @@ typedef struct _Q3DRAY {
 typedef struct _Q3DSYMMETRY {
     Q3DOBJECT qobj;
     double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
+    double  TSMVX[0x10]; /* transpose symmetried modelview matrix */
     double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
 } Q3DSYMMETRY;
 
@@ -543,6 +544,8 @@ typedef struct _Q3DLIGHT {
 typedef struct _Q3DCAMERA {
     Q3DOBJECT   qobj;
     Q3DVECTOR3F wpos; /*** world position ***/
+    double      PJX[0x10];
+    int         VPX[0x10];
 } Q3DCAMERA;
 
 /******************************************************************************/
@@ -615,7 +618,7 @@ typedef struct _Q3DZENGINE {
 typedef struct _Q3DAREA {
     Q3DZENGINE       qzen;
     Q3DSOFTSHADOW   *qssh; /*** soft shadows buffer ***/
-    int              VPX[0x04];
+    /*int              VPX[0x04];*/
     uint32_t         x1, y1;
     uint32_t         x2, y2;
     uint32_t         scanline; /*** varies from y1 to y2 ***/
@@ -808,7 +811,8 @@ Q3DSCENE *q3dscene_new       ( G3DSCENE *sce,
 void      q3dscene_addLight  ( Q3DSCENE *qsce, 
                                Q3DLIGHT *qlig );
 Q3DSCENE *q3dscene_import    ( G3DSCENE *sce,
-                               float     frame );
+                               float     frame,
+                               uint32_t importFlags );
 Q3DOBJECT *q3dscene_getObjectByID ( Q3DSCENE *qsce, 
                                     uint32_t  id );
 
@@ -882,7 +886,8 @@ Q3DOBJECT *q3dobject_new         ( G3DOBJECT *obj,
                                    uint32_t   id,
                                    uint64_t   flags );
 Q3DOBJECT *q3dobject_import_r    ( G3DOBJECT *obj,
-                                   float      frame );
+                                   float      frame,
+                                   uint32_t   importFlags );
 uint32_t   q3dobject_count_r     ( Q3DOBJECT *qobj );
 
 /******************************************************************************/
@@ -1009,6 +1014,13 @@ Q3DFILTER *q3dfilter_toFfmpeg_new ( uint32_t flags,
                                     char *ffplaypath );
 
 /******************************************************************************/
+Q3DFILTER *q3dfilter_vmb_new ( uint32_t width,
+                               uint32_t height,
+                               float    strength,
+                               uint32_t nbSamples,
+                               float    subSamplingRate );
+
+/******************************************************************************/
 void      q3dlight_init ( Q3DLIGHT *qlig, 
                           G3DLIGHT *lig,
                           uint32_t  id,
@@ -1025,12 +1037,16 @@ void q3dinterpolation_step  ( Q3DINTERPOLATION *pol );
 
 /******************************************************************************/
 Q3DCAMERA *q3dcamera_new  ( G3DCAMERA *cam,
-                            uint32_t  id,
-                            uint64_t  object_flags );
+                            uint32_t   id,
+                            uint64_t   object_flags,
+                            uint32_t   width,
+                            uint32_t   height );
 void       q3dcamera_init ( Q3DCAMERA *qcam, 
                             G3DCAMERA *cam,
                             uint32_t   id,
-                            uint64_t   object_flags );
+                            uint64_t   object_flags,
+                            uint32_t   width,
+                            uint32_t   height );
 
 /******************************************************************************/
 uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 

@@ -359,6 +359,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                 q3dray_shoot_r ( &luxqray, 
                                   qjob,
                                   sdiscard,
+                  /** problem here with instanciated objects. To solve later ***/
                                   excludeIfPerfectSphere,
                                   qray->isx.qobj,
                                   frame,
