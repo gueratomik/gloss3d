@@ -103,6 +103,9 @@ typedef G3DRGBA         Q3DRGBA;
 #define MOTION_SOURCE      0x01
 #define MOTION_DESTINATION 0x02
 
+/******************************* Dump flags ***********************************/
+#define GEOMETRYONLY ( 1      )
+
 /********************************** ray intersection **************************/
 #define INTERSECT ( 1      )
 #define REFLECTED ( 1 << 1 )
@@ -774,11 +777,13 @@ void          q3dmesh_init             ( Q3DMESH *qmes,
                                          G3DMESH *mes,
                                          uint32_t id,
                                          uint64_t object_flags,
+                                         uint32_t dump_flags,
                                          float    frame,
                                          uint32_t octreeCapacity );
 Q3DMESH      *q3dmesh_new              ( G3DMESH *mes,
                                          uint32_t id,
                                          uint64_t object_flags,
+                                         uint32_t dump_flags,
                                          float    frame,
                                          uint32_t octreeCapacity );
 uint32_t      q3dmesh_intersect        ( Q3DMESH    *qmes,

@@ -481,7 +481,7 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 
     qjob->running = 0x01;
 
-    qjob->qsce = q3dscene_import ( sce, qjob->curframe );
+    qjob->qsce = q3dscene_import ( sce, qjob->curframe, 0x00 );
 
     qjob->qcam = q3dcamera_new ( cam, 0x00, 0x00,
                                       qrsg->output.width, 

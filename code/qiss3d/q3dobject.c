@@ -268,6 +268,7 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
             Q3DMESH *qmes = q3dmesh_new ( mes, 
                                           qsce->qobjID++,
                                           0x00,
+                                          importFlags,
                                           frame,
                                           0x40  );
 

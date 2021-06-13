@@ -191,9 +191,9 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
             for ( i = 0x00; i < nbqtri; i++ ) {
                 qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
             }
-        }
 
-        qmes->nbquvs = nbquvs;
+            qmes->nbquvs = nbquvs;
+        }
     }
 
     memsize = ( qmes->nbqver * sizeof ( Q3DVERTEX   ) ) +
@@ -201,9 +201,9 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
               ( qmes->nbquvs * sizeof ( Q3DUVSET    ) );
 
 /*#ifdef VERBOSE*/
-    printf ( "q3dvertex count: %d\n", nbqver );
-    printf ( "q3dface   count: %d\n", nbqtri );
-    printf ( "q3duvset  count: %d\n", nbquvs );
+    printf ( "q3dvertex count: %d\n", qmes->nbqver );
+    printf ( "q3dface   count: %d\n", qmes->nbqtri );
+    printf ( "q3duvset  count: %d\n", qmes->nbquvs );
 
     if ( memsize < 1024 ) {
         printf ( "Q3DMESH mem: %d Bytes\n"   ,           memsize              );
@@ -334,11 +334,13 @@ void q3dmesh_init ( Q3DMESH *qmes,
                     G3DMESH *mes,
                     uint32_t id,
                     uint64_t object_flags,
+                    uint32_t dump_flags,
                     float    frame,
                     uint32_t octreeCapacity ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    Q3DDUMP qdump = { .qmes  = qmes,
-                      .frame = frame };
+    Q3DDUMP qdump = { .qmes       = qmes,
+                      .frame      = frame,
+                      .dump_flags = dump_flags };
 
     if ( ( obj->type == G3DSPHERETYPE   ) &&
          ( obj->flags & SPHEREISPERFECT ) ) {
@@ -380,6 +382,7 @@ void q3dmesh_init ( Q3DMESH *qmes,
 Q3DMESH *q3dmesh_new ( G3DMESH *mes,
                        uint32_t id,
                        uint64_t object_flags,
+                       uint32_t dump_flags,
                        float    frame,
                        uint32_t octreeCapacity ) {
     Q3DMESH *qmes = ( Q3DMESH * ) calloc ( 0x01, sizeof ( Q3DMESH ) );
@@ -390,7 +393,8 @@ Q3DMESH *q3dmesh_new ( G3DMESH *mes,
         return NULL;
     }
 
-    q3dmesh_init ( qmes, mes, id, object_flags, frame, octreeCapacity );
+    q3dmesh_init ( qmes, mes, id, object_flags, 
+                                  dump_flags, frame, octreeCapacity );
 
 
     return qmes;
