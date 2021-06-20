@@ -1486,14 +1486,18 @@ void common_g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUI *,
 void common_g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUI *, 
                                                                  float );
 
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
                                           Q3DSETTINGS *rsg,
-                                          float              resetFrame,
-                                          uint64_t           id,
-                                          uint32_t           sequence );
+                                          Q3DFILTER   *towindow,
+                                          Q3DFILTER   *toframe,
+                                          float        resetFrame,
+                                          uint64_t     id,
+                                          uint32_t     sequence );
 
 G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui, 
                                               Q3DSETTINGS *rsg,
+                                              Q3DFILTER   *towindow,
+                                              Q3DFILTER   *toframe,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,

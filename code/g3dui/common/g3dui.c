@@ -55,6 +55,8 @@ void common_g3dui_processAnimatedImages ( G3DUI *gui ) {
 /******************************************************************************/
 G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui, 
                                               Q3DSETTINGS *rsg,
+                                              Q3DFILTER   *towindow,
+                                              Q3DFILTER   *toframe,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,
@@ -85,6 +87,8 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
         qjob = q3djob_new ( rsg, 
                             sce,
                             cam,
+                            towindow, 
+                            toframe, 
                             0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
@@ -109,11 +113,13 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
-                                          Q3DSETTINGS       *rsg,
-                                          float              resetFrame,
-                                          uint64_t           id,
-                                          uint32_t           sequence ) {
+G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
+                                          Q3DSETTINGS *rsg,
+                                          Q3DFILTER   *towindow,
+                                          Q3DFILTER   *toframe,
+                                          float        resetFrame,
+                                          uint64_t     id,
+                                          uint32_t     sequence ) {
     G3DSCENE *sce = rsg->input.sce;
     G3DCAMERA *cam = rsg->input.cam;
 
@@ -140,7 +146,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI             *gui,
             g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
 
-        qjob = q3djob_new ( rsg, sce, cam, 0x00 );
+        qjob = q3djob_new ( rsg, sce, cam, towindow, toframe, 0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/

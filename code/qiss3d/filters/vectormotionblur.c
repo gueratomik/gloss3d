@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 typedef struct _VMBZPIXEL {
-    uint32_t vojbID;
+    uint32_t vobjID;
     uint32_t vtriID;
     float z;
 } VMBZPIXEL;
@@ -72,6 +72,7 @@ typedef struct _VMBVECTOR2S {
 /******************************************************************************/
 typedef struct _VMBTRIANGLE {
     VMBVECTOR2S pnt[0x03];
+    float       surface;
 } VMBTRIANGLE;
 
 /******************************************************************************/
@@ -85,11 +86,213 @@ typedef struct _VMBMESH {
 
 /******************************************************************************/
 typedef struct _FILTERVMB {
-    LIST    *lvobj;
-    uint32_t vobjID;
-    float    strength;
-    uint32_t nbSamples;
+    LIST       *lvobj;
+    uint32_t    vobjID;
+    float       strength;
+    uint32_t    nbSamples;
+    VMBZPIXEL  *zbuffer;
+    uint32_t    height;
+    uint32_t    width;
+    VMBZHLINE  *hlines;
+    uint32_t  (*abuffer)[0x04]; /**** accumulation buffer ***/
 } FILTERVMB;
+
+/******************************************************************************/
+static VMBOBJECT *filtervmb_getObjectbyID ( Q3DFILTER *fil, 
+                                            uint32_t   id ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) fil->data;
+    LIST *ltmpvobj = fvmb->lvobj;
+
+    while ( ltmpvobj ) {
+        VMBOBJECT *vobj = ( VMBOBJECT * ) ltmpvobj->data;
+
+        if ( vobj->id == id ) return vobj;
+
+        ltmpvobj = ltmpvobj->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+static void filtervmb_merge ( Q3DFILTER     *qfil,
+                              unsigned char *img,
+                              uint32_t       bpp  ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    uint32_t i, j;
+
+    for ( i = 0x00; i < fvmb->height; i++ ) {
+        for ( j = 0x00; j < fvmb->width; j++ ) {
+            switch ( bpp ) {
+                case 0x18 : {
+                    unsigned char (*srcimg)[0x03] = img;
+                    uint32_t offset = ( i * fvmb->width ) + j;
+                     uint32_t div = fvmb->abuffer[offset][0x03];
+
+                    if ( div ) {
+                        srcimg[offset][0x00] = 0xFF/*fvmb->abuffer[offset][0x00] / div*/;
+                        srcimg[offset][0x01] = 0xFF/*fvmb->abuffer[offset][0x01] / div*/;
+                        srcimg[offset][0x02] = 0xFF/*fvmb->abuffer[offset][0x02] / div*/;
+                    } else {
+                        srcimg[offset][0x00] = 0x00;
+                        srcimg[offset][0x01] = 0x00;
+                        srcimg[offset][0x02] = 0x00;
+                    }
+                } break;
+
+                default :
+                break;
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void filtervmb_trace ( Q3DFILTER    *qfil,
+                              VMBVECTOR2S  *srcPoint,
+                              VMBVECTOR2S  *dstPoint,
+                              unsigned char R,
+                              unsigned char G,
+                              unsigned char B ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    int32_t dx  = ( dstPoint->x - srcPoint->x ),
+            ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
+            dy  = ( dstPoint->y - srcPoint->y ),
+            ddy = ( dy == 0x00 ) ? 0x01 : abs ( dy ),
+            dd  = ( ddx > ddy ) ? ddx : ddy;
+    int px = ( dx > 0x00 ) ? 1 : -1, 
+            py = ( dy > 0x00 ) ? 1 : -1;
+    int32_t x = srcPoint->x, 
+            y = srcPoint->y;
+    int i, cumul = 0x00;
+
+    if ( ddx > ddy ) {
+        for ( i = 0x00; i <= ddx; i++ ) {
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
+
+            if ( ( y >= 0x00 ) && ( y < fvmb->height ) &&
+                 ( x >= 0x00 ) && ( x < fvmb->width  ) ) {
+                uint32_t offset = ( y * fvmb->width ) + x;
+
+                fvmb->abuffer[offset][0x00] += R;
+                fvmb->abuffer[offset][0x01] += G;
+                fvmb->abuffer[offset][0x02] += B;
+
+                fvmb->abuffer[offset][0x03]++;
+            }
+
+            cumul += ddy;
+            x     += px;
+        }
+    } else {
+        for ( i = 0x00; i <= ddy; i++ ) {
+            if ( cumul >= ddy ) {
+                    cumul -= ddy;
+                    x     += px;
+            }
+
+            if ( ( y >= 0x00 ) && ( y < fvmb->height ) &&
+                 ( x >= 0x00 ) && ( x < fvmb->width  ) ) {
+                uint32_t offset = ( y * fvmb->width ) + x;
+
+                fvmb->abuffer[offset][0x00] += R;
+                fvmb->abuffer[offset][0x01] += G;
+                fvmb->abuffer[offset][0x02] += B;
+
+                fvmb->abuffer[offset][0x03]++;
+            }
+
+            cumul += ddx;
+            y     += py;
+        }
+    }
+}
+
+/******************************************************************************/
+static void filtervmb_blur ( Q3DFILTER     *qfil,
+                             unsigned char *img,
+                             uint32_t       bpp ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    uint32_t i, j, k;
+
+    for ( i = 0x00; i < fvmb->height; i++ ) {
+        for ( j = 0x00; j < fvmb->width; j++ ) {
+            uint32_t offset = ( i * fvmb->width ) + j;
+
+            if ( fvmb->zbuffer[offset].z != INFINITY ) {
+                uint32_t vobjID = fvmb->zbuffer[offset].vobjID,
+                         vtriID = fvmb->zbuffer[offset].vtriID;
+                VMBOBJECT *vobj = filtervmb_getObjectbyID ( qfil, vobjID );
+                VMBMESH   *vmes = ( VMBMESH * ) vobj;
+                Q3DMESH   *qmes = ( Q3DMESH * ) vobj->qobj;
+                uint32_t nbqtri = qmes->nbqtri;
+                Q3DVECTOR3F v0v1 = { .x = vmes->vtri[vtriID].pnt[0x01].x -
+                                          vmes->vtri[vtriID].pnt[0x00].x,
+                                     .y = vmes->vtri[vtriID].pnt[0x01].y -
+                                          vmes->vtri[vtriID].pnt[0x00].y, 
+                                     .z = 0.0f },
+                            v1v2 = { .x = vmes->vtri[vtriID].pnt[0x02].x -
+                                          vmes->vtri[vtriID].pnt[0x01].x,
+                                     .y = vmes->vtri[vtriID].pnt[0x02].y -
+                                          vmes->vtri[vtriID].pnt[0x01].y,
+                                     .z = 0.0f },
+                            v2v0 = { .x = vmes->vtri[vtriID].pnt[0x00].x -
+                                          vmes->vtri[vtriID].pnt[0x02].x,
+                                     .y = vmes->vtri[vtriID].pnt[0x00].y -
+                                          vmes->vtri[vtriID].pnt[0x02].y,
+                                     .z = 0.0f };
+                Q3DVECTOR3F vpv0 = { .x = vmes->vtri[vtriID].pnt[0x00].x - j,
+                                     .y = vmes->vtri[vtriID].pnt[0x00].y - i,
+                                     .z = 0.0f },
+                            vpv1 = { .x = vmes->vtri[vtriID].pnt[0x01].x - j,
+                                     .y = vmes->vtri[vtriID].pnt[0x01].y - i,
+                                     .z = 0.0f },
+                            vpv2 = { .x = vmes->vtri[vtriID].pnt[0x02].x - j,
+                                     .y = vmes->vtri[vtriID].pnt[0x02].y - i,
+                                     .z = 0.0f };
+                Q3DVECTOR3F vout0, 
+                            vout1, 
+                            vout2;
+                VMBVECTOR2S psrc = { .x = j,
+                                     .y = i },
+                            pdst;
+                float surface = vmes->vtri[vtriID].surface ;
+                float ratio0, 
+                      ratio1,
+                      ratio2;
+
+                q3dvector3f_cross ( &v0v1, &vpv0, &vout0 );
+                q3dvector3f_cross ( &v1v2, &vpv1, &vout1 );
+                q3dvector3f_cross ( &v2v0, &vpv2, &vout2 );
+
+                ratio0 = q3dvector3f_length ( &vout0 ) / surface;
+                ratio1 = q3dvector3f_length ( &vout1 ) / surface;
+                ratio2 = q3dvector3f_length ( &vout2 ) / surface;
+
+                for ( k = 0x00; k < fvmb->nbSamples; k++ ) {
+                    VMBTRIANGLE *vtribef = vmes->vtribef + ( k * nbqtri );
+
+                    pdst.x = ( vtribef[vtriID].pnt[0x00].x * ratio0 ) +
+                             ( vtribef[vtriID].pnt[0x01].x * ratio1 ) +
+                             ( vtribef[vtriID].pnt[0x02].x * ratio2 );
+
+                    pdst.y = ( vtribef[vtriID].pnt[0x00].y * ratio0 ) +
+                             ( vtribef[vtriID].pnt[0x01].y * ratio1 ) +
+                             ( vtribef[vtriID].pnt[0x02].y * ratio2 );
+
+                    filtervmb_trace ( qfil, &psrc, &pdst, 0x00, 0x00, 0x00 );
+
+                    memcpy ( &pdst, &psrc, sizeof ( VMBVECTOR2S ) );
+                }
+            }
+        }
+    }
+
+    filtervmb_merge ( qfil, img, bpp );
+}
 
 /******************************************************************************/
 static void filtervmb_import_r ( Q3DFILTER *qfil, 
@@ -125,7 +328,7 @@ static void filtervmb_line ( Q3DFILTER *qfil,
             }
 
             if ( ( y >= 0x00 ) && ( y < fvmb->height ) ) {
-                uint32_t offset = ( ( fvmb->height - 1 - y ) * fvmb->width ) + x;
+                uint32_t offset = ( y * fvmb->width ) + x;
 
                 if ( fvmb->hlines[y].inited == 0x00 ) {
                     fvmb->hlines[y].inited = 0x01;
@@ -159,7 +362,7 @@ static void filtervmb_line ( Q3DFILTER *qfil,
             }
 
             if ( ( y >= 0x00 ) && ( y < fvmb->height ) ) {
-                uint32_t offset = ( ( fvmb->height - 1 - y ) * fvmb->width ) + x;
+                uint32_t offset = ( y * fvmb->width ) + x;
 
                 if ( fvmb->hlines[y].inited == 0x00 ) {
                      fvmb->hlines[y].inited = 0x01;
@@ -212,6 +415,7 @@ static void filtervmb_fillHLine ( Q3DFILTER *qfil,
 
         if ( ( x >= 0x00 ) && 
              ( x <  fvmb->width ) ) {
+
             if  ( z <= depth ) {
                 fvmb->zbuffer[offset+x].z      = z;
                 fvmb->zbuffer[offset+x].vobjID = vobjID;
@@ -226,12 +430,14 @@ static void filtervmb_fillHLine ( Q3DFILTER *qfil,
 
 /******************************************************************************/
 static void filtervmb_drawMesh ( Q3DFILTER *qfil,
-                                 V3DMESH   *vmes ) {
+                                 VMBMESH   *vmes ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     Q3DMESH *qmes = ( Q3DMESH * ) vmes->vobj.qobj;
+    uint32_t vobjID = vmes->vobj.id;
     uint32_t i, j;
 
     for ( i = 0x00; i < qmes->nbqtri; i++ ) {
+         uint32_t vtriID = i;
         int32_t ymin = vmes->vtri[i].pnt[0x00].y,
                 ymax = ymin;
 
@@ -251,19 +457,27 @@ static void filtervmb_drawMesh ( Q3DFILTER *qfil,
             else                 filtervmb_line ( qfil, &pt2, &pt1 );
         }
 
-        /*if ( ymin < 0x00 ) ymin = 0x00;
-        if ( ymin > ) */
+        if ( ymin <  0x00         ) ymin = 0x00;
+        if ( ymin >= fvmb->height ) ymin = fvmb->height - 1;
+        if ( ymax <  0x00         ) ymax = 0x00;
+        if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
 
-        for ( j = ymin; j < ymax; j++ ) {
-            if ( fvmb->hlines[i].inited == 0x02 ){
-                filtervmb_fillHLine ( qfil, vobjID, vtriID, j );
+        if ( ymin < ymax ) {
+            for ( j = ymin; j < ymax; j++ ) {
+                if ( fvmb->hlines[j].inited == 0x02 ){
+
+                    filtervmb_fillHLine ( qfil, vobjID, vtriID, j );
+                }
             }
+
+            memset ( fvmb->hlines + ymin, 0x00, sizeof ( VMBZHLINE ) * ( ymax - 
+                                                                         ymin ) );
         }
     }
 }
 
 /******************************************************************************/
-static void filtervmb_draw ( Q3DFILTER *qfil ) {
+static void filtervmb_drawObjects ( Q3DFILTER *qfil ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     LIST *ltmpvobj = fvmb->lvobj;
 
@@ -275,23 +489,6 @@ static void filtervmb_draw ( Q3DFILTER *qfil ) {
 
         ltmpvobj = ltmpvobj->next;
     }
-}
-
-/******************************************************************************/
-static VMBOBJECT *filtervmb_getObjectbyID ( Q3DFILTER *fil, 
-                                            uint32_t   id ) {
-    FILTERVMB *fvmb = ( FILTERVMB * ) fil->data;
-    LIST *ltmpvobj = fvmb->lvobj;
-
-    while ( ltmpvobj ) {
-        VMBOBJECT *vobj = ( VMBOBJECT * ) ltmpvobj->data;
-
-        if ( vobj->id == id ) return vobj;
-
-        ltmpvobj = ltmpvobj->next;
-    }
-
-    return NULL;
 }
 
 /******************************************************************************/
@@ -333,6 +530,12 @@ static void vmbtriangle_init ( VMBTRIANGLE *vtri,
             zval[0x02] = INFINITY;
         }
     } else {
+        Q3DVECTOR3D v0v1 = { screenpos[0x01].x - screenpos[0x00].x,
+                             screenpos[0x01].y - screenpos[0x00].y, 0.0f },
+                    v1v2 = { screenpos[0x02].x - screenpos[0x01].x,
+                             screenpos[0x02].y - screenpos[0x01].y, 0.0f },
+                    vout;
+
                vtri->pnt[0x00].x = screenpos[0x00].x;
                vtri->pnt[0x00].y = screenpos[0x00].y;
         if ( zval ) zval[0x00]   = screenpos[0x00].z;
@@ -344,6 +547,10 @@ static void vmbtriangle_init ( VMBTRIANGLE *vtri,
                vtri->pnt[0x02].x = screenpos[0x02].x;
                vtri->pnt[0x02].y = screenpos[0x02].y;
         if ( zval ) zval[0x02]   = screenpos[0x02].z;
+
+        q3dvector3d_cross  ( &v0v1, &v1v2, &vout );
+
+        vtri->surface = q3dvector3d_length ( &vout );
     }
 }
 
@@ -478,6 +685,7 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
     }
 
     vmes->vobj.id = id;
+    vmes->vobj.qobj = qmes;
 
     return vmes;
 }
@@ -604,6 +812,8 @@ static void filtervmb_free ( Q3DFILTER *fil ) {
 
     list_free ( &fvmb->lvobj, vmbmesh_free );
 
+    if ( fvmb->zbuffer ) free ( fvmb->zbuffer );
+
     free ( fvmb );
 }
 
@@ -616,6 +826,7 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
 
     uint32_t structsize = sizeof ( FILTERVMB );
     FILTERVMB *fvmb = ( FILTERVMB * ) calloc ( 0x01, structsize );
+    uint32_t i;
 
     if ( fvmb == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -628,6 +839,18 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
     fvmb->strength  = strength;
     fvmb->nbSamples = nbSamples;
 
+    fvmb->hlines = ( VMBZHLINE * ) calloc ( height, sizeof ( VMBZHLINE ) );
+
+    fvmb->abuffer = ( uint32_t * ) calloc  ( width * 
+                                             height, sizeof ( uint32_t ) * 0x04 );
+
+    fvmb->zbuffer = ( VMBZPIXEL * ) calloc ( width * 
+                                             height, sizeof ( VMBZPIXEL ) );
+
+    for ( i = 0x00; i < width * height; i++ ) {
+        fvmb->zbuffer[i].z = INFINITY;
+    }
+
     return fvmb;
 }
 
@@ -638,49 +861,98 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
                                  unsigned char *img, 
                                  uint32_t       from, 
                                  uint32_t       to, 
-                                 uint32_t       depth, 
+                                 uint32_t       bpp, 
                                  uint32_t       width ) {
     G3DCAMERA *cam = q3dobject_getObject ( qjob->qcam );
+    Q3DSCENE  *oriqsce = qjob->qsce;
     G3DSCENE  *sce = q3dobject_getObject ( qjob->qsce );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     uint32_t i;
+    Q3DFILTERSET orifilters;
+    float middleFrame = frameID     - ( 0.5f * fvmb->strength );
+    float step = ( ( 0.5f ) * fvmb->strength ) / fvmb->nbSamples;
+    float fromFrame = middleFrame - step;
+    float toFrame   = middleFrame + step;
 
-/*
-    curframe = frameID - ( 0.5 * fvmb->strength );
 
-    befframe = curframe - ( ( ( 0.5 * fvmb->strength ) / nbsteps ) * i );
-    aftframe = curframe + ( ( ( 0.5 * fvmb->strength ) / nbsteps ) * i );
 
-    if befframe <  ( frameID - 1.0f ) befframe = frameID - 1.0f;
-    if aftframe >= ( frameID + 1.0f ) aftframe = frameID + 0.99f;
-*/
 
-    filtervmb_import ( qfil, 
-                       qjob->qcam,
-                       qjob->qsce,
-                       objcam->iwmatrix,
-                       0x00,
-                       frameID );
+    /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
+    /*** to substract 1.0f ***/
+    if ( qjob->filters.toframe ) {
+        qjob->filters.toframe->draw ( qjob->filters.toframe, 
+                                      NULL, 
+                                      middleFrame - 1.0f,
+                                      NULL, 
+                                      0x00, 
+                                      0x00, 
+                                      0x00, 
+                                      0x00 );
 
-    for ( i = 0x01; i <= fvmb->nbSamples; i++ ) {
-        Q3DSCENE *befqsce = q3dscene_import ( sce, qjob->curframe, GEOMETRYONLY );
+        q3dobject_free ( qjob->qsce );
 
-        /*** Before-frames ***/
-        filtervmb_import ( qfil, 
-                           qjob->qcam,
-                           /*qjob->qsce*/befqsce,
-                           objcam->iwmatrix,
-                          -i,
-                           frameID );
+        qjob->curframe = middleFrame;
 
-        /*** after frames ***/
+        qjob->qsce = q3dscene_import ( sce, middleFrame, 0x00 );
+
+        memcpy ( &orifilters   , &qjob->filters, sizeof ( Q3DFILTERSET ) );
+        memset ( &qjob->filters, 0x00          , sizeof ( Q3DFILTERSET ) );
+
+        qjob->filters.towindow = orifilters.towindow;
+
+        q3djob_render ( qjob );
+
+        memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
+
+
         filtervmb_import ( qfil, 
                            qjob->qcam,
                            qjob->qsce,
                            objcam->iwmatrix,
-                           i,
-                           frameID );
+                           0x00,
+                           middleFrame );
+
+        for ( i = 0x01; i <= fvmb->nbSamples; i++ ) {
+            qjob->filters.toframe->draw ( qjob->filters.toframe, 
+                                          NULL, 
+                                          fromFrame - 1.0f,
+                                          NULL, 
+                                          0x00, 
+                                          0x00, 
+                                          0x00, 
+                                          0x00 );
+
+            Q3DSCENE *befqsce = q3dscene_import ( sce, 
+                                                  fromFrame, 
+                                                  GEOMETRYONLY );
+
+            /*** Before-frames ***/
+            filtervmb_import ( qfil, 
+                               qjob->qcam,
+                               befqsce,
+                               objcam->iwmatrix,
+                              -i,
+                               fromFrame );
+
+            /*** after frames ***/
+            /*filtervmb_import ( qfil, 
+                               qjob->qcam,
+                               qjob->qsce,
+                               objcam->iwmatrix,
+                               i,
+                               frameID );*/
+
+
+            fromFrame -= step;
+
+            if ( fromFrame <  ( frameID - 1.0f ) ) fromFrame = frameID - 1.0f;
+            if ( toFrame   >= ( frameID + 1.0f ) ) toFrame   = frameID + 0.99f;
+        }
+
+        filtervmb_drawObjects ( qfil );
+
+        filtervmb_blur ( qfil, img, bpp );
     }
 
     return 0x02;

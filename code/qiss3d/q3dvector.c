@@ -30,6 +30,23 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+void q3dvector3d_cross ( Q3DVECTOR3D *vone, 
+                         Q3DVECTOR3D *vtwo, 
+                         Q3DVECTOR3D *vout ) {
+    vout->x = ( vone->y * vtwo->z ) - ( vone->z * vtwo->y );
+    vout->y = ( vone->z * vtwo->x ) - ( vone->x * vtwo->z );
+    vout->z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
+}
+
+/******************************************************************************/
+double q3dvector3d_length ( Q3DVECTOR3D *vec ) {
+    double len = sqrt ( ( vec->x * vec->x ) +
+                        ( vec->y * vec->y ) +
+                        ( vec->z * vec->z ) );
+    return len;
+}
+
+/******************************************************************************/
 double q3dvector3f_scalar ( Q3DVECTOR3F *v0, 
                             Q3DVECTOR3F *v1 ) {
     return ( ( v0->x * v1->x ) + 

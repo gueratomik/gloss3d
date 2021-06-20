@@ -296,11 +296,6 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
              height = gtk_widget_get_allocated_height ( ggt->curogl );
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) ggt->curogl );
     Q3DFILTER *progressiveDisplay = q3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
-    /*R3DFILTER *finalDisplay = r3dfilter_toGtkWidget_new ( ggt->curogl, 0x01, 0x00 );*/
-    /*** Filter to free R3DSCENE, Filters & G3DUIRENDERPROCESS ***/
-    Q3DFILTER *clean = q3dfilter_new ( FILTERIMAGE, "CLEAN", g3dui_renderClean,
-                                       NULL, 
-                                       gui );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
@@ -317,8 +312,6 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     viewRsg.input.sce      = gui->sce;
     viewRsg.input.cam      = cam;
-    viewRsg.input.towindow = progressiveDisplay;
-    viewRsg.input.clean    = clean;
 
     viewRsg.background.widthRatio = backgroundWidthRatio;
 
@@ -332,11 +325,14 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     g3dui_setHourGlass ( gui );
 
-    rps = common_g3dui_render_q3d ( gui, &viewRsg,
-                                     cam,
-                                     gui->curframe,
-                        ( uint64_t ) ggt->curogl,
-                                     0x00 );
+    rps = common_g3dui_render_q3d ( gui, 
+                                   &viewRsg,
+                                    progressiveDisplay,
+                                    NULL,
+                                    cam,
+                                    gui->curframe,
+                       ( uint64_t ) ggt->curogl,
+                                    0x00 );
 
     g3dui_unsetHourGlass ( gui );
 }

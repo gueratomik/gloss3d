@@ -41,7 +41,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     /* rps might not be allocated yet by the map signal of the renderwindow */
     if ( rps ) {
-        Q3DFILTER *fil = rps->qjob->qrsg->input.towindow;
+        Q3DFILTER *fil = rps->qjob->filters.towindow;
 
         if ( fil ) {
             FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
@@ -188,8 +188,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         /*** this filter is used for displaying ***/
         Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
 
-        rsg->input.towindow = towin;
-
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
                                                     rsg->output.height, 
@@ -302,8 +300,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*** this filter tells the engine to go to the next frame ***/
             Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
-            rsg->input.toframe = toframe;
-
             /*** force starting at the first frame. **/
             /*** -1 is because the gotoframe filter will add 1 further. ***/
             /*** this should probably be changed ***/
@@ -311,11 +307,15 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
 
             rps = common_g3dui_render ( gui, rsg,
+                                             towin,
+                                             toframe,
                                              rsg->output.startframe,
                                              ( uint64_t ) widget,
                                              0x01 );
         } else {
             rps = common_g3dui_render ( gui, rsg,
+                                             towin,
+                                             NULL,
                                              rsg->output.startframe,
                                              ( uint64_t ) widget,
                                              0x00 );

@@ -311,9 +311,6 @@ typedef struct _Q3DWIREFRAMESETTINGS {
 typedef struct _Q3DINPUTSETTINGS {
     G3DSCENE  *sce;
     G3DCAMERA *cam;
-    Q3DFILTER *towindow;
-    Q3DFILTER *toframe;
-    Q3DFILTER *clean;
 } Q3DINPUTSETTINGS;
 
 /******************************************************************************/
@@ -637,16 +634,26 @@ typedef struct _Q3DAREA {
 /******************************************************************************/
 #define MAXFILTERS 0x40
 
+typedef struct _Q3DFILTERSET {
+    Q3DFILTER *toimage;
+    Q3DFILTER *tosequence;
+    Q3DFILTER *towindow;
+    Q3DFILTER *toframe;
+    Q3DFILTER *clean;
+    Q3DFILTER *simpleAA;
+    Q3DFILTER *softshadows;
+    Q3DFILTER *vectormblur;
+} Q3DFILTERSET;
+
+/******************************************************************************/
 typedef struct _Q3DJOB {
     Q3DAREA        qarea;
     uint64_t       flags;
     Q3DCAMERA     *qcam;
     Q3DSCENE      *qsce;
     Q3DSETTINGS   *qrsg;
+    Q3DFILTERSET   filters;
     unsigned char *img;
-    Q3DFILTER     *flin[MAXFILTERS];
-    Q3DFILTER     *fimg[MAXFILTERS];
-    Q3DFILTER     *fbef[MAXFILTERS];
     LIST          *lthread; /*** list of render areas thread***/
     float          curframe;
     uint32_t       cancelled;
@@ -673,6 +680,10 @@ float  q3dvector3f_length    ( Q3DVECTOR3F *vec );
 void   q3dvector3f_matrix    ( Q3DVECTOR3F *vec,
                                double      *matrix,
                                Q3DVECTOR3F *vout );
+void   q3dvector3d_cross     ( Q3DVECTOR3D *vone, 
+                               Q3DVECTOR3D *vtwo, 
+                               Q3DVECTOR3D *vout );
+double q3dvector3d_length    ( Q3DVECTOR3D *vec );
 
 /******************************************************************************/
 Q3DSETTINGS *q3dsettings_new ( );
@@ -932,9 +943,11 @@ void       q3djob_filterline         ( Q3DJOB *qjob,
                                        uint32_t width );
 void      *q3djob_raytrace           ( void *ptr );
 void       q3djob_createRenderThread ( Q3DJOB *qjob );
-Q3DJOB    *q3djob_new                ( Q3DSETTINGS *qrsg,
+Q3DJOB     *q3djob_new               ( Q3DSETTINGS *qrsg, 
                                        G3DSCENE    *sce,
                                        G3DCAMERA   *cam,
+                                       Q3DFILTER   *towindow,
+                                       Q3DFILTER   *toframe,
                                        uint64_t     flags );
 void       q3djob_render_t_free      ( Q3DJOB *qjob );
 void      *q3djob_render_sequence_t  ( Q3DJOB *qjob );

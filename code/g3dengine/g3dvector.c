@@ -29,10 +29,12 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/******************************************************************************/
 void g3dvector_print ( G3DVECTOR *vec ) {
     printf ( "%f %f %f\n", vec->x, vec->y, vec->z );
 }
 
+/******************************************************************************/
 void g3ddoublevector_print ( G3DDOUBLEVECTOR *vec ) {
     printf ( "%f %f %f\n", vec->x, vec->y, vec->z );
 }
