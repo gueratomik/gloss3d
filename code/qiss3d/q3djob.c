@@ -167,8 +167,8 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
                                  uint32_t depth, 
                                  uint32_t width ) {
     #define FILTERCOUNT 0x06
-    Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.softshadows,
-                                    qjob->filters.simpleAA,
+    Q3DFILTER *fil[FILTERCOUNT] = { /*qjob->filters.softshadows*/NULL,
+                                    /*qjob->filters.simpleAA*/NULL,
                                     qjob->filters.towindow,
                                     qjob->filters.tosequence,
                                     qjob->filters.toimage,

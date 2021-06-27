@@ -34,6 +34,8 @@ typedef struct _VMBZPIXEL {
     uint32_t vobjID;
     uint32_t vtriID;
     float z;
+    float ratio[0x03]; /*** possible improvement for lower memory footprint :**/
+                       /*** use unsigned chars for ratios ***/
 } VMBZPIXEL;
 
 /******************************************************************************/
@@ -41,6 +43,8 @@ typedef struct _VMBZPOINT {
     int32_t x;
     int32_t y;
     float   z;
+    float ratio[0x03]; /*** possible improvement for lower memory footprint :**/
+                       /*** use unsigned chars for ratios ***/
 } VMBZPOINT;
 
 /******************************************************************************/
@@ -260,28 +264,20 @@ static void filtervmb_blur ( Q3DFILTER     *qfil,
                                      .y = i },
                             pdst;
                 float surface = vmes->vtri[vtriID].surface ;
-                float ratio0, 
-                      ratio1,
-                      ratio2;
-
-                q3dvector3f_cross ( &v0v1, &vpv0, &vout0 );
-                q3dvector3f_cross ( &v1v2, &vpv1, &vout1 );
-                q3dvector3f_cross ( &v2v0, &vpv2, &vout2 );
-
-                ratio0 = q3dvector3f_length ( &vout0 ) / surface;
-                ratio1 = q3dvector3f_length ( &vout1 ) / surface;
-                ratio2 = q3dvector3f_length ( &vout2 ) / surface;
+                float ratio[0x03] = { fvmb->zbuffer[offset].ratio[0x00],
+                                      fvmb->zbuffer[offset].ratio[0x01],
+                                      fvmb->zbuffer[offset].ratio[0x02] };
 
                 for ( k = 0x00; k < fvmb->nbSamples; k++ ) {
                     VMBTRIANGLE *vtribef = vmes->vtribef + ( k * nbqtri );
 
-                    pdst.x = ( vtribef[vtriID].pnt[0x00].x * ratio0 ) +
-                             ( vtribef[vtriID].pnt[0x01].x * ratio1 ) +
-                             ( vtribef[vtriID].pnt[0x02].x * ratio2 );
+                    pdst.x = ( vtribef[vtriID].pnt[0x00].x * ratio[0x00] ) +
+                             ( vtribef[vtriID].pnt[0x01].x * ratio[0x01] ) +
+                             ( vtribef[vtriID].pnt[0x02].x * ratio[0x02] );
 
-                    pdst.y = ( vtribef[vtriID].pnt[0x00].y * ratio0 ) +
-                             ( vtribef[vtriID].pnt[0x01].y * ratio1 ) +
-                             ( vtribef[vtriID].pnt[0x02].y * ratio2 );
+                    pdst.y = ( vtribef[vtriID].pnt[0x00].y * ratio[0x00] ) +
+                             ( vtribef[vtriID].pnt[0x01].y * ratio[0x01] ) +
+                             ( vtribef[vtriID].pnt[0x02].y * ratio[0x02] );
 
                     filtervmb_trace ( qfil, &psrc, &pdst, 0x00, 0x00, 0x00 );
 
@@ -318,6 +314,15 @@ static void filtervmb_line ( Q3DFILTER *qfil,
     int32_t x = srcPoint->x, 
             y = srcPoint->y;
     float   z = srcPoint->z;
+    float ratio[0x03] = { srcPoint->ratio[0x00],
+                          srcPoint->ratio[0x01],
+                          srcPoint->ratio[0x02] };
+    float dratio[0x03] = { dstPoint->ratio[0x00] - srcPoint->ratio[0x00],
+                           dstPoint->ratio[0x01] - srcPoint->ratio[0x01],
+                           dstPoint->ratio[0x02] - srcPoint->ratio[0x02] };
+    float pratio[0x03] = { ( dratio[0x00] / (dd+1) ),
+                           ( dratio[0x01] / (dd+1) ),
+                           ( dratio[0x02] / (dd+1) ) };
     int i, cumul = 0x00;
 
     if ( ddx > ddy ) {
@@ -335,15 +340,27 @@ static void filtervmb_line ( Q3DFILTER *qfil,
 
                     fvmb->hlines[y].p1.x = fvmb->hlines[y].p2.x = x;
                     fvmb->hlines[y].p1.z = fvmb->hlines[y].p2.z = z;
+
+                    fvmb->hlines[y].p1.ratio[0] = fvmb->hlines[y].p2.ratio[0] = ratio[0];
+                    fvmb->hlines[y].p1.ratio[1] = fvmb->hlines[y].p2.ratio[1] = ratio[1];
+                    fvmb->hlines[y].p1.ratio[2] = fvmb->hlines[y].p2.ratio[2] = ratio[2];
                 } else {
                     if ( x < fvmb->hlines[y].p1.x ) {
                         fvmb->hlines[y].p1.x = x;
                         fvmb->hlines[y].p1.z = z;
+
+                        fvmb->hlines[y].p1.ratio[0] = ratio[0];
+                        fvmb->hlines[y].p1.ratio[1] = ratio[1];
+                        fvmb->hlines[y].p1.ratio[2] = ratio[2];
                     }
 
                     if ( x > fvmb->hlines[y].p2.x ) {
                         fvmb->hlines[y].p2.x = x;
                         fvmb->hlines[y].p2.z = z;
+
+                        fvmb->hlines[y].p2.ratio[0] = ratio[0];
+                        fvmb->hlines[y].p2.ratio[1] = ratio[1];
+                        fvmb->hlines[y].p2.ratio[2] = ratio[2];
                     }
 
                     fvmb->hlines[y].inited = 0x02;
@@ -353,6 +370,9 @@ static void filtervmb_line ( Q3DFILTER *qfil,
             cumul += ddy;
             x     += px;
             z     += pz;
+            ratio[0x00] += pratio[0x00];
+            ratio[0x01] += pratio[0x01];
+            ratio[0x02] += pratio[0x02];
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
@@ -369,15 +389,27 @@ static void filtervmb_line ( Q3DFILTER *qfil,
 
                     fvmb->hlines[y].p1.x = fvmb->hlines[y].p2.x = x;
                     fvmb->hlines[y].p1.z = fvmb->hlines[y].p2.z = z;
+
+                    fvmb->hlines[y].p1.ratio[0] = fvmb->hlines[y].p2.ratio[0] = ratio[0];
+                    fvmb->hlines[y].p1.ratio[1] = fvmb->hlines[y].p2.ratio[1] = ratio[1];
+                    fvmb->hlines[y].p1.ratio[2] = fvmb->hlines[y].p2.ratio[2] = ratio[2];
                 } else {
                     if ( x < fvmb->hlines[y].p1.x ) {
                         fvmb->hlines[y].p1.x = x;
                         fvmb->hlines[y].p1.z = z;
+
+                        fvmb->hlines[y].p1.ratio[0] = ratio[0];
+                        fvmb->hlines[y].p1.ratio[1] = ratio[1];
+                        fvmb->hlines[y].p1.ratio[2] = ratio[2];
                     }
 
                     if ( x > fvmb->hlines[y].p2.x ) {
                         fvmb->hlines[y].p2.x = x;
                         fvmb->hlines[y].p2.z = z;
+
+                        fvmb->hlines[y].p2.ratio[0] = ratio[0];
+                        fvmb->hlines[y].p2.ratio[1] = ratio[1];
+                        fvmb->hlines[y].p2.ratio[2] = ratio[2];
                     }
 
                     fvmb->hlines[y].inited = 0x02;
@@ -387,6 +419,9 @@ static void filtervmb_line ( Q3DFILTER *qfil,
             cumul += ddx;
             y     += py;
             z     += pz;
+            ratio[0x00] += pratio[0x00];
+            ratio[0x01] += pratio[0x01];
+            ratio[0x02] += pratio[0x02];
         }
     }
 }
@@ -406,6 +441,16 @@ static void filtervmb_fillHLine ( Q3DFILTER *qfil,
     float dz  = hline->p2.z - hline->p1.z, pz = ( dz / ddx );
     long  px = ( dx > 0x00 ) ? 1 : -1;
     float z = z1;
+    float ratio[0x03] = { hline->p1.ratio[0x00],
+                          hline->p1.ratio[0x01],
+                          hline->p1.ratio[0x02] };
+    float dratio[0x03] = { hline->p2.ratio[0x00] - hline->p1.ratio[0x00],
+                           hline->p2.ratio[0x01] - hline->p1.ratio[0x01],
+                           hline->p2.ratio[0x02] - hline->p1.ratio[0x02] };
+    float pratio[0x03] = { ( dratio[0x00] / (ddx) ),
+                           ( dratio[0x01] / (ddx) ),
+                           ( dratio[0x02] / (ddx) ) };
+
     int i;
     uint32_t offset = ( ( fvmb->height - 1 - y ) * fvmb->width );
 
@@ -417,14 +462,23 @@ static void filtervmb_fillHLine ( Q3DFILTER *qfil,
              ( x <  fvmb->width ) ) {
 
             if  ( z <= depth ) {
-                fvmb->zbuffer[offset+x].z      = z;
-                fvmb->zbuffer[offset+x].vobjID = vobjID;
-                fvmb->zbuffer[offset+x].vtriID = vtriID;
+                uint32_t xoffset = offset+x;
+
+                fvmb->zbuffer[xoffset].z      = z;
+                fvmb->zbuffer[xoffset].vobjID = vobjID;
+                fvmb->zbuffer[xoffset].vtriID = vtriID;
+
+                fvmb->zbuffer[xoffset].ratio[0] = ratio[0];
+                fvmb->zbuffer[xoffset].ratio[1] = ratio[1];
+                fvmb->zbuffer[xoffset].ratio[2] = ratio[2];
             }
         }
 
         x += px;
         z += pz;
+        ratio[0] += pratio[0x00];
+        ratio[1] += pratio[0x01];
+        ratio[2] += pratio[0x02];
     }
 }
 
@@ -445,10 +499,16 @@ static void filtervmb_drawMesh ( Q3DFILTER *qfil,
             uint32_t n = ( j + 0x01 ) % 0x03;
             VMBZPOINT pt1 = { .x = vmes->vtri[i].pnt[j].x,
                               .y = vmes->vtri[i].pnt[j].y,
-                              .z = vmes->zval[i][j] },
+                              .z = vmes->zval[i][j],
+                              .ratio[0x00] = ( j == 0x00 ) ? 1.0f : 0.0f,
+                              .ratio[0x01] = ( j == 0x01 ) ? 1.0f : 0.0f,
+                              .ratio[0x02] = ( j == 0x02 ) ? 1.0f : 0.0f },
                       pt2 = { .x = vmes->vtri[i].pnt[n].x,
                               .y = vmes->vtri[i].pnt[n].y,
-                              .z = vmes->zval[i][n] };
+                              .z = vmes->zval[i][n],
+                              .ratio[0x00] = ( n == 0x00 ) ? 1.0f : 0.0f,
+                              .ratio[0x01] = ( n == 0x01 ) ? 1.0f : 0.0f,
+                              .ratio[0x02] = ( n == 0x02 ) ? 1.0f : 0.0f };
 
             if ( vmes->vtri[i].pnt[j].y < ymin ) ymin = vmes->vtri[i].pnt[j].y;
             if ( vmes->vtri[i].pnt[j].y > ymax ) ymax = vmes->vtri[i].pnt[j].y;
@@ -899,11 +959,12 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         memcpy ( &orifilters   , &qjob->filters, sizeof ( Q3DFILTERSET ) );
         memset ( &qjob->filters, 0x00          , sizeof ( Q3DFILTERSET ) );
 
+        qjob->filters.toframe  = orifilters.toframe;
         qjob->filters.towindow = orifilters.towindow;
 
         q3djob_render ( qjob );
 
-        memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
+        /*memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );*/
 
 
         filtervmb_import ( qfil, 
