@@ -30,6 +30,20 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+void q3djob_goToFrame ( Q3DJOB *qjob, float frame ) {
+    qjob->curframe = frame;
+
+    qjob->filters.toframe->draw ( qjob->filters.toframe, 
+                                  NULL, 
+                                  frame,
+                                  NULL, 
+                                  0x00, 
+                                  0x00, 
+                                  0x00, 
+                                  0x00 );
+}
+
+/******************************************************************************/
 void q3djob_addJob ( Q3DJOB *qjob, 
                      Q3DJOB *subqjob ) {
     list_insert ( &qjob->lqjob, subqjob );
@@ -166,13 +180,12 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
                                  uint32_t to,
                                  uint32_t depth, 
                                  uint32_t width ) {
-    #define FILTERCOUNT 0x06
+    #define FILTERCOUNT 0x05
     Q3DFILTER *fil[FILTERCOUNT] = { /*qjob->filters.softshadows*/NULL,
                                     /*qjob->filters.simpleAA*/NULL,
                                     qjob->filters.towindow,
-                                    qjob->filters.tosequence,
-                                    qjob->filters.toimage,
-                                    qjob->filters.toframe };
+                                    /*qjob->filters.tosequence*/NULL,
+                                    /*qjob->filters.toimage*/NULL };
     char *img = qjob->img;
     uint32_t i;
 
@@ -182,13 +195,13 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
         if ( fil[i] ) {
             if ( fil[i]->flags & ENABLEFILTER ) {
                 if ( fil[i]->draw ( fil[i], 
-                                   qjob, 
-                                   qjob->curframe, 
-                                   img, 
-                                   from, 
-                                   to, 
-                                   depth, 
-                                   width ) ) {
+                                    qjob, 
+                                    qjob->curframe, 
+                                    img, 
+                                    from, 
+                                    to, 
+                                    depth, 
+                                    width ) ) {
 
                     /*** stop processing filters if 1 is returned ***/
                     return;
@@ -475,7 +488,11 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
-    qjob->curframe = qrsg->output.startframe;
+    q3djob_initFilters ( qjob,
+                         towindow,
+                         toframe );
+
+    q3djob_goToFrame ( qjob, qrsg->output.startframe );
 
     qjob->running = 0x01;
 
@@ -496,10 +513,6 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                     qrsg->output.height,
                     0x18,
                     qjob->curframe );
-
-    q3djob_initFilters ( qjob,
-                         towindow,
-                         toframe );
 
 
     return qjob;
@@ -528,6 +541,9 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
     int32_t startframe = qjob->qrsg->output.startframe,
             endframe = qjob->qrsg->output.endframe;
     int32_t i, j;
+    Q3DSETTINGS subrsg;
+
+    memcpy ( &subrsg, qjob->qrsg, sizeof ( Q3DSETTINGS ) );
 
     qjob->threaded = 0x01;
 
@@ -538,14 +554,14 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
         if ( qjob->running ) {
             Q3DJOB *nextqjob;
 
-            nextqjob = q3djob_new ( qjob->qrsg, 
-                                    sce, 
-                                    cam, 
-                                    qjob->filters.towindow,
-                                    NULL,
-                                    NOFREEFILTERS );
+            subrsg.output.startframe = i;
 
-            nextqjob->curframe = i;
+            nextqjob = q3djob_new ( &subrsg, 
+                                     sce, 
+                                     cam, 
+                                     qjob->filters.towindow,
+                                     qjob->filters.toframe,
+                                     NOFREEFILTERS );
 
             /*** register this child rendeqjobne in case we need to cancel it ***/
             q3djob_addJob ( qjob, nextqjob );
@@ -559,7 +575,7 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
             q3djob_removeJob ( qjob, nextqjob );
 
             /*** Free the current frame ***/
-            q3dobject_free  ( ( Q3DOBJECT * ) nextqjob );
+            q3djob_free  ( ( Q3DOBJECT * ) nextqjob );
         }
     }
 

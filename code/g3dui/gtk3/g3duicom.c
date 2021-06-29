@@ -124,11 +124,9 @@ uint32_t filtergotoframe_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
     G3DUI *gui = ( G3DUI * ) fil->data;
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 
-    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
-    /*gtf.action.wait = 0x00;*/
     gtf.action.type = ACTION_GOTOFRAME;
     gtf.action.gui  = gui;
-    gtf.frame       = frameID + 1;
+    gtf.frame       = frameID;
 
     g3duicom_requestActionFromMainThread ( gui, &gtf );
 

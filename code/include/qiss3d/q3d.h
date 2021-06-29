@@ -953,6 +953,8 @@ void       q3djob_render_t_free      ( Q3DJOB *qjob );
 void      *q3djob_render_sequence_t  ( Q3DJOB *qjob );
 void      *q3djob_render_frame_t     ( Q3DJOB *qjob );
 void       q3djob_render             ( Q3DJOB *qjob );
+void       q3djob_goToFrame          ( Q3DJOB *qjob, 
+                                       float   frame );
 
 /******************************************************************************/
 void       q3dfilter_enable    ( Q3DFILTER *fil );
