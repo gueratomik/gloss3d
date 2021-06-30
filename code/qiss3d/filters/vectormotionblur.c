@@ -90,15 +90,17 @@ typedef struct _VMBMESH {
 
 /******************************************************************************/
 typedef struct _FILTERVMB {
-    LIST       *lvobj;
-    uint32_t    vobjID;
-    float       strength;
-    uint32_t    nbSamples;
-    VMBZPIXEL  *zbuffer;
-    uint32_t    height;
-    uint32_t    width;
-    VMBZHLINE  *hlines;
-    uint32_t  (*abuffer)[0x04]; /**** accumulation buffer ***/
+    LIST          *lvobj;
+    uint32_t       vobjID;
+    float          strength;
+    uint32_t       nbSamples;
+    VMBZPIXEL     *zbuffer;
+    uint32_t       height;
+    uint32_t       width;
+    uint32_t       bpp;
+    unsigned char *img;
+    VMBZHLINE     *hlines;
+    uint32_t     (*abuffer)[0x04]; /**** accumulation buffer ***/
 } FILTERVMB;
 
 /******************************************************************************/
@@ -401,10 +403,10 @@ static void filtervmb_line ( Q3DFILTER *qfil,
 }
 
 /****************************************************************************/
-static void filtervmb_fillHLine ( Q3DFILTER *qfil,
-                                  uint32_t   vobjID,
-                                  uint32_t   vtriID,
-                                  int32_t    y ) {
+static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
+                                    uint32_t   vobjID,
+                                    uint32_t   vtriID,
+                                    int32_t    y ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     VMBZHLINE *hline = &fvmb->hlines[y];
     int32_t x1 = hline->p1.x, 
@@ -457,6 +459,61 @@ static void filtervmb_fillHLine ( Q3DFILTER *qfil,
 }
 
 /******************************************************************************/
+static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
+                                     uint32_t     vobjID,
+                                     uint32_t     vtriID,
+                                     VMBTRIANGLE *vtri,
+                                     float        zval[0x03] ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    int32_t ymin = vtri->pnt[0x00].y,
+            ymax = ymin;
+    uint32_t i;
+
+    for ( i = 0x00; i < 0x03; i++ ) {
+        uint32_t n = ( i + 0x01 ) % 0x03;
+        VMBZPOINT pt1 = { .x = vtri->pnt[i].x,
+                          .y = vtri->pnt[i].y,
+                          .z = ( zval ) ? zval[i] : 0.0f,
+                          .ratio[0x00] = ( i == 0x00 ) ? 1.0f : 0.0f,
+                          .ratio[0x01] = ( i == 0x01 ) ? 1.0f : 0.0f,
+                          .ratio[0x02] = ( i == 0x02 ) ? 1.0f : 0.0f },
+                  pt2 = { .x = vtri->pnt[n].x,
+                          .y = vtri->pnt[n].y,
+                          .z = ( zval ) ? zval[n] : 0.0f,
+                          .ratio[0x00] = ( n == 0x00 ) ? 1.0f : 0.0f,
+                          .ratio[0x01] = ( n == 0x01 ) ? 1.0f : 0.0f,
+                          .ratio[0x02] = ( n == 0x02 ) ? 1.0f : 0.0f };
+
+        if ( vtri->pnt[i].y < ymin ) ymin = vtri->pnt[i].y;
+        if ( vtri->pnt[i].y > ymax ) ymax = vtri->pnt[i].y;
+
+        if ( pt1.x < pt2.x ) filtervmb_line ( qfil, &pt1, &pt2 );
+        else                 filtervmb_line ( qfil, &pt2, &pt1 );
+    }
+
+    if ( ymin <  0x00         ) ymin = 0x00;
+    if ( ymin >= fvmb->height ) ymin = fvmb->height - 1;
+    if ( ymax <  0x00         ) ymax = 0x00;
+    if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
+
+    if ( ymin < ymax ) {
+        for ( i = ymin; i < ymax; i++ ) {
+            if ( fvmb->hlines[i].inited == 0x02 ){
+
+                if ( zval ) {
+                    filtervmb_fillZbuffer ( qfil, vobjID, vtriID, i );
+                } else {
+                    filtervmb_fillABuffer ( qfil, vobjID, vtriID, i );
+                }
+            }
+        }
+
+        memset ( fvmb->hlines + ymin, 0x00, sizeof ( VMBZHLINE ) * ( ymax - 
+                                                                     ymin ) );
+    }
+}
+
+/******************************************************************************/
 static void filtervmb_drawMesh ( Q3DFILTER *qfil,
                                  VMBMESH   *vmes ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
@@ -465,48 +522,14 @@ static void filtervmb_drawMesh ( Q3DFILTER *qfil,
     uint32_t i, j;
 
     for ( i = 0x00; i < qmes->nbqtri; i++ ) {
-         uint32_t vtriID = i;
-        int32_t ymin = vmes->vtri[i].pnt[0x00].y,
-                ymax = ymin;
+        uint32_t vtriID = i;
 
-        for ( j = 0x00; j < 0x03; j++ ) {
-            uint32_t n = ( j + 0x01 ) % 0x03;
-            VMBZPOINT pt1 = { .x = vmes->vtri[i].pnt[j].x,
-                              .y = vmes->vtri[i].pnt[j].y,
-                              .z = vmes->zval[i][j],
-                              .ratio[0x00] = ( j == 0x00 ) ? 1.0f : 0.0f,
-                              .ratio[0x01] = ( j == 0x01 ) ? 1.0f : 0.0f,
-                              .ratio[0x02] = ( j == 0x02 ) ? 1.0f : 0.0f },
-                      pt2 = { .x = vmes->vtri[i].pnt[n].x,
-                              .y = vmes->vtri[i].pnt[n].y,
-                              .z = vmes->zval[i][n],
-                              .ratio[0x00] = ( n == 0x00 ) ? 1.0f : 0.0f,
-                              .ratio[0x01] = ( n == 0x01 ) ? 1.0f : 0.0f,
-                              .ratio[0x02] = ( n == 0x02 ) ? 1.0f : 0.0f };
-
-            if ( vmes->vtri[i].pnt[j].y < ymin ) ymin = vmes->vtri[i].pnt[j].y;
-            if ( vmes->vtri[i].pnt[j].y > ymax ) ymax = vmes->vtri[i].pnt[j].y;
-
-            if ( pt1.x < pt2.x ) filtervmb_line ( qfil, &pt1, &pt2 );
-            else                 filtervmb_line ( qfil, &pt2, &pt1 );
-        }
-
-        if ( ymin <  0x00         ) ymin = 0x00;
-        if ( ymin >= fvmb->height ) ymin = fvmb->height - 1;
-        if ( ymax <  0x00         ) ymax = 0x00;
-        if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
-
-        if ( ymin < ymax ) {
-            for ( j = ymin; j < ymax; j++ ) {
-                if ( fvmb->hlines[j].inited == 0x02 ){
-
-                    filtervmb_fillHLine ( qfil, vobjID, vtriID, j );
-                }
-            }
-
-            memset ( fvmb->hlines + ymin, 0x00, sizeof ( VMBZHLINE ) * ( ymax - 
-                                                                         ymin ) );
-        }
+        /*** Draw and fill the Z-Buffer ***/
+        filtervmb_drawTriangle ( qfil,
+                                 vobjID,
+                                 vtriID,
+                                &vmes->vtri[i],
+                                 vmes->zval[i] );
     }
 }
 
@@ -520,6 +543,84 @@ static void filtervmb_drawObjects ( Q3DFILTER *qfil ) {
         VMBMESH *vmes = ( VMBMESH * ) vobj;
 
         filtervmb_drawMesh ( qfil, vmes );
+
+        ltmpvobj = ltmpvobj->next;
+    }
+}
+
+/******************************************************************************/
+static void filtervmb_drawInterpolatedMesh ( Q3DFILTER *qfil,
+                                             VMBMESH   *vmes ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    Q3DMESH *qmes = ( Q3DMESH * ) vmes->vobj.qobj;
+    uint32_t vobjID = vmes->vobj.id;
+    uint32_t i, p;
+
+    for ( p = 0x00; p < fvmb->nbSamples; p++ ) {
+        VMBTRIANGLE *dstTri = vmes->vtribef + ( qmes->nbqtri * p ),
+                    *srcTri = vmes->vtri;
+
+        for ( i = 0x00; i < qmes->nbqtri; i++ ) {
+            G2DVECTOR mvec[0x03] = { { .x = dstTri[i].pnt[0x00]->x - 
+                                            srcTri[i].pnt[0x00]->x,
+                                       .y = dstTri[i].pnt[0x00]->y - 
+                                            srcTri[i].pnt[0x00]->y },
+                                     { .x = dstTri[i].pnt[0x01]->x - 
+                                            srcTri[i].pnt[0x01]->x,
+                                       .y = dstTri[i].pnt[0x01]->y - 
+                                            srcTri[i].pnt[0x01]->y },
+                                     { .x = dstTri[i].pnt[0x02]->x - 
+                                            srcTri[i].pnt[0x02]->x,
+                                       .y = dstTri[i].pnt[0x02]->y - 
+                                            srcTri[i].pnt[0x02]->y } };
+            uint32_t len[0x03] = { g2dvector_length ( &mvec[0x00] ), 
+                                   g2dvector_length ( &mvec[0x01] ),
+                                   g2dvector_length ( &mvec[0x02] ) };
+            /*** We draw as many triangles as the maximum length between source ***/
+            /*** and destination triangles (if subSamplingRate is 100%). So we ***/
+            /*** first have to get the maximum length and then we compute the ***/
+            /*** number of iterations from this length and subSamplingRate. ***/
+            uint32_t maxLen = ( len[0] > len[1] ) ? 
+                            ( ( len[0] > len[2] ) ? len[0] : len[2] ) :
+                            ( ( len[1] > len[2] ) ? len[1] : len[2] );
+            uint32_t iter = maxLen * rmb->subSamplingRate;
+
+            if ( maxLen ) {
+                uint32_t j;
+
+                for ( j = 0x00; j < iter; j++ ) {
+                    float pos = ( float ) i / iter;
+                    VMBTRIANGLE itrTri = { { .pnt[0x00].x = srcTri[i].pnt[0]->x + ( mvec[0].x * pos ),
+                                             .pnt[0x00].y = srcTri[i].pnt[0]->y + ( mvec[0].y * pos ),
+                                             .pnt[0x00].z = srcTri[i].pnt[0]->z + ( mvec[0].z * pos ) },
+                                           { .pnt[0x01].x = srcTri[i].pnt[1]->x + ( mvec[1].x * pos ),
+                                             .pnt[0x01].y = srcTri[i].pnt[1]->y + ( mvec[1].y * pos ),
+                                             .pnt[0x01].z = srcTri[i].pnt[1]->z + ( mvec[1].z * pos ) },
+                                           { .pnt[0x02].x = srcTri[i].pnt[2]->x + ( mvec[2].x * pos ),
+                                             .pnt[0x02].y = srcTri[i].pnt[2]->y + ( mvec[2].y * pos ),
+                                             .pnt[0x02].z = srcTri[i].pnt[2]->z + ( mvec[2].z * pos ) } };
+
+                    filtervmb_drawTriangle ( qfil,
+                                             vobjID,
+                                             vtriID,
+                                            &itrTri,
+                                             NULL );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void filtervmb_drawInterpolatedObjects ( Q3DFILTER *qfil ) {
+    FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
+    LIST *ltmpvobj = fvmb->lvobj;
+
+    while ( ltmpvobj ) {
+        VMBOBJECT *vobj = ( VMBOBJECT * ) ltmpvobj->data;
+        VMBMESH *vmes = ( VMBMESH * ) vobj;
+
+        filtervmb_drawInterpolatedMesh ( qfil, vmes );
 
         ltmpvobj = ltmpvobj->next;
     }
@@ -908,6 +1009,9 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
     float step = ( ( 0.5f ) * fvmb->strength ) / fvmb->nbSamples;
     float fromFrame = middleFrame - step;
     float toFrame   = middleFrame + step;
+
+    fvmb->bpp = bpp;
+    fvmb->img = img;
 
     /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
     /*** to substract 1.0f ***/
