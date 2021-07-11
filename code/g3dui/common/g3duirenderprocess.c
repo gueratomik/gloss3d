@@ -77,19 +77,8 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 
 /******************************************************************************/
 void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
-    static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
-
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
-    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
-    /*gtf.action.wait = 0x00;*/
-    gtf.action.type = ACTION_GOTOFRAME;
-    gtf.action.gui  = rps->gui;
-    gtf.frame       = rps->gui->curframe;
-
-    g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
-
-    /*r3dscene_render_frame_t ( rps->rsce );*/
     q3djob_render_frame_t ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
@@ -99,17 +88,7 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
 /******************************************************************************/
 void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
-    static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
-
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
-
-    /*** jump to the next frame (this is a image filter, ran on image rendering completion) ***/
-    /*gtf.action.wait = 0x00;*/
-    gtf.action.type = ACTION_GOTOFRAME;
-    gtf.action.gui  = rps->gui;
-    gtf.frame       = rps->gui->currsg->output.startframe;
-
-    g3duicom_requestActionFromMainThread ( rps->gui, &gtf );
 
     q3djob_render_sequence_t ( rps->qjob );
 

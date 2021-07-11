@@ -148,15 +148,13 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                     unsigned char (*srcimg)[0x03] = img;
 
                     if ( fvmb->abuffer[offset][0x03] ) {
-                        srcimg[offset][0x00] = fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03] * 0xFF;
-                        srcimg[offset][0x01] = fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03] * 0xFF;
-                        srcimg[offset][0x02] = fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03] * 0xFF;
-/*
-                        srcimg[offset][0x00] = fvmb->abuffer[offset][0x03];
-                        srcimg[offset][0x01] = fvmb->abuffer[offset][0x03];
-                        srcimg[offset][0x02] = fvmb->abuffer[offset][0x03];
-*/
+                        unsigned char a0 = fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03],
+                                      a1 = fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03],
+                                      a2 = fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03];
 
+                        srcimg[offset][0x00] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 );
+                        srcimg[offset][0x01] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 );
+                        srcimg[offset][0x02] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 );
                     }
                 } break;
 
@@ -314,14 +312,13 @@ static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
     uint32_t offset = ( y * fvmb->width );
 
     for ( i = 0x00; i <= ddx; i++ ) {
-        float depth = fvmb->zbuffer[offset+x].z;
+        uint32_t xoffset = ( offset + x );
+        float depth = fvmb->zbuffer[xoffset].z;
 
         if ( ( x >= 0x00 ) && 
              ( x <  fvmb->width ) ) {
 
             if  ( z <= depth ) {
-                uint32_t xoffset = offset+x;
-
                 fvmb->zbuffer[xoffset].z      = z;
                 fvmb->zbuffer[xoffset].vobjID = vmes->vobj.id;
                 fvmb->zbuffer[xoffset].vtriID = vtriID;
@@ -382,13 +379,13 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                      ( ysrc <  fvmb->height ) && 
                      ( xsrc >= 0x00         ) &&
                      ( xsrc <  fvmb->width  ) ) {
-
+                    uint32_t aoffset = offset + x;
                     uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
                     unsigned char R, G, B;
 
                     if ( ( fvmb->zbuffer[zoffset].vobjID == vmes->vobj.id ) &&
                          ( fvmb->zbuffer[zoffset].vtriID == vtriID        ) ) {
-                        uint32_t aoffset = offset + x;
+
 
                         switch ( fvmb->bpp ) {
                             case 0x18 : {
@@ -397,18 +394,27 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                                 R = srcimg[zoffset][0x00];
                                 G = srcimg[zoffset][0x01];
                                 B = srcimg[zoffset][0x02];
+
+/*printf("%d %d %d %d %d\n", ysrc, xsrc, R, G, B);*/
+                                /*srcimg[zoffset][0x00] = 0xFF;
+                                srcimg[zoffset][0x01] = 0xFF;
+                                srcimg[zoffset][0x02] = 0xFF;*/
                             } break;
 
                             default :
                             break;
                         }
 
-                        if ( strength > fvmb->abuffer[aoffset][0x03] ) {
-                            fvmb->abuffer[aoffset][0x00] += ( R * strength );
-                            fvmb->abuffer[aoffset][0x01] += ( G * strength );
-                            fvmb->abuffer[aoffset][0x02] += ( B * strength );
-                            fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
-                        }
+                        fvmb->abuffer[aoffset][0x00] += ( R * strength );
+                        fvmb->abuffer[aoffset][0x01] += ( G * strength );
+                        fvmb->abuffer[aoffset][0x02] += ( B * strength );
+                        fvmb->abuffer[aoffset][0x03]++;
+
+/*
+                        fvmb->abuffer[aoffset][0x00] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x00] ) + ( R * strength );
+                        fvmb->abuffer[aoffset][0x01] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x01] ) + ( G * strength );
+                        fvmb->abuffer[aoffset][0x02] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x02] ) + ( B * strength );
+*/
                     }
                 }
             }
@@ -972,7 +978,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
     G3DSCENE  *sce = q3dobject_getObject ( qjob->qsce );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
-    int32_t i;
+    int32_t i, j;
     Q3DFILTERSET orifilters;
     float middleFrame = frameID     - ( 0.5f * fvmb->strength );
     float step = ( ( 0.5f ) * fvmb->strength ) / fvmb->nbSamples;
@@ -982,12 +988,14 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
     fvmb->bpp = bpp;
     fvmb->img = img;
 
-    /*** Because gotonextframe_draw will jump to frame + 1.0f, we have ***/
     /*** to substract 1.0f ***/
     if ( qjob->filters.toframe ) {
-        q3dobject_free ( qjob->qsce );
-
         q3djob_goToFrame ( qjob, middleFrame );
+
+        q3djob_clear   ( qjob );
+        q3djob_prepare ( qjob, 
+                         qjob->qrsg->input.sce, 
+                         qjob->qrsg->input.cam );
 
         qjob->qsce = q3dscene_import ( sce, middleFrame, 0x00 );
 
@@ -1000,7 +1008,6 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         q3djob_render ( qjob );
 
         memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
-
 
         filtervmb_import ( qfil, 
                            qjob->qcam,
@@ -1042,7 +1049,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         filtervmb_drawObjects ( qfil );
         filtervmb_drawInterpolatedObjects ( qfil );
 
-        filtervmb_merge ( qfil, img, bpp );
+        /*filtervmb_merge ( qfil, img, bpp );*/
     }
 
     return 0x02;

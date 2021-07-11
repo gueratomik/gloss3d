@@ -96,6 +96,8 @@ void q3djob_wait ( Q3DJOB *qjob ) {
 
         ltmp = ltmp->next;
     }
+
+    list_free ( &qjob->lthread, NULL );
 }
 
 /******************************************************************************/
@@ -261,6 +263,8 @@ void *q3djob_raytrace ( void *ptr ) {
     uint32_t bytesperline = ( width * 0x03 );
     uint32_t outlineFlag = ( qjob->qrsg->flags & RENDERWIREFRAME ) ? RAYQUERYOUTLINE : 0x00;
     int i;
+
+    qjob->qarea.scanline = 0x00;
 
     /*** return immediately when canceled ***/
     /*pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, NULL );*/
@@ -460,6 +464,39 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
 }
 
 /******************************************************************************/
+void q3djob_clear ( Q3DJOB *qjob ) {
+    if ( qjob->qsce ) q3dobject_free ( qjob->qsce );
+    if ( qjob->qcam ) q3dobject_free ( qjob->qcam );
+
+    qjob->qsce = NULL;
+    qjob->qcam = NULL;
+}
+
+/******************************************************************************/
+void q3djob_prepare ( Q3DJOB      *qjob,
+                      G3DSCENE    *sce,
+                      G3DCAMERA   *cam ) {
+
+    qjob->qsce = q3dscene_import ( sce, qjob->curframe, 0x00 );
+
+    qjob->qcam = q3dcamera_new ( cam, 0x00, 0x00,
+                                      qjob->qrsg->output.width, 
+                                      qjob->qrsg->output.height );
+
+    q3darea_init ( &qjob->qarea,
+                    qjob->qsce,
+                    qjob->qcam,
+                    qjob->qrsg->output.x1,
+                    qjob->qrsg->output.y1,
+                    qjob->qrsg->output.x2,
+                    qjob->qrsg->output.y2,
+                    qjob->qrsg->output.width,
+                    qjob->qrsg->output.height,
+                    0x18,
+                    qjob->curframe );
+}
+
+/******************************************************************************/
 Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg, 
                      G3DSCENE    *sce,
                      G3DCAMERA   *cam,
@@ -477,8 +514,6 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
-    qjob->qrsg = qrsg;
-
     /*** This 24bpp buffer will receive the raytraced pixel values ***/
     if ( ( qjob->img = calloc ( qrsg->output.height, bytesperline ) ) == NULL ) {
         fprintf ( stderr, "%s: image memory allocation failed\n", __func__ );
@@ -488,36 +523,17 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
+    qjob->qrsg = qrsg;
+
     q3djob_initFilters ( qjob,
                          towindow,
                          toframe );
 
-    q3djob_goToFrame ( qjob, qrsg->output.startframe );
-
     qjob->running = 0x01;
-
-    qjob->qsce = q3dscene_import ( sce, qjob->curframe, 0x00 );
-
-    qjob->qcam = q3dcamera_new ( cam, 0x00, 0x00,
-                                      qrsg->output.width, 
-                                      qrsg->output.height );
-
-    q3darea_init ( &qjob->qarea,
-                    qjob->qsce,
-                    qjob->qcam,
-                    qrsg->output.x1,
-                    qrsg->output.y1,
-                    qrsg->output.x2,
-                    qrsg->output.y2,
-                    qrsg->output.width,
-                    qrsg->output.height,
-                    0x18,
-                    qjob->curframe );
 
 
     return qjob;
 }
-
 /******************************************************************************/
 void q3djob_render_t_free ( Q3DJOB *qjob ) {
     /*** free filters after rendering ***/
@@ -530,52 +546,32 @@ void q3djob_render_t_free ( Q3DJOB *qjob ) {
 
 /******************************************************************************/
 void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
-    G3DSCENE *sce  = ( G3DSCENE *  ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
-    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
-    uint32_t x1 = qjob->qarea.x1, 
-             y1 = qjob->qarea.y1,
-             x2 = qjob->qarea.x2,
-             y2 = qjob->qarea.y2;
-    uint32_t width  = qjob->qarea.width,
-             height = qjob->qarea.height;
+    G3DSCENE *sce  = qjob->qrsg->input.sce;
+    G3DCAMERA *cam = qjob->qrsg->input.cam;
     int32_t startframe = qjob->qrsg->output.startframe,
             endframe = qjob->qrsg->output.endframe;
     int32_t i, j;
-    Q3DSETTINGS subrsg;
-
-    memcpy ( &subrsg, qjob->qrsg, sizeof ( Q3DSETTINGS ) );
 
     qjob->threaded = 0x01;
+
+    q3djob_goToFrame ( qjob, qjob->qrsg->output.startframe );
+
+    q3djob_prepare ( qjob, sce, cam );
 
     /*** Render the first frame ***/
     q3djob_render ( qjob );
 
-    for ( i = startframe + 1; i <= endframe; i++ ) {
-        if ( qjob->running ) {
-            Q3DJOB *nextqjob;
+    if ( qjob->filters.toframe ) {
+        for ( i = startframe + 1; i <= endframe; i++ ) {
+            if ( qjob->running ) {
+                q3djob_goToFrame ( qjob, i );
 
-            subrsg.output.startframe = i;
+                q3djob_clear   ( qjob );
+                q3djob_prepare ( qjob, sce, cam );
 
-            nextqjob = q3djob_new ( &subrsg, 
-                                     sce, 
-                                     cam, 
-                                     qjob->filters.towindow,
-                                     qjob->filters.toframe,
-                                     NOFREEFILTERS );
-
-            /*** register this child rendeqjobne in case we need to cancel it ***/
-            q3djob_addJob ( qjob, nextqjob );
-
-            /*** Render the current frame ***/
-            q3djob_render ( nextqjob );
-
-            /*** unregister this child rendeqjobne. No need to cancel it ***/
-            /*** anymore after this step, all threads are over after ***/
-            /*** q3djob_render().  ***/
-            q3djob_removeJob ( qjob, nextqjob );
-
-            /*** Free the current frame ***/
-            q3djob_free  ( ( Q3DOBJECT * ) nextqjob );
+                /*** Render the current frame ***/
+                q3djob_render ( qjob );
+            }
         }
     }
 
@@ -592,6 +588,8 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
 /******************************************************************************/
 void *q3djob_render_frame_t ( Q3DJOB *qjob ) {
     qjob->threaded = 0x01;
+
+    q3djob_goToFrame ( qjob, qjob->qrsg->output.startframe );
 
     /*** RENDER ! ***/
     q3djob_render ( qjob );

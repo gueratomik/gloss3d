@@ -187,6 +187,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         /*** this filter is used for displaying ***/
         Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
+            /*** this filter tells the engine to go to the next frame ***/
+            Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -297,28 +299,29 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         g3dui_setHourGlass ( gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
-            /*** this filter tells the engine to go to the next frame ***/
-            Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
-
             /*** force starting at the first frame. **/
             /*** -1 is because the gotoframe filter will add 1 further. ***/
             /*** this should probably be changed ***/
            /* COMMENTED OUT: now done by g3drenderprocess */
             /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
 
-            rps = common_g3dui_render ( gui, rsg,
-                                             towin,
-                                             toframe,
-                                             rsg->output.startframe,
-                                             ( uint64_t ) widget,
-                                             0x01 );
+            rps = common_g3dui_render_q3d ( gui, 
+                                            rsg,
+                                            towin,
+                                            toframe,
+                                            cam,
+                                            rsg->output.startframe,
+                                            ( uint64_t ) widget,
+                                            0x01 );
         } else {
-            rps = common_g3dui_render ( gui, rsg,
-                                             towin,
-                                             NULL,
-                                             rsg->output.startframe,
-                                             ( uint64_t ) widget,
-                                             0x00 );
+            rps = common_g3dui_render_q3d ( gui,
+                                            rsg,
+                                            towin,
+                                            toframe,
+                                            cam,
+                                            rsg->output.startframe,
+                                            ( uint64_t ) widget,
+                                            0x00 );
         }
 
         g3dui_unsetHourGlass ( gui );
