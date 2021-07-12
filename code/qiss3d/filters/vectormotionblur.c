@@ -916,6 +916,32 @@ static void filtervmb_import ( Q3DFILTER *qfil,
 }
 
 /******************************************************************************/
+static void filtervmb_empty ( FILTERVMB *fvmb ) {
+    uint32_t i;
+
+    fvmb->abuffer = ( uint32_t * ) realloc  ( fvmb->abuffer,
+                                              fvmb->width * 
+                                              fvmb->height * sizeof ( uint32_t ) * 0x04 );
+
+    fvmb->zbuffer = ( VMBZPIXEL * ) realloc ( fvmb->zbuffer,
+                                              fvmb->width * 
+                                              fvmb->height * sizeof ( VMBZPIXEL ) );
+
+
+    memset ( fvmb->abuffer, 0x00, fvmb->width  * 
+                                  fvmb->height * sizeof ( uint32_t ) * 0x04 );
+
+    memset ( fvmb->zbuffer, 0x00, fvmb->width  * 
+                                  fvmb->height * sizeof ( VMBZPIXEL ) );
+
+    for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
+        fvmb->zbuffer[i].z = INFINITY;
+    }
+
+    list_free ( &fvmb->lvobj, vmbmesh_free );
+}
+
+/******************************************************************************/
 static void filtervmb_free ( Q3DFILTER *fil ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) fil->data;
 
@@ -935,7 +961,7 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
 
     uint32_t structsize = sizeof ( FILTERVMB );
     FILTERVMB *fvmb = ( FILTERVMB * ) calloc ( 0x01, structsize );
-    uint32_t i;
+
 
     if ( fvmb == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -951,15 +977,8 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
 
     fvmb->hlines = ( VMBZHLINE * ) calloc ( height, sizeof ( VMBZHLINE ) );
 
-    fvmb->abuffer = ( uint32_t * ) calloc  ( width * 
-                                             height, sizeof ( uint32_t ) * 0x04 );
+    filtervmb_empty ( fvmb );
 
-    fvmb->zbuffer = ( VMBZPIXEL * ) calloc ( width * 
-                                             height, sizeof ( VMBZPIXEL ) );
-
-    for ( i = 0x00; i < width * height; i++ ) {
-        fvmb->zbuffer[i].z = INFINITY;
-    }
 
     return fvmb;
 }
@@ -1049,8 +1068,11 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         filtervmb_drawObjects ( qfil );
         filtervmb_drawInterpolatedObjects ( qfil );
 
-        /*filtervmb_merge ( qfil, img, bpp );*/
+        filtervmb_merge ( qfil, img, bpp );
     }
+
+    filtervmb_empty ( fvmb );
+
 
     return 0x02;
 }
