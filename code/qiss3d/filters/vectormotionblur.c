@@ -147,15 +147,15 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                     uint32_t offset = ( i * fvmb->width ) + j;
                     unsigned char (*srcimg)[0x03] = img;
 
-                    if ( fvmb->abuffer[offset][0x03] ) {
-                        unsigned char a0 = fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03],
-                                      a1 = fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03],
-                                      a2 = fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03];
+                    /*if ( fvmb->abuffer[offset][0x03] ) {*/
+                        unsigned char a0 = ( float ) fvmb->abuffer[offset][0x00],
+                                      a1 = ( float ) fvmb->abuffer[offset][0x01],
+                                      a2 = ( float ) fvmb->abuffer[offset][0x02];
 
-                        srcimg[offset][0x00] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 );
-                        srcimg[offset][0x01] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 );
-                        srcimg[offset][0x02] = ( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 );
-                    }
+                        srcimg[offset][0x00] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 )*/a0;
+                        srcimg[offset][0x01] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 )*/a1;
+                        srcimg[offset][0x02] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 )*/a2;
+                    /*}*/
                 } break;
 
                 default :
@@ -303,9 +303,9 @@ static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
     int32_t x1 = hline->p1.x, 
             x2 = hline->p2.x;
     float   z1 = hline->p1.z;
-    int32_t dx = x2 - x1, ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx );
+    int32_t dx = x2 - x1, ddx = abs ( dx );
     int32_t x = x1;
-    float dz  = hline->p2.z - hline->p1.z, pz = ( dz / ddx );
+    float dz  = hline->p2.z - hline->p1.z, pz = ( ddx ) ? ( dz / ddx ) : 0.0f;
     long  px = ( dx > 0x00 ) ? 1 : -1;
     float z = z1;
     int i;
@@ -341,9 +341,9 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
     int32_t x1 = hline->p1.x, 
             x2 = hline->p2.x;
     float   z1 = hline->p1.z;
-    int32_t dx = x2 - x1, ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx );
+    int32_t dx = x2 - x1, ddx = abs ( dx );
     int32_t x = x1;
-    float dz  = hline->p2.z - hline->p1.z, pz = ( dz / ddx );
+    float dz  = hline->p2.z - hline->p1.z, pz = ( ddx ) ? ( dz / ddx ) : 0.0f;
     long  px = ( dx > 0x00 ) ? 1 : -1;
     float z = z1;
     float ratio[0x03] = { hline->p1.ratio[0x00],
@@ -352,9 +352,9 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
     float dratio[0x03] = { hline->p2.ratio[0x00] - hline->p1.ratio[0x00],
                            hline->p2.ratio[0x01] - hline->p1.ratio[0x01],
                            hline->p2.ratio[0x02] - hline->p1.ratio[0x02] };
-    float pratio[0x03] = { ( dratio[0x00] / (ddx) ),
-                           ( dratio[0x01] / (ddx) ),
-                           ( dratio[0x02] / (ddx) ) };
+    float pratio[0x03] = { ( ddx ) ? ( dratio[0x00] / (ddx) ) : 0.0f,
+                           ( ddx ) ? ( dratio[0x01] / (ddx) ) : 0.0f,
+                           ( ddx ) ? ( dratio[0x02] / (ddx) ) : 0.0f };
 
     int i;
     uint32_t offset = ( y * fvmb->width );
@@ -405,17 +405,19 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                             break;
                         }
 
-                        fvmb->abuffer[aoffset][0x00] += ( R * strength );
-                        fvmb->abuffer[aoffset][0x01] += ( G * strength );
-                        fvmb->abuffer[aoffset][0x02] += ( B * strength );
-                        fvmb->abuffer[aoffset][0x03]++;
+                        fvmb->abuffer[aoffset][0x00] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x00] ) + ( R * strength );
+                        fvmb->abuffer[aoffset][0x01] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x01] ) + ( G * strength );
+                        fvmb->abuffer[aoffset][0x02] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x02] ) + ( B * strength );
+                        fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
 
 /*
                         fvmb->abuffer[aoffset][0x00] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x00] ) + ( R * strength );
                         fvmb->abuffer[aoffset][0x01] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x01] ) + ( G * strength );
                         fvmb->abuffer[aoffset][0x02] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x02] ) + ( B * strength );
 */
+
                     }
+
                 }
             }
         }
@@ -445,15 +447,18 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
         VMBZPOINT pt1 = { .x = vtri->pnt[i].x,
                           .y = vtri->pnt[i].y,
                           .z = ( zval ) ? zval[i] : 0.0f,
-                          .ratio[0x00] = ( i == 0x00 ) ? 1.0f : 0.0f,
-                          .ratio[0x01] = ( i == 0x01 ) ? 1.0f : 0.0f,
-                          .ratio[0x02] = ( i == 0x02 ) ? 1.0f : 0.0f },
+                          /*** due ton imprecision, we have to restrain the ***/
+                          /*** reference area from where we pick the pixel ***/
+                          /*** values, hence values 0.9f and twice 0.05f  ***/
+                          .ratio[0x00] = ( i == 0x00 ) ? 0.8f : 0.1f,
+                          .ratio[0x01] = ( i == 0x01 ) ? 0.8f : 0.1f, 
+                          .ratio[0x02] = ( i == 0x02 ) ? 0.8f : 0.1f },
                   pt2 = { .x = vtri->pnt[n].x,
                           .y = vtri->pnt[n].y,
                           .z = ( zval ) ? zval[n] : 0.0f,
-                          .ratio[0x00] = ( n == 0x00 ) ? 1.0f : 0.0f,
-                          .ratio[0x01] = ( n == 0x01 ) ? 1.0f : 0.0f,
-                          .ratio[0x02] = ( n == 0x02 ) ? 1.0f : 0.0f };
+                          .ratio[0x00] = ( n == 0x00 ) ? 0.8f : 0.1f,
+                          .ratio[0x01] = ( n == 0x01 ) ? 0.8f : 0.1f,
+                          .ratio[0x02] = ( n == 0x02 ) ? 0.8f : 0.1f };
 
         if ( vtri->pnt[i].y < ymin ) ymin = vtri->pnt[i].y;
         if ( vtri->pnt[i].y > ymax ) ymax = vtri->pnt[i].y;
@@ -468,6 +473,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
     if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
 
     if ( ymin < ymax ) {
+
         for ( i = ymin; i < ymax; i++ ) {
             if ( fvmb->hlines[i].inited == 0x02 ){
 
@@ -1028,6 +1034,14 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
 
+    for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
+        unsigned char (*srcimg)[0x03] = img;
+
+        fvmb->abuffer[i][0x00] = srcimg[i][0x00];
+        fvmb->abuffer[i][0x01] = srcimg[i][0x01];
+        fvmb->abuffer[i][0x02] = srcimg[i][0x02];
+    }
+
         filtervmb_import ( qfil, 
                            qjob->qcam,
                            qjob->qsce,
@@ -1050,16 +1064,23 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
                               -i,
                                fromFrame );
 
+            q3djob_goToFrame ( qjob, toFrame );
+
+            Q3DSCENE *aftqsce = q3dscene_import ( sce, 
+                                                  toFrame, 
+                                                  GEOMETRYONLY );
+
             /*** after frames ***/
             /*filtervmb_import ( qfil, 
                                qjob->qcam,
-                               qjob->qsce,
+                               aftqsce,
                                objcam->iwmatrix,
                                i,
                                frameID );*/
 
 
             fromFrame -= step;
+            toFrame   += step;
 
             if ( fromFrame <  ( frameID - 1.0f ) ) fromFrame = frameID - 1.0f;
             if ( toFrame   >= ( frameID + 1.0f ) ) toFrame   = frameID + 0.99f;
