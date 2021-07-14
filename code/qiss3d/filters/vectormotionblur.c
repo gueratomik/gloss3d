@@ -147,15 +147,15 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                     uint32_t offset = ( i * fvmb->width ) + j;
                     unsigned char (*srcimg)[0x03] = img;
 
-                    /*if ( fvmb->abuffer[offset][0x03] ) {*/
-                        unsigned char a0 = ( float ) fvmb->abuffer[offset][0x00],
-                                      a1 = ( float ) fvmb->abuffer[offset][0x01],
-                                      a2 = ( float ) fvmb->abuffer[offset][0x02];
+                    if ( fvmb->abuffer[offset][0x03] ) {
+                        unsigned char a0 = ( float ) fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03] * 0xFF,
+                                      a1 = ( float ) fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03] * 0xFF,
+                                      a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03] * 0xFF;
 
                         srcimg[offset][0x00] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 )*/a0;
                         srcimg[offset][0x01] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 )*/a1;
                         srcimg[offset][0x02] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 )*/a2;
-                    /*}*/
+                    }
                 } break;
 
                 default :
@@ -405,9 +405,9 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                             break;
                         }
 
-                        fvmb->abuffer[aoffset][0x00] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x00] ) + ( R * strength );
-                        fvmb->abuffer[aoffset][0x01] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x01] ) + ( G * strength );
-                        fvmb->abuffer[aoffset][0x02] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x02] ) + ( B * strength );
+                        fvmb->abuffer[aoffset][0x00] += ( R * strength );
+                        fvmb->abuffer[aoffset][0x01] += ( G * strength );
+                        fvmb->abuffer[aoffset][0x02] += ( B * strength );
                         fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
 
 /*
@@ -450,15 +450,15 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
                           /*** due ton imprecision, we have to restrain the ***/
                           /*** reference area from where we pick the pixel ***/
                           /*** values, hence values 0.9f and twice 0.05f  ***/
-                          .ratio[0x00] = ( i == 0x00 ) ? 0.8f : 0.1f,
-                          .ratio[0x01] = ( i == 0x01 ) ? 0.8f : 0.1f, 
-                          .ratio[0x02] = ( i == 0x02 ) ? 0.8f : 0.1f },
+                          .ratio[0x00] = ( i == 0x00 ) ? 0.9f : 0.05f,
+                          .ratio[0x01] = ( i == 0x01 ) ? 0.9f : 0.05f, 
+                          .ratio[0x02] = ( i == 0x02 ) ? 0.9f : 0.05f },
                   pt2 = { .x = vtri->pnt[n].x,
                           .y = vtri->pnt[n].y,
                           .z = ( zval ) ? zval[n] : 0.0f,
-                          .ratio[0x00] = ( n == 0x00 ) ? 0.8f : 0.1f,
-                          .ratio[0x01] = ( n == 0x01 ) ? 0.8f : 0.1f,
-                          .ratio[0x02] = ( n == 0x02 ) ? 0.8f : 0.1f };
+                          .ratio[0x00] = ( n == 0x00 ) ? 0.9f : 0.05f,
+                          .ratio[0x01] = ( n == 0x01 ) ? 0.9f : 0.05f,
+                          .ratio[0x02] = ( n == 0x02 ) ? 0.9f : 0.05f };
 
         if ( vtri->pnt[i].y < ymin ) ymin = vtri->pnt[i].y;
         if ( vtri->pnt[i].y > ymax ) ymax = vtri->pnt[i].y;
@@ -1040,6 +1040,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         fvmb->abuffer[i][0x00] = srcimg[i][0x00];
         fvmb->abuffer[i][0x01] = srcimg[i][0x01];
         fvmb->abuffer[i][0x02] = srcimg[i][0x02];
+        fvmb->abuffer[i][0x03] = 0xFF;
     }
 
         filtervmb_import ( qfil, 
