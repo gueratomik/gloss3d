@@ -474,7 +474,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
 
     if ( ymin < ymax ) {
 
-        for ( i = ymin; i < ymax; i++ ) {
+        for ( i = ymin; i <= ymax; i++ ) {
             if ( fvmb->hlines[i].inited == 0x02 ){
 
                 if ( zval ) {
