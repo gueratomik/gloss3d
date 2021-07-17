@@ -150,7 +150,7 @@ typedef G3DRGBA         Q3DRGBA;
 
 /******************************************************************************/
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
-#define MOTIONBLURFILTERNAME       "Motion Blur"
+#define SCENEMOTIONBLURFILTERNAME  "Scene Motion Blur"
 #define TOWINDOWFILTERNAME         "to Window"
 #define TOSTATUSBARFILTERNAME      "To status bar"
 #define TOFFMPEGFILTERNAME         "to FFMpeg"
@@ -332,7 +332,7 @@ typedef struct _Q3DOUTPUTSETTINGS {
 
 /******************************************************************************/
 typedef struct _Q3DMOTIONBLURSETTINGS {
-    uint32_t strength;   /*** motion blur strength ***/
+    float    strength;   /*** motion blur strength ***/
     uint32_t iterations; /*** motion blur iterations ( for scene mode ) ***/
     uint32_t vMotionBlurSamples; /* vector mode sampling */
     float    vMotionBlurSubSamplingRate; /* vector mode sampling */
@@ -642,7 +642,7 @@ typedef struct _Q3DFILTERSET {
     Q3DFILTER *clean;
     Q3DFILTER *simpleAA;
     Q3DFILTER *softshadows;
-    Q3DFILTER *vectormblur;
+    Q3DFILTER *motionblur;
 } Q3DFILTERSET;
 
 /******************************************************************************/
@@ -659,13 +659,6 @@ typedef struct _Q3DJOB {
     uint32_t       cancelled;
     uint32_t       threaded;
     uint32_t       running;/*** set to 0 to cancel rendering ***/
-    /*** list of render children, in case of motionblur e.g ***/
-    /*** There might be several renderthread, e.g when      ***/
-    /*** using motion blur effect. So we need to have       ***/
-    /*** there identifier put into this list in case we     ***/
-    /*** want to cancel the rendering process.              ***/
-    LIST          *lqjob;
-    pthread_t      tid; /*** clean thread ID when cancelling e.g ***/
 } Q3DJOB;
 
 /******************************************************************************/
@@ -1039,6 +1032,12 @@ Q3DFILTER *q3dfilter_vmb_new ( uint32_t width,
                                float    strength,
                                uint32_t nbSamples,
                                float    subSamplingRate );
+
+/******************************************************************************/
+Q3DFILTER *q3dfilter_smb_new ( uint32_t width,
+                               uint32_t height,
+                               float    strength,
+                               uint32_t nbSamples );
 
 /******************************************************************************/
 void      q3dlight_init ( Q3DLIGHT *qlig, 

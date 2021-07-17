@@ -97,9 +97,9 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
-            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
+            pthread_create ( &rps->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
         } else {
-            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
+            pthread_create ( &rps->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
         }
 
         /*** register the renderprocess so that we can cancel it ***/
@@ -154,31 +154,11 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
-            #ifdef __linux__
-            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
-            #endif
-
-            #ifdef __MINGW32__
-            rps->rsce->tid = CreateThread ( NULL, 
-                                       0,
-                                       (LPTHREAD_START_ROUTINE) g3duirenderprocess_render_sequence_t, 
-                                       rps,
-                                       0,
-                                       NULL );
-            #endif
+            pthread_create ( &rps->tid, 
+                             &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
         } else {
-            #ifdef __linux__
-            pthread_create ( &rps->qjob->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
-            #endif
-
-            #ifdef __MINGW32__
-            rps->rsce->tid = CreateThread ( NULL, 
-                                       0,
-                                       (LPTHREAD_START_ROUTINE) g3duirenderprocess_render_frame_t, 
-                                       rps,
-                                       0,
-                                       NULL );
-            #endif
+            pthread_create ( &rps->tid, 
+                             &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
         }
 
         /*** register the renderprocess so that we can cancel it ***/
@@ -335,7 +315,9 @@ uint32_t common_g3dui_cancelRenderByScene ( G3DUI *gui,
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByJob ( gui, qjob );
 
     if ( rps ) {
-        q3djob_cancel ( rps->qjob );
+        q3djob_end ( rps->qjob );
+
+        pthread_join ( rps->tid, NULL );
 
         return 0x01;
     }
@@ -348,7 +330,10 @@ uint32_t common_g3dui_cancelRenderByID ( G3DUI *gui, uint64_t id ) {
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, id );
 
     if ( rps ) {
-        q3djob_cancel ( rps->qjob );
+        q3djob_end ( rps->qjob );
+
+        pthread_join ( rps->tid, NULL );
+
 
         return 0x01;
     }

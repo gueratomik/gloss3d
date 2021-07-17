@@ -235,7 +235,7 @@ void common_g3duirenderedit_motionBlurStrengthCbk ( G3DUI *gui,
 
     if ( gui->lock ) return; /*** prevent a loop ***/
 
-    rsg->motionBlur.strength = strength;
+    rsg->motionBlur.strength = strength / 100.0f;
 }
 
 /******************************************************************************/

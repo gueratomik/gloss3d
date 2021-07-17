@@ -38,8 +38,8 @@ typedef struct _VMBZPIXEL {
 
 /******************************************************************************/
 typedef struct _VMBZPOINT {
-    int32_t x;
-    int32_t y;
+    int16_t x;
+    int16_t y;
     float   z;
     float ratio[0x03]; /*** possible improvement for lower memory footprint :**/
                        /*** use unsigned chars for ratios ***/
@@ -66,22 +66,14 @@ typedef struct _VMBVECTOR2S1D {
 } VMBVECTOR2S1D;
 
 /******************************************************************************/
-typedef struct _VMBVECTOR2S {
-    int16_t x;
-    int16_t y;
-} VMBVECTOR2S;
-
-/******************************************************************************/
 typedef struct _VMBTRIANGLE {
-    VMBVECTOR2S pnt[0x03];
-    float       surface;
+    VMBVECTOR2S1D pnt[0x03];
 } VMBTRIANGLE;
 
 /******************************************************************************/
 typedef struct _VMBMESH {
     VMBOBJECT    vobj;
     VMBTRIANGLE *vtri;    /*** triangles on frame ***/
-    float      (*zval)[0x03];
     VMBTRIANGLE *vtribef; /*** triangles before frame ***/
     VMBTRIANGLE *vtriaft; /*** triangles after frame ***/
 } VMBMESH;
@@ -104,8 +96,9 @@ typedef struct _FILTERVMB {
 
 /******************************************************************************/
 static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
-                                    VMBMESH      *vmes,
+                                    uint32_t      vobjID,
                                     uint32_t      vtriID,
+                                    VMBTRIANGLE  *vtri,
                                     int32_t       y,
                                     float         strength );
 
@@ -152,9 +145,9 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                                       a1 = ( float ) fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03] * 0xFF,
                                       a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03] * 0xFF;
 
-                        srcimg[offset][0x00] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 )*/a0;
-                        srcimg[offset][0x01] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 )*/a1;
-                        srcimg[offset][0x02] = /*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 )*/a2;
+                        srcimg[offset][0x00] = a0/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 )*/;
+                        srcimg[offset][0x01] = a1/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 )*/;
+                        srcimg[offset][0x02] = a2/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 )*/;
                     }
                 } break;
 
@@ -171,11 +164,11 @@ static void filtervmb_line ( Q3DFILTER *qfil,
                              VMBZPOINT *dstPoint ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     int32_t dx  = ( dstPoint->x - srcPoint->x ),
-            ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
+            ddx = abs ( dx ),
             dy  = ( dstPoint->y - srcPoint->y ),
-            ddy = ( dy == 0x00 ) ? 0x01 : abs ( dy ),
+            ddy = abs ( dy ),
             dd  = ( ddx > ddy ) ? ddx : ddy;
-    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dz / dd );
+    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dd ) ? ( dz / dd ) : 0.0f;
     int px = ( dx > 0x00 ) ? 1 : -1, 
             py = ( dy > 0x00 ) ? 1 : -1;
     int32_t x = srcPoint->x, 
@@ -187,18 +180,13 @@ static void filtervmb_line ( Q3DFILTER *qfil,
     float dratio[0x03] = { dstPoint->ratio[0x00] - srcPoint->ratio[0x00],
                            dstPoint->ratio[0x01] - srcPoint->ratio[0x01],
                            dstPoint->ratio[0x02] - srcPoint->ratio[0x02] };
-    float pratio[0x03] = { ( dratio[0x00] / (dd+1) ),
-                           ( dratio[0x01] / (dd+1) ),
-                           ( dratio[0x02] / (dd+1) ) };
+    float pratio[0x03] = { ( dd ) ? ( dratio[0x00] / dd ) : 0.0f,
+                           ( dd ) ? ( dratio[0x01] / dd ) : 0.0f,
+                           ( dd ) ? ( dratio[0x02] / dd ) : 0.0f };
     int i, cumul = 0x00;
 
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
-            if ( cumul >= ddx ) {
-                cumul -= ddx;
-                y     += py;
-            }
-
             if ( ( y >= 0x00 ) && ( y < fvmb->height ) ) {
                 uint32_t offset = ( y * fvmb->width ) + x;
 
@@ -234,6 +222,11 @@ static void filtervmb_line ( Q3DFILTER *qfil,
                 }
             }
 
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
+
             cumul += ddy;
             x     += px;
             z     += pz;
@@ -243,11 +236,6 @@ static void filtervmb_line ( Q3DFILTER *qfil,
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
-            if ( cumul >= ddy ) {
-                    cumul -= ddy;
-                    x     += px;
-            }
-
             if ( ( y >= 0x00 ) && ( y < fvmb->height ) ) {
                 uint32_t offset = ( y * fvmb->width ) + x;
 
@@ -283,6 +271,11 @@ static void filtervmb_line ( Q3DFILTER *qfil,
                 }
             }
 
+            if ( cumul >= ddy ) {
+                    cumul -= ddy;
+                    x     += px;
+            }
+
             cumul += ddx;
             y     += py;
             z     += pz;
@@ -295,7 +288,7 @@ static void filtervmb_line ( Q3DFILTER *qfil,
 
 /****************************************************************************/
 static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
-                                    VMBMESH   *vmes,
+                                    uint32_t   vobjID,
                                     uint32_t   vtriID,
                                     int32_t    y ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
@@ -320,7 +313,7 @@ static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
 
             if  ( z <= depth ) {
                 fvmb->zbuffer[xoffset].z      = z;
-                fvmb->zbuffer[xoffset].vobjID = vmes->vobj.id;
+                fvmb->zbuffer[xoffset].vobjID = vobjID;
                 fvmb->zbuffer[xoffset].vtriID = vtriID;
             }
         }
@@ -332,8 +325,9 @@ static void filtervmb_fillZbuffer ( Q3DFILTER *qfil,
 
 /****************************************************************************/
 static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
-                                    VMBMESH      *vmes,
+                                    uint32_t      vobjID,
                                     uint32_t      vtriID,
+                                    VMBTRIANGLE  *refTri,
                                     int32_t       y,
                                     float         strength ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
@@ -363,30 +357,24 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
         if ( ( x >= 0x00 ) && 
              ( x <  fvmb->width ) ) {
 
-            /** check if triangle is outside screen space ***/
-            if ( ( vmes->zval[vtriID][0x00] != INFINITY ) &&
-                 ( vmes->zval[vtriID][0x01] != INFINITY ) &&
-                 ( vmes->zval[vtriID][0x02] != INFINITY ) ) {
+            int32_t xsrc = ( refTri->pnt[0x00].x * ratio[0x00] +
+                             refTri->pnt[0x01].x * ratio[0x01] +
+                             refTri->pnt[0x02].x * ratio[0x02] ),
+                    ysrc = ( refTri->pnt[0x00].y * ratio[0x00] +
+                             refTri->pnt[0x01].y * ratio[0x01] +
+                             refTri->pnt[0x02].y * ratio[0x02] );
 
-                int32_t xsrc = ( vmes->vtri[vtriID].pnt[0x00].x * ratio[0x00] +
-                                 vmes->vtri[vtriID].pnt[0x01].x * ratio[0x01] +
-                                 vmes->vtri[vtriID].pnt[0x02].x * ratio[0x02] ),
-                        ysrc = ( vmes->vtri[vtriID].pnt[0x00].y * ratio[0x00] +
-                                 vmes->vtri[vtriID].pnt[0x01].y * ratio[0x01] +
-                                 vmes->vtri[vtriID].pnt[0x02].y * ratio[0x02] );
+            if ( ( ysrc >= 0x00         ) && 
+                 ( ysrc <  fvmb->height ) && 
+                 ( xsrc >= 0x00         ) &&
+                 ( xsrc <  fvmb->width  ) ) {
+                uint32_t aoffset = offset + x;
+                uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
+                unsigned char R, G, B;
 
-                if ( ( ysrc >= 0x00         ) && 
-                     ( ysrc <  fvmb->height ) && 
-                     ( xsrc >= 0x00         ) &&
-                     ( xsrc <  fvmb->width  ) ) {
-                    uint32_t aoffset = offset + x;
-                    uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
-                    unsigned char R, G, B;
-
-                    if ( ( fvmb->zbuffer[zoffset].vobjID == vmes->vobj.id ) &&
-                         ( fvmb->zbuffer[zoffset].vtriID == vtriID        ) ) {
-
-
+                /*if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
+                     ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
+                    if ( z < fvmb->zbuffer[zoffset].z ) {
                         switch ( fvmb->bpp ) {
                             case 0x18 : {
                                 unsigned char (*srcimg)[0x03] = fvmb->img;
@@ -394,31 +382,18 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                                 R = srcimg[zoffset][0x00];
                                 G = srcimg[zoffset][0x01];
                                 B = srcimg[zoffset][0x02];
-
-/*printf("%d %d %d %d %d\n", ysrc, xsrc, R, G, B);*/
-                                /*srcimg[zoffset][0x00] = 0xFF;
-                                srcimg[zoffset][0x01] = 0xFF;
-                                srcimg[zoffset][0x02] = 0xFF;*/
                             } break;
 
                             default :
                             break;
                         }
 
-                        fvmb->abuffer[aoffset][0x00] += ( R * strength );
-                        fvmb->abuffer[aoffset][0x01] += ( G * strength );
-                        fvmb->abuffer[aoffset][0x02] += ( B * strength );
+                        fvmb->abuffer[aoffset][0x00] += ( R    * strength );
+                        fvmb->abuffer[aoffset][0x01] += ( G    * strength );
+                        fvmb->abuffer[aoffset][0x02] += ( B    * strength );
                         fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
-
-/*
-                        fvmb->abuffer[aoffset][0x00] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x00] ) + ( R * strength );
-                        fvmb->abuffer[aoffset][0x01] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x01] ) + ( G * strength );
-                        fvmb->abuffer[aoffset][0x02] = ( ( 1.0f - strength ) * fvmb->abuffer[aoffset][0x02] ) + ( B * strength );
-*/
-
                     }
-
-                }
+                /*}*/
             }
         }
 
@@ -432,11 +407,12 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
 
 /******************************************************************************/
 static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
-                                     VMBMESH     *vmes,
+                                     uint32_t     vobjID,
                                      uint32_t     vtriID,
                                      VMBTRIANGLE *vtri,
-                                     float        zval[0x03],
-                                     float        strength ) {
+                                     VMBTRIANGLE *refTri,
+                                     float        strength,
+                                     uint32_t     fillZBuffer ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     int32_t ymin = vtri->pnt[0x00].y,
             ymax = ymin;
@@ -446,7 +422,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
         uint32_t n = ( i + 0x01 ) % 0x03;
         VMBZPOINT pt1 = { .x = vtri->pnt[i].x,
                           .y = vtri->pnt[i].y,
-                          .z = ( zval ) ? zval[i] : 0.0f,
+                          .z = vtri->pnt[i].z,
                           /*** due ton imprecision, we have to restrain the ***/
                           /*** reference area from where we pick the pixel ***/
                           /*** values, hence values 0.9f and twice 0.05f  ***/
@@ -455,7 +431,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
                           .ratio[0x02] = ( i == 0x02 ) ? 0.9f : 0.05f },
                   pt2 = { .x = vtri->pnt[n].x,
                           .y = vtri->pnt[n].y,
-                          .z = ( zval ) ? zval[n] : 0.0f,
+                          .z = vtri->pnt[n].z,
                           .ratio[0x00] = ( n == 0x00 ) ? 0.9f : 0.05f,
                           .ratio[0x01] = ( n == 0x01 ) ? 0.9f : 0.05f,
                           .ratio[0x02] = ( n == 0x02 ) ? 0.9f : 0.05f };
@@ -467,26 +443,37 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
         else                 filtervmb_line ( qfil, &pt2, &pt1 );
     }
 
-    if ( ymin <  0x00         ) ymin = 0x00;
-    if ( ymin >= fvmb->height ) ymin = fvmb->height - 1;
-    if ( ymax <  0x00         ) ymax = 0x00;
-    if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
+    /** check if triangle is outside screen space ***/
+    if ( ( vtri->pnt[0x00].z != INFINITY ) &&
+         ( vtri->pnt[0x01].z != INFINITY ) &&
+         ( vtri->pnt[0x02].z != INFINITY ) ) {
+        if ( ymin <  0x00         ) ymin = 0x00;
+        if ( ymin >= fvmb->height ) ymin = fvmb->height - 1;
+        if ( ymax <  0x00         ) ymax = 0x00;
+        if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
 
-    if ( ymin < ymax ) {
+        if ( ymin < ymax ) {
+            for ( i = ymin; i <= ymax; i++ ) {
+                if ( fvmb->hlines[i].inited == 0x02 ){
 
-        for ( i = ymin; i <= ymax; i++ ) {
-            if ( fvmb->hlines[i].inited == 0x02 ){
-
-                if ( zval ) {
-                    filtervmb_fillZbuffer ( qfil, vmes, vtriID, i );
-                } else {
-                    filtervmb_fillAbuffer ( qfil, vmes, vtriID, i, strength );
+                    if ( fillZBuffer ) {
+                        filtervmb_fillZbuffer ( qfil, 
+                                                vobjID, 
+                                                vtriID, 
+                                                i );
+                    } else {
+                        filtervmb_fillAbuffer ( qfil, 
+                                                vobjID,  
+                                                vtriID,
+                                                refTri,
+                                                i, 
+                                                strength );
+                    }
                 }
+
+                fvmb->hlines[i].inited = 0x00;
             }
         }
-
-        memset ( fvmb->hlines + ymin, 0x00, sizeof ( VMBZHLINE ) * ( ymax - 
-                                                                     ymin ) );
     }
 }
 
@@ -503,11 +490,12 @@ static void filtervmb_drawMesh ( Q3DFILTER *qfil,
 
         /*** Draw and fill the Z-Buffer ***/
         filtervmb_drawTriangle ( qfil,
-                                 vmes,
+                                 vobjID,
                                  vtriID,
                                 &vmes->vtri[i],
-                                 vmes->zval[i],
-                                 0.0f );
+                                 NULL,
+                                 0.0f,
+                                 0x01 );
     }
 }
 
@@ -527,63 +515,76 @@ static void filtervmb_drawObjects ( Q3DFILTER *qfil ) {
 }
 
 /******************************************************************************/
-static void filtervmb_drawInterpolatedMesh ( Q3DFILTER *qfil,
-                                             VMBMESH   *vmes ) {
+static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
+                                                  uint32_t     vobjID,
+                                                  VMBTRIANGLE *srcTris,
+                                                  VMBTRIANGLE *dstTris,
+                                                  uint32_t     nbtris ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
-    Q3DMESH *qmes = ( Q3DMESH * ) vmes->vobj.qobj;
-    uint32_t vobjID = vmes->vobj.id;
     uint32_t i, p;
 
-    for ( p = 0x00; p < fvmb->nbSamples; p++ ) {
-        VMBTRIANGLE *dstTri = vmes->vtribef + ( qmes->nbqtri * p ),
-                    *srcTri = vmes->vtri;
+    for ( i = 0x00; i < nbtris; i++ ) {
+        VMBTRIANGLE *srcTri = &srcTris[i];
+        uint32_t vtriID = i;
 
-        for ( i = 0x00; i < qmes->nbqtri; i++ ) {
-            uint32_t vtriID = i;
-            G2DVECTOR mvec[0x03] = { { .x = dstTri[i].pnt[0x00].x - 
-                                            srcTri[i].pnt[0x00].x,
-                                       .y = dstTri[i].pnt[0x00].y - 
-                                            srcTri[i].pnt[0x00].y },
-                                     { .x = dstTri[i].pnt[0x01].x - 
-                                            srcTri[i].pnt[0x01].x,
-                                       .y = dstTri[i].pnt[0x01].y - 
-                                            srcTri[i].pnt[0x01].y },
-                                     { .x = dstTri[i].pnt[0x02].x - 
-                                            srcTri[i].pnt[0x02].x,
-                                       .y = dstTri[i].pnt[0x02].y - 
-                                            srcTri[i].pnt[0x02].y } };
-            uint32_t len[0x03] = { g2dvector_length ( &mvec[0x00] ), 
-                                   g2dvector_length ( &mvec[0x01] ),
-                                   g2dvector_length ( &mvec[0x02] ) };
-            /*** We draw as many triangles as the maximum length between source ***/
-            /*** and destination triangles (if subSamplingRate is 100%). So we ***/
-            /*** first have to get the maximum length and then we compute the ***/
-            /*** number of iterations from this length and subSamplingRate. ***/
-            uint32_t maxLen = ( len[0] > len[1] ) ? 
-                            ( ( len[0] > len[2] ) ? len[0] : len[2] ) :
-                            ( ( len[1] > len[2] ) ? len[1] : len[2] );
-            uint32_t iter = maxLen * fvmb->subSamplingRate;
+        for ( p = 0x00; p < fvmb->nbSamples; p++ ) {
+            VMBTRIANGLE *dstTri = &(dstTris + ( nbtris * p ))[i];
 
-            if ( maxLen ) {
-                uint32_t j;
+            /** check if source triangle is outside screen space ***/
+            if ( ( srcTri->pnt[0x00].z != INFINITY ) &&
+                 ( srcTri->pnt[0x01].z != INFINITY ) &&
+                 ( srcTri->pnt[0x02].z != INFINITY ) &&
+                 ( dstTri->pnt[0x00].z != INFINITY ) &&
+                 ( dstTri->pnt[0x01].z != INFINITY ) &&
+                 ( dstTri->pnt[0x02].z != INFINITY ) ) {
+                G2DVECTOR mvec[0x03] = { { .x = dstTri->pnt[0x00].x - 
+                                                srcTri->pnt[0x00].x,
+                                           .y = dstTri->pnt[0x00].y - 
+                                                srcTri->pnt[0x00].y },
+                                         { .x = dstTri->pnt[0x01].x - 
+                                                srcTri->pnt[0x01].x,
+                                           .y = dstTri->pnt[0x01].y - 
+                                                srcTri->pnt[0x01].y },
+                                         { .x = dstTri->pnt[0x02].x - 
+                                                srcTri->pnt[0x02].x,
+                                           .y = dstTri->pnt[0x02].y - 
+                                                srcTri->pnt[0x02].y } };
+                uint32_t len[0x03] = { g2dvector_length ( &mvec[0x00] ), 
+                                       g2dvector_length ( &mvec[0x01] ),
+                                       g2dvector_length ( &mvec[0x02] ) };
+                /*** We draw as many triangles as the maximum length between source ***/
+                /*** and destination triangles (if subSamplingRate is 100%). So we ***/
+                /*** first have to get the maximum length and then we compute the ***/
+                /*** number of iterations from this length and subSamplingRate. ***/
+                uint32_t maxLen = ( len[0] > len[1] ) ? 
+                                ( ( len[0] > len[2] ) ? len[0] : len[2] ) :
+                                ( ( len[1] > len[2] ) ? len[1] : len[2] );
+                uint32_t iter = maxLen * fvmb->subSamplingRate;
 
-                for ( j = 0x00; j < iter; j++ ) {
-                    float pos = ( float ) j / iter;
-                    VMBTRIANGLE itrTri = { .pnt[0x00].x = srcTri[i].pnt[0].x + ( mvec[0].x * pos ),
-                                           .pnt[0x00].y = srcTri[i].pnt[0].y + ( mvec[0].y * pos ),
-                                           .pnt[0x01].x = srcTri[i].pnt[1].x + ( mvec[1].x * pos ),
-                                           .pnt[0x01].y = srcTri[i].pnt[1].y + ( mvec[1].y * pos ),
-                                           .pnt[0x02].x = srcTri[i].pnt[2].x + ( mvec[2].x * pos ),
-                                           .pnt[0x02].y = srcTri[i].pnt[2].y + ( mvec[2].y * pos ) };
-                    float opacity = 1.0f - pos;
+                if ( maxLen ) {
+                    uint32_t j;
 
-                    filtervmb_drawTriangle ( qfil,
-                                             vmes,
-                                             vtriID,
-                                            &itrTri,
-                                             NULL,
-                                             opacity );
+                    for ( j = 0x00; j < iter; j++ ) {
+                        float pos = ( float ) j / iter;
+                        VMBTRIANGLE itrTri = { .pnt[0x00].x = srcTri->pnt[0].x + ( mvec[0].x * pos ),
+                                               .pnt[0x00].y = srcTri->pnt[0].y + ( mvec[0].y * pos ),
+                                               .pnt[0x01].x = srcTri->pnt[1].x + ( mvec[1].x * pos ),
+                                               .pnt[0x01].y = srcTri->pnt[1].y + ( mvec[1].y * pos ),
+                                               .pnt[0x02].x = srcTri->pnt[2].x + ( mvec[2].x * pos ),
+                                               .pnt[0x02].y = srcTri->pnt[2].y + ( mvec[2].y * pos ) };
+                        float opacity = 1.0f - pos;
+
+                        filtervmb_drawTriangle ( qfil,
+                                                 vobjID,
+                                                 vtriID,
+                                                &itrTri,
+                                                &srcTris[i],
+                                                 opacity,
+                                                 0x00 );
+                    }
                 }
+
+                srcTri = dstTri;
             }
         }
     }
@@ -597,8 +598,21 @@ static void filtervmb_drawInterpolatedObjects ( Q3DFILTER *qfil ) {
     while ( ltmpvobj ) {
         VMBOBJECT *vobj = ( VMBOBJECT * ) ltmpvobj->data;
         VMBMESH *vmes = ( VMBMESH * ) vobj;
+        Q3DMESH *qmes = ( Q3DMESH * ) vmes->vobj.qobj;
 
-        filtervmb_drawInterpolatedMesh ( qfil, vmes );
+        /*** Triangles from starting point to middle frame ***/
+        filtervmb_drawInterpolatedTriangles ( qfil, 
+                                              vmes->vobj.id,
+                                              vmes->vtri,
+                                              vmes->vtribef,
+                                              qmes->nbqtri );
+
+        /*** Triangles from end point to middle frame ****/
+        filtervmb_drawInterpolatedTriangles ( qfil, 
+                                              vmes->vobj.id,
+                                              vmes->vtri,
+                                              vmes->vtriaft,
+                                              qmes->nbqtri );
 
         ltmpvobj = ltmpvobj->next;
     }
@@ -606,7 +620,6 @@ static void filtervmb_drawInterpolatedObjects ( Q3DFILTER *qfil ) {
 
 /******************************************************************************/
 static void vmbtriangle_init ( VMBTRIANGLE *vtri,
-                               float       *zval,
                                Q3DTRIANGLE *qtri,
                                Q3DVERTEX   *qver,
                                double      *MVX,
@@ -633,37 +646,47 @@ static void vmbtriangle_init ( VMBTRIANGLE *vtri,
         if ( screenpos[i].y > screenmax.y ) screenmax.y = screenpos[i].y;
     }
 
-    if ( ( screenmin.x >= qcam->VPX[0x02] ) ||
+    /*if ( ( screenmin.x >= qcam->VPX[0x02] ) ||
          ( screenmin.y >= qcam->VPX[0x03] ) ||
          ( screenmax.x <  qcam->VPX[0x00] ) ||
          ( screenmax.y <  qcam->VPX[0x01] ) ) {
-        if ( zval ) {
-            zval[0x00] = INFINITY;
-            zval[0x01] = INFINITY;
-            zval[0x02] = INFINITY;
-        }
+            vtri->pnt[0x00].z = INFINITY;
+            vtri->pnt[0x01].z = INFINITY;
+            vtri->pnt[0x02].z = INFINITY;
     } else {
-        Q3DVECTOR3D v0v1 = { screenpos[0x01].x - screenpos[0x00].x,
-                             screenpos[0x01].y - screenpos[0x00].y, 0.0f },
-                    v1v2 = { screenpos[0x02].x - screenpos[0x01].x,
-                             screenpos[0x02].y - screenpos[0x01].y, 0.0f },
-                    vout;
+        vtri->pnt[0x00].x = screenpos[0x00].x;
+        vtri->pnt[0x00].y = qcam->VPX[0x03] - 1 - screenpos[0x00].y;
+        vtri->pnt[0x00].z = screenpos[0x00].z;
 
-               vtri->pnt[0x00].x = screenpos[0x00].x;
-               vtri->pnt[0x00].y = qcam->VPX[0x03] - 1 - screenpos[0x00].y;
-        if ( zval ) zval[0x00]   = screenpos[0x00].z;
+        vtri->pnt[0x01].x = screenpos[0x01].x;
+        vtri->pnt[0x01].y = qcam->VPX[0x03] - 1 - screenpos[0x01].y;
+        vtri->pnt[0x01].z = screenpos[0x01].z;
 
-               vtri->pnt[0x01].x = screenpos[0x01].x;
-               vtri->pnt[0x01].y = qcam->VPX[0x03] - 1 - screenpos[0x01].y;
-        if ( zval ) zval[0x01]   = screenpos[0x01].z;
+        vtri->pnt[0x02].x = screenpos[0x02].x;
+        vtri->pnt[0x02].y = qcam->VPX[0x03] - 1 - screenpos[0x02].y;
+        vtri->pnt[0x02].z = screenpos[0x02].z;
+    }*/
 
-               vtri->pnt[0x02].x = screenpos[0x02].x;
-               vtri->pnt[0x02].y = qcam->VPX[0x03] - 1 - screenpos[0x02].y;
-        if ( zval ) zval[0x02]   = screenpos[0x02].z;
+    /*** draw only triangles that entirely fit the screen ***/
+    if ( ( screenmin.x >= qcam->VPX[0x00] ) &&
+         ( screenmin.y >= qcam->VPX[0x00] ) &&
+         ( screenmax.x <  qcam->VPX[0x02] ) &&
+         ( screenmax.y <  qcam->VPX[0x03] ) ) {
+        vtri->pnt[0x00].x = screenpos[0x00].x;
+        vtri->pnt[0x00].y = qcam->VPX[0x03] - 1 - screenpos[0x00].y;
+        vtri->pnt[0x00].z = screenpos[0x00].z;
 
-        q3dvector3d_cross  ( &v0v1, &v1v2, &vout );
+        vtri->pnt[0x01].x = screenpos[0x01].x;
+        vtri->pnt[0x01].y = qcam->VPX[0x03] - 1 - screenpos[0x01].y;
+        vtri->pnt[0x01].z = screenpos[0x01].z;
 
-        vtri->surface = q3dvector3d_length ( &vout );
+        vtri->pnt[0x02].x = screenpos[0x02].x;
+        vtri->pnt[0x02].y = qcam->VPX[0x03] - 1 - screenpos[0x02].y;
+        vtri->pnt[0x02].z = screenpos[0x02].z;
+    } else {
+        vtri->pnt[0x00].z = INFINITY;
+        vtri->pnt[0x01].z = INFINITY;
+        vtri->pnt[0x02].z = INFINITY;
     }
 }
 
@@ -691,7 +714,6 @@ static void vmbmesh_import ( VMBMESH   *vmes,
     if ( subframeID == 0x00 ) {
         for ( i = 0x00; i < qmes->nbqtri; i++ ) {
             vmbtriangle_init ( &vmes->vtri[i],
-                                vmes->zval[i],
                                &qmes->qtri[i], 
                                 qver,
                                 MVX,
@@ -706,7 +728,6 @@ static void vmbmesh_import ( VMBMESH   *vmes,
 
         for ( i = 0x00; i < qmes->nbqtri; i++ ) {
             vmbtriangle_init ( &vtri[i],
-                                NULL,
                                &qmes->qtri[i], 
                                 qver,
                                 MVX,
@@ -721,7 +742,6 @@ static void vmbmesh_import ( VMBMESH   *vmes,
 
         for ( i = 0x00; i < qmes->nbqtri; i++ ) {
             vmbtriangle_init ( &vtri[i],
-                                NULL,
                                &qmes->qtri[i], 
                                 qver,
                                 MVX,
@@ -789,7 +809,6 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
                          fltSize = sizeof ( float ) * 0x03;
 
                 vmes->vtri = ( VMBTRIANGLE * ) calloc ( qmes->nbqtri, triSize );
-                vmes->zval = ( float       * ) calloc ( qmes->nbqtri, fltSize );
 
                 vmes->vtribef = ( VMBTRIANGLE * ) calloc ( qmes->nbqtri * nbSamples, triSize );
                 vmes->vtriaft = ( VMBTRIANGLE * ) calloc ( qmes->nbqtri * nbSamples, triSize );
@@ -799,8 +818,6 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
 
     vmes->vobj.id = id;
     vmes->vobj.qobj = qmes;
-
-    vmes->zval = ( float * ) calloc ( qmes->nbqtri, sizeof ( float ) * 0x03 );
 
     return vmes;
 }
@@ -1034,14 +1051,14 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
 
-    for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
-        unsigned char (*srcimg)[0x03] = img;
+        for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
+            unsigned char (*srcimg)[0x03] = img;
 
-        fvmb->abuffer[i][0x00] = srcimg[i][0x00];
-        fvmb->abuffer[i][0x01] = srcimg[i][0x01];
-        fvmb->abuffer[i][0x02] = srcimg[i][0x02];
-        fvmb->abuffer[i][0x03] = 0xFF;
-    }
+            fvmb->abuffer[i][0x00] = srcimg[i][0x00];
+            fvmb->abuffer[i][0x01] = srcimg[i][0x01];
+            fvmb->abuffer[i][0x02] = srcimg[i][0x02];
+            fvmb->abuffer[i][0x03] = 0xFF;
+        }
 
         filtervmb_import ( qfil, 
                            qjob->qcam,
@@ -1068,16 +1085,16 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
             q3djob_goToFrame ( qjob, toFrame );
 
             Q3DSCENE *aftqsce = q3dscene_import ( sce, 
-                                                  toFrame, 
+                                                  toFrame,
                                                   GEOMETRYONLY );
 
             /*** after frames ***/
-            /*filtervmb_import ( qfil, 
+            filtervmb_import ( qfil, 
                                qjob->qcam,
                                aftqsce,
                                objcam->iwmatrix,
                                i,
-                               frameID );*/
+                               frameID );
 
 
             fromFrame -= step;

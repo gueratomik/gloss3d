@@ -769,8 +769,8 @@ Q3DSETTINGS *q3dsettings_new ( ) {
     rsg->wireframe.thickness = 1.0f;
     rsg->wireframe.color     = 0x00A40000; /* some red */
 
-    rsg->motionBlur.iterations = 5;
-    rsg->motionBlur.strength   = 75;
+    rsg->motionBlur.iterations = 3;
+    rsg->motionBlur.strength   = 0.75f;
     rsg->motionBlur.vMotionBlurSamples = 0x01;
     rsg->motionBlur.vMotionBlurSubSamplingRate = 1.0f;
 

@@ -310,15 +310,6 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             GdkEventButton *bev = ( GdkEventButton * ) event;
             area = gtk_uvmapeditor_getDrawingArea ( widget );
 
-            /*** cancel renderprocess if any ***/
-            /*g3dui_cancelRenderByID ( gui, ( uint64_t ) area );*/
-
-            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
-            /*** If there was a running render, cancel it and dont go further ***/
-            if ( rps ) {
-                q3djob_cancel ( rps->qjob );
-            }
-
             lui->buttonID = common_l3dui_getCurrentButton ( lui, bev->x, 
                                                                               bev->y );
 

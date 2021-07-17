@@ -349,6 +349,7 @@ static void Unmap ( GtkWidget *widget, gpointer user_data ) {
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
 
     /*** cancel renderprocess if any ***/
+
     common_g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
 
     if ( rps ) {

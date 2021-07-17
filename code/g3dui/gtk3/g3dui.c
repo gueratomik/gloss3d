@@ -305,7 +305,9 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     /* First cancel running render on that window  if any */
     if ( rps ) {
-        q3djob_cancel ( rps->qjob );
+        q3djob_end ( rps->qjob );
+
+        pthread_join ( rps->tid, NULL );
     }
 
     q3dsettings_copy ( &viewRsg, gui->currsg );

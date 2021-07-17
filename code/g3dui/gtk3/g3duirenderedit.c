@@ -562,7 +562,7 @@ void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
                         gtk_widget_set_sensitive ( child, FALSE );
                     }
 
-                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.strength );
+                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.strength * 100.0f );
                 }
 
                 if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSAMPLES ) == 0x00 ) {
@@ -646,7 +646,7 @@ static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
                                    sceneMotionBlurCbk );
 
           createIntegerText ( frm, gui, EDITRENDERSCENEMOTIONBLURITERATION,
-                                      5, 31,
+                                      2, 31,
                                     160, 72, 96,  32,
                                    sceneMotionBlurIterationCbk );
 

@@ -807,7 +807,9 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
             G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
             /*** If there was a running render, cancel it and dont go further ***/
             if ( rps ) {
-                q3djob_cancel ( rps->qjob );
+                q3djob_end ( rps->qjob );
+
+                pthread_join ( rps->tid, NULL );
             }
 
             view->buttonID = common_g3duiview_getCurrentButton ( view, bev->x, 
@@ -1425,7 +1427,9 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
             G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
             /*** If there was a running render, cancel it and dont go further ***/
             if ( rps ) {
-                q3djob_cancel ( rps->qjob );
+                q3djob_end ( rps->qjob );
+
+                pthread_join ( rps->tid, NULL );
 
                 return TRUE;
             }
