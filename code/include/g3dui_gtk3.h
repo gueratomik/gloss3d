@@ -866,4 +866,6 @@ GtkWidget *createMorpherEdit ( GtkWidget *parent,
 void updateMorpherEdit ( GtkWidget *widget, 
                          G3DUI     *gui );
 
+GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
+
 #endif

@@ -76,12 +76,34 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 }
 
 /******************************************************************************/
+void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
+    /*** COMMENTED OUT: this is freed by Q3DJOB ***/
+    /*q3dfilter_free ( rps->towindow );*/
+
+    /*** Commented out: must not be freed or expect a crash when gotoframe ***/
+    /*** is called due to the RPS structure being freed before the call ***/
+    /*** cf g3duicom.c ***/
+    /*q3dfilter_free ( rps->toframe );*/ 
+
+    printf ( "freeing render process #%d\n", rps->id );
+
+    list_remove ( &rps->gui->lrps, rps );
+
+    if ( rps->filename ) free ( rps->filename );
+
+    free ( rps );
+}
+
+/******************************************************************************/
 void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
     q3djob_render_frame ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
+
+    g3duirenderprocess_free ( rps );
+
 
     return NULL;
 }
@@ -94,19 +116,10 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
+    g3duirenderprocess_free ( rps );
 
 
     return NULL;
-}
-
-/******************************************************************************/
-void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
-    q3dfilter_free ( rps->towindow );
-    q3dfilter_free ( rps->toframe );
-
-    if ( rps->filename ) free ( rps->filename );
-
-    free ( rps );
 }
 
 /******************************************************************************/

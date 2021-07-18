@@ -351,9 +351,12 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-G3DCAMERA *g3dcamera_new ( uint32_t id, char *name, 
-                           float focal, float ratio,
-                           float znear, float zfar ) {
+G3DCAMERA *g3dcamera_new ( uint32_t id,
+                           char    *name, 
+                           float    focal, 
+                           float    ratio,
+                           float    znear, 
+                           float    zfar ) {
 
     G3DCAMERA *cam = ( G3DCAMERA * ) calloc ( 0x01, sizeof ( G3DCAMERA ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;

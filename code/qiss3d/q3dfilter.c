@@ -97,7 +97,7 @@ Q3DFILTER *q3dfilter_new ( uint32_t   type,
 
 /******************************************************************************/
 void q3dfilter_free ( Q3DFILTER *fil ) {
-    printf ( "freeing filter \"%s\" ...", fil->name );
+    if ( fil->name ) printf ( "freeing filter \"%s\" ...", fil->name );
 
     if ( fil->free ) {
         fil->free ( fil );

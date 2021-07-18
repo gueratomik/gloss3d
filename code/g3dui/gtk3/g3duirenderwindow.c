@@ -187,8 +187,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         /*** this filter is used for displaying ***/
         Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
-        /*** this filter tells the engine to go to the next frame ***/
-        Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -196,7 +194,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                     rsg->output.depth, 
                                                     rsg->background.color );
 
-        list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME), rsg->output.endframe ) );
 
         if ( ((G3DOBJECT*)cam)->flags & CAMERADOF ) {
             R3DFILTER *rdf = r3dfilter_dof_new ( rsg->output.width, 
@@ -210,6 +207,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         if ( rsg->flags & RENDERPREVIEW ) {
             list_append ( &lfilters, r3dfilter_preview_new ( gui ) );
         }*/
+
+        Q3DFILTER *tostatus = q3dfilter_toStatusBar_new ( getChild ( gtk_widget_get_toplevel ( widget ), RENDERWINDOWSTATUSBARNAME ), rsg->output.endframe );
 
 #ifdef unusedQISS3D
         if ( rsg->flags & RENDERSAVE ) {
@@ -285,7 +284,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             rps = common_g3dui_render_q3d ( gui, 
                                             rsg,
                                             towin,
-                                            toframe,
+                                            gui->toframe,
+                                            tostatus,
                                             cam,
                                             rsg->output.startframe,
                                             ( uint64_t ) widget,
@@ -294,7 +294,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             rps = common_g3dui_render_q3d ( gui,
                                             rsg,
                                             towin,
-                                            toframe,
+                                            gui->toframe,
+                                            tostatus,
                                             cam,
                                             rsg->output.startframe,
                                             ( uint64_t ) widget,

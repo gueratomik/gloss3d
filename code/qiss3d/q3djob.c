@@ -50,10 +50,26 @@ void q3djob_end ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
+void q3djob_freeFilters ( Q3DJOB *qjob ) {
+    uint32_t nbfil = sizeof ( Q3DFILTERSET ) / sizeof ( Q3DFILTER * );
+    Q3DFILTER **qfil = ( Q3DFILTER * ) &qjob->filters;
+    uint32_t i;
+
+    for ( i = 0x00; i < nbfil; i++ ) {
+        if ( qfil[i] == NULL                   ) continue;
+        if ( qfil[i] == qjob->filters.toframe  ) continue;
+
+        q3dfilter_free ( qfil[i] );
+    }
+}
+
+/******************************************************************************/
 void q3djob_free ( Q3DJOB *qjob ) {
     q3dobject_free_r ( ( Q3DOBJECT * ) qjob->qsce );
 
     if ( qjob->img ) free ( qjob->img );
+
+    q3djob_freeFilters ( qjob );
 
     q3darea_reset ( &qjob->qarea );
 
@@ -128,19 +144,18 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
                                  uint32_t to,
                                  uint32_t depth, 
                                  uint32_t width ) {
-    #define FILTERCOUNT 0x05
+    #define FILTERCOUNT 0x06
     Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.softshadows,
                                     qjob->filters.simpleAA,
                                     qjob->filters.towindow,
                                     qjob->filters.tosequence,
-                                    qjob->filters.toimage };
+                                    qjob->filters.toimage,
+                                    qjob->filters.tostatus };
     char *img = qjob->img;
     uint32_t i;
 
-    if ( qjob->running == 0x00 ) return;
-
     for ( i = 0x00; i < FILTERCOUNT; i++ ) {
-        if ( fil[i] ) {
+        if ( qjob->running && fil[i] ) {
             if ( fil[i]->flags & ENABLEFILTER ) {
                 if ( fil[i]->draw ( fil[i], 
                                     qjob, 
@@ -166,15 +181,14 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
                                       uint32_t to,
                                       uint32_t depth, 
                                       uint32_t width ) {
-    #define FILTERCOUNT 0x01
-    Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.motionblur };
+    #define FILTERCOUNT 0x02
+    Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.tostatus,
+                                    qjob->filters.motionblur };
     char *img = qjob->img;
     uint32_t i;
 
-    if ( qjob->running == 0x00 ) return 0x00;
-
     for ( i = 0x00; i < FILTERCOUNT; i++ ) {
-        if ( fil[i] ) {
+        if ( qjob->running && fil[i] ) {
             if ( fil[i]->flags & ENABLEFILTER ) {
                 uint32_t ret = fil[i]->draw ( fil[i], 
                                               qjob, 
@@ -350,7 +364,8 @@ static void q3djob_createRenderThread ( Q3DJOB    *qjob,
 /******************************************************************************/
 static void q3djob_initFilters ( Q3DJOB    *qjob,
                                  Q3DFILTER *towindow,
-                                 Q3DFILTER *toframe ) {
+                                 Q3DFILTER *toframe,
+                                 Q3DFILTER *tostatus ) {
     Q3DSETTINGS *qrsg   = qjob->qrsg;
     Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
     Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
@@ -358,6 +373,7 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
 
     qjob->filters.towindow   = towindow;
     qjob->filters.toframe    = toframe;
+    qjob->filters.tostatus   = tostatus;
 
     if ( qrsg->flags & ENABLEMOTIONBLUR ) {
         if ( qrsg->flags & VECTORMOTIONBLUR ) {
@@ -422,8 +438,8 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
 
 /******************************************************************************/
 void q3djob_clear ( Q3DJOB *qjob ) {
-    if ( qjob->qsce ) q3dobject_free ( qjob->qsce );
-    if ( qjob->qcam ) q3dobject_free ( qjob->qcam );
+    if ( qjob->qsce ) q3dobject_free_r ( qjob->qsce );
+    if ( qjob->qcam ) q3dobject_free   ( qjob->qcam );
 
     qjob->qsce = NULL;
     qjob->qcam = NULL;
@@ -459,6 +475,7 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                      G3DCAMERA   *cam,
                      Q3DFILTER   *towindow,
                      Q3DFILTER   *toframe,
+                     Q3DFILTER   *tostatus,
                      uint64_t     flags ) {
     uint32_t structsize = sizeof ( Q3DJOB );
     uint32_t bytesperline = ( qrsg->output.width * 0x03 );
@@ -484,21 +501,13 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 
     q3djob_initFilters ( qjob,
                          towindow,
-                         toframe );
+                         toframe,
+                         tostatus );
 
 
 
 
     return qjob;
-}
-/******************************************************************************/
-void q3djob_render_t_free ( Q3DJOB *qjob ) {
-    /*** free filters after rendering ***/
-    if ( ( qjob->flags & NOFREEFILTERS ) == 0x00 ) {
-/*
-        list_free ( &qjob->qrsg->input.lfilters, (void(*)(void*))q3dfilter_free );
-*/
-    }
 }
 
 /******************************************************************************/

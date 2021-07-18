@@ -379,6 +379,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define CAMERAXY              (  1 << 20 )
 #define CAMERAYZ              (  1 << 21 )
 #define CAMERAZX              (  1 << 22 )
+#define CAMERADEFAULT         (  1 << 23 ) /*** not part of the obj hierarchy ***/
 /**** SPHERE flags ***/
 #define SPHEREISPERFECT       (  1 << 17 ) /* render perfect */
 
@@ -702,7 +703,7 @@ typedef struct _G3DCURVE  G3DCURVE;
 typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
-    uint32_t  flags;         /*** selected or not etc ... ***/
+    uint32_t flags;         /*** selected or not etc ... ***/
     char *name;             /*** Object's name           ***/
     G3DVECTOR pos;          /*** Object center position  ***/
     G3DVECTOR rot;          /*** Object center angles    ***/
@@ -2563,7 +2564,12 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
                                       uint64_t  engine_flags );
 
 /******************************************************************************/
-G3DCAMERA *g3dcamera_new      ( uint32_t, char *, float, float, float, float );
+G3DCAMERA *g3dcamera_new ( uint32_t id,
+                           char    *name, 
+                           float    focal, 
+                           float    ratio,
+                           float    znear, 
+                           float    zfar );
 void g3dcamera_view ( G3DCAMERA *cam, 
                       uint64_t   engine_flags );
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz );

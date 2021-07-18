@@ -302,8 +302,6 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     /* declared static because must survive */
     static Q3DSETTINGS viewRsg;
     G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
-    /*** this filter tells the engine to go to the next frame ***/
-    Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
     /* First cancel running render on that window  if any */
     common_g3dui_cancelRenderByID ( gui, ( uint64_t ) ggt->curogl );
@@ -334,7 +332,8 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     rps = common_g3dui_render_q3d ( gui, 
                                    &viewRsg,
                                     progressiveDisplay,
-                                    toframe,
+                                    gui->toframe,
+                                    NULL,
                                     cam,
                                     gui->curframe,
                        ( uint64_t ) ggt->curogl,
@@ -1861,6 +1860,8 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
     rsg = q3dsettings_new ( ); /*** default render settings ***/
+
+    gui->toframe = q3dfilter_gotoframe_new ( gui );
 
     common_g3dui_addRenderSettings ( gui, rsg );
     common_g3dui_useRenderSettings ( gui, rsg );

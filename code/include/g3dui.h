@@ -750,6 +750,7 @@ typedef struct _G3DUI {
     int32_t fps;
     uint32_t playLock;
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
+    Q3DFILTER *toframe;
 } GuiPart, G3DUI;
 
 /********************************* g3dui.c ************************************/
@@ -793,7 +794,7 @@ typedef struct _G3DUIRENDERPROCESS {
     Q3DJOB    *qjob;
     G3DUI     *gui;
     Q3DFILTER *towindow; /*** this contains final XImage structure ***/
-    Q3DFILTER *toframe; /*** this contains raw image data ***/
+    Q3DFILTER *toframe; /*** this jumps to frame in the main context ***/
     char      *filename;
     pthread_t  tid; /*** clean thread ID when cancelling e.g ***/
 } G3DUIRENDERPROCESS;
@@ -1491,6 +1492,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
                                           Q3DSETTINGS *rsg,
                                           Q3DFILTER   *towindow,
                                           Q3DFILTER   *toframe,
+                                          Q3DFILTER   *tostatus,
                                           float        resetFrame,
                                           uint64_t     id,
                                           uint32_t     sequence );
@@ -1499,6 +1501,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               Q3DSETTINGS *rsg,
                                               Q3DFILTER   *towindow,
                                               Q3DFILTER   *toframe,
+                                              Q3DFILTER   *tostatus,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,

@@ -970,6 +970,7 @@ static void filtervmb_free ( Q3DFILTER *fil ) {
 
     list_free ( &fvmb->lvobj, vmbmesh_free );
 
+    if ( fvmb->abuffer ) free ( fvmb->abuffer );
     if ( fvmb->zbuffer ) free ( fvmb->zbuffer );
 
     free ( fvmb );

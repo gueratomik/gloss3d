@@ -643,6 +643,7 @@ typedef struct _Q3DFILTERSET {
     Q3DFILTER *simpleAA;
     Q3DFILTER *softshadows;
     Q3DFILTER *motionblur;
+    Q3DFILTER *tostatus;
 } Q3DFILTERSET;
 
 /******************************************************************************/
@@ -939,6 +940,7 @@ Q3DJOB     *q3djob_new               ( Q3DSETTINGS *qrsg,
                                        G3DCAMERA   *cam,
                                        Q3DFILTER   *towindow,
                                        Q3DFILTER   *toframe,
+                                       Q3DFILTER   *tostatus,
                                        uint64_t     flags );
 void       q3djob_render_t_free      ( Q3DJOB *qjob );
 void       q3djob_render_sequence    ( Q3DJOB *qjob );

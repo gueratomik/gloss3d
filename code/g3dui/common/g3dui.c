@@ -57,6 +57,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               Q3DSETTINGS *rsg,
                                               Q3DFILTER   *towindow,
                                               Q3DFILTER   *toframe,
+                                              Q3DFILTER   *tostatus,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,
@@ -89,6 +90,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                             cam,
                             towindow, 
                             toframe, 
+                            tostatus, 
                             0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
@@ -117,6 +119,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
                                           Q3DSETTINGS *rsg,
                                           Q3DFILTER   *towindow,
                                           Q3DFILTER   *toframe,
+                                          Q3DFILTER   *tostatus,
                                           float        resetFrame,
                                           uint64_t     id,
                                           uint32_t     sequence ) {
@@ -146,7 +149,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
             g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
 
-        qjob = q3djob_new ( rsg, sce, cam, towindow, toframe, 0x00 );
+        qjob = q3djob_new ( rsg, sce, cam, towindow, toframe, tostatus, 0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
@@ -337,10 +340,6 @@ uint32_t common_g3dui_cancelRenderByID ( G3DUI *gui, uint64_t id ) {
         /*** Commented out: creates a deadlock with the mutex from ***/
         /*** gotoframe filter. Need to investigate more ***/
         /*pthread_join ( rps->tid, NULL );*/
-
-        g3duirenderprocess_free ( rps );
-
-        list_remove ( &gui->lrps, rps );
 
 
         return 0x01;

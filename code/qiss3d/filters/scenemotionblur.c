@@ -88,6 +88,8 @@ static void filtersmb_empty ( FILTERSMB *fsmb ) {
 static void filtersmb_free ( Q3DFILTER *fil ) {
     FILTERSMB *fsmb = ( FILTERSMB * ) fil->data;
 
+    if ( fsmb->abuffer ) free ( fsmb->abuffer );
+
     free ( fsmb );
 }
 
