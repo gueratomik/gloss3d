@@ -53,8 +53,8 @@ void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
 G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
                                              G3DUI     *gui,
                                              Q3DJOB  *qjob,
-                                             Q3DFILTER *filter_to_window,
-                                             Q3DFILTER *filter_to_buffer ) {
+                                             Q3DFILTER *towindow,
+                                             Q3DFILTER *toframe ) {
     uint32_t size = sizeof ( G3DUIRENDERPROCESS );
     G3DUIRENDERPROCESS *rps = ( G3DUIRENDERPROCESS * ) calloc ( 0x01, size );
 
@@ -69,8 +69,8 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 
     rps->gui = gui;
 
-    /*rps->filter_to_window = filter_to_window;
-    rps->filter_to_buffer = filter_to_buffer;*/
+    rps->towindow = towindow;
+    rps->toframe = toframe;
 
     return rps;
 }
@@ -79,7 +79,7 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
 void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
-    q3djob_render_frame_t ( rps->qjob );
+    q3djob_render_frame ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
@@ -90,23 +90,23 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
-    q3djob_render_sequence_t ( rps->qjob );
+    q3djob_render_sequence ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
+
+
 
     return NULL;
 }
 
 /******************************************************************************/
 void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
-    /*r3dfilter_free ( rps->filter_to_window );
-    r3dfilter_free ( rps->filter_to_buffer );*/
+    q3dfilter_free ( rps->towindow );
+    q3dfilter_free ( rps->toframe );
 
-    /*if ( rps->filename ) free ( rps->filename );*/
+    if ( rps->filename ) free ( rps->filename );
 
-    q3djob_render_t_free ( rps->qjob );
-
-    /*free ( rps );*/
+    free ( rps );
 }
 
 /******************************************************************************/

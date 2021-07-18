@@ -114,13 +114,14 @@ void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
 }
 
 /******************************************************************************/
-uint32_t filtergotoframe_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
-                                                float frameID,
-                                                unsigned char *img, 
-                                                uint32_t from, 
-                                                uint32_t to, 
-                                                uint32_t depth, 
-                                                uint32_t width ) {
+uint32_t filtergotoframe_draw ( Q3DFILTER     *fil, 
+                                Q3DJOB        *qjob,
+                                float          frameID,
+                                unsigned char *img, 
+                                uint32_t       from, 
+                                uint32_t       to, 
+                                uint32_t       depth, 
+                                uint32_t       width ) {
     G3DUI *gui = ( G3DUI * ) fil->data;
     static GOTOFRAME gtf = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
 

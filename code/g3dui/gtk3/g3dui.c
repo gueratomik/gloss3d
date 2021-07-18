@@ -301,14 +301,12 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
     static Q3DSETTINGS viewRsg;
-    G3DCAMERA *cam = /*g3dui_getMainViewCamera ( gui )*/g3dui_getCurrentViewCamera ( gui );
+    G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
+    /*** this filter tells the engine to go to the next frame ***/
+    Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
     /* First cancel running render on that window  if any */
-    if ( rps ) {
-        q3djob_end ( rps->qjob );
-
-        pthread_join ( rps->tid, NULL );
-    }
+    common_g3dui_cancelRenderByID ( gui, ( uint64_t ) ggt->curogl );
 
     q3dsettings_copy ( &viewRsg, gui->currsg );
 
@@ -325,42 +323,24 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     viewRsg.output.height = height;
     viewRsg.background.image = sysinfo->backgroundImage;
 
+    viewRsg.output.startframe = gui->curframe;
+
+    viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME | 
+                                           RENDERDOF       |
+                                           RENDERFOG );
+
     g3dui_setHourGlass ( gui );
 
     rps = common_g3dui_render_q3d ( gui, 
                                    &viewRsg,
                                     progressiveDisplay,
-                                    NULL,
+                                    toframe,
                                     cam,
                                     gui->curframe,
                        ( uint64_t ) ggt->curogl,
                                     0x00 );
 
     g3dui_unsetHourGlass ( gui );
-}
-
-/******************************************************************************/
-uint32_t g3dui_renderClean ( Q3DFILTER     *fil, 
-                             Q3DJOB        *qjob,
-                             float          frameID,
-                             unsigned char *img, 
-                             uint32_t       from, 
-                             uint32_t       to, 
-                             uint32_t       depth, 
-                             uint32_t       width ) {
-    G3DUI *gui = ( G3DUI * ) fil->data;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByJob ( gui, qjob );
-
-    /*** clean renderprocess if any ***/
-    if ( rps ) {
-        g3duirenderprocess_free ( rps );
-
-        list_remove ( &gui->lrps, rps );
-
-        return 0x01;
-    }
-
-    return 0x00;
 }
 
 /******************************************************************************/

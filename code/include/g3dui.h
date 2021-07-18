@@ -792,8 +792,8 @@ typedef struct _G3DUIRENDERPROCESS {
     uint64_t   id;
     Q3DJOB    *qjob;
     G3DUI     *gui;
-    /*Q3DFILTER *filter_to_window;*/ /*** this contains final XImage structure ***/
-    /*Q3DFILTER *filter_to_buffer;*/ /*** this contains raw image data ***/
+    Q3DFILTER *towindow; /*** this contains final XImage structure ***/
+    Q3DFILTER *toframe; /*** this contains raw image data ***/
     char      *filename;
     pthread_t  tid; /*** clean thread ID when cancelling e.g ***/
 } G3DUIRENDERPROCESS;

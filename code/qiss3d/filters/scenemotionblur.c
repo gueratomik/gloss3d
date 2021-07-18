@@ -178,6 +178,7 @@ static uint32_t filtersmb_draw ( Q3DFILTER     *qfil,
         filtersmb_addFrame ( qfil, qjob->img ) ;
 
         for ( i = 0x01; i <= fsmb->nbSamples; i++ ) {
+
             q3djob_goToFrame ( qjob, fromFrame );
             q3djob_clear   ( qjob );
             q3djob_prepare ( qjob, 

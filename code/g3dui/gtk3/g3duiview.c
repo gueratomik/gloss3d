@@ -802,15 +802,8 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
             area = gtk_view_getGLArea ( widget );
 
             /*** cancel renderprocess if any ***/
-            /*g3dui_cancelRenderByID ( gui, ( uint64_t ) area );*/
+            common_g3dui_cancelRenderByID ( gui, ( uint64_t ) area );
 
-            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
-            /*** If there was a running render, cancel it and dont go further ***/
-            if ( rps ) {
-                q3djob_end ( rps->qjob );
-
-                pthread_join ( rps->tid, NULL );
-            }
 
             view->buttonID = common_g3duiview_getCurrentButton ( view, bev->x, 
                                                                        bev->y );

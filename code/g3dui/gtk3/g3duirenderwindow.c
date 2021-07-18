@@ -187,8 +187,8 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 
         /*** this filter is used for displaying ***/
         Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
-            /*** this filter tells the engine to go to the next frame ***/
-            Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
+        /*** this filter tells the engine to go to the next frame ***/
+        Q3DFILTER *toframe = q3dfilter_gotoframe_new ( gui );
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -197,29 +197,6 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
                                                     rsg->background.color );
 
         list_append ( &lfilters, r3dfilter_toStatusBar_new(getChild(gtk_widget_get_toplevel (widget),RENDERWINDOWSTATUSBARNAME), rsg->output.endframe ) );
-
-        if (   ( rsg->flags & ENABLEMOTIONBLUR ) && 
-             ( ( rsg->flags & RENDERPREVIEW    ) == 0x00 ) ) {
-            R3DFILTER *blur;
-
-            if ( rsg->flags & VECTORMOTIONBLUR ) {
-                blur = r3dfilter_VectorMotionBlur_new ( rsg->output.width, 
-                                                        rsg->output.height,
-                                              ( float ) rsg->motionBlur.strength / 100,
-                                                        rsg->motionBlur.vMotionBlurSamples,
-                                                        rsg->motionBlur.vMotionBlurSubSamplingRate );
-
-            }
-
-            if ( rsg->flags & SCENEMOTIONBLUR ) {
-                blur = r3dfilter_MotionBlur_new ( rsg->output.width, 
-                                                  rsg->output.height,
-                                                  rsg->output.depth, 
-                                                  rsg->motionBlur.iterations );
-            }
-
-            if ( blur ) list_append ( &lfilters, blur );
-        }
 
         if ( ((G3DOBJECT*)cam)->flags & CAMERADOF ) {
             R3DFILTER *rdf = r3dfilter_dof_new ( rsg->output.width, 
@@ -352,11 +329,6 @@ static void Unmap ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
 
-    if ( rps ) {
-        g3duirenderprocess_free ( rps );
-
-        list_remove ( &gui->lrps, rps );
-    }
 
     /*return TRUE;*/
 }

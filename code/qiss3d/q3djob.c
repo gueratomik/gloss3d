@@ -50,26 +50,7 @@ void q3djob_end ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-/******** Wait the end of the render process, ie the end of each thread *******/
-void q3djob_wait ( Q3DJOB *qjob ) {
-    LIST *ltmp = qjob->lthread;
-
-    while ( ltmp ) {
-        pthread_t tid = ( pthread_t ) ltmp->data;
-
-        pthread_join ( tid, NULL );
-
-        ltmp = ltmp->next;
-    }
-
-    list_free ( &qjob->lthread, NULL );
-}
-
-/******************************************************************************/
 void q3djob_free ( Q3DJOB *qjob ) {
-    /*** free all rendering threads - one per CPU ***/
-    list_free ( &qjob->lthread, NULL );
-
     q3dobject_free_r ( ( Q3DOBJECT * ) qjob->qsce );
 
     if ( qjob->img ) free ( qjob->img );
@@ -203,7 +184,6 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
                                               to, 
                                               depth, 
                                               width );
-
                 if ( ret ) {
                     return ret;
                 }
@@ -216,7 +196,7 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
 }
 
 /******************************************************************************/
-void *q3djob_raytrace ( void *ptr ) {
+void *q3djob_raytrace_t ( void *ptr ) {
     Q3DJOB *qjob = ( Q3DJOB * ) ptr;
     Q3DAREA *qarea = &qjob->qarea;
     Q3DINTERPOLATION pone, ptwo;
@@ -295,46 +275,47 @@ void *q3djob_raytrace ( void *ptr ) {
             imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
             imgptr[0x02] = ( color & 0x000000FF );
 
-#ifdef unused
             if ( qjob->qrsg->flags & RENDERFOG ) {
                 uint32_t fogR = ( ( qjob->qrsg->fog.color & 0x00FF0000 ) >> 0x10 ),
                          fogG = ( ( qjob->qrsg->fog.color & 0x0000FF00 ) >> 0x08 ),
                          fogB =   ( qjob->qrsg->fog.color & 0x000000FF );
 
-                float fogDistance = qarea->zBuffer[offset];
-                float fogNear = qjob->qrsg->fog.fnear;
-                float fogFar = qjob->qrsg->fog.ffar;
-                float deltaFog = ( fogFar - fogNear );
-                float incFogRatio = ( deltaFog ) ? ( fogDistance - 
-                                                     fogNear ) / deltaFog : 0.0f;
-                /*** note: fog strength is between 0.0f and 1.0f ***/
-                float decFogRatio = qjob->qrsg->fog.strength - incFogRatio;
+                if ( ( ( qray.distance == INFINITY ) && 
+                       ( qjob->qrsg->fog.flags & FOGAFFECTSBACKGROUND ) ) ||
+                       ( qray.distance != INFINITY ) ) {
+                    float fogNear = qjob->qrsg->fog.fnear;
+                    float fogFar = qjob->qrsg->fog.ffar;
+                    float deltaFog = ( fogFar - fogNear );
+                    float incFogRatio = ( deltaFog ) ? ( qray.distance - 
+                                                         fogNear ) / deltaFog : 0.0f;
+                    /*** note: fog strength is between 0.0f and 1.0f ***/
+                    float decFogRatio = qjob->qrsg->fog.strength - incFogRatio;
 
-                if ( fogDistance < fogNear ) {
-                    incFogRatio = 0.0f;
-                    decFogRatio = 1.0f;
+                    if ( qray.distance < fogNear ) {
+                        incFogRatio = 0.0f;
+                        decFogRatio = 1.0f;
+                    }
+
+                    if ( qray.distance > fogNear ) {
+                        if ( incFogRatio > 1.0f ) incFogRatio = 1.0f;
+
+                        incFogRatio = incFogRatio * qjob->qrsg->fog.strength;
+                        decFogRatio = 1.0f - incFogRatio;
+                    }
+
+                    uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
+                    uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
+                    uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
+
+                    if ( R > 0xFF ) R = 0xFF;
+                    if ( G > 0xFF ) G = 0xFF;
+                    if ( B > 0xFF ) B = 0xFF;
+
+                    imgptr[0x00] = R;
+                    imgptr[0x01] = G;
+                    imgptr[0x02] = B;
                 }
-
-                if ( fogDistance > fogNear ) {
-                    if ( incFogRatio > 1.0f ) incFogRatio = 1.0f;
-
-                    incFogRatio = incFogRatio * qjob->qrsg->fog.strength;
-                    decFogRatio = 1.0f - incFogRatio;
-                }
-
-                uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
-                uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
-                uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
-
-                if ( R > 0xFF ) R = 0xFF;
-                if ( G > 0xFF ) G = 0xFF;
-                if ( B > 0xFF ) B = 0xFF;
-
-                imgptr[0x00] = R;
-                imgptr[0x01] = G;
-                imgptr[0x02] = B;
             }
-#endif
 
             imgptr += 0x03;
 
@@ -346,17 +327,16 @@ void *q3djob_raytrace ( void *ptr ) {
     }
 
     /*** this is needed for memory release ***/
-    /*pthread_exit ( NULL );*/
-
+    pthread_exit ( NULL );
 
 
     return NULL;
 }
 
 /******************************************************************************/
-void q3djob_createRenderThread ( Q3DJOB *qjob ) {
+static void q3djob_createRenderThread ( Q3DJOB    *qjob, 
+                                        pthread_t *tid ) {
     pthread_attr_t attr;
-    pthread_t tid;
 
     pthread_attr_init ( &attr );
 
@@ -364,10 +344,7 @@ void q3djob_createRenderThread ( Q3DJOB *qjob ) {
     pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
 
     /*** launch rays ***/
-    pthread_create ( &tid, &attr, q3djob_raytrace, qjob );
-
-    /*** register our thread for q3djob_wait() can use pthread_join() ***/
-    list_insert ( &qjob->lthread, ( void * ) tid );
+    pthread_create ( tid, &attr, q3djob_raytrace_t, qjob );
 }
 
 /******************************************************************************/
@@ -525,7 +502,7 @@ void q3djob_render_t_free ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
+void q3djob_render_sequence ( Q3DJOB *qjob ) {
     G3DSCENE *sce  = qjob->qrsg->input.sce;
     G3DCAMERA *cam = qjob->qrsg->input.cam;
     int32_t startframe = qjob->qrsg->output.startframe,
@@ -555,26 +532,23 @@ void *q3djob_render_sequence_t ( Q3DJOB *qjob ) {
             }
         }
     }
-printf("leaving\n");
+
     qjob->running  = 0x00;
     qjob->threaded = 0x00;
 
     q3djob_free ( qjob );
-
-    /*** this is needed for memory release ***/
-    pthread_exit ( NULL );
-
-
-
-    return NULL;
 }
 
 /******************************************************************************/
-void *q3djob_render_frame_t ( Q3DJOB *qjob ) {
+void q3djob_render_frame ( Q3DJOB *qjob ) {
+    G3DSCENE *sce  = qjob->qrsg->input.sce;
+    G3DCAMERA *cam = qjob->qrsg->input.cam;
     qjob->threaded = 0x01;
     qjob->running  = 0x01;
 
     q3djob_goToFrame ( qjob, qjob->qrsg->output.startframe );
+
+    q3djob_prepare ( qjob, sce, cam );
 
     /*** RENDER ! ***/
     q3djob_render ( qjob );
@@ -583,11 +557,6 @@ void *q3djob_render_frame_t ( Q3DJOB *qjob ) {
     qjob->threaded = 0x00;
 
     q3djob_free ( qjob );
-
-    /*** this is needed for memory release ***/
-    pthread_exit ( NULL );
-
-    return NULL;
 }
 
 /******************************************************************************/
@@ -612,15 +581,20 @@ void q3djob_render ( Q3DJOB *qjob ) {
                                      qjob->qarea.depth, 
                                      qjob->qarea.width );
 
-    if ( doRender != 0x02 ) {
+    if ( ( doRender != 0x02 ) ) {
+        pthread_t *tid = malloc ( nbcpu * sizeof ( pthread_t ) );
+
         /*** Start as many threads as CPUs. Each thread queries the parent ***/
         /*** process in order to retrieve the scanline number it must render. ***/
         for ( i = 0x00; i < nbcpu; i++ ) {
-            q3djob_createRenderThread ( qjob );
+            q3djob_createRenderThread ( qjob, &tid[i] );
         }
 
-        /*** wait all render threads to finish ***/ 
-        q3djob_wait ( qjob );
+        for ( i = 0x00; i < nbcpu; i++ ) {
+            pthread_join ( tid[i], NULL );
+        }
+
+        free ( tid );
     }
 
     q3djob_filterimage ( qjob, 
@@ -632,5 +606,4 @@ void q3djob_render ( Q3DJOB *qjob ) {
     t = clock() - t;
 
     printf ("Render took %f seconds.\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );
-
 }

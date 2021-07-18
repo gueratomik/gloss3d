@@ -654,7 +654,6 @@ typedef struct _Q3DJOB {
     Q3DSETTINGS   *qrsg;
     Q3DFILTERSET   filters;
     unsigned char *img;
-    LIST          *lthread; /*** list of render areas thread***/
     float          curframe;
     uint32_t       cancelled;
     uint32_t       threaded;
@@ -934,8 +933,7 @@ void       q3djob_filterline         ( Q3DJOB *qjob,
                                        uint32_t to,
                                        uint32_t depth, 
                                        uint32_t width );
-void      *q3djob_raytrace           ( void *ptr );
-void       q3djob_createRenderThread ( Q3DJOB *qjob );
+void      *q3djob_raytrace_t         ( void *ptr );
 Q3DJOB     *q3djob_new               ( Q3DSETTINGS *qrsg, 
                                        G3DSCENE    *sce,
                                        G3DCAMERA   *cam,
@@ -943,8 +941,8 @@ Q3DJOB     *q3djob_new               ( Q3DSETTINGS *qrsg,
                                        Q3DFILTER   *toframe,
                                        uint64_t     flags );
 void       q3djob_render_t_free      ( Q3DJOB *qjob );
-void      *q3djob_render_sequence_t  ( Q3DJOB *qjob );
-void      *q3djob_render_frame_t     ( Q3DJOB *qjob );
+void       q3djob_render_sequence    ( Q3DJOB *qjob );
+void       q3djob_render_frame       ( Q3DJOB *qjob );
 void       q3djob_render             ( Q3DJOB *qjob );
 void       q3djob_goToFrame          ( Q3DJOB *qjob, 
                                        float   frame );

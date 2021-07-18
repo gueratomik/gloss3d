@@ -93,7 +93,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/
-        rps = g3duirenderprocess_new ( id, gui, qjob, NULL/*towin*/, NULL/*tobuf*/ );
+        rps = g3duirenderprocess_new ( id, gui, qjob, towindow, toframe );
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
@@ -317,7 +317,9 @@ uint32_t common_g3dui_cancelRenderByScene ( G3DUI *gui,
     if ( rps ) {
         q3djob_end ( rps->qjob );
 
-        pthread_join ( rps->tid, NULL );
+        /*** Commented out: creates a deadlock with the mutex from ***/
+        /*** gotoframe filter. Need to investigate more ***/
+        /*pthread_join ( rps->tid, NULL );*/
 
         return 0x01;
     }
@@ -332,7 +334,13 @@ uint32_t common_g3dui_cancelRenderByID ( G3DUI *gui, uint64_t id ) {
     if ( rps ) {
         q3djob_end ( rps->qjob );
 
-        pthread_join ( rps->tid, NULL );
+        /*** Commented out: creates a deadlock with the mutex from ***/
+        /*** gotoframe filter. Need to investigate more ***/
+        /*pthread_join ( rps->tid, NULL );*/
+
+        g3duirenderprocess_free ( rps );
+
+        list_remove ( &gui->lrps, rps );
 
 
         return 0x01;
