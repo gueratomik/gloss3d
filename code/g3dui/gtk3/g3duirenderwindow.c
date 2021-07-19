@@ -30,14 +30,45 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+typedef struct _GTK3RENDERWINDOW {
+    G3DUI              *gui;
+    GtkWidget          *menuBar;
+    GtkWidget          *fileMenu;
+    GtkWidget          *drawingArea;
+    GtkWidget          *scrolledWindow;
+    GtkWidget          *statusBar;
+    GtkWidget          *topLevel;
+    Q3DFILTER          *tostatus;
+    G3DUIRENDERPROCESS *rps;
+} GTK3RENDERWINDOW;
+
+/******************************************************************************/
+static GTK3RENDERWINDOW *gtk3renderwindow_new ( G3DUI *gui ) {
+    uint32_t size = sizeof ( GTK3RENDERWINDOW );
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) calloc ( 0x01, size );
+
+    if ( grw == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__);
+
+        return NULL;
+    }
+
+    grw->gui = gui;
+
+    return grw;
+}
+
+/******************************************************************************/
 static GtkWidget *window_get_area ( GtkWidget * );
 
 /******************************************************************************/
 void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
+    G3DUI *gui = ( G3DUI * ) grw->gui;
+    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, 
+                                                                  grw->drawingArea );
 
     /* rps might not be allocated yet by the map signal of the renderwindow */
     if ( rps ) {
@@ -116,13 +147,21 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 }
 
 /******************************************************************************/
-uint32_t filtertostatusbar_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
-                                                  float frameID,
-                                                  unsigned char *img, 
-                                                  uint32_t from, 
-                                                  uint32_t to, 
-                                                  uint32_t depth, 
-                                                  uint32_t width ) {
+uint32_t filtertostatusbar_getStatus ( Q3DFILTER *fil ) {
+    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
+
+    return tsb->done;
+}
+
+/******************************************************************************/
+uint32_t filtertostatusbar_draw ( Q3DFILTER     *fil, 
+                                  Q3DJOB        *qjob,
+                                  float          frameID,
+                                  unsigned char *img, 
+                                  uint32_t       from, 
+                                  uint32_t       to, 
+                                  uint32_t       depth, 
+                                  uint32_t       width ) {
     FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
     guint cont = gtk_statusbar_get_context_id ( tsb->widget, "context" );
     static char str[100];
@@ -136,6 +175,8 @@ uint32_t filtertostatusbar_draw ( Q3DFILTER *fil, Q3DJOB *qjob,
         /*** when called from "filter render image" event ***/
         if ( ( int ) tsb->lastFrame == ( int ) frameID ) {
             snprintf ( str, 100, "Done (100%%)" );
+
+            tsb->done = 0xFFFFFFFF;
         }
     }
 
@@ -153,7 +194,8 @@ void filtertostatusbar_free ( Q3DFILTER *fil ) {
 
 /******************************************************************************/
 /*** This filter is declared in the g3dui layer because of GtkWidget struct***/
-Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame ) {
+Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, 
+                                       float      lastFrame ) {
     FILTERTOSTATUSBAR *tsb = calloc ( 0x01, sizeof ( FILTERTOSTATUSBAR ) );
 
     Q3DFILTER *fil = q3dfilter_new ( FILTERBEFORE | FILTERIMAGE,
@@ -169,11 +211,13 @@ Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame ) {
 }
 
 /******************************************************************************/
-static void Map ( GtkWidget *widget, gpointer user_data ) {
+static void Map ( GtkWidget *widget, 
+                  gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUI *gui = grw->gui;
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
+    G3DUIRENDERPROCESS *rps = grw->rps;
     Q3DSETTINGS *rsg = gui->currsg;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
@@ -186,7 +230,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
     if ( rps == NULL ) {
 
         /*** this filter is used for displaying ***/
-        Q3DFILTER *towin = q3dfilter_toGtkWidget_new ( widget, 0x00 );
+        Q3DFILTER *towindow = q3dfilter_toGtkWidget_new ( widget, 0x00 );
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -208,7 +252,7 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
             list_append ( &lfilters, r3dfilter_preview_new ( gui ) );
         }*/
 
-        Q3DFILTER *tostatus = q3dfilter_toStatusBar_new ( getChild ( gtk_widget_get_toplevel ( widget ), RENDERWINDOWSTATUSBARNAME ), rsg->output.endframe );
+        grw->tostatus = q3dfilter_toStatusBar_new ( getChild ( gtk_widget_get_toplevel ( widget ), RENDERWINDOWSTATUSBARNAME ), rsg->output.endframe );
 
 #ifdef unusedQISS3D
         if ( rsg->flags & RENDERSAVE ) {
@@ -275,31 +319,25 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
         g3dui_setHourGlass ( gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
-            /*** force starting at the first frame. **/
-            /*** -1 is because the gotoframe filter will add 1 further. ***/
-            /*** this should probably be changed ***/
-           /* COMMENTED OUT: now done by g3drenderprocess */
-            /*tofrm->draw ( tofrm, NULL, gui->currsg->startframe - 1, NULL, 0, 0, 0, 0 );*/
-
-            rps = common_g3dui_render_q3d ( gui, 
-                                            rsg,
-                                            towin,
-                                            gui->toframe,
-                                            tostatus,
-                                            cam,
-                                            rsg->output.startframe,
-                                            ( uint64_t ) widget,
-                                            0x01 );
+            grw->rps = common_g3dui_render_q3d ( gui, 
+                                                 rsg,
+                                                 towindow,
+                                                 gui->toframe,
+                                                 grw->tostatus,
+                                                 cam,
+                                                 rsg->output.startframe,
+                                                 ( uint64_t ) widget,
+                                                 0x01 );
         } else {
-            rps = common_g3dui_render_q3d ( gui,
-                                            rsg,
-                                            towin,
-                                            gui->toframe,
-                                            tostatus,
-                                            cam,
-                                            rsg->output.startframe,
-                                            ( uint64_t ) widget,
-                                            0x00 );
+            grw->rps = common_g3dui_render_q3d ( gui,
+                                                 rsg,
+                                                 towindow,
+                                                 gui->toframe,
+                                                 grw->tostatus,
+                                                 cam,
+                                                 rsg->output.startframe,
+                                                 ( uint64_t ) widget,
+                                                 0x00 );
         }
 
         g3dui_unsetHourGlass ( gui );
@@ -307,40 +345,35 @@ static void Map ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void Realize ( GtkWidget *widget, 
+                      gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
 
 }
 
 /******************************************************************************/
-static void Pause ( GtkWidget *widget, GdkRectangle *allocation,
-                                       gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void Pause ( GtkWidget    *widget, 
+                    GdkRectangle *allocation,
+                    gpointer      user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
 
 }
 
 /******************************************************************************/
-static void Unmap ( GtkWidget *widget, gpointer user_data ) {
-/*static gboolean Destroy ( GtkWidget *widget, GdkEvent *event,
-                                             gpointer user_data ) {*/
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
+static void Unmap ( GtkWidget *widget, 
+                    gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
 
-    /*** cancel renderprocess if any ***/
-
-    common_g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
-
-
-    /*return TRUE;*/
 }
 
 /******************************************************************************/
-GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
-                                                              char *name,
-                                                              gint x,
-                                                              gint y,
-                                                              gint width,
-                                                              gint height ) {
+static void createRenderWindowDrawingArea ( GtkWidget        *parent, 
+                                            GTK3RENDERWINDOW *grw,
+                                            char             *name,
+                                            gint              x,
+                                            gint              y,
+                                            gint              width,
+                                            gint              height ) {
     GdkRectangle scrrec = { 0, 0, width + 32, height + 48 };
     GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
     GtkWidget *scr, *drw;
@@ -379,22 +412,16 @@ GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
                                  GDK_POINTER_MOTION_MASK        |
                                  GDK_POINTER_MOTION_HINT_MASK );
 
-    g_signal_connect ( G_OBJECT (drw), "size-allocate", G_CALLBACK (Pause  ), gui );
-    g_signal_connect ( G_OBJECT (drw), "realize"      , G_CALLBACK (Realize), gui );
-    g_signal_connect ( G_OBJECT (drw), "draw"         , G_CALLBACK (Draw   ), gui );
-    g_signal_connect ( G_OBJECT (drw), "unmap", G_CALLBACK (Unmap), gui );
+    g_signal_connect ( G_OBJECT (drw), "size-allocate", G_CALLBACK (Pause  ), grw );
+    g_signal_connect ( G_OBJECT (drw), "realize"      , G_CALLBACK (Realize), grw );
+    g_signal_connect ( G_OBJECT (drw), "draw"         , G_CALLBACK (Draw   ), grw );
+    g_signal_connect ( G_OBJECT (drw), "unmap"        , G_CALLBACK (Unmap), grw );
     /** We use the map signal because we need drawable surface to be created **/
-    g_signal_connect ( G_OBJECT (drw), "map"          , G_CALLBACK (Map)    , gui );
+    g_signal_connect ( G_OBJECT (drw), "map"          , G_CALLBACK (Map)    , grw );
 
-
-    /*g_signal_connect ( G_OBJECT (drw), "motion_notify_event" , G_CALLBACK (objectlistarea_input), gui );
-    g_signal_connect ( G_OBJECT (drw), "button_press_event"  , G_CALLBACK (objectlistarea_input), gui );
-    g_signal_connect ( G_OBJECT (drw), "button_release_event", G_CALLBACK (objectlistarea_input), gui );
-    g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (objectlistarea_input), gui );
-    g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (objectlistarea_input), gui );*/
-
-    gtk_widget_set_size_request ( drw, gui->currsg->output.width, 
-                                       gui->currsg->output.height );
+    gtk_widget_set_size_request ( drw, 
+                                  grw->gui->currsg->output.width, 
+                                  grw->gui->currsg->output.height );
 
 #if GTK_CHECK_VERSION(3,8,0)
     gtk_container_add ( GTK_CONTAINER(scr), drw );
@@ -405,14 +432,17 @@ GtkWidget *createRenderWindowDrawingArea ( GtkWidget *parent, G3DUI *gui,
     gtk_widget_show ( drw );
     gtk_widget_show ( scr );
 
+    grw->scrolledWindow = scr;
+    grw->drawingArea = drw;
 
     return drw;
 }
 
 /******************************************************************************/
-static void saveAsImageCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+static void saveAsImageCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
+    G3DUIGTK3 *ggt = grw->gui->toolkit_data;
     GtkWidget *dialog;
     gint       res;
 
@@ -434,9 +464,7 @@ static void saveAsImageCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( res == GTK_RESPONSE_OK ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         char           *filename = gtk_file_chooser_get_filename ( chooser );
-        /*** All widget have RPS as a user data ***/
-        GtkWidget *area =  g_object_get_data ( G_OBJECT(widget), GTK3WIDGETDATA );
-        G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) area );
+        G3DUIRENDERPROCESS *rps = grw->rps;
 
         if ( rps ) {
             g3duirenderprocess_savejpg ( rps, filename );
@@ -449,20 +477,18 @@ static void saveAsImageCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void exitWindowCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    GtkWidget *area =  g_object_get_data ( G_OBJECT(widget), GTK3WIDGETDATA );
-    /*** Top level widget of a menu button is the popup widget. This is why ***/
-    /*** we use the area widget to retrieve the toplevel window ***/
-    GtkWidget *window = gtk_widget_get_toplevel ( area );
+static void exitWindowCbk ( GtkWidget *widget, 
+                            gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
 
-    gtk_widget_destroy ( window );
+    gtk_widget_destroy ( grw->topLevel );
 }
 
 /******************************************************************************/
-GtkWidget *createRenderWindowFileMenu ( GtkWidget *bar, G3DUI *gui,
-                                                        char *name,
-                                                        gint width ) {
+static void createRenderWindowFileMenu ( GtkWidget        *bar,
+                                         GTK3RENDERWINDOW *grw,
+                                         char             *name,
+                                         gint              width ) {
     GtkWidget *menu = gtk_menu_new ( ), *btn;
     GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_File" );
     int height = gtk_widget_get_allocated_height ( item );
@@ -475,53 +501,27 @@ GtkWidget *createRenderWindowFileMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
-    btn = g3dui_addMenuButton    ( menu, gui, "Save As JPEG", width, G_CALLBACK(saveAsImageCbk) );
-
+    g3dui_addMenuButton    ( menu, grw, "Save As JPEG", width, G_CALLBACK(saveAsImageCbk) );
     g3dui_addMenuSeparator ( menu );
-    g3dui_addMenuButton    ( menu, gui, "Close"        , width, G_CALLBACK(exitWindowCbk) );
+    g3dui_addMenuButton    ( menu, grw, "Close"       , width, G_CALLBACK(exitWindowCbk) );
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
+
+    grw->fileMenu = menu;
 
 
     return menu;
 }
 
 /******************************************************************************/
-/** Store the drawing area pointer in the menu button. We need the are to   ***/
-/** retrieve the G3DUIRENDERPROCESS with g3dui_getRenderProcessByID() ***/
-static void menubar_set_area_r ( GtkWidget *widget, GtkWidget *area ) {
-    if ( G_IS_OBJECT(widget) ) {
-        g_object_set_data ( G_OBJECT(widget), GTK3WIDGETDATA, area );
-
-        if ( GTK_IS_CONTAINER ( widget ) ) {
-            GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-            while ( children ) {
-                GtkWidget *child = ( GtkWidget * ) children->data;
-
-                /*** recurse ***/
-                menubar_set_area_r ( child, area );
-
-                children = g_list_next ( children );
-            }
-        }
-
-        if ( GTK_IS_MENU_ITEM ( widget ) ) {
-            GtkWidget *submenu = gtk_menu_item_get_submenu ( GTK_MENU_ITEM(widget) );
-
-            menubar_set_area_r ( submenu, area );
-        }
-    }
-}
-
-/******************************************************************************/
-GtkWidget *createRenderWindowMenuBar ( GtkWidget *parent, G3DUI *gui,
-                                                          char *name,
-                                                          gint x,
-                                                          gint y,
-                                                          gint width,
-                                                          gint height ) {
+static GtkWidget *createRenderWindowMenuBar ( GtkWidget        *parent, 
+                                              GTK3RENDERWINDOW *grw,
+                                              char             *name,
+                                              gint              x,
+                                              gint              y,
+                                              gint              width,
+                                              gint              height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_menu_bar_new ( );
 
@@ -531,129 +531,96 @@ GtkWidget *createRenderWindowMenuBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
 
-    createRenderWindowFileMenu ( bar, gui, "FileMenu", 60 );
+    createRenderWindowFileMenu ( bar, grw->gui, "FileMenu", 60 );
 
     gtk_widget_show ( bar );
+
+    grw->menuBar = bar;
 
 
     return bar;
 }
 
 /******************************************************************************/
-static GtkWidget *window_get_area ( GtkWidget *widget ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+static void createStatusBar ( GtkWidget        *parent, 
+                              GTK3RENDERWINDOW *grw,
+                              char             *name,
+                              gint             x, 
+                              gint             y,
+                              gint             width,
+                              gint             height ) {
+    GtkWidget *bar = gtk_statusbar_new ( );
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    gtk_widget_set_name ( bar, name );
 
-        if ( GTK_IS_SCROLLED_WINDOW(child) ) {
-            GtkWidget *viewport = gtk_bin_get_child ( GTK_BIN(child) );
-                  /*** Watch out the GtkViewport container ***/
-           return gtk_bin_get_child ( GTK_BIN(viewport) );
-        }
+    gtk_widget_set_size_request ( bar, width, height );
 
-        children = g_list_next ( children );
+    gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
+
+    gtk_widget_show ( bar );
+
+    grw->statusBar = bar;
+
+
+    return bar;
+}
+
+/******************************************************************************/
+static void wResize ( GtkWidget    *widget, 
+                      GdkRectangle *allocation, 
+                      gpointer      user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
+    GdkRectangle gdkrec;
+
+    gdkrec.x      = 0x00;
+    gdkrec.y      = 0x00;
+    gdkrec.width  = allocation->width;
+    gdkrec.height = 0x20;
+    gtk_widget_size_allocate ( grw->menuBar, &gdkrec );
+
+    gdkrec.x      = 0x00;
+    gdkrec.y      = 0x20;
+    gdkrec.width  = allocation->width;
+    gdkrec.height = allocation->height - 0x40;
+    gtk_widget_size_allocate ( grw->scrolledWindow, &gdkrec );
+
+    gdkrec.x      = 0x00;
+    gdkrec.y      = allocation->height - 0x20;
+    gdkrec.width  = allocation->width;
+    gdkrec.height = 0x20;
+    gtk_widget_size_allocate ( grw->statusBar, &gdkrec );
+}
+
+/******************************************************************************/
+static void wRealize ( GtkWidget *widget, 
+                       gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
+
+}
+
+/******************************************************************************/
+static gboolean wDestroy ( GtkWidget *widget,
+                           gpointer   user_data ) {
+    GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
+
+    if ( filtertostatusbar_getStatus ( grw->tostatus ) == 0x00 ) {
+        q3djob_end ( grw->rps->qjob );
     }
 
-    return NULL;
+    free ( grw );
 }
 
 /******************************************************************************/
-static GtkWidget *window_get_mbar ( GtkWidget *widget ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( GTK_IS_MENU_BAR(child) ) {
-
-           return child;
-        }
-
-        children = g_list_next ( children );
-    }
-
-    return NULL;
-}
-
-/******************************************************************************/
-static void wResize ( GtkWidget *widget, GdkRectangle *allocation, 
-                                         gpointer user_data ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-        GdkRectangle gdkrec;
-
-        if ( GTK_IS_MENU_BAR(child) ) {
-            gdkrec.x      = 0x00;
-            gdkrec.y      = 0x00;
-            gdkrec.width  = allocation->width;
-            gdkrec.height = 0x20;
-
-            /*if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
-                gdkrec.x += allocation->x;
-                gdkrec.y += allocation->y;
-            }*/
-
-            gtk_widget_size_allocate ( child, &gdkrec );
-        }
-
-        if ( GTK_IS_SCROLLED_WINDOW(child) ) {
-            gdkrec.x      = 0x00;
-            gdkrec.y      = 0x20;
-            gdkrec.width  = allocation->width;
-            gdkrec.height = allocation->height - 0x40;
-
-            /*if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
-                gdkrec.x += allocation->x;
-                gdkrec.y += allocation->y;
-            }*/
-
-            gtk_widget_size_allocate ( child, &gdkrec );
-        }
-
-        if ( GTK_IS_STATUSBAR(child) ) {
-            gdkrec.x      = 0x00;
-            gdkrec.y      = allocation->height - 0x20;
-            gdkrec.width  = allocation->width;
-            gdkrec.height = 0x20;
-
-            /*if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
-                gdkrec.x += allocation->x;
-                gdkrec.y += allocation->y;
-            }*/
-
-            gtk_widget_size_allocate ( child, &gdkrec );
-        }
-
-        children = g_list_next ( children );
-    }
-}
-
-/******************************************************************************/
-static void wRealize ( GtkWidget *widget, gpointer user_data ) {
-    GtkWidget *area = window_get_area ( widget );
-    GtkWidget *mbar = window_get_mbar ( widget );
-
-    menubar_set_area_r ( mbar, area );
-}
-
-/******************************************************************************/
-GtkWidget *createRenderWindow ( GtkWidget *parent, G3DUI *gui,
-                                                   char *name,
-                                                   gint x,
-                                                   gint y,
-                                                   gint width,
-                                                   gint height ) {
+GtkWidget *createRenderWindow ( GtkWidget          *parent, 
+                                G3DUI              *gui,
+                                char               *name,
+                                gint               x,
+                                gint               y,
+                                gint               width,
+                                gint               height ) {
+    GTK3RENDERWINDOW *grw = gtk3renderwindow_new ( gui );
     GdkRectangle gdkrec = { 0, 0, width, height };
     GtkWidget *frm, *area, *mbar;
-
-    /*if ( width  > 1024 ) gdkrec.width  = 1024;
-    if ( height >  768 ) gdkrec.height = 768;*/
 
     frm = gtk_fixed_new ( );
 
@@ -663,14 +630,17 @@ GtkWidget *createRenderWindow ( GtkWidget *parent, G3DUI *gui,
 
     gtk_container_add ( GTK_CONTAINER(parent), frm );
 
-    g_signal_connect (G_OBJECT(frm), "size-allocate", G_CALLBACK (wResize) , gui);
-    g_signal_connect (G_OBJECT(frm), "realize"      , G_CALLBACK (wRealize), gui);
+    createRenderWindowDrawingArea ( frm, grw, RENDERWINDOWMENUWORKAREANAME, 0, 32, width, height - 48 );
+    createRenderWindowMenuBar     ( frm, grw, RENDERWINDOWMENUBARNAME     , 0,  0, width, 32 );
+    createStatusBar               ( frm, grw, RENDERWINDOWSTATUSBARNAME   , 0,  height - 48, width, 16 );
 
-    createRenderWindowDrawingArea ( frm, gui, RENDERWINDOWMENUWORKAREANAME, 0, 32, width, height - 48 );
-    createRenderWindowMenuBar     ( frm, gui, RENDERWINDOWMENUBARNAME     , 0,  0, width, 32 );
-    createStatusBar               ( frm, gui, RENDERWINDOWSTATUSBARNAME   , 0,  height - 48, width, 16 );
+    g_signal_connect (G_OBJECT(frm), "size-allocate", G_CALLBACK (wResize) , grw );
+    g_signal_connect (G_OBJECT(frm), "realize"      , G_CALLBACK (wRealize), grw );
+    g_signal_connect (G_OBJECT(frm), "destroy"      , G_CALLBACK (wDestroy), grw );
 
     gtk_widget_show ( frm );
+
+    grw->topLevel = parent;
 
 
     return frm;

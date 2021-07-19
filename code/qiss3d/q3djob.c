@@ -57,6 +57,8 @@ void q3djob_freeFilters ( Q3DJOB *qjob ) {
 
     for ( i = 0x00; i < nbfil; i++ ) {
         if ( qfil[i] == NULL                   ) continue;
+        /*if ( qfil[i] == qjob->filters.tostatus ) continue;*/
+        /*if ( qfil[i] == qjob->filters.towindow ) continue;*/
         if ( qfil[i] == qjob->filters.toframe  ) continue;
 
         q3dfilter_free ( qfil[i] );
@@ -497,7 +499,7 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
-    qjob->qrsg = qrsg;
+    qjob->qrsg   = qrsg;
 
     q3djob_initFilters ( qjob,
                          towindow,

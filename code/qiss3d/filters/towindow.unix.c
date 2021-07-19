@@ -84,8 +84,11 @@ static void filtertowindow_allocXImage ( FILTERTOWINDOW *ftw,
 /******************************************************************************/
 void filtertowindow_free (  Q3DFILTER *fil ) {
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
-    XFreeGC( ftw->dis, ftw->gc );
 
+    XSync  ( ftw->dis, 0 );
+    XFlush ( ftw->dis );
+
+    XFreeGC( ftw->dis, ftw->gc );
     XShmDetach ( ftw->dis, &ftw->ssi );
     XDestroyImage ( ftw->ximg );
     shmdt ( ftw->ssi.shmaddr );

@@ -727,9 +727,11 @@ FILTERTOGDKWINDOW *filtertogdkwindow_new ( GdkWindow * );
 typedef struct _FILTERTOSTATUSBAR {
     GtkWidget *widget;
     float lastFrame;
+    uint32_t done;
 } FILTERTOSTATUSBAR;
 
-Q3DFILTER *r3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
+Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, float lastFrame );
+uint32_t filtertostatusbar_getStatus ( Q3DFILTER *fil );
 
 /******************************************************************************/
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );

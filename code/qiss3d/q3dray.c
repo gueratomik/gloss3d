@@ -665,7 +665,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     uint32_t updateZ = 0x00;
 
     if ( query_flags & RAYQUERYHIT ) {
-        if ( 0/*qray->flags & Q3DRAY_PRIMARY_BIT*/ ) {
+        if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
             Q3DZBUFFER zout;
 
             /*** Remove the flag for raytraced perfect spheres ***/

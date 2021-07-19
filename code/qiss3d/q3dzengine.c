@@ -210,11 +210,11 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
                               Q3DZPOINT  *srcPoint,
                               Q3DZPOINT  *dstPoint ) {
     int32_t dx  = ( dstPoint->x - srcPoint->x ),
-            ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
+            ddx = abs ( dx ),
             dy  = ( dstPoint->y - srcPoint->y ),
-            ddy = ( dy == 0x00 ) ? 0x01 : abs ( dy ),
+            ddy = abs ( dy ),
             dd  = ( ddx > ddy ) ? ddx : ddy;
-    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dz / dd );
+    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dd ) ? ( dz / dd ) : 0.0f;
     int px = ( dx > 0x00 ) ? 1 : -1, 
             py = ( dy > 0x00 ) ? 1 : -1;
     int32_t x = srcPoint->x, 
@@ -224,11 +224,6 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
 
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
-            if ( cumul >= ddx ) {
-                cumul -= ddx;
-                y     += py;
-            }
-
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
                 uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
 
@@ -252,17 +247,17 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
                 }
             }
 
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
+
             cumul += ddy;
             x     += px;
             z     += pz;
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
-            if ( cumul >= ddy ) {
-                    cumul -= ddy;
-                    x     += px;
-            }
-
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
                 uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
 
@@ -286,6 +281,11 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
                 }
             }
 
+            if ( cumul >= ddy ) {
+                    cumul -= ddy;
+                    x     += px;
+            }
+
             cumul += ddx;
             y     += py;
             z     += pz;
@@ -303,9 +303,9 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
     int32_t x1 = hline->p1.x, 
             x2 = hline->p2.x;
     float   z1 = hline->p1.z;
-    int32_t dx = x2 - x1, ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx );
+    int32_t dx = x2 - x1, ddx = abs ( dx );
     int32_t x = x1;
-    double dz  = hline->p2.z - hline->p1.z, pz = ( dz / ddx );
+    double dz  = hline->p2.z - hline->p1.z, pz = ( ddx ) ? ( dz / ddx ) : 0.0f;
     long  px = ( dx > 0x00 ) ? 1 : -1;
     double z = z1;
     int i;
