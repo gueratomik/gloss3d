@@ -870,4 +870,9 @@ void updateMorpherEdit ( GtkWidget *widget,
 
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
 
+
+/******************************************************************************/
+void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
+                              GtkWidget         *drawingArea );
+
 #endif

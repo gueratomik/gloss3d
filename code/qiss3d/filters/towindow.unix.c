@@ -31,67 +31,11 @@
 
 /******************************************************************************/
 #ifdef __linux__
-static void filtertowindow_allocXImage ( FILTERTOWINDOW *ftw, 
-                                         Display        *dis, 
-                                         Window          win ) {
 
-    XWindowAttributes wattr;
-    uint32_t imgsize;
-    XImage *ximg;
-    void *data;
-    int shmid;
-
-    XGetWindowAttributes ( ftw->dis, ftw->win, &wattr );
-
-    if ( XShmQueryExtension ( dis ) == 0x00 ) {
-        fprintf ( stderr, "filtertowindow_new: XSHM not availabale\n" );
-
-        return;
-    }
-
-    /*** http://www.x.org/releases/current/doc/xextproto/shm.html ***/
-    /*** HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION ***/
-    ximg = XShmCreateImage ( dis, DefaultVisual ( dis, 0x00 ),
-                             wattr.depth, ZPixmap, NULL, &ftw->ssi,
-                             wattr.width,
-                             wattr.height );
-
-    if ( ximg == NULL ) {
-        fprintf ( stderr, "XShmCreateImage failed\n" );
-
-        return;
-    }
-
-    imgsize = ( ximg->bytes_per_line * ximg->height );
-
-    ftw->ssi.shmid    = shmget ( IPC_PRIVATE, imgsize, IPC_CREAT | 0777 );
-    ftw->ssi.shmaddr  = ximg->data = shmat ( ftw->ssi.shmid, 0x00, 0x00 );
-    ftw->ssi.readOnly = False;
-
-    if ( XShmAttach ( dis, &ftw->ssi ) == 0x00 ) {
-        fprintf ( stderr, "XSHM Failed\n" );
-
-        return;
-    }
-
-    shmctl ( ftw->ssi.shmid, IPC_RMID, 0x00 );
-
-    XSync ( dis, False );
-
-    ftw->ximg = ximg;
-}
 
 /******************************************************************************/
 void filtertowindow_free (  Q3DFILTER *fil ) {
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
-
-    XSync  ( ftw->dis, 0 );
-    XFlush ( ftw->dis );
-
-    XFreeGC( ftw->dis, ftw->gc );
-    XShmDetach ( ftw->dis, &ftw->ssi );
-    XDestroyImage ( ftw->ximg );
-    shmdt ( ftw->ssi.shmaddr );
 
     free ( ftw );
 }
@@ -99,10 +43,12 @@ void filtertowindow_free (  Q3DFILTER *fil ) {
 /******************************************************************************/
 FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
                                      Window   win, 
+                                     GC       gc,
+                                     XImage  *ximg,
                                      uint32_t active_fill ) {
-
     uint32_t structsize = sizeof ( FILTERTOWINDOW );
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) calloc ( 0x01, structsize );
+    XWindowAttributes wattr;
 
     if ( ftw == NULL ) {
         fprintf ( stderr, "filtertowindow_new: memory allocation failed\n" );
@@ -112,11 +58,17 @@ FILTERTOWINDOW *filtertowindow_new ( Display *dis,
 
     ftw->active_fill = active_fill;
 
-    ftw->dis = dis;
-    ftw->win = win;
-    ftw->gc  = XCreateGC ( dis, win, 0x00, NULL );
+    ftw->dis  = dis;
+    ftw->win  = win;
+    ftw->gc   = gc;
+    ftw->ximg = ximg;
 
-    filtertowindow_allocXImage ( ftw, dis, win );
+    XGetWindowAttributes ( dis, win, &wattr );
+
+    ftw->depth  = wattr.depth;
+    ftw->width  = wattr.width;
+    ftw->height = wattr.height;
+
 
     return ftw;
 }
@@ -132,22 +84,14 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
                                uint32_t       width ) {
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
-    uint32_t win_depth, win_width, win_height;
     int i, j;
-    int CompletionType = XShmGetEventBase ( ftw->dis ) + ShmCompletion;
-    XWindowAttributes wattr;
-
-    XGetWindowAttributes ( ftw->dis, ftw->win, &wattr );
-
-    win_depth  = wattr.depth;
-    win_width  = wattr.width;
-    win_height = wattr.height;
+    /*int CompletionType = XShmGetEventBase ( ftw->dis ) + ShmCompletion;*/
 
     for ( i = from; i < to; i++ ) {
         uint32_t offset = ( i * bytesperline );
         unsigned char *imgptr = &img[offset];
 
-        switch ( win_depth ) {
+        switch ( ftw->depth ) {
             case 0x18 :
             case 0x20 : {
                 for ( j = 0x00; j < width; j++ ) {
@@ -183,11 +127,13 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
             break;
         }
 
+        /** Note: crashes when window closed abruptly. Set active_fill to 1 ***/
+        /** only on non-destroyable windows ***/
         if ( ftw->active_fill ) {
             XShmPutImage ( ftw->dis, ftw->win, ftw->gc, ftw->ximg,
                            0x00, i,
                            0x00, i,
-                           win_width, 0x01, False );
+                           ftw->width, 0x01, False );
         }
 
         XSync  ( ftw->dis, 0 );
@@ -200,6 +146,8 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
 /******************************************************************************/
 Q3DFILTER *q3dfilter_toWindow_new ( Display *dis, 
                                     Window   win, 
+                                    GC       gc,
+                                    XImage  *ximg,
                                     uint32_t active_fill ) {
     Q3DFILTER *fil;
 
@@ -207,7 +155,11 @@ Q3DFILTER *q3dfilter_toWindow_new ( Display *dis,
                           TOWINDOWFILTERNAME,
                           filtertowindow_draw,
                           filtertowindow_free,
-                          filtertowindow_new ( dis, win, active_fill ) );
+                          filtertowindow_new ( dis, 
+                                               win,
+                                               gc,
+                                               ximg,
+                                               active_fill ) );
 
     return fil;
 }

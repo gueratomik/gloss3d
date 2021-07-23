@@ -99,6 +99,7 @@ Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
     Q3DFILTER *fil;
     uint32_t filterMode =  FILTERLINE | FILTERIMAGE;
 #ifdef __linux__
+/*
     Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      win      = gdk_x11_window_get_xid ( gdkwin );
 
@@ -107,6 +108,7 @@ Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
                                       filtertowindow_draw,
                                       filtertowindow_free, 
                                       filtertowindow_new ( dis, win, active_fill ) );
+*/
 #endif
 
 #ifdef __MINGW32__

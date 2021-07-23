@@ -830,7 +830,16 @@ void common_g3duiquad_divideSegments ( G3DUISEGMENT *, uint32_t, uint32_t,
 void common_g3duiquad_resize         ( G3DUIQUAD *, uint32_t, uint32_t );
 void common_g3duiquad_init           ( G3DUIQUAD *, uint32_t, uint32_t );
 
-
+/******************************************************************************/
+typedef struct _G3DUIRENDERBUFFER {
+#ifdef __linux__
+    Display            *dis; 
+    Window              win;
+    GC                  gc;
+    XImage             *ximg;
+    XShmSegmentInfo     ssi;
+#endif
+} G3DUIRENDERBUFFER;
 
 /************************** View Widget Structure *****************************/
 #define NBVIEWBUTTON    0x04
@@ -868,6 +877,7 @@ typedef struct _G3DUIVIEW {
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif
+    G3DUIRENDERBUFFER rbuf;
 } G3DUIVIEW;
 
 /******************************************************************************/
@@ -1059,6 +1069,7 @@ typedef struct _PATTERNLISTDATA {
 
 /******************************************************************************/
 PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size );
+
 
 
 /******************************************************************************/

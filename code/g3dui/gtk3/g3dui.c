@@ -294,17 +294,31 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     uint32_t width  = gtk_widget_get_allocated_width  ( ggt->curogl ),
              height = gtk_widget_get_allocated_height ( ggt->curogl );
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) ggt->curogl );
-    Q3DFILTER *progressiveDisplay = q3dfilter_toGtkWidget_new ( ggt->curogl, 0x01 );
+    GtkView *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
+
+    g3duirenderbuffer_init ( &gvw->view.rbuf, 
+                              ggt->curogl );
+
+    Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.dis,
+                                                             gvw->view.rbuf.win,
+                                                             gvw->view.rbuf.gc,
+                                                             gvw->view.rbuf.ximg,
+                                                             0x01 );
+
+    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, 
+                                                     ( uint64_t ) ggt->curogl );
+
+    if ( rps ) {
+        /* First cancel running render on that window  if any */
+        common_g3dui_cancelRenderByID ( gui, ( uint64_t ) ggt->curogl );
+    }
+
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
                                              sysinfo->renderRectangle[0x00].x ) / width;
     /* declared static because must survive */
     static Q3DSETTINGS viewRsg;
     G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
-
-    /* First cancel running render on that window  if any */
-    common_g3dui_cancelRenderByID ( gui, ( uint64_t ) ggt->curogl );
 
     q3dsettings_copy ( &viewRsg, gui->currsg );
 

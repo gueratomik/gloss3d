@@ -40,7 +40,84 @@ typedef struct _GTK3RENDERWINDOW {
     GtkWidget          *topLevel;
     Q3DFILTER          *tostatus;
     G3DUIRENDERPROCESS *rps;
+    G3DUIRENDERBUFFER   rbuf;
 } GTK3RENDERWINDOW;
+
+/******************************************************************************/
+#ifdef __linux__
+static XImage *allocXImage ( Display         *dis,
+                             Window           win,
+                             GC               gc,
+                             XShmSegmentInfo *ssi ) {
+    XWindowAttributes wattr;
+    uint32_t imgsize;
+    XImage *ximg;
+    void *data;
+    int shmid;
+
+    XGetWindowAttributes ( dis, win, &wattr );
+
+    if ( XShmQueryExtension ( dis ) == 0x00 ) {
+        fprintf ( stderr, "filtertowindow_new: XSHM not availabale\n" );
+
+        return;
+    }
+
+    /*** http://www.x.org/releases/current/doc/xextproto/shm.html ***/
+    /*** HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION ***/
+    ximg = XShmCreateImage ( dis, 
+                             DefaultVisual ( dis, 0x00 ),
+                             wattr.depth,
+                             ZPixmap,
+                             NULL,
+                             ssi,
+                             wattr.width,
+                             wattr.height );
+
+    if ( ximg == NULL ) {
+        fprintf ( stderr, "XShmCreateImage failed\n" );
+
+        return;
+    }
+
+    imgsize = ( ximg->bytes_per_line * ximg->height );
+
+    ssi->shmid    = shmget ( IPC_PRIVATE, imgsize, IPC_CREAT | 0777 );
+    ssi->shmaddr  = ximg->data = shmat ( ssi->shmid, 0x00, 0x00 );
+    ssi->readOnly = False;
+
+    if ( XShmAttach ( dis, ssi ) == 0x00 ) {
+        fprintf ( stderr, "XSHM Failed\n" );
+
+        return;
+    }
+
+    shmctl ( ssi->shmid, IPC_RMID, 0x00 );
+
+    XSync ( dis, False );
+
+    return ximg;
+}
+#endif
+
+/******************************************************************************/
+#ifdef __linux__
+void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
+                              GtkWidget         *drawingArea ) {
+    GdkDisplay *gdkdpy = gtk_widget_get_display ( drawingArea );
+    GdkWindow  *gdkwin = gtk_widget_get_window  ( drawingArea );
+
+    rbuf->dis = gdk_x11_display_get_xdisplay ( gdkdpy );
+    rbuf->win = gdk_x11_window_get_xid       ( gdkwin );
+    rbuf->gc  = XCreateGC ( rbuf->dis, 
+                            rbuf->win, 0x00, NULL );
+
+    rbuf->ximg = allocXImage ( rbuf->dis, 
+                               rbuf->win, 
+                               rbuf->gc, 
+                              &rbuf->ssi );
+}
+#endif
 
 /******************************************************************************/
 static GTK3RENDERWINDOW *gtk3renderwindow_new ( G3DUI *gui ) {
@@ -54,6 +131,7 @@ static GTK3RENDERWINDOW *gtk3renderwindow_new ( G3DUI *gui ) {
     }
 
     grw->gui = gui;
+
 
     return grw;
 }
@@ -75,7 +153,6 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
         Q3DFILTER *fil = rps->qjob->filters.towindow;
 
         if ( fil ) {
-            FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
             uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
                      height = gtk_widget_get_allocated_height ( widget );
             uint32_t x = 0, y = 0;
@@ -94,7 +171,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
             static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
             #endif
             #ifdef __MINGW32__
-            HDC dc = GetDC ( ftw->hWnd );
+            HDC dc = GetDC ( grw->hWnd );
             #endif
 
             /*** Tell cairo to shut the F*** up ***/
@@ -107,38 +184,39 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
             /*************************************/
 
             #ifdef __linux__
-            if ( width  > ftw->ximg->width  ) x = ( width  - ftw->ximg->width  ) * 0.5f;
-            if ( height > ftw->ximg->height ) y = ( height - ftw->ximg->height ) * 0.5f;
+            if ( width  > grw->rbuf.ximg->width  ) x = ( width  - grw->rbuf.ximg->width  ) * 0.5f;
+            if ( height > grw->rbuf.ximg->height ) y = ( height - grw->rbuf.ximg->height ) * 0.5f;
 
             /*pthread_mutex_lock ( &lock );*/
-            XShmPutImage ( ftw->dis, ftw->win, 
-                                     ftw->gc, 
-                                     ftw->ximg,
-                                     0x00, 0x00,
-                                     x, y,
-                                     ftw->ximg->width, 
-                                     ftw->ximg->height, False );
+            XShmPutImage ( grw->rbuf.dis,
+                           grw->rbuf.win, 
+                           grw->rbuf.gc, 
+                           grw->rbuf.ximg,
+                           0x00, 0x00,
+                           x, y,
+                           grw->rbuf.ximg->width, 
+                           grw->rbuf.ximg->height, False );
             /*** must be called or else expect jerky effects ***/
-            XSync ( ftw->dis, 0 ); 
-            XFlush ( ftw->dis );
+            XSync ( grw->rbuf.dis, 0 ); 
+            XFlush ( grw->rbuf.dis );
             #endif
             #ifdef __MINGW32__
-            if ( width  > ftw->wimg->bi->bmiHeader.biWidth  ) x = ( width  - ftw->wimg->bi->bmiHeader.biWidth  ) * 0.5f;
-            if ( height > ftw->wimg->bi->bmiHeader.biHeight ) y = ( height - ftw->wimg->bi->bmiHeader.biHeight ) * 0.5f;
+            if ( width  > grw->rbuf.wimg->bi->bmiHeader.biWidth  ) x = ( width  - grw->rbuf.wimg->bi->bmiHeader.biWidth  ) * 0.5f;
+            if ( height > grw->rbuf.wimg->bi->bmiHeader.biHeight ) y = ( height - grw->rbuf.wimg->bi->bmiHeader.biHeight ) * 0.5f;
 
             SetDIBitsToDevice ( dc, x,                                 /* int XDest               */
                                     y,                                 /* int YDest               */
-                                    ftw->wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
-                                    ftw->wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
+                                    grw->rbuf.wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
+                                    grw->rbuf.wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
                                     0x00,                              /* int XSrc                */
                                     0x00,                              /* int YSrc                */
                                     0x00,                              /* UINT uStartScan         */
-                                    ftw->wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
-                                    ftw->wimg->data,                   /* const VOID *lpvBits     */
-                                    ftw->wimg->bi,                     /* const BITMAPINFO *lpbmi */
-                                    ftw->wimg->bi->bmiHeader.biClrUsed );
+                                    grw->rbuf.wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
+                                    grw->rbuf.wimg->data,                   /* const VOID *lpvBits     */
+                                    grw->rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
+                                    grw->rbuf.wimg->bi->bmiHeader.biClrUsed );
 
-            ReleaseDC ( ftw->hWnd, dc );
+            ReleaseDC ( grw->hWnd, dc );
 
             #endif
             /*pthread_mutex_unlock ( &lock );*/
@@ -219,18 +297,19 @@ static void Map ( GtkWidget *widget,
     G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DUIRENDERPROCESS *rps = grw->rps;
     Q3DSETTINGS *rsg = gui->currsg;
-    GdkDisplay *gdkdpy   = gtk_widget_get_display ( ggt->curogl );
-    GdkWindow  *gdkwin   = gtk_widget_get_window  ( ggt->curogl );
-    /*Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );*/
-    /*Window      win      = gdk_x11_window_get_xid ( gdkwin );*/
     /*rsg->width  = gtk_widget_get_allocated_width  ( widget );
     rsg->height = gtk_widget_get_allocated_height ( widget );*/
     G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
 
     if ( rps == NULL ) {
+        g3duirenderbuffer_init ( &grw->rbuf, 
+                                  grw->drawingArea );
 
-        /*** this filter is used for displaying ***/
-        Q3DFILTER *towindow = q3dfilter_toGtkWidget_new ( widget, 0x00 );
+        Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.dis,
+                                                       grw->rbuf.win,
+                                                       grw->rbuf.gc,
+                                                       grw->rbuf.ximg,
+                                                       0x00 );
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -363,7 +442,6 @@ static void Pause ( GtkWidget    *widget,
 static void Unmap ( GtkWidget *widget, 
                     gpointer   user_data ) {
     GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
-
 }
 
 /******************************************************************************/
@@ -603,9 +681,19 @@ static gboolean wDestroy ( GtkWidget *widget,
                            gpointer   user_data ) {
     GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
 
+    XSync  ( grw->rbuf.dis, 0 );
+    XFlush ( grw->rbuf.dis );
+
     if ( filtertostatusbar_getStatus ( grw->tostatus ) == 0x00 ) {
         q3djob_end ( grw->rps->qjob );
     }
+
+    XFreeGC ( grw->rbuf.dis, grw->rbuf.gc );
+    XShmDetach ( grw->rbuf.dis, &grw->rbuf.ssi );
+    XDestroyImage ( grw->rbuf.ximg );
+    shmdt ( grw->rbuf.ssi.shmaddr );
+
+    q3dfilter_free ( grw->tostatus );
 
     free ( grw );
 }
