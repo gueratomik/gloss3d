@@ -145,83 +145,73 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
     G3DUI *gui = ( G3DUI * ) grw->gui;
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, 
-                                                                  grw->drawingArea );
+    uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
+             height = gtk_widget_get_allocated_height ( widget );
+    uint32_t x = 0, y = 0;
 
-    /* rps might not be allocated yet by the map signal of the renderwindow */
-    if ( rps ) {
-        Q3DFILTER *fil = rps->qjob->filters.towindow;
+    /* 
+     * fill the background. We don't let the double buffering doing it
+     * because it causes some flickering, I don't know why.
+     */
+    cairo_rectangle ( cr, 0, 0, width, height  );
+    cairo_fill ( cr );
+    /*cairo_paint ( cr );*/
 
-        if ( fil ) {
-            uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
-                     height = gtk_widget_get_allocated_height ( widget );
-            uint32_t x = 0, y = 0;
+    #ifdef __linux__
+    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      win      = gdk_x11_window_get_xid ( gdkwin );
+    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    #endif
+    #ifdef __MINGW32__
+    HDC dc = GetDC ( grw->hWnd );
+    #endif
 
-            /* 
-             * fill the background. We don't let the double buffering doing it
-             * because it causes some flickering, I don't know why.
-             */
-            cairo_rectangle ( cr, 0, 0, width, height  );
-            cairo_fill ( cr );
-            /*cairo_paint ( cr );*/
+    /*** Tell cairo to shut the F*** up ***/
+    GdkRectangle arec;
 
-            #ifdef __linux__
-            Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
-            Window      win      = gdk_x11_window_get_xid ( gdkwin );
-            static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-            #endif
-            #ifdef __MINGW32__
-            HDC dc = GetDC ( grw->hWnd );
-            #endif
+    arec.x = arec.y = 0;
+    arec.width = arec.height = 1;
 
-            /*** Tell cairo to shut the F*** up ***/
-            GdkRectangle arec;
+    gdk_window_invalidate_rect ( gtk_widget_get_window ( widget ), &arec, FALSE );
+    /*************************************/
 
-            arec.x = arec.y = 0;
-            arec.width = arec.height = 1;
+    #ifdef __linux__
+    if ( width  > grw->rbuf.ximg->width  ) x = ( width  - grw->rbuf.ximg->width  ) * 0.5f;
+    if ( height > grw->rbuf.ximg->height ) y = ( height - grw->rbuf.ximg->height ) * 0.5f;
 
-            gdk_window_invalidate_rect ( gtk_widget_get_window ( widget ), &arec, FALSE );
-            /*************************************/
+    /*pthread_mutex_lock ( &lock );*/
+    XShmPutImage ( grw->rbuf.dis,
+                   grw->rbuf.win, 
+                   grw->rbuf.gc, 
+                   grw->rbuf.ximg,
+                   0x00, 0x00,
+                   x, y,
+                   grw->rbuf.ximg->width, 
+                   grw->rbuf.ximg->height, False );
+    /*** must be called or else expect jerky effects ***/
+    XSync ( grw->rbuf.dis, 0 ); 
+    XFlush ( grw->rbuf.dis );
+    #endif
+    #ifdef __MINGW32__
+    if ( width  > grw->rbuf.wimg->bi->bmiHeader.biWidth  ) x = ( width  - grw->rbuf.wimg->bi->bmiHeader.biWidth  ) * 0.5f;
+    if ( height > grw->rbuf.wimg->bi->bmiHeader.biHeight ) y = ( height - grw->rbuf.wimg->bi->bmiHeader.biHeight ) * 0.5f;
 
-            #ifdef __linux__
-            if ( width  > grw->rbuf.ximg->width  ) x = ( width  - grw->rbuf.ximg->width  ) * 0.5f;
-            if ( height > grw->rbuf.ximg->height ) y = ( height - grw->rbuf.ximg->height ) * 0.5f;
+    SetDIBitsToDevice ( dc, x,                                 /* int XDest               */
+                            y,                                 /* int YDest               */
+                            grw->rbuf.wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
+                            grw->rbuf.wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
+                            0x00,                              /* int XSrc                */
+                            0x00,                              /* int YSrc                */
+                            0x00,                              /* UINT uStartScan         */
+                            grw->rbuf.wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
+                            grw->rbuf.wimg->data,                   /* const VOID *lpvBits     */
+                            grw->rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
+                            grw->rbuf.wimg->bi->bmiHeader.biClrUsed );
 
-            /*pthread_mutex_lock ( &lock );*/
-            XShmPutImage ( grw->rbuf.dis,
-                           grw->rbuf.win, 
-                           grw->rbuf.gc, 
-                           grw->rbuf.ximg,
-                           0x00, 0x00,
-                           x, y,
-                           grw->rbuf.ximg->width, 
-                           grw->rbuf.ximg->height, False );
-            /*** must be called or else expect jerky effects ***/
-            XSync ( grw->rbuf.dis, 0 ); 
-            XFlush ( grw->rbuf.dis );
-            #endif
-            #ifdef __MINGW32__
-            if ( width  > grw->rbuf.wimg->bi->bmiHeader.biWidth  ) x = ( width  - grw->rbuf.wimg->bi->bmiHeader.biWidth  ) * 0.5f;
-            if ( height > grw->rbuf.wimg->bi->bmiHeader.biHeight ) y = ( height - grw->rbuf.wimg->bi->bmiHeader.biHeight ) * 0.5f;
+    ReleaseDC ( grw->hWnd, dc );
 
-            SetDIBitsToDevice ( dc, x,                                 /* int XDest               */
-                                    y,                                 /* int YDest               */
-                                    grw->rbuf.wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
-                                    grw->rbuf.wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
-                                    0x00,                              /* int XSrc                */
-                                    0x00,                              /* int YSrc                */
-                                    0x00,                              /* UINT uStartScan         */
-                                    grw->rbuf.wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
-                                    grw->rbuf.wimg->data,                   /* const VOID *lpvBits     */
-                                    grw->rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
-                                    grw->rbuf.wimg->bi->bmiHeader.biClrUsed );
-
-            ReleaseDC ( grw->hWnd, dc );
-
-            #endif
-            /*pthread_mutex_unlock ( &lock );*/
-        }
-    }
+    #endif
+    /*pthread_mutex_unlock ( &lock );*/
 }
 
 /******************************************************************************/

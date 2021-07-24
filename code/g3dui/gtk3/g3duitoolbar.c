@@ -100,18 +100,27 @@ void g3dui_saveascbk ( GtkWidget *widget, gpointer user_data ) {
     if ( res == GTK_RESPONSE_OK ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         char           *filename = gtk_file_chooser_get_filename ( chooser );
-        static char     filenameext[0x100] = { 0x00 };
+        static char     filenameext[0x1000] = { 0x00 };
+        static char     windowname[0x1000] = { 0x00 };
 
         if ( strstr ( filename, ".g3d" ) == NULL ) {
-            snprintf ( filenameext, 0x100, "%s.g3d", filename );
+            snprintf ( filenameext, 0x1000, "%s.g3d", filename );
         } else {
-            snprintf ( filenameext, 0x100, "%s", filename );
+            snprintf ( filenameext, 0x1000, "%s", filename );
         }
 
         common_g3dui_setFileName ( gui, filenameext );
 
         common_g3dui_saveG3DFile ( gui );
 
+        snprintf ( windowname, 
+                   0x1000, 
+                  "%s %s (%s)", 
+                   G3DUIAPPNAME,
+                   VERSION,
+                   basename ( filenameext ) );
+
+        gtk_window_set_title ( gtk_widget_get_parent ( ggt->top ), windowname );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -185,11 +194,21 @@ void g3dui_openfilecbk ( GtkWidget *widget, gpointer user_data ) {
     if ( res == GTK_RESPONSE_OK ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         char           *filename = gtk_file_chooser_get_filename ( chooser );
+        static char     windowname[0x1000] = { 0x00 };
 
         if ( filename ) {
             common_g3dui_closeScene ( gui );
 
             common_g3dui_openG3DFile ( gui, filename );
+
+            snprintf ( windowname, 
+                       0x1000, 
+                      "%s %s (%s)", 
+                       G3DUIAPPNAME,
+                       VERSION,
+                       basename ( filename ) );
+
+            gtk_window_set_title ( gtk_widget_get_parent ( ggt->top ), windowname );
 
             g_free    ( filename );
         }

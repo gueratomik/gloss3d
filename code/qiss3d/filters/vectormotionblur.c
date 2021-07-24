@@ -222,17 +222,17 @@ static void filtervmb_line ( Q3DFILTER *qfil,
                 }
             }
 
-            if ( cumul >= ddx ) {
-                cumul -= ddx;
-                y     += py;
-            }
-
             cumul += ddy;
             x     += px;
             z     += pz;
             ratio[0x00] += pratio[0x00];
             ratio[0x01] += pratio[0x01];
             ratio[0x02] += pratio[0x02];
+
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
@@ -271,17 +271,17 @@ static void filtervmb_line ( Q3DFILTER *qfil,
                 }
             }
 
-            if ( cumul >= ddy ) {
-                    cumul -= ddy;
-                    x     += px;
-            }
-
             cumul += ddx;
             y     += py;
             z     += pz;
             ratio[0x00] += pratio[0x00];
             ratio[0x01] += pratio[0x01];
             ratio[0x02] += pratio[0x02];
+
+            if ( cumul >= ddy ) {
+                    cumul -= ddy;
+                    x     += px;
+            }
         }
     }
 }
@@ -455,7 +455,6 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
         if ( ymin < ymax ) {
             for ( i = ymin; i <= ymax; i++ ) {
                 if ( fvmb->hlines[i].inited == 0x02 ){
-
                     if ( fillZBuffer ) {
                         filtervmb_fillZbuffer ( qfil, 
                                                 vobjID, 

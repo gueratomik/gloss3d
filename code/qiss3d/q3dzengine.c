@@ -216,7 +216,7 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
             dd  = ( ddx > ddy ) ? ddx : ddy;
     float   dz  = dstPoint->z  - srcPoint->z, pz = ( dd ) ? ( dz / dd ) : 0.0f;
     int px = ( dx > 0x00 ) ? 1 : -1, 
-            py = ( dy > 0x00 ) ? 1 : -1;
+        py = ( dy > 0x00 ) ? 1 : -1;
     int32_t x = srcPoint->x, 
             y = srcPoint->y;
     float   z = srcPoint->z;
@@ -225,8 +225,6 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
-                uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
-
                 if ( qzen->hlines[y].inited == 0x00 ) {
                     qzen->hlines[y].inited = 0x01;
 
@@ -247,20 +245,18 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
                 }
             }
 
+            cumul += ddy;
+            x     += px;
+            z     += pz;
+
             if ( cumul >= ddx ) {
                 cumul -= ddx;
                 y     += py;
             }
-
-            cumul += ddy;
-            x     += px;
-            z     += pz;
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
             if ( ( y >= VPX[0x01] ) && ( y < VPX[0x03] ) ) {
-                uint32_t offset = ( ( VPX[0x03] - 1 - y ) * VPX[0x02] ) + x;
-
                 if ( qzen->hlines[y].inited == 0x00 ) {
                      qzen->hlines[y].inited = 0x01;
 
@@ -281,14 +277,14 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
                 }
             }
 
-            if ( cumul >= ddy ) {
-                    cumul -= ddy;
-                    x     += px;
-            }
-
             cumul += ddx;
             y     += py;
             z     += pz;
+
+            if ( cumul >= ddy ) {
+                cumul -= ddy;
+                x     += px;
+            }
         }
     }
 }
@@ -470,9 +466,10 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
     bymax = ( ymax >= VPX[0x03] ) ? VPX[0x03] - 0x01 : ymax;
 
     if ( bymin < bymax ) {
+/*
         memset ( qzen->hlines + bymin, 0x00, sizeof ( Q3DZHLINE ) * ( bymax - 
                                                                       bymin ) );
-
+*/
         for ( i = 0x00; i < 0x03; i++ ) {
             if ( ( nodraw & ( 1 << i ) ) == 0x00 ) {
                 uint32_t n = ( i + 0x01 ) % 0x03;
@@ -502,10 +499,16 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         }
 
         /*** Much faster if we restrict to useful Y-axis boundaries ***/
-        for ( i = /*VPX[0x01]*/bymin; i < /*VPX[0x03]*/bymax; i++ ) {
+        for ( i = bymin; i <= bymax; i++ ) {
             if ( qzen->hlines[i].inited == 0x02 ){
+
+
+
                 q3dzengine_fillHLine ( qzen, qobjID, qtriID, VPX, i );
             }
+
+            qzen->hlines[i].inited = 0x00;
+
         }
     }
 }
