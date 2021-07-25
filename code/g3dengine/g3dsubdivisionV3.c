@@ -802,6 +802,7 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
     (*totalInnerUVSets)   += ( (*totalInnerFaces) * fac->nbuvs   );
     /* biggest evaluation */
     (*totalOuterUVSets)   += ( (*totalOuterFaces) * ((mes) ? nbuvmap : 0) );
+    return 0;
 }
 
 /******************************************************************************/

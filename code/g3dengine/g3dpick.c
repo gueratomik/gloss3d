@@ -268,11 +268,11 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
                                G3DPICKPOINT  *srcPoint,
                                G3DPICKPOINT  *dstPoint ) {
     int32_t dx  = ( dstPoint->x - srcPoint->x ),
-            ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
+            ddx = abs ( dx ),
             dy  = ( dstPoint->y - srcPoint->y ),
-            ddy = ( dy == 0x00 ) ? 0x01 : abs ( dy ),
+            ddy = abs ( dy ),
             dd  = ( ddx > ddy ) ? ddx : ddy;
-    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dz / dd );
+    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dd ) ? ( dz / dd ) : 0.0f;
     int px = ( dx > 0x00 ) ? 1 : -1, 
         py = ( dy > 0x00 ) ? 1 : -1;
     int32_t x = srcPoint->x, 
@@ -282,11 +282,6 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
 
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
-            if ( cumul >= ddx ) {
-                cumul -= ddx;
-                y     += py;
-            }
-
             if ( ( y >= pick->AMX[0x01] ) && ( y <= pick->AMX[0x03] ) &&
                  ( x >= pick->AMX[0x00] ) && ( x <= pick->AMX[0x02] ) ) {
                 uint32_t offset = ( y * pick->VPX[0x02] ) + x;
@@ -308,14 +303,14 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
             cumul += ddy;
             x     += px;
             z     += pz;
+
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
-            if ( cumul >= ddy ) {
-                cumul -= ddy;
-                x     += px;
-            }
-
             if ( ( y >= pick->AMX[0x01] ) && ( y <= pick->AMX[0x03] ) &&
                  ( x >= pick->AMX[0x00] ) && ( x <= pick->AMX[0x02] ) ) {
                 uint32_t offset = ( y * pick->VPX[0x02] ) + x;
@@ -337,6 +332,11 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
             cumul += ddx;
             y     += py;
             z     += pz;
+
+            if ( cumul >= ddy ) {
+                cumul -= ddy;
+                x     += px;
+            }
         }
     }
 
@@ -348,13 +348,13 @@ static void g3dpick_drawFaceLine ( G3DPICK       *pick,
                                    G3DPICKPOINT  *srcPoint,
                                    G3DPICKPOINT  *dstPoint ) {
     int32_t dx  = ( dstPoint->x - srcPoint->x ),
-            ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx ),
+            ddx = abs ( dx ),
             dy  = ( dstPoint->y - srcPoint->y ),
-            ddy = ( dy == 0x00 ) ? 0x01 : abs ( dy ),
+            ddy = abs ( dy ),
             dd  = ( ddx > ddy ) ? ddx : ddy;
-    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dz / dd );
+    float   dz  = dstPoint->z  - srcPoint->z, pz = ( dd ) ? ( dz / dd ) : 0.0f;
     int px = ( dx > 0x00 ) ? 1 : -1, 
-            py = ( dy > 0x00 ) ? 1 : -1;
+        py = ( dy > 0x00 ) ? 1 : -1;
     int32_t x = srcPoint->x, 
             y = srcPoint->y;
     float   z = srcPoint->z;
@@ -362,11 +362,6 @@ static void g3dpick_drawFaceLine ( G3DPICK       *pick,
 
     if ( ddx > ddy ) {
         for ( i = 0x00; i <= ddx; i++ ) {
-            if ( cumul >= ddx ) {
-                cumul -= ddx;
-                y     += py;
-            }
-
             if ( ( y >= pick->AMX[0x01] ) && ( y <= pick->AMX[0x03] ) ) {
                 if ( pick->hlines[y].inited == 0x00 ) {
                     pick->hlines[y].inited = 0x01;
@@ -391,14 +386,14 @@ static void g3dpick_drawFaceLine ( G3DPICK       *pick,
             cumul += ddy;
             x     += px;
             z     += pz;
+
+            if ( cumul >= ddx ) {
+                cumul -= ddx;
+                y     += py;
+            }
         }
     } else {
         for ( i = 0x00; i <= ddy; i++ ) {
-            if ( cumul >= ddy ) {
-                    cumul -= ddy;
-                    x     += px;
-            }
-
             if ( ( y >= pick->AMX[0x01] ) && ( y <= pick->AMX[0x03] ) ) {
                 if ( pick->hlines[y].inited == 0x00 ) {
                     pick->hlines[y].inited = 0x01;
@@ -423,6 +418,11 @@ static void g3dpick_drawFaceLine ( G3DPICK       *pick,
             cumul += ddx;
             y     += py;
             z     += pz;
+
+            if ( cumul >= ddy ) {
+                    cumul -= ddy;
+                    x     += px;
+            }
         }
     }
 }
@@ -432,14 +432,14 @@ static uint32_t g3dpick_fillFaceLine ( G3DPICK *pick,
                                        int32_t  y ) {
     G3DPICKHLINE *hline = &pick->hlines[y];
     int32_t x1 = hline->x1, x2 = hline->x2;
-    int32_t dx = x2 - x1, ddx = ( dx == 0x00 ) ? 0x01 : abs ( dx );
+    int32_t dx = x2 - x1, ddx = abs ( dx );
     int32_t x = x1;
-    double dz  = hline->z2 - hline->z1, pz = ( dz / ddx );
+    double dz  = hline->z2 - hline->z1, pz = ( ddx ) ? ( dz / ddx ) : 0.0f;
     long  px = ( dx > 0x00 ) ? 1 : -1;
     double z = hline->z1;
     int i;
 
-    for ( i = 0x00; i < ddx; i++ ) {
+    for ( i = 0x00; i <= ddx; i++ ) {
         uint32_t offset = ( ( y ) * pick->VPX[0x02] ) + x;
         /*** add some epsilon against Z fghting ***/
         float depth = pick->buffer[offset] + pick->epsilon;

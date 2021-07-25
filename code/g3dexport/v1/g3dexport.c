@@ -1087,6 +1087,7 @@ static uint32_t weightgroupname_blocksize ( G3DWEIGHTGROUP *grp ) {
     if ( grp->name ) {
         return strlen ( grp->name );
     }
+    return 0;
 }
 
 /******************************************************************************/
@@ -1517,6 +1518,7 @@ static uint32_t keyspos_writeblock ( G3DOBJECT *obj, FILE *fdst ) {
 
         ltmpkey = ltmpkey->next;
     }
+    return 0;
 }
 
 /******************************************************************************/

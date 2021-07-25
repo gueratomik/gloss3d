@@ -347,6 +347,7 @@ uint32_t g3dedge_getAveragePosition ( G3DEDGE   *edg,
     vout->x = ( p0->x + p1->x ) * 0.5f;
     vout->y = ( p0->y + p1->y ) * 0.5f;
     vout->z = ( p0->z + p1->z ) * 0.5f;
+    return 0;
 }
 
 /******************************************************************************/
@@ -360,6 +361,7 @@ uint32_t g3dedge_getAverageNormal ( G3DEDGE   *edg,
     vout->x = ( n0->x + n1->x ) * 0.5f;
     vout->y = ( n0->y + n1->y ) * 0.5f;
     vout->z = ( n0->z + n1->z ) * 0.5f;
+    return 0;
 }
 
 /******************************************************************************/

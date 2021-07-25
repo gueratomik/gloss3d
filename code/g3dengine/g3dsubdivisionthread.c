@@ -182,4 +182,5 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
     /** COMMENTED OUT - now done by the caller ***/
     /*g3dsubdivisionthread_free ( sdt );*/
+    return NULL;
 }

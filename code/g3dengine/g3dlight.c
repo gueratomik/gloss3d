@@ -95,6 +95,7 @@ uint32_t g3dlight_pick ( G3DLIGHT  *lig,
     } else {
         if ( engine_flags & VIEWOBJECT ) g3dlight_pickObject   ( lig, engine_flags );
     }
+    return 0;
 }
 
 /******************************************************************************/
@@ -131,6 +132,7 @@ static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
     } else {
         glLightf  ( lig->lid, GL_SPOT_CUTOFF   , 180.0f );
     }
+    return 0;
 }
 
 /******************************************************************************/

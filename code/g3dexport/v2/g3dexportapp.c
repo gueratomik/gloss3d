@@ -32,5 +32,5 @@
 
 /******************************************************************************/
 uint32_t g3dexportapp_writeChunk ( void *data, uint32_t flags, FILE *fdst ) {
-
+         return 0;
 }

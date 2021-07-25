@@ -322,7 +322,7 @@ static gboolean selectFacegroupCbk ( GtkWidget *widget,
                                      gpointer   user_data ) {
     FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
 
-    if ( fgd->fpd->gui->lock ) return;
+    if ( fgd->fpd->gui->lock ) return 0;
 
     g3dmesh_unselectAllFacegroups ( fgd->mes );
 

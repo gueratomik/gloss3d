@@ -201,6 +201,7 @@ uint32_t g3dcamera_pickObject ( G3DCAMERA *cam, uint64_t engine_flags ) {
                                lns[v[n]][0x02] );
         }
     }
+    return 0;
 }
 
 /******************************************************************************/
@@ -214,6 +215,7 @@ uint32_t g3dcamera_pick ( G3DCAMERA *cam,
     } else {
         if ( engine_flags & VIEWOBJECT ) g3dcamera_pickObject   ( cam, engine_flags );
     }
+    return 0;
 }
 
 /******************************************************************************/

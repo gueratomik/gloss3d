@@ -889,7 +889,7 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
          ( bev->button == 3 ) ) {
         /*PostMenu ( widget, gdkev, user_data );*/
 
-        return;
+        return 0;
     }
 
     switch ( gdkev->type ) {

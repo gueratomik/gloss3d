@@ -1064,12 +1064,13 @@ static G3DMESH *g3dmorpher_commit ( G3DMORPHER    *mpr,
                                     uint32_t       commitMeshID,
                                     unsigned char *commitMeshName,
                                     uint64_t       engine_flags ) {
-
+                                    return 0;
 }
 
 /******************************************************************************/
 static G3DMORPHER *g3dmorpher_copy ( G3DMORPHER *mpr,
                                      uint64_t engine_flags ) {
+                                     return 0;
 }
 
 /******************************************************************************/
@@ -1093,7 +1094,7 @@ static void g3dmorpher_endUpdate ( G3DMORPHER *mpr,
 /******************************************************************************/
 static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
                                     uint64_t engine_flags ) {
-
+                                    return 0;
 }
 
 /******************************************************************************/

@@ -448,6 +448,7 @@ static uint32_t g3dbone_pick ( G3DBONE *bon,
     } else {
         if ( engine_flags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engine_flags );
     }
+    return 0;
 }
 
 

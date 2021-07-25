@@ -373,6 +373,7 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
             if ( edgeLookupTable ) free ( edgeLookupTable );
         }
     }
+    return 0;
 }
 
 /******************************************************************************/
@@ -389,6 +390,7 @@ void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv,
 uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv, 
                                     uint64_t engine_flags ) {
     g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
+    return 0;
 }
 
 /******************************************************************************/

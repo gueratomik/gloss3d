@@ -259,7 +259,7 @@ static gboolean selectMeshPoseCbk ( GtkWidget *widget,
     MESHPOSEDATA *fgd = ( MESHPOSEDATA * ) user_data;
     G3DUI *gui = fgd->mpd->gui;
 
-    if ( fgd->mpd->gui->lock ) return;
+    if ( fgd->mpd->gui->lock ) return 0;
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS :

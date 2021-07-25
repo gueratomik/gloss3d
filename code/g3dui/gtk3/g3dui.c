@@ -112,6 +112,7 @@ uint32_t g3dui_saveChannelImageAs ( G3DUI    *gui,
     }
 
     gtk_widget_destroy ( dialog );
+    return 0;
 }
 
 /******************************************************************************/
@@ -1507,7 +1508,7 @@ static void gtk_glossui_class_init ( GtkGlossUIClass *glossui_class ) {
 
 /******************************************************************************/
 static gboolean gtk_glossui_configure ( GtkWidget *widget, GdkEvent *event ) {
-
+       return 0;
 }
 
 /******************************************************************************/

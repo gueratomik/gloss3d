@@ -539,6 +539,7 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                    sysinfo->bgcolor, 
                    engine_flags, 
                    event );
+    return 0;
 }
 
 /******************************************************************************/
@@ -559,4 +560,5 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                    0x00000000, 
                    engine_flags, 
                    event );
+    return 0;
 }

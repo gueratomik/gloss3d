@@ -1608,6 +1608,7 @@ uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    return 0;
 }
 
 /******************************************************************************/
@@ -1792,6 +1793,7 @@ G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj,
                               uint64_t       engine_flags ) {
 
     if ( obj->commit ) return obj->commit ( obj, id, name, engine_flags );
+    return NULL;
 }
 
 /******************************************************************************/

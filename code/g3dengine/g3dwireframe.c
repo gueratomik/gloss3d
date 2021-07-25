@@ -464,6 +464,7 @@ static uint32_t g3dwireframe_modify ( G3DWIREFRAME *wir,
     ((G3DMESH*)wir)->lfac  = ltmpfac;
     ((G3DMESH*)wir)->ltri  = mes->ltri;
     ((G3DMESH*)wir)->lqua  = mes->lqua;*/
+    return 0;
 }
 
 /******************************************************************************/

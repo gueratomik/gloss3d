@@ -36,5 +36,5 @@ void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
     ext->name = name;
 
 
-    return ext;
+    //return ext;
 }

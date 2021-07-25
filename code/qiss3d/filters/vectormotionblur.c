@@ -372,8 +372,10 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                 uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
                 unsigned char R, G, B;
 
-                /*if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
-                     ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
+                /*** NOTE: Comment this out for a better bluring but without **/
+                /*** Z testing ***/
+                if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
+                     ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {
                     if ( z < fvmb->zbuffer[zoffset].z ) {
                         switch ( fvmb->bpp ) {
                             case 0x18 : {
@@ -393,7 +395,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                         fvmb->abuffer[aoffset][0x02] += ( B    * strength );
                         fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
                     }
-                /*}*/
+                }
             }
         }
 
@@ -452,7 +454,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
         if ( ymax <  0x00         ) ymax = 0x00;
         if ( ymax >= fvmb->height ) ymax = fvmb->height - 1;
 
-        if ( ymin < ymax ) {
+        if ( ymin <= ymax ) {
             for ( i = ymin; i <= ymax; i++ ) {
                 if ( fvmb->hlines[i].inited == 0x02 ){
                     if ( fillZBuffer ) {
@@ -1094,7 +1096,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
                                aftqsce,
                                objcam->iwmatrix,
                                i,
-                               frameID );
+                               toFrame );
 
 
             fromFrame -= step;

@@ -465,7 +465,7 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
     bymin = ( ymin < 0x00       ) ?             0x00 : ymin;
     bymax = ( ymax >= VPX[0x03] ) ? VPX[0x03] - 0x01 : ymax;
 
-    if ( bymin < bymax ) {
+    if ( bymin <= bymax ) {
 /*
         memset ( qzen->hlines + bymin, 0x00, sizeof ( Q3DZHLINE ) * ( bymax - 
                                                                       bymin ) );

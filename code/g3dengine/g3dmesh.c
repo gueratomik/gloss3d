@@ -3509,7 +3509,7 @@ void g3dmesh_addTexture ( G3DMESH    *mes,
         mes->nbtex++;
     }
 
-    return tex;
+    //return tex;
 }
 
 /******************************************************************************/

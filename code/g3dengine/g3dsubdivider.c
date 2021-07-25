@@ -385,83 +385,85 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( parent ) {
-        G3DMESH *mes = ( G3DMESH * ) parent;
-        #define MAX_SUBDIVISION_THREADS 0x20
-        G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-        LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
-        G3DSYSINFO *sif = g3dsysinfo_get ( );
-        G3DSUBDIVISIONTHREAD std[MAX_SUBDIVISION_THREADS];
-        pthread_t tid[MAX_SUBDIVISION_THREADS]; /*** let's say, max 32 threads ***/
-        pthread_attr_t attr;
-        uint32_t i;
+    if ( sdr->subdiv_preview ) {
+        if ( parent ) {
+            G3DMESH *mes = ( G3DMESH * ) parent;
+            #define MAX_SUBDIVISION_THREADS 0x20
+            G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
+            LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
+            G3DSYSINFO *sif = g3dsysinfo_get ( );
+            G3DSUBDIVISIONTHREAD std[MAX_SUBDIVISION_THREADS];
+            pthread_t tid[MAX_SUBDIVISION_THREADS]; /*** let's say, max 32 threads ***/
+            pthread_attr_t attr;
+            uint32_t i;
 
-        if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
-            /*** Force the flag in case our mesh does not need displacement ***/
-            engine_flags |= NODISPLACEMENT;
-        }
-
-        /*** init face list ***/
-        g3dmesh_getNextFace ( mes, ltmpfac );
-
-        if ( /*sif->nbcpu < 0x02*/ 1 ) {
-            uint32_t cpuID = 0x00;
-            g3dsubdivisionthread_init ( &std[0x00], mes,
-                                                    sdr->rtvermem,
-                                                    sdr->nbrtver,
-                                                    sdr->rtedgmem,
-                                                    sdr->nbrtedg,
-                                                    sdr->rtquamem,
-                                                    sdr->nbrtfac,
-                                                    sdr->rtluim,
-                                                    sdr->nbrtuv,
-                                                    sdr->nbVerticesPerTriangle,
-                                                    sdr->nbVerticesPerQuad,
-                                                    sdr->nbEdgesPerTriangle,
-                                                    sdr->nbEdgesPerQuad,
-                                                    sdr->nbFacesPerTriangle,
-                                                    sdr->nbFacesPerQuad,
-                                                    cpuID,
-                                                    sdr->subdiv_preview,
-                                                    engine_flags );
-
-            g3dsubdivisionV3_subdivide_t ( &std[0x00] );
-        } else {
-            pthread_attr_init ( &attr );
-
-            /*** start threads on all CPUs ***/
-            pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
-
-            for ( i = 0x00; i < sif->nbcpu; i++ ) {
-                uint32_t cpuID = i;
-                g3dsubdivisionthread_init ( &std[i], mes,
-                                                     sdr->rtvermem,
-                                                     sdr->nbrtver,
-                                                     sdr->rtedgmem,
-                                                     sdr->nbrtedg,
-                                                     sdr->rtquamem,
-                                                     sdr->nbrtfac,
-                                                     sdr->rtluim,
-                                                     sdr->nbrtuv,
-                                                     sdr->nbVerticesPerTriangle,
-                                                     sdr->nbVerticesPerQuad,
-                                                     sdr->nbEdgesPerTriangle,
-                                                     sdr->nbEdgesPerQuad,
-                                                     sdr->nbFacesPerTriangle,
-                                                     sdr->nbFacesPerQuad,
-                                                     cpuID,
-                                                     sdr->subdiv_preview,
-                                                     engine_flags | 
-                                                     G3DMULTITHREADING  );
-
-                pthread_create ( &tid[i], 
-                                 &attr, 
-                                 (void * (*)(void *))g3dsubdivisionV3_subdivide_t,
-                                 &std[i] );
+            if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
+                /*** Force the flag in case our mesh does not need displacement ***/
+                engine_flags |= NODISPLACEMENT;
             }
 
-            for ( i = 0x00; i < sif->nbcpu; i++ ) {
-                pthread_join   ( tid[i], NULL );
+            /*** init face list ***/
+            g3dmesh_getNextFace ( mes, ltmpfac );
+
+            if ( sif->nbcpu == 0x01 ) {
+                uint32_t cpuID = 0x00;
+                g3dsubdivisionthread_init ( &std[0x00], mes,
+                                                        sdr->rtvermem,
+                                                        sdr->nbrtver,
+                                                        sdr->rtedgmem,
+                                                        sdr->nbrtedg,
+                                                        sdr->rtquamem,
+                                                        sdr->nbrtfac,
+                                                        sdr->rtluim,
+                                                        sdr->nbrtuv,
+                                                        sdr->nbVerticesPerTriangle,
+                                                        sdr->nbVerticesPerQuad,
+                                                        sdr->nbEdgesPerTriangle,
+                                                        sdr->nbEdgesPerQuad,
+                                                        sdr->nbFacesPerTriangle,
+                                                        sdr->nbFacesPerQuad,
+                                                        cpuID,
+                                                        sdr->subdiv_preview,
+                                                        engine_flags );
+
+                g3dsubdivisionV3_subdivide_t ( &std[0x00] );
+            } else {
+                pthread_attr_init ( &attr );
+
+                /*** start threads on all CPUs ***/
+                pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
+
+                for ( i = 0x00; i < sif->nbcpu; i++ ) {
+                    uint32_t cpuID = i;
+                    g3dsubdivisionthread_init ( &std[i], mes,
+                                                         sdr->rtvermem,
+                                                         sdr->nbrtver,
+                                                         sdr->rtedgmem,
+                                                         sdr->nbrtedg,
+                                                         sdr->rtquamem,
+                                                         sdr->nbrtfac,
+                                                         sdr->rtluim,
+                                                         sdr->nbrtuv,
+                                                         sdr->nbVerticesPerTriangle,
+                                                         sdr->nbVerticesPerQuad,
+                                                         sdr->nbEdgesPerTriangle,
+                                                         sdr->nbEdgesPerQuad,
+                                                         sdr->nbFacesPerTriangle,
+                                                         sdr->nbFacesPerQuad,
+                                                         cpuID,
+                                                         sdr->subdiv_preview,
+                                                         engine_flags | 
+                                                         G3DMULTITHREADING  );
+
+                    pthread_create ( &tid[i], 
+                                     &attr, 
+                                     (void * (*)(void *))g3dsubdivisionV3_subdivide_t,
+                                     &std[i] );
+                }
+
+                for ( i = 0x00; i < sif->nbcpu; i++ ) {
+                    pthread_join   ( tid[i], NULL );
+                }
             }
         }
     }
@@ -583,6 +585,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
         g3dsubdivider_allocBuffers ( sdr, engine_flags );
         g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
     }
+    return 0;
 }
 
 /******************************************************************************/

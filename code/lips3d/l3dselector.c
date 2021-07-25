@@ -647,6 +647,7 @@ static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
             l3dselector_generateMask ( sel, width, height, mask );
         }
     }
+    return 0;
 }
 
 /******************************************************************************/

@@ -360,7 +360,7 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
     float weight = mpd->weight;
 
     /*** a Weightgroup must be selected first ***/
-    if ( curgrp == NULL ) return;
+    if ( curgrp == NULL ) return 0;
 
     G3DWEIGHT *wei = g3dweightgroup_seekVertex ( curgrp, ver );
 

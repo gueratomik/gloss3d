@@ -59,6 +59,7 @@ static G3DWEIGHTGROUP *getWeightGroup ( G3DBONE *bon, float mouse_x,
 
         parent = parent->parent;
     }
+    return NULL;
 }
 
 /******************************************************************************/
