@@ -440,6 +440,14 @@ void g3dcutedge_free ( G3DCUTEDGE *cut ) {
 G3DCUTEDGE *g3dcutedge_new ( G3DEDGE   *edg,
                              G3DVERTEX *ver ) {
     G3DCUTEDGE *ced = ( G3DCUTEDGE * ) calloc ( 0x01, sizeof ( G3DCUTEDGE ) );
+    G3DVECTOR v0ver = { ver->pos.x - edg->ver[0x00]->pos.x,
+                        ver->pos.y - edg->ver[0x00]->pos.y,
+                        ver->pos.z - edg->ver[0x00]->pos.z }, 
+              v0v1 =  { edg->ver[0x01]->pos.x - edg->ver[0x00]->pos.x,
+                        edg->ver[0x01]->pos.y - edg->ver[0x00]->pos.y,
+                        edg->ver[0x01]->pos.z - edg->ver[0x00]->pos.z };
+    float len[0x02] = { g3dvector_length ( &v0ver ),
+                        g3dvector_length ( &v0v1  ) };
 
     if ( ced == NULL ) {
         fprintf ( stderr, "g3dcutedge_new: Memory allocation failed\n" );
@@ -449,6 +457,10 @@ G3DCUTEDGE *g3dcutedge_new ( G3DEDGE   *edg,
 
     ced->edg = edg;
     ced->ver = ver;
+
+    if ( len[0x01] ) {
+        ced->ratio = len[0x00] / len[0x01];
+    }
 
     return ced;
 }

@@ -925,8 +925,9 @@ typedef struct _G3DSPLITEDGE {
 
 /******************************************************************************/
 typedef struct _G3DCUTEDGE {
-    G3DEDGE *edg;
+    G3DEDGE   *edg;
     G3DVERTEX *ver;
+    float      ratio;
 } G3DCUTEDGE;
 
 /******************************************************************************/

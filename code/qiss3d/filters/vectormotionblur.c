@@ -374,8 +374,8 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
 
                 /*** NOTE: Comment this out for a better bluring but without **/
                 /*** Z testing ***/
-                if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
-                     ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {
+               /* if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
+                     ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
                     if ( z < fvmb->zbuffer[zoffset].z ) {
                         switch ( fvmb->bpp ) {
                             case 0x18 : {
@@ -395,7 +395,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                         fvmb->abuffer[aoffset][0x02] += ( B    * strength );
                         fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
                     }
-                }
+                /*}*/
             }
         }
 

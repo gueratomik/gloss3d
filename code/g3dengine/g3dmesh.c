@@ -3565,7 +3565,9 @@ void g3dmesh_removeFace ( G3DMESH *mes,
     list_remove ( &mes->lselfac, fac );
 
     /*** this must be done prior to edge removing ***/
-    if ( fac->nbuvs ) g3dface_removeAllUVSets ( fac );
+    /*** Commented out. A face keeps all UVSets until the its deletion ***/
+    /*** from memory ***/
+    /**if ( fac->nbuvs ) g3dface_removeAllUVSets ( fac );**/
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVERTEX *ver = fac->ver[i];

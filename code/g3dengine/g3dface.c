@@ -329,9 +329,14 @@ void g3dface_importUVSets ( G3DFACE *fac,
         G3DUVSET *refuvs = ( G3DUVSET * ) ltmpuvs->data;
         G3DUVSET *newuvs = g3dface_getUVSet ( fac, refuvs->map );
 
+        if ( newuvs == NULL ) {
+            newuvs = g3duvset_new ( refuvs->map );
+
+            g3dface_addUVSet ( fac, newuvs );
+        }
+
         memcpy ( newuvs, refuvs, sizeof ( G3DUVSET ) );
 
-        /*g3dface_addUVSet ( fac, newuvs );*/
 
         ltmpuvs = ltmpuvs->next;
     }
