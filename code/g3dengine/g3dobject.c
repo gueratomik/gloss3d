@@ -30,7 +30,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
+/*void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
 
     while ( ltmpchildren ) {
@@ -48,7 +48,7 @@ void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
 
         ltmpchildren = ltmpchildren->next;
     }
-}
+}*/
 
 /******************************************************************************/
 void g3dobject_startUpdateModifiers_r ( G3DOBJECT *obj,

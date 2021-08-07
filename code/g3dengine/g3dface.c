@@ -825,7 +825,7 @@ void g3dface_drawSkin ( G3DFACE *fac,
 /******************************************************************************/
 void g3dface_draw  ( G3DFACE *fac, 
                      float    gouraudScalarLimit,
-                     LIST    *ltex, 
+                     LIST    *ltex,
                      uint32_t object_flags,
                      uint64_t engine_flags ) {
     static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];

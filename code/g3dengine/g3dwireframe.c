@@ -474,10 +474,8 @@ static void g3dwireframe_activate ( G3DWIREFRAME *wir,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dobject_modify_r ( (G3DMESH*)parent, engine_flags );
+        g3dmesh_modify ( (G3DMESH*)parent, engine_flags );
     }
-
-    /*g3dmesh_modify ( obj, engine_flags );*/
 }
 
 /******************************************************************************/
@@ -487,9 +485,7 @@ static void g3dwireframe_deactivate ( G3DWIREFRAME *wir,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dobject_modify_r ( parent, engine_flags );
-
-    /*g3dmesh_modify ( wir, engine_flags );*/
+        g3dmesh_modify ( wir, engine_flags );
     }
 }
 

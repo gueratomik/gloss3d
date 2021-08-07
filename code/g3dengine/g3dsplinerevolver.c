@@ -400,7 +400,7 @@ void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dobject_modify_r ( (G3DMESH*)parent, engine_flags );
+        g3dspline_modify ( (G3DSPLINE*)parent, engine_flags );
     }
 }
 
@@ -411,7 +411,7 @@ void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dobject_modify_r ( parent, engine_flags );
+        g3dspline_modify ( parent, engine_flags );
     }
 }
 

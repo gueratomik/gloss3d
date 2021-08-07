@@ -595,10 +595,8 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dobject_modify_r ( (G3DMESH*)parent, engine_flags );
+        g3dmesh_modify ( (G3DMESH*)parent, engine_flags );
     }
-
-    /*g3dmesh_modify ( obj, engine_flags );*/
 }
 
 /******************************************************************************/

@@ -67,6 +67,27 @@ uint32_t g3dspline_pick ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+void g3dspline_modify ( G3DSPLINE *spl,
+                        uint64_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
+    LIST *ltmpchildren = obj->lchildren;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            g3dmodifier_modify_r ( child,
+                                   spl,
+                                   NULL,
+                                   NULL,
+                                   engine_flags );
+        }
+
+        ltmpchildren = ltmpchildren->next;        
+    }
+}
+
+/******************************************************************************/
 void g3dspline_update ( G3DSPLINE *spl,
                         LIST      *lpt,
                         uint32_t   update_flags,
@@ -74,7 +95,7 @@ void g3dspline_update ( G3DSPLINE *spl,
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
     if ( update_flags & RESETMODIFIERS ) {
-        g3dobject_modify_r ( obj, engine_flags );
+        g3dspline_modify ( obj, engine_flags );
     }
 
     if ( update_flags & UPDATEMODIFIERS ) {

@@ -860,7 +860,7 @@ static uint32_t ffduvw_blocksize ( G3DFFD *ffd ) {
 
 /******************************************************************************/
 static uint32_t ffdver_blocksize ( G3DFFD *ffd ) {
-    uint32_t nbver = ffd->nbver;
+    uint32_t nbver = /*ffd->nbver*/0x00;
 
     return ( ( sizeof ( uint32_t ) +        /*** vertex ID ***/
                sizeof ( float ) +           /*** original vertex X position ***/
@@ -1947,8 +1947,8 @@ static void ffduvw_writeblock ( G3DFFD *ffd, FILE *fdst ) {
 
 /******************************************************************************/
 static void ffdver_writeblock ( G3DFFD *ffd, FILE *fdst ) {
-    LIST *ltmpver = ffd->lver;
-    uint32_t nbver = list_count ( ffd->lver );
+    LIST *ltmpver = /*ffd->lver*/NULL;
+    uint32_t nbver = list_count ( /*ffd->lver*/NULL );
     uint32_t i = 0x00;
 
     writef ( &nbver, sizeof ( uint32_t ), 0x01, fdst );

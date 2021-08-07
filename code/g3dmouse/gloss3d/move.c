@@ -1088,7 +1088,7 @@ static int move_tool ( G3DMOUSETOOL *mou,
                 return move_spline ( spl, mou, sce, cam, urm, engine_flags, event );
             }
 
-            if ( ( obj->type & MESH ) && ( obj->type & EDITABLE ) ) {
+            if ( obj->type & EDITABLE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
                 return move_mesh ( mes, mou, sce, cam, urm, engine_flags, event );

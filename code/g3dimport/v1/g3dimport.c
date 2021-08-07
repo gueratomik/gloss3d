@@ -1088,6 +1088,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
                 }
             } break;
 
+#ifdef nolongersupported
             case FFDVERSIG : {
                 uint32_t nbver;
                 uint32_t i;
@@ -1121,6 +1122,7 @@ G3DSCENE *g3dscene_open ( const char *filename,
 
                 ffd->lfac = g3dvertex_getFacesFromList ( ffd->lver );
             } break;
+#endif
 
             case PRIMSIG :
                 printf ( "Primitive found\n");

@@ -30,42 +30,6 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportffd_vertices ( G3DEXPORTDATA *ged, 
-                                        G3DFFD        *ffd, 
-                                        uint32_t       flags, 
-                                        FILE          *fdst ) {
-    LIST *ltmpver = ffd->lver;
-    uint32_t nbver = list_count ( ffd->lver );
-    uint32_t size = 0x00;
-    uint32_t i = 0x00;
-
-    size += g3dexport_fwritel ( &nbver, fdst );
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR *uvw = &ffd->uvw[i];
-        G3DVECTOR *pos = &ffd->pos[i];
-
-        size += g3dexport_fwritel ( &ver->id, fdst );
-
-        /*** original vertex position in mesh space ***/
-        size += g3dexport_fwritef ( &pos->x, fdst );
-        size += g3dexport_fwritef ( &pos->y, fdst );
-        size += g3dexport_fwritef ( &pos->z, fdst );
-        /*** original vertex position in UVW space ***/
-        size += g3dexport_fwritef ( &uvw->x, fdst );
-        size += g3dexport_fwritef ( &uvw->y, fdst );
-        size += g3dexport_fwritef ( &uvw->z, fdst );
-
-        i++;
-
-        ltmpver = ltmpver->next;
-    }
-
-    return size;
-}
-
-/******************************************************************************/
 static uint32_t g3dexportffd_uvw ( G3DEXPORTDATA *ged, 
                                    G3DFFD        *ffd, 
                                    uint32_t       flags, 
@@ -127,15 +91,6 @@ uint32_t g3dexportffd ( G3DEXPORTDATA *ged,
                                    ffd,
                                    0xFFFFFFFF,
                                    fdst );
-
-    if ( ((G3DMESH*)ffd)->lver ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_FFD_VERTICES,
-                                       g3dexportffd_vertices,
-                                       ged,
-                                       ffd,
-                                       0xFFFFFFFF,
-                                       fdst );
-    }
 
     return size;
 }

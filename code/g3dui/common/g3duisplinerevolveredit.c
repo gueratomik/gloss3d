@@ -45,7 +45,7 @@ void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
 
         srv->nbsteps = level;
 
-        g3dmodifier_modify_r ( srv, gui->engine_flags );
+        /*g3dmodifier_modify_r ( srv, gui->engine_flags );*/
 
         g3dui_unsetHourGlass ( gui );
     }
@@ -70,7 +70,7 @@ void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,
 
         srv->nbdivis = level;
 
-        g3dmodifier_modify_r ( srv, gui->engine_flags );
+        /*g3dmodifier_modify_r ( srv, gui->engine_flags );*/
 
         g3dui_unsetHourGlass ( gui );
         /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/

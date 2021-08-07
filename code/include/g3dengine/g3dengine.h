@@ -195,7 +195,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MORPHER        ( ( uint64_t )  1 << 27 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
-#define G3DMESHTYPE       ( OBJECT | EDITABLE | MESH )
+#define G3DMESHTYPE       ( OBJECT | MESH | EDITABLE )
 #define G3DPRIMITIVETYPE  ( OBJECT | MESH | PRIMITIVE )
 #define G3DSPHERETYPE     ( OBJECT | MESH | PRIMITIVE | SPHERE )
 #define G3DPLANETYPE      ( OBJECT | MESH | PRIMITIVE | PLANE )
@@ -209,7 +209,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DSCENETYPE      ( OBJECT | SCENE )
 #define G3DBONETYPE       ( OBJECT | BONE )
                     /* ffd not flagged as mesh but still inherits from mesh */
-#define G3DFFDTYPE            ( OBJECT | MESH | MODIFIER | EDITABLE | FFD )
+#define G3DFFDTYPE            ( OBJECT        | MODIFIER | FFD | EDITABLE )
 #define G3DWIREFRAMETYPE      ( OBJECT | MESH | MODIFIER | WIREFRAME )
 #define G3DSUBDIVIDERTYPE     ( OBJECT        | MODIFIER | SUBDIVIDER )
 #define G3DSPLINEREVOLVERTYPE ( OBJECT | MESH | MODIFIER | SPLINEREVOLVER )
@@ -1184,10 +1184,17 @@ struct _G3DKEY {
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
     G3DMESH    mes;
-    uint32_t (*modify)     ( struct _G3DMODIFIER *, uint64_t );
+    uint32_t (*modify)     ( struct _G3DMODIFIER *,
+                                     G3DOBJECT   *obj,
+                                     G3DVECTOR   *pos,
+                                     G3DVECTOR   *nor,
+                                     uint64_t     engine_flags );
     void     (*startUpdate)( struct _G3DMODIFIER *, uint64_t );
     void     (*update)     ( struct _G3DMODIFIER *, uint64_t );
     void     (*endUpdate)  ( struct _G3DMODIFIER *, uint64_t );
+    G3DOBJECT *oriobj;
+    G3DVECTOR *verpos;
+    G3DVECTOR *vernor;
 } G3DMODIFIER;
 
 /******************************************************************************/
@@ -1255,23 +1262,19 @@ typedef struct _G3DRIG {
 /******************************************************************************/
 typedef struct _G3DFFD {
     G3DMODIFIER mod;
-    G3DVERTEX *pnt;
-    uint32_t nbx;
-    uint32_t nby;
-    uint32_t nbz;
-    float radx;
-    float rady;
-    float radz;
-    G3DVECTOR locmin;
-    G3DVECTOR locmax;
-    G3DVECTOR parmin;
-    G3DVECTOR parmax;
-    LIST *lver; /*** vertices to update after FFD change   ***/
-    LIST *ledg; /*** edges to update after FFD chang       ***/
-    LIST *lfac; /*** faces to update after FFD chang       ***/
-    G3DVECTOR *pos;
-    G3DVECTOR *uvw;
-    uint32_t nbver;
+    G3DVERTEX  *pnt;
+    uint32_t    nbx;
+    uint32_t    nby;
+    uint32_t    nbz;
+    float       radx;
+    float       rady;
+    float       radz;
+    G3DVECTOR   locmin;
+    G3DVECTOR   locmax;
+    G3DVECTOR   parmin;
+    G3DVECTOR   parmax;
+    G3DVECTOR  *pos;
+    G3DVECTOR  *uvw;
 } G3DFFD;
 
 /******************************************************************************/
@@ -1977,10 +1980,12 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags );
 void g3dobject_removeKey ( G3DOBJECT *obj, G3DKEY *key );
-/* modifier is reposnible for the drawing */
-#define MODIFIERTAKESOVER ( 1 << 0 ) 
+/* modifier is responsible for the drawing */
+#define MODIFIERBUILDSNEWMESH ( 1 << 0 ) 
+#define MODIFIERCHANGESCOORDS ( 1 << 1 ) 
+#define MODIFIERTAKESOVER     ( 1 << 2 ) 
 /* modifier hides original vertices and thus needs some transparency */
-#define MODIFIERNEEDSTRANSPARENCY ( 1 << 1 ) 
+#define MODIFIERNEEDSTRANSPARENCY ( 1 << 3 ) 
 void       g3dobject_free                  ( G3DOBJECT *  );
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
@@ -2218,6 +2223,11 @@ void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DCAMERA *curcam,
                                        uint64_t   engine_flags );
 void       g3dmesh_assignFaceEdges      ( G3DMESH *, G3DFACE * );
+void g3dmesh_drawModified ( G3DMESH   *mes,
+                            G3DCAMERA *cam, 
+                            G3DVECTOR *verpos,
+                            G3DVECTOR *vernor,
+                            uint64_t   engine_flags );
 void g3dmesh_cut ( G3DMESH *mes, 
                    G3DFACE *knife,
                    LIST   **loldfac,
@@ -2614,9 +2624,11 @@ void    g3dffd_free         ( G3DOBJECT * );
 void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, float, float );
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
 void    g3dffd_addVertex    ( G3DFFD *, G3DVERTEX * );
-void    g3dffd_generateuvw  ( G3DFFD * );
-uint32_t g3dffd_modify ( G3DFFD  *ffd, 
-                         uint64_t engine_flags );
+uint32_t g3dffd_modify ( G3DFFD    *ffd,
+                         G3DOBJECT *oriobj,
+                         G3DVECTOR *verpos,
+                         G3DVECTOR *vernor,
+                         uint64_t   engine_flags );
 void    g3dffd_appendVertex ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_unassign     ( G3DFFD * );
 void    g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw );
@@ -2860,6 +2872,9 @@ uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );
 void g3dmodifier_modify_r ( G3DMODIFIER *mod,
+                            G3DOBJECT   *oriobj,
+                            G3DVECTOR   *verpos,
+                            G3DVECTOR   *vernor,
                             uint64_t     engine_flags );
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 

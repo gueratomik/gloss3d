@@ -118,7 +118,7 @@ void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level ) {
             sdr->subdiv_render = sdr->subdiv_preview;
         }
 
-        g3dmodifier_modify_r ( sdr, gui->engine_flags );
+        /*g3dmodifier_modify_r ( sdr, gui->engine_flags );*/
 
         g3dui_unsetHourGlass ( gui );
         /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/

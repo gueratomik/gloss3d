@@ -486,10 +486,33 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 }
 
 /******************************************************************************/
+void g3dmesh_modify ( G3DMESH   *mes,
+                      uint64_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    LIST *ltmpchildren = obj->lchildren;
+
+    g3dmesh_renumberVertices ( mes );
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( child->type & MODIFIER ) {
+            g3dmodifier_modify_r ( child,
+                                   mes,
+                                   NULL,
+                                   NULL,
+                                   engine_flags );
+        }
+
+        ltmpchildren = ltmpchildren->next;        
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_addChild ( G3DMESH   *mes,
                         G3DOBJECT *child, 
                         uint64_t   engine_flags ) {
-    g3dobject_modify_r ( mes, engine_flags );
+    g3dmesh_modify ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -2442,7 +2465,8 @@ void g3dmesh_update ( G3DMESH *mes,
         g3dmesh_renumberEdges    ( mes );
         g3dmesh_renumberFaces    ( mes );
 
-        g3dobject_modify_r ( mes, engine_flags );
+        g3dmesh_modify ( mes,
+                         engine_flags );
     }
 
     if ( update_flags & UPDATEMODIFIERS ) {
@@ -3170,6 +3194,36 @@ static void g3dmesh_pickObject ( G3DMESH *mes,
               ( fac->ver[3] ) ? fac->ver[3]->pos.x : 0.0f,
               ( fac->ver[3] ) ? fac->ver[3]->pos.y : 0.0f,
               ( fac->ver[3] ) ? fac->ver[3]->pos.z : 0.0f ) ) return;
+
+        ltmpfac = ltmpfac->next;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_drawModified ( G3DMESH   *mes,
+                            G3DCAMERA *cam, 
+                            G3DVECTOR *verpos,
+                            G3DVECTOR *vernor,
+                            uint64_t   engine_flags ) {
+    LIST *ltmpfac = mes->lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t i;
+
+        if ( fac->nbver == 0x04 ) glBegin ( GL_QUADS     );
+        if ( fac->nbver == 0x03 ) glBegin ( GL_TRIANGLES );
+
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            G3DVERTEX *ver = fac->ver[i];
+            G3DVECTOR *pos = &verpos[ver->id];
+            G3DVECTOR *nor = &vernor[ver->id];
+
+            glNormal3fv ( ( float * ) nor );
+            glVertex3fv ( ( float * ) pos );
+        }
+
+        glEnd ( );
 
         ltmpfac = ltmpfac->next;
     }

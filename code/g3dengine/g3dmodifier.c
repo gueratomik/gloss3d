@@ -31,24 +31,51 @@
 
 /******************************************************************************/
 void g3dmodifier_modify_r ( G3DMODIFIER *mod,
+                            G3DOBJECT   *oriobj,
+                            G3DVECTOR   *verpos,
+                            G3DVECTOR   *vernor,
                             uint64_t     engine_flags ) {
-    G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
+    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
+    uint32_t ret = 0x00;
 
-    if ( g3dobject_isActive ( obj ) && mod->modify ) {
-        mod->modify ( mod, engine_flags );
+    if ( obj->type & MODIFIER ) {
+        if ( g3dobject_isActive ( obj ) ) {
+            if ( mod->modify ) {
+                ret = mod->modify ( mod, 
+                                    oriobj, 
+                                    verpos, 
+                                    vernor, 
+                                    engine_flags );
+
+                if ( ret & MODIFIERCHANGESCOORDS ) {
+                   /*** orimes stays unchanged but gets new vertices values ***/
+                    verpos = mod->verpos;
+                    vernor = mod->vernor;
+                }
+
+                if ( ret & MODIFIERBUILDSNEWMESH ) {
+                    oriobj = ( G3DOBJECT * ) mod;
+                    verpos = NULL;
+                    vernor = NULL;
+                }
+            }
+        }
     }
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        if ( child->type & MODIFIER ) {
-            g3dmodifier_modify_r ( (G3DMODIFIER*) child, engine_flags );
-        }
+        g3dmodifier_modify_r ( child,
+                               oriobj, 
+                               verpos, 
+                               vernor, 
+                               engine_flags );
 
-        ltmpchildren = ltmpchildren->next;
+        ltmpchildren = ltmpchildren->next;        
     }
 }
+
 
 /******************************************************************************/
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
