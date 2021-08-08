@@ -61,18 +61,18 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                 }
             }
         }
-    }
 
-    while ( ltmpchildren ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+        while ( ltmpchildren ) {
+            G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dmodifier_modify_r ( child,
-                               oriobj, 
-                               verpos, 
-                               vernor, 
-                               engine_flags );
+            g3dmodifier_modify_r ( child,
+                                   oriobj, 
+                                   verpos, 
+                                   vernor, 
+                                   engine_flags );
 
-        ltmpchildren = ltmpchildren->next;        
+            ltmpchildren = ltmpchildren->next;        
+        }
     }
 }
 
