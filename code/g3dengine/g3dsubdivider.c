@@ -595,13 +595,24 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( (G3DMESH*)parent, engine_flags );
+        g3dmesh_modify ( (G3DMESH*) parent, 
+                                    G3DMODIFYOP_MODIFY,
+                                    engine_flags );
     }
 }
 
 /******************************************************************************/
 static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, 
                                        uint64_t       engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+    if ( parent ) {
+        g3dmesh_modify ( (G3DMESH*) parent, 
+                                    G3DMODIFYOP_MODIFY,
+                                    engine_flags );
+    }
+
     g3dsubdivider_reset ( sdr );
 }
 
@@ -898,10 +909,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                          COMMIT_CALLBACK(g3dsubdivider_commit),
                                                          NULL,
                                       SETPARENT_CALLBACK(g3dsubdivider_setParent),
-                                         MODIFY_CALLBACK(g3dsubdivider_modify),
-                                    STARTUPDATE_CALLBACK(g3dsubdivider_startUpdate),
-                                         UPDATE_CALLBACK(g3dsubdivider_update),
-                                      ENDUPDATE_CALLBACK(g3dsubdivider_endUpdate) );
+                                         MODIFY_CALLBACK(g3dsubdivider_modify) );
 
     ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
 }

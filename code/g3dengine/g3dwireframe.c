@@ -474,7 +474,9 @@ static void g3dwireframe_activate ( G3DWIREFRAME *wir,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( (G3DMESH*)parent, engine_flags );
+        g3dmesh_modify ( (G3DMESH*) parent, 
+                                    G3DMODIFYOP_MODIFY,
+                                    engine_flags );
     }
 }
 
@@ -485,7 +487,9 @@ static void g3dwireframe_deactivate ( G3DWIREFRAME *wir,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( wir, engine_flags );
+        g3dmesh_modify ( wir, 
+                         G3DMODIFYOP_MODIFY,
+                         engine_flags );
     }
 }
 
@@ -551,10 +555,7 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
                                                         g3dmesh_copy,
                                                         NULL,
                                                         g3dwireframe_setParent,
-                                                        g3dwireframe_modify,
-                                                        g3dwireframe_startUpdate,
-                                                        g3dwireframe_update,
-                                                        g3dwireframe_endUpdate );
+                                                        g3dwireframe_modify );
 
     wir->thickness = 0.05f;
 

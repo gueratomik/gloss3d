@@ -30,36 +30,6 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dffd_startUpdate ( G3DFFD *ffd, uint64_t engine_flags ) {
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) ffd;
-    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-
-    if ( parent ) {
-        G3DMESH *mes = ( G3DMESH * ) parent;
-    }
-}
-
-/******************************************************************************/
-void g3dffd_endUpdate ( G3DFFD *ffd, uint64_t engine_flags ) {
-}
-
-/******************************************************************************/
-void g3dffd_update ( G3DFFD *ffd, uint64_t engine_flags ) {
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) ffd;
-    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-
-    if ( parent ) {
-        G3DMESH *mes = ( G3DMESH * ) parent;
-
-        g3dmesh_modify ( parent, engine_flags );
-    }
-
-    /*g3dffd_modify ( ffd, engine_flags );*/
-}
-
-/******************************************************************************/
 static int fact ( int n ) {
     if ( n > 0x01 )
         return n * fact ( n - 0x01 );
@@ -113,7 +83,7 @@ static void g3dffd_generateuvw ( G3DFFD  *ffd,
                 return;
             }
 
-            while ( ltmpver ) {
+            /*while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
                 if ( ( ver->pos.x >= ffd->parmin.x ) && ( ver->pos.x <= ffd->parmax.x ) &&
@@ -129,7 +99,7 @@ static void g3dffd_generateuvw ( G3DFFD  *ffd,
                 }
 
                 ltmpver = ltmpver->next;
-            }
+            }*/
         }
     }
 }
@@ -197,18 +167,18 @@ static void g3dffd_getDeformedPosition ( G3DFFD    *ffd,
 }
 
 /******************************************************************************/
-uint32_t g3dffd_modify ( G3DFFD    *ffd,
-                         G3DOBJECT *oriobj,
-                         G3DVECTOR *oripos,
-                         G3DVECTOR *orinor,
-                         uint64_t   engine_flags ) {
+uint32_t g3dffd_modify ( G3DFFD     *ffd,
+                         G3DOBJECT  *oriobj,
+                         G3DVECTOR  *oripos,
+                         G3DVECTOR  *orinor,
+                         G3DMODIFYOP op,
+                         uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 
     if ( oriobj->type & MESH ) {
         G3DMESH *orimes = ( G3DMESH * ) oriobj;
 
         if ( orimes->nbver ) {
-            LIST *ltmpver = orimes->lver;
             uint32_t i, j, k;
             float xaxis = ( ffd->locmax.x - ffd->locmin.x ),
                   yaxis = ( ffd->locmax.y - ffd->locmin.y ),
@@ -218,14 +188,17 @@ uint32_t g3dffd_modify ( G3DFFD    *ffd,
                   difz = ( 1.0f / ffd->nbz );
             float x, y, z;
             uint32_t n = 0x00;
+            LIST *ltmpver = orimes->lver;
 
-            ffd->mod.oriobj = oriobj;
+            if ( op == G3DMODIFYOP_MODIFY ) {
+                ffd->mod.oriobj = oriobj;
 
-            ffd->mod.verpos = ( G3DVECTOR * ) realloc ( ffd->mod.verpos, orimes->nbver * sizeof ( G3DVECTOR ) );
-            ffd->mod.vernor = ( G3DVECTOR * ) realloc ( ffd->mod.vernor, orimes->nbver * sizeof ( G3DVECTOR ) );
+                ffd->mod.verpos = ( G3DVECTOR * ) realloc ( ffd->mod.verpos, orimes->nbver * sizeof ( G3DVECTOR ) );
+                ffd->mod.vernor = ( G3DVECTOR * ) realloc ( ffd->mod.vernor, orimes->nbver * sizeof ( G3DVECTOR ) );
 
-            /*** TODO: use verpos and vernor for parent mesh ***/
-            g3dffd_generateuvw ( ffd, orimes );
+                /*** TODO: use verpos and vernor for parent mesh ***/
+                g3dffd_generateuvw ( ffd, orimes );
+            }
 
             x = 0.0f;
             for ( i = 0x00; i <= ffd->nbx; i++, x += difx ) {
@@ -246,6 +219,18 @@ uint32_t g3dffd_modify ( G3DFFD    *ffd,
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                 G3DVECTOR *uvw = &ffd->uvw[ver->id];
                 G3DVECTOR *altpos = &ffd->mod.verpos[ver->id];
+
+                if ( ( ver->pos.x >= ffd->parmin.x ) && ( ver->pos.x <= ffd->parmax.x ) &&
+                     ( ver->pos.y >= ffd->parmin.y ) && ( ver->pos.y <= ffd->parmax.y ) &&
+                     ( ver->pos.z >= ffd->parmin.z ) && ( ver->pos.z <= ffd->parmax.z ) ) {
+
+                    ffd->uvw[ver->id].x = ( ver->pos.x - ffd->parmin.x ) / xaxis;
+                    ffd->uvw[ver->id].y = ( ver->pos.y - ffd->parmin.y ) / yaxis;
+                    ffd->uvw[ver->id].z = ( ver->pos.z - ffd->parmin.z ) / zaxis;
+                    ffd->uvw[ver->id].w = 1.0f;
+                } else {
+                    ffd->uvw[ver->id].w = 0.0f;
+                }
 
                 g3dffd_getDeformedPosition ( ffd,
                                              uvw,
@@ -275,7 +260,9 @@ void g3dffd_onGeometryMove ( G3DFFD  *ffd,
         if ( parent ) {
             G3DMESH *parmes = ( G3DMESH * ) parent;
 
-            g3dmesh_modify ( parent, engine_flags );
+            g3dmesh_modify ( parmes, 
+                             G3DMODIFYOP_UPDATE, 
+                             engine_flags );
         }
     }
 }
@@ -306,7 +293,9 @@ void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
         g3dvector_matrix ( &ffd->locmin, obj->lmatrix, &ffd->parmin );
         g3dvector_matrix ( &ffd->locmax, obj->lmatrix, &ffd->parmax );
 
-        g3dmesh_modify ( parent, engine_flags );
+        g3dmesh_modify ( parent, 
+                         G3DMODIFYOP_MODIFY, 
+                         engine_flags );
     }
 }
 
@@ -527,10 +516,7 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
                                   COMMIT_CALLBACK(g3dffd_commit),
                                                   NULL,
                                                   NULL,
-                                  MODIFY_CALLBACK(g3dffd_modify),
-                             STARTUPDATE_CALLBACK(g3dffd_startUpdate),
-                                  UPDATE_CALLBACK(g3dffd_update),
-                               ENDUPDATE_CALLBACK(g3dffd_endUpdate) );
+                                  MODIFY_CALLBACK(g3dffd_modify) );
 
     ((G3DMESH*)mod)->onGeometryMove = g3dffd_onGeometryMove;
 

@@ -486,12 +486,11 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_modify ( G3DMESH   *mes,
-                      uint64_t   engine_flags ) {
+void g3dmesh_modify ( G3DMESH    *mes,
+                      G3DMODIFYOP op,
+                      uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpchildren = obj->lchildren;
-
-    g3dmesh_renumberVertices ( mes );
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
@@ -501,6 +500,7 @@ void g3dmesh_modify ( G3DMESH   *mes,
                                    mes,
                                    NULL,
                                    NULL,
+                                   op,
                                    engine_flags );
         }
 
@@ -512,7 +512,9 @@ void g3dmesh_modify ( G3DMESH   *mes,
 void g3dmesh_addChild ( G3DMESH   *mes,
                         G3DOBJECT *child, 
                         uint64_t   engine_flags ) {
-    g3dmesh_modify ( mes, engine_flags );
+    g3dmesh_modify ( mes, 
+                     G3DMODIFYOP_MODIFY,
+                     engine_flags );
 }
 
 /******************************************************************************/
@@ -2466,6 +2468,7 @@ void g3dmesh_update ( G3DMESH *mes,
         g3dmesh_renumberFaces    ( mes );
 
         g3dmesh_modify ( mes,
+                         G3DMODIFYOP_MODIFY,
                          engine_flags );
     }
 
@@ -2479,9 +2482,9 @@ void g3dmesh_update ( G3DMESH *mes,
         mes->lseledg = ( ledg == NULL ) ? mes->ledg : ledg;
         mes->lselfac = ( lfac == NULL ) ? mes->lfac : lfac;
 
-        g3dobject_startUpdateModifiers_r ( mes, engine_flags );
-        g3dobject_updateModifiers_r      ( mes, engine_flags );
-        g3dobject_endUpdateModifiers_r   ( mes, engine_flags );
+        g3dmesh_modify ( mes,
+                         G3DMODIFYOP_UPDATE,
+                         engine_flags );
 
         /*** restore selected items ***/
         mes->lselver = ltmpselver;

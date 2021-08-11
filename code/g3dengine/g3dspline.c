@@ -67,8 +67,9 @@ uint32_t g3dspline_pick ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dspline_modify ( G3DSPLINE *spl,
-                        uint64_t   engine_flags ) {
+void g3dspline_modify ( G3DSPLINE  *spl,
+                        G3DMODIFYOP op,
+                        uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     LIST *ltmpchildren = obj->lchildren;
 
@@ -80,6 +81,7 @@ void g3dspline_modify ( G3DSPLINE *spl,
                                    spl,
                                    NULL,
                                    NULL,
+                                   op,
                                    engine_flags );
         }
 
@@ -95,7 +97,9 @@ void g3dspline_update ( G3DSPLINE *spl,
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
     if ( update_flags & RESETMODIFIERS ) {
-        g3dspline_modify ( obj, engine_flags );
+        g3dspline_modify ( spl,
+                           G3DMODIFYOP_MODIFY,
+                           engine_flags );
     }
 
     if ( update_flags & UPDATEMODIFIERS ) {
@@ -104,9 +108,9 @@ void g3dspline_update ( G3DSPLINE *spl,
 
         spl->curve->lselpt = ( lpt == NULL ) ? spl->curve->lpt : lpt;
 
-        g3dobject_startUpdateModifiers_r ( spl, engine_flags );
-        g3dobject_updateModifiers_r      ( spl, engine_flags );
-        g3dobject_endUpdateModifiers_r   ( spl, engine_flags );
+        g3dspline_modify ( spl,
+                           G3DMODIFYOP_UPDATE,
+                           engine_flags );
 
         /*** restore selected items ***/
         spl->curve->lselpt = ltmpselpt;

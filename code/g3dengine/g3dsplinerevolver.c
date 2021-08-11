@@ -29,50 +29,13 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
-/******************************************************************************/
-static void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
-                                          G3DOBJECT         *parent,
-                                          G3DOBJECT         *oldParent,
-                                          uint64_t           engine_flags ) {
-    if ( g3dobject_isActive ( (G3DOBJECT*) srv ) ) {
-        g3dsplinerevolver_activate ( srv, engine_flags );
-    }
-}
 
 /******************************************************************************/
-G3DSPLINEREVOLVER *g3dsplinerevolver_copy ( G3DSPLINEREVOLVER *srv,
-                                            uint64_t engine_flags ) {
+static G3DSPLINEREVOLVER *g3dsplinerevolver_copy ( G3DSPLINEREVOLVER *srv,
+                                                   uint64_t engine_flags ) {
     G3DOBJECT *objsrv = ( G3DOBJECT * ) srv;
 
     return g3dsplinerevolver_new ( objsrv->id, objsrv->name );
-}
-
-/******************************************************************************/
-void g3dsplinerevolver_startUpdate ( G3DSPLINEREVOLVER *srv, 
-                                     uint64_t engine_flags ) {
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) srv;
-    G3DOBJECT   *obj = ( G3DOBJECT   * ) srv;
-    G3DOBJECT   *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
-
-    if ( parent ) {
-    }
-}
-
-/******************************************************************************/
-void g3dsplinerevolver_endUpdate ( G3DSPLINEREVOLVER *srv,
-                                   uint64_t engine_flags ) {
-
-}
-
-/******************************************************************************/
-void g3dsplinerevolver_update ( G3DSPLINEREVOLVER *srv, 
-                                uint64_t engine_flags ) {
-    G3DOBJECT *obj    = ( G3DOBJECT * ) srv;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
-
-    if ( parent ) {
-        g3dsplinerevolver_transform ( srv, engine_flags );
-    }
 }
 
 /******************************************************************************/
@@ -108,9 +71,9 @@ static G3DEDGE *findEdge ( G3DEDGE *edgeLookupTable[0x04], G3DVERTEX *v0,
 }
 
 /******************************************************************************/
-uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
-                                   uint32_t           doTopology,
-                                   uint64_t engine_flags ) {
+static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
+                                          uint32_t           doTopology,
+                                          uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) srv;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
@@ -377,8 +340,8 @@ uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 }
 
 /******************************************************************************/
-void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv, 
-                                   uint64_t engine_flags ) {
+static void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv, 
+                                          uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) srv;
 
     if ( g3dobject_isActive ( obj ) ) {
@@ -387,38 +350,57 @@ void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv,
 }
 
 /******************************************************************************/
-uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv, 
-                                    uint64_t engine_flags ) {
+static uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv,
+                                           G3DOBJECT  *oriobj,
+                                           G3DVECTOR  *oripos,
+                                           G3DVECTOR  *orinor,
+                                           G3DMODIFYOP op,
+                                           uint64_t engine_flags ) {
     g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
+
     return 0;
 }
 
 /******************************************************************************/
-void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv, 
-                                  uint64_t engine_flags ) {
+static void g3dsplinerevolver_activate ( G3DSPLINEREVOLVER *srv, 
+                                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) srv;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dspline_modify ( (G3DSPLINE*)parent, engine_flags );
+        g3dspline_modify ( (G3DSPLINE*) parent,
+                                        G3DMODIFYOP_MODIFY,
+                                        engine_flags );
     }
 }
 
 /******************************************************************************/
-void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv, 
-                                    uint64_t engine_flags ) {
+static void g3dsplinerevolver_deactivate ( G3DSPLINEREVOLVER *srv, 
+                                           uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) srv;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
 
     if ( parent ) {
-        g3dspline_modify ( parent, engine_flags );
+        g3dspline_modify ( (G3DSPLINE*) parent,
+                                        G3DMODIFYOP_MODIFY,
+                                        engine_flags );
     }
 }
 
 /******************************************************************************/
-uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv, 
-                                  G3DCAMERA         *cam, 
-                                  uint64_t engine_flags ) {
+static void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
+                                          G3DOBJECT         *parent,
+                                          G3DOBJECT         *oldParent,
+                                          uint64_t           engine_flags ) {
+    if ( g3dobject_isActive ( (G3DOBJECT*) srv ) ) {
+        g3dsplinerevolver_activate ( srv, engine_flags );
+    }
+}
+
+/******************************************************************************/
+static uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv, 
+                                         G3DCAMERA         *cam, 
+                                         uint64_t engine_flags ) {
     G3DMESH *srvmes = ( G3DMESH * ) srv;
     G3DOBJECT *srvobj = ( G3DOBJECT * ) srv;
     uint32_t i;
@@ -492,7 +474,7 @@ uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
 }
 
 /******************************************************************************/
-void g3dsplinerevolver_free ( G3DSPLINEREVOLVER *srv ) {
+static void g3dsplinerevolver_free ( G3DSPLINEREVOLVER *srv ) {
 
 }
 
@@ -519,10 +501,7 @@ G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name ) {
                                                              g3dmesh_copy,
                                                              NULL,
                                                              g3dsplinerevolver_setParent,
-                                                             g3dsplinerevolver_modify,
-                                                             g3dsplinerevolver_startUpdate,
-                                                             g3dsplinerevolver_update,
-                                                             g3dsplinerevolver_endUpdate );
+                                                             g3dsplinerevolver_modify );
 
 
     srv->nbsteps = 24;

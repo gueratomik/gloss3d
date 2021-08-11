@@ -190,7 +190,9 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
 
                     nbver = list_count ( lver );
 
-                    g3dobject_startUpdateModifiers_r ( obj, engine_flags );
+                    g3dmesh_modify ( mes,
+                                     G3DMODIFYOP_STARTUPDATE,
+                                     engine_flags );
 
                     /*** for undo redo ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos ); 
@@ -256,7 +258,9 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                     }
                 }
 
-                g3dobject_updateModifiers_r ( obj, engine_flags );
+                g3dmesh_modify ( mes,
+                                 G3DMODIFYOP_UPDATE,
+                                 engine_flags );
 
                 if ( mes->onGeometryMove ) {
                      mes->onGeometryMove ( mes, lselver, 
@@ -281,7 +285,9 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                                             newpos,
                                             REDRAWVIEW );
 
-            g3dobject_endUpdateModifiers_r ( obj, engine_flags );
+            g3dmesh_modify ( mes,
+                             G3DMODIFYOP_ENDUPDATE,
+                             engine_flags );
 
             g3dmesh_updateBbox ( mes );
 

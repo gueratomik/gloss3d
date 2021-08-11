@@ -34,6 +34,7 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                             G3DOBJECT   *oriobj,
                             G3DVECTOR   *verpos,
                             G3DVECTOR   *vernor,
+                            G3DMODIFYOP  op,
                             uint64_t     engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
@@ -45,7 +46,8 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                 ret = mod->modify ( mod, 
                                     oriobj, 
                                     verpos, 
-                                    vernor, 
+                                    vernor,
+                                    op,
                                     engine_flags );
 
                 if ( ret & MODIFIERCHANGESCOORDS ) {
@@ -68,7 +70,8 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
             g3dmodifier_modify_r ( child,
                                    oriobj, 
                                    verpos, 
-                                   vernor, 
+                                   vernor,
+                                   op,
                                    engine_flags );
 
             ltmpchildren = ltmpchildren->next;        
@@ -137,10 +140,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                     G3DOBJECT *,
                                                     G3DOBJECT *, 
                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ),
-                        void       (*StartUpdate) ( G3DMODIFIER *, uint64_t ),
-                        void       (*Update)      ( G3DMODIFIER *, uint64_t ),
-                        void       (*EndUpdate)   ( G3DMODIFIER *, uint64_t ) ) {
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ) ) {
     g3dobject_init ( (G3DOBJECT*)mod, type, id, name, object_flags,
                                           Draw,
                                           Free,
@@ -154,9 +154,6 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                           SetParent );
 
     mod->modify      = Modify;
-    mod->startUpdate = StartUpdate;
-    mod->update      = Update;
-    mod->endUpdate   = EndUpdate;
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 

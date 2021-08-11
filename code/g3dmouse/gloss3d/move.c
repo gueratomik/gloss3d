@@ -161,6 +161,10 @@ static int move_spline ( G3DSPLINE    *spl,
                                MVX, PJX, VPX,
                                &orix, &oriy, &oriz );
             }
+
+            g3dspline_modify ( spl,
+                               G3DMODIFYOP_STARTUPDATE,
+                               engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -213,9 +217,9 @@ static int move_spline ( G3DSPLINE    *spl,
                         sce->csr.pivot.z /= nbpt;
                     }
 
-                	g3dspline_update ( spl,
-                                       NULL,
-                                       UPDATEMODIFIERS, engine_flags );
+                	g3dspline_modify ( spl,
+                                       G3DMODIFYOP_UPDATE,
+                                       engine_flags );
 
                     orix = newx;
                     oriy = newy;
@@ -232,6 +236,10 @@ static int move_spline ( G3DSPLINE    *spl,
             }
 
             spl->curve->curhan = NULL;
+
+            g3dspline_modify ( spl,
+                               G3DMODIFYOP_ENDUPDATE,
+                               engine_flags );
         } return REDRAWVIEW;
 
         default :
@@ -649,7 +657,9 @@ static int move_mesh ( G3DMESH      *mes,
                            MVX, PJX, VPX,
                            &orix, &oriy, &oriz );
 
-            g3dobject_startUpdateModifiers_r ( mes, engine_flags );
+            g3dmesh_modify ( mes,
+                             G3DMODIFYOP_STARTUPDATE,
+                             engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -707,7 +717,9 @@ static int move_mesh ( G3DMESH      *mes,
                         sce->csr.pivot.z /= nbver;
                     }
 
-                    g3dobject_updateModifiers_r ( mes, engine_flags );
+                    g3dmesh_modify ( mes,
+                                     G3DMODIFYOP_UPDATE,
+                                     engine_flags );
 
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
@@ -747,7 +759,9 @@ static int move_mesh ( G3DMESH      *mes,
 
             g3dmesh_updateBbox ( mes );
 
-            g3dobject_endUpdateModifiers_r ( mes, engine_flags );
+            g3dmesh_modify ( mes,
+                             G3DMODIFYOP_ENDUPDATE,
+                             engine_flags );
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );

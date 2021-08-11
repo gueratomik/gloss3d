@@ -1139,6 +1139,14 @@ struct _G3DMESH {
                                           uint64_t );
 };
 
+typedef enum  {
+    G3DMODIFYOP_MODIFY,
+    G3DMODIFYOP_STARTUPDATE,
+    G3DMODIFYOP_UPDATE,
+    G3DMODIFYOP_ENDUPDATE
+} G3DMODIFYOP;
+
+
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
 #include <g3dengine/g3dtext.h>
@@ -1176,22 +1184,23 @@ struct _G3DKEY {
 /******************************************************************************/
 
 
-#define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*,uint64_t))f)
-#define STARTUPDATE_CALLBACK(f)  ((void(*)     (G3DMODIFIER*,uint64_t))f)
-#define UPDATE_CALLBACK(f)       ((void(*)     (G3DMODIFIER*,uint64_t))f)
-#define ENDUPDATE_CALLBACK(f)    ((void(*)     (G3DMODIFIER*,uint64_t))f)
+#define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*, \
+                                                G3DOBJECT*,   \
+                                                G3DVECTOR*,   \
+                                                G3DVECTOR*,   \
+                                                G3DMODIFYOP,  \
+                                                uint64_t))f)
+
 
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
     G3DMESH    mes;
-    uint32_t (*modify)     ( struct _G3DMODIFIER *,
+    uint32_t (*modify)     ( struct _G3DMODIFIER *mod,
                                      G3DOBJECT   *obj,
                                      G3DVECTOR   *pos,
                                      G3DVECTOR   *nor,
+                                     G3DMODIFYOP  op,
                                      uint64_t     engine_flags );
-    void     (*startUpdate)( struct _G3DMODIFIER *, uint64_t );
-    void     (*update)     ( struct _G3DMODIFIER *, uint64_t );
-    void     (*endUpdate)  ( struct _G3DMODIFIER *, uint64_t );
     G3DOBJECT *oriobj;
     G3DVECTOR *verpos;
     G3DVECTOR *vernor;
@@ -2491,6 +2500,9 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags );
 void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                              uint64_t engine_flags );
+void g3dmesh_modify ( G3DMESH    *mes,
+                      G3DMODIFYOP op,
+                      uint64_t    engine_flags );
 void g3dmesh_drawFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags );
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes );
@@ -2624,11 +2636,12 @@ void    g3dffd_free         ( G3DOBJECT * );
 void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, float, float );
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
 void    g3dffd_addVertex    ( G3DFFD *, G3DVERTEX * );
-uint32_t g3dffd_modify ( G3DFFD    *ffd,
-                         G3DOBJECT *oriobj,
-                         G3DVECTOR *verpos,
-                         G3DVECTOR *vernor,
-                         uint64_t   engine_flags );
+uint32_t g3dffd_modify ( G3DFFD     *ffd,
+                         G3DOBJECT  *oriobj,
+                         G3DVECTOR  *oripos,
+                         G3DVECTOR  *orinor,
+                         G3DMODIFYOP op,
+                         uint64_t    engine_flags );
 void    g3dffd_appendVertex ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_unassign     ( G3DFFD * );
 void    g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw );
@@ -2864,10 +2877,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                     G3DOBJECT *, 
                                                     G3DOBJECT *, 
                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ),
-                        void       (*StartUpdate) ( G3DMODIFIER *, uint64_t ),
-                        void       (*Update)      ( G3DMODIFIER *, uint64_t ),
-                        void       (*EndUpdate)   ( G3DMODIFIER *, uint64_t ) );
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ) );
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );
@@ -2875,6 +2885,7 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                             G3DOBJECT   *oriobj,
                             G3DVECTOR   *verpos,
                             G3DVECTOR   *vernor,
+                            G3DMODIFYOP  op,
                             uint64_t     engine_flags );
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 

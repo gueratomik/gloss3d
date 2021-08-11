@@ -1376,10 +1376,7 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
        COMMIT_CALLBACK(NULL),
                        NULL,
     SETPARENT_CALLBACK(g3dmorpher_setParent),
-       MODIFY_CALLBACK(g3dmorpher_modify),
-  STARTUPDATE_CALLBACK(g3dmorpher_startUpdate),
-       UPDATE_CALLBACK(g3dmorpher_update),
-    ENDUPDATE_CALLBACK(g3dmorpher_endUpdate) );
+       MODIFY_CALLBACK(g3dmorpher_modify) );
 
     ((G3DOBJECT*)mpr)->anim = ANIM_CALLBACK(g3dmorpher_anim);
 
