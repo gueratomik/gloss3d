@@ -195,22 +195,24 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                nbuvmap           * sizeof ( G3DRTUV ) );
             }
 
-            nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
-                                                        fac,
-                                                        NULL,
-                                                        rtquamem,
-                                                        rtedgmem,
-                                                        rtvermem,
-                                                        rtluim,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        mes->ltex,
-                                       (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_render ),
-                                       (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_render ),
-                                                        sdr->subdiv_render,
-                                                        SUBDIVISIONCOMPUTE | SUBDIVISIONDUMP,
-                                                        engine_flags );
+            nbrtfac = g3dsubdivisionV3_subdivide ( sdv, 
+                                                   mes,
+                                                   sdr->mod.stkpos,
+                                                   fac,
+                                                   NULL,
+                                                   rtquamem,
+                                                   rtedgmem,
+                                                   rtvermem,
+                                                   rtluim,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   mes->ltex,
+                                  (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_render ),
+                                  (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_render ),
+                                                   sdr->subdiv_render,
+                                                   SUBDIVISIONCOMPUTE | SUBDIVISIONDUMP,
+                                                   engine_flags );
 
 
             for ( i = 0x00; i < nbrtfac; i++ ) {
@@ -332,22 +334,24 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
-            nbrtfac = g3dsubdivisionV3_subdivide ( sdv, mes,
-                                                        fac,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        commitVertices,
-                                                        commitEdges,
-                                                        commitFaces,
-                                                        mes->ltex,
-                                       (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
-                                       (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
-                                                        sdr->subdiv_preview,
-                                                        SUBDIVISIONCOMMIT,
-                                                        engine_flags );
+            nbrtfac = g3dsubdivisionV3_subdivide ( sdv, 
+                                                   mes,
+                                                   sdr->mod.stkpos,
+                                                   fac,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   commitVertices,
+                                                   commitEdges,
+                                                   commitFaces,
+                                                   mes->ltex,
+                                  (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
+                                  (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
+                                                   sdr->subdiv_preview,
+                                                   SUBDIVISIONCOMMIT,
+                                                   engine_flags );
 
             _NEXTFACE(mes,ltmpfac);
         }
@@ -393,16 +397,15 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr, 
+void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                  LIST          *lfac,
                                  uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( sdr->subdiv_preview ) {
-        if ( parent ) {
-            G3DMESH *mes = ( G3DMESH * ) parent;
+        if ( sdr->mod.oriobj ) {
             #define MAX_SUBDIVISION_THREADS 0x20
+            G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
             G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
             LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
             G3DSYSINFO *sif = g3dsysinfo_get ( );
@@ -422,6 +425,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
             if ( sif->nbcpu == 0x01 ) {
                 uint32_t cpuID = 0x00;
                 g3dsubdivisionthread_init ( &std[0x00], mes,
+                                                        sdr->mod.stkpos,
                                                         sdr->rtvermem,
                                                         sdr->nbrtver,
                                                         sdr->rtedgmem,
@@ -450,6 +454,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                 for ( i = 0x00; i < sif->nbcpu; i++ ) {
                     uint32_t cpuID = i;
                     g3dsubdivisionthread_init ( &std[i], mes,
+                                                         sdr->mod.stkpos,
                                                          sdr->rtvermem,
                                                          sdr->nbrtver,
                                                          sdr->rtedgmem,
@@ -552,13 +557,10 @@ static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
 
 /******************************************************************************/
 static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
-                                       G3DOBJECT     *oriobj,
-                                       G3DVECTOR     *oripos,
-                                       G3DVECTOR     *orinor,
                                        G3DMODIFYOP    op,
                                        uint64_t       engine_flags ) {
     if ( sdr->subdiv_preview > 0x00 ) {
-        G3DMESH *parmes = ( G3DMESH * ) oriobj;
+        G3DMESH *parmes = ( G3DMESH * ) sdr->mod.oriobj;
 
         if ( op == G3DMODIFYOP_MODIFY ) {
             g3dsubdivider_allocBuffers ( sdr, engine_flags );
@@ -585,15 +587,19 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
             list_free ( &lver, NULL );
         }
 
+
         if ( ( op == G3DMODIFYOP_UPDATE ) || 
              ( op == G3DMODIFYOP_MODIFY ) ) {
-            g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+            g3dsubdivider_fillBuffers  ( sdr,
+                                         NULL, 
+                                         engine_flags );
         }
 
         if ( op == G3DMODIFYOP_ENDUPDATE ) {
             list_free ( &sdr->lsubfac, NULL );
         }
     }
+
 
     return 0;
 }
@@ -814,7 +820,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
                               G3DCAMERA     *cam,
                               uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+    G3DOBJECT *parent = sdr->mod.oriobj;
     uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
                           ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
 

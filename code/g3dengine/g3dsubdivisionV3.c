@@ -105,6 +105,7 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
                                            uint32_t  level );
 static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
                                                G3DVERTEX      *ver, 
+                                               G3DVECTOR      *stkpos,
                                                G3DSUBVERTEX   *newver,
                                                uint32_t        id );
 static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
@@ -123,6 +124,7 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
                                              G3DSUBFACE     *newfac );
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
+                                            G3DVECTOR      *stkpos,
                                             G3DFACE        *fac,
                                             G3DSUBFACE     *innerFace,
                                             G3DSUBFACE     *outerFaces,
@@ -802,15 +804,17 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
     (*totalInnerUVSets)   += ( (*totalInnerFaces) * fac->nbuvs   );
     /* biggest evaluation */
     (*totalOuterUVSets)   += ( (*totalOuterFaces) * ((mes) ? nbuvmap : 0) );
-    return 0;
+
+    return 0x00;
 }
 
 /******************************************************************************/
 static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
                                                G3DVERTEX      *ver, 
+                                               G3DVECTOR      *stkpos,
                                                G3DSUBVERTEX   *newver,
                                                uint32_t        id ) {
-    G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn : &ver->pos;
+    G3DVECTOR *pos = ( stkpos ) ? &stkpos[ver->id] : &ver->pos;
 
     newver->ancestorVertex = ver;
     newver->ancestorFace   = NULL;
@@ -955,6 +959,7 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
 /*** convenient to deal with arrays. ***/
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
+                                            G3DVECTOR      *stkpos,
                                             G3DFACE        *fac,
                                             G3DSUBFACE     *innerFace,
                                             G3DSUBFACE     *outerFaces,
@@ -971,7 +976,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
     G3DFACE *oldadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DFACE *newadjfac[0x04] = { NULL, NULL, NULL, NULL };
     G3DSUBFACE *memOuterFaces = outerFaces;
-    G3DSUBEDGE *memOuterEdges  = outerEdges;
+    G3DSUBEDGE *memOuterEdges = outerEdges;
     G3DSUBVERTEX *initialInnerVertices = innerVertices;
     G3DSUBVERTEX *initialOuterVertices = outerVertices;
     G3DSUBEDGE   *initialInnerEdges    = innerEdges;
@@ -992,7 +997,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
         innerFace->fac.ver[i] = (G3DVERTEX*)newver;
 
-        g3dsubdivision_importInnerVertex ( sdv, fac->ver[i], newver, i );
+        g3dsubdivision_importInnerVertex ( sdv, fac->ver[i], stkpos, newver, i );
     }
 
     /*** Step3 : set new edges ***/
@@ -1063,6 +1068,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 /******************************************************************************/
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DMESH        *mes,
+                                      G3DVECTOR      *stkpos,
                                       G3DFACE        *fac,
                                       G3DRTTRIANGLE  *rtTriangles,
                                       G3DRTQUAD      *rtQuads,
@@ -1107,19 +1113,22 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
     /*if ( sdv->nbInnerUVSets ) memset ( innerUVSets  , 0x00, sizeof ( sdv->nbInnerUVSets ) );*/
 
-    subdiv_flags |= g3dsubdivisionV3_copyFace ( sdv, mes, fac, 
-                                                          innerFaces,
-                                                          outerFaces,
-                                                         &nbOuterFaces,
-                                                          innerEdges,
-                                                          outerEdges,
-                                                         &nbOuterEdges,
-                                                          innerVertices,
-                                                          outerVertices,
-                                                         &nbOuterVertices,
-                                                          subdiv_level,
-                                                          object_flags,
-                                                          engine_flags );
+    subdiv_flags |= g3dsubdivisionV3_copyFace ( sdv, 
+                                                mes, 
+                                                stkpos,
+                                                fac, 
+                                                innerFaces,
+                                                outerFaces,
+                                               &nbOuterFaces,
+                                                innerEdges,
+                                                outerEdges,
+                                               &nbOuterEdges,
+                                                innerVertices,
+                                                outerVertices,
+                                               &nbOuterVertices,
+                                                subdiv_level,
+                                                object_flags,
+                                                engine_flags );
 
     curInnerFaces    = innerFaces;
     curOuterFaces    = outerFaces;

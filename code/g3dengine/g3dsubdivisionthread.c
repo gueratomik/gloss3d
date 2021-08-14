@@ -37,6 +37,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD *sdt ) {
 /******************************************************************************/
 void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
+                                 G3DVECTOR            *stkpos,
                                  G3DRTVERTEX          *rtvermem,
                                  uint32_t              nbrtver,
                                  G3DRTEDGE            *rtedgmem,
@@ -55,6 +56,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              subdiv_level,
                                  uint64_t engine_flags ) {
     std->mes                   = mes;
+    std->stkpos                = stkpos;
     std->rtvermem              = rtvermem;
     std->nbrtver               = nbrtver;
     std->rtedgmem              = rtedgmem;
@@ -82,6 +84,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
 
 /******************************************************************************/
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
+                                                 G3DVECTOR   *stkpos,
                                                  G3DRTVERTEX *rtvermem,
                                                  uint32_t     nbrtver,
                                                  G3DRTEDGE   *rtedgmem,
@@ -109,24 +112,26 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
         return NULL;
     }
 
-    g3dsubdivisionthread_init ( std, mes,
-                                     rtvermem,
-                                     nbrtver,
-                                     rtedgmem,
-                                     nbrtedg,
-                                     rtquamem,
-                                     nbrtfac,
-                                     rtluim,
-                                     nbrtuv,
-                                     nbVerticesPerTriangle,
-                                     nbVerticesPerQuad,
-                                     nbEdgesPerTriangle,
-                                     nbEdgesPerQuad,
-                                     nbFacesPerTriangle,
-                                     nbFacesPerQuad,
-                                     cpuID,
-                                     subdiv_level,
-                                     engine_flags );
+    g3dsubdivisionthread_init ( std,
+                                mes,
+                                stkpos,
+                                rtvermem,
+                                nbrtver,
+                                rtedgmem,
+                                nbrtedg,
+                                rtquamem,
+                                nbrtfac,
+                                rtluim,
+                                nbrtuv,
+                                nbVerticesPerTriangle,
+                                nbVerticesPerQuad,
+                                nbEdgesPerTriangle,
+                                nbEdgesPerQuad,
+                                nbFacesPerTriangle,
+                                nbFacesPerQuad,
+                                cpuID,
+                                subdiv_level,
+                                engine_flags );
 
     return std;
 }
@@ -162,22 +167,24 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
         }
 
-        g3dsubdivisionV3_subdivide ( sdv, mes,
-                                          fac,
-                                          NULL,
-                                          rtquamem,
-                                          rtedgmem,
-                                          rtvermem,
-                                          rtluim,
-                                          NULL,
-                                          NULL,
-                                          NULL,
-                                          mes->ltex,
-                         (uint32_t (*)[4])sdt->qua_indexes,
-                         (uint32_t (*)[4])sdt->tri_indexes,
-                                          sdt->subdiv_level,
-                                          SUBDIVISIONCOMPUTE,
-                                          sdt->engine_flags );
+        g3dsubdivisionV3_subdivide ( sdv, 
+                                     mes,
+                                     sdt->stkpos,
+                                     fac,
+                                     NULL,
+                                     rtquamem,
+                                     rtedgmem,
+                                     rtvermem,
+                                     rtluim,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     mes->ltex,
+                    (uint32_t (*)[4])sdt->qua_indexes,
+                    (uint32_t (*)[4])sdt->tri_indexes,
+                                     sdt->subdiv_level,
+                                     SUBDIVISIONCOMPUTE,
+                                     sdt->engine_flags );
     }
 
     /** COMMENTED OUT - now done by the caller ***/

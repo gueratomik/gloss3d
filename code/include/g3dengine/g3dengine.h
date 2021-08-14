@@ -1188,9 +1188,6 @@ struct _G3DKEY {
 
 
 #define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*, \
-                                                G3DOBJECT*,   \
-                                                G3DVECTOR*,   \
-                                                G3DVECTOR*,   \
                                                 G3DMODIFYOP,  \
                                                 uint64_t))f)
 
@@ -1199,12 +1196,11 @@ struct _G3DKEY {
 typedef struct _G3DMODIFIER {
     G3DMESH    mes;
     uint32_t (*modify)     ( struct _G3DMODIFIER *mod,
-                                     G3DOBJECT   *obj,
-                                     G3DVECTOR   *pos,
-                                     G3DVECTOR   *nor,
                                      G3DMODIFYOP  op,
                                      uint64_t     engine_flags );
-    G3DOBJECT *oriobj;
+    G3DOBJECT *oriobj; /*** original mesh   ***/
+    G3DOBJECT *stkpos; /*** stack positions ***/
+    G3DOBJECT *stknor; /*** stack normals   ***/
     G3DVECTOR *verpos;
     G3DVECTOR *vernor;
 } G3DMODIFIER;
@@ -2833,6 +2829,11 @@ void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr,
                                uint32_t       preview,
                                uint32_t       render,
                                uint64_t       engine_flags );
+void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
+                                 LIST          *lfac,
+                                 uint64_t       engine_flags );
+void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
+                                  uint64_t       engine_flags );
 
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *,

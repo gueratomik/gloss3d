@@ -32,8 +32,8 @@
 /******************************************************************************/
 void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                             G3DOBJECT   *oriobj,
-                            G3DVECTOR   *verpos,
-                            G3DVECTOR   *vernor,
+                            G3DVECTOR   *stkpos,
+                            G3DVECTOR   *stknor,
                             G3DMODIFYOP  op,
                             uint64_t     engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
@@ -41,25 +41,32 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
     uint32_t ret = 0x00;
 
     if ( obj->type & MODIFIER ) {
+        /*** remember the last coords from the stack ***/
+        /*** there is no need to be active for that ***/
+        if ( op == G3DMODIFYOP_MODIFY ) {
+            mod->oriobj = oriobj;
+            mod->stkpos = stkpos;
+            mod->stknor = stknor;
+        }
+
         if ( g3dobject_isActive ( obj ) ) {
             if ( mod->modify ) {
-                ret = mod->modify ( mod, 
-                                    oriobj, 
-                                    verpos, 
-                                    vernor,
+                ret = mod->modify ( mod,
                                     op,
                                     engine_flags );
 
                 if ( ret & MODIFIERCHANGESCOORDS ) {
-                   /*** orimes stays unchanged but gets new vertices values ***/
-                    verpos = mod->verpos;
-                    vernor = mod->vernor;
+                    /*** original object stays unchanged ***/
+                    /*** but gets new vertices values ***/
+                    stkpos = mod->verpos;
+                    stknor = mod->vernor;
                 }
 
                 if ( ret & MODIFIERBUILDSNEWMESH ) {
                     oriobj = ( G3DOBJECT * ) mod;
-                    verpos = NULL;
-                    vernor = NULL;
+
+                    stkpos = NULL;
+                    stknor = NULL;
                 }
             }
         }
@@ -69,8 +76,8 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
 
             g3dmodifier_modify_r ( child,
                                    oriobj, 
-                                   verpos, 
-                                   vernor,
+                                   stkpos, 
+                                   stknor,
                                    op,
                                    engine_flags );
 

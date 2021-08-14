@@ -46,6 +46,7 @@ extern "C" {
  */
 typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH     *mes;
+    G3DVECTOR   *stkpos;
     G3DRTVERTEX *rtvermem;
     uint32_t     nbrtver;
     G3DRTEDGE   *rtedgmem;
@@ -98,6 +99,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
  */
 void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
+                                 G3DVECTOR            *stkpos,
                                  G3DRTVERTEX          *rtvermem,
                                  uint32_t              nbrtver,
                                  G3DRTEDGE            *rtedgmem,
@@ -139,6 +141,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
  * @return the allocated G3DSUBDIVISIONTHREAD structure.
  */
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
+                                                 G3DVECTOR   *stkpos,
                                                  G3DRTVERTEX *rtvermem,
                                                  uint32_t     nbrtver,
                                                  G3DRTEDGE   *rtedgmem,
