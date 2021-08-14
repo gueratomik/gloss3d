@@ -1836,8 +1836,9 @@ void g3dmesh_assignFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
 }
 
 /******************************************************************************/
-void g3dmesh_clone ( G3DMESH *mes, 
-                     G3DMESH *cpymes, 
+void g3dmesh_clone ( G3DMESH   *mes,
+                     G3DVECTOR *verpos,
+                     G3DMESH   *cpymes,
                      uint64_t engine_flags ) {
     uint32_t nbver  = mes->nbver;
     uint32_t nbedg  = mes->nbedg;
@@ -1862,14 +1863,20 @@ void g3dmesh_clone ( G3DMESH *mes,
 
     while ( ltmpver ) {
         G3DVERTEX *oriver = _GETVERTEX(mes,ltmpver);
-        G3DVERTEX *cpyver = g3dvertex_copy ( oriver, SETPOSITION | SETNORMAL );
-
-        g3dmesh_addVertex ( cpymes, cpyver );
-
-        vertab[verid] = cpyver;
+        G3DVECTOR *oripos;
+        G3DVERTEX *cpyver;
 
         /*** indexing ***/
         oriver->id = verid++;
+
+        oripos = ( verpos ) ? &verpos[oriver->id] : &oriver->pos;
+        cpyver = g3dvertex_new ( oripos->x, 
+                                 oripos->y,
+                                 oripos->z );
+
+        g3dmesh_addVertex ( cpymes, cpyver );
+
+        vertab[oriver->id] = cpyver;
 
         _NEXTVERTEX(mes,ltmpver);
     }
@@ -1929,14 +1936,14 @@ void g3dmesh_clone ( G3DMESH *mes,
 /******************************************************************************/
 G3DOBJECT *g3dmesh_copy ( G3DOBJECT     *obj, 
                           uint32_t       id, 
-                          unsigned char *name, 
+                          unsigned char *name,
                           uint64_t       engine_flags ) {
     G3DMESH *mes = ( G3DMESH * ) obj;
     G3DMESH *cpymes = g3dmesh_new ( ((G3DOBJECT*)mes)->id,
                                     ((G3DOBJECT*)mes)->name, engine_flags );
 
     /*** This is also used by g3dprimitive_copy ***/
-    g3dmesh_clone ( mes, cpymes, engine_flags );
+    g3dmesh_clone ( mes, NULL, cpymes, engine_flags );
 
 
     return ( G3DOBJECT * ) cpymes;

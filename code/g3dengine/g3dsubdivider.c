@@ -102,6 +102,20 @@ void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
+void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr, 
+                               uint32_t       preview,
+                               uint32_t       render,
+                               uint64_t       engine_flags ) {
+    sdr->subdiv_preview = preview;
+    sdr->subdiv_render  = render;
+
+    if ( sdr->subdiv_preview ) {
+        g3dsubdivider_allocBuffers ( sdr, engine_flags );
+        g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver */
                                                                  uint32_t, /* nbtris */
                                                                  uint32_t, /* nbquads */
@@ -537,54 +551,50 @@ static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void g3dsubdivider_startUpdate ( G3DSUBDIVIDER *sdr,
-                                         uint64_t      engine_flags ) {
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
-    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-
-    if ( parent ) {
-        G3DMESH *mes = ( G3DMESH * ) parent;
-        LIST *lver = NULL;
-
-        if ( ( engine_flags & VIEWVERTEX ) || 
-             ( engine_flags & VIEWSKIN   ) ) {
-            lver = g3dmesh_getVertexListFromSelectedVertices ( mes );
-        }
-
-        if ( engine_flags & VIEWEDGE ) {
-            lver = g3dmesh_getVertexListFromSelectedEdges ( mes );
-        }
-
-        if ( engine_flags & VIEWFACE ) {
-            lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
-        }
-
-        sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
-
-        list_free ( &lver, NULL );
-    }
-}
-
-/******************************************************************************/
-static void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, 
-                                   uint64_t       engine_flags ) {
-    g3dsubdivider_fillBuffers ( sdr, sdr->lsubfac, engine_flags );
-}
-
-/******************************************************************************/
-static void g3dsubdivider_endUpdate ( G3DSUBDIVIDER *sdr, 
-                                      uint64_t       engine_flags ) {
-    list_free ( &sdr->lsubfac, NULL );
-}
-
-/******************************************************************************/
-static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr, 
+static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
+                                       G3DOBJECT     *oriobj,
+                                       G3DVECTOR     *oripos,
+                                       G3DVECTOR     *orinor,
+                                       G3DMODIFYOP    op,
                                        uint64_t       engine_flags ) {
     if ( sdr->subdiv_preview > 0x00 ) {
-        g3dsubdivider_allocBuffers ( sdr, engine_flags );
-        g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+        G3DMESH *parmes = ( G3DMESH * ) oriobj;
+
+        if ( op == G3DMODIFYOP_MODIFY ) {
+            g3dsubdivider_allocBuffers ( sdr, engine_flags );
+        }
+
+        if ( op == G3DMODIFYOP_STARTUPDATE ) {
+            LIST *lver = NULL;
+
+            if ( ( engine_flags & VIEWVERTEX ) || 
+                 ( engine_flags & VIEWSKIN   ) ) {
+                lver = g3dmesh_getVertexListFromSelectedVertices ( parmes );
+            }
+
+            if ( engine_flags & VIEWEDGE ) {
+                lver = g3dmesh_getVertexListFromSelectedEdges ( parmes );
+            }
+
+            if ( engine_flags & VIEWFACE ) {
+                lver = g3dmesh_getVertexListFromSelectedFaces ( parmes );
+            }
+
+            sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
+
+            list_free ( &lver, NULL );
+        }
+
+        if ( ( op == G3DMODIFYOP_UPDATE ) || 
+             ( op == G3DMODIFYOP_MODIFY ) ) {
+            g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+        }
+
+        if ( op == G3DMODIFYOP_ENDUPDATE ) {
+            list_free ( &sdr->lsubfac, NULL );
+        }
     }
+
     return 0;
 }
 

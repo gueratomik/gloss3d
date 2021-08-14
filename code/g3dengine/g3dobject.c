@@ -1692,6 +1692,11 @@ void g3dobject_init ( G3DOBJECT   *obj,
 }
 
 /******************************************************************************/
+uint32_t g3dobject_isSelected ( G3DOBJECT *obj ) {
+    return ( obj->flags & OBJECTSELECTED ) ? 0x01 : 0x00;
+}
+
+/******************************************************************************/
 uint32_t g3dobject_isActive ( G3DOBJECT *obj ) {
     return ( obj->flags & OBJECTINACTIVE ) ? 0x00 : 0x01;
 }

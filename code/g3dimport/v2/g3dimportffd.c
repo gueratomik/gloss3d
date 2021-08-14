@@ -77,46 +77,6 @@ void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 }
             } break;
 
-            case SIG_OBJECT_FFD_VERTICES : {
-                G3DFFD *ffd = ( G3DFFD * ) gid->currentObject;
-                G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
-                G3DVECTOR *pos, *uvw;
-                LIST *lver = NULL;
-                uint32_t nbver;
-                uint32_t i;
-
-                g3dimport_freadl ( &nbver, fsrc );
-
-                pos = ( G3DVECTOR * ) calloc ( nbver, sizeof ( G3DVECTOR ) );
-                uvw = ( G3DVECTOR * ) calloc ( nbver, sizeof ( G3DVECTOR ) );
-
-                for ( i = 0x00; i < nbver; i++ ) {
-                    G3DVERTEX *ver = NULL;
-                    uint32_t verid;
-
-                    g3dimport_freadl ( &verid, fsrc );
-
-                    g3dimport_freadf ( &pos[i].x, fsrc );
-                    g3dimport_freadf ( &pos[i].y, fsrc );
-                    g3dimport_freadf ( &pos[i].z, fsrc );
-
-                    /*** normal vector stores the local UVW coordinates ***/
-                    g3dimport_freadf ( &uvw[i].x, fsrc );
-                    g3dimport_freadf ( &uvw[i].y, fsrc );
-                    g3dimport_freadf ( &uvw[i].z, fsrc );
-
-                    ver = g3dmesh_getVertexByID ( obj->parent, verid );
-
-                    list_append ( &lver, ver );
-                }
-
-                /*** active here instead of in g3dimportobject() otherwise ***/
-                /*** the loaded data is going to be erased. ***/
-                g3dffd_load ( ffd, lver, pos, uvw );
-
-                ((G3DOBJECT*)ffd)->flags &= (~OBJECTINACTIVE);
-            } break;
-
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;

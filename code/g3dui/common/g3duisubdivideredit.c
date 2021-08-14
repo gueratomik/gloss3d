@@ -109,18 +109,20 @@ void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level ) {
 
     if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
         G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-
+        uint32_t preview = level,
+                 render  = ( obj->flags & SYNCLEVELS ) ? preview :
+                                                         sdr->subdiv_render; 
         g3dui_setHourGlass ( gui );
 
-        sdr->subdiv_preview = level;
-
-        if ( obj->flags & SYNCLEVELS ) {
-            sdr->subdiv_render = sdr->subdiv_preview;
-        }
+        g3dsubdivider_setLevels ( sdr,
+                                  preview, 
+                                  render, 
+                                  gui->engine_flags );
 
         /*g3dmodifier_modify_r ( sdr, gui->engine_flags );*/
 
         g3dui_unsetHourGlass ( gui );
+
         /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
     }
 

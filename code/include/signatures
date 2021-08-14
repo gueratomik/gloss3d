@@ -207,10 +207,6 @@ SIG_ROOT=0x44335347
 ------------------------------- radz (float)
 -------------------------- SIG_OBJECT_FFD_UVW
 ------------------------------ (float{x}-float{y}-float{z},float{u}-float{v}-float{w})[nb control points]
--------------------------- SIG_OBJECT_FFD_VERTICES
------------------------------- uint32_t number of controlled vertices
------------------------------- (uint32_t{verID}-float{x}-float{y}-float{z},float{u}-float{v}-float{w})[controlled vertices]
-
 
 ------------------- SIG_OBJECT_WIREFRAME
 ----------------------- SIG_OBJECT_WIREFRAME_ALGO

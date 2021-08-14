@@ -143,11 +143,13 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define LOADFULLRESIMAGES  ((uint64_t)1  << 25 ) /* used by the renderer especially for animated textures */
 #define NODRAWPOLYGON      ((uint64_t)1  << 26 )
 #define NOBACKGROUNDIMAGE  ((uint64_t)1  << 27 )
+#define MODIFIERTOOKOVER   ((uint64_t)1  << 28 )
 
 /******************************* UVMAp Editor flags ***************************/
-#define VIEWVERTEXUV       ((uint64_t)1  << 28 )
-#define VIEWFACEUV         ((uint64_t)1  << 29 )
+#define VIEWVERTEXUV       ((uint64_t)1  << 29 )
+#define VIEWFACEUV         ((uint64_t)1  << 30 )
 #define UVMODEMASK         ((uint64_t)VIEWVERTEXUV | VIEWFACEUV )
+
 
 #define DIFFUSECHANNELID        0x00
 #define SPECULARCHANNELID       0x01
@@ -1143,6 +1145,7 @@ typedef enum  {
     G3DMODIFYOP_MODIFY,
     G3DMODIFYOP_STARTUPDATE,
     G3DMODIFYOP_UPDATE,
+    G3DMODIFYOP_UPDATESELF,
     G3DMODIFYOP_ENDUPDATE
 } G3DMODIFYOP;
 
@@ -2079,6 +2082,7 @@ G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj,
                               uint64_t       engine_flags );
 G3DOBJECT *g3dobject_getActiveParentByType ( G3DOBJECT *, uint32_t );
 uint32_t   g3dobject_isActive              ( G3DOBJECT * );
+uint32_t g3dobject_isSelected ( G3DOBJECT *obj );
 uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
                                    uint64_t   engine_flags  );
@@ -2428,8 +2432,9 @@ void       g3dmesh_invertVertexSelection ( G3DMESH *mes,
 uint32_t   g3dmesh_isSubdivided                  ( G3DMESH *, uint32_t );
 uint32_t   g3dmesh_isBuffered                    ( G3DMESH *, uint32_t );
 void       g3dmesh_renumberVertices              ( G3DMESH * );
-void g3dmesh_clone ( G3DMESH *mes, 
-                     G3DMESH *cpymes, 
+void g3dmesh_clone ( G3DMESH   *mes, 
+                     G3DVECTOR *verpos,
+                     G3DMESH   *cpymes, 
                      uint64_t engine_flags );
 G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, 
                                       uint32_t splID,
@@ -2636,12 +2641,6 @@ void    g3dffd_free         ( G3DOBJECT * );
 void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, float, float );
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
 void    g3dffd_addVertex    ( G3DFFD *, G3DVERTEX * );
-uint32_t g3dffd_modify ( G3DFFD     *ffd,
-                         G3DOBJECT  *oriobj,
-                         G3DVECTOR  *oripos,
-                         G3DVECTOR  *orinor,
-                         G3DMODIFYOP op,
-                         uint64_t    engine_flags );
 void    g3dffd_appendVertex ( G3DFFD *, G3DVERTEX * );
 void    g3dffd_unassign     ( G3DFFD * );
 void    g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw );
@@ -2830,6 +2829,10 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                           uint64_t       engine_flags );
 void           g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER * );
 void           g3dsubdivider_setSyncSubdivision   ( G3DSUBDIVIDER * );
+void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr, 
+                               uint32_t       preview,
+                               uint32_t       render,
+                               uint64_t       engine_flags );
 
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *,

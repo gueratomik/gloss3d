@@ -54,54 +54,26 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
                                   unsigned char *name,
                                   uint64_t       engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) ffd;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
-    if ( parent ) {
-        return g3dmesh_copy ( parent, id, name, engine_flags );
+    if ( g3dobject_isActive ( ffd ) ) {
+        G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+        if ( parent ) {
+            G3DMESH *parmes = ( G3DMESH * ) parent;
+            G3DMESH *cpymes = g3dmesh_new ( ((G3DOBJECT*)parmes)->id,
+                                            ((G3DOBJECT*)parmes)->name, 
+                                            engine_flags );
+
+            g3dmesh_clone ( parmes, 
+                            ffd->mod.verpos,
+                            cpymes,
+                            engine_flags );
+
+            return cpymes;
+        }
     }
 
     return NULL;
-}
-
-/******************************************************************************/
-static void g3dffd_generateuvw ( G3DFFD  *ffd, 
-                                 G3DMESH *parmes ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
-
-    if ( parmes ) {
-        if ( parmes->nbver ) {
-            LIST *ltmpver = parmes->lver;
-            float xaxis = ( ffd->parmax.x - ffd->parmin.x ),
-                  yaxis = ( ffd->parmax.y - ffd->parmin.y ),
-                  zaxis = ( ffd->parmax.z - ffd->parmin.z );
-
-            ffd->uvw = ( G3DVECTOR * ) realloc ( ffd->uvw, parmes->nbver * sizeof ( G3DVECTOR ) );
-
-            if ( ffd->uvw == NULL ) {
-                fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
-
-                return;
-            }
-
-            /*while ( ltmpver ) {
-                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-
-                if ( ( ver->pos.x >= ffd->parmin.x ) && ( ver->pos.x <= ffd->parmax.x ) &&
-                     ( ver->pos.y >= ffd->parmin.y ) && ( ver->pos.y <= ffd->parmax.y ) &&
-                     ( ver->pos.z >= ffd->parmin.z ) && ( ver->pos.z <= ffd->parmax.z ) ) {
-
-                    ffd->uvw[ver->id].x = ( ver->pos.x - ffd->parmin.x ) / xaxis;
-                    ffd->uvw[ver->id].y = ( ver->pos.y - ffd->parmin.y ) / yaxis;
-                    ffd->uvw[ver->id].z = ( ver->pos.z - ffd->parmin.z ) / zaxis;
-                    ffd->uvw[ver->id].w = 1.0f;
-                } else {
-                    ffd->uvw[ver->id].w = 0.0f;
-                }
-
-                ltmpver = ltmpver->next;
-            }*/
-        }
-    }
 }
 
 /******************************************************************************/
@@ -121,58 +93,51 @@ static void g3dffd_getDeformedPosition ( G3DFFD    *ffd,
                      .w = 1.0f };
     uint32_t n = 0x00, i, j, k;
 
-    if ( uvw->w == 1.0f ) {
-        /*** altered points within the FFD ***/
-        altpos->x = ffd->parmin.x;
-        altpos->y = ffd->parmin.y;
-        altpos->z = ffd->parmin.z;
+    /*** altered points within the FFD ***/
+    altpos->x = ffd->parmin.x;
+    altpos->y = ffd->parmin.y;
+    altpos->z = ffd->parmin.z;
 
-        for ( i = 0x00; i <= ffd->nbx; i++ ) {
-            G3DVECTOR vj = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
-            double bui = binomialcoeff ( ffd->nbx, i );
+    for ( i = 0x00; i <= ffd->nbx; i++ ) {
+        G3DVECTOR vj = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+        double bui = binomialcoeff ( ffd->nbx, i );
 
-            for ( j = 0x00; j <= ffd->nby; j++ ) {
-                G3DVECTOR vk = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
-                double buj = binomialcoeff ( ffd->nby, j );
+        for ( j = 0x00; j <= ffd->nby; j++ ) {
+            G3DVECTOR vk = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+            double buj = binomialcoeff ( ffd->nby, j );
 
-                for ( k = 0x00; k <= ffd->nbz; k++ ) {
-                    double buk = binomialcoeff ( ffd->nbz, k );
-                    G3DVERTEX *pnt = &ffd->pnt[n++];
+            for ( k = 0x00; k <= ffd->nbz; k++ ) {
+                double buk = binomialcoeff ( ffd->nbz, k );
+                G3DVERTEX *pnt = &ffd->pnt[n++];
 
-                    vk.x += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.x );
-                    vk.y += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.y );
-                    vk.z += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.z );
-                }
-
-                vj.x += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.x );
-                vj.y += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.y );
-                vj.z += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.z );
+                vk.x += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.x );
+                vk.y += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.y );
+                vk.z += ( buk * pow ( ( 1 - uvw->z ), (ffd->nbz) - k ) * pow ( uvw->z, k ) * pnt->nor.z );
             }
 
-            vi.x += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.x );
-            vi.y += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.y );
-            vi.z += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.z );
+            vj.x += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.x );
+            vj.y += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.y );
+            vj.z += ( buj * pow ( ( 1 - uvw->y ), (ffd->nby) - j ) * pow ( uvw->y, j ) * vk.z );
         }
 
-        /*** set and adjust to FFD size ***/
-        altpos->x += ( vi.x * xaxis );
-        altpos->y += ( vi.y * yaxis );
-        altpos->z += ( vi.z * zaxis );
-    } else {
-        /*** unchanged points ***/
-        altpos->x = oripos->x;
-        altpos->y = oripos->y;
-        altpos->z = oripos->z;
+        vi.x += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.x );
+        vi.y += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.y );
+        vi.z += ( bui * pow ( ( 1 - uvw->x ), (ffd->nbx) - i ) * pow ( uvw->x, i ) * vj.z );
     }
+
+    /*** set and adjust to FFD size ***/
+    altpos->x += ( vi.x * xaxis );
+    altpos->y += ( vi.y * yaxis );
+    altpos->z += ( vi.z * zaxis );
 }
 
 /******************************************************************************/
-uint32_t g3dffd_modify ( G3DFFD     *ffd,
-                         G3DOBJECT  *oriobj,
-                         G3DVECTOR  *oripos,
-                         G3DVECTOR  *orinor,
-                         G3DMODIFYOP op,
-                         uint64_t    engine_flags ) {
+static uint32_t g3dffd_modify ( G3DFFD     *ffd,
+                                G3DOBJECT  *oriobj,
+                                G3DVECTOR  *oripos,
+                                G3DVECTOR  *orinor,
+                                G3DMODIFYOP op,
+                                uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 
     if ( oriobj->type & MESH ) {
@@ -190,14 +155,25 @@ uint32_t g3dffd_modify ( G3DFFD     *ffd,
             uint32_t n = 0x00;
             LIST *ltmpver = orimes->lver;
 
+            
+            if ( op == G3DMODIFYOP_MODIFY     ) ltmpver = orimes->lver;
+            /*** when parent mesh's verticces are moved ***/
+            if ( op == G3DMODIFYOP_UPDATE     ) ltmpver = orimes->lselver;
+            /*** when FFD's vertices are moved ***/
+            if ( op == G3DMODIFYOP_UPDATESELF ) ltmpver = orimes->lver;
+
             if ( op == G3DMODIFYOP_MODIFY ) {
                 ffd->mod.oriobj = oriobj;
 
-                ffd->mod.verpos = ( G3DVECTOR * ) realloc ( ffd->mod.verpos, orimes->nbver * sizeof ( G3DVECTOR ) );
-                ffd->mod.vernor = ( G3DVECTOR * ) realloc ( ffd->mod.vernor, orimes->nbver * sizeof ( G3DVECTOR ) );
-
-                /*** TODO: use verpos and vernor for parent mesh ***/
-                g3dffd_generateuvw ( ffd, orimes );
+                ffd->mod.verpos = ( G3DVECTOR * ) realloc ( ffd->mod.verpos, 
+                                                            orimes->nbver * 
+                                                            sizeof ( G3DVECTOR ) );
+                ffd->mod.vernor = ( G3DVECTOR * ) realloc ( ffd->mod.vernor, 
+                                                            orimes->nbver *  
+                                                            sizeof ( G3DVECTOR ) );
+                ffd->uvw        = ( G3DVECTOR * ) realloc ( ffd->uvw, 
+                                                            orimes->nbver *
+                                                            sizeof ( G3DVECTOR ) );
             }
 
             x = 0.0f;
@@ -218,30 +194,33 @@ uint32_t g3dffd_modify ( G3DFFD     *ffd,
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                 G3DVECTOR *uvw = &ffd->uvw[ver->id];
+                G3DVECTOR *verpos = ( oripos ) ? &oripos[ver->id] : &ver->pos;
                 G3DVECTOR *altpos = &ffd->mod.verpos[ver->id];
 
-                if ( ( ver->pos.x >= ffd->parmin.x ) && ( ver->pos.x <= ffd->parmax.x ) &&
-                     ( ver->pos.y >= ffd->parmin.y ) && ( ver->pos.y <= ffd->parmax.y ) &&
-                     ( ver->pos.z >= ffd->parmin.z ) && ( ver->pos.z <= ffd->parmax.z ) ) {
+                if ( ( verpos->x >= ffd->parmin.x ) && ( verpos->x <= ffd->parmax.x ) &&
+                     ( verpos->y >= ffd->parmin.y ) && ( verpos->y <= ffd->parmax.y ) &&
+                     ( verpos->z >= ffd->parmin.z ) && ( verpos->z <= ffd->parmax.z ) ) {
 
-                    ffd->uvw[ver->id].x = ( ver->pos.x - ffd->parmin.x ) / xaxis;
-                    ffd->uvw[ver->id].y = ( ver->pos.y - ffd->parmin.y ) / yaxis;
-                    ffd->uvw[ver->id].z = ( ver->pos.z - ffd->parmin.z ) / zaxis;
+                    ffd->uvw[ver->id].x = ( verpos->x - ffd->parmin.x ) / xaxis;
+                    ffd->uvw[ver->id].y = ( verpos->y - ffd->parmin.y ) / yaxis;
+                    ffd->uvw[ver->id].z = ( verpos->z - ffd->parmin.z ) / zaxis;
                     ffd->uvw[ver->id].w = 1.0f;
+
+                    g3dffd_getDeformedPosition ( ffd,
+                                                 uvw,
+                                                 verpos,
+                                                 altpos );
                 } else {
                     ffd->uvw[ver->id].w = 0.0f;
-                }
 
-                g3dffd_getDeformedPosition ( ffd,
-                                             uvw,
-                               ( oripos ) ? &oripos[ver->id] : &ver->pos,
-                                             altpos );
+                    memcpy ( altpos, verpos, sizeof ( G3DVECTOR ) );
+                }
 
                 ltmpver = ltmpver->next;
             }
-
-            return MODIFIERCHANGESCOORDS | MODIFIERTAKESOVER;
         }
+
+        return MODIFIERCHANGESCOORDS | MODIFIERTAKESOVER;
     }
 
     return 0x00;
@@ -261,24 +240,9 @@ void g3dffd_onGeometryMove ( G3DFFD  *ffd,
             G3DMESH *parmes = ( G3DMESH * ) parent;
 
             g3dmesh_modify ( parmes, 
-                             G3DMODIFYOP_UPDATE, 
+                             G3DMODIFYOP_UPDATESELF, 
                              engine_flags );
         }
-    }
-}
-
-
-/******************************************************************************/
-void g3dffd_load ( G3DFFD *ffd, LIST *lver, G3DVECTOR *pos, G3DVECTOR *uvw ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
-
-    if ( parent ) {
-        g3dvector_matrix ( &ffd->locmin, obj->lmatrix, &ffd->parmin );
-        g3dvector_matrix ( &ffd->locmax, obj->lmatrix, &ffd->parmax );
-
-        ffd->pos = pos;
-        ffd->uvw = uvw;
     }
 }
 
@@ -305,7 +269,13 @@ void g3dffd_deactivate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
+        if ( ffd->uvw        ) free ( ffd->uvw        );
+        if ( ffd->mod.verpos ) free ( ffd->mod.verpos );
+        if ( ffd->mod.vernor ) free ( ffd->mod.vernor );
 
+        ffd->uvw = NULL;
+        ffd->mod.verpos = NULL;
+        ffd->mod.vernor = NULL;
     }
 }
 
@@ -393,17 +363,16 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
 }
 
 /******************************************************************************/
-uint32_t g3dffd_draw ( G3DOBJECT *obj,
-                       G3DCAMERA *cam, 
-                       uint64_t   engine_flags ) {
-    G3DFFD *ffd = ( G3DFFD * ) obj;
-    uint32_t i, j, k;
-    uint32_t n = 0x00;
-    uint32_t nbpnt = ( ffd->nbx + 0x01 ) *
-                     ( ffd->nby + 0x01 ) *
-                     ( ffd->nbz + 0x01 );
-
+static void g3dffd_drawCage ( G3DFFD    *ffd,
+                              G3DCAMERA *cam, 
+                              uint64_t   engine_flags ) {
     if ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) {
+        uint32_t i, j, k;
+        uint32_t n = 0x00;
+        uint32_t nbpnt = ( ffd->nbx + 0x01 ) *
+                         ( ffd->nby + 0x01 ) *
+                         ( ffd->nbz + 0x01 );
+
         glPushAttrib ( GL_ALL_ATTRIB_BITS );
         glDisable ( GL_LIGHTING );
 
@@ -472,15 +441,32 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj,
 
         glPopAttrib ( );
     }
+}
 
-    if ( g3dobject_isActive ( obj ) ) {
-        g3dmesh_drawModified ( ffd->mod.oriobj,
-                               cam,
-                               ffd->mod.verpos,
-                               ffd->mod.vernor,
-                               engine_flags );
+/******************************************************************************/
+uint32_t g3dffd_draw ( G3DOBJECT *obj,
+                       G3DCAMERA *cam, 
+                       uint64_t   engine_flags ) {
+    G3DFFD *ffd = ( G3DFFD * ) obj;
 
-        return MODIFIERTAKESOVER;
+    /** Draw FFD if selected even if it's not the last modifier ***/
+    if ( ( engine_flags & MODIFIERTOOKOVER ) && g3dobject_isSelected ( obj )  ) {
+        g3dffd_drawCage ( obj, cam, engine_flags );
+    }
+
+    /*** draw FFD if it's the last modifier anyways ***/
+    if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
+        g3dffd_drawCage ( obj, cam, engine_flags );
+
+        if ( g3dobject_isActive ( obj ) ) {
+            g3dmesh_drawModified ( ffd->mod.oriobj,
+                                   cam,
+                                   ffd->mod.verpos,
+                                   ffd->mod.vernor,
+                                   engine_flags );
+
+            return MODIFIERTAKESOVER;
+        }
     }
 
     return 0x00;
@@ -489,6 +475,16 @@ uint32_t g3dffd_draw ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dffd_free ( G3DOBJECT *obj ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
+
+    if ( ffd->pnt ) free ( ffd->pnt );
+
+    list_free ( &((G3DMESH*)ffd)->lver, NULL );
+    list_free ( &((G3DMESH*)ffd)->lselver, NULL );
+
+
+    if ( ffd->uvw        ) free ( ffd->uvw        );
+    if ( ffd->mod.verpos ) free ( ffd->mod.verpos );
+    if ( ffd->mod.vernor ) free ( ffd->mod.vernor );
 
 }
 

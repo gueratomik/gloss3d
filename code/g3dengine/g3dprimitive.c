@@ -53,7 +53,7 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj,
     ((G3DOBJECT*)cpypri)->type = ((G3DOBJECT*)pri)->type;
 
     /*** A primitive is a mesh ***/
-    g3dmesh_clone ( ( G3DMESH * ) pri, ( G3DMESH * ) cpypri, engine_flags );
+    g3dmesh_clone ( ( G3DMESH * ) pri, NULL, ( G3DMESH * ) cpypri, engine_flags );
 
 
     return ( G3DOBJECT * ) cpypri;
