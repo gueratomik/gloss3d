@@ -146,33 +146,6 @@ static uint32_t g3dexportmorpher_meshPoses ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_resetPositions ( G3DEXPORTDATA *ged,
-                                                  G3DMORPHER    *mpr,
-                                                  uint32_t       flags,
-                                                  FILE          *fdst ) {
-    LIST *ltmpver = mpr->lver;
-    uint32_t size = 0x00;
-
-    size += g3dexport_fwritel ( &mpr->nbver, fdst );
-
-    while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR resetPosition;
-
-        g3dmorpher_getVertexResetPosition ( mpr, ver, &resetPosition );
-
-        size += g3dexport_fwritel ( &ver->id        , fdst );
-        size += g3dexport_fwritef ( &resetPosition.x, fdst );
-        size += g3dexport_fwritef ( &resetPosition.y, fdst );
-        size += g3dexport_fwritef ( &resetPosition.z, fdst );
-
-        ltmpver = ltmpver->next;
-    }
-
-    return size;
-}
-
-/******************************************************************************/
 static uint32_t g3dexportmorpher_vertexCount ( G3DEXPORTDATA *ged,
                                                G3DMORPHER    *mpr,
                                                uint32_t       flags,
@@ -202,13 +175,6 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
 
         size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSES,
                                        g3dexportmorpher_meshPoses,
-                                       ged,
-                                       mpr,
-                                       0xFFFFFFFF,
-                                       fdst );
-
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_RESETPOSITIONS,
-                                       g3dexportmorpher_resetPositions,
                                        ged,
                                        mpr,
                                        0xFFFFFFFF,

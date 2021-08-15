@@ -111,34 +111,6 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 if ( ver ) free ( ver );
             } break;
 
-            case SIG_OBJECT_MORPHER_RESETPOSITIONS : {
-                G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
-                /*** Note: this is not efficient and should be ***/
-                /*** buffered somewhere ***/
-                G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
-                uint32_t nbver;
-                uint32_t i;
-
-                g3dimport_freadl ( &nbver, fsrc );
-                for ( i = 0x00; i < nbver; i++ ) {
-                    uint32_t verID;
-                    G3DVECTOR vpos;
-
-                    g3dimport_freadl ( &verID, fsrc );
-                    g3dimport_freadl ( &vpos.x, fsrc );
-                    g3dimport_freadl ( &vpos.y, fsrc );
-                    g3dimport_freadl ( &vpos.z, fsrc );
-
-                    g3dmorpher_setVertexResetPosition ( mpr,
-                                                        ver[verID],
-                                                       &vpos );
-                }
-
-                /*** Note: this is not efficient and should be ***/
-                /*** buffered somewhere ***/
-                if ( ver ) free ( ver );
-            } break;
-
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;

@@ -255,7 +255,7 @@ void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
         g3dvector_matrix ( &ffd->locmin, obj->lmatrix, &ffd->parmin );
         g3dvector_matrix ( &ffd->locmax, obj->lmatrix, &ffd->parmax );
 
-        g3dmesh_modify ( parent, 
+        g3dmesh_modify ( parmes, 
                          G3DMODIFYOP_MODIFY, 
                          engine_flags );
     }

@@ -508,23 +508,6 @@ static void optimizeCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static void restoreCbk ( GtkWidget *widget,
-                         gpointer   user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
-
-    if ( gui->lock ) return;
-
-    if ( obj ) {
-        if ( obj->type == G3DMORPHERTYPE ) {
-            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-
-            g3dmorpher_restore ( mpr );
-        }
-    }
-}
-
-/******************************************************************************/
 static void createFunctionsPanel ( GtkWidget *parent, 
                                    G3DUI     *gui,
                                    gint       x,
@@ -544,12 +527,6 @@ static void createFunctionsPanel ( GtkWidget *parent,
                       "Optimize",
                        0, 4,
                        64 , 18, optimizeCbk );
-
-    createPushButton ( pan, 
-                       gui,
-                      "Restore",
-                       0, 28,
-                       64 , 18, restoreCbk );
 }
 
 /******************************************************************************/
