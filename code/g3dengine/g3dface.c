@@ -1538,6 +1538,30 @@ uint32_t g3dface_intersect ( G3DFACE   *fac,
 }
 
 /******************************************************************************/
+void g3dface_getModifiedPosition ( G3DFACE   *fac,
+                                   G3DVECTOR *stkpos,
+                                   G3DVECTOR *facpos ) {
+    float    nbverdiv = ( fac->nbver == 0x03 ) ? 0.3333f : 0.25f;
+    uint32_t i;
+
+    fac->pos.x = fac->pos.y = fac->pos.z = 0.0f;
+    fac->pos.w = 1.0f;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( fac->ver[i], 
+                                                            stkpos );
+
+        fac->pos.x += verpos->x;
+        fac->pos.y += verpos->y;
+        fac->pos.z += verpos->z;
+    }
+
+    fac->pos.x = ( fac->pos.x * nbverdiv );
+    fac->pos.y = ( fac->pos.y * nbverdiv );
+    fac->pos.z = ( fac->pos.z * nbverdiv );
+}
+
+/******************************************************************************/
 void g3dface_position ( G3DFACE *fac ) {
     float    nbverdiv = ( fac->nbver == 0x03 ) ? ONETHIRD : 0.25f;
     uint32_t i;

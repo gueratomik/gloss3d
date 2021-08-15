@@ -564,6 +564,9 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 
         if ( op == G3DMODIFYOP_MODIFY ) {
             g3dsubdivider_allocBuffers ( sdr, engine_flags );
+            g3dsubdivider_fillBuffers  ( sdr,
+                                         NULL, 
+                                         engine_flags );
         }
 
         if ( op == G3DMODIFYOP_STARTUPDATE ) {
@@ -587,11 +590,9 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
             list_free ( &lver, NULL );
         }
 
-
-        if ( ( op == G3DMODIFYOP_UPDATE ) || 
-             ( op == G3DMODIFYOP_MODIFY ) ) {
+        if ( op == G3DMODIFYOP_UPDATE ) {
             g3dsubdivider_fillBuffers  ( sdr,
-                                         NULL, 
+                                         sdr->lsubfac, 
                                          engine_flags );
         }
 

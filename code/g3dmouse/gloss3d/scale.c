@@ -568,9 +568,18 @@ static int scale_mesh ( G3DMESH          *mes,
             lfac = g3dvertex_getFacesFromList  ( lver );
             ledg = g3dface_getEdgesFromList    ( lfac );
 
-            g3dmesh_modify ( mes,
+            /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_STARTUPDATE,
-                             engine_flags );
+                             engine_flags );*/
+
+            if ( mes->onGeometryMove ) {
+                mes->onGeometryMove ( mes, lver, 
+                                           ledg, 
+                                           lfac, 
+                                           G3DMODIFYOP_STARTUPDATE,
+                                           engine_flags );
+            }
+
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -612,14 +621,15 @@ static int scale_mesh ( G3DMESH          *mes,
                         ltmpver = ltmpver->next;
                     }
 
-                    g3dmesh_modify ( mes,
+                    /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_UPDATE,
-                                     engine_flags );
+                                     engine_flags );*/
 
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
                                                    lfac, 
+                                                   G3DMODIFYOP_UPDATE,
                                                    engine_flags );
                     }
                 }
@@ -650,9 +660,17 @@ static int scale_mesh ( G3DMESH          *mes,
 
             g3dmesh_updateBbox ( mes );
 
-            g3dmesh_modify ( mes,
+            if ( mes->onGeometryMove ) {
+                mes->onGeometryMove ( mes, lver, 
+                                           ledg, 
+                                           lfac, 
+                                           G3DMODIFYOP_ENDUPDATE,
+                                           engine_flags );
+            }
+
+            /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,
-                             engine_flags );
+                             engine_flags );*/
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );

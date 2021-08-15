@@ -2478,26 +2478,6 @@ void g3dmesh_update ( G3DMESH *mes,
                          G3DMODIFYOP_MODIFY,
                          engine_flags );
     }
-
-    if ( update_flags & UPDATEMODIFIERS ) {
-        /*** modifier update is based on selected vertices/faces/edges ***/
-        LIST *ltmpselver = mes->lselver,
-             *ltmpseledg = mes->lseledg,
-             *ltmpselfac = mes->lselfac;
-
-        mes->lselver = ( lver == NULL ) ? mes->lver : lver;
-        mes->lseledg = ( ledg == NULL ) ? mes->ledg : ledg;
-        mes->lselfac = ( lfac == NULL ) ? mes->lfac : lfac;
-
-        g3dmesh_modify ( mes,
-                         G3DMODIFYOP_UPDATE,
-                         engine_flags );
-
-        /*** restore selected items ***/
-        mes->lselver = ltmpselver;
-        mes->lseledg = ltmpseledg;
-        mes->lselfac = ltmpselfac;
-    }
 }
 
 /******************************************************************************/
@@ -4284,11 +4264,12 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_onGeometryMove ( G3DMESH *mes,
-                              LIST    *lver,
-                              LIST    *ledg,
-                              LIST    *lfac,
-                              uint64_t engine_flags ) {
+void g3dmesh_onGeometryMove ( G3DMESH    *mes,
+                              LIST       *lver,
+                              LIST       *ledg,
+                              LIST       *lfac,
+                              G3DMODIFYOP op,
+                              uint64_t    engine_flags ) {
     g3dmesh_update ( mes, lver,
                           ledg,
                           lfac,
@@ -4296,6 +4277,10 @@ void g3dmesh_onGeometryMove ( G3DMESH *mes,
                           UPDATEFACENORMAL   |
                           UPDATEVERTEXNORMAL |
                           COMPUTEUVMAPPING, engine_flags );
+
+    g3dmesh_modify ( mes,
+                     op,
+                     engine_flags ); 
 }
 
 /******************************************************************************/
@@ -4343,6 +4328,7 @@ void g3dmesh_init ( G3DMESH *mes,
     mes->gouraudScalarLimit = cos ( 90 * M_PI / 180 );
 
     mes->onGeometryMove = g3dmesh_onGeometryMove;
+
     mes->dump           = g3dmesh_default_dump;
 
     /*** mesh have morph capacities ***/

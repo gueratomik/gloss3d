@@ -221,20 +221,25 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
 }
 
 /******************************************************************************/
-void g3dffd_onGeometryMove ( G3DFFD  *ffd,
-                             LIST    *lver, 
-                             LIST    *ledg,
-                             LIST    *lfac,
-                             uint64_t engine_flags ) {
+static void g3dffd_onGeometryMove ( G3DFFD     *ffd,
+                                    LIST       *lver, 
+                                    LIST       *ledg,
+                                    LIST       *lfac,
+                                    G3DMODIFYOP op,
+                                    uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 
     if ( g3dobject_isActive ( obj ) ) {
         if ( ffd->mod.oriobj ) {
             G3DMESH *parmes = ( G3DMESH * ) ffd->mod.oriobj;
 
-            g3dmesh_modify ( parmes, 
-                             G3DMODIFYOP_UPDATESELF, 
-                             engine_flags );
+            g3dffd_modify ( ffd,
+                            G3DMODIFYOP_UPDATESELF,
+                            engine_flags );
+
+            g3dmodifier_modifyChildren ( ffd,
+                                         op,
+                                         engine_flags );
         }
     }
 }

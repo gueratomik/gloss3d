@@ -760,6 +760,12 @@ G3DVERTEX *g3dvertex_weldList ( LIST *lver ) {
 }
 
 /******************************************************************************/
+G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
+                                           G3DVECTOR *stkpos ) {
+    return ( stkpos ) ? &stkpos[ver->id] : &ver->pos;
+}
+
+/******************************************************************************/
 void g3dvertex_getAverageFacePoint ( G3DVERTEX *ver, G3DVECTOR *facavg ) {
     memcpy ( facavg, &ver->facpnt, sizeof ( G3DVECTOR ) );
 }

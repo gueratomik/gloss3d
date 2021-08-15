@@ -30,6 +30,27 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
+                                  G3DMODIFYOP  op,
+                                  uint64_t     engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
+    LIST *ltmpchildren = obj->lchildren;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        g3dmodifier_modify_r ( child,
+                               mod->oriobj, 
+                               mod->stkpos, 
+                               mod->stknor,
+                               op,
+                               engine_flags );
+
+        ltmpchildren = ltmpchildren->next;        
+    }
+}
+
+/******************************************************************************/
 void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                             G3DOBJECT   *oriobj,
                             G3DVECTOR   *stkpos,

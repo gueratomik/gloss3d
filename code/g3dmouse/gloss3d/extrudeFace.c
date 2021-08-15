@@ -190,9 +190,17 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
 
                     nbver = list_count ( lver );
 
-                    g3dmesh_modify ( mes,
+                    if ( mes->onGeometryMove ) {
+                        mes->onGeometryMove ( mes, lver,
+                                                   NULL, 
+                                                   NULL, 
+                                                   G3DMODIFYOP_STARTUPDATE,
+                                                   engine_flags );
+                    }
+
+                    /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_STARTUPDATE,
-                                     engine_flags );
+                                     engine_flags );*/
 
                     /*** for undo redo ***/
                     g3dvertex_copyPositionFromList ( lver, &oldpos ); 
@@ -258,14 +266,15 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                     }
                 }
 
-                g3dmesh_modify ( mes,
+                /*g3dmesh_modify ( mes,
                                  G3DMODIFYOP_UPDATE,
-                                 engine_flags );
+                                 engine_flags );*/
 
                 if ( mes->onGeometryMove ) {
                      mes->onGeometryMove ( mes, lselver, 
                                                 NULL, 
                                                 lselfac, 
+                                                G3DMODIFYOP_UPDATE,
                                                 engine_flags );
                 }
             }
@@ -285,9 +294,17 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                                             newpos,
                                             REDRAWVIEW );
 
-            g3dmesh_modify ( mes,
+            if ( mes->onGeometryMove ) {
+                mes->onGeometryMove ( mes, lver,
+                                           NULL, 
+                                           NULL, 
+                                           G3DMODIFYOP_ENDUPDATE,
+                                           engine_flags );
+            }
+
+            /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,
-                             engine_flags );
+                             engine_flags );*/
 
             g3dmesh_updateBbox ( mes );
 

@@ -193,7 +193,7 @@ static int move_spline ( G3DSPLINE    *spl,
                         spl->curve->curhan->pos.z += difz;
                     }
 
-                   memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
                     while ( ltmppt ) {
                         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
@@ -657,9 +657,18 @@ static int move_mesh ( G3DMESH      *mes,
                            MVX, PJX, VPX,
                            &orix, &oriy, &oriz );
 
-            g3dmesh_modify ( mes,
+            if ( mes->onGeometryMove ) {
+                mes->onGeometryMove ( mes, lver, 
+                                           ledg, 
+                                           lfac, 
+                                           G3DMODIFYOP_STARTUPDATE,
+                                           engine_flags );
+            }
+
+            /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_STARTUPDATE,
-                             engine_flags );
+                             engine_flags );*/
+
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -717,14 +726,15 @@ static int move_mesh ( G3DMESH      *mes,
                         sce->csr.pivot.z /= nbver;
                     }
 
-                    g3dmesh_modify ( mes,
+                    /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_UPDATE,
-                                     engine_flags );
+                                     engine_flags );*/
 
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
                                                    lfac, 
+                                                   G3DMODIFYOP_UPDATE,
                                                    engine_flags );
                     }
 
@@ -759,9 +769,17 @@ static int move_mesh ( G3DMESH      *mes,
 
             g3dmesh_updateBbox ( mes );
 
-            g3dmesh_modify ( mes,
+            if ( mes->onGeometryMove ) {
+                mes->onGeometryMove ( mes, lver, 
+                                           ledg, 
+                                           lfac, 
+                                           G3DMODIFYOP_ENDUPDATE,
+                                           engine_flags );
+            }
+
+            /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,
-                             engine_flags );
+                             engine_flags );*/
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );

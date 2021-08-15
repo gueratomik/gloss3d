@@ -1068,6 +1068,13 @@ typedef struct _G3DWEIGHTGROUP {
 } G3DWEIGHTGROUP;
 
 /******************************************************************************/
+typedef enum  {
+    G3DMODIFYOP_MODIFY,
+    G3DMODIFYOP_STARTUPDATE,
+    G3DMODIFYOP_UPDATE,
+    G3DMODIFYOP_UPDATESELF,
+    G3DMODIFYOP_ENDUPDATE
+} G3DMODIFYOP;
 
 #define DUMP_CALLBACK(f) ((uint32_t(*)(G3DMESH *, void (*)( uint32_t,   \
                                                             uint32_t,   \
@@ -1129,6 +1136,7 @@ struct _G3DMESH {
     void (*onGeometryMove) ( struct _G3DMESH *, LIST *,
                                                 LIST *,
                                                 LIST *,
+                                                G3DMODIFYOP,
                                                 uint64_t );
     uint32_t (*dump) ( struct _G3DMESH *, void (*Alloc)( uint32_t, /* nbver */
                                                          uint32_t, /* nbtris */
@@ -1140,15 +1148,6 @@ struct _G3DMESH {
                                           void *data,
                                           uint64_t );
 };
-
-typedef enum  {
-    G3DMODIFYOP_MODIFY,
-    G3DMODIFYOP_STARTUPDATE,
-    G3DMODIFYOP_UPDATE,
-    G3DMODIFYOP_UPDATESELF,
-    G3DMODIFYOP_ENDUPDATE
-} G3DMODIFYOP;
-
 
 #include <g3dengine/g3dsubdivisionthread.h>
 #include <g3dengine/g3dspline.h>
@@ -1490,6 +1489,8 @@ void g3dquaternion_print ( G3DQUATERNION *qua );
 
 /******************************************************************************/
 G3DVERTEX *g3dvertex_new        ( float, float, float );
+G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
+                                           G3DVECTOR *stkpos );
 G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
 void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
@@ -1681,6 +1682,9 @@ void g3dface_draw  ( G3DFACE *fac,
 void g3dface_drawSkin ( G3DFACE *fac, 
                         uint32_t oflags,
                         uint64_t engine_flags );
+void g3dface_getModifiedPosition ( G3DFACE   *fac,
+                                   G3DVECTOR *stkpos,
+                                   G3DVECTOR *facpos );
 uint32_t g3dface_intersect        ( G3DFACE *, G3DVECTOR *, G3DVECTOR *,
                                                             G3DVECTOR * );
 void     g3dface_free             ( G3DFACE * );
@@ -2894,6 +2898,9 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );
+void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
+                                  G3DMODIFYOP  op,
+                                  uint64_t     engine_flags );
 
 /******************************************************************************/
 G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
