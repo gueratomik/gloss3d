@@ -563,6 +563,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
 #define MENU_ADDFFDBOX            "Add FFD Box"
 #define MENU_ADDMORPHER           "Add Morpher"
+#define MENU_ADDSKIN              "Add Skin"
 #define MENU_ASSIGNFFD            "Assign FFD"
 #define MENU_RESETFFD             "Reset FFD"
 #define MENU_FIXBONE              "Fix Bone"
@@ -1188,6 +1189,7 @@ void      common_g3dui_resetBoneTreeCbk       ( G3DUI * );
 void      common_g3dui_resetBoneCbk           ( G3DUI * );
 void      common_g3dui_fixBoneTreeCbk         ( G3DUI * );
 void      common_g3dui_addMorpherCbk          ( G3DUI * );
+void      common_g3dui_addSkinCbk             ( G3DUI *gui );
 void      common_g3dui_fixBoneCbk             ( G3DUI * );
 void      common_g3dui_mirrorWeightGroupCbk   ( G3DUI *, const char * );
 void      common_g3dui_setMaterialCbk         ( G3DUI * );

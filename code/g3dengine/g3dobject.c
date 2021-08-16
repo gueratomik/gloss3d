@@ -209,7 +209,8 @@ uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj, uint32_t type ) {
+uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj,
+                                               uint64_t   type ) {
     LIST *ltmpobj = obj->lchildren;
     uint32_t nb = 0x00;
 
@@ -227,7 +228,8 @@ uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj, uint32_t type ) {
 }
 
 /******************************************************************************/
-LIST *g3dobject_getChildrenByType ( G3DOBJECT *obj, uint32_t type ) {
+LIST *g3dobject_getChildrenByType ( G3DOBJECT *obj, 
+                                    uint64_t   type ) {
     LIST *ltmpobj = obj->lchildren;
     LIST *ltype = NULL;
 
@@ -1440,6 +1442,27 @@ void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis ) {
     }
 
     list_insert ( lis, obj );
+}
+
+/******************************************************************************/
+G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj, 
+                                      uint64_t   type ) {
+    LIST *ltmp = obj->lchildren;
+
+    if ( obj->type == type ) {
+        return obj;
+    } else {
+        while ( ltmp ) {
+            G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
+            G3DOBJECT *match = g3dobject_getChildByType ( child, type );
+
+            if ( match ) return match;
+
+            ltmp = ltmp->next;
+        }
+    }
+
+    return NULL;
 }
 
 /******************************************************************************/

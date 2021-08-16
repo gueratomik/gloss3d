@@ -790,7 +790,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
         VERTEXPOSEEXTENSION *vxt = g3dvertex_getExtension ( ver, 
-                                                            mpr->extensionName );\
+                                                            mpr->extensionName );
         LIST *ltmpmpose = mpr->lmpose;
         uint32_t nbCurrPose = 0x00;
         uint32_t nbPrevPose = 0x00;
@@ -1060,10 +1060,13 @@ static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
 
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
-                                                                    mpr->mod.stkpos );
+                if ( g3dvertex_getExtension ( ver, 
+                                              mpr->extensionName ) == NULL ) {
+                    G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
+                                                                        mpr->mod.stkpos );
 
-                memcpy ( &mpr->mod.verpos[ver->id], verpos, sizeof ( G3DVECTOR ) );
+                    memcpy ( &mpr->mod.verpos[ver->id], verpos, sizeof ( G3DVECTOR ) );
+                }
 
                 ltmpver = ltmpver->next;
             }
@@ -1095,6 +1098,7 @@ static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
     if ( mpr->mod.verpos ) free ( mpr->mod.verpos );
     if ( mpr->mod.vernor ) free ( mpr->mod.vernor );
 
+    mpr->mod.oriobj = NULL;
     mpr->mod.verpos = NULL;
     mpr->mod.vernor = NULL;
 }
@@ -1107,52 +1111,56 @@ static void g3dmorpher_free ( G3DMORPHER *mpr ) {
 /******************************************************************************/
 static void g3dmorpher_pickObject ( G3DMORPHER *mpr,
                                     uint64_t    engine_flags ) {
-    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
-        LIST *ltmpfac = mes->lfac;
+    if ( mpr->mod.oriobj ) {
+        if ( mpr->mod.oriobj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) mpr->mod.oriobj;
+            LIST *ltmpfac = mes->lfac;
 
-        g3dpick_setName (  ( uint64_t ) mpr );
+            g3dpick_setName (  ( uint64_t ) mpr );
 
-        while ( ltmpfac ) {
-            G3DVECTOR *pos[0x04] = { NULL, NULL, NULL, NULL };
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            uint32_t i;
+            while ( ltmpfac ) {
+                G3DVECTOR *pos[0x04] = { NULL, NULL, NULL, NULL };
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                uint32_t i;
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
-                G3DVERTEX *ver = fac->ver[i];
+                for ( i = 0x00; i < fac->nbver; i++ ) {
+                    G3DVERTEX *ver = fac->ver[i];
 
-                /*** "if" statement to speed up things a bit ***/
-                if ( ver->lext ) {
-                    G3DMORPHERVERTEXPOSE *vp = g3dmorpher_getVertexPose ( mpr,
-                                                                          ver,
-                                                                          NULL,
-                                                                          NULL );
-                    if ( vp ) {
-                        pos[i] = &vp->pos;
+                    /*** "if" statement to speed up things a bit ***/
+                    if ( ver->lext ) {
+                        G3DMORPHERVERTEXPOSE *vp = g3dmorpher_getVertexPose ( mpr,
+                                                                              ver,
+                                                                              NULL,
+                                                                              NULL );
+                        if ( vp ) {
+                            pos[i] = &vp->pos;
+                        } else {
+                            pos[i] = g3dvertex_getModifiedPosition ( ver,
+                                                                     mpr->mod.stkpos );
+                        }
                     } else {
-                        pos[i] = &ver->pos;
+                        pos[i] = g3dvertex_getModifiedPosition ( ver,
+                                                                 mpr->mod.stkpos );
                     }
-                } else {
-                    pos[i] = &ver->pos;
                 }
+
+                g3dpick_drawFace ( fac->nbver, 
+                                   pos[0x00]->x, 
+                                   pos[0x00]->y,
+                                   pos[0x00]->z,
+                                   pos[0x01]->x, 
+                                   pos[0x01]->y,
+                                   pos[0x01]->z,
+                                   pos[0x02]->x, 
+                                   pos[0x02]->y,
+                                   pos[0x02]->z,
+                   ( pos[0x03] ) ? pos[0x03]->x : 0.0f,
+                   ( pos[0x03] ) ? pos[0x03]->y : 0.0f,
+                   ( pos[0x03] ) ? pos[0x03]->z : 0.0f );
+
+
+                ltmpfac = ltmpfac->next;
             }
-
-            g3dpick_drawFace ( fac->nbver, 
-                               pos[0x00]->x, 
-                               pos[0x00]->y,
-                               pos[0x00]->z,
-                               pos[0x01]->x, 
-                               pos[0x01]->y,
-                               pos[0x01]->z,
-                               pos[0x02]->x, 
-                               pos[0x02]->y,
-                               pos[0x02]->z,
-               ( pos[0x03] ) ? pos[0x03]->x : 0.0f,
-               ( pos[0x03] ) ? pos[0x03]->y : 0.0f,
-               ( pos[0x03] ) ? pos[0x03]->z : 0.0f );
-
-
-            ltmpfac = ltmpfac->next;
         }
     }
 }
@@ -1160,41 +1168,46 @@ static void g3dmorpher_pickObject ( G3DMORPHER *mpr,
 /******************************************************************************/
 static void g3dmorpher_pickVertices ( G3DMORPHER *mpr,
                                       uint64_t    engine_flags ) {
-    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
-        LIST *ltmpver = mes->lver;
+    if ( mpr->mod.oriobj ) {
+        if ( mpr->mod.oriobj->type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) mpr->mod.oriobj;
+            LIST *ltmpver = mes->lver;
 
-        while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-            G3DMORPHERVERTEXPOSE *vpose = g3dmorpher_getVertexPose ( mpr,
-                                                                     ver,
-                                                                     NULL,
-                                                                     NULL );
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                G3DMORPHERVERTEXPOSE *vpose = g3dmorpher_getVertexPose ( mpr,
+                                                                         ver,
+                                                                         NULL,
+                                                                         NULL );
 
-            g3dpick_setName ( ( uint64_t ) ver );
+                g3dpick_setName ( ( uint64_t ) ver );
 
-            /*if ( ver->flags & VERTEXSKINNED ) {
-                g3dpick_drawPoint ( ver->skn.x, 
-                                    ver->skn.y, 
-                                    ver->skn.z );
-            } else {
-                g3dpick_drawPoint ( ver->pos.x, 
-                                    ver->pos.y, 
-                                    ver->pos.z );
-            }*/
+                /*if ( ver->flags & VERTEXSKINNED ) {
+                    g3dpick_drawPoint ( ver->skn.x, 
+                                        ver->skn.y, 
+                                        ver->skn.z );
+                } else {
+                    g3dpick_drawPoint ( ver->pos.x, 
+                                        ver->pos.y, 
+                                        ver->pos.z );
+                }*/
 
-            if ( vpose ) {
-                g3dpick_drawPoint ( vpose->pos.x, 
-                                    vpose->pos.y, 
-                                    vpose->pos.z );
-            } else {
-                g3dpick_drawPoint ( ver->pos.x, 
-                                    ver->pos.y, 
-                                    ver->pos.z );
+                if ( vpose ) {
+                    g3dpick_drawPoint ( vpose->pos.x, 
+                                        vpose->pos.y, 
+                                        vpose->pos.z );
+                } else {
+                    G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
+                                                                        mpr->mod.stkpos );
+
+                    g3dpick_drawPoint ( verpos->x, 
+                                        verpos->y, 
+                                        verpos->z );
+                }
+
+
+                ltmpver = ltmpver->next;
             }
-
-
-            ltmpver = ltmpver->next;
         }
     }
 }
@@ -1232,7 +1245,7 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
         if ( mpr->mod.oriobj->type & MESH ) {
             if ( engine_flags & VIEWVERTEX ) {
                 if ( obj->flags & OBJECTSELECTED ) {
-                    G3DMESH *mes = ( obj->parent );
+                    G3DMESH *mes = mpr->mod.oriobj;
                     LIST *ltmpfac = mes->lfac;
                     LIST *ltmpedg = mes->ledg;
                     glPushAttrib( GL_ALL_ATTRIB_BITS );
@@ -1257,7 +1270,8 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                             if ( vpose ) {
                                 glVertex3fv ( ( GLfloat * ) &vpose->pos );
                             } else {
-                                glVertex3fv ( ( GLfloat * ) &ver->pos );
+                                glVertex3fv ( ( GLfloat * ) g3dvertex_getModifiedPosition ( ver,
+                                                                                            mpr->mod.stkpos ) );
                             }
                         }
 
@@ -1285,11 +1299,10 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                             vpose = ( fac->ver[i]->lext ) ? g3dmorpher_getVertexPose ( mpr, fac->ver[i], NULL, &nbpose ) : NULL;
 
                             if ( vpose )  {
-                                glNormal3fv ( &vpose->nor );
                                 glVertex3fv ( &vpose->pos );
                             } else {
-                                glNormal3fv ( &fac->ver[i]->nor );
-                                glVertex3fv ( &fac->ver[i]->pos );
+                                glVertex3fv ( g3dvertex_getModifiedPosition ( fac->ver[i],
+                                                                              mpr->mod.stkpos ) );
                             }
                         }
 
@@ -1323,7 +1336,8 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                                 if ( nbpose ) glColor3ub  ( 0xFF, 0x00, 0xFF );
                                 else          glColor3ub  ( 0x00, 0x00, 0xFF );
 
-                                glVertex3fv ( ( GLfloat * ) &ver->pos );
+                                glVertex3fv ( ( GLfloat * ) g3dvertex_getModifiedPosition ( ver,
+                                                                                            mpr->mod.stkpos ) );
                             }
 
                             ltmpver = ltmpver->next;

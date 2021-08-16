@@ -52,6 +52,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \
                       g3dscene.c \
+                      g3dskin.c \
                       g3dsphere.c \
                       g3dspline.c \
                       g3dsplinerevolver.c \

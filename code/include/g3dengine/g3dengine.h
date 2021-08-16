@@ -195,6 +195,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define TEXT           ( ( uint64_t )  1 << 25 )
 #define TUBE           ( ( uint64_t )  1 << 26 )
 #define MORPHER        ( ( uint64_t )  1 << 27 )
+#define SKIN           ( ( uint64_t )  1 << 28 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DMESHTYPE       ( OBJECT | MESH | EDITABLE )
@@ -224,6 +225,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** ignore by g3dobject_getByType(), and mororver, it doesn't use vertex ***/
 /*** list or face list or edge list ***/
 #define G3DMORPHERTYPE        ( OBJECT        | MODIFIER | MORPHER )
+#define G3DSKINTYPE           ( OBJECT        | MODIFIER | SKIN )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -1213,6 +1215,7 @@ typedef struct _G3DBONE {
     float len;        /*** Bone len                       ***/
     LIST *lrig;       /*** list of rigged weight groups   ***/
     uint32_t nbrig;
+    double sknmatrix[0x10];
 } G3DBONE;
 
 /******************************************************************************/
@@ -1231,6 +1234,7 @@ typedef struct _G3DWIREFRAME {
 
 #include <g3dengine/g3dsplinerevolver.h>
 #include <g3dengine/g3dmorpher.h>
+#include <g3dengine/g3dskin.h>
 
 /******************************************************************************/
 typedef struct _G3DSUBDIVIDER {
@@ -1440,6 +1444,8 @@ void     g3dcore_getMatrixScale          ( double *, G3DVECTOR * );
 void     g3dcore_getMatrixRotation       ( double *, G3DVECTOR * );
 void     g3dcore_getMatrixTranslation    ( double *, G3DVECTOR * );
 void     g3dobject_buildRotationMatrix   ( G3DOBJECT * );
+G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj, 
+                                      uint64_t   type );
 void     g3dcore_identityMatrix          ( double * );
 void     g3dcore_multmatrixdirect        ( double *, double * );
 void     g3dcore_symmetryMatrix          ( double *, uint32_t );
@@ -2057,8 +2063,8 @@ void g3dobject_localTranslate ( G3DOBJECT *obj,
                                 float      z,
                                 uint64_t   engine_flags );
 void       g3dobject_initMatrices          ( G3DOBJECT * );
-uint32_t   g3dobject_getNumberOfChildrenByType ( G3DOBJECT *, uint32_t );
-LIST      *g3dobject_getChildrenByType     ( G3DOBJECT *, uint32_t );
+uint32_t   g3dobject_getNumberOfChildrenByType ( G3DOBJECT *, uint64_t );
+LIST      *g3dobject_getChildrenByType     ( G3DOBJECT *, uint64_t );
 void       g3dobject_printCoordinates      ( G3DOBJECT * );
 float      g3dobject_getKeys               ( G3DOBJECT *, float, 
                                                           G3DKEY **,

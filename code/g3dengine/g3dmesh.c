@@ -30,6 +30,24 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dmesh_fixBones ( G3DMESH *mes, 
+                        uint64_t engine_flags ) {
+    G3DSKIN *skn = g3dobject_getChildByType ( mes, G3DSKINTYPE );
+
+    if ( skn ) {
+        LIST *ltmpbon = g3dobject_getChildrenByType ( mes, G3DSKINTYPE );
+
+        while ( ltmpbon ) {
+            G3DBONE *bon = ( G3DBONE * ) ltmpbon->data;
+
+            g3dskin_fixBone ( skn, bon );
+
+            ltmpbon = ltmpbon->next;
+        }
+    }
+}
+
+/******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
     LIST *ltmpfacgrp = mes->lfacgrp;
 
