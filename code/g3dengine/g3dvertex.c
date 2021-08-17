@@ -376,58 +376,6 @@ LIST *g3dvertex_getAreaFacesFromList ( LIST *lver ) {
 }
 
 /******************************************************************************/
-void g3dvertex_computeSkinnedPosition ( G3DVERTEX *ver ) {
-    LIST *ltmp = ver->lwei;
-    float posx = 0.0f;
-    float posy = 0.0f;
-    float posz = 0.0f;
-    double invmatrix[0x10];
-    G3DVECTOR oripos, sknpos;
-    uint32_t nbbon = 0x00;
-
-    g3dvector_init ( &sknpos, 0.0f, 0.0f, 0.0f, 1.0f );
-
-    while ( ltmp ) {
-        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmp->data;
-        LIST *lbuf = wei->lrig;
-
-        while ( lbuf ) {
-            float weight = wei->weight;
-            G3DRIG *rig = ( G3DRIG * ) lbuf->data;
-            G3DVECTOR pos;
-
-            g3dvector_matrix ( &ver->pos, rig->skinmatrix, &pos );
-
-            pos.x = ( pos.x - ver->pos.x ) * weight;
-            pos.y = ( pos.y - ver->pos.y ) * weight;
-            pos.z = ( pos.z - ver->pos.z ) * weight;
-
-            sknpos.x += pos.x;
-            sknpos.y += pos.y;
-            sknpos.z += pos.z;
-
-            nbbon++;
-
-            lbuf = lbuf->next;
-        }
-
-        ltmp = ltmp->next;
-    }
-
-    if ( nbbon ) {
-        sknpos.x /= nbbon;
-        sknpos.y /= nbbon;
-        sknpos.z /= nbbon;
-    }
-
-    ver->skn.x = ( ver->pos.x + sknpos.x );
-    ver->skn.y = ( ver->pos.y + sknpos.y );
-    ver->skn.z = ( ver->pos.z + sknpos.z );
-
-    /*g3dvertex_updateFacesPosition ( ver );*/
-}
-
-/******************************************************************************/
 void g3dvertex_addWeight    ( G3DVERTEX *ver, G3DWEIGHT *wei ) {
     list_insert ( &ver->lwei, wei );
 

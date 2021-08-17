@@ -38,22 +38,7 @@ static uint32_t g3dexportbone_rigSkinMatrix ( G3DEXPORTDATA  *ged,
     uint32_t i;
 
     for ( i = 0x00; i < 0x10; i++ ) {
-        size += g3dexport_fwrited ( &rig->skinmatrix[i], fdst );
-    }
-
-    return size;
-}
-
-/******************************************************************************/
-static uint32_t g3dexportbone_rigBindMatrix ( G3DEXPORTDATA  *ged, 
-                                              G3DRIG         *rig, 
-                                              uint32_t        flags, 
-                                              FILE           *fdst ) {
-    uint32_t size = 0x00;
-    uint32_t i;
-
-    for ( i = 0x00; i < 0x10; i++ ) {
-        size += g3dexport_fwrited ( &rig->bindmatrix[i], fdst );
+        size += g3dexport_fwrited ( &rig->isknmatrix[i], fdst );
     }
 
     return size;
@@ -74,21 +59,38 @@ static uint32_t g3dexportbone_rigWeightgroup ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportbone_rigWeightgroups ( G3DEXPORTDATA *ged, 
+                                                G3DRIG        *rig, 
+                                                uint32_t       flags, 
+                                                FILE          *fdst ) {
+    LIST *ltmpgrp = rig->lweightgroup;
+    uint32_t size = 0x00;
+
+    while ( ltmpgrp ) {
+        G3DWEIGHTGROUP *grp = ( G3DRIG * ) ltmpgrp->data;
+
+        size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY,
+                                       g3dexportbone_rigWeightgroup,
+                                       ged,
+                                       grp,
+                                       0xFFFFFFFF,
+                                       fdst );
+
+        ltmpgrp = ltmpgrp->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportbone_rig ( G3DEXPORTDATA *ged, 
                                     G3DRIG        *rig, 
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUP,
-                                   g3dexportbone_rigWeightgroup,
-                                   ged,
-                                   rig->grp,
-                                   0xFFFFFFFF,
-                                   fdst );
-
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_BINDMATRIX,
-                                   g3dexportbone_rigBindMatrix,
+    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUPS,
+                                   g3dexportbone_rigWeightgroups,
                                    ged,
                                    rig,
                                    0xFFFFFFFF,

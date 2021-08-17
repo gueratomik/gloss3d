@@ -51,14 +51,14 @@
 #define  SIG_OBJECT_BONE_RIG_ENTRY                      0x0BED790B
 #define  SIG_OBJECT_BONE_RIGS                           0x6A4F8B22
 #define  SIG_OBJECT_BONE_RIG_SKINMATRIX                 0xA610F6C4
-#define  SIG_OBJECT_BONE_RIG_WEIGHTGROUP                0x531902FA
+#define  SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY          0xA05CE85C
+#define  SIG_OBJECT_BONE_RIG_WEIGHTGROUPS               0x2F6656B6
 #define  SIG_OBJECT_CAMERA                              0x590154D0
 #define  SIG_OBJECT_CAMERA_FOCAL                        0x3B0925B4
 #define  SIG_OBJECT_ENTRY                               0x08CAC424
 #define  SIG_OBJECT_FFD                                 0xAAB09BB7
 #define  SIG_OBJECT_FFD_GEOMETRY                        0x3E1B16CA
 #define  SIG_OBJECT_FFD_UVW                             0x96C70372
-#define  SIG_OBJECT_FFD_VERTICES                        0x2815E438
 #define  SIG_OBJECT_IDENTITY                            0xFE404903
 #define  SIG_OBJECT_IDENTITY_NAME                       0x647F2371
 #define  SIG_OBJECT_IDENTITY_PARENT                     0x34D92405

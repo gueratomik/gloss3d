@@ -55,7 +55,10 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_BONE_RIG_ENTRY : {
             } break;
 
-            case SIG_OBJECT_BONE_RIG_WEIGHTGROUP : {
+            case SIG_OBJECT_BONE_RIG_WEIGHTGROUPS : {
+            } break;
+
+            case SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY : {
                 G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
                 G3DOBJECT *obj = gid->currentObject;
                 G3DOBJECT *child;
@@ -76,24 +79,11 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         grp = g3dmesh_getWeightGroupByID ( mes, grpID );
 
                         if ( grp ) {
-                            gid->currentRig = g3dbone_addWeightGroup ( bon, grp );
-
-                            /*** this must be called before loading the ***/
-                            /*** bind and skin matrices ***/
-                            if ( obj->flags & BONEFIXED ) {
-                                g3drig_fix ( gid->currentRig, bon );
-                            }
+                            gid->currentRig = g3dbone_addWeightGroup ( bon,
+/** TODO ***/                                                          NULL,
+                                                                       grp );
                         }
                     }
-                }
-            } break;
-
-            case SIG_OBJECT_BONE_RIG_BINDMATRIX : {
-                G3DRIG *rig = gid->currentRig;
-                uint32_t i;
-
-                for ( i = 0x00; i < 0x10; i++ ) {
-                    g3dimport_freadd ( &rig->bindmatrix[i], fsrc );
                 }
             } break;
 
@@ -102,7 +92,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < 0x10; i++ ) {
-                    g3dimport_freadd ( &rig->skinmatrix[i], fsrc );
+                    g3dimport_freadd ( &rig->isknmatrix[i], fsrc );
                 }
             } break;
 

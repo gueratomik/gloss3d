@@ -676,10 +676,6 @@ static int rotate_mesh ( G3DMESH          *mes,
                                                              obj, ver );
                         }
 
-                        if ( ver->flags & VERTEXSKINNED ) {
-                            g3dvertex_computeSkinnedPosition ( ver );
-                        }
-
                         ltmpver = ltmpver->next;
                     }
 

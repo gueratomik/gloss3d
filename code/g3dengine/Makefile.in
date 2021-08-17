@@ -141,7 +141,7 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dpick.lo g3dpivot.lo g3dplane.lo g3dprimitive.lo \
 	g3dprocedural.lo g3dproceduralbrick.lo \
 	g3dproceduralchessboard.lo g3dproceduralnoise.lo \
-	g3dquaternion.lo g3drgba.lo g3drttriangle.lo \
+	g3dquaternion.lo g3drgba.lo g3drig.lo g3drttriangle.lo \
 	g3drttriangleuvw.lo g3drtvertex.lo g3dscene.lo g3dskin.lo \
 	g3dsphere.lo g3dspline.lo g3dsplinerevolver.lo \
 	g3dsubdivisionthread.lo g3dsubdivider.lo g3dsubdivisionV3.lo \
@@ -190,10 +190,11 @@ am__depfiles_remade = ./$(DEPDIR)/g2dvector.Plo \
 	./$(DEPDIR)/g3dproceduralchessboard.Plo \
 	./$(DEPDIR)/g3dproceduralnoise.Plo \
 	./$(DEPDIR)/g3dquaternion.Plo ./$(DEPDIR)/g3drgba.Plo \
-	./$(DEPDIR)/g3drttriangle.Plo ./$(DEPDIR)/g3drttriangleuvw.Plo \
-	./$(DEPDIR)/g3drtvertex.Plo ./$(DEPDIR)/g3dscene.Plo \
-	./$(DEPDIR)/g3dskin.Plo ./$(DEPDIR)/g3dsphere.Plo \
-	./$(DEPDIR)/g3dspline.Plo ./$(DEPDIR)/g3dsplinerevolver.Plo \
+	./$(DEPDIR)/g3drig.Plo ./$(DEPDIR)/g3drttriangle.Plo \
+	./$(DEPDIR)/g3drttriangleuvw.Plo ./$(DEPDIR)/g3drtvertex.Plo \
+	./$(DEPDIR)/g3dscene.Plo ./$(DEPDIR)/g3dskin.Plo \
+	./$(DEPDIR)/g3dsphere.Plo ./$(DEPDIR)/g3dspline.Plo \
+	./$(DEPDIR)/g3dsplinerevolver.Plo \
 	./$(DEPDIR)/g3dsubdivider.Plo ./$(DEPDIR)/g3dsubdivisionV3.Plo \
 	./$(DEPDIR)/g3dsubdivisionthread.Plo \
 	./$(DEPDIR)/g3dsubedge.Plo ./$(DEPDIR)/g3dsubface.Plo \
@@ -416,6 +417,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dproceduralnoise.c \
                       g3dquaternion.c \
                       g3drgba.c \
+                      g3drig.c \
                       g3drttriangle.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \
@@ -557,6 +559,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dproceduralnoise.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dquaternion.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drgba.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drig.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drttriangle.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drttriangleuvw.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3drtvertex.Plo@am__quote@ # am--include-marker
@@ -784,6 +787,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/g3dproceduralnoise.Plo
 	-rm -f ./$(DEPDIR)/g3dquaternion.Plo
 	-rm -f ./$(DEPDIR)/g3drgba.Plo
+	-rm -f ./$(DEPDIR)/g3drig.Plo
 	-rm -f ./$(DEPDIR)/g3drttriangle.Plo
 	-rm -f ./$(DEPDIR)/g3drttriangleuvw.Plo
 	-rm -f ./$(DEPDIR)/g3drtvertex.Plo
@@ -891,6 +895,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/g3dproceduralnoise.Plo
 	-rm -f ./$(DEPDIR)/g3dquaternion.Plo
 	-rm -f ./$(DEPDIR)/g3drgba.Plo
+	-rm -f ./$(DEPDIR)/g3drig.Plo
 	-rm -f ./$(DEPDIR)/g3drttriangle.Plo
 	-rm -f ./$(DEPDIR)/g3drttriangleuvw.Plo
 	-rm -f ./$(DEPDIR)/g3drtvertex.Plo

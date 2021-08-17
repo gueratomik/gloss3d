@@ -30,36 +30,6 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-LIST *g3dbone_getVertexList ( G3DBONE *bon, G3DMESH *mes ) {
-    LIST *ltmprig = bon->lrig;
-    LIST *lver = NULL;
-
-    while ( ltmprig ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
-
-        /*** Filter by the requested mesh ***/
-        if ( rig->grp->mes == mes ) {
-            LIST *ltmpwei = rig->grp->lwei;
-
-            while ( ltmpwei ) {
-                G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-
-                if ( list_seek ( lver, wei->ver ) == NULL ) {
-                    list_insert ( &lver, wei->ver );
-                }
-
-                ltmpwei = ltmpwei->next;
-
-            }
-    
-            ltmprig = ltmprig->next;
-        }
-    }
-
-    return lver;
-}
-
-/******************************************************************************/
 G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 
                                        uint64_t engine_flags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
@@ -124,110 +94,6 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
 }
 
 /******************************************************************************/
-/*** Do not use this function when the whole skeleton is updated ***/
-/*** Use it only when one bone is updated ***/
-void g3dbone_updateVertexNormals ( G3DBONE *bon, 
-                                   uint64_t engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-    LIST *ltmpbon = obj->lchildren;
-    LIST *ltmprig = bon->lrig;
-
-    while ( ltmprig ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpwei = grp->lwei;
-
-        while ( ltmpwei ) {
-            G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-
-            /*** This compute the position of a vertex after all the bones ***/
-            /*** it belongs to have been transformed ***/
-            g3dvertex_normal ( wei->ver, engine_flags );
-
-            ltmpwei = ltmpwei->next;
-        }
-
-        ltmprig = ltmprig->next;
-    }
-
-    /*** this function must recurse or else children ***/
-    /*** bones vertices wont get updated ***/
-    while ( ltmpbon ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpbon->data;
-
-        if ( child->type == G3DBONETYPE ) {
-            g3dbone_updateVertexNormals ( ( G3DBONE * ) child, engine_flags );
-        }
-
-        ltmpbon = ltmpbon->next;
-    }
-}
-
-/******************************************************************************/
-/*** Do not use this function when the whole skeleton is updated ***/
-/*** Use it only when one bone is updated ***/
-void g3dbone_updateVertices ( G3DBONE *bon ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-    LIST *ltmpbon = obj->lchildren;
-    LIST *ltmprig = bon->lrig;
-
-    while ( ltmprig ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpwei = grp->lwei;
-
-        while ( ltmpwei ) {
-            G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-
-            /*** This compute the position of a vertex after all the bones ***/
-            /*** it belongs to have been transformed ***/
-            if ( wei->ver->flags & VERTEXSKINNED ) {
-                g3dvertex_computeSkinnedPosition ( wei->ver );
-            }
-
-            ltmpwei = ltmpwei->next;
-        }
-
-        ltmprig = ltmprig->next;
-    }
-
-    /*** this function must recurse or else children ***/
-    /*** bones vertices wont get updated ***/
-    while ( ltmpbon ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpbon->data;
-
-        if ( child->type == G3DBONETYPE ) {
-            g3dbone_updateVertices ( ( G3DBONE * ) child );
-        }
-
-        ltmpbon = ltmpbon->next;
-    }
-}
-
-/******************************************************************************/
-void g3dbone_updateFaces ( G3DBONE *bon ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-    LIST *ltmpbon = obj->lchildren;
-    LIST *ltmprig = bon->lrig;
-
-    while ( ltmprig ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpfac = rig->lfac;
-
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-            g3dface_update ( fac );
-
-            ltmpfac = ltmpfac->next;
-        }
-
-        ltmprig = ltmprig->next;
-    }
-}
-
-/******************************************************************************/
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
 void g3dbone_transform ( G3DOBJECT *obj, 
@@ -235,15 +101,6 @@ void g3dbone_transform ( G3DOBJECT *obj,
     G3DBONE *bon = ( G3DBONE * ) obj;
 
     g3dbone_update ( bon );
-
-    /*** Compute vertices skinned position ***/
-    g3dbone_updateVertices ( bon );
-
-    /*** recompute faces middle position, normal vector ***/
-    g3dbone_updateFaces ( bon );
-
-    /*** recompute vertices normal vector ***/
-    g3dbone_updateVertexNormals ( bon, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
 
     /*** For buffered faces ***/
     /*if ( ( flags & ONGOINGANIMATION ) == 0x00 ) {
@@ -256,82 +113,9 @@ void g3dbone_update ( G3DBONE *bon ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DOBJECT *parent = objbon->parent;
     LIST *ltmp = bon->lrig;
-    double localmatrix[0x10];
-    double worldmatrix[0x10];
 
     while ( ltmp ) {
         G3DRIG  *rig = ( G3DRIG * ) ltmp->data;
-        G3DOBJECT *objmes = ( G3DOBJECT * ) rig->grp->mes;
-        double skinmatrix[0x10],
-               localskinmatrix[0x10],
-               worldskinmatrix[0x10],
-               inverseworldskinmatrix[0x10],
-               inverseworldbonematrix[0x10],
-               inverseworldmeshmatrix[0x10];
-
-        g3dcore_multmatrix   ( objbon->wmatrix, 
-                               rig->bindmatrix, localskinmatrix );
-        g3dcore_multmatrix   ( localskinmatrix,
-                               parent->wmatrix, worldskinmatrix );
-
-        g3dcore_invertMatrix ( objmes->wmatrix, inverseworldmeshmatrix );
-        g3dcore_invertMatrix ( objbon->wmatrix, inverseworldbonematrix );
-
-        g3dcore_identityMatrix ( skinmatrix );
-
-        /*** 1 - Convert vertex to world coordinates ***/
-        g3dcore_multmatrixdirect ( skinmatrix, objmes->wmatrix );
-        /*** 2 - Convert vertex to bone local coordinates ***/
-        g3dcore_multmatrixdirect ( skinmatrix, inverseworldbonematrix );
-        /*** 3 - Apply local transformation ***/
-        g3dcore_multmatrixdirect ( skinmatrix, localskinmatrix );
-        /*** 4 - Convert vertex to world coordinates ***/
-        g3dcore_multmatrixdirect ( skinmatrix, objbon->wmatrix );
-        /*** 5 - Convert vertex to mesh local coordinates ***/
-        g3dcore_multmatrixdirect ( skinmatrix, inverseworldmeshmatrix );
-
-        memcpy ( rig->skinmatrix, skinmatrix, sizeof ( skinmatrix ) );
-
-        ltmp = ltmp->next;
-    }
-}
-
-/******************************************************************************/
-void g3dbone_fix_r ( G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmpobj = objbon->lchildren;
-
-    g3dbone_fix ( bon );
-
-    while ( ltmpobj ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
-
-        if ( child->type == G3DBONETYPE ) {
-            g3dbone_fix_r ( ( G3DBONE * ) child );
-        }
-
-        ltmpobj = ltmpobj->next;
-    }
-}
-
-/******************************************************************************/
-void g3dbone_fix ( G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmp = bon->lrig;
-
-    /*** Dont Fix if already fixed !!! ***/
-    if ( ( objbon->flags & BONEFIXED ) )  return;
-
-    objbon->flags |= BONEFIXED;
-
-    memcpy ( &bon->fixrot, &objbon->rot, sizeof ( G3DVECTOR ) );
-    memcpy ( &bon->fixpos, &objbon->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &bon->fixsca, &objbon->sca, sizeof ( G3DVECTOR ) );
-
-    while ( ltmp ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmp->data;
-        
-        g3drig_fix ( rig, bon );
 
         ltmp = ltmp->next;
     }
@@ -339,36 +123,11 @@ void g3dbone_fix ( G3DBONE *bon ) {
 
 /******************************************************************************/
 void g3dbone_reset ( G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmp = bon->lrig;
-
-    /*** Dont Reset if not fixed !!! ***/
-    if ( ( objbon->flags & BONEFIXED ) == 0x00 )  return;
-
-    while ( ltmp ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmp->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        LIST *ltmpwei = grp->lwei;
-
-        while ( ltmpwei ) {
-            G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-
-            g3dweight_reset ( wei, rig );
-
-
-            ltmpwei = ltmpwei->next;
-        }
-
-        objbon->flags &= (~BONEFIXED);
-
-        ltmp = ltmp->next;
-    }
-
-    memcpy ( &objbon->rot, &bon->fixrot, sizeof ( G3DVECTOR ) );
+    /*memcpy ( &objbon->rot, &bon->fixrot, sizeof ( G3DVECTOR ) );
     memcpy ( &objbon->pos, &bon->fixpos, sizeof ( G3DVECTOR ) );
     memcpy ( &objbon->sca, &bon->fixsca, sizeof ( G3DVECTOR ) );
 
-    g3dobject_updateMatrix_r ( objbon, 0x00 );
+    g3dobject_updateMatrix_r ( objbon, 0x00 );*/
 }
 
 /******************************************************************************/
@@ -529,110 +288,6 @@ LIST *g3dbone_getAllWeightGroups ( G3DBONE *bon ) {
     return lgrp;
 }
 
-/*****************************************************************************/
-LIST *g3dbone_seekWeightGroups ( G3DBONE *bon ) {
-    LIST *lmes = g3dbone_seekMeshHierarchy ( bon );
-    LIST *ltmpmes = lmes;
-    LIST *lgrp = NULL;
-
-    while ( ltmpmes ) {
-        G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
-        char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lweigrp;
-
-        while ( ltmpgrp ) {
-            G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
-
-            /*** must be list_append in order to have the same ranks ***/
-            /*** as the one used by the combobox in g3duiboneedit.c. ***/
-            if ( g3dbone_seekRig ( bon, grp ) == NULL ) {
-                list_append ( &lgrp, grp );
-            }
-
-            ltmpgrp = ltmpgrp->next;
-        }
-
-        ltmpmes = ltmpmes->next;
-    }
-
-    list_free ( &lmes, NULL );
-
-
-    return lgrp;
-}
-
-/******************************************************************************/
-G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *bon, 
-                                              uint32_t id ) {
-    LIST *lmes = g3dbone_seekMeshHierarchy ( bon );
-    LIST *ltmpmes = lmes;
-    uint32_t nb = 0x00;
-
-    while ( ltmpmes ) {
-        G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
-        char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lweigrp;
-
-        while ( ltmpgrp ) {
-            G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
-
-            if ( g3dbone_seekRig ( bon, grp ) == NULL ) {
-                if ( nb++ == id ) return grp;
-            }
-
-            ltmpgrp = ltmpgrp->next;
-        }
-
-        ltmpmes = ltmpmes->next;
-    }
-
-    list_free ( &lmes, NULL );
-
-    return NULL;
-}
-
-/******************************************************************************/
-void g3dbone_getMeshExtendedFaces_r ( G3DBONE *bon, 
-                                      G3DMESH *mes, 
-                                      LIST   **lextfac ) {
-    LIST *ltmprig = bon->lrig;
-    LIST *ltmpobj = ((G3DOBJECT*)bon)->lchildren;
-
-    while ( ltmprig ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-
-        if ( grp->mes == mes ) {
-            LIST *lfac = g3dface_getExtendedFacesFromList ( rig->lfac );
-            LIST *ltmpfac = lfac;
-
-            while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-                if ( list_seek ( (*lextfac), fac ) == NULL ) {
-
-                    list_insert ( lextfac, fac );
-                }
-
-                ltmpfac = ltmpfac->next;
-            }
-
-            list_free ( &lfac, NULL );
-        }
-
-        ltmprig = ltmprig->next;
-    }
-
-    /*** recurse ***/
-    while ( ltmpobj ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
-
-        g3dbone_getMeshExtendedFaces_r ( ( G3DBONE * ) child, mes, lextfac );
-
-        ltmpobj = ltmpobj->next;
-    }
-}
-
 /******************************************************************************/
 void g3dbone_getMeshes_r ( G3DBONE *bon, 
                            LIST   **lmes ) {
@@ -640,12 +295,17 @@ void g3dbone_getMeshes_r ( G3DBONE *bon,
     LIST *ltmpobj = ((G3DOBJECT*)bon)->lchildren;
 
     while ( ltmprig ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
-        G3DWEIGHTGROUP *grp = rig->grp;
-        G3DMESH *mes = grp->mes;
+        G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
+        G3DSKIN *skn = rig->skn;
 
-        if ( list_seek ( (*lmes), mes ) == NULL ) {
-            list_insert ( lmes, mes );
+        if ( skn->mod.oriobj ) {
+            if ( skn->mod.oriobj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) skn->mod.oriobj;
+
+                if ( list_seek ( (*lmes), mes ) == NULL ) {
+                    list_insert ( lmes, mes );
+                }
+            }
         }
 
         ltmprig = ltmprig->next;
@@ -681,46 +341,51 @@ LIST *g3dbone_seekMeshHierarchy ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-G3DRIG *g3dbone_seekRig ( G3DBONE        *bon,
-                          G3DWEIGHTGROUP *grp ) {
-    LIST *ltmp = bon->lrig;
+static G3DRIG *g3dbone_addRig ( G3DBONE *bon,
+                                G3DSKIN *skn ) {
+    G3DRIG *rig = g3drig_new ( skn );
 
-    while ( ltmp ) {
-        G3DRIG *rig = ( G3DRIG * ) ltmp->data;
+    list_insert ( &bon->lrig, rig );
 
-        if ( rig->grp == grp ) {
+    return rig;
+}
 
-            return rig;
-        }
+/******************************************************************************/
+G3DRIG *g3dbone_getRigBySkin ( G3DBONE *bon,
+                               G3DSKIN *skn ) {
+    LIST *ltmprig = bon->lrig;
 
-        ltmp = ltmp->next;
+    while ( ltmprig ) {
+        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
+
+        if ( rig->skn == skn ) return rig;
+
+        ltmprig = ltmprig->next;
     }
 
     return NULL;
 }
 
 /******************************************************************************/
-G3DRIG *g3dbone_addWeightGroup ( G3DBONE        *bon, 
+G3DRIG *g3dbone_addWeightGroup ( G3DBONE        *bon,
+                                 G3DSKIN        *skn,
                                  G3DWEIGHTGROUP *grp ) {
-    G3DRIG *rig = g3drig_new ( grp );
+    G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
 
-    list_insert ( &bon->lrig, rig );
+    if ( rig == NULL ) rig = g3dbone_addRig ( bon, skn );
 
-    bon->nbrig++;
+    list_insert ( &rig->lweightgroup, grp );
 
     return rig;
 }
 
 /******************************************************************************/
 void g3dbone_removeWeightGroup ( G3DBONE        *bon, 
+                                 G3DSKIN        *skn,
                                  G3DWEIGHTGROUP *grp ) {
-    G3DRIG *rig = g3dbone_seekRig ( bon, grp );
+    G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
 
-    list_remove ( &bon->lrig, rig );
-
-    g3drig_free ( rig );
-
-    bon->nbrig--;
+    list_remove ( &rig->lweightgroup, grp );
 }
 
 /******************************************************************************/
@@ -728,6 +393,18 @@ void g3dbone_free ( G3DOBJECT *obj ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
 
     list_free ( &bon->lrig, (void(*)(void*)) g3drig_free );
+}
+
+/******************************************************************************/
+static void g3dbone_activate ( G3DBONE *bon, 
+                               uint64_t engine_flags ) {
+
+}
+
+/******************************************************************************/
+static void g3dbone_deactivate ( G3DBONE *bon, 
+                                 uint64_t engine_flags ) {
+
 }
 
 /******************************************************************************/
@@ -749,8 +426,8 @@ G3DBONE *g3dbone_new ( uint32_t id,
                                    PICK_CALLBACK(g3dbone_pick),
                                                  NULL,
                                                  NULL,
-                                                 NULL,
-                                                 NULL,
+                                                 g3dbone_activate,
+                                                 g3dbone_deactivate,
                                                  NULL,
                                                  NULL,
                                                  NULL );

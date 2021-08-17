@@ -35,7 +35,8 @@ void g3dmesh_fixBones ( G3DMESH *mes,
     G3DSKIN *skn = g3dobject_getChildByType ( mes, G3DSKINTYPE );
 
     if ( skn ) {
-        LIST *ltmpbon = g3dobject_getChildrenByType ( mes, G3DSKINTYPE );
+        LIST *lbon = g3dobject_getChildrenByType ( mes, G3DBONETYPE );
+        LIST *ltmpbon = lbon;
 
         while ( ltmpbon ) {
             G3DBONE *bon = ( G3DBONE * ) ltmpbon->data;
@@ -44,6 +45,8 @@ void g3dmesh_fixBones ( G3DMESH *mes,
 
             ltmpbon = ltmpbon->next;
         }
+
+        list_free ( &lbon, NULL );
     }
 }
 
@@ -509,6 +512,10 @@ void g3dmesh_modify ( G3DMESH    *mes,
                       uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpchildren = obj->lchildren;
+
+    g3dmesh_renumberVertices ( mes );
+    g3dmesh_renumberEdges    ( mes );
+    g3dmesh_renumberFaces    ( mes );
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
@@ -2488,10 +2495,6 @@ void g3dmesh_update ( G3DMESH *mes,
     }
 
     if ( update_flags & RESETMODIFIERS ) {
-        g3dmesh_renumberVertices ( mes );
-        g3dmesh_renumberEdges    ( mes );
-        g3dmesh_renumberFaces    ( mes );
-
         g3dmesh_modify ( mes,
                          G3DMODIFYOP_MODIFY,
                          engine_flags );

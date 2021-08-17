@@ -612,10 +612,6 @@ static int scale_mesh ( G3DMESH          *mes,
                                                              obj, ver );
                         }
 
-                        if ( ver->flags & VERTEXSKINNED ) {
-                            g3dvertex_computeSkinnedPosition ( ver );
-                        }
-
                         verID++;
 
                         ltmpver = ltmpver->next;

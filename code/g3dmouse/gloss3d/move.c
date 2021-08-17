@@ -707,10 +707,6 @@ static int move_mesh ( G3DMESH      *mes,
                                                              obj, ver );
                         }
 
-                        if ( ver->flags & VERTEXSKINNED ) {
-                            g3dvertex_computeSkinnedPosition ( ver );
-                        }
-
                         sce->csr.pivot.x += ver->pos.x;
                         sce->csr.pivot.y += ver->pos.y;
                         sce->csr.pivot.z += ver->pos.z;

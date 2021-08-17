@@ -30,13 +30,55 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+static void g3dskin_deformVertex ( G3DSKIN   *skn,
+                                   G3DVECTOR *pos,
+                                   LIST      *lwei,
+                                   G3DVECTOR *def ) {
+    G3DVECTOR dif = { 0.0f, 0.0f, 0.0f };
+    LIST *ltmpwei = lwei;
+    float tot = 0.0f;
+
+    def->x = pos->x;
+    def->y = pos->y;
+    def->z = pos->z;
+
+    while ( ltmpwei ) {
+        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+        G3DVECTOR tmp;
+
+        if ( wei->rig ) {
+            g3dvector_matrix ( pos, wei->rig->defmatrix, &tmp );
+
+            dif.x += ( tmp.x * wei->weight );
+            dif.y += ( tmp.y * wei->weight );
+            dif.z += ( tmp.z * wei->weight );
+
+            tot += wei->weight;
+        }
+
+        ltmpwei = ltmpwei->next;
+    }
+
+    if ( tot ) {
+        def->x += ( dif.x / tot );
+        def->y += ( dif.y / tot );
+        def->z += ( dif.z / tot );
+    }
+}
+
+/******************************************************************************/
 void g3dskin_fixBone ( G3DSKIN *skn, 
                        G3DBONE *bon ) {
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+            G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
+            double sknmatrix[0x10];
 
-            g3dcore_invertMatrix ( objbon->lmatrix, bon->sknmatrix );
+            g3dcore_multmatrix ( objbon->wmatrix, 
+                                 skn->mod.oriobj->wmatrix, sknmatrix );
+
+            g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
         }
     }
 }
@@ -108,9 +150,9 @@ static G3DSKIN *g3dskin_copy ( G3DSKIN *skn,
 }
 
 /******************************************************************************/
-static uint32_t g3dskin_modify ( G3DSKIN *skn,
+static uint32_t g3dskin_modify ( G3DSKIN    *skn,
                                  G3DMODIFYOP op,
-                                 uint64_t engine_flags ) {
+                                 uint64_t    engine_flags ) {
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
@@ -125,6 +167,19 @@ static uint32_t g3dskin_modify ( G3DSKIN *skn,
                                                             sizeof ( G3DVECTOR ) );
             }
 
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                G3DVECTOR *stkpos = g3dvertex_getModifiedPosition ( ver,
+                                                                    skn->mod.stkpos );
+
+                g3dskin_deformVertex ( skn, 
+                                       stkpos,
+                                       ver->lwei,
+                                      &skn->mod.verpos[ver->id] );
+
+                ltmpver = ltmpver->next;
+            }
+
             return MODIFIERCHANGESCOORDS | MODIFIERTAKESOVER;
         }
     }
@@ -134,15 +189,15 @@ static uint32_t g3dskin_modify ( G3DSKIN *skn,
 
 /******************************************************************************/
 static void g3dskin_activate ( G3DSKIN *skn,
-                                  uint64_t engine_flags ) {
-    if ( skn->mod.oriobj ) {
-        if ( skn->mod.oriobj->type & MESH ) {
-            G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
+                               uint64_t engine_flags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( skn, MESH );
 
-            g3dmesh_modify ( orimes, 
-                             G3DMODIFYOP_MODIFY, 
-                             engine_flags );
-        }
+    if ( parent ) {
+        G3DMESH *parmes = ( G3DMESH * ) parent;
+
+        g3dmesh_modify ( parmes, 
+                         G3DMODIFYOP_MODIFY, 
+                         engine_flags );
     }
 }
 

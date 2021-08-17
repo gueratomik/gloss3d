@@ -313,7 +313,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                 ver->id = vertexId++;
 
                 verpos = g3dvertex_getModifiedPosition ( ver,
-                                                /*wir->mod.stkpos*/NULL );
+                                                         wir->mod.stkpos );
 
                 wir->modver[((ver->id)*2)+0].ver.pos.x = verpos->x + ( ver->nor.x * wir->thickness );
                 wir->modver[((ver->id)*2)+0].ver.pos.y = verpos->y + ( ver->nor.y * wir->thickness );
@@ -381,7 +381,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                 verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
 
                 g3dface_getModifiedPosition ( fac,
-                                              /*wir->mod.stkpos*/NULL,
+                                              wir->mod.stkpos,
                                              &facpos );
 
                 /*** Face new vertices creation ***/
@@ -391,7 +391,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     G3DVECTOR dir;
 
                     verpos = g3dvertex_getModifiedPosition ( fac->ver[i],
-                                                    /*wir->mod.stkpos*/NULL );
+                                                             wir->mod.stkpos );
 
                     dir.x = ( facpos.x - verpos->x );
                     dir.y = ( facpos.y - verpos->y );

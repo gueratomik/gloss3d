@@ -133,8 +133,8 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dimport_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = v1/g3dimport.lo v2/g3dimportapp.lo v2/g3dimportbone.lo \
-	v2/g3dimport.lo v2/g3dimportcamera.lo v2/g3dimportchannel.lo \
+am__objects_1 = v2/g3dimportapp.lo v2/g3dimportbone.lo v2/g3dimport.lo \
+	v2/g3dimportcamera.lo v2/g3dimportchannel.lo \
 	v2/g3dimportlight.lo v2/g3dimportmaterial.lo \
 	v2/g3dimportmesh.lo v2/g3dimportmodifiers.lo \
 	v2/g3dimportuvmap.lo v2/g3dimportobject.lo \
@@ -166,9 +166,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/3ds.Plo ./$(DEPDIR)/collada.Plo \
-	./$(DEPDIR)/obj.Plo v1/$(DEPDIR)/g3dimport.Plo \
-	v2/$(DEPDIR)/g3dimport.Plo v2/$(DEPDIR)/g3dimportapp.Plo \
-	v2/$(DEPDIR)/g3dimportbone.Plo \
+	./$(DEPDIR)/obj.Plo v2/$(DEPDIR)/g3dimport.Plo \
+	v2/$(DEPDIR)/g3dimportapp.Plo v2/$(DEPDIR)/g3dimportbone.Plo \
 	v2/$(DEPDIR)/g3dimportcamera.Plo \
 	v2/$(DEPDIR)/g3dimportchannel.Plo \
 	v2/$(DEPDIR)/g3dimportextension.Plo \
@@ -362,8 +361,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dimport.la
 libgloss_g3dimport_la_SOURCES = $(LIBGLOSSG3DIMPORT_C_FILES)
-LIBGLOSSG3DIMPORT_C_FILES = v1/g3dimport.c \
-                            v2/g3dimportapp.c \
+LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v2/g3dimportbone.c \
                             v2/g3dimport.c \
                             v2/g3dimportcamera.c \
@@ -459,13 +457,6 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-v1/$(am__dirstamp):
-	@$(MKDIR_P) v1
-	@: > v1/$(am__dirstamp)
-v1/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) v1/$(DEPDIR)
-	@: > v1/$(DEPDIR)/$(am__dirstamp)
-v1/g3dimport.lo: v1/$(am__dirstamp) v1/$(DEPDIR)/$(am__dirstamp)
 v2/$(am__dirstamp):
 	@$(MKDIR_P) v2
 	@: > v2/$(am__dirstamp)
@@ -511,8 +502,6 @@ libgloss-g3dimport.la: $(libgloss_g3dimport_la_OBJECTS) $(libgloss_g3dimport_la_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f v1/*.$(OBJEXT)
-	-rm -f v1/*.lo
 	-rm -f v2/*.$(OBJEXT)
 	-rm -f v2/*.lo
 
@@ -522,7 +511,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3ds.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collada.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@v1/$(DEPDIR)/g3dimport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimport.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportapp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v2/$(DEPDIR)/g3dimportbone.Plo@am__quote@ # am--include-marker
@@ -582,7 +570,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf v1/.libs v1/_libs
 	-rm -rf v2/.libs v2/_libs
 
 ID: $(am__tagged_files)
@@ -703,8 +690,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f v1/$(DEPDIR)/$(am__dirstamp)
-	-rm -f v1/$(am__dirstamp)
 	-rm -f v2/$(DEPDIR)/$(am__dirstamp)
 	-rm -f v2/$(am__dirstamp)
 
@@ -720,7 +705,6 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/3ds.Plo
 	-rm -f ./$(DEPDIR)/collada.Plo
 	-rm -f ./$(DEPDIR)/obj.Plo
-	-rm -f v1/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportbone.Plo
@@ -792,7 +776,6 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/3ds.Plo
 	-rm -f ./$(DEPDIR)/collada.Plo
 	-rm -f ./$(DEPDIR)/obj.Plo
-	-rm -f v1/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimport.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportapp.Plo
 	-rm -f v2/$(DEPDIR)/g3dimportbone.Plo

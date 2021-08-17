@@ -30,10 +30,18 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-static G3DWEIGHTGROUP *getWeightGroup ( G3DBONE *bon, float mouse_x, 
-                                                      float mouse_y ) {
+typedef struct _PICKEDITEM {
+    G3DWEIGHTGROUP *grp;
+    G3DMESH *mes;
+} PICKEDITEM;
+
+/******************************************************************************/
+static PICKEDITEM *getPickedItem ( G3DBONE *bon,
+                                   float    mouse_x,
+                                   float    mouse_y ) {
     G3DOBJECT *parent = ((G3DOBJECT*)bon)->parent;
-    float y = 0;
+    static PICKEDITEM pi;
+    float y = 0.0f;
 
     while ( parent ) {
         if ( parent->type == G3DMESHTYPE ) {
@@ -48,7 +56,10 @@ static G3DWEIGHTGROUP *getWeightGroup ( G3DBONE *bon, float mouse_x,
                 y2 = y1 + LISTINDENT;
 
                 if ( ( mouse_y > y1 ) && ( mouse_y < y2 ) ) {
-                    return grp;
+                    pi.mes = mes;
+                    pi.grp = grp;
+
+                    return &pi;
                 }
 
                 y = y2;
@@ -59,14 +70,16 @@ static G3DWEIGHTGROUP *getWeightGroup ( G3DBONE *bon, float mouse_x,
 
         parent = parent->parent;
     }
+
     return NULL;
 }
 
 /******************************************************************************/
-static uint32_t drawBoneWeightGroups ( GtkStyleContext *context, cairo_t *cr,
-                                                                 G3DBONE *bon,
-                                                                 int width,
-                                                                 int height ) {
+static uint32_t drawBoneWeightGroups ( GtkStyleContext *context, 
+                                       cairo_t         *cr,
+                                       G3DBONE         *bon,
+                                       int              width,
+                                       int              height ) {
     cairo_text_extents_t te;
     GdkRGBA fg, bg;
     uint32_t maxheight = 0x00, maxwidth = 0x00;
@@ -77,45 +90,52 @@ static uint32_t drawBoneWeightGroups ( GtkStyleContext *context, cairo_t *cr,
     while ( parent ) {
         if ( parent->type == G3DMESHTYPE ) {
             G3DMESH *mes =( G3DMESH * ) parent;
-            LIST *ltmpgrp = mes->lweigrp;
-            char buf[0x100];
+            G3DSKIN *skn = g3dobject_getChildByType ( mes, 
+                                                      G3DSKINTYPE );
+            if ( skn ) {
+                LIST *ltmpgrp = mes->lweigrp;
+                char buf[0x100];
 
-            while ( ltmpgrp ) {
-                G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
+                while ( ltmpgrp ) {
+                    G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
+                    G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
 
-                snprintf ( buf, 0x100, "%s/%s", ((G3DOBJECT*)grp->mes)->name, grp->name );
+                    snprintf ( buf, 0x100, "%s/%s", ((G3DOBJECT*)grp->mes)->name, grp->name );
 
-                cairo_text_extents ( cr, buf, &te );
+                    cairo_text_extents ( cr, buf, &te );
 
-                if ( maxwidth < te.width ) maxwidth = te.width;
+                    if ( maxwidth < te.width ) maxwidth = te.width;
 
-                gtk_style_context_save ( context );
-                gtk_style_context_get_color            ( context, GTK_STATE_FLAG_NORMAL, &fg );
-                gtk_style_context_get_border_color ( context, GTK_STATE_FLAG_NORMAL, &bg );
+                    gtk_style_context_save ( context );
+                    gtk_style_context_get_color            ( context, GTK_STATE_FLAG_NORMAL, &fg );
+                    gtk_style_context_get_border_color ( context, GTK_STATE_FLAG_NORMAL, &bg );
 
-                if ( g3dbone_seekRig ( bon, grp ) ) {
-                    cairo_set_source_rgb ( cr, 1 - bg.red, 1 - bg.green, 1 - bg.blue );
-                    cairo_rectangle      ( cr, 0, y, width, LISTINDENT );
-                    cairo_fill           ( cr );
+                    if ( rig ) {
+                        if ( list_seek ( rig->lweightgroup, grp ) ) {
+                            cairo_set_source_rgb ( cr, 1 - bg.red, 1 - bg.green, 1 - bg.blue );
+                            cairo_rectangle      ( cr, 0, y, width, LISTINDENT );
+                            cairo_fill           ( cr );
 
-                    gtk_style_context_set_state ( context, GTK_STATE_FLAG_ACTIVE );
-                    gtk_render_check ( context, cr, width - 16, y, 16, LISTINDENT );
+                            gtk_style_context_set_state ( context, GTK_STATE_FLAG_ACTIVE );
+                            gtk_render_check ( context, cr, width - 16, y, 16, LISTINDENT );
+                        }
+                    }
+
+                    cairo_set_source_rgba ( cr, fg.red, fg.green, fg.blue, fg.alpha );
+
+                    grpy = y - ( te.height / 2 + te.y_bearing ) + LISTINDENT * 0.5f;
+
+                    cairo_move_to   ( cr, 0, grpy );
+                    cairo_show_text ( cr, buf );
+
+                    gtk_style_context_restore ( context );
+
+
+                    y += LISTINDENT;
+
+
+                    ltmpgrp = ltmpgrp->next;
                 }
-
-                cairo_set_source_rgba ( cr, fg.red, fg.green, fg.blue, fg.alpha );
-
-                grpy = y - ( te.height / 2 + te.y_bearing ) + LISTINDENT * 0.5f;
-
-                cairo_move_to   ( cr, 0, grpy );
-                cairo_show_text ( cr, buf );
-
-                gtk_style_context_restore ( context );
-
-
-                y += LISTINDENT;
-
-
-                ltmpgrp = ltmpgrp->next;
             }
         }
 
@@ -143,14 +163,33 @@ static void Input ( GtkWidget *widget, GdkEvent *gdkev,
 
             if ( obj && ( obj->type == G3DBONETYPE ) ) {
                 G3DBONE *bon= ( G3DBONE * ) obj;
-                G3DWEIGHTGROUP *grp = getWeightGroup ( bon, bev->x,
-                                                            bev->y );
+                PICKEDITEM *pit = getPickedItem ( bon, 
+                                                  bev->x,
+                                                  bev->y );
 
-                if ( grp ) {
-                    if ( g3dbone_seekRig ( bon, grp ) == NULL ) {
-                        g3dbone_addWeightGroup ( bon, grp );
-                    } else {
-                        g3dbone_removeWeightGroup ( bon, grp );
+                if ( pit ) {
+                    G3DSKIN *skn = g3dobject_getChildByType ( pit->mes, 
+                                                              G3DSKINTYPE );
+
+                    if ( skn ) {
+                        G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
+
+                        if ( rig ) {
+                            if ( list_seek ( rig->lweightgroup, 
+                                             pit->grp ) == NULL ) {
+                                g3dbone_addWeightGroup ( bon,
+                                                         skn,
+                                                         pit->grp );
+                            } else {
+                                g3dbone_removeWeightGroup ( bon, 
+                                                            skn,
+                                                            pit->grp );
+                            }
+                        } else {
+                            g3dbone_addWeightGroup ( bon,
+                                                     skn,
+                                                     pit->grp );
+                        }
                     }
                 }
             }

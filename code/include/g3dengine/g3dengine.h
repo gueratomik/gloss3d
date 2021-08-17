@@ -691,6 +691,7 @@ typedef struct _G3DMESH   G3DMESH;
 typedef struct _G3DSPLINE G3DSPLINE;
 typedef struct _G3DKEY    G3DKEY;
 typedef struct _G3DCURVE  G3DCURVE;
+typedef struct _G3DRIG    G3DRIG;
 
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
@@ -1053,9 +1054,8 @@ typedef struct _G3DSUBINDEX {
 /******************************************************************************/
 typedef struct _G3DWEIGHT {
     G3DVERTEX *ver;  /*** related vertex       - set when painted ***/
-    float weight;    /*** weight               - set when painted ***/
-    LIST *lrig;      /*** list of rigs         - set when fixed   ***/
-    uint32_t nbrig;
+    float      weight;    /*** weight               - set when painted ***/
+    G3DRIG    *rig;
 } G3DWEIGHT;
 
 /******************************************************************************/
@@ -1214,8 +1214,6 @@ typedef struct _G3DBONE {
     G3DVECTOR fixsca; /*** Scale vector value when the bone was fixed ***/
     float len;        /*** Bone len                       ***/
     LIST *lrig;       /*** list of rigged weight groups   ***/
-    uint32_t nbrig;
-    double sknmatrix[0x10];
 } G3DBONE;
 
 /******************************************************************************/
@@ -1260,14 +1258,10 @@ typedef struct _G3DSUBDIVIDER {
 
 /******************************************************************************/
 typedef struct _G3DRIG {
-    double skinmatrix[0x10];
-    double bindmatrix[0x10];
-    double bonematrix[0x10];
-    G3DWEIGHTGROUP *grp;
-    G3DBONE        *bon;
-    LIST *ledg;
-    LIST *lfac; /*** This helps us to quickly recompute face normal, middle ***/
-    LIST *lextfac; /*** extended list of faces when using buffered subdivision*/
+    double   isknmatrix[0x10];
+    double   defmatrix[0x10];
+    G3DSKIN *skn;
+    LIST    *lweightgroup;
 } G3DRIG;
 
 /******************************************************************************/
@@ -2242,6 +2236,8 @@ void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DCAMERA *curcam,
                                        uint64_t   engine_flags );
 void       g3dmesh_assignFaceEdges      ( G3DMESH *, G3DFACE * );
+void g3dmesh_fixBones ( G3DMESH *mes, 
+                        uint64_t engine_flags );
 void g3dmesh_drawModified ( G3DMESH   *mes,
                             G3DCAMERA *cam, 
                             G3DVECTOR *verpos,
@@ -2696,11 +2692,17 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj,
 LIST    *g3dbone_seekMeshHierarchy      ( G3DBONE * );
 LIST    *g3dbone_seekWeightGroups       ( G3DBONE * );
 G3DRIG  *g3dbone_seekRig                ( G3DBONE *, G3DWEIGHTGROUP * );
-void     g3dbone_removeWeightGroup      ( G3DBONE *, G3DWEIGHTGROUP * );
-G3DRIG  *g3dbone_addWeightGroup         ( G3DBONE *, G3DWEIGHTGROUP * );
+void     g3dbone_removeWeightGroup      ( G3DBONE        *bon, 
+                                          G3DSKIN        *skn,
+                                          G3DWEIGHTGROUP *grp );
+G3DRIG  *g3dbone_addWeightGroup         ( G3DBONE        *bon,
+                                          G3DSKIN        *skn,
+                                          G3DWEIGHTGROUP *grp );
 void     g3dbone_fix                    ( G3DBONE * );
 void     g3dbone_reset                  ( G3DBONE * );
 void     g3dbone_update                 ( G3DBONE * );
+G3DRIG  *g3dbone_getRigBySkin           ( G3DBONE *bon,
+                                          G3DSKIN *skn );
 G3DBONE *g3dbone_mirror ( G3DBONE *bon, 
                           uint32_t orientation,
                           uint32_t recurse,
@@ -2746,8 +2748,7 @@ void g3dweight_reset     ( G3DWEIGHT *, G3DRIG * );
 
 /******************************************************************************/
 void    g3drig_free ( G3DRIG * );
-G3DRIG *g3drig_new  ( G3DWEIGHTGROUP * );
-void    g3drig_fix  ( G3DRIG *, G3DBONE * );
+G3DRIG *g3drig_new  ( G3DSKIN *skn );
 
 /******************************************************************************/
 G3DTEXTURE *g3dtexture_new           ( G3DOBJECT   *obj,

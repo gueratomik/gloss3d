@@ -48,6 +48,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dproceduralnoise.c \
                       g3dquaternion.c \
                       g3drgba.c \
+                      g3drig.c \
                       g3drttriangle.c \
                       g3drttriangleuvw.c \
                       g3drtvertex.c \

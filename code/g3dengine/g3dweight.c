@@ -30,80 +30,6 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3drig_fix ( G3DRIG *rig, G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    G3DWEIGHTGROUP *grp = rig->grp;
-    LIST *ltmpwei = grp->lwei;
-    LIST *lver = NULL;
-
-    while ( ltmpwei ) {
-        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-
-        g3dweight_fix ( wei, rig );
-
-        list_insert ( &lver, wei->ver );
-
-        ltmpwei = ltmpwei->next;
-    }
-
-    rig->ledg    = g3dvertex_getEdgesFromList ( lver );
-    rig->lfac    = g3dvertex_getFacesFromList ( lver );
-    rig->lextfac = g3dvertex_getAreaFacesFromList ( lver );
-
-    list_free ( &lver, NULL );
-
-    rig->bon = bon;
-
-    objbon->flags |= BONEFIXED;
-
-    g3dcore_invertMatrix   ( objbon->wmatrix, rig->bindmatrix );
-    g3dcore_identityMatrix ( rig->skinmatrix );
-}
-
-/******************************************************************************/
-void g3drig_free ( G3DRIG *rig ) {
-    LIST *ltmp = rig->grp->lwei;
-
-    while ( ltmp ) {
-        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmp->data;
-
-        list_remove ( &wei->lrig, rig );
-
-        if ( wei->lrig == NULL ) {
-            wei->ver->flags &= (~VERTEXSKINNED);
-
-            g3dvertex_updateFacesPosition ( wei->ver );
-        }
-
-        ltmp = ltmp->next;
-    }
-
-    list_free ( &rig->lfac   , NULL );
-    /*list_free ( &rig->lextfac, NULL );*/
-
-    free ( rig );
-}
-
-/******************************************************************************/
-G3DRIG *g3drig_new ( G3DWEIGHTGROUP *grp ) {
-    uint32_t structsize = sizeof ( G3DRIG );
-    G3DRIG *rig;
-
-    if ( ( rig = ( G3DRIG * ) calloc ( 0x01, structsize ) ) == NULL ) {
-        fprintf ( stderr, "g3drig_new: calloc failed\n" );
-
-        return NULL;
-    }
-
-    rig->grp = grp;
-
-    g3dcore_identityMatrix ( rig->skinmatrix );
-
-
-    return rig;
-}
-
-/******************************************************************************/
 G3DWEIGHTGROUP *g3dweightgroup_mirror ( G3DWEIGHTGROUP *grp,
                                         uint32_t orientation ) {
     G3DWEIGHTGROUP *mirgrp = g3dweightgroup_new ( grp->mes, "Mirrored Group" );
@@ -313,34 +239,7 @@ void g3dweightgroup_free ( G3DWEIGHTGROUP *grp ) {
 }
 
 /******************************************************************************/
-void g3dweight_fix   ( G3DWEIGHT *wei, G3DRIG *rig ) {
-    list_insert ( &wei->lrig, rig );
-
-    wei->ver->flags |= VERTEXSKINNED;
-
-    memcpy ( &wei->ver->skn, &wei->ver->pos, sizeof ( G3DVECTOR ) );
-
-
-    wei->nbrig++;
-}
-
-/******************************************************************************/
-void g3dweight_reset ( G3DWEIGHT *wei, G3DRIG *rig ) {
-    list_remove ( &wei->lrig, rig );
-
-    if ( wei->lrig == NULL ) {
-        wei->ver->flags &= (~VERTEXSKINNED);
-
-        g3dvertex_updateFacesPosition ( wei->ver );
-    }
-
-    wei->nbrig--;
-}
-
-/******************************************************************************/
 void g3dweight_free ( G3DWEIGHT *wei ) {
-    list_free ( &wei->lrig, NULL );
-
     free ( wei );
 }
 

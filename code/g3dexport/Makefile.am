@@ -5,8 +5,7 @@ AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
 lib_LTLIBRARIES = libgloss-g3dexport.la
 libgloss_g3dexport_la_SOURCES = $(LIBGLOSSG3DEXPORT_C_FILES)
 
-LIBGLOSSG3DEXPORT_C_FILES = v1/g3dexport.c \
-                            v2/g3dexportextension.c \
+LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v2/g3dexportapp.c \
                             v2/g3dexportbone.c \
                             v2/g3dexport.c \

@@ -241,9 +241,10 @@ SIG_ROOT=0x44335347
 --------------------------- length (float)
 ----------------------- SIG_OBJECT_BONE_RIGS
 --------------------------- SIG_OBJECT_BONE_RIG_ENTRY
-------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUP
---------------------------------------- weightgroupid (uint32_t);
---------------------------------------- meshid (uint32_t);
+------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUPS
+----------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY
+------------------------------------------- weightgroupid (uint32_t);
+------------------------------------------- meshid (uint32_t);
 ------------------------------- SIG_OBJECT_BONE_RIG_BINDMATRIX
 ----------------------------------- bindMatrix (double[0x10])
 ------------------------------- SIG_OBJECT_BONE_RIG_SKINMATRIX

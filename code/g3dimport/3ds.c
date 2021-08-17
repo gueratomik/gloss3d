@@ -47,8 +47,8 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
         return NULL;
     }
 
-    readf ( &chunkid , sizeof ( chunkid  ), 0x01, fsrc );
-    readf ( &chunklen, sizeof ( chunklen ), 0x01, fsrc );
+    fread ( &chunkid , sizeof ( chunkid  ), 0x01, fsrc );
+    fread ( &chunklen, sizeof ( chunklen ), 0x01, fsrc );
 
     if ( chunkid != 0x4D4D ) {
         fprintf ( stderr, "g3dscene_import3ds: not a 3DS file !\n" );
@@ -71,7 +71,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
                 int i = 0x00;
 
                 do {
-                    readf ( &str[i], sizeof ( char ), 0x01, fsrc );
+                    fread ( &str[i], sizeof ( char ), 0x01, fsrc );
                 } while ( str[i++] != 0x00 );
             } break;
 
@@ -86,14 +86,14 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
                 float x, y, z;
                 int i;
 
-                readf ( &nb, sizeof ( nb ), 0x01, fsrc );
+                fread ( &nb, sizeof ( nb ), 0x01, fsrc );
                 ver = ( G3DVERTEX ** ) calloc ( nb, sizeof ( G3DVERTEX * ) );
 
                 for ( i = 0x00; i < nb; i++ ) {
-                    readf ( &x, sizeof ( float ), 0x01, fsrc );
-                    readf ( &z, sizeof ( float ), 0x01, fsrc );
+                    fread ( &x, sizeof ( float ), 0x01, fsrc );
+                    fread ( &z, sizeof ( float ), 0x01, fsrc );
 /*** Gloss3D's up vector is Y, 3ds Up vector is Z, we swap ***/
-                    readf ( &y, sizeof ( float ), 0x01, fsrc );
+                    fread ( &y, sizeof ( float ), 0x01, fsrc );
 
                     x = ( x / 100.0f );
                     y = ( y / 100.0f );
@@ -123,14 +123,14 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
                 uint16_t nb, face[0x04];
                 int i;
 
-                readf ( &nb, sizeof ( nb ), 0x01, fsrc );
+                fread ( &nb, sizeof ( nb ), 0x01, fsrc );
 
                 for ( i = 0x00; i < nb; i++ ) {
                     G3DVERTEX *v0, *v1, *v2;
                     G3DFACE *fac;
 
                     /*** read vertices IDs ***/
-                    readf ( &face, sizeof ( face ), 0x01, fsrc );
+                    fread ( &face, sizeof ( face ), 0x01, fsrc );
 
                     /*** retrieve vertices pointers ***/
                     v0 = ver[face[0x00]];
@@ -151,8 +151,8 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
             break;
         }
 
-        readf ( &chunkid , sizeof ( chunkid  ), 0x01, fsrc );
-        readf ( &chunklen, sizeof ( chunklen ), 0x01, fsrc );
+        fread ( &chunkid , sizeof ( chunkid  ), 0x01, fsrc );
+        fread ( &chunklen, sizeof ( chunklen ), 0x01, fsrc );
     }
 
     fclose ( fsrc );
