@@ -197,6 +197,8 @@ SIG_ROOT=0x44335347
 -------------------------- steps (uint32)
 -------------------------- divis (uint32)
 
+------------------- SIG_OBJECT_SKIN
+
 ------------------- SIG_OBJECT_FFD
 -------------------------- SIG_OBJECT_FFD_GEOMETRY
 ------------------------------- nbx (uint32_t)
@@ -241,10 +243,12 @@ SIG_ROOT=0x44335347
 --------------------------- length (float)
 ----------------------- SIG_OBJECT_BONE_RIGS
 --------------------------- SIG_OBJECT_BONE_RIG_ENTRY
+------------------------------- SIG_OBJECT_BONE_RIG_SKIN
+------------------------------------------- skinID (uint32_t)
 ------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUPS
 ----------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY
-------------------------------------------- weightgroupid (uint32_t);
-------------------------------------------- meshid (uint32_t);
+------------------------------------------- weightgroupid (uint32_t)
+------------------------------------------- meshid (uint32_t)
 ------------------------------- SIG_OBJECT_BONE_RIG_BINDMATRIX
 ----------------------------------- bindMatrix (double[0x10])
 ------------------------------- SIG_OBJECT_BONE_RIG_SKINMATRIX

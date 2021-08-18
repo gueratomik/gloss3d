@@ -168,7 +168,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
         if ( mes->curgrp ) {
             G3DWEIGHTGROUP *curgrp = mes->curgrp;
 
-            lver = g3dweightgroup_getVertices;
+            lver = g3dweightgroup_getVertices ( curgrp );
 
             g3dmesh_unselectWeightGroup ( mes, curgrp );
 

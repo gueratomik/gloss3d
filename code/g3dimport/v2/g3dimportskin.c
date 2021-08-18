@@ -26,57 +26,34 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
+
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3drig_free ( G3DRIG *rig ) {
-    list_free ( &rig->lweightgroup, NULL );
+void g3dimportskin ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
 
-    free ( rig );
+    g3dimportdata_incrementIndentLevel ( gid );
+
+    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportdata_decrementIndentLevel ( gid );
 }
-
-/******************************************************************************/
-G3DRIG *g3drig_new ( G3DSKIN *skn ) {
-    uint32_t structsize = sizeof ( G3DRIG );
-    G3DRIG *rig;
-
-    if ( ( rig = ( G3DRIG * ) calloc ( 0x01, structsize ) ) == NULL ) {
-        fprintf ( stderr, "g3drig_new: calloc failed\n" );
-
-        return NULL;
-    }
-
-    rig->skn = skn;
-
-    g3dcore_identityMatrix ( rig->isknmatrix );
-
-    return rig;
-}
-
-/******************************************************************************/
-void g3drig_fix ( G3DRIG *rig ) {
-    LIST *ltmpgrp = rig->lweightgroup;
-
-    while ( ltmpgrp ) {
-        G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
-
-        g3dweightgroup_fix ( grp, rig );
-
-        ltmpgrp = ltmpgrp->next;
-    }
-}
-
-/******************************************************************************/
-void g3drig_unfix ( G3DRIG *rig ) {
-    LIST *ltmpgrp = rig->lweightgroup;
-
-    while ( ltmpgrp ) {
-        G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
-
-        g3dweightgroup_unfix ( grp );
-
-        ltmpgrp = ltmpgrp->next;
-    }
-}
-

@@ -50,6 +50,7 @@
 #define  SIG_OBJECT_BONE_RIG_BINDMATRIX                 0xC9223A6B
 #define  SIG_OBJECT_BONE_RIG_ENTRY                      0x0BED790B
 #define  SIG_OBJECT_BONE_RIGS                           0x6A4F8B22
+#define  SIG_OBJECT_BONE_RIG_SKIN                       0x8447FACC
 #define  SIG_OBJECT_BONE_RIG_SKINMATRIX                 0xA610F6C4
 #define  SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY          0xA05CE85C
 #define  SIG_OBJECT_BONE_RIG_WEIGHTGROUPS               0x2F6656B6
@@ -121,6 +122,7 @@
 #define  SIG_OBJECT_PRIMITIVE_TORUS                     0x033C5DCC
 #define  SIG_OBJECTS                                    0x15DB4DF2
 #define  SIG_OBJECT_SCENE                               0x4BBB8318
+#define  SIG_OBJECT_SKIN                                0xC5078055
 #define  SIG_OBJECT_SPLINE                              0x52A0AE8B
 #define  SIG_OBJECT_SPLINE_GEOMETRY                     0x1B9C4060
 #define  SIG_OBJECT_SPLINE_GEOMETRY_POINTS              0x0958332F

@@ -2720,7 +2720,7 @@ void     g3dbone_reset_r                ( G3DBONE * );
 LIST    *g3dbone_getMeshHierarchy       ( G3DBONE * );
 void     g3dbone_updateEdges            ( G3DBONE * );
 void     g3dbone_updateFaces            ( G3DBONE * );
-void g3dbone_transform ( G3DOBJECT *obj, 
+void g3dbone_transform ( G3DBONE *bon, 
                          uint64_t   engine_flags );
 G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *, uint32_t );
 LIST    *g3dbone_getAllWeightGroups     ( G3DBONE * );
@@ -2739,6 +2739,9 @@ void            g3dweightgroup_removeWeight  ( G3DWEIGHTGROUP *, G3DWEIGHT * );
 G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID   ( G3DMESH *, uint32_t );
 void            g3dweightgroup_empty         ( G3DWEIGHTGROUP * );
 LIST           *g3dweightgroup_getVertices   ( G3DWEIGHTGROUP *grp );
+void g3dweightgroup_fix ( G3DWEIGHTGROUP *grp, 
+                          G3DRIG         *rig );
+void g3dweightgroup_unfix ( G3DWEIGHTGROUP *grp );
 
 /******************************************************************************/
 G3DWEIGHT *g3dweight_new ( G3DVERTEX *, float );
@@ -2747,8 +2750,10 @@ void g3dweight_fix       ( G3DWEIGHT *, G3DRIG * );
 void g3dweight_reset     ( G3DWEIGHT *, G3DRIG * );
 
 /******************************************************************************/
-void    g3drig_free ( G3DRIG * );
-G3DRIG *g3drig_new  ( G3DSKIN *skn );
+void    g3drig_free  ( G3DRIG * );
+G3DRIG *g3drig_new   ( G3DSKIN *skn );
+void    g3drig_fix   ( G3DRIG *rig );
+void    g3drig_unfix ( G3DRIG *rig );
 
 /******************************************************************************/
 G3DTEXTURE *g3dtexture_new           ( G3DOBJECT   *obj,

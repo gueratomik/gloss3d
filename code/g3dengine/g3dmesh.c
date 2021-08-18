@@ -32,22 +32,18 @@
 /******************************************************************************/
 void g3dmesh_fixBones ( G3DMESH *mes, 
                         uint64_t engine_flags ) {
-    G3DSKIN *skn = g3dobject_getChildByType ( mes, G3DSKINTYPE );
+    LIST *lbon = g3dobject_getChildrenByType ( mes, G3DBONETYPE );
+    LIST *ltmpbon = lbon;
 
-    if ( skn ) {
-        LIST *lbon = g3dobject_getChildrenByType ( mes, G3DBONETYPE );
-        LIST *ltmpbon = lbon;
+    while ( ltmpbon ) {
+        G3DBONE *bon = ( G3DBONE * ) ltmpbon->data;
 
-        while ( ltmpbon ) {
-            G3DBONE *bon = ( G3DBONE * ) ltmpbon->data;
+        g3dbone_fix ( bon );
 
-            g3dskin_fixBone ( skn, bon );
-
-            ltmpbon = ltmpbon->next;
-        }
-
-        list_free ( &lbon, NULL );
+        ltmpbon = ltmpbon->next;
     }
+
+    list_free ( &lbon, NULL );
 }
 
 /******************************************************************************/

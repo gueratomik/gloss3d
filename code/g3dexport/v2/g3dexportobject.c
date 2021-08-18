@@ -346,6 +346,15 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
                                        fdst );
     }
 
+    if ( obj->type == G3DSKINTYPE ) {
+        size += g3dexport_writeChunk ( SIG_OBJECT_SKIN,
+                                       g3dexportskin,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
     /*if ( obj->type  & MODIFIER ) {
         size += g3dexport_writeChunk ( SIG_OBJECT_MODIFIER,
                                        g3dexportmodifier,

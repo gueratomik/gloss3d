@@ -173,6 +173,11 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
                             uint32_t       flags, 
                             FILE          *fdst );
 
+uint32_t g3dexportskin ( G3DEXPORTDATA *ged, 
+                         G3DSKIN       *skn, 
+                         uint32_t       flags, 
+                         FILE          *fdst );
+
 uint32_t g3dexportkey ( G3DEXPORTDATA *ged, 
                         G3DKEY        *key, 
                         uint32_t       flags, 

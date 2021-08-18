@@ -89,6 +89,8 @@ G3DWEIGHT *g3dweightgroup_addVertex ( G3DWEIGHTGROUP *grp,
 
     grp->nbwei++;
 
+    g3dvertex_addWeight ( wei->ver, wei );
+
     /*while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
@@ -150,6 +152,8 @@ void g3dweightgroup_removeWeight ( G3DWEIGHTGROUP *grp, G3DWEIGHT *wei ) {
 /******************************************************************************/
 G3DWEIGHT *g3dweightgroup_removeVertex ( G3DWEIGHTGROUP *grp, G3DVERTEX *ver ) {
     G3DWEIGHT *wei = g3dweightgroup_seekVertex ( grp, ver );
+
+    list_remove ( &ver->lwei, wei );
 
     g3dweightgroup_removeWeight ( grp, wei );
 
@@ -254,8 +258,33 @@ G3DWEIGHT *g3dweight_new ( G3DVERTEX *ver, float weight ) {
     wei->ver    = ver;
     wei->weight = weight;
 
-    g3dvertex_addWeight ( ver, wei );
-
 
     return wei;
+}
+
+/******************************************************************************/
+void g3dweightgroup_fix ( G3DWEIGHTGROUP *grp, 
+                          G3DRIG         *rig ) {
+    LIST *ltmpwei = grp->lwei;
+
+    while ( ltmpwei ) {
+        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+
+        wei->rig = rig;
+
+        ltmpwei = ltmpwei->next;
+    }
+}
+
+/******************************************************************************/
+void g3dweightgroup_unfix ( G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpwei = grp->lwei;
+
+    while ( ltmpwei ) {
+        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+
+        wei->rig = NULL;
+
+        ltmpwei = ltmpwei->next;
+    }
 }

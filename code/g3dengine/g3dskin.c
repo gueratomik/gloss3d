@@ -37,6 +37,7 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
     G3DVECTOR dif = { 0.0f, 0.0f, 0.0f };
     LIST *ltmpwei = lwei;
     float tot = 0.0f;
+    G3DVECTOR loc;
 
     def->x = pos->x;
     def->y = pos->y;
@@ -44,6 +45,7 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
 
     while ( ltmpwei ) {
         G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+        G3DVECTOR wld;
         G3DVECTOR tmp;
 
         if ( wei->rig ) {
@@ -60,26 +62,9 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
     }
 
     if ( tot ) {
-        def->x += ( dif.x / tot );
-        def->y += ( dif.y / tot );
-        def->z += ( dif.z / tot );
-    }
-}
-
-/******************************************************************************/
-void g3dskin_fixBone ( G3DSKIN *skn, 
-                       G3DBONE *bon ) {
-    if ( skn->mod.oriobj ) {
-        if ( skn->mod.oriobj->type & MESH ) {
-            G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-            G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
-            double sknmatrix[0x10];
-
-            g3dcore_multmatrix ( objbon->wmatrix, 
-                                 skn->mod.oriobj->wmatrix, sknmatrix );
-
-            g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
-        }
+        def->x = ( dif.x / tot );
+        def->y = ( dif.y / tot  );
+        def->z = ( dif.z / tot  );
     }
 }
 
@@ -227,11 +212,32 @@ static uint32_t g3dskin_draw ( G3DSKIN *skn,
 
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
+            G3DMESH *orimes = skn->mod.oriobj;
+            LIST *ltmpver = orimes->lver;
+
+            while ( ltmpver ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                G3DVECTOR *stkpos = g3dvertex_getModifiedPosition ( ver,
+                                                                    skn->mod.stkpos );
+
+                g3dskin_deformVertex ( skn, 
+                                       stkpos,
+                                       ver->lwei,
+                                      &skn->mod.verpos[ver->id] );
+
+/*printf("0 - ");g3dvector_print (  stkpos );
+printf("1 - ");g3dvector_print ( &skn->mod.verpos[ver->id] );*/
+
+                ltmpver = ltmpver->next;
+            }
+
             g3dmesh_drawModified ( skn->mod.oriobj,
                                    cam,
                                    skn->mod.verpos,
                                    skn->mod.vernor,
                                    engine_flags );
+
+
 
             return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
         }

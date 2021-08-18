@@ -126,6 +126,7 @@ void g3dimportdata_incrementIndentLevel ( G3DIMPORTDATA *gid );
 void g3dimportdata_decrementIndentLevel ( G3DIMPORTDATA *gid );
 void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportkey ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportskin ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
                                              void (*read)( G3DIMPORTDATA *gid,

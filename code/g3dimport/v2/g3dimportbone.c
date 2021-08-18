@@ -33,6 +33,7 @@
 /******************************************************************************/
 void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
+    G3DSKIN *skn = NULL;
 
     g3dimportdata_incrementIndentLevel ( gid );
 
@@ -53,6 +54,15 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_BONE_RIG_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_BONE_RIG_SKIN : {
+                uint32_t sknID;
+
+                g3dimport_freadl ( &sknID, fsrc );
+
+                skn = g3dobject_getChildByID ( gid->currentScene, 
+                                               sknID );
             } break;
 
             case SIG_OBJECT_BONE_RIG_WEIGHTGROUPS : {
@@ -80,7 +90,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                         if ( grp ) {
                             gid->currentRig = g3dbone_addWeightGroup ( bon,
-/** TODO ***/                                                          NULL,
+                                                                       skn,
                                                                        grp );
                         }
                     }

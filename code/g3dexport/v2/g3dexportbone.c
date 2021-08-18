@@ -30,6 +30,19 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+static uint32_t g3dexportbone_rigSkin ( G3DEXPORTDATA  *ged, 
+                                        G3DRIG         *rig, 
+                                        uint32_t        flags, 
+                                        FILE           *fdst ) {
+    uint32_t size = 0x00;
+    uint32_t i;
+
+    size += g3dexport_fwritel ( &((G3DOBJECT*)rig->skn)->id, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportbone_rigSkinMatrix ( G3DEXPORTDATA  *ged, 
                                               G3DRIG         *rig, 
                                               uint32_t        flags, 
@@ -88,6 +101,13 @@ static uint32_t g3dexportbone_rig ( G3DEXPORTDATA *ged,
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     uint32_t size = 0x00;
+
+    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_SKIN,
+                                   g3dexportbone_rigSkin,
+                                   ged,
+                                   rig,
+                                   0xFFFFFFFF,
+                                   fdst );
 
     size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUPS,
                                    g3dexportbone_rigWeightgroups,

@@ -376,7 +376,7 @@ LIST *g3dvertex_getAreaFacesFromList ( LIST *lver ) {
 }
 
 /******************************************************************************/
-void g3dvertex_addWeight    ( G3DVERTEX *ver, G3DWEIGHT *wei ) {
+void g3dvertex_addWeight ( G3DVERTEX *ver, G3DWEIGHT *wei ) {
     list_insert ( &ver->lwei, wei );
 
     ver->nbwei++;

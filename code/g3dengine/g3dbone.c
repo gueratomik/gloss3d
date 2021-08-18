@@ -96,11 +96,27 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
 /******************************************************************************/
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
-void g3dbone_transform ( G3DOBJECT *obj, 
+void g3dbone_transform ( G3DBONE *bon, 
                          uint64_t   engine_flags ) {
-    G3DBONE *bon = ( G3DBONE * ) obj;
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
 
-    g3dbone_update ( bon );
+    if ( ( objbon->flags & OBJECTINACTIVE ) == 0x00 ) {
+        LIST *ltmprig = bon->lrig;
+
+        while ( ltmprig ) {
+            G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
+            double lmatrix[0x10];
+
+            g3dcore_multmatrix ( objbon->wmatrix, 
+                                 rig->skn->mod.oriobj->iwmatrix, lmatrix );
+
+            g3dcore_multmatrix ( lmatrix, 
+                                 rig->isknmatrix, 
+                                 rig->defmatrix );
+
+            ltmprig = ltmprig->next;
+        }
+    }
 
     /*** For buffered faces ***/
     /*if ( ( flags & ONGOINGANIMATION ) == 0x00 ) {
@@ -396,15 +412,53 @@ void g3dbone_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+void g3dbone_fix ( G3DBONE *bon ) {
+    LIST *ltmprig = bon->lrig;
+
+    while ( ltmprig ) {
+        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
+
+        if ( rig->skn->mod.oriobj ) {
+            if ( rig->skn->mod.oriobj->type == G3DMESHTYPE ) {
+                G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+                double sknmatrix[0x10];
+
+                g3dcore_multmatrix ( objbon->wmatrix, 
+                                     rig->skn->mod.oriobj->iwmatrix, sknmatrix );
+
+                g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
+            }
+        }
+
+        g3drig_fix ( rig );
+
+        ltmprig = ltmprig->next;
+    }
+}
+
+/******************************************************************************/
+void g3dbone_unfix ( G3DBONE *bon ) {
+    LIST *ltmprig = bon->lrig;
+
+    while ( ltmprig ) {
+        G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
+
+        g3drig_unfix ( rig );
+
+        ltmprig = ltmprig->next;
+    }
+}
+
+/******************************************************************************/
 static void g3dbone_activate ( G3DBONE *bon, 
                                uint64_t engine_flags ) {
-
+    g3dbone_fix ( bon );
 }
 
 /******************************************************************************/
 static void g3dbone_deactivate ( G3DBONE *bon, 
                                  uint64_t engine_flags ) {
-
+    g3dbone_unfix ( bon );
 }
 
 /******************************************************************************/
@@ -420,7 +474,8 @@ G3DBONE *g3dbone_new ( uint32_t id,
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DBONETYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DBONETYPE, id, name, DRAWBEFORECHILDREN | 
+                                                 OBJECTINACTIVE,
                                                  g3dbone_draw,
                                                  g3dbone_free,
                                    PICK_CALLBACK(g3dbone_pick),

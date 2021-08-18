@@ -26,6 +26,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v2/g3dimportffd.c \
                             v2/g3dimportkey.c \
                             v2/g3dimportmorpher.c \
+                            v2/g3dimportskin.c \
                             v2/g3dimportwireframe.c \
                             v2/g3dimportextension.c \
                             collada.c \
