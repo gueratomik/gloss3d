@@ -77,7 +77,7 @@ static uint32_t objectMode_objectSelected ( G3DUI *gui ) {
               ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
 }
 
-#ifdef unused
+
 /******************************************************************************/
 static void addUVMapCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -100,63 +100,7 @@ static void alignUVMapCbk ( GtkWidget *widget, gpointer user_data ) {
     common_g3duimenubar_alignUVMapCbk ( gui, option );
 }
 
-/******************************************************************************/
-GtkWidget *createAlignUVMapMenu ( GtkWidget *parent, G3DUI *gui,
-                                                            char *name,
-                                                            gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( name );
-    int height = gtk_widget_get_allocated_height ( item );
 
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPXY, width, G_CALLBACK(alignUVMapCbk));
-    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPYZ, width, G_CALLBACK(alignUVMapCbk));
-    g3dui_addMenuButton ( menu, gui, MENU_ALIGNUVMAPZX, width, G_CALLBACK(alignUVMapCbk));
-
-
-    gtk_widget_show ( item );
-
-    gtk_widget_show ( menu );
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createUVMappingMenu ( GtkWidget *bar, G3DUI *gui,
-                                                 char *name,
-                                                 gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_UVMapping" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton  ( menu, gui, MENU_ADDUVMAP  , width, G_CALLBACK(addUVMapCbk));
-    g3dui_addMenuButton  ( menu, gui, MENU_FITUVMAP  , width, G_CALLBACK(fitUVMapCbk));
-    createAlignUVMapMenu ( menu, gui, MENU_ALIGNUVMAP, width );
-
-/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
-*/
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
-}
 
 /******************************************************************************/
 static void renderSettingsCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -176,37 +120,6 @@ static void renderSettingsCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget *createRenderMenu ( GtkWidget *bar, G3DUI *gui,
-                                                 char *name,
-                                                 gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Render" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_RENDERVIEW    , width, G_CALLBACK(g3dui_renderViewCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_RENDERSETTINGS, width, G_CALLBACK(renderSettingsCbk) );
-    /*g3dui_addMenuButton ( menu, gui, MENU_RUNRENDER, width, renderFinalCbk    );*/
-
-/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk );
-*/
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
-}
-
-/******************************************************************************/
 void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     gchar *authors[] = { "Gary GABRIEL", NULL };
@@ -217,37 +130,10 @@ void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
                            "license", GLOSS3DLICENSE,
                            "comments", "Graphics by a Lightweight Open-Source Software",
                            "version", VERSION,
-                           "copyright", "2012-2020 The Gloss3D Team",
+                           "copyright", "2012-2021 The Gloss3D Team",
                            "website", "http://www.gloss3d.net",
                            "title", ("About Gloss3D"),
                            NULL );
-}
-
-/******************************************************************************/
-GtkWidget *createHelpMenu ( GtkWidget *bar, G3DUI *gui,
-                                            char *name,
-                                            gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Help" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_ABOUT, width, G_CALLBACK(g3dui_aboutCbk) );
-
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
 }
 
 /******************************************************************************/
@@ -271,88 +157,6 @@ void g3dui_mirrorWeightGroupCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3dui_mirrorWeightGroupCbk ( gui, option );
-}
-
-/******************************************************************************/
-GtkWidget *createSplitMeshMenu ( GtkWidget *parent, G3DUI *gui,
-                                                    char *name,
-                                                    gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( name );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_SPLITANDKEEP  , width, G_CALLBACK(g3dui_splitMeshCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_SPLITANDREMOVE, width, G_CALLBACK(g3dui_splitMeshCbk) );
-
-    gtk_widget_show ( item );
-
-    gtk_widget_show ( menu );
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createMirrorWeightGroupMenu ( GtkWidget *parent, G3DUI *gui,
-                                                            char *name,
-                                                            gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( name );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_MIRRORXY, width, G_CALLBACK(g3dui_mirrorWeightGroupCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_MIRRORYZ, width, G_CALLBACK(g3dui_mirrorWeightGroupCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_MIRRORZX, width, G_CALLBACK(g3dui_mirrorWeightGroupCbk) );
-
-
-    gtk_widget_show ( item );
-
-    gtk_widget_show ( menu );
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createFunctionsMenu ( GtkWidget *bar, G3DUI *gui,
-                                                 char *name,
-                                                 gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Functions" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    createMirrorWeightGroupMenu ( menu, gui, MENU_MIRRORWEIGHTGROUP, width );
-    createSplitMeshMenu         ( menu, gui, MENU_SPLITMESH        , width );
-    g3dui_addMenuButton         ( menu, gui, MENU_MERGEMESH        , width, g3dui_mergeMeshCbk );
-    g3dui_addMenuButton         ( menu, gui, MENU_MAKEEDITABLE     , width, g3dui_makeEditableCbk );
-
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
 }
 
 /******************************************************************************/
@@ -440,128 +244,6 @@ void g3dui_addBoneCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget *createResetBoneMenu ( GtkWidget *parent, G3DUI *gui,
-                                                    char *name,
-                                                    gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( name );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_RESETBONETREE, width, G_CALLBACK(g3dui_resetBoneTreeCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_RESETBONEONLY, width, G_CALLBACK(g3dui_resetBoneCbk)     );
-
-    gtk_widget_show ( item );
-
-    gtk_widget_show ( menu );
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createFixBoneMenu ( GtkWidget *parent, G3DUI *gui,
-                                                  char *name,
-                                                  gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( name );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( parent ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_FIXBONETREE, width, G_CALLBACK(g3dui_fixBoneTreeCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_FIXBONEONLY, width, G_CALLBACK(g3dui_fixBoneCbk)     );
-
-    gtk_widget_show ( item );
-
-    gtk_widget_show ( menu );
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createMultipliersMenu ( GtkWidget *bar, G3DUI *gui,
-                                                   char *name,
-                                                   gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Multipliers" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton       ( menu, gui, MENU_ADDSYMMETRY    , width, G_CALLBACK(g3dui_addSymmetryCbk)     );
-
-/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
-*/
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
-}
-
-/******************************************************************************/
-GtkWidget *createModifiersMenu ( GtkWidget *bar, G3DUI *gui,
-                                                 char *name,
-                                                 gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Modifiers" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton ( menu, gui, MENU_ADDWIREFRAME , width, G_CALLBACK(g3dui_addWireframeCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_ADDSUBDIVIDER, width, G_CALLBACK(g3dui_addSubdividerCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_ADDFFDBOX    , width, G_CALLBACK(g3dui_addFFDBoxCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_ADDMORPHER   , width, G_CALLBACK(g3dui_addMorpherCbk) );
-    g3dui_addMenuButton ( menu, gui, MENU_ADDSKIN      , width, G_CALLBACK(g3dui_addSkinCbk) );
-
-    g3dui_addMenuSeparator ( menu );
-
-    g3dui_addMenuButton ( menu, gui, MENU_ADDBONE  , width, G_CALLBACK(g3dui_addBoneCbk)      );
-    createFixBoneMenu   ( menu, gui, MENU_FIXBONE  , width );
-    createResetBoneMenu ( menu, gui, MENU_RESETBONE, width );
-
-    g3dui_addMenuSeparator ( menu );
-    g3dui_addMenuButton ( menu, gui, MENU_ADDSPLINEREVOLVER , width, G_CALLBACK(g3dui_addSplineRevolverCbk));
-
-
-/*    g3dui_addMenuButton ( menu, gui, MENU_ADDUVWMAP    , width, g3dui_addLightCbk    , NULL );
-*/
-    gtk_widget_show     ( item );
-
-    gtk_widget_show     ( menu );
-
-
-
-    return menu;
-}
-
-/******************************************************************************/
 void g3dui_addPlaneCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -644,58 +326,6 @@ void g3dui_addNullCbk ( GtkWidget *widget, gpointer user_data ) {
 
     common_g3dui_addNullCbk ( gui );
 }
-
-/******************************************************************************/
-GtkWidget *createObjectsMenu ( GtkWidget *bar, G3DUI *gui,
-                                               char *name,
-                                               gint width ) {
-    GtkWidget *menu = gtk_menu_new ( );
-    GtkWidget *item = gtk_menu_item_new_with_mnemonic ( "_Objects" );
-    int height = gtk_widget_get_allocated_height ( item );
-
-    gtk_widget_set_halign ( item, GTK_ALIGN_CENTER );
-
-    gtk_widget_set_size_request ( item, width, height );
-
-    gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( item ), menu );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
-
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDPLANE    , width, G_CALLBACK(g3dui_addPlaneCbk)    );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDCUBE     , width, G_CALLBACK(g3dui_addCubeCbk)     );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDSPHERE   , width, G_CALLBACK(g3dui_addSphereCbk)   );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDTORUS    , width, G_CALLBACK(g3dui_addTorusCbk)    );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDCYLINDER , width, G_CALLBACK(g3dui_addCylinderCbk) );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDTUBE     , width, G_CALLBACK(g3dui_addTubeCbk)     );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDTEXT     , width, G_CALLBACK(g3dui_addTextCbk)     );
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDNULL     , width, G_CALLBACK(g3dui_addNullCbk)     );
-
-    g3dui_addMenuSeparator ( menu );
-
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDLIGHT    , width, G_CALLBACK(g3dui_addLightCbk)     );
-
-    g3dui_addMenuSeparator ( menu );
-
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDCAMERA   , width, G_CALLBACK(g3dui_addCameraCbk)    );
-
-    g3dui_addMenuSeparator ( menu );
-
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDEMPTYMESH, width, G_CALLBACK(g3dui_addEmptyMeshCbk) );
-
-    g3dui_addMenuSeparator ( menu );
-
-    g3dui_addMenuButton    ( menu, gui, MENU_ADDSPLINE   , width, G_CALLBACK(g3dui_addSplineCbk) );
-
-
-    gtk_widget_show ( item );
-    gtk_widget_show ( menu );
-
-
-
-    return menu;
-}
-
-#endif
 
 /******************************************************************************/
 void g3dui_invertNormalCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -915,13 +545,376 @@ static G3DUIMENU menu_separator = { "SEPARATOR",
                                     G3DUIMENUTYPE_SEPARATOR,
                                     NULL,
                                     NULL };
+
+/******************************************************************************/
+/********************************* Help MENU **********************************/
+
+static G3DUIMENU help_menu_about = { MENU_ABOUT,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     g3dui_aboutCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU help_menu = { "Help",
+                               G3DUIMENUTYPE_SUBMENU,
+                               NULL,
+                               NULL,
+                              .nodes = { &help_menu_about,
+                                          NULL } };
+
+/******************************************************************************/
+/******************************* UVMapping MENU *******************************/
+
+static G3DUIMENU uvmapping_menu_align_xy = { MENU_ALIGNUVMAPXY,
+                                             G3DUIMENUTYPE_PUSHBUTTON,
+                                             NULL,
+                                             alignUVMapCbk };
+
+static G3DUIMENU uvmapping_menu_align_yz = { MENU_ALIGNUVMAPYZ,
+                                             G3DUIMENUTYPE_PUSHBUTTON,
+                                             NULL,
+                                             alignUVMapCbk };
+
+static G3DUIMENU uvmapping_menu_align_zx = { MENU_ALIGNUVMAPZX,
+                                             G3DUIMENUTYPE_PUSHBUTTON,
+                                             NULL,
+                                             alignUVMapCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU uvmapping_menu_add   = { MENU_ADDUVMAP,
+                                          G3DUIMENUTYPE_PUSHBUTTON,
+                                          NULL,
+                                          addUVMapCbk };
+
+static G3DUIMENU uvmapping_menu_fit   = { MENU_FITUVMAP,
+                                          G3DUIMENUTYPE_PUSHBUTTON,
+                                          NULL,
+                                          fitUVMapCbk };
+
+static G3DUIMENU uvmapping_menu_align = { MENU_ALIGNUVMAP,
+                                          G3DUIMENUTYPE_SUBMENU,
+                                          NULL,
+                                          NULL,
+                                         .nodes = { &uvmapping_menu_align_xy,
+                                                    &uvmapping_menu_align_yz,
+                                                    &uvmapping_menu_align_zx,
+                                                     NULL } };
+
+/******************************************************************************/
+
+static G3DUIMENU uvmapping_menu = { "UV Mapping",
+                                    G3DUIMENUTYPE_SUBMENU,
+                                    NULL,
+                                    NULL,
+                                   .nodes = { &uvmapping_menu_add,
+                                              &uvmapping_menu_fit,
+                                              &uvmapping_menu_align,
+                                               NULL } };
+
+/******************************************************************************/
+/******************************* Render MENU **********************************/
+
+static G3DUIMENU render_menu_view     = { MENU_RENDERVIEW,
+                                          G3DUIMENUTYPE_PUSHBUTTON,
+                                          NULL,
+                                          g3dui_renderViewCbk };
+
+static G3DUIMENU render_menu_settings = { MENU_RENDERSETTINGS,
+                                          G3DUIMENUTYPE_PUSHBUTTON,
+                                          NULL,
+                                          renderSettingsCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU render_menu = { "Render",
+                                 G3DUIMENUTYPE_SUBMENU,
+                                 NULL,
+                                 NULL,
+                                .nodes = { &render_menu_view,
+                                           &render_menu_settings,
+                                            NULL } };
+
+/******************************************************************************/
+/****************************** Functions MENU ********************************/
+
+static G3DUIMENU functions_menu_mirrorWeightgroup_xy = { MENU_MIRRORXY,
+                                                         G3DUIMENUTYPE_PUSHBUTTON,
+                                                         skinModeOnly,
+                                                         g3dui_mirrorWeightGroupCbk };
+
+static G3DUIMENU functions_menu_mirrorWeightgroup_yz = { MENU_MIRRORYZ,
+                                                         G3DUIMENUTYPE_PUSHBUTTON,
+                                                         skinModeOnly,
+                                                         g3dui_mirrorWeightGroupCbk };
+
+static G3DUIMENU functions_menu_mirrorWeightgroup_zx = { MENU_MIRRORZX,
+                                                         G3DUIMENUTYPE_PUSHBUTTON,
+                                                         skinModeOnly,
+                                                         g3dui_mirrorWeightGroupCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU functions_menu_splitMesh_keep   = { MENU_SPLITANDKEEP,
+                                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                                     faceModeOnly,
+                                                     g3dui_splitMeshCbk };
+
+static G3DUIMENU functions_menu_splitMesh_remove = { MENU_SPLITANDREMOVE,
+                                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                                     faceModeOnly,
+                                                     g3dui_splitMeshCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU functions_menu_mirrorWG     = { MENU_MIRRORWEIGHTGROUP,
+                                                 G3DUIMENUTYPE_SUBMENU,
+                                                 skinModeOnly,
+                                                 NULL,
+                                                .nodes = { &functions_menu_mirrorWeightgroup_xy,
+                                                           &functions_menu_mirrorWeightgroup_yz,
+                                                           &functions_menu_mirrorWeightgroup_zx,
+                                                            NULL } };
+
+static G3DUIMENU functions_menu_splitMesh    = { MENU_SPLITMESH,
+                                                 G3DUIMENUTYPE_SUBMENU,
+                                                 faceModeOnly,
+                                                 NULL,
+                                                .nodes = { &functions_menu_splitMesh_keep,
+                                                           &functions_menu_splitMesh_remove,
+                                                            NULL } };
+
+static G3DUIMENU functions_menu_mergeMesh    = { MENU_MERGEMESH,
+                                                 G3DUIMENUTYPE_PUSHBUTTON,
+                                                 objectModeOnly,
+                                                 g3dui_mergeMeshCbk };
+
+static G3DUIMENU functions_menu_makeEditable = { MENU_MAKEEDITABLE,
+                                                 G3DUIMENUTYPE_PUSHBUTTON,
+                                                 objectModeOnly,
+                                                 g3dui_makeEditableCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU functions_menu = { "Functions",
+                                    G3DUIMENUTYPE_SUBMENU,
+                                    NULL,
+                                    NULL,
+                                   .nodes = { &functions_menu_mirrorWG,
+                                              &functions_menu_splitMesh,
+                                              &functions_menu_mergeMesh,
+                                              &functions_menu_makeEditable,
+                                               NULL } };
+
+
+/******************************************************************************/
+/***************************** Multipliers MENU *******************************/
+
+static G3DUIMENU multipliers_menu_addSymmetry = { MENU_ADDSYMMETRY,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addSymmetryCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU multipliers_menu = { "Multipliers",
+                                      G3DUIMENUTYPE_SUBMENU,
+                                      NULL,
+                                      NULL,
+                                     .nodes = { &multipliers_menu_addSymmetry,
+                                                 NULL } };
+
+/******************************************************************************/
+/****************************** Modifiers MENU ********************************/
+
+static G3DUIMENU modifiers_menu_resetBone_tree = { MENU_RESETBONETREE,
+                                                   G3DUIMENUTYPE_PUSHBUTTON,
+                                                   objectModeOnly,
+                                                   g3dui_resetBoneTreeCbk };
+
+static G3DUIMENU modifiers_menu_resetBone_only = { MENU_RESETBONEONLY,
+                                                   G3DUIMENUTYPE_PUSHBUTTON,
+                                                   objectModeOnly,
+                                                   g3dui_resetBoneCbk };
+/******************************************************************************/
+
+
+static G3DUIMENU modifiers_menu_fixBone_tree = { MENU_FIXBONETREE,
+                                                 G3DUIMENUTYPE_PUSHBUTTON,
+                                                 objectModeOnly,
+                                                 g3dui_fixBoneTreeCbk };
+
+static G3DUIMENU modifiers_menu_fixBone_only = { MENU_FIXBONEONLY,
+                                                 G3DUIMENUTYPE_PUSHBUTTON,
+                                                 objectModeOnly,
+                                                 g3dui_fixBoneCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU modifiers_menu_addWireframe  = { MENU_ADDWIREFRAME,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addWireframeCbk };
+
+static G3DUIMENU modifiers_menu_addSubdivider = { MENU_ADDSUBDIVIDER,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addSubdividerCbk };
+
+static G3DUIMENU modifiers_menu_addFFDBox     = { MENU_ADDFFDBOX,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addFFDBoxCbk };
+
+static G3DUIMENU modifiers_menu_addMorpher    = { MENU_ADDMORPHER,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addMorpherCbk };
+
+static G3DUIMENU modifiers_menu_addSkin       = { MENU_ADDSKIN,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addSkinCbk };
+
+static G3DUIMENU modifiers_menu_addBone       = { MENU_ADDBONE,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addBoneCbk };
+
+static G3DUIMENU modifiers_menu_fixBone       = { MENU_FIXBONE,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectModeOnly,
+                                                  NULL,
+                                                 .nodes = { &modifiers_menu_fixBone_tree,
+                                                            &modifiers_menu_fixBone_only,
+                                                             NULL } };
+
+static G3DUIMENU modifiers_menu_resetBone     = { MENU_RESETBONE,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectModeOnly,
+                                                  NULL,
+                                                 .nodes = { &modifiers_menu_resetBone_tree,
+                                                            &modifiers_menu_resetBone_only,
+                                                             NULL } };
+
+static G3DUIMENU modifiers_menu_addSRevolver  = { MENU_ADDSPLINEREVOLVER,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addSplineRevolverCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU modifiers_menu = { "Modifiers",
+                                     G3DUIMENUTYPE_SUBMENU,
+                                     NULL,
+                                     NULL,
+                                    .nodes = { &modifiers_menu_addWireframe,
+                                               &modifiers_menu_addSubdivider,
+                                               &modifiers_menu_addFFDBox,
+                                               &modifiers_menu_addMorpher,
+                                               &modifiers_menu_addSkin,
+                                               &modifiers_menu_addSRevolver,
+                                               &menu_separator,
+                                               &modifiers_menu_addBone,
+                                               &modifiers_menu_fixBone,
+                                               &modifiers_menu_resetBone,
+                                                NULL } };
+
+/******************************************************************************/
+/****************************** Objects MENU **********************************/
+
+static G3DUIMENU objects_menu_addPlane     = { MENU_ADDPLANE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addPlaneCbk };
+
+static G3DUIMENU objects_menu_addCube      = { MENU_ADDCUBE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addCubeCbk };
+
+static G3DUIMENU objects_menu_addSphere    = { MENU_ADDSPHERE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addSphereCbk };
+
+static G3DUIMENU objects_menu_addTorus     = { MENU_ADDTORUS,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addTorusCbk };
+
+static G3DUIMENU objects_menu_addCylinder  = { MENU_ADDCYLINDER,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addCylinderCbk };
+
+static G3DUIMENU objects_menu_addTube      = { MENU_ADDTUBE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addTubeCbk };
+
+static G3DUIMENU objects_menu_addText      = { MENU_ADDTEXT,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addTextCbk };
+
+static G3DUIMENU objects_menu_addNull      = { MENU_ADDNULL,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addNullCbk };
+
+static G3DUIMENU objects_menu_addLight     = { MENU_ADDLIGHT,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addLightCbk };
+
+static G3DUIMENU objects_menu_addCamera    = { MENU_ADDCAMERA,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addCameraCbk };
+
+static G3DUIMENU objects_menu_addEmptyMesh = { MENU_ADDEMPTYMESH,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addEmptyMeshCbk };
+
+static G3DUIMENU objects_menu_addSpline    = { MENU_ADDSPLINE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectModeOnly,
+                                               g3dui_addSplineCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU objects_menu = { "Objects",
+                                  G3DUIMENUTYPE_SUBMENU,
+                                  NULL,
+                                  NULL,
+                                 .nodes = { &objects_menu_addPlane,
+                                            &objects_menu_addCube,
+                                            &objects_menu_addSphere,
+                                            &objects_menu_addTorus,
+                                            &objects_menu_addCylinder,
+                                            &objects_menu_addTube,
+                                            &objects_menu_addText,
+                                            &objects_menu_addNull,
+                                            &menu_separator,
+                                            &objects_menu_addLight,
+                                            &menu_separator,
+                                            &objects_menu_addCamera,
+                                            &menu_separator,
+                                            &objects_menu_addEmptyMesh,
+                                            &menu_separator,
+                                            &objects_menu_addSpline,
+                                             NULL } };
+
 /******************************************************************************/
 /****************************** Edit MENU *************************************/
 
-static G3DUIMENU edit_menu_selectTree_all = { MENU_OPTION_ALLTYPES,
-                                              G3DUIMENUTYPE_PUSHBUTTON,
-                                              NULL,
-                                              g3dui_selectTreeCbk };
+static G3DUIMENU edit_menu_selectTree_all  = { MENU_OPTION_ALLTYPES,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               NULL,
+                                               g3dui_selectTreeCbk };
 
 static G3DUIMENU edit_menu_selectTree_same = { MENU_OPTION_SAMETYPE,
                                                G3DUIMENUTYPE_PUSHBUTTON,
@@ -930,10 +923,10 @@ static G3DUIMENU edit_menu_selectTree_same = { MENU_OPTION_SAMETYPE,
 
 /******************************************************************************/
 
-static G3DUIMENU edit_menu_triangulate_cw = { MENU_OPTION_CLOCKWISE,
-                                              G3DUIMENUTYPE_PUSHBUTTON,
-                                              NULL,
-                                              g3dui_triangulateCbk };
+static G3DUIMENU edit_menu_triangulate_cw  = { MENU_OPTION_CLOCKWISE,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               NULL,
+                                               g3dui_triangulateCbk };
 
 static G3DUIMENU edit_menu_triangulate_ccw = { MENU_OPTION_ANTICLOCKWISE,
                                                G3DUIMENUTYPE_PUSHBUTTON,
@@ -942,71 +935,71 @@ static G3DUIMENU edit_menu_triangulate_ccw = { MENU_OPTION_ANTICLOCKWISE,
 
 /******************************************************************************/
 
-static G3DUIMENU edit_menu_undo = { MENU_UNDO,
-                                    G3DUIMENUTYPE_PUSHBUTTON,
-                                    NULL,
-                                    g3dui_undoCbk };
+static G3DUIMENU edit_menu_undo               = { MENU_UNDO,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  NULL,
+                                                  g3dui_undoCbk };
 
-static G3DUIMENU edit_menu_redo = { MENU_REDO,
-                                    G3DUIMENUTYPE_PUSHBUTTON,
-                                    NULL,
-                                    g3dui_undoCbk };
+static G3DUIMENU edit_menu_redo               = { MENU_REDO,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  NULL,
+                                                  g3dui_undoCbk };
 
-static G3DUIMENU edit_menu_invertNormals = { MENU_INVERTNORMALS,
-                                             G3DUIMENUTYPE_PUSHBUTTON,
-                                             faceModeOnly,
-                                             g3dui_invertNormalCbk };
+static G3DUIMENU edit_menu_invertNormals      = { MENU_INVERTNORMALS,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  faceModeOnly,
+                                                  g3dui_invertNormalCbk };
 
-static G3DUIMENU edit_menu_alignNormals = { MENU_ALIGNNORMALS,
-                                            G3DUIMENUTYPE_PUSHBUTTON,
-                                            faceModeOnly,
-                                            g3dui_alignNormalsCbk };
+static G3DUIMENU edit_menu_alignNormals       = { MENU_ALIGNNORMALS,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  faceModeOnly,
+                                                  g3dui_alignNormalsCbk };
 
-static G3DUIMENU edit_menu_triangulate = { MENU_TRIANGULATE,
-                                           G3DUIMENUTYPE_SUBMENU,
-                                           faceModeOnly,
-                                           NULL,
-                                          .nodes = { &edit_menu_triangulate_cw,
-                                                     &edit_menu_triangulate_ccw,
-                                                      NULL } };
+static G3DUIMENU edit_menu_triangulate        = { MENU_TRIANGULATE,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  faceModeOnly,
+                                                  NULL,
+                                                 .nodes = { &edit_menu_triangulate_cw,
+                                                            &edit_menu_triangulate_ccw,
+                                                             NULL } };
 
-static G3DUIMENU edit_menu_untriangulate = { MENU_UNTRIANGULATE,
-                                             G3DUIMENUTYPE_PUSHBUTTON,
-                                             faceModeOnly,
-                                             g3dui_untriangulateCbk };
+static G3DUIMENU edit_menu_untriangulate      = { MENU_UNTRIANGULATE,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  faceModeOnly,
+                                                  g3dui_untriangulateCbk };
 
-static G3DUIMENU edit_menu_weldVertices = { MENU_WELDVERTICES,
-                                            G3DUIMENUTYPE_PUSHBUTTON,
-                                            vertexModeOnly,
-                                            g3dui_weldVerticesCbk };
+static G3DUIMENU edit_menu_weldVertices       = { MENU_WELDVERTICES,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  vertexModeOnly,
+                                                  g3dui_weldVerticesCbk };
 
 static G3DUIMENU edit_menu_deleteLoneVertices = { MENU_DELETELONEVERTICES,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   vertexModeOnly,
                                                   g3dui_deleteLoneVerticesCbk };
 
-static G3DUIMENU edit_menu_selectAll = { MENU_SELECTALL,
-                                         G3DUIMENUTYPE_PUSHBUTTON,
-                                         NULL,
-                                         g3dui_selectAllCbk };
+static G3DUIMENU edit_menu_selectAll          = { MENU_SELECTALL,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  NULL,
+                                                  g3dui_selectAllCbk };
 
-static G3DUIMENU edit_menu_selectTree = { MENU_SELECTTREE,
-                                          G3DUIMENUTYPE_SUBMENU,
-                                          objectModeOnly,
-                                          NULL,
-                                          .nodes = { &edit_menu_selectTree_all,
-                                                     &edit_menu_selectTree_same,
-                                                      NULL } };
+static G3DUIMENU edit_menu_selectTree         = { MENU_SELECTTREE,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectModeOnly,
+                                                  NULL,
+                                                  .nodes = { &edit_menu_selectTree_all,
+                                                             &edit_menu_selectTree_same,
+                                                              NULL } };
 
-static G3DUIMENU edit_menu_invertSelection = { MENU_INVERTSELECTION,
-                                               G3DUIMENUTYPE_PUSHBUTTON,
-                                               NULL,
-                                               g3dui_invertSelectionCbk };
+static G3DUIMENU edit_menu_invertSelection    = { MENU_INVERTSELECTION,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  NULL,
+                                                  g3dui_invertSelectionCbk };
 
-static G3DUIMENU edit_menu_getObjectStats = { MENU_GETOBJECTSTATS,
-                                              G3DUIMENUTYPE_PUSHBUTTON,
-                                              objectMode_objectSelected,
-                                              g3dui_getObjectStatsCbk };
+static G3DUIMENU edit_menu_getObjectStats     = { MENU_GETOBJECTSTATS,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectMode_objectSelected,
+                                                  g3dui_getObjectStatsCbk };
 
 /******************************************************************************/
 
@@ -1157,6 +1150,13 @@ static G3DUIMENU rootnode = { "Bar",
                               NULL,
                              .nodes = { &file_menu,
                                         &edit_menu,
+                                        &objects_menu,
+                                        &modifiers_menu,
+                                        &multipliers_menu,
+                                        &functions_menu,
+                                        &uvmapping_menu,
+                                        &render_menu,
+                                        &help_menu,
                                          NULL } };
 
 /******************************************************************************/
@@ -1227,11 +1227,16 @@ static void parseMenu_r ( G3DUIMENU *node,
         break;
     }
 
-    /*if ( node->item ) {
-    int height = gtk_widget_get_allocated_height ( node->item );
+    if ( node->type == G3DUIMENUTYPE_SUBMENU  ) {
+        int height = gtk_widget_get_allocated_height ( node->item );
+        GdkRectangle gdkrec = { 0, 0, 0x60, height };
 
-    gtk_widget_set_size_request ( node->item, 0x60, height );
-    }*/
+        /*gtk_widget_set_halign ( node->item, GTK_ALIGN_CENTER );*/
+
+    /*gtk_widget_size_allocate ( node->item, &gdkrec );*/
+
+        gtk_widget_set_size_request ( node->item, 0x60, height );
+    }
 
     if ( parent ) {
         gtk_menu_shell_append ( GTK_MENU_SHELL ( parent->menu ), 
