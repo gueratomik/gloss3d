@@ -104,6 +104,7 @@ static GtkWidget *createMaterialFileMenu ( GtkWidget *bar, G3DUI *gui,
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
     /************************************************/
+#ifdef unused
     g3dui_addMenuButton ( menu, gui, "Add Material"   , 96,
                           G_CALLBACK(addMaterialCbk) );
 
@@ -112,6 +113,7 @@ static GtkWidget *createMaterialFileMenu ( GtkWidget *bar, G3DUI *gui,
 
     g3dui_addMenuButton ( menu, gui, "Set Material"   , 96,
                           G_CALLBACK(setMaterialCbk) );
+#endif
 
     /*addMenuButton ( wfile, gui, "Small Icons"    , smallpreviewscbk  );
     addMenuButton ( wfile, gui, "Normal Icons"   , normalpreviewscbk );

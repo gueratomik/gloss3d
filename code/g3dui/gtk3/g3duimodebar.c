@@ -57,6 +57,8 @@ void g3dui_setMode ( GtkWidget *widget, gpointer user_data ) {
     common_g3dui_setMode ( gui, modename );
 
     g3dui_redrawGLViews ( gui );
+
+    g3dui_updateMenuBar ( gui );
 }
 
 /******************************************************************************/

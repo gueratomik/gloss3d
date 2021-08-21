@@ -1927,7 +1927,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
                                                   gui->tbarrec.width,
                                                   gui->tbarrec.height );
 
-    createMenuBar   ( widget, gui, MENUBARNAME  , gui->menurec.x,
+    createMenuBar   ( gui, MENUBARNAME  , gui->menurec.x,
                                                   gui->menurec.y,
                                                   gui->menurec.width,
                                                   gui->menurec.height );
@@ -1967,6 +1967,7 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
 
     /*gtk_style_context_set_background ( gtk_widget_get_style_context ( widget ),
                                        window );*/
+    g3dui_updateMenuBar ( gui );
 }
 
 /******************************************************************************/

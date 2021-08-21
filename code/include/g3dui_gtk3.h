@@ -103,8 +103,17 @@ typedef struct _GtkFormClass {
 
 GType      gtk_form_get_type    (void) G_GNUC_CONST;
 GtkWidget *gtk_form_new ( );
-/******************************************************************************/
 
+/******************************************************************************/
+typedef struct _G3DUIMENU {
+    unsigned char     *name;
+    uint32_t           type;
+    uint32_t         (*condition) ( G3DUI *gui );
+    void              *callback;
+    GtkWidget         *item;
+    GtkWidget         *menu;
+    struct _G3DUIMENU *nodes[];
+} G3DUIMENU;
 
 /******************************************************************************/
 /****************************** Toolkit Data **********************************/
@@ -118,6 +127,7 @@ typedef struct _G3DUIGTK3 {
     GdkWindow *winAtPosition; /*** window at mouse position (for hourGlass)***/
     GtkWidget *currentUVMouseToolButton;
     GtkWidget *currentUVMapEditor;
+    G3DUIMENU *menuBar;
 } G3DUIGTK3;
 
 /***************************** Main Window Widget *****************************/
@@ -254,8 +264,13 @@ GtkWidget *createModeBar          ( GtkWidget *, G3DUI *, char *, gint, gint,
 GtkWidget *createToolBar          ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-GtkWidget *createMenuBar          ( GtkWidget *, G3DUI *, char *, gint, gint, 
-                                                                  gint, gint );
+void g3dui_updateMenuBar ( G3DUI *gui );
+void createMenuBar ( G3DUI     *gui,
+                     char      *name,
+                     gint       x,
+                     gint       y,
+                     gint       width,
+                     gint       height );
 
 GtkWidget *createQuad             ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );

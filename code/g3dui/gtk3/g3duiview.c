@@ -366,6 +366,7 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUIVIEW *view,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton ( menu, view, VIEWMENUDEFAULTCAMERA , width, G_CALLBACK(g3duiview_useDefaultCameraCbk)  );
     g3dui_addMenuButton ( menu, view, VIEWMENUSELECTEDCAMERA, width, G_CALLBACK(g3duiview_useSelectedCameraCbk) );
     g3dui_addMenuToggle ( menu, view, VIEWMENUNORMALS       , width, G_CALLBACK(g3duiview_toggleNormalsCbk)     );
@@ -381,6 +382,7 @@ GtkWidget *createOptionMenu  ( GtkWidget *parent, G3DUIVIEW *view,
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
     gtk_widget_show ( bar );
+#endif
 
 
     return bar;

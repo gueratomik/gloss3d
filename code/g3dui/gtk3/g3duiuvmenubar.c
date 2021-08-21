@@ -45,7 +45,9 @@ GtkWidget *createUVHelpMenu ( GtkWidget *bar, G3DUI *gui,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton ( menu, gui, MENU_ABOUT, width, G_CALLBACK(g3dui_aboutCbk) );
+#endif
 
     gtk_widget_show     ( item );
 
@@ -108,6 +110,7 @@ GtkWidget *createUVImageMenu ( GtkWidget        *bar,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton ( menu, 
                           lui, 
                           MENU_RESIZEIMAGE, 
@@ -125,6 +128,7 @@ GtkWidget *createUVImageMenu ( GtkWidget        *bar,
                           MENU_BGFILL, 
                           width, 
                           G_CALLBACK ( l3dui_bgfillCbk ) );
+#endif
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
@@ -187,6 +191,7 @@ GtkWidget *createUVEditMenu ( GtkWidget        *bar,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton   ( menu, lui, MENU_UNDO         , width, G_CALLBACK(l3dui_undoCbk)   );
     g3dui_addMenuButton   ( menu, lui, MENU_REDO         , width, G_CALLBACK(l3dui_redoCbk)   );
     g3dui_addMenuButton   ( menu, lui, MENU_VERTEXFROMUV , width, G_CALLBACK(l3dui_uv2verCbk) );
@@ -205,7 +210,7 @@ GtkWidget *createUVEditMenu ( GtkWidget        *bar,
 */
     gtk_widget_show ( item );
     gtk_widget_show ( menu );
-
+#endif
 
 
     return menu;
@@ -278,11 +283,13 @@ GtkWidget *createUVFileMenu ( GtkWidget        *bar,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton ( menu, lui, MENU_CREATECHANNELIMAGE, width, G_CALLBACK(l3dui_createChannelImageCbk) );
     g3dui_addMenuButton ( menu, lui, MENU_OPENCHANNELIMAGE  , width, G_CALLBACK(l3dui_loadImageByChannelIDCbk) );
     /*g3dui_addMenuButton ( menu, lui, MENU_SAVECHANNELIMAGE  , width, G_CALLBACK(l3dui_saveChannelImageCbk) );
     g3dui_addMenuButton ( menu, lui, MENU_SAVECHANNELIMAGEAS, width, G_CALLBACK(l3dui_saveChannelImageAsCbk) );
     g3dui_addMenuButton ( menu, lui, MENU_LEAVELIPS3D       , width, G_CALLBACK(l3dui_exitLIPS3DCbk) );*/
+#endif
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

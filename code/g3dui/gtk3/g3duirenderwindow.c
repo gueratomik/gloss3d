@@ -569,9 +569,11 @@ static void createRenderWindowFileMenu ( GtkWidget        *bar,
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( bar ), item );
 
+#ifdef unused
     g3dui_addMenuButton    ( menu, grw, "Save As JPEG", width, G_CALLBACK(saveAsImageCbk) );
     g3dui_addMenuSeparator ( menu );
     g3dui_addMenuButton    ( menu, grw, "Close"       , width, G_CALLBACK(exitWindowCbk) );
+#endif
 
     gtk_widget_show ( item );
     gtk_widget_show ( menu );

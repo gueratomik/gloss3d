@@ -110,8 +110,8 @@ void g3dbone_transform ( G3DBONE *bon,
             g3dcore_multmatrix ( objbon->wmatrix, 
                                  rig->skn->mod.oriobj->iwmatrix, lmatrix );
 
-            g3dcore_multmatrix ( lmatrix, 
-                                 rig->isknmatrix, 
+            g3dcore_multmatrix ( rig->isknmatrix, 
+                                 lmatrix, 
                                  rig->defmatrix );
 
             ltmprig = ltmprig->next;
