@@ -120,8 +120,8 @@ void g3dedge_drawSimple ( G3DEDGE *edg,
     G3DVERTEX *v0 = edg->ver[0x00],
               *v1 = edg->ver[0x01];
 
-    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-              *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
+    G3DVECTOR *p0 = &v0->pos,
+              *p1 = &v1->pos;
 
     glBegin ( GL_LINES );
 
@@ -286,8 +286,8 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
     float xposmid, yposmid, zposmid;
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-              *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
+    G3DVECTOR *p0 = &v0->pos,
+              *p1 = &v1->pos;
     G3DVECTOR favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     uint32_t nbfac = edg->nbfac;
@@ -341,8 +341,8 @@ uint32_t g3dedge_getAveragePosition ( G3DEDGE   *edg,
                                       G3DVECTOR *vout ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-              *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
+    G3DVECTOR *p0 = &v0->pos,
+              *p1 = &v1->pos;
 
     vout->x = ( p0->x + p1->x ) * 0.5f;
     vout->y = ( p0->y + p1->y ) * 0.5f;

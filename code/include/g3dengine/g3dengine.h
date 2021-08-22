@@ -661,7 +661,6 @@ typedef struct _G3DVERTEX {
     uint32_t     id;      /*** Vertex ID - Should never be trusted !        ***/
     uint32_t     geoID;   /*** geomtry ID, all types included               ***/
     G3DVECTOR    pos;     /*** Vertex position                              ***/
-    G3DVECTOR    skn;     /*** Vertex Skinned position                      ***/
     G3DVECTOR    nor;     /*** Vertex normal vector                         ***/
     LIST        *lfac;    /*** list of faces connected to this vertex       ***/
     LIST        *ledg;    /*** list of connected edges                      ***/
@@ -670,10 +669,6 @@ typedef struct _G3DVERTEX {
     uint32_t     nbedg;   /*** number of connected edges                    ***/
     uint32_t     nbwei;   /*** number of weights                            ***/
     float        weight;  /*** weight value used when editing weight groups ***/
-    G3DVECTOR    facpnt;  /*** precompute subdivision average face point    ***/
-    G3DVECTOR    edgpnt;  /*** precompute subdivision average edge point    ***/
-    float        surface; /*** average surface of connected faces. Used for ***/
-                          /*** scaling normal vector when showing normals   ***/
     G3DRTVERTEX *rtvermem;/*** Vertex buffer in buffered mode               ***/
     LIST        *lext;    /*** list of vertex extensions                    ***/
     struct _G3DSUBVERTEX *subver;
@@ -1491,6 +1486,8 @@ void g3dquaternion_print ( G3DQUATERNION *qua );
 G3DVERTEX *g3dvertex_new        ( float, float, float );
 G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
                                            G3DVECTOR *stkpos );
+G3DVECTOR *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
+                                         G3DVECTOR *stkpos );
 G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
 void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
@@ -1662,44 +1659,71 @@ G3DCUTEDGE *g3dcutedge_seek ( LIST *, G3DEDGE * );
 void g3dcutedge_free ( G3DCUTEDGE * );
 
 /******************************************************************************/
-void     g3dface_evalSubdivision ( G3DFACE *, uint32_t, uint32_t *, uint32_t *,
-                                                             uint32_t * );
-void g3dface_init ( G3DFACE *, G3DVERTEX **, uint32_t );
-void     g3dtriangle_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
-                                                             uint32_t * );
-void     g3dquad_evalSubdivision ( uint32_t, uint32_t *, uint32_t *,
-                                                         uint32_t * );
-void     g3dface_attachEdges      ( G3DFACE *, G3DEDGE ** );
-G3DFACE *g3dquad_new              ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX *,
-                                                              G3DVERTEX * );
-G3DFACE *g3dtriangle_new          ( G3DVERTEX *, G3DVERTEX *, G3DVERTEX * );
-void     g3dface_normal           ( G3DFACE * );
-void g3dface_draw  ( G3DFACE *fac, 
-                     float    gouraudScalarLimit,
-                     LIST    *ltex, 
-                     uint32_t object_flags,
-                     uint64_t engine_flags );
-void g3dface_drawSkin ( G3DFACE *fac, 
-                        uint32_t oflags,
-                        uint64_t engine_flags );
-void g3dface_getModifiedPosition ( G3DFACE   *fac,
-                                   G3DVECTOR *stkpos,
-                                   G3DVECTOR *facpos );
-uint32_t g3dface_intersect        ( G3DFACE *, G3DVECTOR *, G3DVECTOR *,
-                                                            G3DVECTOR * );
-void     g3dface_free             ( G3DFACE * );
-void     g3dface_update           ( G3DFACE * );
-G3DEDGE *g3dface_compare          ( G3DFACE *, G3DFACE * );
-G3DFACE *g3dface_merge            ( G3DFACE *, G3DFACE *, G3DEDGE * );
-void     g3dface_unsetSelected    ( G3DFACE * );
-void     g3dface_setSelected      ( G3DFACE * );
-G3DFACE *g3dface_new              ( G3DVERTEX **, uint32_t );
-void     g3dface_delete           ( G3DFACE * );
-void     g3dface_invertNormal     ( G3DFACE * );
-uint32_t g3dface_catmull_clark_draw ( G3DSUBDIVISIONTHREAD *,
-                                      G3DFACE *, G3DFACE *, 
-                                                 uint32_t,
-                                                 float,
+void     g3dface_evalSubdivision        ( G3DFACE *, 
+                                          uint32_t, 
+                                          uint32_t *, 
+                                          uint32_t *,
+                                          uint32_t * );
+void     g3dface_init                   ( G3DFACE *, 
+                                          G3DVERTEX **, 
+                                          uint32_t );
+void     g3dtriangle_evalSubdivision    ( uint32_t,
+                                          uint32_t *, 
+                                          uint32_t *,
+                                          uint32_t * );
+void     g3dquad_evalSubdivision        ( uint32_t, 
+                                          uint32_t *, 
+                                          uint32_t *,
+                                          uint32_t * );
+void     g3dface_updateModifiedPosition ( G3DFACE   *fac,
+                                          G3DVECTOR *stkpos );
+void     g3dface_updateModifiedNormal   ( G3DFACE   *fac,
+                                          G3DVECTOR *stkpos );
+void     g3dface_updateModified         ( G3DFACE   *fac,
+                                          G3DVECTOR *stkverpos );
+
+void     g3dface_attachEdges            ( G3DFACE *,
+                                          G3DEDGE ** );
+G3DFACE *g3dquad_new                    ( G3DVERTEX *, 
+                                          G3DVERTEX *,
+                                          G3DVERTEX *,
+                                          G3DVERTEX * );
+G3DFACE *g3dtriangle_new                ( G3DVERTEX *, 
+                                          G3DVERTEX *, 
+                                          G3DVERTEX * );
+void     g3dface_normal                 ( G3DFACE * );
+void     g3dface_draw                   ( G3DFACE *fac, 
+                                          float    gouraudScalarLimit,
+                                          LIST    *ltex, 
+                                          uint32_t object_flags,
+                                          uint64_t engine_flags );
+void     g3dface_drawSkin               ( G3DFACE *fac, 
+                                          uint32_t oflags,
+                                          uint64_t engine_flags );
+void     g3dface_getModifiedPosition    ( G3DFACE   *fac,
+                                          G3DVECTOR *stkpos,
+                                          G3DVECTOR *facpos );
+uint32_t g3dface_intersect              ( G3DFACE *, 
+                                          G3DVECTOR *, 
+                                          G3DVECTOR *,
+                                          G3DVECTOR * );
+void     g3dface_free                   ( G3DFACE * );
+void     g3dface_update                 ( G3DFACE * );
+G3DEDGE *g3dface_compare                ( G3DFACE *, 
+                                          G3DFACE * );
+G3DFACE *g3dface_merge                  ( G3DFACE *, 
+                                          G3DFACE *, 
+                                          G3DEDGE * );
+void     g3dface_unsetSelected          ( G3DFACE * );
+void     g3dface_setSelected            ( G3DFACE * );
+G3DFACE *g3dface_new                    ( G3DVERTEX **, uint32_t );
+void     g3dface_delete                 ( G3DFACE * );
+void     g3dface_invertNormal           ( G3DFACE * );
+uint32_t g3dface_catmull_clark_draw     ( G3DSUBDIVISIONTHREAD *,
+                                          G3DFACE *, 
+                                          G3DFACE *, 
+                                          uint32_t,
+                                          float,
                          /*** get triangles ***/ G3DRTTRIANGLE **,
                          /*** get quads     ***/ G3DRTQUAD     **,
                                                  G3DRTUVSET    **,

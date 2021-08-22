@@ -766,9 +766,9 @@ void g3dface_drawSimple  ( G3DFACE *fac,
               *v3 = fac->ver[0x03];
 
     if ( fac->nbver == 0x03 ) {
-        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                  *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
-                  *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
+        G3DVECTOR *p0 = &v0->pos,
+                  *p1 = &v1->pos,
+                  *p2 = &v2->pos;
 
         glBegin ( GL_TRIANGLES );
 
@@ -778,10 +778,10 @@ void g3dface_drawSimple  ( G3DFACE *fac,
 
        glEnd ( );
     } else {
-        G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                  *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
-                  *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos,
-                  *p3 = ( v3->flags & VERTEXSKINNED ) ? &v3->skn : &v3->pos;
+        G3DVECTOR *p0 = &v0->pos,
+                  *p1 = &v1->pos,
+                  *p2 = &v2->pos,
+                  *p3 = &v3->pos;
 
         glBegin ( GL_QUADS );
 
@@ -811,12 +811,7 @@ void g3dface_drawSkin ( G3DFACE *fac,
         }
 
         glNormal3fv ( ( float * ) &fac->ver[i]->nor );
-
-        if ( fac->ver[i]->flags & VERTEXSKINNED ) {
-            glVertex3fv ( ( float * ) &fac->ver[i]->skn );
-        } else {
-            glVertex3fv ( ( float * ) &fac->ver[i]->pos );
-        }
+        glVertex3fv ( ( float * ) &fac->ver[i]->pos );
     }
 
     glEnd ( );
@@ -840,8 +835,7 @@ void g3dface_draw  ( G3DFACE *fac,
             g3dvertex_displace ( fac->ver[i], ltex, &dis[i] );
             pos[i] = &dis[i];
         } else {*/
-            pos[i] = ( fac->ver[i]->flags & VERTEXSKINNED ) ? &fac->ver[i]->skn :
-                                                              &fac->ver[i]->pos;
+            pos[i] = &fac->ver[i]->pos;
         /*}*/
     }
 
@@ -1206,12 +1200,7 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
                 nor = &(*rttriptr)->vernor[i];
 
                 memcpy ( nor, &fac->ver[(*n)]->nor, sizeof ( G3DTINYVECTOR ) );
-
-                if ( fac->ver[(*n)]->flags & VERTEXSKINNED ) {
-                    memcpy ( pos, &fac->ver[(*n)]->skn, sizeof ( G3DTINYVECTOR ) );
-                } else {
-                    memcpy ( pos, &fac->ver[(*n)]->pos, sizeof ( G3DTINYVECTOR ) );
-                }
+                memcpy ( pos, &fac->ver[(*n)]->pos, sizeof ( G3DTINYVECTOR ) );
 
                 (*rttriptr)->tripos.x += pos->x;
                 (*rttriptr)->tripos.y += pos->y;
@@ -1294,8 +1283,7 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
             for ( i = 0x00; i < fac->nbver; i++ ) {
                 G3DVERTEX *ancestorVer = g3dface_getVertexByID ( ancestor, fac->ver[i]->id );
                 G3DVERTEX *v0 = fac->ver[i];
-                G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : 
-                                                                &v0->pos;
+                G3DVECTOR *p0 = &v0->pos;
                 if ( ancestorVer ) {
                     G3DRTVERTEX *rtver = ancestorVer->rtvermem;
 
@@ -1349,8 +1337,8 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
                 G3DEDGE *edg = fac->edg[i];
                 G3DVERTEX *v0 = edg->ver[0x00],
                           *v1 = edg->ver[0x01];
-                G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-                          *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
+                G3DVECTOR *p0 = &v0->pos,
+                          *p1 = &v1->pos;
 
                 if ( edg->flags & EDGEORIGINAL ) {
                     G3DRTEDGE *rtedg = edg->rtedgmem;
@@ -1538,9 +1526,49 @@ uint32_t g3dface_intersect ( G3DFACE   *fac,
 }
 
 /******************************************************************************/
-void g3dface_getModifiedPosition ( G3DFACE   *fac,
-                                   G3DVECTOR *stkpos,
-                                   G3DVECTOR *facpos ) {
+void g3dface_updateModifiedNormal ( G3DFACE   *fac,
+                                    G3DVECTOR *stkverpos ) {
+    G3DVERTEX *v0 = fac->ver[0x00],
+              *v1 = fac->ver[0x01],
+              *v2 = fac->ver[0x02];
+    G3DVECTOR *p0 = ( stkverpos ) ? &stkpos[v0->id] : &v0->pos,
+              *p1 = ( stkverpos ) ? &stkpos[v1->id] : &v1->pos,
+              *p2 = ( stkverpos ) ? &stkpos[v2->id] : &v2->pos;
+    G3DVECTOR p0p1 = { ( p1->x - p0->x ),
+                       ( p1->y - p0->y ),
+                       ( p1->z - p0->z ), 1.0f },
+              p0p2 = { ( p2->x - p0->x ),
+                       ( p2->y - p0->y ),
+                       ( p2->z - p0->z ), 1.0f };
+
+    g3dvector_cross ( &p0p1, &p0p2, &fac->nor );
+
+    if ( fac->nbver == 0x04 ) {
+        G3DVERTEX *v3 = fac->ver[0x03];
+        G3DVECTOR *p3 = ( stkverpos ) ? &stkverpos[v3->id] : &v3->pos;
+        G3DVECTOR p2p3 = { ( p3->x - p2->x ),
+                           ( p3->y - p2->y ),
+                           ( p3->z - p2->z ), 1.0f },
+                  p2p0 = { ( p0->x - p2->x ),
+                           ( p0->y - p2->y ),
+                           ( p0->z - p2->z ), 1.0f };
+        G3DVECTOR nor;
+
+        g3dvector_cross ( &p2p3, &p2p0, &nor );
+
+        g3dvector_normalize ( &nor, NULL );
+
+        fac->nor.x = ( fac->nor.x + nor.x ) * 0.5f;
+        fac->nor.y = ( fac->nor.y + nor.y ) * 0.5f;
+        fac->nor.z = ( fac->nor.z + nor.z ) * 0.5f;
+    }
+
+    g3dvector_normalize ( &fac->nor, &fac->surface );
+}
+
+/******************************************************************************/
+void g3dface_updateModifiedPosition ( G3DFACE   *fac,
+                                      G3DVECTOR *stkverpos ) {
     float    nbverdiv = ( fac->nbver == 0x03 ) ? 0.3333f : 0.25f;
     uint32_t i;
 
@@ -1549,7 +1577,7 @@ void g3dface_getModifiedPosition ( G3DFACE   *fac,
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( fac->ver[i], 
-                                                            stkpos );
+                                                            stkverpos );
 
         fac->pos.x += verpos->x;
         fac->pos.y += verpos->y;
@@ -1562,39 +1590,28 @@ void g3dface_getModifiedPosition ( G3DFACE   *fac,
 }
 
 /******************************************************************************/
+void g3dface_updateModified ( G3DFACE   *fac,
+                              G3DVECTOR *stkverpos ) {
+    /*** Compute face's position ***/
+    g3dface_updateModifiedPosition ( fac, stkverpos );
+
+    /*** Compute face's normal vector ***/
+    g3dface_updateModifiedNormal ( fac, stkverpos );
+}
+
+/******************************************************************************/
 void g3dface_position ( G3DFACE *fac ) {
-    float    nbverdiv = ( fac->nbver == 0x03 ) ? ONETHIRD : 0.25f;
-    uint32_t i;
+    g3dface_updateModifiedPosition ( fac, NULL );
+}
 
-    fac->pos.x = fac->pos.y = fac->pos.z = 0.0f;
-    fac->pos.w = 1.0f;
-
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        if ( fac->ver[i]->flags & VERTEXSKINNED ) {
-            fac->pos.x += fac->ver[i]->skn.x;
-            fac->pos.y += fac->ver[i]->skn.y;
-            fac->pos.z += fac->ver[i]->skn.z;
-        } else {
-            fac->pos.x += fac->ver[i]->pos.x;
-            fac->pos.y += fac->ver[i]->pos.y;
-            fac->pos.z += fac->ver[i]->pos.z;
-        }
-    }
-
-    fac->pos.x = ( fac->pos.x * nbverdiv );
-    fac->pos.y = ( fac->pos.y * nbverdiv );
-    fac->pos.z = ( fac->pos.z * nbverdiv );
+/******************************************************************************/
+void g3dface_normal ( G3DFACE *fac ) {
+    g3dface_updateModifiedNormal ( fac, NULL );
 }
 
 /******************************************************************************/
 void g3dface_update ( G3DFACE *fac ) {
-    uint32_t i;
-
-    /*** Compute face's position ***/
-    g3dface_position ( fac );
-
-    /*** Compute face's normal vector ***/
-    g3dface_normal ( fac );
+    g3dface_updateModified ( fac, NULL );
 }
 
 /******************************************************************************/
@@ -1695,48 +1712,6 @@ void g3dface_linkVertices ( G3DFACE *fac ) {
     for ( i = 0x00; i < fac->nbver; i++ ) {
         g3dvertex_addFace ( fac->ver[i], fac );
     }
-}
-
-/*****************************************************************************/
-/******* This function needs some extra treatment for > 4 Vertices faces *****/
-void g3dface_normal ( G3DFACE *fac ) {
-    G3DVERTEX *v0 = fac->ver[0x00],
-              *v1 = fac->ver[0x01],
-              *v2 = fac->ver[0x02];
-    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
-              *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos,
-              *p2 = ( v2->flags & VERTEXSKINNED ) ? &v2->skn : &v2->pos;
-    G3DVECTOR p0p1 = { ( p1->x - p0->x ),
-                       ( p1->y - p0->y ),
-                       ( p1->z - p0->z ), 1.0f },
-              p0p2 = { ( p2->x - p0->x ),
-                       ( p2->y - p0->y ),
-                       ( p2->z - p0->z ), 1.0f };
-
-    g3dvector_cross ( &p0p1, &p0p2, &fac->nor );
-
-    if ( fac->nbver == 0x04 ) {
-        G3DVERTEX *v3 = fac->ver[0x03];
-        G3DVECTOR *p3 = ( v3->flags & VERTEXSKINNED ) ? &v3->skn : &v3->pos;
-
-        G3DVECTOR p2p3 = { ( p3->x - p2->x ),
-                           ( p3->y - p2->y ),
-                           ( p3->z - p2->z ), 1.0f },
-                  p2p0 = { ( p0->x - p2->x ),
-                           ( p0->y - p2->y ),
-                           ( p0->z - p2->z ), 1.0f };
-        G3DVECTOR nor;
-
-        g3dvector_cross ( &p2p3, &p2p0, &nor );
-
-        g3dvector_normalize ( &nor, NULL );
-
-        fac->nor.x = ( fac->nor.x + nor.x ) * 0.5f;
-        fac->nor.y = ( fac->nor.y + nor.y ) * 0.5f;
-        fac->nor.z = ( fac->nor.z + nor.z ) * 0.5f;
-    }
-
-    g3dvector_normalize ( &fac->nor, &fac->surface );
 }
 
 /******************************************************************************/

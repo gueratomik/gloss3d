@@ -264,8 +264,7 @@ static void Dump ( G3DFACE *fac,
             float scalar = fabs ( g3dvector_scalar ( &ver->nor,
                                                      &fac->nor ) );
             float gouraudScalarLimit = mes->gouraudScalarLimit;
-            G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
-                                                              &ver->pos,
+            G3DVECTOR *pos = &ver->pos,
                       *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
                                                                &ver->nor;
             Q3DVERTEX *curqver = &qverset->qver[qverID[j]];

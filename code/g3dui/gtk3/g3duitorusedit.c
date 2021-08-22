@@ -49,7 +49,7 @@ static void capCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     if ( cap >= 0x03 ) {
-        common_g3duitorusedit_sliceCbk ( gui, cap );
+        common_g3duitorusedit_capCbk ( gui, cap );
     } else {
         updateTorusEdit ( parent, gui );
     }

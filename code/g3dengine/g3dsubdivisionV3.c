@@ -636,15 +636,9 @@ static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver,
     int retflags = 0x00;
     int i;
 
-    if ( ver->flags & VERTEXSKINNED ) {
-        xori = ver->skn.x;
-        yori = ver->skn.y;
-        zori = ver->skn.z;
-    } else {
-        xori = ver->pos.x;
-        yori = ver->pos.y;
-        zori = ver->pos.z;
-    }
+    xori = ver->pos.x;
+    yori = ver->pos.y;
+    zori = ver->pos.z;
 
     if ( valence == 0x02 ) { /*** vertex belongs to 1 face only ***/
         /*** average mid points ***/
@@ -823,7 +817,7 @@ static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
     newver->ver.id    = id;
     newver->ver.flags = ( ver->flags | VERTEXTOPOLOGY
                                      | VERTEXORIGINAL 
-                                     | VERTEXINNER ) & ~VERTEXSKINNED;
+                                     | VERTEXINNER );
     newver->ver.nbfac = newver->ver.nbedg = 0x00;
     newver->ver.lfac  = newver->ver.ledg  = NULL;
 

@@ -757,6 +757,21 @@ void l3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
 
+GtkWidget *createOptionMenu ( GtkWidget *parent, 
+                              G3DUIVIEW *view,
+                              char      *name,
+                              gint       x,
+                              gint       y,
+                              gint       width,
+                              gint       height );
+
+GtkWidget *createMaterialMenuBar ( GtkWidget *parent, 
+                                   G3DUI     *gui,
+                                   char      *name,
+                                   gint       x,
+                                   gint       y,
+                                   gint       width,
+                                   gint       height );
 
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
                              L3DUI *lui,

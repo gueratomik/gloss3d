@@ -614,6 +614,18 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_BGFILL               "Fill with background color"
 #define MENU_RESIZEIMAGE          "Resize image"
 
+#define VIEWMENU_LIGHTING        "Lights on"
+#define VIEWMENU_BACKGROUND      "Show background"
+#define VIEWMENU_TEXTURES        "Show textures"
+#define VIEWMENU_GRID            "Show grid"
+#define VIEWMENU_BONES           "Show bones"
+#define VIEWMENU_NORMALS         "Show normals"
+#define VIEWMENU_DEFAULTCAMERA   "Use default camera"
+#define VIEWMENU_SELECTEDCAMERA  "Use selected camera"
+#define VIEWMENU_RESET           "Reset view"
+#define VIEWMENU_UNDO            "Undo  view"
+#define VIEWMENU_REDO            "Redo  view"
+
 /******************************************************************************/
 #define MARGIN 0x02
 #define MARGDB ( MARGIN << 0x01 )

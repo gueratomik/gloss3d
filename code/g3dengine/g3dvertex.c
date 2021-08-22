@@ -193,10 +193,10 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
     LIST      *ltmptex = ltex;
     uint32_t   nbuv = 0x00;
 
-    pos->x = ( ver->flags & VERTEXSKINNED ) ? ver->skn.x : ver->pos.x;
-    pos->y = ( ver->flags & VERTEXSKINNED ) ? ver->skn.y : ver->pos.y;
-    pos->z = ( ver->flags & VERTEXSKINNED ) ? ver->skn.z : ver->pos.z;
-    pos->w = ( ver->flags & VERTEXSKINNED ) ? ver->skn.w : ver->pos.w;
+    pos->x = ver->pos.x;
+    pos->y = ver->pos.y;
+    pos->z = ver->pos.z;
+    pos->w = ver->pos.w;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -390,7 +390,7 @@ void g3dvertex_removeWeight ( G3DVERTEX *ver, G3DWEIGHT *wei ) {
 
     /*** be sure our vertex is not skinned and reset its position ***/
     if ( ver->lwei == NULL ) {
-        ver->flags &= (~(VERTEXSKINNED|VERTEXPAINTED));
+        ver->flags &= (~(VERTEXPAINTED));
 
         g3dvertex_updateFacesPosition ( ver );
     }
@@ -714,6 +714,12 @@ G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
 }
 
 /******************************************************************************/
+G3DVECTOR *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
+                                         G3DVECTOR *stknor ) {
+    return ( stknor ) ? &stknor[ver->id] : &ver->nor;
+}
+
+/******************************************************************************/
 void g3dvertex_getAverageFacePoint ( G3DVERTEX *ver, G3DVECTOR *facavg ) {
     memcpy ( facavg, &ver->facpnt, sizeof ( G3DVECTOR ) );
 }
@@ -760,6 +766,8 @@ void g3dvertex_copyPos ( G3DVERTEX *dst, G3DVERTEX *src ) {
     memcpy ( &dst->pos, &src->pos, sizeof ( G3DVECTOR ) );
 }
 
+
+
 /*****************************************************************************/
 void g3dvertex_normal ( G3DVERTEX *ver, 
                         uint64_t   engine_flags ) {
@@ -781,16 +789,6 @@ void g3dvertex_normal ( G3DVERTEX *ver,
             /*norw = ( norw + cen->nor.w );*/
         }
 
-        if ( engine_flags & COMPUTEFACEPOINT ) {
-            posx = ( posx + fac->pos.x );
-            posy = ( posy + fac->pos.y );
-            posz = ( posz + fac->pos.z );
-            /*posw = ( posw + cen->pos.w );*/
-        }
-
-        surface += fac->surface;
-
-
         ltmp = ltmp->next;
     }
 
@@ -810,52 +808,6 @@ void g3dvertex_normal ( G3DVERTEX *ver,
             ver->nor.y = nory * nbfacdiv;
             ver->nor.z = norz * nbfacdiv;
             ver->nor.w = 1.0f;
-        }
-
-        if ( engine_flags & COMPUTEFACEPOINT ) {
-            ver->facpnt.x = posx * nbfacdiv;
-            ver->facpnt.y = posy * nbfacdiv;
-            ver->facpnt.z = posz * nbfacdiv;
-            ver->facpnt.w = 1.0f;
-        }
-
-        ver->surface = surface * nbfacdiv;
-
-        if ( engine_flags & COMPUTEEDGEPOINT ) {
-            LIST *ltmp = ver->ledg;
-            float nbedgdiv = 0.25f;
-
-            /*** some optimization ***/
-            if ( ver->nbedg != 0x04 ) nbedgdiv = ( 1.0f / ver->nbedg );
-
-            ver->edgpnt.x = ver->edgpnt.y = ver->edgpnt.z = 0.0f;
-
-            while ( ltmp ) {
-                G3DEDGE *edg = ( G3DEDGE * ) ltmp->data;
-                G3DVERTEX *v0 = edg->ver[0x00],
-                          *v1 = edg->ver[0x01];
-                G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn :
-                                                                &v0->pos,
-                          *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn :
-                                                                &v1->pos;
-
-                ver->edgpnt.x += ( ( p0->x + p1->x ) /* * 0.5f */ );
-                ver->edgpnt.y += ( ( p0->y + p1->y ) /* * 0.5f */ );
-                ver->edgpnt.z += ( ( p0->z + p1->z ) /* * 0.5f */ );
-
-                ltmp = ltmp->next;
-            }
-
-            /*** here, *0.5 is meant to factorize the averaging (see above) ***/
-            ver->edgpnt.x = ver->edgpnt.x * 0.5 * nbedgdiv;
-            ver->edgpnt.y = ver->edgpnt.y * 0.5 * nbedgdiv;
-            ver->edgpnt.z = ver->edgpnt.z * 0.5 * nbedgdiv;
-            ver->edgpnt.w = 1.0f;
-
-            /*ver->edgpnt.x /= ver->nbedg;
-            ver->edgpnt.y /= ver->nbedg;
-            ver->edgpnt.z /= ver->nbedg;
-            ver->edgpnt.w  = 1.0f;*/
         }
 
         if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {

@@ -1452,8 +1452,7 @@ void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR *vout ) 
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
-                                                          &ver->pos;
+        G3DVECTOR *pos = &ver->pos;
 
         if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
 
@@ -2601,8 +2600,7 @@ static void g3dmesh_drawVertexList ( G3DMESH *mes,
     glBegin ( GL_POINTS );
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
-                                                          &ver->pos;
+        G3DVECTOR *pos =  &ver->pos;
 
         if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
 
@@ -2648,8 +2646,7 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
     glBegin ( GL_LINES );
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
-                                                          &ver->pos;
+        G3DVECTOR *pos = &ver->pos;
 
         glVertex3fv ( ( GLfloat * ) pos );
         glVertex3f  ( ( pos->x + ver->nor.x * nratio ),
@@ -3013,15 +3010,9 @@ static void g3dmesh_pickVertices ( G3DMESH *mes,
 
         g3dpick_setName ( ( uint64_t ) ver );
 
-        if ( ver->flags & VERTEXSKINNED ) {
-            g3dpick_drawPoint ( ver->skn.x, 
-                                ver->skn.y, 
-                                ver->skn.z );
-        } else {
-            g3dpick_drawPoint ( ver->pos.x, 
-                                ver->pos.y, 
-                                ver->pos.z );
-        }
+        g3dpick_drawPoint ( ver->pos.x, 
+                            ver->pos.y, 
+                            ver->pos.z );
 
         ltmpver = ltmpver->next;
     }
@@ -3042,8 +3033,7 @@ void g3dmesh_drawVertices  ( G3DMESH *mes,
     glBegin ( GL_POINTS );
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR *pos = ( ver->flags & VERTEXSKINNED ) ? &ver->skn :
-                                                          &ver->pos;
+        G3DVECTOR *pos = &ver->pos;
 
         if ( ver->flags & VERTEXSELECTED ) {
             glColor3ub ( 0xFF, 0x00, 0x00 );
