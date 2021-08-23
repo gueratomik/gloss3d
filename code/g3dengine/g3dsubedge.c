@@ -277,12 +277,12 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
 
 /******************************************************************************/
 void g3dsubedge_normal ( G3DSUBEDGE *subedg ) {
-    g3dedge_getSubdivisionNormal ( subedg, &subedg->nor );
+    g3dedge_getSubdivisionNormal ( subedg, NULL, &subedg->nor );
 }
 
 /******************************************************************************/
 void g3dsubedge_position ( G3DSUBEDGE *subedg ) {
-    g3dedge_getSubdivisionPosition ( subedg, &subedg->pos );
+    g3dedge_getSubdivisionPosition ( subedg, NULL, &subedg->pos );
 }
 
 /******************************************************************************/

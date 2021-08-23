@@ -225,9 +225,9 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
 
                     verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
 
-                    g3dface_getModifiedPosition ( fac,
+                    /*g3dface_getModifiedPosition ( fac,
                                                   wir->mod.stkpos, 
-                                                 &facpos );
+                                                 &facpos );*/
 
                     for ( j = 0x00; j < fac->nbver; j++ ) {
                         if ( ver == fac->ver[j] ) {
@@ -237,9 +237,9 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
                             verpos = g3dvertex_getModifiedPosition ( fac->ver[j], 
                                                                      wir->mod.stkpos );
 
-                            dir.x = ( facpos.x - verpos->x );
-                            dir.y = ( facpos.y - verpos->y );
-                            dir.z = ( facpos.z - verpos->z );
+                            dir.x = ( fac->pos.x - verpos->x );
+                            dir.y = ( fac->pos.y - verpos->y );
+                            dir.z = ( fac->pos.z - verpos->z );
 
                             g3dvector_normalize ( &dir, NULL );
 
@@ -380,9 +380,9 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
 
                 verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
 
-                g3dface_getModifiedPosition ( fac,
-                                              wir->mod.stkpos,
-                                             &facpos );
+                /*g3dface_updateModifiedPosition ( fac,
+                                                 wir->mod.stkpos,
+                                                &facpos );*/
 
                 /*** Face new vertices creation ***/
 
@@ -393,9 +393,9 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     verpos = g3dvertex_getModifiedPosition ( fac->ver[i],
                                                              wir->mod.stkpos );
 
-                    dir.x = ( facpos.x - verpos->x );
-                    dir.y = ( facpos.y - verpos->y );
-                    dir.z = ( facpos.z - verpos->z );
+                    dir.x = ( fac->pos.x - verpos->x );
+                    dir.y = ( fac->pos.y - verpos->y );
+                    dir.z = ( fac->pos.z - verpos->z );
 
                     g3dvector_normalize ( &dir, NULL );
 

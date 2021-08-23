@@ -79,7 +79,8 @@ static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv,
                                        G3DMESH        *mes,
                                        G3DFACE        *fac,
                                        uint32_t        subdiv_level );
-static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, 
+static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver,
+                                          G3DVECTOR *verpos, 
                                           G3DVERTEX *orivercpy );
 static void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
                                               uint32_t    nbInnerFaces,
@@ -106,25 +107,33 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
 static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
                                                G3DVERTEX      *ver, 
                                                G3DVECTOR      *stkpos,
+                                               G3DVECTOR      *stknor,
                                                G3DSUBVERTEX   *newver,
                                                uint32_t        id );
 static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
                                              G3DMESH        *mes,
                                              G3DEDGE        *edg, 
+                                             G3DVECTOR      *stkpos,
+                                             G3DVECTOR      *stknor,
                                              G3DSUBEDGE     *newedg,
                                              uint32_t        id );
 static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
                                              G3DEDGE        *edg, 
+                                             G3DVECTOR      *stkpos,
+                                             G3DVECTOR      *stknor,
                                              G3DSUBEDGE     *newedg );
 static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
                                              G3DFACE        *fac, 
+                                             G3DVECTOR      *stkpos,
                                              G3DSUBFACE     *newfac );
 static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
                                              G3DFACE        *fac, 
+                                             G3DVECTOR      *stkpos,
                                              G3DSUBFACE     *newfac );
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
                                             G3DVECTOR      *stkpos,
+                                            G3DVECTOR      *stknor,
                                             G3DFACE        *fac,
                                             G3DSUBFACE     *innerFace,
                                             G3DSUBFACE     *outerFaces,
@@ -627,6 +636,7 @@ static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv,
 
 /******************************************************************************/
 static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver, 
+                                          G3DVECTOR *verpos,
                                           G3DVERTEX *orivercpy ) {
     /*** number of edges connected to this vertex = vertex valence ***/
     uint32_t valence = ver->nbedg;
@@ -642,12 +652,10 @@ static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver,
 
     if ( valence == 0x02 ) { /*** vertex belongs to 1 face only ***/
         /*** average mid points ***/
-        /*g3dvertex_getAverageMidPoint  ( ver, &mavg );*/
-        memcpy ( &mavg, &ver->edgpnt, sizeof ( G3DVECTOR ) );
+        g3dvertex_getAverageModifiedMidPoint  ( ver, /*verpos*/NULL, &mavg );
 
         /*** average face points ***/
-        /*g3dvertex_getAverageFacePoint ( ver, &favg );*/
-        memcpy ( &favg, &ver->facpnt, sizeof ( G3DVECTOR ) );
+        g3dvertex_getAverageModifiedFacePoint ( ver, /*verpos*/NULL, &favg );
 
         orivercpy->pos.x = ( mavg.x + favg.x ) * 0.5f;
         orivercpy->pos.y = ( mavg.y + favg.y ) * 0.5f;
@@ -661,12 +669,10 @@ static int g3dvertex_applyCatmullScheme ( G3DVERTEX *ver,
         if ( valence > 0x04 ) valdivm = ( 1.0f / valence );
 
         /*** average mid points ***/
-        /*g3dvertex_getAverageMidPoint  ( ver, &mavg );*/
-        memcpy ( &mavg, &ver->edgpnt, sizeof ( G3DVECTOR ) );
+        g3dvertex_getAverageModifiedMidPoint  ( ver, /*verpos*/NULL, &mavg );
 
         /*** average face points ***/
-        /*g3dvertex_getAverageFacePoint ( ver, &favg );*/
-        memcpy ( &favg, &ver->facpnt, sizeof ( G3DVECTOR ) );
+        g3dvertex_getAverageModifiedFacePoint ( ver, /*verpos*/NULL, &favg );
 
         verval.x = ( float ) valmin3 * xori;
         verval.y = ( float ) valmin3 * yori;
@@ -806,9 +812,11 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
 static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
                                                G3DVERTEX      *ver, 
                                                G3DVECTOR      *stkpos,
+                                               G3DVECTOR      *stknor,
                                                G3DSUBVERTEX   *newver,
                                                uint32_t        id ) {
-    G3DVECTOR *pos = ( stkpos ) ? &stkpos[ver->id] : &ver->pos;
+    G3DVECTOR *pos = g3dvertex_getModifiedPosition ( ver, stkpos );
+    G3DVECTOR *nor = g3dvertex_getModifiedNormal   ( ver, stknor );
 
     newver->ancestorVertex = ver;
     newver->ancestorFace   = NULL;
@@ -818,13 +826,12 @@ static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
     newver->ver.flags = ( ver->flags | VERTEXTOPOLOGY
                                      | VERTEXORIGINAL 
                                      | VERTEXINNER );
+
     newver->ver.nbfac = newver->ver.nbedg = 0x00;
     newver->ver.lfac  = newver->ver.ledg  = NULL;
 
-    memcpy ( &newver->ver.pos   ,  pos        , sizeof ( G3DVECTOR ) );
-    memcpy ( &newver->ver.nor   , &ver->nor   , sizeof ( G3DVECTOR ) );
-    memcpy ( &newver->ver.edgpnt, &ver->edgpnt, sizeof ( G3DVECTOR ) );
-    memcpy ( &newver->ver.facpnt, &ver->facpnt, sizeof ( G3DVECTOR ) );
+    memcpy ( &newver->ver.pos, pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &newver->ver.nor, nor, sizeof ( G3DVECTOR ) );
 
     if ( ver->nbfac > 0x04 ) newver->ver.flags |= VERTEXMALLOCFACES;
     if ( ver->nbedg > 0x04 ) newver->ver.flags |= VERTEXMALLOCEDGES;
@@ -838,7 +845,9 @@ static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
 /******************************************************************************/
 static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
                                              G3DMESH        *mes,
-                                             G3DEDGE        *edg, 
+                                             G3DEDGE        *edg,
+                                             G3DVECTOR      *stkverpos,
+                                             G3DVECTOR      *stkvernor,
                                              G3DSUBEDGE     *newedg,
                                              uint32_t        id ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
@@ -859,13 +868,15 @@ static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
     newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
     newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
 
-    g3dedge_getSubdivisionPosition ( edg, &newedg->pos );
-    g3dedge_getSubdivisionNormal   ( edg, &newedg->nor );
+    g3dedge_getSubdivisionPosition ( edg, stkverpos, &newedg->pos );
+    g3dedge_getSubdivisionNormal   ( edg, stkvernor, &newedg->nor );
 }
 
 /******************************************************************************/
 static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
                                              G3DEDGE        *edg, 
+                                             G3DVECTOR      *stkverpos,
+                                             G3DVECTOR      *stkvernor,
                                              G3DSUBEDGE     *newedg ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
 
@@ -882,14 +893,21 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
     newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
     newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
 
-    g3dedge_getSubdivisionPosition ( edg, &newedg->pos );
-    g3dedge_getSubdivisionNormal   ( edg, &newedg->nor );
+    g3dedge_getSubdivisionPosition ( edg, stkverpos, &newedg->pos );
+    g3dedge_getSubdivisionNormal   ( edg, stkvernor, &newedg->nor );
 }
 
 /******************************************************************************/
 static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac, 
+                                             G3DFACE        *fac,
+                                             G3DVECTOR      *stkverpos,
                                              G3DSUBFACE     *newfac ) {
+    G3DVECTOR facpos;
+    G3DVECTOR facnor;
+
+    g3dface_computeModifiedPosition ( fac, stkverpos, &facpos );
+    g3dface_computeModifiedNormal   ( fac, stkverpos, &facnor );
+
     /*** reset only the struct but don't lose time reseting the  ***/
     /*** embedded linked list at the end of the G3DSUBFACE structure **/
     memset ( newfac, 0x00, sizeof ( G3DSUBFACE ) );
@@ -903,8 +921,9 @@ static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
     newfac->fac.flags |= ( fac->nbver == 0x04 ) ? FACEFROMQUAD : 
                                                   FACEFROMTRIANGLE;
     newfac->fac.heightmap = fac->heightmap;
-    memcpy ( &newfac->fac.pos, &fac->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &newfac->fac.nor, &fac->nor, sizeof ( G3DVECTOR ) );
+
+    memcpy ( &newfac->fac.pos, &facpos, sizeof ( G3DVECTOR ) );
+    memcpy ( &newfac->fac.nor, &facnor, sizeof ( G3DVECTOR ) );
 
     /*** no need to copy the uv mapping. It' won't get changed ***/
     newfac->fac.luvs  = fac->luvs;
@@ -916,11 +935,17 @@ static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
 
 /******************************************************************************/
 static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac, 
+                                             G3DFACE        *fac,
+                                             G3DVECTOR      *stkverpos,
                                              G3DSUBFACE     *newfac ) {
+    G3DVECTOR facpos;
+    G3DVECTOR facnor;
     G3DVERTEX *newver;
     G3DEDGE   *newedg;
     uint32_t i;
+
+    g3dface_computeModifiedPosition ( fac, stkverpos, &facpos );
+    g3dface_computeModifiedNormal   ( fac, stkverpos, &facnor );
 
     /*** reset only the struct but don't lose time reseting the  ***/
     /*** embedded linked list at the end of the G3DSUBFACE structure **/
@@ -936,8 +961,9 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
     newfac->fac.heightmap = fac->heightmap;
     memcpy ( &newfac->fac.ver, &fac->ver, sizeof ( G3DVERTEX * ) * 0x04 );
     memcpy ( &newfac->fac.edg, &fac->edg, sizeof ( G3DEDGE   * ) * 0x04 );
-    memcpy ( &newfac->fac.pos, &fac->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &newfac->fac.nor, &fac->nor, sizeof ( G3DVECTOR ) );
+
+    memcpy ( &newfac->fac.pos, &facpos, sizeof ( G3DVECTOR ) );
+    memcpy ( &newfac->fac.nor, &facnor, sizeof ( G3DVECTOR ) );
 
     g3dsubdivision_addFaceLookup ( sdv, fac, newfac );
 
@@ -953,7 +979,8 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
 /*** convenient to deal with arrays. ***/
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
-                                            G3DVECTOR      *stkpos,
+                                            G3DVECTOR      *stkverpos,
+                                            G3DVECTOR      *stkvernor,
                                             G3DFACE        *fac,
                                             G3DSUBFACE     *innerFace,
                                             G3DSUBFACE     *outerFaces,
@@ -983,7 +1010,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
     (*nbOuterFaces) = (*nbOuterEdges) = (*nbOuterVertices) = 0x00;
 
-    g3dsubdivision_importInnerFace ( sdv, fac, innerFace );
+    g3dsubdivision_importInnerFace ( sdv, fac, stkverpos, innerFace );
 
     /*** Step2 : set new vertices ***/
     for ( i = 0x00; i < fac->nbver; i++ ) {
@@ -991,7 +1018,12 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
         innerFace->fac.ver[i] = (G3DVERTEX*)newver;
 
-        g3dsubdivision_importInnerVertex ( sdv, fac->ver[i], stkpos, newver, i );
+        g3dsubdivision_importInnerVertex ( sdv,
+                                           fac->ver[i],
+                                           stkverpos,
+                                           stkvernor,
+                                           newver,
+                                           i );
     }
 
     /*** Step3 : set new edges ***/
@@ -1000,7 +1032,13 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
         innerFace->fac.edg[i] = (G3DEDGE*)newedg;
 
-        g3dsubdivision_importInnerEdge ( sdv, mes, fac->edg[i], newedg, i );
+        g3dsubdivision_importInnerEdge ( sdv, 
+                                         mes, 
+                                         fac->edg[i], 
+                                         stkverpos, 
+                                         stkvernor, 
+                                         newedg, 
+                                         i );
     }
 
     /*** step4 ***/
@@ -1017,7 +1055,11 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                 if ( g3dsubdivision_lookEdgeUp ( sdv, outedg ) == outedg ) {
                     G3DSUBEDGE *newedg = outerEdges++; (*nbOuterEdges)++;
 
-                    g3dsubdivision_importOuterEdge ( sdv, outedg, newedg );
+                    g3dsubdivision_importOuterEdge ( sdv, 
+                                                     outedg, 
+                                                     stkverpos, 
+                                                     stkvernor, 
+                                                     newedg );
                 }
             }
             ltmpedg = ltmpedg->next;
@@ -1039,7 +1081,7 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                 if ( g3dsubdivision_lookFaceUp ( sdv, outfac ) == outfac ) {
                     G3DSUBFACE *newfac = outerFaces++; (*nbOuterFaces)++;
 
-                    g3dsubdivision_importOuterFace ( sdv, outfac, newfac );
+                    g3dsubdivision_importOuterFace ( sdv, outfac, stkverpos, newfac );
                 }
             }
             ltmpfac = ltmpfac->next;
@@ -1062,7 +1104,8 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 /******************************************************************************/
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DMESH        *mes,
-                                      G3DVECTOR      *stkpos,
+                                      G3DVECTOR      *stkverpos,
+                                      G3DVECTOR      *stkvernor,
                                       G3DFACE        *fac,
                                       G3DRTTRIANGLE  *rtTriangles,
                                       G3DRTQUAD      *rtQuads,
@@ -1109,7 +1152,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
     subdiv_flags |= g3dsubdivisionV3_copyFace ( sdv, 
                                                 mes, 
-                                                stkpos,
+                                                stkverpos,
+                                                stkvernor,
                                                 fac, 
                                                 innerFaces,
                                                 outerFaces,
@@ -1320,7 +1364,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 /*** prepare the subdiv from the parent vertices ***/
                 g3dvertex_normal ( &curInnerVertices[i].ver, 0xFFFFFFFF );
                 /*memcpy ( curInnerVertices[i].ver.subver, &curInnerVertices[i], sizeof ( G3DSUBVERTEX ) );*/
-                g3dvertex_applyCatmullScheme ( &curInnerVertices[i].ver, (G3DVERTEX*)curInnerVertices[i].ver.subver );
+                g3dvertex_applyCatmullScheme ( &curInnerVertices[i].ver, stkverpos, (G3DVERTEX*)curInnerVertices[i].ver.subver );
 
                 /*if ( fac->heightmap ) {*/
                     memcpy ( &subver->ver.nor,

@@ -51,15 +51,16 @@ void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
 }
 
 /******************************************************************************/
-void g3dmodifier_modify_r ( G3DMODIFIER *mod,
-                            G3DOBJECT   *oriobj,
-                            G3DVECTOR   *stkpos,
-                            G3DVECTOR   *stknor,
-                            G3DMODIFYOP  op,
-                            uint64_t     engine_flags ) {
+G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
+                                    G3DOBJECT   *oriobj,
+                                    G3DVECTOR   *stkpos,
+                                    G3DVECTOR   *stknor,
+                                    G3DMODIFYOP  op,
+                                    uint64_t     engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
     uint32_t ret = 0x00;
+    G3DMODIFIER *lastmod = NULL;
 
     if ( obj->type & MODIFIER ) {
         /*** remember the last coords from the stack ***/
@@ -89,22 +90,27 @@ void g3dmodifier_modify_r ( G3DMODIFIER *mod,
                     stkpos = NULL;
                     stknor = NULL;
                 }
+
+                lastmod = mod;
             }
         }
 
         while ( ltmpchildren ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+            G3DMODIFIER *last = g3dmodifier_modify_r ( child,
+                                                       oriobj, 
+                                                       stkpos, 
+                                                       stknor,
+                                                       op,
+                                                       engine_flags );
 
-            g3dmodifier_modify_r ( child,
-                                   oriobj, 
-                                   stkpos, 
-                                   stknor,
-                                   op,
-                                   engine_flags );
+            if ( last ) lastmod = last;
 
             ltmpchildren = ltmpchildren->next;        
         }
     }
+
+    return lastmod;
 }
 
 

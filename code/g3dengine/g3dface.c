@@ -1526,14 +1526,15 @@ uint32_t g3dface_intersect ( G3DFACE   *fac,
 }
 
 /******************************************************************************/
-void g3dface_updateModifiedNormal ( G3DFACE   *fac,
-                                    G3DVECTOR *stkverpos ) {
+void g3dface_computeModifiedNormal ( G3DFACE   *fac,
+                                     G3DVECTOR *stkverpos,
+                                     G3DVECTOR *facnor ) {
     G3DVERTEX *v0 = fac->ver[0x00],
               *v1 = fac->ver[0x01],
               *v2 = fac->ver[0x02];
-    G3DVECTOR *p0 = ( stkverpos ) ? &stkpos[v0->id] : &v0->pos,
-              *p1 = ( stkverpos ) ? &stkpos[v1->id] : &v1->pos,
-              *p2 = ( stkverpos ) ? &stkpos[v2->id] : &v2->pos;
+    G3DVECTOR *p0 = g3dvertex_getModifiedPosition ( v0, stkverpos ),
+              *p1 = g3dvertex_getModifiedPosition ( v1, stkverpos ),
+              *p2 = g3dvertex_getModifiedPosition ( v2, stkverpos );
     G3DVECTOR p0p1 = { ( p1->x - p0->x ),
                        ( p1->y - p0->y ),
                        ( p1->z - p0->z ), 1.0f },
@@ -1558,35 +1559,48 @@ void g3dface_updateModifiedNormal ( G3DFACE   *fac,
 
         g3dvector_normalize ( &nor, NULL );
 
-        fac->nor.x = ( fac->nor.x + nor.x ) * 0.5f;
-        fac->nor.y = ( fac->nor.y + nor.y ) * 0.5f;
-        fac->nor.z = ( fac->nor.z + nor.z ) * 0.5f;
+        facnor->x = ( facnor->x + nor.x ) * 0.5f;
+        facnor->y = ( facnor->y + nor.y ) * 0.5f;
+        facnor->z = ( facnor->z + nor.z ) * 0.5f;
     }
 
     g3dvector_normalize ( &fac->nor, &fac->surface );
 }
 
 /******************************************************************************/
-void g3dface_updateModifiedPosition ( G3DFACE   *fac,
-                                      G3DVECTOR *stkverpos ) {
+void g3dface_updateModifiedNormal ( G3DFACE   *fac,
+                                    G3DVECTOR *stkverpos ) {
+    g3dface_computeModifiedNormal ( fac, stkverpos, &fac->nor );
+}
+
+/******************************************************************************/
+void g3dface_computeModifiedPosition ( G3DFACE   *fac,
+                                       G3DVECTOR *stkverpos,
+                                       G3DVECTOR *facpos ) {
     float    nbverdiv = ( fac->nbver == 0x03 ) ? 0.3333f : 0.25f;
     uint32_t i;
 
-    fac->pos.x = fac->pos.y = fac->pos.z = 0.0f;
-    fac->pos.w = 1.0f;
+    facpos->x = facpos->y = facpos->z = 0.0f;
+    facpos->w = 1.0f;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( fac->ver[i], 
                                                             stkverpos );
 
-        fac->pos.x += verpos->x;
-        fac->pos.y += verpos->y;
-        fac->pos.z += verpos->z;
+        facpos->x += verpos->x;
+        facpos->y += verpos->y;
+        facpos->z += verpos->z;
     }
 
-    fac->pos.x = ( fac->pos.x * nbverdiv );
-    fac->pos.y = ( fac->pos.y * nbverdiv );
-    fac->pos.z = ( fac->pos.z * nbverdiv );
+    facpos->x = ( facpos->x * nbverdiv );
+    facpos->y = ( facpos->y * nbverdiv );
+    facpos->z = ( facpos->z * nbverdiv );
+}
+
+/******************************************************************************/
+void g3dface_updateModifiedPosition ( G3DFACE   *fac,
+                                      G3DVECTOR *stkverpos ) {
+    g3dface_computeModifiedPosition ( fac, stkverpos, &fac->pos );
 }
 
 /******************************************************************************/

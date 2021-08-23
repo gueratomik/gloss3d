@@ -720,13 +720,81 @@ G3DVECTOR *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
 }
 
 /******************************************************************************/
-void g3dvertex_getAverageFacePoint ( G3DVERTEX *ver, G3DVECTOR *facavg ) {
-    memcpy ( facavg, &ver->facpnt, sizeof ( G3DVECTOR ) );
+uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver, 
+                                                 G3DVECTOR *verpos,
+                                                 G3DVECTOR *facavg ) {
+    LIST *ltmpfac = ver->lfac;
+    uint32_t nb = 0x00;
+
+    facavg->x = facavg->y = facavg->z = 0.0f;
+
+    while ( ltmpfac ) {
+        G3DFACE  *fac = ( G3DFACE * ) ltmpfac->data;
+        G3DVECTOR facpos;
+
+        g3dface_computeModifiedPosition ( fac, verpos, &facpos );
+
+        facavg->x += facpos.x;
+        facavg->y += facpos.y;
+        facavg->z += facpos.z;
+
+        nb++;
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    if ( nb ) {
+        facavg->x /= nb;
+        facavg->y /= nb;
+        facavg->z /= nb;
+    }
+
+    return nb;
 }
 
 /******************************************************************************/
-void g3dvertex_getAverageMidPoint ( G3DVERTEX *ver, G3DVECTOR *midavg ) {
-    memcpy ( midavg, &ver->edgpnt, sizeof ( G3DVECTOR ) );
+uint32_t g3dvertex_getAverageFacePoint ( G3DVERTEX *ver, 
+                                         G3DVECTOR *facavg ) {
+    g3dvertex_getAverageModifiedFacePoint ( ver, NULL, facavg );
+}
+
+/******************************************************************************/
+uint32_t g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver, 
+                                                G3DVECTOR *verpos,
+                                                G3DVECTOR *midavg ) {
+    LIST *ltmpedg = ver->ledg;
+    uint32_t nb = 0x00;
+
+    midavg->x = midavg->y = midavg->z = 0.0f;
+
+    while ( ltmpedg ) {
+        G3DEDGE  *edg = ( G3DEDGE * ) ltmpedg->data;
+        G3DVECTOR mid;
+
+        g3dedge_getAverageModifiedPosition ( edg, verpos, &mid );
+
+        midavg->x += mid.x;
+        midavg->y += mid.y;
+        midavg->z += mid.z;
+
+        nb++;
+
+        ltmpedg = ltmpedg->next;
+    }
+
+    if ( nb ) {
+        midavg->x /= nb;
+        midavg->y /= nb;
+        midavg->z /= nb;
+    }
+
+    return nb;
+}
+
+/******************************************************************************/
+uint32_t g3dvertex_getAverageMidPoint ( G3DVERTEX *ver,
+                                        G3DVECTOR *midavg ) {
+    return g3dvertex_getAverageModifiedMidPoint ( ver, NULL, midavg );
 }
 
 /******************************************************************************/
@@ -766,11 +834,10 @@ void g3dvertex_copyPos ( G3DVERTEX *dst, G3DVERTEX *src ) {
     memcpy ( &dst->pos, &src->pos, sizeof ( G3DVECTOR ) );
 }
 
-
-
 /*****************************************************************************/
-void g3dvertex_normal ( G3DVERTEX *ver, 
-                        uint64_t   engine_flags ) {
+void g3dvertex_computeNormal ( G3DVERTEX *ver, 
+                               G3DVECTOR *nor,
+                               uint64_t   engine_flags ) {
     float norx = 0.0f, posx = 0.0f,
           nory = 0.0f, posy = 0.0f,
           norz = 0.0f, posz = 0.0f,
@@ -804,16 +871,22 @@ void g3dvertex_normal ( G3DVERTEX *ver,
         if ( ver->nbfac != 0x04 ) nbfacdiv = ( 1.0f / ver->nbfac );
 
         if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
-            ver->nor.x = norx * nbfacdiv;
-            ver->nor.y = nory * nbfacdiv;
-            ver->nor.z = norz * nbfacdiv;
-            ver->nor.w = 1.0f;
+            nor->x = norx * nbfacdiv;
+            nor->y = nory * nbfacdiv;
+            nor->z = norz * nbfacdiv;
+            nor->w = 1.0f;
         }
 
         if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
-            g3dvector_normalize ( &ver->nor, NULL );
+            g3dvector_normalize ( nor, NULL );
         }
     }
+}
+
+/*****************************************************************************/
+void g3dvertex_normal ( G3DVERTEX *ver, 
+                        uint64_t   engine_flags ) {
+    g3dvertex_computeNormal ( ver, &ver->nor, engine_flags );
 }
 
 /******************************************************************************/

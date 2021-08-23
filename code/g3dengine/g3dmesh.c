@@ -503,6 +503,30 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 }
 
 /******************************************************************************/
+void g3dmesh_updateModified ( G3DMESH     *mes,
+                              G3DMODIFIER *mod,
+                              uint64_t     engine_flags ) {
+    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        g3dface_updateModified ( fac, mod->verpos );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+        g3dvertex_computeNormal ( ver, &mod->vernor[ver->id], engine_flags );
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_modify ( G3DMESH    *mes,
                       G3DMODIFYOP op,
                       uint64_t    engine_flags ) {
@@ -517,12 +541,20 @@ void g3dmesh_modify ( G3DMESH    *mes,
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            g3dmodifier_modify_r ( child,
-                                   mes,
-                                   NULL,
-                                   NULL,
-                                   op,
-                                   engine_flags );
+            G3DMODIFIER *lastmod = g3dmodifier_modify_r ( child,
+                                                          mes,
+                                                          NULL,
+                                                          NULL,
+                                                          op,
+                                                          engine_flags );
+
+            if ( lastmod ) {
+                if ( lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
+                    if ( ( lastmod->mes.obj.type & MESH ) == 0x00 ) {
+                        g3dmesh_updateModified ( mes, lastmod, engine_flags );
+                    }
+                }
+            }
         }
 
         ltmpchildren = ltmpchildren->next;        
@@ -3308,9 +3340,9 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
     G3DMESH *mes = ( G3DMESH * ) obj;
     uint32_t takenOver = 0x00;
 
-    if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
+    /*if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {*/
         takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
-    }
+    /*}*/
 
     if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
         glDisable ( GL_DEPTH_TEST );

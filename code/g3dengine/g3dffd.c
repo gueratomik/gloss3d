@@ -499,9 +499,11 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN | 
-                                                  OBJECTNOROTATION   |
-                                                  OBJECTNOSCALING,
+    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN  | 
+                                                  OBJECTNOTRANSLATION |
+                                                  OBJECTNOROTATION    |
+                                                  OBJECTNOSCALING     | 
+                                                  MODIFIERNEEDSNORMALUPDATE,
                                     DRAW_CALLBACK(g3dffd_draw),
                                     FREE_CALLBACK(g3dffd_free),
                                     PICK_CALLBACK(g3dmesh_pick),

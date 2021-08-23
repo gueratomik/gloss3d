@@ -38,6 +38,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD *sdt ) {
 void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
                                  G3DVECTOR            *stkpos,
+                                 G3DVECTOR            *stknor,
                                  G3DRTVERTEX          *rtvermem,
                                  uint32_t              nbrtver,
                                  G3DRTEDGE            *rtedgmem,
@@ -57,6 +58,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint64_t engine_flags ) {
     std->mes                   = mes;
     std->stkpos                = stkpos;
+    std->stknor                = stknor;
     std->rtvermem              = rtvermem;
     std->nbrtver               = nbrtver;
     std->rtedgmem              = rtedgmem;
@@ -85,6 +87,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
 /******************************************************************************/
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  G3DVECTOR   *stkpos,
+                                                 G3DVECTOR   *stknor,
                                                  G3DRTVERTEX *rtvermem,
                                                  uint32_t     nbrtver,
                                                  G3DRTEDGE   *rtedgmem,
@@ -115,6 +118,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
     g3dsubdivisionthread_init ( std,
                                 mes,
                                 stkpos,
+                                stknor,
                                 rtvermem,
                                 nbrtver,
                                 rtedgmem,
@@ -170,6 +174,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         g3dsubdivisionV3_subdivide ( sdv, 
                                      mes,
                                      sdt->stkpos,
+                                     sdt->stknor,
                                      fac,
                                      NULL,
                                      rtquamem,

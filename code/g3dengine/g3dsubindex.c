@@ -87,7 +87,7 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
     g3dsubvertex_addEdge ( &subver[0x03], (G3DEDGE*)&subedg[0x02] );
     g3dsubvertex_addEdge ( &subver[0x03], (G3DEDGE*)&subedg[0x03] );
 
-    g3dsubdivisionV3_subdivide ( sdv, NULL, NULL, (G3DFACE*)&subfac, NULL,
+    g3dsubdivisionV3_subdivide ( sdv, NULL, NULL, NULL, (G3DFACE*)&subfac, NULL,
                                             NULL,
                                             NULL,
                                             NULL,
@@ -154,6 +154,7 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
     g3dsubvertex_addEdge ( &subver[0x02], (G3DEDGE*)&subedg[0x02] );
 
     g3dsubdivisionV3_subdivide ( sdv, NULL, NULL,
+                                            NULL,
                                             (G3DFACE*)&subfac, NULL,
                                             NULL,
                                             NULL,

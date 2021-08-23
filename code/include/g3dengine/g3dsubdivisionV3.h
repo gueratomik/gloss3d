@@ -120,7 +120,8 @@ G3DSUBDIVISION *g3dsubdivisionV3_new ( );
  */
 uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DMESH        *mes,
-                                      G3DVECTOR      *stkpos,
+                                      G3DVECTOR      *stkverpos,
+                                      G3DVECTOR      *stkvernor,
                                       G3DFACE        *fac,
                                       G3DRTTRIANGLE  *rtTriangles,
                                       G3DRTQUAD      *rtQuads,

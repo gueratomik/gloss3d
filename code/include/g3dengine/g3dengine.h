@@ -343,16 +343,17 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
  * next 12 bits are object defined
  * Last 4 bits are user defined
  */
-#define OBJECTSELECTED          (  1       )
-#define OBJECTNOSYMMETRY        (  1 <<  1 )
-#define OBJECTINVISIBLE         (  1 <<  2 )
-#define OBJECTINACTIVE          (  1 <<  3 )
-#define DRAWBEFORECHILDREN      (  1 <<  4 )
-#define DRAWAFTERCHILDREN       (  1 <<  5 )
-#define OBJECTNOTRANSLATION     (  1 <<  6 )
-#define OBJECTNOROTATION        (  1 <<  7 )
-#define OBJECTNOSCALING         (  1 <<  8 )
-#define OBJECTNOSHADING         (  1 <<  9 )
+#define OBJECTSELECTED            (  1       )
+#define OBJECTNOSYMMETRY          (  1 <<  1 )
+#define OBJECTINVISIBLE           (  1 <<  2 )
+#define OBJECTINACTIVE            (  1 <<  3 )
+#define DRAWBEFORECHILDREN        (  1 <<  4 )
+#define DRAWAFTERCHILDREN         (  1 <<  5 )
+#define OBJECTNOTRANSLATION       (  1 <<  6 )
+#define OBJECTNOROTATION          (  1 <<  7 )
+#define OBJECTNOSCALING           (  1 <<  8 )
+#define OBJECTNOSHADING           (  1 <<  9 )
+#define MODIFIERNEEDSNORMALUPDATE (  1 << 10 )
 
 /*** Private flags ***/
 /*** Bone flags ***/
@@ -387,6 +388,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /**** SPHERE flags ***/
 #define SPHEREISPERFECT       (  1 << 17 ) /* render perfect */
 
+
+
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
 #define NOVERTEXNORMAL           (  1 <<  2 )
@@ -400,6 +403,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** Mesh color ***/
 #define MESHCOLORUB 0x80
 #define MESHCOLORF  0.5f
+
+
 
 /******************************* Orientation **********************************/
 #define ORIENTATIONZX 0x00
@@ -1187,7 +1192,6 @@ struct _G3DKEY {
                                                 G3DMODIFYOP,  \
                                                 uint64_t))f)
 
-
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
     G3DMESH    mes;
@@ -1493,6 +1497,9 @@ void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void g3dvertex_normal ( G3DVERTEX *ver, 
                         uint64_t   engine_flags );
+void g3dvertex_computeNormal ( G3DVERTEX *ver, 
+                               G3DVECTOR *nor,
+                               uint64_t   engine_flags );
 void       g3dvertex_addFace    ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_removeFace ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_addEdge    ( G3DVERTEX *, G3DEDGE * );
@@ -1508,8 +1515,14 @@ void       g3dvertex_computeEdgePoint           ( G3DVERTEX *, G3DEDGE *,
                                                                G3DEDGE *,
                                                                G3DSUBVERTEX **,
                                                                G3DSUBEDGE   ** );
-void       g3dvertex_getAverageMidPoint  ( G3DVERTEX *, G3DVECTOR * );
-void       g3dvertex_getAverageFacePoint ( G3DVERTEX *, G3DVECTOR * );
+uint32_t   g3dvertex_getAverageMidPoint  ( G3DVERTEX *, G3DVECTOR * );
+uint32_t   g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver, 
+                                                  G3DVECTOR *verpos,
+                                                  G3DVECTOR *midavg );
+uint32_t   g3dvertex_getAverageFacePoint ( G3DVERTEX *, G3DVECTOR * );
+uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver, 
+                                                 G3DVECTOR *verpos,
+                                                 G3DVECTOR *facavg );
 void       g3dvertex_createSubEdge ( G3DVERTEX *, G3DSUBVERTEX *, G3DFACE *,
                                      G3DSUBVERTEX *, G3DSUBEDGE **, G3DSUBVERTEX **,
                                      G3DEDGE *, G3DSUBVERTEX *,
@@ -1643,15 +1656,24 @@ void g3dedge_removeUVSet ( G3DEDGE *, G3DUVSET * );
 void g3dedge_normal ( G3DEDGE * );
 LIST *g3dedge_getUnselectedFacesFromList ( LIST * );
 uint32_t g3dedge_isAdaptive ( G3DEDGE * );
-uint32_t g3dedge_getAveragePosition ( G3DEDGE *, G3DVECTOR * );
-uint32_t g3dedge_getAverageNormal ( G3DEDGE *, G3DVECTOR * );
+void g3dedge_getAveragePosition ( G3DEDGE *, G3DVECTOR * );
+void g3dedge_getAverageModifiedPosition ( G3DEDGE   *edg,
+                                          G3DVECTOR *verpos,
+                                          G3DVECTOR *vout );
+void g3dedge_getAverageNormal ( G3DEDGE *, G3DVECTOR * );
 void g3dedge_drawSimple ( G3DEDGE *edg,
                           uint32_t object_flags,
                           uint64_t engine_flags );
 void g3dsubedge_position ( G3DSUBEDGE * );
 G3DSUBEDGE *g3dsubedge_getSubEdge ( G3DSUBEDGE *, G3DVERTEX *, G3DVERTEX * );
-void g3dedge_getSubdivisionNormal ( G3DEDGE *, G3DVECTOR * );
-void g3dedge_getSubdivisionPosition ( G3DEDGE *, G3DVECTOR * );
+
+void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
+                                    G3DVECTOR *stkvernor,
+                                    G3DVECTOR *nor );
+
+void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
+                                      G3DVECTOR *stkverpos,
+                                      G3DVECTOR *pos );
 
 /******************************************************************************/
 G3DCUTEDGE *g3dcutedge_new ( G3DEDGE *, G3DVERTEX * );
@@ -1677,6 +1699,13 @@ void     g3dquad_evalSubdivision        ( uint32_t,
                                           uint32_t * );
 void     g3dface_updateModifiedPosition ( G3DFACE   *fac,
                                           G3DVECTOR *stkpos );
+
+void     g3dface_computeModifiedPosition ( G3DFACE   *fac,
+                                           G3DVECTOR *stkverpos,
+                                           G3DVECTOR *facpos );
+void     g3dface_computeModifiedNormal ( G3DFACE   *fac,
+                                         G3DVECTOR *stkverpos,
+                                         G3DVECTOR *facnor );
 void     g3dface_updateModifiedNormal   ( G3DFACE   *fac,
                                           G3DVECTOR *stkpos );
 void     g3dface_updateModified         ( G3DFACE   *fac,
@@ -2925,12 +2954,12 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );
-void g3dmodifier_modify_r ( G3DMODIFIER *mod,
-                            G3DOBJECT   *oriobj,
-                            G3DVECTOR   *verpos,
-                            G3DVECTOR   *vernor,
-                            G3DMODIFYOP  op,
-                            uint64_t     engine_flags );
+G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
+                                    G3DOBJECT   *oriobj,
+                                    G3DVECTOR   *verpos,
+                                    G3DVECTOR   *vernor,
+                                    G3DMODIFYOP  op,
+                                    uint64_t     engine_flags );
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );
