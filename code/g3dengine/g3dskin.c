@@ -204,42 +204,28 @@ static void g3dskin_free ( G3DSKIN *skn ) {
 
 /******************************************************************************/
 static uint32_t g3dskin_draw ( G3DSKIN *skn, 
-                                  G3DCAMERA  *cam,
-                                  uint64_t    engine_flags ) {
+                               G3DCAMERA  *cam,
+                               uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) skn;
 
-    if ( g3dobject_isActive ( obj ) == 0x00 ) return 0x00;
+    if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
+        if ( g3dobject_isActive ( obj ) == 0x00 ) return 0x00;
 
-    if ( skn->mod.oriobj ) {
-        if ( skn->mod.oriobj->type & MESH ) {
-            G3DMESH *orimes = skn->mod.oriobj;
-            LIST *ltmpver = orimes->lver;
+        if ( skn->mod.oriobj ) {
+            if ( skn->mod.oriobj->type & MESH ) {
+                G3DMESH *orimes = skn->mod.oriobj;
+                LIST *ltmpver = orimes->lver;
 
-            while ( ltmpver ) {
-                G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                G3DVECTOR *stkpos = g3dvertex_getModifiedPosition ( ver,
-                                                                    skn->mod.stkpos );
+                g3dmesh_drawModified ( skn->mod.oriobj,
+                                       cam,
+                                       skn->mod.verpos,
+                                       skn->mod.vernor,
+                                       engine_flags );
 
-                g3dskin_deformVertex ( skn, 
-                                       stkpos,
-                                       ver->lwei,
-                                      &skn->mod.verpos[ver->id] );
 
-/*printf("0 - ");g3dvector_print (  stkpos );
-printf("1 - ");g3dvector_print ( &skn->mod.verpos[ver->id] );*/
 
-                ltmpver = ltmpver->next;
+                return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
             }
-
-            g3dmesh_drawModified ( skn->mod.oriobj,
-                                   cam,
-                                   skn->mod.verpos,
-                                   skn->mod.vernor,
-                                   engine_flags );
-
-
-
-            return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
         }
     }
 

@@ -240,6 +240,7 @@ uint32_t g3dedge_isBorder ( G3DEDGE *edg ) {
 
 /******************************************************************************/
 void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
+                                    G3DVECTOR *stkverpos,
                                     G3DVECTOR *stkvernor,
                                     G3DVECTOR *nor ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
@@ -260,8 +261,8 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
         G3DVECTOR facnor;
 
         g3dface_computeModifiedNormal ( fac,
-                                          stkvernor,
-                                         &facnor );
+                                        stkverpos,
+                                       &facnor );
 
     /*** Edges's normal vector is usually used for displacement ***/
         navg.x += facnor.x;

@@ -114,14 +114,16 @@ void g3dbone_transform ( G3DBONE *bon,
                                  lmatrix, 
                                  rig->defmatrix );
 
+            if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
+                g3dmesh_modify ( rig->skn->mod.oriobj,
+                                 G3DMODIFYOP_MODIFY, /** todo: should be STARTUPDATE, UPDATE and ENDUPDATE ***/
+                                 engine_flags );
+            }
+
+
             ltmprig = ltmprig->next;
         }
     }
-
-    /*** For buffered faces ***/
-    /*if ( ( flags & ONGOINGANIMATION ) == 0x00 ) {
-        g3dbone_updateSubdividedFaces ( bon, flags );
-    }*/
 }
 
 /******************************************************************************/

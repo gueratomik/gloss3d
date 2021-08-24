@@ -919,7 +919,6 @@ typedef struct _G3DEDGE {
     uint32_t   nbfac;                /*** number of connected faces           ***/
     LIST      *lfac;                 /*** Face list                           ***/
     G3DVERTEX *ver[0x02];    /*** Our edge is made of 2 vertices      ***/
-    G3DVECTOR  pos;
 } G3DEDGE, G3DEXTRUDEVERTEX;
 
 /******************************************************************************/
@@ -1668,6 +1667,7 @@ void g3dsubedge_position ( G3DSUBEDGE * );
 G3DSUBEDGE *g3dsubedge_getSubEdge ( G3DSUBEDGE *, G3DVERTEX *, G3DVERTEX * );
 
 void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
+                                    G3DVECTOR *stkverpos,
                                     G3DVECTOR *stkvernor,
                                     G3DVECTOR *nor );
 

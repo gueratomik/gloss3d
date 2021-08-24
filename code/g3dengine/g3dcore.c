@@ -339,7 +339,7 @@ uint32_t g3dcore_getNumberOfCPUs ( ) {
 
     fclose ( fp );
 
-    return nbcpu;
+    return 1/*nbcpu*/;
 }
 #endif
 

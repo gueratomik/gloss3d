@@ -52,7 +52,7 @@ void *g3dlookup_get ( G3DLOOKUP *lookup, void *src ) {
         if ( lookup->table[i][0x00] == src ) return lookup->table[i][0x01];
     }
 
-    return src;
+    return NULL;
 }
 
 /******************************************************************************/
