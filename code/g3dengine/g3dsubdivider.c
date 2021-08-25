@@ -122,6 +122,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                                  uint32_t, /* nbuv */
                                                                  void * ),
                                                   void (*Dump) ( G3DFACE *,
+                                                                 G3DVECTOR *,
+                                                                 G3DVECTOR *,
                                                                  void * ),
                                                   void *data,
                                                   uint64_t engine_flags ) {
@@ -274,7 +276,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                     ltmpuvs = ltmpuvs->next;
                 }
 
-                Dump ( &dumpFac, data );
+                Dump ( &dumpFac, NULL, NULL, data );
             }
 
             _NEXTFACE(mes,ltmpfac);

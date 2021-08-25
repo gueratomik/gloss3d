@@ -358,6 +358,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** Private flags ***/
 /*** Bone flags ***/
 #define BONEFIXED             (  1 << 17 )
+#define BONEFROMFILE          (  1 << 18 )
 /*** Mesh private flags ***/
 #define MESHUSEADAPTIVE       (  1 << 19 )
 #define MESHUSEISOLINES       (  1 << 20 )
@@ -1083,6 +1084,8 @@ typedef enum  {
                                                             uint32_t,   \
                                                             void * ),   \
                                                   void (*) ( G3DFACE *, \
+                                                             G3DVECTOR *, \
+                                                             G3DVECTOR *, \
                                                              void * ),  \
                                                   void *,               \
                                                   uint32_t))f)
@@ -1145,6 +1148,8 @@ struct _G3DMESH {
                                                          uint32_t, /* nbuv */
                                                          void * ),
                                           void (*Dump) ( G3DFACE *,
+                                                         G3DVECTOR *,
+                                                         G3DVECTOR *,
                                                          void * ),
                                           void *data,
                                           uint64_t );
@@ -1206,7 +1211,7 @@ typedef struct _G3DMODIFIER {
 
 /******************************************************************************/
 typedef struct _G3DBONE {
-    G3DMODIFIER mod;    /*** Bone inherits G3DOBJECT        ***/
+    G3DOBJECT obj;    /*** Bone inherits G3DOBJECT        ***/
     G3DVECTOR fixpos; /*** Position vector value when the bone was fixed ***/
     G3DVECTOR fixrot; /*** Rotation vector value when the bone was fixed ***/
     G3DVECTOR fixsca; /*** Scale vector value when the bone was fixed ***/
@@ -2510,6 +2515,8 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
                                                uint32_t, /* nbuv */
                                                void * ),
                                 void (*Dump) ( G3DFACE *,
+                                               G3DVECTOR *,
+                                               G3DVECTOR *,
                                                void * ),
                                 void *data,
                                 uint64_t engine_flags );
@@ -2520,6 +2527,8 @@ void g3dmesh_dump ( G3DMESH *mes,
                                    uint32_t, /* nbuv */
                                    void * ),
                     void (*Dump) ( G3DFACE *,
+                                   G3DVECTOR *,
+                                   G3DVECTOR *,
                                    void * ),
                     void *data,
                     uint64_t engine_flags );
@@ -2530,6 +2539,8 @@ uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes,
                                                   uint32_t, /* nbuv */
                                                   void * ),
                                    void (*Dump) ( G3DFACE *,
+                                                  G3DVECTOR *,
+                                                  G3DVECTOR *,
                                                   void * ),
                                    void *data,
                                    uint64_t engine_flags );
@@ -2966,6 +2977,18 @@ uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
 void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                   G3DMODIFYOP  op,
                                   uint64_t     engine_flags );
+uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
+                                    void (*Alloc)( uint32_t, /*nbver */
+                                                   uint32_t, /* nbtris */
+                                                   uint32_t, /* nbquads */
+                                                   uint32_t, /* nbuv */
+                                                   void * ),
+                                    void (*Dump) ( G3DFACE *,
+                                                   G3DVECTOR *,
+                                                   G3DVECTOR *,
+                                                   void * ),
+                                    void *data,
+                                    uint64_t engine_flags );
 
 /******************************************************************************/
 G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );

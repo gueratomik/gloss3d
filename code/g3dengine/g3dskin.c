@@ -69,13 +69,6 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_anim ( G3DSKIN *skn, 
-                           float    frame, 
-                           uint64_t engine_flags ) {
-
-}
-
-/******************************************************************************/
 static void g3dskin_setParent ( G3DSKIN   *skn, 
                                 G3DOBJECT *parent,
                                 G3DOBJECT *oldParent,
@@ -170,6 +163,14 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
     }
 
     return 0x00;
+}
+
+/******************************************************************************/
+static void g3dskin_anim ( G3DSKIN *skn, 
+                           float    frame, 
+                           uint64_t engine_flags ) {
+
+    g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 }
 
 /******************************************************************************/

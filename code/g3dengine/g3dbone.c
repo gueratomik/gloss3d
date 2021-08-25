@@ -420,15 +420,19 @@ void g3dbone_fix ( G3DBONE *bon ) {
     while ( ltmprig ) {
         G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
 
-        if ( rig->skn->mod.oriobj ) {
-            if ( rig->skn->mod.oriobj->type == G3DMESHTYPE ) {
-                G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-                double sknmatrix[0x10];
+        /*** when lodaded from file, prevent the loaded isknmatrix from ***/
+        /*** being overwritten ***/
+        if ( ( bon->obj.flags & BONEFROMFILE ) == 0x00 ) { 
+            if ( rig->skn->mod.oriobj ) {
+                if ( rig->skn->mod.oriobj->type == G3DMESHTYPE ) {
+                    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+                    double sknmatrix[0x10];
 
-                g3dcore_multmatrix ( objbon->wmatrix, 
-                                     rig->skn->mod.oriobj->iwmatrix, sknmatrix );
+                    g3dcore_multmatrix ( objbon->wmatrix, 
+                                         rig->skn->mod.oriobj->iwmatrix, sknmatrix );
 
-                g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
+                    g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
+                }
             }
         }
 
@@ -449,6 +453,8 @@ void g3dbone_unfix ( G3DBONE *bon ) {
 
         ltmprig = ltmprig->next;
     }
+
+    bon->obj.flags &= (~BONEFROMFILE);
 }
 
 /******************************************************************************/

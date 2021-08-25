@@ -30,6 +30,43 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
+                                    void (*Alloc)( uint32_t, /*nbver */
+                                                   uint32_t, /* nbtris */
+                                                   uint32_t, /* nbquads */
+                                                   uint32_t, /* nbuv */
+                                                   void * ),
+                                    void (*Dump) ( G3DFACE *,
+                                                   G3DVECTOR *,
+                                                   G3DVECTOR *,
+                                                   void * ),
+                                    void *data,
+                                    uint64_t engine_flags ) {
+    if ( g3dobject_isActive ( mod ) ) {
+        G3DMESH *mes = mod->oriobj;
+        LIST *ltmpfac = mes->lfac;
+        uint32_t i, verID = 0x00;
+
+        if ( Alloc ) Alloc ( mes->nbver, mes->nbtri, mes->nbqua, 0x00, data );
+
+        /*g3dmesh_renumberVertices ( mes );*/
+
+        while ( ltmpfac ) {
+            G3DFACE *fac = _GETFACE(mes,ltmpfac);
+            
+
+            if ( Dump ) Dump ( fac, mod->verpos, mod->vernor, data );
+
+            _NEXTFACE(mes,ltmpfac);
+        }
+
+        return MODIFIERTAKESOVER;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                   G3DMODIFYOP  op,
                                   uint64_t     engine_flags ) {
@@ -192,6 +229,8 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                           SetParent );
 
     mod->modify      = Modify;
+
+    mod->mes.dump    = g3dmodifier_default_dump;
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 

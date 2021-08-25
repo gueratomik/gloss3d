@@ -98,12 +98,16 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_BONE_RIG_SKINMATRIX : {
+                G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
+                G3DOBJECT *obj = gid->currentObject;
                 G3DRIG *rig = gid->currentRig;
                 uint32_t i;
 
                 for ( i = 0x00; i < 0x10; i++ ) {
                     g3dimport_freadd ( &rig->isknmatrix[i], fsrc );
                 }
+
+                obj->flags |= BONEFROMFILE;
             } break;
 
             case SIG_OBJECT_BONE_FIXING : {

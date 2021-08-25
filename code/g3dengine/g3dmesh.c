@@ -578,6 +578,8 @@ uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes,
                                                   uint32_t, /* nbuv */
                                                   void * ),
                                    void (*Dump) ( G3DFACE *,
+                                                  G3DVECTOR *,
+                                                  G3DVECTOR *,
                                                   void * ),
                                    void *data,
                                    uint64_t engine_flags ) {
@@ -615,6 +617,8 @@ void g3dmesh_dump ( G3DMESH *mes,
                                    uint32_t, /* nbuv */
                                    void * ),
                     void (*Dump) ( G3DFACE *,
+                                   G3DVECTOR *,
+                                   G3DVECTOR *,
                                    void * ),
                     void *data,
                     uint64_t engine_flags ) {
@@ -638,6 +642,8 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
                                                uint32_t, /* nbuv */
                                                void * ),
                                 void (*Dump) ( G3DFACE *,
+                                               G3DVECTOR *,
+                                               G3DVECTOR *,
                                                void * ),
                                 void *data,
                                 uint64_t engine_flags ) {
@@ -651,7 +657,7 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
     while ( ltmpfac ) {
         G3DFACE *fac = _GETFACE(mes,ltmpfac);
 
-        if ( Dump ) Dump ( fac, data );
+        if ( Dump ) Dump ( fac, NULL, NULL, data );
 
         _NEXTFACE(mes,ltmpfac);
     }
