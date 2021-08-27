@@ -356,6 +356,10 @@ SIG_ROOT=0x44335347
 --------------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS_RATE
 ------------------------------------------- rate (float)
 
+----------------------- SIG_OBJECT_KEY_DATA_LIGHT
+--------------------------- SIG_OBJECT_LIGHT
+------------------------------- ( ... )
+
 ----------- SIG_OBJECT_ACTIVE
 --------------- active ( uint32_t ) /** 1 or 0 **/
 ---- SIG_EXTENSIONS

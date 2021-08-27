@@ -77,7 +77,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                     if ( obj->type == G3DBONETYPE           ) updateBoneEdit           ( child, gui );
                     if ( obj->type == G3DFFDTYPE            ) updateFFDEdit            ( child, gui );
                     if ( obj->type == G3DSYMMETRYTYPE       ) updateSymmetryEdit       ( child, gui );
-                    if ( obj->type == G3DLIGHTTYPE          ) updateLightEdit          ( child, gui );
+                    if ( obj->type == G3DLIGHTTYPE          ) updateLightEdit          ( child, obj );
                     if ( obj->type == G3DUVMAPTYPE          ) updateUVMapEdit          ( child, gui );
                     if ( obj->type == G3DSUBDIVIDERTYPE     ) updateSubdividerEdit     ( child, gui );
                     if ( obj->type == G3DSPLINEREVOLVERTYPE ) updateSplineRevolverEdit ( child, gui );

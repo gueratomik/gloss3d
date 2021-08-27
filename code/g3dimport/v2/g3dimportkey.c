@@ -74,6 +74,18 @@ void g3dimportkey ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_KEY_DATA : {
             } break;
 
+            case SIG_OBJECT_KEY_DATA_LIGHT : {
+                G3DOBJECT *backup = gid->currentObject;
+
+                gid->currentObject = key->data.ptr;
+
+                if ( chunkSize ) {
+                    g3dimportlight ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
+
+                gid->currentObject = backup;
+            } break;
+
             case SIG_OBJECT_KEY_DATA_MORPHER : {
             } break;
 

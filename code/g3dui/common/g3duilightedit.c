@@ -30,99 +30,63 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3dui_lightSpecularityChangeCbk ( G3DUI *gui, uint32_t red,
-                                                          uint32_t green,
-                                                          uint32_t blue ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
+void common_g3dui_lightSpecularityChangeCbk ( G3DUI    *gui, 
+                                              G3DLIGHT *lig,
+                                              uint32_t  red,
+                                              uint32_t  green,
+                                              uint32_t  blue ) {
     /*** prevent a loop when updating widget ***/
     if ( gui->lock ) return;
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        lig->specularColor.r = red;
-        lig->specularColor.g = green;
-        lig->specularColor.b = blue;
-
-        g3dui_redrawGLViews ( gui );
-    }
+    lig->specularColor.r = red;
+    lig->specularColor.g = green;
+    lig->specularColor.b = blue;
 }
 
 /******************************************************************************/
-void common_g3duilightedit_unsetSpotCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
+void common_g3duilightedit_unsetSpotCbk ( G3DUI    *gui,
+                                          G3DLIGHT *lig ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        g3dlight_unsetSpot ( lig );
-
-        g3dui_redrawGLViews ( gui );
-    }
+    g3dlight_unsetSpot ( lig );
 }
 
 /******************************************************************************/
-void common_g3duilightedit_setSpotCbk ( G3DUI *gui,
-                                        float  spotLength,
-                                        float  spotAngle,
-                                        float  spotFadeAngle ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+void common_g3duilightedit_setSpotCbk ( G3DUI    *gui,
+                                        G3DLIGHT *lig,
+                                        float     spotLength,
+                                        float     spotAngle,
+                                        float     spotFadeAngle ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
 
+    g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
+}
+
+/******************************************************************************/
+void common_g3duilightedit_castShadowsCbk ( G3DUI    *gui,
+                                            G3DLIGHT *lig ) {
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
-
-        g3dui_redrawGLViews ( gui );
+    if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
+        lig->obj.flags &= (~LIGHTCASTSHADOWS);
+    } else {
+        lig->obj.flags |= LIGHTCASTSHADOWS;
     }
 }
 
 /******************************************************************************/
-void common_g3duilightedit_castShadowsCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        if ( obj->flags & LIGHTCASTSHADOWS ) {
-            obj->flags &= (~LIGHTCASTSHADOWS);
-        } else {
-            obj->flags |= LIGHTCASTSHADOWS;
-        }
-    }
-}
-
-/******************************************************************************/
-void common_g3dui_lightDiffuseChangeCbk ( G3DUI *gui, uint32_t red,
-                                                      uint32_t green,
-                                                      uint32_t blue ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
+void common_g3dui_lightDiffuseChangeCbk ( G3DUI    *gui, 
+                                          G3DLIGHT *lig,
+                                          uint32_t  red,
+                                          uint32_t  green,
+                                          uint32_t  blue ) {
     /*** prevent a loop when updating widget ***/
     if ( gui->lock ) return;
 
-    if ( obj && ( obj->type == G3DLIGHTTYPE ) ) {
-        G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-
-        lig->diffuseColor.r = red;
-        lig->diffuseColor.g = green;
-        lig->diffuseColor.b = blue;
-
-        g3dui_redrawGLViews ( gui );
-    }
+    lig->diffuseColor.r = red;
+    lig->diffuseColor.g = green;
+    lig->diffuseColor.b = blue;
 }

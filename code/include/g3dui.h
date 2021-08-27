@@ -1375,12 +1375,25 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *, const char * );
 void common_g3duicutmeshtooledit_restrictCbk ( G3DUI *, int );
 
 /****************************** Light Edit  ***********************************/
-void common_g3dui_lightDiffuseChangeCbk ( G3DUI *, uint32_t,
-                                                   uint32_t,
-                                                   uint32_t );
-void common_g3dui_lightSpecularityChangeCbk ( G3DUI *, uint32_t,
-                                                       uint32_t,
-                                                       uint32_t );
+void common_g3dui_lightDiffuseChangeCbk     ( G3DUI    *gui, 
+                                              G3DLIGHT *lig,
+                                              uint32_t  red,
+                                              uint32_t  green,
+                                              uint32_t  blue );
+void common_g3dui_lightSpecularityChangeCbk ( G3DUI    *gui, 
+                                              G3DLIGHT *lig,
+                                              uint32_t  red,
+                                              uint32_t  green,
+                                              uint32_t  blue );
+void common_g3duilightedit_castShadowsCbk   ( G3DUI    *gui,
+                                              G3DLIGHT *lig );
+void common_g3duilightedit_setSpotCbk       ( G3DUI    *gui,
+                                              G3DLIGHT *lig,
+                                              float     spotLength,
+                                              float     spotAngle,
+                                              float     spotFadeAngle );
+void common_g3duilightedit_unsetSpotCbk     ( G3DUI    *gui,
+                                              G3DLIGHT *lig );
 
 /****************************** Texture Edit  *********************************/
 void common_g3duitextureedit_setUVMapCbk ( G3DUI *, uint32_t );
@@ -1577,14 +1590,6 @@ void common_l3dui_moveSideward ( L3DUI *lui,
                                             int32_t           y, 
                                             int32_t           xold, 
                                             int32_t           yold );
-
-void common_g3duilightedit_castShadowsCbk ( G3DUI *gui );
-void common_g3duilightedit_setSpotCbk ( G3DUI *gui,
-                                        float  spotLength,
-                                        float  spotAngle,
-                                        float  spotFadeAngle );
-void common_g3duilightedit_unsetSpotCbk ( G3DUI *gui );
-
 
 void common_g3dui_materialDisplacementProceduralCbk ( G3DUI      *gui,
                                                       const char *procType,

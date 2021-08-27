@@ -369,6 +369,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define LIGHTON               (  1 << 17 )
 #define LIGHTCASTSHADOWS      (  1 << 18 )
 #define SPOTLIGHT             (  1 << 19 )
+#define KEYLIGHT              (  1 << 20 )
+
 /*** UVMap flags ***/
 #define UVMAPFIXED            (  1 << 17 )
 /*** Wireframe flags ***/

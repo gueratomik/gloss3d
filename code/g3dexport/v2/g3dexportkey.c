@@ -194,6 +194,14 @@ static uint32_t g3dexportkey_dataMorpher ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportkey_dataLight ( G3DEXPORTDATA *ged, 
+                                         G3DKEY        *key, 
+                                         uint32_t       flags, 
+                                         FILE          *fdst ) {
+    return g3dexportlight ( ged, key->data.ptr, flags, fdst );
+}
+
+/******************************************************************************/
 static uint32_t g3dexportkey_data ( G3DEXPORTDATA *ged, 
                                     G3DKEY        *key, 
                                     uint32_t       flags, 
@@ -204,6 +212,15 @@ static uint32_t g3dexportkey_data ( G3DEXPORTDATA *ged,
         case G3DMORPHERTYPE :
             size += g3dexport_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER,
                                            g3dexportkey_dataMorpher,
+                                           ged,
+                                           key,
+                                           0xFFFFFFFF,
+                                           fdst );
+        break;
+
+        case G3DLIGHTTYPE :
+            size += g3dexport_writeChunk ( SIG_OBJECT_KEY_DATA_LIGHT,
+                                           g3dexportkey_dataLight,
                                            ged,
                                            key,
                                            0xFFFFFFFF,

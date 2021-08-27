@@ -52,6 +52,33 @@ static void editKeyDataCbk ( GtkWidget *widget, gpointer user_data ) {
                 gtk_widget_show ( dial );
             }
         }
+
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+                GtkWidget *fix = gtk_fixed_new ( );
+
+                gtk_widget_show ( fix );
+
+                gtk_container_add ( GTK_CONTAINER(dial), fix );
+
+
+                G3DKEY *key = obj->lselkey->data;
+                G3DLIGHT *keylig = key->data.ptr;
+
+                GtkWidget *w =  createLightEdit ( fix,
+                                                  gui, 
+                                                  "Light Key", 
+                                                  0, 0, 416, 192 );
+
+
+                gtk_widget_show ( dial );
+
+                updateLightEdit ( w, keylig );
+            }
+        }
     }
 }
 

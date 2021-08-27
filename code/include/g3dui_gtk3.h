@@ -116,6 +116,11 @@ typedef struct _G3DUIMENU {
 } G3DUIMENU;
 
 /******************************************************************************/
+typedef struct _G3DUIWIDGETGROUP {
+    G3DUI *gui;
+} G3DUIWIDGETGROUP;
+
+/******************************************************************************/
 /****************************** Toolkit Data **********************************/
 typedef struct _G3DUIGTK3 {
     GtkWidget *top;
@@ -371,7 +376,7 @@ void       updateCurrentEdit      ( GtkWidget *, G3DUI * );
 GtkWidget *createCurrentEdit      ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-void       updateLightEdit        ( GtkWidget *, G3DUI * );
+void       updateLightEdit        ( GtkWidget *, G3DLIGHT * );
 GtkWidget *createLightEdit        ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 

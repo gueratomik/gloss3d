@@ -30,6 +30,46 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+typedef struct _LIGHTKEYDATA {
+    G3DLIGHT keylig;
+} LIGHTKEYDATA;
+
+/******************************************************************************/
+static void g3dlightkey_free ( G3DKEY *key ) {
+    LIGHTKEYDATA *lkd = ( LIGHTKEYDATA * ) key->data.ptr;
+
+    free ( lkd );
+}
+
+/******************************************************************************/
+LIGHTKEYDATA *lightkeydata_new ( ) {
+    LIGHTKEYDATA *lkd = calloc ( 0x01, sizeof ( LIGHTKEYDATA ) );
+    uint32_t i;
+
+    if ( lkd == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    return lkd;
+}
+
+/******************************************************************************/
+static void g3dlight_pose ( G3DLIGHT *lig,
+                            G3DKEY   *key ) {
+    if ( key->data.ptr == NULL ) {
+        LIGHTKEYDATA *lkd = lightkeydata_new ( );
+
+        key->free = g3dlightkey_free; /*** callback for freeing memory ***/
+
+        key->data.ptr = lkd;
+
+        memcpy ( &lkd->keylig, lig, sizeof ( G3DLIGHT ) );
+
+        lkd->keylig.obj.flags |= KEYLIGHT;
+    }
+}
+
+/******************************************************************************/
 G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
                           uint32_t       id,
                           unsigned char *name,
@@ -353,6 +393,76 @@ void g3dlight_deactivate ( G3DLIGHT *lig, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
+static void interpolateRGBA ( G3DRGBA *srcRGBA, 
+                              float    srcRatio,
+                              G3DRGBA *dstRGBA,
+                              float    dstRatio, 
+                              G3DRGBA *outRGBA ) {
+    outRGBA->r = ( srcRGBA->r * srcRatio ) + 
+                 ( dstRGBA->r * dstRatio );
+
+    outRGBA->g = ( srcRGBA->g * srcRatio ) + 
+                 ( dstRGBA->g * dstRatio );
+
+    outRGBA->b = ( srcRGBA->b * srcRatio ) + 
+                 ( dstRGBA->b * dstRatio );
+
+    outRGBA->a = ( srcRGBA->a * srcRatio ) + 
+                 ( dstRGBA->a * dstRatio );
+}
+
+/******************************************************************************/
+static void g3dlight_anim ( G3DLIGHT *lig, 
+                            float     frame, 
+                            uint64_t  engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+    G3DKEY *prevKey = NULL,
+           *nextKey = NULL,
+           *currKey = NULL;
+
+    if ( g3dobject_isActive ( lig ) == 0x00 ) return;
+
+    frame = g3dobject_getKeys ( obj, frame, &currKey,
+                                            &prevKey, 
+                                            &nextKey, KEYDATA );
+
+
+    if ( currKey ) {
+        LIGHTKEYDATA *lkd = currKey->data.ptr;
+
+        memcpy ( &lig->shadowColor  , &lkd->keylig.shadowColor  , sizeof ( G3DRGBA ) );
+        memcpy ( &lig->diffuseColor , &lkd->keylig.diffuseColor , sizeof ( G3DRGBA ) );
+        memcpy ( &lig->specularColor, &lkd->keylig.specularColor, sizeof ( G3DRGBA ) );
+        memcpy ( &lig->ambientColor , &lkd->keylig.ambientColor , sizeof ( G3DRGBA ) );
+    } else {
+        if ( prevKey && nextKey ) {
+            LIGHTKEYDATA *plkd = prevKey->data.ptr,
+                         *nlkd = nextKey->data.ptr;
+            float pRatio = (          frame - nextKey->frame ) / 
+                           ( prevKey->frame - nextKey->frame ),
+                  nRatio = 1.0f - pRatio;
+
+            interpolateRGBA ( &plkd->keylig.shadowColor, pRatio,
+                              &nlkd->keylig.shadowColor, nRatio, 
+                              &lig->shadowColor );
+
+            interpolateRGBA ( &plkd->keylig.diffuseColor, pRatio,
+                              &nlkd->keylig.diffuseColor, nRatio, 
+                              &lig->diffuseColor );
+
+            interpolateRGBA ( &plkd->keylig.specularColor, pRatio,
+                              &nlkd->keylig.specularColor, nRatio, 
+                              &lig->specularColor );
+
+            interpolateRGBA ( &plkd->keylig.ambientColor, pRatio,
+                              &nlkd->keylig.ambientColor, nRatio, 
+                              &lig->ambientColor );
+
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dlight_init ( G3DLIGHT *lig, 
                      uint32_t  id, 
                      char     *name ) {
@@ -363,13 +473,15 @@ void g3dlight_init ( G3DLIGHT *lig,
                                     DRAW_CALLBACK(g3dlight_draw),
                                     FREE_CALLBACK(g3dlight_free),
                                     PICK_CALLBACK(g3dlight_pick),
-                                                  NULL,
+                                    POSE_CALLBACK(g3dlight_pose),
                                     COPY_CALLBACK(g3dlight_copy),
                                 ACTIVATE_CALLBACK(g3dlight_activate),
                               DEACTIVATE_CALLBACK(g3dlight_deactivate),
                                                   NULL,
                                                   NULL,
                                                   NULL );
+
+    obj->anim = ANIM_CALLBACK(g3dlight_anim);
 
 
     lig->lid = ++globals->lightID;
