@@ -31,15 +31,15 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2uvmap ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t uvmapProjection;
     uint32_t chunkSignature, chunkSize;
     
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -49,14 +49,14 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_UVMAP_PROJECTION : {
-                g3dimport_freadl ( &uvmapProjection, fsrc );
+                g3dimportv2_freadl ( &uvmapProjection, fsrc );
             } break;
 
             case SIG_OBJECT_UVMAP_NAME : {
                 if ( chunkSize ) {
                     char *name = ( char * ) calloc ( 0x01, chunkSize );
 
-                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+                    g3dimportv2_fread ( name, chunkSize, 0x01, fsrc );
 
                     gid->currentUVMap = g3duvmap_new ( name, uvmapProjection );
 
@@ -74,31 +74,31 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_UVMAP_FLAGS : {
-                g3dimport_freadl ( &((G3DOBJECT*)gid->currentUVMap)->flags, fsrc );
+                g3dimportv2_freadl ( &((G3DOBJECT*)gid->currentUVMap)->flags, fsrc );
             } break;
 
             case SIG_OBJECT_UVMAP_RADIUS : {
-                g3dimport_freadf ( &gid->currentUVMap->pln.xradius, fsrc );
-                g3dimport_freadf ( &gid->currentUVMap->pln.yradius, fsrc );
+                g3dimportv2_freadf ( &gid->currentUVMap->pln.xradius, fsrc );
+                g3dimportv2_freadf ( &gid->currentUVMap->pln.yradius, fsrc );
             } break;
 
             case SIG_OBJECT_UVMAP_TRANSFORMATION : {
                 G3DOBJECT *obj = ( G3DOBJECT * ) gid->currentUVMap;
 
-                g3dimport_freadf ( &obj->pos.x, fsrc );
-                g3dimport_freadf ( &obj->pos.y, fsrc );
-                g3dimport_freadf ( &obj->pos.z, fsrc );
-                g3dimport_freadf ( &obj->pos.w, fsrc );
+                g3dimportv2_freadf ( &obj->pos.x, fsrc );
+                g3dimportv2_freadf ( &obj->pos.y, fsrc );
+                g3dimportv2_freadf ( &obj->pos.z, fsrc );
+                g3dimportv2_freadf ( &obj->pos.w, fsrc );
 
-                g3dimport_freadf ( &obj->rot.x, fsrc );
-                g3dimport_freadf ( &obj->rot.y, fsrc );
-                g3dimport_freadf ( &obj->rot.z, fsrc );
-                g3dimport_freadf ( &obj->rot.w, fsrc );
+                g3dimportv2_freadf ( &obj->rot.x, fsrc );
+                g3dimportv2_freadf ( &obj->rot.y, fsrc );
+                g3dimportv2_freadf ( &obj->rot.z, fsrc );
+                g3dimportv2_freadf ( &obj->rot.w, fsrc );
 
-                g3dimport_freadf ( &obj->sca.x, fsrc );
-                g3dimport_freadf ( &obj->sca.y, fsrc );
-                g3dimport_freadf ( &obj->sca.z, fsrc );
-                g3dimport_freadf ( &obj->sca.w, fsrc );
+                g3dimportv2_freadf ( &obj->sca.x, fsrc );
+                g3dimportv2_freadf ( &obj->sca.y, fsrc );
+                g3dimportv2_freadf ( &obj->sca.z, fsrc );
+                g3dimportv2_freadf ( &obj->sca.w, fsrc );
 
                 g3dobject_updateMatrix_r ( obj, gid->engineFlags );
 
@@ -112,7 +112,7 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbUVSets;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbUVSets, fsrc );
+                g3dimportv2_freadl ( &nbUVSets, fsrc );
 
                 for ( i = 0x00; i < nbUVSets; i++ ) {
                     G3DUVSET *uvs = NULL;
@@ -122,17 +122,17 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     memset ( &uvset, 0x00, sizeof ( G3DUVSET ) );
 
-                    g3dimport_freadl ( &flags   , fsrc );
-                    g3dimport_freadl ( &facID   , fsrc );
+                    g3dimportv2_freadl ( &flags   , fsrc );
+                    g3dimportv2_freadl ( &facID   , fsrc );
 
-                    g3dimport_freadf ( &uvset.veruv[0x00].u, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x00].v, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x01].u, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x01].v, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x02].u, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x02].v, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x03].u, fsrc );
-                    g3dimport_freadf ( &uvset.veruv[0x03].v, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x00].u, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x00].v, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x01].u, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x01].v, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x02].u, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x02].v, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x03].u, fsrc );
+                    g3dimportv2_freadf ( &uvset.veruv[0x03].v, fsrc );
 
                     uvs = g3dface_getUVSet ( gid->currentFaceArray[facID], 
                                              gid->currentUVMap );
@@ -152,9 +152,9 @@ void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

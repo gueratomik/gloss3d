@@ -31,7 +31,7 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2morpher ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     G3DMORPHER *mpr = ( G3DMORPHER * ) gid->currentObject;
     uint32_t chunkSignature, chunkSize;
     uint32_t totalVertexCount = 0x00;
@@ -40,10 +40,10 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
     if ( chunkEnd == ftell ( fsrc ) ) return;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -53,7 +53,7 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_MORPHER_VERTEX_COUNT : {
-                g3dimport_freadl ( &totalVertexCount, fsrc );
+                g3dimportv2_freadl ( &totalVertexCount, fsrc );
             } break;
 
             case SIG_OBJECT_MORPHER_MESHPOSE_ENTRY : {
@@ -62,13 +62,13 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_MORPHER_MESHPOSE_NAME : {
                 memset ( mposename, 0x00, sizeof ( mposename ) );
 
-                g3dimport_fread ( mposename, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( mposename, chunkSize, 0x01, fsrc );
             } break;
 
             case SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID : {
                 uint32_t slotID = 0x00;
 
-                g3dimport_freadl ( &slotID, fsrc );
+                g3dimportv2_freadl ( &slotID, fsrc );
 
                 mpose = g3dmorphermeshpose_new ( totalVertexCount, mposename );
 
@@ -88,17 +88,17 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbver;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbver, fsrc );
+                g3dimportv2_freadl ( &nbver, fsrc );
 
                 for ( i = 0x00; i < nbver; i++ ) {
                     G3DMORPHERVERTEXPOSE *vpose;
                     uint32_t verID;
                     G3DVECTOR vpos;
 
-                    g3dimport_freadl ( &verID, fsrc );
-                    g3dimport_freadl ( &vpos.x, fsrc );
-                    g3dimport_freadl ( &vpos.y, fsrc );
-                    g3dimport_freadl ( &vpos.z, fsrc );
+                    g3dimportv2_freadl ( &verID, fsrc );
+                    g3dimportv2_freadl ( &vpos.x, fsrc );
+                    g3dimportv2_freadl ( &vpos.y, fsrc );
+                    g3dimportv2_freadl ( &vpos.z, fsrc );
 
                     g3dmorpher_addVertexPose ( mpr,
                                                ver[verID],
@@ -119,9 +119,9 @@ void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

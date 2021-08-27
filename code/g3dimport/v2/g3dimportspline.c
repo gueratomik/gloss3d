@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2spline ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -51,7 +51,7 @@ void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbpt;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbpt, fsrc );
+                g3dimportv2_freadl ( &nbpt, fsrc );
 
                 gid->currentPointArray = ( G3DCURVEPOINT ** ) realloc ( gid->currentPointArray, nbpt * sizeof ( G3DCURVEPOINT * ) );
 
@@ -59,10 +59,10 @@ void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     uint32_t ptFlags;
                     float x, y, z;
 
-                    g3dimport_freadf ( &x, fsrc );
-                    g3dimport_freadf ( &y, fsrc );
-                    g3dimport_freadf ( &z, fsrc );
-                    g3dimport_freadl ( &ptFlags, fsrc );
+                    g3dimportv2_freadf ( &x, fsrc );
+                    g3dimportv2_freadf ( &y, fsrc );
+                    g3dimportv2_freadf ( &z, fsrc );
+                    g3dimportv2_freadl ( &ptFlags, fsrc );
 
                     gid->currentPointArray[i] = g3dcurvepoint_new ( x, y, z );
 
@@ -75,23 +75,23 @@ void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbseg;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbseg, fsrc );
+                g3dimportv2_freadl ( &nbseg, fsrc );
 
                 for ( i = 0x00; i < nbseg; i++ ) {
                     float posHandle[0x02][0x03];
                     G3DCUBICSEGMENT *seg;
                     uint32_t pid[0x02];
 
-                    g3dimport_freadl ( &pid[0x00], fsrc );
-                    g3dimport_freadl ( &pid[0x01], fsrc );
+                    g3dimportv2_freadl ( &pid[0x00], fsrc );
+                    g3dimportv2_freadl ( &pid[0x01], fsrc );
 
-                    g3dimport_freadf ( &posHandle[0x00][0x00], fsrc );
-                    g3dimport_freadf ( &posHandle[0x00][0x01], fsrc );
-                    g3dimport_freadf ( &posHandle[0x00][0x02], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x00][0x00], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x00][0x01], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x00][0x02], fsrc );
 
-                    g3dimport_freadf ( &posHandle[0x01][0x00], fsrc );
-                    g3dimport_freadf ( &posHandle[0x01][0x01], fsrc );
-                    g3dimport_freadf ( &posHandle[0x01][0x02], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x01][0x00], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x01][0x01], fsrc );
+                    g3dimportv2_freadf ( &posHandle[0x01][0x02], fsrc );
 
                     seg = g3dcubicsegment_new ( gid->currentPointArray[pid[0x00]],
                                                 gid->currentPointArray[pid[0x01]],
@@ -114,9 +114,9 @@ void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

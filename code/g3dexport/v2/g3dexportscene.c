@@ -31,7 +31,7 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportroot_objects ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2root_objects ( G3DEXPORTV2DATA *ged, 
                                         G3DSCENE      *sce, 
                                         uint32_t       flags, 
                                         FILE          *fdst ) {
@@ -50,8 +50,8 @@ static uint32_t g3dexportroot_objects ( G3DEXPORTDATA *ged,
 
         ged->currentObject = obj;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_ENTRY,
-                                       g3dexportobject,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_ENTRY,
+                                       g3dexportv2object,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -68,7 +68,7 @@ static uint32_t g3dexportroot_objects ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportroot_extensions ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2root_extensions ( G3DEXPORTV2DATA *ged, 
                                            G3DSCENE      *sce, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
@@ -76,10 +76,10 @@ static uint32_t g3dexportroot_extensions ( G3DEXPORTDATA *ged,
     uint32_t size = 0x00;
 
     while ( ltmpext ) {
-        G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) ltmpext->data;
+        G3DEXPORTV2EXTENSION *ext = ( G3DEXPORTV2EXTENSION * ) ltmpext->data;
 
-        size += g3dexport_writeChunk ( SIG_EXTENSION_ENTRY,
-                                       g3dexportextension,
+        size += g3dexportv2_writeChunk ( SIG_EXTENSION_ENTRY,
+                                       g3dexportv2extension,
                                        ged,
                                        ext,
                                        0xFFFFFFFF,
@@ -92,7 +92,7 @@ static uint32_t g3dexportroot_extensions ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportscene_materials ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2scene_materials ( G3DEXPORTV2DATA *ged, 
                                            G3DSCENE      *sce, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
@@ -105,8 +105,8 @@ static uint32_t g3dexportscene_materials ( G3DEXPORTDATA *ged,
 
         mat->id = matID++;
 
-        size += g3dexport_writeChunk ( SIG_MATERIAL_ENTRY,
-                                       g3dexportmaterial,
+        size += g3dexportv2_writeChunk ( SIG_MATERIAL_ENTRY,
+                                       g3dexportv2material,
                                        ged,
                                        mat,
                                        0xFFFFFFFF,
@@ -119,14 +119,14 @@ static uint32_t g3dexportscene_materials ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-uint32_t g3dexportscene ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2scene ( G3DEXPORTV2DATA *ged, 
                           G3DSCENE      *sce, 
                           uint32_t       flags, 
                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_MATERIALS,
-                                   g3dexportscene_materials,
+    size += g3dexportv2_writeChunk ( SIG_MATERIALS,
+                                   g3dexportv2scene_materials,
                                    ged,
                                    sce,
                                    0xFFFFFFFF,
@@ -136,23 +136,23 @@ uint32_t g3dexportscene ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-uint32_t g3dexportroot ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2root ( G3DEXPORTV2DATA *ged, 
                          G3DSCENE      *sce, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
 
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECTS,
-                                   g3dexportroot_objects,
+    size += g3dexportv2_writeChunk ( SIG_OBJECTS,
+                                   g3dexportv2root_objects,
                                    ged,
                                    sce,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( ged->lext ) {
-        size += g3dexport_writeChunk ( SIG_EXTENSIONS,
-                                       g3dexportroot_extensions,
+        size += g3dexportv2_writeChunk ( SIG_EXTENSIONS,
+                                       g3dexportv2root_extensions,
                                        ged,
                                        sce,
                                        0xFFFFFFFF,
@@ -174,7 +174,7 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmpext = lextension;
     uint32_t size = 0x00;
-    G3DEXPORTDATA ged;
+    G3DEXPORTV2DATA ged;
 
     if ( ( fdst = fopen ( filename, "wb" ) ) == NULL ) {
         fprintf ( stderr, "g3dscene_export: cannot write destination file\n" );
@@ -187,8 +187,8 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
     ged.currentScene = sce;
     ged.lext         = lextension;
 
-    size = g3dexport_writeChunk ( SIG_ROOT,
-                                  g3dexportroot,
+    size = g3dexportv2_writeChunk ( SIG_ROOT,
+                                  g3dexportv2root,
                                  &ged,
                                   sce,
                                   0xFFFFFFFF,
@@ -212,7 +212,7 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
     object_writeblock ( obj, &objid, OBJECTSAVEALL, fdst );
 
     while ( ltmpext ) {
-        G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) ltmpext->data;
+        G3DEXPORTV2EXTENSION *ext = ( G3DEXPORTV2EXTENSION * ) ltmpext->data;
 
 
         chunk_write ( EXTENSIONSIG, ext->blockSize(ext->data) +

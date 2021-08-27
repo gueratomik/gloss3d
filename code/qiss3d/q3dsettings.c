@@ -34,102 +34,102 @@
 /******************************************************************************/
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputRatio ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputRatio ( G3DEXPORTV3DATA     *ged,
                                           Q3DOUTPUTSETTINGS *ros,
                                           uint32_t           flags, 
                                           FILE              *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &ros->ratio, fdst );
+    size += g3dexportv3_fwritef ( &ros->ratio, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputFormat ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputFormat ( G3DEXPORTV3DATA     *ged,
                                            Q3DOUTPUTSETTINGS *ros,
                                            uint32_t           flags, 
                                            FILE              *fdst ) {
     uint32_t size = 0x00; 
 
-    size += g3dexport_fwritel ( &ros->format, fdst );
+    size += g3dexportv3_fwritel ( &ros->format, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputFile ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputFile ( G3DEXPORTV3DATA     *ged,
                                          Q3DOUTPUTSETTINGS *ros,
                                          uint32_t           flags, 
                                          FILE              *fdst ) {
     uint32_t len = strlen ( ros->outfile );
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( ros->outfile, len, 0x01, fdst );
+    size += g3dexportv3_fwrite ( ros->outfile, len, 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputFrame ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputFrame ( G3DEXPORTV3DATA     *ged,
                                           Q3DOUTPUTSETTINGS *ros,
                                           uint32_t           flags, 
                                           FILE              *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &ros->startframe, fdst );
-    size += g3dexport_fwritef ( &ros->endframe  , fdst );
+    size += g3dexportv3_fwritef ( &ros->startframe, fdst );
+    size += g3dexportv3_fwritef ( &ros->endframe  , fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputSize ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputSize ( G3DEXPORTV3DATA     *ged,
                                          Q3DOUTPUTSETTINGS *ros,
                                          uint32_t           flags, 
                                          FILE              *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &ros->width , fdst );
-    size += g3dexport_fwritel ( &ros->height, fdst );
+    size += g3dexportv3_fwritel ( &ros->width , fdst );
+    size += g3dexportv3_fwritel ( &ros->height, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_outputFPS ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_outputFPS ( G3DEXPORTV3DATA     *ged,
                                         Q3DOUTPUTSETTINGS *ros,
                                         uint32_t           flags, 
                                         FILE              *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &ros->fps, fdst );
+    size += g3dexportv3_fwritel ( &ros->fps, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_output ( G3DEXPORTDATA     *ged,
+static uint32_t q3dsettings_output ( G3DEXPORTV3DATA     *ged,
                                      Q3DOUTPUTSETTINGS *ros,
                                      uint32_t           flags, 
                                      FILE              *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FPS,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FPS,
                                    EXPORT_CALLBACK(q3dsettings_outputFPS),
                                    ged,
                                    ros,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_SIZE,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_SIZE,
                                    EXPORT_CALLBACK(q3dsettings_outputSize),
                                    ged,
                                    ros,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FRAME,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FRAME,
                                    EXPORT_CALLBACK(q3dsettings_outputFrame),
                                    ged,
                                    ros,
@@ -137,7 +137,7 @@ static uint32_t q3dsettings_output ( G3DEXPORTDATA     *ged,
                                    fdst );
 
     if ( ros->outfile ) {
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FILE,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FILE,
                                        EXPORT_CALLBACK(q3dsettings_outputFile),
                                        ged,
                                        ros,
@@ -145,14 +145,14 @@ static uint32_t q3dsettings_output ( G3DEXPORTDATA     *ged,
                                        fdst );
     }
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FORMAT,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_FORMAT,
                                    EXPORT_CALLBACK(q3dsettings_outputFormat),
                                    ged,
                                    ros,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_RATIO,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT_RATIO,
                                    EXPORT_CALLBACK(q3dsettings_outputRatio),
                                    ged,
                                    ros,
@@ -167,57 +167,57 @@ static uint32_t q3dsettings_output ( G3DEXPORTDATA     *ged,
 /******************************************************************************/
 
 /******************************************************************************/
-static uint32_t q3dsettings_backgroundImage  ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_backgroundImage  ( G3DEXPORTV3DATA         *ged,
                                                Q3DBACKGROUNDSETTINGS *bgs,
                                                uint32_t               flags, 
                                                FILE                  *fdst ) {
     uint32_t len = strlen ( bgs->image->filename );
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( bgs->image->filename, len, 0x01, fdst );
+    size += g3dexportv3_fwrite ( bgs->image->filename, len, 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_backgroundColor ( G3DEXPORTDATA          *ged,
+static uint32_t q3dsettings_backgroundColor ( G3DEXPORTV3DATA          *ged,
                                               Q3DBACKGROUNDSETTINGS *bgs,
                                               uint32_t               flags, 
                                               FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &bgs->color, fdst );
+    size += g3dexportv3_fwritel ( &bgs->color, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_backgroundMode ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_backgroundMode ( G3DEXPORTV3DATA         *ged,
                                              Q3DBACKGROUNDSETTINGS *bgs,
                                              uint32_t               flags, 
                                              FILE                   *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &bgs->mode, fdst );
+    size += g3dexportv3_fwritel ( &bgs->mode, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_background ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_background ( G3DEXPORTV3DATA         *ged,
                                          Q3DBACKGROUNDSETTINGS *bgs,
                                          uint32_t               flags, 
                                          FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_MODE,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_MODE,
                                    EXPORT_CALLBACK(q3dsettings_backgroundMode),
                                    ged,
                                    bgs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_COLOR,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_COLOR,
                                    EXPORT_CALLBACK(q3dsettings_backgroundColor),
                                    ged,
                                    bgs,
@@ -226,7 +226,7 @@ static uint32_t q3dsettings_background ( G3DEXPORTDATA         *ged,
 
     if ( ( bgs->mode & BACKGROUND_IMAGE ) && 
          ( bgs->image ) ) {
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_IMAGE,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND_IMAGE,
                                        EXPORT_CALLBACK(q3dsettings_backgroundImage),
                                        ged,
                                        bgs,
@@ -242,44 +242,44 @@ static uint32_t q3dsettings_background ( G3DEXPORTDATA         *ged,
 /******************************************************************************/
 
 /******************************************************************************/
-static uint32_t q3dsettings_wireframeThickness ( G3DEXPORTDATA        *ged,
+static uint32_t q3dsettings_wireframeThickness ( G3DEXPORTV3DATA        *ged,
                                                  Q3DWIREFRAMESETTINGS *wfs,
                                                  uint32_t              flags, 
                                                  FILE                 *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &wfs->thickness, fdst );
+    size += g3dexportv3_fwritef ( &wfs->thickness, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_wireframeColor ( G3DEXPORTDATA        *ged,
+static uint32_t q3dsettings_wireframeColor ( G3DEXPORTV3DATA        *ged,
                                              Q3DWIREFRAMESETTINGS *wfs,
                                              uint32_t              flags, 
                                              FILE                 *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &wfs->color, fdst );
+    size += g3dexportv3_fwritel ( &wfs->color, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_wireframe ( G3DEXPORTDATA        *ged,
+static uint32_t q3dsettings_wireframe ( G3DEXPORTV3DATA        *ged,
                                         Q3DWIREFRAMESETTINGS *wfs,
                                         uint32_t              flags, 
                                         FILE                 *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_COLOR,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_COLOR,
                                    EXPORT_CALLBACK(q3dsettings_wireframeColor),
                                    ged,
                                    wfs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_THICKNESS,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME_THICKNESS,
                                    EXPORT_CALLBACK(q3dsettings_wireframeThickness),
                                    ged,
                                    wfs,
@@ -296,82 +296,82 @@ static uint32_t q3dsettings_wireframe ( G3DEXPORTDATA        *ged,
 
 
 /******************************************************************************/
-static uint32_t q3dsettings_motionblurSubSamplingRate ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_motionblurSubSamplingRate ( G3DEXPORTV3DATA         *ged,
                                                         Q3DMOTIONBLURSETTINGS *mbs,
                                                         uint32_t               flags, 
                                                         FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &mbs->vMotionBlurSubSamplingRate, fdst );
+    size += g3dexportv3_fwritef ( &mbs->vMotionBlurSubSamplingRate, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_motionblurSamples ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_motionblurSamples ( G3DEXPORTV3DATA         *ged,
                                                 Q3DMOTIONBLURSETTINGS *mbs,
                                                 uint32_t               flags, 
                                                 FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mbs->vMotionBlurSamples, fdst );
+    size += g3dexportv3_fwritel ( &mbs->vMotionBlurSamples, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_motionblurIterations ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_motionblurIterations ( G3DEXPORTV3DATA         *ged,
                                                    Q3DMOTIONBLURSETTINGS *mbs,
                                                    uint32_t               flags, 
                                                    FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mbs->iterations, fdst );
+    size += g3dexportv3_fwritel ( &mbs->iterations, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_motionblurStrength ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_motionblurStrength ( G3DEXPORTV3DATA         *ged,
                                                  Q3DMOTIONBLURSETTINGS *mbs,
                                                  uint32_t               flags, 
                                                  FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mbs->strength, fdst );
+    size += g3dexportv3_fwritel ( &mbs->strength, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_motionblur ( G3DEXPORTDATA         *ged,
+static uint32_t q3dsettings_motionblur ( G3DEXPORTV3DATA         *ged,
                                          Q3DMOTIONBLURSETTINGS *mbs,
                                          uint32_t               flags, 
                                          FILE                  *fdst ) {
     uint32_t size = 0x00; 
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH,
                                    EXPORT_CALLBACK(q3dsettings_motionblurStrength),
                                    ged,
                                    mbs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS,
                                    EXPORT_CALLBACK(q3dsettings_motionblurIterations),
                                    ged,
                                    mbs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES,
                                    EXPORT_CALLBACK(q3dsettings_motionblurSamples),
                                    ged,
                                    mbs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE,
                                    EXPORT_CALLBACK(q3dsettings_motionblurSubSamplingRate),
                                    ged,
                                    mbs,
@@ -386,82 +386,82 @@ static uint32_t q3dsettings_motionblur ( G3DEXPORTDATA         *ged,
 /******************************************************************************/
 
 /******************************************************************************/
-static uint32_t q3dsettings_fogColor ( G3DEXPORTDATA  *ged,
+static uint32_t q3dsettings_fogColor ( G3DEXPORTV3DATA  *ged,
                                        Q3DFOGSETTINGS *fgs,
                                        uint32_t        flags, 
                                        FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &fgs->color, fdst );
+    size += g3dexportv3_fwritel ( &fgs->color, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_fogFar ( G3DEXPORTDATA  *ged,
+static uint32_t q3dsettings_fogFar ( G3DEXPORTV3DATA  *ged,
                                      Q3DFOGSETTINGS *fgs,
                                      uint32_t        flags, 
                                      FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &fgs->ffar, fdst );
+    size += g3dexportv3_fwritef ( &fgs->ffar, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_fogNear ( G3DEXPORTDATA  *ged,
+static uint32_t q3dsettings_fogNear ( G3DEXPORTV3DATA  *ged,
                                       Q3DFOGSETTINGS *fgs,
                                       uint32_t        flags, 
                                       FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &fgs->fnear, fdst );
+    size += g3dexportv3_fwritef ( &fgs->fnear, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_fogFlags ( G3DEXPORTDATA  *ged,
+static uint32_t q3dsettings_fogFlags ( G3DEXPORTV3DATA  *ged,
                                        Q3DFOGSETTINGS *fgs,
                                        uint32_t        flags, 
                                        FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritell ( &fgs->flags, fdst );
+    size += g3dexportv3_fwritell ( &fgs->flags, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_fog ( G3DEXPORTDATA  *ged,
+static uint32_t q3dsettings_fog ( G3DEXPORTV3DATA  *ged,
                                   Q3DFOGSETTINGS *fgs,
                                   uint32_t        flags, 
                                   FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_FLAGS,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_FLAGS,
                                    EXPORT_CALLBACK(q3dsettings_fogFlags),
                                    ged,
                                    fgs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_NEAR,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_NEAR,
                                    EXPORT_CALLBACK(q3dsettings_fogNear),
                                    ged,
                                    fgs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_FAR,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_FAR,
                                    EXPORT_CALLBACK(q3dsettings_fogFar),
                                    ged,
                                    fgs,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG_COLOR,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_COLOR,
                                    EXPORT_CALLBACK(q3dsettings_fogColor),
                                    ged,
                                    fgs,
@@ -476,39 +476,39 @@ static uint32_t q3dsettings_fog ( G3DEXPORTDATA  *ged,
 /******************************************************************************/
 
 /******************************************************************************/
-static uint32_t q3dsettings_flags ( G3DEXPORTDATA *ged,
+static uint32_t q3dsettings_flags ( G3DEXPORTV3DATA *ged,
                                     Q3DSETTINGS   *rsg,
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritell ( &rsg->flags, fdst );
+    size += g3dexportv3_fwritell ( &rsg->flags, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t q3dsettings_entry ( G3DEXPORTDATA *ged,
+static uint32_t q3dsettings_entry ( G3DEXPORTV3DATA *ged,
                                     Q3DSETTINGS   *rsg,
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     uint32_t size= 0x00;
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FLAGS,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FLAGS,
                                    EXPORT_CALLBACK(q3dsettings_flags),
                                    ged,
                                    rsg,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_OUTPUT,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_OUTPUT,
                                    EXPORT_CALLBACK(q3dsettings_output),
                                    ged,
                                   &rsg->output,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND,
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_BACKGROUND,
                                    EXPORT_CALLBACK(q3dsettings_background),
                                    ged,
                                   &rsg->background,
@@ -516,7 +516,7 @@ static uint32_t q3dsettings_entry ( G3DEXPORTDATA *ged,
                                    fdst );
 
     if ( rsg->flags & RENDERWIREFRAME ) {
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_WIREFRAME,
                                        EXPORT_CALLBACK(q3dsettings_wireframe),
                                        ged,
                                       &rsg->wireframe,
@@ -525,7 +525,7 @@ static uint32_t q3dsettings_entry ( G3DEXPORTDATA *ged,
     }
 
     if ( rsg->flags & ENABLEMOTIONBLUR ) {
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_MOTIONBLUR,
                                        EXPORT_CALLBACK(q3dsettings_motionblur),
                                        ged,
                                       &rsg->motionBlur,
@@ -534,7 +534,7 @@ static uint32_t q3dsettings_entry ( G3DEXPORTDATA *ged,
     }
 
     if ( rsg->flags & RENDERFOG ) {
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_FOG,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG,
                                        EXPORT_CALLBACK(q3dsettings_fog),
                                        ged,
                                       &rsg->fog,
@@ -546,7 +546,7 @@ static uint32_t q3dsettings_entry ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-uint32_t q3dsettings_write ( G3DEXPORTDATA *ged, 
+uint32_t q3dsettings_write ( G3DEXPORTV3DATA *ged, 
                              LIST          *lrsg, 
                              uint32_t       flags, 
                              FILE          *fdst ) {
@@ -556,7 +556,7 @@ uint32_t q3dsettings_write ( G3DEXPORTDATA *ged,
     while ( ltmprsg ) {
         Q3DSETTINGS *rsg = ( Q3DSETTINGS * ) ltmprsg->data;
 
-        size += g3dexport_writeChunk ( SIG_RENDERSETTINGS_ENTRY,
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_ENTRY,
                                        EXPORT_CALLBACK(q3dsettings_entry),
                                        ged,
                                        rsg,
@@ -570,15 +570,15 @@ uint32_t q3dsettings_write ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-void q3dsettings_read ( G3DIMPORTDATA *gid, 
+void q3dsettings_read ( G3DIMPORTV3DATA *gid, 
                         uint32_t       chunkEnd, 
                         FILE          *fsrc,
                         LIST         **lrsg ) {
     uint32_t chunkSignature, chunkSize;
     Q3DSETTINGS *rsg = NULL;
     
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -591,7 +591,7 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             break;
 
             case SIG_RENDERSETTINGS_FLAGS :
-                g3dimport_freadll ( &rsg->flags, fsrc );
+                g3dimportv3_freadll ( &rsg->flags, fsrc );
             break;
 
             case SIG_RENDERSETTINGS_OUTPUT :
@@ -599,23 +599,23 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             break;
 
             case SIG_RENDERSETTINGS_OUTPUT_FPS : {
-                g3dimport_freadl ( &rsg->output.fps, fsrc );
+                g3dimportv3_freadl ( &rsg->output.fps, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_SIZE : {
-                g3dimport_freadl ( &rsg->output.width , fsrc );
-                g3dimport_freadl ( &rsg->output.height, fsrc );
+                g3dimportv3_freadl ( &rsg->output.width , fsrc );
+                g3dimportv3_freadl ( &rsg->output.height, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_FRAME : {
-                g3dimport_freadf ( &rsg->output.startframe, fsrc );
-                g3dimport_freadf ( &rsg->output.endframe  , fsrc );
+                g3dimportv3_freadf ( &rsg->output.startframe, fsrc );
+                g3dimportv3_freadf ( &rsg->output.endframe  , fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_FILE : {
                 char *buffer = calloc ( 0x01, chunkSize + 1 );
 
-                g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
+                g3dimportv3_fread ( buffer, chunkSize, 0x01, fsrc );
 
                 rsg->output.outfile = strdup ( buffer );
 
@@ -623,11 +623,11 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_FORMAT : {
-                g3dimport_freadl ( &rsg->output.format, fsrc );
+                g3dimportv3_freadl ( &rsg->output.format, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_OUTPUT_RATIO : {
-                g3dimport_freadf ( &rsg->output.ratio, fsrc );
+                g3dimportv3_freadf ( &rsg->output.ratio, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_BACKGROUND : {
@@ -635,17 +635,17 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_BACKGROUND_MODE : {
-                g3dimport_freadl ( &rsg->background.mode, fsrc );
+                g3dimportv3_freadl ( &rsg->background.mode, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_BACKGROUND_COLOR : {
-                g3dimport_freadl ( &rsg->background.color, fsrc );
+                g3dimportv3_freadl ( &rsg->background.color, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_BACKGROUND_IMAGE : {
                 char *buffer = calloc ( 0x01, chunkSize + 1 );
 
-                g3dimport_fread ( buffer, chunkSize, 0x01, fsrc );
+                g3dimportv3_fread ( buffer, chunkSize, 0x01, fsrc );
 
                 rsg->background.image = g3dimage_load ( buffer, 1 );
                 /* 
@@ -662,11 +662,11 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_WIREFRAME_COLOR : {
-                g3dimport_freadl ( &rsg->wireframe.color, fsrc );
+                g3dimportv3_freadl ( &rsg->wireframe.color, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_WIREFRAME_THICKNESS : {
-                g3dimport_freadf ( &rsg->wireframe.thickness, fsrc );
+                g3dimportv3_freadf ( &rsg->wireframe.thickness, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR : {
@@ -674,19 +674,19 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH : {
-                g3dimport_freadl ( &rsg->motionBlur.strength, fsrc );
+                g3dimportv3_freadl ( &rsg->motionBlur.strength, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS : {
-                g3dimport_freadl ( &rsg->motionBlur.iterations, fsrc );
+                g3dimportv3_freadl ( &rsg->motionBlur.iterations, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_SAMPLES : {
-                g3dimport_freadl ( &rsg->motionBlur.vMotionBlurSamples, fsrc );
+                g3dimportv3_freadl ( &rsg->motionBlur.vMotionBlurSamples, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_SUBSAMPLINGRATE : {
-                g3dimport_freadf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, fsrc );
+                g3dimportv3_freadf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_FOG : {
@@ -694,19 +694,19 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_FOG_FLAGS : {
-                g3dimport_freadll ( &rsg->fog.flags, fsrc );
+                g3dimportv3_freadll ( &rsg->fog.flags, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_FOG_NEAR : {
-                g3dimport_freadf ( &rsg->fog.fnear, fsrc );
+                g3dimportv3_freadf ( &rsg->fog.fnear, fsrc );
             } break;
 
              case SIG_RENDERSETTINGS_FOG_FAR : {
-                g3dimport_freadf ( &rsg->fog.ffar, fsrc );
+                g3dimportv3_freadf ( &rsg->fog.ffar, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_FOG_COLOR : {
-                g3dimport_freadl ( &rsg->fog.color, fsrc );
+                g3dimportv3_freadl ( &rsg->fog.color, fsrc );
             } break;
 
             default : {
@@ -717,11 +717,11 @@ void q3dsettings_read ( G3DIMPORTDATA *gid,
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv3data_decrementIndentLevel ( gid );
 }
 
 

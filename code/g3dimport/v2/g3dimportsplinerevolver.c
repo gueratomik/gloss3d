@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportsplinerevolver ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2splinerevolver ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -46,8 +46,8 @@ void g3dimportsplinerevolver ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc
             case SIG_OBJECT_SPLINEREVOLVER_GEOMETRY : {
                 G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) gid->currentObject;
 
-                g3dimport_freadf ( &srv->nbsteps, fsrc );
-                g3dimport_freadf ( &srv->nbdivis, fsrc );
+                g3dimportv2_freadf ( &srv->nbsteps, fsrc );
+                g3dimportv2_freadf ( &srv->nbdivis, fsrc );
             } break;
 
             default : {
@@ -58,9 +58,9 @@ void g3dimportsplinerevolver ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

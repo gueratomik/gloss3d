@@ -31,19 +31,19 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportobject_textureRestrict  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_textureRestrict  ( G3DEXPORTV2DATA  *ged, 
                                                    G3DTEXTURE     *tex, 
                                                    uint32_t        flags, 
                                                    FILE           *fdst ) {
     LIST *ltmpfacgrp = tex->lfacgrp;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &tex->nbfacgrp, fdst );
+    size += g3dexportv2_fwritel ( &tex->nbfacgrp, fdst );
 
     while ( ltmpfacgrp ) {
         G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
 
-        size += g3dexport_fwritel ( &facgrp->id, fdst );
+        size += g3dexportv2_fwritel ( &facgrp->id, fdst );
 
         ltmpfacgrp = ltmpfacgrp->next;
     }
@@ -52,46 +52,46 @@ static uint32_t g3dexportobject_textureRestrict  ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_textureMaterial  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_textureMaterial  ( G3DEXPORTV2DATA  *ged, 
                                                    G3DTEXTURE     *tex, 
                                                    uint32_t        flags, 
                                                    FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &tex->mat->id, fdst );
+    size += g3dexportv2_fwritel ( &tex->mat->id, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_textureUVMap  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_textureUVMap  ( G3DEXPORTV2DATA  *ged, 
                                                 G3DTEXTURE     *tex, 
                                                 uint32_t        flags, 
                                                 FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &((G3DOBJECT*)tex->map)->id, fdst );
+    size += g3dexportv2_fwritel ( &((G3DOBJECT*)tex->map)->id, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_textureEntry  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_textureEntry  ( G3DEXPORTV2DATA  *ged, 
                                                 G3DTEXTURE     *tex, 
                                                 uint32_t        flags, 
                                                 FILE           *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_TEXTURE_MATERIAL,
-                                   g3dexportobject_textureMaterial,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_MATERIAL,
+                                   g3dexportv2object_textureMaterial,
                                    ged,
                                    tex,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( tex->map ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXTURE_UVMAP,
-                                       g3dexportobject_textureUVMap,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_UVMAP,
+                                       g3dexportv2object_textureUVMap,
                                        ged,
                                        tex,
                                        0xFFFFFFFF,
@@ -99,8 +99,8 @@ static uint32_t g3dexportobject_textureEntry  ( G3DEXPORTDATA  *ged,
     }
 
     if ( tex->flags & TEXTURERESTRICTED ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXTURE_RESTRICT,
-                                       g3dexportobject_textureRestrict,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_RESTRICT,
+                                       g3dexportv2object_textureRestrict,
                                        ged,
                                        tex,
                                        0xFFFFFFFF,
@@ -111,7 +111,7 @@ static uint32_t g3dexportobject_textureEntry  ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_textures  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_textures  ( G3DEXPORTV2DATA  *ged, 
                                             G3DMESH        *mes, 
                                             uint32_t        flags, 
                                             FILE           *fdst ) {
@@ -121,8 +121,8 @@ static uint32_t g3dexportobject_textures  ( G3DEXPORTDATA  *ged,
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXTURE_ENTRY,
-                                       g3dexportobject_textureEntry,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_ENTRY,
+                                       g3dexportv2object_textureEntry,
                                        ged,
                                        tex,
                                        0xFFFFFFFF,
@@ -135,7 +135,7 @@ static uint32_t g3dexportobject_textures  ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2object_uvmaps  ( G3DEXPORTV2DATA  *ged, 
                                           G3DMESH        *mes, 
                                           uint32_t        flags, 
                                           FILE           *fdst ) {
@@ -148,8 +148,8 @@ static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged,
 
         ((G3DOBJECT*)uvmap)->id = uvmapID++;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_UVMAP_ENTRY,
-                                       g3dexportuvmap,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_ENTRY,
+                                       g3dexportv2uvmap,
                                        ged,
                                        uvmap,
                                        0xFFFFFFFF,
@@ -162,7 +162,7 @@ static uint32_t g3dexportobject_uvmaps  ( G3DEXPORTDATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_keys ( G3DEXPORTV2DATA *ged, 
                                        G3DOBJECT     *obj, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
@@ -175,8 +175,8 @@ static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged,
 
         key->id = keyID++;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_KEY_ENTRY,
-                                       g3dexportkey,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_ENTRY,
+                                       g3dexportv2key,
                                        ged,
                                        key,
                                        0xFFFFFFFF,
@@ -189,40 +189,40 @@ static uint32_t g3dexportobject_keys ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_transformation ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_transformation ( G3DEXPORTV2DATA *ged, 
                                                  G3DOBJECT     *obj, 
                                                  uint32_t       flags, 
                                                  FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &obj->pos.x, fdst );
-    size += g3dexport_fwritef ( &obj->pos.y, fdst );
-    size += g3dexport_fwritef ( &obj->pos.z, fdst );
-    size += g3dexport_fwritef ( &obj->pos.w, fdst );
+    size += g3dexportv2_fwritef ( &obj->pos.x, fdst );
+    size += g3dexportv2_fwritef ( &obj->pos.y, fdst );
+    size += g3dexportv2_fwritef ( &obj->pos.z, fdst );
+    size += g3dexportv2_fwritef ( &obj->pos.w, fdst );
 
-    size += g3dexport_fwritef ( &obj->rot.x, fdst );
-    size += g3dexport_fwritef ( &obj->rot.y, fdst );
-    size += g3dexport_fwritef ( &obj->rot.z, fdst );
-    size += g3dexport_fwritef ( &obj->rot.w, fdst );
+    size += g3dexportv2_fwritef ( &obj->rot.x, fdst );
+    size += g3dexportv2_fwritef ( &obj->rot.y, fdst );
+    size += g3dexportv2_fwritef ( &obj->rot.z, fdst );
+    size += g3dexportv2_fwritef ( &obj->rot.w, fdst );
 
-    size += g3dexport_fwritef ( &obj->sca.x, fdst );
-    size += g3dexport_fwritef ( &obj->sca.y, fdst );
-    size += g3dexport_fwritef ( &obj->sca.z, fdst );
-    size += g3dexport_fwritef ( &obj->sca.w, fdst );
+    size += g3dexportv2_fwritef ( &obj->sca.x, fdst );
+    size += g3dexportv2_fwritef ( &obj->sca.y, fdst );
+    size += g3dexportv2_fwritef ( &obj->sca.z, fdst );
+    size += g3dexportv2_fwritef ( &obj->sca.w, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_identityType ( G3DEXPORTV2DATA *ged, 
                                                G3DOBJECT     *obj, 
                                                uint32_t       flags, 
                                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
     if ( obj->type == G3DSCENETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SCENE,
-                                       g3dexportscene,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SCENE,
+                                       g3dexportv2scene,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -230,8 +230,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type & PRIMITIVE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE,
-                                       g3dexportprimitive,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE,
+                                       g3dexportv2primitive,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -239,8 +239,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DMESHTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_MESH,
-                                       g3dexportmesh,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH,
+                                       g3dexportv2mesh,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -248,8 +248,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DCAMERATYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_CAMERA,
-                                       g3dexportcamera,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_CAMERA,
+                                       g3dexportv2camera,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -257,8 +257,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DLIGHTTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT,
-                                       g3dexportlight,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT,
+                                       g3dexportv2light,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -266,8 +266,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DBONETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_BONE,
-                                       g3dexportbone,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE,
+                                       g3dexportv2bone,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -275,8 +275,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DSYMMETRYTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SYMMETRY,
-                                       g3dexportsymmetry,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SYMMETRY,
+                                       g3dexportv2symmetry,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -284,8 +284,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DTEXTTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXT,
-                                       g3dexporttext,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT,
+                                       g3dexportv2text,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -293,8 +293,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DSUBDIVIDERTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SUBDIVIDER,
-                                       g3dexportsubdivider,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SUBDIVIDER,
+                                       g3dexportv2subdivider,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -302,8 +302,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DWIREFRAMETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_WIREFRAME,
-                                       g3dexportwireframe,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME,
+                                       g3dexportv2wireframe,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -311,8 +311,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DSPLINEREVOLVERTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SPLINEREVOLVER,
-                                       g3dexportsplinerevolver,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINEREVOLVER,
+                                       g3dexportv2splinerevolver,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -320,8 +320,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DSPLINETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SPLINE,
-                                       g3dexportspline,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINE,
+                                       g3dexportv2spline,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -329,8 +329,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DFFDTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_FFD,
-                                       g3dexportffd,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_FFD,
+                                       g3dexportv2ffd,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -338,8 +338,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DMORPHERTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER,
-                                       g3dexportmorpher,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER,
+                                       g3dexportv2morpher,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -347,8 +347,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DSKINTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_SKIN,
-                                       g3dexportskin,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_SKIN,
+                                       g3dexportv2skin,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -356,8 +356,8 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
     }
 
     /*if ( obj->type  & MODIFIER ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_MODIFIER,
-                                       g3dexportmodifier,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MODIFIER,
+                                       g3dexportv2modifier,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -366,7 +366,7 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
 
     if ( size == 0x00 ) {
         printf("%s: unsupported Object Type for export\n", obj->name );
-        size += g3dexport_writeChunk ( SIG_OBJECT_NULL,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_NULL,
                                        NULL,
                                        ged,
                                        obj,
@@ -378,31 +378,31 @@ static uint32_t g3dexportobject_identityType ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityParent ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_identityParent ( G3DEXPORTV2DATA *ged, 
                                                  G3DOBJECT     *obj, 
                                                  uint32_t       flags, 
                                                  FILE          *fdst ) {
-    return g3dexport_fwrite ( &obj->parent->id, sizeof ( uint32_t ), 0x01, fdst );
+    return g3dexportv2_fwrite ( &obj->parent->id, sizeof ( uint32_t ), 0x01, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identityName ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_identityName ( G3DEXPORTV2DATA *ged, 
                                                G3DOBJECT     *obj, 
                                                uint32_t       flags, 
                                                FILE          *fdst ) {
-    return g3dexport_fwrite ( obj->name, strlen ( obj->name ), 0x01, fdst );
+    return g3dexportv2_fwrite ( obj->name, strlen ( obj->name ), 0x01, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_identity ( G3DEXPORTV2DATA *ged, 
                                            G3DOBJECT     *obj, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
     uint32_t size = 0x00;
 
     /*** write object name ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
-                                   g3dexportobject_identityName,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
+                                   g3dexportv2object_identityName,
                                    ged,
                                    obj,
                                    0xFFFFFFFF,
@@ -410,8 +410,8 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
 
     if ( obj->parent ) {
         /*** write object parent ID ***/
-        size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
-                                       g3dexportobject_identityParent,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
+                                       g3dexportv2object_identityParent,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -419,8 +419,8 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
     }
 
     /*** write object type ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
-                                   g3dexportobject_identityType,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
+                                   g3dexportv2object_identityType,
                                    ged,
                                    obj,
                                    0xFFFFFFFF,
@@ -430,17 +430,17 @@ static uint32_t g3dexportobject_identity ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportobject_active ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2object_active ( G3DEXPORTV2DATA *ged, 
                                          G3DOBJECT     *obj, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
     uint32_t active = ( obj->flags & OBJECTINACTIVE ) ? 0x00 : 0x01;
 
-    return g3dexport_fwritel ( &active, fdst );
+    return g3dexportv2_fwritel ( &active, fdst );
 }
 
 /******************************************************************************/
-uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2object ( G3DEXPORTV2DATA *ged, 
                            G3DOBJECT     *obj, 
                            uint32_t       flags,
                            FILE          *fdst ) {
@@ -452,16 +452,16 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
     }
 
     /*** write objet identity ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_IDENTITY,
-                                   g3dexportobject_identity,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY,
+                                   g3dexportv2object_identity,
                                    ged,
                                    obj,
                                    0xFFFFFFFF,
                                    fdst );
 
     /*** write objet matrix transformations ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_TRANSFORMATION,
-                                   g3dexportobject_transformation,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TRANSFORMATION,
+                                   g3dexportv2object_transformation,
                                    ged,
                                    obj,
                                    0xFFFFFFFF,
@@ -469,8 +469,8 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
 
     if ( obj->lkey ) {
         /*** write object's animation keys ***/
-        size += g3dexport_writeChunk ( SIG_OBJECT_KEYS,
-                                       g3dexportobject_keys,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_KEYS,
+                                       g3dexportv2object_keys,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -478,13 +478,13 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
     }
 
     /*** This concerns primitive as well and maybe other objects in ***/
-    /*** future developments so this goes here and not in g3dexportmesh() ***/
+    /*** future developments so this goes here and not in g3dexportv2mesh() ***/
     if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         if ( mes->luvmap ) {
-            size += g3dexport_writeChunk ( SIG_OBJECT_UVMAPS,
-                                           g3dexportobject_uvmaps,
+            size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAPS,
+                                           g3dexportv2object_uvmaps,
                                            ged,
                                            mes,
                                            0xFFFFFFFF,
@@ -492,8 +492,8 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
         }
 
         if ( mes->ltex ) {
-            size += g3dexport_writeChunk ( SIG_OBJECT_TEXTURES,
-                                           g3dexportobject_textures,
+            size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURES,
+                                           g3dexportv2object_textures,
                                            ged,
                                            mes,
                                            0xFFFFFFFF,
@@ -502,8 +502,8 @@ uint32_t g3dexportobject ( G3DEXPORTDATA *ged,
     }
 
     /*** write object active or not ***/
-    size += g3dexport_writeChunk ( SIG_OBJECT_ACTIVE,
-                                   g3dexportobject_active,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_ACTIVE,
+                                   g3dexportv2object_active,
                                    ged,
                                    obj,
                                    0xFFFFFFFF,

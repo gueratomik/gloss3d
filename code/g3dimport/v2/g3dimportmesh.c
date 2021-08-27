@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2mesh ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -58,7 +58,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 if ( chunkSize ) {
                     char *name = calloc ( 0x01, chunkSize );
 
-                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+                    g3dimportv2_fread ( name, chunkSize, 0x01, fsrc );
 
                     gid->currentFacegroup = g3dfacegroup_new ( name, NULL );
 
@@ -74,12 +74,12 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbFaces;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbFaces, fsrc );
+                g3dimportv2_freadl ( &nbFaces, fsrc );
 
                 for ( i = 0x00; i < nbFaces; i++ ) {
                     uint32_t facID;
 
-                    g3dimport_freadl ( &facID , fsrc );
+                    g3dimportv2_freadl ( &facID , fsrc );
 
                     g3dfacegroup_addFace ( gid->currentFacegroup,
                                            gid->currentFaceArray[facID] );
@@ -98,7 +98,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 if ( chunkSize ) {
                     char *name = calloc ( 0x01, chunkSize );
 
-                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+                    g3dimportv2_fread ( name, chunkSize, 0x01, fsrc );
 
                     gid->currentWeightgroup = g3dweightgroup_new ( mes, name );
 
@@ -114,14 +114,14 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbWeights;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbWeights, fsrc );
+                g3dimportv2_freadl ( &nbWeights, fsrc );
 
                 for ( i = 0x00; i < nbWeights; i++ ) {
                     uint32_t verID;
                     float weight;
 
-                    g3dimport_freadl ( &verID , fsrc );
-                    g3dimport_freadf ( &weight, fsrc );
+                    g3dimportv2_freadl ( &verID , fsrc );
+                    g3dimportv2_freadf ( &weight, fsrc );
 
                     g3dweightgroup_addVertex ( gid->currentWeightgroup,
                                                gid->currentVertexArray[verID],
@@ -134,7 +134,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbver;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbver, fsrc );
+                g3dimportv2_freadl ( &nbver, fsrc );
 
                 gid->currentVertexArray = ( G3DVERTEX ** ) realloc ( gid->currentVertexArray, nbver * sizeof ( G3DVERTEX * ) );
 
@@ -142,10 +142,10 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     uint32_t verFlags;
                     float x, y, z;
 
-                    g3dimport_freadf ( &x       , fsrc );
-                    g3dimport_freadf ( &y       , fsrc );
-                    g3dimport_freadf ( &z       , fsrc );
-                    g3dimport_freadl ( &verFlags, fsrc );
+                    g3dimportv2_freadf ( &x       , fsrc );
+                    g3dimportv2_freadf ( &y       , fsrc );
+                    g3dimportv2_freadf ( &z       , fsrc );
+                    g3dimportv2_freadl ( &verFlags, fsrc );
 
                     gid->currentVertexArray[i] = g3dvertex_new ( x, y, z );
 
@@ -163,7 +163,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbedg;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbedg, fsrc );
+                g3dimportv2_freadl ( &nbedg, fsrc );
 
                 gid->currentEdgeArray = ( G3DEDGE ** ) realloc ( gid->currentEdgeArray, nbedg * sizeof ( G3DEDGE * ) );
 
@@ -171,9 +171,9 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     uint32_t v0ID, v1ID, unused;
                     G3DEDGE *edg;
 
-                    g3dimport_freadl ( &v0ID,   fsrc );
-                    g3dimport_freadl ( &v1ID,   fsrc );
-                    g3dimport_freadl ( &unused, fsrc );
+                    g3dimportv2_freadl ( &v0ID,   fsrc );
+                    g3dimportv2_freadl ( &v1ID,   fsrc );
+                    g3dimportv2_freadl ( &unused, fsrc );
 
                     edg = g3dedge_new ( gid->currentVertexArray[v0ID],
                                         gid->currentVertexArray[v1ID] );
@@ -194,7 +194,7 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbfac;
                 uint32_t i;
 
-                g3dimport_freadl ( &nbfac, fsrc );
+                g3dimportv2_freadl ( &nbfac, fsrc );
 
                 gid->currentFaceArray = ( G3DFACE ** ) realloc ( gid->currentFaceArray, nbfac * sizeof ( G3DFACE * ) );
 
@@ -202,10 +202,10 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     uint32_t v0ID, v1ID, v2ID, v3ID;
                     G3DFACE *fac;
 
-                    g3dimport_freadl ( &v0ID, fsrc );
-                    g3dimport_freadl ( &v1ID, fsrc );
-                    g3dimport_freadl ( &v2ID, fsrc );
-                    g3dimport_freadl ( &v3ID, fsrc );
+                    g3dimportv2_freadl ( &v0ID, fsrc );
+                    g3dimportv2_freadl ( &v1ID, fsrc );
+                    g3dimportv2_freadl ( &v2ID, fsrc );
+                    g3dimportv2_freadl ( &v3ID, fsrc );
 
                     if ( v2ID == v3ID ) {
                         fac = g3dtriangle_new ( gid->currentVertexArray[v0ID],
@@ -223,10 +223,10 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     if ( chunkSignature == SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES ) {
                         uint32_t e0ID, e1ID, e2ID, e3ID;
 
-                        g3dimport_freadl ( &e0ID, fsrc );
-                        g3dimport_freadl ( &e1ID, fsrc );
-                        g3dimport_freadl ( &e2ID, fsrc );
-                        g3dimport_freadl ( &e3ID, fsrc );
+                        g3dimportv2_freadl ( &e0ID, fsrc );
+                        g3dimportv2_freadl ( &e1ID, fsrc );
+                        g3dimportv2_freadl ( &e2ID, fsrc );
+                        g3dimportv2_freadl ( &e3ID, fsrc );
 
                         if ( e2ID == e3ID ) {
                             g3dmesh_addFaceWithEdges ( mes, 
@@ -264,9 +264,9 @@ void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

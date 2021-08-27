@@ -30,6 +30,21 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3dui_addVibratorCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ){
+        G3DTAG *tag = g3dvibratortag_new ( 0x00 );
+
+        g3dobject_addTag ( obj, tag );
+    }
+
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
 void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;

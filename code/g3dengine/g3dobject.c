@@ -30,6 +30,36 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dobject_preanim_tags ( G3DOBJECT *obj, 
+                              float      frame, 
+                              uint64_t   engine_flags ) {
+    LIST *ltmptag = obj->ltag;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        if ( tag->preAnim ) tag->preAnim ( tag, obj, frame, engine_flags );
+
+        ltmptag = ltmptag->next;
+    }
+}
+
+/******************************************************************************/
+void g3dobject_postanim_tags ( G3DOBJECT *obj, 
+                               float      frame, 
+                               uint64_t   engine_flags ) {
+    LIST *ltmptag = obj->ltag;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        if ( tag->postAnim ) tag->postAnim ( tag, obj, frame, engine_flags );
+
+        ltmptag = ltmptag->next;
+    }
+}
+
+/******************************************************************************/
 /*void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
 
@@ -748,6 +778,8 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
     g3dobject_anim_rotation ( obj, frame, engine_flags );
     g3dobject_anim_scaling  ( obj, frame, engine_flags );
 
+    g3dobject_preanim_tags ( obj, frame, engine_flags );
+
     g3dobject_updateMatrix ( obj );
 
     /*** the transform callback only happen when recursion occurs ***/
@@ -764,6 +796,8 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
     }
 
     if ( obj->anim ) obj->anim ( obj, frame, engine_flags );
+
+    g3dobject_postanim_tags ( obj, frame, engine_flags );
 }
 
 /******************************************************************************/
@@ -1128,6 +1162,18 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
     }
 
     /*if ( child->setParent ) obj->setParent   ( child, NULL , engine_flags );*/
+}
+
+/******************************************************************************/
+void g3dobject_addTag ( G3DOBJECT *obj, 
+                        G3DTAG    *tag ) {
+    list_insert ( &obj->ltag, tag );
+}
+
+/******************************************************************************/
+void g3dobject_removeTag ( G3DOBJECT *obj, 
+                           G3DTAG    *tag ) {
+    list_remove ( &obj->ltag, tag );
 }
 
 /******************************************************************************/

@@ -30,89 +30,89 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexporttext_thickness ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_thickness ( G3DEXPORTV2DATA *ged, 
                                           G3DTEXT       *txt, 
                                           uint32_t       flags, 
                                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &txt->thickness, fdst );
+    size += g3dexportv2_fwritef ( &txt->thickness, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_roundness ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_roundness ( G3DEXPORTV2DATA *ged, 
                                           G3DTEXT       *txt, 
                                           uint32_t       flags, 
                                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &txt->roundness, fdst );
+    size += g3dexportv2_fwritel ( &txt->roundness, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_string ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_string ( G3DEXPORTV2DATA *ged, 
                                        G3DTEXT       *txt, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( txt->text, strlen ( txt->text ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( txt->text, strlen ( txt->text ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_fontFile ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_fontFile ( G3DEXPORTV2DATA *ged, 
                                          G3DTEXT       *txt, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
     uint32_t len = strlen ( txt->fontFaceFile );
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( txt->fontFaceFile, len, 0x01, fdst );
+    size += g3dexportv2_fwrite ( txt->fontFaceFile, len, 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_fontFace ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_fontFace ( G3DEXPORTV2DATA *ged, 
                                          G3DTEXT       *txt, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
     uint32_t len = strlen ( txt->fontFaceName );
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( txt->fontFaceName, len, 0x01, fdst );
+    size += g3dexportv2_fwrite ( txt->fontFaceName, len, 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_fontSize ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_fontSize ( G3DEXPORTV2DATA *ged, 
                                          G3DTEXT       *txt, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &txt->fontFaceSize, fdst );
+    size += g3dexportv2_fwritel ( &txt->fontFaceSize, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttext_font ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2text_font ( G3DEXPORTV2DATA *ged, 
                                      G3DTEXT       *txt, 
                                      uint32_t       flags, 
                                      FILE          *fdst ) {
     uint32_t size = 0x00;
 
     if ( txt->fontFaceFile ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_FONT_FILE,
-                                       g3dexporttext_fontFile,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_FONT_FILE,
+                                       g3dexportv2text_fontFile,
                                        ged,
                                        txt,
                                        0xFFFFFFFF,
@@ -120,16 +120,16 @@ static uint32_t g3dexporttext_font ( G3DEXPORTDATA *ged,
     }
 
     if ( txt->fontFaceName ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_FONT_FACE,
-                                       g3dexporttext_fontFace,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_FONT_FACE,
+                                       g3dexportv2text_fontFace,
                                        ged,
                                        txt,
                                        0xFFFFFFFF,
                                        fdst );
     }
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_FONT_SIZE,
-                                   g3dexporttext_fontSize,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_FONT_SIZE,
+                                   g3dexportv2text_fontSize,
                                    ged,
                                    txt,
                                    0xFFFFFFFF,
@@ -139,36 +139,36 @@ static uint32_t g3dexporttext_font ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-uint32_t g3dexporttext ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2text ( G3DEXPORTV2DATA *ged, 
                          G3DTEXT       *txt, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_FONT,
-                                   g3dexporttext_font,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_FONT,
+                                   g3dexportv2text_font,
                                    ged,
                                    txt,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_THICKNESS,
-                                   g3dexporttext_thickness,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_THICKNESS,
+                                   g3dexportv2text_thickness,
                                    ged,
                                    txt,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_ROUNDNESS,
-                                   g3dexporttext_roundness,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_ROUNDNESS,
+                                   g3dexportv2text_roundness,
                                    ged,
                                    txt,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( txt->text ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_TEXT_STRING,
-                                       g3dexporttext_string,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT_STRING,
+                                       g3dexportv2text_string,
                                        ged,
                                        txt,
                                        0xFFFFFFFF,

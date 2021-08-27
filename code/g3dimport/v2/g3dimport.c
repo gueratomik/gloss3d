@@ -31,30 +31,30 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-uint32_t g3dimport_freadd ( double *d, FILE *stream ) {
-    return g3dimport_fread ( d, sizeof ( double ), 0x01, stream );
+uint32_t g3dimportv2_freadd ( double *d, FILE *stream ) {
+    return g3dimportv2_fread ( d, sizeof ( double ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dimport_freadf ( float *f, FILE *stream ) {
-    return g3dimport_fread ( f, sizeof ( float ), 0x01, stream );
+uint32_t g3dimportv2_freadf ( float *f, FILE *stream ) {
+    return g3dimportv2_fread ( f, sizeof ( float ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dimport_freadl ( uint32_t *l, FILE *stream ) {
-    return g3dimport_fread ( l, sizeof ( uint32_t ), 0x01, stream );
+uint32_t g3dimportv2_freadl ( uint32_t *l, FILE *stream ) {
+    return g3dimportv2_fread ( l, sizeof ( uint32_t ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dimport_freadll ( uint64_t *ll, FILE *stream ) {
-    return g3dimport_fread ( ll, sizeof ( uint64_t ), 0x01, stream );
+uint32_t g3dimportv2_freadll ( uint64_t *ll, FILE *stream ) {
+    return g3dimportv2_fread ( ll, sizeof ( uint64_t ), 0x01, stream );
 }
 
 /******************************************************************************/
 /*** Write to file or, if stream is NULL, return the size to write. ***/
 /*** this is useful to compute the chunk's future size. All file writing op ***/
 /*** MUST call this function. ***/
-uint32_t g3dimport_fread ( void   *ptr,
+uint32_t g3dimportv2_fread ( void   *ptr,
                            size_t  size,
                            size_t  count,
                            FILE   *stream ) {
@@ -62,11 +62,11 @@ uint32_t g3dimport_fread ( void   *ptr,
 }
 
 /******************************************************************************/
-void g3dimportdata_incrementIndentLevel ( G3DIMPORTDATA *gid ) {
+void g3dimportv2data_incrementIndentLevel ( G3DIMPORTV2DATA *gid ) {
     gid->indentLevel += 4;
 }
 
 /******************************************************************************/
-void g3dimportdata_decrementIndentLevel ( G3DIMPORTDATA *gid ) {
+void g3dimportv2data_decrementIndentLevel ( G3DIMPORTV2DATA *gid ) {
     gid->indentLevel -= 4;
 }

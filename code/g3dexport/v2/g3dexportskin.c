@@ -30,15 +30,15 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-uint32_t g3dexportskin ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2skin ( G3DEXPORTV2DATA *ged, 
                          G3DSKIN       *skn, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) skn;
     uint32_t size = 0x00;
 
-    /*size += g3dexport_writeChunk ( SIG_OBJECT_BONE_LENGTH,
-                                   g3dexportbone_length,
+    /*size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_LENGTH,
+                                   g3dexportv2bone_length,
                                    ged,
                                    bon,
                                    0xFFFFFFFF,

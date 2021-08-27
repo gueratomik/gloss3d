@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportscene ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2scene ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -48,7 +48,7 @@ void g3dimportscene ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_ENTRY : {
-                g3dimportmaterial ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2material ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             default : {
@@ -59,21 +59,21 @@ void g3dimportscene ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }
 
 /******************************************************************************/
-void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2root ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -83,7 +83,7 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_EXTENSION_ENTRY : {
-                g3dimportextension ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2extension ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECTS : {
@@ -94,7 +94,7 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 gid->currentFacegroupID = 0x00;
                 gid->currentUVMapID = 0x00;
 
-                g3dimportobject ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2object ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             default : {
@@ -105,11 +105,11 @@ void g3dimportroot ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }
 
 
@@ -119,7 +119,7 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
                               LIST      *lextension,
                               uint32_t    flags ) {
     uint32_t chunkSignature, chunkSize;
-    G3DIMPORTDATA gid;
+    G3DIMPORTV2DATA gid;
     FILE *fsrc = NULL;
 
     if ( ( fsrc = fopen ( filename, "rb" ) ) == NULL ) {
@@ -128,7 +128,7 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
         return 0x00;
     }
 
-    memset ( &gid, 0x00, sizeof ( G3DIMPORTDATA ) );
+    memset ( &gid, 0x00, sizeof ( G3DIMPORTV2DATA ) );
 
     gid.lext = lextension;
     gid.currentScene = ( mergedScene ) ? mergedScene : 
@@ -138,15 +138,15 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
 
     gid.engineFlags  = VIEWOBJECT;
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid.indentLevel);
 
         switch ( chunkSignature ) {
             case SIG_ROOT : {
-                g3dimportroot ( &gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2root ( &gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             default : {
@@ -159,8 +159,8 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
             } break;
         }
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
     fclose ( fsrc );

@@ -31,14 +31,14 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
     G3DSKIN *skn = NULL;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -47,7 +47,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_BONE_LENGTH : {
                 G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
 
-                g3dimport_freadf ( &bon->len, fsrc );
+                g3dimportv2_freadf ( &bon->len, fsrc );
             } break;
 
             case SIG_OBJECT_BONE_RIGS : {
@@ -59,7 +59,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_BONE_RIG_SKIN : {
                 uint32_t sknID;
 
-                g3dimport_freadl ( &sknID, fsrc );
+                g3dimportv2_freadl ( &sknID, fsrc );
 
                 skn = g3dobject_getChildByID ( gid->currentScene, 
                                                sknID );
@@ -77,8 +77,8 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t grpID;
                 uint32_t objID;
 
-                g3dimport_freadl ( &grpID, fsrc );
-                g3dimport_freadl ( &objID, fsrc );
+                g3dimportv2_freadl ( &grpID, fsrc );
+                g3dimportv2_freadl ( &objID, fsrc );
 
                 child = g3dobject_getChildByID ( gid->currentScene, objID );
 
@@ -104,7 +104,7 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < 0x10; i++ ) {
-                    g3dimport_freadd ( &rig->isknmatrix[i], fsrc );
+                    g3dimportv2_freadd ( &rig->isknmatrix[i], fsrc );
                 }
 
                 obj->flags |= BONEFROMFILE;
@@ -120,20 +120,20 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_BONE_FIXING_TRANSFORMATION : {
                 G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
 
-                g3dimport_freadf ( &bon->fixpos.x, fsrc );
-                g3dimport_freadf ( &bon->fixpos.y, fsrc );
-                g3dimport_freadf ( &bon->fixpos.z, fsrc );
-                g3dimport_freadf ( &bon->fixpos.w, fsrc );
+                g3dimportv2_freadf ( &bon->fixpos.x, fsrc );
+                g3dimportv2_freadf ( &bon->fixpos.y, fsrc );
+                g3dimportv2_freadf ( &bon->fixpos.z, fsrc );
+                g3dimportv2_freadf ( &bon->fixpos.w, fsrc );
 
-                g3dimport_freadf ( &bon->fixrot.x, fsrc );
-                g3dimport_freadf ( &bon->fixrot.y, fsrc );
-                g3dimport_freadf ( &bon->fixrot.z, fsrc );
-                g3dimport_freadf ( &bon->fixrot.w, fsrc );
+                g3dimportv2_freadf ( &bon->fixrot.x, fsrc );
+                g3dimportv2_freadf ( &bon->fixrot.y, fsrc );
+                g3dimportv2_freadf ( &bon->fixrot.z, fsrc );
+                g3dimportv2_freadf ( &bon->fixrot.w, fsrc );
 
-                g3dimport_freadf ( &bon->fixsca.x, fsrc );
-                g3dimport_freadf ( &bon->fixsca.y, fsrc );
-                g3dimport_freadf ( &bon->fixsca.z, fsrc );
-                g3dimport_freadf ( &bon->fixsca.w, fsrc );
+                g3dimportv2_freadf ( &bon->fixsca.x, fsrc );
+                g3dimportv2_freadf ( &bon->fixsca.y, fsrc );
+                g3dimportv2_freadf ( &bon->fixsca.z, fsrc );
+                g3dimportv2_freadf ( &bon->fixsca.w, fsrc );
             } break;
 
             default : {
@@ -144,9 +144,9 @@ void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

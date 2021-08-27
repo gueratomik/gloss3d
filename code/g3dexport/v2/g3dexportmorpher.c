@@ -30,31 +30,31 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPoseName ( G3DEXPORTDATA      *ged,
+static uint32_t g3dexportv2morpher_meshPoseName ( G3DEXPORTV2DATA      *ged,
                                                 G3DMORPHERMESHPOSE *mpose,
                                                 uint32_t            flags,
                                                 FILE               *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( mpose->name, strlen ( mpose->name ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( mpose->name, strlen ( mpose->name ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPoseSlotID ( G3DEXPORTDATA      *ged,
+static uint32_t g3dexportv2morpher_meshPoseSlotID ( G3DEXPORTV2DATA      *ged,
                                                   G3DMORPHERMESHPOSE *mpose,
                                                   uint32_t            flags,
                                                   FILE               *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mpose->slotID, fdst );
+    size += g3dexportv2_fwritel ( &mpose->slotID, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
+static uint32_t g3dexportv2morpher_meshPoseGeometry ( G3DEXPORTV2DATA      *ged,
                                                     G3DMORPHERMESHPOSE *mpose,
                                                     uint32_t            flags,
                                                     FILE               *fdst ) {
@@ -62,7 +62,7 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
     LIST *ltmpver = mpr->lver;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mpose->nbver, fdst );
+    size += g3dexportv2_fwritel ( &mpose->nbver, fdst );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -73,10 +73,10 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
 
         /*** vpose can be null if vertex pos is not enabled in that pose ***/
         if ( vpose ) {
-            size += g3dexport_fwritel ( &ver->id, fdst );
-            size += g3dexport_fwritef ( &vpose->pos.x, fdst );
-            size += g3dexport_fwritef ( &vpose->pos.y, fdst );
-            size += g3dexport_fwritef ( &vpose->pos.z, fdst );
+            size += g3dexportv2_fwritel ( &ver->id, fdst );
+            size += g3dexportv2_fwritef ( &vpose->pos.x, fdst );
+            size += g3dexportv2_fwritef ( &vpose->pos.y, fdst );
+            size += g3dexportv2_fwritef ( &vpose->pos.z, fdst );
         }
 
         ltmpver = ltmpver->next;
@@ -86,28 +86,28 @@ static uint32_t g3dexportmorpher_meshPoseGeometry ( G3DEXPORTDATA      *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPoseEntry ( G3DEXPORTDATA      *ged,
+static uint32_t g3dexportv2morpher_meshPoseEntry ( G3DEXPORTV2DATA      *ged,
                                                  G3DMORPHERMESHPOSE *mpose,
                                                  uint32_t            flags,
                                                  FILE               *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
-                                   g3dexportmorpher_meshPoseName,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
+                                   g3dexportv2morpher_meshPoseName,
                                    ged,
                                    mpose,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID,
-                                   g3dexportmorpher_meshPoseSlotID,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID,
+                                   g3dexportv2morpher_meshPoseSlotID,
                                    ged,
                                    mpose,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY,
-                                   g3dexportmorpher_meshPoseGeometry,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY,
+                                   g3dexportv2morpher_meshPoseGeometry,
                                    ged,
                                    mpose,
                                    0xFFFFFFFF,
@@ -118,7 +118,7 @@ static uint32_t g3dexportmorpher_meshPoseEntry ( G3DEXPORTDATA      *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_meshPoses ( G3DEXPORTDATA *ged,
+static uint32_t g3dexportv2morpher_meshPoses ( G3DEXPORTV2DATA *ged,
                                              G3DMORPHER    *mpr,
                                              uint32_t       flags,
                                              FILE          *fdst ) {
@@ -131,8 +131,8 @@ static uint32_t g3dexportmorpher_meshPoses ( G3DEXPORTDATA *ged,
 
         mpose->id = poseID++;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_ENTRY,
-                                       g3dexportmorpher_meshPoseEntry,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_ENTRY,
+                                       g3dexportv2morpher_meshPoseEntry,
                                        ged,
                                        mpose,
                                        0xFFFFFFFF,
@@ -146,19 +146,19 @@ static uint32_t g3dexportmorpher_meshPoses ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportmorpher_vertexCount ( G3DEXPORTDATA *ged,
+static uint32_t g3dexportv2morpher_vertexCount ( G3DEXPORTV2DATA *ged,
                                                G3DMORPHER    *mpr,
                                                uint32_t       flags,
                                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &mpr->nbver, fdst );
+    size += g3dexportv2_fwritel ( &mpr->nbver, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2morpher ( G3DEXPORTV2DATA *ged, 
                             G3DMORPHER    *mpr, 
                             uint32_t       flags, 
                             FILE          *fdst ) {
@@ -166,15 +166,15 @@ uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged,
     uint32_t size = 0x00;
 
     if ( mpr->lmpose ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
-                                       g3dexportmorpher_vertexCount,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
+                                       g3dexportv2morpher_vertexCount,
                                        ged,
                                        mpr,
                                        0xFFFFFFFF,
                                        fdst );
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSES,
-                                       g3dexportmorpher_meshPoses,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSES,
+                                       g3dexportv2morpher_meshPoses,
                                        ged,
                                        mpr,
                                        0xFFFFFFFF,

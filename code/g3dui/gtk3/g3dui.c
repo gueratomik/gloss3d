@@ -1840,7 +1840,6 @@ static void gtk_glossui_realize ( GtkWidget *widget ) {
     #endif
     char configFileName[0x100];
     GtkWidget *tab;
-    G3DEXPORTEXTENSION *exportExtension;
     char *loadFile = NULL;
 
     #ifdef __linux__

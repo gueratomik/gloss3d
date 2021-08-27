@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2ffd ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -48,13 +48,13 @@ void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbx, nby, nbz;
                 float radx, rady, radz;
 
-                g3dimport_freadl ( &nbx, fsrc );
-                g3dimport_freadl ( &nby, fsrc );
-                g3dimport_freadl ( &nbz, fsrc );
+                g3dimportv2_freadl ( &nbx, fsrc );
+                g3dimportv2_freadl ( &nby, fsrc );
+                g3dimportv2_freadl ( &nbz, fsrc );
 
-                g3dimport_freadf ( &radx, fsrc );
-                g3dimport_freadf ( &rady, fsrc );
-                g3dimport_freadf ( &radz, fsrc );
+                g3dimportv2_freadf ( &radx, fsrc );
+                g3dimportv2_freadf ( &rady, fsrc );
+                g3dimportv2_freadf ( &radz, fsrc );
 
                 g3dffd_shape ( ffd, nbx, nby, nbz, radx, rady, radz );
             } break;
@@ -67,13 +67,13 @@ void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 for ( i = 0x00; i < nbpnt; i++ ) {
                     G3DVERTEX *pnt = &ffd->pnt[i];
 
-                    g3dimport_freadf ( &pnt->pos.x, fsrc );
-                    g3dimport_freadf ( &pnt->pos.y, fsrc );
-                    g3dimport_freadf ( &pnt->pos.z, fsrc );
+                    g3dimportv2_freadf ( &pnt->pos.x, fsrc );
+                    g3dimportv2_freadf ( &pnt->pos.y, fsrc );
+                    g3dimportv2_freadf ( &pnt->pos.z, fsrc );
                     /*** normal vector stores the local UVW coordinates ***/
-                    g3dimport_freadf ( &pnt->nor.x, fsrc );
-                    g3dimport_freadf ( &pnt->nor.y, fsrc );
-                    g3dimport_freadf ( &pnt->nor.z, fsrc );
+                    g3dimportv2_freadf ( &pnt->nor.x, fsrc );
+                    g3dimportv2_freadf ( &pnt->nor.y, fsrc );
+                    g3dimportv2_freadf ( &pnt->nor.z, fsrc );
                 }
             } break;
 
@@ -85,9 +85,9 @@ void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

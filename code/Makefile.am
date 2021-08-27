@@ -87,6 +87,7 @@ endif
 
 EXTRA_DIST   = include/g3dexport.h \
                        include/g3dexportv2.h \
+                       include/g3dexportv3.h \
                        include/g3dengine/g2dvector.h \
                        include/g3dengine/g3dcolor.h \
                        include/g3dengine/g3dcurve.h \
@@ -103,6 +104,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dsubdivisionthread.h \
                        include/g3dengine/g3dsubdivisionV3.h \
                        include/g3dengine/g3dsysinfo.h \
+                       include/g3dengine/g3dtag.h \
                        include/g3dengine/g3dtext.h \
                        include/g3dengine/g3dtinyvector.h \
                        include/g3dengine/g3dvector.h \

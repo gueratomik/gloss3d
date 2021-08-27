@@ -30,45 +30,45 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportsymmetry_plane ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2symmetry_plane ( G3DEXPORTV2DATA *ged, 
                                           G3DSYMMETRY   *sym, 
                                           uint32_t       flags, 
                                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &sym->orientation, fdst );
+    size += g3dexportv2_fwritel ( &sym->orientation, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportsymmetry_mergeLimit ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2symmetry_mergeLimit ( G3DEXPORTV2DATA *ged, 
                                                G3DSYMMETRY   *sym, 
                                                uint32_t       flags, 
                                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &sym->mergelimit, fdst );
+    size += g3dexportv2_fwritef ( &sym->mergelimit, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportsymmetry ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2symmetry ( G3DEXPORTV2DATA *ged, 
                              G3DSYMMETRY   *sym, 
                              uint32_t       flags, 
                              FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SYMMETRY_PLANE,
-                                   g3dexportsymmetry_plane,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SYMMETRY_PLANE,
+                                   g3dexportv2symmetry_plane,
                                    ged,
                                    sym,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SYMMETRY_MERGELIMIT,
-                                   g3dexportsymmetry_mergeLimit,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SYMMETRY_MERGELIMIT,
+                                   g3dexportv2symmetry_mergeLimit,
                                    ged,
                                    sym,
                                    0xFFFFFFFF,

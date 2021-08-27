@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2material ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -46,7 +46,7 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_MATERIAL_NAME : {
                 char name[0x100] = { 0 };
 
-                g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( name, chunkSize, 0x01, fsrc );
 
                 gid->currentMaterial = g3dmaterial_new ( name );
 
@@ -58,7 +58,7 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_FLAGS : {
-                g3dimport_freadl ( &gid->currentMaterial->flags, fsrc );
+                g3dimportv2_freadl ( &gid->currentMaterial->flags, fsrc );
             } break;
 
             case SIG_MATERIAL_DIFFUSE : {
@@ -70,11 +70,11 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_MATERIAL_SPECULAR_SHININESS : {
-                 g3dimport_freadf ( &gid->currentMaterial->shininess, fsrc );
+                 g3dimportv2_freadf ( &gid->currentMaterial->shininess, fsrc );
             } break;
 
             case SIG_MATERIAL_SPECULAR_LEVEL : {
-                 g3dimport_freadf ( &gid->currentMaterial->specular_level, fsrc );
+                 g3dimportv2_freadf ( &gid->currentMaterial->specular_level, fsrc );
             } break;
 
             case SIG_MATERIAL_REFLECTION : {
@@ -94,7 +94,7 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_MATERIAL_BUMP_STRENGTH : {
                 float strength;
 
-                g3dimport_freadf ( &strength, fsrc );
+                g3dimportv2_freadf ( &strength, fsrc );
 
                 gid->currentMaterial->bump.solid.r = 
                 gid->currentMaterial->bump.solid.g =
@@ -111,7 +111,7 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_MATERIAL_DISPLACEMENT_STRENGTH : {
                 float strength;
 
-                g3dimport_freadf ( &strength, fsrc );
+                g3dimportv2_freadf ( &strength, fsrc );
 
                 gid->currentMaterial->displacement.solid.r = 
                 gid->currentMaterial->displacement.solid.g =
@@ -127,7 +127,7 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_CHANNEL : {
                 if ( chunkSize ) {
-                    g3dimportchannel ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2channel ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -139,9 +139,9 @@ void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

@@ -66,6 +66,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dsubvertex.c \
                       g3dsymmetry.c \
                       g3dsysinfo.c \
+                      g3dtag.c \
                       g3dtext.c \
                       g3dtexture.c \
                       g3dtorus.c \

@@ -31,21 +31,21 @@
 
 
 /******************************************************************************/
-static uint32_t g3dexportlight_spot ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_spot ( G3DEXPORTV2DATA *ged, 
                                       G3DLIGHT      *lig, 
                                       uint32_t       flags, 
                                       FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &lig->spotLength   , fdst );
-    size += g3dexport_fwritef ( &lig->spotAngle    , fdst );
-    size += g3dexport_fwritef ( &lig->spotFadeAngle, fdst );
+    size += g3dexportv2_fwritef ( &lig->spotLength   , fdst );
+    size += g3dexportv2_fwritef ( &lig->spotAngle    , fdst );
+    size += g3dexportv2_fwritef ( &lig->spotFadeAngle, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_shadowColor ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_shadowColor ( G3DEXPORTV2DATA *ged, 
                                              G3DLIGHT      *lig, 
                                              uint32_t       flags, 
                                              FILE          *fdst ) {
@@ -54,41 +54,41 @@ static uint32_t g3dexportlight_shadowColor ( G3DEXPORTDATA *ged,
 
     g3drgba_toColor ( &lig->shadowColor, &color );
 
-    size += g3dexport_fwritef ( &color.r, fdst );
-    size += g3dexport_fwritef ( &color.g, fdst );
-    size += g3dexport_fwritef ( &color.b, fdst );
-    size += g3dexport_fwritef ( &color.a, fdst );
+    size += g3dexportv2_fwritef ( &color.r, fdst );
+    size += g3dexportv2_fwritef ( &color.g, fdst );
+    size += g3dexportv2_fwritef ( &color.b, fdst );
+    size += g3dexportv2_fwritef ( &color.a, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_shadowCasting ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_shadowCasting ( G3DEXPORTV2DATA *ged, 
                                                G3DLIGHT      *lig, 
                                                uint32_t       flags, 
                                                FILE          *fdst ) {
     uint32_t shadowing = ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) ? 0x01 : 0x00;
 
-    return g3dexport_fwritel ( &shadowing, fdst );
+    return g3dexportv2_fwritel ( &shadowing, fdst );
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_shadow ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_shadow ( G3DEXPORTV2DATA *ged, 
                                         G3DLIGHT      *lig, 
                                         uint32_t       flags, 
                                         FILE          *fdst ) {
     uint32_t shadowing = ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) ? 0x01 : 0x00;
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_CASTING,
-                                   g3dexportlight_shadowCasting,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_CASTING,
+                                   g3dexportv2light_shadowCasting,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_COLOR,
-                                   g3dexportlight_shadowColor,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_COLOR,
+                                   g3dexportv2light_shadowColor,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,
@@ -98,7 +98,7 @@ static uint32_t g3dexportlight_shadow ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_ambient ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_ambient ( G3DEXPORTV2DATA *ged, 
                                          G3DLIGHT      *lig, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
@@ -107,16 +107,16 @@ static uint32_t g3dexportlight_ambient ( G3DEXPORTDATA *ged,
 
     g3drgba_toColor ( &lig->ambientColor, &color );
 
-    size += g3dexport_fwritef ( &color.r, fdst );
-    size += g3dexport_fwritef ( &color.g, fdst );
-    size += g3dexport_fwritef ( &color.b, fdst );
-    size += g3dexport_fwritef ( &color.a, fdst );
+    size += g3dexportv2_fwritef ( &color.r, fdst );
+    size += g3dexportv2_fwritef ( &color.g, fdst );
+    size += g3dexportv2_fwritef ( &color.b, fdst );
+    size += g3dexportv2_fwritef ( &color.a, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_specular ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_specular ( G3DEXPORTV2DATA *ged, 
                                           G3DLIGHT      *lig, 
                                           uint32_t       flags, 
                                           FILE          *fdst ) {
@@ -125,16 +125,16 @@ static uint32_t g3dexportlight_specular ( G3DEXPORTDATA *ged,
 
     g3drgba_toColor ( &lig->specularColor, &color );
 
-    size += g3dexport_fwritef ( &color.r, fdst );
-    size += g3dexport_fwritef ( &color.g, fdst );
-    size += g3dexport_fwritef ( &color.b, fdst );
-    size += g3dexport_fwritef ( &color.a, fdst );
+    size += g3dexportv2_fwritef ( &color.r, fdst );
+    size += g3dexportv2_fwritef ( &color.g, fdst );
+    size += g3dexportv2_fwritef ( &color.b, fdst );
+    size += g3dexportv2_fwritef ( &color.a, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_diffuse ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_diffuse ( G3DEXPORTV2DATA *ged, 
                                          G3DLIGHT      *lig, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
@@ -143,41 +143,41 @@ static uint32_t g3dexportlight_diffuse ( G3DEXPORTDATA *ged,
 
     g3drgba_toColor ( &lig->diffuseColor, &color );
 
-    size += g3dexport_fwritef ( &color.r, fdst );
-    size += g3dexport_fwritef ( &color.g, fdst );
-    size += g3dexport_fwritef ( &color.b, fdst );
-    size += g3dexport_fwritef ( &color.a, fdst );
+    size += g3dexportv2_fwritef ( &color.r, fdst );
+    size += g3dexportv2_fwritef ( &color.g, fdst );
+    size += g3dexportv2_fwritef ( &color.b, fdst );
+    size += g3dexportv2_fwritef ( &color.a, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportlight_intensity ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2light_intensity ( G3DEXPORTV2DATA *ged, 
                                            G3DLIGHT      *lig, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
-    return g3dexport_fwritef ( &lig->intensity, fdst );
+    return g3dexportv2_fwritef ( &lig->intensity, fdst );
 }
 
 
 /******************************************************************************/
-uint32_t g3dexportlight ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2light ( G3DEXPORTV2DATA *ged, 
                           G3DLIGHT     *lig, 
                           uint32_t      flags, 
                           FILE         *fdst ) {
     uint32_t size = 0x00;
 
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_INTENSITY,
-                                   g3dexportlight_intensity,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_INTENSITY,
+                                   g3dexportv2light_intensity,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SHADOW,
-                                       g3dexportlight_shadow,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW,
+                                       g3dexportv2light_shadow,
                                        ged,
                                        lig,
                                        0xFFFFFFFF,
@@ -185,30 +185,30 @@ uint32_t g3dexportlight ( G3DEXPORTDATA *ged,
     }
 
     if ( ((G3DOBJECT*)lig)->flags & SPOTLIGHT ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SPOT,
-                                       g3dexportlight_spot,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SPOT,
+                                       g3dexportv2light_spot,
                                        ged,
                                        lig,
                                        0xFFFFFFFF,
                                        fdst );
     }
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_DIFFUSE,
-                                   g3dexportlight_diffuse,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_DIFFUSE,
+                                   g3dexportv2light_diffuse,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_SPECULAR,
-                                   g3dexportlight_specular,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SPECULAR,
+                                   g3dexportv2light_specular,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_LIGHT_AMBIENT,
-                                   g3dexportlight_ambient,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_AMBIENT,
+                                   g3dexportv2light_ambient,
                                    ged,
                                    lig,
                                    0xFFFFFFFF,

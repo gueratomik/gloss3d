@@ -30,27 +30,27 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportsplinerevolver_geometry ( G3DEXPORTDATA     *ged, 
+static uint32_t g3dexportv2splinerevolver_geometry ( G3DEXPORTV2DATA     *ged, 
                                                    G3DSPLINEREVOLVER *srv, 
                                                    uint32_t          flags, 
                                                    FILE             *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &srv->nbsteps, fdst );
-    size += g3dexport_fwritel ( &srv->nbdivis, fdst );
+    size += g3dexportv2_fwritel ( &srv->nbsteps, fdst );
+    size += g3dexportv2_fwritel ( &srv->nbdivis, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportsplinerevolver ( G3DEXPORTDATA    *ged, 
+uint32_t g3dexportv2splinerevolver ( G3DEXPORTV2DATA    *ged, 
                                    G3DSPLINEREVOLVER *srv, 
                                    uint32_t          flags, 
                                    FILE             *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SPLINEREVOLVER_GEOMETRY,
-                                   g3dexportsplinerevolver_geometry,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINEREVOLVER_GEOMETRY,
+                                   g3dexportv2splinerevolver_geometry,
                                    ged,
                                    srv,
                                    0xFFFFFFFF,

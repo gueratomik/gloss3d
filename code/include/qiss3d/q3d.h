@@ -81,8 +81,8 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <g3dexportv2.h>
-#include <g3dimportv2.h>
+#include <g3dexportv3.h>
+#include <g3dimportv3.h>
 #include <g3dcom.h>
 
 #define q3dvector4_cross     q3dvector3f_cross
@@ -683,11 +683,11 @@ Q3DSETTINGS *q3dsettings_new ( );
 void         q3dsettings_free  ( Q3DSETTINGS *rsg );
 void         q3dsettings_copy  ( Q3DSETTINGS *dst,
                                  Q3DSETTINGS *src );
-void         q3dsettings_read  ( G3DIMPORTDATA *gid, 
+void         q3dsettings_read  ( G3DIMPORTV3DATA *gid, 
                                  uint32_t       chunkEnd, 
                                  FILE          *fsrc,
                                  LIST         **lrsg );
-uint32_t     q3dsettings_write ( G3DEXPORTDATA *ged, 
+uint32_t     q3dsettings_write ( G3DEXPORTV3DATA *ged, 
                                  LIST          *lrsg, 
                                  uint32_t       flags, 
                                  FILE          *fdst );

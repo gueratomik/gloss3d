@@ -49,25 +49,25 @@
 
 #include "signatures.h"
 
-#define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTDATA*,void*,uint32_t,FILE *))f)
+#define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV2DATA*,void*,uint32_t,FILE *))f)
 
-typedef struct _G3DEXPORTDATA {
+typedef struct _G3DEXPORTV2DATA {
     G3DSCENE  *currentScene;
     G3DOBJECT *currentObject;
     G3DFACE   *currentFace;
     uint32_t   objectID;
     LIST     *lext;
-} G3DEXPORTDATA;
+} G3DEXPORTV2DATA;
 
 /******************************************************************************/
-typedef struct _G3DEXPORTEXTENSION {
+typedef struct _G3DEXPORTV2EXTENSION {
     uint32_t signature;
-    uint32_t (*write)( G3DEXPORTDATA *ged,
+    uint32_t (*write)( G3DEXPORTV2DATA *ged,
                        void          *data,
                        uint32_t       flags,
                        FILE          *fdst );
     void      *data;
-} G3DEXPORTEXTENSION;
+} G3DEXPORTV2EXTENSION;
 
 void g3dscene_exportv2 ( G3DSCENE *sce, 
                          char     *filename,
@@ -75,125 +75,125 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
                          LIST     *lextension, 
                          uint32_t  flags );
 
-uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
-                                uint32_t (*writeChunk) ( G3DEXPORTDATA *ged,
+uint32_t g3dexportv2_writeChunk ( uint32_t   chunkSignature,
+                                uint32_t (*writeChunk) ( G3DEXPORTV2DATA *ged,
                                                          void          *data,
                                                          uint32_t       flags,
                                                          FILE          *fdst ),
-                                G3DEXPORTDATA *ged,
+                                G3DEXPORTV2DATA *ged,
                                 void          *data,
                                 uint32_t       flags,
                                 FILE          *fdst );
-uint32_t g3dexport_fwrite ( void   *ptr,
+uint32_t g3dexportv2_fwrite ( void   *ptr,
                             size_t  size,
                             size_t  count,
                             FILE   *stream );
 
-uint32_t g3dexportroot ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2root ( G3DEXPORTV2DATA *ged, 
                          G3DSCENE      *sce, 
                          uint32_t       flags, 
                          FILE          *fdst );
 
-uint32_t g3dexportobject ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2object ( G3DEXPORTV2DATA *ged, 
                            G3DOBJECT     *obj,
                            uint32_t       flags, 
                            FILE          *fdst );
-uint32_t g3dexportscene ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2scene ( G3DEXPORTV2DATA *ged, 
                           G3DSCENE      *sce, 
                           uint32_t       flags, 
                           FILE          *fdst );
-uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2primitive ( G3DEXPORTV2DATA *ged, 
                               G3DOBJECT     *obj, 
                               uint32_t       flags, 
                               FILE          *fdst );
-uint32_t g3dexportmesh ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged, 
                          G3DMESH       *mes, 
                          uint32_t       flags, 
                          FILE          *fdst );
-uint32_t g3dexportchannel  ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2channel  ( G3DEXPORTV2DATA *ged, 
                              G3DCHANNEL    *cha,
                              uint32_t       flags, 
                              FILE          *fdst );
-uint32_t g3dexportmaterial  ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2material  ( G3DEXPORTV2DATA *ged, 
                               G3DMATERIAL   *mat, 
                               uint32_t       flags, 
                               FILE          *fdst );
-uint32_t g3dexportuvmap ( G3DEXPORTDATA  *ged, 
+uint32_t g3dexportv2uvmap ( G3DEXPORTV2DATA  *ged, 
                           G3DUVMAP       *uvmap, 
                           uint32_t        flags, 
                           FILE           *fdst );
-uint32_t g3dexportcamera ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2camera ( G3DEXPORTV2DATA *ged, 
                            G3DCAMERA     *cam, 
                            uint32_t       flags, 
                            FILE          *fdst );
-uint32_t g3dexportlight ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2light ( G3DEXPORTV2DATA *ged, 
                           G3DLIGHT     *lig, 
                           uint32_t      flags, 
                           FILE         *fdst );
-uint32_t g3dexportbone ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2bone ( G3DEXPORTV2DATA *ged, 
                          G3DBONE     *cam, 
                          uint32_t       flags, 
                          FILE          *fdst );
-uint32_t g3dexportsymmetry ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2symmetry ( G3DEXPORTV2DATA *ged, 
                              G3DSYMMETRY   *sym, 
                              uint32_t       flags, 
                              FILE          *fdst );
-uint32_t g3dexporttext ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2text ( G3DEXPORTV2DATA *ged, 
                          G3DTEXT       *txt, 
                          uint32_t       flags, 
                          FILE          *fdst );
-uint32_t g3dexportsubdivider ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2subdivider ( G3DEXPORTV2DATA *ged, 
                                G3DSUBDIVIDER   *sub, 
                                uint32_t       flags, 
                                FILE          *fdst );
-uint32_t g3dexportwireframe ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2wireframe ( G3DEXPORTV2DATA *ged, 
                               G3DWIREFRAME  *wfm, 
                               uint32_t       flags, 
                               FILE          *fdst );
-uint32_t g3dexportsplinerevolver ( G3DEXPORTDATA    *ged, 
+uint32_t g3dexportv2splinerevolver ( G3DEXPORTV2DATA    *ged, 
                                    G3DSPLINEREVOLVER *srv, 
                                    uint32_t          flags, 
                                    FILE             *fdst );
-uint32_t g3dexportspline ( G3DEXPORTDATA*ged, 
+uint32_t g3dexportv2spline ( G3DEXPORTV2DATA*ged, 
                            G3DSPLINE    *spl, 
                            uint32_t      flags, 
                            FILE         *fdst );
-uint32_t g3dexportextension ( G3DEXPORTDATA       *ged, 
-                              G3DEXPORTEXTENSION  *ext, 
+uint32_t g3dexportv2extension ( G3DEXPORTV2DATA       *ged, 
+                              G3DEXPORTV2EXTENSION  *ext, 
                               uint32_t             flags, 
                               FILE                *fdst );
 
-uint32_t g3dexportffd ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2ffd ( G3DEXPORTV2DATA *ged, 
                         G3DFFD        *ffd, 
                         uint32_t       flags, 
                         FILE          *fdst );
 
-uint32_t g3dexportmorpher ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2morpher ( G3DEXPORTV2DATA *ged, 
                             G3DMORPHER    *mpr, 
                             uint32_t       flags, 
                             FILE          *fdst );
 
-uint32_t g3dexportskin ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2skin ( G3DEXPORTV2DATA *ged, 
                          G3DSKIN       *skn, 
                          uint32_t       flags, 
                          FILE          *fdst );
 
-uint32_t g3dexportkey ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2key ( G3DEXPORTV2DATA *ged, 
                         G3DKEY        *key, 
                         uint32_t       flags, 
                         FILE          *fdst );
 
-uint32_t g3dexport_fwrited ( double *d, FILE *stream );
-uint32_t g3dexport_fwritef ( float *f, FILE *stream );
-uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream );
-uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream );
+uint32_t g3dexportv2_fwrited ( double *d, FILE *stream );
+uint32_t g3dexportv2_fwritef ( float *f, FILE *stream );
+uint32_t g3dexportv2_fwritel ( uint32_t *l, FILE *stream );
+uint32_t g3dexportv2_fwritell ( uint64_t *ll, FILE *stream );
 
-G3DEXPORTEXTENSION *g3dexportextension_new ( uint32_t signature,
-                                             uint32_t (*write)( G3DEXPORTDATA      *ged, 
-                                                                G3DEXPORTEXTENSION *ext, 
+G3DEXPORTV2EXTENSION *g3dexportv2extension_new ( uint32_t signature,
+                                             uint32_t (*write)( G3DEXPORTV2DATA      *ged, 
+                                                                G3DEXPORTV2EXTENSION *ext, 
                                                                 uint32_t            flags, 
                                                                 FILE               *fdst ),
                                              void      *data );
-void g3dexportextension_free ( G3DEXPORTEXTENSION *ext );
+void g3dexportv2extension_free ( G3DEXPORTV2EXTENSION *ext );
 
 #endif

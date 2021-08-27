@@ -20,8 +20,8 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#ifndef _G3DIMPORT_H_
-#define _G3DIMPORT_H_
+#ifndef _G3DIMPORTV2_H_
+#define _G3DIMPORTV2_H_
 
 /******************************************************************************/
 #include <stdio.h>
@@ -53,7 +53,7 @@
                                                        size, __func__ );
 
 /******************************************************************************/
-typedef struct _G3DIMPORTDATA {
+typedef struct _G3DIMPORTV2DATA {
     G3DSCENE       *currentScene;
     G3DOBJECT      *parentObject;
     G3DOBJECT      *currentObject;
@@ -78,17 +78,17 @@ typedef struct _G3DIMPORTDATA {
     uint64_t        engineFlags;
     uint32_t        indentLevel;
     LIST           *lext;
-} G3DIMPORTDATA;
+} G3DIMPORTV2DATA;
 
 /******************************************************************************/
-typedef struct _G3DIMPORTEXTENSION {
+typedef struct _G3DIMPORTV2EXTENSION {
     uint32_t signature;
-    void (*read)( G3DIMPORTDATA *gid,
+    void (*read)( G3DIMPORTV2DATA *gid,
                   uint32_t       chunkEnd,
                   FILE          *fsrc,
                   void          *data );
     void *data;
-} G3DIMPORTEXTENSION;
+} G3DIMPORTV2EXTENSION;
 
 /******************************************************************************/
 G3DSCENE *g3dscene_importv2 ( const char *filename,
@@ -96,48 +96,48 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
                               LIST       *lextension,
                               uint32_t    flags );
 
-uint32_t g3dimport_freadd ( double *d, FILE *stream );
-uint32_t g3dimport_freadll ( uint64_t *ll, FILE *stream );
-uint32_t g3dimport_freadl ( uint32_t *l, FILE *stream );
-uint32_t g3dimport_freadf ( float *f, FILE *stream );
-uint32_t g3dimport_fread ( void   *ptr,
+uint32_t g3dimportv2_freadd ( double *d, FILE *stream );
+uint32_t g3dimportv2_freadll ( uint64_t *ll, FILE *stream );
+uint32_t g3dimportv2_freadl ( uint32_t *l, FILE *stream );
+uint32_t g3dimportv2_freadf ( float *f, FILE *stream );
+uint32_t g3dimportv2_fread ( void   *ptr,
                            size_t  size,
                            size_t  count,
                            FILE   *stream );
 
-void g3dimportscene     ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportobject    ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportmaterial ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportuvmap ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportcamera ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportbone ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportsymmetry ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportsubdivider ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportwireframe ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportspline ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportffd ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportmesh ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportsplinerevolver ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportdata_incrementIndentLevel ( G3DIMPORTDATA *gid );
-void g3dimportdata_decrementIndentLevel ( G3DIMPORTDATA *gid );
-void g3dimportmorpher ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportkey ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
-void g3dimportskin ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2scene     ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2object    ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2material ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2uvmap ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2camera ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2light ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2symmetry ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2text ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2subdivider ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2wireframe ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2spline ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2ffd ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2mesh ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2splinerevolver ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2data_incrementIndentLevel ( G3DIMPORTV2DATA *gid );
+void g3dimportv2data_decrementIndentLevel ( G3DIMPORTV2DATA *gid );
+void g3dimportv2morpher ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2key ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2skin ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
-G3DIMPORTEXTENSION *g3dimportextension_new ( uint32_t signature,
-                                             void (*read)( G3DIMPORTDATA *gid,
+G3DIMPORTV2EXTENSION *g3dimportv2extension_new ( uint32_t signature,
+                                             void (*read)( G3DIMPORTV2DATA *gid,
                                                            uint32_t       chunkEnd,
                                                            FILE          *fsrc,
                                                            void          *data ),
                                              void      *data );
-void g3dimportextension_free ( G3DIMPORTEXTENSION *ext );
-G3DIMPORTEXTENSION *g3dimportextension_getFromList ( uint32_t signature,
+void g3dimportv2extension_free ( G3DIMPORTV2EXTENSION *ext );
+G3DIMPORTV2EXTENSION *g3dimportv2extension_getFromList ( uint32_t signature,
                                                      LIST    *lext );
-void g3dimportextension ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv2extension ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 char *readEntry ( FILE *fsrc );
 

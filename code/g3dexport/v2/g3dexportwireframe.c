@@ -30,20 +30,20 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportwireframe_geometry ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2wireframe_geometry ( G3DEXPORTV2DATA *ged, 
                                               G3DWIREFRAME  *wfm, 
                                               uint32_t       flags, 
                                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &wfm->thickness, fdst );
-    size += g3dexport_fwritef ( &wfm->aperture , fdst );
+    size += g3dexportv2_fwritef ( &wfm->thickness, fdst );
+    size += g3dexportv2_fwritef ( &wfm->aperture , fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportwireframe_algo  ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2wireframe_algo  ( G3DEXPORTV2DATA *ged, 
                                            G3DWIREFRAME  *wfm, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
@@ -51,27 +51,27 @@ static uint32_t g3dexportwireframe_algo  ( G3DEXPORTDATA *ged,
     uint32_t size = 0x00;
     uint32_t algo = 0x00;
 
-    size += g3dexport_fwritel ( &algo, fdst );
+    size += g3dexportv2_fwritel ( &algo, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportwireframe ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2wireframe ( G3DEXPORTV2DATA *ged, 
                               G3DWIREFRAME  *wfm, 
                               uint32_t       flags, 
                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_WIREFRAME_ALGO,
-                                   g3dexportwireframe_algo,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME_ALGO,
+                                   g3dexportv2wireframe_algo,
                                    ged,
                                    wfm,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_WIREFRAME_GEOMETRY,
-                                   g3dexportwireframe_geometry,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME_GEOMETRY,
+                                   g3dexportv2wireframe_geometry,
                                    ged,
                                    wfm,
                                    0xFFFFFFFF,

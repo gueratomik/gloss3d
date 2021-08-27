@@ -29,6 +29,30 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v2/g3dexportskin.c \
                             v2/g3dexportkey.c \
                             v2/g3dexportmorpher.c \
+                            v3/g3dexportextension.c \
+                            v3/g3dexportapp.c \
+                            v3/g3dexportbone.c \
+                            v3/g3dexport.c \
+                            v3/g3dexportcamera.c \
+                            v3/g3dexportchannel.c \
+                            v3/g3dexportlight.c \
+                            v3/g3dexportmaterial.c \
+                            v3/g3dexportmesh.c \
+                            v3/g3dexportmodifiers.c \
+                            v3/g3dexportobject.c \
+                            v3/g3dexportprimitive.c \
+                            v3/g3dexportuvmap.c \
+                            v3/g3dexportscene.c \
+                            v3/g3dexportsymmetry.c \
+                            v3/g3dexportsubdivider.c \
+                            v3/g3dexportspline.c \
+                            v3/g3dexportsplinerevolver.c \
+                            v3/g3dexporttext.c \
+                            v3/g3dexportwireframe.c \
+                            v3/g3dexportffd.c \
+                            v3/g3dexportskin.c \
+                            v3/g3dexportkey.c \
+                            v3/g3dexportmorpher.c \
                             stl.c \
                             pov.c \
                             obj.c

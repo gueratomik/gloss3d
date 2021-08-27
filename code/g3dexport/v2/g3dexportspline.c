@@ -30,28 +30,28 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportspline_geometrySegments ( G3DEXPORTDATA*ged, 
+static uint32_t g3dexportv2spline_geometrySegments ( G3DEXPORTV2DATA*ged, 
                                                    G3DSPLINE    *spl, 
                                                    uint32_t      flags, 
                                                    FILE         *fdst ) {
     LIST *ltmpseg = spl->curve->lseg;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &spl->curve->nbseg, fdst );
+    size += g3dexportv2_fwritel ( &spl->curve->nbseg, fdst );
 
     while ( ltmpseg ) {
         G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
 
-        size += g3dexport_fwritel ( &seg->pt[P0IDX]->id, fdst );
-        size += g3dexport_fwritel ( &seg->pt[P1IDX]->id, fdst );
+        size += g3dexportv2_fwritel ( &seg->pt[P0IDX]->id, fdst );
+        size += g3dexportv2_fwritel ( &seg->pt[P1IDX]->id, fdst );
 
-        size += g3dexport_fwritef ( &seg->pt[P0HANDLEIDX]->pos.x, fdst );
-        size += g3dexport_fwritef ( &seg->pt[P0HANDLEIDX]->pos.y, fdst );
-        size += g3dexport_fwritef ( &seg->pt[P0HANDLEIDX]->pos.z, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P0HANDLEIDX]->pos.x, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P0HANDLEIDX]->pos.y, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P0HANDLEIDX]->pos.z, fdst );
 
-        size += g3dexport_fwritef ( &seg->pt[P1HANDLEIDX]->pos.x, fdst );
-        size += g3dexport_fwritef ( &seg->pt[P1HANDLEIDX]->pos.y, fdst );
-        size += g3dexport_fwritef ( &seg->pt[P1HANDLEIDX]->pos.z, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P1HANDLEIDX]->pos.x, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P1HANDLEIDX]->pos.y, fdst );
+        size += g3dexportv2_fwritef ( &seg->pt[P1HANDLEIDX]->pos.z, fdst );
 
         ltmpseg = ltmpseg->next;
     }
@@ -60,7 +60,7 @@ static uint32_t g3dexportspline_geometrySegments ( G3DEXPORTDATA*ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportspline_geometryPoints ( G3DEXPORTDATA*ged, 
+static uint32_t g3dexportv2spline_geometryPoints ( G3DEXPORTV2DATA*ged, 
                                                  G3DSPLINE    *spl, 
                                                  uint32_t      flags, 
                                                  FILE         *fdst ) {
@@ -68,15 +68,15 @@ static uint32_t g3dexportspline_geometryPoints ( G3DEXPORTDATA*ged,
     uint32_t size = 0x00;
     uint32_t ptID = 0x00;
 
-    size += g3dexport_fwritel ( &spl->curve->nbpt, fdst );
+    size += g3dexportv2_fwritel ( &spl->curve->nbpt, fdst );
 
     while ( ltmppt ) {
         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-        size += g3dexport_fwritef ( &pt->pos.x, fdst );
-        size += g3dexport_fwritef ( &pt->pos.y, fdst );
-        size += g3dexport_fwritef ( &pt->pos.z, fdst );
-        size += g3dexport_fwritel ( &pt->flags, fdst );
+        size += g3dexportv2_fwritef ( &pt->pos.x, fdst );
+        size += g3dexportv2_fwritef ( &pt->pos.y, fdst );
+        size += g3dexportv2_fwritef ( &pt->pos.z, fdst );
+        size += g3dexportv2_fwritel ( &pt->flags, fdst );
 
         pt->id = ptID++;
 
@@ -87,21 +87,21 @@ static uint32_t g3dexportspline_geometryPoints ( G3DEXPORTDATA*ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportspline_geometry ( G3DEXPORTDATA*ged, 
+static uint32_t g3dexportv2spline_geometry ( G3DEXPORTV2DATA*ged, 
                                            G3DSPLINE    *spl, 
                                            uint32_t      flags, 
                                            FILE         *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_POINTS,
-                                   g3dexportspline_geometryPoints,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_POINTS,
+                                   g3dexportv2spline_geometryPoints,
                                    ged,
                                    spl,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS,
-                                   g3dexportspline_geometrySegments,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS,
+                                   g3dexportv2spline_geometrySegments,
                                    ged,
                                    spl,
                                    0xFFFFFFFF,
@@ -111,14 +111,14 @@ static uint32_t g3dexportspline_geometry ( G3DEXPORTDATA*ged,
 }
 
 /******************************************************************************/
-uint32_t g3dexportspline ( G3DEXPORTDATA*ged, 
+uint32_t g3dexportv2spline ( G3DEXPORTV2DATA*ged, 
                            G3DSPLINE    *spl, 
                            uint32_t      flags, 
                            FILE         *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY,
-                                   g3dexportspline_geometry,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY,
+                                   g3dexportv2spline_geometry,
                                    ged,
                                    spl,
                                    0xFFFFFFFF,

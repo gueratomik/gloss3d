@@ -31,30 +31,30 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-uint32_t g3dexport_fwrited ( double *d, FILE *stream ) {
-    return g3dexport_fwrite ( d, sizeof ( double ), 0x01, stream );
+uint32_t g3dexportv2_fwrited ( double *d, FILE *stream ) {
+    return g3dexportv2_fwrite ( d, sizeof ( double ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dexport_fwritef ( float *f, FILE *stream ) {
-    return g3dexport_fwrite ( f, sizeof ( float ), 0x01, stream );
+uint32_t g3dexportv2_fwritef ( float *f, FILE *stream ) {
+    return g3dexportv2_fwrite ( f, sizeof ( float ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dexport_fwritel ( uint32_t *l, FILE *stream ) {
-    return g3dexport_fwrite ( l, sizeof ( uint32_t ), 0x01, stream );
+uint32_t g3dexportv2_fwritel ( uint32_t *l, FILE *stream ) {
+    return g3dexportv2_fwrite ( l, sizeof ( uint32_t ), 0x01, stream );
 }
 
 /******************************************************************************/
-uint32_t g3dexport_fwritell ( uint64_t *ll, FILE *stream ) {
-    return g3dexport_fwrite ( ll, sizeof ( uint64_t ), 0x01, stream );
+uint32_t g3dexportv2_fwritell ( uint64_t *ll, FILE *stream ) {
+    return g3dexportv2_fwrite ( ll, sizeof ( uint64_t ), 0x01, stream );
 }
 
 /******************************************************************************/
 /*** Write to file or, if stream is NULL, return the size to write. ***/
 /*** this is useful to compute the chunk's future size. All file writing op ***/
 /*** MUST call this function. ***/
-uint32_t g3dexport_fwrite ( void   *ptr,
+uint32_t g3dexportv2_fwrite ( void   *ptr,
                             size_t  size,
                             size_t  count,
                             FILE   *stream ) {
@@ -72,12 +72,12 @@ uint32_t g3dexport_fwrite ( void   *ptr,
 }
 
 /******************************************************************************/
-uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
-                                uint32_t (*writeChunk) ( G3DEXPORTDATA *ged,
+uint32_t g3dexportv2_writeChunk ( uint32_t   chunkSignature,
+                                uint32_t (*writeChunk) ( G3DEXPORTV2DATA *ged,
                                                          void          *data,
                                                          uint32_t       flags,
                                                          FILE          *fdst ),
-                                G3DEXPORTDATA *ged,
+                                G3DEXPORTV2DATA *ged,
                                 void          *data,
                                 uint32_t       flags,
                                 FILE          *fdst ) {
@@ -88,9 +88,9 @@ uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
     uint32_t chunkEndPos;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &chunkSignature, sizeof ( uint32_t  ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &chunkSignature, sizeof ( uint32_t  ), 0x01, fdst );
 
-    size += g3dexport_fwrite ( &dummyChunkSize, sizeof ( uint32_t  ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &dummyChunkSize, sizeof ( uint32_t  ), 0x01, fdst );
 
     /*** write our data ***/
     chunkSize = ( writeChunk ) ? writeChunk ( ged, data, flags, fdst ) : 0x00;
@@ -100,7 +100,7 @@ uint32_t g3dexport_writeChunk ( uint32_t   chunkSignature,
 
     fseek ( fdst, ( int32_t ) - chunkSizeOffset, SEEK_CUR );
 
-    g3dexport_fwrite ( &chunkSize, sizeof ( uint32_t  ), 0x01, fdst );
+    g3dexportv2_fwrite ( &chunkSize, sizeof ( uint32_t  ), 0x01, fdst );
 
     fseek ( fdst, chunkEndPos, SEEK_SET ); /*** continue ***/
 

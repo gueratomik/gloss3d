@@ -30,27 +30,27 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportsubdivider_level ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2subdivider_level ( G3DEXPORTV2DATA *ged, 
                                             G3DSUBDIVIDER   *sdr, 
                                             uint32_t       flags, 
                                             FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &sdr->subdiv_preview, fdst );
-    size += g3dexport_fwritel ( &sdr->subdiv_render , fdst );
+    size += g3dexportv2_fwritel ( &sdr->subdiv_preview, fdst );
+    size += g3dexportv2_fwritel ( &sdr->subdiv_render , fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportsubdivider ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2subdivider ( G3DEXPORTV2DATA *ged, 
                                G3DSUBDIVIDER *sdr, 
                                uint32_t       flags, 
                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
-                                   g3dexportsubdivider_level,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
+                                   g3dexportv2subdivider_level,
                                    ged,
                                    sdr,
                                    0xFFFFFFFF,

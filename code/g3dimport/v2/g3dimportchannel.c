@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -46,10 +46,10 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_CHANNEL_SOLID : {
                 g3dchannel_enableSolidColor ( gid->currentChannel );
 
-                g3dimport_freadf ( &gid->currentChannel->solid.r, fsrc );
-                g3dimport_freadf ( &gid->currentChannel->solid.g, fsrc );
-                g3dimport_freadf ( &gid->currentChannel->solid.b, fsrc );
-                g3dimport_freadf ( &gid->currentChannel->solid.a, fsrc );
+                g3dimportv2_freadf ( &gid->currentChannel->solid.r, fsrc );
+                g3dimportv2_freadf ( &gid->currentChannel->solid.g, fsrc );
+                g3dimportv2_freadf ( &gid->currentChannel->solid.b, fsrc );
+                g3dimportv2_freadf ( &gid->currentChannel->solid.a, fsrc );
             } break;
 
             case SIG_CHANNEL_IMAGE : {
@@ -59,7 +59,7 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     char *name = ( char * ) calloc ( 0x01, chunkSize + 0x01 );
                     G3DIMAGE *image;
 
-                    g3dimport_fread ( name, chunkSize, 0x01, fsrc );
+                    g3dimportv2_fread ( name, chunkSize, 0x01, fsrc );
 
                     /*** generate a power of two image for the diffuse ***/
                     /*** channel because of OpenGL limitations ***/
@@ -100,21 +100,21 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
 
-                g3dimport_freadl ( &noise->nbColors, fsrc );
+                g3dimportv2_freadl ( &noise->nbColors, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
 
-                g3dimport_freadl ( &noise->nbOctaves, fsrc );
+                g3dimportv2_freadl ( &noise->nbOctaves, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALNOISE *noise = ( G3DPROCEDURALNOISE * ) proc;
 
-                g3dimport_freadl ( &noise->interpolation, fsrc );
+                g3dimportv2_freadl ( &noise->interpolation, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS : {
@@ -123,8 +123,8 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbGradientX,
                          nbGradientY;
 
-                g3dimport_freadl ( &nbGradientX, fsrc );
-                g3dimport_freadl ( &nbGradientY, fsrc );
+                g3dimportv2_freadl ( &nbGradientX, fsrc );
+                g3dimportv2_freadl ( &nbGradientY, fsrc );
 
                 /*** this means it will be called twice, once during ***/
                 /*** texture creation, and once here ***/
@@ -139,15 +139,15 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < noise->nbColors; i++ ) {
-                    g3dimport_freadf ( &noise->colorPair[i][0x00].r, fsrc );
-                    g3dimport_freadf ( &noise->colorPair[i][0x00].g, fsrc ); 
-                    g3dimport_freadf ( &noise->colorPair[i][0x00].b, fsrc ); 
-                    g3dimport_freadf ( &noise->colorPair[i][0x00].a, fsrc );
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x00].r, fsrc );
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x00].g, fsrc ); 
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x00].b, fsrc ); 
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x00].a, fsrc );
 
-                    g3dimport_freadf ( &noise->colorPair[i][0x01].r, fsrc );
-                    g3dimport_freadf ( &noise->colorPair[i][0x01].g, fsrc ); 
-                    g3dimport_freadf ( &noise->colorPair[i][0x01].b, fsrc ); 
-                    g3dimport_freadf ( &noise->colorPair[i][0x01].a, fsrc ); 
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x01].r, fsrc );
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x01].g, fsrc ); 
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x01].b, fsrc ); 
+                    g3dimportv2_freadf ( &noise->colorPair[i][0x01].a, fsrc ); 
                 }
             } break;
 
@@ -157,7 +157,7 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < noise->nbColors; i++ ) {
-                     g3dimport_freadf ( &noise->threshold[i], fsrc );
+                     g3dimportv2_freadf ( &noise->threshold[i], fsrc );
                 }
             } break;
 
@@ -165,8 +165,8 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
 
-                g3dimport_freadl ( &chess->udiv, fsrc );
-                g3dimport_freadl ( &chess->vdiv, fsrc );
+                g3dimportv2_freadl ( &chess->udiv, fsrc );
+                g3dimportv2_freadl ( &chess->vdiv, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_CHESS : {
@@ -180,15 +180,15 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
                 G3DCOLOR color1, color2;
 
-                g3dimport_freadf ( &color1.r, fsrc );
-                g3dimport_freadf ( &color1.g, fsrc );
-                g3dimport_freadf ( &color1.b, fsrc );
-                g3dimport_freadf ( &color1.a, fsrc );
+                g3dimportv2_freadf ( &color1.r, fsrc );
+                g3dimportv2_freadf ( &color1.g, fsrc );
+                g3dimportv2_freadf ( &color1.b, fsrc );
+                g3dimportv2_freadf ( &color1.a, fsrc );
 
-                g3dimport_freadf ( &color2.r, fsrc );
-                g3dimport_freadf ( &color2.g, fsrc );
-                g3dimport_freadf ( &color2.b, fsrc );
-                g3dimport_freadf ( &color2.a, fsrc );
+                g3dimportv2_freadf ( &color2.r, fsrc );
+                g3dimportv2_freadf ( &color2.g, fsrc );
+                g3dimportv2_freadf ( &color2.b, fsrc );
+                g3dimportv2_freadf ( &color2.a, fsrc );
 
                 g3dcolor_toRGBA ( &color1, &chess->color1 );
                 g3dcolor_toRGBA ( &color2, &chess->color2 );
@@ -204,10 +204,10 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALBRICK *brick = ( G3DPROCEDURALBRICK * ) proc;
 
-                g3dimport_freadl ( &brick->nbBricksPerLine, fsrc );
-                g3dimport_freadl ( &brick->nbLines        , fsrc );
-                g3dimport_freadf ( &brick->uspacing       , fsrc );
-                g3dimport_freadf ( &brick->vspacing       , fsrc );
+                g3dimportv2_freadl ( &brick->nbBricksPerLine, fsrc );
+                g3dimportv2_freadl ( &brick->nbLines        , fsrc );
+                g3dimportv2_freadf ( &brick->uspacing       , fsrc );
+                g3dimportv2_freadf ( &brick->vspacing       , fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_BRICK_COLORS : {
@@ -215,15 +215,15 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURALBRICK *brick = ( G3DPROCEDURALBRICK * ) proc;
                 G3DCOLOR color1, color2;
 
-                g3dimport_freadf ( &color1.r, fsrc );
-                g3dimport_freadf ( &color1.g, fsrc );
-                g3dimport_freadf ( &color1.b, fsrc );
-                g3dimport_freadf ( &color1.a, fsrc );
+                g3dimportv2_freadf ( &color1.r, fsrc );
+                g3dimportv2_freadf ( &color1.g, fsrc );
+                g3dimportv2_freadf ( &color1.b, fsrc );
+                g3dimportv2_freadf ( &color1.a, fsrc );
 
-                g3dimport_freadf ( &color2.r, fsrc );
-                g3dimport_freadf ( &color2.g, fsrc );
-                g3dimport_freadf ( &color2.b, fsrc );
-                g3dimport_freadf ( &color2.a, fsrc );
+                g3dimportv2_freadf ( &color2.r, fsrc );
+                g3dimportv2_freadf ( &color2.g, fsrc );
+                g3dimportv2_freadf ( &color2.b, fsrc );
+                g3dimportv2_freadf ( &color2.a, fsrc );
 
                 g3dcolor_toRGBA ( &color1, &brick->brickColor   );
                 g3dcolor_toRGBA ( &color2, &brick->spacingColor );
@@ -233,9 +233,9 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 uint32_t width, height, depth;
  
-                g3dimport_freadl ( &width, fsrc );
-                g3dimport_freadl ( &height, fsrc );
-                g3dimport_freadl ( &depth, fsrc );
+                g3dimportv2_freadl ( &width, fsrc );
+                g3dimportv2_freadl ( &height, fsrc );
+                g3dimportv2_freadl ( &depth, fsrc );
 
                 /*** check because the procedural might not be created ***/
                 /*** if type not supported ***/
@@ -261,9 +261,9 @@ void g3dimportchannel ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

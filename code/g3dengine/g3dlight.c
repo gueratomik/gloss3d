@@ -434,6 +434,12 @@ static void g3dlight_anim ( G3DLIGHT *lig,
         memcpy ( &lig->diffuseColor , &lkd->keylig.diffuseColor , sizeof ( G3DRGBA ) );
         memcpy ( &lig->specularColor, &lkd->keylig.specularColor, sizeof ( G3DRGBA ) );
         memcpy ( &lig->ambientColor , &lkd->keylig.ambientColor , sizeof ( G3DRGBA ) );
+
+
+        lig->intensity = lkd->keylig.intensity;
+        lig->spotAngle = lkd->keylig.spotAngle;
+        lig->spotFadeAngle = lkd->keylig.spotFadeAngle;
+        lig->spotLength = lkd->keylig.spotLength;
     } else {
         if ( prevKey && nextKey ) {
             LIGHTKEYDATA *plkd = prevKey->data.ptr,
@@ -458,6 +464,17 @@ static void g3dlight_anim ( G3DLIGHT *lig,
                               &nlkd->keylig.ambientColor, nRatio, 
                               &lig->ambientColor );
 
+            lig->intensity = ( plkd->keylig.intensity * pRatio ) + 
+                             ( nlkd->keylig.intensity * nRatio );
+
+            lig->spotAngle = ( plkd->keylig.spotAngle * pRatio ) + 
+                             ( nlkd->keylig.spotAngle * nRatio );
+
+            lig->spotFadeAngle = ( plkd->keylig.spotFadeAngle * pRatio ) + 
+                                 ( nlkd->keylig.spotFadeAngle * nRatio );
+
+            lig->spotLength = ( plkd->keylig.spotLength * pRatio ) + 
+                              ( nlkd->keylig.spotLength * nRatio );
         }
     }
 }

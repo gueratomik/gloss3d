@@ -31,99 +31,99 @@
 
 
 /******************************************************************************/
-static uint32_t g3dexportplane ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2plane ( G3DEXPORTV2DATA *ged, 
                                  G3DPRIMITIVE  *pri, 
                                  uint32_t       flags, 
                                  FILE          *fdst ) {
     PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &pds->radu       , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &pds->radv       , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &pds->nbu        , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &pds->nbv        , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &pds->orientation, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &pds->radu       , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &pds->radv       , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &pds->nbu        , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &pds->nbv        , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &pds->orientation, sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportcylinder ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2cylinder ( G3DEXPORTV2DATA *ged, 
                                     G3DPRIMITIVE  *pri, 
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     CYLINDERDATASTRUCT *cds = ( CYLINDERDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite  ( &cds->length     , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->radius     , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->slice      , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->capx       , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->capy       , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->closed     , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite  ( &cds->orientation, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->length     , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->radius     , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->slice      , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->capx       , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->capy       , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->closed     , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite  ( &cds->orientation, sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportcube ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2cube ( G3DEXPORTV2DATA *ged, 
                                 G3DPRIMITIVE  *pri, 
                                 uint32_t       flags, 
                                 FILE          *fdst ) {
     CUBEDATASTRUCT *cds = ( CUBEDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &cds->radius, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &cds->nbx   , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &cds->nby   , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &cds->nbz   , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &cds->radius, sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &cds->nbx   , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &cds->nby   , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &cds->nbz   , sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexporttorus ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2torus ( G3DEXPORTV2DATA *ged, 
                                  G3DPRIMITIVE  *pri, 
                                  uint32_t       flags, 
                                  FILE          *fdst ) {
     TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &tds->extrad     , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &tds->intrad     , sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &tds->slice      , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &tds->cap        , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &tds->orientation, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &tds->extrad     , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &tds->intrad     , sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &tds->slice      , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &tds->cap        , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &tds->orientation, sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportsphere ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2sphere ( G3DEXPORTV2DATA *ged, 
                                   G3DPRIMITIVE  *pri, 
                                   uint32_t       flags, 
                                   FILE          *fdst ) {
     SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &sds->radius, sizeof ( float    ), 0x01, fdst );
-    size += g3dexport_fwrite ( &sds->slice , sizeof ( uint32_t ), 0x01, fdst );
-    size += g3dexport_fwrite ( &sds->cap   , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &sds->radius, sizeof ( float    ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &sds->slice , sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &sds->cap   , sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2primitive ( G3DEXPORTV2DATA *ged, 
                               G3DOBJECT     *obj, 
                               uint32_t       flags, 
                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
     if ( obj->type == G3DSPHERETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE,
-                                       g3dexportsphere,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE,
+                                       g3dexportv2sphere,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -131,8 +131,8 @@ uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DTORUSTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS,
-                                       g3dexporttorus,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS,
+                                       g3dexportv2torus,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -140,8 +140,8 @@ uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DCUBETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE,
-                                       g3dexportcube,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE,
+                                       g3dexportv2cube,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -149,8 +149,8 @@ uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DCYLINDERTYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER,
-                                       g3dexportcylinder,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER,
+                                       g3dexportv2cylinder,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -158,8 +158,8 @@ uint32_t g3dexportprimitive ( G3DEXPORTDATA *ged,
     }
 
     if ( obj->type == G3DPLANETYPE ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE,
-                                       g3dexportplane,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE,
+                                       g3dexportv2plane,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,

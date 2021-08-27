@@ -31,7 +31,7 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimport_identityType ( G3DIMPORTDATA *gid, 
+void g3dimportv2_identityType ( G3DIMPORTV2DATA *gid, 
                               uint32_t       chunkEnd, 
                               FILE          *fsrc ) {
     uint32_t chunkSignature, chunkSize;
@@ -39,10 +39,10 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
     uint32_t   active;      /**** is object active or not ***/
     G3DKEY    *key;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -62,7 +62,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                 gid->currentObject = gid->currentScene;
 
                 if ( chunkSize ) {
-                    g3dimportscene ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2scene ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -76,13 +76,13 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportmesh ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2mesh ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
             case SIG_OBJECT_PRIMITIVE : {
                 if ( chunkSize ) {
-                    g3dimportprimitive ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2primitive ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -99,7 +99,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportcamera ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2camera ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -112,7 +112,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportlight ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2light ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -126,7 +126,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportbone ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2bone ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -139,7 +139,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportsymmetry ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2symmetry ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -153,7 +153,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportsubdivider ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2subdivider ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -167,7 +167,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportskin ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2skin ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -180,7 +180,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportsplinerevolver ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2splinerevolver ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -195,7 +195,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportspline ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2spline ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -208,7 +208,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportwireframe ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2wireframe ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -222,7 +222,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimporttext ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2text ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -235,7 +235,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportffd ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2ffd ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -249,7 +249,7 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
                                      gid->engineFlags );
 
                 if ( chunkSize ) {
-                    g3dimportmorpher ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                    g3dimportv2morpher ( gid, ftell ( fsrc ) + chunkSize, fsrc );
                 }
             } break;
 
@@ -270,15 +270,15 @@ void g3dimport_identityType ( G3DIMPORTDATA *gid,
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }
 
 /******************************************************************************/
-void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2object ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
     uint32_t   type;        /***  object type ***/
     uint32_t   active;      /**** is object active or not ***/
@@ -286,10 +286,10 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
     memset ( gid->currentObjectName, 0x00, sizeof ( gid->currentObjectName ) );
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -300,20 +300,20 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_IDENTITY_NAME : {
                 /*** Potential buffer overflow here ***/
-                g3dimport_fread ( gid->currentObjectName, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( gid->currentObjectName, chunkSize, 0x01, fsrc );
 
                 printf ( "Object Name: %s\n", gid->currentObjectName );
             } break;
 
             case SIG_OBJECT_IDENTITY_TYPE : {
-                g3dimport_identityType ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2_identityType ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_IDENTITY_PARENT : {
                 G3DOBJECT *parentObject = NULL;
                 uint32_t   parentID;
 
-                g3dimport_fread ( &parentID, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &parentID, sizeof ( uint32_t ), 0x01, fsrc );
 
                 /*** We check the pointer because object might be NULL if  ***/
                 /*** coming from an unsupported primitive from a plugin e.g **/
@@ -323,7 +323,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_ACTIVE : {
-                g3dimport_freadl ( &active, fsrc );
+                g3dimportv2_freadl ( &active, fsrc );
 
                 if ( active ) {
                     g3dobject_activate ( gid->currentObject, gid->engineFlags );
@@ -335,20 +335,20 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_TRANSFORMATION : {
                 G3DVECTOR pos, rot, sca;
 
-                g3dimport_freadf ( &pos.x, fsrc );
-                g3dimport_freadf ( &pos.y, fsrc );
-                g3dimport_freadf ( &pos.z, fsrc );
-                g3dimport_freadf ( &pos.w, fsrc );
+                g3dimportv2_freadf ( &pos.x, fsrc );
+                g3dimportv2_freadf ( &pos.y, fsrc );
+                g3dimportv2_freadf ( &pos.z, fsrc );
+                g3dimportv2_freadf ( &pos.w, fsrc );
 
-                g3dimport_freadf ( &rot.x, fsrc );
-                g3dimport_freadf ( &rot.y, fsrc );
-                g3dimport_freadf ( &rot.z, fsrc );
-                g3dimport_freadf ( &rot.w, fsrc );
+                g3dimportv2_freadf ( &rot.x, fsrc );
+                g3dimportv2_freadf ( &rot.y, fsrc );
+                g3dimportv2_freadf ( &rot.z, fsrc );
+                g3dimportv2_freadf ( &rot.w, fsrc );
 
-                g3dimport_freadf ( &sca.x, fsrc );
-                g3dimport_freadf ( &sca.y, fsrc );
-                g3dimport_freadf ( &sca.z, fsrc );
-                g3dimport_freadf ( &sca.w, fsrc );
+                g3dimportv2_freadf ( &sca.x, fsrc );
+                g3dimportv2_freadf ( &sca.y, fsrc );
+                g3dimportv2_freadf ( &sca.z, fsrc );
+                g3dimportv2_freadf ( &sca.w, fsrc );
 
                 if ( gid->currentObject ) {
                     memcpy ( &gid->currentObject->pos, &pos, sizeof ( G3DVECTOR ) );
@@ -360,7 +360,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_UVMAPS : {
-                g3dimportuvmap ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2uvmap ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_TEXTURES : {
@@ -374,7 +374,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DMATERIAL *mat = NULL;
                 uint32_t matID;
 
-                g3dimport_freadl ( &matID, fsrc );
+                g3dimportv2_freadl ( &matID, fsrc );
 
                 mat = g3dscene_getMaterialByID ( gid->currentScene, matID );
 
@@ -387,7 +387,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DUVMAP *uvmap = NULL;
                 uint32_t uvmapID;
 
-                g3dimport_freadl ( &uvmapID, fsrc );
+                g3dimportv2_freadl ( &uvmapID, fsrc );
 
                 uvmap = g3dmesh_getUVMapByID ( gid->currentObject, uvmapID );
 
@@ -400,13 +400,13 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dtexture_restrict ( gid->currentTexture );
 
-                g3dimport_freadl ( &nbfacgrp, fsrc );
+                g3dimportv2_freadl ( &nbfacgrp, fsrc );
 
                 for ( i = 0x00; i < nbfacgrp; i++ ) {
                     G3DFACEGROUP *facgrp;
                     uint32_t facgrpID;
 
-                    g3dimport_freadl ( &facgrpID, fsrc );
+                    g3dimportv2_freadl ( &facgrpID, fsrc );
 
                     facgrp = g3dmesh_getFacegroupByID ( gid->currentObject, facgrpID );
 
@@ -415,7 +415,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_KEYS : {
-                g3dimportkey ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                g3dimportv2key ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             case SIG_OBJECT_KEY_TRANSFORMATION : {
@@ -424,22 +424,22 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DVECTOR pos, rot, sca;
                 float frame;
 
-                g3dimport_freadf ( &frame, fsrc );
+                g3dimportv2_freadf ( &frame, fsrc );
 
-                g3dimport_freadf ( &pos.x , fsrc );
-                g3dimport_freadf ( &pos.y , fsrc );
-                g3dimport_freadf ( &pos.z , fsrc );
-                g3dimport_freadl ( &usepos, fsrc );
+                g3dimportv2_freadf ( &pos.x , fsrc );
+                g3dimportv2_freadf ( &pos.y , fsrc );
+                g3dimportv2_freadf ( &pos.z , fsrc );
+                g3dimportv2_freadl ( &usepos, fsrc );
 
-                g3dimport_freadf ( &rot.x , fsrc );
-                g3dimport_freadf ( &rot.y , fsrc );
-                g3dimport_freadf ( &rot.z , fsrc );
-                g3dimport_freadl ( &userot, fsrc );
+                g3dimportv2_freadf ( &rot.x , fsrc );
+                g3dimportv2_freadf ( &rot.y , fsrc );
+                g3dimportv2_freadf ( &rot.z , fsrc );
+                g3dimportv2_freadl ( &userot, fsrc );
 
-                g3dimport_freadf ( &sca.x , fsrc );
-                g3dimport_freadf ( &sca.y , fsrc );
-                g3dimport_freadf ( &sca.z , fsrc );
-                g3dimport_freadl ( &usesca, fsrc );
+                g3dimportv2_freadf ( &sca.x , fsrc );
+                g3dimportv2_freadf ( &sca.y , fsrc );
+                g3dimportv2_freadf ( &sca.z , fsrc );
+                g3dimportv2_freadl ( &usesca, fsrc );
 
                 if ( usepos ) key_flags |= KEYPOSITION;
                 if ( userot ) key_flags |= KEYROTATION;
@@ -459,7 +459,7 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_KEY_LOOP : {
                 float loopFrame;
 
-                g3dimport_freadf ( &loopFrame, fsrc );
+                g3dimportv2_freadf ( &loopFrame, fsrc );
 
                 g3dkey_setLoop ( key );
                 g3dkey_setLoopFrame ( key, loopFrame );
@@ -473,9 +473,9 @@ void g3dimportobject ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

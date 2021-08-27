@@ -31,6 +31,6 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-uint32_t g3dexportapp_writeChunk ( void *data, uint32_t flags, FILE *fdst ) {
+uint32_t g3dexportv2app_writeChunk ( void *data, uint32_t flags, FILE *fdst ) {
          return 0;
 }

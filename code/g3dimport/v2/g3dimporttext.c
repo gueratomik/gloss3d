@@ -31,15 +31,15 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2text ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
     char *fontFile = NULL;
     char *fontFace = NULL;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -50,7 +50,7 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 fontFile = calloc ( 0x01, chunkSize + 0x01 );
 
-                g3dimport_fread ( fontFile, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( fontFile, chunkSize, 0x01, fsrc );
             } break;
 
             case SIG_OBJECT_TEXT_FONT_FACE : {
@@ -58,14 +58,14 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 fontFace = calloc ( 0x01, chunkSize + 0x01 );
 
-                g3dimport_fread ( fontFace, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( fontFace, chunkSize, 0x01, fsrc );
             } break;
 
             case SIG_OBJECT_TEXT_FONT_SIZE : {
                 G3DTEXT *txt = ( G3DTEXT * ) gid->currentObject;
                 uint32_t fontSize;
 
-                g3dimport_freadl ( &fontSize, fsrc );
+                g3dimportv2_freadl ( &fontSize, fsrc );
 
                 g3dtext_setFont ( txt,
                                   fontFace,
@@ -86,20 +86,20 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_TEXT_THICKNESS : {
                 G3DTEXT *txt = ( G3DTEXT * ) gid->currentObject;
 
-                g3dimport_freadf ( &txt->thickness, fsrc );
+                g3dimportv2_freadf ( &txt->thickness, fsrc );
             } break;
 
             case SIG_OBJECT_TEXT_ROUNDNESS : {
                 G3DTEXT *txt = ( G3DTEXT * ) gid->currentObject;
 
-                g3dimport_freadl ( &txt->roundness, fsrc );
+                g3dimportv2_freadl ( &txt->roundness, fsrc );
             } break;
 
             case SIG_OBJECT_TEXT_STRING : {
                 char *str = calloc ( 0x01, chunkSize + 0x01 );
                 G3DTEXT *txt = ( G3DTEXT * ) gid->currentObject;
 
-                g3dimport_fread ( str, chunkSize, 0x01, fsrc );
+                g3dimportv2_fread ( str, chunkSize, 0x01, fsrc );
 
                 g3dtext_setText ( txt, str, gid->engineFlags );
 
@@ -114,9 +114,9 @@ void g3dimporttext ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

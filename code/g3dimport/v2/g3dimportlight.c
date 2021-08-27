@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2light ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -46,7 +46,7 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_LIGHT_INTENSITY : {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
 
-                g3dimport_freadf ( &lig->intensity, fsrc );
+                g3dimportv2_freadf ( &lig->intensity, fsrc );
             } break;
 
             case SIG_OBJECT_LIGHT_SHADOW : {
@@ -56,9 +56,9 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 float spotLength, spotAngle, spotFadeAngle;
 
-                g3dimport_freadf ( &spotLength   , fsrc );
-                g3dimport_freadf ( &spotAngle    , fsrc );
-                g3dimport_freadf ( &spotFadeAngle, fsrc );
+                g3dimportv2_freadf ( &spotLength   , fsrc );
+                g3dimportv2_freadf ( &spotAngle    , fsrc );
+                g3dimportv2_freadf ( &spotFadeAngle, fsrc );
 
                 g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
             } break;
@@ -67,7 +67,7 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 uint32_t shadowing;
 
-                g3dimport_freadl ( &shadowing, fsrc );
+                g3dimportv2_freadl ( &shadowing, fsrc );
 
                 if ( shadowing ) gid->currentObject->flags |= LIGHTCASTSHADOWS;
             } break;
@@ -76,10 +76,10 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 G3DCOLOR color;
 
-                g3dimport_freadf ( &color.r, fsrc );
-                g3dimport_freadf ( &color.g, fsrc );
-                g3dimport_freadf ( &color.b, fsrc );
-                g3dimport_freadf ( &color.a, fsrc );
+                g3dimportv2_freadf ( &color.r, fsrc );
+                g3dimportv2_freadf ( &color.g, fsrc );
+                g3dimportv2_freadf ( &color.b, fsrc );
+                g3dimportv2_freadf ( &color.a, fsrc );
 
                 g3dcolor_toRGBA ( &color, &lig->shadowColor );
             } break;
@@ -88,10 +88,10 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 G3DCOLOR color;
 
-                g3dimport_freadf ( &color.r, fsrc );
-                g3dimport_freadf ( &color.g, fsrc );
-                g3dimport_freadf ( &color.b, fsrc );
-                g3dimport_freadf ( &color.a, fsrc );
+                g3dimportv2_freadf ( &color.r, fsrc );
+                g3dimportv2_freadf ( &color.g, fsrc );
+                g3dimportv2_freadf ( &color.b, fsrc );
+                g3dimportv2_freadf ( &color.a, fsrc );
 
                 g3dcolor_toRGBA ( &color, &lig->diffuseColor );
             } break;
@@ -100,10 +100,10 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 G3DCOLOR color;
 
-                g3dimport_freadf ( &color.r, fsrc );
-                g3dimport_freadf ( &color.g, fsrc );
-                g3dimport_freadf ( &color.b, fsrc );
-                g3dimport_freadf ( &color.a, fsrc );
+                g3dimportv2_freadf ( &color.r, fsrc );
+                g3dimportv2_freadf ( &color.g, fsrc );
+                g3dimportv2_freadf ( &color.b, fsrc );
+                g3dimportv2_freadf ( &color.a, fsrc );
 
                 g3dcolor_toRGBA ( &color, &lig->specularColor );
             } break;
@@ -112,10 +112,10 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 G3DCOLOR color;
 
-                g3dimport_freadf ( &color.r, fsrc );
-                g3dimport_freadf ( &color.g, fsrc );
-                g3dimport_freadf ( &color.b, fsrc );
-                g3dimport_freadf ( &color.a, fsrc );
+                g3dimportv2_freadf ( &color.r, fsrc );
+                g3dimportv2_freadf ( &color.g, fsrc );
+                g3dimportv2_freadf ( &color.b, fsrc );
+                g3dimportv2_freadf ( &color.a, fsrc );
 
                 g3dcolor_toRGBA ( &color, &lig->ambientColor );
             } break;
@@ -128,9 +128,9 @@ void g3dimportlight ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

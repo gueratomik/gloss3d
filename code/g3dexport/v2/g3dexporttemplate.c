@@ -31,28 +31,28 @@
 
 
 /******************************************************************************/
-static uint32_t g3dexportmyobjectvar ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2myobjectvar ( G3DEXPORTV2DATA *ged, 
                                        mytype        *myobject, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwrite ( &myobject->myvar, sizeof ( uint32_t ), 0x01, fdst );
+    size += g3dexportv2_fwrite ( &myobject->myvar, sizeof ( uint32_t ), 0x01, fdst );
 
     return size;
 }
 
 
 /******************************************************************************/
-uint32_t g3dexportmyobject ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2myobject ( G3DEXPORTV2DATA *ged, 
                               mytype        *myobject, 
                               uint32_t       flags, 
                               FILE          *fdst ) {
     uint32_t size = 0x00;
 
 
-    size += g3dexport_writeChunk ( SIG_XXXXXXX,
-                                   g3dexportxxxxx,
+    size += g3dexportv2_writeChunk ( SIG_XXXXXXX,
+                                   g3dexportv2xxxxx,
                                    ged,
                                    myobject,
                                    0xFFFFFFFF,

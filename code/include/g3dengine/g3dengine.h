@@ -765,6 +765,7 @@ typedef struct _G3DOBJECT {
     G3DCURVE *rotCurve; /* X rotation dynamics */
     G3DCURVE *scaCurve; /* X scale dynamics */
     LIST     *lext; /* list of object extensions */
+    LIST     *ltag;
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1025,6 +1026,7 @@ typedef struct _G3DCUTFACE {
 
 /******************************************************************************/
 #include <g3dengine/g3dlight.h>
+#include <g3dengine/g3dtag.h>
 
 /******************************************************************************/
 typedef struct _G3DCATMULLSCHEME {
@@ -2009,7 +2011,12 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
 void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
                                          G3DKEY    *key, 
                                          uint32_t   keyFlags );
-
+void g3dobject_preanim_tags ( G3DOBJECT *obj, 
+                              float      frame, 
+                              uint64_t   engine_flags );
+void g3dobject_postanim_tags ( G3DOBJECT *obj, 
+                               float      frame, 
+                               uint64_t   engine_flags );
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags );
 
 /******************************************************************************/
@@ -2045,6 +2052,10 @@ void       g3dobject_init ( G3DOBJECT   *obj,
                                                       G3DOBJECT *,
                                                       G3DOBJECT *,
                                                       uint32_t ) );
+void g3dobject_addTag ( G3DOBJECT *obj, 
+                        G3DTAG    *tag );
+void g3dobject_removeTag ( G3DOBJECT *obj, 
+                           G3DTAG    *tag );
 uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
                                    uint64_t   engine_flags  );

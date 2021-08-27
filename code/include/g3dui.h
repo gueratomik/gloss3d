@@ -60,7 +60,7 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <qiss3d/q3d.h>
+
 
 #ifdef __linux__
 /*#include <r3dnet.h>*/
@@ -71,8 +71,11 @@
 #include <g3dcom.h>
 #include <g3dexport.h>
 #include <g3dexportv2.h>
+#include <g3dexportv3.h>
 #include <g3dimport.h>
 #include <g3dimportv2.h>
+#include <g3dimportv3.h>
+#include <qiss3d/q3d.h>
 
 /******************************************************************************/
 #define GLOSS3DLICENSE \
@@ -573,6 +576,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_RESETBONETREE        "Whole tree"
 #define MENU_RESETBONEONLY        "This bone only"
 #define MENU_UNSELECTAREA         "Unselect area"
+
+#define MENU_ADDVIBRATOR          "Add Vibrator tag"
+#define MENU_ADDEMITTER           "Add Emitter tag"
+#define MENU_ADDTRACKER           "Add Tracker tag"
 
 #define MENU_ADDUVWMAP            "Add UVW Map"
 
@@ -1207,6 +1214,7 @@ void      common_g3dui_mirrorWeightGroupCbk   ( G3DUI *, const char * );
 void      common_g3dui_setMaterialCbk         ( G3DUI * );
 
 void      common_g3duimenubar_addUVMapCbk     ( G3DUI * );
+void      common_g3dui_addVibratorCbk         ( G3DUI * );
 void      common_g3duimenubar_alignUVMapCbk   ( G3DUI *, const char * );
 void      common_g3duimenubar_fitUVMapCbk     ( G3DUI * );
 
@@ -1546,11 +1554,11 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               uint32_t     sequence );
 
 /******************************************************************************/
-uint32_t g3dui_write ( G3DEXPORTDATA *ged, 
+uint32_t g3dui_write ( G3DEXPORTV3DATA *ged, 
                        G3DUI         *gui, 
                        uint32_t       flags, 
                        FILE          *fdst );
-void g3dui_read ( G3DIMPORTDATA *gid, 
+void g3dui_read ( G3DIMPORTV3DATA *gid, 
                   uint32_t       chunkEnd, 
                   FILE          *fsrc,
                   G3DUI         *gui );

@@ -30,20 +30,20 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rigSkin ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2bone_rigSkin ( G3DEXPORTV2DATA  *ged, 
                                         G3DRIG         *rig, 
                                         uint32_t        flags, 
                                         FILE           *fdst ) {
     uint32_t size = 0x00;
     uint32_t i;
 
-    size += g3dexport_fwritel ( &((G3DOBJECT*)rig->skn)->id, fdst );
+    size += g3dexportv2_fwritel ( &((G3DOBJECT*)rig->skn)->id, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rigSkinMatrix ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2bone_rigSkinMatrix ( G3DEXPORTV2DATA  *ged, 
                                               G3DRIG         *rig, 
                                               uint32_t        flags, 
                                               FILE           *fdst ) {
@@ -51,28 +51,28 @@ static uint32_t g3dexportbone_rigSkinMatrix ( G3DEXPORTDATA  *ged,
     uint32_t i;
 
     for ( i = 0x00; i < 0x10; i++ ) {
-        size += g3dexport_fwrited ( &rig->isknmatrix[i], fdst );
+        size += g3dexportv2_fwrited ( &rig->isknmatrix[i], fdst );
     }
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rigWeightgroup ( G3DEXPORTDATA  *ged, 
+static uint32_t g3dexportv2bone_rigWeightgroup ( G3DEXPORTV2DATA  *ged, 
                                                G3DWEIGHTGROUP *grp, 
                                                uint32_t        flags, 
                                                FILE           *fdst ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) grp->mes;
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritel ( &grp->id, fdst );
-    size += g3dexport_fwritel ( &obj->id, fdst );
+    size += g3dexportv2_fwritel ( &grp->id, fdst );
+    size += g3dexportv2_fwritel ( &obj->id, fdst );
 
     return size;
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rigWeightgroups ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_rigWeightgroups ( G3DEXPORTV2DATA *ged, 
                                                 G3DRIG        *rig, 
                                                 uint32_t       flags, 
                                                 FILE          *fdst ) {
@@ -82,8 +82,8 @@ static uint32_t g3dexportbone_rigWeightgroups ( G3DEXPORTDATA *ged,
     while ( ltmpgrp ) {
         G3DWEIGHTGROUP *grp = ( G3DRIG * ) ltmpgrp->data;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY,
-                                       g3dexportbone_rigWeightgroup,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY,
+                                       g3dexportv2bone_rigWeightgroup,
                                        ged,
                                        grp,
                                        0xFFFFFFFF,
@@ -96,28 +96,28 @@ static uint32_t g3dexportbone_rigWeightgroups ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rig ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_rig ( G3DEXPORTV2DATA *ged, 
                                     G3DRIG        *rig, 
                                     uint32_t       flags, 
                                     FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_SKIN,
-                                   g3dexportbone_rigSkin,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIG_SKIN,
+                                   g3dexportv2bone_rigSkin,
                                    ged,
                                    rig,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUPS,
-                                   g3dexportbone_rigWeightgroups,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIG_WEIGHTGROUPS,
+                                   g3dexportv2bone_rigWeightgroups,
                                    ged,
                                    rig,
                                    0xFFFFFFFF,
                                    fdst );
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_SKINMATRIX,
-                                   g3dexportbone_rigSkinMatrix,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIG_SKINMATRIX,
+                                   g3dexportv2bone_rigSkinMatrix,
                                    ged,
                                    rig,
                                    0xFFFFFFFF,
@@ -127,7 +127,7 @@ static uint32_t g3dexportbone_rig ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_rigs ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_rigs ( G3DEXPORTV2DATA *ged, 
                                      G3DBONE       *bon, 
                                      uint32_t       flags, 
                                      FILE          *fdst ) {
@@ -137,8 +137,8 @@ static uint32_t g3dexportbone_rigs ( G3DEXPORTDATA *ged,
     while ( ltmprig ) {
         G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
 
-        size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIG_ENTRY,
-                                       g3dexportbone_rig,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIG_ENTRY,
+                                       g3dexportv2bone_rig,
                                        ged,
                                        rig,
                                        0xFFFFFFFF,
@@ -151,40 +151,40 @@ static uint32_t g3dexportbone_rigs ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_fixingTransformation ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_fixingTransformation ( G3DEXPORTV2DATA *ged, 
                                                      G3DBONE       *bon, 
                                                      uint32_t       flags, 
                                                      FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_fwritef ( &bon->fixpos.x, fdst );
-    size += g3dexport_fwritef ( &bon->fixpos.y, fdst );
-    size += g3dexport_fwritef ( &bon->fixpos.z, fdst );
-    size += g3dexport_fwritef ( &bon->fixpos.w, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixpos.x, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixpos.y, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixpos.z, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixpos.w, fdst );
 
-    size += g3dexport_fwritef ( &bon->fixrot.x, fdst );
-    size += g3dexport_fwritef ( &bon->fixrot.y, fdst );
-    size += g3dexport_fwritef ( &bon->fixrot.z, fdst );
-    size += g3dexport_fwritef ( &bon->fixrot.w, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixrot.x, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixrot.y, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixrot.z, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixrot.w, fdst );
 
-    size += g3dexport_fwritef ( &bon->fixsca.x, fdst );
-    size += g3dexport_fwritef ( &bon->fixsca.y, fdst );
-    size += g3dexport_fwritef ( &bon->fixsca.z, fdst );
-    size += g3dexport_fwritef ( &bon->fixsca.w, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixsca.x, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixsca.y, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixsca.z, fdst );
+    size += g3dexportv2_fwritef ( &bon->fixsca.w, fdst );
 
     return size;
 }
 
 
 /******************************************************************************/
-static uint32_t g3dexportbone_fixing ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_fixing ( G3DEXPORTV2DATA *ged, 
                                        G3DBONE       *bon, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_FIXING_TRANSFORMATION,
-                                   g3dexportbone_fixingTransformation,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_FIXING_TRANSFORMATION,
+                                   g3dexportv2bone_fixingTransformation,
                                    ged,
                                    bon,
                                    0xFFFFFFFF,
@@ -194,31 +194,31 @@ static uint32_t g3dexportbone_fixing ( G3DEXPORTDATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportbone_length ( G3DEXPORTDATA *ged, 
+static uint32_t g3dexportv2bone_length ( G3DEXPORTV2DATA *ged, 
                                        G3DBONE       *bon, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
-    return g3dexport_fwritef ( &bon->len, fdst );
+    return g3dexportv2_fwritef ( &bon->len, fdst );
 }
 
 /******************************************************************************/
-uint32_t g3dexportbone ( G3DEXPORTDATA *ged, 
+uint32_t g3dexportv2bone ( G3DEXPORTV2DATA *ged, 
                          G3DBONE       *bon, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( SIG_OBJECT_BONE_LENGTH,
-                                   g3dexportbone_length,
+    size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_LENGTH,
+                                   g3dexportv2bone_length,
                                    ged,
                                    bon,
                                    0xFFFFFFFF,
                                    fdst );
 
     if ( obj->flags & BONEFIXED ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_BONE_FIXING,
-                                       g3dexportbone_fixing,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_FIXING,
+                                       g3dexportv2bone_fixing,
                                        ged,
                                        bon,
                                        0xFFFFFFFF,
@@ -226,8 +226,8 @@ uint32_t g3dexportbone ( G3DEXPORTDATA *ged,
     }
 
     if ( bon->lrig ) {
-        size += g3dexport_writeChunk ( SIG_OBJECT_BONE_RIGS,
-                                       g3dexportbone_rigs,
+        size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_RIGS,
+                                       g3dexportv2bone_rigs,
                                        ged,
                                        bon,
                                        0xFFFFFFFF,

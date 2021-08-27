@@ -31,13 +31,13 @@
 #include <g3dimportv2.h>
 
 /******************************************************************************/
-void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
-    g3dimportdata_incrementIndentLevel ( gid );
+    g3dimportv2data_incrementIndentLevel ( gid );
 
-    g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-    g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
     do {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
@@ -47,9 +47,9 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t slice, cap;
                 float radius;
 
-                g3dimport_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &slice , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &cap   , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &slice , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &cap   , sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dsphere_new ( gid->currentObjectID++, 
                                                      gid->currentObjectName, 
@@ -67,10 +67,10 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbx, nby, nbz;
                 float radius;
 
-                g3dimport_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &nbx   , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &nby   , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &nbz   , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &nbx   , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &nby   , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &nbz   , sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dcube_new ( gid->currentObjectID++, 
                                                    gid->currentObjectName,
@@ -89,11 +89,11 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t slice, cap;
                 uint32_t orientation;
 
-                g3dimport_fread ( &extrad     , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &intrad     , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &cap        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &extrad     , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &intrad     , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &cap        , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dtorus_new ( gid->currentObjectID++, 
                                                     gid->currentObjectName,
@@ -113,13 +113,13 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t slice, capx, capy;
                 float length, radius;
 
-                g3dimport_fread ( &length     , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &radius     , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &capx       , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &capy       , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &closed     , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &length     , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &radius     , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &capx       , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &capy       , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &closed     , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dcylinder_new ( gid->currentObjectID++, 
                                                        gid->currentObjectName,
@@ -139,11 +139,11 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t nbu, nbv;
                 float radu, radv;
 
-                g3dimport_fread ( &radu       , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &radv       , sizeof ( float    ), 0x01, fsrc );
-                g3dimport_fread ( &nbu        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &nbv        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimport_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &radu       , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &radv       , sizeof ( float    ), 0x01, fsrc );
+                g3dimportv2_fread ( &nbu        , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &nbv        , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dplane_new ( gid->currentObjectID++, 
                                                     gid->currentObjectName,
@@ -166,9 +166,9 @@ void g3dimportprimitive ( G3DIMPORTDATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         /** hand the file back to the parent function ***/
         if ( ftell ( fsrc ) == chunkEnd ) break;
 
-        g3dimport_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
-        g3dimport_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv2_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
     } while ( feof ( fsrc ) == 0x00 );
 
-    g3dimportdata_decrementIndentLevel ( gid );
+    g3dimportv2data_decrementIndentLevel ( gid );
 }

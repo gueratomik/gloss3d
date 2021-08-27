@@ -30,8 +30,8 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
-static uint32_t g3dexportextension_entry ( G3DEXPORTDATA       *ged, 
-                                           G3DEXPORTEXTENSION  *ext, 
+static uint32_t g3dexportv2extension_entry ( G3DEXPORTV2DATA       *ged, 
+                                           G3DEXPORTV2EXTENSION  *ext, 
                                            uint32_t             flags, 
                                            FILE                *fdst ) {
     uint32_t size = 0x00;
@@ -44,14 +44,14 @@ static uint32_t g3dexportextension_entry ( G3DEXPORTDATA       *ged,
 }
 
 /******************************************************************************/
-uint32_t g3dexportextension ( G3DEXPORTDATA       *ged, 
-                              G3DEXPORTEXTENSION  *ext, 
+uint32_t g3dexportv2extension ( G3DEXPORTV2DATA       *ged, 
+                              G3DEXPORTV2EXTENSION  *ext, 
                               uint32_t             flags, 
                               FILE                *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexport_writeChunk ( ext->signature,
-                                   g3dexportextension_entry,
+    size += g3dexportv2_writeChunk ( ext->signature,
+                                   g3dexportv2extension_entry,
                                    ged,
                                    ext,
                                    0xFFFFFFFF,
@@ -61,17 +61,17 @@ uint32_t g3dexportextension ( G3DEXPORTDATA       *ged,
 }
 
 /******************************************************************************/
-G3DEXPORTEXTENSION *g3dexportextension_new ( uint32_t signature,
-                                             uint32_t (*write)( G3DEXPORTDATA      *ged, 
-                                                                G3DEXPORTEXTENSION *ext, 
+G3DEXPORTV2EXTENSION *g3dexportv2extension_new ( uint32_t signature,
+                                             uint32_t (*write)( G3DEXPORTV2DATA      *ged, 
+                                                                G3DEXPORTV2EXTENSION *ext, 
                                                                 uint32_t            flags, 
                                                                 FILE               *fdst ),
                                              void      *data ) {
-    uint32_t size = sizeof ( G3DEXPORTEXTENSION );
-    G3DEXPORTEXTENSION *ext = ( G3DEXPORTEXTENSION * ) calloc ( 0x01, size );
+    uint32_t size = sizeof ( G3DEXPORTV2EXTENSION );
+    G3DEXPORTV2EXTENSION *ext = ( G3DEXPORTV2EXTENSION * ) calloc ( 0x01, size );
 
     if ( ext == NULL ) {
-        fprintf ( stderr, "g3dexportextension_new: calloc failed\n");
+        fprintf ( stderr, "g3dexportv2extension_new: calloc failed\n");
 
         return NULL;
     }
@@ -84,6 +84,6 @@ G3DEXPORTEXTENSION *g3dexportextension_new ( uint32_t signature,
 }
 
 /******************************************************************************/
-void g3dexportextension_free ( G3DEXPORTEXTENSION *ext ) {
+void g3dexportv2extension_free ( G3DEXPORTV2EXTENSION *ext ) {
     free ( ext );
 }

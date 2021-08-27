@@ -469,7 +469,7 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
 /******************************************************************************/
 void common_g3dui_saveG3DFile ( G3DUI *gui ) {
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DEXPORTEXTENSION *r3dext, *g3duiext;
+    G3DEXPORTV3EXTENSION *r3dext, *g3duiext;
     LIST *lext = NULL;
 
     g3dui_setHourGlass ( gui );
@@ -478,11 +478,11 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
      * we put this here and not in gloss3d initialization because the pointer
      * gui->lrsg is going to heck when we add a new set of render settings.
      */
-    r3dext = g3dexportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
+    r3dext = g3dexportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
                                       q3dsettings_write,
                                       gui->lrsg );
 
-    g3duiext = g3dexportextension_new ( SIG_G3DUI,
+    g3duiext = g3dexportv3extension_new ( SIG_G3DUI,
                                         g3dui_write,
                                         gui );
 
@@ -495,8 +495,8 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
                         lext, 
                         0x00 );
 
-    g3dexportextension_free ( g3duiext );
-    g3dexportextension_free ( r3dext   );
+    g3dexportv3extension_free ( g3duiext );
+    g3dexportv3extension_free ( r3dext   );
 
     list_free ( &lext, NULL );
 
@@ -533,7 +533,7 @@ void common_g3dui_setFileName ( G3DUI *gui, const char *filename ) {
 
 /******************************************************************************/
 void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
-    G3DIMPORTEXTENSION *r3dext, *g3duiext;
+    G3DIMPORTV3EXTENSION *r3dext, *g3duiext;
     LIST *lext = NULL;
     LIST *lrsg = NULL;
 
@@ -557,13 +557,13 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         list_free ( &gui->lrsg, q3dsettings_free );
 
         /* import render settings module */
-        r3dext = g3dimportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
+        r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
                                           q3dsettings_read,
                                          &lrsg );
         /* import G3DUI settings module */
-        g3duiext = g3dimportextension_new ( SIG_G3DUI,
-                                            g3dui_read,
-                                            gui );
+        g3duiext = g3dimportv3extension_new ( SIG_G3DUI,
+                                              g3dui_read,
+                                              gui );
 
         list_insert ( &lext, r3dext   );
         list_insert ( &lext, g3duiext );
@@ -598,8 +598,8 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         common_g3dui_useRenderSettings ( gui, defaultRsg );
     }
 
-    g3dimportextension_free ( g3duiext );
-    g3dimportextension_free ( r3dext   );
+    g3dimportv3extension_free ( g3duiext );
+    g3dimportv3extension_free ( r3dext   );
 
     list_free ( &lext, NULL );
     list_free ( &lrsg, NULL );
@@ -630,10 +630,10 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
 /******************************************************************************/
 G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
     LIST *limportExtensions = NULL;
-    G3DIMPORTEXTENSION *r3dext;
+    G3DIMPORTV3EXTENSION *r3dext;
 
     /* import render settings module */
-    r3dext = g3dimportextension_new ( SIG_RENDERSETTINGS_EXTENSION,
+    r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
                                       q3dsettings_read,
                                      &gui->lrsg );
 
@@ -663,7 +663,7 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
         printf ( "...Done!\n" );
     }
 
-    g3dimportextension_free ( r3dext );
+    g3dimportv3extension_free ( r3dext );
 
     list_free ( &limportExtensions, NULL );
 

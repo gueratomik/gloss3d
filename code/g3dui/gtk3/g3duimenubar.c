@@ -1348,6 +1348,28 @@ static G3DUIMENU help_menu = { "Help",
                                           NULL } };
 
 /******************************************************************************/
+void g3dui_addVibratorCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addVibratorCbk ( gui );
+}
+
+/******************************************************************************/
+/****************************** Tags MENU **********************************/
+static G3DUIMENU tags_menu_addVibrator     = { MENU_ADDVIBRATOR,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectMode_objectSelected,
+                                               g3dui_addVibratorCbk };
+
+/******************************************************************************/
+static G3DUIMENU tags_menu = { "Tags",
+                               G3DUIMENUTYPE_SUBMENU,
+                               NULL,
+                               NULL,
+                              .nodes = { &tags_menu_addVibrator,
+                                          NULL } };
+
+/******************************************************************************/
 /******************************* UVMapping MENU *******************************/
 static G3DUIMENU uvmapping_menu_align_xy = { MENU_ALIGNUVMAPXY,
                                              G3DUIMENUTYPE_PUSHBUTTON,
@@ -1911,6 +1933,7 @@ static G3DUIMENU rootnode = { "Bar",
                                         &objects_menu,
                                         &modifiers_menu,
                                         &multipliers_menu,
+                                        &tags_menu,
                                         &functions_menu,
                                         &uvmapping_menu,
                                         &render_menu,
