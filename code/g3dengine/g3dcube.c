@@ -286,9 +286,8 @@ void g3dcube_build ( G3DPRIMITIVE *pri, int nbslicex,
 }
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dcube_new ( uint32_t id, char *name,
-                                         int nbx, int nby, int nbz,
-                                         float radius ) {
+G3DPRIMITIVE *g3dcube_new ( uint32_t id, 
+                            char    *name ) {
     CUBEDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -304,7 +303,7 @@ G3DPRIMITIVE *g3dcube_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->type = G3DCUBETYPE;
 
-    g3dcube_build ( pri, nbx, nby, nbz, radius );
+    /*g3dcube_build ( pri, nbx, nby, nbz, radius );*/
 
     ((G3DMESH*)pri)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );;
 

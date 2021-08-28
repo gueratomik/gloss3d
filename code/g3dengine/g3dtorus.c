@@ -163,12 +163,8 @@ void g3dtorus_build ( G3DPRIMITIVE *pri, int orientation,
 }
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dtorus_new ( uint32_t id, char *name,
-                                          int orientation,
-                                          int slice,
-                                          int cap,
-                                          float extrad,
-                                          float intrad ) {
+G3DPRIMITIVE *g3dtorus_new ( uint32_t id, 
+                             char    *name ) {
     TORUSDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -184,7 +180,7 @@ G3DPRIMITIVE *g3dtorus_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->type = G3DTORUSTYPE;
 
-    g3dtorus_build ( pri, orientation, slice, cap, extrad, intrad );
+    /*g3dtorus_build ( pri, orientation, slice, cap, extrad, intrad );*/
 
 
     return pri;

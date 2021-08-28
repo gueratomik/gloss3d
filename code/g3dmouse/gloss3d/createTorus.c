@@ -96,8 +96,10 @@ static int createTorus ( G3DMOUSETOOL *mou,
                                MVX, PJX, VPX,
                                &objx, &objy, &objz );
 
-                pri = g3dtorus_new ( oid, "Torus", TORUSZX, 0x18 , 0x0C, 
-                                                            0.0f, 0.0f );
+                pri = g3dtorus_new ( oid, "Torus" );
+
+                g3dtorus_build ( pri, TORUSZX, 0x18 , 0x0C, 0.0f, 0.0f );
+
                 obj = ( G3DOBJECT * ) pri;
                 obj->pos.x = objx;
                 obj->pos.y = objy;

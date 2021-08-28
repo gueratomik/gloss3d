@@ -141,12 +141,8 @@ void g3dplane_build ( G3DPRIMITIVE *pri, int orientation,
 }
 
 /*****************************************************************************/
-G3DPRIMITIVE *g3dplane_new ( uint32_t id, char *name,
-                                          int orientation,
-                                          int nbu,
-                                          int nbv,
-                                          float radu,
-                                          float radv ) {
+G3DPRIMITIVE *g3dplane_new ( uint32_t id, 
+                             char *name ) {
     PLANEDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -162,7 +158,7 @@ G3DPRIMITIVE *g3dplane_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->type = G3DPLANETYPE;
 
-    g3dplane_build ( pri, orientation, nbu, nbv, radu, radv );
+    /*g3dplane_build ( pri, orientation, nbu, nbv, radu, radv );*/
 
 
     return pri;

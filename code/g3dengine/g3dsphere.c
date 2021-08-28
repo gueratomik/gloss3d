@@ -165,9 +165,8 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
 }
 
 /*****************************************************************************/
-G3DPRIMITIVE *g3dsphere_new ( uint32_t id, char *name,
-                                           int slice, int cap,
-                                           float radius ) {
+G3DPRIMITIVE *g3dsphere_new ( uint32_t id, 
+                              char    *name ) {
     SPHEREDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -185,7 +184,7 @@ G3DPRIMITIVE *g3dsphere_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->flags |= SPHEREISPERFECT;
 
-    g3dsphere_build ( pri, slice, cap, radius );
+    /*g3dsphere_build ( pri, slice, cap, radius );*/
 
 
     return pri;

@@ -93,7 +93,6 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
             case SIG_OBJECT_DECLARE_SPHERE :
             case SIG_OBJECT_DECLARE_TORUS :
             case SIG_OBJECT_DECLARE_CUBE :
-            case SIG_OBJECT_DECLARE_CONE :
             case SIG_OBJECT_DECLARE_PLANE :
             case SIG_OBJECT_DECLARE_CYLINDER :
             case SIG_OBJECT_DECLARE_CAMERA :
@@ -129,28 +128,39 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_NULL : {
                         obj = g3dobject_new ( gid->currentObjectID++, 
-                                              "NULL",
+                                              gid->currentObjectName,
                                               0x00 );
                     } break;
 
-                    /*case SIG_OBJECT_DECLARE_SPHERE : {
-
+                    case SIG_OBJECT_DECLARE_SPHERE : {
+                        obj = g3dsphere_new ( gid->currentObjectID++, 
+                                              gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_TORUS : {
+                        obj = g3dtorus_new ( gid->currentObjectID++, 
+                                             gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_TUBE : {
+                        obj = g3dtube_new ( gid->currentObjectID++, 
+                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_CUBE : {
-                    } break;
-
-                    case SIG_OBJECT_DECLARE_CONE : {
+                        obj = g3dcube_new ( gid->currentObjectID++, 
+                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_PLANE : {
+                        obj = g3dplane_new ( gid->currentObjectID++, 
+                                             gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_CYLINDER : {
-                    } break;*/
+                        obj = g3dcylinder_new ( gid->currentObjectID++, 
+                                                gid->currentObjectName );
+                    } break;
 
                     case SIG_OBJECT_DECLARE_CAMERA : {
                         obj = g3dcamera_new ( gid->currentObjectID++ ,

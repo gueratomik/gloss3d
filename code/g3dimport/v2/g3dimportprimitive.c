@@ -52,10 +52,12 @@ void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv2_fread ( &cap   , sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dsphere_new ( gid->currentObjectID++, 
-                                                     gid->currentObjectName, 
-                                                     slice, 
-                                                     cap, 
-                                                     radius );
+                                                     gid->currentObjectName );
+
+                g3dsphere_build ( gid->currentObject, 
+                                  slice, 
+                                  cap, 
+                                  radius );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -73,11 +75,13 @@ void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv2_fread ( &nbz   , sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dcube_new ( gid->currentObjectID++, 
-                                                   gid->currentObjectName,
-                                                   nbx,
-                                                   nby,
-                                                   nbz,
-                                                   radius );
+                                                   gid->currentObjectName );
+
+                g3dcube_build ( gid->currentObject,
+                                nbx,
+                                nby,
+                                nbz,
+                                radius );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -96,12 +100,14 @@ void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dtorus_new ( gid->currentObjectID++, 
-                                                    gid->currentObjectName,
-                                                    orientation,
-                                                    slice,
-                                                    cap,
-                                                    extrad,
-                                                    intrad );
+                                                    gid->currentObjectName );
+
+                g3dtorus_build ( gid->currentObject,
+                                 orientation,
+                                 slice,
+                                 cap,
+                                 extrad,
+                                 intrad );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -122,12 +128,14 @@ void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dcylinder_new ( gid->currentObjectID++, 
-                                                       gid->currentObjectName,
-                                                       slice,
-                                                       capx,
-                                                       capy, 
-                                                       radius,
-                                                       length );
+                                                       gid->currentObjectName );
+
+                g3dcylinder_build ( gid->currentObject,
+                                    slice,
+                                    capx,
+                                    capy, 
+                                    radius,
+                                    length );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -146,12 +154,14 @@ void g3dimportv2primitive ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv2_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
 
                 gid->currentObject = g3dplane_new ( gid->currentObjectID++, 
-                                                    gid->currentObjectName,
-                                                    orientation,
-                                                    nbu, 
-                                                    nbv, 
-                                                    radu, 
-                                                    radv );
+                                                    gid->currentObjectName );
+
+                g3dplane_build ( gid->currentObject,
+                                 orientation,
+                                 nbu, 
+                                 nbv, 
+                                 radu, 
+                                 radv );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 

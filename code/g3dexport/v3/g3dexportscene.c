@@ -100,14 +100,14 @@ static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged,
                                              fdst );
         break;
 
-        case G3DCONETYPE :
+        /*case G3DCONETYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CONE,
                                              g3dexportv3objects_declareObject,
                                              ged,
                                              obj,
                                              0xFFFFFFFF,
                                              fdst );
-        break;
+        break;*/
 
         case G3DPLANETYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_PLANE,
@@ -120,6 +120,15 @@ static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged,
 
         case G3DCYLINDERTYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CYLINDER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DTUBETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_TUBE,
                                              g3dexportv3objects_declareObject,
                                              ged,
                                              obj,

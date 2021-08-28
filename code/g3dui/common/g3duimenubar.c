@@ -719,9 +719,9 @@ void common_g3dui_addCylinderCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dcylinder_new ( pid, "Cylinder", 0x18,
-                                                           0x01,
-                                                           0x01, 1.0f, 1.0f );
+    G3DPRIMITIVE *pri = g3dcylinder_new ( pid, "Cylinder" );
+
+    g3dcylinder_build ( pri, 0x18, 0x01, 0x01, 1.0f, 1.0f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -745,9 +745,9 @@ void common_g3dui_addTubeCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dtube_new ( pid, "Tube", 0x18,
-                                                   0x01,
-                                                   0x01, 1.0f, 0.1f, 1.0f );
+    G3DPRIMITIVE *pri = g3dtube_new ( pid, "Tube" );
+
+    g3dtube_build ( pri, 0x18, 0x01, 0x01, 1.0f, 0.1f, 1.0f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -771,8 +771,9 @@ void common_g3dui_addTorusCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dtorus_new ( pid, "Torus", 0x00, 
-                                                     0x18, 0x0C, 0.75f, 0.25f );
+    G3DPRIMITIVE *pri = g3dtorus_new ( pid, "Torus" );
+
+    g3dtorus_build ( pri, 0x00, 0x18, 0x0C, 0.75f, 0.25f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -795,7 +796,9 @@ void common_g3dui_addSphereCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dsphere_new ( pid, "Sphere", 0x20, 0x10, 1.0f );
+    G3DPRIMITIVE *pri = g3dsphere_new ( pid, "Sphere" );
+
+    g3dsphere_build ( pri, 0x20, 0x10, 1.0f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -818,7 +821,9 @@ void common_g3dui_addCubeCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dcube_new ( pid, "Cube", 0x01, 0x01, 0x01, 1.0f );
+    G3DPRIMITIVE *pri = g3dcube_new ( pid, "Cube" );
+
+    g3dcube_build ( pri, 0x01, 0x01, 0x01, 1.0f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -841,8 +846,9 @@ void common_g3dui_addPlaneCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DPRIMITIVE *pri = g3dplane_new ( pid, "Plane", 0x00, 
-                                                     0x01, 0x01, 1.0f, 1.0f );
+    G3DPRIMITIVE *pri = g3dplane_new ( pid, "Plane" );
+
+    g3dplane_build ( pri, 0x00, 0x01, 0x01, 1.0f, 1.0f );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |

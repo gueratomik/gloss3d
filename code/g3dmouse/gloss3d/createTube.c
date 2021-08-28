@@ -94,7 +94,10 @@ static int createTube ( G3DMOUSETOOL *mou,
                                MVX, PJX, VPX,
                                &objx, &objy, &objz );
 
-                pri = g3dtube_new ( g3dscene_getNextObjectID ( sce ), "Tube", 0x18, 0x01, 0x01, 0.0f, 0.1f, 0.0f );
+                pri = g3dtube_new ( g3dscene_getNextObjectID ( sce ), "Tube" );
+ 
+                g3dtube_build ( pri, 0x18, 0x01, 0x01, 0.0f, 0.1f, 0.0f );
+ 
                 obj = ( G3DOBJECT * ) pri;
                 obj->pos.x = objx;
                 obj->pos.y = objy;

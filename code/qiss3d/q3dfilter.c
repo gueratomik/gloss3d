@@ -101,10 +101,6 @@ void q3dfilter_free ( Q3DFILTER *fil ) {
 
     if ( fil->free ) {
         fil->free ( fil );
-
-        printf ( "done\n" );
-    } else {
-        printf ( "not required\n" );
     }
 
     free ( fil );

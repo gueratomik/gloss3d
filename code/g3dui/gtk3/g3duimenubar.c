@@ -1837,6 +1837,12 @@ static G3DUIMENU file_menu_import_obj = { FILEDESC_OBJ,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           g3dui_importfilecbk };
+
+static G3DUIMENU file_menu_import_v2  = { FILEDESC_V2,
+                                          G3DUIMENUTYPE_PUSHBUTTON,
+                                          NULL,
+                                          g3dui_importfilecbk };
+
 #ifdef HAVE_EXPAT_H
 static G3DUIMENU file_menu_import_dae = { FILEDESC_DAE,
                                           G3DUIMENUTYPE_PUSHBUTTON,
@@ -1872,6 +1878,7 @@ static G3DUIMENU file_menu_import = { MENU_IMPORTFILE,
                                      NULL,
                                      .nodes = { &file_menu_import_3ds,
                                                 &file_menu_import_obj,
+                                                &file_menu_import_v2,
 #ifdef HAVE_EXPAT_H
                                                 &file_menu_import_dae,
 #endif

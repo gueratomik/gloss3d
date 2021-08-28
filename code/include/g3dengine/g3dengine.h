@@ -1357,7 +1357,6 @@ typedef struct _TUBEDATASTRUCT {
     float radius;
     float thickness;
     float length;
-    uint32_t closed;
     uint32_t orientation;
 } TUBEDATASTRUCT;
 
@@ -2223,7 +2222,7 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj,
                                uint64_t   engine_flags );
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dsphere_new ( uint32_t, char *, int, int, float );
+G3DPRIMITIVE *g3dsphere_new ( uint32_t, char * );
 void          g3dsphere_build ( G3DPRIMITIVE *, int, int, float );
 void          g3dsphere_size ( G3DPRIMITIVE *, float );
 
@@ -2231,10 +2230,10 @@ void          g3dsphere_size ( G3DPRIMITIVE *, float );
 void          g3dplane_allocArrays ( G3DPRIMITIVE *, int, int );
 void          g3dplane_boundaries  ( G3DPRIMITIVE * );
 void          g3dplane_build ( G3DPRIMITIVE *, int, int, int, float, float );
-G3DPRIMITIVE *g3dplane_new ( uint32_t, char *, int, int, int, float, float );
+G3DPRIMITIVE *g3dplane_new ( uint32_t, char * );
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dcube_new ( uint32_t, char *, int, int, int, float );
+G3DPRIMITIVE *g3dcube_new ( uint32_t, char * );
 void          g3dcube_build ( G3DPRIMITIVE *, int, int, int, float );
 void          g3dcube_allocArrays ( G3DPRIMITIVE *, int, int, int );
 void          g3dcube_draw ( G3DOBJECT *, uint32_t );
@@ -2243,12 +2242,12 @@ void          g3dcube_draw ( G3DOBJECT *, uint32_t );
 void          g3dtorus_allocArrays ( G3DPRIMITIVE *, int, int );
 void          g3dtorus_boundaries ( G3DPRIMITIVE * );
 void          g3dtorus_build ( G3DPRIMITIVE *, int, int, int, float, float );
-G3DPRIMITIVE *g3dtorus_new ( uint32_t, char *, int, int, int, float, float );
+G3DPRIMITIVE *g3dtorus_new ( uint32_t, char * );
 
 /******************************************************************************/
 void g3dcylinder_allocArrays ( G3DPRIMITIVE *, int, int, int, float, float );
 void g3dcylinder_build ( G3DPRIMITIVE *pri, int, int, int, float, float );
-G3DPRIMITIVE *g3dcylinder_new ( uint32_t, char *, int, int, int, float, float );
+G3DPRIMITIVE *g3dcylinder_new ( uint32_t, char * );
 
 /******************************************************************************/
 void g3dtube_build ( G3DPRIMITIVE *pri, 
@@ -2259,13 +2258,7 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
                      float         thickness,
                      float         length );
 G3DPRIMITIVE *g3dtube_new ( uint32_t id, 
-                            char    *name,
-                            int      slice,
-                            int      capx,
-                            int      capy,
-                            float    innerRadius, 
-                            float    thickness,
-                            float    length );
+                            char    *name );
 
 /******************************************************************************/
 G3DMESH *g3dmesh_new ( uint32_t id, 

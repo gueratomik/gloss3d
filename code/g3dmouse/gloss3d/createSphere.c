@@ -94,7 +94,10 @@ static int createSphere ( G3DMOUSETOOL *mou,
                            MVX, PJX, VPX,
                            &objx, &objy, &objz );
 
-            pri = g3dsphere_new ( pid, "Sphere", 0x20, 0x10, 0.0f );
+            pri = g3dsphere_new ( pid, "Sphere" );
+
+            g3dsphere_build ( pri, 0x20, 0x10, 0.0f );
+
             obj = ( G3DOBJECT * ) pri;
             obj->pos.x = objx;
             obj->pos.y = objy;

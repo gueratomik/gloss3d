@@ -105,10 +105,8 @@ void g3dcylinder_build ( G3DPRIMITIVE *pri, int slice,
 }
 
 /******************************************************************************/
-G3DPRIMITIVE *g3dcylinder_new ( uint32_t id, char *name,
-                                             int slice,
-                                             int capx, int capy,
-                                             float radius, float length ) {
+G3DPRIMITIVE *g3dcylinder_new ( uint32_t id, 
+                                char *name ) {
     CYLINDERDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -124,7 +122,7 @@ G3DPRIMITIVE *g3dcylinder_new ( uint32_t id, char *name,
 
     ((G3DOBJECT*)pri)->type = G3DCYLINDERTYPE;
 
-    g3dcylinder_build ( pri, slice, capx, capy, radius, length );
+    /*g3dcylinder_build ( pri, slice, capx, capy, radius, length );*/
 
     return pri;
 }

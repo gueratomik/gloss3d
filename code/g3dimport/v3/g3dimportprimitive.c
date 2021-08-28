@@ -47,19 +47,14 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 uint32_t slice, cap;
                 float radius;
 
-                g3dimportv3_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &slice , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &cap   , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv3_freadf ( &radius, fsrc );
+                g3dimportv3_freadl ( &slice , fsrc );
+                g3dimportv3_freadl ( &cap   , fsrc );
 
-                gid->currentObject = g3dsphere_new ( gid->currentObjectID++, 
-                                                     gid->currentObjectName, 
-                                                     slice, 
-                                                     cap, 
-                                                     radius );
-
-                g3dobject_addChild ( gid->parentObject, 
-                                     gid->currentObject, 
-                                     gid->engineFlags );
+                g3dsphere_build ( gid->currentObject,  
+                                  slice, 
+                                  cap, 
+                                  radius );
                 
             } break;
 
@@ -67,21 +62,16 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 uint32_t nbx, nby, nbz;
                 float radius;
 
-                g3dimportv3_fread ( &radius, sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &nbx   , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &nby   , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &nbz   , sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv3_freadf ( &radius, fsrc );
+                g3dimportv3_freadf ( &nbx   , fsrc );
+                g3dimportv3_freadl ( &nby   , fsrc );
+                g3dimportv3_freadl ( &nbz   , fsrc );
 
-                gid->currentObject = g3dcube_new ( gid->currentObjectID++, 
-                                                   gid->currentObjectName,
-                                                   nbx,
-                                                   nby,
-                                                   nbz,
-                                                   radius );
-
-                g3dobject_addChild ( gid->parentObject, 
-                                     gid->currentObject, 
-                                     gid->engineFlags );
+                g3dcube_build ( gid->currentObject,
+                                nbx,
+                                nby,
+                                nbz,
+                                radius );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_TORUS : {
@@ -89,23 +79,18 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 uint32_t slice, cap;
                 uint32_t orientation;
 
-                g3dimportv3_fread ( &extrad     , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &intrad     , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &cap        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv3_freadf ( &extrad     , fsrc );
+                g3dimportv3_freadf ( &intrad     , fsrc );
+                g3dimportv3_freadl ( &slice      , fsrc );
+                g3dimportv3_freadl ( &cap        , fsrc );
+                g3dimportv3_freadl ( &orientation, fsrc );
 
-                gid->currentObject = g3dtorus_new ( gid->currentObjectID++, 
-                                                    gid->currentObjectName,
-                                                    orientation,
-                                                    slice,
-                                                    cap,
-                                                    extrad,
-                                                    intrad );
-
-                g3dobject_addChild ( gid->parentObject, 
-                                     gid->currentObject, 
-                                     gid->engineFlags );
+                g3dtorus_build ( gid->currentObject,
+                                 orientation,
+                                 slice,
+                                 cap,
+                                 extrad,
+                                 intrad );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_CYLINDER : {
@@ -113,25 +98,41 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 uint32_t slice, capx, capy;
                 float length, radius;
 
-                g3dimportv3_fread ( &length     , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &radius     , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &slice      , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &capx       , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &capy       , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &closed     , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv3_freadf ( &length     , fsrc );
+                g3dimportv3_freadf ( &radius     , fsrc );
+                g3dimportv3_freadl ( &slice      , fsrc );
+                g3dimportv3_freadl ( &capx       , fsrc );
+                g3dimportv3_freadl ( &capy       , fsrc );
+                g3dimportv3_freadl ( &closed     , fsrc );
+                g3dimportv3_freadl ( &orientation, fsrc );
 
-                gid->currentObject = g3dcylinder_new ( gid->currentObjectID++, 
-                                                       gid->currentObjectName,
-                                                       slice,
-                                                       capx,
-                                                       capy, 
-                                                       radius,
-                                                       length );
+                g3dcylinder_build ( gid->currentObject,
+                                    slice,
+                                    capx,
+                                    capy, 
+                                    radius,
+                                    length );
+            } break;
 
-                g3dobject_addChild ( gid->parentObject, 
-                                     gid->currentObject, 
-                                     gid->engineFlags );
+            case SIG_OBJECT_PRIMITIVE_TUBE : {
+                uint32_t slice, capx, capy, orientation;
+                float length, radius, thickness;
+
+                g3dimportv3_freadf ( &length     , fsrc );
+                g3dimportv3_freadf ( &radius     , fsrc );
+                g3dimportv3_freadl ( &slice      , fsrc );
+                g3dimportv3_freadl ( &capx       , fsrc );
+                g3dimportv3_freadl ( &capy       , fsrc );
+                g3dimportv3_freadf ( &thickness  , fsrc );
+                g3dimportv3_freadl ( &orientation, fsrc );
+
+                g3dtube_build ( gid->currentObject,
+                                slice,
+                                capx,
+                                capy, 
+                                radius,
+                                thickness,
+                                length );
             } break;
 
             case SIG_OBJECT_PRIMITIVE_PLANE : {
@@ -139,23 +140,18 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 uint32_t nbu, nbv;
                 float radu, radv;
 
-                g3dimportv3_fread ( &radu       , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &radv       , sizeof ( float    ), 0x01, fsrc );
-                g3dimportv3_fread ( &nbu        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &nbv        , sizeof ( uint32_t ), 0x01, fsrc );
-                g3dimportv3_fread ( &orientation, sizeof ( uint32_t ), 0x01, fsrc );
+                g3dimportv3_freadf ( &radu       , fsrc );
+                g3dimportv3_freadf ( &radv       , fsrc );
+                g3dimportv3_freadl ( &nbu        , fsrc );
+                g3dimportv3_freadl ( &nbv        , fsrc );
+                g3dimportv3_freadl ( &orientation, fsrc );
 
-                gid->currentObject = g3dplane_new ( gid->currentObjectID++, 
-                                                    gid->currentObjectName,
-                                                    orientation,
-                                                    nbu, 
-                                                    nbv, 
-                                                    radu, 
-                                                    radv );
-
-                g3dobject_addChild ( gid->parentObject, 
-                                     gid->currentObject, 
-                                     gid->engineFlags );
+                g3dplane_build ( gid->currentObject,
+                                 orientation,
+                                 nbu, 
+                                 nbv, 
+                                 radu, 
+                                 radv );
             } break;
 
             default : {

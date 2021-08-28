@@ -434,12 +434,12 @@ G3DSCENE *common_g3dui_importfileokcbk ( G3DUI *gui, const char *filedesc,
             gui->sce = g3dscene_importC4D ( filename, gui->engine_flags );
         }
 #endif
-        /*if ( strcmp ( filedesc, FILEDESC_V1 ) == 0x00 ) {
-            gui->sce = g3dscene_open ( filename, 
-                                       NULL, 
-                                       NULL, 
-                                       gui->engine_flags );
-        }*/
+        if ( strcmp ( filedesc, FILEDESC_V2 ) == 0x00 ) {
+            gui->sce = g3dscene_importv2 ( filename, 
+                                           NULL, 
+                                           NULL, 
+                                           gui->engine_flags );
+        }
 
         if ( gui->sce ) {
             common_g3dui_setFileName ( gui, filename );

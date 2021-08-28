@@ -153,13 +153,7 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
 
 /******************************************************************************/
 G3DPRIMITIVE *g3dtube_new ( uint32_t id, 
-                            char    *name,
-                            int      slice,
-                            int      capx,
-                            int      capy,
-                            float    innerRadius, 
-                            float    thickness,
-                            float    length ) {
+                            char    *name ) {
     TUBEDATASTRUCT *data;
     G3DPRIMITIVE *pri;
 
@@ -175,7 +169,7 @@ G3DPRIMITIVE *g3dtube_new ( uint32_t id,
 
     ((G3DOBJECT*)pri)->type = G3DTUBETYPE;
 
-    g3dtube_build ( pri, slice, capx, capy, innerRadius, thickness, length );
+    /*g3dtube_build ( pri, slice, capx, capy, innerRadius, thickness, length );*/
 
     return pri;
 }

@@ -94,7 +94,11 @@ static int createPlane ( G3DMOUSETOOL *mou,
                            MVX, PJX, VPX,
                            &objx, &objy, &objz );
 
-            pri = g3dplane_new ( pid, "Plane", PLANEZX, 0x01, 0x01, 0.0f, 0.0f );
+            pri = g3dplane_new ( pid, "Plane" );
+
+            g3dplane_build ( pri, PLANEZX, 0x01, 0x01, 0.0f, 0.0f );
+
+
             obj = ( G3DOBJECT * ) pri;
             obj->pos.x = objx;
             obj->pos.y = objy;

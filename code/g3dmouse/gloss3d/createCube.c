@@ -94,7 +94,9 @@ static int createCube ( G3DMOUSETOOL *mou,
                            MVX, PJX, VPX,
                            &objx, &objy, &objz );
 
-            pri = g3dcube_new ( pid, "Cube", 0x01, 0x01, 0x01, 0.0f );
+            pri = g3dcube_new ( pid, "Cube" );
+
+            g3dcube_build ( pri, 0x01, 0x01, 0x01, 0.0f );
 
             obj = ( G3DOBJECT * ) pri;
             obj->pos.x = objx;

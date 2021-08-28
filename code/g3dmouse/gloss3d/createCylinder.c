@@ -94,7 +94,11 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
                                MVX, PJX, VPX,
                                &objx, &objy, &objz );
 
-                pri = g3dcylinder_new ( g3dscene_getNextObjectID ( sce ), "Cylinder", 0x18, 0x01, 0x01, 0.0f, 0.0f );
+                pri = g3dcylinder_new ( g3dscene_getNextObjectID ( sce ), "Cylinder" );
+
+                g3dcylinder_build ( pri, 0x18, 0x01, 0x01, 0.0f, 0.0f );
+
+
                 obj = ( G3DOBJECT * ) pri;
                 obj->pos.x = objx;
                 obj->pos.y = objy;

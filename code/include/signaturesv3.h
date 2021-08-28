@@ -58,7 +58,6 @@
 #define  SIG_OBJECT_CAMERA_FOCAL                        0x3B0925B4
 #define  SIG_OBJECT_DECLARE_BONE                        0xD38F2479
 #define  SIG_OBJECT_DECLARE_CAMERA                      0x7BA0BFB8
-#define  SIG_OBJECT_DECLARE_CONE                        0xC8A72901
 #define  SIG_OBJECT_DECLARE_CUBE                        0x1D993B1E
 #define  SIG_OBJECT_DECLARE_CYLINDER                    0xCAA14CDF
 #define  SIG_OBJECT_DECLARE_ENTRY                       0xDD427B41
@@ -77,6 +76,7 @@
 #define  SIG_OBJECT_DECLARE_SYMMETRY                    0x174EF613
 #define  SIG_OBJECT_DECLARE_TEXT                        0xC76424CA
 #define  SIG_OBJECT_DECLARE_TORUS                       0xCC576620
+#define  SIG_OBJECT_DECLARE_TUBE                        0xEA00D341
 #define  SIG_OBJECT_DECLARE_WIREFRAME                   0x513D8878
 #define  SIG_OBJECT_ENTRY                               0x08CAC424
 #define  SIG_OBJECT_FFD                                 0xAAB09BB7
@@ -143,6 +143,7 @@
 #define  SIG_OBJECT_PRIMITIVE_PLANE                     0x38CD7589
 #define  SIG_OBJECT_PRIMITIVE_SPHERE                    0xBB3D1FB3
 #define  SIG_OBJECT_PRIMITIVE_TORUS                     0x033C5DCC
+#define  SIG_OBJECT_PRIMITIVE_TUBE                      0x36425F0F
 #define  SIG_OBJECTS                                    0x15DB4DF2
 #define  SIG_OBJECT_SCENE                               0x4BBB8318
 #define  SIG_OBJECTS_DECLARE                            0x18686129
