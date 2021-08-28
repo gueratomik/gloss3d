@@ -67,6 +67,241 @@ void g3dimportv3scene ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 }
 
 /******************************************************************************/
+void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
+                                  uint32_t         chunkEnd, 
+                                  FILE            *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
+
+    g3dimportv3data_incrementIndentLevel ( gid );
+
+    g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_OBJECT_DECLARE_ENTRY : {
+                memset ( gid->currentObjectName, 
+                         0x00, 
+                         sizeof ( gid->currentObjectName ) );
+            } break;
+
+            case SIG_OBJECT_DECLARE_SCENE  :
+            case SIG_OBJECT_DECLARE_MESH :
+            case SIG_OBJECT_DECLARE_NULL :
+            case SIG_OBJECT_DECLARE_SPHERE :
+            case SIG_OBJECT_DECLARE_TORUS :
+            case SIG_OBJECT_DECLARE_CUBE :
+            case SIG_OBJECT_DECLARE_CONE :
+            case SIG_OBJECT_DECLARE_PLANE :
+            case SIG_OBJECT_DECLARE_CYLINDER :
+            case SIG_OBJECT_DECLARE_CAMERA :
+            case SIG_OBJECT_DECLARE_SUBDIVIDER :
+            case SIG_OBJECT_DECLARE_SPLINE :
+            case SIG_OBJECT_DECLARE_SPLINEREVOLVER :
+            case SIG_OBJECT_DECLARE_SKIN :
+            case SIG_OBJECT_DECLARE_FFD :
+            case SIG_OBJECT_DECLARE_WIREFRAME :
+            case SIG_OBJECT_DECLARE_SYMMETRY :
+            case SIG_OBJECT_DECLARE_TEXT :
+            case SIG_OBJECT_DECLARE_BONE :
+            case SIG_OBJECT_DECLARE_LIGHT :
+            case SIG_OBJECT_DECLARE_MORPHER : {
+                G3DOBJECT *obj = NULL;
+
+                /*** Potential buffer overflow here ***/
+                g3dimportv3_fread ( gid->currentObjectName, chunkSize, 0x01, fsrc );
+
+                printf ( "Object Name: %s\n", gid->currentObjectName );
+
+                /*** again ***/
+                switch ( chunkSignature ) {
+                    case SIG_OBJECT_DECLARE_SCENE : {
+                        obj = gid->currentScene;
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_MESH : {
+                        obj = g3dmesh_new ( gid->currentObjectID++ ,
+                                            gid->currentObjectName,
+                                            gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_NULL : {
+                        obj = g3dobject_new ( gid->currentObjectID++, 
+                                              "NULL",
+                                              0x00 );
+                    } break;
+
+                    /*case SIG_OBJECT_DECLARE_SPHERE : {
+
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_TORUS : {
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_CUBE : {
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_CONE : {
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_PLANE : {
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_CYLINDER : {
+                    } break;*/
+
+                    case SIG_OBJECT_DECLARE_CAMERA : {
+                        obj = g3dcamera_new ( gid->currentObjectID++ ,
+                                              gid->currentObjectName,
+                                              0.0f, 
+                                              0.0f, 
+                                              0.1f, 
+                                              1000.0f );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_SUBDIVIDER : {
+                        obj = g3dsubdivider_new ( gid->currentObjectID++ ,
+                                                  gid->currentObjectName,
+                                                  gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_SPLINE : {
+                        obj = g3dspline_new ( gid->currentObjectID++ ,
+                                              gid->currentObjectName,
+                                              CUBIC,
+                                              gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_SPLINEREVOLVER : {
+                        obj = g3dsplinerevolver_new ( gid->currentObjectID++ ,
+                                                      gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_SKIN : {
+                        obj = g3dskin_new ( gid->currentObjectID++ ,
+                                            gid->currentObjectName,
+                                            gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_FFD : {
+                        obj = g3dffd_new ( gid->currentObjectID++ ,
+                                           gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_WIREFRAME : {
+                        obj = g3dwireframe_new ( gid->currentObjectID++ ,
+                                                 gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_SYMMETRY : {
+                        obj = g3dsymmetry_new ( gid->currentObjectID++ ,
+                                                gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_TEXT : {
+                        obj = g3dtext_new ( gid->currentObjectID++ ,
+                                            gid->currentObjectName,
+                                            gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_BONE : {
+                        obj = g3dbone_new ( gid->currentObjectID++ ,
+                                            gid->currentObjectName,
+                                            0.0f );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_LIGHT : {
+                        obj = g3dlight_new ( gid->currentObjectID++ ,
+                                             gid->currentObjectName );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_MORPHER : {
+                        obj = g3dmorpher_new ( gid->currentObjectID++ ,
+                                               gid->currentObjectName,
+                                               gid->engineFlags );
+                    } break;
+
+                    default :
+                        obj = g3dobject_new ( gid->currentObjectID++, 
+                                              "NULL",
+                                              gid->engineFlags );
+                    break;
+                }
+
+                list_insert ( &gid->ldec, obj );
+            } break;
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportv3data_decrementIndentLevel ( gid );
+}
+
+/******************************************************************************/
+void g3dimportv3objects_define ( G3DIMPORTV3DATA *gid,
+                                 uint32_t         chunkEnd, 
+                                 FILE            *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
+    uint32_t nbobj = list_count ( gid->ldec );
+
+    if ( nbobj ) {
+        LIST *ltmpdec = gid->ldec;
+
+        gid->declaredObjects = ( G3DOBJECT ** ) calloc ( nbobj, sizeof ( G3DOBJECT * ) );
+
+        while ( ltmpdec ) {
+            G3DOBJECT *obj = ( G3DOBJECT * ) ltmpdec->data;
+
+            gid->declaredObjects[obj->id] = obj;
+
+            ltmpdec = ltmpdec->next;
+        }
+    }
+
+    g3dimportv3data_incrementIndentLevel ( gid );
+
+    g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
+
+        switch ( chunkSignature ) {
+            case SIG_OBJECT_ENTRY : {
+                gid->currentWeightgroupID = 0x00;
+                gid->currentFacegroupID = 0x00;
+                gid->currentUVMapID = 0x00;
+
+                g3dimportv3object ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportv3data_decrementIndentLevel ( gid );
+}
+
+/******************************************************************************/
 void g3dimportv3root ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
 
@@ -89,12 +324,12 @@ void g3dimportv3root ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECTS : {
             } break;
 
-            case SIG_OBJECT_ENTRY : {
-                gid->currentWeightgroupID = 0x00;
-                gid->currentFacegroupID = 0x00;
-                gid->currentUVMapID = 0x00;
+            case SIG_OBJECTS_DECLARE : {
+                g3dimportv3objects_declare ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
 
-                g3dimportv3object ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            case SIG_OBJECTS_DEFINE : {
+                g3dimportv3objects_define ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
             default : {
@@ -134,7 +369,7 @@ G3DSCENE *g3dscene_importv3 ( const char *filename,
     gid.currentScene = ( mergedScene ) ? mergedScene : 
                                          g3dscene_new ( gid.currentObjectID, 
                                                         "Scene" );
-    gid.currentObjectID++;
+    gid.currentObjectID++; /*** scene ID is 0 ***/
 
     gid.engineFlags  = VIEWOBJECT;
 

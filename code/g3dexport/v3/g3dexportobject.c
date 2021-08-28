@@ -394,37 +394,53 @@ static uint32_t g3dexportv3object_identityName ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3object_identityID ( G3DEXPORTV3DATA *ged, 
+                                               G3DOBJECT       *obj, 
+                                               uint32_t         flags, 
+                                               FILE            *fdst ) {
+    return g3dexportv3_fwrite ( &obj->id, sizeof ( uint32_t ), 0x01, fdst );
+}
+
+
+/******************************************************************************/
 static uint32_t g3dexportv3object_identity ( G3DEXPORTV3DATA *ged, 
                                            G3DOBJECT     *obj, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    /*** write object name ***/
-    size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
-                                   g3dexportv3object_identityName,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY_ID,
+                                     g3dexportv3object_identityID,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    /** commented out: now in the OBJECT DECLARE section ***/
+    /*size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
+                                     g3dexportv3object_identityName,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );*/
 
     if ( obj->parent ) {
         /*** write object parent ID ***/
         size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
-                                       g3dexportv3object_identityParent,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                                         g3dexportv3object_identityParent,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     /*** write object type ***/
     size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
-                                   g3dexportv3object_identityType,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3object_identityType,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -441,15 +457,10 @@ static uint32_t g3dexportv3object_active ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged, 
-                           G3DOBJECT     *obj, 
-                           uint32_t       flags,
-                           FILE          *fdst ) {
+                             G3DOBJECT     *obj, 
+                             uint32_t       flags,
+                             FILE          *fdst ) {
     uint32_t size = 0x00;
-
-    /*** ensure unique ID starting from 0, only when we write ***/
-    if ( fdst ) {
-        obj->id = ged->objectID++;
-    }
 
     /*** write objet identity ***/
     size += g3dexportv3_writeChunk ( SIG_OBJECT_IDENTITY,

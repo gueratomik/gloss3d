@@ -489,7 +489,7 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
     list_insert ( &lext, r3dext   );
     list_insert ( &lext, g3duiext );
 
-    g3dscene_exportv2 ( gui->sce, 
+    g3dscene_exportv3 ( gui->sce, 
                         gui->filename, 
                        "Made with GLOSS3D", 
                         lext, 
@@ -568,7 +568,7 @@ void common_g3dui_openG3DFile ( G3DUI *gui, const char *filename ) {
         list_insert ( &lext, r3dext   );
         list_insert ( &lext, g3duiext );
 
-        gui->sce = g3dscene_importv2 ( filename, NULL, lext, gui->engine_flags );
+        gui->sce = g3dscene_importv3 ( filename, NULL, lext, gui->engine_flags );
     }
 
     if ( lrsg ) {
@@ -651,7 +651,7 @@ G3DSCENE *common_g3dui_mergeG3DFile ( G3DUI *gui, const char *filename ) {
 
         g3dui_setHourGlass ( gui );
 
-        g3dscene_importv2 ( filename, gui->sce, limportExtensions, gui->engine_flags );
+        g3dscene_importv3 ( filename, gui->sce, limportExtensions, gui->engine_flags );
 
         g3dui_unsetHourGlass ( gui );
 

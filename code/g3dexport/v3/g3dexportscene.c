@@ -31,10 +31,223 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
-static uint32_t g3dexportv3root_objects ( G3DEXPORTV3DATA *ged, 
-                                        G3DSCENE      *sce, 
-                                        uint32_t       flags, 
-                                        FILE          *fdst ) {
+static uint32_t g3dexportv3objects_declareObject ( G3DEXPORTV3DATA *ged, 
+                                                   G3DOBJECT        *obj, 
+                                                   uint32_t         flags, 
+                                                   FILE            *fdst ) {
+    g3dexportv3_fwrite ( obj->name, strlen ( obj->name ), 0x01, fdst );
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged, 
+                                                  G3DOBJECT        *obj, 
+                                                  uint32_t         flags, 
+                                                  FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    switch ( obj->type ) {
+        case G3DSCENETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SCENE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DMESHTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_MESH,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DNULLTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_NULL,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSPHERETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SPHERE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DTORUSTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_TORUS,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DCUBETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CUBE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DCONETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CONE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DPLANETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_PLANE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DCYLINDERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CYLINDER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DCAMERATYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_CAMERA,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSUBDIVIDERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SUBDIVIDER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSPLINETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SPLINE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSPLINEREVOLVERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SPLINEREVOLVER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSKINTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SKIN,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DFFDTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_FFD,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DWIREFRAMETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_WIREFRAME,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DSYMMETRYTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SYMMETRY,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DTEXTTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_TEXT,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DBONETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_BONE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DLIGHTTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_LIGHT,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DMORPHERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_MORPHER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        default :
+
+        break;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3objects_declare ( G3DEXPORTV3DATA *ged, 
+                                             G3DSCENE        *sce, 
+                                             uint32_t         flags, 
+                                             FILE            *fdst ) {
     LIST *lobj = NULL, *ltmpobj; 
     uint32_t size = 0x00;
 
@@ -48,14 +261,16 @@ static uint32_t g3dexportv3root_objects ( G3DEXPORTV3DATA *ged,
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
+        obj->id = ged->objectID++;
+
         ged->currentObject = obj;
 
-        size += g3dexportv3_writeChunk ( SIG_OBJECT_ENTRY,
-                                       g3dexportv3object,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_ENTRY,
+                                         g3dexportv3objects_declareEntry,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ged->currentObject = NULL;
 
@@ -63,6 +278,66 @@ static uint32_t g3dexportv3root_objects ( G3DEXPORTV3DATA *ged,
     }
 
     list_free ( &lobj, NULL );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3objects_define ( G3DEXPORTV3DATA *ged, 
+                                            G3DSCENE        *sce, 
+                                            uint32_t         flags, 
+                                            FILE            *fdst ) {
+    LIST *lobj = NULL, *ltmpobj; 
+    uint32_t size = 0x00;
+
+    /*** flatten the object tree ***/
+    g3dobject_treeToList_r ( sce, &lobj );
+
+    ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        ged->currentObject = obj;
+
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_ENTRY,
+                                         g3dexportv3object,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
+
+        ged->currentObject = NULL;
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    list_free ( &lobj, NULL );
+
+    return size;
+}
+
+
+/******************************************************************************/
+static uint32_t g3dexportv3root_objects ( G3DEXPORTV3DATA *ged, 
+                                          G3DSCENE        *sce, 
+                                          uint32_t         flags, 
+                                          FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECTS_DECLARE,
+                                     g3dexportv3objects_declare,
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECTS_DEFINE,
+                                     g3dexportv3objects_define,
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -79,11 +354,11 @@ static uint32_t g3dexportv3root_extensions ( G3DEXPORTV3DATA *ged,
         G3DEXPORTV3EXTENSION *ext = ( G3DEXPORTV3EXTENSION * ) ltmpext->data;
 
         size += g3dexportv3_writeChunk ( SIG_EXTENSION_ENTRY,
-                                       g3dexportv3extension,
-                                       ged,
-                                       ext,
-                                       0xFFFFFFFF,
-                                       fdst );
+                                         g3dexportv3extension,
+                                         ged,
+                                         ext,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpext = ltmpext->next;
     }
@@ -106,11 +381,11 @@ static uint32_t g3dexportv3scene_materials ( G3DEXPORTV3DATA *ged,
         mat->id = matID++;
 
         size += g3dexportv3_writeChunk ( SIG_MATERIAL_ENTRY,
-                                       g3dexportv3material,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                                         g3dexportv3material,
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpmat = ltmpmat->next;
     }
@@ -126,11 +401,11 @@ uint32_t g3dexportv3scene ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_MATERIALS,
-                                   g3dexportv3scene_materials,
-                                   ged,
-                                   sce,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3scene_materials,
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -144,19 +419,19 @@ uint32_t g3dexportv3root ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECTS,
-                                   g3dexportv3root_objects,
-                                   ged,
-                                   sce,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3root_objects,
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( ged->lext ) {
         size += g3dexportv3_writeChunk ( SIG_EXTENSIONS,
-                                       g3dexportv3root_extensions,
-                                       ged,
-                                       sce,
-                                       0xFFFFFFFF,
-                                       fdst );
+                                         g3dexportv3root_extensions,
+                                         ged,
+                                         sce,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;
@@ -188,11 +463,11 @@ void g3dscene_exportv3 ( G3DSCENE *sce,
     ged.lext         = lextension;
 
     size = g3dexportv3_writeChunk ( SIG_ROOT,
-                                  g3dexportv3root,
-                                 &ged,
-                                  sce,
-                                  0xFFFFFFFF,
-                                  fdst );
+                                    g3dexportv3root,
+                                   &ged,
+                                    sce,
+                                    0xFFFFFFFF,
+                                    fdst );
 
     fprintf ( stderr, "%d bytes written\n", size );
 

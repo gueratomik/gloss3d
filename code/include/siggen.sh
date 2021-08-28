@@ -1,7 +1,7 @@
 #!/bin/bash
 
 tmpout="/tmp/signatures.tmp"
-header="signatures.h"
+header="signaturesv3.h"
 
 echo "#ifndef _SIGNATURES_H_" > $header
 echo "#define _SIGNATURES_H_" >> $header

@@ -15,353 +15,400 @@ SIG_ROOT=0x44335347
 ------------ version (uint32_t)
 ---- SIG_ROOT_COMMENT
 -------- comment ( char[] )
+
 ---- SIG_OBJECTS
--------- SIG_OBJECT_ENTRY
------------ SIG_OBJECT_IDENTITY
---------------- SIG_OBJECT_IDENTITY_NAME
-------------------- Name ( char[] )
---------------- SIG_OBJECT_IDENTITY_PARENT
-------------------- ID ( uint32_t )
---------------- SIG_OBJECT_IDENTITY_TYPE
-------------------- SIG_OBJECT_SCENE
------------------------ SIG_MATERIALS
---------------------------- SIG_MATERIAL_ENTRY
-------------------------------- SIG_MATERIAL_NAME
------------------------------------ Name ( char[] )
-------------------------------- SIG_MATERIAL_FLAGS
------------------------------------ Flags ( uint32_t )
-------------------------------- SIG_MATERIAL_DIFFUSE
------------------------------------ SIG_CHANNEL
---------------------------------------- SIG_CHANNEL_SOLID
-------------------------------------------- Red-Green-Blue-Alpha (float-float-float-float)
---------------------------------------- SIG_CHANNEL_IMAGE
-------------------------------------------- Path ( char[] )
---------------------------------------- SIG_CHANNEL_PROCEDURAL
-------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK
---------------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK_COLORS
+-------- SIG_OBJECTS_DECLARE
+------------ SIG_OBJECT_DECLARE_ENTRY
+---------------- SIG_OBJECT_DECLARE_SCENE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SPHERE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_TORUS
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_CUBE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_CONE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_PLANE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_CYLINDER
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_MESH
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_NULL
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_CAMERA
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SUBDIVIDER
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SPLINE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SPLINEREVOLVER
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SKIN
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_FFD
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_WIREFRAME
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_SYMMETRY
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_TEXT
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_BONE
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_LIGHT
+-------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_MORPHER
+-------------------- Name ( char[] )
+
+-------- SIG_OBJECTS_DEFINE
+------------ SIG_OBJECT_ENTRY
+--------------- SIG_OBJECT_IDENTITY
+------------------- SIG_OBJECT_IDENTITY_ID
+----------------------- ID ( uint32_t )
+------------------- SIG_OBJECT_IDENTITY_PARENT
+----------------------- ID ( uint32_t )
+------------------- SIG_OBJECT_IDENTITY_TYPE
+----------------------- SIG_OBJECT_SCENE
+--------------------------- SIG_MATERIALS
+------------------------------- SIG_MATERIAL_ENTRY
+----------------------------------- SIG_MATERIAL_NAME
+--------------------------------------- Name ( char[] )
+----------------------------------- SIG_MATERIAL_FLAGS
+--------------------------------------- Flags ( uint32_t )
+----------------------------------- SIG_MATERIAL_DIFFUSE
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- SIG_CHANNEL_SOLID
+----------------------------------------------- Red-Green-Blue-Alpha (float-float-float-float)
+------------------------------------------- SIG_CHANNEL_IMAGE
+----------------------------------------------- Path ( char[] )
+------------------------------------------- SIG_CHANNEL_PROCEDURAL
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK
+------------------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK_COLORS
+----------------------------------------------------------- color1 (float-float-float-float)
+----------------------------------------------------------- color2 (float-float-float-float)
+--------------------------------------------------- ----SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY
+----------------------------------------------------------- nbBricksPerLine (uint32_t)
+----------------------------------------------------------- nbLines (uint32_t)
+----------------------------------------------------------- uspacing (float)
+----------------------------------------------------------- vspacing (float)
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS_COLORS
 ------------------------------------------------------- color1 (float-float-float-float)
 ------------------------------------------------------- color2 (float-float-float-float)
---------------------------------------------------- SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY
-------------------------------------------------------- nbBricksPerLine (uint32_t)
-------------------------------------------------------- nbLines (uint32_t)
-------------------------------------------------------- uspacing (float)
-------------------------------------------------------- vspacing (float)
-------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_CHESS_COLORS
---------------------------------------------------- color1 (float-float-float-float)
---------------------------------------------------- color2 (float-float-float-float)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY
---------------------------------------------------- udiv ( uint32_t )
---------------------------------------------------- vdiv ( uint32_t )
-------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIR_COUNT
---------------------------------------------------- nbColorPairs (uint32_t)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIRS
---------------------------------------------------- color1 (float-float-float-float)
---------------------------------------------------- color2 (float-float-float-float)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_THRESHOLDS
---------------------------------------------------- threshold (float)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES
---------------------------------------------------- nbOctaves (uint32_t)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION
---------------------------------------------------- interpolation (uint32_t)
------------------------------------------------ SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS
---------------------------------------------------- nbGradientX (uint32_t)
---------------------------------------------------- nbGradientY (uint32_t)
-------------------------------------------- SIG_CHANNEL_PROCEDURAL_RESOLUTION
------------------------------------------------ width  ( uint32_t )
------------------------------------------------ height ( uint32_t )
------------------------------------------------ depth  ( uint32_t ) /* in bytes */
-------------------------------- SIG_MATERIAL_DISPLACEMENT
------------------------------------ SIG_MATERIAL_DISPLACEMENT_STRENGTH
---------------------------------------- strengh ( float )
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
-------------------------------- SIG_MATERIAL_SPECULAR
------------------------------------ SIG_MATERIAL_SPECULAR_SHININESS
---------------------------------------- shininess ( float )
------------------------------------ SIG_MATERIAL_SPECULAR_LEVEL
---------------------------------------- level ( float )
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
-------------------------------- SIG_MATERIAL_BUMP
------------------------------------ SIG_MATERIAL_BUMP_STRENGTH
---------------------------------------- shininess ( float )
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
-------------------------------- SIG_MATERIAL_REFLECTION
------------------------------------ SIG_MATERIAL_REFLECTION_STRENGTH
---------------------------------------- strength ( float )
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
-------------------------------- SIG_MATERIAL_REFRACTION
------------------------------------ SIG_MATERIAL_REFRACTION_STRENGTH
---------------------------------------- strength ( float )
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
-------------------------------- SIG_MATERIAL_ALPHA
------------------------------------ SIG_CHANNEL
---------------------------------------- ...
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY
+------------------------------------------------------- udiv ( uint32_t )
+------------------------------------------------------- vdiv ( uint32_t )
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIR_COUNT
+------------------------------------------------------- nbColorPairs (uint32_t)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIRS
+------------------------------------------------------- color1 (float-float-float-float)
+------------------------------------------------------- color2 (float-float-float-float)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_THRESHOLDS
+------------------------------------------------------- threshold (float)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES
+------------------------------------------------------- nbOctaves (uint32_t)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION
+------------------------------------------------------- interpolation (uint32_t)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS
+------------------------------------------------------- nbGradientX (uint32_t)
+------------------------------------------------------- nbGradientY (uint32_t)
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_RESOLUTION
+--------------------------------------------------- width  ( uint32_t )
+--------------------------------------------------- height ( uint32_t )
+--------------------------------------------------- depth  ( uint32_t ) /* in bytes */
+----------------------------------- SIG_MATERIAL_DISPLACEMENT
+--------------------------------------- SIG_MATERIAL_DISPLACEMENT_STRENGTH
+------------------------------------------- strengh ( float )
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
+----------------------------------- SIG_MATERIAL_SPECULAR
+--------------------------------------- SIG_MATERIAL_SPECULAR_SHININESS
+------------------------------------------- shininess ( float )
+--------------------------------------- SIG_MATERIAL_SPECULAR_LEVEL
+------------------------------------------- level ( float )
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
+----------------------------------- SIG_MATERIAL_BUMP
+--------------------------------------- SIG_MATERIAL_BUMP_STRENGTH
+------------------------------------------- shininess ( float )
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
+----------------------------------- SIG_MATERIAL_REFLECTION
+--------------------------------------- SIG_MATERIAL_REFLECTION_STRENGTH
+------------------------------------------- strength ( float )
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
+----------------------------------- SIG_MATERIAL_REFRACTION
+--------------------------------------- SIG_MATERIAL_REFRACTION_STRENGTH
+------------------------------------------- strength ( float )
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
+----------------------------------- SIG_MATERIAL_ALPHA
+--------------------------------------- SIG_CHANNEL
+------------------------------------------- ...
 
-------------------- SIG_OBJECT_NULL
+----------------------- SIG_OBJECT_NULL
 
-------------------- SIG_OBJECT_PRIMITIVE
------------------------ SIG_OBJECT_PRIMITIVE_SPHERE
---------------------------- Radius ( float    )
---------------------------- Slices ( uint32_t )
---------------------------- Caps   ( uint32_t )
------------------------ SIG_OBJECT_PRIMITIVE_TORUS
---------------------------- Outer Radius ( float    )
---------------------------- Inner Radius ( float    )
---------------------------- Slices       ( uint32_t )
---------------------------- Caps         ( uint32_t )
---------------------------- Orientation  ( uint32_t )
------------------------ SIG_OBJECT_PRIMITIVE_CUBE
---------------------------- Radius ( float    )
---------------------------- NbX    ( uint32_t )
---------------------------- NbY    ( uint32_t )
---------------------------- NbZ    ( uint32_t )
------------------------ SIG_OBJECT_PRIMITIVE_CONE
---------------------------- Length      ( float    )
---------------------------- Slices      ( uint32_t )
---------------------------- Caps        ( uint32_t )
---------------------------- Closed?     ( uint32_t )
---------------------------- Orientation ( uint32_t )
------------------------ SIG_OBJECT_PRIMITIVE_PLANE
---------------------------- URadius     ( float    )
---------------------------- VRadius     ( float    )
---------------------------- NbU         ( uint32_t )
---------------------------- NbV         ( uint32_t )
---------------------------- Orientation ( uint32_t )
------------------------ SIG_OBJECT_PRIMITIVE_CYLINDER
---------------------------- Length      ( float    )
---------------------------- Radius      ( float    )
---------------------------- Slices      ( uint32_t )
---------------------------- Capx        ( uint32_t )
---------------------------- Capy        ( uint32_t )
---------------------------- Closed?     ( uint32_t )
---------------------------- Orientation ( uint32_t )
+----------------------- SIG_OBJECT_PRIMITIVE
+--------------------------- SIG_OBJECT_PRIMITIVE_SPHERE
+------------------------------- Radius ( float    )
+------------------------------- Slices ( uint32_t )
+------------------------------- Caps   ( uint32_t )
+--------------------------- SIG_OBJECT_PRIMITIVE_TORUS
+------------------------------- Outer Radius ( float    )
+------------------------------- Inner Radius ( float    )
+------------------------------- Slices       ( uint32_t )
+------------------------------- Caps         ( uint32_t )
+------------------------------- Orientation  ( uint32_t )
+--------------------------- SIG_OBJECT_PRIMITIVE_CUBE
+------------------------------- Radius ( float    )
+------------------------------- NbX    ( uint32_t )
+------------------------------- NbY    ( uint32_t )
+------------------------------- NbZ    ( uint32_t )
+--------------------------- SIG_OBJECT_PRIMITIVE_CONE
+------------------------------- Length      ( float    )
+------------------------------- Slices      ( uint32_t )
+------------------------------- Caps        ( uint32_t )
+------------------------------- Closed?     ( uint32_t )
+------------------------------- Orientation ( uint32_t )
+--------------------------- SIG_OBJECT_PRIMITIVE_PLANE
+------------------------------- URadius     ( float    )
+------------------------------- VRadius     ( float    )
+------------------------------- NbU         ( uint32_t )
+------------------------------- NbV         ( uint32_t )
+------------------------------- Orientation ( uint32_t )
+--------------------------- SIG_OBJECT_PRIMITIVE_CYLINDER
+------------------------------- Length      ( float    )
+------------------------------- Radius      ( float    )
+------------------------------- Slices      ( uint32_t )
+------------------------------- Capx        ( uint32_t )
+------------------------------- Capy        ( uint32_t )
+------------------------------- Closed?     ( uint32_t )
+------------------------------- Orientation ( uint32_t )
 
-------------------- SIG_OBJECT_MESH
------------------------ SIG_OBJECT_MESH_GOURAUDLIMIT
---------------------------- angle ( float )
------------------------ SIG_OBJECT_MESH_GEOMETRY
---------------------------- SIG_OBJECT_MESH_GEOMETRY_VERTICES
-------------------------------- Number of Vertices  ( uint32_t )
-------------------------------- Array ( float-float-float-uint32_t )
---------------------------- SIG_OBJECT_MESH_GEOMETRY_EDGES
-------------------------------- Number of Edges  ( uint32_t )
-------------------------------- Array ( uint32_t-uint32_t-uint32_t )
---------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS
-------------------------------- Number of Polygons ( uint32_t )
-------------------------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
---------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES
-------------------------------- Number of Polygons ( uint32_t )
-------------------------------- Array ( ver: uint32_t-uint32_t-uint32_t-uint32_t,
-                                        edg: uint32_t-uint32_t-uint32_t-uint32_t )
------------------------ SIG_OBJECT_MESH_WEIGHTGROUPS
---------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
-------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_NAME
------------------------------------ Name ( char[] )
-------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
------------------------------------ Number of weights ( uint32_t )
---------------------------------------- Array( uint32_t[VERTEXID], float[Weight] )
------------------------ SIG_OBJECT_MESH_FACEGROUPS
---------------------------- SIG_OBJECT_MESH_FACEGROUP_ENTRY
-------------------------------- SIG_OBJECT_MESH_FACEGROUP_NAME
------------------------------------ Name ( char[] )
-------------------------------- SIG_OBJECT_MESH_FACEGROUP_FACES
------------------------------------ Number of faces ( uint32_t )
---------------------------------------- Array( uint32_t[FACEID] )
-
-------------------- SIG_OBJECT_CAMERA
------------------------ SIG_OBJECT_CAMERA_FOCAL
--------------------------- focal (float)
-
-------------------- SIG_OBJECT_SUBDIVIDER
------------------------ SIG_OBJECT_SUBDIVIDER_LEVEL
--------------------------- editor (uint32)
--------------------------- render (uint32)
-
-------------------- SIG_OBJECT_SPLINE
--------------------------- SIG_OBJECT_SPLINE_GEOMETRY
------------------------------- SIG_OBJECT_SPLINE_GEOMETRY_POINTS
----------------------------------- Number of Points  ( uint32_t )
----------------------------------- Array ( float-float-float-uint32_t)
------------------------------- SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS
----------------------------------- Number of Segments  ( uint32_t )
----------------------------------- Array ( uint32_t-uint32_t-float-float-float-float-float-float)
-
-------------------- SIG_OBJECT_SPLINEREVOLVER
------------------------ SIG_OBJECT_SPLINEREVOLVER_GEOMETRY
--------------------------- steps (uint32)
--------------------------- divis (uint32)
-
-------------------- SIG_OBJECT_SKIN
-
-------------------- SIG_OBJECT_FFD
--------------------------- SIG_OBJECT_FFD_GEOMETRY
-------------------------------- nbx (uint32_t)
-------------------------------- nby (uint32_t)
-------------------------------- nbz (uint32_t) 
-------------------------------- radx (float)
-------------------------------- rady (float)
-------------------------------- radz (float)
--------------------------- SIG_OBJECT_FFD_UVW
------------------------------- (float{x}-float{y}-float{z},float{u}-float{v}-float{w})[nb control points]
-
-------------------- SIG_OBJECT_WIREFRAME
------------------------ SIG_OBJECT_WIREFRAME_ALGO
----------------------------  algo (uint32_t)
------------------------ SIG_OBJECT_WIREFRAME_GEOMETRY
---------------------------- thickness (float)
---------------------------- aperture (float)
-
-------------------- SIG_OBJECT_SYMMETRY
------------------------ SIG_OBJECT_SYMMETRY_PLANE
--------------------------- orientation (uint32_t)
------------------------ SIG_OBJECT_SYMMETRY_MERGELIMIT
---------------------------  mergelimit ( float )
-
-------------------- SIG_OBJECT_TEXT
------------------------ SIG_OBJECT_TEXT_FONT
---------------------------- SIG_OBJECT_TEXT_FONT_FILE
-------------------------------- Name ( char[] )
---------------------------- SIG_OBJECT_TEXT_FONT_FACE
-------------------------------- Name ( char[] )
---------------------------- SIG_OBJECT_TEXT_FONT_SIZE
-------------------------------- fontSize ( uint32_t )
------------------------ SIG_OBJECT_TEXT_THICKNESS
---------------------------- thickness ( float )
------------------------ SIG_OBJECT_TEXT_ROUNDNESS
---------------------------- roundness ( uint32_t )
------------------------ SIG_OBJECT_TEXT_STRING
---------------------------- Name ( char[] )
-
-------------------- SIG_OBJECT_BONE
------------------------ SIG_OBJECT_BONE_LENGTH
---------------------------- length (float)
------------------------ SIG_OBJECT_BONE_RIGS
---------------------------- SIG_OBJECT_BONE_RIG_ENTRY
-------------------------------- SIG_OBJECT_BONE_RIG_SKIN
-------------------------------------------- skinID (uint32_t)
-------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUPS
------------------------------------ SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY
-------------------------------------------- weightgroupid (uint32_t)
-------------------------------------------- meshid (uint32_t)
-------------------------------- SIG_OBJECT_BONE_RIG_BINDMATRIX
------------------------------------ bindMatrix (double[0x10])
-------------------------------- SIG_OBJECT_BONE_RIG_SKINMATRIX
------------------------------------ skinMatrix (double[0x10])
------------------------ SIG_OBJECT_BONE_FIXING
---------------------------- SIG_OBJECT_BONE_FIXING_TRANSFORMATION
-------------------------------- Position ( float-float-float-float )
-------------------------------- Rotation ( float-float-float-float )
-------------------------------- Scale    ( float-float-float-float )
-
-------------------- SIG_OBJECT_LIGHT
------------------------ SIG_OBJECT_LIGHT_SPOT
----------------------------  length    (float)
----------------------------  angle     (float)
----------------------------  fadeAngle (float)
------------------------ SIG_OBJECT_LIGHT_SHADOW
---------------------------- SIG_OBJECT_LIGHT_SHADOW_CASTING
-------------------------------- boolean (uint32_t)
---------------------------- SIG_OBJECT_LIGHT_SHADOW_COLOR
-------------------------------- RGBA (float-float-float-float)
------------------------ SIG_OBJECT_LIGHT_INTENSITY
---------------------------- intensity (float)
------------------------ SIG_OBJECT_LIGHT_DIFFUSE
---------------------------- RGBA (float-float-float-float)
------------------------ SIG_OBJECT_LIGHT_SPECULAR
---------------------------- RGBA (float-float-float-float)
------------------------ SIG_OBJECT_LIGHT_AMBIENT
---------------------------- RGBA (float-float-float-float)
-
-------------------- SIG_OBJECT_UVMAPS
------------------------ SIG_OBJECT_UVMAP_ENTRY
---------------------------- SIG_OBJECT_UVMAP_PROJECTION
-------------------------------- Projection (uint32_t)
---------------------------- SIG_OBJECT_UVMAP_NAME
-------------------------------- Name ( char[] )
---------------------------- SIG_OBJECT_UVMAP_FLAGS
-------------------------------- Flags (uint32_t)
---------------------------- SIG_OBJECT_UVMAP_RADIUS
-------------------------------- xradius (float)
-------------------------------- yradius (float)
---------------------------- SIG_OBJECT_UVMAP_UVSETS
-------------------------------- nbUVSets (uint32_t)
-------------------------------- Array (flags,faceID,uv[0x04]), (uint32t_t,uint32_t,float[0x08])
---------------------------- SIG_OBJECT_UVMAP_TRANSFORMATION
-------------------------------- Position ( float-float-float-float )
-------------------------------- Rotation ( float-float-float-float )
-------------------------------- Scale    ( float-float-float-float )
-
-------------------- SIG_OBJECT_TEXTURES
------------------------ SIG_OBJECT_TEXTURE_ENTRY
---------------------------- SIG_OBJECT_TEXTURE_MATERIAL
-------------------------------- materialID (uint32_t)
---------------------------- SIG_OBJECT_TEXTURE_UVMAP
-------------------------------- uvmapID (uint32_t)
---------------------------- SIG_OBJECT_TEXTURE_RESTRICT
-------------------------------- nbfacegroups (uint32_t)
-------------------------------- facegroupID (uint32_t)
-
-------------------- SIG_OBJECT_MORPHER
------------------------ SIG_OBJECT_MORPHER_VERTEX_COUNT
---------------------------- nbver (uint32_t)
------------------------ SIG_OBJECT_MORPHER_MESHPOSES
---------------------------- SIG_OBJECT_MORPHER_MESHPOSE_ENTRY
-------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_NAME
------------------------------------ Name ( char[] )
-------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID
------------------------------------ poseID ( uint32_t )
-------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY
+----------------------- SIG_OBJECT_MESH
+--------------------------- SIG_OBJECT_MESH_GOURAUDLIMIT
+------------------------------- angle ( float )
+--------------------------- SIG_OBJECT_MESH_GEOMETRY
+------------------------------- SIG_OBJECT_MESH_GEOMETRY_VERTICES
 ----------------------------------- Number of Vertices  ( uint32_t )
------------------------------------ Array( uint32_t(verID)-float(x)-float(y)-float(z))
------------------------ SIG_OBJECT_MORPHER_RESETPOSITIONS
---------------------------- Number of saved Positions  ( uint32_t )
---------------------------- Array( uint32_t(verID)-float(orix)-float(oriy)-float(oriz))
+----------------------------------- Array ( float-float-float-uint32_t )
+------------------------------- SIG_OBJECT_MESH_GEOMETRY_EDGES
+----------------------------------- Number of Edges  ( uint32_t )
+----------------------------------- Array ( uint32_t-uint32_t-uint32_t )
+------------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS
+----------------------------------- Number of Polygons ( uint32_t )
+----------------------------------- Array ( uint32_t-uint32_t-uint32_t-uint32_t )
+------------------------------- SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES
+----------------------------------- Number of Polygons ( uint32_t )
+----------------------------------- Array ( ver: uint32_t-uint32_t-uint32_t-uint32_t,
+                                            edg: uint32_t-uint32_t-uint32_t-uint32_t )
+--------------------------- SIG_OBJECT_MESH_WEIGHTGROUPS
+------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY
+----------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_NAME
+--------------------------------------- Name ( char[] )
+----------------------------------- SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS
+--------------------------------------- Number of weights ( uint32_t )
+------------------------------------------- Array( uint32_t[VERTEXID], float[Weight] )
+--------------------------- SIG_OBJECT_MESH_FACEGROUPS
+------------------------------- SIG_OBJECT_MESH_FACEGROUP_ENTRY
+----------------------------------- SIG_OBJECT_MESH_FACEGROUP_NAME
+--------------------------------------- Name ( char[] )
+----------------------------------- SIG_OBJECT_MESH_FACEGROUP_FACES
+--------------------------------------- Number of faces ( uint32_t )
+------------------------------------------- Array( uint32_t[FACEID] )
 
------------ SIG_OBJECT_TRANSFORMATION
---------------- Position ( float-float-float-float )
---------------- Rotation ( float-float-float-float )
---------------- Scale    ( float-float-float-float )
------------ SIG_OBJECT_KEYS
---------------- SIG_OBJECT_KEY_ENTRY
-------------------- SIG_OBJECT_KEY_FLAGS
-------------------- SIG_OBJECT_KEY_FLAGS_TRANSLATION
------------------------ enabled (uint32_t)
-------------------- SIG_OBJECT_KEY_FLAGS_ROTATION
------------------------ enabled (uint32_t)
-------------------- SIG_OBJECT_KEY_FLAGS_SCALING
------------------------ enabled (uint32_t)
-------------------- SIG_OBJECT_KEY_FLAGS_DATA
------------------------ enabled (uint32_t)
-------------------- SIG_OBJECT_KEY_TRANSFORMATION
------------------------ frame num ( float )
------------------------ Position  ( float-float-float-uint32_t ) /** last int is usage **/
------------------------ Rotation  ( float-float-float-uint32_t ) /** last int is usage **/
------------------------ Scale     ( float-float-float-uint32_t ) /** last int is usage **/
-------------------- SIG_OBJECT_KEY_LOOP
--------------------   LoopFrame ( float )
-------------------- SIG_OBJECT_KEY_DATA
+----------------------- SIG_OBJECT_CAMERA
+--------------------------- SIG_OBJECT_CAMERA_FOCAL
+------------------------------ focal (float)
 
------------------------ SIG_OBJECT_KEY_DATA_MORPHER
---------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOTS
-------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ENTRY
------------------------------------ SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ID
---------------------------------------- poseID (uint32_t)
------------------------------------ SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS
---------------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS_RATE
-------------------------------------------- rate (float)
+----------------------- SIG_OBJECT_SUBDIVIDER
+--------------------------- SIG_OBJECT_SUBDIVIDER_LEVEL
+------------------------------ editor (uint32)
+------------------------------ render (uint32)
 
------------------------ SIG_OBJECT_KEY_DATA_LIGHT
---------------------------- SIG_OBJECT_LIGHT
-------------------------------- ( ... )
+----------------------- SIG_OBJECT_SPLINE
+------------------------------ SIG_OBJECT_SPLINE_GEOMETRY
+---------------------------------- SIG_OBJECT_SPLINE_GEOMETRY_POINTS
+-------------------------------------- Number of Points  ( uint32_t )
+-------------------------------------- Array ( float-float-float-uint32_t)
+---------------------------------- SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS
+-------------------------------------- Number of Segments  ( uint32_t )
+-------------------------------------- Array ( uint32_t-uint32_t-float-float-float-float-float-float)
 
------------ SIG_OBJECT_ACTIVE
---------------- active ( uint32_t ) /** 1 or 0 **/
----- SIG_EXTENSIONS
--------- SIG_EXTENSION_ENTRY
------------- XXXXXXX
+----------------------- SIG_OBJECT_SPLINEREVOLVER
+--------------------------- SIG_OBJECT_SPLINEREVOLVER_GEOMETRY
+------------------------------ steps (uint32)
+------------------------------ divis (uint32)
+
+----------------------- SIG_OBJECT_SKIN
+
+----------------------- SIG_OBJECT_FFD
+------------------------------ SIG_OBJECT_FFD_GEOMETRY
+----------------------------------- nbx (uint32_t)
+----------------------------------- nby (uint32_t)
+----------------------------------- nbz (uint32_t) 
+----------------------------------- radx (float)
+----------------------------------- rady (float)
+----------------------------------- radz (float)
+------------------------------ SIG_OBJECT_FFD_UVW
+---------------------------------- (float{x}-float{y}-float{z},float{u}-float{v}-float{w})[nb control points]
+
+----------------------- SIG_OBJECT_WIREFRAME
+--------------------------- SIG_OBJECT_WIREFRAME_ALGO
+-------------------------------  algo (uint32_t)
+--------------------------- SIG_OBJECT_WIREFRAME_GEOMETRY
+------------------------------- thickness (float)
+------------------------------- aperture (float)
+
+----------------------- SIG_OBJECT_SYMMETRY
+--------------------------- SIG_OBJECT_SYMMETRY_PLANE
+------------------------------ orientation (uint32_t)
+--------------------------- SIG_OBJECT_SYMMETRY_MERGELIMIT
+------------------------------  mergelimit ( float )
+
+----------------------- SIG_OBJECT_TEXT
+--------------------------- SIG_OBJECT_TEXT_FONT
+------------------------------- SIG_OBJECT_TEXT_FONT_FILE
+----------------------------------- Name ( char[] )
+------------------------------- SIG_OBJECT_TEXT_FONT_FACE
+----------------------------------- Name ( char[] )
+------------------------------- SIG_OBJECT_TEXT_FONT_SIZE
+----------------------------------- fontSize ( uint32_t )
+--------------------------- SIG_OBJECT_TEXT_THICKNESS
+------------------------------- thickness ( float )
+--------------------------- SIG_OBJECT_TEXT_ROUNDNESS
+------------------------------- roundness ( uint32_t )
+--------------------------- SIG_OBJECT_TEXT_STRING
+------------------------------- Name ( char[] )
+
+----------------------- SIG_OBJECT_BONE
+--------------------------- SIG_OBJECT_BONE_LENGTH
+------------------------------- length (float)
+--------------------------- SIG_OBJECT_BONE_RIGS
+------------------------------- SIG_OBJECT_BONE_RIG_ENTRY
+----------------------------------- SIG_OBJECT_BONE_RIG_SKIN
+----------------------------------------------- skinID (uint32_t)
+----------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUPS
+--------------------------------------- SIG_OBJECT_BONE_RIG_WEIGHTGROUP_ENTRY
+----------------------------------------------- weightgroupid (uint32_t)
+----------------------------------------------- meshid (uint32_t)
+----------------------------------- SIG_OBJECT_BONE_RIG_BINDMATRIX
+--------------------------------------- bindMatrix (double[0x10])
+----------------------------------- SIG_OBJECT_BONE_RIG_SKINMATRIX
+--------------------------------------- skinMatrix (double[0x10])
+--------------------------- SIG_OBJECT_BONE_FIXING
+------------------------------- SIG_OBJECT_BONE_FIXING_TRANSFORMATION
+----------------------------------- Position ( float-float-float-float )
+----------------------------------- Rotation ( float-float-float-float )
+----------------------------------- Scale    ( float-float-float-float )
+
+----------------------- SIG_OBJECT_LIGHT
+--------------------------- SIG_OBJECT_LIGHT_SPOT
+-------------------------------  length    (float)
+-------------------------------  angle     (float)
+-------------------------------  fadeAngle (float)
+--------------------------- SIG_OBJECT_LIGHT_SHADOW
+------------------------------- SIG_OBJECT_LIGHT_SHADOW_CASTING
+----------------------------------- boolean (uint32_t)
+------------------------------- SIG_OBJECT_LIGHT_SHADOW_COLOR
+----------------------------------- RGBA (float-float-float-float)
+--------------------------- SIG_OBJECT_LIGHT_INTENSITY
+------------------------------- intensity (float)
+--------------------------- SIG_OBJECT_LIGHT_DIFFUSE
+------------------------------- RGBA (float-float-float-float)
+--------------------------- SIG_OBJECT_LIGHT_SPECULAR
+------------------------------- RGBA (float-float-float-float)
+--------------------------- SIG_OBJECT_LIGHT_AMBIENT
+------------------------------- RGBA (float-float-float-float)
+
+----------------------- SIG_OBJECT_MORPHER
+--------------------------- SIG_OBJECT_MORPHER_VERTEX_COUNT
+------------------------------- nbver (uint32_t)
+--------------------------- SIG_OBJECT_MORPHER_MESHPOSES
+------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_ENTRY
+----------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_NAME
+--------------------------------------- Name ( char[] )
+----------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID
+--------------------------------------- poseID ( uint32_t )
+----------------------------------- SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY
+--------------------------------------- Number of Vertices  ( uint32_t )
+--------------------------------------- Array( uint32_t(verID)-float(x)-float(y)-float(z))
+--------------------------- SIG_OBJECT_MORPHER_RESETPOSITIONS
+------------------------------- Number of saved Positions  ( uint32_t )
+------------------------------- Array( uint32_t(verID)-float(orix)-float(oriy)-float(oriz))
+
+----------------------- SIG_OBJECT_UVMAPS
+--------------------------- SIG_OBJECT_UVMAP_ENTRY
+------------------------------- SIG_OBJECT_UVMAP_PROJECTION
+----------------------------------- Projection (uint32_t)
+------------------------------- SIG_OBJECT_UVMAP_NAME
+----------------------------------- Name ( char[] )
+------------------------------- SIG_OBJECT_UVMAP_FLAGS
+----------------------------------- Flags (uint32_t)
+------------------------------- SIG_OBJECT_UVMAP_RADIUS
+----------------------------------- xradius (float)
+----------------------------------- yradius (float)
+------------------------------- SIG_OBJECT_UVMAP_UVSETS
+----------------------------------- nbUVSets (uint32_t)
+----------------------------------- Array (flags,faceID,uv[0x04]), (uint32t_t,uint32_t,float[0x08])
+------------------------------- SIG_OBJECT_UVMAP_TRANSFORMATION
+----------------------------------- Position ( float-float-float-float )
+----------------------------------- Rotation ( float-float-float-float )
+----------------------------------- Scale    ( float-float-float-float )
+
+----------------------- SIG_OBJECT_TEXTURES
+--------------------------- SIG_OBJECT_TEXTURE_ENTRY
+------------------------------- SIG_OBJECT_TEXTURE_MATERIAL
+----------------------------------- materialID (uint32_t)
+------------------------------- SIG_OBJECT_TEXTURE_UVMAP
+----------------------------------- uvmapID (uint32_t)
+------------------------------- SIG_OBJECT_TEXTURE_RESTRICT
+----------------------------------- nbfacegroups (uint32_t)
+----------------------------------- facegroupID (uint32_t)
+
+--------------- SIG_OBJECT_TRANSFORMATION
+------------------- Position ( float-float-float-float )
+------------------- Rotation ( float-float-float-float )
+------------------- Scale    ( float-float-float-float )
+--------------- SIG_OBJECT_KEYS
+------------------- SIG_OBJECT_KEY_ENTRY
+----------------------- SIG_OBJECT_KEY_FLAGS
+----------------------- SIG_OBJECT_KEY_FLAGS_TRANSLATION
+--------------------------- enabled (uint32_t)
+----------------------- SIG_OBJECT_KEY_FLAGS_ROTATION
+--------------------------- enabled (uint32_t)
+----------------------- SIG_OBJECT_KEY_FLAGS_SCALING
+--------------------------- enabled (uint32_t)
+----------------------- SIG_OBJECT_KEY_FLAGS_DATA
+--------------------------- enabled (uint32_t)
+----------------------- SIG_OBJECT_KEY_TRANSFORMATION
+--------------------------- frame num ( float )
+--------------------------- Position  ( float-float-float-uint32_t ) /** last int is usage **/
+--------------------------- Rotation  ( float-float-float-uint32_t ) /** last int is usage **/
+--------------------------- Scale     ( float-float-float-uint32_t ) /** last int is usage **/
+----------------------- SIG_OBJECT_KEY_LOOP
+-----------------------   LoopFrame ( float )
+----------------------- SIG_OBJECT_KEY_DATA
+
+--------------------------- SIG_OBJECT_KEY_DATA_MORPHER
+------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOTS
+----------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ENTRY
+--------------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ID
+------------------------------------------- poseID (uint32_t)
+--------------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS
+------------------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS_RATE
+----------------------------------------------- rate (float)
+
+--------------------------- SIG_OBJECT_KEY_DATA_LIGHT
+------------------------------- SIG_OBJECT_LIGHT
+----------------------------------- ( ... )
+
+--------------- SIG_OBJECT_ACTIVE
+------------------- active ( uint32_t ) /** 1 or 0 **/
+-------- SIG_EXTENSIONS
+------------ SIG_EXTENSION_ENTRY
+---------------- XXXXXXX

@@ -45,7 +45,7 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <g3dexportv2.h>
+#include <g3dexportv3.h>
 
 #define PRINT_CHUNK_INFO(sig,size,level) \
         fprintf( stderr, "%*s SIG:%08X LEN:%d - %s\n", level, "|-",\
@@ -78,6 +78,8 @@ typedef struct _G3DIMPORTV3DATA {
     uint64_t        engineFlags;
     uint32_t        indentLevel;
     LIST           *lext;
+    LIST           *ldec; /*** list of declared objects ***/
+    G3DOBJECT     **declaredObjects; /*** array of declared objects ***/
 } G3DIMPORTV3DATA;
 
 /******************************************************************************/

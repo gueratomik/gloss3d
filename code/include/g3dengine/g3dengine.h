@@ -198,6 +198,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SKIN           ( ( uint64_t )  1 << 28 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
+#define G3DNULLTYPE       ( G3DOBJECTTYPE )
 #define G3DMESHTYPE       ( OBJECT | MESH | EDITABLE )
 #define G3DPRIMITIVETYPE  ( OBJECT | MESH | PRIMITIVE )
 #define G3DSPHERETYPE     ( OBJECT | MESH | PRIMITIVE | SPHERE )

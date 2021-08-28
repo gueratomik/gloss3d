@@ -47,7 +47,7 @@
 #include <list.h>
 #include <g3dengine/g3dengine.h>
 
-#include "signatures.h"
+#include "signaturesv2.h"
 
 #define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV2DATA*,void*,uint32_t,FILE *))f)
 
