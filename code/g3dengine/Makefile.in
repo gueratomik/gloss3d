@@ -136,10 +136,10 @@ am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dchannel.lo g3dcore.lo g3dcube.lo g3dcursor.lo g3dcurve.lo \
 	g3dcutface.lo g3dcylinder.lo g3dedge.lo g3dextension.lo \
 	g3dface.lo g3dfacegroup.lo g3dffd.lo g3dheightmap.lo \
-	g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo g3dmaterial.lo \
-	g3dmesh.lo g3dmorpher.lo g3dmodifier.lo g3dobject.lo \
-	g3dpick.lo g3dpivot.lo g3dplane.lo g3dprimitive.lo \
-	g3dprocedural.lo g3dproceduralbrick.lo \
+	g3dinstance.lo g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo \
+	g3dmaterial.lo g3dmesh.lo g3dmorpher.lo g3dmodifier.lo \
+	g3dobject.lo g3dpick.lo g3dpivot.lo g3dplane.lo \
+	g3dprimitive.lo g3dprocedural.lo g3dproceduralbrick.lo \
 	g3dproceduralchessboard.lo g3dproceduralnoise.lo \
 	g3dquaternion.lo g3drgba.lo g3drig.lo g3drttriangle.lo \
 	g3drttriangleuvw.lo g3drtvertex.lo g3dscene.lo g3dskin.lo \
@@ -179,13 +179,14 @@ am__depfiles_remade = ./$(DEPDIR)/g2dvector.Plo \
 	./$(DEPDIR)/g3dedge.Plo ./$(DEPDIR)/g3dextension.Plo \
 	./$(DEPDIR)/g3dface.Plo ./$(DEPDIR)/g3dfacegroup.Plo \
 	./$(DEPDIR)/g3dffd.Plo ./$(DEPDIR)/g3dheightmap.Plo \
-	./$(DEPDIR)/g3dimage.Plo ./$(DEPDIR)/g3dkey.Plo \
-	./$(DEPDIR)/g3dlight.Plo ./$(DEPDIR)/g3dlookup.Plo \
-	./$(DEPDIR)/g3dmaterial.Plo ./$(DEPDIR)/g3dmesh.Plo \
-	./$(DEPDIR)/g3dmodifier.Plo ./$(DEPDIR)/g3dmorpher.Plo \
-	./$(DEPDIR)/g3dobject.Plo ./$(DEPDIR)/g3dpick.Plo \
-	./$(DEPDIR)/g3dpivot.Plo ./$(DEPDIR)/g3dplane.Plo \
-	./$(DEPDIR)/g3dprimitive.Plo ./$(DEPDIR)/g3dprocedural.Plo \
+	./$(DEPDIR)/g3dimage.Plo ./$(DEPDIR)/g3dinstance.Plo \
+	./$(DEPDIR)/g3dkey.Plo ./$(DEPDIR)/g3dlight.Plo \
+	./$(DEPDIR)/g3dlookup.Plo ./$(DEPDIR)/g3dmaterial.Plo \
+	./$(DEPDIR)/g3dmesh.Plo ./$(DEPDIR)/g3dmodifier.Plo \
+	./$(DEPDIR)/g3dmorpher.Plo ./$(DEPDIR)/g3dobject.Plo \
+	./$(DEPDIR)/g3dpick.Plo ./$(DEPDIR)/g3dpivot.Plo \
+	./$(DEPDIR)/g3dplane.Plo ./$(DEPDIR)/g3dprimitive.Plo \
+	./$(DEPDIR)/g3dprocedural.Plo \
 	./$(DEPDIR)/g3dproceduralbrick.Plo \
 	./$(DEPDIR)/g3dproceduralchessboard.Plo \
 	./$(DEPDIR)/g3dproceduralnoise.Plo \
@@ -398,6 +399,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dfacegroup.c \
                       g3dffd.c \
                       g3dheightmap.c \
+                      g3dinstance.c \
                       g3dimage.c \
                       g3dkey.c \
                       g3dlight.c \
@@ -542,6 +544,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dffd.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dheightmap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dimage.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dinstance.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dkey.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dlight.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dlookup.Plo@am__quote@ # am--include-marker
@@ -771,6 +774,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/g3dffd.Plo
 	-rm -f ./$(DEPDIR)/g3dheightmap.Plo
 	-rm -f ./$(DEPDIR)/g3dimage.Plo
+	-rm -f ./$(DEPDIR)/g3dinstance.Plo
 	-rm -f ./$(DEPDIR)/g3dkey.Plo
 	-rm -f ./$(DEPDIR)/g3dlight.Plo
 	-rm -f ./$(DEPDIR)/g3dlookup.Plo
@@ -880,6 +884,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/g3dffd.Plo
 	-rm -f ./$(DEPDIR)/g3dheightmap.Plo
 	-rm -f ./$(DEPDIR)/g3dimage.Plo
+	-rm -f ./$(DEPDIR)/g3dinstance.Plo
 	-rm -f ./$(DEPDIR)/g3dkey.Plo
 	-rm -f ./$(DEPDIR)/g3dlight.Plo
 	-rm -f ./$(DEPDIR)/g3dlookup.Plo

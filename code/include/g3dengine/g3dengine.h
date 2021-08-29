@@ -196,6 +196,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define TUBE           ( ( uint64_t )  1 << 26 )
 #define MORPHER        ( ( uint64_t )  1 << 27 )
 #define SKIN           ( ( uint64_t )  1 << 28 )
+#define INSTANCE       ( ( uint64_t )  1 << 29 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DNULLTYPE       ( G3DOBJECTTYPE )
@@ -227,6 +228,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** list or face list or edge list ***/
 #define G3DMORPHERTYPE        ( OBJECT        | MODIFIER | MORPHER )
 #define G3DSKINTYPE           ( OBJECT        | MODIFIER | SKIN )
+#define G3DINSTANCETYPE       ( OBJECT        | INSTANCE )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -355,6 +357,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define OBJECTNOSCALING           (  1 <<  8 )
 #define OBJECTNOSHADING           (  1 <<  9 )
 #define MODIFIERNEEDSNORMALUPDATE (  1 << 10 )
+#define OBJECTORPHANED            (  1 << 11 )
 
 /*** Private flags ***/
 /*** Bone flags ***/
@@ -696,6 +699,7 @@ typedef struct _G3DSPLINE G3DSPLINE;
 typedef struct _G3DKEY    G3DKEY;
 typedef struct _G3DCURVE  G3DCURVE;
 typedef struct _G3DRIG    G3DRIG;
+typedef struct _G3DTAG    G3DTAG;
 
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
@@ -767,6 +771,8 @@ typedef struct _G3DOBJECT {
     G3DCURVE *scaCurve; /* X scale dynamics */
     LIST     *lext; /* list of object extensions */
     LIST     *ltag;
+    G3DTAG   *seltag;
+    uint32_t tagID;
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1028,6 +1034,7 @@ typedef struct _G3DCUTFACE {
 /******************************************************************************/
 #include <g3dengine/g3dlight.h>
 #include <g3dengine/g3dtag.h>
+#include <g3dengine/g3dinstance.h>
 
 /******************************************************************************/
 typedef struct _G3DCATMULLSCHEME {
@@ -2018,6 +2025,8 @@ void g3dobject_postanim_tags ( G3DOBJECT *obj,
                                float      frame, 
                                uint64_t   engine_flags );
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags );
+G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id );
+uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj );
 
 /******************************************************************************/
 void g3dbbox_draw ( G3DBBOX *bbox, 

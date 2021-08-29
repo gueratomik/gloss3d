@@ -39,21 +39,26 @@
 extern "C" {
 #endif
 
+#define G3DTAGVIBRATORTYPE 0x01
+#define G3DTAGTRACKERTYPE  0x02
+#define G3DTAGTARGETTYPE   0x03
+
+#define TAGSELECTED ( 1 << 0 )
+#define TAGHIDDEN   ( 1 << 1 )
+
 /**
  * @struct G3DTAG
  * @brief .
  */
 typedef struct _G3DTAG {
     uint32_t    id;
+    uint32_t    flags;
+    uint32_t    type;
     char       *name;
-    void      (*free)          ( struct _G3DTAG * );
-    uint32_t  (*preTransform)  ( struct _G3DTAG *, 
-                                         G3DOBJECT *, 
-                                         uint64_t );
-    uint32_t  (*postTransform) ( struct _G3DTAG *, 
-                                         G3DOBJECT *,
-                                         uint64_t );
-
+    void      (*free)       ( struct _G3DTAG * );
+    uint32_t  (*transform)  ( struct _G3DTAG *, 
+                                      G3DOBJECT *, 
+                                      uint64_t );
     uint32_t  (*preAnim) ( struct _G3DTAG *,
                                    G3DOBJECT *, 
                                    float,
@@ -87,8 +92,17 @@ typedef struct _G3DVIBRATORTAG {
 
 /******************************************************************************/
 typedef struct _G3DTRACKERTAG {
-    G3DTAG tag;
+    G3DTAG     tag;
+    G3DOBJECT *target;
+    uint32_t   targetTagID;
 } G3DTRACKERTAG;
+
+/******************************************************************************/
+typedef struct _G3DTARGETTAG {
+    G3DTAG     tag;
+    G3DOBJECT *tracker;
+    uint32_t   trackerTagID;
+} G3DTARGETTAG;
 
 /******************************************************************************/
 typedef struct _G3DEMITTERTAG {
@@ -96,9 +110,12 @@ typedef struct _G3DEMITTERTAG {
 } G3DEMITTERTAG;
 
 /******************************************************************************/
+void g3dtag_free ( G3DTAG *tag );
 
+/******************************************************************************/
 G3DTAG *g3dvibratortag_new ( uint32_t id );
-
+G3DTAG *g3dtargettag_new   ( uint32_t id, G3DOBJECT *tracker );
+G3DTAG *g3dtrackertag_new  ( uint32_t id );
 
 #ifdef __cplusplus
 }

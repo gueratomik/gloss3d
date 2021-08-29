@@ -36,11 +36,58 @@ void common_g3dui_addVibratorCbk ( G3DUI *gui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( obj ){
-        G3DTAG *tag = g3dvibratortag_new ( 0x00 );
+        G3DTAG *tag = g3dvibratortag_new ( g3dobject_getNextTagID ( obj ) );
 
-        g3dobject_addTag ( obj, tag );
+        g3durm_selection_addTag ( urm,
+                                  obj,
+                                  tag,
+                                  gui->engine_flags,
+                                  REDRAWVIEW | REDRAWLIST );
     }
 
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addTrackerCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ){
+        G3DTAG *tag = g3dtrackertag_new ( g3dobject_getNextTagID ( obj ) );
+
+        g3durm_selection_addTag ( urm,
+                                  obj,
+                                  tag,
+                                  gui->engine_flags,
+                                  REDRAWVIEW | REDRAWLIST );
+
+        g3dobject_updateMatrix_r ( obj, gui->engine_flags );
+    }
+
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_removeSelectedTagCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ){
+        if ( obj->seltag ) {
+            g3durm_selection_removeTag ( urm,
+                                         obj,
+                                         obj->seltag,
+                                         gui->engine_flags,
+                                         REDRAWVIEW | REDRAWLIST );
+        }
+    }
+
+    g3dui_redrawObjectList ( gui );
     g3dui_redrawGLViews ( gui );
 }
 
@@ -462,6 +509,30 @@ void common_g3dui_addSymmetryCbk ( G3DUI *gui ) {
 
     g3dscene_unselectAllObjects ( sce, gui->engine_flags );
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) sym, gui->engine_flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addInstanceCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    uint32_t oid = g3dscene_getNextObjectID ( sce );
+    G3DINSTANCE *ins = g3dinstance_new ( oid, "Instance" );
+
+    g3durm_object_addChild ( urm, sce, gui->engine_flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) ins );
+
+    g3dscene_unselectAllObjects ( sce, gui->engine_flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) ins, gui->engine_flags );
 
     g3dui_redrawGLViews ( gui );
     g3dui_updateCoords ( gui );

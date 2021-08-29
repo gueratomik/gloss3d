@@ -19,6 +19,7 @@
 /*                                                                            */
 /******************************************************************************/
 
+
 /******************************************************************************/
 /*                                                                            */
 /* Please avoid using global variables at all costs in this file, and never   */
@@ -27,50 +28,77 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui_gtk3.h>
+#include <g3durmanager.h>
 
 /******************************************************************************/
-GtkWidget *createObjectBoard ( GtkWidget *parent, G3DUI *gui,
-                                                  char *name,
-                                                  gint x,
-                                                  gint y,
-                                                  gint width,
-                                                  gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *label = gtk_label_new ( name );
-    GtkWidget *curedit, *objlist, *tab, *frm, *menu;
+typedef struct _URMADDTAG {
+    G3DOBJECT *obj;
+    G3DTAG *tag;
+} URMADDTAG;
 
-    frm = gtk_fixed_new ( );
+/******************************************************************************/
+URMADDTAG *urmaddtag_new ( G3DOBJECT *obj,
+                           G3DTAG    *tag ) {
+    uint32_t structsize = sizeof ( URMADDTAG );
 
-    gtk_widget_set_name ( frm, name );
+    URMADDTAG *uat = ( URMADDTAG * ) calloc ( 0x01, structsize );
 
-    gtk_widget_size_allocate ( frm, &gdkrec );
+    if ( uat == NULL ) {
+        fprintf ( stderr, "%s: memory allocation falied\n", __func__ );
 
-    menu = createObjectsMenuBar ( frm, gui, "MENU", 0, 0, width, 32 );
+        return NULL;
+    }
 
-    createObjectList ( frm, gui, "Objects", 0x00, 32, 0x140, 0x140 );
+    uat->obj = obj;
+    uat->tag = tag;
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(parent), frm, label );
+    return uat;
+}
 
+/******************************************************************************/
+void urmaddtag_free ( URMADDTAG *uat ) {
+    free ( uat );
+}
 
-    /**** BOTTOM TABs ****/
-    tab = gtk_notebook_new ( );
+/******************************************************************************/
+void addTag_free ( void *data, uint32_t commit ) {
+    URMADDTAG *uat = ( URMADDTAG * ) data;
 
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
+    if ( commit == 0x00 ) {
+        g3dtag_free ( uat->tag );
+    }
 
-    gdkrec.width  = 0x140;
-    gdkrec.height = 0x140;
+    urmaddtag_free ( uat );
+}
 
-    gtk_widget_size_allocate ( tab, &gdkrec );
+/******************************************************************************/
+void addTag_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMADDTAG *uat = ( URMADDTAG * ) data;
 
-    gtk_fixed_put ( GTK_FIXED(frm), tab, 0, 352 );
+    g3dobject_removeTag ( uat->obj, uat->tag );
+}
 
-    createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
-    createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
-    createG3DMouseToolEdit ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
+/******************************************************************************/
+void addTag_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+    URMADDTAG *uat = ( URMADDTAG * ) data;
 
-    gtk_widget_show_all ( frm );
+    g3dobject_addTag ( uat->obj, uat->tag );
+}
 
+/******************************************************************************/
+void g3durm_selection_addTag ( G3DURMANAGER *urm,
+                               G3DOBJECT    *obj,
+                               G3DTAG       *tag,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags ) {
+    URMADDTAG *uat = urmaddtag_new ( obj, tag );
 
-    return frm;
+    g3dobject_addTag ( obj, tag );
+
+    g3durmanager_push ( urm, 
+                        addTag_undo,
+                        addTag_redo,
+                        addTag_free, 
+                        uat,
+                        return_flags );
 }

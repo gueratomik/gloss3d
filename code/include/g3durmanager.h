@@ -813,4 +813,18 @@ void g3durm_morpher_removeVertexPose ( G3DURMANAGER       *urm,
                                        uint32_t            engine_flags,
                                        uint32_t            return_flags );
 
+/******************************************************************************/
+void g3durm_selection_addTag ( G3DURMANAGER *urm,
+                               G3DOBJECT    *obj,
+                               G3DTAG       *tag,
+                               uint64_t      engine_flags,
+                               uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_selection_removeTag ( G3DURMANAGER *urm,
+                                  G3DOBJECT    *obj,
+                                  G3DTAG       *tag,
+                                  uint64_t      engine_flags,
+                                  uint32_t      return_flags );
+
 #endif

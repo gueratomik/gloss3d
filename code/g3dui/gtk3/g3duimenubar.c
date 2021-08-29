@@ -595,6 +595,93 @@ GtkWidget *createMaterialMenuBar ( GtkWidget *parent,
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
+void g3dui_addVibratorCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addVibratorCbk ( gui );
+}
+
+/******************************************************************************/
+void g3dui_addTrackerCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addTrackerCbk ( gui );
+}
+
+
+/******************************************************************************/
+void g3dui_removeSelectedTagCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_removeSelectedTagCbk ( gui );
+}
+
+/******************************************************************************/
+/****************************** Tags MENU **********************************/
+static G3DUIMENU tags_menu_addVibrator     = { MENU_ADDVIBRATOR,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectMode_objectSelected,
+                                               g3dui_addVibratorCbk };
+
+static G3DUIMENU tags_menu_addTracker      = { MENU_ADDTRACKER,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectMode_objectSelected,
+                                               g3dui_addTrackerCbk };
+
+static G3DUIMENU tags_menu_removeSelTag    = { MENU_REMOVESELTAG,
+                                               G3DUIMENUTYPE_PUSHBUTTON,
+                                               objectMode_objectSelected,
+                                               g3dui_removeSelectedTagCbk };
+
+/******************************************************************************/
+static G3DUIMENU tags_menu = { "Tags",
+                               G3DUIMENUTYPE_SUBMENU,
+                               NULL,
+                               NULL,
+                              .nodes = { &tags_menu_addVibrator,
+                                         &tags_menu_addTracker,
+                                         &tags_menu_removeSelTag,
+                                          NULL } };
+
+/******************************************************************************/
+/******************************************************************************/
+static G3DUIMENU objrootnode = { "Bar",
+                                 G3DUIMENUTYPE_MENUBAR,
+                                 NULL,
+                                 NULL,
+                                .nodes = { &tags_menu,
+                                            NULL } };
+
+/******************************************************************************/
+GtkWidget *createObjectsMenuBar ( GtkWidget *parent, 
+                                  G3DUI     *gui,
+                                  char      *name,
+                                  gint       x,
+                                  gint       y,
+                                  gint       width,
+                                  gint       height ) {
+    GdkRectangle gdkrec = { x, y, width, height };
+    GtkWidget *bar = gtk_menu_bar_new ( );
+
+    gtk_widget_set_name ( bar, name );
+
+    /*gtk_widget_size_allocate ( bar, &gdkrec );*/
+    gtk_widget_set_size_request ( bar, width, height );
+
+    parseMenu_r ( &objrootnode, NULL, gui );
+
+    gtk_widget_size_allocate ( objrootnode.menu, &gdkrec );
+    gtk_fixed_put ( GTK_FIXED(parent), objrootnode.menu, x, y );
+
+    gtk_widget_show ( bar );
+
+
+    return bar;
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
 void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     gchar *authors[] = { "Gary GABRIEL", NULL };
@@ -982,6 +1069,13 @@ void g3dui_addSymmetryCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_addInstanceCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addInstanceCbk ( gui );
+}
+
+/******************************************************************************/
 void g3dui_addWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
@@ -1348,28 +1442,6 @@ static G3DUIMENU help_menu = { "Help",
                                           NULL } };
 
 /******************************************************************************/
-void g3dui_addVibratorCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_addVibratorCbk ( gui );
-}
-
-/******************************************************************************/
-/****************************** Tags MENU **********************************/
-static G3DUIMENU tags_menu_addVibrator     = { MENU_ADDVIBRATOR,
-                                               G3DUIMENUTYPE_PUSHBUTTON,
-                                               objectMode_objectSelected,
-                                               g3dui_addVibratorCbk };
-
-/******************************************************************************/
-static G3DUIMENU tags_menu = { "Tags",
-                               G3DUIMENUTYPE_SUBMENU,
-                               NULL,
-                               NULL,
-                              .nodes = { &tags_menu_addVibrator,
-                                          NULL } };
-
-/******************************************************************************/
 /******************************* UVMapping MENU *******************************/
 static G3DUIMENU uvmapping_menu_align_xy = { MENU_ALIGNUVMAPXY,
                                              G3DUIMENUTYPE_PUSHBUTTON,
@@ -1507,6 +1579,11 @@ static G3DUIMENU functions_menu = { "Functions",
 
 /******************************************************************************/
 /***************************** Multipliers MENU *******************************/
+static G3DUIMENU multipliers_menu_addInstance = { MENU_ADDINSTANCE,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  g3dui_addInstanceCbk };
+
 static G3DUIMENU multipliers_menu_addSymmetry = { MENU_ADDSYMMETRY,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
@@ -1517,7 +1594,8 @@ static G3DUIMENU multipliers_menu = { "Multipliers",
                                       G3DUIMENUTYPE_SUBMENU,
                                       NULL,
                                       NULL,
-                                     .nodes = { &multipliers_menu_addSymmetry,
+                                     .nodes = { &multipliers_menu_addInstance,
+                                                &multipliers_menu_addSymmetry,
                                                  NULL } };
 
 /******************************************************************************/
@@ -1822,11 +1900,6 @@ static G3DUIMENU file_menu_export_sta = { FILEDESC_STA,
                                           NULL,
                                           g3dui_exportfilecbk };
 
-static G3DUIMENU file_menu_export_v1  = { FILEDESC_V1,
-                                          G3DUIMENUTYPE_PUSHBUTTON,
-                                          NULL,
-                                          g3dui_exportfilecbk };
-
 /******************************************************************************/
 static G3DUIMENU file_menu_import_3ds = { FILEDESC_3DS,
                                           G3DUIMENUTYPE_PUSHBUTTON,
@@ -1904,7 +1977,6 @@ static G3DUIMENU file_menu_export = { MENU_EXPORTSCENE,
                                      .nodes = { &file_menu_export_obj,
                                                 &file_menu_export_pov,
                                                 &file_menu_export_sta,
-                                                &file_menu_export_v1 ,
                                                  NULL                 } };
 
 static G3DUIMENU file_menu_exit   = { MENU_EXIT,
@@ -1940,7 +2012,6 @@ static G3DUIMENU rootnode = { "Bar",
                                         &objects_menu,
                                         &modifiers_menu,
                                         &multipliers_menu,
-                                        &tags_menu,
                                         &functions_menu,
                                         &uvmapping_menu,
                                         &render_menu,

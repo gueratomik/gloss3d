@@ -778,6 +778,14 @@ GtkWidget *createMaterialMenuBar ( GtkWidget *parent,
                                    gint       width,
                                    gint       height );
 
+GtkWidget *createObjectsMenuBar ( GtkWidget *parent, 
+                                  G3DUI     *gui,
+                                  char      *name,
+                                  gint       x,
+                                  gint       y,
+                                  gint       width,
+                                  gint       height );
+
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
                              L3DUI *lui,
                              char             *name,
@@ -902,6 +910,14 @@ GtkWidget *createMorpherEdit ( GtkWidget *parent,
                                gint       height );
 void updateMorpherEdit ( GtkWidget *widget, 
                          G3DUI     *gui );
+
+GtkWidget* createTrackerTagEdit ( GtkWidget     *parent, 
+                                  G3DUI         *gui,
+                                  char          *name,
+                                  gint           x,
+                                  gint           y,
+                                  gint           width,
+                                  gint           height );
 
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
 

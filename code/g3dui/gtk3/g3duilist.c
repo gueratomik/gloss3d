@@ -58,6 +58,8 @@
 #include <xpm/txtico.xpm>
 #include <xpm/tubico.xpm>
 #include <xpm/morpher.xpm>
+#include <xpm/vibrate.xpm>
+#include <xpm/tracker.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -219,6 +221,55 @@ static void drawVisible ( GtkStyleContext *context, cairo_t *cr,
         gdk_cairo_set_source_pixbuf ( cr, eyeopn, x, y );
     }
     cairo_paint ( cr );
+}
+
+/******************************************************************************/
+static void drawTags ( GtkStyleContext *context, 
+                       cairo_t         *cr,
+                       G3DOBJECT       *obj,
+                       G3DUIRECTANGLE *rec ) {
+    LIST *ltmptag = obj->ltag;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+        GdkPixbuf  *pixbuf; 
+
+        if ( ( tag->flags & TAGHIDDEN ) == 0x00 ) {
+            /*** This is very inefficient: creating a pixbuf at each     ***/
+            /*** exposure. I don't know how to fill directly a GdkPixbuf.***/
+            switch ( tag->type ) {
+                case G3DTAGVIBRATORTYPE :
+                    pixbuf = gdk_pixbuf_new_from_xpm_data ( vibrate_xpm );
+                break;
+
+                case G3DTAGTRACKERTYPE :
+                    pixbuf = gdk_pixbuf_new_from_xpm_data ( tracker_xpm );
+                break;
+
+                default :
+                break;
+            }
+
+            gdk_cairo_set_source_pixbuf ( cr, pixbuf, rec->x, rec->y );
+
+            cairo_paint ( cr );
+
+            g_object_unref ( G_OBJECT(pixbuf) );
+
+            if ( ( obj->flags & OBJECTSELECTED  ) &&
+                 ( tag == obj->seltag     ) ) {
+                cairo_set_source_rgb ( cr, 1.0f, 0.0f, 0.0f );
+                cairo_set_line_width ( cr, 0.5f );
+                cairo_rectangle      ( cr, rec->x, rec->y, rec->width,
+                                                           rec->height );
+                cairo_stroke         ( cr );
+            }
+
+            rec++;
+        }
+
+        ltmptag = ltmptag->next;
+    }
 }
 
 /******************************************************************************/
@@ -505,6 +556,7 @@ uint32_t printObject_r ( GtkStyleContext *context, cairo_t *cr,
     drawVisible    ( context, cr, obj,  lob->visible.x, lob->visible.y );
     drawTextures   ( context, cr, obj,  lob->texture                   );
     drawUVMaps     ( context, cr, obj,  lob->uvmap                     );
+    drawTags       ( context, cr, obj,  lob->tag                       );
 
     /*** Recurse ***/
     if ( ( obj->flags & OBJECTCOLLAPSED ) == 0x00 ) {
@@ -563,6 +615,14 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                           pob->uvmap, 
                                                           gui->engine_flags,
                                                           REDRAWVIEW |REDRAWLIST );
+                            } break;
+
+                            case TAGRECTHIT : {
+                                g3durm_selection_removeTag ( urm,
+                                                             pob->obj,
+                                                             pob->tag,
+                                                             gui->engine_flags,
+                                                             REDRAWVIEW | REDRAWLIST );
                             } break;
 
                             default : {
@@ -635,6 +695,14 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                 GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
 
                 createUVMapEdit ( dial, gui, "UVMAPEDIT", 0, 0, 264, 48 );
+
+                gtk_widget_show ( dial );
+            }
+
+            if ( pob && ( pob->picked == TAGRECTHIT ) ) {
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+                createTrackerTagEdit ( dial, gui, "TrackerTag Edit", 0, 0, 264, 48 );
 
                 gtk_widget_show ( dial );
             }

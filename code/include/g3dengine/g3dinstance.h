@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -26,51 +26,35 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
-#include <config.h>
-#include <g3dui_gtk3.h>
+
+/**
+ * @file
+ */
 
 /******************************************************************************/
-GtkWidget *createObjectBoard ( GtkWidget *parent, G3DUI *gui,
-                                                  char *name,
-                                                  gint x,
-                                                  gint y,
-                                                  gint width,
-                                                  gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *label = gtk_label_new ( name );
-    GtkWidget *curedit, *objlist, *tab, *frm, *menu;
+#ifndef _G3DINSTANCE_H_
+#define _G3DINSTANCE_H_
 
-    frm = gtk_fixed_new ( );
-
-    gtk_widget_set_name ( frm, name );
-
-    gtk_widget_size_allocate ( frm, &gdkrec );
-
-    menu = createObjectsMenuBar ( frm, gui, "MENU", 0, 0, width, 32 );
-
-    createObjectList ( frm, gui, "Objects", 0x00, 32, 0x140, 0x140 );
-
-    gtk_notebook_append_page ( GTK_NOTEBOOK(parent), frm, label );
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-    /**** BOTTOM TABs ****/
-    tab = gtk_notebook_new ( );
+/**
+ * @struct G3DINSTANCE
+ * @brief .
+ */
+typedef struct _G3DINSTANCE {
+    G3DOBJECT obj;
+    G3DOBJECT *ref;
+} G3DINSTANCE;
 
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
+/******************************************************************************/
+G3DINSTANCE *g3dinstance_new ( uint32_t id, 
+                               char    *name );
 
-    gdkrec.width  = 0x140;
-    gdkrec.height = 0x140;
-
-    gtk_widget_size_allocate ( tab, &gdkrec );
-
-    gtk_fixed_put ( GTK_FIXED(frm), tab, 0, 352 );
-
-    createCurrentEdit      ( tab, gui, "Object"     , 0, 0, 310, 192 );
-    createCoordinatesEdit  ( tab, gui, "Coordinates", 0, 0, 310, 192 );
-    createG3DMouseToolEdit ( tab, gui, "Mouse Tool" , 0, 0, 310, 192 );
-
-    gtk_widget_show_all ( frm );
-
-
-    return frm;
+#ifdef __cplusplus
 }
+#endif
+
+#endif

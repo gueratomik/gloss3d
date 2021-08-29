@@ -29,6 +29,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dfacegroup.c \
                       g3dffd.c \
                       g3dheightmap.c \
+                      g3dinstance.c \
                       g3dimage.c \
                       g3dkey.c \
                       g3dlight.c \

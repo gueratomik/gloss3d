@@ -141,9 +141,10 @@ am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmAddSplineSegment.lo urmCutSpline.lo urmObjectPose.lo \
 	urmDeleteSplinePoints.lo urmselectitem.lo urmcutmesh.lo \
 	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
-	urmAddTexture.lo urmRemoveTexture.lo urmPaintImage.lo \
-	urmAddUVMap.lo urmMorpherMoveVertices.lo urmRemoveUVMap.lo \
-	urmAddMaterial.lo urmAddMeshPose.lo urmSelectVertexPose.lo \
+	urmAddTexture.lo urmAddTag.lo urmRemoveTag.lo \
+	urmRemoveTexture.lo urmPaintImage.lo urmAddUVMap.lo \
+	urmMorpherMoveVertices.lo urmRemoveUVMap.lo urmAddMaterial.lo \
+	urmAddMeshPose.lo urmSelectVertexPose.lo \
 	urmRemoveVertexPose.lo urmSelectMeshPose.lo \
 	urmRemoveMaterial.lo urmCreateFacegroup.lo
 am_libgloss_g3durmanager_la_OBJECTS = $(am__objects_1)
@@ -171,7 +172,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmAddMaterial.Plo ./$(DEPDIR)/urmAddMeshPose.Plo \
 	./$(DEPDIR)/urmAddSplinePoint.Plo \
-	./$(DEPDIR)/urmAddSplineSegment.Plo \
+	./$(DEPDIR)/urmAddSplineSegment.Plo ./$(DEPDIR)/urmAddTag.Plo \
 	./$(DEPDIR)/urmAddTexture.Plo ./$(DEPDIR)/urmAddUVMap.Plo \
 	./$(DEPDIR)/urmCreateFacegroup.Plo \
 	./$(DEPDIR)/urmCutSpline.Plo \
@@ -180,7 +181,7 @@ am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmObjectPose.Plo \
 	./$(DEPDIR)/urmObjectRemoveKeys.Plo \
 	./$(DEPDIR)/urmPaintImage.Plo \
-	./$(DEPDIR)/urmRemoveMaterial.Plo \
+	./$(DEPDIR)/urmRemoveMaterial.Plo ./$(DEPDIR)/urmRemoveTag.Plo \
 	./$(DEPDIR)/urmRemoveTexture.Plo \
 	./$(DEPDIR)/urmRemoveUVMap.Plo \
 	./$(DEPDIR)/urmRemoveVertexPose.Plo \
@@ -399,6 +400,8 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmcreateface.c \
                                urmaddvertex.c \
                                urmAddTexture.c \
+                               urmAddTag.c \
+                               urmRemoveTag.c \
                                urmRemoveTexture.c \
                                urmPaintImage.c \
                                urmAddUVMap.c \
@@ -495,6 +498,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddMeshPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplinePoint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddSplineSegment.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddTag.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddTexture.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmAddUVMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmCreateFacegroup.Plo@am__quote@ # am--include-marker
@@ -505,6 +509,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmObjectRemoveKeys.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmPaintImage.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveMaterial.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveTag.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveTexture.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveUVMap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveVertexPose.Plo@am__quote@ # am--include-marker
@@ -698,6 +703,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/urmAddMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
+	-rm -f ./$(DEPDIR)/urmAddTag.Plo
 	-rm -f ./$(DEPDIR)/urmAddTexture.Plo
 	-rm -f ./$(DEPDIR)/urmAddUVMap.Plo
 	-rm -f ./$(DEPDIR)/urmCreateFacegroup.Plo
@@ -708,6 +714,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/urmObjectRemoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmPaintImage.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveMaterial.Plo
+	-rm -f ./$(DEPDIR)/urmRemoveTag.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveTexture.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveUVMap.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveVertexPose.Plo
@@ -781,6 +788,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/urmAddMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplinePoint.Plo
 	-rm -f ./$(DEPDIR)/urmAddSplineSegment.Plo
+	-rm -f ./$(DEPDIR)/urmAddTag.Plo
 	-rm -f ./$(DEPDIR)/urmAddTexture.Plo
 	-rm -f ./$(DEPDIR)/urmAddUVMap.Plo
 	-rm -f ./$(DEPDIR)/urmCreateFacegroup.Plo
@@ -791,6 +799,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/urmObjectRemoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmPaintImage.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveMaterial.Plo
+	-rm -f ./$(DEPDIR)/urmRemoveTag.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveTexture.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveUVMap.Plo
 	-rm -f ./$(DEPDIR)/urmRemoveVertexPose.Plo

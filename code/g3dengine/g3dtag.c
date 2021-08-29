@@ -30,39 +30,49 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dtag_free ( G3DTAG *tag ) {
+    if ( tag->free ) tag->free ( tag );
+
+    free ( tag );
+}
+
+/******************************************************************************/
 void g3dtag_init ( G3DTAG    *tag,
+                   uint32_t   type,
                    uint32_t   id,
+                   uint32_t   flags,
                    char      *name,
-                   void     (*Free)          ( struct _G3DTAG *),
-                   uint32_t (*preTransform)  ( struct _G3DTAG *, 
-                                                       G3DOBJECT *, 
-                                                       uint64_t ),
-                   uint32_t (*postTransform) ( struct _G3DTAG *, 
-                                                       G3DOBJECT *,
-                                                       uint64_t ),
-                   uint32_t (*preAnim)       ( struct _G3DTAG *,
-                                                       G3DOBJECT *, 
-                                                       float,
-                                                       uint64_t ),
+                   void     (*Free)      ( struct _G3DTAG *),
+                   uint32_t (*transform) ( struct _G3DTAG *, 
+                                                   G3DOBJECT *, 
+                                                   uint64_t ),
+                   uint32_t (*preAnim)   ( struct _G3DTAG *,
+                                                   G3DOBJECT *, 
+                                                   float,
+                                                   uint64_t ),
                    uint32_t (*postAnim)      ( struct _G3DTAG *, 
-                                                       G3DOBJECT *, 
-                                                       float,
-                                                       uint64_t ),
+                                                   G3DOBJECT *, 
+                                                   float,
+                                                   uint64_t ),
                    uint32_t (*preDraw)       ( struct _G3DTAG *, 
-                                                       G3DOBJECT *, 
-                                                       G3DCAMERA *, 
-                                                       uint64_t ),
+                                                   G3DOBJECT *, 
+                                                   G3DCAMERA *, 
+                                                   uint64_t ),
                    uint32_t (*postDraw)      ( struct _G3DTAG *, 
-                                                       G3DOBJECT *, 
-                                                       G3DCAMERA *, 
-                                                       uint64_t ) ) {
+                                                   G3DOBJECT *, 
+                                                   G3DCAMERA *, 
+                                                   uint64_t ) ) {
     tag->free          = Free;
-    tag->preTransform  = preTransform;
-    tag->postTransform = postTransform;
+    tag->transform  = transform;
     tag->preAnim       = preAnim;
     tag->postAnim      = postAnim;
     tag->preDraw       = preDraw;
     tag->postDraw      = postDraw;
+
+    tag->type          = type;
+    tag->id            = id;
+    tag->flags         = flags;
+    tag->name          = strdup ( name );
 }
 
 /******************************************************************************/
@@ -108,7 +118,7 @@ static uint32_t g3dvibratortag_postAnim ( G3DVIBRATORTAG *vtag,
 
 /******************************************************************************/
 static void g3dvibratortag_free ( G3DVIBRATORTAG *vtag ) {
-    free ( vtag );
+
 }
 
 /******************************************************************************/
@@ -122,11 +132,12 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
     }
 
     g3dtag_init ( vtag, 
-                  id, 
+                  G3DTAGVIBRATORTYPE,
+                  id,
+                  0x00,
                   "Vibrator",
-                  NULL,
-                  NULL,
                   g3dvibratortag_free,
+                  NULL,
                   g3dvibratortag_preAnim,
                   g3dvibratortag_postAnim,
                   NULL,
@@ -145,4 +156,181 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
     vtag->scaAmp.z = 0.0f;
 
     return vtag;
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/* https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml */
+
+/******************************************************************************/
+static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
+                                          G3DOBJECT     *obj,
+                                          uint64_t       engine_flags ) {
+    G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    G3DVECTOR target, wldpos;
+    G3DVECTOR fwd, up = { 0.0f, 1.0f, 0.0f, 1.0f }, side, u;
+    double LAX[0x10];
+
+    if ( ttag->target ) {
+        /*** useful check in case the target has been removed but not freed ***/
+        if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
+            float c, s, t, tx, ty, angle, a20;
+            G3DVECTOR nref, axis;
+            G3DVECTOR objrot;
+
+            g3dvector_matrix ( &origin, ttag->target->wmatrix, &wldpos );
+            g3dvector_matrix ( &wldpos, obj->parent->iwmatrix, &target );
+
+            nref.x = target.x - obj->pos.x;
+            nref.y = target.y - obj->pos.y;
+            nref.z = target.z - obj->pos.z;
+
+            g3dvector_cross ( &up, &nref, &axis );
+            g3dvector_normalize ( &axis, NULL );
+
+            angle = g3dvector_angle ( &up, &nref );
+
+            c  = ( float ) cos ( angle );
+            s  = ( float ) sin ( angle );
+            t  = ( float ) 1.0f - c;
+            tx = t * axis.x;
+            ty = t * axis.y;
+
+            a20 = - tx * axis.z - s * axis.y;
+
+            objrot.y = ( float ) asin ( a20 ) / M_PI * 180;
+    /*printf("%f %f %f\n", obj->rot.x, obj->rot.y, obj->rot.z );*/
+            if ( a20 == 1.0f || a20 == -1.0f ){
+                objrot.x = ( float ) atan2 ( tx * axis.y - s * axis.z, ty * axis.y + c ) / M_PI * 180;
+                objrot.z = ( float ) 0.0f;
+            } else {
+                objrot.x = ( float ) atan2 ( ty * axis.z + s * axis.x, t * axis.z * axis.z + c ) / M_PI * 180;
+                objrot.z = ( float ) atan2 ( tx * axis.y + s * axis.z, tx * axis.x + c ) / M_PI * 180;
+            }
+
+            /*** Prevent a loop by preventing callbacks to be called in case ***/
+            /*** nothing was changed ***/
+            if ( ( objrot.x <= obj->rot.x - 0.01f ) ||
+                 ( objrot.x >= obj->rot.x + 0.01f ) ||
+                 ( objrot.y <= obj->rot.y - 0.01f ) ||
+                 ( objrot.y >= obj->rot.y + 0.01f ) ||
+                 ( objrot.z <= obj->rot.z - 0.01f ) ||
+                 ( objrot.z >= obj->rot.z + 0.01f ) ) {
+                obj->rot.x = objrot.x;
+                obj->rot.y = objrot.y;
+                obj->rot.z = objrot.z;
+
+                g3dobject_updateMatrix_r ( obj, engine_flags );
+            }
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static void g3dtrackertag_free ( G3DTRACKERTAG *ttag ) {
+    if ( ttag->target ) {
+        G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
+                                                   ttag->targetTagID );
+
+        g3dobject_removeTag ( ttag->target, targetTag );
+    }
+}
+
+/******************************************************************************/
+void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
+                               G3DOBJECT     *tracker,
+                               G3DOBJECT     *target,
+                               uint64_t       engine_flags ) {
+    if ( ttag->target ) {
+        G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
+                                                   ttag->targetTagID );
+
+        g3dobject_removeTag ( ttag->target, targetTag );
+    }
+
+    ttag->target = target;
+
+    if ( target ) {
+        ttag->targetTagID = g3dobject_getNextTagID ( target );
+
+        g3dobject_addTag ( target, g3dtargettag_new ( ttag->targetTagID,
+                                                      tracker ) );
+
+        g3dtrackertag_transform ( ttag, tracker, engine_flags );
+    }
+}
+
+/******************************************************************************/
+G3DTAG *g3dtrackertag_new ( uint32_t id ) {
+    G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTRACKERTAG ) );
+
+    if ( ttag == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__) ;
+
+        return NULL;
+    }
+
+    g3dtag_init ( ttag, 
+                  G3DTAGTRACKERTYPE,
+                  id, 
+                  0x00,
+                  "Tracker",
+                  g3dtrackertag_free,
+                  g3dtrackertag_transform,
+                  NULL,
+                  NULL,
+                  NULL,
+                  NULL );
+
+    return ttag;
+}
+
+/******************************************************************************/
+static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
+                                         G3DOBJECT     *obj,
+                                         uint64_t       engine_flags ) {
+    /*** check if tracker object has been removed (but not freed) ***/
+    if ( ( ttag->tracker->flags & OBJECTORPHANED ) == 0x00 ) {
+        g3dtrackertag_transform ( ttag, ttag->tracker, engine_flags );
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static void g3dtargettag_free ( G3DTARGETTAG *ttag ) {
+    G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
+                                                       ttag->trackerTagID );
+
+    trackerTag->target = NULL;
+}
+
+/******************************************************************************/
+G3DTAG *g3dtargettag_new ( uint32_t id, 
+                           G3DOBJECT *tracker ) {
+    G3DTARGETTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTARGETTAG ) );
+
+    if ( ttag == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__) ;
+
+        return NULL;
+    }
+
+    g3dtag_init ( ttag, 
+                  G3DTAGTARGETTYPE,
+                  id, 
+                  TAGHIDDEN,
+                  "Target",
+                  g3dtargettag_free,
+                  g3dtargettag_transform,
+                  NULL,
+                  NULL,
+                  NULL,
+                  NULL );
+
+    ttag->tracker = tracker;
+
+    return ttag;
 }

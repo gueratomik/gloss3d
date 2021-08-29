@@ -94,6 +94,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dengine.h \
                        include/g3dengine/g3dmorpher.h \
                        include/g3dengine/g3dimage.h \
+                       include/g3dengine/g3dinstance.h \
                        include/g3dengine/g3dlight.h \
                        include/g3dengine/g3dlookup.h \
                        include/g3dengine/g3dmesh.h \

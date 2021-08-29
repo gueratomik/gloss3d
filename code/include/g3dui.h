@@ -561,6 +561,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_COMMITMODIFIER       "Commit up to modifier"
 #define MENU_ADDBONE              "Add Bone"
 #define MENU_ADDSYMMETRY          "Add Symmetry"
+#define MENU_ADDINSTANCE          "Add Instance"
 #define MENU_ADDWIREFRAME         "Add Wireframe"
 #define MENU_ADDSPLINEREVOLVER    "Add Spline Revolver"
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
@@ -580,6 +581,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDVIBRATOR          "Add Vibrator tag"
 #define MENU_ADDEMITTER           "Add Emitter tag"
 #define MENU_ADDTRACKER           "Add Tracker tag"
+#define MENU_REMOVESELTAG         "Remove selected tag"
 
 #define MENU_ADDUVWMAP            "Add UVW Map"
 
@@ -973,9 +975,11 @@ void common_g3duiview_orbit        ( G3DUIVIEW *, G3DPIVOT *, float, float );
 #define VISIBLERECTHIT 0x05
 #define TEXTURERECTHIT 0x06
 #define UVMAPRECTHIT   0x07
+#define TAGRECTHIT     0x08
 
 #define MAXTEXTURES    0x20 /*** 32 textures at most - will be improved ***/
 #define MAXUVMAPS      0x20 /*** 32 uvmaps at most - will be improved ***/
+#define MAXTAGS        0x20 /*** 32 uvmaps at most - will be improved ***/
 
 #define PICKEDOBJECTNOPARSE (  1         )
 #define PICKEOBJECTKEEPALL  (  1  <<  1  )
@@ -992,6 +996,7 @@ typedef struct _LISTEDOBJECT {
     uint32_t       endx;
     G3DUIRECTANGLE uvmap[MAXUVMAPS];
     G3DUIRECTANGLE texture[MAXTEXTURES];
+    G3DUIRECTANGLE tag[MAXTAGS];
 } LISTEDOBJECT;
 
 /******************************************************************************/
@@ -999,6 +1004,7 @@ typedef struct _PICKEDOBJECT {
     G3DOBJECT  *obj;
     G3DTEXTURE *tex;
     G3DUVMAP   *uvmap;
+    G3DTAG     *tag;
     uint32_t picked; 
 } PICKEDOBJECT;
 
@@ -1204,6 +1210,7 @@ void      common_g3dui_resetFFDBoxCbk         ( G3DUI * );
 void      common_g3dui_assignFFDBoxCbk        ( G3DUI * );
 void      common_g3dui_addFFDBoxCbk           ( G3DUI * );
 void      common_g3dui_addSymmetryCbk         ( G3DUI * );
+void      common_g3dui_addInstanceCbk         ( G3DUI * );
 void      common_g3dui_resetBoneTreeCbk       ( G3DUI * );
 void      common_g3dui_resetBoneCbk           ( G3DUI * );
 void      common_g3dui_fixBoneTreeCbk         ( G3DUI * );
@@ -1215,6 +1222,8 @@ void      common_g3dui_setMaterialCbk         ( G3DUI * );
 
 void      common_g3duimenubar_addUVMapCbk     ( G3DUI * );
 void      common_g3dui_addVibratorCbk         ( G3DUI * );
+void      common_g3dui_addTrackerCbk         ( G3DUI * );
+void common_g3dui_removeSelectedTagCbk ( G3DUI *gui );
 void      common_g3duimenubar_alignUVMapCbk   ( G3DUI *, const char * );
 void      common_g3duimenubar_fitUVMapCbk     ( G3DUI * );
 
@@ -1693,5 +1702,9 @@ void common_g3duipentooledit_setIncrementalCbk ( L3DUI *lui,
 
 void common_g3duibuckettooledit_setToleranceCbk ( L3DUI   *lui, 
                                                   uint32_t tolerance );
+
+/******************************************************************************/
+void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui, 
+                                               uint32_t rank );
 
 #endif

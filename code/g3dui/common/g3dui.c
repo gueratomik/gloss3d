@@ -755,6 +755,8 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
 
     if ( msk & REDRAWLIST ) {
         g3dui_redrawObjectList ( gui );
+
+        g3dui_updateMenuBar ( gui );
     }
 
     if ( msk & REDRAWCURRENTOBJECT ) {
@@ -763,10 +765,6 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
 
     if ( msk & REDRAWTIMELINE ) {
         g3dui_redrawTimeline ( gui );
-    }
-
-    if ( msk & REDRAWCOORDS ) {
-        g3dui_updateCoords ( gui );
     }
 
     if ( msk & REDRAWCOORDS ) {

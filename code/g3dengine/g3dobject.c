@@ -30,6 +30,40 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj ) {
+    return obj->tagID++;
+}
+
+/******************************************************************************/
+G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id ) {
+    LIST *ltmptag = obj->ltag;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        if ( tag->id == id ) return tag;
+
+        ltmptag = ltmptag->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+void g3dobject_transform_tags ( G3DOBJECT *obj,
+                                uint64_t   engine_flags ) {
+    LIST *ltmptag = obj->ltag;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        if ( tag->transform ) tag->transform ( tag, obj, engine_flags );
+
+        ltmptag = ltmptag->next;
+    }
+}
+
+/******************************************************************************/
 void g3dobject_preanim_tags ( G3DOBJECT *obj, 
                               float      frame, 
                               uint64_t   engine_flags ) {
@@ -782,10 +816,6 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
 
     g3dobject_updateMatrix ( obj );
 
-    /*** the transform callback only happen when recursion occurs ***/
-    /*** Here we have to call it explicitely. See g3dobject_updateMatrix_r()***/
-    if ( obj->transform ) obj->transform ( obj, engine_flags );
-
     /*** Recurse to children objects ***/
     while ( ltmp ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
@@ -1133,6 +1163,8 @@ void g3dobject_addChild ( G3DOBJECT *obj,
 
     child->parent = obj;
 
+    child->flags &= (~OBJECTORPHANED);
+
     if ( child->type == G3DLIGHTTYPE ) {
         g3dlight_turnOn ( ( G3DLIGHT * ) child );
     }
@@ -1161,6 +1193,8 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
         g3dlight_reset ( ( G3DLIGHT * ) child );
     }
 
+    child->flags |= OBJECTORPHANED;
+
     /*if ( child->setParent ) obj->setParent   ( child, NULL , engine_flags );*/
 }
 
@@ -1174,6 +1208,9 @@ void g3dobject_addTag ( G3DOBJECT *obj,
 void g3dobject_removeTag ( G3DOBJECT *obj, 
                            G3DTAG    *tag ) {
     list_remove ( &obj->ltag, tag );
+
+    /*** this should be in some dedicated func ***/
+    obj->seltag = NULL;
 }
 
 /******************************************************************************/
@@ -1248,10 +1285,6 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
 
         ltmpobj = ltmpobj->next;
     }
-
-    if ( obj->transform ) {
-        obj->transform ( obj, engine_flags );
-    }
 }
 
 /******************************************************************************/
@@ -1271,8 +1304,6 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
 
     g3dcore_invertMatrix ( obj->lmatrix, obj->ilmatrix );
 
-
-
     if ( obj->parent ) {
         g3dcore_multmatrix ( obj->lmatrix, obj->parent->wmatrix, obj->wmatrix );
 
@@ -1283,8 +1314,11 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
         memcpy ( obj->iwmatrix, obj->ilmatrix, sizeof ( obj->iwmatrix ) );
     }
 
-
     glPopMatrix ( );
+
+    if ( obj->transform ) obj->transform ( obj, 0x00 );
+
+    g3dobject_transform_tags ( obj, 0x00 );
 }
 
 /******************************************************************************/
@@ -1718,6 +1752,8 @@ void g3dobject_init ( G3DOBJECT   *obj,
     obj->type  = type;
     obj->id    = id;
     obj->flags = object_flags;
+
+    if ( obj->parent == NULL ) obj->flags |= OBJECTORPHANED;
 
     if ( name ) {
         uint32_t len = strlen ( name );

@@ -122,6 +122,12 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
             g3dmesh_selectUVMap ( mes, uvmap );
         /*}*/
     }
+
+    if ( pob->picked == TAGRECTHIT ) {
+        G3DTAG *tag = pob->tag;
+
+        obj->seltag = pob->tag;
+    }
 }
 
 /******************************************************************************/
@@ -154,8 +160,9 @@ PICKEDOBJECT *pickobject ( uint32_t x,
                            uint64_t engine_flags ) {
     LISTEDOBJECT *lob = common_g3duilist_sizeListedObject ( obj, x, y, xsep, strwidth, 0x00 );
     static PICKEDOBJECT pob;
-    uint32_t nbtex = 0x00;
+    uint32_t nbtex = 0x00, nbtag = 0x00;
     uint32_t i;
+    LIST *ltmptag = obj->ltag;
 
     pob.picked = 0x00;
 
@@ -201,6 +208,21 @@ PICKEDOBJECT *pickobject ( uint32_t x,
 
             ltmptex = ltmptex->next;
         }
+    }
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        if ( ( tag->flags & TAGHIDDEN ) == 0x00 ) {
+            if ( inRectangle ( &lob->tag[nbtag], xm, ym ) ) {
+                pob.tag    = tag;
+                pob.picked = TAGRECTHIT;
+            }
+
+            nbtag++;
+        }
+
+        ltmptag = ltmptag->next;
     }
 
     if ( pob.picked ) {
@@ -257,6 +279,8 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
     static LISTEDOBJECT lob; /*** Defined as static variable so we can    ***/
                            /*** return a valid pointer to this variable ***/
     uint32_t nextx;
+    uint32_t nbtag = 0x00;
+    LIST *ltmptag = obj->ltag;
 
     /*** size expander + icon + name ***/
     listedObject_sizeInit ( &lob, x, y, strwidth );
@@ -315,6 +339,23 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
 
             ltmptex = ltmptex->next;
         }
+    }
+
+    while ( ltmptag && ( nbtag < MAXTAGS ) ) {
+        G3DTAG *tag  = ( G3DTAG * ) ltmptag->data;
+
+        if ( ( tag->flags & TAGHIDDEN ) == 0x00 ) {
+            lob.tag[nbtag].x      = lob.endx;
+            lob.tag[nbtag].y      = y;
+            lob.tag[nbtag].width  = LISTINDENT;
+            lob.tag[nbtag].height = LISTINDENT;
+
+            lob.endx += ( LISTINDENT + 0x02 );
+
+            nbtag++;
+        }
+
+        ltmptag = ltmptag->next;
     }
 
     return &lob;
