@@ -154,8 +154,8 @@ am__objects_1 = v2/g3dexportextension.lo v2/g3dexportapp.lo \
 	v3/g3dexportsubdivider.lo v3/g3dexportspline.lo \
 	v3/g3dexportsplinerevolver.lo v3/g3dexporttext.lo \
 	v3/g3dexportwireframe.lo v3/g3dexportffd.lo \
-	v3/g3dexportskin.lo v3/g3dexportkey.lo v3/g3dexportmorpher.lo \
-	stl.lo pov.lo obj.lo
+	v3/g3dexportskin.lo v3/g3dexportkey.lo v3/g3dexporttag.lo \
+	v3/g3dexportmorpher.lo stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -215,7 +215,8 @@ am__depfiles_remade = ./$(DEPDIR)/obj.Plo ./$(DEPDIR)/pov.Plo \
 	v3/$(DEPDIR)/g3dexportsplinerevolver.Plo \
 	v3/$(DEPDIR)/g3dexportsubdivider.Plo \
 	v3/$(DEPDIR)/g3dexportsymmetry.Plo \
-	v3/$(DEPDIR)/g3dexporttext.Plo v3/$(DEPDIR)/g3dexportuvmap.Plo \
+	v3/$(DEPDIR)/g3dexporttag.Plo v3/$(DEPDIR)/g3dexporttext.Plo \
+	v3/$(DEPDIR)/g3dexportuvmap.Plo \
 	v3/$(DEPDIR)/g3dexportwireframe.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -439,6 +440,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v3/g3dexportffd.c \
                             v3/g3dexportskin.c \
                             v3/g3dexportkey.c \
+                            v3/g3dexporttag.c \
                             v3/g3dexportmorpher.c \
                             stl.c \
                             pov.c \
@@ -590,6 +592,7 @@ v3/g3dexportwireframe.lo: v3/$(am__dirstamp) \
 v3/g3dexportffd.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportskin.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportkey.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
+v3/g3dexporttag.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportmorpher.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
 
@@ -654,6 +657,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportsplinerevolver.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportsubdivider.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportsymmetry.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexporttag.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexporttext.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportuvmap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportwireframe.Plo@am__quote@ # am--include-marker
@@ -876,6 +880,7 @@ distclean: distclean-am
 	-rm -f v3/$(DEPDIR)/g3dexportsplinerevolver.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportsubdivider.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportsymmetry.Plo
+	-rm -f v3/$(DEPDIR)/g3dexporttag.Plo
 	-rm -f v3/$(DEPDIR)/g3dexporttext.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportuvmap.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportwireframe.Plo
@@ -972,6 +977,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v3/$(DEPDIR)/g3dexportsplinerevolver.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportsubdivider.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportsymmetry.Plo
+	-rm -f v3/$(DEPDIR)/g3dexporttag.Plo
 	-rm -f v3/$(DEPDIR)/g3dexporttext.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportuvmap.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportwireframe.Plo

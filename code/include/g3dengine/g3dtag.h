@@ -91,10 +91,15 @@ typedef struct _G3DVIBRATORTAG {
 } G3DVIBRATORTAG;
 
 /******************************************************************************/
+#define TARGET_XAXIS 0x00
+#define TARGET_YAXIS 0x01
+#define TARGET_ZAXIS 0x02
+
 typedef struct _G3DTRACKERTAG {
     G3DTAG     tag;
     G3DOBJECT *target;
     uint32_t   targetTagID;
+    uint32_t   orientation;
 } G3DTRACKERTAG;
 
 /******************************************************************************/
@@ -116,6 +121,12 @@ void g3dtag_free ( G3DTAG *tag );
 G3DTAG *g3dvibratortag_new ( uint32_t id );
 G3DTAG *g3dtargettag_new   ( uint32_t id, G3DOBJECT *tracker );
 G3DTAG *g3dtrackertag_new  ( uint32_t id );
+void g3dtrackertag_setOrientation ( G3DTRACKERTAG *ttag,
+                                    uint32_t       orientation );
+void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
+                               G3DOBJECT     *tracker,
+                               G3DOBJECT     *target,
+                               uint64_t       engine_flags );
 
 #ifdef __cplusplus
 }

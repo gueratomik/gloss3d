@@ -44,6 +44,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
 
         switch ( chunkSignature ) {
             case SIG_OBJECT_PRIMITIVE_SPHERE : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_SPHERE_BASE : {
                 uint32_t slice, cap;
                 float radius;
 
@@ -59,6 +62,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
             } break;
 
             case SIG_OBJECT_PRIMITIVE_CUBE : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_CUBE_BASE : {
                 uint32_t nbx, nby, nbz;
                 float radius;
 
@@ -75,6 +81,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
             } break;
 
             case SIG_OBJECT_PRIMITIVE_TORUS : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_TORUS_BASE : {
                 float extrad, intrad;
                 uint32_t slice, cap;
                 uint32_t orientation;
@@ -94,6 +103,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
             } break;
 
             case SIG_OBJECT_PRIMITIVE_CYLINDER : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_CYLINDER_BASE : {
                 uint32_t closed, orientation;
                 uint32_t slice, capx, capy;
                 float length, radius;
@@ -115,6 +127,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
             } break;
 
             case SIG_OBJECT_PRIMITIVE_TUBE : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_TUBE_BASE : {
                 uint32_t slice, capx, capy, orientation;
                 float length, radius, thickness;
 
@@ -136,6 +151,9 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
             } break;
 
             case SIG_OBJECT_PRIMITIVE_PLANE : {
+            } break;
+
+            case SIG_OBJECT_PRIMITIVE_PLANE_BASE : {
                 uint32_t orientation;
                 uint32_t nbu, nbv;
                 float radu, radv;

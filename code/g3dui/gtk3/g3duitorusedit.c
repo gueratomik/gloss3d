@@ -168,8 +168,12 @@ GtkWidget *createTorusEdit ( GtkWidget *parent, G3DUI *gui,
                                                     0, 60, 
                                                    96, 96, intRadiusCbk );
 
-    createOrientationSelection ( frm, gui, EDITTORUSORIENTATION,  0, 80,
-                                                                 96, 96, orientationCbk );
+    createOrientationSelection ( frm, gui, EDITTORUSORIENTATION,  
+                                           ZXSTR,
+                                           XYSTR,
+                                           YZSTR,
+                                           0, 80,
+                                           96, 96, orientationCbk );
 
     gtk_widget_show ( frm );
 

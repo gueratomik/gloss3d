@@ -92,6 +92,7 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
             case SIG_OBJECT_DECLARE_NULL :
             case SIG_OBJECT_DECLARE_SPHERE :
             case SIG_OBJECT_DECLARE_TORUS :
+            case SIG_OBJECT_DECLARE_TUBE :
             case SIG_OBJECT_DECLARE_CUBE :
             case SIG_OBJECT_DECLARE_PLANE :
             case SIG_OBJECT_DECLARE_CYLINDER :

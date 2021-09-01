@@ -52,6 +52,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v3/g3dexportffd.c \
                             v3/g3dexportskin.c \
                             v3/g3dexportkey.c \
+                            v3/g3dexporttag.c \
                             v3/g3dexportmorpher.c \
                             stl.c \
                             pov.c \

@@ -930,6 +930,9 @@ GtkWidget *createFloatText ( GtkWidget *parent, G3DUI  *gui,
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
 void createOrientationSelection ( GtkWidget *parent, G3DUI *gui, 
                                                      char *name,
+                                                     char *str0,
+                                                     char *str1,
+                                                     char *str2,
                                                      gint x, gint y,
                                                      gint labwidth,
                                                      gint txtwidth,
@@ -965,9 +968,9 @@ void createOrientationSelection ( GtkWidget *parent, G3DUI *gui,
         g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
     }
 
-    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, ZXSTR );
-    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, XYSTR );
-    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, YZSTR );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, str0/*ZXSTR*/ );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, str1/*XYSTR*/ );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, str2/*YZSTR*/ );
 
     gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
 

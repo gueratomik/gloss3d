@@ -422,6 +422,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define XYSTR "XY"
 #define YZSTR "YZ"
 
+#define XSTR "X"
+#define YSTR "Y"
+#define ZSTR "Z"
+
 /****************************** Symmetry  *************************************/
 #define SYMMETRYZX ORIENTATIONZX
 #define SYMMETRYXY ORIENTATIONXY

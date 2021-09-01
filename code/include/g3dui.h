@@ -1706,5 +1706,7 @@ void common_g3duibuckettooledit_setToleranceCbk ( L3DUI   *lui,
 /******************************************************************************/
 void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui, 
                                                uint32_t rank );
+void common_g3duitrackertagedit_orientationCbk ( G3DUI   *gui, 
+                                                 char *str );
 
 #endif

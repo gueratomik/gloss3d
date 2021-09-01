@@ -154,48 +154,55 @@ SIG_ROOT=0x44335347
 
 ----------------------- SIG_OBJECT_PRIMITIVE
 --------------------------- SIG_OBJECT_PRIMITIVE_SPHERE
-------------------------------- Radius ( float    )
-------------------------------- Slices ( uint32_t )
-------------------------------- Caps   ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_SPHERE_BASE
+----------------------------------- Radius ( float    )
+----------------------------------- Slices ( uint32_t )
+----------------------------------- Caps   ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_TORUS
-------------------------------- Outer Radius ( float    )
-------------------------------- Inner Radius ( float    )
-------------------------------- Slices       ( uint32_t )
-------------------------------- Caps         ( uint32_t )
-------------------------------- Orientation  ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_TORUS_BASE
+----------------------------------- Outer Radius ( float    )
+----------------------------------- Inner Radius ( float    )
+----------------------------------- Slices       ( uint32_t )
+----------------------------------- Caps         ( uint32_t )
+----------------------------------- Orientation  ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_CUBE
-------------------------------- Radius ( float    )
-------------------------------- NbX    ( uint32_t )
-------------------------------- NbY    ( uint32_t )
-------------------------------- NbZ    ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_CUBE_BASE
+----------------------------------- Radius ( float    )
+----------------------------------- NbX    ( uint32_t )
+----------------------------------- NbY    ( uint32_t )
+----------------------------------- NbZ    ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_CONE
-------------------------------- Length      ( float    )
-------------------------------- Slices      ( uint32_t )
-------------------------------- Caps        ( uint32_t )
-------------------------------- Closed?     ( uint32_t )
-------------------------------- Orientation ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_CONE_BASE
+----------------------------------- Length      ( float    )
+----------------------------------- Slices      ( uint32_t )
+----------------------------------- Caps        ( uint32_t )
+----------------------------------- Closed?     ( uint32_t )
+----------------------------------- Orientation ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_PLANE
-------------------------------- URadius     ( float    )
-------------------------------- VRadius     ( float    )
-------------------------------- NbU         ( uint32_t )
-------------------------------- NbV         ( uint32_t )
-------------------------------- Orientation ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_PLANE_BASE
+----------------------------------- URadius     ( float    )
+----------------------------------- VRadius     ( float    )
+----------------------------------- NbU         ( uint32_t )
+----------------------------------- NbV         ( uint32_t )
+----------------------------------- Orientation ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_CYLINDER
-------------------------------- Length      ( float    )
-------------------------------- Radius      ( float    )
-------------------------------- Slices      ( uint32_t )
-------------------------------- Capx        ( uint32_t )
-------------------------------- Capy        ( uint32_t )
-------------------------------- Closed?     ( uint32_t )
-------------------------------- Orientation ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_CYLINDER_BASE
+----------------------------------- Length      ( float    )
+----------------------------------- Radius      ( float    )
+----------------------------------- Slices      ( uint32_t )
+----------------------------------- Capx        ( uint32_t )
+----------------------------------- Capy        ( uint32_t )
+----------------------------------- Closed?     ( uint32_t )
+----------------------------------- Orientation ( uint32_t )
 --------------------------- SIG_OBJECT_PRIMITIVE_TUBE
-------------------------------- Length      ( float    )
-------------------------------- Radius      ( float    )
-------------------------------- Slices      ( uint32_t )
-------------------------------- Capx        ( uint32_t )
-------------------------------- Capy        ( uint32_t )
-------------------------------- thickness   ( uint32_t )
-------------------------------- Orientation ( uint32_t )
+------------------------------- SIG_OBJECT_PRIMITIVE_TUBE_BASE
+----------------------------------- Length      ( float    )
+----------------------------------- Radius      ( float    )
+----------------------------------- Slices      ( uint32_t )
+----------------------------------- Capx        ( uint32_t )
+----------------------------------- Capy        ( uint32_t )
+----------------------------------- thickness   ( uint32_t )
+----------------------------------- Orientation ( uint32_t )
 
 ----------------------- SIG_OBJECT_MESH
 --------------------------- SIG_OBJECT_MESH_GOURAUDLIMIT
@@ -382,6 +389,7 @@ SIG_ROOT=0x44335347
 ------------------- Position ( float-float-float-float )
 ------------------- Rotation ( float-float-float-float )
 ------------------- Scale    ( float-float-float-float )
+
 --------------- SIG_OBJECT_KEYS
 ------------------- SIG_OBJECT_KEY_ENTRY
 ----------------------- SIG_OBJECT_KEY_FLAGS
@@ -395,7 +403,7 @@ SIG_ROOT=0x44335347
 --------------------------- enabled (uint32_t)
 ----------------------- SIG_OBJECT_KEY_TRANSFORMATION
 --------------------------- frame num ( float )
---------------------------- Position  ( float-float-float-uint32_t ) /** last int is usage **/
+--------------------------- Translation  ( float-float-float-uint32_t ) /** last int is usage **/
 --------------------------- Rotation  ( float-float-float-uint32_t ) /** last int is usage **/
 --------------------------- Scale     ( float-float-float-uint32_t ) /** last int is usage **/
 ----------------------- SIG_OBJECT_KEY_LOOP
@@ -414,6 +422,27 @@ SIG_ROOT=0x44335347
 --------------------------- SIG_OBJECT_KEY_DATA_LIGHT
 ------------------------------- SIG_OBJECT_LIGHT
 ----------------------------------- ( ... )
+
+--------------- SIG_OBJECT_TAGS
+------------------- SIG_OBJECT_TAG_ENTRY
+--------------------------- SIG_OBJECT_TAG_TRACKER
+------------------------------- SIG_OBJECT_TAG_TRACKER_ORIENTATION
+----------------------------------- uint32_t (orientation)
+------------------------------- SIG_OBJECT_TAG_TRACKER_TARGET
+----------------------------------- uin32_t (target_id )
+--------------------------- SIG_OBJECT_TAG_VIBRATE
+------------------------------- SIG_OBJECT_TAG_VIBRATE_FREQUENCY
+----------------------------------- uin32_t (frequency)
+------------------------------- SIG_OBJECT_TAG_VIBRATE_FLAGS_TRANSLATION
+----------------------------------- uin32_t (enabled)
+------------------------------- SIG_OBJECT_TAG_VIBRATE_FLAGS_ROTATION
+----------------------------------- uin32_t (enabled)
+------------------------------- SIG_OBJECT_TAG_VIBRATE_FLAGS_SCALING
+----------------------------------- uin32_t (enabled)
+------------------------------- SIG_OBJECT_TAG_VIBRATE_TRANSFORMATION
+----------------------------------- Translation ( float-float-float-uint32_t ) /** last int is unused **/
+----------------------------------- Rotation    ( float-float-float-uint32_t ) /** last int is unused **/
+----------------------------------- Scale       ( float-float-float-uint32_t ) /** last int is unused **/
 
 --------------- SIG_OBJECT_ACTIVE
 ------------------- active ( uint32_t ) /** 1 or 0 **/

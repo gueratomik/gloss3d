@@ -138,6 +138,8 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
     q3dvector3f_matrix ( &qray->dir, qobj->TMVX, &locqray.dir );
 
+    q3dvector3f_normalize ( &locqray.dir, NULL );
+
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
         if ( qobj->intersect ) {
             hit += qobj->intersect ( qobj, 
@@ -168,6 +170,7 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
 
     qray->flags   |= locqray.flags;
     qray->color    = locqray.color;
+
     qray->distance = locqray.distance;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
@@ -179,8 +182,11 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         qray->isx.qsur   = locqray.isx.qsur;
 
         /*** transform the intersection point into his coordinate system ***/
+
         q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
         q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
+
+        q3dvector3f_normalize ( &qray->isx.dir, NULL );
     }
 
     

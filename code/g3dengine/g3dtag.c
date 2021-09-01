@@ -168,54 +168,100 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                                           uint64_t       engine_flags ) {
     G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DVECTOR target, wldpos;
-    G3DVECTOR fwd, up = { 0.0f, 1.0f, 0.0f, 1.0f }, side, u;
-    double LAX[0x10];
+    G3DVECTOR up = { 0.0f, 1.0f, 0.0f, 1.0f };
 
     if ( ttag->target ) {
         /*** useful check in case the target has been removed but not freed ***/
         if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
-            float c, s, t, tx, ty, angle, a20;
-            G3DVECTOR nref, axis;
+            G3DVECTOR dir, xaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
+                           yaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
+                           zaxis = { 0.0f, 0.0f, 0.0f, 1.0f };
             G3DVECTOR objrot;
+            double RX[0x10];
 
             g3dvector_matrix ( &origin, ttag->target->wmatrix, &wldpos );
             g3dvector_matrix ( &wldpos, obj->parent->iwmatrix, &target );
 
-            nref.x = target.x - obj->pos.x;
-            nref.y = target.y - obj->pos.y;
-            nref.z = target.z - obj->pos.z;
+            dir.x = target.x - obj->pos.x;
+            dir.y = target.y - obj->pos.y;
+            dir.z = target.z - obj->pos.z;
 
-            g3dvector_cross ( &up, &nref, &axis );
-            g3dvector_normalize ( &axis, NULL );
+            g3dvector_normalize ( &dir, NULL );
 
-            angle = g3dvector_angle ( &up, &nref );
+            g3dcore_identityMatrix ( RX );
 
-            c  = ( float ) cos ( angle );
-            s  = ( float ) sin ( angle );
-            t  = ( float ) 1.0f - c;
-            tx = t * axis.x;
-            ty = t * axis.y;
+            switch ( ttag->orientation ) {
+                case TARGET_XAXIS :
+                    g3dvector_cross ( &up, &dir, &yaxis );
+                    g3dvector_normalize ( &yaxis, NULL );
 
-            a20 = - tx * axis.z - s * axis.y;
+                    g3dvector_cross ( &dir, &yaxis, &zaxis );
+                    g3dvector_normalize ( &zaxis, NULL );
 
-            objrot.y = ( float ) asin ( a20 ) / M_PI * 180;
-    /*printf("%f %f %f\n", obj->rot.x, obj->rot.y, obj->rot.z );*/
-            if ( a20 == 1.0f || a20 == -1.0f ){
-                objrot.x = ( float ) atan2 ( tx * axis.y - s * axis.z, ty * axis.y + c ) / M_PI * 180;
-                objrot.z = ( float ) 0.0f;
-            } else {
-                objrot.x = ( float ) atan2 ( ty * axis.z + s * axis.x, t * axis.z * axis.z + c ) / M_PI * 180;
-                objrot.z = ( float ) atan2 ( tx * axis.y + s * axis.z, tx * axis.x + c ) / M_PI * 180;
+                    RX[0x00] = dir.x;
+                    RX[0x04] = yaxis.x;
+                    RX[0x08] = zaxis.x;
+
+                    RX[0x01] = dir.y;
+                    RX[0x05] = yaxis.y;
+                    RX[0x09] = zaxis.y;
+
+                    RX[0x02] = dir.z;
+                    RX[0x06] = yaxis.z;
+                    RX[0x0A] = zaxis.z;
+                break;
+
+                case TARGET_YAXIS :
+                    g3dvector_cross ( &up, &dir, &zaxis );
+                    g3dvector_normalize ( &zaxis, NULL );
+
+                    g3dvector_cross ( &dir, &zaxis, &xaxis );
+                    g3dvector_normalize ( &xaxis, NULL );
+
+                    RX[0x00] = xaxis.x;
+                    RX[0x04] = dir.x;
+                    RX[0x08] = zaxis.x;
+
+                    RX[0x01] = xaxis.y;
+                    RX[0x05] = dir.y;
+                    RX[0x09] = zaxis.y;
+
+                    RX[0x02] = xaxis.z;
+                    RX[0x06] = dir.z;
+                    RX[0x0A] = zaxis.z;
+                break;
+
+                case TARGET_ZAXIS :
+                    g3dvector_cross ( &up, &dir, &xaxis );
+                    g3dvector_normalize ( &xaxis, NULL );
+
+                    g3dvector_cross ( &dir, &xaxis, &yaxis );
+                    g3dvector_normalize ( &yaxis, NULL );
+
+                    RX[0x00] = xaxis.x;
+                    RX[0x04] = yaxis.x;
+                    RX[0x08] = dir.x;
+
+                    RX[0x01] = xaxis.y;
+                    RX[0x05] = yaxis.y;
+                    RX[0x09] = dir.y;
+
+                    RX[0x02] = xaxis.z;
+                    RX[0x06] = yaxis.z;
+                    RX[0x0A] = dir.z;
+                break;
+
+                default :
+                break;
             }
+
+            g3dcore_getMatrixRotation ( RX, &objrot );
 
             /*** Prevent a loop by preventing callbacks to be called in case ***/
             /*** nothing was changed ***/
-            if ( ( objrot.x <= obj->rot.x - 0.01f ) ||
-                 ( objrot.x >= obj->rot.x + 0.01f ) ||
-                 ( objrot.y <= obj->rot.y - 0.01f ) ||
-                 ( objrot.y >= obj->rot.y + 0.01f ) ||
-                 ( objrot.z <= obj->rot.z - 0.01f ) ||
-                 ( objrot.z >= obj->rot.z + 0.01f ) ) {
+            if ( ( fabs ( objrot.x - obj->rot.x ) > 0.0f ) ||
+                 ( fabs ( objrot.y - obj->rot.y ) > 0.0f ) ||
+                 ( fabs ( objrot.z - obj->rot.z ) > 0.0f ) ) {
                 obj->rot.x = objrot.x;
                 obj->rot.y = objrot.y;
                 obj->rot.z = objrot.z;
@@ -263,6 +309,13 @@ void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
 }
 
 /******************************************************************************/
+void g3dtrackertag_setOrientation ( G3DTRACKERTAG *ttag,
+                                    uint32_t       orientation ) {
+
+    ttag->orientation = orientation;
+}
+
+/******************************************************************************/
 G3DTAG *g3dtrackertag_new ( uint32_t id ) {
     G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTRACKERTAG ) );
 
@@ -284,6 +337,8 @@ G3DTAG *g3dtrackertag_new ( uint32_t id ) {
                   NULL,
                   NULL );
 
+    ttag->orientation = TARGET_ZAXIS;
+
     return ttag;
 }
 
@@ -293,7 +348,10 @@ static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
                                          uint64_t       engine_flags ) {
     /*** check if tracker object has been removed (but not freed) ***/
     if ( ( ttag->tracker->flags & OBJECTORPHANED ) == 0x00 ) {
-        g3dtrackertag_transform ( ttag, ttag->tracker, engine_flags );
+        G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
+                                                           ttag->trackerTagID );
+
+        g3dtrackertag_transform ( trackerTag, ttag->tracker, engine_flags );
     }
 
     return 0x00;

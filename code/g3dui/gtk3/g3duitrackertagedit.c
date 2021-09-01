@@ -40,6 +40,15 @@ static void objectSelectorCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void orientationCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
+    G3DUI *gui = ( G3DUI * ) user_data;
+    const char *str = gtk_combo_box_text_get_active_text ( cmbt );
+
+    common_g3duitrackertagedit_orientationCbk ( gui, str );
+}
+
+/******************************************************************************/
 static void createObjectSelector ( GtkWidget *parent, 
                                    G3DUI     *gui,
                                    char      *name,
@@ -157,7 +166,15 @@ GtkWidget* createTrackerTagEdit ( GtkWidget     *parent,
     createObjectSelector  ( frm, 
                             gui,
                             EDITRACKEDTARGET,
-                            16, 16, 128, 128, objectSelectorCbk );
+                            16, 0, 48, 128, objectSelectorCbk );
+
+    createOrientationSelection ( frm, gui, EDITPLANEORIENTATION, 
+                                           XSTR,
+                                           YSTR,
+                                           ZSTR,
+                                           0, 24, 
+                                           60, 60, orientationCbk );
+
 
     gui->lock = 0x00;
 

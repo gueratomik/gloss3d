@@ -183,8 +183,12 @@ GtkWidget *createPlaneEdit ( GtkWidget *parent, G3DUI *gui,
                                                  0x00, 0x3C, 
                                                  0x60, 0x60, radvCbk );
 
-    createOrientationSelection ( frm, gui, EDITPLANEORIENTATION, 0x00, 0x50, 
-                                                                 0x60, 0x60, orientationCbk );
+    createOrientationSelection ( frm, gui, EDITPLANEORIENTATION, 
+                                           ZXSTR,
+                                           XYSTR,
+                                           YZSTR,
+                                           0x00, 0x50, 
+                                           0x60, 0x60, orientationCbk );
 
     gtk_widget_show ( frm );
 

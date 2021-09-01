@@ -115,8 +115,12 @@ GtkWidget *createSymmetryEdit ( GtkWidget *parent, G3DUI *gui,
     createFloatText            ( frm, gui, EDITSYMMETRYLIMIT, 0.0f, FLT_MAX,
                                                               0,  0,
                                                              96, 96, limitCbk );
-    createOrientationSelection ( frm, gui, EDITSYMMETRYPLANE, 0, 32,
-                                                             96, 32, planeCbk );
+    createOrientationSelection ( frm, gui, EDITSYMMETRYPLANE, 
+                                           ZXSTR,
+                                           XYSTR,
+                                           YZSTR,
+                                           0, 32,
+                                           96, 32, planeCbk );
 
 
     gtk_widget_show ( frm );

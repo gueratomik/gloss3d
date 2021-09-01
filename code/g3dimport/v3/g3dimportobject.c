@@ -297,6 +297,10 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimportv3key ( gid, ftell ( fsrc ) + chunkSize, fsrc );
             } break;
 
+            case SIG_OBJECT_TAGS : {
+                g3dimportv3tag ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+            } break;
+
             case SIG_OBJECT_KEY_TRANSFORMATION : {
                 uint32_t usepos, userot, usesca, key_flags = 0x00;
                 G3DKEY *unusedKeyArg = NULL;

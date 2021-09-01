@@ -189,6 +189,31 @@ static uint32_t g3dexportv3object_keys ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3object_tags ( G3DEXPORTV3DATA *ged, 
+                                         G3DOBJECT     *obj, 
+                                         uint32_t       flags, 
+                                         FILE          *fdst ) {
+    LIST *ltmptag = obj->ltag;
+    uint32_t keyID = 0x00;
+    uint32_t size = 0x00;
+
+    while ( ltmptag ) {
+        G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
+
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_ENTRY,
+                                         g3dexportv3tag,
+                                         ged,
+                                         tag,
+                                         0xFFFFFFFF,
+                                         fdst );
+
+        ltmptag = ltmptag->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3object_transformation ( G3DEXPORTV3DATA *ged, 
                                                  G3DOBJECT     *obj, 
                                                  uint32_t       flags, 
@@ -482,6 +507,16 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
         /*** write object's animation keys ***/
         size += g3dexportv3_writeChunk ( SIG_OBJECT_KEYS,
                                        g3dexportv3object_keys,
+                                       ged,
+                                       obj,
+                                       0xFFFFFFFF,
+                                       fdst );
+    }
+
+    if ( obj->ltag ) {
+        /*** write object's animation keys ***/
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_TAGS,
+                                       g3dexportv3object_tags,
                                        ged,
                                        obj,
                                        0xFFFFFFFF,

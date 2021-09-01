@@ -31,10 +31,10 @@
 
 
 /******************************************************************************/
-static uint32_t g3dexportv3plane ( G3DEXPORTV3DATA *ged, 
-                                 G3DPRIMITIVE  *pri, 
-                                 uint32_t       flags, 
-                                 FILE          *fdst ) {
+static uint32_t g3dexportv3plane_base ( G3DEXPORTV3DATA *ged, 
+                                        G3DPRIMITIVE    *pri, 
+                                        uint32_t         flags, 
+                                        FILE            *fdst ) {
     PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
@@ -48,10 +48,27 @@ static uint32_t g3dexportv3plane ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3tube ( G3DEXPORTV3DATA *ged, 
-                                    G3DPRIMITIVE  *pri, 
-                                    uint32_t       flags, 
-                                    FILE          *fdst ) {
+static uint32_t g3dexportv3plane ( G3DEXPORTV3DATA *ged, 
+                                  G3DPRIMITIVE    *pri, 
+                                  uint32_t         flags, 
+                                  FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE_BASE,
+                                     g3dexportv3plane_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3tube_base ( G3DEXPORTV3DATA *ged, 
+                                       G3DPRIMITIVE    *pri, 
+                                       uint32_t         flags, 
+                                       FILE            *fdst ) {
     TUBEDATASTRUCT *tds = ( TUBEDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
@@ -67,10 +84,27 @@ static uint32_t g3dexportv3tube ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3cylinder ( G3DEXPORTV3DATA *ged, 
-                                    G3DPRIMITIVE  *pri, 
-                                    uint32_t       flags, 
-                                    FILE          *fdst ) {
+static uint32_t g3dexportv3tube ( G3DEXPORTV3DATA *ged, 
+                                  G3DPRIMITIVE    *pri, 
+                                  uint32_t         flags, 
+                                  FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TUBE_BASE,
+                                     g3dexportv3tube_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3cylinder_base ( G3DEXPORTV3DATA *ged, 
+                                           G3DPRIMITIVE  *pri, 
+                                           uint32_t       flags, 
+                                           FILE          *fdst ) {
     CYLINDERDATASTRUCT *cds = ( CYLINDERDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
@@ -86,10 +120,27 @@ static uint32_t g3dexportv3cylinder ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3cube ( G3DEXPORTV3DATA *ged, 
-                                G3DPRIMITIVE  *pri, 
-                                uint32_t       flags, 
-                                FILE          *fdst ) {
+static uint32_t g3dexportv3cylinder ( G3DEXPORTV3DATA *ged, 
+                                      G3DPRIMITIVE    *pri, 
+                                      uint32_t         flags, 
+                                      FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER_BASE,
+                                     g3dexportv3cylinder_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3cube_base ( G3DEXPORTV3DATA *ged, 
+                                       G3DPRIMITIVE    *pri, 
+                                       uint32_t         flags, 
+                                       FILE            *fdst ) {
     CUBEDATASTRUCT *cds = ( CUBEDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
@@ -102,10 +153,27 @@ static uint32_t g3dexportv3cube ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3torus ( G3DEXPORTV3DATA *ged, 
-                                 G3DPRIMITIVE  *pri, 
-                                 uint32_t       flags, 
-                                 FILE          *fdst ) {
+static uint32_t g3dexportv3cube ( G3DEXPORTV3DATA *ged, 
+                                  G3DPRIMITIVE    *pri, 
+                                  uint32_t         flags, 
+                                  FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE_BASE,
+                                     g3dexportv3cube_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3torus_base ( G3DEXPORTV3DATA *ged, 
+                                        G3DPRIMITIVE  *pri, 
+                                        uint32_t       flags, 
+                                        FILE          *fdst ) {
     TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
@@ -119,16 +187,50 @@ static uint32_t g3dexportv3torus ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3sphere ( G3DEXPORTV3DATA *ged, 
-                                  G3DPRIMITIVE  *pri, 
-                                  uint32_t       flags, 
-                                  FILE          *fdst ) {
+static uint32_t g3dexportv3torus ( G3DEXPORTV3DATA *ged, 
+                                   G3DPRIMITIVE    *pri, 
+                                   uint32_t         flags, 
+                                   FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS_BASE,
+                                     g3dexportv3torus_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3sphere_base ( G3DEXPORTV3DATA *ged, 
+                                         G3DPRIMITIVE    *pri, 
+                                         uint32_t         flags, 
+                                         FILE            *fdst ) {
     SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
     uint32_t size = 0x00;
 
     size += g3dexportv3_fwritef ( &sds->radius, fdst );
     size += g3dexportv3_fwritel ( &sds->slice , fdst );
     size += g3dexportv3_fwritel ( &sds->cap   , fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3sphere ( G3DEXPORTV3DATA *ged, 
+                                    G3DPRIMITIVE    *pri, 
+                                    uint32_t         flags, 
+                                    FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE_BASE,
+                                     g3dexportv3sphere_base,
+                                     ged,
+                                     pri,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

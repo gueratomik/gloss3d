@@ -30,6 +30,44 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3duitrackertagedit_orientationCbk ( G3DUI *gui, 
+                                                 char  *str ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
+    G3DTAG *tag = sel->seltag;
+
+    if ( sel ) {
+        G3DTAG *tag = sel->seltag;
+
+        if ( tag ) {
+            if ( tag->type & G3DTAGTRACKERTYPE ) {
+                G3DTRACKERTAG *ttag = tag;
+
+                if ( strcmp ( str, XSTR ) == 0x00 ) {
+                    g3dtrackertag_setOrientation ( ttag, 
+                                                   TARGET_XAXIS );
+                }
+
+                if ( strcmp ( str, YSTR ) == 0x00 ) {
+                    g3dtrackertag_setOrientation ( ttag, 
+                                                   TARGET_YAXIS );
+                }
+
+                if ( strcmp ( str, ZSTR ) == 0x00 ) {
+                    g3dtrackertag_setOrientation ( ttag, 
+                                                   TARGET_ZAXIS );
+                }
+            }
+        }
+
+        g3dobject_updateMatrix_r ( sel, gui->engine_flags );
+    }
+
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
 void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui, 
                                                uint32_t rank ) {
     G3DURMANAGER *urm = gui->urm;
