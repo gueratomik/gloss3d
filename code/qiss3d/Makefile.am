@@ -8,6 +8,7 @@ libgloss_q3d_la_SOURCES = $(LIBGLOSSQ3D_C_FILES)
 LIBGLOSSQ3D_C_FILES = q3d.c \
                       q3dsettings.c \
                       q3dbounding.c \
+                      q3dinstance.c \
                       q3dsymmetry.c \
                       q3doctree.c \
                       q3dvertexset.c \

@@ -107,7 +107,8 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
             case SIG_OBJECT_DECLARE_TEXT :
             case SIG_OBJECT_DECLARE_BONE :
             case SIG_OBJECT_DECLARE_LIGHT :
-            case SIG_OBJECT_DECLARE_MORPHER : {
+            case SIG_OBJECT_DECLARE_MORPHER :
+            case SIG_OBJECT_DECLARE_INSTANCE : {
                 G3DOBJECT *obj = NULL;
 
                 /*** Potential buffer overflow here ***/
@@ -232,6 +233,11 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
                         obj = g3dmorpher_new ( gid->currentObjectID++ ,
                                                gid->currentObjectName,
                                                gid->engineFlags );
+                    } break;
+
+                    case SIG_OBJECT_DECLARE_INSTANCE : {
+                        obj = g3dinstance_new ( gid->currentObjectID++ ,
+                                                gid->currentObjectName );
                     } break;
 
                     default :

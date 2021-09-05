@@ -146,16 +146,16 @@ am__objects_1 = v2/g3dexportextension.lo v2/g3dexportapp.lo \
 	v2/g3dexportskin.lo v2/g3dexportkey.lo v2/g3dexportmorpher.lo \
 	v3/g3dexportextension.lo v3/g3dexportapp.lo \
 	v3/g3dexportbone.lo v3/g3dexport.lo v3/g3dexportcamera.lo \
-	v3/g3dexportchannel.lo v3/g3dexportlight.lo \
-	v3/g3dexportmaterial.lo v3/g3dexportmesh.lo \
-	v3/g3dexportmodifiers.lo v3/g3dexportobject.lo \
-	v3/g3dexportprimitive.lo v3/g3dexportuvmap.lo \
-	v3/g3dexportscene.lo v3/g3dexportsymmetry.lo \
-	v3/g3dexportsubdivider.lo v3/g3dexportspline.lo \
-	v3/g3dexportsplinerevolver.lo v3/g3dexporttext.lo \
-	v3/g3dexportwireframe.lo v3/g3dexportffd.lo \
-	v3/g3dexportskin.lo v3/g3dexportkey.lo v3/g3dexporttag.lo \
-	v3/g3dexportmorpher.lo stl.lo pov.lo obj.lo
+	v3/g3dexportchannel.lo v3/g3dexportinstance.lo \
+	v3/g3dexportlight.lo v3/g3dexportmaterial.lo \
+	v3/g3dexportmesh.lo v3/g3dexportmodifiers.lo \
+	v3/g3dexportobject.lo v3/g3dexportprimitive.lo \
+	v3/g3dexportuvmap.lo v3/g3dexportscene.lo \
+	v3/g3dexportsymmetry.lo v3/g3dexportsubdivider.lo \
+	v3/g3dexportspline.lo v3/g3dexportsplinerevolver.lo \
+	v3/g3dexporttext.lo v3/g3dexportwireframe.lo \
+	v3/g3dexportffd.lo v3/g3dexportskin.lo v3/g3dexportkey.lo \
+	v3/g3dexporttag.lo v3/g3dexportmorpher.lo stl.lo pov.lo obj.lo
 am_libgloss_g3dexport_la_OBJECTS = $(am__objects_1)
 libgloss_g3dexport_la_OBJECTS = $(am_libgloss_g3dexport_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -202,8 +202,9 @@ am__depfiles_remade = ./$(DEPDIR)/obj.Plo ./$(DEPDIR)/pov.Plo \
 	v3/$(DEPDIR)/g3dexportcamera.Plo \
 	v3/$(DEPDIR)/g3dexportchannel.Plo \
 	v3/$(DEPDIR)/g3dexportextension.Plo \
-	v3/$(DEPDIR)/g3dexportffd.Plo v3/$(DEPDIR)/g3dexportkey.Plo \
-	v3/$(DEPDIR)/g3dexportlight.Plo \
+	v3/$(DEPDIR)/g3dexportffd.Plo \
+	v3/$(DEPDIR)/g3dexportinstance.Plo \
+	v3/$(DEPDIR)/g3dexportkey.Plo v3/$(DEPDIR)/g3dexportlight.Plo \
 	v3/$(DEPDIR)/g3dexportmaterial.Plo \
 	v3/$(DEPDIR)/g3dexportmesh.Plo \
 	v3/$(DEPDIR)/g3dexportmodifiers.Plo \
@@ -423,6 +424,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v3/g3dexport.c \
                             v3/g3dexportcamera.c \
                             v3/g3dexportchannel.c \
+                            v3/g3dexportinstance.c \
                             v3/g3dexportlight.c \
                             v3/g3dexportmaterial.c \
                             v3/g3dexportmesh.c \
@@ -568,6 +570,8 @@ v3/g3dexport.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportcamera.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportchannel.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
+v3/g3dexportinstance.lo: v3/$(am__dirstamp) \
+	v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportlight.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dexportmaterial.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
@@ -643,6 +647,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportchannel.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportextension.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportffd.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportinstance.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportkey.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportlight.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dexportmaterial.Plo@am__quote@ # am--include-marker
@@ -866,6 +871,7 @@ distclean: distclean-am
 	-rm -f v3/$(DEPDIR)/g3dexportchannel.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportextension.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportffd.Plo
+	-rm -f v3/$(DEPDIR)/g3dexportinstance.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportkey.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportlight.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportmaterial.Plo
@@ -963,6 +969,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v3/$(DEPDIR)/g3dexportchannel.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportextension.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportffd.Plo
+	-rm -f v3/$(DEPDIR)/g3dexportinstance.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportkey.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportlight.Plo
 	-rm -f v3/$(DEPDIR)/g3dexportmaterial.Plo

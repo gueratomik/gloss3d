@@ -35,6 +35,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v3/g3dexport.c \
                             v3/g3dexportcamera.c \
                             v3/g3dexportchannel.c \
+                            v3/g3dexportinstance.c \
                             v3/g3dexportlight.c \
                             v3/g3dexportmaterial.c \
                             v3/g3dexportmesh.c \

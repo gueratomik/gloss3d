@@ -32,6 +32,7 @@
 /******************************************************************************/
 typedef struct _G3DUIINSTANCEEDIT {
     G3DUIWIDGETGROUP grp;
+    GtkWidget       *mainFrame;
     GtkWidget       *objectSelector;
     GtkWidget       *mirroredToggle;
     GtkWidget       *mirroredPlanSelection;
@@ -61,6 +62,8 @@ static void mirroredToggleCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUIINSTANCEEDIT *ied = ( G3DUIINSTANCEEDIT * ) user_data;
 
     common_g3duiinstanceedit_mirroredToggleCbk ( ied->grp.gui );
+
+    updateInstanceEdit ( ied->mainFrame, ied->editedInstance );
 }
 
 /******************************************************************************/
@@ -70,6 +73,16 @@ static void objectSelectorCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t rank = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
 
     common_g3duiinstanceedit_setReferenceCbk ( gui, rank );
+}
+
+/******************************************************************************/
+static void orientationCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIINSTANCEEDIT *ied = ( G3DUIINSTANCEEDIT * ) user_data;
+    GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
+    G3DUI *gui = ( G3DUI * ) ied->grp.gui;
+    const char *str = gtk_combo_box_text_get_active_text ( cmbt );
+
+    common_g3duiinstanceedit_orientationCbk ( gui, str );
 }
 
 /******************************************************************************/
@@ -136,19 +149,22 @@ void updateInstanceEdit ( GtkWidget    *w,
     if ( ied->editedInstance ) {
         gtk_widget_set_sensitive ( ied->objectSelector       , TRUE );
         gtk_widget_set_sensitive ( ied->mirroredToggle       , TRUE );
-        /*gtk_widget_set_sensitive ( ied->mirroredPlanSelection, TRUE );*/
 
         if ( ((G3DOBJECT*)ied->editedInstance)->flags & INSTANCEMIRRORED ) {
             gtk_toggle_button_set_active ( ied->mirroredToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( ied->mirroredPlanSelection, TRUE );
         } else {
             gtk_toggle_button_set_active ( ied->mirroredToggle, FALSE );
+
+            gtk_widget_set_sensitive ( ied->mirroredPlanSelection, FALSE );
         }
 
         populateObjectSelector ( ied->objectSelector, ied->grp.gui );
     } else {
         gtk_widget_set_sensitive ( ied->objectSelector       , FALSE );
         gtk_widget_set_sensitive ( ied->mirroredToggle       , FALSE );
-        /*gtk_widget_set_sensitive ( ied->mirroredPlanSelection, FALSE );*/
+        gtk_widget_set_sensitive ( ied->mirroredPlanSelection, FALSE );
     }
 
     ied->grp.gui->lock = 0x00;
@@ -238,11 +254,12 @@ GtkWidget *createInstanceEdit ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), ied );
     g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), ied );
 
+    ied->mainFrame = frm;
 
     ied->objectSelector = createObjectSelector ( frm,
                                                  ied,
                                                  EDITINSTANCEOBJECTSELECTOR,
-                                                 0,  0, 192, 18,
+                                                 0,  0, 96, 18,
                                                  objectSelectorCbk );
 
     ied->mirroredToggle = createToggleLabel ( frm,
@@ -250,6 +267,16 @@ GtkWidget *createInstanceEdit ( GtkWidget *parent,
                                               EDITINSTANCEMIRRORED,
                                               0,  24, 192, 18,
                                               mirroredToggleCbk );
+
+    ied->mirroredPlanSelection = createOrientationSelection ( frm, 
+                                                              ied, 
+                                                              EDITINSTANCEMIRRORINGPLANE,  
+                                                              ZXSTR,
+                                                              XYSTR,
+                                                              YZSTR,
+                                                              0, 48,
+                                                              96, 96, orientationCbk );
+
 
     gtk_widget_show ( frm );
 

@@ -928,16 +928,18 @@ GtkWidget *createFloatText ( GtkWidget *parent, G3DUI  *gui,
 
 /******************************************************************************/
 /********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
-void createOrientationSelection ( GtkWidget *parent, G3DUI *gui, 
-                                                     char *name,
-                                                     char *str0,
-                                                     char *str1,
-                                                     char *str2,
-                                                     gint x, gint y,
-                                                     gint labwidth,
-                                                     gint txtwidth,
-                                                     void (*cbk)( GtkWidget *, 
-                                                                  gpointer ) ) {
+GtkWidget *createOrientationSelection ( GtkWidget *parent,
+                                        G3DUI     *gui, 
+                                        char      *name,
+                                        char      *str0,
+                                        char      *str1,
+                                        char      *str2,
+                                        gint      x,
+                                        gint      y,
+                                        gint      labwidth,
+                                        gint      txtwidth,
+                                        void    (*cbk)( GtkWidget *, 
+                                                        gpointer ) ) {
     GtkWidget     *cmb  = gtk_combo_box_text_new ( );
     GdkRectangle   crec = { 0x00, 0x00, txtwidth, 0x12 };
 
@@ -975,6 +977,8 @@ void createOrientationSelection ( GtkWidget *parent, G3DUI *gui,
     gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), 0x00 );
 
     gtk_widget_show ( cmb );
+
+    return cmb;
 }
 
 /******************************************************************************/

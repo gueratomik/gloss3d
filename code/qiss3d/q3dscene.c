@@ -30,6 +30,12 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+Q3DOBJECT *q3dscene_getByObject ( Q3DSCENE  *qsce, 
+                                  G3DOBJECT *obj ) {
+    return q3dobject_getByObject_r ( qsce, obj );
+}
+
+/******************************************************************************/
 Q3DOBJECT *q3dscene_getObjectByID ( Q3DSCENE *qsce, 
                                     uint32_t  id ) {
     return qsce->qobjidx[id];
@@ -67,6 +73,7 @@ Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
                             uint32_t  importFlags ) {
     Q3DSCENE *qsce = ( Q3DSCENE * ) q3dobject_import_r ( ( G3DOBJECT * ) sce, frame, importFlags );
     uint32_t objCount = q3dobject_count_r ( ( Q3DOBJECT * ) qsce );
+    uint32_t i;
 
     /*** no need to check the number of objects. ***/
     /*** There must be at least 1, the scene ***/
@@ -75,6 +82,11 @@ Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
     /*** build array to all qobjects for fast access ***/
     q3dobject_exec_r ( qsce,(void(*)(Q3DOBJECT*,void*)) indexObjects, qsce );
 
+    for ( i = 0x00; i < objCount; i++ ) {
+        if ( qsce->qobjidx[i]->import ) {
+            qsce->qobjidx[i]->import ( qsce->qobjidx[i], qsce );
+        }
+    }
 
     return qsce;
 }

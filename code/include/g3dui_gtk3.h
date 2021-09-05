@@ -581,15 +581,19 @@ void createTextField ( GtkWidget *parent,
                        void     (*cbk)( GtkTextBuffer *,
                                         gpointer ) );
 
-void createOrientationSelection  ( GtkWidget *, G3DUI *,
-                                                char *,
-                                                char *,
-                                                char *,
-                                                char *,
-                                                gint, gint,
-                                                gint, gint,
-                                                void (*)( GtkWidget *, 
-                                                          gpointer ) );
+GtkWidget *createOrientationSelection ( GtkWidget *parent,
+                                        G3DUI     *gui, 
+                                        char      *name,
+                                        char      *str0,
+                                        char      *str1,
+                                        char      *str2,
+                                        gint      x,
+                                        gint      y,
+                                        gint      labwidth,
+                                        gint      txtwidth,
+                                        void    (*cbk)( GtkWidget *, 
+                                                        gpointer ) );
+
 void createProceduralResolutionSelection ( GtkWidget *, 
                                            G3DUI     *, 
                                            char      *,

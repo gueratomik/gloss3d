@@ -380,6 +380,15 @@ static uint32_t g3dexportv3object_identityType ( G3DEXPORTV3DATA *ged,
                                        fdst );
     }
 
+    if ( obj->type == G3DINSTANCETYPE ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_INSTANCE,
+                                         g3dexportv3instance,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
+
     /*if ( obj->type  & MODIFIER ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_MODIFIER,
                                        g3dexportv3modifier,

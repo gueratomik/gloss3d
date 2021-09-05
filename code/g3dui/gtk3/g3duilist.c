@@ -60,6 +60,8 @@
 #include <xpm/morpher.xpm>
 #include <xpm/vibrate.xpm>
 #include <xpm/tracker.xpm>
+#include <xpm/sknico.xpm>
+#include <xpm/insico.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -453,7 +455,8 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
                      *camico, *scnico, *mapico, 
                      *objico, *subico, *wirico, 
                      *splico, *srvico, *txtico,
-                     *tubico, *mrpico;
+                     *tubico, *mrpico, *sknico,
+                     *insico;
 
     /*********************** Inited once and for all **************************/
     if ( bonico == NULL ) bonico = gdk_pixbuf_new_from_xpm_data ( bonico_xpm );
@@ -478,6 +481,8 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
     if ( txtico == NULL ) txtico = gdk_pixbuf_new_from_xpm_data ( txtico_xpm );
     if ( tubico == NULL ) tubico = gdk_pixbuf_new_from_xpm_data ( tubico_xpm );
     if ( mrpico == NULL ) mrpico = gdk_pixbuf_new_from_xpm_data ( morpher_xpm );
+    if ( sknico == NULL ) sknico = gdk_pixbuf_new_from_xpm_data ( sknico_xpm );
+    if ( insico == NULL ) insico = gdk_pixbuf_new_from_xpm_data ( insico_xpm );
    /***************************************************************************/
 
     switch ( obj->type ) {
@@ -502,6 +507,8 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
         case G3DTEXTTYPE           : objico = txtico; break;
         case G3DTUBETYPE           : objico = tubico; break;
         case G3DMORPHERTYPE        : objico = mrpico; break;
+        case G3DSKINTYPE           : objico = sknico; break;
+        case G3DINSTANCETYPE       : objico = insico; break;
         default                    : objico = defico; break;
     }
 

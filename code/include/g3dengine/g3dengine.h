@@ -2789,8 +2789,10 @@ void     g3dbone_removeWeightGroup      ( G3DBONE        *bon,
 G3DRIG  *g3dbone_addWeightGroup         ( G3DBONE        *bon,
                                           G3DSKIN        *skn,
                                           G3DWEIGHTGROUP *grp );
-void     g3dbone_fix                    ( G3DBONE * );
-void     g3dbone_reset                  ( G3DBONE * );
+void     g3dbone_fix                    ( G3DBONE *, uint64_t engine_flags );
+void     g3dbone_fix_r                  ( G3DBONE *, uint64_t engine_flags );
+void     g3dbone_unfix                  ( G3DBONE *, uint64_t engine_flags );
+void     g3dbone_unfix_r                ( G3DBONE *, uint64_t engine_flags );
 void     g3dbone_update                 ( G3DBONE * );
 G3DRIG  *g3dbone_getRigBySkin           ( G3DBONE *bon,
                                           G3DSKIN *skn );
@@ -2806,8 +2808,6 @@ void     g3dbone_updateSubdividedFaces  ( G3DBONE *, uint32_t );
 void     g3dbone_getMeshes_r            ( G3DBONE *, LIST ** );
 void     g3dbone_getMeshExtendedFaces_r ( G3DBONE *, G3DMESH *, LIST ** );
 void     g3dbone_anim                   ( G3DOBJECT *, G3DKEY *, G3DKEY * );
-void     g3dbone_fix_r                  ( G3DBONE * );
-void     g3dbone_reset_r                ( G3DBONE * );
 LIST    *g3dbone_getMeshHierarchy       ( G3DBONE * );
 void     g3dbone_updateEdges            ( G3DBONE * );
 void     g3dbone_updateFaces            ( G3DBONE * );

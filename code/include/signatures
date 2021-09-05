@@ -61,6 +61,8 @@ SIG_ROOT=0x44335347
 -------------------- Name ( char[] )
 ---------------- SIG_OBJECT_DECLARE_MORPHER
 -------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_INSTANCE
+-------------------- Name ( char[] )
 
 -------- SIG_OBJECTS_DEFINE
 ------------ SIG_OBJECT_ENTRY
@@ -284,6 +286,14 @@ SIG_ROOT=0x44335347
 ------------------------------ orientation (uint32_t)
 --------------------------- SIG_OBJECT_SYMMETRY_MERGELIMIT
 ------------------------------  mergelimit ( float )
+
+----------------------- SIG_OBJECT_INSTANCE
+--------------------------- SIG_OBJECT_INSTANCE_REFERENCE
+------------------------------ refID (uint32_t)
+--------------------------- SIG_OBJECT_INSTANCE_MIRRORINGPLANE
+------------------------------ orientation (uint32_t)
+--------------------------- SIG_OBJECT_INSTANCE_MIRRORED
+------------------------------  mirrored ( uint32_t )
 
 ----------------------- SIG_OBJECT_TEXT
 --------------------------- SIG_OBJECT_TEXT_FONT

@@ -30,6 +30,14 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+static void q3dinstance_import ( Q3DINSTANCE *qins, 
+                                 Q3DSCENE    *qsce ) {
+    G3DINSTANCE *ins = qins->qobj.obj;
+
+    qins->qref = q3dscene_getByObject ( qsce, ins->ref );
+}
+
+/******************************************************************************/
 static void q3dinstance_free ( Q3DINSTANCE *qins ) {
 
 }
@@ -50,14 +58,16 @@ static uint32_t q3dinstance_intersect ( Q3DINSTANCE *qins,
     Q3DRAY insqray;
 
     if ( qins->qref ) {
-        hit = qins->qref->intersect ( qins->qref, 
-                                      qray, 
-                                      discard, 
-                                      cond, 
-                                      condData, 
-                                      frame, 
-                                      query_flags, 
-                                      render_flags );
+        if ( qins->qref->intersect ) {
+            hit = qins->qref->intersect ( qins->qref, 
+                                          qray, 
+                                          discard, 
+                                          cond, 
+                                          condData, 
+                                          frame, 
+                                          query_flags, 
+                                          render_flags );
+        }
     }
 
 /*
@@ -102,10 +112,10 @@ static uint32_t q3dinstance_intersect ( Q3DINSTANCE *qins,
 }
 
 /******************************************************************************/
-void q3dinstance_init ( Q3DINSTANCE *qins, 
-                        G3DINSTANCE *ins,
-                        uint32_t     id,
-                        uint64_t     object_flags ) {
+static void q3dinstance_init ( Q3DINSTANCE *qins, 
+                               G3DINSTANCE *ins,
+                               uint32_t     id,
+                               uint64_t     object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ins;
     double TMPX[0x10], ITMPX[0x10];
 
@@ -115,6 +125,8 @@ void q3dinstance_init ( Q3DINSTANCE *qins,
                      object_flags,
     Q3DFREE_CALLBACK(q3dinstance_free),
 Q3DINTERSECT_CALLBACK(q3dinstance_intersect) );
+
+    ((Q3DOBJECT*)qins)->import = q3dinstance_import;
 
     /*g3dcore_multmatrix ( obj->lmatrix, ins->smatrix, TMPX );*/
     g3dcore_invertMatrix    ( ins->smatrix, qins->ISMVX  );

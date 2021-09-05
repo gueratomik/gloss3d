@@ -78,6 +78,15 @@ static uint32_t objectMode_objectSelected ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static uint32_t objectMode_boneSelected ( G3DUI *gui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    return  ( ( obj                            ) && 
+              ( obj->type & BONE               ) &&
+              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+}
+
+/******************************************************************************/
 static void parseMenu_r ( G3DUIMENU *node, 
                           G3DUIMENU *parent, 
                           G3DUI     *gui ) {
@@ -1602,22 +1611,22 @@ static G3DUIMENU multipliers_menu = { "Multipliers",
 /****************************** Modifiers MENU ********************************/
 static G3DUIMENU modifiers_menu_resetBone_tree = { MENU_RESETBONETREE,
                                                    G3DUIMENUTYPE_PUSHBUTTON,
-                                                   objectModeOnly,
+                                                   objectMode_boneSelected,
                                                    g3dui_resetBoneTreeCbk };
 
 static G3DUIMENU modifiers_menu_resetBone_only = { MENU_RESETBONEONLY,
                                                    G3DUIMENUTYPE_PUSHBUTTON,
-                                                   objectModeOnly,
+                                                   objectMode_boneSelected,
                                                    g3dui_resetBoneCbk };
 /******************************************************************************/
 static G3DUIMENU modifiers_menu_fixBone_tree = { MENU_FIXBONETREE,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
-                                                 objectModeOnly,
+                                                 objectMode_boneSelected,
                                                  g3dui_fixBoneTreeCbk };
 
 static G3DUIMENU modifiers_menu_fixBone_only = { MENU_FIXBONEONLY,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
-                                                 objectModeOnly,
+                                                 objectMode_boneSelected,
                                                  g3dui_fixBoneCbk };
 
 /******************************************************************************/
@@ -1653,7 +1662,7 @@ static G3DUIMENU modifiers_menu_addBone       = { MENU_ADDBONE,
 
 static G3DUIMENU modifiers_menu_fixBone       = { MENU_FIXBONE,
                                                   G3DUIMENUTYPE_SUBMENU,
-                                                  objectModeOnly,
+                                                  objectMode_boneSelected,
                                                   NULL,
                                                  .nodes = { &modifiers_menu_fixBone_tree,
                                                             &modifiers_menu_fixBone_only,
@@ -1661,7 +1670,7 @@ static G3DUIMENU modifiers_menu_fixBone       = { MENU_FIXBONE,
 
 static G3DUIMENU modifiers_menu_resetBone     = { MENU_RESETBONE,
                                                   G3DUIMENUTYPE_SUBMENU,
-                                                  objectModeOnly,
+                                                  objectMode_boneSelected,
                                                   NULL,
                                                  .nodes = { &modifiers_menu_resetBone_tree,
                                                             &modifiers_menu_resetBone_only,

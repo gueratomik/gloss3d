@@ -184,6 +184,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/saveimage.xpm \
                        xpm/scale.xpm \
                        xpm/scnico.xpm \
+                       xpm/sknico.xpm \
+                       xpm/insico.xpm \
                        xpm/sculptmode.xpm \
                        xpm/selectarea.xpm \
                        xpm/selectrandom.xpm \

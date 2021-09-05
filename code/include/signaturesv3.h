@@ -62,6 +62,7 @@
 #define  SIG_OBJECT_DECLARE_CYLINDER                    0xCAA14CDF
 #define  SIG_OBJECT_DECLARE_ENTRY                       0xDD427B41
 #define  SIG_OBJECT_DECLARE_FFD                         0x1502C03D
+#define  SIG_OBJECT_DECLARE_INSTANCE                    0x987151B2
 #define  SIG_OBJECT_DECLARE_LIGHT                       0x42AA0B96
 #define  SIG_OBJECT_DECLARE_MESH                        0x3EFDBC75
 #define  SIG_OBJECT_DECLARE_MORPHER                     0xFAA1162D
@@ -86,6 +87,10 @@
 #define  SIG_OBJECT_IDENTITY_ID                         0x305704D7
 #define  SIG_OBJECT_IDENTITY_PARENT                     0x34D92405
 #define  SIG_OBJECT_IDENTITY_TYPE                       0x5173F267
+#define  SIG_OBJECT_INSTANCE                            0x2E6B3BA2
+#define  SIG_OBJECT_INSTANCE_MIRRORED                   0x2A4DF614
+#define  SIG_OBJECT_INSTANCE_MIRRORINGPLANE             0x69CFADF9
+#define  SIG_OBJECT_INSTANCE_REFERENCE                  0x8D71BF22
 #define  SIG_OBJECT_KEY_DATA                            0x577054D2
 #define  SIG_OBJECT_KEY_DATA_LIGHT                      0x7B93AC07
 #define  SIG_OBJECT_KEY_DATA_MORPHER                    0xDF460185

@@ -146,14 +146,15 @@ am__objects_1 = v2/g3dimportapp.lo v2/g3dimportbone.lo v2/g3dimport.lo \
 	v2/g3dimportwireframe.lo v2/g3dimportextension.lo \
 	v3/g3dimportapp.lo v3/g3dimportbone.lo v3/g3dimport.lo \
 	v3/g3dimportcamera.lo v3/g3dimportchannel.lo \
-	v3/g3dimportlight.lo v3/g3dimportmaterial.lo \
-	v3/g3dimportmesh.lo v3/g3dimportmodifiers.lo \
-	v3/g3dimportuvmap.lo v3/g3dimportobject.lo \
-	v3/g3dimportprimitive.lo v3/g3dimportscene.lo \
-	v3/g3dimportsubdivider.lo v3/g3dimportsymmetry.lo \
-	v3/g3dimportspline.lo v3/g3dimportsplinerevolver.lo \
-	v3/g3dimporttext.lo v3/g3dimportffd.lo v3/g3dimportkey.lo \
-	v3/g3dimporttag.lo v3/g3dimportmorpher.lo v3/g3dimportskin.lo \
+	v3/g3dimportinstance.lo v3/g3dimportlight.lo \
+	v3/g3dimportmaterial.lo v3/g3dimportmesh.lo \
+	v3/g3dimportmodifiers.lo v3/g3dimportuvmap.lo \
+	v3/g3dimportobject.lo v3/g3dimportprimitive.lo \
+	v3/g3dimportscene.lo v3/g3dimportsubdivider.lo \
+	v3/g3dimportsymmetry.lo v3/g3dimportspline.lo \
+	v3/g3dimportsplinerevolver.lo v3/g3dimporttext.lo \
+	v3/g3dimportffd.lo v3/g3dimportkey.lo v3/g3dimporttag.lo \
+	v3/g3dimportmorpher.lo v3/g3dimportskin.lo \
 	v3/g3dimportwireframe.lo v3/g3dimportextension.lo collada.lo \
 	3ds.lo obj.lo
 am_libgloss_g3dimport_la_OBJECTS = $(am__objects_1)
@@ -202,8 +203,9 @@ am__depfiles_remade = ./$(DEPDIR)/3ds.Plo ./$(DEPDIR)/collada.Plo \
 	v3/$(DEPDIR)/g3dimportcamera.Plo \
 	v3/$(DEPDIR)/g3dimportchannel.Plo \
 	v3/$(DEPDIR)/g3dimportextension.Plo \
-	v3/$(DEPDIR)/g3dimportffd.Plo v3/$(DEPDIR)/g3dimportkey.Plo \
-	v3/$(DEPDIR)/g3dimportlight.Plo \
+	v3/$(DEPDIR)/g3dimportffd.Plo \
+	v3/$(DEPDIR)/g3dimportinstance.Plo \
+	v3/$(DEPDIR)/g3dimportkey.Plo v3/$(DEPDIR)/g3dimportlight.Plo \
 	v3/$(DEPDIR)/g3dimportmaterial.Plo \
 	v3/$(DEPDIR)/g3dimportmesh.Plo \
 	v3/$(DEPDIR)/g3dimportmodifiers.Plo \
@@ -422,6 +424,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v3/g3dimport.c \
                             v3/g3dimportcamera.c \
                             v3/g3dimportchannel.c \
+                            v3/g3dimportinstance.c \
                             v3/g3dimportlight.c \
                             v3/g3dimportmaterial.c \
                             v3/g3dimportmesh.c \
@@ -567,6 +570,8 @@ v3/g3dimport.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportcamera.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportchannel.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
+v3/g3dimportinstance.lo: v3/$(am__dirstamp) \
+	v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportlight.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportmaterial.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
@@ -644,6 +649,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportchannel.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportextension.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportffd.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportinstance.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportkey.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportlight.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportmaterial.Plo@am__quote@ # am--include-marker
@@ -867,6 +873,7 @@ distclean: distclean-am
 	-rm -f v3/$(DEPDIR)/g3dimportchannel.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportextension.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportffd.Plo
+	-rm -f v3/$(DEPDIR)/g3dimportinstance.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportkey.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportlight.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportmaterial.Plo
@@ -964,6 +971,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v3/$(DEPDIR)/g3dimportchannel.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportextension.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportffd.Plo
+	-rm -f v3/$(DEPDIR)/g3dimportinstance.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportkey.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportlight.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportmaterial.Plo

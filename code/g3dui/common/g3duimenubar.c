@@ -319,7 +319,7 @@ void common_g3dui_resetBoneTreeCbk ( G3DUI *gui ) {
     if ( obj && ( obj->type == G3DBONETYPE ) ) {
         G3DBONE *bon = ( G3DBONE * ) obj;
 
-        g3dbone_reset_r ( bon );
+        g3dbone_unfix_r ( bon, gui->engine_flags );
     }
 
     g3dui_redrawObjectList ( gui );
@@ -335,8 +335,11 @@ void common_g3dui_resetBoneCbk ( G3DUI *gui ) {
     if ( obj && ( obj->type == G3DBONETYPE ) ) {
         G3DBONE *bon = ( G3DBONE * ) obj;
 
-        g3dbone_reset ( bon );
+        g3dbone_unfix ( bon, gui->engine_flags );
     }
+
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
 }
 
 /******************************************************************************/
@@ -345,11 +348,14 @@ void common_g3dui_fixBoneTreeCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
-    /*if ( obj && ( obj->type == G3DBONETYPE ) ) {
+    if ( obj && ( obj->type == G3DBONETYPE ) ) {
         G3DBONE *bon = ( G3DBONE * ) obj;
 
-        g3dbone_fix_r ( bon );
-    }*/
+        g3dbone_fix_r ( bon, gui->engine_flags );
+    }
+
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
 }
 
 /******************************************************************************/
@@ -358,11 +364,14 @@ void common_g3dui_fixBoneCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
+    if ( obj && ( obj->type == G3DBONETYPE ) ) {
+        G3DBONE *bon = ( G3DBONE * ) obj;
 
-        g3dmesh_fixBones ( mes, gui->engine_flags );
+        g3dbone_fix ( bon, gui->engine_flags );
     }
+
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
 }
 
 /******************************************************************************/

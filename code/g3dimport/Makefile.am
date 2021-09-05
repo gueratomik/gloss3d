@@ -34,6 +34,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v3/g3dimport.c \
                             v3/g3dimportcamera.c \
                             v3/g3dimportchannel.c \
+                            v3/g3dimportinstance.c \
                             v3/g3dimportlight.c \
                             v3/g3dimportmaterial.c \
                             v3/g3dimportmesh.c \

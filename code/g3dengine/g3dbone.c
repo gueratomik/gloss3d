@@ -140,34 +140,6 @@ void g3dbone_update ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-void g3dbone_reset ( G3DBONE *bon ) {
-    /*memcpy ( &objbon->rot, &bon->fixrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &objbon->pos, &bon->fixpos, sizeof ( G3DVECTOR ) );
-    memcpy ( &objbon->sca, &bon->fixsca, sizeof ( G3DVECTOR ) );
-
-    g3dobject_updateMatrix_r ( objbon, 0x00 );*/
-}
-
-/******************************************************************************/
-/*** This should be improved. It calls numerous useless matrix updates ***/
-void g3dbone_reset_r ( G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmpobj = objbon->lchildren;
-
-    g3dbone_reset ( bon );
-
-    while ( ltmpobj ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
-
-        if ( child->type == G3DBONETYPE ) {
-            g3dbone_reset_r ( ( G3DBONE * ) child );
-        }
-
-        ltmpobj = ltmpobj->next;
-    }
-}
-
-/******************************************************************************/
 static uint32_t g3dbone_pickObject ( G3DBONE   *bon, 
                                      G3DCAMERA *curcam, 
                                      uint64_t   engine_flags ) {
@@ -414,7 +386,9 @@ void g3dbone_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-void g3dbone_fix ( G3DBONE *bon ) {
+static void g3dbone_activate ( G3DBONE *bon, 
+                               uint64_t engine_flags ) {
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
     while ( ltmprig ) {
@@ -443,8 +417,39 @@ void g3dbone_fix ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-void g3dbone_unfix ( G3DBONE *bon ) {
+void g3dbone_fix ( G3DBONE *bon, uint64_t engine_flags ) {
+    g3dobject_activate ( bon, engine_flags );
+}
+
+/******************************************************************************/
+void g3dbone_fix_r ( G3DBONE *bon, uint64_t engine_flags ) {
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+    LIST *ltmpobj = objbon->lchildren;
+
+    g3dbone_fix ( bon, engine_flags );
+
+    while ( ltmpobj ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( child->type == G3DBONETYPE ) {
+            g3dbone_fix_r ( ( G3DBONE * ) child, engine_flags );
+        }
+
+        ltmpobj = ltmpobj->next;
+    }
+}
+
+/******************************************************************************/
+static void g3dbone_deactivate ( G3DBONE *bon, 
+                                 uint64_t engine_flags ) {
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
+
+    memcpy ( &objbon->rot, &bon->fixrot, sizeof ( G3DVECTOR ) );
+    memcpy ( &objbon->pos, &bon->fixpos, sizeof ( G3DVECTOR ) );
+    memcpy ( &objbon->sca, &bon->fixsca, sizeof ( G3DVECTOR ) );
+
+    g3dobject_updateMatrix_r ( objbon, 0x00 );
 
     while ( ltmprig ) {
         G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
@@ -458,15 +463,29 @@ void g3dbone_unfix ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-static void g3dbone_activate ( G3DBONE *bon, 
-                               uint64_t engine_flags ) {
-    g3dbone_fix ( bon );
+void g3dbone_unfix ( G3DBONE *bon,
+                     uint64_t engine_flags ) {
+    g3dobject_deactivate ( bon, engine_flags );
 }
 
 /******************************************************************************/
-static void g3dbone_deactivate ( G3DBONE *bon, 
-                                 uint64_t engine_flags ) {
-    g3dbone_unfix ( bon );
+/*** This should be improved. It calls numerous useless matrix updates ***/
+void g3dbone_unfix_r ( G3DBONE *bon,
+                       uint64_t engine_flags ) {
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+    LIST *ltmpobj = objbon->lchildren;
+
+    g3dbone_unfix ( bon, engine_flags );
+
+    while ( ltmpobj ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( child->type == G3DBONETYPE ) {
+            g3dbone_unfix_r ( ( G3DBONE * ) child, engine_flags );
+        }
+
+        ltmpobj = ltmpobj->next;
+    }
 }
 
 /******************************************************************************/

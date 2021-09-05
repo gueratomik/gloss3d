@@ -64,15 +64,6 @@ static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged,
                                              fdst );
         break;
 
-        case G3DNULLTYPE :
-            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_NULL,
-                                             g3dexportv3objects_declareObject,
-                                             ged,
-                                             obj,
-                                             0xFFFFFFFF,
-                                             fdst );
-        break;
-
         case G3DSPHERETYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_SPHERE,
                                              g3dexportv3objects_declareObject,
@@ -244,8 +235,22 @@ static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged,
                                              fdst );
         break;
 
-        default :
+        case G3DINSTANCETYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_INSTANCE,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
 
+        default :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_NULL,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
     }
 

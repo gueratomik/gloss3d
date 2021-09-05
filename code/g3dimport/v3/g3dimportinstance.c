@@ -15,7 +15,7 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2017         */
+/*  Copyright: Gary GABRIEL - garybaldi.baldi@laposte.net - 2012-2020         */
 /*                                                                            */
 /******************************************************************************/
 
@@ -27,43 +27,61 @@
 /*                                                                            */
 /******************************************************************************/
 
-/**
- * @file
- */
+#include <config.h>
+#include <g3dimportv3.h>
 
 /******************************************************************************/
-#ifndef _G3DINSTANCE_H_
-#define _G3DINSTANCE_H_
+void g3dimportv3instance ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
+    uint32_t chunkSignature, chunkSize;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    g3dimportv3data_incrementIndentLevel ( gid );
 
+    g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+    g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
 
-/**
- * @struct G3DINSTANCE
- * @brief .
- */
-typedef struct _G3DINSTANCE {
-    G3DOBJECT  obj;
-    G3DOBJECT *ref;
-    double     smatrix[0x10];
-    uint32_t   orientation;
-} G3DINSTANCE;
+    do {
+        PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
-/******************************************************************************/
-G3DINSTANCE *g3dinstance_new ( uint32_t id, 
-                               char    *name );
+        switch ( chunkSignature ) {
+            case SIG_OBJECT_INSTANCE_REFERENCE : {
+                G3DINSTANCE *ins = ( G3DINSTANCE * ) gid->currentObject;
+                uint32_t refID;
 
-void g3dinstance_setMirrored    ( G3DINSTANCE *ins );
-void g3dinstance_unsetMirrored  ( G3DINSTANCE *ins );
-void g3dinstance_setOrientation ( G3DINSTANCE *ins, 
-                                  uint32_t     orientation );
-void g3dinstance_setReference   ( G3DINSTANCE *ins, 
-                                  G3DOBJECT   *ref );
+                g3dimportv3_freadl ( &refID, fsrc );
 
-#ifdef __cplusplus
+                g3dinstance_setReference ( ins, gid->declaredObjects[refID] );
+            } break;
+
+            case SIG_OBJECT_INSTANCE_MIRRORINGPLANE : {
+                G3DINSTANCE *ins = ( G3DINSTANCE * ) gid->currentObject;
+                uint32_t symplane;
+
+                g3dimportv3_freadl ( &symplane, fsrc );
+
+                g3dinstance_setOrientation ( ins, symplane );
+            } break;
+
+            case SIG_OBJECT_INSTANCE_MIRRORED : {
+                G3DINSTANCE *ins = ( G3DINSTANCE * ) gid->currentObject;
+                uint32_t mirrored;
+
+                g3dimportv3_freadl ( &mirrored, fsrc );
+
+                if ( mirrored ) g3dinstance_setMirrored ( ins );
+                else            g3dinstance_unsetMirrored ( ins );
+            } break;
+
+            default : {
+                fseek ( fsrc, chunkSize, SEEK_CUR );
+            } break;
+        }
+
+        /** hand the file back to the parent function ***/
+        if ( ftell ( fsrc ) == chunkEnd ) break;
+
+        g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
+        g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
+    } while ( feof ( fsrc ) == 0x00 );
+
+    g3dimportv3data_decrementIndentLevel ( gid );
 }
-#endif
-
-#endif

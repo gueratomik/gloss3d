@@ -239,6 +239,7 @@ typedef G3DRGBA         Q3DRGBA;
 typedef struct _Q3DRAY Q3DRAY;
 typedef struct _Q3DFILTER Q3DFILTER;
 typedef struct _Q3DJOB    Q3DJOB;
+typedef struct _Q3DSCENE  Q3DSCENE;
 
 /******************************************************************************/
 typedef struct _Q3DVECTOR2F {
@@ -442,6 +443,8 @@ typedef struct _Q3DOBJECT {
                                   float       frame,
                                   uint64_t    query_flags,
                                   uint64_t    render_flags);
+    void (*import)(struct _Q3DOBJECT *qobj, 
+                           Q3DSCENE  *qsce );
 } Q3DOBJECT;
 
 /******************************************************************************/
@@ -479,6 +482,7 @@ typedef struct _Q3DSYMMETRY {
 /******************************************************************************/
 typedef struct _Q3DINSTANCE {
     Q3DOBJECT  qobj;
+    Q3DOBJECT *qref;
     double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
     double  TSMVX[0x10]; /* transpose symmetried modelview matrix */
     double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
@@ -1104,6 +1108,15 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DRGBA     *alpha,
                                   LIST        *ltex,
                                   uint32_t     query_flags );
+
+Q3DOBJECT *q3dscene_getByObject ( Q3DSCENE  *qsce, 
+                                  G3DOBJECT *obj );
+
+Q3DINSTANCE *q3dinstance_new ( G3DINSTANCE *ins,
+                               uint32_t     id,
+                               uint64_t     object_flags );
+Q3DOBJECT *q3dobject_getByObject_r ( Q3DOBJECT *qobj, 
+                                     G3DOBJECT *obj );
 
 #endif
  

@@ -141,6 +141,12 @@ void g3dimportv3_identityType ( G3DIMPORTV3DATA *gid,
                 }
             } break;
 
+            case SIG_OBJECT_INSTANCE : {
+                if ( chunkSize ) {
+                    g3dimportv3instance ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
+            } break;
+
             /*** Unknown object type ***/
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );

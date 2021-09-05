@@ -188,6 +188,11 @@ uint32_t g3dexportv3tag ( G3DEXPORTV3DATA *ged,
                           uint32_t         flags, 
                           FILE            *fdst );
 
+uint32_t g3dexportv3instance ( G3DEXPORTV3DATA *ged, 
+                               G3DINSTANCE     *ins, 
+                               uint32_t         flags, 
+                               FILE            *fdst );
+
 uint32_t g3dexportv3_fwrited ( double *d, FILE *stream );
 uint32_t g3dexportv3_fwritef ( float *f, FILE *stream );
 uint32_t g3dexportv3_fwritel ( uint32_t *l, FILE *stream );

@@ -233,6 +233,27 @@ G3DOBJECT *q3dobject_getObject ( Q3DOBJECT *qobj ) {
 }
 
 /******************************************************************************/
+Q3DOBJECT *q3dobject_getByObject_r ( Q3DOBJECT *qobj, 
+                                     G3DOBJECT *obj ) {
+
+
+    LIST *ltmpqobj = qobj->lchildren;
+
+    if ( qobj->obj == obj ) return qobj;
+
+    while ( ltmpqobj ) {
+        Q3DOBJECT *qkid = ( Q3DOBJECT * ) ltmpqobj->data;
+        Q3DOBJECT *ret = q3dobject_getByObject_r ( qkid, obj );
+
+        if ( ret ) return ret;
+
+        ltmpqobj = ltmpqobj->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void q3dobject_init ( Q3DOBJECT *qobj,
                       G3DOBJECT *obj,
                       uint32_t   id,
@@ -326,7 +347,7 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
 
         case G3DINSTANCETYPE : {
             G3DINSTANCE *ins = ( G3DINSTANCE * ) obj;
-            Q3DSYMMETRY *qins = q3dinstance_new ( sym, 
+            Q3DSYMMETRY *qins = q3dinstance_new ( ins, 
                                                   qsce->qobjID++,
                                                   0x00 );
 

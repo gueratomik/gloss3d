@@ -47,6 +47,8 @@
 #include <g3dengine/g3dengine.h>
 #include <g3dexportv3.h>
 
+/*#define PRINT_CHUNK_INFO(sig,size,level)*/
+
 #define PRINT_CHUNK_INFO(sig,size,level) \
         fprintf( stderr, "%*s SIG:%08X LEN:%d - %s\n", level, "|-",\
                                                        sig,\

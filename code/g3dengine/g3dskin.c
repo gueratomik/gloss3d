@@ -158,7 +158,9 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
                 ltmpver = ltmpver->next;
             }
 
-            return MODIFIERCHANGESCOORDS | MODIFIERTAKESOVER;
+            return MODIFIERCHANGESCOORDS | 
+                   MODIFIERTAKESOVER | 
+                   MODIFIERNEEDSNORMALUPDATE;
         }
     }
 
@@ -171,6 +173,10 @@ static void g3dskin_anim ( G3DSKIN *skn,
                            uint64_t engine_flags ) {
 
     g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
+
+    g3dmesh_updateModified ( skn->mod.oriobj,
+                             skn,
+                             engine_flags );
 }
 
 /******************************************************************************/
