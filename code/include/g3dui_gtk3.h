@@ -922,6 +922,14 @@ GtkWidget* createTrackerTagEdit ( GtkWidget     *parent,
                                   gint           width,
                                   gint           height );
 
+GtkWidget *createInstanceEdit ( GtkWidget *parent,
+                                G3DUI     *gui,
+                                char      *name,
+                                gint       x,
+                                gint       y,
+                                gint       width,
+                                gint       height );
+
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
 
 

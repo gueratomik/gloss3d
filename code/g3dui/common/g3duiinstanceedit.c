@@ -30,85 +30,95 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitrackertagedit_orientationCbk ( G3DUI *gui, 
-                                                 char  *str ) {
+void common_g3duiinstanceedit_setReferenceCbk ( G3DUI   *gui, 
+                                                uint32_t rank ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
-    G3DTAG *tag = sel->seltag;
 
     if ( gui->lock ) return;
 
     if ( sel ) {
-        G3DTAG *tag = sel->seltag;
+        if ( sel->type == G3DINSTANCETYPE ) {
+            G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
+            LIST *ltmpobj, *lobj = NULL;
+            uint32_t objRank = 0x00;
+            int selected = 0x00;
 
-        if ( tag ) {
-            if ( tag->type & G3DTAGTRACKERTYPE ) {
-                G3DTRACKERTAG *ttag = tag;
+            /*** flatten the object tree ***/
+            g3dobject_treeToList_r ( sce, &lobj );
 
-                if ( strcmp ( str, XSTR ) == 0x00 ) {
-                    g3dtrackertag_setOrientation ( ttag, 
-                                                   TARGET_XAXIS );
+            ltmpobj = lobj;
+
+            while ( ltmpobj ) {
+                G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+                if ( obj != ins ) {
+                    if ( obj->type != G3DSCENETYPE ) {
+                        if ( objRank == rank ) {
+                            g3dinstance_setReference ( ins, obj );
+                        }
+
+                        objRank++;
+                    }
                 }
 
-                if ( strcmp ( str, YSTR ) == 0x00 ) {
-                    g3dtrackertag_setOrientation ( ttag, 
-                                                   TARGET_YAXIS );
-                }
-
-                if ( strcmp ( str, ZSTR ) == 0x00 ) {
-                    g3dtrackertag_setOrientation ( ttag, 
-                                                   TARGET_ZAXIS );
-                }
+                ltmpobj = ltmpobj->next;
             }
-        }
 
-        g3dobject_updateMatrix_r ( sel, gui->engine_flags );
+            list_free ( &lobj, NULL );
+        }
     }
 
     g3dui_redrawGLViews ( gui );
 }
 
 /******************************************************************************/
-void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui, 
-                                               uint32_t rank ) {
+void common_g3duiinstanceedit_mirroredToggleCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
-    G3DTAG *tag = sel->seltag;
 
     if ( gui->lock ) return;
 
     if ( sel ) {
-        G3DTAG *tag = sel->seltag;
+        if ( sel->type == G3DINSTANCETYPE ) {
+            G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
 
-        if ( tag ) {
-            if ( tag->type & G3DTAGTRACKERTYPE ) {
-                G3DTRACKERTAG *ttag = tag;
-                LIST *ltmpobj, *lobj = NULL;
-                uint32_t objRank = 0x00;
+            if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                g3dinstance_unsetMirrored ( ins );
+            } else {
+                g3dinstance_setMirrored ( ins );
+            }
+        }
+    }
 
-                /*** flatten the object tree ***/
-                g3dobject_treeToList_r ( sce, &lobj );
+    g3dui_redrawGLViews ( gui );
+}
 
-                ltmpobj = lobj;
+/******************************************************************************/
+void common_g3duiinstanceedit_orientationCbk ( G3DUI *gui,
+                                               char  *str ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
 
-                while ( ltmpobj ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+    if ( gui->lock ) return;
 
-                    if ( objRank == rank ) {
-                        g3dtrackertag_setTarget ( ttag, 
-                                                  sel, 
-                                                  obj,
-                                                  gui->engine_flags );
-                    }
+    if ( sel ) {
+        if ( sel->type == G3DINSTANCETYPE ) {
+            G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
 
-                    objRank++;
+            if ( strcmp ( str, XSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, TARGET_XAXIS );
+            }
 
-                    ltmpobj = ltmpobj->next;
-                }
+            if ( strcmp ( str, YSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, TARGET_YAXIS );
+            }
 
-                list_free ( &lobj, NULL );
+            if ( strcmp ( str, ZSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, TARGET_ZAXIS );
             }
         }
     }

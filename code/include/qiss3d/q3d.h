@@ -477,6 +477,14 @@ typedef struct _Q3DSYMMETRY {
 } Q3DSYMMETRY;
 
 /******************************************************************************/
+typedef struct _Q3DINSTANCE {
+    Q3DOBJECT  qobj;
+    double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
+    double  TSMVX[0x10]; /* transpose symmetried modelview matrix */
+    double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
+} Q3DINSTANCE;
+
+/******************************************************************************/
 #define Q3DOCTREE_ISROOT        ( 1 << 0 )
 #define Q3DOCTREE_HASNODES      ( 1 << 1 )
 #define Q3DOCTREE_HASTRIANGLES  ( 1 << 2 )

@@ -30,6 +30,28 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dinstance_setReference ( G3DINSTANCE *ins, 
+                                G3DOBJECT   *ref ) {
+    ins->ref = ref;
+}
+
+/******************************************************************************/
+void g3dinstance_setOrientation ( G3DINSTANCE *ins, 
+                                  uint32_t     orientation ) {
+    ins->orientation = orientation;
+}
+
+/******************************************************************************/
+void g3dinstance_setMirrored ( G3DINSTANCE *ins ) {
+    ((G3DOBJECT*)ins)->flags |= INSTANCEMIRRORED;
+}
+
+/******************************************************************************/
+void g3dinstance_unsetMirrored ( G3DINSTANCE *ins ) {
+    ((G3DOBJECT*)ins)->flags &= (~INSTANCEMIRRORED);
+}
+
+/******************************************************************************/
 static G3DINSTANCE *g3dinstance_copy ( G3DINSTANCE   *ins, 
                                        uint32_t       id, 
                                        unsigned char *name,
@@ -38,6 +60,8 @@ static G3DINSTANCE *g3dinstance_copy ( G3DINSTANCE   *ins,
                                             ((G3DOBJECT*)ins)->name );
 
     cpyins->ref = ins->ref;
+    cpyins->orientation = ins->orientation;
+
 
     return cpyins;
 }
@@ -49,7 +73,7 @@ static uint32_t g3dinstance_draw ( G3DINSTANCE *ins,
 
     if ( ins->ref ) {
         if ( ins->ref->draw ) {
-            ins->ref->draw ( ins->ref, curcam, engine_flags );
+            ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~MODEMASK) ) | VIEWOBJECT );
         }
     }
 
@@ -105,6 +129,8 @@ void g3dinstance_init ( G3DINSTANCE *ins,
 
     ((G3DOBJECT*)ins)->transform = g3dinstance_transform;
 
+    ins->orientation = INSTANCEYZ;
+
     /*mes->dump           = g3dmesh_default_dump;*/
 }
 
@@ -120,6 +146,7 @@ G3DINSTANCE *g3dinstance_new ( uint32_t id,
     }
 
     g3dinstance_init ( ins, id, name );
+
 
     return ins;
 }

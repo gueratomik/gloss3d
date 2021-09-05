@@ -20,6 +20,7 @@ if HAVE_GTK3
                             common/g3duicurrentedit.c \
                             common/g3duicylinderedit.c \
                             common/g3duiffdedit.c \
+                            common/g3duiinstanceedit.c \
                             common/g3duikeyedit.c \
                             common/g3duilightedit.c \
                             common/g3duilist.c \
@@ -75,6 +76,7 @@ if HAVE_GTK3
                             gtk3/g3duiffdedit.c \
                             gtk3/g3duifgbgbutton.c \
                             gtk3/g3duikeyedit.c \
+                            gtk3/g3duiinstanceedit.c \
                             gtk3/g3duilightedit.c \
                             gtk3/g3duilist.c \
                             gtk3/g3duimainboard.c \

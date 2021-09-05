@@ -160,7 +160,8 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
 
 /******************************************************************************/
 /******************************************************************************/
-/* https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml */
+/*                     direction-vector-to-rotation-matrix                    */
+/*                https://stackoverflow.com/questions/18558910                */
 
 /******************************************************************************/
 static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,

@@ -395,6 +395,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /**** SPHERE flags ***/
 #define SPHEREISPERFECT       (  1 << 17 ) /* render perfect */
 
+#define INSTANCEMIRRORED      (  1 << 17 )
+
 
 
 #define COMPUTEFACEPOINT         (  1       )
@@ -440,6 +442,11 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define TORUSZX ORIENTATIONZX
 #define TORUSXY ORIENTATIONXY
 #define TORUSYZ ORIENTATIONYZ
+
+/**************************** Instance object *********************************/
+#define INSTANCEZX ORIENTATIONZX
+#define INSTANCEXY ORIENTATIONXY
+#define INSTANCEYZ ORIENTATIONYZ
 
 /******************************************************************************/
 /*** for glLoadName ***/

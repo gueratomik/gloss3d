@@ -1238,9 +1238,13 @@ void g3dobject_free ( G3DOBJECT *obj ) {
     printf ( "freeing memory for object %s\n", obj->name );
 
     list_free ( &obj->lchildren, (void(*)(void*)) g3dobject_free );
+    list_free ( &obj->lkey, (void(*)(void*)) g3dkey_free );
+    list_free ( &obj->ltag, (void(*)(void*)) g3dtag_free );
 
     if ( obj->free ) obj->free ( obj );
     if ( obj->name ) free ( obj->name );
+
+    list_free ( &obj->lselkey, NULL );
 
     free ( obj );
 }

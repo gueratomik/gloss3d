@@ -56,6 +56,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
         if ( obj->type == G3DTEXTTYPE           ) wname = EDITTEXT;
         if ( obj->type == G3DCAMERATYPE         ) wname = EDITCAMERA;
         if ( obj->type == G3DMORPHERTYPE        ) wname = EDITMORPHER;
+        if ( obj->type == G3DINSTANCETYPE       ) wname = EDITINSTANCE;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
@@ -85,6 +86,7 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                     if ( obj->type == G3DTEXTTYPE           ) updateTextEdit           ( child, gui );
                     if ( obj->type == G3DCAMERATYPE         ) updateCameraEdit         ( child, gui );
                     if ( obj->type == G3DMORPHERTYPE        ) updateMorpherEdit        ( child, gui );
+                    if ( obj->type == G3DINSTANCETYPE       ) updateInstanceEdit       ( child, obj );
 
                     gtk_widget_show ( child );
                 } else {
@@ -175,6 +177,7 @@ GtkWidget *createCurrentEdit ( GtkWidget *parent, G3DUI *gui,
     createTextEdit           ( frm, gui, EDITTEXT          , 0, 32, 296,  96 );
     createCameraEdit         ( frm, gui, EDITCAMERA        , 0, 32, 296,  96 );
     createMorpherEdit        ( frm, gui, EDITMORPHER       , 0, 32, 296,  96 );
+    createInstanceEdit       ( frm, gui, EDITINSTANCE      , 0, 32, 296,  96 );
 
 
     list_insert ( &gui->lcuredit, frm );

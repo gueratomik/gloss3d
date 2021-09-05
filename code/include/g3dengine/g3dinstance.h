@@ -47,11 +47,19 @@ extern "C" {
 typedef struct _G3DINSTANCE {
     G3DOBJECT obj;
     G3DOBJECT *ref;
+    uint32_t   orientation;
 } G3DINSTANCE;
 
 /******************************************************************************/
 G3DINSTANCE *g3dinstance_new ( uint32_t id, 
                                char    *name );
+
+void g3dinstance_setMirrored    ( G3DINSTANCE *ins );
+void g3dinstance_unsetMirrored  ( G3DINSTANCE *ins );
+void g3dinstance_setOrientation ( G3DINSTANCE *ins, 
+                                  uint32_t     orientation );
+void g3dinstance_setReference   ( G3DINSTANCE *ins, 
+                                  G3DOBJECT   *ref );
 
 #ifdef __cplusplus
 }

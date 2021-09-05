@@ -500,6 +500,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define EDITMORPHER            "Morpher"
 
+#define EDITINSTANCE           "Instance"
 
 #define MODE_VIEWOBJECT "Object mode"
 #define MODE_VIEWVERTEX "Vertex mode"
@@ -1708,5 +1709,12 @@ void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui,
                                                uint32_t rank );
 void common_g3duitrackertagedit_orientationCbk ( G3DUI   *gui, 
                                                  char *str );
+
+/******************************************************************************/
+void common_g3duiinstanceedit_mirroredToggleCbk ( G3DUI *gui );
+void common_g3duiinstanceedit_setReferenceCbk   ( G3DUI   *gui, 
+                                                  uint32_t rank );
+void common_g3duiinstanceedit_orientationCbk ( G3DUI *gui,
+                                               char  *str );
 
 #endif

@@ -131,14 +131,42 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
-    Q3DVECTOR3F src, dir;
+    Q3DVECTOR3F src, dir, dest, locdest;
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
     q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
-    q3dvector3f_matrix ( &qray->dir, qobj->TMVX, &locqray.dir );
+
+    if ( qray->distance != INFINITY ) {
+        Q3DVECTOR3F locisx;
+        Q3DVECTOR3F distanceToISX;
+
+        q3dvector3f_matrix ( &qray->isx.src, qobj->IMVX, &locisx );
+
+        distanceToISX.x = locisx.x - locqray.src.x;
+        distanceToISX.y = locisx.y - locqray.src.y;
+        distanceToISX.z = locisx.z - locqray.src.z;
+
+        locqray.distance = q3dvector3f_length ( &distanceToISX );
+    }
+
+    /*** NOTE: We could use the transpose inverse matrix to transform the   ***/
+    /*** direction vector, BUT it would not work for non-uniform scaled     ***/
+    /*** matrices, so we compute an arbitrary destination point, we find    ***/
+    /*** its local position, we deduce the direction vector from the source ***/
+    /*** and the destination. It's as simple as that.                       ***/
+    dest.x = qray->src.x + ( qray->dir.x );
+    dest.y = qray->src.y + ( qray->dir.y ); 
+    dest.z = qray->src.z + ( qray->dir.z );
+
+    q3dvector3f_matrix ( &dest, qobj->IMVX, &locdest );
+
+    locqray.dir.x = locdest.x - locqray.src.x;
+    locqray.dir.y = locdest.y - locqray.src.y;
+    locqray.dir.z = locdest.z - locqray.src.z;
 
     q3dvector3f_normalize ( &locqray.dir, NULL );
+
 
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
         if ( qobj->intersect ) {
@@ -171,7 +199,6 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     qray->flags   |= locqray.flags;
     qray->color    = locqray.color;
 
-    qray->distance = locqray.distance;
 
     qray->ratio[0x00] = locqray.ratio[0x00];
     qray->ratio[0x01] = locqray.ratio[0x01];
@@ -181,14 +208,20 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         qray->isx.qobj   = locqray.isx.qobj;
         qray->isx.qsur   = locqray.isx.qsur;
 
-        /*** transform the intersection point into his coordinate system ***/
+        Q3DVECTOR3F distanceToISX; 
+        /*** transform the intersection point into its coordinate system ***/
 
         q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
         q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
 
+        distanceToISX.x = qray->isx.src.x - qray->src.x;
+        distanceToISX.y = qray->isx.src.y - qray->src.y;
+        distanceToISX.z = qray->isx.src.y - qray->src.z;
+
+        qray->distance = q3dvector3f_length ( &distanceToISX );
+
         q3dvector3f_normalize ( &qray->isx.dir, NULL );
     }
-
     
 
     return ( hit ) ? 0x01 : 0x00;
@@ -289,6 +322,15 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
                                                   0x00 );
 
             qobj = ( Q3DOBJECT * ) qsym;
+        } break;
+
+        case G3DINSTANCETYPE : {
+            G3DINSTANCE *ins = ( G3DINSTANCE * ) obj;
+            Q3DSYMMETRY *qins = q3dinstance_new ( sym, 
+                                                  qsce->qobjID++,
+                                                  0x00 );
+
+            qobj = ( Q3DOBJECT * ) qins;
         } break;
 
         case G3DSCENETYPE : {

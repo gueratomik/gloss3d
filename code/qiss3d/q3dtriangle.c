@@ -122,7 +122,12 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
     if ( t > 0.0f ) {
         Q3DVECTOR3F qpnt = { .x = qray->src.x + ( qray->dir.x * t ),
                              .y = qray->src.y + ( qray->dir.y * t ),
-                             .z = qray->src.z + ( qray->dir.z * t ) };
+                             .z = qray->src.z + ( qray->dir.z * t ) },
+                    qdir = { qpnt.x - qray->src.x,
+                             qpnt.y - qray->src.y,
+                             qpnt.z - qray->src.z };
+
+        float distance = q3dvector3f_length ( &qdir );
 
         /* when we render backface as well */
         if ( ( vd > 0.0f ) && ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
@@ -130,7 +135,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
         }
 
         if ( ( vd < 0.0f ) || ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {
-            if ( t < qray->distance ) {
+            if ( distance < qray->distance ) {
                 float RAT0, RAT1, RAT2;
 
                 if ( q3dtriangle_pointIn ( qtri,
@@ -164,7 +169,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->ratio[0x01] = RAT1;
                     qray->ratio[0x02] = RAT2;
 
-                    qray->distance = t;
+                    qray->distance = distance;
 
                     /*** intersection occured, let's remember it ***/
                     qray->flags |= Q3DRAY_HAS_HIT_BIT;
