@@ -788,6 +788,19 @@ void g3dpick_setViewportMatrix ( int *VPX ) {
 }
 
 /******************************************************************************/
+void g3dpick_multModelviewMatrix ( double *MVX ) {
+    G3DPICK *pick = g3dpick_get ( );
+
+    if ( pick ) {
+        double TPX[0x10];
+
+        g3dcore_multmatrix ( MVX, pick->MVX, TPX );
+
+        memcpy ( pick->MVX, TPX, sizeof ( TPX ) );
+    }
+}
+
+/******************************************************************************/
 void g3dpick_setAction ( uint32_t (*action)(uint64_t, void *), void *data ) {
     G3DPICK *pick = g3dpick_get ( );
 

@@ -109,16 +109,16 @@ void common_g3duiinstanceedit_orientationCbk ( G3DUI *gui,
         if ( sel->type == G3DINSTANCETYPE ) {
             G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
 
-            if ( strcmp ( str, XSTR ) == 0x00 ) {
-                g3dinstance_setOrientation ( ins, TARGET_XAXIS );
+            if ( strcmp ( str, ZXSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, INSTANCEZX );
             }
 
-            if ( strcmp ( str, YSTR ) == 0x00 ) {
-                g3dinstance_setOrientation ( ins, TARGET_YAXIS );
+            if ( strcmp ( str, XYSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, INSTANCEXY );
             }
 
-            if ( strcmp ( str, ZSTR ) == 0x00 ) {
-                g3dinstance_setOrientation ( ins, TARGET_ZAXIS );
+            if ( strcmp ( str, YZSTR ) == 0x00 ) {
+                g3dinstance_setOrientation ( ins, INSTANCEYZ );
             }
         }
     }

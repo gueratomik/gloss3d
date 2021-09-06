@@ -138,6 +138,8 @@ void g3dpick_loadMatrix ( double *MVX );
 void g3dpick_enableDepthTest ( );
 void g3dpick_disableDepthTest ( );
 
+void g3dpick_multModelviewMatrix ( double *MVX );
+
 #ifdef __cplusplus
 }
 #endif
