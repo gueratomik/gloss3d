@@ -407,14 +407,22 @@ void q3doctree_init ( Q3DOCTREE *qoct,
     qoct->d[0x04] = - ( qoct->max.x * BOXPLN[0x04].x );
     qoct->d[0x05] = - ( qoct->min.x * BOXPLN[0x05].x );
 
+
+/*
     qoct->epsilon.x = ( qoct->max.x - qoct->min.x ) * 0.01f;
     qoct->epsilon.y = ( qoct->max.y - qoct->min.y ) * 0.01f;
     qoct->epsilon.z = ( qoct->max.z - qoct->min.z ) * 0.01f;
+*/
 
-    /*** for perfectly flqt surfaces ***/
-    if ( qoct->epsilon.x == 0.0f ) qoct->epsilon.x = 0.01f;
+    /*** for perfectly flat surfaces ***/
+/*** Commented out : float comparison not reliable ***/
+   /* if ( qoct->epsilon.x == 0.0f ) qoct->epsilon.x = 0.01f;
     if ( qoct->epsilon.y == 0.0f ) qoct->epsilon.y = 0.01f;
-    if ( qoct->epsilon.z == 0.0f ) qoct->epsilon.z = 0.01f;
+    if ( qoct->epsilon.z == 0.0f ) qoct->epsilon.z = 0.01f;*/
+
+    qoct->epsilon.x = 0.01f;
+    qoct->epsilon.y = 0.01f;
+    qoct->epsilon.z = 0.01f;
 }
 
 /******************************************************************************/

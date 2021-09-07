@@ -538,13 +538,17 @@ static void g3dsubdivisionV3_prepare ( G3DSUBDIVISION *sdv,
              nbInnerUVSets  , nbOuterUVSets;
     uint32_t nbEdgeLookup = ( fac->ver[0x00]->nbedg - 0x02 ) +
                             ( fac->ver[0x01]->nbedg - 0x02 ) +
-                            ( fac->ver[0x02]->nbedg - 0x02 ) + ( ( fac->ver[0x03] ) ?
-                            ( fac->ver[0x03]->nbedg - 0x02 ) : 0x00 ) + fac->nbver;
-    uint32_t nbVertexLookup = fac->nbver + nbEdgeLookup;
+                            ( fac->ver[0x02]->nbedg - 0x02 ) + 
+     ( ( fac->ver[0x03] ) ? ( fac->ver[0x03]->nbedg - 0x02 ) : 0x00 ) + fac->nbver;
+
     uint32_t nbFaceLookup = ( fac->ver[0x00]->nbfac - 0x01 ) +
                             ( fac->ver[0x01]->nbfac - 0x01 ) +
-                            ( fac->ver[0x02]->nbfac - 0x01 ) + ( ( fac->ver[0x03] ) ?
-                            ( fac->ver[0x03]->nbfac - 0x01 ) : 0x00 ) + 0x01;
+                            ( fac->ver[0x02]->nbfac - 0x01 ) + 
+     ( ( fac->ver[0x03] ) ? ( fac->ver[0x03]->nbfac - 0x01 ) : 0x00 ) + 0x01;
+    uint32_t nbVertexLookup = fac->nbver + nbEdgeLookup + nbFaceLookup;
+
+    /*** Note: allocated memory are a bit bigger than needed ***/
+    /*** to ease computations ***/
 
     /* Get the number of objects needed for this subdivision process */
     g3dsubdivisionV3EvalSize ( mes, 
@@ -767,18 +771,20 @@ static uint32_t g3dsubdivisionV3EvalSize ( G3DMESH  *mes,
     (*totalInnerFaces)    = 0x01;
     (*totalOuterFaces)    = ( fac->ver[0x00]->nbfac - 1 ) +
                             ( fac->ver[0x01]->nbfac - 1 ) +
-                            ( fac->ver[0x02]->nbfac - 1 ) + ( fac->ver[0x03] ?
-                            ( fac->ver[0x03]->nbfac - 1 ) : 0x00 );
+                            ( fac->ver[0x02]->nbfac - 1 ) + 
+         ( fac->ver[0x03] ? ( fac->ver[0x03]->nbfac - 1 ) : 0x00 );
 
     /* Copy original edges for writing */
     (*totalInnerEdges)    = fac->nbver;
     (*totalOuterEdges)    = ( fac->ver[0x00]->nbedg - 2 ) +
                             ( fac->ver[0x01]->nbedg - 2 ) +
-                            ( fac->ver[0x02]->nbedg - 2 ) + ( fac->ver[0x03] ?
-                            ( fac->ver[0x03]->nbedg - 2 ) : 0x00) ;
+                            ( fac->ver[0x02]->nbedg - 2 ) + 
+         ( fac->ver[0x03] ? ( fac->ver[0x03]->nbedg - 2 ) : 0x00) ;
 
     /* Copy original vertices for writing */
     (*totalInnerVertices) = fac->nbver;
+    /*** Note: dont forget the vertex not directly linked to an edge, ***/
+    /*** here represented by (*totalOuterFaces) ***/
     (*totalOuterVertices) = (*totalOuterEdges) + (*totalOuterFaces);
     /* For subdiv level 0, use the original UVSets. No memory needed */
     (*totalInnerUVSets)   = 0x00;
@@ -847,8 +853,12 @@ static void g3dsubdivision_importOuterVertex ( G3DSUBDIVISION *sdv,
 
     newver->ver.flags = VERTEXOUTER;
 
+    newver->ver.nbfac = newver->ver.nbedg = 0x00;
+    newver->ver.lfac  = newver->ver.ledg  = NULL;
+
     memcpy ( &newver->ver.pos, pos, sizeof ( G3DVECTOR ) );
     memcpy ( &newver->ver.nor, nor, sizeof ( G3DVECTOR ) );
+
 /*
 printf("IMPORTOUTER: src:%d outver: %d\n", ver, newver);
 */

@@ -53,60 +53,50 @@ static uint32_t q3dinstance_intersect ( Q3DINSTANCE *qins,
                                         uint64_t     render_flags ) {
     Q3DOBJECT *qobjins = ( Q3DOBJECT * ) qins;
     G3DINSTANCE *ins = ( G3DINSTANCE * ) q3dobject_getObject ( qobjins );
-    LIST *ltmpchildren = qobjins->lchildren;
     uint32_t hit = 0x00;
-    Q3DRAY insqray;
 
     if ( qins->qref ) {
         if ( qins->qref->intersect ) {
+            Q3DRAY insqray;
+
+            memcpy ( &insqray, qray, sizeof ( Q3DRAY ) );
+
+            if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                q3dvector3f_matrix ( &qray->src, qins->ISMVX, &insqray.src );
+                q3dvector3f_matrix ( &qray->dir, qins->TSMVX, &insqray.dir );
+            }
+
             hit = qins->qref->intersect ( qins->qref, 
-                                          qray, 
+                                         &insqray, 
                                           discard, 
                                           cond, 
                                           condData, 
                                           frame, 
                                           query_flags, 
                                           render_flags );
+
+            qray->flags   |= insqray.flags;
+            qray->color    = insqray.color;
+            qray->distance = insqray.distance;
+
+            qray->ratio[0x00] = insqray.ratio[0x00];
+            qray->ratio[0x01] = insqray.ratio[0x01];
+            qray->ratio[0x02] = insqray.ratio[0x02];
+
+            if ( hit ) {
+                qray->isx.qobj   = insqray.isx.qobj;
+                qray->isx.qsur   = insqray.isx.qsur;
+
+                memcpy ( &qray->isx.src, &insqray.isx.src, sizeof ( Q3DVECTOR3F ) );
+                memcpy ( &qray->isx.dir, &insqray.isx.dir, sizeof ( Q3DVECTOR3F ) );
+
+                if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                    q3dvector3f_matrix ( &insqray.isx.src, ins->smatrix, &qray->isx.src );
+                    q3dvector3f_matrix ( &insqray.isx.dir, qins->TISMVX, &qray->isx.dir );
+                }
+            }
         }
     }
-
-/*
-    memcpy ( &insqray, qray, sizeof ( Q3DRAY ) );
-
-    q3dvector3f_matrix ( &qray->src, qins->ISMVX, &insqray.src );
-    q3dvector3f_matrix ( &qray->dir, qins->TSMVX, &insqray.dir );
-
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
-
-        hit += q3dobject_intersect_r ( qchild,
-                                      &insqray,
-                                       discard,
-                                       cond,
-                                       condData,
-                                       frame,
-                                       query_flags,
-                                       render_flags );
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    qray->flags   |= insqray.flags;
-    qray->color    = insqray.color;
-    qray->distance = insqray.distance;
-
-    qray->ratio[0x00] = insqray.ratio[0x00];
-    qray->ratio[0x01] = insqray.ratio[0x01];
-    qray->ratio[0x02] = insqray.ratio[0x02];
-
-    if ( hit ) {
-        qray->isx.qobj   = insqray.isx.qobj;
-        qray->isx.qsur   = insqray.isx.qsur;
-
-        q3dvector3f_matrix ( &insqray.isx.src, ins->smatrix, &qray->isx.src );
-        q3dvector3f_matrix ( &insqray.isx.dir, qins->TISMVX, &qray->isx.dir );
-    }
-*/
 
     return ( hit ) ? 0x01 : 0x00;
 }

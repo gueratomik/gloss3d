@@ -860,6 +860,7 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                                  float      frame ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     LIST *ltmpchildren = qobj->lchildren;
+    Q3DMESH *qmes = NULL;
     double WMVX[0x10];
 
     /*** The recursive nature insures objects always have the same ID in ***/
@@ -868,8 +869,20 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
 
     g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
 
+
+    if ( qobj->obj->type == G3DINSTANCETYPE ) {
+        Q3DINSTANCE *qins = qobj;
+
+        if ( qins->qref->obj->type & MESH ) {
+            qmes = ( Q3DMESH * ) qins->qref;
+        }
+    }
+
     if ( qobj->obj->type & MESH ) {
-        Q3DMESH *qmes = ( Q3DMESH * ) qobj;
+        qmes = ( Q3DMESH * ) qobj;
+    }
+
+    if ( qmes ) {
         /*** When the subframes happen, retrieve the on-frame object ***/
         VMBMESH *vmes = filtervmb_getObjectbyID ( qfil, fvmb->vobjID );
 

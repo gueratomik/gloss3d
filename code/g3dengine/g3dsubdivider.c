@@ -128,10 +128,10 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                   void *data,
                                                   uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+    G3DOBJECT *parent = sdr->mod.oriobj;
 
     if ( sdr->subdiv_render == 0x00 ) return 0x00;
-
+printf("dumping\n");
     if ( parent ) {
         uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
         uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
@@ -607,8 +607,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
         }
     }
 
-
-    return 0;
+    return MODIFIERTAKESOVER;
 }
 
 /******************************************************************************/

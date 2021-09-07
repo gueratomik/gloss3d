@@ -815,6 +815,7 @@ typedef struct _G3DPIVOT {
 typedef struct _G3DFACE  G3DFACE;
 typedef struct _G3DUVSET G3DUVSET;
 typedef struct _G3DUVSET G3DSUBUVSET;
+typedef struct _G3DMODIFIER G3DMODIFIER;
 
 /******************************************************************************/
 typedef struct _G3DUV {
@@ -1133,7 +1134,8 @@ struct _G3DMESH {
     LIST *lseltex;
     /*LIST *lseluv;*/
     LIST *lseluvmap;
-
+    
+    G3DMODIFIER *lastmod;
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;

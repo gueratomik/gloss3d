@@ -81,10 +81,10 @@ uint32_t q3dtriangle_pointIn ( Q3DTRIANGLE  *qtri,
         g3ddoublevector_invert ( &DOT2 );
     }*/
 
-    if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF * 1.001f ) /*LENF*/ ) {
-        /*if ( ( Q3DVECTOR3F_SCALAR ( &DOT0, &qtri->nor ) >= 0.0f ) && 
-             ( Q3DVECTOR3F_SCALAR ( &DOT1, &qtri->nor ) >= 0.0f ) && 
-             ( Q3DVECTOR3F_SCALAR ( &DOT2, &qtri->nor ) >= 0.0f ) ) {*/
+    /*if ( ( LEN0 + LEN1 + LEN2 ) <= ( LENF * 1.001f ) *//*LENF*//* ) {*/
+    if ( ( Q3DVECTOR3F_SCALAR ( &DOT0, &qtri->nor ) >= 0.0f ) && 
+         ( Q3DVECTOR3F_SCALAR ( &DOT1, &qtri->nor ) >= 0.0f ) && 
+         ( Q3DVECTOR3F_SCALAR ( &DOT2, &qtri->nor ) >= 0.0f ) ) {
         /*** return subtriangles surface ratio if needed ***/
             if ( RAT0 ) (*RAT0) = (float)( LEN0 / LENF );
             if ( RAT1 ) (*RAT1) = (float)( LEN1 / LENF );

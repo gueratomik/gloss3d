@@ -520,21 +520,25 @@ void g3dmesh_modify ( G3DMESH    *mes,
     g3dmesh_renumberEdges    ( mes );
     g3dmesh_renumberFaces    ( mes );
 
+    mes->lastmod = NULL;
+
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            G3DMODIFIER *lastmod = g3dmodifier_modify_r ( child,
-                                                          mes,
-                                                          NULL,
-                                                          NULL,
-                                                          op,
-                                                          engine_flags );
+            mes->lastmod = g3dmodifier_modify_r ( child,
+                                                  mes,
+                                                  NULL,
+                                                  NULL,
+                                                  op,
+                                                  engine_flags );
 
-            if ( lastmod ) {
-                if ( lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
-                    if ( ( lastmod->mes.obj.type & MESH ) == 0x00 ) {
-                        g3dmesh_updateModified ( mes, lastmod, engine_flags );
+            if ( mes->lastmod ) {
+                if ( mes->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
+                    if ( ( mes->lastmod->mes.obj.type & MESH ) == 0x00 ) {
+                        g3dmesh_updateModified ( mes, 
+                                                 mes->lastmod,
+                                                 engine_flags );
                     }
                 }
             }
@@ -554,45 +558,6 @@ void g3dmesh_addChild ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, 
-                                   void (*Alloc)( uint32_t, /* nbver */
-                                                  uint32_t, /* nbtris */
-                                                  uint32_t, /* nbquads */
-                                                  uint32_t, /* nbuv */
-                                                  void * ),
-                                   void (*Dump) ( G3DFACE *,
-                                                  G3DVECTOR *,
-                                                  G3DVECTOR *,
-                                                  void * ),
-                                   void *data,
-                                   uint64_t engine_flags ) {
-    LIST *ltmpchildren = ((G3DOBJECT*)mes)->lchildren;
-    uint32_t takenOver = 0x00;
-
-    while ( ltmpchildren ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-
-        if ( child->type & MODIFIER ) {
-            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
-
-            takenOver = g3dmesh_dumpModifiers_r ( (G3DMESH*) mod, Alloc, Dump, data, engine_flags );
-
-            if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
-                if ( g3dobject_isActive ( child ) ) {
-                    if ( ((G3DMESH*)mod)->dump ) {
-                        takenOver = ((G3DMESH*)mod)->dump ( (G3DMESH*) mod, Alloc, Dump, data, engine_flags );
-                    }
-                }
-            }
-        }
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    return takenOver;
-}
-
-/******************************************************************************/
 void g3dmesh_dump ( G3DMESH *mes, 
                     void (*Alloc)( uint32_t, /* nbver */
                                    uint32_t, /* nbtris */
@@ -606,13 +571,22 @@ void g3dmesh_dump ( G3DMESH *mes,
                     void *data,
                     uint64_t engine_flags ) {
 
-    uint32_t takenOver = g3dmesh_dumpModifiers_r ( mes, Alloc, Dump, data, engine_flags );
 
-    if ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) {
-        if ( g3dobject_isActive ( (G3DOBJECT*)mes ) ) {
-            if ( mes->dump ) {
-                mes->dump ( mes, Alloc, Dump, data, engine_flags );
-            }
+    if ( mes->lastmod ) {
+        if ( mes->lastmod->mes.dump ) {
+            mes->lastmod->mes.dump ( mes->lastmod, 
+                                     Alloc, 
+                                     Dump, 
+                                     data, 
+                                     engine_flags );
+        }
+    } else {
+        if ( mes->dump ) {
+            mes->dump ( mes, 
+                        Alloc, 
+                        Dump, 
+                        data, 
+                        engine_flags );
         }
     }
 }
