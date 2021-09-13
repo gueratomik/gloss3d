@@ -1090,7 +1090,7 @@ void common_g3dui_resetDefaultCameras ( G3DUI *gui ) {
         memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR ) );
         memcpy ( &objcam->sca, &camsca[i], sizeof ( G3DVECTOR ) );
 
-        g3dobject_updateMatrix ( objcam );
+        g3dobject_updateMatrix ( objcam, gui->engine_flags );
     }
 }
 

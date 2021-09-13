@@ -434,7 +434,7 @@ void common_l3dui_moveSideward ( L3DUI *lui,
     lui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
     lui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
 
     common_l3dui_setCanevas ( lui );
 }
@@ -451,7 +451,7 @@ void common_l3dui_moveForward ( L3DUI *lui,
     lui->cam.ortho.x = lui->cam.ortho.z;
     lui->cam.ortho.y = lui->cam.ortho.z;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
 
     common_l3dui_setCanevas ( lui );
 }
@@ -525,7 +525,7 @@ void common_l3dui_init ( L3DUI *lui,
 
     lui->engine_flags = VIEWVERTEXUV;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
 
     /*** projection matrix will never change ***/
     g3dcore_identityMatrix ( lui->cam.pmatrix );
@@ -626,7 +626,7 @@ void common_l3dui_showGL ( L3DUI *lui,
                             /*** preserve image aspect ratio ***/
                             lui->cam.obj.sca.y = whRatio;
 
-                            g3dobject_updateMatrix ( &lui->cam.obj );
+                            g3dobject_updateMatrix ( &lui->cam.obj, lui->gui->engine_flags );
 
                             g3dcamera_view ( &lui->cam, 0x00  );
 

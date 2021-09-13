@@ -88,6 +88,8 @@ void g3dcursor_init ( G3DCURSOR *csr ) {
     g3dvector_init ( &csr->axis[0x01], 0.0f, 1.0f, 0.0f, 1.0f );
     g3dvector_init ( &csr->axis[0x02], 0.0f, 0.0f, 1.0f, 1.0f );
 
+    csr->pivot.w = 1.0f;
+
     g3dcore_identityMatrix ( csr->matrix );
 }
 

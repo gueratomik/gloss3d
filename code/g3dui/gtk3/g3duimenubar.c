@@ -87,6 +87,16 @@ static uint32_t objectMode_boneSelected ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static uint32_t objectMode_boneOrSkinSelected ( G3DUI *gui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    return  ( ( obj                            ) && 
+            ( ( obj->type & BONE               ) ||
+              ( obj->type & SKIN               ) ) &&
+              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+}
+
+/******************************************************************************/
 static void parseMenu_r ( G3DUIMENU *node, 
                           G3DUIMENU *parent, 
                           G3DUI     *gui ) {
@@ -1657,7 +1667,7 @@ static G3DUIMENU modifiers_menu_addSkin       = { MENU_ADDSKIN,
 
 static G3DUIMENU modifiers_menu_addBone       = { MENU_ADDBONE,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
-                                                  objectModeOnly,
+                                                  objectMode_boneOrSkinSelected,
                                                   g3dui_addBoneCbk };
 
 static G3DUIMENU modifiers_menu_fixBone       = { MENU_FIXBONE,

@@ -801,9 +801,12 @@ void g3dobject_anim_scaling ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_anim_r ( G3DOBJECT *obj,
-                        float      frame,
-                        uint64_t   engine_flags ) {
+static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
+                                        float       frame,
+                                        G3DOBJECT **animobj,
+                                        uint32_t   *animobjID,
+                                        uint32_t    maxanimobj,
+                                        uint64_t    engine_flags ) {
     LIST *ltmp = obj->lchildren;
 
     /*** We separate transformations because the user might not want to ***/
@@ -814,7 +817,13 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
 
     g3dobject_preanim_tags ( obj, frame, engine_flags );
 
-    g3dobject_updateMatrix ( obj );
+    g3dobject_updateMatrix ( obj, engine_flags );
+
+    if ( (*animobjID) < maxanimobj ) {
+        animobj[(*animobjID)] = obj;
+
+        (*animobjID)++;
+    }
 
     /*** Recurse to children objects ***/
     while ( ltmp ) {
@@ -825,9 +834,34 @@ void g3dobject_anim_r ( G3DOBJECT *obj,
         ltmp = ltmp->next;
     }
 
-    if ( obj->anim ) obj->anim ( obj, frame, engine_flags );
 
-    g3dobject_postanim_tags ( obj, frame, engine_flags );
+}
+
+/******************************************************************************/
+/*** This is not per-se a recursive function, but I had to do like that b/c ***/
+/*** the anim callbacks must be called after all matrices have been updated ***/
+void g3dobject_anim_r  ( G3DOBJECT *obj,
+                         float      frame,
+                         uint64_t   engine_flags ) {
+#define MAXANIMOBJ 0x400
+    static G3DOBJECT *animobj[MAXANIMOBJ];
+    uint32_t animobjID = 0x00;
+    uint32_t i;
+
+    g3dobject_anim_r_internal ( obj,
+                                frame,
+                                animobj,
+                               &animobjID,
+                                MAXANIMOBJ,
+                                engine_flags );
+
+    for ( i = 0x00; i < animobjID; i++ ) {
+        if ( animobj[i]->anim ) {
+            animobj[i]->anim ( animobj[i], frame, engine_flags );
+        }
+
+        g3dobject_postanim_tags ( animobj[i], frame, engine_flags );
+    }
 }
 
 /******************************************************************************/
@@ -1279,7 +1313,7 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
                                 uint64_t   engine_flags ) {
     LIST *ltmpobj = obj->lchildren;
 
-    g3dobject_updateMatrix ( obj );
+    g3dobject_updateMatrix ( obj, engine_flags );
 
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
@@ -1292,7 +1326,7 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
+void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
     glMatrixMode ( GL_MODELVIEW );
     glPushMatrix ( );
     glLoadIdentity ( );
@@ -1320,9 +1354,9 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj ) {
 
     glPopMatrix ( );
 
-    if ( obj->transform ) obj->transform ( obj, 0x00 );
+    if ( obj->transform ) obj->transform ( obj, engine_flags );
 
-    g3dobject_transform_tags ( obj, 0x00 );
+    g3dobject_transform_tags ( obj, engine_flags );
 }
 
 /******************************************************************************/
@@ -1590,7 +1624,7 @@ void g3dobject_importChild ( G3DOBJECT *newparent,
 
     g3dobject_addChild ( newparent, child, engine_flags );
 
-    g3dobject_updateMatrix_r ( child, 0x00 );
+    g3dobject_updateMatrix_r ( child, engine_flags );
 
 }
 

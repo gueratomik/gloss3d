@@ -371,7 +371,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
                     g3dimportv3_freadf ( &obj->pos.y, fsrc );
                     g3dimportv3_freadf ( &obj->pos.z, fsrc );
 
-                    g3dobject_updateMatrix ( view->defcam );
+                    g3dobject_updateMatrix ( view->defcam, gui->engine_flags );
                 }
             break;
 
@@ -383,7 +383,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
                     g3dimportv3_freadf ( &obj->rot.y, fsrc );
                     g3dimportv3_freadf ( &obj->rot.z, fsrc );
 
-                    g3dobject_updateMatrix ( view->defcam );
+                    g3dobject_updateMatrix ( view->defcam, gui->engine_flags );
                 }
             break;
 
@@ -395,7 +395,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
                     g3dimportv3_freadf ( &obj->sca.y, fsrc );
                     g3dimportv3_freadf ( &obj->sca.z, fsrc );
 
-                    g3dobject_updateMatrix ( view->defcam );
+                    g3dobject_updateMatrix ( view->defcam, gui->engine_flags );
                 }
             break;
 

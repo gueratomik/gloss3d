@@ -29,6 +29,26 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+static uint32_t drawTarget ( G3DOBJECT *obj,
+                             G3DCAMERA *curcam, 
+                             uint64_t   engine_flags ) {
+    glDisable ( GL_LIGHTING );
+    glBegin ( GL_LINES );
+    glColor3ub ( 0xFF, 0x00, 0x00 );
+    glVertex3f ( 0.0f, 0.0f, 0.0f );
+    glVertex3f ( 1.0f, 0.0f, 0.0f );
+
+    glColor3ub ( 0x00, 0xFF, 0x00 );
+    glVertex3f ( 0.0f, 0.0f, 0.0f );
+    glVertex3f ( 0.0f, 1.0f, 0.0f );
+
+    glColor3ub ( 0x00, 0x00, 0xFF );
+    glVertex3f ( 0.0f, 0.0f, 0.0f );
+    glVertex3f ( 0.0f, 0.0f, 1.0f );
+    glEnd ( );
+    glEnable ( GL_LIGHTING );
+}
+
 /******************************************************************************/
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
@@ -46,6 +66,92 @@ void g3dcamera_spin ( G3DCAMERA *cam, float diffz ) {
     glPopMatrix ( );
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
+}
+
+/******************************************************************************/
+void g3dcamera_setTarget ( G3DCAMERA *cam, 
+                           G3DCURSOR *csr,
+                           uint64_t   engine_flags ) {
+    G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+    G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f },
+               wxpos, lxpos,
+               wobjpos, lobjpos;
+    G3DVECTOR  wpivpos = { 0.0f, 0.0f, 0.0f, 1.0f }, lpivpos;
+    G3DVECTOR  piv2obj;
+    G3DVECTOR  obj2x;
+    G3DVECTOR  axis, up = { 0.0f, 1.0f, 0.0f, 1.0f };
+    double RX[0x10], TIVX[0x10];
+    G3DVECTOR xaxis, yaxis;
+
+    g3dcore_identityMatrix ( RX );
+
+    g3dvector_matrix ( &origin, objcam->wmatrix, &wobjpos );
+    g3dvector_matrix ( &csr->pivot, csr->matrix, &wpivpos );
+
+    cam->target->pos.x = wpivpos.x;
+    cam->target->pos.y = wpivpos.y;
+    cam->target->pos.z = wpivpos.z;
+
+    g3dobject_updateMatrix_r ( cam->target, engine_flags );
+
+    /*wobjpos.y = wpivpos.y;*/
+
+    g3dvector_matrix ( &wobjpos, cam->target->iwmatrix, &lobjpos );
+    g3dvector_matrix ( &wpivpos, cam->target->iwmatrix, &lpivpos );
+
+    piv2obj.x =  lobjpos.x - lpivpos.x;
+    piv2obj.y =  lobjpos.y - lpivpos.y;
+    piv2obj.z =  lobjpos.z - lpivpos.z;
+
+    g3dvector_normalize ( &piv2obj, NULL );
+
+    g3dcore_transposeMatrix ( cam->target->iwmatrix, TIVX );
+
+    g3dvector_matrix ( & ( G3DVECTOR ) { 1.0f, 
+                                         0.0f, 
+                                         0.0f,
+                                         1.0f }, objcam->wmatrix, &wxpos );
+
+    g3dvector_matrix ( &wxpos, cam->target->iwmatrix, &lxpos );
+
+    xaxis.x = lxpos.x - lobjpos.x;
+    xaxis.y = lxpos.y - lobjpos.y;
+    xaxis.z = lxpos.z - lobjpos.z;
+
+    g3dvector_normalize ( &xaxis, NULL );
+
+    g3dvector_cross ( &piv2obj, &xaxis, &yaxis );
+
+    g3dvector_normalize ( &yaxis, NULL );
+
+    RX[0x00] = xaxis.x;
+    RX[0x04] = yaxis.x;
+    RX[0x08] = piv2obj.x;
+
+    RX[0x01] = xaxis.y;
+    RX[0x05] = yaxis.y;
+    RX[0x09] = piv2obj.y;
+
+    RX[0x02] = xaxis.z;
+    RX[0x06] = yaxis.z;
+    RX[0x0A] = piv2obj.z;
+
+    g3dcore_getMatrixRotation ( RX, &cam->target->rot );
+
+    g3dobject_updateMatrix_r ( cam->target, engine_flags );
+
+
+    if ( cam->obj.parent ) {
+       if ( list_seek ( cam->obj.parent->lchildren, cam->target ) == NULL ) {
+           g3dobject_addChild ( cam->obj.parent, cam->target, 0x00 );
+        }
+    }
+}
+
+/******************************************************************************/
+void g3dcamera_orbit ( G3DCAMERA *cam,
+                       float      diffx,
+                       float      diffy ) {
 }
 
 /******************************************************************************/
@@ -398,6 +504,10 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
     cam->ortho.y = 0.0f;
     cam->ortho.z = 0.00750f;
 
+    cam->target = g3dobject_new ( 0x00, "target", 0x00 );
+
+    cam->target->flags = DRAWBEFORECHILDREN;
+    cam->target->draw = drawTarget;
 
     return cam;
 }

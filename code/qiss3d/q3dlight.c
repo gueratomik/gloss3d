@@ -49,8 +49,8 @@ void q3dlight_init ( Q3DLIGHT *qlig,
                      G3DLIGHT *lig,
                      uint32_t  id,
                      uint64_t  object_flags ) {
-    static Q3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f };
-
+    static Q3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f },
+                       ligtoz = { 0.0f, 0.0f, 1.0f };
     q3dobject_init ( ( Q3DOBJECT * ) qlig,
                      ( G3DOBJECT * ) lig,
                      id,
@@ -59,6 +59,13 @@ void q3dlight_init ( Q3DLIGHT *qlig,
 Q3DINTERSECT_CALLBACK(q3dlight_intersect) );
 
     q3dvector3f_matrix ( &origin, ((G3DOBJECT*)lig)->wmatrix, &qlig->wpos );
+    q3dvector3f_matrix ( &ligtoz, ((G3DOBJECT*)lig)->wmatrix, &qlig->zvec );
+
+    qlig->zvec.x =  qlig->zvec.x - qlig->wpos.x;
+    qlig->zvec.y =  qlig->zvec.y - qlig->wpos.y;
+    qlig->zvec.z =  qlig->zvec.z - qlig->wpos.z;
+
+    q3dvector3f_normalize ( &qlig->zvec, NULL );
 }
 
 /******************************************************************************/

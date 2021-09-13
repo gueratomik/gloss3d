@@ -29,6 +29,17 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
+                                       G3DMODIFYOP    op,
+                                       uint64_t       engine_flags );
+
+/******************************************************************************/
+static void g3dsubdivider_anim ( G3DSUBDIVIDER *sdr, 
+                                 float          frame, 
+                                 uint64_t       engine_flags ) {
+    g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
+}
+
 /******************************************************************************/
 static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
     if ( sdr->rtvermem ) free ( sdr->rtvermem );
@@ -131,7 +142,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
     G3DOBJECT *parent = sdr->mod.oriobj;
 
     if ( sdr->subdiv_render == 0x00 ) return 0x00;
-printf("dumping\n");
+
     if ( parent ) {
         uint32_t nbFacesPerTriangle, nbEdgesPerTriangle, nbVerticesPerTriangle;
         uint32_t nbFacesPerQuad    , nbEdgesPerQuad    , nbVerticesPerQuad;
@@ -934,6 +945,8 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                          MODIFY_CALLBACK(g3dsubdivider_modify) );
 
     ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
+
+    ((G3DOBJECT*)sdr)->anim = ANIM_CALLBACK(g3dsubdivider_anim);
 }
 
 /******************************************************************************/

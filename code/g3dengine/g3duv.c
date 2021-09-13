@@ -585,7 +585,7 @@ void g3duvmap_adjustFlatProjection ( G3DUVMAP *map, G3DMESH *mes ) {
     objmap->pos.x = parx;
     objmap->pos.y = pary;
 
-    g3dobject_updateMatrix ( objmap );
+    g3dobject_updateMatrix ( objmap, 0x00 );
 }
 
 /******************************************************************************/

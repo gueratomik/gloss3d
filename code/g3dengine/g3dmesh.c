@@ -3290,6 +3290,14 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
         } else {
             if ( engine_flags & VIEWOBJECT ) g3dmesh_pickObject   ( mes, engine_flags );
         }
+    } else {
+        if ( obj->flags & OBJECTSELECTED ) {
+            if ( engine_flags & VIEWFACE     ) g3dmesh_pickFaces    ( mes, engine_flags );
+            if ( engine_flags & VIEWEDGE     ) g3dmesh_pickEdges    ( mes, engine_flags );
+            if ( engine_flags & VIEWVERTEX   ) g3dmesh_pickVertices ( mes, engine_flags );
+            if ( engine_flags & VIEWSKIN     ) g3dmesh_pickVertices ( mes, engine_flags );
+            /*if ( engine_flags & VIEWVERTEXUV ) g3dmesh_pickUVs      ( mes, engine_flags );*/
+        }
     }
 
     return 0x00;
@@ -4292,7 +4300,7 @@ void g3dmesh_transform ( G3DMESH *mes, uint64_t engine_flags ) {
     while ( ltmpuvmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
 
-        g3dobject_updateMatrix ( map );
+        g3dobject_updateMatrix ( map, engine_flags );
 
         ltmpuvmap = ltmpuvmap->next;
     }

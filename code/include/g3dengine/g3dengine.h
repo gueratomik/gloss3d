@@ -2111,7 +2111,7 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 void g3dobject_anim_r ( G3DOBJECT *obj,
                         float      frame,
                         uint64_t  engine_flags );
-void       g3dobject_updateMatrix          ( G3DOBJECT * );
+void       g3dobject_updateMatrix          ( G3DOBJECT *, uint64_t );
 void g3dobject_drawKeys ( G3DOBJECT *obj, 
                           G3DCAMERA *cam, 
                           uint64_t   engine_flags );
@@ -2693,6 +2693,9 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
                            float    ratio,
                            float    znear, 
                            float    zfar );
+void g3dcamera_setTarget ( G3DCAMERA *cam, 
+                           G3DCURSOR *csr,
+                           uint64_t   engine_flags );
 void g3dcamera_view ( G3DCAMERA *cam, 
                       uint64_t   engine_flags );
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz );

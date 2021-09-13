@@ -591,6 +591,10 @@ static gboolean gtk_view_event ( GtkWidget *widget, GdkEvent *event,
                         /*** pivot for rotation ***/
                         piv = g3dpivot_new ( cam, &sce->csr, gui->engine_flags );
 
+                        /*g3dcamera_setTarget ( cam, 
+                                             &sce->csr,
+                                              gui->engine_flags );*/
+
                         /*g3dobject_addChild ( sce, piv );*/
                     } break;
                 }

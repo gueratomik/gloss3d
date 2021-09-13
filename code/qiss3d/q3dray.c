@@ -433,6 +433,35 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 #endif
         }
 
+        if ( lig->obj.flags & SPOTLIGHT ) {
+            float spotAngle;
+            float spotDot;
+            float spotFactor;
+            Q3DVECTOR3F invLuxRay = { .x = -luxqray.dir.x,
+                                      .y = -luxqray.dir.y,
+                                      .z = -luxqray.dir.z };
+
+            spotDot = q3dvector3f_scalar ( &invLuxRay,
+                                           &qlig->zvec );
+
+            if ( spotDot > 0.0f ) {
+                spotAngle = acos ( spotDot )  * 180 / M_PI;
+
+                if ( spotAngle < lig->spotAngle ) {
+                    spotFactor = 1.0f;
+                } else {
+                    if ( spotAngle < ( lig->spotAngle + lig->spotFadeAngle ) ) {
+                        spotFactor = 1.0f - ( ( spotAngle - lig->spotAngle ) / 
+                                                            lig->spotFadeAngle );
+                    } else {
+                        spotFactor = 0.0f;
+                    }
+                }
+            }
+
+            dot *= spotFactor;
+        }
+
         if ( dot > 0.0f ) {
             float rate = dot * lig->intensity;
 
@@ -840,7 +869,8 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                 }
             }
 
-            if ( query_flags & RAYQUERYLIGHTING ) {
+            if ( ( query_flags & RAYQUERYLIGHTING ) &&
+                 ( qobj->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
                 q3dray_illumination (  qray,
                                        qjob,
                                        qtri,
@@ -848,6 +878,9 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                       &lightDiffuse,
                                       &lightSpecular,
                                        nbhop );
+            } else {
+                lightDiffuse.r = lightDiffuse.g = lightDiffuse.b = 255;
+                lightSpecular.r = lightSpecular.g = lightSpecular.b = 0;
             }
 
             diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) + lightSpecular.r;
@@ -861,6 +894,37 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             return ( ( uint32_t ) ( diffuse.r << 0x10 ) | 
                                   ( diffuse.g << 0x08 ) | 
                                   ( diffuse.b         ) );
+        }
+    }
+
+    if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+        if ( qjob->qrsg->background.mode & BACKGROUND_IMAGE ) {
+            uint32_t backgroundWidth = ( qjob->qarea.width * 
+                                         qjob->qrsg->background.widthRatio );
+            int32_t deltaWidth = ( int32_t ) ( qjob->qarea.width - backgroundWidth ) / 2;
+
+            if ( ( qray->x > deltaWidth ) && 
+                 ( qray->x < ( qjob->qarea.width - deltaWidth ) ) ) {
+                float x = ( backgroundWidth   ) ? ( float ) ( qray->x - deltaWidth ) / backgroundWidth : 0.0f,
+                      y = ( qjob->qarea.height ) ? ( float ) qray->y / qjob->qarea.height : 0.0f;
+                uint32_t inty = ( y * qjob->qrsg->background.image->height ),
+                         intx = ( x * qjob->qrsg->background.image->width  );
+                uint32_t offset =  ( inty * qjob->qrsg->background.image->width ) + intx;
+
+                switch ( qjob->qrsg->background.image->bytesPerPixel ) {
+                    case 0x03 : {
+                        unsigned char (*imgdata)[0x03] = qjob->qrsg->background.image->data;
+                        uint32_t R = ( uint32_t ) imgdata[offset][0x00],
+                                 G = ( uint32_t ) imgdata[offset][0x01],
+                                 B = ( uint32_t ) imgdata[offset][0x02];
+
+                        return ( R  << 0x10 ) | ( G  << 0x08 ) | B ;
+                    } break;
+
+                    default :
+                    break;
+                }
+            }
         }
     }
 
