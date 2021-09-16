@@ -195,12 +195,6 @@ typedef struct _G3DMOUSETOOL {
   G3DMOUSETOOLWELDVERTICES,
   G3DMOUSETOOLWELDNEIGHBOURS,
   G3DMOUSETOOLINVERTNORMAL,
-  G3DMOUSETOOLMOVE,
-  G3DMOUSETOOLMOVEUV,
-  G3DMOUSETOOLSCALE,
-  G3DMOUSETOOLSCALEUV,
-  G3DMOUSETOOLROTATE,
-  G3DMOUSETOOLROTATEUV,
   G3DMOUSETOOLREMOVEVERTEXPOSE;
 
 /******************************************************************************/
@@ -229,7 +223,14 @@ typedef struct _G3DMOUSETOOLPICK {
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
-} G3DMOUSETOOLPICK, G3DMOUSETOOLPICKUV;
+} G3DMOUSETOOLPICK, 
+  G3DMOUSETOOLPICKUV,
+  G3DMOUSETOOLMOVE,
+  G3DMOUSETOOLMOVEUV,
+  G3DMOUSETOOLSCALE,
+  G3DMOUSETOOLSCALEUV,
+  G3DMOUSETOOLROTATE,
+  G3DMOUSETOOLROTATEUV;
 
 /******************************************************************************/
 typedef struct _SCULPTFACE {

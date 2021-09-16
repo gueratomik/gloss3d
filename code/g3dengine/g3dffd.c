@@ -61,11 +61,31 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
             G3DMESH *cpymes = g3dmesh_new ( ((G3DOBJECT*)parmes)->id,
                                             ((G3DOBJECT*)parmes)->name, 
                                             engine_flags );
+            G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, wmespos, lmespos;
+            uint32_t i;
+
+            /*** readjust point position to keep the same matrix as the ***/
+            /*** modified mesh ***/
+            g3dvector_matrix ( &origin, ffd->mod.oriobj->wmatrix, &wmespos );
+            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.iwmatrix, &lmespos );
+
+            for ( i = 0x00; i < parmes->nbver; i++ ) {
+                ffd->mod.verpos[i].x -= lmespos.x;
+                ffd->mod.verpos[i].y -= lmespos.y;
+                ffd->mod.verpos[i].z -= lmespos.z;
+            }
 
             g3dmesh_clone ( parmes, 
                             ffd->mod.verpos,
                             cpymes,
                             engine_flags );
+
+            /*** adjust back :-/ ***/
+            for ( i = 0x00; i < parmes->nbver; i++ ) {
+                ffd->mod.verpos[i].x += lmespos.x;
+                ffd->mod.verpos[i].y += lmespos.y;
+                ffd->mod.verpos[i].z += lmespos.z;
+            }
 
             return cpymes;
         }
@@ -138,6 +158,10 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
     if ( ffd->mod.oriobj ) {
         if ( ffd->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) ffd->mod.oriobj;
+            G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, wmespos, lmespos;
+
+            g3dvector_matrix ( &origin, ffd->mod.oriobj->wmatrix, &wmespos );
+            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.iwmatrix, &lmespos );
 
             if ( orimes->nbver ) {
                 uint32_t i, j, k;
@@ -208,6 +232,10 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
 
                         memcpy ( altpos, verpos, sizeof ( G3DVECTOR ) );
                     }
+
+                    altpos->x += lmespos.x;
+                    altpos->y += lmespos.y;
+                    altpos->z += lmespos.z;
 
                     ltmpver = ltmpver->next;
                 }
@@ -500,7 +528,6 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
     }
 
     g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN  | 
-                                                  OBJECTNOTRANSLATION |
                                                   OBJECTNOROTATION    |
                                                   OBJECTNOSCALING     | 
                                                   MODIFIERNEEDSNORMALUPDATE,

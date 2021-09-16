@@ -408,7 +408,7 @@ void       updateTimeline         ( GtkWidget *, G3DUI * );
 GtkWidget *createTimeline         ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-void       updatePickToolEdit     ( GtkWidget *, G3DUI * );
+void       updatePickToolEdit     ( GtkWidget *, G3DMOUSETOOL * );
 GtkWidget *createPickToolEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 

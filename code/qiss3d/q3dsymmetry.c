@@ -49,40 +49,42 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
     uint32_t hit = 0x00;
     Q3DRAY symqray;
 
-    memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
+    if ( ( qobjsym->obj->flags & OBJECTINACTIVE ) == 0x00 ) {
+        memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector3f_matrix ( &qray->src, qsym->ISMVX, &symqray.src );
-    q3dvector3f_matrix ( &qray->dir, qsym->TSMVX, &symqray.dir );
+        q3dvector3f_matrix ( &qray->src, qsym->ISMVX, &symqray.src );
+        q3dvector3f_matrix ( &qray->dir, qsym->TSMVX, &symqray.dir );
 
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+        while ( ltmpchildren ) {
+            Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        hit += q3dobject_intersect_r ( qchild,
-                                      &symqray,
-                                       discard,
-                                       cond,
-                                       condData,
-                                       frame,
-                                       query_flags,
-                                       render_flags );
+            hit += q3dobject_intersect_r ( qchild,
+                                          &symqray,
+                                           discard,
+                                           cond,
+                                           condData,
+                                           frame,
+                                           query_flags,
+                                           render_flags );
 
-        ltmpchildren = ltmpchildren->next;
-    }
+            ltmpchildren = ltmpchildren->next;
+        }
 
-    qray->flags   |= symqray.flags;
-    qray->color    = symqray.color;
-    qray->distance = symqray.distance;
+        qray->flags   |= symqray.flags;
+        qray->color    = symqray.color;
+        qray->distance = symqray.distance;
 
-    qray->ratio[0x00] = symqray.ratio[0x00];
-    qray->ratio[0x01] = symqray.ratio[0x01];
-    qray->ratio[0x02] = symqray.ratio[0x02];
+        qray->ratio[0x00] = symqray.ratio[0x00];
+        qray->ratio[0x01] = symqray.ratio[0x01];
+        qray->ratio[0x02] = symqray.ratio[0x02];
 
-    if ( hit ) {
-        qray->isx.qobj   = symqray.isx.qobj;
-        qray->isx.qsur   = symqray.isx.qsur;
+        if ( hit ) {
+            qray->isx.qobj   = symqray.isx.qobj;
+            qray->isx.qsur   = symqray.isx.qsur;
 
-        q3dvector3f_matrix ( &symqray.isx.src, sym->smatrix, &qray->isx.src );
-        q3dvector3f_matrix ( &symqray.isx.dir, qsym->TISMVX, &qray->isx.dir );
+            q3dvector3f_matrix ( &symqray.isx.src, sym->smatrix, &qray->isx.src );
+            q3dvector3f_matrix ( &symqray.isx.dir, qsym->TISMVX, &qray->isx.dir );
+        }
     }
 
     return ( hit ) ? 0x01 : 0x00;

@@ -40,9 +40,16 @@ void updateCurrentMouseTool ( GtkWidget *widget, G3DUI *gui ) {
             const char *child_name = gtk_widget_get_name ( child );
 
             if ( strcmp ( child_name, mou->name ) == 0x00 ) {
-                if ( strcmp ( mou->name, PICKTOOL    ) == 0x00 ) updatePickToolEdit    ( child, gui );
-                if ( strcmp ( mou->name, CUTMESHTOOL ) == 0x00 ) updateCutMeshToolEdit ( child, gui );
-                if ( strcmp ( mou->name, SCULPTTOOL  ) == 0x00 ) updateSculptToolEdit  ( child, gui );
+                if ( strcmp ( mou->name, PICKTOOL     ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, MOVETOOL     ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, ROTATETOOL   ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, SCALETOOL    ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, PICKUVTOOL   ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, MOVEUVTOOL   ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, ROTATEUVTOOL ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, SCALEUVTOOL  ) == 0x00 ) updatePickToolEdit    ( child, mou );
+                if ( strcmp ( mou->name, CUTMESHTOOL  ) == 0x00 ) updateCutMeshToolEdit ( child, gui );
+                if ( strcmp ( mou->name, SCULPTTOOL   ) == 0x00 ) updateSculptToolEdit  ( child, gui );
 
                 gtk_widget_show ( child );
             } else {
@@ -112,9 +119,16 @@ GtkWidget *createG3DMouseToolEdit ( GtkWidget *parent,
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-    createPickToolEdit    ( frm, gui, PICKTOOL   , 0, 0, 320, 192 );
-    createCutMeshToolEdit ( frm, gui, CUTMESHTOOL, 0, 0, 320, 320 );
-    createSculptToolEdit  ( frm, gui, SCULPTTOOL , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, PICKTOOL    , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, MOVETOOL    , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, ROTATETOOL  , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, SCALETOOL   , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, PICKUVTOOL  , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, MOVEUVTOOL  , 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, ROTATEUVTOOL, 0, 0, 320, 192 );
+    createPickToolEdit    ( frm, gui, SCALEUVTOOL , 0, 0, 320, 192 );
+    createCutMeshToolEdit ( frm, gui, CUTMESHTOOL , 0, 0, 320, 320 );
+    createSculptToolEdit  ( frm, gui, SCULPTTOOL  , 0, 0, 320, 192 );
 
     list_insert ( &gui->lmtools, frm );
 
