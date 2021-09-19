@@ -350,8 +350,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define OBJECTNOSYMMETRY          (  1 <<  1 )
 #define OBJECTINVISIBLE           (  1 <<  2 )
 #define OBJECTINACTIVE            (  1 <<  3 )
-#define DRAWBEFORECHILDREN        (  1 <<  4 )
-#define DRAWAFTERCHILDREN         (  1 <<  5 )
+/*** unused                       (  1 <<  4 ) ***/
+/*** unused                       (  1 <<  5 ) ***/
 #define OBJECTNOTRANSLATION       (  1 <<  6 )
 #define OBJECTNOROTATION          (  1 <<  7 )
 #define OBJECTNOSCALING           (  1 <<  8 )
@@ -764,6 +764,9 @@ typedef struct _G3DOBJECT {
                                                         const char *,
                                                         uint64_t );
     void  (*addChild)         ( struct _G3DOBJECT *obj, 
+                                struct _G3DOBJECT *child,
+                                         uint64_t  engine_flags );
+    void  (*removeChild)      ( struct _G3DOBJECT *obj, 
                                 struct _G3DOBJECT *child,
                                          uint64_t  engine_flags );
     void  (*setParent)        ( struct _G3DOBJECT *child, 
@@ -1226,6 +1229,9 @@ typedef struct _G3DMODIFIER {
     G3DMESH    mes;
     uint32_t (*modify)     ( struct _G3DMODIFIER *mod,
                                      G3DMODIFYOP  op,
+                                     uint64_t     engine_flags );
+    uint32_t (*moddraw)    ( struct _G3DMODIFIER *mod,
+                                     G3DCAMERA   *curcam,
                                      uint64_t     engine_flags );
     G3DOBJECT *oriobj; /*** original mesh   ***/
     G3DOBJECT *stkpos; /*** stack positions ***/
@@ -2084,13 +2090,15 @@ uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj,
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags );
+uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
+                            G3DCAMERA *curcam, 
+                            uint64_t   engine_flags );
 void g3dobject_removeKey ( G3DOBJECT *obj, G3DKEY *key );
 /* modifier is responsible for the drawing */
 #define MODIFIERBUILDSNEWMESH ( 1 << 0 ) 
 #define MODIFIERCHANGESCOORDS ( 1 << 1 ) 
 #define MODIFIERTAKESOVER     ( 1 << 2 ) 
-/* modifier hides original vertices and thus needs some transparency */
-#define MODIFIERNEEDSTRANSPARENCY ( 1 << 3 ) 
+
 void       g3dobject_free                  ( G3DOBJECT *  );
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
@@ -2105,6 +2113,9 @@ void g3dobject_drawCenter ( G3DOBJECT *obj,
 void       g3dobject_getObjectsByType_r    ( G3DOBJECT *, uint32_t, LIST ** );
 void       g3dobject_unsetSelected         ( G3DOBJECT * );
 void       g3dobject_setSelected           ( G3DOBJECT * );
+uint32_t g3dobject_pick_r ( G3DOBJECT *obj, 
+                            G3DCAMERA *curcam, 
+                            uint64_t engine_flags );
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t engine_flags );
@@ -2732,9 +2743,6 @@ void g3dcursor_reset ( G3DCURSOR * );
 
 /******************************************************************************/
 G3DFFD *g3dffd_new          ( uint32_t, char * );
-uint32_t g3dffd_draw ( G3DOBJECT *obj,
-                       G3DCAMERA *cam, 
-                       uint64_t   engine_flags );
 void    g3dffd_free         ( G3DOBJECT * );
 void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, float, float );
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
@@ -2968,6 +2976,10 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                uint32_t       fromBuffer );
 
 /******************************************************************************/
+uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
+                               G3DCAMERA   *curcam, 
+                               uint64_t     engine_flags );
+
 void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t     type,
                         uint32_t     id,

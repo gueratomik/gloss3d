@@ -112,7 +112,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
                            csr->pivot.z, 
                            1.0f };
 
-    g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", DRAWBEFORECHILDREN,
+    g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", 0x00,
                                                           g3dpivot_draw,
                                                           g3dpivot_free,
                                                           NULL,

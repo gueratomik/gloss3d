@@ -340,13 +340,13 @@ void g3dlight_reset ( G3DLIGHT *lig ) {
         glLightfv ( lig->lid, GL_DIFFUSE , inidiff );
         glLightfv ( lig->lid, GL_SPECULAR, inispec );
         glLightfv ( lig->lid, GL_AMBIENT , iniambi );
-    } else {*/
+    } else {
         glDisable ( lig->lid );
 
         glLightfv ( lig->lid, GL_DIFFUSE , col );
         glLightfv ( lig->lid, GL_SPECULAR, col );
         glLightfv ( lig->lid, GL_AMBIENT , col );
-    /*}*/
+    }*/
 }
 
 /******************************************************************************/
@@ -384,7 +384,9 @@ void g3dlight_setSpot ( G3DLIGHT *lig,
 
 /******************************************************************************/
 void g3dlight_activate ( G3DLIGHT *lig, uint64_t engine_flags ) {
-    g3dlight_turnOn ( lig );
+    if ( ( engine_flags & NOLIGHTING ) == 0x00 ) {
+        g3dlight_turnOn ( lig );
+    };
 }
 
 /******************************************************************************/
@@ -480,13 +482,29 @@ static void g3dlight_anim ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
+static void g3dlight_setParent ( G3DLIGHT  *lig, 
+                                 G3DOBJECT *parent,
+                                 G3DOBJECT *oldParent, 
+                                 uint64_t   engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    if ( parent == NULL ) {
+        g3dlight_turnOff ( lig );
+    } else {
+        if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
+            g3dlight_turnOn ( lig );
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dlight_init ( G3DLIGHT *lig, 
                      uint32_t  id, 
                      char     *name ) {
     G3DGLOBALS *globals = g3dcore_getGlobals ( );
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
-    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, 0x00,
                                     DRAW_CALLBACK(g3dlight_draw),
                                     FREE_CALLBACK(g3dlight_free),
                                     PICK_CALLBACK(g3dlight_pick),
@@ -496,7 +514,7 @@ void g3dlight_init ( G3DLIGHT *lig,
                               DEACTIVATE_CALLBACK(g3dlight_deactivate),
                                                   NULL,
                                                   NULL,
-                                                  NULL );
+                               SETPARENT_CALLBACK(g3dlight_setParent));
 
     obj->anim = ANIM_CALLBACK(g3dlight_anim);
 

@@ -833,9 +833,9 @@ static void unbindMaterials ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
-                              G3DCAMERA     *cam,
-                              uint64_t       engine_flags ) {
+static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
+                                        G3DCAMERA     *cam,
+                                        uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = sdr->mod.oriobj;
     uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
@@ -914,7 +914,7 @@ uint32_t g3dsubdivider_draw ( G3DSUBDIVIDER *sdr,
         glPopAttrib ( );
     }
 
-    return MODIFIERTAKESOVER;
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -927,12 +927,11 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     sdr->subdiv_preview = 0x01;
     sdr->subdiv_render  = 0x01;
 
-    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, DRAWBEFORECHILDREN  |
-                                                         OBJECTNOTRANSLATION | 
+    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, OBJECTNOTRANSLATION | 
                                                          OBJECTNOROTATION    |
                                                          OBJECTNOSCALING     |
                                                          SYNCLEVELS,
-                                           DRAW_CALLBACK(g3dsubdivider_draw),
+                                           DRAW_CALLBACK(NULL),
                                            FREE_CALLBACK(g3dsubdivider_free),
                                                          NULL,
                                                          NULL,
@@ -947,6 +946,8 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
 
     ((G3DOBJECT*)sdr)->anim = ANIM_CALLBACK(g3dsubdivider_anim);
+
+    mod->moddraw = g3dsubdivider_moddraw;
 }
 
 /******************************************************************************/

@@ -333,7 +333,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
         while ( ltmp ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-            g3dobject_draw ( child, curcam, next_engine_flags );
+            g3dobject_draw_r ( child, curcam, next_engine_flags );
 
             ltmp = ltmp->next;
         }
@@ -386,7 +386,7 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id,
 
     g3dsymmetry_setMergeLimit ( sym, 0.02f );
 
-    g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, 0x00,
                                                      g3dsymmetry_draw,
                                                      g3dsymmetry_free,
                                                      NULL,

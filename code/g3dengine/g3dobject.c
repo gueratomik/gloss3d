@@ -206,73 +206,6 @@ void g3dobject_printCoordinates ( G3DOBJECT *obj ) {
 }*/
 
 /******************************************************************************/
-uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj, 
-                                   G3DCAMERA *cam,
-                                   uint64_t   engine_flags  ) {
-    LIST *ltmpchildren = obj->lchildren;
-    uint32_t ret = 0x00;
-
-    while ( ltmpchildren ) {
-        G3DOBJECT *child = ltmpchildren->data;
-
-        if ( child->type & MODIFIER ) {
-            if ( ( child->flags & OBJECTINVISIBLE ) == 0x00 ) {
-                if ( child->pick ) {
-                    G3DMODIFIER *modChild = ( G3DMODIFIER * ) child;
-                    double MVX[0x10];
-
-                    glPushMatrix ( );
-                    glMultMatrixd ( child->lmatrix );
-
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
-
-                    g3dpick_setModelviewMatrix ( MVX );
-
-                    ret |= g3dmodifier_pick ( modChild, cam, engine_flags );
-
-                    glPopMatrix ( );
-                }
-            }
-        }
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    return ret;
-}
-
-/******************************************************************************/
-uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, 
-                                   G3DCAMERA *cam,
-                                   uint64_t   engine_flags  ) {
-    LIST *ltmpchildren = obj->lchildren;
-    uint32_t ret = 0x00;
-
-    while ( ltmpchildren ) {
-        G3DOBJECT *child = ltmpchildren->data;
-
-        if ( child->type & MODIFIER ) {
-            if ( ( child->flags & OBJECTINVISIBLE ) == 0x00 ) {
-                if ( child->draw ) {
-                    G3DMODIFIER *modChild = ( G3DMODIFIER * ) child;
-
-                    glPushMatrix ( );
-                    glMultMatrixd ( child->lmatrix );
-
-                    ret |= g3dmodifier_draw ( modChild, cam, engine_flags );
-
-                    glPopMatrix ( );
-                }
-            }
-        }
-
-        ltmpchildren = ltmpchildren->next;
-    }
-
-    return ret;
-}
-
-/******************************************************************************/
 uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj,
                                                uint64_t   type ) {
     LIST *ltmpobj = obj->lchildren;
@@ -1217,19 +1150,24 @@ void g3dobject_addChild ( G3DOBJECT *obj,
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
                              uint64_t   engine_flags ) {
+    G3DOBJECT *oldParent = child->parent;
+
     list_remove ( &obj->lchildren, child );
 
     /*** This field is used in "deleteSelectedItems_undo()" ***/
     /*** we need it not to be NULL, that's why I comment it ***/
     /*child->parent = NULL;*/
 
-    if ( child->type == G3DLIGHTTYPE ) {
-        g3dlight_reset ( ( G3DLIGHT * ) child );
-    }
-
     child->flags |= OBJECTORPHANED;
 
-    /*if ( child->setParent ) obj->setParent   ( child, NULL , engine_flags );*/
+    if ( obj->removeChild ) obj->removeChild  ( obj,
+                                                child,
+                                                engine_flags );
+
+    if ( child->setParent ) child->setParent ( child, 
+                                               NULL, 
+                                               oldParent, 
+                                               engine_flags );
 }
 
 /******************************************************************************/
@@ -1394,11 +1332,11 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
 }
 
 #define PIOVER180 0.01745329252
+
 /******************************************************************************/
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
     double MVX[0x10];
 
     glPushMatrix ( );
@@ -1406,39 +1344,38 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
 
-    /*** if we are in the UVMAPEDITOR, we mustnot change the modelview ***/
+    /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
     /*** matrix ***/
     if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrix ( MVX );
     if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrix ( MVX );
 
     g3dpick_setModelviewMatrix ( MVX );
 
-    /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dobject_pickModifiers() ***/
-    if ( ( obj->type & MODIFIER ) == 0x00 ) {
-        if ( obj->flags & DRAWBEFORECHILDREN ) {
-            if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-                obj->pick ( obj, curcam, engine_flags );
-            }
-        }
-    }
+    if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+
+    glPopMatrix ( );
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dobject_pick_r ( G3DOBJECT *obj, 
+                            G3DCAMERA *curcam, 
+                            uint64_t   engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+    double MVX[0x10];
+
+    g3dobject_pick ( obj, curcam, engine_flags );
+
+    glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );
 
     while ( ltmpchildren ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dobject_pick ( sub, curcam, engine_flags );
+        g3dobject_pick_r ( sub, curcam, engine_flags );
 
         ltmpchildren = ltmpchildren->next;
-    }
-
-    /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dmesh_drawModifiers_r() ***/
-    if ( ( obj->type & MODIFIER ) == 0x00 ) {
-        if ( obj->flags & DRAWAFTERCHILDREN ) {
-            if ( obj->pick && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-                obj->pick ( obj, curcam, engine_flags );
-            }
-        }
     }
 
     glPopMatrix ( );
@@ -1450,77 +1387,55 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags ) {
-    LIST *ltmp = obj->lchildren;
-
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-    /* commented out: only works for the local matrix */
-    /*if ( ( obj->sca.x != 1.0f ) ||
-         ( obj->sca.y != 1.0f ) ||
-         ( obj->sca.z != 1.0f ) ) {*/
-        glEnable ( GL_RESCALE_NORMAL );
-    /*}*/
-
     glPushMatrix ( );
-
     glMultMatrixd ( obj->lmatrix );
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 
-    /*** draw a single dot, then draw the object ***/
-    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-        g3dobject_drawCenter ( obj, engine_flags );
-    }
-
-    /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dobject_drawModifiers() ***/
-    if ( ( obj->type & MODIFIER ) == 0x00 ) {
-        if ( obj->flags & DRAWBEFORECHILDREN ) {
-            if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-                obj->draw ( obj, curcam, engine_flags );
-            }
-        }
-    }
-
-    /*** draw children objects after ***/
-    while ( ltmp ) {
-        G3DOBJECT *sub = ( G3DOBJECT * ) ltmp->data;
-
-        if ( engine_flags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
-            /*** Do not draw objects that are not     ***/
-            /*** concerned by symmetry, e.g modifiers ***/
-            if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
-                g3dobject_draw ( sub, curcam, engine_flags );
-            }
-        } else {
-            g3dobject_draw ( sub, curcam, engine_flags );
-        }
-
-        ltmp = ltmp->next;
-    }
-
-    /*** Modifiers must be explicitely drawn by their parent object ***/
-    /*** by using g3dmesh_drawModifiers_r() ***/
-    if ( ( obj->type & MODIFIER ) == 0x00 ) {
-        if ( obj->flags & DRAWAFTERCHILDREN ) {
-            if ( obj->draw && ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) ) {
-                obj->draw ( obj, curcam, engine_flags );
-            }
-        }
-    }
+    if ( obj->draw ) obj->draw ( obj, curcam, engine_flags );
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 
     glPopMatrix ( );
 
-    if ( ( obj->sca.x != 1.0f ) ||
-         ( obj->sca.y != 1.0f ) ||
-         ( obj->sca.z != 1.0f ) ) {
-        glDisable ( GL_RESCALE_NORMAL );
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
+                            G3DCAMERA *curcam, 
+                            uint64_t   engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    g3dobject_draw ( obj, curcam, engine_flags );
+
+    glPushMatrix ( );
+
+    glMultMatrixd ( obj->lmatrix );
+
+    /*** draw children objects after ***/
+    while ( ltmpchildren ) {
+        G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( engine_flags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
+            /*** Do not draw objects that are not     ***/
+            /*** concerned by symmetry, e.g modifiers ***/
+            if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
+                g3dobject_draw_r ( sub, curcam, engine_flags );
+            }
+        } else {
+            g3dobject_draw_r ( sub, curcam, engine_flags );
+        }
+
+        ltmpchildren = ltmpchildren->next;
     }
+
+    glPopMatrix ( );
 
     return 0x00;
 }
@@ -1676,9 +1591,11 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 /******************************************************************************/
 uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
                                                    uint64_t engine_flags ) {
-    if ( obj->type ) {
+    /*** commented out : too verbose ***/
+    /*if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
-    }
+    }*/
+
     return 0;
 }
 

@@ -409,7 +409,6 @@ void g3dscene_deleteSelectedObjects ( G3DSCENE *sce,
     while ( ltmp ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-        /*** Remove the selected object from the list of all objects ***/
         g3dobject_removeChild ( child->parent, child, engine_flags );
 
         ltmp = ltmp->next;
@@ -776,7 +775,7 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DSCENETYPE, id, name, DRAWAFTERCHILDREN,
+    g3dobject_init ( obj, G3DSCENETYPE, id, name, 0x00,
                                                   g3dscene_draw,
                                                   g3dscene_free,
                                                   NULL,

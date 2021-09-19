@@ -475,7 +475,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DCAMERATYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DCAMERATYPE, id, name, 0x00,
                                                    g3dcamera_draw,
                                                    g3dcamera_free,
                                                    g3dcamera_pick,
@@ -506,7 +506,6 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
 
     cam->target = g3dobject_new ( 0x00, "target", 0x00 );
 
-    cam->target->flags = DRAWBEFORECHILDREN;
     cam->target->draw = drawTarget;
 
     return cam;

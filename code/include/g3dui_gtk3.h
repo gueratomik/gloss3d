@@ -770,7 +770,7 @@ void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
 
 GtkWidget *createOptionMenu ( GtkWidget *parent, 
-                              G3DUIVIEW *view,
+                              GtkWidget *gvw,
                               char      *name,
                               gint       x,
                               gint       y,
@@ -935,6 +935,7 @@ GtkWidget *createInstanceEdit ( GtkWidget *parent,
                                 gint       height );
 
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
+
 
 
 /******************************************************************************/

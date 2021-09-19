@@ -210,29 +210,25 @@ static void g3dskin_free ( G3DSKIN *skn ) {
 }
 
 /******************************************************************************/
-static uint32_t g3dskin_draw ( G3DSKIN *skn, 
-                               G3DCAMERA  *cam,
-                               uint64_t    engine_flags ) {
+static uint32_t g3dskin_moddraw ( G3DSKIN *skn, 
+                                  G3DCAMERA  *cam,
+                                  uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) skn;
 
-    if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
-        if ( g3dobject_isActive ( obj ) == 0x00 ) return 0x00;
+    if ( g3dobject_isActive ( obj ) == 0x00 ) return 0x00;
 
-        if ( skn->mod.oriobj ) {
-            if ( skn->mod.oriobj->type & MESH ) {
-                G3DMESH *orimes = skn->mod.oriobj;
-                LIST *ltmpver = orimes->lver;
+    if ( skn->mod.oriobj ) {
+        if ( skn->mod.oriobj->type & MESH ) {
+            G3DMESH *orimes = skn->mod.oriobj;
+            LIST *ltmpver = orimes->lver;
 
-                g3dmesh_drawModified ( skn->mod.oriobj,
-                                       cam,
-                                       skn->mod.verpos,
-                                       skn->mod.vernor,
-                                       engine_flags );
+            g3dmesh_drawModified ( skn->mod.oriobj,
+                                   cam,
+                                   skn->mod.verpos,
+                                   skn->mod.vernor,
+                                   engine_flags );
 
-
-
-                return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
-            }
+            return 0x00;
         }
     }
 
@@ -250,11 +246,10 @@ static void g3dskin_init ( G3DSKIN *skn,
                        G3DSKINTYPE, 
                        id, 
                        name, 
-                       DRAWBEFORECHILDREN  | 
                        OBJECTNOTRANSLATION | 
                        OBJECTNOROTATION    |
                        OBJECTNOSCALING,
-         DRAW_CALLBACK(g3dskin_draw),
+         DRAW_CALLBACK(NULL),
          FREE_CALLBACK(g3dskin_free),
          PICK_CALLBACK(NULL),
          POSE_CALLBACK(NULL),
@@ -267,6 +262,8 @@ static void g3dskin_init ( G3DSKIN *skn,
        MODIFY_CALLBACK(g3dskin_modify) );
 
     ((G3DOBJECT*)skn)->anim = ANIM_CALLBACK(g3dskin_anim);
+
+    mod->moddraw = g3dskin_moddraw;
 }
 
 /******************************************************************************/

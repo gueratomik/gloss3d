@@ -358,7 +358,7 @@ static uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv,
                                            uint64_t engine_flags ) {
     g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
 
-    return 0;
+    return MODIFIERTAKESOVER;
 }
 
 /******************************************************************************/
@@ -398,9 +398,9 @@ static void g3dsplinerevolver_setParent ( G3DSPLINEREVOLVER *srv,
 }
 
 /******************************************************************************/
-static uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv, 
-                                         G3DCAMERA         *cam, 
-                                         uint64_t engine_flags ) {
+static uint32_t g3dsplinerevolver_moddraw ( G3DSPLINEREVOLVER *srv, 
+                                            G3DCAMERA         *cam, 
+                                            uint64_t           engine_flags ) {
     G3DMESH *srvmes = ( G3DMESH * ) srv;
     G3DOBJECT *srvobj = ( G3DOBJECT * ) srv;
     uint32_t i;
@@ -470,7 +470,7 @@ static uint32_t g3dsplinerevolver_draw ( G3DSPLINEREVOLVER *srv,
         }
     }
 
-    return MODIFIERTAKESOVER;
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -490,8 +490,8 @@ G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DSPLINEREVOLVERTYPE, id, name, DRAWBEFORECHILDREN,
-                                                             g3dsplinerevolver_draw,
+    g3dmodifier_init ( mod, G3DSPLINEREVOLVERTYPE, id, name, 0x00,
+                                                             NULL,
                                                              g3dsplinerevolver_free,
                                                              NULL,
                                                              NULL,
@@ -510,6 +510,9 @@ G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name ) {
     ((G3DMESH*)srv)->dump = g3dmesh_default_dump;
 
     ((G3DOBJECT*)srv)->transform = g3dsplinerevolver_transform;
+
+    mod->moddraw = g3dsplinerevolver_moddraw;
+
 
     return srv;
 }

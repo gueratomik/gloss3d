@@ -193,11 +193,6 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
     glPopAttrib ( );
 
-    if ( ( ( obj->flags   & OBJECTSELECTED ) == 0x00 ) ||
-         ( ( obj->flags   & OBJECTSELECTED ) &&
-           ( engine_flags & SELECTMODE     ) == 0x00 ) ) {
-        g3dobject_drawModifiers ( obj, curcam, engine_flags );
-    }
 
     return 0x00;
 }
@@ -217,7 +212,7 @@ void g3dspline_init ( G3DSPLINE *spline,
                       uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spline;
 
-    g3dobject_init ( obj, G3DSPLINETYPE, id, name, DRAWBEFORECHILDREN | type,
+    g3dobject_init ( obj, G3DSPLINETYPE, id, name, type,
                                      DRAW_CALLBACK(g3dspline_draw),
                                      FREE_CALLBACK(g3dspline_free),
                                      PICK_CALLBACK(g3dspline_pick),

@@ -681,7 +681,7 @@ void g3duvmap_transform ( G3DOBJECT *obj,
 void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-    g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, 0x00,
                                                        g3duvmap_draw,
                                                        g3duvmap_free,
                                                        NULL,

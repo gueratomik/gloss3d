@@ -488,7 +488,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
         if ( pt->only_visible ) {
             g3dpick_enableDepthTest  ( );
             g3dpick_setAction ( NULL, NULL );
-            g3dobject_pick ( sce, cam, VIEWOBJECT );
+            g3dobject_pick_r ( sce, cam, VIEWOBJECT );
             g3dpick_setEpsilon ( 0.0001f );
         }
     }
@@ -504,7 +504,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
         }
 
         g3dpick_setAction ( actionSelectObject, &spd );
-        g3dobject_pick ( sce, cam, VIEWOBJECT );
+        g3dobject_pick_r ( sce, cam, VIEWOBJECT );
     } else {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
@@ -574,22 +574,23 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 		        if ( engine_flags & VIEWFACE ) {
         	        g3dpick_setAction ( actionSelectFace, &mpd );
-        	        g3dobject_pick ( sce, cam, VIEWFACE );
+        	        g3dobject_pick_r ( sce, cam, VIEWFACE );
 		        }
 
 		        if ( engine_flags & VIEWEDGE ) {
         	        g3dpick_setAction ( actionSelectEdge, &mpd );
-        	        g3dobject_pick ( sce, cam, VIEWEDGE );
+        	        g3dobject_pick_r ( sce, cam, VIEWEDGE );
 		        }
 
 		        if ( engine_flags & VIEWVERTEX ) {
         	        g3dpick_setAction ( actionSelectVertex, &mpd );
-        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
+printf("%s test %d\n", __func__, ( obj->flags & OBJECTSELECTED ) );
+        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		        }
 
 		        if ( engine_flags & VIEWSKIN ) {
         	        g3dpick_setAction ( actionPaintVertex, &mpd );
-        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		        }
 	        }
 
@@ -606,7 +607,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 		        if ( engine_flags & VIEWVERTEX ) {
         	        g3dpick_setAction ( actionSelectPoint, &spd );
-        	        g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		        }
 	        }
 
@@ -626,7 +627,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 		            if ( engine_flags & VIEWVERTEX ) {
         	            g3dpick_setAction ( actionSelectVertexForPose, &mpd );
-        	            g3dobject_pick ( sce, cam, VIEWVERTEX );
+        	            g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		            }
                 }
 	        }

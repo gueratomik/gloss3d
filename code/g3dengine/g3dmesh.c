@@ -532,19 +532,19 @@ void g3dmesh_modify ( G3DMESH    *mes,
                                                   NULL,
                                                   op,
                                                   engine_flags );
-
-            if ( mes->lastmod ) {
-                if ( mes->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
-                    if ( ( mes->lastmod->mes.obj.type & MESH ) == 0x00 ) {
-                        g3dmesh_updateModified ( mes, 
-                                                 mes->lastmod,
-                                                 engine_flags );
-                    }
-                }
-            }
         }
 
         ltmpchildren = ltmpchildren->next;        
+    }
+
+    if ( mes->lastmod ) {
+        if ( mes->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
+            if ( ( mes->lastmod->mes.obj.type & MESH ) == 0x00 ) {
+                g3dmesh_updateModified ( mes, 
+                                         mes->lastmod,
+                                         engine_flags );
+            }
+        }
     }
 }
 
@@ -3275,7 +3275,6 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
                         G3DCAMERA *curcam, 
                         uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    uint32_t takenOver = 0x00;
 
     if ( obj->flags & OBJECTSELECTED ) {
         if ( engine_flags & VIEWOBJECT   ) g3dmesh_pickObject   ( mes, engine_flags );
@@ -3299,14 +3298,6 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
     G3DMESH *mes = ( G3DMESH * ) obj;
     uint32_t takenOver = 0x00;
 
-    /*if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {*/
-        takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
-    /*}*/
-
-    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
-        glDisable ( GL_DEPTH_TEST );
-    }
-
     glEnable   ( GL_COLOR_MATERIAL );
     glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
 
@@ -3325,7 +3316,10 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
         engine_flags |= NODISPLACEMENT;
     }
 
-    if ( takenOver & MODIFIERTAKESOVER ) {
+    /*** this means a modifier has taken over ***/
+    if ( mes->lastmod ) {
+        g3dmodifier_moddraw ( mes->lastmod, curcam, engine_flags );
+
         if ( obj->flags & OBJECTSELECTED ) {
             if ( engine_flags & VIEWVERTEXUV ) {
                 g3dmesh_drawVertexUVs ( mes, engine_flags );
@@ -3452,10 +3446,6 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 
     if ( viewSkin ) {
         glPopAttrib ( );
-    }
-
-    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
-        glEnable ( GL_DEPTH_TEST ); 
     }
 
     return 0x00;
@@ -4302,7 +4292,7 @@ void g3dmesh_init ( G3DMESH *mes,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     /*G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );*/
 
-    g3dobject_init ( obj, G3DMESHTYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DMESHTYPE, id, name, 0x00,
                                    DRAW_CALLBACK(g3dmesh_draw),
                                    FREE_CALLBACK(g3dmesh_free),
                                    PICK_CALLBACK(g3dmesh_pick),

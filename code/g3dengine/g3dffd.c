@@ -391,110 +391,108 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
 }
 
 /******************************************************************************/
-static void g3dffd_drawCage ( G3DFFD    *ffd,
+static uint32_t g3dffd_draw ( G3DFFD    *ffd,
                               G3DCAMERA *cam, 
                               uint64_t   engine_flags ) {
-    if ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) {
-        uint32_t i, j, k;
-        uint32_t n = 0x00;
-        uint32_t nbpnt = ( ffd->nbx + 0x01 ) *
-                         ( ffd->nby + 0x01 ) *
-                         ( ffd->nbz + 0x01 );
+    G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 
-        glPushAttrib ( GL_ALL_ATTRIB_BITS );
-        glDisable ( GL_LIGHTING );
+    if ( obj->flags & OBJECTSELECTED ) {
+        if ( engine_flags & VIEWVERTEX ) {
+            if ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) {
+                uint32_t i, j, k;
+                uint32_t n = 0x00;
+                uint32_t nbpnt = ( ffd->nbx + 0x01 ) *
+                                 ( ffd->nby + 0x01 ) *
+                                 ( ffd->nbz + 0x01 );
 
-        glPointSize ( 3.0f );
+                glPushAttrib ( GL_ALL_ATTRIB_BITS );
+                glDisable ( GL_LIGHTING );
 
-        for ( i = 0x00; i <= ffd->nbx; i++ ) {
-            for ( j = 0x00; j <= ffd->nby; j++ ) {
-                for ( k = 0x00; k <= ffd->nbz; k++ ) {
-                    G3DVERTEX *pnt = &ffd->pnt[n++];
+                glPointSize ( 3.0f );
 
-                    if ( pnt->flags & VERTEXSELECTED ) {
-                        glColor3ub ( 0xFF, 0x00, 0x00 );
-                    } else {
-                        glColor3ub ( 0x00, 0x00, 0x00 );
+                for ( i = 0x00; i <= ffd->nbx; i++ ) {
+                    for ( j = 0x00; j <= ffd->nby; j++ ) {
+                        for ( k = 0x00; k <= ffd->nbz; k++ ) {
+                            G3DVERTEX *pnt = &ffd->pnt[n++];
+
+                            if ( pnt->flags & VERTEXSELECTED ) {
+                                glColor3ub ( 0xFF, 0x00, 0x00 );
+                            } else {
+                                glColor3ub ( 0x00, 0x00, 0x00 );
+                            }
+
+                            glBegin ( GL_POINTS );
+                            glVertex3fv ( ( const GLfloat * ) &pnt->pos );
+                            glEnd ( );
+                        }
+                    }
+                }
+
+                if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+                    uint32_t nbx = ffd->nbx + 0x01;
+                    uint32_t nby = ffd->nby + 0x01;
+                    uint32_t nbz = ffd->nbz + 0x01;
+                    uint32_t n = 0x00;
+
+                    glColor3ub ( 0xFF, 0x7F, 0x00 );
+                    glBegin ( GL_LINES );
+
+                    for ( n = 0x00; n < nbpnt; n++ ) {
+                        G3DVERTEX *pnt0 = &ffd->pnt[n];
+                        uint32_t   nxtz = ( n + 0x01 );
+                        uint32_t   nxty = ( n + nbz  );
+                        uint32_t   nxtx = ( n + ( nby * nbz ) );
+                        G3DVERTEX *pntz = NULL;
+                        G3DVERTEX *pnty = NULL;
+                        G3DVERTEX *pntx = NULL;
+
+                        if ( ( nxtz < nbpnt ) && ( nxtz % nbz ) ) {
+                            pntz = &ffd->pnt[nxtz];
+
+                            glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                            glVertex3fv ( ( const GLfloat * ) &pntz->pos );
+                        }
+
+                        if ( ( nxty < nbpnt ) && ( ( nxty % ( nbz * nby ) ) >= nbz ) ) {
+                            pnty = &ffd->pnt[nxty];
+
+                            glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                            glVertex3fv ( ( const GLfloat * ) &pnty->pos );
+                        }
+
+                        if ( nxtx < nbpnt ) {
+                            pntx = &ffd->pnt[nxtx];
+
+                            glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
+                            glVertex3fv ( ( const GLfloat * ) &pntx->pos );
+                        }
                     }
 
-                    glBegin ( GL_POINTS );
-                    glVertex3fv ( ( const GLfloat * ) &pnt->pos );
                     glEnd ( );
                 }
+
+                glPopAttrib ( );
             }
         }
-
-        if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
-            uint32_t nbx = ffd->nbx + 0x01;
-            uint32_t nby = ffd->nby + 0x01;
-            uint32_t nbz = ffd->nbz + 0x01;
-            uint32_t n = 0x00;
-
-            glColor3ub ( 0xFF, 0x7F, 0x00 );
-            glBegin ( GL_LINES );
-
-            for ( n = 0x00; n < nbpnt; n++ ) {
-                G3DVERTEX *pnt0 = &ffd->pnt[n];
-                uint32_t   nxtz = ( n + 0x01 );
-                uint32_t   nxty = ( n + nbz  );
-                uint32_t   nxtx = ( n + ( nby * nbz ) );
-                G3DVERTEX *pntz = NULL;
-                G3DVERTEX *pnty = NULL;
-                G3DVERTEX *pntx = NULL;
-
-                if ( ( nxtz < nbpnt ) && ( nxtz % nbz ) ) {
-                    pntz = &ffd->pnt[nxtz];
-
-                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                    glVertex3fv ( ( const GLfloat * ) &pntz->pos );
-                }
-
-                if ( ( nxty < nbpnt ) && ( ( nxty % ( nbz * nby ) ) >= nbz ) ) {
-                    pnty = &ffd->pnt[nxty];
-
-                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                    glVertex3fv ( ( const GLfloat * ) &pnty->pos );
-                }
-
-                if ( nxtx < nbpnt ) {
-                    pntx = &ffd->pnt[nxtx];
-
-                    glVertex3fv ( ( const GLfloat * ) &pnt0->pos );
-                    glVertex3fv ( ( const GLfloat * ) &pntx->pos );
-                }
-            }
-
-            glEnd ( );
-        }
-
-        glPopAttrib ( );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-uint32_t g3dffd_draw ( G3DOBJECT *obj,
-                       G3DCAMERA *cam, 
-                       uint64_t   engine_flags ) {
+static uint32_t g3dffd_moddraw ( G3DOBJECT *obj,
+                                 G3DCAMERA *cam, 
+                                 uint64_t   engine_flags ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
 
-    /** Draw FFD if selected even if it's not the last modifier ***/
-    if ( ( engine_flags & MODIFIERTOOKOVER ) && g3dobject_isSelected ( obj )  ) {
-        g3dffd_drawCage ( obj, cam, engine_flags );
-    }
+    if ( g3dobject_isActive ( obj ) ) {
+        g3dmesh_drawModified ( ffd->mod.oriobj,
+                               cam,
+                               ffd->mod.verpos,
+                               ffd->mod.vernor,
+                               engine_flags );
 
-    /*** draw FFD if it's the last modifier anyways ***/
-    if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
-        g3dffd_drawCage ( obj, cam, engine_flags );
-
-        if ( g3dobject_isActive ( obj ) ) {
-            g3dmesh_drawModified ( ffd->mod.oriobj,
-                                   cam,
-                                   ffd->mod.verpos,
-                                   ffd->mod.vernor,
-                                   engine_flags );
-
-            return MODIFIERTAKESOVER;
-        }
+        return 0x00;
     }
 
     return 0x00;
@@ -527,9 +525,8 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, DRAWBEFORECHILDREN  | 
-                                                  OBJECTNOROTATION    |
-                                                  OBJECTNOSCALING     | 
+    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, OBJECTNOROTATION |
+                                                  OBJECTNOSCALING  | 
                                                   MODIFIERNEEDSNORMALUPDATE,
                                     DRAW_CALLBACK(g3dffd_draw),
                                     FREE_CALLBACK(g3dffd_free),
@@ -546,6 +543,8 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
     ((G3DMESH*)mod)->onGeometryMove = g3dffd_onGeometryMove;
 
     /*obj->flags |= OBJECTNOSYMMETRY;*/
+
+    mod->moddraw = g3dffd_moddraw;
 
     return ffd;
 }

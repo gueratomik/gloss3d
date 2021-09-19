@@ -483,8 +483,8 @@ void common_g3dui_saveG3DFile ( G3DUI *gui ) {
                                       gui->lrsg );
 
     g3duiext = g3dexportv3extension_new ( SIG_G3DUI,
-                                        g3dui_write,
-                                        gui );
+                                          g3dui_write,
+                                          gui );
 
     list_insert ( &lext, r3dext   );
     list_insert ( &lext, g3duiext );

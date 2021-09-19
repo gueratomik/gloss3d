@@ -1225,21 +1225,15 @@ static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr,
         if ( engine_flags & VIEWVERTEX   ) {
             g3dmorpher_pickVertices ( mpr, engine_flags );
         }
-
-        if ( engine_flags & VIEWOBJECT ) {
-            g3dmorpher_pickObject ( mpr, engine_flags );
-        }
-
-        return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr, 
-                                  G3DCAMERA  *cam,
-                                  uint64_t    engine_flags ) {
+static uint32_t g3dmorpher_moddraw ( G3DMORPHER *mpr, 
+                                     G3DCAMERA  *cam,
+                                     uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
 
     if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
@@ -1360,7 +1354,7 @@ static uint32_t g3dmorpher_draw ( G3DMORPHER *mpr,
                                            engine_flags );
                 }
 
-                return MODIFIERTAKESOVER | MODIFIERCHANGESCOORDS;
+                return 0x00;
             }
         }
     }
@@ -1379,11 +1373,10 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
                        G3DMORPHERTYPE, 
                        id, 
                        name, 
-                       DRAWBEFORECHILDREN  | 
                        OBJECTNOTRANSLATION | 
                        OBJECTNOROTATION    |
                        OBJECTNOSCALING,
-         DRAW_CALLBACK(g3dmorpher_draw),
+         DRAW_CALLBACK(NULL),
          FREE_CALLBACK(g3dmorpher_free),
          PICK_CALLBACK(g3dmorpher_pick),
          POSE_CALLBACK(g3dmorpher_pose),
@@ -1400,6 +1393,8 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
     /*** we need an extension name to be able to install an extension to ***/
     /*** the desired vertices ***/
     mpr->extensionName = g3dsysinfo_requestExtensionName ( );
+
+    mod->moddraw = g3dmorpher_moddraw;
 }
 
 /******************************************************************************/

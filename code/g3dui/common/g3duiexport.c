@@ -260,18 +260,104 @@ static uint32_t g3duiviews ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3duiobject_id ( G3DEXPORTV3DATA *ged,
+                                 G3DOBJECT       *obj,
+                                 uint32_t         flags, 
+                                 FILE            *fdst ) {
+    uint32_t id = obj->id;
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &id, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiobject_collapsed ( G3DEXPORTV3DATA *ged,
+                                        G3DOBJECT       *obj,
+                                        uint32_t         flags, 
+                                        FILE            *fdst ) {
+    uint32_t collpased = ( obj->flags & OBJECTCOLLAPSED ) ? 0x01 : 0x00;
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &collpased, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiobject_entry ( G3DEXPORTV3DATA *ged,
+                                    G3DOBJECT       *obj,
+                                    uint32_t         flags, 
+                                    FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_G3DUI_OBJECT_ID,
+                                     g3duiobject_id,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_G3DUI_OBJECT_COLLAPSED,
+                                     g3duiobject_collapsed,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3duiobjects ( G3DEXPORTV3DATA *ged, 
+                               G3DUI           *gui, 
+                               uint32_t         flags, 
+                               FILE            *fdst ) {
+    LIST *lobj = NULL, *ltmpobj; 
+    uint32_t size = 0x00;
+
+    /*** flatten the object tree ***/
+    g3dobject_treeToList_r ( ged->currentScene, &lobj );
+
+    ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        size += g3dexportv3_writeChunk ( SIG_G3DUI_OBJECT_ENTRY,
+                                         g3duiobject_entry,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 uint32_t g3dui_write ( G3DEXPORTV3DATA *ged, 
                        G3DUI         *gui, 
                        uint32_t       flags, 
                        FILE          *fdst ) {
     uint32_t size = 0x00;
 
+    size += g3dexportv3_writeChunk ( SIG_G3DUI_OBJECTS,
+                                     g3duiobjects,
+                                     ged,
+                                     gui,
+                                     0xFFFFFFFF,
+                                     fdst );
+
     size += g3dexportv3_writeChunk ( SIG_G3DUI_VIEWS,
-                                   g3duiviews,
-                                   ged,
-                                   gui,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3duiviews,
+                                     ged,
+                                     gui,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -290,6 +376,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
     uint32_t showBones;
     uint32_t showGrid;
     G3DUIVIEW *view;
+    G3DOBJECT *obj;
 
     g3dimportv3_fread ( &chunkSignature, sizeof ( uint32_t ), 0x01, fsrc );
     g3dimportv3_fread ( &chunkSize     , sizeof ( uint32_t ), 0x01, fsrc );
@@ -298,6 +385,29 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_G3DUI_OBJECTS :
+            break;
+
+            case SIG_G3DUI_OBJECT_ENTRY :
+            break;
+
+            case SIG_G3DUI_OBJECT_ID : {
+
+                uint32_t objID;
+
+                g3dimportv3_freadl ( &objID, fsrc );
+
+                obj = g3dobject_getChildByID ( gid->currentScene, objID );
+            } break;
+
+            case SIG_G3DUI_OBJECT_COLLAPSED : {
+                uint32_t collapsed;
+
+                g3dimportv3_freadl ( &collapsed, fsrc );
+
+                if ( collapsed ) obj->flags |= ( OBJECTCOLLAPSED );
+            } break;
+
             case SIG_G3DUI_VIEWS :
             break;
 
@@ -365,7 +475,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
 
             case SIG_G3DUI_VIEW_CAMERA_POSITION :
                 if ( view ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) view->defcam;
 
                     g3dimportv3_freadf ( &obj->pos.x, fsrc );
                     g3dimportv3_freadf ( &obj->pos.y, fsrc );
@@ -377,7 +487,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
 
             case SIG_G3DUI_VIEW_CAMERA_ROTATION :
                 if ( view ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) view->defcam;
 
                     g3dimportv3_freadf ( &obj->rot.x, fsrc );
                     g3dimportv3_freadf ( &obj->rot.y, fsrc );
@@ -389,7 +499,7 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
 
             case SIG_G3DUI_VIEW_CAMERA_SCALING :
                 if ( view ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) view->defcam;
 
                     g3dimportv3_freadf ( &obj->sca.x, fsrc );
                     g3dimportv3_freadf ( &obj->sca.y, fsrc );
@@ -408,7 +518,6 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
             case SIG_G3DUI_VIEW_USECAMERA : {
                 if ( view ) {
                     uint32_t camID;
-                    G3DOBJECT *obj;
 
                     g3dimportv3_freadl ( &camID, fsrc );
 

@@ -501,8 +501,7 @@ G3DBONE *g3dbone_new ( uint32_t id,
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DBONETYPE, id, name, DRAWBEFORECHILDREN | 
-                                                 OBJECTINACTIVE,
+    g3dobject_init ( obj, G3DBONETYPE, id, name, OBJECTINACTIVE,
                                                  g3dbone_draw,
                                                  g3dbone_free,
                                    PICK_CALLBACK(g3dbone_pick),

@@ -561,9 +561,9 @@ static void g3dwireframe_deactivate ( G3DWIREFRAME *wir,
 }
 
 /******************************************************************************/
-static uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir, 
-                                    G3DCAMERA    *cam, 
-                                    uint64_t      engine_flags ) {
+static uint32_t g3dwireframe_moddraw ( G3DWIREFRAME *wir, 
+                                       G3DCAMERA    *cam, 
+                                       uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     uint32_t forbidden_modes = 0x00;
 
@@ -585,8 +585,7 @@ static uint32_t g3dwireframe_draw ( G3DWIREFRAME *wir,
         if ( viewSkin ) obj->flags &= (~OBJECTSELECTED);
     }
 
-
-    return MODIFIERTAKESOVER | MODIFIERNEEDSTRANSPARENCY;
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -607,12 +606,11 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, DRAWBEFORECHILDREN  | 
-                                                        OBJECTNOTRANSLATION | 
-                                                        OBJECTNOROTATION    |
-                                                        OBJECTNOSCALING     |
+    g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, OBJECTNOTRANSLATION     | 
+                                                        OBJECTNOROTATION        |
+                                                        OBJECTNOSCALING         |
                                                         TRIANGULAR,
-                                                        g3dwireframe_draw,
+                                                        NULL,
                                                         g3dwireframe_free,
                                                         NULL,
                                                         NULL,
@@ -627,6 +625,8 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
     wir->thickness = 0.05f;
 
     ((G3DMESH*)wir)->dump = g3dmesh_default_dump;
+
+    mod->moddraw = g3dwireframe_moddraw;
 
     return wir;
 }

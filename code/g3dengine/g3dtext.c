@@ -1025,7 +1025,7 @@ void g3dtext_init ( G3DTEXT *txt,
     /*** and remove the call to g3dobject_init ***/
     g3dmesh_init ( txt, id, name, engine_flags );
 
-    g3dobject_init ( obj, G3DTEXTTYPE, id, name, DRAWBEFORECHILDREN,
+    g3dobject_init ( obj, G3DTEXTTYPE, id, name, 0x00,
                                      DRAW_CALLBACK(g3dmesh_draw),
                                      FREE_CALLBACK(g3dtext_free),
                                      PICK_CALLBACK(g3dmesh_pick),

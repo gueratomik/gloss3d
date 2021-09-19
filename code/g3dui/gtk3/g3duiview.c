@@ -1045,7 +1045,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
 
     gtk_widget_show ( area );
 
-    createOptionMenu       ( gvw, &gvw->view, OPTIONMENUNAME , 0, 0,  60, BUTTONSIZE );
+    createOptionMenu       ( gvw, gvw, OPTIONMENUNAME , 0, 0,  60, BUTTONSIZE );
     createShadingSelection ( gvw, gui, SHADINGMENUNAME, 96,  0, 112, BUTTONSIZE );
 
     gtk_widget_show ( gvw );

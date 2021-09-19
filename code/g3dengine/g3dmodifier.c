@@ -29,6 +29,32 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/*****************************************************************************/
+uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
+                               G3DCAMERA   *curcam, 
+                               uint64_t     engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
+
+    /*** default color for all objects ***/
+    glColor3ub ( 0xFF, 0xFF, 0xFF );
+
+    glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );
+
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    else                               glFrontFace(  GL_CCW );
+
+    if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine_flags );
+
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    else                               glFrontFace(  GL_CW  );
+
+    glPopMatrix ( );
+
+
+    return 0x00;
+}
+
 /******************************************************************************/
 uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
                                     void (*Alloc)( uint32_t, /*nbver */
@@ -148,45 +174,6 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
     }
 
     return lastmod;
-}
-
-
-/******************************************************************************/
-uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
-                            G3DCAMERA   *cam, 
-                            uint64_t     engine_flags ) {
-    G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
-    uint32_t takenOver = g3dobject_pickModifiers ( obj, cam, engine_flags );
-
-    if ( ( ( obj->type == G3DFFDTYPE ) && ( obj->flags & OBJECTSELECTED ) ) ||
-         ( ( takenOver & MODIFIERTAKESOVER ) == 0x00 ) ) {
-        if ( obj->pick ) {
-            takenOver |= obj->pick ( obj, cam, engine_flags );
-        }
-    }
-
-    return takenOver;
-}
-
-/******************************************************************************/
-uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
-                            G3DCAMERA   *cam, 
-                            uint64_t     engine_flags ) {
-    G3DOBJECT *obj  = ( G3DOBJECT * ) mod;
-    uint32_t ret = g3dobject_drawModifiers ( obj, cam, engine_flags );
-
-    if ( obj->draw ) {
-        if ( ret & MODIFIERTAKESOVER ) {
-            /*** signal if the drawing part has already been taken over ***/
-            obj->draw ( obj,
-                        cam, 
-                        engine_flags | MODIFIERTOOKOVER );
-        } else {
-            ret |= obj->draw ( obj, cam, engine_flags );
-        }
-    }
-
-    return ret;
 }
 
 /******************************************************************************/

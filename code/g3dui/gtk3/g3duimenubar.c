@@ -108,6 +108,8 @@ static void parseMenu_r ( G3DUIMENU *node,
         case G3DUIMENUTYPE_TOGGLEBUTTON :
             node->item = gtk_check_menu_item_new_with_mnemonic ( node->name );
 
+            gtk_widget_set_name ( node->item, node->name );
+
             if ( node->callback ) {
                 g_signal_connect ( G_OBJECT ( node->item ), 
                                    "toggled", 
@@ -118,6 +120,8 @@ static void parseMenu_r ( G3DUIMENU *node,
 
         case G3DUIMENUTYPE_PUSHBUTTON :
             node->item = gtk_menu_item_new_with_mnemonic ( node->name );
+
+            gtk_widget_set_name ( node->item, node->name );
 
             if ( node->callback ) {
                 g_signal_connect ( G_OBJECT ( node->item ), 
@@ -132,6 +136,8 @@ static void parseMenu_r ( G3DUIMENU *node,
 
             node->menu = gtk_menu_bar_new ( );
 
+            gtk_widget_set_name ( node->menu, node->name );
+
             while ( node->nodes[i] != NULL ) {
                 parseMenu_r ( node->nodes[i], node, gui );
 
@@ -145,6 +151,9 @@ static void parseMenu_r ( G3DUIMENU *node,
             uint32_t i = 0x00;
 
             node->menu = gtk_menu_new ( );
+
+            gtk_widget_set_name ( node->menu, node->name );
+
             node->item = gtk_menu_item_new_with_mnemonic ( node->name );
 
             gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( node->item ), node->menu );
@@ -228,7 +237,8 @@ static void updateMenu_r ( G3DUIMENU *node,
 
 /******************************************************************************/
 void g3duiview_useDefaultCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -238,11 +248,14 @@ void g3duiview_useDefaultCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     view->cam = view->defcam;
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_useSelectedCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DSCENE  *sce = gui->sce;
@@ -258,11 +271,14 @@ void g3duiview_useSelectedCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -276,11 +292,14 @@ void g3duiview_toggleNormalsCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -294,11 +313,14 @@ void g3duiview_toggleBonesCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -320,11 +342,14 @@ void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -338,11 +363,14 @@ void g3duiview_toggleGridCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -356,12 +384,15 @@ void g3duiview_toggleTexturesCbk ( GtkWidget *widget, gpointer user_data ) {
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget, 
                                           gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
 
@@ -375,11 +406,14 @@ void g3duiview_toggleBackgroundImageCbk ( GtkWidget *widget,
     }
 
     gtk_widget_queue_draw ( ggt->curogl );
+
+    gtk_view_updateMenu ( gvw );
 }
 
 /******************************************************************************/
 void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIVIEW *view = ( G3DUI     * ) user_data;
+    GtkView *gvw = ( GtkView * ) user_data;
+    G3DUIVIEW *view = &gvw->view;
     G3DUI *gui = view->gui;
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     G3DOBJECT *objcam = ( G3DOBJECT * ) view->cam;
@@ -398,42 +432,42 @@ void g3duiview_resetCameraCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static G3DUIMENU view_menu_defcam   = { VIEWMENU_DEFAULTCAMERA,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_useDefaultCameraCbk };
 
 static G3DUIMENU view_menu_selcam   = { VIEWMENU_SELECTEDCAMERA,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_useSelectedCameraCbk };
 
 static G3DUIMENU view_menu_normals  = { VIEWMENU_NORMALS,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleNormalsCbk };
 
 static G3DUIMENU view_menu_bones    = { VIEWMENU_BONES,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleBonesCbk };
 
 static G3DUIMENU view_menu_grid     = { VIEWMENU_GRID,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleGridCbk };
 
 static G3DUIMENU view_menu_textures = { VIEWMENU_TEXTURES,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleTexturesCbk };
 
 static G3DUIMENU view_menu_bg       = { VIEWMENU_BACKGROUND,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleBackgroundImageCbk };
 
 static G3DUIMENU view_menu_lighting = { VIEWMENU_LIGHTING,
-                                        G3DUIMENUTYPE_PUSHBUTTON,
+                                        G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         g3duiview_toggleLightingCbk };
 
@@ -460,7 +494,7 @@ static G3DUIMENU view_menu = { "_Options",
 
 /******************************************************************************/
 /******************************************************************************/
-static G3DUIMENU viewrootnode = { "Bar",
+static G3DUIMENU viewrootnode = { OPTIONMENUNAME,
                                   G3DUIMENUTYPE_MENUBAR,
                                   NULL,
                                   NULL,
@@ -470,7 +504,7 @@ static G3DUIMENU viewrootnode = { "Bar",
 /******************************************************************************/
 /******************************************************************************/
 GtkWidget *createOptionMenu ( GtkWidget *parent,
-                              G3DUIVIEW *view,
+                              GtkWidget *gvw,
                               char      *name,
                               gint       x,
                               gint       y,
@@ -478,7 +512,7 @@ GtkWidget *createOptionMenu ( GtkWidget *parent,
                               gint       height ) {
     GdkRectangle gdkrec = { x, y, width, height };
 
-    parseMenu_r ( &viewrootnode, NULL, view );
+    parseMenu_r ( &viewrootnode, NULL, gvw );
 
     gtk_widget_size_allocate ( viewrootnode.menu, &gdkrec );
     gtk_fixed_put ( GTK_FIXED(parent), viewrootnode.menu, x, y );

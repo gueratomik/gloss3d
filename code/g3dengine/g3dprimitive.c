@@ -107,28 +107,7 @@ static uint32_t g3dprimitive_pick ( G3DOBJECT *obj,
 uint32_t g3dprimitive_draw ( G3DOBJECT *obj, 
                              G3DCAMERA *curcam, 
                              uint64_t   engine_flags ) {
-    uint32_t takenOver = 0x00;
-
-    if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
-        takenOver = g3dobject_drawModifiers ( obj, curcam, engine_flags );
-    }
-
-    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
-        glDisable ( GL_DEPTH_TEST );
-    }
-
-    glEnable   ( GL_COLOR_MATERIAL );
-    glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
-
-    if ( takenOver & MODIFIERTAKESOVER ) {
-        /*** ***/
-    } else {
-        g3dmesh_drawObject ( ( G3DMESH * ) obj, curcam, engine_flags );
-    }
-
-    if ( takenOver & MODIFIERNEEDSTRANSPARENCY ) {
-        glEnable ( GL_DEPTH_TEST ); 
-    }
+    g3dmesh_draw ( ( G3DMESH * ) obj, curcam, engine_flags & (~MODEMASK) | VIEWOBJECT );
 
     return 0x00;
 }
@@ -153,7 +132,7 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri,
     pri->data    = data;
     pri->datalen = datalen;
 
-    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, DRAWBEFORECHILDREN ,
+    g3dobject_init ( obj, G3DPRIMITIVETYPE, id, name, 0x00,
                                         DRAW_CALLBACK(g3dprimitive_draw),
                                         FREE_CALLBACK(g3dprimitive_free),
                                         PICK_CALLBACK(g3dprimitive_pick),
