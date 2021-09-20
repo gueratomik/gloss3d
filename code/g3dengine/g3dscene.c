@@ -78,8 +78,8 @@ void g3dscene_turnLightsOn ( G3DSCENE *sce ) {
         while ( ltmplig ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) ltmplig->data;
 
-            if ( ((G3DOBJECT*)lig)->flags & LIGHTON ) {
-                glEnable  ( lig->lid );
+            if ( ( ((G3DOBJECT*)lig)->flags & OBJECTINACTIVE ) == 0x00 ) {
+                g3dlight_turnOn ( lig );
             }
 
             ltmplig = ltmplig->next;
@@ -104,8 +104,8 @@ void g3dscene_turnLightsOff ( G3DSCENE *sce ) {
         while ( ltmplig ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) ltmplig->data;
 
-            if ( ((G3DOBJECT*)lig)->flags & LIGHTON ) {
-                glDisable  ( lig->lid );
+            if ( ((G3DOBJECT*)lig)->flags & OBJECTINACTIVE ) {
+                g3dlight_turnOff ( lig );
             }
 
             ltmplig = ltmplig->next;
@@ -765,6 +765,17 @@ static void g3dscene_anim ( G3DSCENE *sce,
 }
 
 /******************************************************************************/
+void g3dscene_activate ( G3DSCENE *sce, uint64_t engine_flags ) {
+
+}
+
+/******************************************************************************/
+void g3dscene_deactivate ( G3DSCENE *sce, uint64_t engine_flags ) {
+    /*** prevent deactivation ***/
+    ((G3DOBJECT*)sce)->flags &= (~OBJECTINACTIVE);
+}
+
+/******************************************************************************/
 G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     G3DSCENE *sce = ( G3DSCENE * ) calloc ( 0x01, sizeof ( G3DSCENE ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
@@ -776,13 +787,13 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     }
 
     g3dobject_init ( obj, G3DSCENETYPE, id, name, 0x00,
-                                                  g3dscene_draw,
+                                                  NULL,
                                                   g3dscene_free,
                                                   NULL,
                                                   NULL,
                                                   NULL,
-                                                  NULL,
-                                                  NULL,
+                                ACTIVATE_CALLBACK(g3dscene_activate),
+                              DEACTIVATE_CALLBACK(g3dscene_deactivate),
                                                   NULL,
                                                   NULL,
                                                   NULL );

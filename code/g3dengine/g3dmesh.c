@@ -3299,6 +3299,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
     uint32_t takenOver = 0x00;
 
     glEnable   ( GL_COLOR_MATERIAL );
+
     glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
 
     /*** VIEWSKIN mode applied only to selected objects ***/

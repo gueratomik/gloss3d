@@ -386,7 +386,7 @@ void g3dlight_setSpot ( G3DLIGHT *lig,
 void g3dlight_activate ( G3DLIGHT *lig, uint64_t engine_flags ) {
     if ( ( engine_flags & NOLIGHTING ) == 0x00 ) {
         g3dlight_turnOn ( lig );
-    };
+    }
 }
 
 /******************************************************************************/
@@ -531,8 +531,6 @@ void g3dlight_init ( G3DLIGHT *lig,
     g3drgba_init ( &lig->diffuseColor , 0xFF, 0xFF, 0xFF, 0xFF );
     g3drgba_init ( &lig->specularColor, 0xFF, 0xFF, 0xFF, 0xFF );
     g3drgba_init ( &lig->ambientColor , 0x00, 0x00, 0x00, 0xFF );
-
-    obj->flags |= LIGHTON;
 }
 
 /******************************************************************************/

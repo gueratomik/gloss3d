@@ -370,10 +370,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MESHGEOMETRYINARRAYS  (  1 << 22 ) /* use arrays instead of lists */
 
 /*** Light flags ***/
-#define LIGHTON               (  1 << 17 )
-#define LIGHTCASTSHADOWS      (  1 << 18 )
-#define SPOTLIGHT             (  1 << 19 )
-#define KEYLIGHT              (  1 << 20 )
+#define LIGHTCASTSHADOWS      (  1 << 17 )
+#define SPOTLIGHT             (  1 << 18 )
+#define KEYLIGHT              (  1 << 19 )
 
 /*** UVMap flags ***/
 #define UVMAPFIXED            (  1 << 17 )

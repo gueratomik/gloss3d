@@ -316,71 +316,77 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
     static Q3DSCENE *qsce;
     Q3DOBJECT *qobj;
 
-    switch ( obj->type ) {
-        case G3DSPHERETYPE   :
-        case G3DCUBETYPE     :
-        case G3DPLANETYPE    :
-        case G3DTORUSTYPE    :
-        case G3DCYLINDERTYPE :
-        case G3DTUBETYPE     :
-        case G3DSPLINEREVOLVERTYPE :
-        case G3DMESHTYPE     : {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            Q3DMESH *qmes = q3dmesh_new ( mes, 
-                                          qsce->qobjID++,
-                                          0x00,
-                                          importFlags,
-                                          frame,
-                                          0x40  );
+    if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
+        switch ( obj->type ) {
+            case G3DSPHERETYPE   :
+            case G3DCUBETYPE     :
+            case G3DPLANETYPE    :
+            case G3DTORUSTYPE    :
+            case G3DCYLINDERTYPE :
+            case G3DTUBETYPE     :
+            case G3DSPLINEREVOLVERTYPE :
+            case G3DMESHTYPE     : {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                Q3DMESH *qmes = q3dmesh_new ( mes, 
+                                              qsce->qobjID++,
+                                              0x00,
+                                              importFlags,
+                                              frame,
+                                              0x40  );
 
-            qobj = ( Q3DOBJECT * ) qmes;
-        } break;
+                qobj = ( Q3DOBJECT * ) qmes;
+            } break;
 
-        case G3DSYMMETRYTYPE : {
-            G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-            Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym, 
-                                                  qsce->qobjID++,
-                                                  0x00 );
+            case G3DSYMMETRYTYPE : {
+                G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
+                Q3DSYMMETRY *qsym = q3dsymmetry_new ( sym, 
+                                                      qsce->qobjID++,
+                                                      0x00 );
 
-            qobj = ( Q3DOBJECT * ) qsym;
-        } break;
+                qobj = ( Q3DOBJECT * ) qsym;
+            } break;
 
-        case G3DINSTANCETYPE : {
-            G3DINSTANCE *ins = ( G3DINSTANCE * ) obj;
-            Q3DSYMMETRY *qins = q3dinstance_new ( ins, 
-                                                  qsce->qobjID++,
-                                                  0x00 );
+            case G3DINSTANCETYPE : {
+                G3DINSTANCE *ins = ( G3DINSTANCE * ) obj;
+                Q3DSYMMETRY *qins = q3dinstance_new ( ins, 
+                                                      qsce->qobjID++,
+                                                      0x00 );
 
-            qobj = ( Q3DOBJECT * ) qins;
-        } break;
+                qobj = ( Q3DOBJECT * ) qins;
+            } break;
 
-        case G3DSCENETYPE : {
-            G3DSCENE *sce = ( G3DSCENE * ) obj;
-            qsce = q3dscene_new ( sce, 0x00, 0x00 );
+            case G3DSCENETYPE : {
+                G3DSCENE *sce = ( G3DSCENE * ) obj;
+                qsce = q3dscene_new ( sce, 0x00, 0x00 );
 
-            qsce->qobjID++;
+                qsce->qobjID++;
 
-            qobj = ( Q3DOBJECT * ) qsce;
-        } break;
+                qobj = ( Q3DOBJECT * ) qsce;
+            } break;
 
-        case G3DLIGHTTYPE : {
-            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
-            Q3DLIGHT *qlig = q3dlight_new ( lig, 
-                                            qsce->qobjID++, 
-                                            0x00 );
+            case G3DLIGHTTYPE : {
+                G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+                Q3DLIGHT *qlig = q3dlight_new ( lig, 
+                                                qsce->qobjID++, 
+                                                0x00 );
 
-            /*** qsce is a static variable, so this recursive function ***/
-            /*** expects to have gone through a SCENE first ***/
-            q3dscene_addLight ( qsce, qlig );
+                /*** qsce is a static variable, so this recursive function ***/
+                /*** expects to have gone through a SCENE first ***/
+                q3dscene_addLight ( qsce, qlig );
 
-            qobj = ( Q3DOBJECT * ) qlig;
-        } break;
+                qobj = ( Q3DOBJECT * ) qlig;
+            } break;
 
-        default : {
-            qobj = q3dobject_new ( obj, 
-                                   qsce->qobjID++, 
-                                   0x00 );
-        } break;
+            default : {
+                qobj = q3dobject_new ( obj, 
+                                       qsce->qobjID++, 
+                                       0x00 );
+            } break;
+        }
+    } else {
+        qobj = q3dobject_new ( obj, 
+                               qsce->qobjID++, 
+                               0x00 );
     }
 
     while ( ltmpchildren ) {

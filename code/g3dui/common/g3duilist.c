@@ -88,6 +88,9 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
         } else {
             g3dobject_deactivate ( obj, engine_flags );
         }
+
+        /** all lights could be deactivated. Then turn the default light on **/
+        g3dscene_checkLights ( sce );
     }
 
     if ( pob->picked == VISIBLERECTHIT ) {
