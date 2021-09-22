@@ -491,6 +491,15 @@ static uint32_t g3dffd_draw ( G3DFFD    *ffd,
 }
 
 /******************************************************************************/
+static void g3dffd_setParent ( G3DFFD    *ffd, 
+                               G3DOBJECT *parent,
+                               G3DOBJECT *oldParent,
+                               uint64_t   engine_flags ) {
+    g3dmodifier_setParent ( ffd, parent, oldParent, engine_flags );
+}
+
+
+/******************************************************************************/
 static uint32_t g3dffd_moddraw ( G3DOBJECT *obj,
                                  G3DCAMERA *cam, 
                                  uint64_t   engine_flags ) {
@@ -548,7 +557,7 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
                               DEACTIVATE_CALLBACK(g3dffd_deactivate),
                                   COMMIT_CALLBACK(g3dffd_commit),
                                                   NULL,
-                                                  NULL,
+                               SETPARENT_CALLBACK(g3dffd_setParent),
                                   MODIFY_CALLBACK(g3dffd_modify) );
 
     ((G3DMESH*)mod)->onGeometryMove = g3dffd_onGeometryMove;

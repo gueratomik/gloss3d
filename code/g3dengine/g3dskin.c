@@ -73,28 +73,7 @@ static void g3dskin_setParent ( G3DSKIN   *skn,
                                 G3DOBJECT *parent,
                                 G3DOBJECT *oldParent,
                                 uint64_t   engine_flags ) {
-    /*if ( g3dobject_isActive ( (G3DOBJECT*) sdr ) ) {
-        g3dsubdivider_activate ( sdr, engine_flags );
-    }*/
-
-    if ( parent != oldParent ) {
-        /*g3dskin_reset ( skn );*/
-
-        if ( oldParent ) {
-            if ( oldParent->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) oldParent;
-
-                g3dmesh_update ( mes,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 UPDATEFACEPOSITION |
-                                 UPDATEFACENORMAL   |
-                                 UPDATEVERTEXNORMAL |
-                                 RESETMODIFIERS, 0x00 );
-            }
-        }
-    }
+    g3dmodifier_setParent ( skn, parent, oldParent, engine_flags );
 }
 
 /******************************************************************************/

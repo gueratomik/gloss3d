@@ -2979,6 +2979,11 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engine_flags );
 
+void g3dmodifier_setParent ( G3DMODIFIER *mod, 
+                             G3DOBJECT   *parent,
+                             G3DOBJECT   *oldParent,
+                             uint64_t     engine_flags );
+
 void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t     type,
                         uint32_t     id,

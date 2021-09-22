@@ -177,6 +177,48 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
 }
 
 /******************************************************************************/
+void g3dmodifier_setParent ( G3DMODIFIER *mod, 
+                             G3DOBJECT   *parent,
+                             G3DOBJECT   *oldParent,
+                             uint64_t     engine_flags ) {
+    if ( parent ) {
+        G3DMESH *mes = ( parent->type & MESH ) ? parent : 
+                                       g3dobject_getActiveParentByType ( parent,
+                                                                         MESH );
+
+        if ( mes ) {
+            g3dmesh_update ( mes,
+                             NULL,
+                             NULL,
+                             NULL,
+                             UPDATEFACEPOSITION |
+                             UPDATEFACENORMAL   |
+                             UPDATEVERTEXNORMAL |
+                             RESETMODIFIERS, 
+                             engine_flags );
+        }
+    }
+
+    if ( oldParent ) {
+        G3DMESH *oldmes = ( oldParent->type & MESH ) ? oldParent : 
+                                   g3dobject_getActiveParentByType ( oldParent,
+                                                                     MESH );
+
+        if ( oldmes ) {
+            g3dmesh_update ( oldmes,
+                             NULL,
+                             NULL,
+                             NULL,
+                             UPDATEFACEPOSITION |
+                             UPDATEFACENORMAL   |
+                             UPDATEVERTEXNORMAL |
+                             RESETMODIFIERS, 
+                             engine_flags );
+        }
+    }
+}
+
+/******************************************************************************/
 void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t     type,
                         uint32_t     id,
