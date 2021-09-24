@@ -1347,7 +1347,9 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     g3dpick_setModelviewMatrix ( MVX );
 
-    if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+    if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
+        if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+    }
 
     glPopMatrix ( );
 
@@ -1400,7 +1402,9 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 
-    if ( obj->draw ) obj->draw ( obj, curcam, engine_flags );
+    if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
+        if ( obj->draw ) obj->draw ( obj, curcam, engine_flags );
+    }
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );

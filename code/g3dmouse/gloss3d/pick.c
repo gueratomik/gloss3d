@@ -584,7 +584,6 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 		        if ( engine_flags & VIEWVERTEX ) {
         	        g3dpick_setAction ( actionSelectVertex, &mpd );
-printf("%s test %d\n", __func__, ( obj->flags & OBJECTSELECTED ) );
         	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		        }
 
