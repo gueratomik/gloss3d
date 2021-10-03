@@ -49,27 +49,29 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
     if ( urm ) {
         /*** only pick once ***/
         if (  obj != oldobj ) {
-            lselold = list_copy ( sce->lsel );
+            if ( pob->picked == NAMERECTHIT ) {
+                lselold = list_copy ( sce->lsel );
 
-            /*** Press CTRL to select multiple objects ***/
-            if ( ( pick_flags & PICKEOBJECTKEEPALL ) == 0x00 ) {
-                g3dscene_unselectAllObjects ( sce, engine_flags );
+                /*** Press CTRL to select multiple objects ***/
+                if ( ( pick_flags & PICKEOBJECTKEEPALL ) == 0x00 ) {
+                    g3dscene_unselectAllObjects ( sce, engine_flags );
+                }
+
+                g3dscene_selectObject ( sce, obj, engine_flags );
+
+                lselnew = list_copy ( sce->lsel );
+
+                /*** remember selection ***/
+                /*
+                 * Note: force the VIEWOBJECT flags because object can be picked from
+                 * the object list even if we are in sub-object edition mode.
+                 */
+                g3durm_scene_pickObject  ( urm, sce, lselold, 
+                                                     lselnew, 
+                                                     VIEWOBJECT, 
+                                                     REDRAWVIEW | 
+                                                     REDRAWLIST );
             }
-
-            g3dscene_selectObject ( sce, obj, engine_flags );
-
-            lselnew = list_copy ( sce->lsel );
-
-            /*** remember selection ***/
-            /*
-             * Note: force the VIEWOBJECT flags because object can be picked from
-             * the object list even if we are in sub-object edition mode.
-             */
-            g3durm_scene_pickObject  ( urm, sce, lselold, 
-                                                 lselnew, 
-                                                 VIEWOBJECT, 
-                                                 REDRAWVIEW | 
-                                                 REDRAWLIST );
         }
     }
 
@@ -90,7 +92,7 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
         }
 
         /** all lights could be deactivated. Then turn the default light on **/
-        g3dscene_checkLights ( sce );
+        g3dscene_checkLights ( sce, engine_flags );
     }
 
     if ( pob->picked == VISIBLERECTHIT ) {
@@ -287,6 +289,9 @@ LISTEDOBJECT *common_g3duilist_sizeListedObject ( G3DOBJECT *obj,
 
     /*** size expander + icon + name ***/
     listedObject_sizeInit ( &lob, x, y, strwidth );
+
+    /*** the name rectangle expands to the separator ***/
+    lob.name.width     = ( xsep - lob.name.x );
 
     lob.active.x       = xsep + 0x04;
     lob.active.y       = y;

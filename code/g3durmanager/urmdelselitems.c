@@ -112,7 +112,7 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
             lselobj = lselobj->next;
         }
 
-        g3dscene_checkLights ( sce );
+        g3dscene_checkLights ( sce, engine_flags );
     } else {
         if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
                       ( dsi->engine_flags & VIEWVERTEX ) ||
@@ -171,7 +171,7 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
         /*** objects structure when added to a scene.      ***/
         g3dscene_deleteSelectedObjects ( sce, engine_flags );
 
-        g3dscene_checkLights ( sce );
+        g3dscene_checkLights ( sce, engine_flags );
     } else {
         if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
                       ( dsi->engine_flags & VIEWVERTEX ) ||
@@ -294,7 +294,7 @@ void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
     /*** perform action ***/
     g3dscene_deleteSelectedObjects ( sce, engine_flags );
 
-    g3dscene_checkLights ( sce );
+    g3dscene_checkLights ( sce, engine_flags );
 
     /*** save state ***/
     dsi = urmdelselitems_new ( sce, loldselobj, NULL, NULL,

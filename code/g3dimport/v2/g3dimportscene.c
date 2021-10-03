@@ -174,7 +174,7 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
     g3dobject_updateMeshes_r ( gid.currentScene, flags );
 
     /*** Disable default light if there are some ligths ***/
-    g3dscene_checkLights ( gid.currentScene );
+    g3dscene_checkLights ( gid.currentScene, flags );
 
     g3dobject_anim_r ( gid.currentScene, 0, flags );
 

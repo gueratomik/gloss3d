@@ -71,19 +71,23 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
         }
 
         qray->flags   |= symqray.flags;
-        qray->color    = symqray.color;
-        qray->distance = symqray.distance;
-
-        qray->ratio[0x00] = symqray.ratio[0x00];
-        qray->ratio[0x01] = symqray.ratio[0x01];
-        qray->ratio[0x02] = symqray.ratio[0x02];
 
         if ( hit ) {
+            Q3DVECTOR3F distanceToISX; 
+
+            qray->color    = symqray.color;
+
+            qray->ratio[0x00] = symqray.ratio[0x00];
+            qray->ratio[0x01] = symqray.ratio[0x01];
+            qray->ratio[0x02] = symqray.ratio[0x02];
+
             qray->isx.qobj   = symqray.isx.qobj;
             qray->isx.qsur   = symqray.isx.qsur;
 
             q3dvector3f_matrix ( &symqray.isx.src, sym->smatrix, &qray->isx.src );
             q3dvector3f_matrix ( &symqray.isx.dir, qsym->TISMVX, &qray->isx.dir );
+
+            qray->distance = symqray.distance;
         }
     }
 

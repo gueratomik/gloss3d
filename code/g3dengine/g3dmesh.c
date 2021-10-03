@@ -2485,9 +2485,9 @@ void g3dmesh_update ( G3DMESH *mes,
     }
 
     if ( update_flags & RESETMODIFIERS ) {
-        g3dmesh_modify ( mes,
+        /*g3dmesh_modify ( mes,
                          G3DMODIFYOP_MODIFY,
-                         engine_flags );
+                         engine_flags );*/
     }
 }
 

@@ -2666,13 +2666,13 @@ void       g3dscene_appendMaterial           ( G3DSCENE *sce, G3DMATERIAL *mat )
 void       g3dscene_removeMaterial           ( G3DSCENE *, G3DMATERIAL * );
 void       g3dscene_freeMaterials            ( G3DSCENE * );
 void       g3dscene_drawSelectedObjectCursor ( G3DSCENE *, uint32_t );
-void       g3dscene_checkLights              ( G3DSCENE * );
+void       g3dscene_checkLights              ( G3DSCENE *, uint64_t );
 void       g3dscene_updateBufferedMeshes     ( G3DSCENE *, uint32_t );
 void       g3dscene_turnLightsOn             ( G3DSCENE * );
 void       g3dscene_turnLightsOff            ( G3DSCENE * );
 void g3dscene_selectAllObjects ( G3DSCENE *sce, 
                                  uint64_t  engine_flags );
-uint32_t   g3dscene_noLightOn                ( G3DSCENE * );
+uint32_t   g3dscene_noLightOn                ( G3DSCENE *, uint64_t );
 void g3dscene_invertSelection ( G3DSCENE *sce, 
                                 uint64_t  engine_flags );
 void g3dscene_updateMeshes ( G3DSCENE *sce, 

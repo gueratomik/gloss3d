@@ -432,8 +432,6 @@ typedef struct _Q3DOBJECT {
     double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
     double     TMVX[0x10];  /*** Transpose ModelView Matrix         ***/
     double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
-    double     IWMVX[0x10]; /*** Inverse World ModelView Matrix     ***/
-    double    TIWMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT  *obj, 
                                   Q3DRAY     *ray, 
@@ -463,6 +461,7 @@ typedef struct _Q3DRAY {
     uint32_t        flags;
     Q3DVECTOR3F     src; /*** origin ***/
     Q3DVECTOR3F     dir; /*** direction vector ***/
+    float           t;
     float           distance; /*** hit distance for Z sorting ***/
     float           energy;
     int32_t         x, y;

@@ -314,7 +314,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
                             uint64_t   engine_flags ) {
     uint64_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmpobj = obj->lchildren;
 
     /* Alternate symmety flags in case of nested symmetry objects */
     if ( engine_flags & SYMMETRYVIEW ) {
@@ -330,12 +330,12 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
 
         next_engine_flags = next_engine_flags & (~VIEWDETAILS);
 
-        while ( ltmp ) {
-            G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
+        while ( ltmpobj ) {
+            G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
             g3dobject_draw_r ( child, curcam, next_engine_flags );
 
-            ltmp = ltmp->next;
+            ltmpobj = ltmpobj->next;
         }
 
         glPopMatrix ( );

@@ -736,6 +736,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
             /*** and restore it in order to avoid the window to get      ***/
             /*** scrolled up everytime it gains focus. Search Google for ***/
             /*** "gtk_widget_grab_focus sets scrollbar adjustments to 0" ***/
+
             vadj = gtk_scrolled_window_get_vadjustment ( scrolledWindow );
             vadj_value = gtk_adjustment_get_value ( vadj );
             gtk_widget_grab_focus ( widget );
@@ -748,6 +749,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
             list_free ( &lmes, (void (*)(void *)) g3dmesh_unselectAllTextures );
 
             g3dui_setHourGlass   ( gui );
+
             pob = selectObject_r ( context, ( G3DOBJECT * ) sce,
                                             0x00,
                                             0x00,

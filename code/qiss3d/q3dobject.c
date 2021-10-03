@@ -132,23 +132,11 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     uint32_t hit = 0x00;
     Q3DRAY locqray;
     Q3DVECTOR3F src, dir, dest, locdest;
+    float factor;
 
     memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
 
     q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
-
-    if ( qray->distance != INFINITY ) {
-        Q3DVECTOR3F locisx;
-        Q3DVECTOR3F distanceToISX;
-
-        q3dvector3f_matrix ( &qray->isx.src, qobj->IMVX, &locisx );
-
-        distanceToISX.x = locisx.x - locqray.src.x;
-        distanceToISX.y = locisx.y - locqray.src.y;
-        distanceToISX.z = locisx.z - locqray.src.z;
-
-        locqray.distance = q3dvector3f_length ( &distanceToISX );
-    }
 
     /*** NOTE: We could use the transpose inverse matrix to transform the   ***/
     /*** direction vector, BUT it would not work for non-uniform scaled     ***/
@@ -165,8 +153,11 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     locqray.dir.y = locdest.y - locqray.src.y;
     locqray.dir.z = locdest.z - locqray.src.z;
 
-    q3dvector3f_normalize ( &locqray.dir, NULL );
+    /*** COMENTED OUT : DO NOT normalize the direction vector. This in itself**/
+    /*** fixes scaling issues with ZBuffer by keeping the distance iso ***/
+    /*q3dvector3f_normalize ( &locqray.dir, &factor );*/
 
+    factor = q3dvector3f_length ( &locqray.dir );
 
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
         if ( qobj->intersect ) {
@@ -197,30 +188,23 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     }
 
     qray->flags   |= locqray.flags;
-    qray->color    = locqray.color;
-
-
-    qray->ratio[0x00] = locqray.ratio[0x00];
-    qray->ratio[0x01] = locqray.ratio[0x01];
-    qray->ratio[0x02] = locqray.ratio[0x02];
 
     if ( hit ) {
-        qray->isx.qobj   = locqray.isx.qobj;
-        qray->isx.qsur   = locqray.isx.qsur;
+        qray->color       = locqray.color;
 
-        Q3DVECTOR3F distanceToISX; 
-        /*** transform the intersection point into its coordinate system ***/
+        qray->ratio[0x00] = locqray.ratio[0x00];
+        qray->ratio[0x01] = locqray.ratio[0x01];
+        qray->ratio[0x02] = locqray.ratio[0x02];
+
+        qray->isx.qobj    = locqray.isx.qobj;
+        qray->isx.qsur    = locqray.isx.qsur;
 
         q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
         q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
 
-        distanceToISX.x = qray->isx.src.x - qray->src.x;
-        distanceToISX.y = qray->isx.src.y - qray->src.y;
-        distanceToISX.z = qray->isx.src.y - qray->src.z;
-
-        qray->distance = q3dvector3f_length ( &distanceToISX );
-
         q3dvector3f_normalize ( &qray->isx.dir, NULL );
+
+        qray->distance = locqray.distance;
     }
     
 
@@ -280,10 +264,6 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     /*** hence the inverse of the inverse is the matrix itself. We just ***/
     /*** transpose it. ***/
     g3dcore_transposeMatrix ( obj->lmatrix, qobj->TMVX );
-
-    /*** Note: IWMVX could also be retrieved via obj->iwmatrix ***/
-    g3dcore_invertMatrix    ( obj->wmatrix, qobj->IWMVX  );
-    g3dcore_transposeMatrix ( qobj->IWMVX , qobj->TIWMVX );
 }
 
 /******************************************************************************/

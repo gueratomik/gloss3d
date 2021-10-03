@@ -104,13 +104,15 @@ static uint32_t g3dinstance_pick ( G3DINSTANCE *ins,
 
     if ( ins->ref ) {
         if ( ins->ref->pick ) {
-            if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                g3dpick_multModelviewMatrix ( ins->smatrix );
-            }
+            if ( engine_flags & VIEWOBJECT ) {
+                if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                    g3dpick_multModelviewMatrix ( ins->smatrix );
+                }
 
-            ins->ref->pick ( ins->ref, 
-                             curcam, 
-                             engine_flags & (~MODEMASK) | VIEWOBJECT );
+                ins->ref->pick ( ins->ref, 
+                                 curcam, 
+                                 engine_flags );
+            }
         }
     }
 

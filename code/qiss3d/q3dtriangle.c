@@ -127,7 +127,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                              qpnt.y - qray->src.y,
                              qpnt.z - qray->src.z };
 
-        float distance = q3dvector3f_length ( &qdir );
+        float distance = /*q3dvector3f_length ( &qdir )*/t;
 
         /* when we render backface as well */
         if ( ( vd > 0.0f ) && ( query_flags & RAYQUERYIGNOREBACKFACE ) ) {

@@ -38,7 +38,7 @@ void g3dscene_updateMeshes ( G3DSCENE *sce,
 /******************************************************************************/
 /*** Returns 0x01 if there is no light that is glEnabled. Do not ***/
 /*** confuse with LIGHTON flags which is GL context independent. ***/
-uint32_t g3dscene_noLightOn ( G3DSCENE *sce ) {
+uint32_t g3dscene_noLightOn ( G3DSCENE *sce, uint64_t engine_flags ) {
     LIST *llig = NULL;
 
     g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, G3DLIGHTTYPE, &llig );
@@ -292,11 +292,19 @@ void g3dscene_updatePivot ( G3DSCENE  *sce,
 
 /******************************************************************************/
 /*** disable/enable GL_LIGHT0 when there's at least 1 light in the scene.   ***/
-void g3dscene_checkLights ( G3DSCENE *sce ) {
-    if ( g3dscene_noLightOn ( sce ) ) {
+void g3dscene_checkLights ( G3DSCENE *sce, uint64_t engine_flags ) {
+    if ( engine_flags & NOLIGHTING ) {
+        g3dscene_turnLightsOff ( sce );
+
         glEnable  ( GL_LIGHT0 );
     } else {
         glDisable ( GL_LIGHT0 );
+
+        if ( g3dscene_noLightOn ( sce, engine_flags ) ) {
+            glEnable  ( GL_LIGHT0 );
+        } else {
+            glDisable ( GL_LIGHT0 );
+        }
     }
 }
 
