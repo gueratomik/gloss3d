@@ -479,6 +479,15 @@ GtkWidget* createProceduralBrickEdit ( GtkWidget           *parent,
                                        gint                height,
                                        uint32_t            bindGL );
 
+GtkWidget* createProceduralGradientEdit ( GtkWidget             *parent,
+                                          G3DUI                 *gui,
+                                          G3DPROCEDURALGRADIENT *gradient,
+                                          char                  *name,
+                                          gint                   x,
+                                          gint                   y,
+                                          gint                   width,
+                                          gint                   height,
+                                          uint32_t               bindGL );
 
 GtkWidget* createKeyMorpherEdit ( GtkWidget  *parent,
                                   G3DMORPHER *mpr,

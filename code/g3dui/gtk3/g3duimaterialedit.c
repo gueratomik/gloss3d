@@ -1218,6 +1218,14 @@ static void editChannelProceduralCbk ( GtkWidget *widget,
                                                     0, 0, 350, 35, 0x01 );
                     break;
 
+                    case PROCEDURALGRADIENT :
+                        createProceduralGradientEdit ( box,
+                                                       gui,
+                                                       cha->proc, 
+                                                       "Procedural Gradient",
+                                                       0, 0, 350, 35, 0x01 );
+                    break;
+
                     default :
                     break;
                 }

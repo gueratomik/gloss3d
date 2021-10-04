@@ -183,8 +183,9 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
                                       uint32_t to,
                                       uint32_t depth, 
                                       uint32_t width ) {
-    #define FILTERCOUNT 0x02
+    #define FILTERCOUNT 0x03
     Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.tostatus,
+                                    qjob->filters.makepreview,
                                     qjob->filters.motionblur };
     char *img = qjob->img;
     uint32_t i;
@@ -367,15 +368,17 @@ static void q3djob_createRenderThread ( Q3DJOB    *qjob,
 static void q3djob_initFilters ( Q3DJOB    *qjob,
                                  Q3DFILTER *towindow,
                                  Q3DFILTER *toframe,
-                                 Q3DFILTER *tostatus ) {
+                                 Q3DFILTER *tostatus,
+                                 Q3DFILTER *makepreview ) {
     Q3DSETTINGS *qrsg   = qjob->qrsg;
     Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
     Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
 
 
-    qjob->filters.towindow   = towindow;
-    qjob->filters.toframe    = toframe;
-    qjob->filters.tostatus   = tostatus;
+    qjob->filters.towindow    = towindow;
+    qjob->filters.toframe     = toframe;
+    qjob->filters.tostatus    = tostatus;
+    qjob->filters.makepreview = makepreview;
 
     if ( qrsg->flags & ENABLEMOTIONBLUR ) {
         if ( qrsg->flags & VECTORMOTIONBLUR ) {
@@ -478,6 +481,7 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                      Q3DFILTER   *towindow,
                      Q3DFILTER   *toframe,
                      Q3DFILTER   *tostatus,
+                     Q3DFILTER   *makepreview,
                      uint64_t     flags ) {
     uint32_t structsize = sizeof ( Q3DJOB );
     uint32_t bytesperline = ( qrsg->output.width * 0x03 );
@@ -504,7 +508,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
     q3djob_initFilters ( qjob,
                          towindow,
                          toframe,
-                         tostatus );
+                         tostatus,
+                         makepreview );
 
 
 

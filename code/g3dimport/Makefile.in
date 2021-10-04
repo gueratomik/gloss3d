@@ -149,12 +149,12 @@ am__objects_1 = v2/g3dimportapp.lo v2/g3dimportbone.lo v2/g3dimport.lo \
 	v3/g3dimportinstance.lo v3/g3dimportlight.lo \
 	v3/g3dimportmaterial.lo v3/g3dimportmesh.lo \
 	v3/g3dimportmodifiers.lo v3/g3dimportuvmap.lo \
-	v3/g3dimportobject.lo v3/g3dimportprimitive.lo \
-	v3/g3dimportscene.lo v3/g3dimportsubdivider.lo \
-	v3/g3dimportsymmetry.lo v3/g3dimportspline.lo \
-	v3/g3dimportsplinerevolver.lo v3/g3dimporttext.lo \
-	v3/g3dimportffd.lo v3/g3dimportkey.lo v3/g3dimporttag.lo \
-	v3/g3dimportmorpher.lo v3/g3dimportskin.lo \
+	v3/g3dimportobject.lo v3/g3dimportpath.lo \
+	v3/g3dimportprimitive.lo v3/g3dimportscene.lo \
+	v3/g3dimportsubdivider.lo v3/g3dimportsymmetry.lo \
+	v3/g3dimportspline.lo v3/g3dimportsplinerevolver.lo \
+	v3/g3dimporttext.lo v3/g3dimportffd.lo v3/g3dimportkey.lo \
+	v3/g3dimporttag.lo v3/g3dimportmorpher.lo v3/g3dimportskin.lo \
 	v3/g3dimportwireframe.lo v3/g3dimportextension.lo collada.lo \
 	3ds.lo obj.lo
 am_libgloss_g3dimport_la_OBJECTS = $(am__objects_1)
@@ -211,6 +211,7 @@ am__depfiles_remade = ./$(DEPDIR)/3ds.Plo ./$(DEPDIR)/collada.Plo \
 	v3/$(DEPDIR)/g3dimportmodifiers.Plo \
 	v3/$(DEPDIR)/g3dimportmorpher.Plo \
 	v3/$(DEPDIR)/g3dimportobject.Plo \
+	v3/$(DEPDIR)/g3dimportpath.Plo \
 	v3/$(DEPDIR)/g3dimportprimitive.Plo \
 	v3/$(DEPDIR)/g3dimportscene.Plo v3/$(DEPDIR)/g3dimportskin.Plo \
 	v3/$(DEPDIR)/g3dimportspline.Plo \
@@ -431,6 +432,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v3/g3dimportmodifiers.c \
                             v3/g3dimportuvmap.c \
                             v3/g3dimportobject.c \
+                            v3/g3dimportpath.c \
                             v3/g3dimportprimitive.c \
                             v3/g3dimportscene.c \
                             v3/g3dimportsubdivider.c \
@@ -580,6 +582,7 @@ v3/g3dimportmodifiers.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportuvmap.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportobject.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
+v3/g3dimportpath.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportprimitive.lo: v3/$(am__dirstamp) \
 	v3/$(DEPDIR)/$(am__dirstamp)
 v3/g3dimportscene.lo: v3/$(am__dirstamp) v3/$(DEPDIR)/$(am__dirstamp)
@@ -657,6 +660,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportmodifiers.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportmorpher.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportobject.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportpath.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportprimitive.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportscene.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@v3/$(DEPDIR)/g3dimportskin.Plo@am__quote@ # am--include-marker
@@ -881,6 +885,7 @@ distclean: distclean-am
 	-rm -f v3/$(DEPDIR)/g3dimportmodifiers.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportmorpher.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportobject.Plo
+	-rm -f v3/$(DEPDIR)/g3dimportpath.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportprimitive.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportscene.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportskin.Plo
@@ -979,6 +984,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f v3/$(DEPDIR)/g3dimportmodifiers.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportmorpher.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportobject.Plo
+	-rm -f v3/$(DEPDIR)/g3dimportpath.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportprimitive.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportscene.Plo
 	-rm -f v3/$(DEPDIR)/g3dimportskin.Plo

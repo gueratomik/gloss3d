@@ -58,6 +58,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               Q3DFILTER   *towindow,
                                               Q3DFILTER   *toframe,
                                               Q3DFILTER   *tostatus,
+                                              Q3DFILTER   *makepreview,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,
@@ -91,6 +92,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                             towindow, 
                             toframe, 
                             tostatus, 
+                            makepreview, 
                             0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
@@ -120,6 +122,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
                                           Q3DFILTER   *towindow,
                                           Q3DFILTER   *toframe,
                                           Q3DFILTER   *tostatus,
+                                          Q3DFILTER   *makepreview,
                                           float        resetFrame,
                                           uint64_t     id,
                                           uint32_t     sequence ) {
@@ -149,7 +152,14 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
             g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
         }
 
-        qjob = q3djob_new ( rsg, sce, cam, towindow, toframe, tostatus, 0x00 );
+        qjob = q3djob_new ( rsg, 
+                            sce, 
+                            cam, 
+                            towindow, 
+                            toframe,
+                            tostatus, 
+                            makepreview, 
+                            0x00 );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/

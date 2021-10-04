@@ -31,9 +31,9 @@
 
 /******************************************************************************/
 static uint32_t g3dexportv3spline_geometrySegments ( G3DEXPORTV3DATA*ged, 
-                                                   G3DSPLINE    *spl, 
-                                                   uint32_t      flags, 
-                                                   FILE         *fdst ) {
+                                                     G3DSPLINE    *spl, 
+                                                     uint32_t      flags, 
+                                                     FILE         *fdst ) {
     LIST *ltmpseg = spl->curve->lseg;
     uint32_t size = 0x00;
 

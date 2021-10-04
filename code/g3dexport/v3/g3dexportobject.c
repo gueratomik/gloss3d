@@ -31,6 +31,88 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
+static uint32_t g3dexportv3object_pathSegment ( G3DEXPORTV3DATA *ged, 
+                                                G3DCURVESEGMENT *seg, 
+                                                uint32_t         flags, 
+                                                FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &seg->pt[P0IDX]->id, fdst );
+    size += g3dexportv3_fwritel ( &seg->pt[P1IDX]->id, fdst );
+
+    size += g3dexportv3_fwritef ( &seg->pt[P0HANDLEIDX]->pos.x, fdst );
+    size += g3dexportv3_fwritef ( &seg->pt[P0HANDLEIDX]->pos.y, fdst );
+    size += g3dexportv3_fwritef ( &seg->pt[P0HANDLEIDX]->pos.z, fdst );
+
+    size += g3dexportv3_fwritef ( &seg->pt[P1HANDLEIDX]->pos.x, fdst );
+    size += g3dexportv3_fwritef ( &seg->pt[P1HANDLEIDX]->pos.y, fdst );
+    size += g3dexportv3_fwritef ( &seg->pt[P1HANDLEIDX]->pos.z, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3object_path ( G3DEXPORTV3DATA *ged, 
+                                         G3DCURVE        *curve, 
+                                         uint32_t         flags, 
+                                         FILE            *fdst ) {
+    LIST *ltmpseg = curve->lseg;
+    uint32_t size = 0x00;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_SEGMENT,
+                                         g3dexportv3object_pathSegment,
+                                         ged,
+                                         seg,
+                                         0xFFFFFFFF,
+                                         fdst );
+
+        ltmpseg = ltmpseg->next;
+    }
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3object_paths ( G3DEXPORTV3DATA *ged, 
+                                               G3DOBJECT       *obj, 
+                                               uint32_t         flags, 
+                                               FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    if ( obj->posCurve->lseg ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_POSITION,
+                                         g3dexportv3object_path,
+                                         ged,
+                                         obj->posCurve,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
+
+    if ( obj->rotCurve->lseg ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_ROTATION,
+                                         g3dexportv3object_path,
+                                         ged,
+                                         obj->rotCurve,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
+
+    if ( obj->scaCurve->lseg ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_SCALING,
+                                         g3dexportv3object_path,
+                                         ged,
+                                         obj->scaCurve,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3object_textureRestrict  ( G3DEXPORTV3DATA  *ged, 
                                                    G3DTEXTURE     *tex, 
                                                    uint32_t        flags, 
@@ -175,12 +257,17 @@ static uint32_t g3dexportv3object_keys ( G3DEXPORTV3DATA *ged,
 
         key->id = keyID++;
 
+        /*** used by path segments ***/
+        key->posCurvePoint.id = key->id;
+        key->rotCurvePoint.id = key->id;
+        key->scaCurvePoint.id = key->id;
+
         size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_ENTRY,
-                                       g3dexportv3key,
-                                       ged,
-                                       key,
-                                       0xFFFFFFFF,
-                                       fdst );
+                                         g3dexportv3key,
+                                         ged,
+                                         key,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpkey = ltmpkey->next;
     }
@@ -520,6 +607,13 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
                                        obj,
                                        0xFFFFFFFF,
                                        fdst );
+
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PATHS,
+                                         g3dexportv3object_paths,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->ltag ) {

@@ -1304,10 +1304,10 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
     glColor3ub ( 0xFF, 0x7F, 0x00 );
     glPointSize ( 2.0f );
 
-    glPushMatrix ( );
-
-    if ( obj->parent ) {
-        glMultMatrixd ( obj->parent->wmatrix );
+    if ( engine_flags & VIEWPATH ) {
+        g3dcurve_drawSegments ( obj->posCurve, engine_flags );
+        g3dcurve_drawHandles  ( obj->posCurve, engine_flags );
+        g3dcurve_drawPoints   ( obj->posCurve, engine_flags );
     }
 
     g3dcurve_draw ( obj->posCurve, engine_flags );
@@ -1321,8 +1321,6 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
         ltmp = ltmp->next;
     } 
     glEnd ( );*/
- 
-    glPopMatrix ( );
 
     glPopAttrib ( );
 }
@@ -1330,12 +1328,25 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
 #define PIOVER180 0.01745329252
 
 /******************************************************************************/
+uint32_t g3dobject_pickPath ( G3DOBJECT *obj, 
+                              G3DCAMERA *curcam, 
+                              uint64_t   engine_flags ) {
+    g3dcurve_pickPoints  ( obj->posCurve, engine_flags );
+    g3dcurve_pickHandles ( obj->posCurve, engine_flags );
+
+    return 0x00;
+}
+
+/******************************************************************************/
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint64_t engine_flags ) {
-    double MVX[0x10];
+                          uint64_t   engine_flags ) {
+    double MVX[0x10], PARENTMVX[0x10];
 
     glPushMatrix ( );
+
+    glGetDoublev ( GL_MODELVIEW_MATRIX, PARENTMVX );
+
     glMultMatrixd ( obj->lmatrix );
 
     glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
@@ -1349,6 +1360,16 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
         if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+    }
+
+    if ( engine_flags & VIEWPATH ) {
+        if ( obj->flags & OBJECTSELECTED ) {
+            g3dpick_setModelviewMatrix ( PARENTMVX );
+
+            if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
+                g3dobject_pickPath ( obj, curcam, engine_flags );
+            }
+        }
     }
 
     glPopMatrix ( );

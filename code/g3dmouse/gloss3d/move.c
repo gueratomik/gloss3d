@@ -98,6 +98,114 @@ G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( ) {
 }
 
 /******************************************************************************/
+static int move_path ( G3DOBJECT    *obj,
+                       G3DMOUSETOOL *mou, 
+                       G3DSCENE     *sce, 
+                       G3DCAMERA    *cam,
+                       G3DURMANAGER *urm,
+                       uint64_t engine_flags, 
+                       G3DEvent     *event ) {
+    static double orix, oriy, oriz, newx, newy, newz,
+                  winx, winy, winz;
+    static double mouseXpress, mouseYpress;
+    static GLdouble MVX[0x10], PJX[0x10];
+    static GLint VPX[0x04];
+    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    if ( obj->parent ) {
+        switch ( event->type ) {
+            case G3DButtonPress : {
+                G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                glMatrixMode ( GL_PROJECTION );
+                glPushMatrix ( );
+                glLoadIdentity ( );
+                g3dcamera_project ( cam, engine_flags );
+
+                glMatrixMode ( GL_MODELVIEW );
+                glPushMatrix ( );
+                g3dcamera_view ( cam, HIDEGRID );
+                glMultMatrixd ( obj->parent->wmatrix );
+
+                glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
+                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                glPopMatrix ( );
+                glMatrixMode ( GL_PROJECTION );
+                glPopMatrix ( );
+
+                mouseXpress = bev->x;
+                mouseYpress = bev->y;
+
+                if ( engine_flags & VIEWPATH ) {
+                    G3DMOUSETOOLMOVE *mv = ( G3DMOUSETOOLMOVE * ) mou;
+
+                    uint32_t ctrlClick = ( bev->state & G3DControlMask ) ? 1 : 0;
+
+                    mv->coord[0x00] = mv->coord[0x02] = bev->x;
+                    mv->coord[0x01] = mv->coord[0x03] = VPX[0x03] - bev->y;
+
+                    /*** simulate click and release ***/
+                    pick_Item ( mv, sce, cam, ctrlClick, engine_flags );
+
+                    gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
+                    gluUnProject ( ( GLdouble ) bev->x,
+                                   ( GLdouble ) VPX[0x03] - bev->y,
+                                   ( GLdouble ) winz,
+                                   MVX, PJX, VPX,
+                                   &orix, &oriy, &oriz );
+                }
+            } return REDRAWVIEW;
+
+            case G3DMotionNotify : {
+                G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
+
+                if ( mev->state & G3DButton1Mask ) {
+                    if ( engine_flags & VIEWPATH ) {
+                        G3DVECTOR *axis = sce->csr.axis;
+                        double difx, dify, difz;
+                        uint32_t nbpt = 0x00;
+
+                        gluUnProject ( ( GLdouble ) mev->x,
+                                   ( GLdouble ) VPX[0x03] - mev->y,
+                                   ( GLdouble ) winz,
+                                   MVX, PJX, VPX,
+                                   &newx, &newy, &newz );
+
+                        difx = ( newx - orix );
+                        dify = ( newy - oriy );
+                        difz = ( newz - oriz );
+
+                        if ( obj->posCurve->curhan ) {
+                            obj->posCurve->curhan->pos.x += difx;
+                            obj->posCurve->curhan->pos.y += dify;
+                            obj->posCurve->curhan->pos.z += difz;
+                        }
+
+                        orix = newx;
+                        oriy = newy;
+                        oriz = newz;
+                    }
+                }
+            } return REDRAWVIEW;
+
+            case G3DButtonRelease : {
+                G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+
+                obj->posCurve->curhan = NULL;
+
+            } return REDRAWVIEW;
+
+            default :
+            break;
+        }
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 static int move_spline ( G3DSPLINE    *spl,
                          G3DMOUSETOOL *mou, 
                          G3DSCENE     *sce, 
@@ -1105,7 +1213,12 @@ static int move_tool ( G3DMOUSETOOL *mou,
 
         if ( ( engine_flags & VIEWVERTEX ) ||
              ( engine_flags & VIEWEDGE   ) ||
+             ( engine_flags & VIEWPATH   ) ||
              ( engine_flags & VIEWFACE   ) ) {
+            if ( engine_flags & VIEWPATH ) {
+                return move_path ( obj, mou, sce, cam, urm, engine_flags, event );
+            }
+
             if ( obj->type & MORPHER ) {
                 G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 

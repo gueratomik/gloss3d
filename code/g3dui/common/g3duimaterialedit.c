@@ -366,6 +366,10 @@ void common_g3dui_materialChooseProceduralCbk ( G3DUI      *gui,
             if ( strcmp ( procType, PROCBRICK ) == 0x00 ) {
                 proc = g3dproceduralbrick_new ( );
             }
+
+            if ( strcmp ( procType, PROCGRADIENT ) == 0x00 ) {
+                proc = g3dproceduralgradient_new ( );
+            }
         }
 
         if ( proc ) {

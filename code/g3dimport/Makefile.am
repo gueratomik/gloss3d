@@ -41,6 +41,7 @@ LIBGLOSSG3DIMPORT_C_FILES = v2/g3dimportapp.c \
                             v3/g3dimportmodifiers.c \
                             v3/g3dimportuvmap.c \
                             v3/g3dimportobject.c \
+                            v3/g3dimportpath.c \
                             v3/g3dimportprimitive.c \
                             v3/g3dimportscene.c \
                             v3/g3dimportsubdivider.c \

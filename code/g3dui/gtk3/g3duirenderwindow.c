@@ -238,7 +238,7 @@ uint32_t filtertostatusbar_draw ( Q3DFILTER     *fil,
     if ( ( from == 0x00 ) &&
          ( to   == 0x00 ) ) {
         snprintf ( str, 100, "Rendering frame %.2f (%.2f%%)", frameID,
-                                                              frameID / ( qjob->qrsg->output.endframe - qjob->qrsg->output.startframe ) * 100.0f );
+                                                              ( frameID - qjob->qrsg->output.startframe ) / ( qjob->qrsg->output.endframe - qjob->qrsg->output.startframe ) * 100.0f );
     } else {
         /*** when called from "filter render image" event ***/
         if ( ( int ) tsb->lastFrame == ( int ) frameID ) {
@@ -294,7 +294,7 @@ static void Map ( GtkWidget *widget,
     if ( rps == NULL ) {
         g3duirenderbuffer_init ( &grw->rbuf, 
                                   grw->drawingArea );
-
+        Q3DFILTER *makepreview = NULL;
         Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.dis,
                                                        grw->rbuf.win,
                                                        grw->rbuf.gc,
@@ -316,10 +316,11 @@ static void Map ( GtkWidget *widget,
                                                  cam->dof.radius );
             list_append ( &lfilters, rdf );
         }
+*/
 
         if ( rsg->flags & RENDERPREVIEW ) {
-            list_append ( &lfilters, r3dfilter_preview_new ( gui ) );
-        }*/
+            makepreview = q3dfilter_preview_new ( gui );
+        }
 
         grw->tostatus = q3dfilter_toStatusBar_new ( getChild ( gtk_widget_get_toplevel ( widget ), RENDERWINDOWSTATUSBARNAME ), rsg->output.endframe );
 
@@ -393,6 +394,7 @@ static void Map ( GtkWidget *widget,
                                                  towindow,
                                                  gui->toframe,
                                                  grw->tostatus,
+                                                 makepreview,
                                                  cam,
                                                  rsg->output.startframe,
                                                  ( uint64_t ) widget,
@@ -403,6 +405,7 @@ static void Map ( GtkWidget *widget,
                                                  towindow,
                                                  gui->toframe,
                                                  grw->tostatus,
+                                                 makepreview,
                                                  cam,
                                                  rsg->output.startframe,
                                                  ( uint64_t ) widget,

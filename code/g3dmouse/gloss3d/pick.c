@@ -229,14 +229,14 @@ typedef struct _SCENEPICKDATA {
 } SCENEPICKDATA;
 
 /******************************************************************************/
-static uint32_t actionSelectObject ( uint64_t name, SCENEPICKDATA *spd ) {
+static uint32_t actionSelectObject ( uint64_t name, SCENEPICKDATA *cpd ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) name;
 
     if ( ( obj->flags & OBJECTSELECTED ) == 0x00 ) {
-        g3dscene_selectObject ( spd->sce, obj, 0x00 );
+        g3dscene_selectObject ( cpd->sce, obj, 0x00 );
     } else {
-        if ( spd->flags & CTRLCLICK ) {
-            g3dscene_unselectObject ( spd->sce, obj, 0x00 );
+        if ( cpd->flags & CTRLCLICK ) {
+            g3dscene_unselectObject ( cpd->sce, obj, 0x00 );
         }
     }
 
@@ -392,27 +392,27 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 }
 
 /******************************************************************************/
-typedef struct _SPLINEPICKDATA {
-    G3DSPLINE *spl;
+typedef struct _CURVEPICKDATA {
+    G3DCURVE  *curve;
     uint32_t   flags;
-} SPLINEPICKDATA;
+} CURVEPICKDATA;
 
 /******************************************************************************/
-static uint32_t actionSelectPoint ( uint64_t name, SPLINEPICKDATA *spd ) {
+static uint32_t actionSelectPoint ( uint64_t name, CURVEPICKDATA *cpd ) {
     G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) name;
 
     if ( pt->flags & CURVEPOINTISPOINT ) {
 	    if ( ( pt->flags & CURVEPOINTSELECTED ) == 0x00 ) {
-            g3dcurve_selectPoint ( spd->spl->curve, pt );
+            g3dcurve_selectPoint ( cpd->curve, pt );
 	    } else {
-            if ( spd->flags & CTRLCLICK ) {
-                g3dcurve_unselectPoint ( spd->spl->curve, pt );
+            if ( cpd->flags & CTRLCLICK ) {
+                g3dcurve_unselectPoint ( cpd->curve, pt );
             }
         }
     }
 
     if ( pt->flags & CURVEPOINTISHANDLE ) {
-        spd->spl->curve->curhan = pt;
+        cpd->curve->curhan = pt;
     }
 
     return 0x01;
@@ -494,16 +494,16 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
     }
 
     if ( engine_flags & VIEWOBJECT ) {
-        SCENEPICKDATA spd = { .sce   =  sce,
+        SCENEPICKDATA cpd = { .sce   =  sce,
                               .flags = 0x00 };
 
         if ( ctrlClick ) {
-            spd.flags |= CTRLCLICK;
+            cpd.flags |= CTRLCLICK;
         } else {
             g3dscene_unselectAllObjects ( sce, engine_flags );
         }
 
-        g3dpick_setAction ( actionSelectObject, &spd );
+        g3dpick_setAction ( actionSelectObject, &cpd );
         g3dobject_pick_r ( sce, cam, VIEWOBJECT );
     } else {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -511,6 +511,14 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 	    if ( obj ) {
             if ( pt->only_visible ) g3dpick_enableDepthTest  ( );
             else                    g3dpick_disableDepthTest ( );
+
+		    if ( engine_flags & VIEWPATH ) {
+        	    CURVEPICKDATA cpd = { .curve =  obj->posCurve,
+                        	          .flags = 0x00 };
+
+        	    g3dpick_setAction ( actionSelectPoint, &cpd );
+        	    g3dobject_pick_r ( sce, cam, VIEWPATH );
+		    }
 
 	        if ( ( obj->type == G3DMESHTYPE ) ||
                  ( obj->type == G3DFFDTYPE  ) ) {
@@ -595,17 +603,17 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 	        if ( obj->type == G3DSPLINETYPE ) {
         	    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
-        	    SPLINEPICKDATA spd = { .spl   =  ( G3DSPLINE * ) obj,
-                        	           .flags = 0x00 };
+        	    CURVEPICKDATA cpd = { .curve =  spl->curve,
+                        	          .flags = 0x00 };
 
                 if ( ctrlClick ) {
-                    spd.flags |= CTRLCLICK;
+                    cpd.flags |= CTRLCLICK;
                 } else {
                     g3dcurve_unselectAllPoints ( spl->curve );
                 }
 
 		        if ( engine_flags & VIEWVERTEX ) {
-        	        g3dpick_setAction ( actionSelectPoint, &spd );
+        	        g3dpick_setAction ( actionSelectPoint, &cpd );
         	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
 		        }
 	        }
@@ -960,6 +968,10 @@ int pick_tool ( G3DMOUSETOOL *mou,
         	    }
 
         	    if ( obj ) {
+        		    if ( engine_flags & VIEWPATH ) {
+                	    pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
+                	}
+
                     if ( obj->type == G3DMORPHERTYPE ) {
                 	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 

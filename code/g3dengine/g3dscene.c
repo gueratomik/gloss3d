@@ -668,11 +668,17 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
         if ( selobj && ( ( engine_flags & VIEWOBJECT ) ||
                          ( engine_flags & VIEWAXIS   ) ||
                          ( engine_flags & VIEWSKIN   ) ||
+                         ( engine_flags & VIEWPATH   ) ||
                          ( engine_flags & VIEWUVWMAP ) ) ) {
-            g3dobject_drawKeys ( selobj, curcam, engine_flags );
-
             glPushMatrix ( );
+
+            if ( selobj->parent ) {
+                glMultMatrixd ( selobj->parent->wmatrix );
+                g3dobject_drawKeys ( selobj, curcam, engine_flags );
+            }
+
             glMultMatrixd ( selobj->wmatrix );
+
             if ( engine_flags & VIEWOBJECT ) {
                 g3dbbox_draw ( &selobj->bbox, engine_flags );
             }

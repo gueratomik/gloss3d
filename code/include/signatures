@@ -117,6 +117,12 @@ SIG_ROOT=0x44335347
 --------------------------------------------------- SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS
 ------------------------------------------------------- nbGradientX (uint32_t)
 ------------------------------------------------------- nbGradientY (uint32_t)
+----------------------------------------------- SIG_CHANNEL_PROCEDURAL_GRADIENT
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_GRADIENT_COLORS
+------------------------------------------------------- color1 (float-float-float-float)
+------------------------------------------------------- color2 (float-float-float-float)
+--------------------------------------------------- SIG_CHANNEL_PROCEDURAL_GRADIENT_GEOMETRY
+------------------------------------------------------- horizontal ( uint32_t )
 ----------------------------------------------- SIG_CHANNEL_PROCEDURAL_RESOLUTION
 --------------------------------------------------- width  ( uint32_t )
 --------------------------------------------------- height ( uint32_t )
@@ -419,6 +425,14 @@ SIG_ROOT=0x44335347
 ----------------------- SIG_OBJECT_KEY_LOOP
 -----------------------   LoopFrame ( float )
 ----------------------- SIG_OBJECT_KEY_DATA
+--------------- SIG_OBJECT_PATHS
+------------------- SIG_OBJECT_PATH_POSITION
+----------------------- SIG_OBJECT_PATH_SEGMENT
+--------------------------- Array ( uint32_t-uint32_t-float-float-float-float-float-float)
+------------------- SIG_OBJECT_PATH_ROTATION
+--------------------------- ...
+------------------- SIG_OBJECT_PATH_SCALING
+--------------------------- ...
 
 --------------------------- SIG_OBJECT_KEY_DATA_MORPHER
 ------------------------------- SIG_OBJECT_KEY_DATA_MORPHER_SLOTS

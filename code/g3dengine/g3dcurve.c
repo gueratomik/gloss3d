@@ -78,6 +78,26 @@ G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve,
 }
 
 /******************************************************************************/
+G3DCURVESEGMENT *g3dcurve_seekSegmentByID ( G3DCURVE *curve, 
+                                            uint32_t  id0,
+                                            uint32_t  id1 ) {
+    LIST *ltmpseg = curve->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( ( ( seg->pt[P0IDX]->id == id0 ) &&  ( seg->pt[P1IDX]->id == id1 ) ) ||
+             ( ( seg->pt[P1IDX]->id == id0 ) &&  ( seg->pt[P0IDX]->id == id1 ) ) ) {
+            return seg;
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 G3DCURVEPOINT *g3dcurve_getConnectablePoint ( G3DCURVE *curve ) {
     LIST *ltmppt = curve->lpt;
 

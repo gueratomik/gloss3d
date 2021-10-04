@@ -166,6 +166,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/newfile.xpm \
                        xpm/nextframe.xpm \
                        xpm/objectmode.xpm \
+                       xpm/pathmode.xpm \
                        xpm/openfile.xpm \
                        xpm/pen.xpm \
                        xpm/pick.xpm \

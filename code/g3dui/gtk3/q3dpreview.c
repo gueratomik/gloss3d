@@ -29,22 +29,22 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#ifdef unusedQISS3D
 /******************************************************************************/
-uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
-                                              float frameID,
-                                              unsigned char (*img)[0x03], 
-                                              uint32_t from, 
-                                              uint32_t to, 
-                                              uint32_t depth, 
-                                              uint32_t width ) {
-    G3DCAMERA *cam = (G3DCAMERA*)((R3DOBJECT*)rsce->area.rcam)->obj;
+static uint32_t filterpreview_draw ( Q3DFILTER      *qfil, 
+                                     Q3DJOB         *qjob,
+                                     float           frameID,
+                                     unsigned char (*img)[0x03], 
+                                     uint32_t        from, 
+                                     uint32_t        to, 
+                                     uint32_t        depth, 
+                                     uint32_t        width ) {
+    G3DCAMERA *cam = q3dobject_getObject ( qjob->qcam );
     uint32_t scrX = cam->vmatrix[0x00],
              scrY = cam->vmatrix[0x01],
              scrW = cam->vmatrix[0x02],
              scrH = cam->vmatrix[0x03];
-    uint32_t height = rsce->area.height;
-    G3DUI *gui = ( G3DUI * ) fil->data;
+    uint32_t height = qjob->qrsg->output.height;
+    G3DUI *gui = ( G3DUI * ) qfil->data;
     static DUMPSCREEN dsn = { .action = { .done = PTHREAD_MUTEX_INITIALIZER } };
     uint32_t i, j;
 
@@ -86,14 +86,14 @@ uint32_t filterpreview_draw ( R3DFILTER *fil, R3DSCENE *rsce,
 }
 
 /******************************************************************************/
-R3DFILTER *r3dfilter_preview_new ( G3DUI *gui ) {
-    R3DFILTER *fil;
+Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui ) {
+    Q3DFILTER *fil;
 
-    fil = r3dfilter_new ( FILTERBEFORE, PREVIEWFILTERNAME,
-                                        filterpreview_draw,
-                                        NULL,   /** no free()   **/
-                                        gui );
+    fil = q3dfilter_new ( FILTERBEFORE,
+                          PREVIEWFILTERNAME,
+                          filterpreview_draw,
+                          NULL,   /** no free()   **/
+                          gui );
 
     return fil;
 }
-#endif

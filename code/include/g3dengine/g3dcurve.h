@@ -153,6 +153,9 @@ void g3dcubicsegment_getPoint ( G3DCUBICSEGMENT *csg,
 G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve, 
                                         G3DCURVEPOINT *p0,
                                         G3DCURVEPOINT *p1 );
+G3DCURVESEGMENT *g3dcurve_seekSegmentByID ( G3DCURVE *curve, 
+                                            uint32_t  id0,
+                                            uint32_t  id1 );
 G3DCUBICSEGMENT *g3dcubicsegment_new ( G3DCURVEPOINT *pt0,
                                        G3DCURVEPOINT *pt1,
                                        float           hx1,

@@ -35,6 +35,7 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
     G3DKEY    *key;
     uint32_t   poseID;
+    uint32_t   keyID = 0x00;
     uint32_t   enable_translation = 0x00;
     uint32_t   enable_rotation = 0x00;
     uint32_t   enable_scaling = 0x00;
@@ -148,6 +149,11 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                           &sca,
                                           &unusedKeyArg,
                                            key_flags );
+
+                    key->id = keyID++;
+                    key->posCurvePoint.id = key->id;
+                    key->rotCurvePoint.id = key->id;
+                    key->scaCurvePoint.id = key->id;
                 }
             } break;
 

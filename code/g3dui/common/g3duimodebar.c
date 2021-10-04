@@ -69,6 +69,7 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
     if ( strcmp ( modename, MODE_VIEWSCULPT ) == 0x00 ) newmode = VIEWSCULPT;
     if ( strcmp ( modename, MODE_VIEWUVWMAP ) == 0x00 ) newmode = VIEWUVWMAP;
     if ( strcmp ( modename, MODE_VIEWAXIS   ) == 0x00 ) newmode = VIEWAXIS;
+    if ( strcmp ( modename, MODE_VIEWPATH   ) == 0x00 ) newmode = VIEWPATH;
 
     if ( newmode == VIEWSKIN ) glEnable ( GL_COLOR_MATERIAL );
 

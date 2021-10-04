@@ -37,7 +37,11 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 static void g3dsubdivider_anim ( G3DSUBDIVIDER *sdr, 
                                  float          frame, 
                                  uint64_t       engine_flags ) {
-    g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
+    if ( g3dobject_isActive ( sdr ) ) {
+        if ( ((G3DOBJECT*)sdr)->parent->type == G3DSKINTYPE ) {
+            g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
+        }
+    }
 }
 
 /******************************************************************************/

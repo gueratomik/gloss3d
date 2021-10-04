@@ -143,6 +143,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define PROCPERLINNOISE "Perlin Noise"
 #define PROCCHESSBOARD  "Chess board"
 #define PROCBRICK       "Brick"
+#define PROCGRADIENT    "Gradient"
+
 #define PROCRES128  "128x128"
 #define PROCRES256  "256x256"
 #define PROCRES512  "512x512"
@@ -511,6 +513,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MODE_VIEWEDGE   "Edge mode"
 #define MODE_VIEWFACE   "Face mode"
 #define MODE_VIEWSKIN   "Skin mode"
+#define MODE_VIEWPATH   "Path mode"
 #define MODE_VIEWSCULPT "Sculpt mode"
 #define MODE_VIEWAXIS   "Axis mode"
 #define MODE_VIEWUVWMAP "UVW mode"
@@ -1506,14 +1509,7 @@ void g3dui_updateMaterialEdit            ( G3DUI * );
 void g3dui_updateSelectedMaterialPreview ( G3DUI * );
 
 /******************************************************************************/
-uint32_t filterpreview_draw ( Q3DFILTER *, Q3DJOB *,
-                                              float,
-                                              unsigned char (*)[0x03], 
-                                              uint32_t, 
-                                              uint32_t, 
-                                              uint32_t, 
-                                              uint32_t );
-Q3DFILTER *r3dfilter_preview_new ( G3DUI *gui );
+Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
 
 /******************************************************************************/
 void common_g3dui_loadConfiguration ( G3DUI *, char * );
@@ -1553,6 +1549,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
                                           Q3DFILTER   *towindow,
                                           Q3DFILTER   *toframe,
                                           Q3DFILTER   *tostatus,
+                                          Q3DFILTER   *makepreview,
                                           float        resetFrame,
                                           uint64_t     id,
                                           uint32_t     sequence );
@@ -1562,6 +1559,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               Q3DFILTER   *towindow,
                                               Q3DFILTER   *toframe,
                                               Q3DFILTER   *tostatus,
+                                              Q3DFILTER   *makepreview,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,

@@ -237,6 +237,68 @@ static uint32_t g3dexportv3channel_proceduralChess ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3channel_proceduralGradientGeometry ( G3DEXPORTV3DATA *ged,
+                                                                G3DCHANNEL      *cha,
+                                                                uint32_t         flags, 
+                                                                FILE            *fdst ) {
+    G3DPROCEDURALGRADIENT *gradient = ( G3DPROCEDURALGRADIENT * ) cha->proc;
+    uint32_t size = 0x00;
+    uint32_t horizontal = gradient->horizontal;
+
+    size += g3dexportv3_fwritel ( &horizontal, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3channel_proceduralGradientColors ( G3DEXPORTV3DATA *ged,
+                                                              G3DCHANNEL      *cha,
+                                                              uint32_t         flags, 
+                                                              FILE            *fdst ) {
+    G3DPROCEDURALGRADIENT *gradient = ( G3DPROCEDURALGRADIENT * ) cha->proc;
+    G3DCOLOR color1, color2;
+    uint32_t size = 0x00;
+
+    g3drgba_toColor ( &gradient->color1, &color1 );
+    g3drgba_toColor ( &gradient->color2, &color2 );
+
+    size += g3dexportv3_fwritef ( &color1.r, fdst );
+    size += g3dexportv3_fwritef ( &color1.g, fdst );
+    size += g3dexportv3_fwritef ( &color1.b, fdst );
+    size += g3dexportv3_fwritef ( &color1.a, fdst );
+
+    size += g3dexportv3_fwritef ( &color2.r, fdst );
+    size += g3dexportv3_fwritef ( &color2.g, fdst );
+    size += g3dexportv3_fwritef ( &color2.b, fdst );
+    size += g3dexportv3_fwritef ( &color2.a, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3channel_proceduralGradient ( G3DEXPORTV3DATA *ged,
+                                                        G3DCHANNEL      *cha,
+                                                        uint32_t         flags, 
+                                                        FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL_GRADIENT_COLORS,
+                                   g3dexportv3channel_proceduralGradientColors,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL_GRADIENT_GEOMETRY,
+                                   g3dexportv3channel_proceduralGradientGeometry,
+                                   ged,
+                                   cha,
+                                   0xFFFFFFFF,
+                                   fdst );
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3channel_proceduralBrickGeometry ( G3DEXPORTV3DATA *ged,
                                                            G3DCHANNEL    *cha,
                                                            uint32_t       flags, 
@@ -343,6 +405,15 @@ static uint32_t g3dexportv3channel_procedural ( G3DEXPORTV3DATA *ged,
         case PROCEDURALBRICK :
             size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL_BRICK,
                                            g3dexportv3channel_proceduralBrick,
+                                           ged,
+                                           cha,
+                                           0xFFFFFFFF,
+                                           fdst );
+        break;
+
+        case PROCEDURALGRADIENT :
+            size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL_GRADIENT,
+                                           g3dexportv3channel_proceduralGradient,
                                            ged,
                                            cha,
                                            0xFFFFFFFF,

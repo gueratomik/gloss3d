@@ -161,18 +161,18 @@ void g3dimportv3channel ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                 }
             } break;
 
+            case SIG_CHANNEL_PROCEDURAL_CHESS : {
+                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
+
+                g3dchannel_setProcedural ( gid->currentChannel, proc );
+            } break;
+
             case SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
 
                 g3dimportv3_freadl ( &chess->udiv, fsrc );
                 g3dimportv3_freadl ( &chess->vdiv, fsrc );
-            } break;
-
-            case SIG_CHANNEL_PROCEDURAL_CHESS : {
-                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
-
-                g3dchannel_setProcedural ( gid->currentChannel, proc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_CHESS_COLORS : {
@@ -192,6 +192,41 @@ void g3dimportv3channel ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
 
                 g3dcolor_toRGBA ( &color1, &chess->color1 );
                 g3dcolor_toRGBA ( &color2, &chess->color2 );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_GRADIENT : {
+                G3DPROCEDURAL *proc = g3dproceduralgradient_new ( );
+
+                g3dchannel_setProcedural ( gid->currentChannel, proc );
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_GRADIENT_GEOMETRY : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALGRADIENT *gradient = ( G3DPROCEDURALGRADIENT * ) proc;
+                uint32_t horizontal;
+
+                g3dimportv3_freadl ( &horizontal, fsrc );
+
+                gradient->horizontal = horizontal;
+            } break;
+
+            case SIG_CHANNEL_PROCEDURAL_GRADIENT_COLORS : {
+                G3DPROCEDURAL *proc = gid->currentChannel->proc;
+                G3DPROCEDURALGRADIENT *gradient = ( G3DPROCEDURALGRADIENT * ) proc;
+                G3DCOLOR color1, color2;
+
+                g3dimportv3_freadf ( &color1.r, fsrc );
+                g3dimportv3_freadf ( &color1.g, fsrc );
+                g3dimportv3_freadf ( &color1.b, fsrc );
+                g3dimportv3_freadf ( &color1.a, fsrc );
+
+                g3dimportv3_freadf ( &color2.r, fsrc );
+                g3dimportv3_freadf ( &color2.g, fsrc );
+                g3dimportv3_freadf ( &color2.b, fsrc );
+                g3dimportv3_freadf ( &color2.a, fsrc );
+
+                g3dcolor_toRGBA ( &color1, &gradient->color1 );
+                g3dcolor_toRGBA ( &color2, &gradient->color2 );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_BRICK : {

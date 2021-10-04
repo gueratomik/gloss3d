@@ -119,13 +119,13 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 #define VIEWAXIS           ((uint64_t)1  <<  9 )
 #define VIEWSCULPT         ((uint64_t)1  << 10 )
-#define VIEWPOSE           ((uint64_t)1  << 11 )
+#define VIEWPATH           ((uint64_t)1  << 11 )
 #define VIEWDETAILS        ((uint64_t)VIEWUVWMAP | VIEWSKIN | \
                                       VIEWVERTEX | VIEWEDGE | VIEWFACE | \
                                       VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ((uint64_t)VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
                                       VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
-                                      VIEWPOSE  | VIEWAXIS )
+                                      VIEWPATH   | VIEWAXIS )
 #define SELECTMODE         ((uint64_t)1  << 12 )
 #define XAXIS              ((uint64_t)1  << 13 )
 #define YAXIS              ((uint64_t)1  << 14 ) 
@@ -478,6 +478,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define PROCEDURALNOISE        0x00
 #define PROCEDURALCHESS        0x01
 #define PROCEDURALBRICK        0x02
+#define PROCEDURALGRADIENT     0x03
 
 /******************************************************************************/
 #define _GETVERTEX(mes,ltmpver) \
@@ -621,13 +622,21 @@ typedef struct _G3DPROCEDURALNOISE {
 } G3DPROCEDURALNOISE;
 
 /******************************************************************************/
-typedef struct G3DPROCEDURALCHESS {
+typedef struct _G3DPROCEDURALCHESS {
     G3DPROCEDURAL procedural;
     G3DCOLOR color1;
     G3DCOLOR color2;
     uint32_t udiv;
     uint32_t vdiv;
 } G3DPROCEDURALCHESS;
+
+/******************************************************************************/
+typedef struct _G3DPROCEDURALGRADIENT {
+    G3DPROCEDURAL procedural;
+    G3DCOLOR color1;
+    G3DCOLOR color2;
+    uint32_t horizontal;
+} G3DPROCEDURALGRADIENT;
 
 /******************************************************************************/
 typedef struct _G3DPROCEDURALBRICK {
@@ -3066,9 +3075,10 @@ void g3dchannel_getNormal ( G3DCHANNEL *cha,
                             uint32_t    fromBuffer );
 
 /******************************************************************************/
-G3DPROCEDURALNOISE *g3dproceduralnoise_new ( );
-G3DPROCEDURALCHESS *g3dproceduralchess_new ( );
-G3DPROCEDURALBRICK *g3dproceduralbrick_new ( );
+G3DPROCEDURALNOISE    *g3dproceduralnoise_new ( );
+G3DPROCEDURALCHESS    *g3dproceduralchess_new ( );
+G3DPROCEDURALBRICK    *g3dproceduralbrick_new ( );
+G3DPROCEDURALGRADIENT *g3dproceduralgradient_new ( );
 void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick, 
                                        G3DPROCEDURALBRICK *pout );
 void g3dproceduralchess_copySettings ( G3DPROCEDURALCHESS *chess, 
@@ -3077,6 +3087,8 @@ void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *chess,
                                        G3DPROCEDURALNOISE *pout );
 void g3dproceduralnoise_copySettings ( G3DPROCEDURALNOISE *noise, 
                                        G3DPROCEDURALNOISE *pout );
+void g3dproceduralgradient_copySettings ( G3DPROCEDURALGRADIENT *noise, 
+                                          G3DPROCEDURALGRADIENT *pout );
 
 /******************************************************************************/
 void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,

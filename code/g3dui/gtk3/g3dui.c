@@ -349,6 +349,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                     progressiveDisplay,
                                     gui->toframe,
                                     NULL,
+                                    NULL,
                                     cam,
                                     gui->curframe,
                        ( uint64_t ) ggt->curogl,
@@ -1024,6 +1025,7 @@ void createProceduralTypeSelection ( GtkWidget *parent,
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCPERLINNOISE );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCCHESSBOARD  );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCBRICK       );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCGRADIENT    );
 
     /*gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, XYSTR );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, YZSTR );*/

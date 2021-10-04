@@ -300,11 +300,21 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_KEYS : {
-                g3dimportv3key ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                if ( chunkSize ) {
+                    g3dimportv3key ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
+            } break;
+
+            case SIG_OBJECT_PATHS : {
+                if ( chunkSize ) {
+                    g3dimportv3path ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
             } break;
 
             case SIG_OBJECT_TAGS : {
-                g3dimportv3tag ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                if ( chunkSize ) {
+                    g3dimportv3tag ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
             } break;
 
             case SIG_OBJECT_KEY_TRANSFORMATION : {
