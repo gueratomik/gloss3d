@@ -236,6 +236,59 @@ static void updateMenu_r ( G3DUIMENU *node,
 }
 
 /******************************************************************************/
+void g3duitimeline_deleteKeysCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duitimeline_deleteSelectedKeys ( gui );
+}
+
+/******************************************************************************/
+void g3duitimeline_scaleKeysCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duitimeline_scaleSelectedKeys ( gui, 1.5f, 0.0f );
+}
+
+/******************************************************************************/
+static G3DUIMENU time_menu_delete = { TIMEMENU_DELETE,
+                                      G3DUIMENUTYPE_PUSHBUTTON,
+                                      NULL,
+                                      g3duitimeline_deleteKeysCbk };
+
+static G3DUIMENU time_menu_scale = { TIMEMENU_SCALE,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     g3duitimeline_scaleKeysCbk };
+
+/******************************************************************************/
+static G3DUIMENU time_menu = { "_Options",
+                               G3DUIMENUTYPE_SUBMENU,
+                               NULL,
+                               NULL,
+                              .nodes = { &time_menu_scale,
+                                         &time_menu_delete,
+                                          NULL } };
+
+/******************************************************************************/
+/******************************************************************************/
+GtkWidget *createTimeContextMenu ( GtkWidget *parent,
+                                   G3DUI     *gui,
+                                   char      *name,
+                                   gint       width,
+                                   gint       height ) {
+    GdkRectangle gdkrec = { 0, 0, width, height };
+
+    parseMenu_r ( &time_menu, NULL, gui );
+
+    gtk_widget_size_allocate ( time_menu.menu, &gdkrec );
+
+    gtk_widget_show ( time_menu.menu );
+
+
+    return time_menu.menu;
+}
+
+/******************************************************************************/
 void g3duiview_useDefaultCameraCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkView *gvw = ( GtkView * ) user_data;
     G3DUIVIEW *view = &gvw->view;

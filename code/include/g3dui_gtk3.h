@@ -498,6 +498,12 @@ GtkWidget* createKeyMorpherEdit ( GtkWidget  *parent,
                                   gint        width,
                                   gint        height );
 
+GtkWidget *createTimeContextMenu ( GtkWidget *parent,
+                                   G3DUI     *gui,
+                                   char      *name,
+                                   gint       width,
+                                   gint       height );
+
 /******************************************************************************/
 GtkWidget *createHorizontalScale ( GtkWidget *, G3DUI *,
                                                 char *,

@@ -643,6 +643,9 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define VIEWMENU_UNDO            "Undo  view"
 #define VIEWMENU_REDO            "Redo  view"
 
+#define TIMEMENU_DELETE          "Delete selected keys"
+#define TIMEMENU_SCALE           "Scale time"
+
 /******************************************************************************/
 #define MARGIN 0x02
 #define MARGDB ( MARGIN << 0x01 )
@@ -675,15 +678,6 @@ typedef struct _G3DUICLIPBOARD {
 } G3DUICLIPBOARD;
 
 /******************************************************************************/
-typedef struct _G3DUITIMELINE {
-    uint32_t fps; /*** frame per second ***/
-    uint32_t nbframes;
-    int32_t startframe;
-    int32_t endframe;
-    int32_t curframe;
-} G3DUITIMELINE;
-
-/******************************************************************************/
 typedef struct _G3DUICONF {
     uint32_t undolevel;
 } G3DUICONF;
@@ -711,7 +705,6 @@ typedef struct _G3DUISEGMENT {
 typedef struct _G3DUI {
     G3DMOUSETOOL *mou; /*** current mouse tool ***/
     G3DMOUSETOOL *uvmou; /*** current mouse tool for UV editor ***/
-    /*G3DUITIMELINE *tim;*/
     G3DUICLIPBOARD *cli;
     G3DSCENE     *sce;
     G3DUICONF     conf;
@@ -1137,8 +1130,12 @@ uint32_t      common_timelinedata_onFrame     ( TIMELINEDATA *, float,
                                                                 int );
 int32_t       common_timelinedata_getFrame    ( TIMELINEDATA *, int, int, int );
 int32_t       common_timelinedata_getFramePos ( TIMELINEDATA *, float, int );
-void          common_timelinedata_deleteKey   ( G3DUI*, 
-                                                TIMELINEDATA * );
+
+void          common_g3duitimeline_deleteSelectedKeys  ( G3DUI* );
+void          common_g3duitimeline_scaleSelectedKeys   ( G3DUI *gui, 
+                                                         float  factor, 
+                                                         float  reference );
+
 uint32_t      common_timelinedata_selectKey   ( G3DUI*, 
                                                 TIMELINEDATA *,
                                                 int,

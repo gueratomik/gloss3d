@@ -577,6 +577,16 @@ static uint32_t g3dexportv3object_active ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3object_noShading ( G3DEXPORTV3DATA *ged, 
+                                              G3DOBJECT     *obj, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
+    uint32_t noshading = ( obj->flags & OBJECTNOSHADING ) ? 0x01 : 0x00;
+
+    return g3dexportv3_fwritel ( &noshading, fdst );
+}
+
+/******************************************************************************/
 uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged, 
                              G3DOBJECT     *obj, 
                              uint32_t       flags,
@@ -649,6 +659,14 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
                                            fdst );
         }
     }
+
+    /*** write object shades or not ***/
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_NOSHADING,
+                                     g3dexportv3object_noShading,
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     /*** write object active or not ***/
     size += g3dexportv3_writeChunk ( SIG_OBJECT_ACTIVE,

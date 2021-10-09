@@ -783,9 +783,13 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
     if ( g3dobject_isActive ( mpr ) == 0x00 ) return;
 
 
-    frame = g3dobject_getKeys ( obj, frame, &currKey,
-                                            &prevKey, 
-                                            &nextKey, KEYDATA );
+    frame = g3dobject_getKeys ( obj, 
+                                frame, 
+                               &currKey,
+                               &prevKey, 
+                               &nextKey, 
+                                KEYDATA,
+                                0x00 );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;

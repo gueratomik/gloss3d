@@ -334,7 +334,8 @@ void g3dobject_removePositionCurveSegmentsFromKey ( G3DOBJECT *obj,
     g3dobject_getKeys ( obj, key->frame, &frameKey,
                                          &prevKey,
                                          &nextKey,
-                                         KEYPOSITION );
+                                         KEYPOSITION,
+                                         0x00 );
 
     if ( prevKey ) {
         G3DCURVESEGMENT *seg = g3dcurve_seekSegment ( obj->posCurve,
@@ -376,7 +377,8 @@ void g3dobject_removeRotationCurveSegmentsFromKey ( G3DOBJECT *obj,
     g3dobject_getKeys ( obj, key->frame, &frameKey,
                                          &prevKey,
                                          &nextKey,
-                                         KEYROTATION );
+                                         KEYROTATION,
+                                         0x00 );
 
     if ( prevKey ) {
         G3DCURVESEGMENT *seg = g3dcurve_seekSegment ( obj->rotCurve,
@@ -418,7 +420,8 @@ void g3dobject_removeScalingCurveSegmentsFromKey ( G3DOBJECT *obj,
     g3dobject_getKeys ( obj, key->frame, &frameKey,
                                          &prevKey,
                                          &nextKey,
-                                         KEYSCALING );
+                                         KEYSCALING,
+                                         0x00 );
 
     if ( prevKey ) {
         G3DCURVESEGMENT *seg = g3dcurve_seekSegment ( obj->scaCurve,
@@ -545,12 +548,113 @@ uint32_t g3dobject_nbkeyloop ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+typedef struct _SCALEDKEY {
+    G3DKEY *key;
+    G3DKEY *nextKey;
+    G3DKEY *prevKey;
+} SCALEDKEY;
+
+/******************************************************************************/
+typedef struct _SCALEDSEGMENT {
+    G3DCUBICSEGMENT *cseg;
+} SCALEDSEGMENT;
+
+/******************************************************************************/
+void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj, 
+                                   float      factor, 
+                                   float      reference ) {
+    uint32_t nbkey = list_count ( obj->lselkey );
+    uint32_t nbseg = list_count ( obj->lkey ) - 0x01;
+    SCALEDKEY *scaledKey = ( SCALEDKEY * ) calloc ( nbkey, sizeof ( SCALEDKEY ) );
+    LIST *ltmpkey = obj->lselkey;
+    uint32_t i = 0x00;
+
+    /*** first pass ***/
+    while ( ltmpkey ) {
+        G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+        float newFrame = ( key->frame - reference ) * factor;
+
+        g3dobject_removeKey ( obj, key );
+
+        scaledKey[i].key     = key;
+        scaledKey[i].nextKey = nextKey;
+        scaledKey[i].prevKey = prevKey;
+
+        i++;
+
+        ltmpkey = ltmpkey->next;
+    }
+
+    if ( nbseg ) {
+        SCALEDSEGMENT *scaledPos = ( SCALEDSEGMENT * ) calloc ( nbseg, sizeof ( SCALEDSEGMENT ) );
+        SCALEDSEGMENT *scaledRot = ( SCALEDSEGMENT * ) calloc ( nbseg, sizeof ( SCALEDSEGMENT ) );
+        SCALEDSEGMENT *scaledSca = ( SCALEDSEGMENT * ) calloc ( nbseg, sizeof ( SCALEDSEGMENT ) );
+        LIST *ltmpposseg = obj->posCurve->lseg;
+
+        while ( ltmpposseg ) {
+        }
+    }
+
+    i = 0x00;
+    ltmpkey = obj->lselkey;
+
+    while ( ltmpkey ) {
+        G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+        float newFrame = ( key->frame - reference ) * factor;
+        G3DKEY *scaledPrevKey  = NULL,
+               *scaledFrameKey = NULL,
+               *scaledNextKey  = NULL;
+        LIST *ltmpkeynext = ltmpkey->next;
+
+        g3dobject_getKeys ( obj,
+                            newFrame,
+                           &scaledFrameKey,
+                           &scaledPrevKey,
+                           &scaledNextKey,
+                            0xFFFFFFFF,
+                            0x01 );
+
+        if ( ( scaledPrevKey != scaledKey[i].prevKey ) ||
+             ( scaledNextKey != scaledKey[i].nextKey ) ) {
+            G3DKEY *overwrittenKey = NULL;
+            G3DKEY *newKey = g3dobject_pose ( obj, 
+                                              newFrame,
+                                             &key->pos,
+                                             &key->rot,
+                                             &key->sca, 
+                                             &overwrittenKey,
+                                              key->flags );
+
+            newKey->flags    = key->flags;
+            newKey->data.u64 = key->data.u64;
+
+            if ( overwrittenKey ) {
+                /*g3dobject_unselectKey ( obj, overwrittenKey );*/
+
+                /*g3dobject_removeKey ( obj, overwrittenKey );*/
+            }
+
+            if ( key != overwrittenKey ) {
+                g3dobject_unselectKey ( obj, key );
+
+                g3dobject_removeKey ( obj, key );
+            }
+        }
+
+        i++;
+
+        ltmpkey = ltmpkeynext;
+    }
+}
+
+/******************************************************************************/
 float g3dobject_getKeys ( G3DOBJECT *obj,
                           float      frame,
                           G3DKEY   **framekey,
                           G3DKEY   **prevkey,
                           G3DKEY   **nextkey,
-                          uint32_t   key_flags ) {
+                          uint32_t   key_flags,
+                          uint32_t   ignoreLoop ) {
     LIST *ltmpkey = obj->lkey;
 
     (*framekey) = NULL;
@@ -587,31 +691,37 @@ float g3dobject_getKeys ( G3DOBJECT *obj,
         ltmpkey = ltmpkey->next;
     }
 
-    if ( (*prevkey) ) {
-    /*** loop to previous key if needed ***/
-                                          /*** Prevents an infinite loop ***/
-        if ( ( (*prevkey)->flags & KEYLOOP ) && 
-             ( (*prevkey)->frame != frame  ) ) {
-            float v = ( (*prevkey)->frame - (*prevkey)->loopFrame );
-            float u = (             frame - (*prevkey)->loopFrame );
-            double intpart, decpart;
-            float newframe;
-            float loopFrame = (*prevkey)->loopFrame;
+    if ( ignoreLoop == 0x00 ) {
+        if ( (*prevkey) ) {
+        /*** loop to previous key if needed ***/
+                                              /*** Prevents an infinite loop ***/
+            if ( ( (*prevkey)->flags & KEYLOOP ) && 
+                 ( (*prevkey)->frame != frame  ) ) {
+                float v = ( (*prevkey)->frame - (*prevkey)->loopFrame );
+                float u = (             frame - (*prevkey)->loopFrame );
+                double intpart, decpart;
+                float newframe;
+                float loopFrame = (*prevkey)->loopFrame;
 
-            (*framekey) = NULL;
-            (*prevkey) = NULL;
-            (*nextkey) = NULL;
+                (*framekey) = NULL;
+                (*prevkey) = NULL;
+                (*nextkey) = NULL;
 
-            /*** Prevent a divide by zero ***/
-            if ( v ) {
-                /** floating point modulo. We only need the decimal part **/
-                decpart = modf ( ( u / v ), &intpart );
+                /*** Prevent a divide by zero ***/
+                if ( v ) {
+                    /** floating point modulo. We only need the decimal part **/
+                    decpart = modf ( ( u / v ), &intpart );
 
-                newframe = loopFrame + ( decpart * v );
+                    newframe = loopFrame + ( decpart * v );
 
-                return g3dobject_getKeys ( obj, newframe, framekey,
-                                                          prevkey,
-                                                          nextkey, key_flags );
+                    return g3dobject_getKeys ( obj, 
+                                               newframe, 
+                                               framekey,
+                                               prevkey,
+                                               nextkey, 
+                                               key_flags,
+                                               0x00 );
+                }
             }
         }
     }
@@ -628,9 +738,13 @@ void g3dobject_anim_position ( G3DOBJECT *obj,
            *framekey = NULL;
     float updframe;
 
-    updframe = g3dobject_getKeys ( obj, frame, &framekey,
-                                               &prevkey, 
-                                               &nextkey, KEYPOSITION );
+    updframe = g3dobject_getKeys ( obj, 
+                                   frame, 
+                                  &framekey,
+                                  &prevkey, 
+                                  &nextkey, 
+                                   KEYPOSITION,
+                                   0x00 );
 
     if ( framekey ) {
         memcpy ( &obj->pos, &framekey->pos, sizeof ( G3DVECTOR ) );
@@ -657,9 +771,13 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
     double RMX[0x10];
     float updframe;
 
-    updframe = g3dobject_getKeys ( obj, frame, &framekey,
-                                               &prevkey, 
-                                               &nextkey, KEYROTATION );
+    updframe = g3dobject_getKeys ( obj, 
+                                   frame, 
+                                  &framekey,
+                                  &prevkey, 
+                                  &nextkey, 
+                                   KEYROTATION,
+                                   0x00 );
 
     if ( framekey ) {
         memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR ) );
@@ -714,9 +832,13 @@ void g3dobject_anim_scaling ( G3DOBJECT *obj,
            *framekey = NULL;
     float updframe;
 
-    updframe = g3dobject_getKeys ( obj, frame, &framekey,
-                                               &prevkey, 
-                                               &nextkey, KEYSCALING );
+    updframe = g3dobject_getKeys ( obj, 
+                                   frame, 
+                                  &framekey,
+                                  &prevkey, 
+                                  &nextkey, 
+                                   KEYSCALING,
+                                   0x00 );
 
     if ( framekey ) {
         memcpy ( &obj->sca, &framekey->sca, sizeof ( G3DVECTOR ) );
@@ -930,7 +1052,13 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
 
     if ( keyFlags & KEYPOSITION ) {
         if ( list_seek ( obj->posCurve->lpt, &key->posCurvePoint ) == NULL ) {
-            g3dobject_getKeys ( obj, key->frame, &frameKey, &prevKey, &nextKey, KEYPOSITION );
+            g3dobject_getKeys ( obj, 
+                                key->frame, 
+                               &frameKey, 
+                               &prevKey, 
+                               &nextKey, 
+                                KEYPOSITION,
+                                0x00 );
 
             curve_addTransformation ( obj->posCurve, 
                                      &key->posCurvePoint,
@@ -941,7 +1069,13 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
 
     if ( keyFlags & KEYROTATION ) {
         if ( list_seek ( obj->rotCurve->lpt, &key->rotCurvePoint ) == NULL ) {
-            g3dobject_getKeys ( obj, key->frame, &frameKey, &prevKey, &nextKey, KEYROTATION );
+            g3dobject_getKeys ( obj, 
+                                key->frame, 
+                               &frameKey, 
+                               &prevKey, 
+                               &nextKey, 
+                                KEYROTATION,
+                                0x00 );
 
             curve_addTransformation ( obj->rotCurve, 
                                      &key->rotCurvePoint,
@@ -952,7 +1086,13 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
 
     if ( keyFlags & KEYSCALING ) {
         if ( list_seek ( obj->scaCurve->lpt, &key->scaCurvePoint ) == NULL ) {
-            g3dobject_getKeys ( obj, key->frame, &frameKey, &prevKey, &nextKey, KEYSCALING );
+            g3dobject_getKeys ( obj, 
+                                key->frame, 
+                               &frameKey, 
+                               &prevKey, 
+                               &nextKey, 
+                                KEYSCALING,
+                                0x00 );
 
             curve_addTransformation ( obj->scaCurve, 
                                      &key->scaCurvePoint,

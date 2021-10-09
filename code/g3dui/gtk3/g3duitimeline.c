@@ -30,6 +30,27 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
+typedef struct _G3DUITIMELINE {
+    G3DUIWIDGETGROUP grp;
+    TIMELINEDATA    *tdata;
+    GtkWidget       *menu;
+} G3DUITIMELINE;
+
+/******************************************************************************/
+static G3DUITIMELINE *g3duitimeline_new ( G3DUI *gui ) {
+    G3DUITIMELINE *tim = calloc ( 0x01, sizeof ( G3DUITIMELINE ) );
+
+    if ( tim == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    tim->grp.gui = gui;
+    tim->tdata = common_timelinedata_new ( );
+
+    return tim; 
+}
+
+/******************************************************************************/
 static void g3duitimeline_hide_pointer ( GtkWidget *widget ) {
     GtkWidget *top = gtk_widget_get_toplevel ( widget );
     GdkWindow *gdktopwin =  gtk_widget_get_window ( top );
@@ -64,9 +85,10 @@ static void g3duitimeline_ungrab_pointer ( GtkWidget *widget, GdkEvent *event ) 
 }
 
 /******************************************************************************/
-static void g3duitimeline_move_pointer ( GtkWidget *widget, GdkEvent *event,
-                                                            uint32_t x,
-                                                            uint32_t y ) {
+static void g3duitimeline_move_pointer ( GtkWidget *widget, 
+                                         GdkEvent  *event,
+                                         uint32_t   x,
+                                         uint32_t   y ) {
     GtkWidget *top = gtk_widget_get_toplevel ( widget );
     gint winx, winy;
 
@@ -79,10 +101,11 @@ static void g3duitimeline_move_pointer ( GtkWidget *widget, GdkEvent *event,
 }
 
 /******************************************************************************/
-static void drawObjectName ( GtkStyleContext *context, cairo_t *cr,
-                                                       G3DOBJECT *obj, 
-                                                       float x, 
-                                                       float y ) {
+static void drawObjectName ( GtkStyleContext *context, 
+                             cairo_t         *cr,
+                             G3DOBJECT       *obj, 
+                             float            x, 
+                             float            y ) {
     cairo_text_extents_t te;
     GdkRGBA fg;
 
@@ -103,11 +126,12 @@ static void drawObjectName ( GtkStyleContext *context, cairo_t *cr,
 }
 
 /******************************************************************************/
-static void drawKey ( GtkStyleContext *context, cairo_t *cr,
-                                                uint32_t x, 
-                                                uint32_t y,
-                                                uint32_t height,
-                                                uint32_t selected ) {
+static void drawKey ( GtkStyleContext *context, 
+                      cairo_t         *cr,
+                      uint32_t         x, 
+                      uint32_t         y,
+                      uint32_t         height,
+                      uint32_t         selected ) {
 
 
     /*** outline ***/
@@ -123,11 +147,12 @@ static void drawKey ( GtkStyleContext *context, cairo_t *cr,
 }
 
 /******************************************************************************/
-static void drawObject ( GtkStyleContext *context, cairo_t *cr,
-                                                   TIMELINEDATA *tdata,
-                                                   G3DOBJECT *obj,
-                                                   uint32_t width,
-                                                   uint32_t height ) {
+static void drawObject ( GtkStyleContext *context, 
+                         cairo_t         *cr,
+                         TIMELINEDATA    *tdata,
+                         G3DOBJECT       *obj,
+                         uint32_t         width,
+                         uint32_t         height ) {
     LIST *ltmp = obj->lkey;
 
     while ( ltmp ) {
@@ -146,11 +171,12 @@ static void drawObject ( GtkStyleContext *context, cairo_t *cr,
 }
 
 /******************************************************************************/
-static void drawObjectList ( GtkStyleContext *context, cairo_t *cr,
-                                                       TIMELINEDATA *tdata,
-                                                       LIST *lobj,
-                                                       uint32_t width,
-                                                       uint32_t height ) {
+static void drawObjectList ( GtkStyleContext *context, 
+                             cairo_t         *cr,
+                             TIMELINEDATA    *tdata,
+                             LIST            *lobj,
+                             uint32_t         width,
+                             uint32_t         height ) {
     LIST *ltmp = lobj;
 
     while ( ltmp ) {
@@ -163,22 +189,24 @@ static void drawObjectList ( GtkStyleContext *context, cairo_t *cr,
 }
 
 /******************************************************************************/
-static void drawCursor ( GtkStyleContext *context, cairo_t *cr,
-                                                   uint32_t x, 
-                                                   uint32_t y, 
-                                                   uint32_t height ) {
+static void drawCursor ( GtkStyleContext *context, 
+                         cairo_t         *cr,
+                         uint32_t         x, 
+                         uint32_t         y, 
+                         uint32_t         height ) {
     gtk_render_arrow ( context, cr, G_PI, x - 0x03, y, 0x7 );
 
     gtk_render_line  ( context, cr, x, y, x, height );
 }
 
 /******************************************************************************/
-static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev, 
-                                           gpointer user_data ) {
-    TIMELINEDATA *tdata = g_object_get_data ( G_OBJECT(widget),
-                                              GTK3WIDGETDATA );
+static gboolean Input ( GtkWidget *widget,
+                        GdkEvent  *gdkev, 
+                        gpointer   user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    G3DUI *gui = tim->grp.gui;
+    TIMELINEDATA *tdata = tim->tdata;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
-    G3DUI    *gui = ( G3DUI * ) user_data;
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     static  int32_t xacc;
@@ -189,14 +217,13 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
     width  = gtk_widget_get_allocated_width  ( widget );
     height = gtk_widget_get_allocated_height ( widget );
 
-
     switch ( gdkev->type ) {
         case GDK_KEY_PRESS : {
             GdkEventKey *kev = ( GdkEventKey * ) gdkev;
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    common_timelinedata_deleteKey ( gui, tdata );
+                    common_g3duitimeline_deleteSelectedKeys ( gui );
                 } break;
             }
         } break;
@@ -226,50 +253,62 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
 
         case GDK_BUTTON_PRESS : {
             GdkEventButton *bev = ( GdkEventButton * ) gdkev;
-            uint32_t keep = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
+
+            if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
+                 ( bev->button == 1 ) ) {
+                uint32_t keep = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
 
 
-            /*** For keyboard inputs ***/
-            gtk_widget_grab_focus ( widget );
+                /*** For keyboard inputs ***/
+                gtk_widget_grab_focus ( widget );
 
-            /*** disable buffered subdivision whatever happens. because  ***/
-            /*** in animation mode they are slower than their on-the-fly ***/
-            /*** counterparts (re-enabled in ButtonReleased ***/
-            gui->engine_flags |= ONGOINGANIMATION;
+                /*** disable buffered subdivision whatever happens. because  ***/
+                /*** in animation mode they are slower than their on-the-fly ***/
+                /*** counterparts (re-enabled in ButtonReleased ***/
+                gui->engine_flags |= ONGOINGANIMATION;
 
-            pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
-                                                                  bev->y,
-                                                                  width );
+                pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
+                                                                      bev->y,
+                                                                      width );
 
-            /*** First check whether or not we clicked the cursor ***/
-            if ( pressed_frame == gui->curframe ) {
-                oncursor = 0x01;
+                /*** First check whether or not we clicked the cursor ***/
+                if ( pressed_frame == gui->curframe ) {
+                    oncursor = 0x01;
+                } else {
+                    /*** else check whether or not we clicked a key ***/
+                    onkey = common_timelinedata_selectKey ( gui, 
+                                                            tdata, 
+                                                            pressed_frame,
+                                                            keep,
+                                                            width );
+                }
+
+                /*** Move the whole timeline indefinitely. For so, we hide the ***/
+                /*** cursor so that the user does not see the mouse pointer    ***/
+                /*** moving back to the center of the widget all the time.     ***/
+                xold = xori = bev->x;
+                yold = yori = bev->y;
+
+                if ( /*( oncursor == 0x00 ) &&
+                     ( onkey    == 0x00 ) && */
+                     ( dragging == 0x00 ) ) {
+                    g3duitimeline_hide_pointer ( widget );
+                    g3duitimeline_grab_pointer ( widget, gdkev );
+
+
+                    dragging = 0x01;
+                }
+
+                xacc = 0x00;
             } else {
-                /*** else check whether or not we clicked a key ***/
-                onkey = common_timelinedata_selectKey ( gui, 
-                                                        tdata, 
-                                                        pressed_frame,
-                                                        keep,
-                                                        width );
+                gtk_menu_popup ( GTK_MENU ( tim->menu ), 
+                                 NULL, 
+                                 NULL,
+                                 /*SetMenuPosition*/NULL,
+                                 /*bev*/NULL,
+                                 bev->button,
+                                 gdk_event_get_time( ( GdkEvent * ) gdkev ) );
             }
-
-            /*** Move the whole timeline indefinitely. For so, we hide the ***/
-            /*** cursor so that the user does not see the mouse pointer    ***/
-            /*** moving back to the center of the widget all the time.     ***/
-            xold = xori = bev->x;
-            yold = yori = bev->y;
-
-            if ( /*( oncursor == 0x00 ) &&
-                 ( onkey    == 0x00 ) && */
-                 ( dragging == 0x00 ) ) {
-                g3duitimeline_hide_pointer ( widget );
-                g3duitimeline_grab_pointer ( widget, gdkev );
-
-
-                dragging = 0x01;
-            }
-
-            xacc = 0x00;
 
             gtk_widget_queue_draw ( widget );
         } break;
@@ -312,6 +351,7 @@ static gboolean Input ( GtkWidget *widget, GdkEvent *gdkev,
 
         case GDK_BUTTON_RELEASE : {
             GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
 
             if ( dragging ) {
                 g3duitimeline_ungrab_pointer ( widget, gdkev );
@@ -420,6 +460,14 @@ static void drawTimeline ( GtkStyleContext *context, cairo_t *cr,
 }
 
 /******************************************************************************/
+static void Destroy ( GtkWidget *widget, gpointer user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+
+    free ( tim->tdata );
+    free ( tim );
+}
+
+/******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
 
@@ -428,12 +476,13 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static gboolean Draw ( GtkWidget *widget, cairo_t *cr, 
-                                                    gpointer user_data ) {
-    TIMELINEDATA *tdata = g_object_get_data ( G_OBJECT(widget),
-                                              GTK3WIDGETDATA );
-    G3DUI    *gui = ( G3DUI * ) user_data;
-    G3DSCENE *sce = gui->sce;
+static gboolean Draw ( GtkWidget *widget, 
+                       cairo_t   *cr, 
+                       gpointer   user_data ) {
+    G3DUITIMELINE   *tim = ( G3DUITIMELINE * ) user_data;
+    TIMELINEDATA    *tdata = tim->tdata;
+    G3DUI           *gui = tim->grp.gui;
+    G3DSCENE        *sce = gui->sce;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     GtkAllocation allocation;
     int32_t csrpos;
@@ -459,24 +508,23 @@ static gboolean Draw ( GtkWidget *widget, cairo_t *cr,
 }
 
 /******************************************************************************/
-GtkWidget *createTimeline ( GtkWidget *parent, G3DUI *gui,
-                                               char *name,
-                                               gint x,
-                                               gint y,
-                                               gint width,
-                                               gint height ) {
-    TIMELINEDATA *tdata = common_timelinedata_new ( );
+GtkWidget *createTimeline ( GtkWidget *parent, 
+                            G3DUI     *gui,
+                            char      *name,
+                            gint       x,
+                            gint       y,
+                            gint       width,
+                            gint       height ) {
+    G3DUITIMELINE *tim = g3duitimeline_new ( gui );
     GdkRectangle drwrec = { 0, 0, width, height };
     GtkWidget *drw;
 
     /*** Drawing area within the Scrolled Window ***/
     drw = gtk_drawing_area_new ( );
 
-    gtk_widget_set_name ( drw, name );
+    g_object_set_data ( G_OBJECT(drw), "private", (gpointer) tim );
 
-    /*** we use TIMELINEDATA structure to store  ***/
-    /*** the data used by the drawing area widget.    ***/
-    g_object_set_data ( G_OBJECT(drw), GTK3WIDGETDATA, tdata );
+    gtk_widget_set_name ( drw, name );
 
     gtk_widget_size_allocate ( drw, &drwrec );
     /*gtk_widget_set_size_request ( drw, 400, 50 );*/
@@ -493,17 +541,21 @@ GtkWidget *createTimeline ( GtkWidget *parent, G3DUI *gui,
                                  GDK_POINTER_MOTION_HINT_MASK );
 
 /*    g_signal_connect ( G_OBJECT (drw), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), view );
-*/    g_signal_connect ( G_OBJECT (drw), "realize"             , G_CALLBACK (Realize), gui );
-    
-    g_signal_connect ( G_OBJECT (drw), "draw"                , G_CALLBACK (Draw), gui );
+*/
+    g_signal_connect ( G_OBJECT (drw), "realize", G_CALLBACK (Realize), tim );
+    g_signal_connect ( G_OBJECT (drw), "destroy", G_CALLBACK (Destroy), tim );
 
-    g_signal_connect ( G_OBJECT (drw), "motion_notify_event" , G_CALLBACK (Input), gui );
-    g_signal_connect ( G_OBJECT (drw), "button-press-event"  , G_CALLBACK (Input), gui );
-    g_signal_connect ( G_OBJECT (drw), "button-release-event", G_CALLBACK (Input), gui );
-    g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (Input), gui );
-    g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (Input), gui );
+    g_signal_connect ( G_OBJECT (drw), "draw"                , G_CALLBACK (Draw), tim );
+
+    g_signal_connect ( G_OBJECT (drw), "motion_notify_event" , G_CALLBACK (Input), tim );
+    g_signal_connect ( G_OBJECT (drw), "button-press-event"  , G_CALLBACK (Input), tim );
+    g_signal_connect ( G_OBJECT (drw), "button-release-event", G_CALLBACK (Input), tim );
+    g_signal_connect ( G_OBJECT (drw), "key_press_event"     , G_CALLBACK (Input), tim );
+    g_signal_connect ( G_OBJECT (drw), "key_release_event"   , G_CALLBACK (Input), tim );
 
     gtk_fixed_put ( GTK_FIXED(parent), drw, x, y );
+
+    tim->menu = createTimeContextMenu ( drw, gui, name, 0x60, 0x60 );
 
     list_insert ( &gui->ltimeline, drw );
 

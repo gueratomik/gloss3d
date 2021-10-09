@@ -355,18 +355,37 @@ static uint32_t g3dexportv3mesh_geometry ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3mesh_gouraudLimit ( G3DEXPORTV3DATA *ged, 
+                                               G3DMESH         *mes, 
+                                               uint32_t         flags, 
+                                               FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritef ( &mes->gouraudScalarLimit, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 uint32_t g3dexportv3mesh ( G3DEXPORTV3DATA *ged, 
                          G3DMESH       *mes, 
                          uint32_t       flags, 
                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_GOURAUDLIMIT,
+                                     g3dexportv3mesh_gouraudLimit,
+                                     ged,
+                                     mes,
+                                     0xFFFFFFFF,
+                                     fdst );
+
     size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_GEOMETRY,
-                                   g3dexportv3mesh_geometry,
-                                   ged,
-                                   mes,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3mesh_geometry,
+                                     ged,
+                                     mes,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( mes->lweigrp ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUPS,

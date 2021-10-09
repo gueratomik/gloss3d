@@ -43,6 +43,15 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_OBJECT_MESH_GOURAUDLIMIT : {
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
+                float gouraudScalarLimit;
+
+                g3dimportv3_freadf ( &gouraudScalarLimit, fsrc );
+
+                mes->gouraudScalarLimit = gouraudScalarLimit;
+            } break;
+
             case SIG_OBJECT_MESH_GEOMETRY : {
             } break;
 

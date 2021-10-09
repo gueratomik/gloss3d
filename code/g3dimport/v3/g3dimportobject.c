@@ -207,6 +207,16 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                      gid->engineFlags );
             } break;
 
+            case SIG_OBJECT_NOSHADING : {
+                uint32_t noshading;
+
+                g3dimportv3_freadl ( &noshading, fsrc );
+
+                if ( noshading ) {
+                    gid->currentObject->flags |= OBJECTNOSHADING;
+                }
+            } break;
+
             case SIG_OBJECT_ACTIVE : {
                 g3dimportv3_freadl ( &active, fsrc );
 

@@ -468,6 +468,9 @@ SIG_ROOT=0x44335347
 ----------------------------------- Rotation    ( float-float-float-uint32_t ) /** last int is unused **/
 ----------------------------------- Scale       ( float-float-float-uint32_t ) /** last int is unused **/
 
+--------------- SIG_OBJECT_NOSHADING
+------------------- noshading ( uint32_t ) /** 1 or 0 **/
+
 --------------- SIG_OBJECT_ACTIVE
 ------------------- active ( uint32_t ) /** 1 or 0 **/
 -------- SIG_EXTENSIONS

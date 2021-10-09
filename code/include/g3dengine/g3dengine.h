@@ -2038,6 +2038,9 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj,
                          G3DVECTOR *sca, 
                          G3DKEY   **overwrittenKey,
                          uint32_t   key_flags );
+void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj, 
+                                   float      factor, 
+                                   float      reference );
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key );
 void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
                                        G3DKEY    *key,
@@ -2176,6 +2179,7 @@ float      g3dobject_getKeys               ( G3DOBJECT *, float,
                                                           G3DKEY **,
                                                           G3DKEY **,
                                                           G3DKEY **,
+                                                          uint32_t,
                                                           uint32_t );
 
 void g3dobject_anim_position ( G3DOBJECT *obj,

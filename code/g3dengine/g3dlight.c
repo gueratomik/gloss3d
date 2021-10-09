@@ -424,10 +424,13 @@ static void g3dlight_anim ( G3DLIGHT *lig,
 
     if ( g3dobject_isActive ( lig ) == 0x00 ) return;
 
-    frame = g3dobject_getKeys ( obj, frame, &currKey,
-                                            &prevKey, 
-                                            &nextKey, KEYDATA );
-
+    frame = g3dobject_getKeys ( obj, 
+                                frame, 
+                               &currKey,
+                               &prevKey, 
+                               &nextKey, 
+                                KEYDATA,
+                                0x00 );
 
     if ( currKey ) {
         LIGHTKEYDATA *lkd = currKey->data.ptr;

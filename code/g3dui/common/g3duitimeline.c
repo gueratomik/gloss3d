@@ -30,7 +30,32 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_timelinedata_deleteKey ( G3DUI *gui, TIMELINEDATA *tdata ) {
+void common_g3duitimeline_scaleSelectedKeys ( G3DUI *gui, 
+                                              float  factor, 
+                                              float  reference ) {
+    LIST *ltmpobj = gui->sce->lsel;
+
+/*    g3durm_objectList_removeSelectedKeys ( gui->urm, 
+                                           gui->sce->lsel, 
+                                           gui->engine_flags,
+                                           REDRAWTIMELINE | REDRAWVIEW );
+
+*/
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        g3dobject_scaleSelectedKeys ( obj, factor, reference );
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    g3dui_redrawTimeline ( gui );
+    g3dui_redrawGLViews ( gui );
+}
+
+/******************************************************************************/
+void common_g3duitimeline_deleteSelectedKeys ( G3DUI *gui ) {
     g3durm_objectList_removeSelectedKeys ( gui->urm, 
                                            gui->sce->lsel, 
                                            gui->engine_flags,
