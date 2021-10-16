@@ -152,13 +152,18 @@ static void drawObject ( GtkStyleContext *context,
                          TIMELINEDATA    *tdata,
                          G3DOBJECT       *obj,
                          uint32_t         width,
-                         uint32_t         height ) {
+                         uint32_t         height,
+                         float           (*funcKey)(G3DKEY *key,
+                                                    void   *data ),
+                         void            *funcData ) {
     LIST *ltmp = obj->lkey;
 
     while ( ltmp ) {
         G3DKEY *key = ( G3DKEY * ) ltmp->data;
-        uint32_t kx = common_timelinedata_getFramePos ( tdata, key->frame, 
-                                                               width ),
+        float frame = ( ( key->flags & KEYSELECTED ) && funcKey ) ? funcKey ( key, funcData ) : key->frame;
+        uint32_t kx = common_timelinedata_getFramePos ( tdata,
+                                                        frame,
+                                                        width ),
                  ky = 0x00;
 
         /*** Draw frame only if it's within the widget window ***/
@@ -176,13 +181,16 @@ static void drawObjectList ( GtkStyleContext *context,
                              TIMELINEDATA    *tdata,
                              LIST            *lobj,
                              uint32_t         width,
-                             uint32_t         height ) {
+                             uint32_t         height,
+                             float           (*funcKey)(G3DKEY *key,
+                                                        void   *data ),
+                             void            *funcData ) {
     LIST *ltmp = lobj;
 
     while ( ltmp ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmp->data;
 
-        drawObject ( context, cr, tdata, obj, width, height );
+        drawObject ( context, cr, tdata, obj, width, height, funcKey, funcData );
 
         ltmp = ltmp->next;
     }
@@ -200,9 +208,85 @@ static void drawCursor ( GtkStyleContext *context,
 }
 
 /******************************************************************************/
-static gboolean Input ( GtkWidget *widget,
-                        GdkEvent  *gdkev, 
-                        gpointer   user_data ) {
+typedef struct _MOVEKEYDATA {
+    int deltaframe;
+} MOVEKEYDATA;
+
+static float moveKeyFunc ( G3DKEY      *key, 
+                           MOVEKEYDATA *mkd ) {
+    return ( float ) key->frame + mkd->deltaframe;
+}
+
+/******************************************************************************/
+static moveKeysToolInput ( GtkWidget *widget,
+                           GdkEvent  *gdkev, 
+                           gpointer   user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    G3DUI *gui = tim->grp.gui;
+    TIMELINEDATA *tdata = tim->tdata;
+    static MOVEKEYDATA mkd;
+    static int x, xold;
+
+    switch ( gdkev->type ) {
+        case GDK_BUTTON_PRESS : {
+            GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
+            if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
+                 ( bev->button == 0x01 ) ) {
+                xold = bev->x;
+            }
+
+            mkd.deltaframe = 0;
+
+            tdata->funcKey  =  moveKeyFunc;
+            tdata->funcData = &mkd;
+
+            gtk_widget_queue_draw ( widget );
+        } break;
+
+        case GDK_MOTION_NOTIFY : {
+            GdkEventMotion *mev = ( GdkEventMotion * ) gdkev;
+
+            if ( mev->state & GDK_BUTTON1_MASK ) {
+                mkd.deltaframe = ( ( mev->x - xold ) / tdata->nbpix );
+            }
+
+            gtk_widget_queue_draw ( widget );
+        } break;
+
+        case GDK_BUTTON_RELEASE : {
+            GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
+            if ( bev->button == 0x01 ) {
+                LIST *ltmpobj = gui->sce->lsel;
+
+                while ( ltmpobj ) {
+                    G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+                    g3dobject_driftSelectedKeys ( obj, mkd.deltaframe );
+
+                    ltmpobj = ltmpobj->next;
+                }
+            }
+
+            tdata->funcKey  = NULL;
+            tdata->funcData = NULL;
+
+            gtk_widget_queue_draw ( widget );
+            g3dui_redrawGLViews ( gui );
+        } break;
+
+        default:
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static gboolean panToolInput ( GtkWidget *widget,
+                               GdkEvent  *gdkev, 
+                               gpointer   user_data ) {
     G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
     G3DUI *gui = tim->grp.gui;
     TIMELINEDATA *tdata = tim->tdata;
@@ -225,12 +309,18 @@ static gboolean Input ( GtkWidget *widget,
                 case GDK_KEY_Delete: {
                     common_g3duitimeline_deleteSelectedKeys ( gui );
                 } break;
+
+                case GDK_KEY_a: {
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_timelinedata_selectAllKeys ( gui, tdata );
+                    }
+                } break;
             }
         } break;
 
         case GDK_2BUTTON_PRESS : {
             GdkEventButton *bev = ( GdkEventButton * ) gdkev;
-            uint32_t keep = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
+            uint32_t keep  = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
 
             pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
                                                                   bev->y,
@@ -240,6 +330,7 @@ static gboolean Input ( GtkWidget *widget,
                                                     tdata, 
                                                     pressed_frame,
                                                     keep,
+                                                    0x00,
                                                     width );
 
             if ( onkey ) {
@@ -256,9 +347,6 @@ static gboolean Input ( GtkWidget *widget,
 
             if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
                  ( bev->button == 1 ) ) {
-                uint32_t keep = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
-
-
                 /*** For keyboard inputs ***/
                 gtk_widget_grab_focus ( widget );
 
@@ -276,11 +364,12 @@ static gboolean Input ( GtkWidget *widget,
                     oncursor = 0x01;
                 } else {
                     /*** else check whether or not we clicked a key ***/
-                    onkey = common_timelinedata_selectKey ( gui, 
-                                                            tdata, 
-                                                            pressed_frame,
-                                                            keep,
-                                                            width );
+                    onkey = common_timelinedata_isOnKey ( gui, 
+                                                          tdata, 
+                                                          pressed_frame );
+
+                    /*** get prepared to move the key, just in case ***/
+                    moveKeysToolInput ( widget, gdkev, user_data );
                 }
 
                 /*** Move the whole timeline indefinitely. For so, we hide the ***/
@@ -294,7 +383,6 @@ static gboolean Input ( GtkWidget *widget,
                      ( dragging == 0x00 ) ) {
                     g3duitimeline_hide_pointer ( widget );
                     g3duitimeline_grab_pointer ( widget, gdkev );
-
 
                     dragging = 0x01;
                 }
@@ -323,21 +411,26 @@ static gboolean Input ( GtkWidget *widget,
 
                 if ( abs ( xacc ) >= tdata->nbpix ) {
                     /*** if we clicked the cursor, drag the cursor ***/
-                    if ( oncursor ) {
-                        gui->curframe += ( xacc / ( int32_t ) tdata->nbpix );
-
-                        common_g3dui_processAnimatedImages ( gui );
-
-                        g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
-                                                                gui->engine_flags );
-
-                        g3dui_updateCoords  ( gui );
-                        g3dui_redrawGLViews ( gui );
+                    if ( onkey ) {
+                        /*** move the key ***/
+                        return moveKeysToolInput ( widget, gdkev, user_data );
                     } else {
-                    /*** or else drag the whole timeline ***/
-                        tdata->midframe -= ( xacc / ( int32_t ) tdata->nbpix );
+                        if ( oncursor ) {
+                            gui->curframe += ( xacc / ( int32_t ) tdata->nbpix );
 
-                        dragging = 0x02;
+                            common_g3dui_processAnimatedImages ( gui );
+
+                            g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
+                                                                    gui->engine_flags );
+
+                            g3dui_updateCoords  ( gui );
+                            g3dui_redrawGLViews ( gui );
+                        } else {
+                        /*** or else drag the whole timeline ***/
+                            tdata->midframe -= ( xacc / ( int32_t ) tdata->nbpix );
+
+                            dragging = 0x02;
+                        }
                     }
 
                     xacc = ( xacc % ( int32_t ) tdata->nbpix );
@@ -352,30 +445,46 @@ static gboolean Input ( GtkWidget *widget,
         case GDK_BUTTON_RELEASE : {
             GdkEventButton *bev = ( GdkEventButton * ) gdkev;
 
-
             if ( dragging ) {
                 g3duitimeline_ungrab_pointer ( widget, gdkev );
                 g3duitimeline_show_pointer   ( widget );
 
-                if ( oncursor ) {
-                    int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
+                if ( onkey ) {
+                    if ( ( int ) bev->x == ( int ) xori ) {
+                        uint32_t keep  = ( bev->state & GDK_CONTROL_MASK ) ? 0x01 : 0x00;
+                        uint32_t range = ( bev->state & GDK_SHIFT_MASK   ) ? 0x01 : 0x00;
 
-                    /*** Recompute buffered subdivided Meshes ***/
-                    g3dscene_updateMeshes ( sce, gui->engine_flags );
-
-                    /*** After dragging the cursor, move ***/
-                    /*** the pointer to its position.    ***/
-                    /*** Check the new position is within widget boundaries.***/
-                    if ( ( xnew < 0x00 ) || ( xnew > width ) ) {
-                        g3duitimeline_move_pointer ( widget, gdkev, xori, yori );
+                        common_timelinedata_selectKey ( gui, 
+                                                        tdata, 
+                                                        pressed_frame,
+                                                        keep,
+                                                        range,
+                                                        width );
                     } else {
-                        g3duitimeline_move_pointer ( widget, gdkev, xnew, yori );
+                        /*** move the key ***/
+                        moveKeysToolInput ( widget, gdkev, user_data );
                     }
                 } else {
-            /*** If press and release position are the same, dragging equals 1***/
-            /*** because dragging equals 2 when it go through MotionNotify. ***/
-                    if ( dragging == 0x01 ) {
-                        gui->curframe = pressed_frame;
+                    if ( oncursor ) {
+                        int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
+
+                        /*** Recompute buffered subdivided Meshes ***/
+                        g3dscene_updateMeshes ( sce, gui->engine_flags );
+
+                        /*** After dragging the cursor, move ***/
+                        /*** the pointer to its position.    ***/
+                        /*** Check the new position is within widget boundaries.***/
+                        if ( ( xnew < 0x00 ) || ( xnew > width ) ) {
+                            g3duitimeline_move_pointer ( widget, gdkev, xori, yori );
+                        } else {
+                            g3duitimeline_move_pointer ( widget, gdkev, xnew, yori );
+                        }
+                    } else {
+                /*** If press and release position are the same, dragging equals 1***/
+                /*** because dragging equals 2 when it go through MotionNotify. ***/
+                        if ( dragging == 0x01 ) {
+                            gui->curframe = pressed_frame;
+                        }
                     }
                 }
 
@@ -392,6 +501,30 @@ static gboolean Input ( GtkWidget *widget,
         } break;
 
         default:
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+static gboolean Input ( GtkWidget *widget,
+                        GdkEvent  *gdkev, 
+                        gpointer   user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    G3DUI *gui = tim->grp.gui;
+    TIMELINEDATA *tdata = tim->tdata;
+
+    switch ( tdata->tool ) {
+        case TIME_MOVE_TOOL :
+            return moveKeysToolInput ( widget, gdkev, user_data );
+        break;
+
+        case TIME_PAN_TOOL :
+            return panToolInput ( widget, gdkev, user_data );
+        break;
+
+        default :
         break;
     }
 
@@ -422,7 +555,7 @@ static void drawTimeline ( GtkStyleContext *context, cairo_t *cr,
     cairo_stroke          ( cr );
 
     /*** Draw keys ***/
-    drawObjectList ( context, cr, tdata, lobj, width, height );
+    drawObjectList ( context, cr, tdata, lobj, width, height, tdata->funcKey, tdata->funcData );
 
     /*** Draw Timeline ***/
     cairo_set_source_rgba ( cr, bg.red, bg.green, bg.blue, bg.alpha );
@@ -505,6 +638,34 @@ static gboolean Draw ( GtkWidget *widget,
 
 
     return FALSE;
+}
+
+/******************************************************************************/
+void timeline_setTool ( GtkWidget *timeline, uint32_t tool ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) g_object_get_data ( G_OBJECT(timeline),
+                                                                 "private" );
+
+    tim->tdata->tool = tool;
+}
+
+/******************************************************************************/
+void timeline_incZoom ( GtkWidget *timeline, uint32_t nbpix ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) g_object_get_data ( G_OBJECT(timeline),
+                                                                 "private" );
+
+    tim->tdata->nbpix += nbpix;
+
+    if ( tim->tdata->nbpix > MAXIMUMFRAMEGAP ) tim->tdata->nbpix  = MAXIMUMFRAMEGAP;
+}
+
+/******************************************************************************/
+void timeline_decZoom ( GtkWidget *timeline, uint32_t nbpix ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) g_object_get_data ( G_OBJECT(timeline),
+                                                                 "private" );
+
+    tim->tdata->nbpix -= nbpix;
+
+    if ( tim->tdata->nbpix < MINIMUMFRAMEGAP ) tim->tdata->nbpix  = MINIMUMFRAMEGAP;
 }
 
 /******************************************************************************/

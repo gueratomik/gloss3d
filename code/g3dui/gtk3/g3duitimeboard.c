@@ -144,12 +144,8 @@ void g3dui_prevFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 void g3dui_zoomFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     GtkWidget *timeline = g3duitimeboard_getTimeline ( parent );
-    TIMELINEDATA *tdata = g_object_get_data ( G_OBJECT(timeline),
-                                              GTK3WIDGETDATA );
 
-    tdata->nbpix += 0x02;
-
-    if ( tdata->nbpix > MAXIMUMFRAMEGAP ) tdata->nbpix  = MAXIMUMFRAMEGAP;
+    timeline_incZoom ( timeline, 0x02 );
 
     gtk_widget_queue_draw ( widget );
 }
@@ -158,12 +154,8 @@ void g3dui_zoomFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 void g3dui_unzoomFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     GtkWidget *timeline = g3duitimeboard_getTimeline ( parent );
-    TIMELINEDATA *tdata = g_object_get_data ( G_OBJECT(timeline),
-                                              GTK3WIDGETDATA );
 
-    tdata->nbpix -= 0x02;
-
-    if ( tdata->nbpix < MINIMUMFRAMEGAP ) tdata->nbpix  = MINIMUMFRAMEGAP;
+    timeline_decZoom ( timeline, 0x02 );
 
     gtk_widget_queue_draw ( widget );
 }
@@ -217,7 +209,35 @@ void Resize ( GtkWidget *widget, GdkRectangle *allocation,
         if ( strcmp ( child_name, TIMELINENAME ) == 0x00 ) {
             gdkrec.x      = 168;
             gdkrec.y      = 0x00;
-            gdkrec.width  = allocation->width - 168;
+            gdkrec.width  = allocation->width - 168 - 48;
+            gdkrec.height = allocation->height;
+
+            if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
+                gdkrec.x += allocation->x;
+                gdkrec.y += allocation->y;
+            }
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
+        if ( strcmp ( child_name, TIMEBOARDMOVE ) == 0x00 ) {
+            gdkrec.x      = allocation->width - 48;
+            gdkrec.y      = 0x00;
+            gdkrec.width  = 24;
+            gdkrec.height = allocation->height;
+
+            if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
+                gdkrec.x += allocation->x;
+                gdkrec.y += allocation->y;
+            }
+
+            gtk_widget_size_allocate ( child, &gdkrec );
+        }
+
+        if ( strcmp ( child_name, TIMEBOARDPAN ) == 0x00 ) {
+            gdkrec.x      = allocation->width - 24;
+            gdkrec.y      = 0x00;
+            gdkrec.width  = 24;
             gdkrec.height = allocation->height;
 
             if ( gtk_widget_get_has_window ( widget ) == 0x00 ) {
@@ -230,6 +250,26 @@ void Resize ( GtkWidget *widget, GdkRectangle *allocation,
 
         children = g_list_next ( children );
     }
+}
+
+/******************************************************************************/
+void g3dui_useMoveToolCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    GtkWidget *timeline = g3duitimeboard_getTimeline ( parent );
+
+    timeline_setTool ( timeline, TIME_MOVE_TOOL );
+
+    gtk_widget_queue_draw ( widget );
+}
+
+/******************************************************************************/
+void g3dui_usePanToolCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    GtkWidget *timeline = g3duitimeboard_getTimeline ( parent );
+
+    timeline_setTool ( timeline, TIME_PAN_TOOL );
+
+    gtk_widget_queue_draw ( widget );
 }
 
 /******************************************************************************/
@@ -258,11 +298,9 @@ GtkWidget *createTimeBoard ( GtkWidget *parent, G3DUI *gui,
     createImageButton ( frm, gui, TIMEBOARDUNZOOM, unzoomtime_xpm, 120,  0, 24, 24, g3dui_unzoomFrameCbk );
     createImageButton ( frm, gui, TIMEBOARDRECORD, record_xpm    , 144,  0, 24, 24, g3dui_recordFrameCbk );
 
-    createTimeline    ( frm, gui, TIMELINENAME , 168, 0, width - 168, height );
-
-
-
-
+    createTimeline    ( frm, gui, TIMELINENAME   ,                 168,  0, width - 168 - 48, height );
+    createImageButton ( frm, gui, TIMEBOARDMOVE, record_xpm    , width - 48,  0, 24, 24, g3dui_useMoveToolCbk );
+    createImageButton ( frm, gui, TIMEBOARDPAN , record_xpm    , width - 24,  0, 24, 24, g3dui_usePanToolCbk );
 
 
     gtk_widget_show_all ( frm );

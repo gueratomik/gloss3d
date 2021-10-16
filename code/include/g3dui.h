@@ -1112,15 +1112,25 @@ PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size );
 #define TIMEBOARDRECORD "TIMEBOARDRECORD"
 #define TIMEBOARDZOOM   "TIMEBOARDZOOM"
 #define TIMEBOARDUNZOOM "TIMEBOARDUNZOOM"
+#define TIMEBOARDMOVE   "TIMEBOARDMOVE"
+#define TIMEBOARDPAN    "TIMEBOARDPAN"
 
 #define DEFAULTFRAMEGAP 0x10
 #define MINIMUMFRAMEGAP 0x04
 #define MAXIMUMFRAMEGAP 0x20
 
+#define TIME_PAN_TOOL   0x00
+#define TIME_MOVE_TOOL  0x01
+#define TIME_SCALE_TOOL 0x02
+
 typedef struct _TIMELINEDATA {
     int32_t midframe; /*** the frame in the middle of the widget     ***/
     uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
+    float (*funcKey)(G3DKEY *key, void *data );
+    void   *funcData;
+    uint32_t tool;
 } TIMELINEDATA;
+
 
 /******************************************************************************/
 TIMELINEDATA *common_timelinedata_new ( );
@@ -1140,7 +1150,15 @@ uint32_t      common_timelinedata_selectKey   ( G3DUI*,
                                                 TIMELINEDATA *,
                                                 int,
                                                 int,
+                                                int,
                                                 int );
+
+void common_timelinedata_selectAllKeys ( G3DUI        *gui, 
+                                         TIMELINEDATA *tdata );
+
+uint32_t common_timelinedata_isOnKey ( G3DUI        *gui, 
+                                       TIMELINEDATA *tdata,
+                                       int           frame );
 
 /******************************************************************************/
 /******************************************************************************/

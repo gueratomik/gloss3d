@@ -118,7 +118,7 @@ static void deleteSplinePoints_redo ( G3DURMANAGER *urm,
     while ( ltmpRemovedPoints ) {
         G3DSPLINEPOINT *pt = ( G3DSPLINEPOINT * ) ltmpRemovedPoints->data;
 
-        g3dcurve_removePoint ( spline->curve, pt );
+        g3dcurve_removePoint ( spline->curve, pt, NULL );
 
         ltmpRemovedPoints = ltmpRemovedPoints->next;
     }

@@ -184,7 +184,8 @@ void g3dcurve_free ( G3DOBJECT *obj );
 void g3dcurve_addPoint ( G3DCURVE      *curve, 
                          G3DCURVEPOINT *pt );
 void g3dcurve_removePoint ( G3DCURVE      *curve, 
-                            G3DCURVEPOINT *pt );
+                            G3DCURVEPOINT *pt,
+                            LIST         **lremovedSegments );
 void g3dcurve_addSegment ( G3DCURVE        *curve, 
                             G3DCURVESEGMENT *seg );
 void g3dcurve_removeSegment ( G3DCURVE        *curve, 
@@ -229,6 +230,8 @@ void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve,
                                          G3DCURVESEGMENT *seg,
                                          LIST           **laddedSegments,
                                          LIST           **lremovedSegments );
+G3DCURVESEGMENT *g3dcurvepoint_seekSegment ( G3DCURVEPOINT *p0, 
+                                             G3DCURVEPOINT *p1 );
 
 #ifdef __cplusplus
 }

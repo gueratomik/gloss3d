@@ -67,13 +67,32 @@ void common_g3duitimeline_deleteSelectedKeys ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_timelinedata_selectAllKeys ( G3DUI        *gui, 
+                                              TIMELINEDATA *tdata ) {
+    uint32_t selected = 0x00; /*** No key selected yet ***/
+    LIST *ltmpobj = gui->sce->lsel;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        g3dobject_selectAllKeys ( obj );
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    g3dui_redrawTimeline ( gui );
+}
+
+/******************************************************************************/
 uint32_t common_timelinedata_selectKey ( G3DUI        *gui, 
                                          TIMELINEDATA *tdata,
                                          int           frame,
                                          int           keep,
+                                         int           range,
                                          int           width ) {
     uint32_t selected = 0x00; /*** No key selected yet ***/
     LIST *ltmpobj = gui->sce->lsel;
+    static float firstFrame;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
@@ -88,6 +107,14 @@ uint32_t common_timelinedata_selectKey ( G3DUI        *gui,
         if ( key ) {
             g3dobject_selectKey ( obj, key );
 
+            if ( range ) {
+                float lastFrame = key->frame;
+
+                g3dobject_selectKeyRange ( obj, firstFrame, lastFrame );
+            } else {
+                firstFrame = key->frame;
+            }
+
             selected = 0x01;
         }
 
@@ -97,6 +124,28 @@ uint32_t common_timelinedata_selectKey ( G3DUI        *gui,
     g3dui_redrawTimeline ( gui );
 
     return selected;
+}
+
+/******************************************************************************/
+uint32_t common_timelinedata_isOnKey ( G3DUI        *gui, 
+                                       TIMELINEDATA *tdata,
+                                       int           frame ) {
+    LIST *ltmpobj = gui->sce->lsel;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+        G3DKEY *key;
+
+        key = g3dobject_getKeyByFrame ( obj, frame );
+
+        if ( key ) {
+            return 0x01;
+        }
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/

@@ -58,6 +58,25 @@ void g3dcurvepoint_getAveragePositionFromList ( LIST *lpt, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
+G3DCURVESEGMENT *g3dcurvepoint_seekSegment ( G3DCURVEPOINT *p0, 
+                                             G3DCURVEPOINT *p1 ) {
+    LIST *ltmpseg = p0->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+
+        if ( ( ( seg->pt[P0IDX] == p0 ) &&  ( seg->pt[P1IDX] == p1 ) ) ||
+             ( ( seg->pt[P1IDX] == p0 ) &&  ( seg->pt[P0IDX] == p1 ) ) ) {
+            return seg;
+        }
+
+        ltmpseg = ltmpseg->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 G3DCURVESEGMENT *g3dcurve_seekSegment ( G3DCURVE *curve, 
                                         G3DCURVEPOINT *p0,
                                         G3DCURVEPOINT *p1 ) {
@@ -249,34 +268,12 @@ void g3dcurve_deletePoints ( G3DCURVE  *curve,
                              LIST      *lremovedPoints,
                              LIST     **lremovedSegments,
                              uint64_t engine_flags ) {
-    LIST *ltmpseg = curve->lseg;
     LIST *ltmpver = lremovedPoints;
-
-    while ( ltmpseg ) {
-        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
-        /*
-         * copy here because this LIST element 
-         * might be deleted from the curve.
-         */
-        LIST *ltmpsegnext = ltmpseg->next;
-        uint32_t nbRemovedPoints = 0x00;
-
-        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[P0IDX] ) ? 1 : 0;
-        nbRemovedPoints += list_seek ( lremovedPoints, seg->pt[P1IDX] ) ? 1 : 0;
-
-        if ( nbRemovedPoints > 0x00 ) {
-            g3dcurve_removeSegment ( curve, seg ); 
-
-            list_insert ( lremovedSegments, seg );
-        }
-
-        ltmpseg = ltmpsegnext;
-    }
 
     while ( ltmpver ) {
         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmpver->data;
 
-        g3dcurve_removePoint ( curve, pt );
+        g3dcurve_removePoint ( curve, pt, lremovedSegments );
 
         ltmpver = ltmpver->next;
     }
@@ -1085,7 +1082,21 @@ void g3dcurve_addSelectedPoint ( G3DCURVE      *curve,
 
 /******************************************************************************/
 void g3dcurve_removePoint ( G3DCURVE      *curve, 
-                            G3DCURVEPOINT *pt ) {
+                            G3DCURVEPOINT *pt,
+                            LIST         **lremovedSegments ) {
+    LIST *ltmpseg = pt->lseg;
+
+    while ( ltmpseg ) {
+        G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+        LIST *ltmpsegnext = ltmpseg->next;
+
+        g3dcurve_removeSegment ( curve, seg );
+
+        if ( lremovedSegments ) list_insert ( lremovedSegments, seg );
+
+        ltmpseg = ltmpsegnext;
+    }
+
     list_remove ( &curve->lpt, pt );
 
     curve->nbpt--;

@@ -408,6 +408,10 @@ void       updateTimeline         ( GtkWidget *, G3DUI * );
 GtkWidget *createTimeline         ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
+void timeline_setTool ( GtkWidget *timeline, uint32_t tool );
+void timeline_incZoom ( GtkWidget *timeline, uint32_t nbpix );
+void timeline_decZoom ( GtkWidget *timeline, uint32_t nbpix );
+
 void       updatePickToolEdit     ( GtkWidget *, G3DMOUSETOOL * );
 GtkWidget *createPickToolEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );

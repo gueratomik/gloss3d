@@ -1173,19 +1173,27 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
                 } break;
 
                 case GDK_KEY_c: {
-                    common_g3dui_copySelectionCbk ( gui );
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_g3dui_copySelectionCbk ( gui );
+                    }
                 } break;
 
                 case GDK_KEY_v: {
-                    common_g3dui_pasteSelectionCbk ( gui );
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_g3dui_pasteSelectionCbk ( gui );
+                    }
                 } break;
 
                 case GDK_KEY_s: {
-                    g3dui_savefilecbk ( widget, gui );
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        g3dui_savefilecbk ( widget, gui );
+                    }
                 } break;
 
                 case GDK_KEY_a: {
-                    common_g3dui_selectAllCbk ( gui );
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        common_g3dui_selectAllCbk ( gui );
+                    }
                 } break;
             }
         } break;

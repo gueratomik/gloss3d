@@ -88,7 +88,7 @@ void common_g3dui_loadConfiguration ( G3DUI *gui, char *filename ) {
     }
 
     /* default conf */
-    gui->conf.undolevel = 50;
+    gui->conf.undolevel = 100;
 
     while ( str = readEntry ( fconf ) ) {
         char param_name[0x100]  = { 0 };

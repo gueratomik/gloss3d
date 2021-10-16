@@ -80,7 +80,7 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
     if ( asp->seg ) g3dcurve_removeSegment ( asp->spline->curve, asp->seg );
 
     g3dcurve_unselectPoint ( asp->spline->curve, asp->pt );
-    g3dcurve_removePoint ( asp->spline->curve, asp->pt );
+    g3dcurve_removePoint ( asp->spline->curve, asp->pt, NULL );
 
     /*** Rebuild the spline modifiers ***/
     g3dspline_update ( asp->spline, NULL, RESETMODIFIERS, engine_flags );

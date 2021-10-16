@@ -2041,12 +2041,16 @@ G3DKEY *g3dobject_pose ( G3DOBJECT *obj,
 void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj, 
                                    float      factor, 
                                    float      reference );
+void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
+                                   float      drift );
+
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key );
 void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
                                        G3DKEY    *key,
                                        uint32_t   keyFlags );
 void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
                                          G3DKEY    *key, 
+                                         float frame,
                                          uint32_t   keyFlags );
 void g3dobject_preanim_tags ( G3DOBJECT *obj, 
                               float      frame, 
@@ -2057,6 +2061,12 @@ void g3dobject_postanim_tags ( G3DOBJECT *obj,
 void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags );
 G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id );
 uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj );
+void g3dobject_connectScalingSegmentFromFrame ( G3DOBJECT *obj, 
+                                                float      frame );
+void g3dobject_connectRotationSegmentFromFrame ( G3DOBJECT *obj, 
+                                                 float      frame );
+void g3dobject_connectPositionSegmentFromFrame ( G3DOBJECT *obj, 
+                                                 float      frame );
 
 /******************************************************************************/
 void g3dbbox_draw ( G3DBBOX *bbox, 
@@ -2114,6 +2124,9 @@ void       g3dobject_free                  ( G3DOBJECT *  );
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
                              uint64_t   engine_flags );
+void g3dobject_selectKeyRange ( G3DOBJECT *obj,
+                                float      firstFrame, 
+                                float      lastFrame );
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
                           uint64_t engine_flags );
@@ -2142,10 +2155,7 @@ G3DOBJECT *g3dobject_getSelectedChild      ( G3DOBJECT * );
 void       g3dobject_name                  ( G3DOBJECT *, const char * );
 void g3dobject_updateMatrix_r ( G3DOBJECT *obj, 
                                 uint64_t   engine_flags );
-G3DKEY    *g3dobject_getKey                ( G3DOBJECT *, float, /* Frame num */
-                               /*** key before frame ***/ LIST **,
-                               /*** key after frame  ***/ LIST **,  
-                               /*** key on frame     ***/ LIST ** );
+G3DKEY    *g3dobject_getKey                ( G3DOBJECT *, float );
 uint32_t   g3dobject_getID                 ( G3DOBJECT * );
 char      *g3dobject_getName               ( G3DOBJECT * );
 void       g3dobject_selectKey             ( G3DOBJECT *, G3DKEY * );

@@ -1025,7 +1025,7 @@ void common_g3dui_selectTreeCbk ( G3DUI *gui, const char *option ) {
     g3dui_redrawGLViews ( gui ); 
     g3dui_updateAllCurrentEdit ( gui );
     g3dui_redrawObjectList ( gui );
-    /*redrawTimeline ( gui );*/
+    g3dui_redrawTimeline ( gui );
     g3dui_updateMenuBar ( gui );
 }
 
