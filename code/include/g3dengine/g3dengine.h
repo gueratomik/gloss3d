@@ -788,9 +788,7 @@ typedef struct _G3DOBJECT {
     LIST *lkey; /*** keyframe list ***/
     uint32_t nbkey;
     LIST *lselkey;
-    G3DCURVE *posCurve; /* translation dynamics */
-    G3DCURVE *rotCurve; /* X rotation dynamics */
-    G3DCURVE *scaCurve; /* X scale dynamics */
+    G3DCURVE *curve[0x03]; /* transformation dynamics */
     LIST     *lext; /* list of object extensions */
     LIST     *ltag;
     G3DTAG   *seltag;
@@ -1212,9 +1210,7 @@ struct _G3DKEY {
     G3DVECTOR rot;
     G3DVECTOR sca;
     float loopFrame;
-    G3DCURVEPOINT posCurvePoint;
-    G3DCURVEPOINT rotCurvePoint;
-    G3DCURVEPOINT scaCurvePoint;
+    G3DCURVEPOINT curvePoint[0x03]; /*** - 0:TRANS, 1:ROT, 1:SCA ***/
     void (*free) ( struct _G3DKEY * );
     union {
         int64_t  s64;
@@ -2031,27 +2027,46 @@ void     g3dkey_disableScaling            ( G3DKEY *key );
 void     g3dkey_enableData                ( G3DKEY *key );
 void     g3dkey_disableData               ( G3DKEY *key );
 
-G3DKEY *g3dobject_pose ( G3DOBJECT *obj, 
-                         float      frame,
-                         G3DVECTOR *pos,
-                         G3DVECTOR *rot,
-                         G3DVECTOR *sca, 
-                         G3DKEY   **overwrittenKey,
-                         uint32_t   key_flags );
+G3DKEY *g3dobject_pose ( G3DOBJECT  *obj, 
+                         float       frame,
+                         G3DVECTOR  *pos,
+                         G3DVECTOR  *rot,
+                         G3DVECTOR  *sca, 
+                         G3DKEY    **overwrittenKey,
+                         uint32_t    key_flags,
+                         LIST     **laddedPosSegments, 
+                         LIST     **laddedRotSegments, 
+                         LIST     **laddedScaSegments, 
+                         LIST     **lremovedPosSegments, 
+                         LIST     **lremovedRotSegments, 
+                         LIST     **lremovedScaSegments );
+
 void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj, 
                                    float      factor, 
                                    float      reference );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift );
 
-G3DKEY *g3dobject_addKey ( G3DOBJECT *obj, G3DKEY *key );
+G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
+                           G3DKEY    *key,
+                           LIST     **laddedPosSegments, 
+                           LIST     **laddedRotSegments, 
+                           LIST     **laddedScaSegments, 
+                           LIST     **lremovedPosSegments, 
+                           LIST     **lremovedRotSegments, 
+                           LIST     **lremovedScaSegments );
+
 void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
                                        G3DKEY    *key,
                                        uint32_t   keyFlags );
+
 void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
-                                         G3DKEY    *key, 
-                                         float frame,
-                                         uint32_t   keyFlags );
+                                         G3DKEY    *key,
+                                         uint32_t   keyFlags,
+                                         LIST     **lremovedPosSegments,
+                                         LIST     **lremovedRotSegments,
+                                         LIST     **lremovedScaSegments );
+
 void g3dobject_preanim_tags ( G3DOBJECT *obj, 
                               float      frame, 
                               uint64_t   engine_flags );
@@ -2067,6 +2082,18 @@ void g3dobject_connectRotationSegmentFromFrame ( G3DOBJECT *obj,
                                                  float      frame );
 void g3dobject_connectPositionSegmentFromFrame ( G3DOBJECT *obj, 
                                                  float      frame );
+
+void g3dobject_stitchScalingCurve   ( G3DOBJECT *obj, 
+                                      LIST      *laddedSegments );
+void g3dobject_stitchRotationCurve  ( G3DOBJECT *obj, 
+                                      LIST      *laddedSegments );
+void g3dobject_stitchPositionCurve  ( G3DOBJECT *obj, 
+                                      LIST      *laddedSegments );
+
+void g3dobject_stitchTransformations ( G3DOBJECT *obj,
+                                       LIST     **laddedPosSegments,
+                                       LIST     **laddedRotSegments,
+                                       LIST     **laddedScaSegments );
 
 /******************************************************************************/
 void g3dbbox_draw ( G3DBBOX *bbox, 
@@ -2114,7 +2141,17 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
 uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
                             uint64_t   engine_flags );
-void g3dobject_removeKey ( G3DOBJECT *obj, G3DKEY *key );
+
+void g3dobject_removeKey ( G3DOBJECT *obj, 
+                           G3DKEY    *key, 
+                           uint32_t   stitch,
+                           LIST     **lremovedPosSegments,
+                           LIST     **lremovedRotSegments,
+                           LIST     **lremovedScaSegments,
+                           LIST     **laddedPosSegments,
+                           LIST     **laddedRotSegments,
+                           LIST     **laddedScaSegments );
+
 /* modifier is responsible for the drawing */
 #define MODIFIERBUILDSNEWMESH ( 1 << 0 ) 
 #define MODIFIERCHANGESCOORDS ( 1 << 1 ) 
@@ -2127,6 +2164,8 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
 void g3dobject_selectKeyRange ( G3DOBJECT *obj,
                                 float      firstFrame, 
                                 float      lastFrame );
+G3DKEY *g3dobject_getNextKey ( G3DOBJECT *obj,
+                               G3DKEY    *key );
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
                           uint64_t engine_flags );

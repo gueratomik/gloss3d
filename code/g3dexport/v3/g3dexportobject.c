@@ -82,29 +82,29 @@ static uint32_t g3dexportv3object_paths ( G3DEXPORTV3DATA *ged,
                                                FILE            *fdst ) {
     uint32_t size = 0x00;
 
-    if ( obj->posCurve->lseg ) {
+    if ( obj->curve[0x00]->lseg ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_POSITION,
                                          g3dexportv3object_path,
                                          ged,
-                                         obj->posCurve,
+                                         obj->curve[0x00],
                                          0xFFFFFFFF,
                                          fdst );
     }
 
-    if ( obj->rotCurve->lseg ) {
+    if ( obj->curve[0x01]->lseg ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_ROTATION,
                                          g3dexportv3object_path,
                                          ged,
-                                         obj->rotCurve,
+                                         obj->curve[0x01],
                                          0xFFFFFFFF,
                                          fdst );
     }
 
-    if ( obj->scaCurve->lseg ) {
+    if ( obj->curve[0x02]->lseg ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PATH_SCALING,
                                          g3dexportv3object_path,
                                          ged,
-                                         obj->scaCurve,
+                                         obj->curve[0x02],
                                          0xFFFFFFFF,
                                          fdst );
     }
@@ -258,9 +258,9 @@ static uint32_t g3dexportv3object_keys ( G3DEXPORTV3DATA *ged,
         key->id = keyID++;
 
         /*** used by path segments ***/
-        key->posCurvePoint.id = key->id;
-        key->rotCurvePoint.id = key->id;
-        key->scaCurvePoint.id = key->id;
+        key->curvePoint[0x00].id = key->id;
+        key->curvePoint[0x01].id = key->id;
+        key->curvePoint[0x02].id = key->id;
 
         size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_ENTRY,
                                          g3dexportv3key,

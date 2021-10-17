@@ -115,10 +115,12 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_removeKey ( ork->obj, key );
+            g3dobject_removeKey ( ork->obj, key, 0x00 );
 
             ltmpkey = ltmpkey->next;
         }
+
+        g3dobject_stitchTransformations ( ork->obj );
 
         ltmpork = ltmpork->next;
     }
@@ -143,12 +145,14 @@ void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_removeKey ( obj, key );
+            g3dobject_removeKey ( obj, key, 0x00 );
 
             ltmpkey = ltmpkey->next;
         }
 
         list_insert ( &lork, ork );
+
+        g3dobject_stitchTransformations ( obj );
 
         ltmpobj = ltmpobj->next;
     }

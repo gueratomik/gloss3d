@@ -94,7 +94,7 @@ void objectPose_undo ( G3DURMANAGER *urm,
         URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
         g3dobject_removeKey ( op->obj, 
-                              op->key );
+                              op->key, 0x01 );
 
         if ( op->overwrittenKey ) {
             g3dobject_addKey ( op->obj, op->overwrittenKey );

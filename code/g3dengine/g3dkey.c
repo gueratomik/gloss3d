@@ -71,17 +71,17 @@ void g3dkey_disableData ( G3DKEY *key ) {
 
 /******************************************************************************/
 void g3dkey_recordPosCurvePoint ( G3DKEY *key, G3DVECTOR *pos ) {
-    memcpy ( &key->posCurvePoint.pos, pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &key->curvePoint[0x00].pos, pos, sizeof ( G3DVECTOR ) );
 }
 
 /******************************************************************************/
 void g3dkey_recordRotCurvePoint ( G3DKEY *key, G3DVECTOR *rot ) {
-    memcpy ( &key->rotCurvePoint.pos, rot, sizeof ( G3DVECTOR ) );
+    memcpy ( &key->curvePoint[0x01].pos, rot, sizeof ( G3DVECTOR ) );
 }
 
 /******************************************************************************/
 void g3dkey_recordScaCurvePoint ( G3DKEY *key, G3DVECTOR *sca ) {
-    memcpy ( &key->scaCurvePoint.pos, sca, sizeof ( G3DVECTOR ) );
+    memcpy ( &key->curvePoint[0x02].pos, sca, sizeof ( G3DVECTOR ) );
 }
 
 /******************************************************************************/

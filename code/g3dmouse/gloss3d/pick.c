@@ -513,7 +513,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
             else                    g3dpick_disableDepthTest ( );
 
 		    if ( engine_flags & VIEWPATH ) {
-        	    CURVEPICKDATA cpd = { .curve =  obj->posCurve,
+        	    CURVEPICKDATA cpd = { .curve =  obj->curve[0x00],
                         	          .flags = 0x00 };
 
         	    g3dpick_setAction ( actionSelectPoint, &cpd );

@@ -45,15 +45,15 @@ void g3dimportv3path ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
         switch ( chunkSignature ) {
             case SIG_OBJECT_PATH_POSITION : {
-                curve = gid->currentObject->posCurve;
+                curve = gid->currentObject->curve[0x00];
             } break;
 
             case SIG_OBJECT_PATH_ROTATION : {
-                curve = gid->currentObject->rotCurve;
+                curve = gid->currentObject->curve[0x01];
             } break;
 
             case SIG_OBJECT_PATH_SCALING : {
-                curve = gid->currentObject->scaCurve;
+                curve = gid->currentObject->curve[0x02];
             } break;
 
             case SIG_OBJECT_PATH_SEGMENT : {

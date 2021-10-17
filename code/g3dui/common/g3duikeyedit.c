@@ -66,7 +66,7 @@ void common_g3duikeyedit_unsetKeyTransformationsCbk ( G3DUI *gui, uint32_t flag 
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_unsetKeyTransformations ( obj, key, key->frame, flag );
+            g3dobject_unsetKeyTransformations ( obj, key, flag );
 
             ltmpkey = ltmpkey->next;
         }

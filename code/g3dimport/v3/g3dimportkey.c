@@ -151,9 +151,9 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                            key_flags );
 
                     key->id = keyID++;
-                    key->posCurvePoint.id = key->id;
-                    key->rotCurvePoint.id = key->id;
-                    key->scaCurvePoint.id = key->id;
+                    key->curvePoint[0x00].id = key->id;
+                    key->curvePoint[0x01].id = key->id;
+                    key->curvePoint[0x02].id = key->id;
                 }
             } break;
 

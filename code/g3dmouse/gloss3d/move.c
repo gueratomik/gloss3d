@@ -177,10 +177,10 @@ static int move_path ( G3DOBJECT    *obj,
                         dify = ( newy - oriy );
                         difz = ( newz - oriz );
 
-                        if ( obj->posCurve->curhan ) {
-                            obj->posCurve->curhan->pos.x += difx;
-                            obj->posCurve->curhan->pos.y += dify;
-                            obj->posCurve->curhan->pos.z += difz;
+                        if ( obj->curve[0x00]->curhan ) {
+                            obj->curve[0x00]->curhan->pos.x += difx;
+                            obj->curve[0x00]->curhan->pos.y += dify;
+                            obj->curve[0x00]->curhan->pos.z += difz;
                         }
 
                         orix = newx;
@@ -193,7 +193,7 @@ static int move_path ( G3DOBJECT    *obj,
             case G3DButtonRelease : {
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                obj->posCurve->curhan = NULL;
+                obj->curve[0x00]->curhan = NULL;
 
             } return REDRAWVIEW;
 
