@@ -208,23 +208,109 @@ static void drawCursor ( GtkStyleContext *context,
 }
 
 /******************************************************************************/
-typedef struct _MOVEKEYDATA {
-    int deltaframe;
-} MOVEKEYDATA;
+typedef struct _SCALEKEYDATA {
+    float reference;
+    float factor;
+} SCALEKEYDATA;
 
-static float moveKeyFunc ( G3DKEY      *key, 
-                           MOVEKEYDATA *mkd ) {
-    return ( float ) key->frame + mkd->deltaframe;
+static float scaleKeyFunc ( G3DKEY       *key, 
+                            SCALEKEYDATA *skd ) {
+    return ( int ) key->frame + ( ( key->frame - skd->reference ) * skd->factor );
 }
 
 /******************************************************************************/
-static moveKeysToolInput ( GtkWidget *widget,
-                           GdkEvent  *gdkev, 
-                           gpointer   user_data ) {
+static int  scaleKeysToolInput ( GtkWidget *widget,
+                                 GdkEvent  *gdkev, 
+                                 gpointer   user_data ) {
     G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
     G3DUI *gui = tim->grp.gui;
     TIMELINEDATA *tdata = tim->tdata;
-    static MOVEKEYDATA mkd;
+    static SCALEKEYDATA skd;
+    static int x, xold;
+    static int32_t pressed_frame;
+    uint32_t width, height;
+
+    width  = gtk_widget_get_allocated_width  ( widget );
+    height = gtk_widget_get_allocated_height ( widget );
+
+    switch ( gdkev->type ) {
+        case GDK_BUTTON_PRESS : {
+            GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
+            pressed_frame = common_timelinedata_getFrame ( tdata, bev->x,
+                                                                  bev->y,
+                                                                  width );
+
+            if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
+                 ( bev->button == 0x01 ) ) {
+                xold = bev->x;
+            }
+
+            skd.reference = pressed_frame;
+
+            tdata->funcKey  =  scaleKeyFunc;
+            tdata->funcData = &skd;
+
+            gtk_widget_queue_draw ( widget );
+        } break;
+
+        case GDK_MOTION_NOTIFY : {
+            GdkEventMotion *mev = ( GdkEventMotion * ) gdkev;
+
+            if ( mev->state & GDK_BUTTON1_MASK ) {
+                skd.factor    = ( float ) ( mev->x - xold ) * 0.1f;
+            }
+
+            gtk_widget_queue_draw ( widget );
+        } break;
+
+        case GDK_BUTTON_RELEASE : {
+            GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
+            if ( bev->button == 0x01 ) {
+                LIST *ltmpobj = gui->sce->lsel;
+
+                 g3durm_objectList_scaleSelectedKeys ( gui->urm,
+                                                       gui->sce->lsel,
+                                                       skd.factor,
+                                                       skd.reference,
+                                                       gui->engine_flags,
+                                                       REDRAWTIMELINE | 
+                                                       REDRAWVIEW );
+            }
+
+            tdata->funcKey  = NULL;
+            tdata->funcData = NULL;
+
+            gtk_widget_queue_draw ( widget );
+            g3dui_redrawGLViews ( gui );
+        } break;
+
+        default:
+        break;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+typedef struct _DRIFTKEYDATA {
+    int deltaframe;
+} DRIFTKEYDATA;
+
+static float driftKeyFunc ( G3DKEY       *key, 
+                            DRIFTKEYDATA *dkd ) {
+    return ( float ) key->frame + dkd->deltaframe;
+}
+
+/******************************************************************************/
+static int driftKeysToolInput ( GtkWidget *widget,
+                                GdkEvent  *gdkev, 
+                                gpointer   user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    G3DUI *gui = tim->grp.gui;
+    TIMELINEDATA *tdata = tim->tdata;
+    static DRIFTKEYDATA dkd;
     static int x, xold;
 
     switch ( gdkev->type ) {
@@ -236,10 +322,10 @@ static moveKeysToolInput ( GtkWidget *widget,
                 xold = bev->x;
             }
 
-            mkd.deltaframe = 0;
+            dkd.deltaframe = 0;
 
-            tdata->funcKey  =  moveKeyFunc;
-            tdata->funcData = &mkd;
+            tdata->funcKey  =  driftKeyFunc;
+            tdata->funcData = &dkd;
 
             gtk_widget_queue_draw ( widget );
         } break;
@@ -248,7 +334,7 @@ static moveKeysToolInput ( GtkWidget *widget,
             GdkEventMotion *mev = ( GdkEventMotion * ) gdkev;
 
             if ( mev->state & GDK_BUTTON1_MASK ) {
-                mkd.deltaframe = ( ( mev->x - xold ) / tdata->nbpix );
+                dkd.deltaframe = ( ( mev->x - xold ) / tdata->nbpix );
             }
 
             gtk_widget_queue_draw ( widget );
@@ -262,7 +348,7 @@ static moveKeysToolInput ( GtkWidget *widget,
 
                  g3durm_objectList_driftSelectedKeys ( gui->urm,
                                                        gui->sce->lsel,
-                                                       mkd.deltaframe,
+                                                       dkd.deltaframe,
                                                        gui->engine_flags,
                                                        REDRAWTIMELINE | 
                                                        REDRAWVIEW );
@@ -368,7 +454,7 @@ static gboolean panToolInput ( GtkWidget *widget,
                                                           pressed_frame );
 
                     /*** get prepared to move the key, just in case ***/
-                    moveKeysToolInput ( widget, gdkev, user_data );
+                    driftKeysToolInput ( widget, gdkev, user_data );
                 }
 
                 /*** Move the whole timeline indefinitely. For so, we hide the ***/
@@ -412,7 +498,7 @@ static gboolean panToolInput ( GtkWidget *widget,
                     /*** if we clicked the cursor, drag the cursor ***/
                     if ( onkey ) {
                         /*** move the key ***/
-                        return moveKeysToolInput ( widget, gdkev, user_data );
+                        return driftKeysToolInput ( widget, gdkev, user_data );
                     } else {
                         if ( oncursor ) {
                             gui->curframe += ( xacc / ( int32_t ) tdata->nbpix );
@@ -460,8 +546,8 @@ static gboolean panToolInput ( GtkWidget *widget,
                                                         range,
                                                         width );
                     } else {
-                        /*** move the key ***/
-                        moveKeysToolInput ( widget, gdkev, user_data );
+                        /*** move the keys ***/
+                        driftKeysToolInput ( widget, gdkev, user_data );
                     }
                 } else {
                     if ( oncursor ) {
@@ -516,7 +602,11 @@ static gboolean Input ( GtkWidget *widget,
 
     switch ( tdata->tool ) {
         case TIME_MOVE_TOOL :
-            return moveKeysToolInput ( widget, gdkev, user_data );
+            return driftKeysToolInput ( widget, gdkev, user_data );
+        break;
+
+        case TIME_SCALE_TOOL :
+            return scaleKeysToolInput ( widget, gdkev, user_data );
         break;
 
         case TIME_PAN_TOOL :

@@ -529,10 +529,15 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
                                          LIST     **laddedPosSegments,
                                          LIST     **laddedRotSegments,
                                          LIST     **laddedScaSegments ) {
-    uint32_t nbkey = list_count ( obj->lselkey );
+    /*** at first I thought omly selected keys were concerned by the        ***/
+    /*** segment creation/deletion task, but all keys are, b/c they are     ***/
+    /*** cases were a not-selected key must reconnect with a selected key   ***/
+    /*** and disconnect from a not-selected key, because the stitching goes ***/
+    /***  from t to t+1, not ominidirectionnal  ***/
+    uint32_t nbkey = list_count ( obj->lkey );
     MOVEDKEY *movedKey = ( MOVEDKEY * ) calloc ( nbkey, sizeof ( MOVEDKEY ) );
     int OP[0x03] = { KEYPOSITION, KEYROTATION, KEYSCALING };
-    LIST *ltmpkey = obj->lselkey;
+    LIST *ltmpkey = obj->lkey;
     uint32_t i = 0x00, j;
 
     /*** first pass ***/
@@ -569,13 +574,17 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
 
     /*** second pass ***/
     for ( i = 0x00; i < nbkey; i++ ) {
-        if ( func ) func ( movedKey[i].key, funcData );
+        if ( movedKey[i].key->flags & KEYSELECTED ) {
+            if ( func ) func ( movedKey[i].key, funcData );
+        }
     }
 
     /*** Third pass ****/
     for ( i = 0x00; i < nbkey; i++ ) {
         for ( j = 0x00; j < 0x03; j++ ) {
             if ( movedKey[i].flags & OP[j] ) {
+                G3DKEY *key = movedKey[i].key;
+                LIST *ltmpseg = key->curvePoint[j].lseg;
                 G3DKEY *movedPrevKey  = NULL,
                        *movedFrameKey = NULL,
                        *movedNextKey  = NULL;
@@ -588,23 +597,40 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
                                     OP[j],
                                     0x01 );
 
-                if ( ( movedPrevKey != movedKey[i].prevKey[j] ) ||
-                     ( movedNextKey != movedKey[i].nextKey[j] ) ) {
-                    G3DKEY *key = movedKey[i].key;
+                while ( ltmpseg ) {
+                    G3DCURVESEGMENT *seg = ( G3DCURVESEGMENT * ) ltmpseg->data;
+                    LIST *ltmpsegnext = ltmpseg->next;
+                    LIST **lremovedSegments[0x03] = { lremovedPosSegments,
+                                                      lremovedRotSegments,
+                                                      lremovedScaSegments };
 
-                    if ( ( g3dcurvepoint_seekSegment ( &movedKey[i].key->curvePoint, 
-                                                        movedKey[i].prevKey[j] ) == NULL ) &&
-                         ( g3dcurvepoint_seekSegment ( &movedKey[i].key->curvePoint, 
-                                                        movedKey[i].nextKey[j] ) == NULL ) ) {
-                        g3dobject_unsetKeyTransformations ( obj, 
-                                                            movedKey[i].key,
-                                                            OP[j],
-                                                            lremovedPosSegments,
-                                                            lremovedRotSegments,
-                                                            lremovedScaSegments );
+                    if ( movedKey[i].prevKey[j] ) {
+                        if ( movedPrevKey != movedKey[i].prevKey[j] ) {
+                            G3DKEY *prevKey = movedKey[i].prevKey[j];
 
-                        movedKey[i].makeCurve[j] = 0x01;
+                            if ( ( seg->pt[0x01] == &prevKey->curvePoint[j] ) ||
+                                 ( seg->pt[0x00] == &prevKey->curvePoint[j] ) ) {
+                                g3dcurve_removeSegment ( obj->curve[j], seg );
+
+                                list_insert ( lremovedSegments[j], seg );
+                            }
+                        }
                     }
+
+                    if ( movedKey[i].nextKey[j] ) {
+                        if ( movedNextKey != movedKey[i].nextKey[j] ) {
+                            G3DKEY *nextKey = movedKey[i].nextKey[j];
+
+                            if ( ( seg->pt[0x01] == &nextKey->curvePoint[j] ) ||
+                                 ( seg->pt[0x00] == &nextKey->curvePoint[j] ) ) {
+                                g3dcurve_removeSegment ( obj->curve[j], seg );
+
+                                list_insert ( lremovedSegments[j], seg );
+                            }
+                        }
+                    }
+
+                    ltmpseg = ltmpsegnext;
                 }
             }
         }
@@ -622,27 +648,7 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
                                   laddedRotSegments,
                                   laddedScaSegments );
 
-            movedKey[i].makeCurve[0x00] = 0x00;
-            movedKey[i].makeCurve[0x01] = 0x00;
-            movedKey[i].makeCurve[0x02] = 0x00;
-        }
-    }
-
-    /*** Fourth pass ****/
-    for ( i = 0x00; i < nbkey; i++ ) {
-        for ( j = 0x00; j < 0x03; j++ ) {
-            /*** only for keys that moved to other segments ***/
-            if ( movedKey[i].makeCurve[j] ) {
-                g3dobject_setKeyTransformations   ( obj, 
-                                                    movedKey[i].key, 
-                                                    movedKey[i].flags,
-                                                    laddedPosSegments,
-                                                    laddedRotSegments,
-                                                    laddedScaSegments,
-                                                    lremovedPosSegments,
-                                                    lremovedRotSegments,
-                                                    lremovedScaSegments );
-            }
+            list_insert ( lremovedKeys, movedKey[i].key );
         }
     }
 
@@ -661,7 +667,7 @@ typedef struct _SCALEKEYDATA {
 } SCALEKEYDATA;
 
 static void scaleKeyFunc ( G3DKEY *key, SCALEKEYDATA *skd ) {
-    key->frame = ( int ) ( ( key->frame - skd->reference ) * skd->factor );
+    key->frame += ( int ) ( ( key->frame - skd->reference ) * skd->factor );
 }
 
 void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
@@ -1303,9 +1309,9 @@ void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
 /******************************************************************************/
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
                            G3DKEY    *key,
-                           LIST     **laddedPosSegments, 
-                           LIST     **laddedRotSegments, 
-                           LIST     **laddedScaSegments, 
+                           LIST     **laddedPosSegments,
+                           LIST     **laddedRotSegments,
+                           LIST     **laddedScaSegments,
                            LIST     **lremovedPosSegments, 
                            LIST     **lremovedRotSegments, 
                            LIST     **lremovedScaSegments ) {
@@ -1314,7 +1320,7 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
     if ( overwrittenKey ) {
         g3dobject_removeKey ( obj, 
                               overwrittenKey, 
-                              0x00,
+                              0x01,
                               lremovedPosSegments, 
                               lremovedRotSegments, 
                               lremovedScaSegments,

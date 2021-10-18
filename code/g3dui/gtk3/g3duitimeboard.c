@@ -37,6 +37,8 @@
 #include <xpm/nextframe.xpm>
 #include <xpm/zoomtime.xpm>
 #include <xpm/unzoomtime.xpm>
+#include <xpm/scale_keys.xpm>
+#include <xpm/pick_keys.xpm>
 
 /******************************************************************************/
 static GtkWidget *g3duitimeboard_getTimeline ( GtkWidget * );
@@ -220,7 +222,7 @@ void Resize ( GtkWidget *widget, GdkRectangle *allocation,
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
-        if ( strcmp ( child_name, TIMEBOARDMOVE ) == 0x00 ) {
+        if ( strcmp ( child_name, TIMEBOARDSCALE ) == 0x00 ) {
             gdkrec.x      = allocation->width - 48;
             gdkrec.y      = 0x00;
             gdkrec.width  = 24;
@@ -273,6 +275,16 @@ void g3dui_usePanToolCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_useScaleToolCbk ( GtkWidget *widget, gpointer user_data ) {
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    GtkWidget *timeline = g3duitimeboard_getTimeline ( parent );
+
+    timeline_setTool ( timeline, TIME_SCALE_TOOL );
+
+    gtk_widget_queue_draw ( widget );
+}
+
+/******************************************************************************/
 GtkWidget *createTimeBoard ( GtkWidget *parent, G3DUI *gui,
                                                 char *name,
                                                 gint x,
@@ -299,8 +311,8 @@ GtkWidget *createTimeBoard ( GtkWidget *parent, G3DUI *gui,
     createImageButton ( frm, gui, TIMEBOARDRECORD, record_xpm    , 144,  0, 24, 24, g3dui_recordFrameCbk );
 
     createTimeline    ( frm, gui, TIMELINENAME   ,                 168,  0, width - 168 - 48, height );
-    createImageButton ( frm, gui, TIMEBOARDMOVE, record_xpm    , width - 48,  0, 24, 24, g3dui_useMoveToolCbk );
-    createImageButton ( frm, gui, TIMEBOARDPAN , record_xpm    , width - 24,  0, 24, 24, g3dui_usePanToolCbk );
+    createImageButton ( frm, gui, TIMEBOARDSCALE , scale_keys_xpm, width - 48,  0, 24, 24, g3dui_useScaleToolCbk );
+    createImageButton ( frm, gui, TIMEBOARDPAN   , pick_keys_xpm , width - 24,  0, 24, 24, g3dui_usePanToolCbk );
 
 
     gtk_widget_show_all ( frm );

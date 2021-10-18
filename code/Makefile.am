@@ -218,6 +218,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/zaxis.xpm \
                        xpm/zoomtime.xpm \
                        xpm/zoom_view.xpm \
+                       xpm/scale_keys.xpm \
+                       xpm/pick_keys.xpm \
                        xpm/brush_0.c \
                        xpm/brush_1.c \
                        xpm/brush_2.c \

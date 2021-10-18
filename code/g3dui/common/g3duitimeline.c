@@ -90,7 +90,7 @@ uint32_t common_timelinedata_selectKey ( G3DUI        *gui,
                                          int           width ) {
     uint32_t selected = 0x00; /*** No key selected yet ***/
     LIST *ltmpobj = gui->sce->lsel;
-    static float firstFrame;
+    static float firstFrame = FLT_MIN;
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
@@ -100,20 +100,26 @@ uint32_t common_timelinedata_selectKey ( G3DUI        *gui,
             g3dobject_unselectAllKeys ( obj );
         }
 
-        key = g3dobject_getKeyByFrame ( obj, frame );
+        if ( range ) {
+            float lastFrame = frame;
 
-        if ( key ) {
-            g3dobject_selectKey ( obj, key );
+            if ( firstFrame != FLT_MIN ) {
+                if ( firstFrame < lastFrame ) {
+                    g3dobject_selectKeyRange ( obj, firstFrame, lastFrame  );
+                } else {
+                    g3dobject_selectKeyRange ( obj, lastFrame , firstFrame );
+                }
+            }
+        } else {
+            key = g3dobject_getKeyByFrame ( obj, frame );
 
-            if ( range ) {
-                float lastFrame = key->frame;
+            if ( key ) {
+                g3dobject_selectKey ( obj, key );
 
-                g3dobject_selectKeyRange ( obj, firstFrame, lastFrame );
-            } else {
-                firstFrame = key->frame;
+                selected = 0x01;
             }
 
-            selected = 0x01;
+            firstFrame = frame;
         }
 
         ltmpobj = ltmpobj->next;
