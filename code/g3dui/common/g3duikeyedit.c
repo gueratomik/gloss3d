@@ -43,7 +43,15 @@ void common_g3duikeyedit_setKeyTransformationsCbk ( G3DUI *gui, uint32_t flag ) 
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_setKeyTransformations ( obj, key, flag );
+            g3dobject_setKeyTransformations ( obj, 
+                                              key, 
+                                              flag,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL );
 
             ltmpkey = ltmpkey->next;
         }
@@ -66,7 +74,17 @@ void common_g3duikeyedit_unsetKeyTransformationsCbk ( G3DUI *gui, uint32_t flag 
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_unsetKeyTransformations ( obj, key, flag );
+            g3dobject_unsetKeyTransformations ( obj, 
+                                                key, 
+                                                flag,
+                                                NULL,
+                                                NULL,
+                                                NULL );
+
+            g3dobject_stitchTransformations ( obj,
+                                              NULL,
+                                              NULL,
+                                              NULL );
 
             ltmpkey = ltmpkey->next;
         }

@@ -64,8 +64,24 @@ void objectRemoveKeys_free ( void *data, uint32_t commit ) {
         /*** Discard changes ***/
         if ( commit == 0x00 ) {
             list_free ( &ork->lkey, NULL );
+
+            list_free ( &ork->lremovedPosSegments, NULL );
+            list_free ( &ork->lremovedRotSegments, NULL );
+            list_free ( &ork->lremovedScaSegments, NULL );
+
+            list_free ( &ork->laddedPosSegments, g3dcubicsegment_free );
+            list_free ( &ork->laddedRotSegments, g3dcubicsegment_free );
+            list_free ( &ork->laddedScaSegments, g3dcubicsegment_free );
         } else {
             list_free ( &ork->lkey, g3dkey_free );
+
+            list_free ( &ork->lremovedPosSegments, g3dcubicsegment_free );
+            list_free ( &ork->lremovedRotSegments, g3dcubicsegment_free );
+            list_free ( &ork->lremovedScaSegments, g3dcubicsegment_free );
+
+            list_free ( &ork->laddedPosSegments, NULL );
+            list_free ( &ork->laddedRotSegments, NULL );
+            list_free ( &ork->laddedScaSegments, NULL );
         }
 
         ltmpork = ltmpork->next;
@@ -82,18 +98,20 @@ void objectRemoveKeys_undo ( G3DURMANAGER *urm,
 
     while ( ltmpork ) {
         URMOBJECTREMOVEKEYS *ork = ( URMOBJECTREMOVEKEYS * ) ltmpork->data;
-        LIST *ltmpkey = ork->lkey;
 
-        /*obj->lselkey = list_copy ( ork->lkey );*/
+        /*** Note: here we cannot use g3dobject_addKey because  ***/
+        /*** it also performs segment creation and stuff ***/
+        list_execargdata ( ork->lkey, list_insert, &ork->obj->lkey );
 
-        /* perform the operation */
-        while ( ltmpkey ) {
-            G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+        ork->obj->nbkey += list_count ( ork->lkey );
 
-            g3dobject_addKey ( ork->obj, key );
+        list_execargdata ( ork->lremovedPosSegments, g3dcurve_addSegment, ork->obj->curve[0x00] );
+        list_execargdata ( ork->lremovedRotSegments, g3dcurve_addSegment, ork->obj->curve[0x01] );
+        list_execargdata ( ork->lremovedScaSegments, g3dcurve_addSegment, ork->obj->curve[0x02] );
 
-            ltmpkey = ltmpkey->next;
-        }
+        list_execargdata ( ork->laddedPosSegments, g3dcurve_removeSegment, ork->obj->curve[0x00] );
+        list_execargdata ( ork->laddedRotSegments, g3dcurve_removeSegment, ork->obj->curve[0x01] );
+        list_execargdata ( ork->laddedScaSegments, g3dcurve_removeSegment, ork->obj->curve[0x02] );
 
         ltmpork = ltmpork->next;
     }
@@ -107,20 +125,20 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
 
     while ( ltmpork ) {
         URMOBJECTREMOVEKEYS *ork = ( URMOBJECTREMOVEKEYS * ) ltmpork->data;
-        LIST *ltmpkey = ork->lkey;
 
-        /*g3dobject_unselectAllKeys ( obj );*/
+        /*** Note: here we cannot use g3dobject_addKey because  ***/
+        /*** it also performs segment creation and stuff ***/
+        list_execargdata ( ork->lkey, list_remove, &ork->obj->lkey );
 
-        /* perform the operation */
-        while ( ltmpkey ) {
-            G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
+        ork->obj->nbkey -= list_count ( ork->lkey );
 
-            g3dobject_removeKey ( ork->obj, key, 0x00 );
+        list_execargdata ( ork->lremovedPosSegments, g3dcurve_removeSegment, ork->obj->curve[0x00] );
+        list_execargdata ( ork->lremovedRotSegments, g3dcurve_removeSegment, ork->obj->curve[0x01] );
+        list_execargdata ( ork->lremovedScaSegments, g3dcurve_removeSegment, ork->obj->curve[0x02] );
 
-            ltmpkey = ltmpkey->next;
-        }
-
-        g3dobject_stitchTransformations ( ork->obj );
+        list_execargdata ( ork->laddedPosSegments, g3dcurve_addSegment, ork->obj->curve[0x00] );
+        list_execargdata ( ork->laddedRotSegments, g3dcurve_addSegment, ork->obj->curve[0x01] );
+        list_execargdata ( ork->laddedScaSegments, g3dcurve_addSegment, ork->obj->curve[0x02] );
 
         ltmpork = ltmpork->next;
     }
@@ -129,7 +147,7 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
                                             LIST         *lobj,
-                                            uint64_t engine_flags,
+                                            uint64_t      engine_flags,
                                             uint32_t      return_flags ) {
     LIST *ltmpobj = lobj;
     LIST *lork = NULL;
@@ -145,14 +163,25 @@ void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-            g3dobject_removeKey ( obj, key, 0x00 );
+            g3dobject_removeKey ( obj, 
+                                  key, 
+                                  0x00,
+                                 &ork->lremovedPosSegments,
+                                 &ork->lremovedRotSegments,
+                                 &ork->lremovedScaSegments,
+                                  NULL,
+                                  NULL,
+                                  NULL );
 
             ltmpkey = ltmpkey->next;
         }
 
         list_insert ( &lork, ork );
 
-        g3dobject_stitchTransformations ( obj );
+        g3dobject_stitchTransformations ( obj,
+                                         &ork->laddedPosSegments,
+                                         &ork->laddedRotSegments,
+                                         &ork->laddedScaSegments );
 
         ltmpobj = ltmpobj->next;
     }

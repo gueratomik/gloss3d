@@ -260,13 +260,12 @@ static moveKeysToolInput ( GtkWidget *widget,
             if ( bev->button == 0x01 ) {
                 LIST *ltmpobj = gui->sce->lsel;
 
-                while ( ltmpobj ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-
-                    g3dobject_driftSelectedKeys ( obj, mkd.deltaframe );
-
-                    ltmpobj = ltmpobj->next;
-                }
+                 g3durm_objectList_driftSelectedKeys ( gui->urm,
+                                                       gui->sce->lsel,
+                                                       mkd.deltaframe,
+                                                       gui->engine_flags,
+                                                       REDRAWTIMELINE | 
+                                                       REDRAWVIEW );
             }
 
             tdata->funcKey  = NULL;

@@ -72,10 +72,26 @@ void objectPose_free ( void *data, uint32_t commit ) {
         /*** Discard changes ***/
         if ( commit == 0x00 ) {
             g3dkey_free ( op->key );
+
+            list_free ( &op->lremovedPosSegments, NULL );
+            list_free ( &op->lremovedRotSegments, NULL );
+            list_free ( &op->lremovedScaSegments, NULL );
+
+            list_free ( &op->laddedPosSegments, g3dcubicsegment_free );
+            list_free ( &op->laddedRotSegments, g3dcubicsegment_free );
+            list_free ( &op->laddedScaSegments, g3dcubicsegment_free );
         } else {
             if ( op->overwrittenKey ) {
                 g3dkey_free ( op->overwrittenKey );
             }
+
+            list_free ( &op->lremovedPosSegments, g3dcubicsegment_free );
+            list_free ( &op->lremovedRotSegments, g3dcubicsegment_free );
+            list_free ( &op->lremovedScaSegments, g3dcubicsegment_free );
+
+            list_free ( &op->laddedPosSegments, NULL );
+            list_free ( &op->laddedRotSegments, NULL );
+            list_free ( &op->laddedScaSegments, NULL );
         }
 
         ltmpop = ltmpop->next;
@@ -93,12 +109,23 @@ void objectPose_undo ( G3DURMANAGER *urm,
     while ( ltmpop ) {
         URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
-        g3dobject_removeKey ( op->obj, 
-                              op->key, 0x01 );
+        list_remove ( &op->obj->lkey, op->key );
+ 
+        op->obj->nbkey--;
 
         if ( op->overwrittenKey ) {
-            g3dobject_addKey ( op->obj, op->overwrittenKey );
+            list_insert ( &op->obj->lkey, op->overwrittenKey );
+
+            op->obj->nbkey++;
         }
+
+        list_execargdata ( op->lremovedPosSegments, g3dcurve_addSegment, op->obj->curve[0x00] );
+        list_execargdata ( op->lremovedRotSegments, g3dcurve_addSegment, op->obj->curve[0x01] );
+        list_execargdata ( op->lremovedScaSegments, g3dcurve_addSegment, op->obj->curve[0x02] );
+
+        list_execargdata ( op->laddedPosSegments, g3dcurve_removeSegment, op->obj->curve[0x00] );
+        list_execargdata ( op->laddedRotSegments, g3dcurve_removeSegment, op->obj->curve[0x01] );
+        list_execargdata ( op->laddedScaSegments, g3dcurve_removeSegment, op->obj->curve[0x02] );
 
         ltmpop = ltmpop->next;
     }
@@ -113,13 +140,23 @@ void objectPose_redo ( G3DURMANAGER *urm,
     while ( ltmpop ) {
         URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
-        op->key = g3dobject_pose ( op->obj, 
-                                   op->frame, 
-                                  &op->keypos, 
-                                  &op->keyrot, 
-                                  &op->keysca,
-                                  &op->overwrittenKey,
-                                   op->key->flags );
+        list_insert ( &op->obj->lkey, op->key );
+ 
+        op->obj->nbkey++;
+
+        if ( op->overwrittenKey ) {
+            list_remove ( &op->obj->lkey, op->overwrittenKey );
+
+            op->obj->nbkey--;
+        }
+
+        list_execargdata ( op->lremovedPosSegments, g3dcurve_removeSegment, op->obj->curve[0x00] );
+        list_execargdata ( op->lremovedRotSegments, g3dcurve_removeSegment, op->obj->curve[0x01] );
+        list_execargdata ( op->lremovedScaSegments, g3dcurve_removeSegment, op->obj->curve[0x02] );
+
+        list_execargdata ( op->laddedPosSegments, g3dcurve_addSegment, op->obj->curve[0x00] );
+        list_execargdata ( op->laddedRotSegments, g3dcurve_addSegment, op->obj->curve[0x01] );
+        list_execargdata ( op->laddedScaSegments, g3dcurve_addSegment, op->obj->curve[0x02] );
 
         ltmpop = ltmpop->next;
     }
@@ -138,15 +175,39 @@ void g3durm_object_pose ( G3DURMANAGER *urm,
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
         G3DKEY *key, *overwrittenKey = NULL;
+        LIST *lremovedPosSegments = NULL;
+        LIST *lremovedRotSegments = NULL;
+        LIST *lremovedScaSegments = NULL;
+        LIST *laddedPosSegments = NULL;
+        LIST *laddedRotSegments = NULL;
+        LIST *laddedScaSegments = NULL;
         URMOBJECTPOSE *op;
 
         /* perform the operation */
-        key = g3dobject_pose ( obj, frame, &obj->pos, 
-                                           &obj->rot, 
-                                           &obj->sca, &overwrittenKey, key_flags );
+        key = g3dobject_pose ( obj, 
+                               frame, 
+                              &obj->pos, 
+                              &obj->rot, 
+                              &obj->sca, 
+                              &overwrittenKey, 
+                               key_flags,
+                              &laddedPosSegments,
+                              &laddedRotSegments,
+                              &laddedScaSegments,
+                              &lremovedPosSegments,
+                              &lremovedRotSegments,
+                              &lremovedScaSegments );
 
         /* remember it for undoing */
         op = urmObjectPose_new ( obj, frame, key, overwrittenKey );
+
+        op->lremovedPosSegments = lremovedPosSegments;
+        op->lremovedRotSegments = lremovedRotSegments;
+        op->lremovedScaSegments = lremovedScaSegments;
+
+        op->laddedPosSegments   = laddedPosSegments;
+        op->laddedRotSegments   = laddedRotSegments;
+        op->laddedScaSegments   = laddedScaSegments;
 
         list_insert ( &lop, op );
 

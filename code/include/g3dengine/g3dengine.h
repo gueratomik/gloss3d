@@ -2041,11 +2041,26 @@ G3DKEY *g3dobject_pose ( G3DOBJECT  *obj,
                          LIST     **lremovedRotSegments, 
                          LIST     **lremovedScaSegments );
 
-void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj, 
+void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                                    float      factor, 
-                                   float      reference );
+                                   float      reference,
+                                   LIST     **lremovedKeys,
+                                   LIST     **lremovedPosSegments,
+                                   LIST     **lremovedRotSegments,
+                                   LIST     **lremovedScaSegments,
+                                   LIST     **laddedPosSegments,
+                                   LIST     **laddedRotSegments,
+                                   LIST     **laddedScaSegments );
+
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
-                                   float      drift );
+                                   float      drift,
+                                   LIST     **lremovedKeys,
+                                   LIST     **lremovedPosSegments,
+                                   LIST     **lremovedRotSegments,
+                                   LIST     **lremovedScaSegments,
+                                   LIST     **laddedPosSegments,
+                                   LIST     **laddedRotSegments,
+                                   LIST     **laddedScaSegments );
 
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
                            G3DKEY    *key,
@@ -2058,7 +2073,13 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
 
 void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
                                        G3DKEY    *key,
-                                       uint32_t   keyFlags );
+                                       uint32_t   keyFlags,
+                                       LIST     **laddedPosSegments,
+                                       LIST     **laddedRotSegments,
+                                       LIST     **laddedScaSegments,
+                                       LIST     **lremovedPosSegments,
+                                       LIST     **lremovedRotSegments,
+                                       LIST     **lremovedScaSegments );
 
 void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
                                          G3DKEY    *key,
@@ -2240,7 +2261,16 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
 void g3dobject_anim_scaling ( G3DOBJECT *obj,
                               float      frame,
                               uint64_t   engine_flags );
-void       g3dobject_removeSelectedKeys    ( G3DOBJECT * );
+
+void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
+                                    LIST     **lremovedKeys,
+                                    LIST     **lremovedPosSegments,
+                                    LIST     **lremovedRotSegments,
+                                    LIST     **lremovedScaSegments,
+                                    LIST     **laddedPosSegments,
+                                    LIST     **laddedRotSegments,
+                                    LIST     **laddedScaSegments );
+
 G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj, 
                               uint32_t       id,
                               unsigned char *name,

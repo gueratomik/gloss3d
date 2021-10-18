@@ -147,7 +147,13 @@ void g3dimportv2key ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                           &rot,
                                           &sca,
                                           &unusedKeyArg,
-                                           key_flags );
+                                           key_flags,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL );
                 }
             } break;
 

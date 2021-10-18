@@ -33,8 +33,6 @@
 void common_g3duitimeline_scaleSelectedKeys ( G3DUI *gui, 
                                               float  factor, 
                                               float  reference ) {
-    LIST *ltmpobj = gui->sce->lsel;
-
 /*    g3durm_objectList_removeSelectedKeys ( gui->urm, 
                                            gui->sce->lsel, 
                                            gui->engine_flags,
@@ -42,13 +40,13 @@ void common_g3duitimeline_scaleSelectedKeys ( G3DUI *gui,
 
 */
 
-    while ( ltmpobj ) {
-        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-
-        g3dobject_scaleSelectedKeys ( obj, factor, reference );
-
-        ltmpobj = ltmpobj->next;
-    }
+    g3durm_objectList_scaleSelectedKeys ( gui->urm,
+                                          gui->sce->lsel,
+                                          factor,
+                                          reference,
+                                          gui->engine_flags,
+                                          REDRAWTIMELINE | 
+                                          REDRAWVIEW );
 
     g3dui_redrawTimeline ( gui );
     g3dui_redrawGLViews ( gui );

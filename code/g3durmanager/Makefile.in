@@ -136,7 +136,7 @@ am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmdelselitems.lo urmweldvertices.lo urmmovepoint.lo \
 	urmmovevertices.lo urmmoveuvs.lo urmextrudemesh.lo \
 	urminvertnormal.lo urmmoveobject.lo urmSplitMesh.lo \
-	urmRevertSpline.lo urmObjectRemoveKeys.lo \
+	urmRevertSpline.lo urmObjectRemoveKeys.lo urmObjectMoveKeys.lo \
 	urmRoundSplinePoint.lo urmAddSplinePoint.lo \
 	urmAddSplineSegment.lo urmCutSpline.lo urmObjectPose.lo \
 	urmDeleteSplinePoints.lo urmselectitem.lo urmcutmesh.lo \
@@ -178,6 +178,7 @@ am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmCutSpline.Plo \
 	./$(DEPDIR)/urmDeleteSplinePoints.Plo \
 	./$(DEPDIR)/urmMorpherMoveVertices.Plo \
+	./$(DEPDIR)/urmObjectMoveKeys.Plo \
 	./$(DEPDIR)/urmObjectPose.Plo \
 	./$(DEPDIR)/urmObjectRemoveKeys.Plo \
 	./$(DEPDIR)/urmPaintImage.Plo \
@@ -388,6 +389,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmSplitMesh.c \
                                urmRevertSpline.c \
                                urmObjectRemoveKeys.c \
+                               urmObjectMoveKeys.c \
                                urmRoundSplinePoint.c \
                                urmAddSplinePoint.c \
                                urmAddSplineSegment.c \
@@ -505,6 +507,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmCutSpline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmDeleteSplinePoints.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmMorpherMoveVertices.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmObjectMoveKeys.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmObjectPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmObjectRemoveKeys.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmPaintImage.Plo@am__quote@ # am--include-marker
@@ -710,6 +713,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/urmCutSpline.Plo
 	-rm -f ./$(DEPDIR)/urmDeleteSplinePoints.Plo
 	-rm -f ./$(DEPDIR)/urmMorpherMoveVertices.Plo
+	-rm -f ./$(DEPDIR)/urmObjectMoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmObjectPose.Plo
 	-rm -f ./$(DEPDIR)/urmObjectRemoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmPaintImage.Plo
@@ -795,6 +799,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/urmCutSpline.Plo
 	-rm -f ./$(DEPDIR)/urmDeleteSplinePoints.Plo
 	-rm -f ./$(DEPDIR)/urmMorpherMoveVertices.Plo
+	-rm -f ./$(DEPDIR)/urmObjectMoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmObjectPose.Plo
 	-rm -f ./$(DEPDIR)/urmObjectRemoveKeys.Plo
 	-rm -f ./$(DEPDIR)/urmPaintImage.Plo

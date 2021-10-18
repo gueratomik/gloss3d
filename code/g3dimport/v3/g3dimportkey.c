@@ -148,7 +148,13 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                           &rot,
                                           &sca,
                                           &unusedKeyArg,
-                                           key_flags );
+                                           key_flags,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL );
 
                     key->id = keyID++;
                     key->curvePoint[0x00].id = key->id;

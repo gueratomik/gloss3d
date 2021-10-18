@@ -344,6 +344,12 @@ void g3dobject_removeKey ( G3DOBJECT *obj,
     g3dcurve_removePoint ( obj->curve[0x01], &key->curvePoint[0x01] );
     g3dcurve_removePoint ( obj->curve[0x02], &key->curvePoint[0x02] );*/
 
+    /*** we backup the flags that are gonna be erased by ***/
+    /*** g3dobject_unsetKeyTransformations(). This way, its easier to ***/
+    /*** undo redo the operation. ***/
+    uint32_t keyFlags = key->flags;
+
+
     list_remove ( &obj->lkey, key );
 
     obj->nbkey--;
@@ -363,6 +369,8 @@ void g3dobject_removeKey ( G3DOBJECT *obj,
                                           laddedRotSegments,
                                           laddedScaSegments );
     }
+
+    key->flags = keyFlags;
 }
 
 /******************************************************************************/
@@ -375,7 +383,7 @@ void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
                                     LIST     **lremovedScaSegments,
                                     LIST     **laddedPosSegments,
                                     LIST     **laddedRotSegments,
-                                    LIST     **laddedScaSegments  ) {
+                                    LIST     **laddedScaSegments ) {
     LIST *ltmpkey = obj->lselkey;
 
     while ( ltmpkey ) {
@@ -487,7 +495,9 @@ uint32_t g3dobject_findKeyDuplicate ( G3DOBJECT *obj, G3DKEY *key ) {
     while ( ltmpkey ) {
         G3DKEY *dup = ( G3DKEY * ) ltmpkey->data;
 
-        if ( ( int ) key->frame == ( int ) dup->frame ) return 0x01;
+        if ( key != dup ) {
+            if ( ( int ) key->frame == ( int ) dup->frame ) return 0x01;
+        }
 
         ltmpkey = ltmpkey->next;
     }
@@ -625,7 +635,13 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
             if ( movedKey[i].makeCurve[j] ) {
                 g3dobject_setKeyTransformations   ( obj, 
                                                     movedKey[i].key, 
-                                                    movedKey[i].flags );
+                                                    movedKey[i].flags,
+                                                    laddedPosSegments,
+                                                    laddedRotSegments,
+                                                    laddedScaSegments,
+                                                    lremovedPosSegments,
+                                                    lremovedRotSegments,
+                                                    lremovedScaSegments );
             }
         }
     }
@@ -650,11 +666,27 @@ static void scaleKeyFunc ( G3DKEY *key, SCALEKEYDATA *skd ) {
 
 void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                                    float      factor, 
-                                   float      reference ) {
+                                   float      reference,
+                                   LIST     **lremovedKeys,
+                                   LIST     **lremovedPosSegments,
+                                   LIST     **lremovedRotSegments,
+                                   LIST     **lremovedScaSegments,
+                                   LIST     **laddedPosSegments,
+                                   LIST     **laddedRotSegments,
+                                   LIST     **laddedScaSegments ) {
     SCALEKEYDATA skd = { .factor = factor,
                          .reference = reference };
 
-    g3dobject_moveSelectedKeys ( obj, scaleKeyFunc, &skd );
+    g3dobject_moveSelectedKeys ( obj, 
+                                 scaleKeyFunc, 
+                                &skd,
+                                 lremovedKeys,
+                                 lremovedPosSegments,
+                                 lremovedRotSegments,
+                                 lremovedScaSegments,
+                                 laddedPosSegments,
+                                 laddedRotSegments,
+                                 laddedScaSegments );
 }
 
 /******************************************************************************/
@@ -667,10 +699,26 @@ static void driftKeyFunc ( G3DKEY *key, DRIFTKEYDATA *dkd ) {
 }
 
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
-                                   float      drift ) {
+                                   float      drift,
+                                   LIST     **lremovedKeys,
+                                   LIST     **lremovedPosSegments,
+                                   LIST     **lremovedRotSegments,
+                                   LIST     **lremovedScaSegments,
+                                   LIST     **laddedPosSegments,
+                                   LIST     **laddedRotSegments,
+                                   LIST     **laddedScaSegments ) {
     DRIFTKEYDATA dkd = { .drift = drift };
 
-    g3dobject_moveSelectedKeys ( obj, driftKeyFunc, &dkd );
+    g3dobject_moveSelectedKeys ( obj, 
+                                 driftKeyFunc, 
+                                &dkd,
+                                 lremovedKeys,
+                                 lremovedPosSegments,
+                                 lremovedRotSegments,
+                                 lremovedScaSegments,
+                                 laddedPosSegments,
+                                 laddedRotSegments,
+                                 laddedScaSegments );
 }
 
 /******************************************************************************/
@@ -1070,7 +1118,13 @@ static void curve_addTransformation ( G3DCURVE      *curve,
 /******************************************************************************/
 void g3dobject_setKeyTransformations ( G3DOBJECT *obj, 
                                        G3DKEY    *key,
-                                       uint32_t   keyFlags ) {
+                                       uint32_t   keyFlags,
+                                       LIST     **laddedPosSegments,
+                                       LIST     **laddedRotSegments,
+                                       LIST     **laddedScaSegments,
+                                       LIST     **lremovedPosSegments,
+                                       LIST     **lremovedRotSegments,
+                                       LIST     **lremovedScaSegments ) {
     G3DKEY *prevKey = NULL;
     G3DKEY *nextKey = NULL;
     G3DKEY *frameKey = NULL;
@@ -1090,7 +1144,9 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
             curve_addTransformation ( obj->curve[0x00], 
                                      &key->curvePoint[0x00],
                        ( prevKey ) ? &prevKey->curvePoint[0x00] : NULL,
-                       ( nextKey ) ? &nextKey->curvePoint[0x00] : NULL );
+                       ( nextKey ) ? &nextKey->curvePoint[0x00] : NULL,
+                                      laddedPosSegments,
+                                      lremovedPosSegments );
         }
     }
 
@@ -1107,7 +1163,9 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
             curve_addTransformation ( obj->curve[0x01], 
                                      &key->curvePoint[0x01],
                        ( prevKey ) ? &prevKey->curvePoint[0x01] : NULL,
-                       ( nextKey ) ? &nextKey->curvePoint[0x01] : NULL );
+                       ( nextKey ) ? &nextKey->curvePoint[0x01] : NULL,
+                                      laddedRotSegments,
+                                      lremovedRotSegments );
         }
     }
 
@@ -1124,7 +1182,9 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
             curve_addTransformation ( obj->curve[0x02], 
                                      &key->curvePoint[0x02],
                        ( prevKey ) ? &prevKey->curvePoint[0x02] : NULL,
-                       ( nextKey ) ? &nextKey->curvePoint[0x02] : NULL );
+                       ( nextKey ) ? &nextKey->curvePoint[0x02] : NULL,
+                                      laddedScaSegments,
+                                      lremovedScaSegments );
         }
     }
 }
@@ -1240,7 +1300,6 @@ void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
     }
 }
 
-
 /******************************************************************************/
 G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
                            G3DKEY    *key,
@@ -1268,9 +1327,17 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
 
     obj->nbkey++;
 
-    g3dobject_setKeyTransformations ( obj, key, KEYPOSITION | 
-                                                KEYROTATION | 
-                                                KEYSCALING );
+    g3dobject_setKeyTransformations ( obj,
+                                      key,
+                                      KEYPOSITION |
+                                      KEYROTATION |
+                                      KEYSCALING,
+                                      laddedPosSegments,
+                                      laddedRotSegments,
+                                      laddedScaSegments,
+                                      lremovedPosSegments,
+                                      lremovedRotSegments,
+                                      lremovedScaSegments );
 
     return overwrittenKey;
 }

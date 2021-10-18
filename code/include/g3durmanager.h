@@ -273,12 +273,24 @@ typedef struct _URMOBJECTPOSE {
     G3DVECTOR  keypos;
     G3DVECTOR  keyrot;
     G3DVECTOR  keysca;
+    LIST      *lremovedPosSegments;
+    LIST      *lremovedRotSegments;
+    LIST      *lremovedScaSegments;
+    LIST      *laddedPosSegments;
+    LIST      *laddedRotSegments;
+    LIST      *laddedScaSegments;
 } URMOBJECTPOSE;
 
 /******************************************************************************/
 typedef struct _URMOBJECTREMOVEKEYS {
     G3DOBJECT *obj;
     LIST      *lkey;
+    LIST      *laddedPosSegments;
+    LIST      *laddedRotSegments;
+    LIST      *laddedScaSegments;
+    LIST      *lremovedPosSegments;
+    LIST      *lremovedRotSegments;
+    LIST      *lremovedScaSegments;
 } URMOBJECTREMOVEKEYS;
 
 /******************************************************************************/
@@ -826,5 +838,20 @@ void g3durm_selection_removeTag ( G3DURMANAGER *urm,
                                   G3DTAG       *tag,
                                   uint64_t      engine_flags,
                                   uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_objectList_driftSelectedKeys ( G3DURMANAGER *urm,
+                                           LIST         *lobj,
+                                           float         drift,
+                                           uint64_t      engine_flags,
+                                           uint32_t      return_flags );
+
+/******************************************************************************/
+void g3durm_objectList_scaleSelectedKeys ( G3DURMANAGER *urm,
+                                           LIST         *lobj,
+                                           float         factor, 
+                                           float         reference,
+                                           uint64_t      engine_flags,
+                                           uint32_t      return_flags );
 
 #endif
