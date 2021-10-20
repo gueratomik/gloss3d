@@ -331,6 +331,9 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITFFDYRADIUS  "Y Radius"
 #define EDITFFDZRADIUS  "Z Radius"
 
+/**** Widget names for LightEdit TextField widget ***/
+#define EDITLIGHT                  "Light"
+
 /**** Widget names for CylinderEdit TextField widget ***/
 #define EDITCYLINDER       "Edit Cylinder"
 #define EDITCYLINDERXCAPS  "X Caps"
@@ -370,18 +373,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
 #define EDITBONEVERTEXGROUP "Vertex Groups (Double-Click to link)"
-
-/**** Widget names for LightEdit TextField widget ***/
-#define EDITLIGHT            "Light"
-#define EDITLIGHTGENERAL     "General"
-#define EDITLIGHTINTENSITY   "Intensity"
-#define EDITLIGHTCASTSHADOWS "Cast shadows"
-#define EDITLIGHTCOLOR       "Light RGB Color"
-#define EDITLIGHTSPECULARITY "Light RGB Specularity"
-#define EDITLIGHTSPOTENABLED   "Spot Light"
-#define EDITLIGHTSPOTLENGTH    "Spot length"
-#define EDITLIGHTSPOTANGLE     "Spot angle"
-#define EDITLIGHTSPOTFADEANGLE "Spot fade angle"
 
 #define EDITCAMERA            "Camera"
 #define EDITCAMERADOF         "Depth of field"
@@ -1435,6 +1426,16 @@ void common_g3duilightedit_setSpotCbk       ( G3DUI    *gui,
                                               float     spotFadeAngle );
 void common_g3duilightedit_unsetSpotCbk     ( G3DUI    *gui,
                                               G3DLIGHT *lig );
+void common_g3duilightedit_setHardShadowsCbk ( G3DUI    *gui,
+                                               G3DLIGHT *lig );
+void common_g3duilightedit_setSoftShadowsCbk ( G3DUI    *gui,
+                                               G3DLIGHT *lig );
+void common_g3duilightedit_shadowRadiusCbk ( G3DUI    *gui,
+                                             G3DLIGHT *lig,
+                                             float     shadowRadius );
+void common_g3duilightedit_shadowSampleCbk ( G3DUI    *gui,
+                                             G3DLIGHT *lig,
+                                             uint32_t  shadowSample );
 
 /****************************** Texture Edit  *********************************/
 void common_g3duitextureedit_setUVMapCbk ( G3DUI *, uint32_t );

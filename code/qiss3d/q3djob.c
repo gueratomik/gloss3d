@@ -228,6 +228,9 @@ void *q3djob_raytrace_t ( void *ptr ) {
 
     qjob->qarea.scanline = 0x00;
 
+    /*** Compute the interpolation factors for rays ***/
+    q3darea_viewport ( qarea, qjob->qcam );
+
     /*** return immediately when canceled ***/
     /*pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, NULL );*/
 
@@ -273,68 +276,88 @@ void *q3djob_raytrace_t ( void *ptr ) {
             q3dvector3f_normalize ( &qray.dir, &viewingDistance );
 
             /*** shoot the ray ***/
-            color = q3dray_shoot_r ( &qray,
-                                      qjob,
-                                      NULL,
-                                      NULL,
-                                      NULL,
-                                      qjob->curframe,
-                                      0x04,
-                                      RAYQUERYHIT |
-                                      RAYQUERYSURFACECOLOR   | 
-                                      RAYQUERYLIGHTING       |
-                                      RAYQUERYREFLECTION     |
-                                      RAYQUERYREFRACTION     |
-                                      RAYQUERYIGNOREBACKFACE/* |
-                                      outlineFlag*/ );
+            if ( qjob->flags & JOBRENDERSOFTSHADOWS ) {
+                color = q3dray_shoot_r ( &qray,
+                                          qjob,
+                                          NULL,
+                                          NULL,
+                                          NULL,
+                                          qjob->curframe,
+                                          0x04,
+                                          RAYQUERYHIT |
+                                          RAYQUERYSOFTSHADOWSPASS1 |
+                                          RAYQUERYLIGHTING       |
+                                          RAYQUERYREFLECTION     |
+                                          RAYQUERYREFRACTION     |
+                                          RAYQUERYIGNOREBACKFACE/* |
+                                          outlineFlag*/ );
+            } else {
+                color = q3dray_shoot_r ( &qray,
+                                          qjob,
+                                          NULL,
+                                          NULL,
+                                          NULL,
+                                          qjob->curframe,
+                                          0x04,
+                                          RAYQUERYHIT            |
+                                          RAYQUERYSOFTSHADOWSPASS2 |
+                                          RAYQUERYHARDSHADOWS    |
+                                          RAYQUERYSHADING        |
+                                          RAYQUERYSURFACECOLOR   | 
+                                          RAYQUERYLIGHTING       |
+                                          RAYQUERYREFLECTION     |
+                                          RAYQUERYREFRACTION     |
+                                          RAYQUERYIGNOREBACKFACE/* |
+                                          outlineFlag*/ );
 
-            imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
-            imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
-            imgptr[0x02] = ( color & 0x000000FF );
+                imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
+                imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
+                imgptr[0x02] = ( color & 0x000000FF );
 
-            if ( qjob->qrsg->flags & RENDERFOG ) {
-                uint32_t fogR = ( ( qjob->qrsg->fog.color & 0x00FF0000 ) >> 0x10 ),
-                         fogG = ( ( qjob->qrsg->fog.color & 0x0000FF00 ) >> 0x08 ),
-                         fogB =   ( qjob->qrsg->fog.color & 0x000000FF );
+                if ( qjob->qrsg->flags & RENDERFOG ) {
+                    uint32_t fogR = ( ( qjob->qrsg->fog.color & 0x00FF0000 ) >> 0x10 ),
+                             fogG = ( ( qjob->qrsg->fog.color & 0x0000FF00 ) >> 0x08 ),
+                             fogB =   ( qjob->qrsg->fog.color & 0x000000FF );
 
-                if ( ( ( qray.distance == INFINITY ) && 
-                       ( qjob->qrsg->fog.flags & FOGAFFECTSBACKGROUND ) ) ||
-                       ( qray.distance != INFINITY ) ) {
-                    float fogNear = qjob->qrsg->fog.fnear;
-                    float fogFar = qjob->qrsg->fog.ffar;
-                    float deltaFog = ( fogFar - fogNear );
-                    float incFogRatio = ( deltaFog ) ? ( qray.distance - 
-                                                         fogNear ) / deltaFog : 0.0f;
-                    /*** note: fog strength is between 0.0f and 1.0f ***/
-                    float decFogRatio = qjob->qrsg->fog.strength - incFogRatio;
+                    if ( ( ( qray.distance == INFINITY ) && 
+                           ( qjob->qrsg->fog.flags & FOGAFFECTSBACKGROUND ) ) ||
+                           ( qray.distance != INFINITY ) ) {
+                        float fogNear = qjob->qrsg->fog.fnear;
+                        float fogFar = qjob->qrsg->fog.ffar;
+                        float deltaFog = ( fogFar - fogNear );
+                        float incFogRatio = ( deltaFog ) ? ( qray.distance - 
+                                                             fogNear ) / deltaFog : 0.0f;
+                        /*** note: fog strength is between 0.0f and 1.0f ***/
+                        float decFogRatio = qjob->qrsg->fog.strength - incFogRatio;
 
-                    if ( qray.distance < fogNear ) {
-                        incFogRatio = 0.0f;
-                        decFogRatio = 1.0f;
+                        if ( qray.distance < fogNear ) {
+                            incFogRatio = 0.0f;
+                            decFogRatio = 1.0f;
+                        }
+
+                        if ( qray.distance > fogNear ) {
+                            if ( incFogRatio > 1.0f ) incFogRatio = 1.0f;
+
+                            incFogRatio = incFogRatio * qjob->qrsg->fog.strength;
+                            decFogRatio = 1.0f - incFogRatio;
+                        }
+
+                        uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
+                        uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
+                        uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
+
+                        if ( R > 0xFF ) R = 0xFF;
+                        if ( G > 0xFF ) G = 0xFF;
+                        if ( B > 0xFF ) B = 0xFF;
+
+                        imgptr[0x00] = R;
+                        imgptr[0x01] = G;
+                        imgptr[0x02] = B;
                     }
-
-                    if ( qray.distance > fogNear ) {
-                        if ( incFogRatio > 1.0f ) incFogRatio = 1.0f;
-
-                        incFogRatio = incFogRatio * qjob->qrsg->fog.strength;
-                        decFogRatio = 1.0f - incFogRatio;
-                    }
-
-                    uint32_t R = ( imgptr[0x00] * decFogRatio ) + ( fogR * incFogRatio );
-                    uint32_t G = ( imgptr[0x01] * decFogRatio ) + ( fogG * incFogRatio );
-                    uint32_t B = ( imgptr[0x02] * decFogRatio ) + ( fogB * incFogRatio );
-
-                    if ( R > 0xFF ) R = 0xFF;
-                    if ( G > 0xFF ) G = 0xFF;
-                    if ( B > 0xFF ) B = 0xFF;
-
-                    imgptr[0x00] = R;
-                    imgptr[0x01] = G;
-                    imgptr[0x02] = B;
                 }
-            }
 
-            imgptr += 0x03;
+                imgptr += 0x03;
+            }
 
             /*** be ready for the next ray ***/
             q3dinterpolation_step ( &pone );
@@ -599,6 +622,23 @@ void q3djob_render ( Q3DJOB *qjob ) {
 
     if ( ( doRender != 0x02 ) ) {
         pthread_t *tid = malloc ( nbcpu * sizeof ( pthread_t ) );
+
+        /*** prerender soft shadows ***/
+        if ( q3dscene_needsSoftShadows ( qjob->qsce ) ) {
+            qjob->flags |= JOBRENDERSOFTSHADOWS;
+
+            for ( i = 0x00; i < nbcpu; i++ ) {
+                q3djob_createRenderThread ( qjob, &tid[i] );
+            }
+
+            for ( i = 0x00; i < nbcpu; i++ ) {
+                pthread_join ( tid[i], NULL );
+            }
+
+            q3darea_averageSoftShadows ( &qjob->qarea );
+
+            qjob->flags &= (~JOBRENDERSOFTSHADOWS);
+        }
 
         /*** Start as many threads as CPUs. Each thread queries the parent ***/
         /*** process in order to retrieve the scanline number it must render. ***/

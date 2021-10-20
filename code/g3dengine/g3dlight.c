@@ -507,7 +507,7 @@ void g3dlight_init ( G3DLIGHT *lig,
     G3DGLOBALS *globals = g3dcore_getGlobals ( );
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
-    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, 0x00,
+    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, LIGHTHARDSHADOWS,
                                     DRAW_CALLBACK(g3dlight_draw),
                                     FREE_CALLBACK(g3dlight_free),
                                     PICK_CALLBACK(g3dlight_pick),
@@ -529,6 +529,10 @@ void g3dlight_init ( G3DLIGHT *lig,
     lig->spotLength    = 1.0f;
     lig->spotAngle     = 15.0f;
     lig->spotFadeAngle =  2.5f;
+
+    lig->shadowRadius =  2.0f;
+
+    lig->shadowSample =  0x08;
 
     g3drgba_init ( &lig->shadowColor  , 0x00, 0x00, 0x00, 0x00 );
     g3drgba_init ( &lig->diffuseColor , 0xFF, 0xFF, 0xFF, 0xFF );

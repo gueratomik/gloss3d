@@ -29,9 +29,26 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITLIGHTGENERAL           "General"
+#define EDITLIGHTINTENSITY         "Intensity"
+#define EDITLIGHTCASTSHADOWS       "Cast shadows"
+#define EDITLIGHTCOLOR             "Light RGB Color"
+#define EDITLIGHTSPECULARITY       "Light RGB Specularity"
+#define EDITLIGHTSPOTENABLED       "Spot Light"
+#define EDITLIGHTSPOTLENGTH        "Spot length"
+#define EDITLIGHTSPOTANGLE         "Spot angle"
+#define EDITLIGHTSPOTFADEANGLE     "Spot fade angle"
+#define EDITLIGHTSHADOWS           "Shadows"
+#define EDITLIGHTHARDSHADOWS       "Hard Shadows"
+#define EDITLIGHTSOFTSHADOWS       "Area Shadows"
+#define EDITLIGHTSOFTSHADOWSRADIUS "Area radius"
+#define EDITLIGHTSOFTSHADOWSSAMPLE "Sample count"
+
 /******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
     G3DUIWIDGETGROUP grp;
+
+    GtkWidget       *main;
     GtkWidget       *diffuseColorButton;
     GtkWidget       *specularColorButton;
     GtkWidget       *intensityEntry;
@@ -40,6 +57,10 @@ typedef struct _G3DUILIGHTEDIT {
     GtkWidget       *spotLengthEntry;
     GtkWidget       *spotAngleEntry;
     GtkWidget       *spotFadeAngleEntry;
+    GtkWidget       *softShadowsToggle;
+    GtkWidget       *shadowRadiusEntry;
+    GtkWidget       *shadowSampleEntry;
+
     G3DLIGHT        *editedLight;
 } G3DUILIGHTEDIT;
 
@@ -54,6 +75,122 @@ static G3DUILIGHTEDIT *g3duilightedit_new ( G3DUI *gui ) {
     led->grp.gui = gui;
 
     return led; 
+}
+
+/******************************************************************************/
+static void updateShadowsPanel ( G3DUILIGHTEDIT *led ) {
+    led->grp.gui->lock = 0x01;
+
+    if ( led->editedLight ) {
+        if ( ((G3DOBJECT*)led->editedLight)->flags & LIGHTCASTSHADOWS ) {
+            gtk_widget_set_sensitive ( led->softShadowsToggle, TRUE );
+
+            if ( ((G3DOBJECT*)led->editedLight)->flags & LIGHTSOFTSHADOWS ) {
+                gtk_widget_set_sensitive     ( led->shadowRadiusEntry, TRUE );
+                gtk_widget_set_sensitive     ( led->shadowSampleEntry, TRUE );
+
+                gtk_toggle_button_set_active ( led->softShadowsToggle, TRUE  );
+            } else {
+                gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
+                gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
+
+                gtk_toggle_button_set_active ( led->softShadowsToggle, FALSE  );
+            }
+        } else {
+            gtk_widget_set_sensitive ( led->softShadowsToggle, FALSE );
+            gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
+            gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
+        }
+
+        gtk_spin_button_set_value  ( led->shadowRadiusEntry, 
+                                     led->editedLight->shadowRadius );
+
+        gtk_spin_button_set_value  ( led->shadowSampleEntry, 
+                                     led->editedLight->shadowSample );
+    } else {
+        gtk_toggle_button_set_active ( led->softShadowsToggle, FALSE  );
+
+        gtk_widget_set_sensitive ( led->softShadowsToggle, FALSE );
+        gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
+        gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
+    }
+
+
+    led->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void setShadowTypeCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
+    char *wname = gtk_widget_get_name ( widget );
+
+    if ( led->editedLight ) {
+        common_g3duilightedit_setSoftShadowsCbk ( led->grp.gui,
+                                                  led->editedLight );
+    }
+
+    updateShadowsPanel ( led );
+}
+
+/******************************************************************************/
+static void shadowRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
+    float shadowRadius = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( led->editedLight ) {
+        common_g3duilightedit_shadowRadiusCbk ( led->grp.gui,
+                                                led->editedLight,
+                                                shadowRadius );
+    }
+
+    g3dui_redrawGLViews ( led->grp.gui );
+}
+
+/******************************************************************************/
+static void shadowSampleCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
+    uint32_t shadowSample = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( led->editedLight ) {
+        common_g3duilightedit_shadowSampleCbk ( led->grp.gui,
+                                                led->editedLight,
+                                                shadowSample );
+    }
+
+    g3dui_redrawGLViews ( led->grp.gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createShadowsPanel ( GtkWidget      *parent, 
+                                       G3DUILIGHTEDIT *led,
+                                       char           *name,
+                                       gint            x,
+                                       gint            y,
+                                       gint            width,
+                                       gint            height ) {
+    GtkWidget *pan = createPanel ( parent, led, name, x, y, width, height );
+
+    led->softShadowsToggle = createToggleLabel ( pan,
+                                                 led,
+                                                 EDITLIGHTSOFTSHADOWS,
+                                                 0, 0, 20, 20,
+                                                 setShadowTypeCbk );
+
+    led->shadowRadiusEntry = createFloatText ( pan,
+                                               led,
+                                               EDITLIGHTSOFTSHADOWSRADIUS,
+                                               0.0f, FLT_MAX,
+                                               0, 24, 96, 96,
+                                               shadowRadiusCbk );
+
+    led->shadowSampleEntry = createIntegerText ( pan,
+                                                led,
+                                                EDITLIGHTSOFTSHADOWSSAMPLE,
+                                                1.0f, 32.0f,
+                                                0, 48, 96, 96,
+                                                shadowSampleCbk );
+
+    return pan;
 }
 
 /******************************************************************************/
@@ -264,6 +401,8 @@ static void castShadowsCbk  ( GtkWidget *widget, gpointer user_data ) {
     }
 
     g3dui_redrawGLViews ( led->grp.gui );
+
+    updateShadowsPanel ( led );
 }
 
 /******************************************************************************/
@@ -391,6 +530,7 @@ void updateLightEdit ( GtkWidget *w,
     updateSpecularityPanel  ( led );
     updateDiffuseColorPanel ( led );
     updateLightGeneralPanel ( led );
+    updateShadowsPanel      ( led );
 }
 
 /******************************************************************************/
@@ -436,6 +576,7 @@ GtkWidget *createLightEdit ( GtkWidget *parent,
     createLightGeneralPanel ( tab, led, EDITLIGHTGENERAL, 0, 0, width, height );
     createDiffuseColorPanel ( tab, led, EDITDIFFUSE     , 0, 0, width, height );
     createSpecularityPanel  ( tab, led, EDITSPECULAR    , 0, 0, width, height );
+    createShadowsPanel      ( tab, led, EDITLIGHTSHADOWS, 0, 0, width, height );
 
     /*list_insert ( &gui->lligedit, tab );*/
 

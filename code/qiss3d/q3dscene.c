@@ -62,6 +62,23 @@ static uint32_t q3dscene_intersect ( Q3DSCENE *qsce,
 }
 
 /******************************************************************************/
+uint32_t q3dscene_needsSoftShadows ( Q3DSCENE *qsce ) {
+    LIST *ltmpqlig = qsce->llights;
+
+    while ( ltmpqlig ) {
+        Q3DLIGHT *qlig = ( Q3DLIGHT * ) ltmpqlig->data;
+        Q3DOBJECT *qobjlig = ( Q3DOBJECT * ) qlig;
+        G3DLIGHT  *lig = ( G3DLIGHT *  ) q3dobject_getObject ( qobjlig );
+
+        if ( ((G3DOBJECT*)lig)->flags & LIGHTSOFTSHADOWS ) return 0x01;
+
+        ltmpqlig = ltmpqlig->next;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 void q3dscene_addLight ( Q3DSCENE *qsce, 
                          Q3DLIGHT *qlig ) {
     list_insert ( &qsce->llights, qlig );

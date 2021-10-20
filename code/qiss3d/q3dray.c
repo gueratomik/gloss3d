@@ -317,7 +317,8 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                float            frame,
                                Q3DRGBA         *diffuse,
                                Q3DRGBA         *specular,
-                               uint32_t         nbhop ) {
+                               uint32_t         nbhop,
+                               uint32_t         query_flags ) {
     static Q3DVECTOR3F pzero = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     LIST *ltmpqlig = qjob->qsce->llights;
 
@@ -354,39 +355,44 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 
         dot = q3dvector3f_scalar ( &luxqray.dir, &qray->isx.dir );
 
-        if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
-            if ( dot > 0.0f ) {
-                q3dray_shoot_r ( &luxqray, 
-                                  qjob,
-                                  sdiscard,
-                  /** problem here with instanciated objects. To solve later ***/
-                                  excludeIfPerfectSphere,
-                                  qray->isx.qobj,
-                                  frame,
-                                  nbhop,
-                                  RAYQUERYHIT );
+        if ( query_flags & RAYQUERYHARDSHADOWS ) {
+            if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
+                if ( dot > 0.0f ) {
+                    if ( ((G3DOBJECT*)lig)->flags & LIGHTHARDSHADOWS ) {
+                        q3dray_shoot_r ( &luxqray, 
+                                          qjob,
+                                          sdiscard,
+                          /** problem here with instanciated objects. To solve later ***/
+                                          excludeIfPerfectSphere,
+                                          qray->isx.qobj,
+                                          frame,
+                                          nbhop,
+                                          RAYQUERYHIT );
 
-                if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
-                    if ( luxqray.distance < distancetoLight ) {
-                        shadow = 1.0f;
+                        if ( luxqray.flags & Q3DRAY_HAS_HIT_BIT ) {
+                            if ( luxqray.distance < distancetoLight ) {
+                                shadow = 1.0f;
+                            }
+                        }
                     }
                 }
             }
+        }
 
-#ifdef unused_AREASHADOW
-            if ( 1 ) {
+        if ( query_flags & RAYQUERYSOFTSHADOWSPASS1 ) {
+            if ( ((G3DOBJECT*)lig)->flags & LIGHTSOFTSHADOWS ) {
                 Q3DRAY areaqray = { .src = { .x = luxqray.src.x,
                                              .y = luxqray.src.y,
                                              .z = luxqray.src.z } };
                 float areashadow = 0.0f;
 
-                for ( i = 0x00; i < 0x04; i++ ) {
+                for ( i = 0x00; i < lig->shadowSample; i++ ) {
                     Q3DVECTOR3F areadst;
                     float areadot;
 
                     q3dplane_getRandomPoint ( &luxqray.dir,
                                               &qligwpos,
-                                              20.0f,
+                                              lig->shadowRadius,
                                               &areadst );
 
                     areaqray.dir.x = areadst.x - areaqray.src.x;
@@ -398,17 +404,17 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
 
                     q3dvector3f_normalize ( &areaqray.dir, &distancetoLight );
 
-                    areadot = q3dvector3f_scalar ( &areaqray.dir, &wisx->dir );
+                    areadot = q3dvector3f_scalar ( &areaqray.dir, &qray->isx.dir );
 
                     if ( areadot > 0.0f ) {
-                        q3dray_shootWithCondition_r ( &areaqray, 
-                                                       qjob,
-                                                       sdiscard,
-                                                       excludeIfPerfectSphere,
-                                                       wisx->qobj,
-                                                       frame,
-                                                       nbhop,
-                                                       RAYQUERYHIT );
+                        q3dray_shoot_r ( &areaqray, 
+                                          qjob,
+                                          sdiscard,
+                                          excludeIfPerfectSphere,
+                                          qray->isx.qobj,
+                                          frame,
+                                          nbhop,
+                                          RAYQUERYHIT );
 
                         if ( areaqray.flags & Q3DRAY_HAS_HIT_BIT ) {
                             if ( areaqray.distance < distancetoLight ) {
@@ -418,58 +424,73 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                     }
                 }
 
-                /*shadow = ( areashadow / 0x04 );*/
+                shadow = ( float ) areashadow / lig->shadowSample;
 
-                if ( areashadow ) {
-                    if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
-                        uint32_t offset = ( qray->y * qjob->qarea.width ) + 
-                                            qray->x;
+                if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                    uint32_t offset = ( qray->y * qjob->qarea.width ) + 
+                                        qray->x;
 
-                        qjob->qarea.qssh[offset].shadow += ( areashadow / 0x04 );
-                        qjob->qarea.qssh[offset].qobjID  = wisx->qobj->id;
-                    }
+                    qjob->qarea.qssh[offset].shadow += ( shadow );
+
+                    qjob->qarea.qssh[offset].count++;
                 }
             }
-#endif
         }
 
-        if ( lig->obj.flags & SPOTLIGHT ) {
-            float spotAngle;
-            float spotDot;
-            float spotFactor;
-            Q3DVECTOR3F invLuxRay = { .x = -luxqray.dir.x,
-                                      .y = -luxqray.dir.y,
-                                      .z = -luxqray.dir.z };
+        if ( query_flags & RAYQUERYSOFTSHADOWSPASS2 ) {
+            if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                if ( ((G3DOBJECT*)lig)->flags & LIGHTSOFTSHADOWS ) {
+                    uint32_t offset = ( qray->y * qjob->qarea.width ) + 
+                                        qray->x;
 
-            spotDot = q3dvector3f_scalar ( &invLuxRay,
-                                           &qlig->zvec );
-
-            if ( spotDot > 0.0f ) {
-                spotAngle = acos ( spotDot )  * 180 / M_PI;
-
-                if ( spotAngle < lig->spotAngle ) {
-                    spotFactor = 1.0f;
-                } else {
-                    if ( spotAngle < ( lig->spotAngle + lig->spotFadeAngle ) ) {
-                        spotFactor = 1.0f - ( ( spotAngle - lig->spotAngle ) / 
-                                                            lig->spotFadeAngle );
+                    if ( qjob->qarea.qssh[offset].count ) {
+                        shadow = qjob->qarea.qssh[offset].average;
                     } else {
-                        spotFactor = 0.0f;
+                        shadow = 0.0f;
                     }
                 }
             }
-
-            dot *= spotFactor;
         }
 
-        if ( dot > 0.0f ) {
-            float rate = dot * lig->intensity;
+        if ( query_flags & RAYQUERYSHADING ) {
+            if ( lig->obj.flags & SPOTLIGHT ) {
+                float spotAngle;
+                float spotDot;
+                float spotFactor;
+                Q3DVECTOR3F invLuxRay = { .x = -luxqray.dir.x,
+                                          .y = -luxqray.dir.y,
+                                          .z = -luxqray.dir.z };
 
-            q3dray_specular ( qray, qlig, qjob->qcam, specular );
+                spotDot = q3dvector3f_scalar ( &invLuxRay,
+                                               &qlig->zvec );
 
-            diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
-            diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
-            diffuse->b += ( ( lig->diffuseColor.b * rate ) * ( 1.0f - shadow ) );
+                if ( spotDot > 0.0f ) {
+                    spotAngle = acos ( spotDot )  * 180 / M_PI;
+
+                    if ( spotAngle < lig->spotAngle ) {
+                        spotFactor = 1.0f;
+                    } else {
+                        if ( spotAngle < ( lig->spotAngle + lig->spotFadeAngle ) ) {
+                            spotFactor = 1.0f - ( ( spotAngle - lig->spotAngle ) / 
+                                                                lig->spotFadeAngle );
+                        } else {
+                            spotFactor = 0.0f;
+                        }
+                    }
+                }
+
+                dot *= spotFactor;
+            }
+
+            if ( dot > 0.0f ) {
+                float rate = dot * lig->intensity;
+
+                q3dray_specular ( qray, qlig, qjob->qcam, specular );
+
+                diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
+                diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
+                diffuse->b += ( ( lig->diffuseColor.b * rate ) * ( 1.0f - shadow ) );
+            }
         }
 
         ltmpqlig = ltmpqlig->next;
@@ -843,7 +864,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                                               qobj,
                                                               frame,
                                                             --nbhop,
-                                                              RAYQUERYALL );
+                                                              query_flags );
                             Q3DRGBA rRefl = { .r = ( rCol & 0xFF0000 ) >> 0x10,
                                               .g = ( rCol & 0x00FF00 ) >> 0x08,
                                               .b = ( rCol & 0x0000FF ) };
@@ -877,7 +898,8 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                        frame,
                                       &lightDiffuse,
                                       &lightSpecular,
-                                       nbhop );
+                                       nbhop,
+                                       query_flags );
             } else {
                 lightDiffuse.r = lightDiffuse.g = lightDiffuse.b = 255;
                 lightSpecular.r = lightSpecular.g = lightSpecular.b = 0;

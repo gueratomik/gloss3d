@@ -73,6 +73,7 @@ static void sss ( Q3DSOFTSHADOW *qssh,
                                         { -5, -3 }, { -4, -3 }, { -3, -3 }, { -2, -3 }, { -1, -3 }, {  0, -3 }, {  1, -3 }, {  2, -3 }, { 3, -3 }, { 4, -3 }, { 5, -3 },
                                         { -5, -4 }, { -4, -4 }, { -3, -4 }, { -2, -4 }, { -1, -4 }, {  0, -4 }, {  1, -4 }, {  2, -4 }, { 3, -4 }, { 4, -4 }, { 5, -4 },
                                         { -5, -5 }, { -4, -5 }, { -3, -5 }, { -2, -5 }, { -1, -5 }, {  0, -5 }, {  1, -5 }, {  2, -5 }, { 3, -5 }, { 4, -5 }, { 5, -5 } };
+
     uint32_t offset = ( y * width ) + x;
 
 
@@ -98,11 +99,11 @@ static void sss ( Q3DSOFTSHADOW *qssh,
                      ( ty > 0x00 ) && ( ty < height ) ) {
                     uint32_t toffset = ( ty * width ) + tx;
 
-                    if ( qssh[toffset].qobjID == qssh[offset].qobjID ) {
+                    /*if ( qssh[toffset].qobjID == qssh[offset].qobjID ) {
                         shadow +=  qssh[toffset].shadow;
 
                         nbs++;
-                    }
+                    }*/
                 }
             }
 

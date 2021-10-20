@@ -78,6 +78,43 @@ void common_g3duilightedit_castShadowsCbk ( G3DUI    *gui,
 }
 
 /******************************************************************************/
+void common_g3duilightedit_setSoftShadowsCbk ( G3DUI    *gui,
+                                               G3DLIGHT *lig ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
+        lig->obj.flags &= (~LIGHTHARDSHADOWS);
+
+        lig->obj.flags |= LIGHTSOFTSHADOWS;
+    } else {
+        lig->obj.flags &= (~LIGHTSOFTSHADOWS);
+
+        lig->obj.flags |= LIGHTHARDSHADOWS;
+    }
+}
+
+/******************************************************************************/
+void common_g3duilightedit_shadowRadiusCbk ( G3DUI    *gui,
+                                             G3DLIGHT *lig,
+                                             float     shadowRadius ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
+
+    lig->shadowRadius = shadowRadius;
+}
+
+/******************************************************************************/
+void common_g3duilightedit_shadowSampleCbk ( G3DUI    *gui,
+                                             G3DLIGHT *lig,
+                                             uint32_t  shadowSample ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
+
+    lig->shadowSample = shadowSample;
+}
+
+/******************************************************************************/
 void common_g3dui_lightDiffuseChangeCbk ( G3DUI    *gui, 
                                           G3DLIGHT *lig,
                                           uint32_t  red,

@@ -130,23 +130,28 @@ typedef G3DRGBA         Q3DRGBA;
 #define TRIANGLEFROMQUADTWO  ( 1 << 8 )
 
 /********************************** Ray queries *******************************/
-#define RAYQUERYHIT             ( 1      )
-#define RAYQUERYSURFACECOLOR    ( 1 << 1 )
-#define RAYQUERYLIGHTING        ( 1 << 2 ) /*** create a shadow vector?     ***/
-#define RAYQUERYREFLECTION      ( 1 << 3 ) /*** create a reflection vector? ***/
-#define RAYQUERYREFRACTION      ( 1 << 4 ) /*** create a refraction vector? ***/
-#define RAYQUERYNOCHECKIN       ( 1 << 5 )
-#define RAYQUERYOUTLINE         ( 1 << 6 )
+#define RAYQUERYHIT             ( 1       )
+#define RAYQUERYSURFACECOLOR    ( 1 <<  1 )
+#define RAYQUERYLIGHTING        ( 1 <<  2 ) /*** create a shadow vector?     ***/
+#define RAYQUERYREFLECTION      ( 1 <<  3 ) /*** create a reflection vector? ***/
+#define RAYQUERYREFRACTION      ( 1 <<  4 ) /*** create a refraction vector? ***/
+#define RAYQUERYNOCHECKIN       ( 1 <<  5 )
+#define RAYQUERYOUTLINE         ( 1 <<  6 )
 #define RAYQUERYALL             ( RAYQUERYHIT          | \
                                   RAYQUERYSURFACECOLOR | \
                                   RAYQUERYLIGHTING     | \
                                   RAYQUERYREFLECTION   | \
                                   RAYQUERYREFRACTION )
-#define RAYQUERYIGNOREBACKFACE  ( 1 << 7 )
-
+#define RAYQUERYIGNOREBACKFACE   ( 1 <<  7 )
+#define RAYQUERYSHADING          ( 1 <<  8 )
+#define RAYQUERYHARDSHADOWS      ( 1 << 10 )
+#define RAYQUERYSOFTSHADOWSPASS1 ( 1 << 11 )
+#define RAYQUERYSOFTSHADOWSPASS2 ( 1 << 12 )
 
 /******************************** Job Flags ***********************************/
-#define NOFREEFILTERS ( 1 << 15 )
+#define JOBRENDERSOFTSHADOWS ( 1 << 1 )
+#define NOFREEFILTERS        ( 1 << 15 )
+
 
 /******************************************************************************/
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"
@@ -601,7 +606,8 @@ typedef struct _Q3DZHLINE {
 /******************************************************************************/
 typedef struct _Q3DSOFTSHADOW {
     float    shadow;
-    uint32_t qobjID;
+    float    average;
+    uint32_t count;
 } Q3DSOFTSHADOW;
 
 /******************************************************************************/
@@ -1113,11 +1119,18 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
 Q3DOBJECT *q3dscene_getByObject ( Q3DSCENE  *qsce, 
                                   G3DOBJECT *obj );
 
+uint32_t q3dscene_needsSoftShadows ( Q3DSCENE *qsce );
+
 Q3DINSTANCE *q3dinstance_new ( G3DINSTANCE *ins,
                                uint32_t     id,
                                uint64_t     object_flags );
 Q3DOBJECT *q3dobject_getByObject_r ( Q3DOBJECT *qobj, 
                                      G3DOBJECT *obj );
+
+void q3darea_viewport ( Q3DAREA   *qarea, 
+                        Q3DCAMERA *qcam );
+
+void q3darea_averageSoftShadows ( Q3DAREA *qarea );
 
 #endif
  

@@ -54,6 +54,8 @@ typedef struct _G3DLIGHT {
     float     spotAngle;
     float     spotFadeAngle;
     float     spotLength;
+    float     shadowRadius; /*** radius for area shadows ***/
+    uint32_t  shadowSample; /*** radius for area shadows ***/
 } G3DLIGHT;
 
 /******************************************************************************/
