@@ -347,6 +347,12 @@ SIG_ROOT=0x44335347
 ----------------------------------- boolean (uint32_t)
 ------------------------------- SIG_OBJECT_LIGHT_SHADOW_COLOR
 ----------------------------------- RGBA (float-float-float-float)
+------------------------------- SIG_OBJECT_LIGHT_SHADOW_SOFT
+----------------------------------- uint32_t (boolean)
+------------------------------- SIG_OBJECT_LIGHT_SHADOW_SOFT_SAMPLING
+----------------------------------- nbSamples (uint32_t)
+------------------------------- SIG_OBJECT_LIGHT_SHADOW_SOFT_RADIUS
+----------------------------------- radius (float)
 --------------------------- SIG_OBJECT_LIGHT_INTENSITY
 ------------------------------- intensity (float)
 --------------------------- SIG_OBJECT_LIGHT_DIFFUSE

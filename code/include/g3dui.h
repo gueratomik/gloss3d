@@ -635,7 +635,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define VIEWMENU_REDO            "Redo  view"
 
 #define TIMEMENU_DELETE          "Delete selected keys"
-#define TIMEMENU_SCALE           "Scale time"
+#define TIMEMENU_SCALE           "Scale keys"
+#define TIMEMENU_SELECT          "Select keys"
 
 /******************************************************************************/
 #define MARGIN 0x02
@@ -1197,7 +1198,7 @@ void      common_g3dui_dispatchGLMenuButton ( G3DUI *, G3DMOUSETOOL *,
 void      common_g3dui_interpretMouseToolReturnFlags ( G3DUI *, uint32_t );
 
 /****************************** Callbacks *************************************/
-void      common_g3dui_deleteSelectionCbk     ( G3DUI * );
+uint32_t  common_g3dui_deleteSelectionCbk     ( G3DUI * );
 void      common_g3dui_copySelectionCbk       ( G3DUI * );
 void      common_g3dui_pasteSelectionCbk      ( G3DUI * );
 void      common_g3dui_makeEditableCbk        ( G3DUI * );

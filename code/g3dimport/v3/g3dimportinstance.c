@@ -49,7 +49,8 @@ void g3dimportv3instance ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc )
 
                 g3dimportv3_freadl ( &refID, fsrc );
 
-                g3dinstance_setReference ( ins, gid->declaredObjects[refID] );
+                g3dinstance_setReference ( ins, 
+                                           gid->declaredObjects[refID] );
             } break;
 
             case SIG_OBJECT_INSTANCE_MIRRORINGPLANE : {

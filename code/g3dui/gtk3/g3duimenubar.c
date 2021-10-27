@@ -237,16 +237,23 @@ static void updateMenu_r ( G3DUIMENU *node,
 
 /******************************************************************************/
 void g3duitimeline_deleteKeysCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
 
-    common_g3duitimeline_deleteSelectedKeys ( gui );
+    common_g3duitimeline_deleteSelectedKeys ( tim->grp.gui );
 }
 
 /******************************************************************************/
 void g3duitimeline_scaleKeysCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
 
-    common_g3duitimeline_scaleSelectedKeys ( gui, 1.5f, 0.0f );
+    tim->tdata->tool = TIME_SCALE_TOOL;
+}
+
+/******************************************************************************/
+void g3duitimeline_selectKeysCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+
+    tim->tdata->tool = TIME_MOVE_TOOL;
 }
 
 /******************************************************************************/
@@ -260,25 +267,31 @@ static G3DUIMENU time_menu_scale = { TIMEMENU_SCALE,
                                      NULL,
                                      g3duitimeline_scaleKeysCbk };
 
+static G3DUIMENU time_menu_select = { TIMEMENU_SELECT,
+                                      G3DUIMENUTYPE_PUSHBUTTON,
+                                      NULL,
+                                      g3duitimeline_selectKeysCbk };
+
 /******************************************************************************/
 static G3DUIMENU time_menu = { "_Options",
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &time_menu_scale,
+                              .nodes = { /*&time_menu_scale,
+                                         &time_menu_select,*/
                                          &time_menu_delete,
                                           NULL } };
 
 /******************************************************************************/
 /******************************************************************************/
-GtkWidget *createTimeContextMenu ( GtkWidget *parent,
-                                   G3DUI     *gui,
-                                   char      *name,
-                                   gint       width,
-                                   gint       height ) {
+GtkWidget *createTimeContextMenu ( GtkWidget     *parent,
+                                   G3DUITIMELINE *tim,
+                                   char          *name,
+                                   gint           width,
+                                   gint           height ) {
     GdkRectangle gdkrec = { 0, 0, width, height };
 
-    parseMenu_r ( &time_menu, NULL, gui );
+    parseMenu_r ( &time_menu, NULL, tim );
 
     gtk_widget_size_allocate ( time_menu.menu, &gdkrec );
 

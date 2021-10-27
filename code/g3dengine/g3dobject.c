@@ -956,11 +956,13 @@ static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
 
     g3dobject_updateMatrix ( obj, engine_flags );
 
-    if ( (*animobjID) < maxanimobj ) {
+    if ( obj->anim ) obj->anim ( obj, frame, engine_flags );
+
+    /*if ( (*animobjID) < maxanimobj ) {
         animobj[(*animobjID)] = obj;
 
         (*animobjID)++;
-    }
+    }*/
 
     /*** Recurse to children objects ***/
     while ( ltmp ) {
@@ -970,8 +972,27 @@ static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
 
         ltmp = ltmp->next;
     }
+}
 
+/******************************************************************************/
+uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj ) {
+    LIST *ltmpobj = obj->lchildren;
 
+    if ( obj->type == G3DBONETYPE ) {
+        G3DBONE *bon = ( G3DBONE * ) obj;
+
+        if ( bon->lrig ) return 0x01;
+    }
+
+    while ( ltmpobj ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( g3dobject_hasRiggedBone_r ( ( G3DBONE * ) child ) ) return 0x01;
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -993,9 +1014,9 @@ void g3dobject_anim_r  ( G3DOBJECT *obj,
                                 engine_flags );
 
     for ( i = 0x00; i < animobjID; i++ ) {
-        if ( animobj[i]->anim ) {
+        /*if ( animobj[i]->anim ) {
             animobj[i]->anim ( animobj[i], frame, engine_flags );
-        }
+        }*/
 
         g3dobject_postanim_tags ( animobj[i], frame, engine_flags );
     }
@@ -1384,6 +1405,17 @@ G3DKEY *g3dobject_pose ( G3DOBJECT  *obj,
 }
 
 /******************************************************************************/
+uint32_t g3dobject_hasSelectedParent ( G3DOBJECT *obj ) {
+    while ( obj->parent ) {
+        if ( obj->parent->flags & OBJECTSELECTED ) return 0x01;
+
+        obj = obj->parent;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 void g3dobject_setSelected ( G3DOBJECT *obj ) {
     obj->flags |= OBJECTSELECTED;
 }
@@ -1511,12 +1543,16 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
 void g3dobject_addTag ( G3DOBJECT *obj, 
                         G3DTAG    *tag ) {
     list_insert ( &obj->ltag, tag );
+
+    if ( tag->add ) tag->add ( tag, obj, 0x00 );
 }
 
 /******************************************************************************/
 void g3dobject_removeTag ( G3DOBJECT *obj, 
                            G3DTAG    *tag ) {
     list_remove ( &obj->ltag, tag );
+
+    if ( tag->remove ) tag->remove ( tag, obj, 0x00 );
 
     /*** this should be in some dedicated func ***/
     obj->seltag = NULL;
@@ -2253,6 +2289,24 @@ void g3dobject_moveAxis ( G3DOBJECT *obj,
         ltmpchildren = ltmpchildren->next;
     }
 }
+
+/******************************************************************************/
+uint32_t g3dobject_seekByPtr_r ( G3DOBJECT *obj, 
+                                 G3DOBJECT *ptr ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    if ( obj == ptr ) return 0x01;
+
+    while ( ltmpchildren ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
+
+        if ( g3dobject_seekByPtr_r ( child, ptr ) ) return 0x01;
+
+        ltmpchildren = ltmpchildren->next;
+    }
+
+    return 0x00;
+} 
 
 /******************************************************************************/
 G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags ) {

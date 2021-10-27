@@ -118,6 +118,9 @@
 #define  SIG_OBJECT_LIGHT_SHADOW                        0xF365A4D5
 #define  SIG_OBJECT_LIGHT_SHADOW_CASTING                0xB34778F4
 #define  SIG_OBJECT_LIGHT_SHADOW_COLOR                  0x45301A77
+#define  SIG_OBJECT_LIGHT_SHADOW_SOFT                   0x51E1FCC7
+#define  SIG_OBJECT_LIGHT_SHADOW_SOFT_RADIUS            0x4137BDFA
+#define  SIG_OBJECT_LIGHT_SHADOW_SOFT_SAMPLING          0xA09F9A46
 #define  SIG_OBJECT_LIGHT_SPECULAR                      0x4F876F5D
 #define  SIG_OBJECT_LIGHT_SPOT                          0x94A8DF01
 #define  SIG_OBJECT_MESH                                0xB5C6334F

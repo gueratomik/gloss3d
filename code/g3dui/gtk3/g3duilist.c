@@ -816,29 +816,42 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                      ( g3dobject_isChild ( obj, dst ) == 0x00 ) ) {
                     G3DOBJECT *par = obj->parent;
 
-                    /** prevent scene from becoming a child object ***/
-                    if ( obj->type == G3DSCENETYPE ) break;
+                    if ( g3dobject_hasRiggedBone_r ( obj ) ) {
+                        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+                        GtkMessageDialog *dialog;
 
-                    /*** Perform action & record for the undo-redo manager ***/
-                    g3durm_object_addChild ( urm, sce, gui->engine_flags,
-                                                       ( REDRAWVIEW |
-                                                         REDRAWLIST | 
-                                                         REDRAWCURRENTOBJECT ),
-                                           ( G3DOBJECT * ) par,
-                                           ( G3DOBJECT * ) dst,
-                                           ( G3DOBJECT * ) obj );
+                        dialog = gtk_message_dialog_new ( NULL,
+                                                          flags,
+                                                          GTK_MESSAGE_ERROR,
+                                                          GTK_BUTTONS_CLOSE,
+                                                          "Could alter hierarchy with rigged bones. Please unrig bones first." );
+                        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+                        gtk_widget_destroy ( dialog );
+                    } else {
+                        /** prevent scene from becoming a child object ***/
+                        if ( obj->type == G3DSCENETYPE ) break;
 
-                    if ( ( dst->type == G3DSYMMETRYTYPE ) &&
-                         ( obj->type == G3DMESHTYPE ) ) {
-                        g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
+                        /*** Perform action & record for the undo-redo manager ***/
+                        g3durm_object_addChild ( urm, sce, gui->engine_flags,
+                                                           ( REDRAWVIEW |
+                                                             REDRAWLIST | 
+                                                             REDRAWCURRENTOBJECT ),
+                                               ( G3DOBJECT * ) par,
+                                               ( G3DOBJECT * ) dst,
+                                               ( G3DOBJECT * ) obj );
 
-                        g3dmesh_update ( ( G3DMESH * ) obj, NULL,
-                                              NULL,
-                                              NULL,
-                                              UPDATEFACEPOSITION, gui->engine_flags );
+                        if ( ( dst->type == G3DSYMMETRYTYPE ) &&
+                             ( obj->type == G3DMESHTYPE ) ) {
+                            g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
+
+                            g3dmesh_update ( ( G3DMESH * ) obj, NULL,
+                                                  NULL,
+                                                  NULL,
+                                                  UPDATEFACEPOSITION, gui->engine_flags );
+                        }
+
+                        g3dui_updateCoords ( gui );
                     }
-
-                    g3dui_updateCoords ( gui );
                 }
 
             g3dui_redrawObjectList ( gui );

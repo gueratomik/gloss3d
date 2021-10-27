@@ -33,6 +33,8 @@
 void g3dinstance_setReference ( G3DINSTANCE *ins, 
                                 G3DOBJECT   *ref ) {
     ins->ref = ref;
+
+    g3dscene_addReferredObject ( ins->sce, ref );
 }
 
 /******************************************************************************/
@@ -59,7 +61,7 @@ static G3DINSTANCE *g3dinstance_copy ( G3DINSTANCE   *ins,
                                        unsigned char *name,
                                        uint64_t       engine_flags ) {
     G3DINSTANCE *cpyins = g3dinstance_new ( ((G3DOBJECT*)ins)->id,
-                                            ((G3DOBJECT*)ins)->name );
+                                            ((G3DOBJECT*)ins)->name, ins->sce );
 
     cpyins->ref = ins->ref;
     cpyins->orientation = ins->orientation;
@@ -76,16 +78,18 @@ static uint32_t g3dinstance_draw ( G3DINSTANCE *ins,
                                    uint64_t     engine_flags ) {
 
     if ( ins->ref ) {
-        if ( ins->ref->draw ) {
-            glPushMatrix ( );
+        if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
+            if ( ins->ref->draw ) {
+                glPushMatrix ( );
 
-            if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                glMultMatrixd ( ins->smatrix );
+                if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                    glMultMatrixd ( ins->smatrix );
+                }
+
+                ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~MODEMASK) ) | VIEWOBJECT );
+
+                glPopMatrix ( );
             }
-
-            ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~MODEMASK) ) | VIEWOBJECT );
-
-            glPopMatrix ( );
         }
     }
 
@@ -103,15 +107,17 @@ static uint32_t g3dinstance_pick ( G3DINSTANCE *ins,
                                    uint64_t     engine_flags ) {
 
     if ( ins->ref ) {
-        if ( ins->ref->pick ) {
-            if ( engine_flags & VIEWOBJECT ) {
-                if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                    g3dpick_multModelviewMatrix ( ins->smatrix );
-                }
+        if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
+            if ( ins->ref->pick ) {
+                if ( engine_flags & VIEWOBJECT ) {
+                    if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+                        g3dpick_multModelviewMatrix ( ins->smatrix );
+                    }
 
-                ins->ref->pick ( ins->ref, 
-                                 curcam, 
-                                 engine_flags );
+                    ins->ref->pick ( ins->ref, 
+                                     curcam, 
+                                     engine_flags );
+                }
             }
         }
     }
@@ -128,7 +134,8 @@ static void g3dinstance_transform ( G3DINSTANCE *ins,
 /******************************************************************************/
 void g3dinstance_init ( G3DINSTANCE *ins, 
                         uint32_t     id, 
-                        char        *name ) {
+                        char        *name,
+                        G3DSCENE    *sce ) {
     g3dobject_init ( ins, 
                      G3DINSTANCETYPE,
                      id, 
@@ -148,13 +155,15 @@ void g3dinstance_init ( G3DINSTANCE *ins,
     ((G3DOBJECT*)ins)->transform = g3dinstance_transform;
 
     ins->orientation = INSTANCEYZ;
+    ins->sce = sce;
 
     /*mes->dump           = g3dmesh_default_dump;*/
 }
 
 /******************************************************************************/
 G3DINSTANCE *g3dinstance_new ( uint32_t id, 
-                               char    *name ) {
+                               char     *name,
+                               G3DSCENE *sce ) {
     G3DINSTANCE *ins = ( G3DINSTANCE * ) calloc ( 0x01, sizeof ( G3DINSTANCE ) );
 
     if ( ins == NULL ) {
@@ -163,7 +172,7 @@ G3DINSTANCE *g3dinstance_new ( uint32_t id,
         return NULL;
     }
 
-    g3dinstance_init ( ins, id, name );
+    g3dinstance_init ( ins, id, name, sce );
 
 
     return ins;

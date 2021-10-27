@@ -104,6 +104,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /******************************************************************************/
 #define BBOXLEN 0.2f
 
+/********************************** Error codes *******************************/
+#define G3DERROR_SUCCESS         0x00000000
+#define G3DERROR_OBJECT_REFERRED  0x00000010
+
 /******************************* Engine Flags *********************************/
 
 
@@ -167,36 +171,37 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define GETCHANNEL(f)    ((f&UVCHANNELMASK)>>30)
 
 /******************************* Object Types *********************************/
-#define OBJECT         ( ( uint64_t )  1       )
-#define PRIMITIVE      ( ( uint64_t )  1 << 1  )
-#define SPHERE         ( ( uint64_t )  1 << 2  )
-#define TORUS          ( ( uint64_t )  1 << 3  )
-#define MESH           ( ( uint64_t )  1 << 4  )
-#define CAMERA         ( ( uint64_t )  1 << 5  )
-#define SCENE          ( ( uint64_t )  1 << 6  )
-#define BONE           ( ( uint64_t )  1 << 7  )
-#define LIGHT          ( ( uint64_t )  1 << 8  )
-#define SPOT           ( ( uint64_t )  1 << 9  )
-#define CUBE           ( ( uint64_t )  1 << 10 )
-#define SYMMETRY       ( ( uint64_t )  1 << 11 )
-#define CYLINDER       ( ( uint64_t )  1 << 12 )
-#define MODIFIER       ( ( uint64_t )  1 << 13 )
-#define FFD            ( ( uint64_t )  1 << 14 )
-#define PLANE          ( ( uint64_t )  1 << 15 )
-#define CONE           ( ( uint64_t )  1 << 16 )
-#define UVMAP          ( ( uint64_t )  1 << 17 )
-#define PIVOT          ( ( uint64_t )  1 << 18 )
-#define SUBDIVIDER     ( ( uint64_t )  1 << 19 )
-#define WIREFRAME      ( ( uint64_t )  1 << 20 )
-#define MULTIPLIER     ( ( uint64_t )  1 << 21 )
-#define EDITABLE       ( ( uint64_t )  1 << 22 )
-#define SPLINE         ( ( uint64_t )  1 << 23 )
-#define SPLINEREVOLVER ( ( uint64_t )  1 << 24 )
-#define TEXT           ( ( uint64_t )  1 << 25 )
-#define TUBE           ( ( uint64_t )  1 << 26 )
-#define MORPHER        ( ( uint64_t )  1 << 27 )
-#define SKIN           ( ( uint64_t )  1 << 28 )
-#define INSTANCE       ( ( uint64_t )  1 << 29 )
+#define OBJECT          ( ( uint64_t )  1       )
+#define PRIMITIVE       ( ( uint64_t )  1 << 1  )
+#define SPHERE          ( ( uint64_t )  1 << 2  )
+#define TORUS           ( ( uint64_t )  1 << 3  )
+#define MESH            ( ( uint64_t )  1 << 4  )
+#define CAMERA          ( ( uint64_t )  1 << 5  )
+#define SCENE           ( ( uint64_t )  1 << 6  )
+#define BONE            ( ( uint64_t )  1 << 7  )
+#define LIGHT           ( ( uint64_t )  1 << 8  )
+#define SPOT            ( ( uint64_t )  1 << 9  )
+#define CUBE            ( ( uint64_t )  1 << 10 )
+#define SYMMETRY        ( ( uint64_t )  1 << 11 )
+#define CYLINDER        ( ( uint64_t )  1 << 12 )
+#define MODIFIER        ( ( uint64_t )  1 << 13 )
+#define FFD             ( ( uint64_t )  1 << 14 )
+#define PLANE           ( ( uint64_t )  1 << 15 )
+#define CONE            ( ( uint64_t )  1 << 16 )
+#define UVMAP           ( ( uint64_t )  1 << 17 )
+#define PIVOT           ( ( uint64_t )  1 << 18 )
+#define SUBDIVIDER      ( ( uint64_t )  1 << 19 )
+#define WIREFRAME       ( ( uint64_t )  1 << 20 )
+#define MULTIPLIER      ( ( uint64_t )  1 << 21 )
+#define EDITABLE        ( ( uint64_t )  1 << 22 )
+#define SPLINE          ( ( uint64_t )  1 << 23 )
+#define SPLINEREVOLVER  ( ( uint64_t )  1 << 24 )
+#define TEXT            ( ( uint64_t )  1 << 25 )
+#define TUBE            ( ( uint64_t )  1 << 26 )
+#define MORPHER         ( ( uint64_t )  1 << 27 )
+#define SKIN            ( ( uint64_t )  1 << 28 )
+#define INSTANCE        ( ( uint64_t )  1 << 29 )
+#define PARTICLEEMITTER ( ( uint64_t )  1 << 30 )
 
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DNULLTYPE       ( G3DOBJECTTYPE )
@@ -226,9 +231,10 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /*** we dont need the MESH bit for the morpher modifier, that way it is ***/
 /*** ignore by g3dobject_getByType(), and mororver, it doesn't use vertex ***/
 /*** list or face list or edge list ***/
-#define G3DMORPHERTYPE        ( OBJECT        | MODIFIER | MORPHER )
-#define G3DSKINTYPE           ( OBJECT        | MODIFIER | SKIN )
-#define G3DINSTANCETYPE       ( OBJECT        | INSTANCE )
+#define G3DMORPHERTYPE         ( OBJECT        | MODIFIER | MORPHER )
+#define G3DSKINTYPE            ( OBJECT        | MODIFIER | SKIN )
+#define G3DINSTANCETYPE        ( OBJECT        | INSTANCE )
+#define G3DPARTICLEEMITTERTYPE ( OBJECT        | PARTICLEEMITTER )
 
 /******************************************************************************/
 /** symmetry orientation ***/
@@ -721,6 +727,7 @@ typedef struct _G3DKEY    G3DKEY;
 typedef struct _G3DCURVE  G3DCURVE;
 typedef struct _G3DRIG    G3DRIG;
 typedef struct _G3DTAG    G3DTAG;
+typedef struct _G3DSCENE  G3DSCENE;
 
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
@@ -794,8 +801,14 @@ typedef struct _G3DOBJECT {
     LIST     *lext; /* list of object extensions */
     LIST     *ltag;
     G3DTAG   *seltag;
-    uint32_t tagID;
+    uint32_t  tagID;
 } G3DOBJECT;
+
+/******************************************************************************/
+typedef struct _G3DREFERRED {
+    G3DOBJECT *obj;
+    uint32_t   available;
+} G3DREFERRED;
 
 /******************************************************************************/
 typedef struct _G3DUVPLANE {
@@ -1058,6 +1071,7 @@ typedef struct _G3DCUTFACE {
 #include <g3dengine/g3dlight.h>
 #include <g3dengine/g3dtag.h>
 #include <g3dengine/g3dinstance.h>
+#include <g3dengine/g3dparticleemitter.h>
 
 /******************************************************************************/
 typedef struct _G3DCATMULLSCHEME {
@@ -1147,6 +1161,7 @@ struct _G3DMESH {
     LIST *lseluvmap;
     
     G3DMODIFIER *lastmod;
+
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
@@ -1401,6 +1416,7 @@ typedef struct _G3DSCENE {
     uint32_t nbmat;
     uint32_t childid; /*** Children object IDs counter ***/
     G3DCURSOR csr;
+    LIST *lref;
 } G3DSCENE;
 
 /********************* a "portable" version of XRectangle *********************/
@@ -1479,6 +1495,8 @@ void     g3dcore_getMatrixTranslation    ( double *, G3DVECTOR * );
 void     g3dobject_buildRotationMatrix   ( G3DOBJECT * );
 G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj, 
                                       uint64_t   type );
+uint32_t g3dobject_seekByPtr_r ( G3DOBJECT *obj, 
+                                 G3DOBJECT *ptr );
 void     g3dcore_identityMatrix          ( double * );
 void     g3dcore_multmatrixdirect        ( double *, double * );
 void     g3dcore_symmetryMatrix          ( double *, uint32_t );
@@ -1762,11 +1780,13 @@ G3DFACE *g3dtriangle_new                ( G3DVERTEX *,
                                           G3DVERTEX *, 
                                           G3DVERTEX * );
 void     g3dface_normal                 ( G3DFACE * );
-void     g3dface_draw                   ( G3DFACE *fac, 
-                                          float    gouraudScalarLimit,
-                                          LIST    *ltex, 
-                                          uint32_t object_flags,
-                                          uint64_t engine_flags );
+void g3dface_draw  ( G3DFACE   *fac, 
+                     G3DVECTOR *verpos,
+                     G3DVECTOR *vernor,
+                     float      gouraudScalarLimit,
+                     LIST      *ltex,
+                     uint32_t   object_flags,
+                     uint64_t   engine_flags );
 void     g3dface_drawSkin               ( G3DFACE *fac, 
                                           uint32_t oflags,
                                           uint64_t engine_flags );
@@ -2054,6 +2074,8 @@ void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                                    LIST     **laddedRotSegments,
                                    LIST     **laddedScaSegments );
 
+G3DOBJECT *g3dobject_findReferred_r ( G3DOBJECT *obj );
+uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift,
                                    LIST     **lremovedKeys,
@@ -2283,6 +2305,7 @@ uint32_t g3dobject_isSelected ( G3DOBJECT *obj );
 uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
                                    uint64_t   engine_flags  );
+uint32_t g3dobject_hasSelectedParent ( G3DOBJECT *obj );
 void g3dobject_deactivate ( G3DOBJECT *obj, 
                             uint64_t   engine_flags );
 void g3dobject_appendChild ( G3DOBJECT *obj, 
@@ -2722,6 +2745,13 @@ G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id );
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
+void g3dscene_checkReferredObjects ( G3DSCENE *sce );
+void g3dscene_removeReferredObject ( G3DSCENE *sce, 
+                                     G3DOBJECT *obj );
+void g3dscene_addReferredObject ( G3DSCENE *sce, 
+                                  G3DOBJECT *obj );
+uint32_t g3dscene_isObjectReferred ( G3DSCENE *sce, 
+                                     G3DOBJECT *obj );
 uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR *vout );
 uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, 
                                        double   *matrix, 
@@ -2748,8 +2778,9 @@ G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce,
                                          uint64_t  engine_flags );
 void g3dscene_unselectAllObjects ( G3DSCENE *sce, 
                                    uint64_t  engine_flags );
-void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
-                                      uint64_t  engine_flags );
+uint32_t g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
+                                          LIST    **lremovedObjects,
+                                          uint64_t  engine_flags );
 G3DOBJECT *g3dscene_getSelectedObject        ( G3DSCENE * );
 void       g3dscene_pickChild                ( G3DSCENE *, uint32_t );
 uint32_t   g3dscene_getNextObjectID          ( G3DSCENE * );

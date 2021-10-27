@@ -42,6 +42,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dpick.c \
                       g3dpivot.c \
                       g3dplane.c \
+                      g3dparticleemitter.c \
                       g3dprimitive.c \
                       g3dprocedural.c \
                       g3dproceduralbrick.c \

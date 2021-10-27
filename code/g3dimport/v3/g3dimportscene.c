@@ -237,7 +237,8 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_INSTANCE : {
                         obj = g3dinstance_new ( gid->currentObjectID++ ,
-                                                gid->currentObjectName );
+                                                gid->currentObjectName,
+                                                gid->currentScene );
                     } break;
 
                     default :

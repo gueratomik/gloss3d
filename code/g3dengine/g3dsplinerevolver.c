@@ -75,7 +75,7 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                                           uint32_t           doTopology,
                                           uint64_t engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) srv;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, SPLINE );
+    G3DOBJECT *parent = ( G3DOBJECT * ) srv->mod.oriobj;
 
     /*g3dmesh_clearGeometry ( (G3DMESH*) wir );*/
 
@@ -336,7 +336,14 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
             if ( edgeLookupTable ) free ( edgeLookupTable );
         }
     }
+
     return 0;
+}
+
+/******************************************************************************/
+uint32_t g3dsplinerevolver_reshape ( G3DSPLINEREVOLVER *srv,
+                                     uint64_t           engine_flags ) {
+    return g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
 }
 
 /******************************************************************************/
@@ -356,9 +363,15 @@ static uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv,
                                            G3DVECTOR  *orinor,
                                            G3DMODIFYOP op,
                                            uint64_t engine_flags ) {
-    g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
+    if ( srv->mod.oriobj ) {
+        if ( srv->mod.oriobj->type & SPLINE ) {
+            g3dsplinerevolver_shape ( srv, 0x01, engine_flags );
 
-    return MODIFIERTAKESOVER;
+            return MODIFIERTAKESOVER | MODIFIERBUILDSNEWMESH;
+        }
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -461,10 +474,13 @@ static uint32_t g3dsplinerevolver_moddraw ( G3DSPLINEREVOLVER *srv,
                 glVertex3f ( subfac[i].fac.ver[0x03]->pos.x, 
                              subfac[i].fac.ver[0x03]->pos.y, 
                              subfac[i].fac.ver[0x03]->pos.z );*/
-                g3dface_draw  ( &subfac[i].fac, srvmes->gouraudScalarLimit,
-                                                /*splmes->ltex*/NULL, 
-                                                0x00 /* object_flags */,
-                                                engine_flags );
+                g3dface_draw  ( &subfac[i].fac, 
+                                 NULL, 
+                                 NULL, 
+                                 srvmes->gouraudScalarLimit,
+                                 /*splmes->ltex*/NULL, 
+                                 0x00 /* object_flags */,
+                                 engine_flags );
             }
             glEnd();
         }
@@ -490,7 +506,8 @@ G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DSPLINEREVOLVERTYPE, id, name, 0x00,
+    g3dmodifier_init ( mod, G3DSPLINEREVOLVERTYPE, id, name, MESHGEOMETRYINARRAYS | 
+                                                             MODIFIERNEEDSNORMALUPDATE,
                                                              NULL,
                                                              g3dsplinerevolver_free,
                                                              NULL,

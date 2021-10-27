@@ -163,17 +163,19 @@ void common_g3dui_copySelectionCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
+uint32_t common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
     G3DSCENE  *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
     G3DURMANAGER *urm = gui->urm;
     G3DMESH   *mes = NULL;
+    uint32_t ret = 0x00;
 
     if ( gui->engine_flags & VIEWOBJECT ) {
-        g3durm_scene_deleteSelectedObjects ( urm, 
-                                             sce, 
-                                             gui->engine_flags, 
-                                             REDRAWVIEW | REDRAWLIST );
+        ret = g3durm_scene_deleteSelectedObjects ( urm, 
+                                                   sce, 
+                                                   gui->engine_flags, 
+                                                   REDRAWVIEW | 
+                                                   REDRAWLIST );
 
         g3dui_updateAllCurrentEdit ( gui );
         g3dui_updateCoords         ( gui );
@@ -207,4 +209,6 @@ void common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
     g3dui_redrawObjectList     ( gui );
     g3dui_updateAllCurrentEdit ( gui );
     g3dui_redrawGLViews        ( gui );
+
+    return ret;
 }

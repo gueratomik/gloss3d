@@ -84,6 +84,33 @@ void g3dimportv3light ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dcolor_toRGBA ( &color, &lig->shadowColor );
             } break;
 
+            case SIG_OBJECT_LIGHT_SHADOW_SOFT : {
+                G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
+                uint32_t soft;
+
+                g3dimportv3_freadl ( &soft, fsrc );
+
+                if ( soft ) ((G3DOBJECT*)lig)->flags |= LIGHTSOFTSHADOWS;
+            } break;
+
+            case SIG_OBJECT_LIGHT_SHADOW_SOFT_SAMPLING : {
+                G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
+                uint32_t nbSamples;
+
+                g3dimportv3_freadl ( &nbSamples, fsrc );
+
+                lig->shadowSample = nbSamples;
+            } break;
+
+            case SIG_OBJECT_LIGHT_SHADOW_SOFT_RADIUS : {
+                G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
+                float radius;
+
+                g3dimportv3_freadf ( &radius, fsrc );
+
+                lig->shadowRadius = radius;
+            } break;
+
             case SIG_OBJECT_LIGHT_DIFFUSE : {
                 G3DLIGHT *lig = ( G3DLIGHT * ) gid->currentObject;
                 G3DCOLOR color;

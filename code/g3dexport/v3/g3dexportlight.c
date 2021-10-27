@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3dexportv3.h>
 
+    float     shadowRadius; /*** radius for area shadows ***/
+    uint32_t  shadowSample; /*** radius for area shadows ***/
 
 /******************************************************************************/
 static uint32_t g3dexportv3light_spot ( G3DEXPORTV3DATA *ged, 
@@ -42,6 +44,32 @@ static uint32_t g3dexportv3light_spot ( G3DEXPORTV3DATA *ged,
     size += g3dexportv3_fwritef ( &lig->spotFadeAngle, fdst );
 
     return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3light_shadowSoftRadius ( G3DEXPORTV3DATA *ged, 
+                                                    G3DLIGHT        *lig, 
+                                                    uint32_t         flags, 
+                                                    FILE            *fdst ) {
+    return g3dexportv3_fwritef ( &lig->shadowRadius, fdst );
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3light_shadowSoftSampling ( G3DEXPORTV3DATA *ged, 
+                                                      G3DLIGHT        *lig, 
+                                                      uint32_t         flags, 
+                                                      FILE            *fdst ) {
+    return g3dexportv3_fwritel ( &lig->shadowSample, fdst );
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3light_shadowSoft ( G3DEXPORTV3DATA *ged, 
+                                              G3DLIGHT      *lig, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
+    uint32_t soft = ( ((G3DOBJECT*)lig)->flags & LIGHTSOFTSHADOWS ) ? 0x01 : 0x00;
+
+    return g3dexportv3_fwritel ( &soft, fdst );
 }
 
 /******************************************************************************/
@@ -81,18 +109,39 @@ static uint32_t g3dexportv3light_shadow ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_CASTING,
-                                   g3dexportv3light_shadowCasting,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3light_shadowCasting,
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_COLOR,
-                                   g3dexportv3light_shadowColor,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3light_shadowColor,
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_SOFT,
+                                     g3dexportv3light_shadowSoft,
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_SOFT_SAMPLING,
+                                     g3dexportv3light_shadowSoftSampling,
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_SOFT_RADIUS,
+                                     g3dexportv3light_shadowSoftRadius,
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

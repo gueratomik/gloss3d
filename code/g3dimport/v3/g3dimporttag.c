@@ -50,7 +50,7 @@ void g3dimportv3tag ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_TAG_TRACKER : {
                 uint32_t tagID = g3dobject_getNextTagID ( gid->currentObject );
 
-                tag = g3dtrackertag_new ( tagID );
+                tag = g3dtrackertag_new ( tagID, gid->currentScene );
 
                 g3dobject_addTag ( gid->currentObject, tag );
             } break;

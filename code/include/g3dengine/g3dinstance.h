@@ -49,11 +49,13 @@ typedef struct _G3DINSTANCE {
     G3DOBJECT *ref;
     double     smatrix[0x10];
     uint32_t   orientation;
+    G3DSCENE  *sce;
 } G3DINSTANCE;
 
 /******************************************************************************/
-G3DINSTANCE *g3dinstance_new ( uint32_t id, 
-                               char    *name );
+G3DINSTANCE *g3dinstance_new ( uint32_t  id, 
+                               char     *name,
+                               G3DSCENE *sce );
 
 void g3dinstance_setMirrored    ( G3DINSTANCE *ins );
 void g3dinstance_unsetMirrored  ( G3DINSTANCE *ins );

@@ -578,49 +578,53 @@ static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
 static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                                        G3DMODIFYOP    op,
                                        uint64_t       engine_flags ) {
-    if ( sdr->subdiv_preview > 0x00 ) {
-        G3DMESH *parmes = ( G3DMESH * ) sdr->mod.oriobj;
+    if ( sdr->mod.oriobj ) {
+        if ( sdr->subdiv_preview > 0x00 ) {
+            G3DMESH *parmes = ( G3DMESH * ) sdr->mod.oriobj;
 
-        if ( op == G3DMODIFYOP_MODIFY ) {
-            g3dsubdivider_allocBuffers ( sdr, engine_flags );
-            g3dsubdivider_fillBuffers  ( sdr,
-                                         NULL, 
-                                         engine_flags );
-        }
-
-        if ( op == G3DMODIFYOP_STARTUPDATE ) {
-            LIST *lver = NULL;
-
-            if ( ( engine_flags & VIEWVERTEX ) || 
-                 ( engine_flags & VIEWSKIN   ) ) {
-                lver = g3dmesh_getVertexListFromSelectedVertices ( parmes );
+            if ( op == G3DMODIFYOP_MODIFY ) {
+                g3dsubdivider_allocBuffers ( sdr, engine_flags );
+                g3dsubdivider_fillBuffers  ( sdr,
+                                             NULL, 
+                                             engine_flags );
             }
 
-            if ( engine_flags & VIEWEDGE ) {
-                lver = g3dmesh_getVertexListFromSelectedEdges ( parmes );
+            if ( op == G3DMODIFYOP_STARTUPDATE ) {
+                LIST *lver = NULL;
+
+                if ( ( engine_flags & VIEWVERTEX ) || 
+                     ( engine_flags & VIEWSKIN   ) ) {
+                    lver = g3dmesh_getVertexListFromSelectedVertices ( parmes );
+                }
+
+                if ( engine_flags & VIEWEDGE ) {
+                    lver = g3dmesh_getVertexListFromSelectedEdges ( parmes );
+                }
+
+                if ( engine_flags & VIEWFACE ) {
+                    lver = g3dmesh_getVertexListFromSelectedFaces ( parmes );
+                }
+
+                sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
+
+                list_free ( &lver, NULL );
             }
 
-            if ( engine_flags & VIEWFACE ) {
-                lver = g3dmesh_getVertexListFromSelectedFaces ( parmes );
+            if ( op == G3DMODIFYOP_UPDATE ) {
+                g3dsubdivider_fillBuffers  ( sdr,
+                                             sdr->lsubfac, 
+                                             engine_flags );
             }
 
-            sdr->lsubfac = g3dvertex_getAreaFacesFromList ( lver );
+            if ( op == G3DMODIFYOP_ENDUPDATE ) {
+                list_free ( &sdr->lsubfac, NULL );
+            }
 
-            list_free ( &lver, NULL );
-        }
-
-        if ( op == G3DMODIFYOP_UPDATE ) {
-            g3dsubdivider_fillBuffers  ( sdr,
-                                         sdr->lsubfac, 
-                                         engine_flags );
-        }
-
-        if ( op == G3DMODIFYOP_ENDUPDATE ) {
-            list_free ( &sdr->lsubfac, NULL );
+            return MODIFIERTAKESOVER;
         }
     }
 
-    return MODIFIERTAKESOVER;
+    return 0x00;
 }
 
 /******************************************************************************/

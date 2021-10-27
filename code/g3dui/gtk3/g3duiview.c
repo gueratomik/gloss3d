@@ -1155,7 +1155,18 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    common_g3dui_deleteSelectionCbk ( gui );
+                    if ( common_g3dui_deleteSelectionCbk ( gui ) == G3DERROR_OBJECT_REFERRED ) {
+                        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+                        GtkMessageDialog *dialog;
+
+                        dialog = gtk_message_dialog_new ( NULL,
+                                                          flags,
+                                                          GTK_MESSAGE_ERROR,
+                                                          GTK_BUTTONS_CLOSE,
+                                                          "Could not remove referred object" );
+                        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+                        gtk_widget_destroy ( dialog );
+                    }
                 } break;
 
                 case GDK_KEY_z: {

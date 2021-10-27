@@ -398,10 +398,10 @@ void g3durm_object_addChildren ( G3DURMANAGER *urm,
                                  LIST      *lobj );
 
 /******************************************************************************/
-void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
-                                          G3DSCENE     *sce, 
-                                          uint64_t      engine_flags,
-                                          uint32_t      return_flags );
+uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
+                                              G3DSCENE     *sce, 
+                                              uint64_t      engine_flags,
+                                              uint32_t      return_flags );
 void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
                                   G3DMESH      *mes,
                                   uint64_t      engine_flags,

@@ -97,8 +97,6 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
                                 float P = pressure * patternPressure;
                                 float invP = 1.0f - P;
 
-
-
                                 switch ( bpp ) {
                                     case 0x20 :
                                     break;

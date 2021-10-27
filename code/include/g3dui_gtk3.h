@@ -121,6 +121,13 @@ typedef struct _G3DUIWIDGETGROUP {
 } G3DUIWIDGETGROUP;
 
 /******************************************************************************/
+typedef struct _G3DUITIMELINE {
+    G3DUIWIDGETGROUP grp;
+    TIMELINEDATA    *tdata;
+    GtkWidget       *menu;
+} G3DUITIMELINE;
+
+/******************************************************************************/
 /****************************** Toolkit Data **********************************/
 typedef struct _G3DUIGTK3 {
     GtkWidget *top;
@@ -502,12 +509,12 @@ GtkWidget* createKeyMorpherEdit ( GtkWidget  *parent,
                                   gint        width,
                                   gint        height );
 
-GtkWidget *createTimeContextMenu ( GtkWidget *parent,
-                                   G3DUI     *gui,
-                                   char      *name,
-                                   gint       width,
-                                   gint       height );
-
+GtkWidget *createTimeContextMenu ( GtkWidget     *parent,
+                                   G3DUITIMELINE *tim,
+                                   char          *name,
+                                   gint           width,
+                                   gint           height );
+  
 /******************************************************************************/
 GtkWidget *createHorizontalScale ( GtkWidget *, G3DUI *,
                                                 char *,

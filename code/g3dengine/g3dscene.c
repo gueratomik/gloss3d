@@ -30,6 +30,79 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dscene_checkReferredObjects ( G3DSCENE *sce ) {
+    LIST *ltmpref = sce->lref;
+
+    while ( ltmpref ) {
+        G3DREFERRED *ref = ( G3DREFERRED * ) ltmpref->data;
+
+        if ( g3dobject_seekByPtr_r ( sce, ref->obj ) ) {
+            ref->available = 0x01;
+        } else {
+            ref->available = 0x00;
+        }
+
+        ltmpref = ltmpref->next;
+    }
+}
+
+/******************************************************************************/
+static G3DREFERRED *g3dscene_getReferredObject ( G3DSCENE *sce, 
+                                                 G3DOBJECT *obj ) {
+    LIST *ltmpref = sce->lref;
+
+    while ( ltmpref ) {
+        G3DREFERRED *ref = ( G3DREFERRED * ) ltmpref->data;
+
+        if ( ref->obj == obj ) return ref;
+
+        ltmpref = ltmpref->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+uint32_t g3dscene_isObjectReferred ( G3DSCENE *sce, 
+                                     G3DOBJECT *obj ) {
+    G3DREFERRED *ref = g3dscene_getReferredObject ( sce, obj );
+
+    if ( ref ) {
+        if ( ref->available ) {
+            return 0x01;
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+void g3dscene_removeReferredObject ( G3DSCENE *sce, 
+                                     G3DOBJECT *obj ) {
+    G3DREFERRED *ref = g3dscene_getReferredObject ( sce, obj );
+
+    if ( ref ) {
+        list_remove ( &sce->lref, ref );
+
+        free ( ref );
+    }
+}
+
+/******************************************************************************/
+void g3dscene_addReferredObject ( G3DSCENE *sce, 
+                                  G3DOBJECT *obj ) {
+    if ( g3dscene_isObjectReferred ( sce, obj ) == NULL ) {
+        G3DREFERRED *ref = ( G3DREFERRED * ) calloc ( 0x01, sizeof ( G3DREFERRED ) );
+
+        ref->obj = obj;
+
+        list_insert ( &sce->lref, ref );
+
+        g3dscene_checkReferredObjects ( sce );
+    }
+}
+
+/******************************************************************************/
 void g3dscene_updateMeshes ( G3DSCENE *sce, 
                              uint64_t  engine_flags ) {
     g3dobject_updateMeshes_r ( sce, engine_flags );
@@ -409,22 +482,30 @@ void g3dscene_freeMaterials ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
-void g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
-                                      uint64_t  engine_flags ) {
+uint32_t g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
+                                          LIST    **lremovedObjects,
+                                          uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
     LIST *ltmp = sce->lsel;
 
     while ( ltmp ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-        g3dobject_removeChild ( child->parent, child, engine_flags );
+        if ( g3dobject_hasSelectedParent ( child ) == 0x00 ) {
+            g3dobject_removeChild ( child->parent, child, engine_flags );
+
+            list_insert ( lremovedObjects, child );
+        }
 
         ltmp = ltmp->next;
     }
 
-    list_free ( &sce->lsel, NULL );
+    list_free ( &sce->lsel, g3dobject_unsetSelected );
 
     g3dscene_updatePivot ( sce, engine_flags );
+
+
+    return G3DERROR_SUCCESS;
 }
 
 /******************************************************************************/

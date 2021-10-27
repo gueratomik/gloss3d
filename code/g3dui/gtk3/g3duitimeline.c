@@ -30,13 +30,6 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-typedef struct _G3DUITIMELINE {
-    G3DUIWIDGETGROUP grp;
-    TIMELINEDATA    *tdata;
-    GtkWidget       *menu;
-} G3DUITIMELINE;
-
-/******************************************************************************/
 static G3DUITIMELINE *g3duitimeline_new ( G3DUI *gui ) {
     G3DUITIMELINE *tim = calloc ( 0x01, sizeof ( G3DUITIMELINE ) );
 
@@ -244,12 +237,20 @@ static int  scaleKeysToolInput ( GtkWidget *widget,
             if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
                  ( bev->button == 0x01 ) ) {
                 xold = bev->x;
+
+                skd.reference = pressed_frame;
+
+                tdata->funcKey  =  scaleKeyFunc;
+                tdata->funcData = &skd;
+            } else {
+                gtk_menu_popup ( GTK_MENU ( tim->menu ), 
+                                 NULL, 
+                                 NULL,
+                                 /*SetMenuPosition*/NULL,
+                                 /*bev*/NULL,
+                                 bev->button,
+                                 gdk_event_get_time( ( GdkEvent * ) gdkev ) );
             }
-
-            skd.reference = pressed_frame;
-
-            tdata->funcKey  =  scaleKeyFunc;
-            tdata->funcData = &skd;
 
             gtk_widget_queue_draw ( widget );
         } break;
@@ -320,12 +321,21 @@ static int driftKeysToolInput ( GtkWidget *widget,
             if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
                  ( bev->button == 0x01 ) ) {
                 xold = bev->x;
+
+
+                dkd.deltaframe = 0;
+
+                tdata->funcKey  =  driftKeyFunc;
+                tdata->funcData = &dkd;
+            } else {
+                gtk_menu_popup ( GTK_MENU ( tim->menu ), 
+                                 NULL, 
+                                 NULL,
+                                 /*SetMenuPosition*/NULL,
+                                 /*bev*/NULL,
+                                 bev->button,
+                                 gdk_event_get_time( ( GdkEvent * ) gdkev ) );
             }
-
-            dkd.deltaframe = 0;
-
-            tdata->funcKey  =  driftKeyFunc;
-            tdata->funcData = &dkd;
 
             gtk_widget_queue_draw ( widget );
         } break;
@@ -445,7 +455,7 @@ static gboolean panToolInput ( GtkWidget *widget,
                                                                       width );
 
                 /*** First check whether or not we clicked the cursor ***/
-                if ( pressed_frame == gui->curframe ) {
+                if ( ( pressed_frame == gui->curframe ) && ( onkey == 0x00 ) ) {
                     oncursor = 0x01;
                 } else {
                     /*** else check whether or not we clicked a key ***/
@@ -549,6 +559,8 @@ static gboolean panToolInput ( GtkWidget *widget,
                         /*** move the keys ***/
                         driftKeysToolInput ( widget, gdkev, user_data );
                     }
+
+                    gui->curframe = pressed_frame;
                 } else {
                     if ( oncursor ) {
                         int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
@@ -579,7 +591,7 @@ static gboolean panToolInput ( GtkWidget *widget,
             /*** disable animation mode whatever happens ***/
             gui->engine_flags &= (~ONGOINGANIMATION);
 
-            oncursor = onkey = dragging = 0x00;
+            oncursor = dragging = 0x00;
 
             g3dui_redrawGLViews ( gui );
             gtk_widget_queue_draw ( widget );
@@ -805,7 +817,7 @@ GtkWidget *createTimeline ( GtkWidget *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), drw, x, y );
 
-    tim->menu = createTimeContextMenu ( drw, gui, name, 0x60, 0x60 );
+    tim->menu = createTimeContextMenu ( drw, tim, name, 0x60, 0x60 );
 
     list_insert ( &gui->ltimeline, drw );
 

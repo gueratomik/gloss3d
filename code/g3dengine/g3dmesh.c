@@ -2427,12 +2427,12 @@ void g3dmesh_update ( G3DMESH *mes,
         LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
         /*** Always update face first. Vertices normals are computed from it***/
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
             if ( update_flags & UPDATEFACEPOSITION ) g3dface_position ( fac );
             if ( update_flags & UPDATEFACENORMAL   ) g3dface_normal   ( fac );
 
-            ltmpfac = ltmpfac->next;
+            _NEXTFACE(mes,ltmpfac);
         }
     }
 
@@ -2441,7 +2441,7 @@ void g3dmesh_update ( G3DMESH *mes,
 
         /*** Update Vertices normals ***/
         while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+            G3DVERTEX *ver = ( G3DVERTEX * ) _GETVERTEX(mes,ltmpver);
 
             /*** Face Point and Edge Point are update during the vertex's   ***/
             /*** normal vector update, because usually the vertex's normal  ***/
@@ -2450,7 +2450,7 @@ void g3dmesh_update ( G3DMESH *mes,
 
             g3dvertex_normal ( ver, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
 
-            ltmpver = ltmpver->next;
+            _NEXTVERTEX(mes,ltmpver);
         }
     }
 
@@ -2485,9 +2485,9 @@ void g3dmesh_update ( G3DMESH *mes,
     }
 
     if ( update_flags & RESETMODIFIERS ) {
-        /*g3dmesh_modify ( mes,
+        g3dmesh_modify ( mes,
                          G3DMODIFYOP_MODIFY,
-                         engine_flags );*/
+                         engine_flags );
     }
 }
 
@@ -3203,19 +3203,13 @@ void g3dmesh_drawModified ( G3DMESH   *mes,
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i;
 
-        if ( fac->nbver == 0x04 ) glBegin ( GL_QUADS     );
-        if ( fac->nbver == 0x03 ) glBegin ( GL_TRIANGLES );
-
-        for ( i = 0x00; i < fac->nbver; i++ ) {
-            G3DVERTEX *ver = fac->ver[i];
-            G3DVECTOR *pos = &verpos[ver->id];
-            G3DVECTOR *nor = &vernor[ver->id];
-
-            glNormal3fv ( ( float * ) nor );
-            glVertex3fv ( ( float * ) pos );
-        }
-
-        glEnd ( );
+        g3dface_draw  ( fac, 
+                        verpos,
+                        vernor,
+                        mes->gouraudScalarLimit,
+                        mes->ltex,
+                        ((G3DOBJECT*)mes)->flags,
+                        engine_flags );
 
         ltmpfac = ltmpfac->next;
     }

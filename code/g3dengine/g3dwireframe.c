@@ -484,6 +484,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
             }
         }
 
+#ifdef unused
         g3dmesh_update ( (G3DMESH*)wir, NULL, /*** update vertices    ***/
                                         NULL, /*** update faces       ***/
                                         NULL, /*** update faces       ***/
@@ -491,7 +492,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                                         UPDATEFACENORMAL   |
                                         UPDATEVERTEXNORMAL,
                                         engine_flags );
-
+#endif
         /*((G3DMESH*)wir)->lver  = ltmpver;
         ((G3DMESH*)wir)->ledg  = ltmpedg;
         ((G3DMESH*)wir)->lfac  = ltmpfac;
@@ -607,7 +608,8 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
     g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, OBJECTNOTRANSLATION     | 
                                                         OBJECTNOROTATION        |
                                                         OBJECTNOSCALING         |
-                                                        TRIANGULAR,
+                                                        TRIANGULAR              |
+                                                        MODIFIERNEEDSNORMALUPDATE,
                                                         NULL,
                                                         g3dwireframe_free,
                                                         NULL,

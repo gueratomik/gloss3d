@@ -112,6 +112,8 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
             lselobj = lselobj->next;
         }
 
+        g3dscene_checkReferredObjects ( sce );
+
         g3dscene_checkLights ( sce, engine_flags );
     } else {
         if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
@@ -169,7 +171,9 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
         /*** Here we cannot just replace sce->lselobj with ***/
         /*** lsel because some flags are turned on in      ***/
         /*** objects structure when added to a scene.      ***/
-        g3dscene_deleteSelectedObjects ( sce, engine_flags );
+        g3dscene_deleteSelectedObjects ( sce, NULL, engine_flags );
+
+        g3dscene_checkReferredObjects ( sce );
 
         g3dscene_checkLights ( sce, engine_flags );
     } else {
@@ -282,27 +286,34 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
-                                          G3DSCENE     *sce, 
-                                          uint64_t      engine_flags,
-                                          uint32_t      return_flags ) {
-    LIST *loldselobj = NULL;
+uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
+                                              G3DSCENE     *sce, 
+                                              uint64_t      engine_flags,
+                                              uint32_t      return_flags ) {
+    LIST *lremovedObjects = NULL;
     URMDELSELITEMS *dsi;
-
-    loldselobj = list_copy ( sce->lsel );
+    uint32_t ret;
 
     /*** perform action ***/
-    g3dscene_deleteSelectedObjects ( sce, engine_flags );
+    ret = g3dscene_deleteSelectedObjects ( sce, &lremovedObjects, engine_flags );
+
+    g3dscene_checkReferredObjects ( sce );
 
     g3dscene_checkLights ( sce, engine_flags );
 
     /*** save state ***/
-    dsi = urmdelselitems_new ( sce, loldselobj, NULL, NULL,
-                                                NULL, NULL,
-                                                engine_flags );
+    dsi = urmdelselitems_new ( sce,
+                               lremovedObjects,
+                               NULL,
+                               NULL,
+                               NULL,
+                               NULL,
+                               engine_flags );
 
     g3durmanager_push ( urm, deleteSelectedItems_undo,
                              deleteSelectedItems_redo,
                              deleteSelectedItems_free, dsi,
                              return_flags );
+
+    return ret;
 }

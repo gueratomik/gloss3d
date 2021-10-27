@@ -47,8 +47,9 @@ extern "C" {
  * @brief A structure to store a cubic bezier spline.
  */
 typedef struct _G3DSPLINE {
-    G3DOBJECT obj;
-    G3DCURVE *curve;
+    G3DOBJECT    obj;
+    G3DCURVE    *curve;
+    G3DMODIFIER *lastmod;
 } G3DSPLINE;
 
 /******************************************************************************/

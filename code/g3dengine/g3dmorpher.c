@@ -959,19 +959,31 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
 
         ltmpver = ltmpver->next;
     }
-/*
-    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
 
-        g3dmesh_update ( mes,
-                         mpr->lver,
-                         NULL,
-                         NULL,
-                         UPDATEFACEPOSITION |
-                         UPDATEFACENORMAL   |
-                         UPDATEVERTEXNORMAL, 0x00 );
+    if ( mpr->mod.oriobj ) {
+        if ( mpr->mod.oriobj->type == G3DMESHTYPE ) {
+            G3DMESH *parmes = ( G3DMESH * ) mpr->mod.oriobj;
+            LIST *lselver = parmes->lselver;
+
+            parmes->lselver = mpr->lver;
+
+            g3dmodifier_modifyChildren ( mpr,
+                                         G3DMODIFYOP_STARTUPDATE,
+                                         VIEWVERTEX );
+
+            g3dmodifier_modifyChildren ( mpr,
+                                         G3DMODIFYOP_UPDATE,
+                                         VIEWVERTEX );
+
+            g3dmodifier_modifyChildren ( mpr,
+                                         G3DMODIFYOP_ENDUPDATE,
+                                         VIEWVERTEX );
+
+            parmes->lselver = lselver;
+
+        }
     }
-*/
+
     g3dmesh_updateModified ( mpr->mod.oriobj,
                              mpr,
                              engine_flags );
@@ -1361,7 +1373,8 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
                        name, 
                        OBJECTNOTRANSLATION | 
                        OBJECTNOROTATION    |
-                       OBJECTNOSCALING,
+                       OBJECTNOSCALING |
+                       MODIFIERNEEDSNORMALUPDATE,
          DRAW_CALLBACK(NULL),
          FREE_CALLBACK(g3dmorpher_free),
          PICK_CALLBACK(g3dmorpher_pick),

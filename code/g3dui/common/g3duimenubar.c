@@ -57,7 +57,7 @@ void common_g3dui_addTrackerCbk ( G3DUI *gui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( obj ){
-        G3DTAG *tag = g3dtrackertag_new ( g3dobject_getNextTagID ( obj ) );
+        G3DTAG *tag = g3dtrackertag_new ( g3dobject_getNextTagID ( obj ), sce );
 
         g3durm_selection_addTag ( urm,
                                   obj,
@@ -552,7 +552,7 @@ void common_g3dui_addInstanceCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
-    G3DINSTANCE *ins = g3dinstance_new ( oid, "Instance" );
+    G3DINSTANCE *ins = g3dinstance_new ( oid, "Instance", sce );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |

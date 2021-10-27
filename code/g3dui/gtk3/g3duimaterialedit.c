@@ -439,7 +439,7 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITDISPLACEMENTIMAGE ) == 0x00 ) {
-                    if ( mat->alpha.flags & USEIMAGECOLOR ) {
+                    if ( mat->displacement.flags & USEIMAGECOLOR ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -447,7 +447,7 @@ static void updateDisplacementPanel ( GtkWidget *widget, G3DUI *gui ) {
                 }
 
                 if ( strcmp ( child_name, EDITDISPLACEMENTPROCEDURAL ) == 0x00 ) {
-                    if ( mat->alpha.flags & USEPROCEDURAL ) {
+                    if ( mat->displacement.flags & USEPROCEDURAL ) {
                         gtk_toggle_button_set_active ( tbn, TRUE  );
                     } else {
                         gtk_toggle_button_set_active ( tbn, FALSE );
@@ -533,7 +533,7 @@ static GtkWidget *createDisplacementPanel ( GtkWidget *parent, G3DUI *gui,
                                96,  48, 
                                96,  18, displacementImageCbk );
 
-          /*** Use image as texture ***/
+
           createRadioLabel ( pan, gui, EDITDISPLACEMENTPROCEDURAL,
                                    btn,
                                      0, 72, 96, 18,

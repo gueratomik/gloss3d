@@ -69,14 +69,16 @@ static uint32_t g3dexportv3tag_tracker ( G3DEXPORTV3DATA *ged,
                                      fdst );
 
     if ( ttag->target ) {
-        /*** useful check in case the target has been removed but not freed ***/
-        if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
-            size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_TRACKER_TARGET,
-                                             g3dexportv3tag_trackerTarget,
-                                             ged,
-                                             ttag,
-                                             flags,
-                                             fdst );
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
+            /*** useful check in case the target has been removed but not freed ***/
+            if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
+                size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_TRACKER_TARGET,
+                                                 g3dexportv3tag_trackerTarget,
+                                                 ged,
+                                                 ttag,
+                                                 flags,
+                                                 fdst );
+            }
         }
     }
 

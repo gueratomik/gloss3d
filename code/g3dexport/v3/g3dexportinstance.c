@@ -75,12 +75,14 @@ uint32_t g3dexportv3instance ( G3DEXPORTV3DATA *ged,
                                FILE            *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexportv3_writeChunk ( SIG_OBJECT_INSTANCE_REFERENCE,
-                                     g3dexportv3instance_reference,
-                                     ged,
-                                     ins,
-                                     0xFFFFFFFF,
-                                     fdst );
+    if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_INSTANCE_REFERENCE,
+                                         g3dexportv3instance_reference,
+                                         ged,
+                                         ins,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_INSTANCE_MIRRORINGPLANE,
                                      g3dexportv3instance_mirroringPlane,

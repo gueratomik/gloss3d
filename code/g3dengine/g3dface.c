@@ -730,8 +730,6 @@ void g3dface_unbindMaterials ( G3DFACE *fac,
                     #endif
 
                     glDisable ( GL_TEXTURE_2D );
-
-                    arbid++;
                 }
 
                 /*if ( mat->bump.image ) {
@@ -746,6 +744,8 @@ void g3dface_unbindMaterials ( G3DFACE *fac,
 
                     arbid++;
                 }*/
+
+                arbid++;
             }
         }
 
@@ -818,26 +818,18 @@ void g3dface_drawSkin ( G3DFACE *fac,
 }
 
 /******************************************************************************/
-void g3dface_draw  ( G3DFACE *fac, 
-                     float    gouraudScalarLimit,
-                     LIST    *ltex,
-                     uint32_t object_flags,
-                     uint64_t engine_flags ) {
+void g3dface_draw  ( G3DFACE   *fac, 
+                     G3DVECTOR *verpos,
+                     G3DVECTOR *vernor,
+                     float      gouraudScalarLimit,
+                     LIST      *ltex,
+                     uint32_t   object_flags,
+                     uint64_t   engine_flags ) {
     static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
     uint32_t   nbtex = 0x00;
     G3DVECTOR *pos[0x04];
     G3DVECTOR  dis[0x04]; /*** displaced position ***/
     uint32_t   i, j;
-
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        /* later ...*/
-        /*if ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) {
-            g3dvertex_displace ( fac->ver[i], ltex, &dis[i] );
-            pos[i] = &dis[i];
-        } else {*/
-            pos[i] = &fac->ver[i]->pos;
-        /*}*/
-    }
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex ) {
        nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, object_flags, engine_flags );
@@ -846,7 +838,8 @@ void g3dface_draw  ( G3DFACE *fac,
     ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
                              glBegin ( GL_TRIANGLES ); 
     for ( i = 0x00; i < fac->nbver; i++ ) {
-        G3DVERTEX *ver = fac->ver[i];
+        G3DVECTOR *pos = ( verpos ) ? &verpos[fac->ver[i]->id] : &fac->ver[i]->pos;
+        G3DVECTOR *nor = ( vernor ) ? &vernor[fac->ver[i]->id] : &fac->ver[i]->nor;
 
         if ( (   fac->flags & FACESELECTED   ) && 
              (   engine_flags & VIEWFACE     ) &&
@@ -873,15 +866,14 @@ void g3dface_draw  ( G3DFACE *fac,
             #endif
         }
 
-/*printf("%f\n", fabs ( g3dvector_scalar ( &ver->nor, &fac->nor ) ) );*/
-        if ( fabs ( g3dvector_scalar ( &ver->nor, 
+        if ( fabs ( g3dvector_scalar ( nor, 
                                        &fac->nor ) ) < gouraudScalarLimit ) {
             glNormal3fv ( ( float * ) &fac->nor );
         } else {
-            glNormal3fv ( ( float * ) &ver->nor );
+            glNormal3fv ( ( float * ) nor );
         }
 
-        glVertex3fv ( ( float * )  pos[i] );
+        glVertex3fv ( ( float * )  pos );
     }
     glEnd ( );
 
@@ -897,7 +889,7 @@ void g3dface_drawQuad ( G3DFACE *fac,
                         LIST    *ltex, 
                         uint32_t object_flags,
                         uint64_t engine_flags ) {
-    g3dface_draw ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
+    g3dface_draw ( fac, NULL, NULL, gouraudScalarLimit, ltex, object_flags, engine_flags );
 }
 
 /******************************************************************************/
@@ -906,7 +898,7 @@ void g3dface_drawTriangle  ( G3DFACE *fac,
                              LIST    *ltex, 
                              uint32_t object_flags,
                              uint64_t engine_flags ) {
-    g3dface_draw ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
+    g3dface_draw ( fac, NULL, NULL, gouraudScalarLimit, ltex, object_flags, engine_flags );
 }
 
 /******************************************************************************/

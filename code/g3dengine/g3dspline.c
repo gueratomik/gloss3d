@@ -72,20 +72,40 @@ void g3dspline_modify ( G3DSPLINE  *spl,
                         uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     LIST *ltmpchildren = obj->lchildren;
+/*
+    g3dmesh_renumberVertices ( mes );
+    g3dmesh_renumberEdges    ( mes );
+    g3dmesh_renumberFaces    ( mes );
+*/
+    spl->lastmod = NULL;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            g3dmodifier_modify_r ( child,
-                                   spl,
-                                   NULL,
-                                   NULL,
-                                   op,
-                                   engine_flags );
+            spl->lastmod = g3dmodifier_modify_r ( child,
+                                                  spl,
+                                                  NULL,
+                                                  NULL,
+                                                  op,
+                                                  engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;        
+    }
+
+    if ( spl->lastmod ) {
+        if ( spl->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
+            if ( ( spl->lastmod->mes.obj.type & MESH ) == 0x00 ) {
+                g3dmesh_update ( spl->lastmod, 
+                                 NULL, /*** update vertices    ***/
+                                 NULL, /*** update edges       ***/
+                                 NULL, /*** update faces       ***/
+                                 UPDATEFACENORMAL   |
+                                 UPDATEVERTEXNORMAL,
+                                 engine_flags );
+            }
+        }
     }
 }
 
@@ -160,38 +180,64 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
 uint32_t g3dspline_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t engine_flags ) {
-    G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-    LIST *ltmpseg = spline->curve->lseg;
+    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-    glPushAttrib ( GL_ALL_ATTRIB_BITS );
-    glLineWidth ( 2.0f );
-    glPointSize ( 4.0f );
 
-    glDisable ( GL_LIGHTING );
 
-    if ( obj->flags & OBJECTSELECTED ) {
-        if ( engine_flags & VIEWOBJECT ) {
-            g3dcurve_draw ( spline->curve, engine_flags );
+    /*** this means a modifier has taken over ***/
+    if ( spl->lastmod ) {
+        g3dmodifier_moddraw ( spl->lastmod, curcam, engine_flags );
+
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glLineWidth ( 2.0f );
+        glPointSize ( 4.0f );
+
+        if ( obj->flags & OBJECTSELECTED ) {
+            glDisable ( GL_LIGHTING );
+
+            if ( engine_flags & VIEWEDGE ) {
+                g3dcurve_drawSegments ( spl->curve, engine_flags );
+            }
+
+            if ( engine_flags & VIEWVERTEX ) {
+                g3dcurve_drawSegments ( spl->curve, engine_flags );
+                g3dcurve_drawHandles  ( spl->curve, engine_flags );
+                g3dcurve_drawPoints   ( spl->curve, engine_flags );
+            }
         }
 
-        if ( engine_flags & VIEWAXIS ) {
-            g3dcurve_draw ( spline->curve, engine_flags );
-        }
-
-        if ( engine_flags & VIEWEDGE ) {
-            g3dcurve_drawSegments ( spline->curve, engine_flags );
-        }
-
-        if ( engine_flags & VIEWVERTEX ) {
-            g3dcurve_drawSegments ( spline->curve, engine_flags );
-            g3dcurve_drawHandles  ( spline->curve, engine_flags );
-            g3dcurve_drawPoints   ( spline->curve, engine_flags );
-        }
+        glPopAttrib ( );
     } else {
-        g3dcurve_draw ( spline->curve, engine_flags );
-    }
+        glPushAttrib ( GL_ALL_ATTRIB_BITS );
+        glLineWidth ( 2.0f );
+        glPointSize ( 4.0f );
 
-    glPopAttrib ( );
+        glDisable ( GL_LIGHTING );
+
+        if ( obj->flags & OBJECTSELECTED ) {
+            if ( engine_flags & VIEWOBJECT ) {
+                g3dcurve_draw ( spl->curve, engine_flags );
+            }
+
+            if ( engine_flags & VIEWAXIS ) {
+                g3dcurve_draw ( spl->curve, engine_flags );
+            }
+
+            if ( engine_flags & VIEWEDGE ) {
+                g3dcurve_drawSegments ( spl->curve, engine_flags );
+            }
+
+            if ( engine_flags & VIEWVERTEX ) {
+                g3dcurve_drawSegments ( spl->curve, engine_flags );
+                g3dcurve_drawHandles  ( spl->curve, engine_flags );
+                g3dcurve_drawPoints   ( spl->curve, engine_flags );
+            }
+        } else {
+            g3dcurve_draw ( spl->curve, engine_flags );
+        }
+
+        glPopAttrib ( );
+    }
 
 
     return 0x00;

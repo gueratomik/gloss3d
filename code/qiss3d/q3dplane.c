@@ -139,9 +139,9 @@ void q3dplane_getRandomPoint ( Q3DVECTOR3F *qpla,
          0.2624f, 0.6179f, 0.0904f, 0.5948f, 0.9291f, 0.3018f, 0.0180f, 0.1479f };
     int xindex = rand() % 256,
         yindex = rand() % 256,
-        rindex = xindex; /*** because why not ***/
-    Q3DVECTOR3F perpendicular = { .x = randn[xindex],
-                                  .y = randn[yindex],
+        rindex = rand() % 256; /*** because why not ***/
+    Q3DVECTOR3F perpendicular = { .x = reach[xindex],
+                                  .y = reach[yindex],
                                   .z = 0.0f };
 
     perpendicular.z = - ( ( perpendicular.x * qpla->x ) +
@@ -149,7 +149,7 @@ void q3dplane_getRandomPoint ( Q3DVECTOR3F *qpla,
 
     q3dvector3f_normalize ( &perpendicular, NULL );
 
-    qpnt->x = qsrc->x + ( perpendicular.x * reach[rindex] * radius );
-    qpnt->y = qsrc->y + ( perpendicular.y * reach[rindex] * radius );
-    qpnt->z = qsrc->z + ( perpendicular.z * reach[rindex] * radius );
+    qpnt->x = qsrc->x + ( perpendicular.x * randn[rindex] * radius );
+    qpnt->y = qsrc->y + ( perpendicular.y * randn[rindex] * radius );
+    qpnt->z = qsrc->z + ( perpendicular.z * randn[rindex] * radius );
 }

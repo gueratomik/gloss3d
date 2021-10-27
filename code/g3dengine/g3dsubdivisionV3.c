@@ -703,7 +703,10 @@ static void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
         /* Face position is not needed in the last step of the subdivision 
            process. It is used to set the position of the face's middle point.
            We do not need the face's middle point on the last step. */
-        /*if ( subdiv_level > 1 )*/ g3dface_position ( &innerFaces[i].fac );
+        /*if ( subdiv_level > 1 )*/
+
+        g3dface_position ( &innerFaces[i].fac );
+        g3dface_normal   ( &innerFaces[i].fac );
     }
 
     for ( i = 0x00; i < nbOuterFaces; i++ ) {
@@ -713,7 +716,10 @@ static void g3dsubdivision_makeFaceTopology ( G3DSUBFACE *innerFaces,
         /* Face position is not needed in the last step of the subdivision 
            process. It is used to set the position of the face's middle point.
            We do not need the face's middle point on the last step. */
-        /*if ( subdiv_level > 1 )*/ g3dface_position ( &outerFaces[i].fac );
+        /*if ( subdiv_level > 1 )*/
+
+        g3dface_position ( &outerFaces[i].fac );
+        g3dface_normal   ( &outerFaces[i].fac );
     }
 }
 
@@ -833,9 +839,7 @@ static void g3dsubdivision_importInnerVertex ( G3DSUBDIVISION *sdv,
 
     if ( ver->nbfac > 0x04 ) newver->ver.flags |= VERTEXMALLOCFACES;
     if ( ver->nbedg > 0x04 ) newver->ver.flags |= VERTEXMALLOCEDGES;
-/*
-printf("IMPORTINNER: src:%d outver: %d\n", ver, newver);
-*/
+
     g3dsubdivision_addVertexLookup ( sdv, ver, newver );
 
     /*** vertex painting part ***/
@@ -851,6 +855,7 @@ static void g3dsubdivision_importOuterVertex ( G3DSUBDIVISION *sdv,
     G3DVECTOR *pos = g3dvertex_getModifiedPosition ( ver, stkpos );
     G3DVECTOR *nor = g3dvertex_getModifiedNormal   ( ver, stknor );
 
+    /*** vertex topology is needed for displacement ***/
     newver->ver.flags = VERTEXOUTER;
 
     newver->ver.nbfac = newver->ver.nbedg = 0x00;
@@ -859,9 +864,6 @@ static void g3dsubdivision_importOuterVertex ( G3DSUBDIVISION *sdv,
     memcpy ( &newver->ver.pos, pos, sizeof ( G3DVECTOR ) );
     memcpy ( &newver->ver.nor, nor, sizeof ( G3DVECTOR ) );
 
-/*
-printf("IMPORTOUTER: src:%d outver: %d\n", ver, newver);
-*/
     g3dsubdivision_addVertexLookup ( sdv, ver, newver );
 }
 
@@ -908,9 +910,6 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 
     newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
     newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
-/*
-printf("OUTEREDGVER0:%d OUTEREDGEVER1:%d\n", edg->ver[0x00], edg->ver[0x01] );
-*/
 }
 
 /******************************************************************************/
@@ -968,9 +967,6 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
     for ( i = 0x00; i < newfac->fac.nbver; i++ ) {
         newfac->fac.ver[i] = g3dsubdivision_lookVertexUp ( sdv, fac->ver[i] );
         newfac->fac.edg[i] = g3dsubdivision_lookEdgeUp   ( sdv, fac->edg[i] );
-/*
-printf("srcver:%d ver: %d edg:%d\n", fac->ver[i], newfac->fac.ver[i], newfac->fac.edg[i] );
-*/
     }
 }
 
@@ -1397,7 +1393,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 curInnerVertices[i].ver.subver = (struct _G3DSUBVERTEX*)subver;
 
                 /*** prepare the subdiv from the parent vertices ***/
+/*
                 g3dvertex_normal ( &curInnerVertices[i].ver, 0xFFFFFFFF );
+*/
                 /*memcpy ( curInnerVertices[i].ver.subver, &curInnerVertices[i], sizeof ( G3DSUBVERTEX ) );*/
                 g3dvertex_applyCatmullScheme ( &curInnerVertices[i].ver, (G3DVERTEX*)curInnerVertices[i].ver.subver );
 

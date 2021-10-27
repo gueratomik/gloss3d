@@ -310,7 +310,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
             oldx = bev->x;
             oldy = bev->y;
-        } return REDRAWVIEW;
+        } return REDRAWVIEW | REDRAWUVMAPEDITOR;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
@@ -430,7 +430,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
 
             oldx = mev->x;
             oldy = mev->y;
-        } return REDRAWUVMAPEDITOR;
+        } return REDRAWUVMAPEDITOR | REDRAWVIEW;
 
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
@@ -512,7 +512,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
             bckimg = NULL;
 
             /*obj = NULL; */
-        } return REDRAWVIEW;
+        } return REDRAWVIEW | REDRAWUVMAPEDITOR;
 
         default :
         break;
@@ -530,16 +530,15 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DEvent     *event ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
-    basepen_tool ( mou, 
-                   sce,
-                   cam,
-                   urm,
-                   sysinfo->pattern,
-                   sysinfo->fgcolor,
-                   sysinfo->bgcolor, 
-                   engine_flags, 
-                   event );
-    return 0;
+    return basepen_tool ( mou, 
+                          sce,
+                          cam,
+                          urm,
+                          sysinfo->pattern,
+                          sysinfo->fgcolor,
+                          sysinfo->bgcolor, 
+                          engine_flags, 
+                          event );
 }
 
 /******************************************************************************/
@@ -551,14 +550,13 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DEvent     *event ) {
     L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
 
-    basepen_tool ( mou, 
-                   sce,
-                   cam,
-                   urm,
-                   sysinfo->pattern,
-                   0xFFFFFFFF,
-                   0x00000000, 
-                   engine_flags, 
-                   event );
-    return 0;
+    return basepen_tool ( mou, 
+                          sce,
+                          cam,
+                          urm,
+                          sysinfo->pattern,
+                          0xFFFFFFFF,
+                          0x00000000, 
+                          engine_flags, 
+                          event );
 }

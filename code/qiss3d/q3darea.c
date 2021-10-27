@@ -103,6 +103,8 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
 /******************************************************************************/
 void q3darea_reset ( Q3DAREA *qarea ) {
+    if ( qarea->qssh ) free ( qarea->qssh );
+
     q3dzengine_reset ( &qarea->qzen );
 }
 

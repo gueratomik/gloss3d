@@ -53,7 +53,8 @@ typedef struct _G3DSPLINEREVOLVER {
 /******************************************************************************/
 
 G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name );
-
+uint32_t g3dsplinerevolver_reshape ( G3DSPLINEREVOLVER *srv,
+                                     uint64_t           engine_flags );
 
 #ifdef __cplusplus
 }

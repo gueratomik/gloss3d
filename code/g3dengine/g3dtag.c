@@ -42,6 +42,8 @@ void g3dtag_init ( G3DTAG    *tag,
                    uint32_t   id,
                    uint32_t   flags,
                    char      *name,
+                   void     (*Add)       ( struct _G3DTAG *),
+                   void     (*Remove)    ( struct _G3DTAG *),
                    void     (*Free)      ( struct _G3DTAG *),
                    uint32_t (*transform) ( struct _G3DTAG *, 
                                                    G3DOBJECT *, 
@@ -62,8 +64,10 @@ void g3dtag_init ( G3DTAG    *tag,
                                                    G3DOBJECT *, 
                                                    G3DCAMERA *, 
                                                    uint64_t ) ) {
+    tag->add           = Add;
+    tag->remove        = Remove;
     tag->free          = Free;
-    tag->transform  = transform;
+    tag->transform     = transform;
     tag->preAnim       = preAnim;
     tag->postAnim      = postAnim;
     tag->preDraw       = preDraw;
@@ -136,6 +140,8 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
                   id,
                   0x00,
                   "Vibrator",
+                  NULL,
+                  NULL,
                   g3dvibratortag_free,
                   NULL,
                   g3dvibratortag_preAnim,
@@ -172,102 +178,104 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
     G3DVECTOR up = { 0.0f, 1.0f, 0.0f, 1.0f };
 
     if ( ttag->target ) {
-        /*** useful check in case the target has been removed but not freed ***/
-        if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
-            G3DVECTOR dir, xaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
-                           yaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
-                           zaxis = { 0.0f, 0.0f, 0.0f, 1.0f };
-            G3DVECTOR objrot;
-            double RX[0x10];
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
+            /*** useful check in case the target has been removed but not freed ***/
+            if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
+                G3DVECTOR dir, xaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
+                               yaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
+                               zaxis = { 0.0f, 0.0f, 0.0f, 1.0f };
+                G3DVECTOR objrot;
+                double RX[0x10];
 
-            g3dvector_matrix ( &origin, ttag->target->wmatrix, &wldpos );
-            g3dvector_matrix ( &wldpos, obj->parent->iwmatrix, &target );
+                g3dvector_matrix ( &origin, ttag->target->wmatrix, &wldpos );
+                g3dvector_matrix ( &wldpos, obj->parent->iwmatrix, &target );
 
-            dir.x = target.x - obj->pos.x;
-            dir.y = target.y - obj->pos.y;
-            dir.z = target.z - obj->pos.z;
+                dir.x = target.x - obj->pos.x;
+                dir.y = target.y - obj->pos.y;
+                dir.z = target.z - obj->pos.z;
 
-            g3dvector_normalize ( &dir, NULL );
+                g3dvector_normalize ( &dir, NULL );
 
-            g3dcore_identityMatrix ( RX );
+                g3dcore_identityMatrix ( RX );
 
-            switch ( ttag->orientation ) {
-                case TARGET_XAXIS :
-                    g3dvector_cross ( &up, &dir, &yaxis );
-                    g3dvector_normalize ( &yaxis, NULL );
+                switch ( ttag->orientation ) {
+                    case TARGET_XAXIS :
+                        g3dvector_cross ( &up, &dir, &yaxis );
+                        g3dvector_normalize ( &yaxis, NULL );
 
-                    g3dvector_cross ( &dir, &yaxis, &zaxis );
-                    g3dvector_normalize ( &zaxis, NULL );
+                        g3dvector_cross ( &dir, &yaxis, &zaxis );
+                        g3dvector_normalize ( &zaxis, NULL );
 
-                    RX[0x00] = dir.x;
-                    RX[0x04] = yaxis.x;
-                    RX[0x08] = zaxis.x;
+                        RX[0x00] = dir.x;
+                        RX[0x04] = yaxis.x;
+                        RX[0x08] = zaxis.x;
 
-                    RX[0x01] = dir.y;
-                    RX[0x05] = yaxis.y;
-                    RX[0x09] = zaxis.y;
+                        RX[0x01] = dir.y;
+                        RX[0x05] = yaxis.y;
+                        RX[0x09] = zaxis.y;
 
-                    RX[0x02] = dir.z;
-                    RX[0x06] = yaxis.z;
-                    RX[0x0A] = zaxis.z;
-                break;
+                        RX[0x02] = dir.z;
+                        RX[0x06] = yaxis.z;
+                        RX[0x0A] = zaxis.z;
+                    break;
 
-                case TARGET_YAXIS :
-                    g3dvector_cross ( &up, &dir, &zaxis );
-                    g3dvector_normalize ( &zaxis, NULL );
+                    case TARGET_YAXIS :
+                        g3dvector_cross ( &up, &dir, &zaxis );
+                        g3dvector_normalize ( &zaxis, NULL );
 
-                    g3dvector_cross ( &dir, &zaxis, &xaxis );
-                    g3dvector_normalize ( &xaxis, NULL );
+                        g3dvector_cross ( &dir, &zaxis, &xaxis );
+                        g3dvector_normalize ( &xaxis, NULL );
 
-                    RX[0x00] = xaxis.x;
-                    RX[0x04] = dir.x;
-                    RX[0x08] = zaxis.x;
+                        RX[0x00] = xaxis.x;
+                        RX[0x04] = dir.x;
+                        RX[0x08] = zaxis.x;
 
-                    RX[0x01] = xaxis.y;
-                    RX[0x05] = dir.y;
-                    RX[0x09] = zaxis.y;
+                        RX[0x01] = xaxis.y;
+                        RX[0x05] = dir.y;
+                        RX[0x09] = zaxis.y;
 
-                    RX[0x02] = xaxis.z;
-                    RX[0x06] = dir.z;
-                    RX[0x0A] = zaxis.z;
-                break;
+                        RX[0x02] = xaxis.z;
+                        RX[0x06] = dir.z;
+                        RX[0x0A] = zaxis.z;
+                    break;
 
-                case TARGET_ZAXIS :
-                    g3dvector_cross ( &up, &dir, &xaxis );
-                    g3dvector_normalize ( &xaxis, NULL );
+                    case TARGET_ZAXIS :
+                        g3dvector_cross ( &up, &dir, &xaxis );
+                        g3dvector_normalize ( &xaxis, NULL );
 
-                    g3dvector_cross ( &dir, &xaxis, &yaxis );
-                    g3dvector_normalize ( &yaxis, NULL );
+                        g3dvector_cross ( &dir, &xaxis, &yaxis );
+                        g3dvector_normalize ( &yaxis, NULL );
 
-                    RX[0x00] = xaxis.x;
-                    RX[0x04] = yaxis.x;
-                    RX[0x08] = dir.x;
+                        RX[0x00] = xaxis.x;
+                        RX[0x04] = yaxis.x;
+                        RX[0x08] = dir.x;
 
-                    RX[0x01] = xaxis.y;
-                    RX[0x05] = yaxis.y;
-                    RX[0x09] = dir.y;
+                        RX[0x01] = xaxis.y;
+                        RX[0x05] = yaxis.y;
+                        RX[0x09] = dir.y;
 
-                    RX[0x02] = xaxis.z;
-                    RX[0x06] = yaxis.z;
-                    RX[0x0A] = dir.z;
-                break;
+                        RX[0x02] = xaxis.z;
+                        RX[0x06] = yaxis.z;
+                        RX[0x0A] = dir.z;
+                    break;
 
-                default :
-                break;
-            }
+                    default :
+                    break;
+                }
 
-            g3dcore_getMatrixRotation ( RX, &objrot );
+                g3dcore_getMatrixRotation ( RX, &objrot );
 
-            /*** Prevent a loop by preventing callbacks to be called in case ***/
-            /*** nothing was changed ***/
-            if ( ( fabs ( objrot.x - obj->rot.x ) > 0.0f ) ||
-                 ( fabs ( objrot.y - obj->rot.y ) > 0.0f ) ||
-                 ( fabs ( objrot.z - obj->rot.z ) > 0.0f ) ) {
-                obj->rot.x = objrot.x;
-                obj->rot.y = objrot.y;
-                obj->rot.z = objrot.z;
+                /*** Prevent a loop by preventing callbacks to be called in case ***/
+                /*** nothing was changed ***/
+                if ( ( fabs ( objrot.x - obj->rot.x ) > 0.0f ) ||
+                     ( fabs ( objrot.y - obj->rot.y ) > 0.0f ) ||
+                     ( fabs ( objrot.z - obj->rot.z ) > 0.0f ) ) {
+                    obj->rot.x = objrot.x;
+                    obj->rot.y = objrot.y;
+                    obj->rot.z = objrot.z;
 
-                g3dobject_updateMatrix_r ( obj, engine_flags );
+                    g3dobject_updateMatrix_r ( obj, engine_flags );
+                }
             }
         }
     }
@@ -276,12 +284,28 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
 }
 
 /******************************************************************************/
+static void g3dtrackertag_add    ( G3DTRACKERTAG *ttag,
+                                   G3DOBJECT     *obj,
+                                   uint64_t       engine_flags ) {
+
+}
+
+/******************************************************************************/
+static void g3dtrackertag_remove ( G3DTRACKERTAG *ttag,
+                                   G3DOBJECT     *obj,
+                                   uint64_t       engine_flags ) {
+
+}
+
+/******************************************************************************/
 static void g3dtrackertag_free ( G3DTRACKERTAG *ttag ) {
     if ( ttag->target ) {
-        G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
-                                                   ttag->targetTagID );
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
+            G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
+                                                       ttag->targetTagID );
 
-        g3dobject_removeTag ( ttag->target, targetTag );
+            g3dobject_removeTag ( ttag->target, targetTag );
+        }
     }
 }
 
@@ -303,10 +327,14 @@ void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
         ttag->targetTagID = g3dobject_getNextTagID ( target );
 
         g3dobject_addTag ( target, g3dtargettag_new ( ttag->targetTagID,
+                                                      ttag->sce,
                                                       tracker ) );
 
         g3dtrackertag_transform ( ttag, tracker, engine_flags );
     }
+
+    g3dscene_addReferredObject ( ttag->sce, target  );
+    g3dscene_addReferredObject ( ttag->sce, tracker );
 }
 
 /******************************************************************************/
@@ -317,7 +345,8 @@ void g3dtrackertag_setOrientation ( G3DTRACKERTAG *ttag,
 }
 
 /******************************************************************************/
-G3DTAG *g3dtrackertag_new ( uint32_t id ) {
+G3DTAG *g3dtrackertag_new ( uint32_t  id,
+                            G3DSCENE  *sce ) {
     G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTRACKERTAG ) );
 
     if ( ttag == NULL ) {
@@ -331,6 +360,8 @@ G3DTAG *g3dtrackertag_new ( uint32_t id ) {
                   id, 
                   0x00,
                   "Tracker",
+                  g3dtrackertag_add,
+                  g3dtrackertag_remove,
                   g3dtrackertag_free,
                   g3dtrackertag_transform,
                   NULL,
@@ -338,6 +369,7 @@ G3DTAG *g3dtrackertag_new ( uint32_t id ) {
                   NULL,
                   NULL );
 
+    ttag->sce = sce;
     ttag->orientation = TARGET_ZAXIS;
 
     return ttag;
@@ -348,11 +380,13 @@ static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
                                          G3DOBJECT     *obj,
                                          uint64_t       engine_flags ) {
     /*** check if tracker object has been removed (but not freed) ***/
-    if ( ( ttag->tracker->flags & OBJECTORPHANED ) == 0x00 ) {
-        G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
-                                                           ttag->trackerTagID );
+    if ( ttag->tracker ) {
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->tracker ) ) {
+            G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
+                                                               ttag->trackerTagID );
 
-        g3dtrackertag_transform ( trackerTag, ttag->tracker, engine_flags );
+            g3dtrackertag_transform ( trackerTag, ttag->tracker, engine_flags );
+        }
     }
 
     return 0x00;
@@ -360,14 +394,17 @@ static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
 
 /******************************************************************************/
 static void g3dtargettag_free ( G3DTARGETTAG *ttag ) {
-    G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
-                                                       ttag->trackerTagID );
+    if ( g3dscene_isObjectReferred ( ttag->sce, ttag->tracker ) ) {
+        G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
+                                                           ttag->trackerTagID );
 
-    trackerTag->target = NULL;
+        trackerTag->target = NULL;
+    }
 }
 
 /******************************************************************************/
-G3DTAG *g3dtargettag_new ( uint32_t id, 
+G3DTAG *g3dtargettag_new ( uint32_t   id, 
+                           G3DSCENE  *sce,
                            G3DOBJECT *tracker ) {
     G3DTARGETTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTARGETTAG ) );
 
@@ -382,6 +419,8 @@ G3DTAG *g3dtargettag_new ( uint32_t id,
                   id, 
                   TAGHIDDEN,
                   "Target",
+                  NULL,
+                  NULL,
                   g3dtargettag_free,
                   g3dtargettag_transform,
                   NULL,
@@ -389,6 +428,7 @@ G3DTAG *g3dtargettag_new ( uint32_t id,
                   NULL,
                   NULL );
 
+    ttag->sce = sce;
     ttag->tracker = tracker;
 
     return ttag;
