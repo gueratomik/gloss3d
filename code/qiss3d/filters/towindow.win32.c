@@ -82,7 +82,7 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
 
     GetWindowRect ( ftw->hWnd, &rec );
 
-    win_depth  = GetDeviceCaps ( dc, BITSPIXEL );
+    ftw->depth = win_depth  = GetDeviceCaps ( dc, BITSPIXEL );
     win_width  = ( rec.right  - rec.left );
     win_height = ( rec.bottom  - rec.top );
 

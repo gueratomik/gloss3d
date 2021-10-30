@@ -136,11 +136,14 @@ WImage *WCreateImage ( HDC dc, uint32_t width,
 #ifdef __MINGW32__
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea ) {
-    HDC dc = GetDC ( rbuf->hWnd );
+    HWND hWnd = GDK_WINDOW_HWND ( gtk_widget_get_window ( drawingArea ) );
+    HDC dc = GetDC ( hWnd );
     uint32_t depth = GetDeviceCaps ( dc, BITSPIXEL );
     RECT rec;
 
-    GetWindowRect ( hWnd, &rec );
+    rbuf->hWnd = hWnd;
+
+    GetWindowRect ( rbuf->hWnd, &rec );
 
     rbuf->wimg = WCreateImage ( dc, ( rec.right  - rec.left ),
                                     ( rec.bottom - rec.top  ), depth );
@@ -152,7 +155,7 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
     /*glReadPixels ( 0, 0, ( rec.right  - rec.left ),
                          ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );*/
 
-    ReleaseDC ( hWnd, dc );
+    ReleaseDC ( rbuf->hWnd, dc );
 }
 #endif
 
@@ -276,7 +279,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
     #endif
     #ifdef __MINGW32__
-    HDC dc = GetDC ( grw->hWnd );
+    HDC dc = GetDC ( grw->rbuf.hWnd );
     #endif
 
     /*** Tell cairo to shut the F*** up ***/
@@ -321,7 +324,7 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                             grw->rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
                             grw->rbuf.wimg->bi->bmiHeader.biClrUsed );
 
-    ReleaseDC ( grw->hWnd, dc );
+    ReleaseDC ( grw->rbuf.hWnd, dc );
 
     #endif
     /*pthread_mutex_unlock ( &lock );*/
@@ -809,8 +812,8 @@ static gboolean wDestroy ( GtkWidget *widget,
     shmdt ( grw->rbuf.ssi.shmaddr );
 #endif
 #ifdef __MINGW32__
-    DeleteObject ( ( HGDIOBJ ) grw->rbuf->wimg->hBmp );
-    free ( grw->rbuf->wimg );
+    DeleteObject ( ( HGDIOBJ ) grw->rbuf.wimg->hBmp );
+    free ( grw->rbuf.wimg );
 #endif
 
     q3dfilter_free ( grw->tostatus );

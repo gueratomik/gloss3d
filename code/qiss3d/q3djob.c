@@ -439,7 +439,7 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
                                                                 qrsg->output.endframe - 
                                                                 qrsg->output.startframe,
                     #ifdef __MINGW32__
-                                                               &gui->cvars,
+                                                               &qrsg->cvars,
                     #endif
                                                                 buf,
                                                                 sysinfo->ffmpegPath,

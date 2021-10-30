@@ -103,7 +103,12 @@ void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
     /*** call g_main_context_invoke_full() that calls a wrapper to ***/
     /*** g_signal_emit_by_name() ***/
     g_main_context_invoke_full ( NULL,
+#ifdef __linux__
                                  G_PRIORITY_HIGH, 
+#endif
+#ifdef __MINGW32__
+                                 G_PRIORITY_DEFAULT,
+#endif
                     (GSourceFunc)emitAction,
                                  action,
                                  NULL );

@@ -1702,7 +1702,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
             /***   If this is the last subdivision step, we only need the face   ***/
             /*** to link itself with its vertices. If this is not the last step, ***/
             /*** we need the face to link itself to both its vertices and edges. ***/
-          /*if ( init == 0x00 || old_level != subdiv_level ) {*/
             g3dsubdivision_makeFaceTopology ( curInnerFaces, nbInnerFaces,
                                               curOuterFaces, nbOuterFaces,
                                               subdiv_level,

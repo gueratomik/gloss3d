@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dexportv3.h>
 
+#ifdef unused
 
 /******************************************************************************/
 static uint32_t g3dexportv3myobjectvar ( G3DEXPORTV3DATA *ged, 
@@ -60,3 +61,5 @@ uint32_t g3dexportv3myobject ( G3DEXPORTV3DATA *ged,
 
     return size;
 }
+
+#endif

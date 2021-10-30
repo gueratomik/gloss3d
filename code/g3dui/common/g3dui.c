@@ -134,7 +134,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
         G3DUIRENDERPROCESS *rps;
         Q3DJOB *qjob  = NULL;
         G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-        #ifdef __linux__
+
         pthread_attr_t attr;
         pthread_t tid;
 
@@ -144,7 +144,7 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
 
         /*** start thread son all CPUs ***/
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
-        #endif
+
 
         /* reset object position at the first frame */
         /* Note: does not seem to work very well */

@@ -354,7 +354,10 @@ typedef struct _Q3DSETTINGS {
     Q3DMOTIONBLURSETTINGS motionBlur;
     Q3DFOGSETTINGS        fog;
     Q3DDOFSETTINGS        dof;
-    LIST    *lfilter;
+    LIST                 *lfilter;
+#ifdef __MINGW32__
+    COMPVARS              cvars;
+#endif
     /*int      pipefd[0x02];*/
 } Q3DSETTINGS;
 
@@ -678,6 +681,22 @@ typedef struct _Q3DJOB {
     uint32_t       threaded;
     uint32_t       running;/*** set to 0 to cancel rendering ***/
 } Q3DJOB;
+
+/******************************************************************************/
+#ifdef __MINGW32__
+typedef struct _WImage {
+    BITMAPINFO *bi;
+    HDC dc;
+    HBITMAP hBmp;
+	char *data;	      /* pointer to image data */
+    struct funcs {    /* image manipulation routines */
+        unsigned long (*get_pixel)( struct _WImage *, uint32_t, uint32_t );
+        int           (*put_pixel)( struct _WImage *, uint32_t, 
+                                                      uint32_t,
+                                                      uint32_t );
+    } f;
+} WImage;
+#endif
 
 /******************************************************************************/
 double q3dvector3f_scalar    ( Q3DVECTOR3F *v0,

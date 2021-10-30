@@ -6,7 +6,7 @@ EXPATDIR    := C:\CODE\libexpat
 GTKCFLAGS   := -I. -Iinclude -mms-bitfields -I$(GTKDIR)/include/gtk-3.0 -I$(GTKDIR)/include/cairo -I$(GTKDIR)/include/pango-1.0 -I$(GTKDIR)/include/atk-1.0 -I$(GTKDIR)/include/cairo -I$(GTKDIR)/include/pixman-1 -I$(GTKDIR)/include -I$(GTKDIR)/include/freetype2 -I$(GTKDIR)/include -I$(GTKDIR)/include/libpng15 -I$(GTKDIR)/include/gdk-pixbuf-2.0 -I$(GTKDIR)/include/libpng15 -I$(GTKDIR)/include/glib-2.0 -I$(GTKDIR)/lib/glib-2.0/include -I$(EXPATDIR)\include
 CFLAGS      := -DUBUNTU16 -O2 -g2 -Wall -I. -Iinclude $(shell $(GTKDIR)\bin\pkg-config.exe --cflags gtk+-3.0) -I$(EXPATDIR)\include 
 TARGET      := gloss3d-gtk3
-SRCDIR      := g3dui/gtk3 g3dui/common r3d g3dmouse g3dimport g3dimport/v1 g3dimport/v2 g3dexport g3dexport/v1 g3dexport/v2 g3durmanager g3dengine
+SRCDIR      := g3dui/gtk3 g3dui/common qiss3d g3dmouse g3dimport g3dimport/v1 g3dimport/v2 g3dexport g3dexport/v1 g3dexport/v2 g3durmanager g3dengine
 SRCEXT      := c
 OBJEXT      := o
 
@@ -14,7 +14,7 @@ G3DENGINESRC            := $(shell dir /s /b g3dengine\*.c)
 G3DUIGTK3SRC            := $(shell dir /s /b g3dui\gtk3\*.c)
 G3DUICOMMONMOUSETOOLSRC := $(shell dir /s /b g3dui\common\*.c)
 G3DUIMOUSETOOLSRC       := $(shell dir /s /b g3dui\gtk3\mousetool\*.c)
-R3DSRC                  := $(shell dir /s /b r3d\*.c)
+Q3DSRC                  := $(shell dir /s /b qiss3d\*.c)
 G3DMOUSESRC             := $(shell dir /s /b g3dmouse\*.c)
 G3DIMPORTSRC            := $(shell dir /s /b g3dimport\*.c)
 G3DIMPORTV1SRC          := $(shell dir /s /b g3dimport\v1\*.c)
@@ -25,7 +25,7 @@ G3DEXPORTV2SRC          := $(shell dir /s /b g3dexport\v2\*.c)
 G3DURMANAGERSRC         := $(shell dir /s /b g3durmanager\*.c)
 LIPS3DSRC               := $(shell dir /s /b lips3d\*.c)
 
-SOURCES     := $(G3DENGINESRC) $(G3DUIGTK3SRC) $(G3DUICOMMONMOUSETOOLSRC) $(G3DUIMOUSETOOLSRC) $(R3DSRC) $(G3DMOUSESRC) $(G3DIMPORTSRC) $(G3DIMPORTV1SRC) $(G3DIMPORTV2SRC) $(G3DEXPORTSRC) $(G3DEXPORTV1SRC) $(G3DEXPORTV2SRC) $(G3DURMANAGERSRC) $(LIPS3DSRC)
+SOURCES     := $(G3DENGINESRC) $(G3DUIGTK3SRC) $(G3DUICOMMONMOUSETOOLSRC) $(G3DUIMOUSETOOLSRC) $(Q3DSRC) $(G3DMOUSESRC) $(G3DIMPORTSRC) $(G3DIMPORTV1SRC) $(G3DIMPORTV2SRC) $(G3DEXPORTSRC) $(G3DEXPORTV1SRC) $(G3DEXPORTV2SRC) $(G3DURMANAGERSRC) $(LIPS3DSRC)
 TARGETDIR   := win32
 LIB         := -L$(EXPATDIR)\lib -L$(GTKDIR)/lib -lgtk-3 -lgdk-3 -lgdi32 -limm32 -lshell32 -lole32 "-Wl,-luuid" -lpangocairo-1.0 -lpangoft2-1.0 -lfreetype -lfontconfig -lpangowin32-1.0 -lgdi32 -lpango-1.0 -lm -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lopengl32 -lglu32 -lexpat -ljpeg -lpthread -lshlwapi -lvfw32
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))

@@ -30,6 +30,8 @@
 #include <config.h>
 #include <g3dimportv2.h>
 
+#ifdef unused
+
 /******************************************************************************/
 void g3dimportv2template ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
@@ -61,3 +63,5 @@ void g3dimportv2template ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc )
 
     g3dimportv2data_decrementIndentLevel ( gid );
 }
+
+#endif

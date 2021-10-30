@@ -29,6 +29,8 @@
 #include <config.h>
 #include <qiss3d/q3d.h>
 
+#ifdef unused
+
 typedef struct _Q3DSHADOWUV {
     double u, v;
 } Q3DSHADOWUV;
@@ -193,3 +195,5 @@ Q3DSHADOWMAP *q3dshadowmap_new ( Q3DSCENE *qsce,
 
     return qlig;
 }
+
+#endif
