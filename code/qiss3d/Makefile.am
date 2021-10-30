@@ -22,6 +22,7 @@ LIBGLOSSQ3D_C_FILES = q3d.c \
                       q3djob.c \
                       q3dfilter.c \
                       filters/towindow.unix.c \
+                      filters/towindow.win32.c \
                       filters/simpleaa.c \
                       filters/writeimage.c \
                       filters/toffmpeg.c \
