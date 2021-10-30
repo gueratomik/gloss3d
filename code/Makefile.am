@@ -108,11 +108,14 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dtag.h \
                        include/g3dengine/g3dtext.h \
                        include/g3dengine/g3dtinyvector.h \
+                       include/g3dengine/g3dparticleemitter.h \
+                       include/g3dengine/g3dskin.h \
                        include/g3dengine/g3dvector.h \
                        include/lips3d/lips3d.h \
                        include/g3d.h \
                        include/g3dimport.h \
                        include/g3dimportv2.h \
+                       include/g3dimportv3.h \
                        include/g3dmouse.h \
                        include/g3dui.h \
                        include/g3dui_motif.h \
@@ -121,7 +124,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3durmanager.h \
                        include/list.h \
                        include/r3d.h \
-                       include/q3d.h \
+                       include/qiss3d/q3d.h \
                        include/r3dnet.h \
                        include/TabbedBook.h \
                        include/ColorEdit.h \
@@ -131,7 +134,8 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/GLwMDrawA.h \
                        include/GLwMDrawAP.h \
                        include/signatures \
-                       include/signatures.h \
+                       include/signaturesv2.h \
+                       include/signaturesv3.h \
                        include/siggen.sh \
                        xpm/addvertex.xpm \
                        xpm/axismode.xpm \
@@ -202,6 +206,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/subico.xpm \
                        xpm/symico.xpm \
                        xpm/torico.xpm \
+                       xpm/tracker.xpm \
                        xpm/translate_view.xpm \
                        xpm/tubico.xpm \
                        xpm/txtico.xpm \
@@ -212,6 +217,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/uvwmapmode.xpm \
                        xpm/vertexmode.xpm \
                        xpm/vert.xpm \
+                       xpm/vibrate.xpm \
                        xpm/wirico.xpm \
                        xpm/xaxis.xpm \
                        xpm/yaxis.xpm \

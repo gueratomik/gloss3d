@@ -143,6 +143,8 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
                           uint32_t   y,
                           G3DVECTOR *nor );
 
+void g3dimage_writeToDisk ( G3DIMAGE *img );
+
 #ifdef __cplusplus
 }
 #endif

@@ -2658,6 +2658,10 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
                                       LIST   **loldver,
                                       LIST   **loldfac,
                                       uint64_t engine_flags );
+void g3dmesh_updateModified ( G3DMESH     *mes,
+                              G3DMODIFIER *mod,
+                              uint64_t     engine_flags );
+                              
 void g3dmesh_invertEdgeSelection ( G3DMESH *mes,
                                    uint64_t engine_flags );
 void       g3dmesh_triangulate                   ( G3DMESH *, LIST **,
@@ -3195,6 +3199,9 @@ G3DPROCEDURALNOISE    *g3dproceduralnoise_new ( );
 G3DPROCEDURALCHESS    *g3dproceduralchess_new ( );
 G3DPROCEDURALBRICK    *g3dproceduralbrick_new ( );
 G3DPROCEDURALGRADIENT *g3dproceduralgradient_new ( );
+void g3dproceduralnoise_buildGradients ( G3DPROCEDURALNOISE *noise,
+                                         uint32_t            nbGradientX,
+                                         uint32_t            nbGradientY );
 void g3dproceduralbrick_copySettings ( G3DPROCEDURALBRICK *brick, 
                                        G3DPROCEDURALBRICK *pout );
 void g3dproceduralchess_copySettings ( G3DPROCEDURALCHESS *chess, 

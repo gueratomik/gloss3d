@@ -30,10 +30,23 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
+static uint32_t g3dexportv3subdivider_sync ( G3DEXPORTV3DATA *ged, 
+                                             G3DSUBDIVIDER   *sdr, 
+                                             uint32_t         flags, 
+                                             FILE            *fdst ) {
+    uint32_t sync = ( ((G3DOBJECT*)sdr)->flags & SYNCLEVELS ) ? 0x01 : 0x00;
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &sync, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3subdivider_level ( G3DEXPORTV3DATA *ged, 
-                                            G3DSUBDIVIDER   *sdr, 
-                                            uint32_t       flags, 
-                                            FILE          *fdst ) {
+                                              G3DSUBDIVIDER   *sdr, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexportv3_fwritel ( &sdr->subdiv_preview, fdst );
@@ -49,12 +62,21 @@ uint32_t g3dexportv3subdivider ( G3DEXPORTV3DATA *ged,
                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SYNC,
+                                     g3dexportv3subdivider_sync,
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
+
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
                                    g3dexportv3subdivider_level,
                                    ged,
                                    sdr,
                                    0xFFFFFFFF,
                                    fdst );
+
+
 
     return size;
 }

@@ -43,6 +43,15 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_OBJECT_SUBDIVIDER_SYNC : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
+                uint32_t sync;
+
+                g3dimportv3_freadl ( &sync, fsrc );
+
+                if ( sync ) ((G3DOBJECT*)sdr)->flags |= SYNCLEVELS;
+            } break;
+
             case SIG_OBJECT_SUBDIVIDER_LEVEL : {
                 G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
 

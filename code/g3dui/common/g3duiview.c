@@ -29,20 +29,29 @@
 #include <config.h>
 #include <g3dui.h>
 
+static G3DCAMERA *common_g3duiview_getCamera ( G3DUIVIEW *view ) {
+    if ( g3dscene_isObjectReferred ( view->gui->sce, view->cam ) ) {
+        return view->cam;
+    }
+
+    return view->defcam;
+}
+
 /******************************************************************************/
 void common_g3duiview_orbit ( G3DUIVIEW *view,
                               G3DPIVOT  *piv,
                               float      diffx, 
                               float      diffy ) {
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
 
     g3dpivot_orbit ( piv, diffx, diffy );
 
-    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
 void common_g3duiview_spin ( G3DUIVIEW *view, float diffx ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
               yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
@@ -52,27 +61,26 @@ void common_g3duiview_spin ( G3DUIVIEW *view, float diffx ) {
 
     g3dcamera_spin ( cam, diffx );
 
-    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
 void common_g3duiview_zoom ( G3DUIVIEW *view, float diffx ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
 
     cam->focal -= ( (float) ( diffx ) / 20.0f );
 
-
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
 void common_g3duiview_moveSideward ( G3DUIVIEW *view,
                                      float diffx, 
                                      float diffy ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
               yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
@@ -97,13 +105,13 @@ void common_g3duiview_moveSideward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
 }
 
 
 /******************************************************************************/
 void common_g3duiview_moveForward ( G3DUIVIEW *view, float diffx ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
               yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
@@ -131,7 +139,7 @@ void common_g3duiview_moveForward ( G3DUIVIEW *view, float diffx ) {
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != view->cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
 }
 
 /******************************************************************************/
@@ -243,7 +251,7 @@ void common_g3duiview_sizeGL ( G3DUIVIEW *view, uint32_t width,
 
 /******************************************************************************/
 void common_g3duiview_initGL ( G3DUIVIEW *view ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = common_g3duiview_getCamera ( view );
     float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
     /*** we need to update the camera's matrix here because we need and ***/
@@ -271,6 +279,8 @@ void common_g3duiview_useSelectedCamera ( G3DUIVIEW *view,
     cam->ratio = view->cam->ratio;
 
     view->cam = cam;
+
+    g3dscene_addReferredObject ( view->gui->sce, cam );
 }
 
 /******************************************************************************/

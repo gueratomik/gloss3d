@@ -224,12 +224,14 @@ static uint32_t g3duiview_entry ( G3DEXPORTV3DATA *ged,
                                    fdst );
 
     if ( view->cam != view->defcam ) {
-        size += g3dexportv3_writeChunk ( SIG_G3DUI_VIEW_USECAMERA,
-                                       g3duiview_useCamera,
-                                       ged,
-                                       view->cam,
-                                       0xFFFFFFFF,
-                                       fdst );
+        if ( g3dscene_isObjectReferred ( ged->currentScene, view->cam ) ) {
+            size += g3dexportv3_writeChunk ( SIG_G3DUI_VIEW_USECAMERA,
+                                             g3duiview_useCamera,
+                                             ged,
+                                             view->cam,
+                                             0xFFFFFFFF,
+                                             fdst );
+        }  
     }
 
     return size;
@@ -414,6 +416,8 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
             case SIG_G3DUI_VIEW_ENTRY :
                 if ( ltmpview ) {
                     view = ( G3DUIVIEW * ) ltmpview->data;
+
+                    view->gui->sce = gid->currentScene;
 
                     ltmpview = ltmpview->next;
                 }

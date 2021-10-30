@@ -252,6 +252,8 @@ SIG_ROOT=0x44335347
 --------------------------- SIG_OBJECT_SUBDIVIDER_LEVEL
 ------------------------------ editor (uint32)
 ------------------------------ render (uint32)
+--------------------------- SIG_OBJECT_SUBDIVIDER_SYNC
+------------------------------ sync (uint32)
 
 ----------------------- SIG_OBJECT_SPLINE
 ------------------------------ SIG_OBJECT_SPLINE_GEOMETRY

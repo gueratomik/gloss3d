@@ -869,6 +869,10 @@ void q3dzengine_init         ( Q3DZENGINE *qzen,
                                uint32_t    width,
                                uint32_t    height );
 
+uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
+                                uint32_t    x,
+                                uint32_t    y );
+
 /******************************************************************************/
 float q3dplane_intersectSegment ( Q3DPLANE    *qpla, 
                                   Q3DVECTOR3F *pnt0,
@@ -967,6 +971,10 @@ void       q3djob_render_frame       ( Q3DJOB *qjob );
 void       q3djob_render             ( Q3DJOB *qjob );
 void       q3djob_goToFrame          ( Q3DJOB *qjob, 
                                        float   frame );
+void q3djob_clear ( Q3DJOB *qjob );
+void q3djob_prepare ( Q3DJOB      *qjob,
+                      G3DSCENE    *sce,
+                      G3DCAMERA   *cam );
 
 /******************************************************************************/
 void       q3dfilter_enable    ( Q3DFILTER *fil );

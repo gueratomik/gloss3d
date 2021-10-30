@@ -713,7 +713,9 @@ void g3dui_redrawTimeline                ( G3DUI * );
 void g3dui_updateKeyEdit                 ( G3DUI * );
 void g3dui_redrawAllWeightGroupList      ( G3DUI * );
 void g3dui_redrawAllMeshPoseList         ( G3DUI * );
-
+void g3dui_redrawUVMapEditors ( G3DUI *gui );
+void g3dui_updateMenuBar ( G3DUI *gui );
+void updateCurrentMouseTool ( GtkWidget *widget, G3DUI *gui );
 void g3dui_loadImageForChannel ( G3DUI      *gui,
                                  G3DCHANNEL *chan );
 
@@ -736,7 +738,8 @@ G3DUIRENDERPROCESS *g3dui_render ( G3DUI *, uint64_t,
                                             uint32_t,
                                             LIST *, 
                                             uint32_t );
-
+void addMenuListButton ( G3DUI *gui, LIST *lmenu, G3DMOUSETOOL *mou );
+void g3dui_updateGLViewsMenu ( G3DUI *gui );
 GtkWidget *g3dui_addMenuSeparator ( GtkWidget * );
 GtkWidget *g3dui_addMenuButton    ( GtkWidget *, G3DUI *,
                                                  const gchar *,
@@ -931,7 +934,8 @@ GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent,
                                     gint              y,
                                     gint              width,
                                     gint              height );
-
+void updateL3DMouseTool ( GtkWidget        *widget, 
+                          L3DUI *lui );
 void l3dui_updateMouseToolEdit ( L3DUI *lui );
 
 GtkWidget *createMorpherEdit ( GtkWidget *parent,
@@ -943,7 +947,8 @@ GtkWidget *createMorpherEdit ( GtkWidget *parent,
                                gint       height );
 void updateMorpherEdit ( GtkWidget *widget, 
                          G3DUI     *gui );
-
+void updateInstanceEdit ( GtkWidget    *w, 
+                          G3DINSTANCE  *ins );
 GtkWidget* createTrackerTagEdit ( GtkWidget     *parent, 
                                   G3DUI         *gui,
                                   char          *name,
@@ -962,7 +967,23 @@ GtkWidget *createInstanceEdit ( GtkWidget *parent,
 
 GtkWidget* getChild ( GtkWidget* parent, const gchar* name);
 
+Q3DFILTER *q3dfilter_gotoframe_new ( G3DUI* gui );
 
+G3DCAMERA *g3dui_getCurrentUVMapEditorCamera ( G3DUI *gui );
+
+GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
+                                  G3DUI       *gui,
+                                  char        *name,
+                                  const char **xpm_data,
+                                  void       (*cbk) ( GtkWidget *,
+                                                      gpointer ) );
+
+GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
+                                    G3DUI       *gui,
+                                    char        *name,
+                                    const char **xpm_data,
+                                    void       (*cbk) ( GtkWidget *, 
+                                                        gpointer ) );
 
 /******************************************************************************/
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,

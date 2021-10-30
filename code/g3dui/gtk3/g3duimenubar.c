@@ -757,7 +757,7 @@ static G3DUIMENU tags_menu = { "Tags",
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &tags_menu_addVibrator,
+                              .nodes = { /*&tags_menu_addVibrator,*/
                                          &tags_menu_addTracker,
                                          &tags_menu_removeSelTag,
                                           NULL } };

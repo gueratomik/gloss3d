@@ -79,6 +79,7 @@ typedef struct _VMBMESH {
 } VMBMESH;
 
 /******************************************************************************/
+#define NBCOMPONENT 0x04
 typedef struct _FILTERVMB {
     LIST          *lvobj;
     uint32_t       vobjID;
@@ -91,7 +92,7 @@ typedef struct _FILTERVMB {
     uint32_t       bpp;
     unsigned char *img;
     VMBZHLINE     *hlines;
-    uint32_t     (*abuffer)[0x04]; /**** accumulation buffer ***/
+    uint32_t     (*abuffer)[NBCOMPONENT]; /**** accumulation buffer ***/
 } FILTERVMB;
 
 /******************************************************************************/
@@ -141,13 +142,13 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                     unsigned char (*srcimg)[0x03] = img;
 
                     if ( fvmb->abuffer[offset][0x03] ) {
-                        unsigned char a0 = ( float ) fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03] * 0xFF,
-                                      a1 = ( float ) fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03] * 0xFF,
-                                      a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03] * 0xFF;
+                        float a0 = ( float ) fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03],
+                              a1 = ( float ) fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03], 
+                              a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03];
 
-                        srcimg[offset][0x00] = a0/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x00] ) + ( fvmb->strength * a0 )*/;
-                        srcimg[offset][0x01] = a1/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x01] ) + ( fvmb->strength * a1 )*/;
-                        srcimg[offset][0x02] = a2/*( ( 1.0f - fvmb->strength ) * srcimg[offset][0x02] ) + ( fvmb->strength * a2 )*/;
+                            srcimg[offset][0x00] = 0xFF * a0;
+                            srcimg[offset][0x01] = 0xFF * a1;
+                            srcimg[offset][0x02] = 0xFF * a2;
                     }
                 } break;
 
@@ -329,7 +330,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                                     uint32_t      vtriID,
                                     VMBTRIANGLE  *refTri,
                                     int32_t       y,
-                                    float         strength ) {
+                                    float         opacity ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     VMBZHLINE *hline = &fvmb->hlines[y];
     int32_t x1 = hline->p1.x, 
@@ -352,6 +353,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
 
     int i;
     uint32_t offset = ( y * fvmb->width );
+    float invopac = 1.0f - opacity;
 
     for ( i = 0x00; i <= ddx; i++ ) {
         if ( ( x >= 0x00 ) && 
@@ -370,7 +372,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                  ( xsrc <  fvmb->width  ) ) {
                 uint32_t aoffset = offset + x;
                 uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
-                unsigned char R, G, B;
+                unsigned char R, G, B, AR, AG, AB;
 
                 /*** NOTE: Comment this out for a better bluring but without **/
                 /*** Z testing ***/
@@ -384,16 +386,27 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                                 R = srcimg[zoffset][0x00];
                                 G = srcimg[zoffset][0x01];
                                 B = srcimg[zoffset][0x02];
+
+                                AR = srcimg[aoffset][0x00];
+                                AG = srcimg[aoffset][0x01];
+                                AB = srcimg[aoffset][0x02];
                             } break;
 
                             default :
                             break;
                         }
+/*
+                        fvmb->abuffer[aoffset][0x00] += ( ( R    * opacity ) + ( AR * invopac ) );
+                        fvmb->abuffer[aoffset][0x01] += ( ( G    * opacity ) + ( AG * invopac ) );
+                        fvmb->abuffer[aoffset][0x02] += ( ( B    * opacity ) + ( AB * invopac ) );
+                        fvmb->abuffer[aoffset][0x03] ++;
+*/
 
-                        fvmb->abuffer[aoffset][0x00] += ( R    * strength );
-                        fvmb->abuffer[aoffset][0x01] += ( G    * strength );
-                        fvmb->abuffer[aoffset][0x02] += ( B    * strength );
-                        fvmb->abuffer[aoffset][0x03] += ( 0xFF * strength );
+                        fvmb->abuffer[aoffset][0x00] += ( R    * opacity );
+                        fvmb->abuffer[aoffset][0x01] += ( G    * opacity );
+                        fvmb->abuffer[aoffset][0x02] += ( B    * opacity );
+                        fvmb->abuffer[aoffset][0x03] += ( 0xFF * opacity );
+
                     }
                 /*}*/
             }
@@ -958,7 +971,7 @@ static void filtervmb_empty ( FILTERVMB *fvmb ) {
 
     fvmb->abuffer = ( uint32_t * ) realloc  ( fvmb->abuffer,
                                               fvmb->width * 
-                                              fvmb->height * sizeof ( uint32_t ) * 0x04 );
+                                              fvmb->height * sizeof ( uint32_t ) * NBCOMPONENT );
 
     fvmb->zbuffer = ( VMBZPIXEL * ) realloc ( fvmb->zbuffer,
                                               fvmb->width * 
@@ -966,7 +979,7 @@ static void filtervmb_empty ( FILTERVMB *fvmb ) {
 
 
     memset ( fvmb->abuffer, 0x00, fvmb->width  * 
-                                  fvmb->height * sizeof ( uint32_t ) * 0x04 );
+                                  fvmb->height * sizeof ( uint32_t ) * NBCOMPONENT );
 
     memset ( fvmb->zbuffer, 0x00, fvmb->width  * 
                                   fvmb->height * sizeof ( VMBZPIXEL ) );

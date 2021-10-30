@@ -1006,7 +1006,7 @@ typedef struct _OBJECTLISTPRIVATEDATA {
     G3DUI *gui;
     uint32_t oldWidth, oldHeight;
 } OBJECTLISTPRIVATEDATA;
-
+void objectlistprivatedata_free ( OBJECTLISTPRIVATEDATA *opd );
 OBJECTLISTPRIVATEDATA *objectlistprivatedata_new ( G3DUI *gui );
 
 PICKEDOBJECT *pickobject ( uint32_t x, 
@@ -1709,6 +1709,8 @@ void common_l3dui_redoCbk ( L3DUI *lui );
 void common_l3dui_undoCbk ( L3DUI *lui );
 
 void common_l3dui_resizeBuffers ( L3DUI *lui );
+void common_l3dui_fillWithColor ( L3DUI *lui, 
+                                  uint32_t color );
 
 G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui );
 G3DIMAGE *common_l3dui_getWorkingImage   ( L3DUI *lui );

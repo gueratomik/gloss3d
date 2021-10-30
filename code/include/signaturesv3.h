@@ -181,6 +181,7 @@
 #define  SIG_OBJECT_SPLINEREVOLVER_GEOMETRY             0x9549096A
 #define  SIG_OBJECT_SUBDIVIDER                          0x563EEBF5
 #define  SIG_OBJECT_SUBDIVIDER_LEVEL                    0x44314624
+#define  SIG_OBJECT_SUBDIVIDER_SYNC                     0x9D54E01B
 #define  SIG_OBJECT_SYMMETRY                            0xA1549C03
 #define  SIG_OBJECT_SYMMETRY_MERGELIMIT                 0xEE05C709
 #define  SIG_OBJECT_SYMMETRY_PLANE                      0x14831DB2

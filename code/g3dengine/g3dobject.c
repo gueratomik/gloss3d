@@ -1166,7 +1166,7 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
                                &prevKey, 
                                &nextKey, 
                                 KEYPOSITION,
-                                0x00 );
+                                0x01 );
 
             curve_addTransformation ( obj->curve[0x00], 
                                      &key->curvePoint[0x00],
@@ -1185,7 +1185,7 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
                                &prevKey, 
                                &nextKey, 
                                 KEYROTATION,
-                                0x00 );
+                                0x01 );
 
             curve_addTransformation ( obj->curve[0x01], 
                                      &key->curvePoint[0x01],
@@ -1204,7 +1204,7 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
                                &prevKey, 
                                &nextKey, 
                                 KEYSCALING,
-                                0x00 );
+                                0x01 );
 
             curve_addTransformation ( obj->curve[0x02], 
                                      &key->curvePoint[0x02],
@@ -1234,7 +1234,7 @@ static void g3dobject_stitchCurve ( G3DOBJECT *obj,
      ( ( curveID == 0x00 ) ? KEYPOSITION : 0x00 ) |
      ( ( curveID == 0x01 ) ? KEYROTATION : 0x00 ) |
      ( ( curveID == 0x02 ) ? KEYSCALING  : 0x00 ) ,
-                            0x00 );
+                            0x01 );
 
         if ( key && nextKey ) {
             G3DCURVESEGMENT *csg = g3dcurve_seekSegment ( obj->curve[curveID],
