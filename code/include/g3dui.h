@@ -854,6 +854,10 @@ typedef struct _G3DUIRENDERBUFFER {
     XImage             *ximg;
     XShmSegmentInfo     ssi;
 #endif
+#ifdef __MINGW32__
+    HWND    hWnd;
+    WImage *wimg;
+#endif
 } G3DUIRENDERBUFFER;
 
 /************************** View Widget Structure *****************************/

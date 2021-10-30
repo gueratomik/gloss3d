@@ -299,12 +299,18 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 
     g3duirenderbuffer_init ( &gvw->view.rbuf, 
                               ggt->curogl );
-
+#ifdef __linux__
     Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.dis,
                                                              gvw->view.rbuf.win,
                                                              gvw->view.rbuf.gc,
                                                              gvw->view.rbuf.ximg,
                                                              0x01 );
+#endif
+#ifdef __MINGW32__
+    Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.hWnd,
+                                                             gvw->view.rbuf.wimg,
+                                                             0x01 );
+#endif
 
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, 
                                                      ( uint64_t ) ggt->curogl );

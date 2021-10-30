@@ -43,6 +43,119 @@ typedef struct _GTK3RENDERWINDOW {
     G3DUIRENDERBUFFER   rbuf;
 } GTK3RENDERWINDOW;
 
+#ifdef __MINGW32__
+/******************************************************************************/
+int put_pixel ( WImage *wimg, uint32_t x, uint32_t y, uint32_t color ) {
+    uint32_t offset = ( wimg->bi->bmiHeader.biWidth * ( wimg->bi->bmiHeader.biHeight - 1 - y ) ) + x;
+
+    if ( ( ( x >= 0 ) && ( x < wimg->bi->bmiHeader.biWidth  ) ) &&
+         ( ( y >= 0 ) && ( y < wimg->bi->bmiHeader.biHeight ) ) ) {
+        switch ( wimg->bi->bmiHeader.biBitCount ) {
+            case 0x08 : 
+                ((uint8_t *)wimg->data)[offset] = 0xFF;
+            break;
+
+            case 0x10 :
+                ((uint16_t*)wimg->data)[offset] = color;
+            break;
+
+            case 0x20 :
+                ((uint32_t*)wimg->data)[offset] = color;
+            break;
+   
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+WImage *WCreateImage ( HDC dc, uint32_t width, 
+                               uint32_t height,
+                               uint32_t depth ) {
+    WImage *wimg = ( WImage * ) calloc ( 0x01, sizeof ( WImage ) );
+
+    if ( wimg == NULL ) {
+        fprintf ( stderr, "WCreateImage: calloc failed\n" );
+
+        return NULL;
+    }
+
+    wimg->dc = CreateCompatibleDC ( dc );
+
+    wimg->f.put_pixel = put_pixel;
+
+    switch ( depth ) {
+        case 0x08 :
+            fprintf ( stderr, "WCreateImage: 8 bpp WImage unsupported\n" );
+        break;
+
+        case 0x10 :
+            wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) + ( 0x03 * sizeof ( DWORD ) ) );
+
+            wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
+            wimg->bi->bmiHeader.biPlanes        = 0x01;
+
+            wimg->bi->bmiHeader.biBitCount      = 0x10;
+            wimg->bi->bmiHeader.biCompression   = BI_BITFIELDS;
+            ((DWORD*)wimg->bi->bmiColors)[0x00] = 0x0000F800;
+            ((DWORD*)wimg->bi->bmiColors)[0x01] = 0x000007E0;
+            ((DWORD*)wimg->bi->bmiColors)[0x02] = 0x0000001F;
+            wimg->bi->bmiHeader.biWidth         = width;
+            wimg->bi->bmiHeader.biHeight        = height;
+
+            wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
+        break;
+
+        case 0x20 :
+            wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) );
+
+            wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
+            wimg->bi->bmiHeader.biPlanes        = 0x01;
+
+            wimg->bi->bmiHeader.biBitCount      = 0x20;
+            wimg->bi->bmiHeader.biCompression   = BI_RGB;
+            wimg->bi->bmiHeader.biWidth         = width;
+            wimg->bi->bmiHeader.biHeight        = height;
+
+            wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
+        break;
+
+        default :
+        break;
+    }
+
+    SelectObject ( wimg->dc, ( HGDIOBJ ) wimg->hBmp );
+
+
+    return wimg;
+}
+#endif
+
+/******************************************************************************/
+#ifdef __MINGW32__
+void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
+                              GtkWidget         *drawingArea ) {
+    HDC dc = GetDC ( rbuf->hWnd );
+    uint32_t depth = GetDeviceCaps ( dc, BITSPIXEL );
+    RECT rec;
+
+    GetWindowRect ( hWnd, &rec );
+
+    rbuf->wimg = WCreateImage ( dc, ( rec.right  - rec.left ),
+                                    ( rec.bottom - rec.top  ), depth );
+
+    /*BitBlt ( ftw->wimg->dc, 0x00, 0x00, ( rec.right  - rec.left ),
+                                        ( rec.bottom - rec.top  ), dc,
+                            0x00, 0x00, SRCCOPY );*/
+
+    /*glReadPixels ( 0, 0, ( rec.right  - rec.left ),
+                         ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );*/
+
+    ReleaseDC ( hWnd, dc );
+}
+#endif
+
 /******************************************************************************/
 #ifdef __linux__
 static XImage *allocXImage ( Display         *dis,
@@ -295,11 +408,18 @@ static void Map ( GtkWidget *widget,
         g3duirenderbuffer_init ( &grw->rbuf, 
                                   grw->drawingArea );
         Q3DFILTER *makepreview = NULL;
+#ifdef __linux__
         Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.dis,
                                                        grw->rbuf.win,
                                                        grw->rbuf.gc,
                                                        grw->rbuf.ximg,
                                                        0x00 );
+#endif
+#ifdef __MINGW32__
+        Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.hWnd,
+                                                       grw->rbuf.wimg,
+                                                       0x00 );
+#endif
 
         /*** This filter is used for saving images ***/
         /*R3DFILTER *tobuf = r3dfilter_toBuffer_new ( rsg->output.width, 
@@ -675,7 +795,7 @@ static void wRealize ( GtkWidget *widget,
 static gboolean wDestroy ( GtkWidget *widget,
                            gpointer   user_data ) {
     GTK3RENDERWINDOW *grw = ( GTK3RENDERWINDOW * ) user_data;
-
+#ifdef __linux__
     XSync  ( grw->rbuf.dis, 0 );
     XFlush ( grw->rbuf.dis );
 
@@ -687,6 +807,11 @@ static gboolean wDestroy ( GtkWidget *widget,
     XShmDetach ( grw->rbuf.dis, &grw->rbuf.ssi );
     XDestroyImage ( grw->rbuf.ximg );
     shmdt ( grw->rbuf.ssi.shmaddr );
+#endif
+#ifdef __MINGW32__
+    DeleteObject ( ( HGDIOBJ ) grw->rbuf->wimg->hBmp );
+    free ( grw->rbuf->wimg );
+#endif
 
     q3dfilter_free ( grw->tostatus );
 

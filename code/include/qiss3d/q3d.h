@@ -1009,10 +1009,16 @@ Q3DFILTER *q3dfilter_softshadows_new ( );
 
 /******************************************************************************/
 typedef struct _FILTERTOWINDOW {
+    #ifdef __linux__
     Display *dis; 
     Window win;
     GC gc;
     XImage *ximg;
+    #endif
+    #ifdef __MINGW32__
+    HWND hWnd;
+    WImage *wimg;
+    #endif
     uint32_t width;
     uint32_t height;
     uint32_t depth;
@@ -1034,11 +1040,19 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
                                uint32_t       to, 
                                uint32_t       depth, 
                                uint32_t       width );
+#ifdef __linux__
 FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
                                      Window   win, 
                                      GC       gc,
                                      XImage  *ximg,
                                      uint32_t active_fill );
+#endif
+#ifdef __MINGW32__
+Q3DFILTER *q3dfilter_toWindow_new ( HWND     hWnd,
+                                    WImage  *wimg,
+                                    uint32_t active_fill );
+#endif
+
 void filtertowindow_free (  Q3DFILTER *fil );
 
 /******************************************************************************/
