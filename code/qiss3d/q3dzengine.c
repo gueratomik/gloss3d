@@ -45,7 +45,7 @@ uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
     uint32_t offset = ( y * qzen->width ) + x;
     uint32_t i;
 
-    if ( qzen->buffer[offset].z != INFINITY ) {
+    /*if ( qzen->buffer[offset].z != INFINITY ) {*/
         uint32_t qobjID = qzen->buffer[offset].qobjID;
 
         for ( i = 0x00; i < 0x08; i++ ) {
@@ -63,7 +63,7 @@ uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
                 }
             }
         }
-    }
+    /*}*/
 
     return 0x00;
 }
@@ -660,6 +660,7 @@ void q3dzengine_init ( Q3DZENGINE *qzen,
 
         for ( i = 0x00; i < height * width; i++ ) {
             qzen->buffer[i].z = INFINITY;
+            qzen->buffer[i].qobjID = 0xFFFFFFFF;
         }
 
         qzen->hlines = ( Q3DZHLINE * ) calloc ( height, sizeof ( Q3DZHLINE ) );
