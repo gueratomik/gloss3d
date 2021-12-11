@@ -29,6 +29,7 @@ LIBGLOSSQ3D_C_FILES = q3d.c \
                       filters/softshadows.c \
                       filters/vectormotionblur.c \
                       filters/scenemotionblur.c \
+                      filters/edgeaa.c \
                       q3dlight.c \
                       q3dvector.c \
                       q3dinterpolation.c \

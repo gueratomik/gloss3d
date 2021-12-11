@@ -121,6 +121,7 @@ void g3duicom_requestActionFromMainThread ( G3DUI *gui, G3DUIACTION *action ) {
 /******************************************************************************/
 uint32_t filtergotoframe_draw ( Q3DFILTER     *fil, 
                                 Q3DJOB        *qjob,
+                                uint32_t       cpuID, 
                                 float          frameID,
                                 unsigned char *img, 
                                 uint32_t       from, 

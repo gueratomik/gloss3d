@@ -34,7 +34,8 @@ void q3djob_goToFrame ( Q3DJOB *qjob, float frame ) {
     qjob->curframe = frame;
 
     qjob->filters.toframe->draw ( qjob->filters.toframe, 
-                                  NULL, 
+                                  NULL,
+                                  0x00,
                                   frame,
                                   NULL, 
                                   0x00, 
@@ -81,9 +82,7 @@ void q3djob_free ( Q3DJOB *qjob ) {
 }
 
 /******************************************************************************/
-static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
-                                     Q3DINTERPOLATION *pone,
-                                     Q3DINTERPOLATION *ptwo ) {
+static uint32_t q3djob_getNextLine ( Q3DJOB *qjob, Q3DSEGMENT *qseg ) {
     Q3DAREA *qarea = &qjob->qarea;
     uint32_t scanline;
 
@@ -91,15 +90,10 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
 
     scanline = qarea->scanline++;
 
-    memcpy ( &pone->src, &qarea->pol[0x00].src, sizeof ( Q3DVECTOR3F ) );
-    memcpy ( &pone->dst, &qarea->pol[0x00].dst, sizeof ( Q3DVECTOR3F ) );
-
-    memcpy ( &ptwo->src, &qarea->pol[0x01].src, sizeof ( Q3DVECTOR3F ) );
-    memcpy ( &ptwo->dst, &qarea->pol[0x01].dst, sizeof ( Q3DVECTOR3F ) );
-
     /*** prepare the next call ***/
-    q3dinterpolation_step ( &qarea->pol[0x00] );
-    q3dinterpolation_step ( &qarea->pol[0x01] );
+    q3dsegment_interpolate ( &qarea->qseg[0x00], &qarea->vpol, 1.0f );
+
+    memcpy ( qseg, &qarea->qseg[0x00], sizeof ( Q3DSEGMENT ) );
 
     pthread_mutex_unlock ( &qarea->lock  );
 
@@ -107,13 +101,15 @@ static uint32_t q3djob_getNextLine ( Q3DJOB           *qjob,
 }
 
 /******************************************************************************/
-void q3djob_filterline ( Q3DJOB *qjob, 
+void q3djob_filterline ( Q3DJOB  *qjob, 
+                         uint32_t cpuID,
                          uint32_t from, 
                          uint32_t to,
                          uint32_t depth, 
                          uint32_t width ) {
-    #define FILTERCOUNT 0x01
-    Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.towindow };
+    #define FILTERCOUNT 0x02
+    Q3DFILTER *fil[FILTERCOUNT] = { qjob->filters.edgeaa,
+                                    qjob->filters.towindow };
     char *img = qjob->img;
     uint32_t i;
 
@@ -124,6 +120,7 @@ void q3djob_filterline ( Q3DJOB *qjob,
             if ( fil[i]->flags & ENABLEFILTER ) {
                 if ( fil[i]->draw ( fil[i], 
                                    qjob, 
+                                   cpuID,
                                    qjob->curframe, 
                                    img, 
                                    from, 
@@ -141,7 +138,7 @@ void q3djob_filterline ( Q3DJOB *qjob,
 }
 
 /******************************************************************************/
-static void q3djob_filterimage ( Q3DJOB  *qjob, 
+static void q3djob_filterimage ( Q3DJOB  *qjob,
                                  uint32_t from, 
                                  uint32_t to,
                                  uint32_t depth, 
@@ -160,7 +157,8 @@ static void q3djob_filterimage ( Q3DJOB  *qjob,
         if ( qjob->running && fil[i] ) {
             if ( fil[i]->flags & ENABLEFILTER ) {
                 if ( fil[i]->draw ( fil[i], 
-                                    qjob, 
+                                    qjob,
+                                    0x00,
                                     qjob->curframe, 
                                     img, 
                                     from, 
@@ -195,6 +193,7 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
             if ( fil[i]->flags & ENABLEFILTER ) {
                 uint32_t ret = fil[i]->draw ( fil[i], 
                                               qjob, 
+                                              0x00,
                                               qjob->curframe, 
                                               img, 
                                               from, 
@@ -214,9 +213,10 @@ static uint32_t q3djob_filterbefore ( Q3DJOB  *qjob,
 
 /******************************************************************************/
 void *q3djob_raytrace_t ( void *ptr ) {
-    Q3DJOB *qjob = ( Q3DJOB * ) ptr;
+    Q3DRAYTRACETHREAD *rtt = ( Q3DRAYTRACETHREAD * ) ptr;
+    Q3DJOB *qjob = rtt->qjob;
     Q3DAREA *qarea = &qjob->qarea;
-    Q3DINTERPOLATION pone, ptwo;
+    Q3DSEGMENT qseg;
     unsigned char *img = qjob->img;
     uint32_t scanline;
     uint32_t steps  = ( qarea->x2 - qarea->x1 );
@@ -234,12 +234,16 @@ void *q3djob_raytrace_t ( void *ptr ) {
     /*** return immediately when canceled ***/
     /*pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, NULL );*/
 
-    while ( ( ( scanline = q3djob_getNextLine ( qjob,
-                                               &pone,
-                                               &ptwo ) ) <= qarea->y2 ) && qjob->running ) {
+    while ( ( ( scanline = q3djob_getNextLine ( qjob, 
+                                               &qseg ) ) <= qarea->y2 ) && qjob->running ) {
         unsigned char *imgptr = &img[(scanline*bytesperline)];
 
-        q3dinterpolation_build ( &pone, &ptwo, steps );
+        if ( qjob->filters.edgeaa ) {
+            q3dfilter_edgeaa_initScanline ( qjob->filters.edgeaa,
+                                            rtt->cpuID,
+                                           &qseg,
+                                            steps );
+        }
 
         for ( i = qarea->x1; ( i <= qarea->x2 ) && qjob->running; i++ ) {
             uint32_t color;
@@ -258,14 +262,14 @@ void *q3djob_raytrace_t ( void *ptr ) {
             /*** then set its source position ***/
             /*memcpy ( &ray.ori, &pone.src, sizeof ( R3DVECTOR ) );*/
 
-            qray.src.x = pone.src.x;
-            qray.src.y = pone.src.y;
-            qray.src.z = pone.src.z;
+            qray.src.x = qseg.src.x;
+            qray.src.y = qseg.src.y;
+            qray.src.z = qseg.src.z;
 
             /*** and its destination vector ***/
-            qray.dir.x = ( pone.dst.x - pone.src.x );
-            qray.dir.y = ( pone.dst.y - pone.src.y );
-            qray.dir.z = ( pone.dst.z - pone.src.z );
+            qray.dir.x = ( qseg.dst.x - qseg.src.x );
+            qray.dir.y = ( qseg.dst.y - qseg.src.y );
+            qray.dir.z = ( qseg.dst.z - qseg.src.z );
 
             /*** This value will be compared to the depth value of the hit  ***/
             /*** point. This allows us to pick the closest hit to the eye.  ***/
@@ -360,10 +364,15 @@ void *q3djob_raytrace_t ( void *ptr ) {
             }
 
             /*** be ready for the next ray ***/
-            q3dinterpolation_step ( &pone );
+            q3dsegment_interpolate ( &qseg, &qjob->qarea.hpol, 1.0f );
         }
 
-        q3djob_filterline ( qjob, scanline, scanline + 0x01, 0x18, width );
+        q3djob_filterline ( qjob, 
+                            rtt->cpuID, 
+                            scanline, 
+                            scanline + 0x01, 
+                            0x18, 
+                            width );
     }
 
     /*** this is needed for memory release ***/
@@ -374,8 +383,7 @@ void *q3djob_raytrace_t ( void *ptr ) {
 }
 
 /******************************************************************************/
-static void q3djob_createRenderThread ( Q3DJOB    *qjob, 
-                                        pthread_t *tid ) {
+static void q3djob_createRenderThread ( Q3DRAYTRACETHREAD *rtt ) {
     pthread_attr_t attr;
 
     pthread_attr_init ( &attr );
@@ -384,7 +392,7 @@ static void q3djob_createRenderThread ( Q3DJOB    *qjob,
     pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
 
     /*** launch rays ***/
-    pthread_create ( tid, &attr, q3djob_raytrace_t, qjob );
+    pthread_create ( &rtt->tid, &attr, q3djob_raytrace_t, rtt );
 }
 
 /******************************************************************************/
@@ -396,7 +404,6 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
     Q3DSETTINGS *qrsg   = qjob->qrsg;
     Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
     Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
-
 
     qjob->filters.towindow    = towindow;
     qjob->filters.toframe     = toframe;
@@ -422,6 +429,12 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
 
             qjob->filters.motionblur = motionblur;
         }
+    }
+
+    if ( /*qrsg->flags & ENABLEEDGEAA*/1 ) {
+        uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
+
+        qjob->filters.edgeaa = q3dfilter_edgeaa_new ( nbcpu );
     }
 
     if ( qrsg->flags & RENDERSAVE ) {
@@ -526,7 +539,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
         return NULL;
     }
 
-    qjob->qrsg   = qrsg;
+    qjob->qrsg  = qrsg;
+    qjob->nbcpu = g3dcore_getNumberOfCPUs ( );
 
     q3djob_initFilters ( qjob,
                          towindow,
@@ -600,7 +614,6 @@ void q3djob_render_frame ( Q3DJOB *qjob ) {
 
 /******************************************************************************/
 void q3djob_render ( Q3DJOB *qjob ) {
-    uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
     clock_t t = clock ( );  
     int i;
     uint32_t doRender;
@@ -621,18 +634,23 @@ void q3djob_render ( Q3DJOB *qjob ) {
                                      qjob->qarea.width );
 
     if ( ( doRender != 0x02 ) ) {
-        pthread_t *tid = malloc ( nbcpu * sizeof ( pthread_t ) );
+        Q3DRAYTRACETHREAD *rtt = calloc ( qjob->nbcpu, sizeof ( Q3DRAYTRACETHREAD ) );
+
+        for ( i = 0x00; i < qjob->nbcpu; i++ ) {
+            rtt[i].cpuID = i;
+            rtt[i].qjob  = qjob;
+        }
 
         /*** prerender soft shadows ***/
         if ( q3dscene_needsSoftShadows ( qjob->qsce ) ) {
             qjob->flags |= JOBRENDERSOFTSHADOWS;
 
-            for ( i = 0x00; i < nbcpu; i++ ) {
-                q3djob_createRenderThread ( qjob, &tid[i] );
+            for ( i = 0x00; i < qjob->nbcpu; i++ ) {
+                q3djob_createRenderThread ( &rtt[i] );
             }
 
-            for ( i = 0x00; i < nbcpu; i++ ) {
-                pthread_join ( tid[i], NULL );
+            for ( i = 0x00; i < qjob->nbcpu; i++ ) {
+                pthread_join ( rtt[i].tid, NULL );
             }
 
             q3darea_averageSoftShadows ( &qjob->qarea );
@@ -642,15 +660,15 @@ void q3djob_render ( Q3DJOB *qjob ) {
 
         /*** Start as many threads as CPUs. Each thread queries the parent ***/
         /*** process in order to retrieve the scanline number it must render. ***/
-        for ( i = 0x00; i < nbcpu; i++ ) {
-            q3djob_createRenderThread ( qjob, &tid[i] );
+        for ( i = 0x00; i < qjob->nbcpu; i++ ) {
+            q3djob_createRenderThread ( &rtt[i] );
         }
 
-        for ( i = 0x00; i < nbcpu; i++ ) {
-            pthread_join ( tid[i], NULL );
+        for ( i = 0x00; i < qjob->nbcpu; i++ ) {
+            pthread_join ( rtt[i].tid, NULL );
         }
 
-        free ( tid );
+        free ( rtt );
     }
 
     q3djob_filterimage ( qjob, 
@@ -661,5 +679,5 @@ void q3djob_render ( Q3DJOB *qjob ) {
 
     t = clock() - t;
 
-    printf ("Render took %f seconds.\n", ( float ) t / ( CLOCKS_PER_SEC * nbcpu ) );
+    printf ("Render took %f seconds.\n", ( float ) t / ( CLOCKS_PER_SEC * qjob->nbcpu ) );
 }

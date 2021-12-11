@@ -76,6 +76,7 @@ FILTERTOWINDOW *filtertowindow_new ( Display *dis,
 /******************************************************************************/
 uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
                                Q3DJOB        *qjob,
+                               uint32_t       cpuID,
                                float          frameID,
                                unsigned char *img, 
                                uint32_t       from, 

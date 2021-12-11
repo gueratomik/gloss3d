@@ -1037,6 +1037,7 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
 /******************************************************************************/
 static uint32_t filtervmb_draw ( Q3DFILTER     *qfil, 
                                  Q3DJOB        *qjob,
+                                 uint32_t       cpuID, 
                                  float          frameID,
                                  unsigned char *img, 
                                  uint32_t       from, 

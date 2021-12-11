@@ -261,6 +261,7 @@ static FILTERTOFFMPEG *filtertoffmpeg_new ( uint32_t  flags,
 /******************************************************************************/
 static uint32_t filtertoffmpeg_draw ( Q3DFILTER     *fil, 
                                       Q3DJOB        *qjob,
+                                      uint32_t       cpuID, 
                                       float          frameID,
                                       unsigned char *img, 
                                       uint32_t       from, 
@@ -371,19 +372,25 @@ Q3DFILTER *q3dfilter_toFfmpeg_new ( uint32_t flags,
                                     char *exportpath,
                                     char *ffmpegpath,
                                     char *ffplaypath ) {
-    FILTERTOFFMPEG *ftf = filtertoffmpeg_new ( flags, 
-                                               width,
-                                               height,
-                                               depth,
-                                               fps,
-                                               nbFrames,
-                                               #ifdef __MINGW32__
-                                               cvars,
-                                               #endif
-                                               exportpath,
-                                               ffmpegpath,
-                                               ffplaypath );
+    FILTERTOFFMPEG *ftf;
     Q3DFILTER *fil;
+
+    if ( ffmpegpath == NULL ) return NULL;
+    if ( ffplaypath == NULL ) return NULL;
+
+    ftf = filtertoffmpeg_new ( flags, 
+                               width,
+                               height,
+                               depth,
+                               fps,
+                               nbFrames,
+                               #ifdef __MINGW32__
+                               cvars,
+                               #endif
+                               exportpath,
+                               ffmpegpath,
+                               ffplaypath );
+
 
     /*** if ffmpeg not found, ftf is NULL ***/
     if ( ftf == NULL ) {

@@ -32,6 +32,7 @@
 /******************************************************************************/
 static uint32_t filterpreview_draw ( Q3DFILTER      *qfil, 
                                      Q3DJOB         *qjob,
+                                     uint32_t        cpuID, 
                                      float           frameID,
                                      unsigned char (*img)[0x03], 
                                      uint32_t        from, 

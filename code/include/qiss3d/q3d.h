@@ -166,6 +166,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define DOFFILTERNAME              "Depth of field"
 #define SIMPLEAAFILTERNAME         "Simple Anti-Aliasing"
 #define SOFTSHADOWSFILTERNAME      "Soft Shadows"
+#define EDGEAAFILTERNAME           "Edge Anti-Aliasing"
 
 /********************************** G3DUIRENDERSETTINGS flags *****************/
 #define RENDERDEFAULT     ( 1       )
@@ -178,7 +179,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define WIREFRAMELIGHTING ( 1 <<  7 )
 #define RENDERFOG         ( 1 <<  8 )
 #define RENDERDOF         ( 1 <<  9 )
-
+#define ENABLEEDGEAA      ( 1 << 10 )
 
 /******************************************************************************/
 #define RENDERTOIMAGE 0x00
@@ -279,6 +280,12 @@ typedef struct _Q3DLINE {
     Q3DVECTOR3F src;
     Q3DVECTOR3F dir;
 } Q3DLINE;
+
+/******************************************************************************/
+typedef struct _Q3DSEGMENT {
+    Q3DVECTOR3F src;
+    Q3DVECTOR3F dst;
+} Q3DSEGMENT;
 
 /******************************** R3DFOGSETTINGS flags ************************/
 #define FOGAFFECTSBACKGROUND     ( 1       )
@@ -569,9 +576,7 @@ typedef struct _Q3DCAMERA {
 
 /******************************************************************************/
 typedef struct _Q3DINTERPOLATION {
-    Q3DVECTOR3F src;
     Q3DVECTOR3F srcdif;
-    Q3DVECTOR3F dst;
     Q3DVECTOR3F dstdif;
 } Q3DINTERPOLATION;
 
@@ -582,6 +587,7 @@ typedef struct _Q3DFILTER {
     char    *name;
     uint32_t (*draw)( struct _Q3DFILTER     *filter,
                               Q3DJOB        *qjob,
+                              uint32_t       cpuID,
                               float          frame,
                               unsigned char *buffer, 
                               uint32_t, 
@@ -642,9 +648,9 @@ typedef struct _Q3DAREA {
     uint32_t         x1, y1;
     uint32_t         x2, y2;
     uint32_t         scanline; /*** varies from y1 to y2 ***/
-    Q3DINTERPOLATION pol[0x02]; /*** interpolation factors between viewport ***/
-                                /*** rays 0 -> 3 and 1 -> 2. See q3dcamera.c **/
-                                /*** for viewport rays coordinates.         ***/
+    Q3DINTERPOLATION vpol; /*** interpolation factors between viewport ***/
+    Q3DINTERPOLATION hpol; /*** interpolation factors between viewport ***/
+    Q3DSEGMENT       qseg[0x04]; /*** viewport boundary lines ***/
     pthread_mutex_t  lock;
     uint32_t         width;
     uint32_t         height;
@@ -665,6 +671,7 @@ typedef struct _Q3DFILTERSET {
     Q3DFILTER *motionblur;
     Q3DFILTER *tostatus;
     Q3DFILTER *makepreview;
+    Q3DFILTER *edgeaa;
 } Q3DFILTERSET;
 
 /******************************************************************************/
@@ -680,7 +687,15 @@ typedef struct _Q3DJOB {
     uint32_t       cancelled;
     uint32_t       threaded;
     uint32_t       running;/*** set to 0 to cancel rendering ***/
+    uint32_t       nbcpu;
 } Q3DJOB;
+
+/******************************************************************************/
+typedef struct _Q3DRAYTRACETHREAD {
+    uint32_t   cpuID;
+    pthread_t  tid;
+    Q3DJOB    *qjob;
+} Q3DRAYTRACETHREAD;
 
 /******************************************************************************/
 #ifdef __MINGW32__
@@ -971,6 +986,7 @@ void       q3djob_wait               ( Q3DJOB *qjob );
 void       q3djob_cancel             ( Q3DJOB *qjob );
 void       q3djob_free               ( Q3DJOB *qjob );
 void       q3djob_filterline         ( Q3DJOB *qjob, 
+                                       uint32_t cpuID,
                                        uint32_t from, 
                                        uint32_t to,
                                        uint32_t depth, 
@@ -1004,6 +1020,7 @@ Q3DFILTER *q3dfilter_new       ( uint32_t   type,
                                  char      *name,
                                  uint32_t (*draw)( Q3DFILTER *,
                                                    Q3DJOB    *,
+                               /* cpuID         */ uint32_t,
                                /* Frame ID */      float,
                                /*   Image data  */ unsigned char *,
                                /* From scanline */ uint32_t,
@@ -1053,6 +1070,7 @@ typedef struct _FILTERTOWINDOW {
 
 uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
                                Q3DJOB        *qjob,
+                               uint32_t       cpuID, 
                                float          frameID,
                                unsigned char *img, 
                                uint32_t       from, 
@@ -1106,6 +1124,14 @@ Q3DFILTER *q3dfilter_smb_new ( uint32_t width,
                                uint32_t nbSamples );
 
 /******************************************************************************/
+Q3DFILTER *q3dfilter_edgeaa_new ( uint32_t          nbcpu );
+
+void q3dfilter_edgeaa_initScanline ( Q3DFILTER  *qfil,
+                                     uint32_t    cpuID, 
+                                     Q3DSEGMENT *qseg,
+                                     uint32_t    steps );
+
+/******************************************************************************/
 void      q3dlight_init ( Q3DLIGHT *qlig, 
                           G3DLIGHT *lig,
                           uint32_t  id,
@@ -1115,10 +1141,14 @@ Q3DLIGHT *q3dlight_new  ( G3DLIGHT *lig,
                           uint64_t  object_flags );
 
 /******************************************************************************/
-void q3dinterpolation_build ( Q3DINTERPOLATION *rone,
-                              Q3DINTERPOLATION *rtwo,
+void q3dinterpolation_build ( Q3DINTERPOLATION *qpol,
+                              Q3DSEGMENT       *qone,
+                              Q3DSEGMENT       *qtwo,
                               uint32_t          step );
-void q3dinterpolation_step  ( Q3DINTERPOLATION *pol );
+
+void q3dsegment_interpolate ( Q3DSEGMENT *qseg, 
+                              Q3DINTERPOLATION *pol, 
+                              float             factor );
 
 /******************************************************************************/
 Q3DCAMERA *q3dcamera_new  ( G3DCAMERA *cam,

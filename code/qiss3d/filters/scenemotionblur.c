@@ -139,6 +139,7 @@ static void filtersmb_addFrame ( Q3DFILTER     *qfil,
 /******************************************************************************/
 static uint32_t filtersmb_draw ( Q3DFILTER     *qfil, 
                                  Q3DJOB        *qjob,
+                                 uint32_t       cpuID, 
                                  float          frameID,
                                  unsigned char *img, 
                                  uint32_t       from, 

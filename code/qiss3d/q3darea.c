@@ -57,7 +57,6 @@ void q3darea_viewport ( Q3DAREA   *qarea,
                                     { qarea->x1, qarea->y2 } };
     G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
-    Q3DINTERPOLATION vip[0x04];
     double IWMVX[0x10];
     uint32_t i;
 
@@ -74,9 +73,9 @@ void q3darea_viewport ( Q3DAREA   *qarea,
                        qcam->VPX,
                       &rx, &ry, &rz );
 
-        vip[i].src.x = ( rx );
-        vip[i].src.y = ( ry );
-        vip[i].src.z = ( rz );
+        qarea->qseg[i].src.x = ( rx );
+        qarea->qseg[i].src.y = ( ry );
+        qarea->qseg[i].src.z = ( rz );
         /*vip[i].src.w = 1.0f;*/
 
         /*** Get ray's background coordinates ***/
@@ -87,18 +86,21 @@ void q3darea_viewport ( Q3DAREA   *qarea,
                        qcam->VPX,
                       &rx, &ry, &rz );
 
-        vip[i].dst.x = ( rx );
-        vip[i].dst.y = ( ry );
-        vip[i].dst.z = ( rz );
+        qarea->qseg[i].dst.x = ( rx );
+        qarea->qseg[i].dst.y = ( ry );
+        qarea->qseg[i].dst.z = ( rz );
         /*vip[i].dst.w = 1.0f;*/
     }
 
-    /*** Viewport vertical interpolation ***/
-    q3dinterpolation_build ( &vip[0x00], &vip[0x03], qarea->y2 - qarea->y1 );
-    q3dinterpolation_build ( &vip[0x01], &vip[0x02], qarea->y2 - qarea->y1 );
+    /*** Viewport horizontal interpolation ***/
+    q3dinterpolation_build ( &qarea->hpol,
+                             &qarea->qseg[0x00], 
+                             &qarea->qseg[0x01], qarea->x2 - qarea->x1 );
 
-    memcpy ( &qarea->pol[0x00], &vip[0x00], sizeof ( Q3DINTERPOLATION ) );
-    memcpy ( &qarea->pol[0x01], &vip[0x01], sizeof ( Q3DINTERPOLATION ) );
+    /*** Viewport vertical interpolation ***/
+    q3dinterpolation_build ( &qarea->vpol,
+                             &qarea->qseg[0x01], 
+                             &qarea->qseg[0x02], qarea->y2 - qarea->y1 );
 }
 
 /******************************************************************************/
