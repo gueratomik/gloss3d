@@ -345,6 +345,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     viewRsg.output.startframe = gui->curframe;
 
     viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME | 
+                                           ENABLEAA        |
                                            RENDERDOF       |
                                            RENDERFOG );
 

@@ -1699,4 +1699,10 @@ void common_g3duiinstanceedit_setReferenceCbk   ( G3DUI   *gui,
 void common_g3duiinstanceedit_orientationCbk ( G3DUI *gui,
                                                char  *str );
 
+/******************************************************************************/
+void common_g3duirenderedit_aaCbk        ( G3DUI *gui );
+void common_g3duirenderedit_aaFullCbk    ( G3DUI *gui );
+void common_g3duirenderedit_aaEdgeCbk    ( G3DUI *gui );
+void common_g3duirenderedit_aaSamplesCbk ( G3DUI *gui, uint32_t nbsamples );
+
 #endif

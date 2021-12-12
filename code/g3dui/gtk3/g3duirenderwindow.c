@@ -513,16 +513,32 @@ static void Map ( GtkWidget *widget,
         g3dui_setHourGlass ( gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
-            grw->rps = common_g3dui_render_q3d ( gui, 
-                                                 rsg,
-                                                 towindow,
-                                                 gui->toframe,
-                                                 grw->tostatus,
-                                                 makepreview,
-                                                 cam,
-                                                 rsg->output.startframe,
-                                                 ( uint64_t ) widget,
-                                                 0x01 );
+           /*** refresh fFMpeg path in case the user just installed it ***/
+           g3dsysinfo_findFFMpeg ( sysinfo );
+
+           if ( sysinfo->ffmpegPath == NULL ) {
+               GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+               GtkMessageDialog *dialog;
+
+               dialog = gtk_message_dialog_new ( NULL,
+                                                 flags,
+                                                 GTK_MESSAGE_ERROR,
+                                                 GTK_BUTTONS_CLOSE,
+                                                 "FFMpeg is needed to render to a video. Please install it and try again." );
+               gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+               gtk_widget_destroy ( dialog );
+           } else {
+                grw->rps = common_g3dui_render_q3d ( gui, 
+                                                     rsg,
+                                                     towindow,
+                                                     gui->toframe,
+                                                     grw->tostatus,
+                                                     makepreview,
+                                                     cam,
+                                                     rsg->output.startframe,
+                                                     ( uint64_t ) widget,
+                                                     0x01 );
+            }
         } else {
             grw->rps = common_g3dui_render_q3d ( gui,
                                                  rsg,
@@ -804,7 +820,11 @@ static gboolean wDestroy ( GtkWidget *widget,
     XFlush ( grw->rbuf.dis );
 
     if ( filtertostatusbar_getStatus ( grw->tostatus ) == 0x00 ) {
-        q3djob_end ( grw->rps->qjob );
+        /*** noe: grw->rps can be NULL e.g if FFMpeg is ***/
+        /*** not installed when rednering to a video ***/
+        if ( grw->rps ) {
+            q3djob_end ( grw->rps->qjob );
+        }
     }
 
     XFreeGC ( grw->rbuf.dis, grw->rbuf.gc );

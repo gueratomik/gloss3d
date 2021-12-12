@@ -59,6 +59,15 @@
 #define EDITRENDERSAVEOUTPUTFRAME  "Output"
 #define EDITRENDERSAVE             "Save result"
 
+
+#define EDITRENDERALIASINGFRAME      "Anti-Aliasing"
+#define EDITRENDERALIASING           "Enable Anti-Aliasing"
+#define EDITRENDERALIASINGMODE       "Mode"
+#define EDITRENDERALIASINGEDGE       "Edge"
+#define EDITRENDERALIASINGFULL       "Full"
+#define EDITRENDERALIASINGSAMPLES_5  "5 samples"
+#define EDITRENDERALIASINGSAMPLES_9  "9 samples"
+
 #define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
 #define EDITRENDERWIREFRAME          "Wireframe"
 #define EDITRENDERWIREFRAMELIGHTING  "Affected by Lighting"
@@ -83,13 +92,15 @@ typedef struct _G3DUIRENDEREDIT {
     GtkWidget       *fromFrameEntry;
     GtkWidget       *toFrameEntry;
     GtkWidget       *framerateEntry;
-    GtkWidget       *outputFileEntry;
-    GtkWidget       *formatSelector;
+
+
     GtkWidget       *renderWidthEntry;
     GtkWidget       *renderHeightEntry;
     GtkWidget       *renderRatioEntry;
 
     GtkWidget       *blurEnabledToggle;
+    GtkWidget       *blurVectorEnabledRadio;
+    GtkWidget       *blurSceneEnabledRadio;
     GtkWidget       *blurSamplesEntry;
     GtkWidget       *blurSubSamplingEntry;
     GtkWidget       *blurStrengthEntry;
@@ -98,10 +109,12 @@ typedef struct _G3DUIRENDEREDIT {
     GtkWidget       *backgroundColorRadio;
     GtkWidget       *backgroundColorButton;
     GtkWidget       *backgroundImageRadio;
-    GtkWidget       *backgroundImageEntry;
+    GtkWidget       *backgroundImageButton;
 
-    GtkWidget       *outputFilenameEntry;
-    GtkWidget       *outputSaveToggle;
+    GtkWidget       *outputEnabledToggle;
+    GtkWidget       *outputCodecButton;
+    GtkWidget       *outputFileEntry;
+    GtkWidget       *outputFormatSelector;
 
     GtkWidget       *wireframeEnabledToggle;
     GtkWidget       *wireframeAffectedToggle;
@@ -115,39 +128,58 @@ typedef struct _G3DUIRENDEREDIT {
     GtkWidget       *fogColorButton;
     GtkWidget       *fogStrengthEntry;
 
-    GtkWidget       *aaEnabledToggle;
-    GtkWidget       *aaTypeSelection;
-    GtkWidget       *aaSamplesSelection;
+    GtkWidget       *aliasingEnabledToggle;
+    GtkWidget       *aliasingEdgeRadio;
+    GtkWidget       *aliasingFullRadio;
+    GtkWidget       *aliasingS5Radio;
+    GtkWidget       *aliasingS9Radio;
 
-    G3DLIGHT        *editedLight;
+    Q3DSETTINGS     *editedRsg; 
 } G3DUIRENDEREDIT;
 
-static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
+/******************************************************************************/
+static G3DUIRENDEREDIT *g3duirenderedit_new ( G3DUI *gui ) {
+    G3DUIRENDEREDIT *red = calloc ( 0x01, sizeof ( G3DUIRENDEREDIT ) );
+
+    if ( red == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    red->grp.gui = gui;
+
+    return red; 
+}
+
+static void updateGeneralPanel    ( G3DUIRENDEREDIT *red );
+static void updateSaveOutputFrame ( G3DUIRENDEREDIT *red );
 
 /******************************************************************************/
 static void formatCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     const char *str = gtk_combo_box_text_get_active_text ( cmbt );
 
     common_g3duirenderedit_formatCbk ( gui, str );
     
-    gui->lock = 0x01;
-    updateSaveOutputForm ( parent, gui );
-    gui->lock = 0x00;
+    updateSaveOutputFrame ( red );
 }
 
 /******************************************************************************/
-void createRenderFormat ( GtkWidget *parent, G3DUI *gui, 
-                                             char *name,
-                                             gint x, gint y,
-                                             gint labwidth,
-                                             gint txtwidth,
-                                             void (*cbk)( GtkWidget *, 
-                                                          gpointer ) ) {
+GtkWidget *createRenderFormat ( GtkWidget       *parent, 
+                                G3DUIRENDEREDIT *red, 
+                                char            *name,
+                                gint             x, 
+                                gint             y,
+                                gint             labwidth,
+                                gint             txtwidth,
+                                void             (*cbk)( GtkWidget *, 
+                                                         gpointer ) ) {
     GtkWidget     *cmb  = gtk_combo_box_text_new ( );
     GdkRectangle   crec = { 0x00, 0x00, txtwidth, 0x12 };
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
 
     /*gtk_spin_button_set_numeric ( btn, TRUE );*/
 
@@ -173,15 +205,18 @@ void createRenderFormat ( GtkWidget *parent, G3DUI *gui,
     }
 
     if ( cbk ) { 
-        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), gui );
+        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), red );
     }
 
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, RENDERTOIMAGENAME );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, RENDERTOVIDEONAME );
 
-    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), gui->currsg->output.format );
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(cmb), rsg->output.format );
 
     gtk_widget_show ( cmb );
+
+
+    return cmb;
 }
 
 /******************************************************************************/
@@ -219,40 +254,40 @@ Q3DFILTER *q3dfilter_toGtkWidget_new ( GtkWidget *widget, uint32_t active_fill )
 /******************************************************************************/
 static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_saveCbk ( gui, save );
 
-    gui->lock = 0x01;
-    updateSaveOutputForm ( parent, gui );
-    gui->lock = 0x00;
+    updateSaveOutputFrame ( red );
 }
 
 
 /******************************************************************************/
 static void previewCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_previewCbk ( gui );
 }
 
 /******************************************************************************/
 static void startFrameCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float frame = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_startFrameCbk ( gui, frame );
 
-    gui->lock = 1;
-    updateGeneralPanel ( parent, gui );
-    gui->lock = 0;
+    updateGeneralPanel ( red );
 }
 
 /******************************************************************************/
 static void fpsCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float fps = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
     common_g3duirenderedit_fpsCbk ( gui, fps );
@@ -260,59 +295,56 @@ static void fpsCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void endFrameCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float frame = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_endFrameCbk ( gui, frame );
 
-    gui->lock = 1;
-    updateGeneralPanel ( parent, gui );
-    gui->lock = 0;
+    updateGeneralPanel ( red );
 }
 
 /******************************************************************************/
 static void ratioCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float ratio = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_ratioCbk ( gui, ratio );
 
-    gui->lock = 1;
-    updateGeneralPanel ( parent, gui );
-    gui->lock = 0;
+    updateGeneralPanel ( red );
 }
 
 /******************************************************************************/
 static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     int width = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_widthCbk ( gui, ( uint32_t ) width );
 
-    gui->lock = 1;
-    updateGeneralPanel ( parent, gui );
-    gui->lock = 0;
+    updateGeneralPanel ( red );
 }
 
 /******************************************************************************/
 static void heightCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     int height = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
     common_g3duirenderedit_heightCbk ( gui, ( uint32_t ) height );
 
-    gui->lock = 1;
-    updateGeneralPanel ( parent, gui );
-    gui->lock = 0;
+    updateGeneralPanel ( red );
 }
 
 /******************************************************************************/
 static void outputCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     const char *outfile = gtk_entry_get_text ( GTK_ENTRY(widget) );
 
     common_g3duirenderedit_outputCbk ( gui, outfile );
@@ -320,7 +352,8 @@ static void outputCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data )
 
 /******************************************************************************/
 static void backgroundCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     GdkRGBA color;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
@@ -332,7 +365,8 @@ static void backgroundCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void wireframeColorCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     GdkRGBA color;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
@@ -361,7 +395,7 @@ static void Configure ( GtkWidget *widget, GdkEvent *event,
 /******************************************************************************/
 void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    Q3DSETTINGS *rsg = ( Q3DSETTINGS * ) gui->currsg;
+    Q3DSETTINGS *rsg = gui->currsg;
     G3DCAMERA *mainCamera = g3dui_getMainViewCamera ( gui );
 
     if ( mainCamera ) {
@@ -379,54 +413,48 @@ void g3dui_runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void Destroy ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-}
-
-/******************************************************************************/
 static void setMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setMotionBlurCbk ( gui );
 
-    gui->lock = 0x01;
-    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateMotionBlurFrame ( red );
 }
 
 /******************************************************************************/
 static void sceneMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_sceneMotionBlurCbk ( gui );
 
-    gui->lock = 0x01;
-    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateMotionBlurFrame ( red );
 }
 
 /******************************************************************************/
 static void sceneMotionBlurIterationCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t iteration = gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_sceneMotionBlurIterationCbk ( gui, iteration );
 }
 
 /******************************************************************************/
 static void vectorMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_vectorMotionBlurCbk ( gui );
 
-    gui->lock = 0x01;
-    updateMotionBlurForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateMotionBlurFrame ( red );
 }
 
 /******************************************************************************/
 static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -435,7 +463,8 @@ static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void vectorMotionBlurSamplesCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     uint32_t samples = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -444,7 +473,8 @@ static void vectorMotionBlurSamplesCbk ( GtkWidget *widget, gpointer user_data )
 
 /******************************************************************************/
 static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float rate = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -453,7 +483,8 @@ static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer use
 
 /******************************************************************************/
 static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 #ifdef __MINGW32__
     gui->cvars.cbSize = sizeof ( COMPVARS );
 
@@ -469,398 +500,414 @@ static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
-
-            if ( GTK_IS_TOGGLE_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERSAVE ) == 0x00 ) {
-                    if ( rsg->flags & RENDERSAVE ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-            
-#ifdef __MINGW32__
-            if ( GTK_IS_BUTTON(child) ) {
-                GtkButton *pbn = GTK_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERCODEC ) == 0x00 ) {
-                    if ( rsg->flags & RENDERSAVE ) {
-                        if ( rsg->output.format == RENDERTOIMAGE ) {
-                            gtk_widget_set_sensitive ( pbn, FALSE  );
-                        }
-                        if ( rsg->output.format == RENDERTOVIDEO ) {
-                            gtk_widget_set_sensitive ( pbn, TRUE  );
-                        }
-                    } else {
-                        gtk_widget_set_sensitive ( pbn, FALSE );
-                    }
-                }
-            }
-#endif
-            if ( GTK_IS_ENTRY(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
-
-                if ( strcmp ( child_name, EDITRENDEROUTPUT ) == 0x00 ) {
-                    if ( rsg->flags & RENDERSAVE ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_entry_set_text ( ent, rsg->output.outfile );
-                }
-            }
-
-            if ( GTK_IS_COMBO_BOX_TEXT(child) ) {
-                GtkComboBox *cmb = GTK_COMBO_BOX(child);
-
-                if ( strcmp ( child_name, EDITRENDERFORMAT   ) == 0x00 ) {
-                    if ( rsg->flags & RENDERSAVE ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_combo_box_set_active ( cmb, rsg->output.format );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
-    }
-}
-
-/******************************************************************************/
-void updateSaveOutputFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+static void updateSaveOutputFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
 
     gui->lock = 0x01;
-    if ( frm ) updateSaveOutputForm ( frm, gui );
+
+    if ( rsg->flags & RENDERSAVE ) {
+        uint32_t tovid = ( rsg->output.format == RENDERTOVIDEO );
+
+        gtk_toggle_button_set_active ( red->outputEnabledToggle, TRUE  );
+
+        gtk_widget_set_sensitive ( red->outputCodecButton, TRUE );
+        gtk_widget_set_sensitive ( red->outputCodecButton, TRUE );
+        gtk_widget_set_sensitive ( red->outputCodecButton, TRUE );
+
+#ifdef __MINGW32__
+        gtk_widget_set_sensitive ( red->outputCodecButton, tovid );
+#endif
+    } else {
+        gtk_toggle_button_set_active ( red->outputEnabledToggle, FALSE );
+
+        gtk_widget_set_sensitive ( red->outputCodecButton, FALSE );
+        gtk_widget_set_sensitive ( red->outputCodecButton, FALSE );
+        gtk_widget_set_sensitive ( red->outputCodecButton, FALSE );
+
+#ifdef __MINGW32__
+        gtk_widget_set_sensitive ( red->outputCodecButton, FALSE );
+#endif
+    }
+
+    gtk_entry_set_text ( red->outputFileEntry, rsg->output.outfile );
+    gtk_combo_box_set_active ( red->outputFormatSelector, rsg->output.format );
+
     gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static GtkWidget *createSaveOutputForm ( GtkWidget *parent, G3DUI *gui,
-                                                             char *name,
-                                                             gint x,
-                                                             gint y,
-                                                             gint width,
-                                                             gint height ) {
-    GtkWidget *vbr, *col, *frm, *btn;
+static GtkWidget *createSaveOutputForm ( GtkWidget       *parent, 
+                                         G3DUIRENDEREDIT *red,
+                                         char            *name,
+                                         gint             x,
+                                         gint             y,
+                                         gint             width,
+                                         gint             height ) {
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
 
-    frm = createFrame ( parent, gui, name, x, y, width, height );
-
-    createToggleLabel ( frm, gui, EDITRENDERSAVE,
-                               0,  0, 104, 20, saveCbk );
-
-    createRenderFormat( frm, gui, EDITRENDERFORMAT,
-                               0, 24, 96,  64, formatCbk );
-
-#ifdef __MINGW32__
-    createPushButton   ( frm, gui, EDITRENDERCODEC,
-                               96, 48,
-                              96, 18, chooseCodecCbk );
-#endif
-    createCharText    ( frm, gui, EDITRENDEROUTPUT,
-                               0, 72, 96, 200, outputCbk );
-
-
-    return frm;
-}
-
-
-/******************************************************************************/
-void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
-
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERENABLEMOTIONBLUR ) == 0x00 ) {
-                    if ( rsg->flags & ENABLEMOTIONBLUR ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_RADIO_BUTTON(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
-
-                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLUR ) == 0x00 ) {
-                    if ( rsg->flags & VECTORMOTIONBLUR ) {
-                        gtk_toggle_button_set_active ( child, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( child, FALSE );
-                    }
-
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-                }
-
-                if ( strcmp ( child_name, EDITRENDERSCENEMOTIONBLUR ) == 0x00 ) {
-                    if ( rsg->flags & SCENEMOTIONBLUR ) {
-                        gtk_toggle_button_set_active ( child, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( child, FALSE );
-                    }
-
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_SPIN_BUTTON(child) ) {
-                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERSCENEMOTIONBLURITERATION ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) && 
-                         ( rsg->flags & SCENEMOTIONBLUR  ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.iterations );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERMOTIONBLURSTRENGTH ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.strength * 100.0f );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSAMPLES ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) &&
-                         ( rsg->flags & VECTORMOTIONBLUR ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.vMotionBlurSamples );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE ) == 0x00 ) {
-                    if ( ( rsg->flags & ENABLEMOTIONBLUR ) &&
-                         ( rsg->flags & VECTORMOTIONBLUR ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->motionBlur.vMotionBlurSubSamplingRate * 100 );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
-    }
-}
-
-/******************************************************************************/
-void updateMotionBlurFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+    frm = createFrame ( parent, red, name, x, y, width, height );
 
     gui->lock = 0x01;
-    if ( frm ) updateMotionBlurForm ( frm, gui );
+
+    red->outputEnabledToggle = createToggleLabel ( frm,
+                                                   red,
+                                                   EDITRENDERSAVE,
+                                                   0,  0, 104, 20, saveCbk );
+
+    red->outputFormatSelector = createRenderFormat( frm,
+                                                    red,
+                                                    EDITRENDERFORMAT,
+                                                    0, 24, 96,  64, formatCbk );
+
+#ifdef __MINGW32__
+    red->outputCodecButton = createPushButton ( frm,
+                                                red,
+                                                EDITRENDERCODEC,
+                                                96, 48,
+                                                96, 18, chooseCodecCbk );
+#endif
+    red->outputFileEntry = createCharText ( frm, 
+                                            red,
+                                            EDITRENDEROUTPUT,
+                                            0, 72, 96, 200, outputCbk );
+
     gui->lock = 0x00;
-}
-
-/******************************************************************************/
-static GtkWidget *createMotionBlurForm ( GtkWidget *parent, G3DUI *gui,
-                                                             char *name,
-                                                             gint x,
-                                                             gint y,
-                                                             gint width,
-                                                             gint height ) {
-    GtkWidget *vbr, *col, *frm, *btn;
-
-    frm = createFrame ( parent, gui, name, x, y, width, height );
-
-          createToggleLabel ( frm, gui,
-                                   EDITRENDERENABLEMOTIONBLUR,
-                                     0,  0, 96, 18,
-                                   setMotionBlurCbk );
-
-          createIntegerText ( frm, gui, EDITRENDERMOTIONBLURSTRENGTH,
-                                      0, 100,
-                                    160, 0, 96,  32,
-                                   motionBlurStrengthCbk );
-
-    btn = createRadioLabel ( frm, gui,
-                                   EDITRENDERVECTORMOTIONBLUR,
-                                   NULL,
-                                     0,  24, 96, 18,
-                                   vectorMotionBlurCbk );
-
-          createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSAMPLES,
-                                      0, 100,
-                                    160, 24, 96,  32,
-                                   vectorMotionBlurSamplesCbk );
-
-          createIntegerText ( frm, gui, EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE,
-                                      0, 100,
-                                    160, 48, 96,  32,
-                                   vectorMotionBlurSubSamplingRateCbk );
-
-          createRadioLabel ( frm, gui,
-                                   EDITRENDERSCENEMOTIONBLUR,
-                                   btn,
-                                     0, 72, 96, 18,
-                                   sceneMotionBlurCbk );
-
-          createIntegerText ( frm, gui, EDITRENDERSCENEMOTIONBLURITERATION,
-                                      2, 31,
-                                    160, 72, 96,  32,
-                                   sceneMotionBlurIterationCbk );
-
 
     return frm;
 }
 
 /******************************************************************************/
-static void updateWireframeForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+static void updateAliasingFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    gui->lock = 0x01;
 
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
+    GtkWidget       *aliasingEnabledToggle;
+    GtkWidget       *aliasingEdgeRadio;
+    GtkWidget       *aliasingFullRadio;
+    GtkWidget       *aliasingS5Radio;
+    GtkWidget       *aliasingS9Radio;
 
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+    if ( rsg->flags & ENABLEAA ) {
+        gtk_toggle_button_set_active ( red->aliasingEnabledToggle, TRUE  );
 
-                if ( strcmp ( child_name, EDITRENDERWIREFRAME ) == 0x00 ) {
-                    if ( rsg->flags & RENDERWIREFRAME ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
+        gtk_widget_set_sensitive ( red->aliasingEdgeRadio, TRUE );
+        gtk_widget_set_sensitive ( red->aliasingFullRadio, TRUE );
+        gtk_widget_set_sensitive ( red->aliasingS5Radio  , TRUE );
+        gtk_widget_set_sensitive ( red->aliasingS9Radio  , TRUE );
+    } else {
+        gtk_toggle_button_set_active ( red->aliasingEnabledToggle, FALSE );
 
-                if ( strcmp ( child_name, EDITRENDERWIREFRAMELIGHTING ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERWIREFRAME ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    if ( rsg->flags & WIREFRAMELIGHTING ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_SPIN_BUTTON(child) ) {
-                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERWIREFRAMETHICKNESS ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERWIREFRAME ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->wireframe.thickness );
-                }
-            }
-
-            if ( GTK_IS_COLOR_BUTTON(child) ) {
-                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
-
-                if ( ( rsg->flags & RENDERWIREFRAME ) ) {
-                    gtk_widget_set_sensitive ( child, TRUE );
-                } else {
-                    gtk_widget_set_sensitive ( child, FALSE );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERWIREFRAMECOLOR ) == 0x00 ) {
-                    unsigned char R = ( rsg->wireframe.color & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->wireframe.color & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->wireframe.color & 0x000000FF );
-                    GdkRGBA rgba = { .red   = ( float ) R / 255,
-                                     .green = ( float ) G / 255,
-                                     .blue  = ( float ) B / 255,
-                                     .alpha = 1.0f };
-
-                    gtk_color_chooser_set_rgba ( ccr, &rgba );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
+        gtk_widget_set_sensitive ( red->aliasingEdgeRadio, FALSE );
+        gtk_widget_set_sensitive ( red->aliasingFullRadio, FALSE );
+        gtk_widget_set_sensitive ( red->aliasingS5Radio  , FALSE );
+        gtk_widget_set_sensitive ( red->aliasingS9Radio  , FALSE );
     }
+
+    gtk_toggle_button_set_active ( red->aliasingEdgeRadio, ( rsg->aa.mode == AAEDGEMODE ) );
+    gtk_toggle_button_set_active ( red->aliasingFullRadio, ( rsg->aa.mode == AAFULLMODE ) );
+    gtk_toggle_button_set_active ( red->aliasingS5Radio  , ( rsg->aa.nbsamples == 0x05 ) );
+    gtk_toggle_button_set_active ( red->aliasingS9Radio  , ( rsg->aa.nbsamples == 0x09 ) );
+
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void updateWireframeFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+static void aliasingCbk ( GtkWidget *widget, gpointer user_data ) {
+    uint32_t aa = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_aaCbk ( gui );
+
+    updateAliasingFrame ( red );
+}
+
+/******************************************************************************/
+static void aliasingEdgeCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_aaEdgeCbk ( gui );
+}
+
+/******************************************************************************/
+static void aliasingFullCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_aaFullCbk ( gui );
+}
+
+/******************************************************************************/
+static void aliasingS5Cbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_aaSamplesCbk ( gui, 5 );
+}
+
+/******************************************************************************/
+static void aliasingS9Cbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_aaSamplesCbk ( gui, 9 );
+}
+
+/******************************************************************************/
+static GtkWidget *createAliasingForm ( GtkWidget       *parent, 
+                                       G3DUIRENDEREDIT *red,
+                                       char            *name,
+                                       gint             x,
+                                       gint             y,
+                                       gint             width,
+                                       gint             height ) {
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
+
+    frm = createFrame ( parent, red, name, x, y, width, height );
 
     gui->lock = 0x01;
-    if ( frm ) updateWireframeForm ( frm, gui );
+
+    red->aliasingEnabledToggle = createToggleLabel ( frm,
+                                                     red,
+                                                     EDITRENDERALIASING,
+                                                     0,  0, 104, 20, 
+                                                     aliasingCbk );
+
+    red->aliasingEdgeRadio = createRadioLabel ( frm,
+                                                red,
+                                                EDITRENDERALIASINGEDGE,
+                                                NULL,
+                                                0, 24, 96,  24, 
+                                                aliasingEdgeCbk );
+
+    red->aliasingFullRadio = createRadioLabel ( frm,
+                                                red,
+                                                EDITRENDERALIASINGFULL,
+                                                red->aliasingEdgeRadio,
+                                                0, 48, 96,  24, 
+                                                aliasingFullCbk );
+
+    red->aliasingS5Radio = createRadioLabel ( frm,
+                                              red,
+                                              EDITRENDERALIASINGSAMPLES_5,
+                                              NULL,
+                                              60, 24, 96,  24, 
+                                              aliasingS5Cbk );
+
+    red->aliasingS9Radio = createRadioLabel ( frm,
+                                              red,
+                                              EDITRENDERALIASINGSAMPLES_9,
+                                              red->aliasingS5Radio,
+                                              60, 48, 96,  24,
+                                              aliasingS9Cbk );
+
+
+    gui->lock = 0x00;
+
+    return frm;
+}
+
+/******************************************************************************/
+void updateMotionBlurFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
+
+    gui->lock = 0x01;
+
+    if ( rsg->flags & ENABLEMOTIONBLUR ) {
+        uint32_t vblur = ( rsg->flags & VECTORMOTIONBLUR );
+        uint32_t sblur = ( rsg->flags & SCENEMOTIONBLUR  );
+
+        gtk_toggle_button_set_active ( red->blurEnabledToggle, TRUE  );
+
+        gtk_widget_set_sensitive ( red->blurVectorEnabledRadio, TRUE );
+        gtk_widget_set_sensitive ( red->blurSceneEnabledRadio , TRUE );
+        gtk_widget_set_sensitive ( red->blurStrengthEntry     , TRUE );
+
+        gtk_widget_set_sensitive ( red->blurSamplesEntry    , vblur );
+        gtk_widget_set_sensitive ( red->blurSubSamplingEntry, vblur );
+
+        gtk_widget_set_sensitive ( red->blurIterationsEntry, sblur );
+    } else {
+        gtk_toggle_button_set_active ( red->blurEnabledToggle, FALSE );
+
+        gtk_widget_set_sensitive ( red->blurVectorEnabledRadio, FALSE );
+        gtk_widget_set_sensitive ( red->blurSceneEnabledRadio , FALSE );
+        gtk_widget_set_sensitive ( red->blurStrengthEntry     , FALSE );
+
+        gtk_widget_set_sensitive ( red->blurSamplesEntry    , FALSE );
+        gtk_widget_set_sensitive ( red->blurSubSamplingEntry, FALSE );
+
+        gtk_widget_set_sensitive ( red->blurIterationsEntry, FALSE );
+    }
+
+    if ( rsg->flags & VECTORMOTIONBLUR ) {
+        gtk_toggle_button_set_active ( red->blurVectorEnabledRadio, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->blurVectorEnabledRadio, FALSE );
+    }
+
+    if ( rsg->flags & SCENEMOTIONBLUR ) {
+        gtk_toggle_button_set_active ( red->blurSceneEnabledRadio, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->blurSceneEnabledRadio, FALSE );
+    }
+
+    gtk_spin_button_set_value ( red->blurIterationsEntry,
+                                rsg->motionBlur.iterations );
+
+    gtk_spin_button_set_value ( red->blurStrengthEntry,
+                                rsg->motionBlur.strength * 100.0f );
+
+    gtk_spin_button_set_value ( red->blurSamplesEntry, 
+                                rsg->motionBlur.vMotionBlurSamples );
+
+    gtk_spin_button_set_value ( red->blurSubSamplingEntry, 
+                                rsg->motionBlur.vMotionBlurSubSamplingRate * 100 );
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static GtkWidget *createMotionBlurForm ( GtkWidget       *parent,
+                                         G3DUIRENDEREDIT *red,
+                                         char            *name,
+                                         gint             x,
+                                         gint             y,
+                                         gint             width,
+                                         gint             height ) {
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
+
+    gui->lock = 0x01;
+
+    frm = createFrame ( parent, red, name, x, y, width, height );
+
+    red->blurEnabledToggle = createToggleLabel ( frm,
+                                                 red,
+                                                 EDITRENDERENABLEMOTIONBLUR,
+                                                 0,  0, 96, 18,
+                                                 setMotionBlurCbk );
+
+    red->blurStrengthEntry = createIntegerText ( frm,
+                                                 red,
+                                                 EDITRENDERMOTIONBLURSTRENGTH,
+                                                 0, 100,
+                                                 160, 0, 96,  32,
+                                                 motionBlurStrengthCbk );
+
+    red->blurVectorEnabledRadio = createRadioLabel ( frm,
+                                                     red,
+                                                     EDITRENDERVECTORMOTIONBLUR,
+                                                     NULL,
+                                                     0,  24, 96, 18,
+                                                     vectorMotionBlurCbk );
+
+    red->blurSamplesEntry = createIntegerText ( frm,
+                                                red,
+                                                EDITRENDERVECTORMOTIONBLURSAMPLES,
+                                                0, 100,
+                                                160, 24, 96,  32,
+                                                vectorMotionBlurSamplesCbk );
+
+    red->blurSubSamplingEntry = createIntegerText ( frm,
+                                                    red,
+                                                    EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE,
+                                                    0, 100,
+                                                    160, 48, 96,  32,
+                                                    vectorMotionBlurSubSamplingRateCbk );
+
+    red->blurSceneEnabledRadio = createRadioLabel ( frm,
+                                                    red,
+                                                    EDITRENDERSCENEMOTIONBLUR,
+                                                    red->blurVectorEnabledRadio,
+                                                    0, 72, 96, 18,
+                                                    sceneMotionBlurCbk );
+
+    red->blurIterationsEntry = createIntegerText ( frm,
+                                                   red,
+                                                   EDITRENDERSCENEMOTIONBLURITERATION,
+                                                   2, 31,
+                                                   160, 72, 96,  32,
+                                                   sceneMotionBlurIterationCbk );
+
+
+    gui->lock = 0x00;
+
+    return frm;
+}
+
+/******************************************************************************/
+static void updateWireframeFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
+    unsigned char R = ( rsg->wireframe.color & 0x00FF0000 ) >> 0x10,
+                  G = ( rsg->wireframe.color & 0x0000FF00 ) >> 0x08,
+                  B = ( rsg->wireframe.color & 0x000000FF );
+    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                     .green = ( float ) G / 255,
+                     .blue  = ( float ) B / 255,
+                     .alpha = 1.0f };
+
+
+    gui->lock = 0x01;
+
+    if ( ( rsg->flags & RENDERWIREFRAME ) ) {
+        gtk_toggle_button_set_active ( red->wireframeEnabledToggle, TRUE  );
+
+        gtk_widget_set_sensitive ( red->wireframeAffectedToggle, TRUE );
+        gtk_widget_set_sensitive ( red->wireframeThicknessEntry, TRUE );
+        gtk_widget_set_sensitive ( red->wireframeColorButton   , TRUE );
+    } else {
+        gtk_toggle_button_set_active ( red->wireframeEnabledToggle, FALSE );
+
+        gtk_widget_set_sensitive ( red->wireframeAffectedToggle, FALSE );
+        gtk_widget_set_sensitive ( red->wireframeThicknessEntry, FALSE );
+        gtk_widget_set_sensitive ( red->wireframeColorButton   , FALSE );
+    }
+
+    if ( rsg->flags & WIREFRAMELIGHTING ) {
+        gtk_toggle_button_set_active ( red->wireframeAffectedToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->wireframeAffectedToggle, FALSE );
+    }
+
+    gtk_spin_button_set_value ( red->wireframeThicknessEntry, rsg->wireframe.thickness );
+    gtk_color_chooser_set_rgba ( red->wireframeColorButton, &rgba );
+
     gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void setWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setWireframeCbk ( gui );
 
-    gui->lock = 0x01;
-    updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateWireframeFrame( red );
 }
 
 /******************************************************************************/
 static void setWireframeLightingCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setWireframeLightingCbk ( gui );
 
-    gui->lock = 0x01;
-    updateWireframeForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateWireframeFrame ( red );
 }
 
 /******************************************************************************/
 static void wireframeThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float thickness = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -875,37 +922,41 @@ static GtkWidget *createWireframeForm ( GtkWidget       *parent,
                                         gint             y,
                                         gint             width,
                                         gint             height ) {
-    GtkWidget *vbr, *col, *frm, *btn;
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
 
-    frm = createFrame ( parent, gui, name, x, y, width, height );
+    frm = createFrame ( parent, red, name, x, y, width, height );
 
     gui->lock = 0x01;
 
-    GtkWidget       *wireframeEnabledToggle
-    GtkWidget       *wireframeAffectedToggle;
-    GtkWidget       *wireframeThicknessEntry;
-    GtkWidget       *wireframeColorButton;
+    red->wireframeEnabledToggle = createToggleLabel ( frm, 
+                                                      red,
+                                                      EDITRENDERWIREFRAME,
+                                                      0,  0, 96, 18,
+                                                      setWireframeCbk );
 
-          createToggleLabel ( frm, gui,
-                                   EDITRENDERWIREFRAME,
-                                     0,  0, 96, 18,
-                                   setWireframeCbk );
+    red->wireframeAffectedToggle = createToggleLabel ( frm,
+                                                       red,
+                                                       EDITRENDERWIREFRAMELIGHTING,
+                                                       0, 24, 96, 18,
+                                                       setWireframeLightingCbk );
 
-          createToggleLabel ( frm, gui,
-                                   EDITRENDERWIREFRAMELIGHTING,
-                                     0, 24, 96, 18,
-                                   setWireframeLightingCbk );
+    red->wireframeThicknessEntry = createFloatText ( frm,
+                                                     red,
+                                                     EDITRENDERWIREFRAMETHICKNESS,
+                                                     0.0f, FLT_MAX,
+                                                     0, 48, 96,  48,
+                                                     wireframeThicknessCbk );
 
-          createFloatText ( frm, gui, EDITRENDERWIREFRAMETHICKNESS,
-                                     0.0f, FLT_MAX,
-                                     0, 48, 96,  48,
-                                   wireframeThicknessCbk );
+    createSimpleLabel ( frm, 
+                        red,
+                        EDITRENDERWIREFRAMECOLOR,
+                        0, 72, 96, 20 );
 
-          createSimpleLabel ( frm, gui, EDITRENDERWIREFRAMECOLOR,
-                                     0, 72, 96, 20 );
-
-          createColorButton ( frm, gui, EDITRENDERWIREFRAMECOLOR,
-                                     96, 72, 96, 18, wireframeColorCbk );
+    red->wireframeColorButton = createColorButton ( frm,
+                                                    red,
+                                                    EDITRENDERWIREFRAMECOLOR,
+                                                    96, 72, 96, 18, wireframeColorCbk );
 
     gui->lock = 0x00;
 
@@ -915,7 +966,15 @@ static GtkWidget *createWireframeForm ( GtkWidget       *parent,
 /******************************************************************************/
 static void updateFogFrame ( G3DUIRENDEREDIT *red ) {
     G3DUI *gui = red->grp.gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
+    unsigned char R = ( rsg->fog.color & 0x00FF0000 ) >> 0x10,
+                  G = ( rsg->fog.color & 0x0000FF00 ) >> 0x08,
+                  B = ( rsg->fog.color & 0x000000FF );
+    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                     .green = ( float ) G / 255,
+                     .blue  = ( float ) B / 255,
+                     .alpha = 1.0f };
+
 
     gui->lock = 0x01;
 
@@ -943,46 +1002,37 @@ static void updateFogFrame ( G3DUIRENDEREDIT *red ) {
         gtk_toggle_button_set_active ( red->fogAffectsBackgroundToggle, FALSE );
     }
 
-    gtk_spin_button_set_value ( red->fogStrengthEntry, rsg->fog.strength * 100.0f );
-    gtk_spin_button_set_value ( red->fogNearEntry, rsg->fog.fnear );
-    gtk_spin_button_set_value ( red->fogFarEntry, rsg->fog.ffar );
+    gtk_spin_button_set_value  ( red->fogStrengthEntry, rsg->fog.strength * 100.0f );
+    gtk_spin_button_set_value  ( red->fogNearEntry, rsg->fog.fnear );
+    gtk_spin_button_set_value  ( red->fogFarEntry, rsg->fog.ffar );
+    gtk_color_chooser_set_rgba ( red->fogColorButton, &rgba );
 
-    if ( strcmp ( child_name, EDITRENDERFOGCOLOR ) == 0x00 ) {
-        unsigned char R = ( rsg->fog.color & 0x00FF0000 ) >> 0x10,
-                      G = ( rsg->fog.color & 0x0000FF00 ) >> 0x08,
-                      B = ( rsg->fog.color & 0x000000FF );
-        GdkRGBA rgba = { .red   = ( float ) R / 255,
-                         .green = ( float ) G / 255,
-                         .blue  = ( float ) B / 255,
-                         .alpha = 1.0f };
-
-        gtk_color_chooser_set_rgba ( red->fogColorButton, &rgba );
-    }
 
     gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void setFogAffectsBackgroundCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setFogAffectsBackgroundCbk ( gui );
 }
 
 /******************************************************************************/
 static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setFogCbk ( gui );
 
-    gui->lock = 0x01;
-    updateFogForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateFogFrame ( red );
 }
 
 /******************************************************************************/
 static void fogStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -991,7 +1041,8 @@ static void fogStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float fnear = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -1000,7 +1051,8 @@ static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     float ffar = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GtkWidget *parent = gtk_widget_get_parent ( widget );
 
@@ -1009,7 +1061,8 @@ static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 static void fogColorCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     GdkRGBA color;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
@@ -1020,16 +1073,17 @@ static void fogColorCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static GtkWidget *createFogForm ( GtkWidget *parent, 
-                                  G3DUI     *gui,
-                                  char      *name,
-                                  gint       x,
-                                  gint       y,
-                                  gint       width,
-                                  gint       height ) {
-    GtkWidget *vbr, *col, *frm, *btn;
+static GtkWidget *createFogForm ( GtkWidget       *parent, 
+                                  G3DUIRENDEREDIT *red,
+                                  char            *name,
+                                  gint             x,
+                                  gint             y,
+                                  gint             width,
+                                  gint             height ) {
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
 
-    frm = createFrame ( parent, gui, name, x, y, width, height );
+    frm = createFrame ( parent, red, name, x, y, width, height );
 
     gui->lock = 0x01;
 
@@ -1087,7 +1141,15 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
 /******************************************************************************/
 static void updateBackgroundFrame ( G3DUIRENDEREDIT *red ) {
     G3DUI *gui = red->grp.gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
+    unsigned char R = ( rsg->background.color & 0x00FF0000 ) >> 0x10,
+                  G = ( rsg->background.color & 0x0000FF00 ) >> 0x08,
+                  B = ( rsg->background.color & 0x000000FF );
+    GdkRGBA rgba = { .red   = ( float ) R / 255,
+                     .green = ( float ) G / 255,
+                     .blue  = ( float ) B / 255,
+                     .alpha = 1.0f };
+
 
     gui->lock = 0x01;
 
@@ -1114,24 +1176,15 @@ static void updateBackgroundFrame ( G3DUIRENDEREDIT *red ) {
         free ( imgpath );
     }
 
-    if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
-        unsigned char R = ( rsg->background.color & 0x00FF0000 ) >> 0x10,
-                      G = ( rsg->background.color & 0x0000FF00 ) >> 0x08,
-                      B = ( rsg->background.color & 0x000000FF );
-        GdkRGBA rgba = { .red   = ( float ) R / 255,
-                         .green = ( float ) G / 255,
-                         .blue  = ( float ) B / 255,
-                         .alpha = 1.0f };
-
-        gtk_color_chooser_set_rgba ( red->backgroundColorButton, &rgba );
-    }
+    gtk_color_chooser_set_rgba ( red->backgroundColorButton, &rgba );
 
     gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void setBackgroundImageCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     GtkWidget *dialog;
     gint       res;
@@ -1157,9 +1210,7 @@ static void setBackgroundImageCbk ( GtkWidget *widget, gpointer user_data ) {
         g_free    ( ( gpointer ) filename );
     }
 
-    gui->lock = 0x01;
-    updateBackgroundForm ( gtk_widget_get_parent ( widget ), gui );
-    gui->lock = 0x00;
+    updateBackgroundFrame ( red );
 
     gtk_widget_destroy ( dialog );
 }
@@ -1167,7 +1218,8 @@ static void setBackgroundImageCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void setBackgroundColorModeCbk ( GtkWidget *widget, 
                                         gpointer   user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setBackgroundColorModeCbk ( gui );
 }
@@ -1175,7 +1227,8 @@ static void setBackgroundColorModeCbk ( GtkWidget *widget,
 /******************************************************************************/
 static void setBackgroundImageModeCbk ( GtkWidget *widget, 
                                         gpointer   user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
 
     common_g3duirenderedit_setBackgroundImageModeCbk ( gui );
 }
@@ -1188,9 +1241,10 @@ static GtkWidget *createBackgroundForm ( GtkWidget       *parent,
                                          gint             y,
                                          gint             width,
                                          gint             height ) {
-    GtkWidget *vbr, *col, *frm, *btn;
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
 
-    frm = createFrame ( parent, gui, name, x, y, width, height );
+    frm = createFrame ( parent, red, name, x, y, width, height );
 
     gui->lock = 0x01;
 
@@ -1228,10 +1282,11 @@ static GtkWidget *createBackgroundForm ( GtkWidget       *parent,
 /******************************************************************************/
 static void updateGeneralPanel ( G3DUIRENDEREDIT *red ) {
     G3DUI *gui = red->grp.gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
 
     updateSaveOutputFrame ( red );
     updateBackgroundFrame ( red );
+    updateAliasingFrame   ( red );
 
     gui->lock = 0x01;
 
@@ -1259,15 +1314,11 @@ void createGeneralPanel ( GtkWidget       *parent,
                           gint             y,
                           gint             width,
                           gint             height ) {
-    GtkWidget *pan = createPanel ( parent, gui, name, x, y, width, height );
+    G3DUI *gui = red->grp.gui;
 
-    GtkWidget       *fromFrameEntry;
-    GtkWidget       *toFrameEntry;
-    GtkWidget       *framerateEntry;
-    GtkWidget       *outputFileEntry;
-    GtkWidget       *formatSelector;
-    GtkWidget       *renderWidthEntry;
-    GtkWidget       *renderHeightEntry;
+    GtkWidget *pan = createPanel ( parent, red, name, x, y, width, height );
+
+    gui->lock = 0x01;
 
     red->renderPreviewToggle = createToggleLabel ( pan,
                                                    red,
@@ -1316,91 +1367,86 @@ void createGeneralPanel ( GtkWidget       *parent,
                                                 FLT_MAX,
                                                 0, 144, 96,  64, ratioCbk );
 
-    createBackgroundForm ( pan, red, EDITRENDERBACKGROUNDFRAME,
-                               0, 168, 256,  96 );
+    gui->lock = 0x00;
 
-    createSaveOutputForm ( pan, red, EDITRENDERSAVEOUTPUTFRAME,
-                               0, 264, 256,  96 );
+    createBackgroundForm ( pan,
+                           red,
+                           EDITRENDERBACKGROUNDFRAME,
+                           0, 168, 256,  96 );
 
+    createSaveOutputForm ( pan,
+                           red,
+                           EDITRENDERSAVEOUTPUTFRAME,
+                           0, 264, 256,  96 );
+
+    createAliasingForm ( pan,
+                         red,
+                         EDITRENDERALIASINGFRAME,
+                         0, 364, 256,  96 );
 }
 
 /******************************************************************************/
-void updateEffectsPanel ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( gui->currsg ) {
-            if ( strcmp ( child_name, EDITRENDERMOTIONBLURFRAME ) == 0x00 ) {
-                updateMotionBlurFrame ( child, gui );
-            }
-
-            if ( strcmp ( child_name, EDITRENDERWIREFRAMEFRAME ) == 0x00 ) {
-                updateWireframeFrame ( child, gui );
-            }
-
-            if ( strcmp ( child_name, EDITRENDERFOGFRAME ) == 0x00 ) {
-                updateFogFrame ( child, gui );
-            }
-        }
-
-        children =  g_list_next ( children );
-    }
+void updateEffectsPanel ( G3DUIRENDEREDIT *red ) {
+    updateMotionBlurFrame ( red );
+    updateWireframeFrame  ( red );
+    updateFogFrame        ( red );
 }
 
 /******************************************************************************/
-void createEffectsPanel ( GtkWidget *parent, 
-                          G3DUI     *gui,
-                          char      *name,
-                          gint       x,
-                          gint       y,
-                          gint       width,
-                          gint       height ) {
+void createEffectsPanel ( GtkWidget       *parent, 
+                          G3DUIRENDEREDIT *red,
+                          char            *name,
+                          gint             x,
+                          gint             y,
+                          gint             width,
+                          gint             height ) {
     GtkWidget *pan;
 
-    pan = createPanel ( parent, gui, name, x, y, width, height );
+    pan = createPanel ( parent,
+                        red,
+                        name,
+                        x,
+                        y,
+                        width,
+                        height );
 
-    createMotionBlurForm ( pan, gui, EDITRENDERMOTIONBLURFRAME,
-                               0,   0, 256,  96 );
+    createMotionBlurForm ( pan, 
+                           red,
+                           EDITRENDERMOTIONBLURFRAME,
+                           0,   0, 256,  96 );
 
-    createWireframeForm ( pan, gui, EDITRENDERWIREFRAMEFRAME,
-                               0, 128, 256,  96 );
+    createWireframeForm ( pan, 
+                          red,
+                          EDITRENDERWIREFRAMEFRAME,
+                          0, 128, 256,  96 );
 
-    createFogForm ( pan, gui, EDITRENDERFOGFRAME,
-                               0, 256, 256,  96 );
+    createFogForm ( pan,
+                    red,
+                    EDITRENDERFOGFRAME,
+                    0, 256, 256,  96 );
 }
 
 /******************************************************************************/
-void updateRenderEdit ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+void updateRenderEdit ( GtkWidget *w, Q3DSETTINGS *rsg ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) g_object_get_data ( G_OBJECT(w),
+                                                                     "private" );
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    red->editedRsg = rsg;
 
-        if ( gui->currsg ) {
-            if ( strcmp ( child_name, EDITRENDEREFFECTS ) == 0x00 ) {
-                updateEffectsPanel ( child, gui );
-            }
+    updateEffectsPanel ( red );
+    updateGeneralPanel ( red );
+}
 
-            if ( strcmp ( child_name, EDITRENDERGENERAL ) == 0x00 ) {
-                updateGeneralPanel ( child, gui );
-            }
-        }
+/******************************************************************************/
+static void Destroy ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
 
-        children =  g_list_next ( children );
-    }
+    free ( red );
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    gui->lock = 1;
-    updateRenderEdit ( widget, gui );
-    gui->lock = 0;
+    updateRenderEdit ( widget, NULL );
 }
 
 /******************************************************************************/
@@ -1415,6 +1461,7 @@ GtkWidget* createRenderEdit ( GtkWidget *parent,
     GdkRectangle gdkrec = { 0x00, 0x20, width, height - 0x20 };
     GtkWidget * frm = gtk_fixed_new ( );
     GtkWidget *tab;
+    G3DUIRENDEREDIT *red = g3duirenderedit_new ( gui );
 
     gtk_widget_set_name ( frm, name );
 
@@ -1429,6 +1476,8 @@ GtkWidget* createRenderEdit ( GtkWidget *parent,
     /********************/
     tab = gtk_notebook_new ( );
 
+    g_object_set_data ( G_OBJECT(tab), "private", (gpointer) red );
+
     gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
 
     gtk_widget_set_name ( tab, EDITRENDERSETTINGS );
@@ -1438,11 +1487,11 @@ GtkWidget* createRenderEdit ( GtkWidget *parent,
 
     gtk_fixed_put ( GTK_FIXED(frm), tab, gdkrec.x, gdkrec.y );
 
-    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
-    g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), gui );
+    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), red );
+    g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), red );
 
-    createGeneralPanel ( tab, gui, EDITRENDERGENERAL, 0, 0, width, height );
-    createEffectsPanel ( tab, gui, EDITRENDEREFFECTS, 0, 0, width, height );
+    createGeneralPanel ( tab, red, EDITRENDERGENERAL, 0, 0, width, height );
+    createEffectsPanel ( tab, red, EDITRENDEREFFECTS, 0, 0, width, height );
 
     gtk_widget_show ( tab );
 

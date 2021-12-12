@@ -93,6 +93,8 @@ void g3dsysinfo_reset ( G3DSYSINFO *sysinfo );
 
 uint32_t g3dsysinfo_requestExtensionName ( );
 
+void g3dsysinfo_findFFMpeg ( G3DSYSINFO *sysinfo );
+
 #ifdef __cplusplus
 }
 #endif

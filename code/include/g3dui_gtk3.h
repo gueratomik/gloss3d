@@ -427,7 +427,7 @@ void       updateSculptToolEdit   ( GtkWidget *, G3DUI * );
 GtkWidget *createSculptToolEdit   ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-void       updateRenderEdit       ( GtkWidget *, G3DUI * );
+void       updateRenderEdit       ( GtkWidget *, Q3DSETTINGS *rsg );
 GtkWidget *createRenderEdit       ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 

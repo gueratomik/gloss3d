@@ -179,7 +179,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define WIREFRAMELIGHTING ( 1 <<  7 )
 #define RENDERFOG         ( 1 <<  8 )
 #define RENDERDOF         ( 1 <<  9 )
-#define ENABLEEDGEAA      ( 1 << 10 )
+#define ENABLEAA          ( 1 << 10 )
 
 /******************************************************************************/
 #define RENDERTOIMAGE 0x00
@@ -214,6 +214,9 @@ typedef G3DRGBA         Q3DRGBA;
 #define SIG_RENDERSETTINGS_FOG_FAR                                  0x16300000 /* float    */
 #define SIG_RENDERSETTINGS_FOG_COLOR                                0x16400000 /* uint32_t */
 #define SIG_RENDERSETTINGS_DOF                                  0x17000000
+#define SIG_RENDERSETTINGS_AA                                   0x18000000
+#define SIG_RENDERSETTINGS_AA_MODE                                 0x18100000 /* uint32_t */
+#define SIG_RENDERSETTINGS_AA_SAMPLES                              0x18200000 /* uint32_t */
 
 /******************************************************************************/
 #define Q3DFREE_CALLBACK(f)      ((void(*)(Q3DOBJECT*))f)
@@ -352,8 +355,12 @@ typedef struct _Q3DMOTIONBLURSETTINGS {
 } Q3DMOTIONBLURSETTINGS;
 
 /******************************************************************************/
+#define AAEDGEMODE 0x00
+#define AAFULLMODE 0x01
+
 typedef struct _Q3DAASETTINGS {
     uint64_t flags;
+    uint32_t mode;
     uint32_t nbsamples;
 } Q3DAASETTINGS;
 

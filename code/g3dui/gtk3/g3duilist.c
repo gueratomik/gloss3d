@@ -824,7 +824,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                           flags,
                                                           GTK_MESSAGE_ERROR,
                                                           GTK_BUTTONS_CLOSE,
-                                                          "Could alter hierarchy with rigged bones. Please unrig bones first." );
+                                                          "Cannot alter hierarchy with rigged bones. Please unrig bones first." );
                         gtk_dialog_run ( GTK_DIALOG ( dialog ) );
                         gtk_widget_destroy ( dialog );
                     } else {

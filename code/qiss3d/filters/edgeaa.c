@@ -83,10 +83,8 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
         for ( x = 0x00; x < width; x++ ) {
             uint32_t offset = ( y * width ) + x;
 
-            if ( q3dzengine_isOutline ( &qjob->qarea.qzen,
-                                         x,
-                                         y ) ) {
-#define SMPL 0x05
+            if ( ( qjob->qrsg->aa.mode == AAFULLMODE ) ||
+                 q3dzengine_isOutline ( &qjob->qarea.qzen, x, y ) ) {
                 static float sample5[0x05][0x02] = { { 0.0f,  0.5f },
                                      { -0.5f, 0.0f },{ 0.0f,  0.0f },{ 0.5f, 0.0f },
                                                      { 0.0f, -0.5f } };
@@ -94,7 +92,8 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                 static float sample9[0x09][0x02] = { { -0.5f,  0.5f },{ 0.0f,  0.5f },{ 0.5f,  0.5f },
                                                      { -0.5f,  0.0f },{ 0.0f,  0.0f },{ 0.5f,  0.0f },
                                                      { -0.5f, -0.5f },{ 0.0f, -0.5f },{ 0.5f, -0.5f } };
-                float *samples = ( nbsamples == 0x05 ) sample5 : sample9;
+                float (*samples)[0x02] = ( nbsamples == 0x05 ) ? sample5 : 
+                                                                 sample9;
 
                 uint32_t color, R = 0x00, G = 0x00, B = 0x00;
 

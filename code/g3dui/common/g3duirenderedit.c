@@ -1,4 +1,4 @@
-/******************************************************************************/
+ /******************************************************************************/
 /*  GLOSS3D is free software: you can redistribute it and/or modify           */
 /*  it under the terms of the GNU General Public License as published by      */
 /*  the Free Software Foundation, either version 3 of the License, or         */
@@ -28,6 +28,46 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui.h>
+
+/******************************************************************************/
+void common_g3duirenderedit_aaCbk ( G3DUI *gui ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & ENABLEAA ) {
+        rsg->flags = (rsg->flags & ~ENABLEAA);
+    } else {
+        rsg->flags = (rsg->flags | ENABLEAA);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_aaFullCbk ( G3DUI *gui ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->aa.mode = AAFULLMODE;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_aaEdgeCbk ( G3DUI *gui ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->aa.mode = AAEDGEMODE;
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_aaSamplesCbk ( G3DUI *gui, uint32_t nbsamples ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->aa.nbsamples = nbsamples;
+}
 
 /******************************************************************************/
 void common_g3duirenderedit_formatCbk ( G3DUI *gui, const char *format ) {

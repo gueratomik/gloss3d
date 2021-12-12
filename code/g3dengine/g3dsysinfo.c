@@ -133,11 +133,7 @@ static char *getFfprobePath ( ) {
 }
 
 /******************************************************************************/
-void g3dsysinfo_reset ( G3DSYSINFO *sysinfo ) {
-    uint32_t nbCpus = g3dcore_getNumberOfCPUs ( );
-    uint32_t ptrSize = sizeof ( void * );
-    uint32_t i;
-
+void g3dsysinfo_findFFMpeg ( G3DSYSINFO *sysinfo ) {
     if ( sysinfo->ffmpegPath  ) free ( sysinfo->ffmpegPath  );
     if ( sysinfo->ffplayPath  ) free ( sysinfo->ffplayPath  );
     if ( sysinfo->ffprobePath ) free ( sysinfo->ffprobePath );
@@ -145,6 +141,15 @@ void g3dsysinfo_reset ( G3DSYSINFO *sysinfo ) {
     sysinfo->ffmpegPath  = getFfmpegPath  ( );
     sysinfo->ffplayPath  = getFfplayPath  ( );
     sysinfo->ffprobePath = getFfprobePath ( );
+}
+
+/******************************************************************************/
+void g3dsysinfo_reset ( G3DSYSINFO *sysinfo ) {
+    uint32_t nbCpus = g3dcore_getNumberOfCPUs ( );
+    uint32_t ptrSize = sizeof ( void * );
+    uint32_t i;
+
+    g3dsysinfo_findFFMpeg ( sysinfo );
 
     sysinfo->nbcpu = nbCpus;
 

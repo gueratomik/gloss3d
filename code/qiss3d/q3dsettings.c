@@ -472,6 +472,54 @@ static uint32_t q3dsettings_fog ( G3DEXPORTV3DATA  *ged,
 }
 
 /******************************************************************************/
+static uint32_t q3dsettings_aaSamples ( G3DEXPORTV3DATA *ged,
+                                        Q3DAASETTINGS   *aas,
+                                        uint32_t         flags, 
+                                        FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &aas->nbsamples, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t q3dsettings_aaMode ( G3DEXPORTV3DATA *ged,
+                                     Q3DAASETTINGS   *aas,
+                                     uint32_t         flags, 
+                                     FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &aas->mode, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t q3dsettings_aa ( G3DEXPORTV3DATA *ged,
+                                 Q3DAASETTINGS   *aas,
+                                 uint32_t         flags, 
+                                 FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_AA_MODE,
+                                     EXPORT_CALLBACK(q3dsettings_aaMode),
+                                     ged,
+                                     aas,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_AA_SAMPLES,
+                                     EXPORT_CALLBACK(q3dsettings_aaSamples),
+                                     ged,
+                                     aas,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 /***************************** Render settings ********************************/
 /******************************************************************************/
 
@@ -540,6 +588,15 @@ static uint32_t q3dsettings_entry ( G3DEXPORTV3DATA *ged,
                                       &rsg->fog,
                                        0xFFFFFFFF,
                                        fdst );
+    }
+
+    if ( rsg->flags & ENABLEAA ) {
+        size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_AA,
+                                         EXPORT_CALLBACK(q3dsettings_aa),
+                                         ged,
+                                        &rsg->aa,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;
@@ -709,6 +766,18 @@ void q3dsettings_read ( G3DIMPORTV3DATA *gid,
                 g3dimportv3_freadl ( &rsg->fog.color, fsrc );
             } break;
 
+            case SIG_RENDERSETTINGS_AA : {
+                printf ( "render antialiasing settings found\n" );
+            } break;
+
+            case SIG_RENDERSETTINGS_AA_MODE : {
+                g3dimportv3_freadl ( &rsg->aa.mode, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_AA_SAMPLES : {
+                g3dimportv3_freadl ( &rsg->aa.nbsamples, fsrc );
+            } break;
+
             default : {
                 fseek ( fsrc, chunkSize, SEEK_CUR );
             } break;
@@ -779,6 +848,9 @@ Q3DSETTINGS *q3dsettings_new ( ) {
     rsg->fog.fnear  = 0.0f;
     rsg->fog.ffar   = 100.0f;
     rsg->fog.color = 0x00FFFFFF;
+
+    rsg->aa.mode      = AAEDGEMODE;
+    rsg->aa.nbsamples = 0x05;
 
     rsg->lfilter     = NULL;
 

@@ -402,7 +402,7 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
                                  Q3DFILTER *tostatus,
                                  Q3DFILTER *makepreview ) {
     Q3DSETTINGS *qrsg   = qjob->qrsg;
-    Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );
+   /* Q3DFILTER *simpleAA = q3dfilter_simpleaa_new ( );*/
     Q3DFILTER *softshadows = q3dfilter_softshadows_new ( );
 
     qjob->filters.towindow    = towindow;
@@ -431,7 +431,7 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
         }
     }
 
-    if ( qrsg->flags & ENABLEEDGEAA ) {
+    if ( qrsg->flags & ENABLEAA ) {
         qjob->filters.edgeaa = q3dfilter_edgeaa_new ( qrsg->aa.nbsamples );
     }
 
