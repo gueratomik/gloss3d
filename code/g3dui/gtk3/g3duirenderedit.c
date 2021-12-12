@@ -29,6 +29,99 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITRENDERGENERAL          "General"
+#define EDITRENDEREFFECTS          "Effects"
+#define EDITRENDERSETTINGS         "Settings"
+#define EDITRENDERSTART            "From Frame"
+#define EDITRENDEREND              "To Frame"
+#define EDITRENDERFPS              "Framerate"
+#define EDITRENDEROUTPUT           "Output file"
+#define EDITRENDERFORMAT           "Format"
+#define EDITRENDERCODEC            "Codec"
+#define EDITRENDERWIDTH            "Render width"
+#define EDITRENDERHEIGHT           "Render height"
+#define EDITRENDERRATIO            "W/H ratio"
+#define EDITRENDERMOTIONBLURFRAME  "Motion Blur Settings"
+#define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur"
+#define EDITRENDERVECTORMOTIONBLURSAMPLES "Samples"
+#define EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE "Sub-Sampling %"
+#define EDITRENDERMOTIONBLURSTRENGTH "Strength"
+#define EDITRENDERSCENEMOTIONBLUR  "Scene Motion Blur"
+#define EDITRENDERSCENEMOTIONBLURITERATION "Iterations:"
+#define EDITRENDERENABLEMOTIONBLUR "Enable Motion Blur"
+#define EDITRENDERBACKGROUNDFRAME        "Background settings"
+#define EDITRENDERBACKGROUNDCOLOR        "Background Color"
+#define EDITRENDERBACKGROUNDIMAGE        "Background Image"
+#define EDITRENDERBACKGROUNDSTRETCHIMAGE "Stretch Image"
+
+#define EDITRENDERPREVIEW          "Make preview"
+#define EDITRENDERRUN              "Run render"
+#define EDITRENDERSAVEOUTPUTFRAME  "Output"
+#define EDITRENDERSAVE             "Save result"
+
+#define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
+#define EDITRENDERWIREFRAME          "Wireframe"
+#define EDITRENDERWIREFRAMELIGHTING  "Affected by Lighting"
+#define EDITRENDERWIREFRAMETHICKNESS "Thickness"
+#define EDITRENDERWIREFRAMECOLOR     "Color"
+
+#define EDITRENDERFOGFRAME             "Fog Settings"
+#define EDITRENDERFOGAFFECTSBACKGROUND "Affects background"
+#define EDITRENDERFOG                  "Enable Fog"
+#define EDITRENDERFOGNEAR              "Near distance"
+#define EDITRENDERFOGFAR               "Far distance"
+#define EDITRENDERFOGCOLOR             "Color"
+#define EDITRENDERFOGSTRENGTH          "Strength"
+
+/******************************************************************************/
+typedef struct _G3DUIRENDEREDIT {
+    G3DUIWIDGETGROUP grp;
+
+    GtkWidget       *main;
+
+    GtkWidget       *renderPreviewToggle;
+    GtkWidget       *fromFrameEntry;
+    GtkWidget       *toFrameEntry;
+    GtkWidget       *framerateEntry;
+    GtkWidget       *outputFileEntry;
+    GtkWidget       *formatSelector;
+    GtkWidget       *renderWidthEntry;
+    GtkWidget       *renderHeightEntry;
+    GtkWidget       *renderRatioEntry;
+
+    GtkWidget       *blurEnabledToggle;
+    GtkWidget       *blurSamplesEntry;
+    GtkWidget       *blurSubSamplingEntry;
+    GtkWidget       *blurStrengthEntry;
+    GtkWidget       *blurIterationsEntry;
+
+    GtkWidget       *backgroundColorRadio;
+    GtkWidget       *backgroundColorButton;
+    GtkWidget       *backgroundImageRadio;
+    GtkWidget       *backgroundImageEntry;
+
+    GtkWidget       *outputFilenameEntry;
+    GtkWidget       *outputSaveToggle;
+
+    GtkWidget       *wireframeEnabledToggle;
+    GtkWidget       *wireframeAffectedToggle;
+    GtkWidget       *wireframeThicknessEntry;
+    GtkWidget       *wireframeColorButton;
+
+    GtkWidget       *fogAffectsBackgroundToggle;
+    GtkWidget       *fogEnabledToggle;
+    GtkWidget       *fogNearEntry;
+    GtkWidget       *fogFarEntry;
+    GtkWidget       *fogColorButton;
+    GtkWidget       *fogStrengthEntry;
+
+    GtkWidget       *aaEnabledToggle;
+    GtkWidget       *aaTypeSelection;
+    GtkWidget       *aaSamplesSelection;
+
+    G3DLIGHT        *editedLight;
+} G3DUIRENDEREDIT;
+
 static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui );
 
 /******************************************************************************/
@@ -775,17 +868,23 @@ static void wireframeThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
-                                                         char *name,
-                                                         gint x,
-                                                         gint y,
-                                                         gint width,
-                                                         gint height ) {
+static GtkWidget *createWireframeForm ( GtkWidget       *parent,
+                                        G3DUIRENDEREDIT *red,
+                                        char            *name,
+                                        gint             x,
+                                        gint             y,
+                                        gint             width,
+                                        gint             height ) {
     GtkWidget *vbr, *col, *frm, *btn;
 
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
     gui->lock = 0x01;
+
+    GtkWidget       *wireframeEnabledToggle
+    GtkWidget       *wireframeAffectedToggle;
+    GtkWidget       *wireframeThicknessEntry;
+    GtkWidget       *wireframeColorButton;
 
           createToggleLabel ( frm, gui,
                                    EDITRENDERWIREFRAME,
@@ -814,109 +913,52 @@ static GtkWidget *createWireframeForm ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-static void updateFogForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
-
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERFOG ) == 0x00 ) {
-                    if ( rsg->flags & RENDERFOG ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-
-                if ( strcmp ( child_name, EDITRENDERFOGAFFECTSBACKGROUND ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERFOG ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    if ( rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_SPIN_BUTTON(child) ) {
-                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERFOGSTRENGTH ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERFOG ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->fog.strength * 100.0f );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERFOGNEAR ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERFOG ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->fog.fnear );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERFOGFAR ) == 0x00 ) {
-                    if ( ( rsg->flags & RENDERFOG ) ) {
-                        gtk_widget_set_sensitive ( child, TRUE );
-                    } else {
-                        gtk_widget_set_sensitive ( child, FALSE );
-                    }
-
-                    gtk_spin_button_set_value ( sbn, rsg->fog.ffar );
-                }
-            }
-
-            if ( GTK_IS_COLOR_BUTTON(child) ) {
-                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
-
-                if ( ( rsg->flags & RENDERFOG ) ) {
-                    gtk_widget_set_sensitive ( child, TRUE );
-                } else {
-                    gtk_widget_set_sensitive ( child, FALSE );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERFOGCOLOR ) == 0x00 ) {
-                    unsigned char R = ( rsg->fog.color & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->fog.color & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->fog.color & 0x000000FF );
-                    GdkRGBA rgba = { .red   = ( float ) R / 255,
-                                     .green = ( float ) G / 255,
-                                     .blue  = ( float ) B / 255,
-                                     .alpha = 1.0f };
-
-                    gtk_color_chooser_set_rgba ( ccr, &rgba );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
-    }
-}
-
-/******************************************************************************/
-static void updateFogFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+static void updateFogFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     gui->lock = 0x01;
-    if ( frm ) updateFogForm ( frm, gui );
+
+    if ( rsg->flags & RENDERFOG ) {
+        gtk_toggle_button_set_active ( red->fogEnabledToggle, TRUE  );
+
+        gtk_widget_set_sensitive ( red->fogAffectsBackgroundToggle, TRUE );
+        gtk_widget_set_sensitive ( red->fogStrengthEntry          , TRUE );
+        gtk_widget_set_sensitive ( red->fogNearEntry              , TRUE );
+        gtk_widget_set_sensitive ( red->fogFarEntry               , TRUE );
+        gtk_widget_set_sensitive ( red->fogColorButton            , TRUE );
+    } else {
+        gtk_toggle_button_set_active ( red->fogEnabledToggle, FALSE );
+
+        gtk_widget_set_sensitive ( red->fogAffectsBackgroundToggle, FALSE );
+        gtk_widget_set_sensitive ( red->fogStrengthEntry          , FALSE );
+        gtk_widget_set_sensitive ( red->fogNearEntry              , FALSE );
+        gtk_widget_set_sensitive ( red->fogFarEntry               , FALSE );
+        gtk_widget_set_sensitive ( red->fogColorButton            , FALSE );
+    }
+
+    if ( rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
+        gtk_toggle_button_set_active ( red->fogAffectsBackgroundToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->fogAffectsBackgroundToggle, FALSE );
+    }
+
+    gtk_spin_button_set_value ( red->fogStrengthEntry, rsg->fog.strength * 100.0f );
+    gtk_spin_button_set_value ( red->fogNearEntry, rsg->fog.fnear );
+    gtk_spin_button_set_value ( red->fogFarEntry, rsg->fog.ffar );
+
+    if ( strcmp ( child_name, EDITRENDERFOGCOLOR ) == 0x00 ) {
+        unsigned char R = ( rsg->fog.color & 0x00FF0000 ) >> 0x10,
+                      G = ( rsg->fog.color & 0x0000FF00 ) >> 0x08,
+                      B = ( rsg->fog.color & 0x000000FF );
+        GdkRGBA rgba = { .red   = ( float ) R / 255,
+                         .green = ( float ) G / 255,
+                         .blue  = ( float ) B / 255,
+                         .alpha = 1.0f };
+
+        gtk_color_chooser_set_rgba ( red->fogColorButton, &rgba );
+    }
+
     gui->lock = 0x00;
 }
 
@@ -991,121 +1033,99 @@ static GtkWidget *createFogForm ( GtkWidget *parent,
 
     gui->lock = 0x01;
 
-          createToggleLabel ( frm, gui,
-                                   EDITRENDERFOG,
-                                     0,  0, 96, 18,
-                                   setFogCbk );
+    red->fogEnabledToggle = createToggleLabel ( frm,
+                                                red,
+                                                EDITRENDERFOG,
+                                                0,  0, 96, 18,
+                                                setFogCbk );
 
-          createToggleLabel ( frm, gui,
-                                   EDITRENDERFOGAFFECTSBACKGROUND,
-                                     0, 24, 96, 18,
-                                   setFogAffectsBackgroundCbk );
+    red->fogAffectsBackgroundToggle = createToggleLabel ( frm,
+                                                          red,
+                                                          EDITRENDERFOGAFFECTSBACKGROUND,
+                                                          0, 24, 96, 18,
+                                                          setFogAffectsBackgroundCbk );
 
-          createFloatText ( frm, gui, EDITRENDERFOGSTRENGTH,
-                                     0.0f, 100.0f,
-                                     0, 48, 96,  48,
-                                   fogStrengthCbk );
+    red->fogStrengthEntry = createFloatText ( frm,
+                                              red,
+                                              EDITRENDERFOGSTRENGTH,
+                                              0.0f, 100.0f,
+                                              0, 48, 96, 48,
+                                              fogStrengthCbk );
 
-          createFloatText ( frm, gui, EDITRENDERFOGNEAR,
-                                     0.0f, FLT_MAX,
-                                     0, 72, 96,  48,
-                                   fogNearCbk );
+    red->fogNearEntry = createFloatText ( frm,
+                                          red,
+                                          EDITRENDERFOGNEAR,
+                                          0.0f,
+                                          FLT_MAX,
+                                          0, 72, 96, 48,
+                                          fogNearCbk );
 
-          createFloatText ( frm, gui, EDITRENDERFOGFAR,
-                                     0.0f, FLT_MAX,
-                                     0, 96, 96,  48,
-                                   fogFarCbk );
+    red->fogFarEntry = createFloatText ( frm,
+                                         red,
+                                         EDITRENDERFOGFAR,
+                                         0.0f,
+                                         FLT_MAX,
+                                         0, 96, 96, 48,
+                                         fogFarCbk );
 
-          createSimpleLabel ( frm, gui, EDITRENDERFOGCOLOR,
-                                     0, 120, 96, 20 );
+          createSimpleLabel ( frm,
+                              red,
+                              EDITRENDERFOGCOLOR,
+                              0, 120, 96, 20 );
 
-          createColorButton ( frm, gui, EDITRENDERFOGCOLOR,
-                                    96, 120, 96, 18, fogColorCbk );
+    red->fogColorButton = createColorButton ( frm, 
+                                              red,
+                                              EDITRENDERFOGCOLOR,
+                                              96, 120, 96, 18, 
+                                              fogColorCbk );
 
     gui->lock = 0x00;
 
     return frm;
 }
 
-
 /******************************************************************************/
-static void updateBackgroundForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
-            G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-
-            if ( GTK_IS_RADIO_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
-                    if ( rsg->background.mode & BACKGROUND_IMAGE ) {
-                        gtk_toggle_button_set_active ( tbn, FALSE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, TRUE );
-                    }
-                }
-
-                if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
-                    if ( ( rsg->background.mode & BACKGROUND_IMAGE ) ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_BUTTON(child) && (GTK_IS_RADIO_BUTTON(child) == FALSE) ) {
-                if ( strcmp ( child_name, EDITRENDERBACKGROUNDIMAGE ) == 0x00 ) {
-                    if ( rsg->background.image && 
-                         rsg->background.image->filename ) {
-                        char *imgpath, *imgname;
-
-                        imgpath = strdup ( rsg->background.image->filename );
-
-                        /*** We just keep the image name, not the whole ***/
-                        /*** path and display it as the button label.   ***/
-                        imgname = basename ( imgpath );
-
-                        gtk_button_set_label ( child, imgname );
-
-                        free ( imgpath );
-                    }
-                }
-            }
-
-            if ( GTK_IS_COLOR_BUTTON(child) ) {
-                GtkColorChooser *ccr = GTK_COLOR_CHOOSER(child);
-
-                if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
-                    unsigned char R = ( rsg->background.color & 0x00FF0000 ) >> 0x10,
-                                  G = ( rsg->background.color & 0x0000FF00 ) >> 0x08,
-                                  B = ( rsg->background.color & 0x000000FF );
-                    GdkRGBA rgba = { .red   = ( float ) R / 255,
-                                     .green = ( float ) G / 255,
-                                     .blue  = ( float ) B / 255,
-                                     .alpha = 1.0f };
-
-                    gtk_color_chooser_set_rgba ( ccr, &rgba );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
-    }
-}
-
-/******************************************************************************/
-static void updateBackgroundFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+static void updateBackgroundFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = gui->currsg;
 
     gui->lock = 0x01;
-    if ( frm ) updateBackgroundForm ( frm, gui );
+
+    if ( ( rsg->background.mode & BACKGROUND_IMAGE ) ) {
+        gtk_toggle_button_set_active ( red->backgroundImageRadio, TRUE );
+        gtk_toggle_button_set_active ( red->backgroundColorRadio, FALSE  );
+    } else {
+        gtk_toggle_button_set_active ( red->backgroundImageRadio, FALSE );
+        gtk_toggle_button_set_active ( red->backgroundColorRadio, TRUE );
+    }
+
+    if ( rsg->background.image && 
+         rsg->background.image->filename ) {
+        char *imgpath, *imgname;
+
+        imgpath = strdup ( rsg->background.image->filename );
+
+        /*** We just keep the image name, not the whole ***/
+        /*** path and display it as the button label.   ***/
+        imgname = basename ( imgpath );
+
+        gtk_button_set_label ( red->backgroundImageButton, imgname );
+
+        free ( imgpath );
+    }
+
+    if ( strcmp ( child_name, EDITRENDERBACKGROUNDCOLOR ) == 0x00 ) {
+        unsigned char R = ( rsg->background.color & 0x00FF0000 ) >> 0x10,
+                      G = ( rsg->background.color & 0x0000FF00 ) >> 0x08,
+                      B = ( rsg->background.color & 0x000000FF );
+        GdkRGBA rgba = { .red   = ( float ) R / 255,
+                         .green = ( float ) G / 255,
+                         .blue  = ( float ) B / 255,
+                         .alpha = 1.0f };
+
+        gtk_color_chooser_set_rgba ( red->backgroundColorButton, &rgba );
+    }
+
     gui->lock = 0x00;
 }
 
@@ -1161,36 +1181,44 @@ static void setBackgroundImageModeCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
-                                                            char *name,
-                                                            gint x,
-                                                            gint y,
-                                                            gint width,
-                                                            gint height ) {
+static GtkWidget *createBackgroundForm ( GtkWidget       *parent, 
+                                         G3DUIRENDEREDIT *red,
+                                         char            *name,
+                                         gint             x,
+                                         gint             y,
+                                         gint             width,
+                                         gint             height ) {
     GtkWidget *vbr, *col, *frm, *btn;
 
     frm = createFrame ( parent, gui, name, x, y, width, height );
 
     gui->lock = 0x01;
 
-    btn = createRadioLabel ( frm, gui,
-                             EDITRENDERBACKGROUNDCOLOR,
-                             NULL,
-                               0,  0, 96, 18,
-                             setBackgroundColorModeCbk );
+    red->backgroundColorRadio = createRadioLabel ( frm, 
+                                                   red,
+                                                   EDITRENDERBACKGROUNDCOLOR,
+                                                   NULL,
+                                                   0,  0, 96, 18,
+                                                   setBackgroundColorModeCbk );
 
-          createRadioLabel ( frm, gui,
-                                  EDITRENDERBACKGROUNDIMAGE,
-                                  btn,
-                                    0, 24, 96, 18,
-                                  setBackgroundImageModeCbk );
+    red->backgroundImageRadio = createRadioLabel ( frm,
+                                                   red,
+                                                   EDITRENDERBACKGROUNDIMAGE,
+                                                   red->backgroundColorRadio,
+                                                   0, 24, 96, 18,
+                                                   setBackgroundImageModeCbk );
 
-          createColorButton ( frm, gui, EDITRENDERBACKGROUNDCOLOR,
-                                   160, 0, 96, 18, backgroundCbk );
+    red->backgroundColorButton = createColorButton ( frm,
+                                                     red,
+                                                     EDITRENDERBACKGROUNDCOLOR,
+                                                     160, 0, 96, 18,
+                                                     backgroundCbk );
 
-          createPushButton   ( frm, gui, EDITRENDERBACKGROUNDIMAGE,
-                                   160, 24, 
-                                     96,  18, setBackgroundImageCbk );
+    red->backgroundImageButton = createPushButton  ( frm,
+                                                     red,
+                                                     EDITRENDERBACKGROUNDIMAGE,
+                                                     160, 24, 96,  18,
+                                                     setBackgroundImageCbk );
 
     gui->lock = 0x00;
 
@@ -1198,112 +1226,100 @@ static GtkWidget *createBackgroundForm ( GtkWidget *parent, G3DUI *gui,
 }
 
 /******************************************************************************/
-static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+static void updateGeneralPanel ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = gui->currsg;
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    updateSaveOutputFrame ( red );
+    updateBackgroundFrame ( red );
 
-        if ( gui->currsg ) {
-            Q3DSETTINGS *rsg = gui->currsg;
+    gui->lock = 0x01;
 
-            if ( strcmp ( child_name, EDITRENDERSAVEOUTPUTFRAME ) == 0x00 ) {
-                updateSaveOutputFrame ( child, gui );
-            }
-
-            if ( strcmp ( child_name, EDITRENDERBACKGROUNDFRAME ) == 0x00 ) {
-                updateBackgroundFrame ( child, gui );
-            }
-
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERPREVIEW ) == 0x00 ) {
-                    if ( rsg->flags & RENDERPREVIEW ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_SPIN_BUTTON(child) ) {
-                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITRENDERSTART ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.startframe );
-                }
-
-                if ( strcmp ( child_name, EDITRENDEREND ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.endframe );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERRATIO ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.ratio );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERFPS ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.fps );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERWIDTH ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.width );
-                }
-
-                if ( strcmp ( child_name, EDITRENDERHEIGHT ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, rsg->output.height );
-                }
-            }
-        }
-
-        children =  g_list_next ( children );
+    if ( rsg->flags & RENDERPREVIEW ) {
+        gtk_toggle_button_set_active ( red->renderPreviewToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->renderPreviewToggle, FALSE );
     }
+
+    gtk_spin_button_set_value ( red->fromFrameEntry   , rsg->output.startframe );
+    gtk_spin_button_set_value ( red->toFrameEntry     , rsg->output.endframe   );
+    gtk_spin_button_set_value ( red->renderRatioEntry , rsg->output.ratio      );
+    gtk_spin_button_set_value ( red->framerateEntry   , rsg->output.fps        );
+    gtk_spin_button_set_value ( red->renderWidthEntry , rsg->output.width      );
+    gtk_spin_button_set_value ( red->renderHeightEntry, rsg->output.height     );
+
+    gui->lock = 0x00;
 }
 
 /******************************************************************************/
-void createGeneralPanel ( GtkWidget *parent, 
-                          G3DUI     *gui,
-                          char      *name,
-                          gint       x,
-                          gint       y,
-                          gint       width,
-                          gint       height ) {
-    GtkWidget *pan;
+void createGeneralPanel ( GtkWidget       *parent, 
+                          G3DUIRENDEREDIT *red,
+                          char            *name,
+                          gint             x,
+                          gint             y,
+                          gint             width,
+                          gint             height ) {
+    GtkWidget *pan = createPanel ( parent, gui, name, x, y, width, height );
 
-    pan = createPanel ( parent, gui, name, x, y, width, height );
+    GtkWidget       *fromFrameEntry;
+    GtkWidget       *toFrameEntry;
+    GtkWidget       *framerateEntry;
+    GtkWidget       *outputFileEntry;
+    GtkWidget       *formatSelector;
+    GtkWidget       *renderWidthEntry;
+    GtkWidget       *renderHeightEntry;
 
-    createToggleLabel ( pan, gui, EDITRENDERPREVIEW,
-                               0,  0, 104, 20, previewCbk );
+    red->renderPreviewToggle = createToggleLabel ( pan,
+                                                   red,
+                                                   EDITRENDERPREVIEW,
+                                                   0,  0, 104, 20, previewCbk );
 
-    createIntegerText ( pan, gui, EDITRENDERSTART,
-                               INT_MIN, INT_MAX,
-                               0,  24, 96,  32, startFrameCbk );
+    red->fromFrameEntry = createIntegerText   ( pan, 
+                                                red, 
+                                                EDITRENDERSTART,
+                                                INT_MIN,
+                                                INT_MAX,
+                                                0,  24, 96,  32, startFrameCbk );
 
-    createIntegerText ( pan, gui, EDITRENDEREND,
-                               INT_MIN, INT_MAX,
-                               0,  48, 96,  32, endFrameCbk );
+    red->toFrameEntry = createIntegerText     ( pan,
+                                                red,
+                                                EDITRENDEREND,
+                                                INT_MIN,
+                                                INT_MAX,
+                                                0,  48, 96,  32, endFrameCbk );
 
-    createIntegerText ( pan, gui, EDITRENDERFPS,
-                               0, INT_MAX,
-                               0,  72, 96,  32, fpsCbk );
+    red->framerateEntry = createIntegerText   ( pan,
+                                                red,
+                                                EDITRENDERFPS,
+                                                0,
+                                                INT_MAX,
+                                                0,  72, 96,  32, fpsCbk );
 
-    createIntegerText ( pan, gui, EDITRENDERWIDTH,
-                               0, INT_MAX,
-                               0,  96, 96,  32, widthCbk );
+    red->renderWidthEntry = createIntegerText ( pan,
+                                                red,
+                                                EDITRENDERWIDTH,
+                                                0,
+                                                INT_MAX,
+                                                0,  96, 96,  32, widthCbk );
 
-    createIntegerText ( pan, gui, EDITRENDERHEIGHT,
-                               0, INT_MAX,
-                               0, 120, 96,  32, heightCbk );
+    red->renderHeightEntry = createIntegerText ( pan,
+                                                 red,
+                                                 EDITRENDERHEIGHT,
+                                                 0,
+                                                 INT_MAX,
+                                                 0, 120, 96,  32, heightCbk );
 
-    createFloatText   ( pan, gui, EDITRENDERRATIO,
-                               0.0f, FLT_MAX,
-                               0, 144, 96,  64, ratioCbk );
+    red->renderRatioEntry = createFloatText   ( pan,
+                                                red,
+                                                EDITRENDERRATIO,
+                                                0.0f,
+                                                FLT_MAX,
+                                                0, 144, 96,  64, ratioCbk );
 
-    createBackgroundForm ( pan, gui, EDITRENDERBACKGROUNDFRAME,
+    createBackgroundForm ( pan, red, EDITRENDERBACKGROUNDFRAME,
                                0, 168, 256,  96 );
 
-    createSaveOutputForm ( pan, gui, EDITRENDERSAVEOUTPUTFRAME,
+    createSaveOutputForm ( pan, red, EDITRENDERSAVEOUTPUTFRAME,
                                0, 264, 256,  96 );
 
 }

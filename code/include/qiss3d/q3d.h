@@ -352,6 +352,12 @@ typedef struct _Q3DMOTIONBLURSETTINGS {
 } Q3DMOTIONBLURSETTINGS;
 
 /******************************************************************************/
+typedef struct _Q3DAASETTINGS {
+    uint64_t flags;
+    uint32_t nbsamples;
+} Q3DAASETTINGS;
+
+/******************************************************************************/
 typedef struct _Q3DSETTINGS {
     uint64_t              flags;
     Q3DINPUTSETTINGS      input;
@@ -361,6 +367,7 @@ typedef struct _Q3DSETTINGS {
     Q3DMOTIONBLURSETTINGS motionBlur;
     Q3DFOGSETTINGS        fog;
     Q3DDOFSETTINGS        dof;
+    Q3DAASETTINGS         aa;
     LIST                 *lfilter;
 #ifdef __MINGW32__
     COMPVARS              cvars;

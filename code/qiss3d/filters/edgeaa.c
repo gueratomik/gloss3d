@@ -43,9 +43,10 @@ static void filteredgeaa_free ( Q3DFILTER *fil ) {
 }
 
 /******************************************************************************/
-static FILTEREDGEAA *filteredgeaa_new ( uint32_t nbcpu ) {
+static FILTEREDGEAA *filteredgeaa_new ( uint32_t unused ) {
     uint32_t structsize = sizeof ( FILTEREDGEAA );
     FILTEREDGEAA *feaa = ( FILTEREDGEAA * ) calloc ( 0x01, structsize );
+    uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
 
     if ( feaa == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -54,6 +55,7 @@ static FILTEREDGEAA *filteredgeaa_new ( uint32_t nbcpu ) {
     }
 
     feaa->qseg = ( Q3DSEGMENT * ) calloc ( nbcpu, sizeof ( Q3DSEGMENT ) );
+
 
     return feaa;
 }
@@ -69,6 +71,7 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                                     uint32_t       bpp, 
                                     uint32_t       width ) {
     FILTEREDGEAA *feaa = ( FILTEREDGEAA * ) qfil->data;
+    uint32_t nbsamples = qjob->qrsg->aa.nbsamples;
 
     int y, j, k, x;
 
@@ -84,18 +87,19 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                                          x,
                                          y ) ) {
 #define SMPL 0x05
-                float samples[SMPL][0x02] = {  { 0.0f,  0.5f },
-                               { -0.5f, 0.0f },{ 0.0f,  0.0f },{ 0.5f, 0.0f },
-                                               { 0.0f, -0.5f } };
-/*
-                float samples[SMPL][0x02] = {  { -0.5f,  0.5f },{ 0.0f,  0.5f },{ 0.5f,  0.5f },
-                                               { -0.5f,  0.0f },{ 0.0f,  0.0f },{ 0.5f,  0.0f },
-                                               { -0.5f, -0.5f },{ 0.0f, -0.5f },{ 0.5f, -0.5f } };
-*/
+                static float sample5[0x05][0x02] = { { 0.0f,  0.5f },
+                                     { -0.5f, 0.0f },{ 0.0f,  0.0f },{ 0.5f, 0.0f },
+                                                     { 0.0f, -0.5f } };
+
+                static float sample9[0x09][0x02] = { { -0.5f,  0.5f },{ 0.0f,  0.5f },{ 0.5f,  0.5f },
+                                                     { -0.5f,  0.0f },{ 0.0f,  0.0f },{ 0.5f,  0.0f },
+                                                     { -0.5f, -0.5f },{ 0.0f, -0.5f },{ 0.5f, -0.5f } };
+                float *samples = ( nbsamples == 0x05 ) sample5 : sample9;
+
                 uint32_t color, R = 0x00, G = 0x00, B = 0x00;
 
 
-                for ( k = 0x00; k < SMPL; k++ ) {
+                for ( k = 0x00; k < nbsamples; k++ ) {
                     Q3DSEGMENT qtmp;
                     Q3DRAY qray;
 
@@ -164,9 +168,9 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                     B += ( ( color & 0x000000FF ) >> 0x00 );
                 }
 
-                R /= SMPL;
-                G /= SMPL;
-                B /= SMPL;
+                R /= nbsamples;
+                G /= nbsamples;
+                B /= nbsamples;
 
                 switch ( bpp ) {
                     case 0x18 : {
@@ -209,14 +213,14 @@ void q3dfilter_edgeaa_initScanline ( Q3DFILTER  *qfil,
 }
 
 /******************************************************************************/
-Q3DFILTER *q3dfilter_edgeaa_new ( uint32_t nbcpu ) {
+Q3DFILTER *q3dfilter_edgeaa_new ( uint32_t unused ) {
     Q3DFILTER *fil;
 
     fil = q3dfilter_new ( FILTERLINE, 
                           EDGEAAFILTERNAME,
                           filteredgeaa_draw,
                           filteredgeaa_free,
-                          filteredgeaa_new ( nbcpu ) );
+                          filteredgeaa_new ( unused ) );
 
     return fil;
 }

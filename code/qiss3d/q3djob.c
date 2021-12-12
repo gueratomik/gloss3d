@@ -431,10 +431,8 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
         }
     }
 
-    if ( /*qrsg->flags & ENABLEEDGEAA*/1 ) {
-        uint32_t nbcpu = g3dcore_getNumberOfCPUs ( );
-
-        qjob->filters.edgeaa = q3dfilter_edgeaa_new ( nbcpu );
+    if ( qrsg->flags & ENABLEEDGEAA ) {
+        qjob->filters.edgeaa = q3dfilter_edgeaa_new ( qrsg->aa.nbsamples );
     }
 
     if ( qrsg->flags & RENDERSAVE ) {
