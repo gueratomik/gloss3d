@@ -30,18 +30,39 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
+static uint32_t g3dexportv3material_alphaOpacity ( G3DEXPORTV3DATA *ged, 
+                                                   G3DMATERIAL   *mat, 
+                                                   uint32_t       flags, 
+                                                   FILE          *fdst ) {
+    uint32_t size = 0x00;
+
+    /*** displacement strength is stored as solid color ***/
+    size += g3dexportv3_fwritef ( &mat->alphaOpacity, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3channel_alpha ( G3DEXPORTV3DATA *ged, 
                                          G3DMATERIAL   *mat, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
+    size += g3dexportv3_writeChunk ( SIG_MATERIAL_ALPHA_OPACITY,
+                                     g3dexportv3material_alphaOpacity,
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
+
     size += g3dexportv3_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv3channel,
-                                   ged,
-                                  &mat->alpha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                                     g3dexportv3channel,
+                                     ged,
+                                    &mat->alpha,
+                                     EXPORTV3CHANNEL_IMAGECOLOR |
+                                     EXPORTV3CHANNEL_PROCEDURAL,
+                                     fdst );
 
     return size;
 }

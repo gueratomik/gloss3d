@@ -238,8 +238,10 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
                  REFLECTION_ENABLED |
                  REFRACTION_ENABLED;
 
+    mat->alphaOpacity = 1.0f;
+
     mat->alpha.name = "alpha";
-    mat->alpha.flags           = USEIMAGECOLOR;
+    mat->alpha.flags           = USESOLIDCOLOR;
     mat->alpha.solid.r = 
     mat->alpha.solid.g = 
     mat->alpha.solid.b = 

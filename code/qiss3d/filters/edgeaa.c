@@ -97,7 +97,6 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
 
                 uint32_t color, R = 0x00, G = 0x00, B = 0x00;
 
-
                 for ( k = 0x00; k < nbsamples; k++ ) {
                     Q3DSEGMENT qtmp;
                     Q3DRAY qray;

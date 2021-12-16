@@ -1200,6 +1200,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DRGBA     *reflection,
                                   Q3DRGBA     *refraction,
                                   Q3DRGBA     *alpha,
+                                  float       *alphaOpacity,
                                   LIST        *ltex,
                                   uint32_t     query_flags );
 

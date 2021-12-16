@@ -681,6 +681,7 @@ typedef struct _G3DMATERIAL {
     G3DCHANNEL alpha;
     float     specular_level;  /*** specular intensity ***/
     float     shininess;  /*** specular shininess ***/
+    float     alphaOpacity;  /*** specular shininess ***/
     LIST     *lobj;
     uint32_t  nbobj;
 } G3DMATERIAL;

@@ -233,25 +233,18 @@ void common_g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 }
 
                 if ( mat->flags & ALPHA_ENABLED ) {
-                    float trans = 0.0f;
+                    float trans = 1.0f - mat->alphaOpacity;
                     G3DRGBA rgba;
 
                     g3dchannel_getColor ( &mat->alpha, p->u, p->v, &rgba, 0x01 );
 
-                    if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
-                         ( mat->alpha.flags & USEPROCEDURAL ) ) {
-                        rgba.r *= mat->alpha.solid.r;
-                        rgba.g *= mat->alpha.solid.g;
-                        rgba.b *= mat->alpha.solid.b;
-                    }
+                    rgba.r = ( rgba.r * R ) >> 0x08;
+                    rgba.g = ( rgba.g * G ) >> 0x08;
+                    rgba.b = ( rgba.b * B ) >> 0x08;
 
-                    trans = ( ( float ) ( ( rgba.r + 
-                                            rgba.g + 
-                                            rgba.b ) / ( 3 * 255.0f ) ) );
-
-                    R = GRAY + ( ( (int32_t) R - GRAY ) * ( trans ) );
-                    G = GRAY + ( ( (int32_t) G - GRAY ) * ( trans ) );
-                    B = GRAY + ( ( (int32_t) B - GRAY ) * ( trans ) );
+                    R = ( (int32_t) GRAY * trans ) + ( rgba.r * mat->alphaOpacity );
+                    G = ( (int32_t) GRAY * trans ) + ( rgba.g * mat->alphaOpacity );
+                    B = ( (int32_t) GRAY * trans ) + ( rgba.b * mat->alphaOpacity );
                 }
 
                 R = ( R * p->diff );

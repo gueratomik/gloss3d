@@ -125,6 +125,14 @@ void g3dimportv3material ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc )
                 gid->currentChannel = &gid->currentMaterial->alpha;
             } break;
 
+            case SIG_MATERIAL_ALPHA_OPACITY : {
+                float opacity;
+
+                g3dimportv3_freadf ( &opacity, fsrc );
+
+                gid->currentMaterial->alphaOpacity = opacity;
+            } break;
+
             case SIG_CHANNEL : {
                 if ( chunkSize ) {
                     g3dimportv3channel ( gid, ftell ( fsrc ) + chunkSize, fsrc );

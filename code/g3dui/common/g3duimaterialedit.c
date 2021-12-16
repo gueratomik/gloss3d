@@ -163,12 +163,9 @@ void common_g3dui_materialSetAlphaStrengthCbk ( G3DUI *gui,
     if ( gui->lock ) return;
 
     if ( gui->selmat ) {
-        common_g3dui_channelSetColorCbk ( gui, 
-                                         &gui->selmat->alpha,
-                                          strength, 
-                                          strength, 
-                                          strength, 
-                                          strength );
+        gui->selmat->alphaOpacity = strength;
+
+        g3dui_updateSelectedMaterialPreview ( gui );
     }
 }
 

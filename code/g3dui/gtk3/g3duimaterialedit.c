@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITALPHASOLID "None"
+
 /******************************************************************************/
 static void solidColorCbk       ( GtkWidget *, gpointer  );
 static void solidColorChangeCbk ( GtkWidget *, gpointer  );
@@ -692,7 +694,7 @@ static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
                 GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
                 if ( strcmp ( child_name, EDITALPHASTRENGTH ) == 0x00 ) {
-                    gtk_spin_button_set_value ( spb, mat->alpha.solid.a * 100.0f );
+                    gtk_spin_button_set_value ( spb, mat->alphaOpacity * 100.0f );
                 }
             }
 
@@ -713,6 +715,16 @@ static void updateAlphaPanel ( GtkWidget *widget, G3DUI *gui ) {
     }
 
     gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void radioAlphaSolidColorCbk ( GtkWidget *widget, 
+                                      gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    if ( gui->selmat ) {
+        common_g3dui_materialEnableSolidColorCbk ( gui, &gui->selmat->alpha );
+    }
 }
 
 /******************************************************************************/
@@ -757,31 +769,35 @@ static GtkWidget *createAlphaPanel ( GtkWidget *parent, G3DUI *gui,
                                96,
                                48, alphaStrengthCbk );
 
-    /*** Use image as displacement texture ***/
-    btn = createRadioLabel   ( pan, gui, EDITALPHAIMAGE, NULL,
+    btn = createRadioLabel   ( pan, gui, EDITALPHASOLID, NULL,
                                 0, 48, 
+                               96, 18, radioAlphaSolidColorCbk );
+
+    /*** Use image as alpha texture ***/
+         createRadioLabel   ( pan, gui, EDITALPHAIMAGE, btn,
+                                0, 72, 
                                96, 18, radioAlphaImageColorCbk );
 
     createPushButton   ( pan, gui, EDITALPHAIMAGE,
-                               96,  48, 
+                               96,  72, 
                                96,  18, alphaImageCbk );
 
           /*** Use image as texture ***/
           createRadioLabel ( pan, gui, EDITALPHAPROCEDURAL,
                                    btn,
-                                     0, 72, 96, 18,
+                                     0, 96, 96, 18,
                                    alphaProceduralCbk );
 
           createProceduralTypeSelection ( pan, gui, 
                                                EDITDIFFUSEPROCEDURALTYPE,
-                                               0, 96,
+                                               0, 120,
                                                104,
                                                64,
                                                alphaProceduralTypeCbk );
 
           createProceduralResSelection  ( pan, gui, 
                                                EDITDIFFUSEPROCEDURALRES,
-                                               0, 120,
+                                               0, 144,
                                                104,
                                                64,
                                                alphaProceduralResCbk );
@@ -789,7 +805,7 @@ static GtkWidget *createAlphaPanel ( GtkWidget *parent, G3DUI *gui,
           /*** Procedural settings **/
           createPushButton  ( pan, gui, 
                                    EDITALPHAPROCEDURALEDIT,
-                                   104, 144, 96, 18,
+                                   104, 170, 96, 18,
                                    editChannelProceduralCbk );
 
 

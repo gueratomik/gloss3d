@@ -470,34 +470,40 @@ uint32_t g3dexportv3channel  ( G3DEXPORTV3DATA *ged,
                              FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    if ( cha->flags & USESOLIDCOLOR ) {
-        size += g3dexportv3_writeChunk ( SIG_CHANNEL_SOLID,
-                                       g3dexportv3channel_solid,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+    if ( flags & EXPORTV3CHANNEL_SOLIDCOLOR ) {
+        if ( cha->flags & USESOLIDCOLOR ) {
+            size += g3dexportv3_writeChunk ( SIG_CHANNEL_SOLID,
+                                           g3dexportv3channel_solid,
+                                           ged,
+                                           cha,
+                                           0xFFFFFFFF,
+                                           fdst );
+        }
     }
 
-    if ( ( cha->flags & USEIMAGECOLOR ) &&
-         ( cha->image                 ) &&
-         ( cha->image->filename       ) ) {
-        size += g3dexportv3_writeChunk ( SIG_CHANNEL_IMAGE,
-                                       g3dexportv3channel_image,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+    if ( flags & EXPORTV3CHANNEL_IMAGECOLOR ) {
+        if ( ( cha->flags & USEIMAGECOLOR ) &&
+             ( cha->image                 ) &&
+             ( cha->image->filename       ) ) {
+            size += g3dexportv3_writeChunk ( SIG_CHANNEL_IMAGE,
+                                           g3dexportv3channel_image,
+                                           ged,
+                                           cha,
+                                           0xFFFFFFFF,
+                                           fdst );
+        }
     }
 
-    if ( ( cha->flags & USEPROCEDURAL ) &&
-         ( cha->proc                  ) ) {
-        size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL,
-                                       g3dexportv3channel_procedural,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+    if ( flags & EXPORTV3CHANNEL_PROCEDURAL ) {
+        if ( ( cha->flags & USEPROCEDURAL ) &&
+             ( cha->proc                  ) ) {
+            size += g3dexportv3_writeChunk ( SIG_CHANNEL_PROCEDURAL,
+                                           g3dexportv3channel_procedural,
+                                           ged,
+                                           cha,
+                                           0xFFFFFFFF,
+                                           fdst );
+        }
     }
 
     return size;

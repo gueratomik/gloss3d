@@ -29,6 +29,7 @@
 #define  SIG_EXTENSION_ENTRY                            0xE4C94E11
 #define  SIG_EXTENSIONS                                 0x22457A87
 #define  SIG_MATERIAL_ALPHA                             0x563A65EF
+#define  SIG_MATERIAL_ALPHA_OPACITY                     0x84E8FA21
 #define  SIG_MATERIAL_BUMP                              0x9679768A
 #define  SIG_MATERIAL_BUMP_STRENGTH                     0x2A823612
 #define  SIG_MATERIAL_DIFFUSE                           0xAF327CA2

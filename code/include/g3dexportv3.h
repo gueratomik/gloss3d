@@ -49,6 +49,10 @@
 
 #include "signaturesv3.h"
 
+#define EXPORTV3CHANNEL_SOLIDCOLOR ( 1 << 0 )
+#define EXPORTV3CHANNEL_IMAGECOLOR ( 1 << 1 )
+#define EXPORTV3CHANNEL_PROCEDURAL ( 1 << 2 )
+
 #define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV3DATA*,void*,uint32_t,FILE *))f)
 
 typedef struct _G3DEXPORTV3DATA {

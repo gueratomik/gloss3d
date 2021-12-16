@@ -545,6 +545,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DRGBA     *reflection,
                                   Q3DRGBA     *refraction,
                                   Q3DRGBA     *alpha,
+                                  float       *alphaOpacity,
                                   LIST        *ltex,
                                   uint32_t     query_flags ) {
     uint32_t divDiffuse    = 0x00;
@@ -561,6 +562,8 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
     memset ( reflection, 0x00, sizeof ( Q3DRGBA   ) );
     memset ( refraction, 0x00, sizeof ( Q3DRGBA   ) );
     memset ( alpha     , 0x00, sizeof ( Q3DRGBA   ) );
+
+    (*alphaOpacity) = 0.0f;
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -651,17 +654,11 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         if ( mat->flags & ALPHA_ENABLED ) {
             g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
 
-            alpha->a  = 1.0f; /* used as boolean to say alpha is enabled */
             alpha->r += retval.r;
             alpha->g += retval.g;
             alpha->b += retval.b;
 
-            if ( ( mat->alpha.flags & USEIMAGECOLOR ) || 
-                 ( mat->alpha.flags & USEPROCEDURAL ) ) {
-                alpha->r *= ( mat->alpha.solid.a );
-                alpha->g *= ( mat->alpha.solid.a );
-                alpha->b *= ( mat->alpha.solid.a );
-            }
+            (*alphaOpacity) += mat->alphaOpacity;
 
             divAlpha++;
         }
@@ -711,9 +708,13 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
     }
 
     if ( divAlpha ) {
+        (*alphaOpacity) /= ( divAlpha );
+
         alpha->r /= ( divAlpha );
         alpha->g /= ( divAlpha );
         alpha->b /= ( divAlpha );
+
+        alpha->a = divAlpha; /*** store if alpha channel is neede or not ***/
     }
 
     return 0x01;
@@ -864,6 +865,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
             if ( query_flags & RAYQUERYSURFACECOLOR ) {
                 G3DMESH *mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
+                float alphaOpacity;
 
                 q3dray_getSurfaceColor ( qray, 
                                          qobj,
@@ -875,6 +877,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                         &materialReflection,
                                         &materialRefraction,
                                         &materialAlpha,
+                                        &alphaOpacity,
                                          mes->ltex, 
                                          query_flags );
 
@@ -928,34 +931,44 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                                    materialRefraction.b ) / 0x03 ) / 255.0f;
                     uint32_t i;
 
-                    if ( materialAlpha.a == 1.0f ) {
+                    if ( materialAlpha.a ) {
                         G3DCOLOR opac;
                         Q3DRGBA  bkgd;
                         uint32_t retcol;
                         Q3DRAY frcray;
 
-                        /*** build the reflexion ray from the current ray ***/
-                        q3dray_refract ( qray, 
-                                        &frcray, 
-                                         refractionStrength );
-
-                        q3dvector3f_normalize ( &frcray.dir, NULL );
-
-                        retcol = q3dray_shoot_r ( &frcray, 
-                                                   qjob, 
-                                                   qtri,
-                                                   excludeIfPerfectSphere,
-                                                   qobj,
-                                                   frame,
-                                                 --nbhop,
-                                                   query_flags );
-
-                        g3drgba_fromLong ( &bkgd, retcol );
                         g3drgba_toColor  ( &materialAlpha, &opac );
 
-                        materialDiffuse.r = ( materialDiffuse.r * opac.r ) + ( bkgd.r * ( 1.0f - opac.r ) );
-                        materialDiffuse.g = ( materialDiffuse.g * opac.g ) + ( bkgd.g * ( 1.0f - opac.g ) );
-                        materialDiffuse.b = ( materialDiffuse.b * opac.b ) + ( bkgd.b * ( 1.0f - opac.b ) );
+                        opac.r *= alphaOpacity;
+                        opac.g *= alphaOpacity;
+                        opac.b *= alphaOpacity;
+
+                        if ( ( opac.r < 1.0f ) ||
+                             ( opac.g < 1.0f ) ||
+                             ( opac.b < 1.0f ) ) {
+                            /*** build the refraction ray from the current ray ***/
+                            q3dray_refract ( qray, 
+                                            &frcray, 
+                                             refractionStrength );
+
+                            q3dvector3f_normalize ( &frcray.dir, NULL );
+
+                            retcol = q3dray_shoot_r ( &frcray, 
+                                                       qjob, 
+                                                       qtri,
+                                                       excludeIfPerfectSphere,
+                                                       qobj,
+                                                       frame,
+                                                     --nbhop,
+                                                       query_flags );
+
+                            g3drgba_fromLong ( &bkgd, retcol );
+
+
+                            materialDiffuse.r = ( materialDiffuse.r * opac.r ) + ( bkgd.r * ( 1.0f - opac.r ) );
+                            materialDiffuse.g = ( materialDiffuse.g * opac.g ) + ( bkgd.g * ( 1.0f - opac.g ) );
+                            materialDiffuse.b = ( materialDiffuse.b * opac.b ) + ( bkgd.b * ( 1.0f - opac.b ) );
+                        }
                     }
                 }
             }

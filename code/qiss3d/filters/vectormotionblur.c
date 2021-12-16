@@ -1075,6 +1075,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         qjob->filters.toframe  = orifilters.toframe;
         qjob->filters.towindow = orifilters.towindow;
+        qjob->filters.edgeaa = orifilters.edgeaa;
 
         q3djob_render ( qjob );
 
