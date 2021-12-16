@@ -331,8 +331,8 @@ LIST *g3dbone_seekMeshHierarchy ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-static G3DRIG *g3dbone_addRig ( G3DBONE *bon,
-                                G3DSKIN *skn ) {
+G3DRIG *g3dbone_addRig ( G3DBONE *bon,
+                         G3DSKIN *skn ) {
     G3DRIG *rig = g3drig_new ( skn );
 
     list_insert ( &bon->lrig, rig );

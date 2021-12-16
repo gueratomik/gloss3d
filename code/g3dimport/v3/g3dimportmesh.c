@@ -1,4 +1,4 @@
-/******************************************************************************/
+ /******************************************************************************/
 /*  GLOSS3D is free software: you can redistribute it and/or modify           */
 /*  it under the terms of the GNU General Public License as published by      */
 /*  the Free Software Foundation, either version 3 of the License, or         */
@@ -90,8 +90,8 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     g3dimportv3_freadl ( &facID , fsrc );
 
-                    g3dfacegroup_addFace ( gid->currentFacegroup,
-                                           gid->currentFaceArray[facID] );
+                    g3dface_addFacegroup ( gid->currentFaceArray[facID],
+                                           gid->currentFacegroup );
                 }
             } break;
 

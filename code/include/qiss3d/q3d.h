@@ -438,7 +438,7 @@ typedef struct _Q3DTRIANGLE {
     Q3DVECTOR4F nor;
     Q3DUVSET   *quvs;
     float       surface;
-    uint32_t    textureSlots;
+    LIST      *lfacgrp;
 } Q3DTRIANGLE;
 
 /******************************************************************************/
@@ -785,6 +785,8 @@ Q3DTRIANGLE *q3dtriangle_new       ( Q3DVERTEX *qver,
                                      uint32_t   qverID0, 
                                      uint32_t   qverID1, 
                                      uint32_t   qverID2 );
+uint32_t q3dtriangle_hasTextureSlot ( Q3DTRIANGLE *qtri, 
+                                      uint32_t texSlotBit  );
 
 /******************************************************************************/
 void         q3dsymmetry_init ( Q3DSYMMETRY *qsym, 

@@ -396,6 +396,18 @@ uint32_t g3dface_countUVSetsFromList ( LIST    *lfac,
 }
 
 /******************************************************************************/
+void g3dface_addFacegroup ( G3DFACE      *fac,
+                            G3DFACEGROUP *facgrp ) {
+    list_insert ( &fac->lfacgrp, facgrp );
+}
+
+/******************************************************************************/
+void g3dface_removeFacegroup ( G3DFACE      *fac,
+                               G3DFACEGROUP *facgrp ) {
+    list_remove ( &fac->lfacgrp, facgrp );
+}
+
+/******************************************************************************/
 void g3dface_addUVSet ( G3DFACE  *fac,
                         G3DUVSET *uvs ) {
     uint32_t i;
@@ -544,6 +556,22 @@ LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
 }
 
 /******************************************************************************/
+uint32_t g3dface_hasTextureSlot ( G3DFACE *fac, 
+                                  uint32_t texSlotBit  ) {
+    LIST *ltmpfacgrp = fac->lfacgrp;
+
+    while ( ltmpfacgrp ) {
+        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+
+        if ( facgrp->textureSlots & texSlotBit ) return 0x01;
+
+        ltmpfacgrp = ltmpfacgrp->next;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 uint32_t g3dface_bindMaterials ( G3DFACE        *fac, 
                                  LIST           *ltex, 
                                  G3DARBTEXCOORD *texcoord,
@@ -586,7 +614,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
         G3DIMAGE *difimg = NULL;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+            if ( g3dface_hasTextureSlot ( fac, tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
 /*
                 glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
@@ -700,7 +728,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac,
         G3DIMAGE    *difimg = NULL;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+            if ( g3dface_hasTextureSlot ( fac, tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
 
                 continue;

@@ -55,6 +55,22 @@ G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+static void g3dmesh_selectFacesFromFacegroup ( G3DMESH      *mes, 
+                                               G3DFACEGROUP *facgrp ) {
+    LIST *ltmpfac = mes->lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        if ( list_seek ( fac->lfacgrp, facgrp ) ) {
+            g3dmesh_selectFace ( mes, fac );
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
     LIST *ltmpfacgrp = mes->lselfacgrp;
 
@@ -62,15 +78,8 @@ void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
 
     while ( ltmpfacgrp ) {
         G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
-        LIST *ltmpfac = facgrp->lfac;
 
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-            g3dmesh_selectFace ( mes, fac );
-
-            ltmpfac = ltmpfac->next;
-        }
+        g3dmesh_selectFacesFromFacegroup ( mes, facgrp );
 
         ltmpfacgrp = ltmpfacgrp->next;
     }
@@ -2794,7 +2803,7 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
                     if ( uvs->map == uvmap ) {
                         if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
-                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                               g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             g3dpick_setName ( ( uint64_t ) uvs );
                             g3dpick_drawFace ( fac->nbver, 
                                                uvs->veruv[0].u, 
@@ -2843,7 +2852,7 @@ void g3dmesh_drawFaceUVs ( G3DMESH *mes,
                     if ( uvs->map == uvmap ) {
                         if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
-                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                               g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             int i;
 
                             glColor3ub ( 0x00, 0x00, 0x00 );
@@ -2901,7 +2910,7 @@ void g3dmesh_pickVertexUVs ( G3DMESH *mes,
                     if ( uvs->map == uvmap ) {
                         if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
-                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                               g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             int i;
 
                             for ( i = 0x00; i < fac->nbver; i++ ) {
@@ -2944,7 +2953,7 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                     if ( uvs->map == uvmap ) {
                         if ( ( ( tex->flags & TEXTURERESTRICTED   ) == 0x00 ) ||
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
-                               ( fac->textureSlots & tex->slotBit ) ) ) {
+                               g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             int i;
 
                             glColor3ub ( 0x00, 0x00, 0x00 );
@@ -3625,15 +3634,6 @@ void g3dmesh_removeFace ( G3DMESH *mes,
         list_remove ( &mes->lqua, fac );
 
         mes->nbqua--;
-    }
-
-    /*** remove face from face groups ***/
-    while ( ltmpfacgrp ) {
-        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
-
-        g3dfacegroup_removeFace ( facgrp, fac );
-
-        ltmpfacgrp = ltmpfacgrp->next;
     }
 }
 

@@ -151,11 +151,14 @@ static void g3dskin_anim ( G3DSKIN *skn,
                            float    frame, 
                            uint64_t engine_flags ) {
 
-    g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
+    if ( g3dobject_isActive ( skn ) ) {
+        g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 
-    g3dmesh_updateModified ( skn->mod.oriobj,
-                             skn,
-                             engine_flags );
+
+        g3dmesh_updateModified ( skn->mod.oriobj,
+                                 skn,
+                                 engine_flags );
+    }
 }
 
 /******************************************************************************/

@@ -890,8 +890,6 @@ typedef struct G3DFACEGROUP {
     uint32_t id;
     char     *name;
     uint32_t textureSlots;
-    LIST    *lfac;
-    uint32_t nbfac;
 } G3DFACEGROUP;
 
 /******************************************************************************/
@@ -1014,7 +1012,6 @@ typedef struct _G3DFACE {
     float            surface;/*** used by the raytracer               ***/
     G3DHEIGHTMAP    *heightmap;
     LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
-    uint32_t         textureSlots;
 } G3DFACE;
 
 #include <g3dengine/g3dcurve.h>
@@ -1844,6 +1841,10 @@ uint32_t g3dface_setSubFace       ( G3DFACE *, G3DVERTEX     *,
                                                uint32_t,
                                                uint32_t,
                                                uint32_t );
+void g3dface_addFacegroup ( G3DFACE      *fac,
+                            G3DFACEGROUP *facgrp );
+void g3dface_removeFacegroup ( G3DFACE      *fac,
+                               G3DFACEGROUP *facgrp );
 void     g3dface_getSubFace       ( G3DFACE *, G3DVERTEX *, G3DSUBVERTEX *,
                                                             G3DSUBVERTEX * );
 void     g3dface_assignSubVertex  ( G3DFACE *, G3DEDGE * );
@@ -1885,6 +1886,8 @@ uint32_t g3dface_initsubmem       ( G3DFACE *, G3DSUBVERTEX **,
                                                G3DSUBEDGE   **,
                                                G3DSUBFACE   **,
                                                G3DSUBUVSET  ** );
+uint32_t g3dface_hasTextureSlot ( G3DFACE *fac, 
+                                  uint32_t texSlotBit  );
 LIST    *g3dface_getEdgesFromList ( LIST * );
 void g3dface_drawTriangleList ( LIST    *ltri,
                                 float    gouraudScalarLimit, 
@@ -2841,6 +2844,8 @@ void g3dcamera_spin ( G3DCAMERA *cam, float diffz );
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
                         uint64_t   engine_flags );
+G3DRIG *g3dbone_addRig ( G3DBONE *bon,
+                         G3DSKIN *skn );
 void       g3dcamera_free     ( G3DOBJECT * );
 uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
                           G3DCAMERA *curcam, 
@@ -3218,12 +3223,9 @@ void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
                                    uint32_t      slotBit );
 void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
                                       uint32_t      slotBit );
-void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
-void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac );
 G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac );
 void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp );
 void g3dfacegroup_free ( G3DFACEGROUP *facgrp );
-void g3dfacegroup_setFaceList ( G3DFACEGROUP *facgrp, LIST *lfac );
 
 #endif
 

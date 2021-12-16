@@ -30,6 +30,7 @@
 #include <g3dexportv2.h>
 
 /******************************************************************************/
+/*
 static uint32_t g3dexportv2mesh_facegroupFaces ( G3DEXPORTV2DATA *ged, 
                                                G3DFACEGROUP  *grp, 
                                                uint32_t       flags, 
@@ -48,10 +49,11 @@ static uint32_t g3dexportv2mesh_facegroupFaces ( G3DEXPORTV2DATA *ged,
     }
 
     return size;
-}
+}*/
 
 /******************************************************************************/
-static uint32_t g3dexportv2mesh_facegroupName ( G3DEXPORTV2DATA *ged, 
+
+/*static uint32_t g3dexportv2mesh_facegroupName ( G3DEXPORTV2DATA *ged, 
                                               G3DFACEGROUP  *grp, 
                                               uint32_t       flags, 
                                               FILE          *fdst ) {
@@ -60,7 +62,7 @@ static uint32_t g3dexportv2mesh_facegroupName ( G3DEXPORTV2DATA *ged,
     size += g3dexportv2_fwrite ( grp->name, strlen ( grp->name ), 0x01, fdst );
 
     return size;
-}
+}*/
 
 /******************************************************************************/
 static uint32_t g3dexportv2mesh_facegroupEntry ( G3DEXPORTV2DATA *ged, 
@@ -69,7 +71,7 @@ static uint32_t g3dexportv2mesh_facegroupEntry ( G3DEXPORTV2DATA *ged,
                                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_NAME,
+    /*size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_NAME,
                                    g3dexportv2mesh_facegroupName,
                                    ged,
                                    grp,
@@ -81,7 +83,7 @@ static uint32_t g3dexportv2mesh_facegroupEntry ( G3DEXPORTV2DATA *ged,
                                    ged,
                                    grp,
                                    0xFFFFFFFF,
-                                   fdst );
+                                   fdst );*/
 
     return size;
 }
@@ -377,14 +379,15 @@ uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged,
                                        fdst );
     }
 
-    if ( mes->lfacgrp ) {
+    /***  Note: discontinued due to structure change ***/
+    /*if ( mes->lfacgrp ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUPS,
                                        g3dexportv2mesh_facegroups,
                                        ged,
                                        mes,
                                        0xFFFFFFFF,
                                        fdst );
-    }
+    }*/
 
     return size;
 }

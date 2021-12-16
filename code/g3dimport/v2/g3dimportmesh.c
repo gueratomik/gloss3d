@@ -81,8 +81,8 @@ void g3dimportv2mesh ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     g3dimportv2_freadl ( &facID , fsrc );
 
-                    g3dfacegroup_addFace ( gid->currentFacegroup,
-                                           gid->currentFaceArray[facID] );
+                    g3dface_addFacegroup ( gid->currentFaceArray[facID],
+                                           gid->currentFacegroup );
                 }
             } break;
 

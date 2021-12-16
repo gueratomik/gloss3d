@@ -30,6 +30,22 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
+uint32_t q3dtriangle_hasTextureSlot ( Q3DTRIANGLE *qtri, 
+                                      uint32_t texSlotBit  ) {
+    LIST *ltmpfacgrp = qtri->lfacgrp;
+
+    while ( ltmpfacgrp ) {
+        G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+
+        if ( facgrp->textureSlots & texSlotBit ) return 0x01;
+
+        ltmpfacgrp = ltmpfacgrp->next;
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 /*******************************************************************************
 www.soe.ucsc.edu/classes/cmps160/Fall10/resources/barycentricInterpolation.pdf
 *******************************************************************************/

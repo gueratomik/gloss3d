@@ -31,20 +31,35 @@
 
 /******************************************************************************/
 static uint32_t g3dexportv3mesh_facegroupFaces ( G3DEXPORTV3DATA *ged, 
-                                               G3DFACEGROUP  *grp, 
-                                               uint32_t       flags, 
-                                               FILE          *fdst ) {
-    LIST *ltmpfac = grp->lfac;
+                                                 G3DFACEGROUP  *grp, 
+                                                 uint32_t       flags, 
+                                                 FILE          *fdst ) {
+    G3DMESH *mes = ( G3DMESH * ) ged->currentObject;
+    LIST *ltmpfacpass1 = mes->lfac;
+    LIST *ltmpfacpass2 = mes->lfac;
     uint32_t size = 0x00;
+    uint32_t nbfac = 0x00;
 
-    size += g3dexportv3_fwritel ( &grp->nbfac, fdst );
+    while ( ltmpfacpass1 ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfacpass1->data;
 
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        if ( list_seek ( fac->lfacgrp, grp ) ) nbfac++;
 
-        size += g3dexportv3_fwritel ( &fac->id, fdst );
+        ltmpfacpass1 = ltmpfacpass1->next;
+    }
 
-        ltmpfac = ltmpfac->next;
+    size += g3dexportv3_fwritel ( &nbfac, fdst );
+
+
+
+    while ( ltmpfacpass2 ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfacpass2->data;
+
+        if ( list_seek ( fac->lfacgrp, grp ) ) {
+            size += g3dexportv3_fwritel ( &fac->id, fdst );
+        }
+
+        ltmpfacpass2 = ltmpfacpass2->next;
     }
 
     return size;
@@ -52,9 +67,9 @@ static uint32_t g3dexportv3mesh_facegroupFaces ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 static uint32_t g3dexportv3mesh_facegroupName ( G3DEXPORTV3DATA *ged, 
-                                              G3DFACEGROUP  *grp, 
-                                              uint32_t       flags, 
-                                              FILE          *fdst ) {
+                                                G3DFACEGROUP  *grp, 
+                                                uint32_t       flags, 
+                                                FILE          *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexportv3_fwrite ( grp->name, strlen ( grp->name ), 0x01, fdst );

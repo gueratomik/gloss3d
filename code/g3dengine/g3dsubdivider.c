@@ -259,7 +259,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 
                 dumpFac.nbver = 0x04;
 
-                dumpFac.textureSlots = fac->textureSlots;
+                dumpFac.lfacgrp = fac->lfacgrp;
 
                 dumpFac.ver[0x00] = &dumpVer[0x00];
                 dumpFac.ver[0x01] = &dumpVer[0x01];
@@ -698,7 +698,7 @@ static void bindMaterials ( G3DMESH *mes,
         G3DIMAGE *difimg = NULL;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+            if ( g3dface_hasTextureSlot ( fac, tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
 /*
                 glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
@@ -789,7 +789,7 @@ static void unbindMaterials ( G3DMESH *mes,
         G3DIMAGE    *difimg = NULL;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( fac->textureSlots & tex->slotBit ) == 0x00 ) {
+            if ( g3dface_hasTextureSlot ( fac, tex->slotBit ) == 0x00 ) {
                 ltmptex = ltmptex->next;
 
                 continue;

@@ -259,8 +259,6 @@ static void Dump ( G3DFACE   *fac,
                                   &qverset->qver[qverID[0x02]] };
         float length;
 
-        qmes->curtri->textureSlots = fac->textureSlots;
-
         for ( j = 0x00; j < 0x03; j++ ) {
             G3DVERTEX *ver = fac->ver[idx[i][j]];
             float scalar = fabs ( g3dvector_scalar ( g3dvertex_getModifiedNormal ( ver, stknor ),
@@ -294,7 +292,7 @@ static void Dump ( G3DFACE   *fac,
                            qverID[0x01],
                            qverID[0x02] );
 
-        qmes->curtri->textureSlots = fac->textureSlots;
+        qmes->curtri->lfacgrp = fac->lfacgrp;
 
         qmes->curtri->flags |= ( polyCount == 0x01 ) ? TRIANGLEFROMTRIANGLE : 
                                                        TRIANGLEFROMQUAD;

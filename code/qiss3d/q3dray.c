@@ -47,6 +47,39 @@ static uint32_t excludeIfPerfectSphere ( Q3DOBJECT *qobj, void *data ) {
 }
 
 /******************************************************************************/
+/************** http://http.developer.nvidia.com/Cg/refract.html **************/
+/******************************************************************************/
+static void q3dray_refract ( Q3DRAY *qray,
+                             Q3DRAY *qout,
+                             float   eta ) {
+    float cosi = -q3dvector3f_scalar ( &qray->dir, &qray->isx.dir );
+    float cost = 1.0f - ( ( eta * eta ) * ( 1.0f - ( cosi * cosi ) ) );
+
+    memset ( qout, 0x00, sizeof ( Q3DRAY ) );
+
+    /*** init the depth value for depth sorting ***/
+    qout->distance = INFINITY;
+
+    /*** refracted ray origin is parent ray intersection point ***/
+    memcpy ( &qout->src, &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
+
+    qout->x = qray->x;
+    qout->y = qray->y;
+
+    if ( cost > 0.0f ) {
+        float cabs = sqrt ( cost );
+
+        qout->dir.x = (eta * qray->dir.x) + (((eta * cosi) - cabs) * qray->isx.dir.x);
+        qout->dir.y = (eta * qray->dir.y) + (((eta * cosi) - cabs) * qray->isx.dir.y);
+        qout->dir.z = (eta * qray->dir.z) + (((eta * cosi) - cabs) * qray->isx.dir.z);
+    } else {
+        memcpy ( &qout->dir, &qray->dir, sizeof ( Q3DVECTOR3F ) );
+    }
+
+    q3dvector3f_normalize ( &qout->dir, NULL );
+}
+
+/******************************************************************************/
 static uint32_t q3dray_reflect ( Q3DRAY          *qray,
                                  Q3DRAY          *qout ) {
     float dot = q3dvector3f_scalar ( ( Q3DVECTOR3F * ) &qray->dir,
@@ -538,7 +571,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         Q3DRGBA retval;
 
         if ( tex->flags & TEXTURERESTRICTED ) {
-            if ( ( qtri->textureSlots & tex->slotBit ) == 0x00 )  {
+            if ( q3dtriangle_hasTextureSlot ( qtri, tex->slotBit  ) == 0x00 ) {
                 ltmptex = ltmptex->next;
 
                 continue;
@@ -886,6 +919,43 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                             materialDiffuse.g = mDiff.g;
                             materialDiffuse.b = mDiff.b;
                         }
+                    }
+                }
+
+                if ( ( query_flags & RAYQUERYREFRACTION ) && nbhop ) {
+                    float refractionStrength = ( ( materialRefraction.r + 
+                                                   materialRefraction.g + 
+                                                   materialRefraction.b ) / 0x03 ) / 255.0f;
+                    uint32_t i;
+
+                    if ( materialAlpha.a == 1.0f ) {
+                        G3DCOLOR opac;
+                        Q3DRGBA  bkgd;
+                        uint32_t retcol;
+                        Q3DRAY frcray;
+
+                        /*** build the reflexion ray from the current ray ***/
+                        q3dray_refract ( qray, 
+                                        &frcray, 
+                                         refractionStrength );
+
+                        q3dvector3f_normalize ( &frcray.dir, NULL );
+
+                        retcol = q3dray_shoot_r ( &frcray, 
+                                                   qjob, 
+                                                   qtri,
+                                                   excludeIfPerfectSphere,
+                                                   qobj,
+                                                   frame,
+                                                 --nbhop,
+                                                   query_flags );
+
+                        g3drgba_fromLong ( &bkgd, retcol );
+                        g3drgba_toColor  ( &materialAlpha, &opac );
+
+                        materialDiffuse.r = ( materialDiffuse.r * opac.r ) + ( bkgd.r * ( 1.0f - opac.r ) );
+                        materialDiffuse.g = ( materialDiffuse.g * opac.g ) + ( bkgd.g * ( 1.0f - opac.g ) );
+                        materialDiffuse.b = ( materialDiffuse.b * opac.b ) + ( bkgd.b * ( 1.0f - opac.b ) );
                     }
                 }
             }

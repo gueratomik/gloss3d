@@ -93,8 +93,7 @@ void updatePickToolEdit ( GtkWidget    *widget,
             gtk_toggle_button_set_active ( pte->visibleToggle, FALSE );
         }
 
-        if ( ( strcmp ( tool->name, PICKTOOL     ) == 0x00 ) ||
-             ( strcmp ( tool->name, MOVETOOL     ) == 0x00 ) ||
+        if ( ( strcmp ( tool->name, MOVETOOL     ) == 0x00 ) ||
              ( strcmp ( tool->name, ROTATETOOL   ) == 0x00 ) ||
              ( strcmp ( tool->name, SCALETOOL    ) == 0x00 ) ||
              ( strcmp ( tool->name, PICKUVTOOL   ) == 0x00 ) ||

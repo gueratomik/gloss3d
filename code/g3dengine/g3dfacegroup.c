@@ -31,8 +31,6 @@
 
 /******************************************************************************/
 void g3dfacegroup_free ( G3DFACEGROUP *facgrp ) {
-    list_free ( &facgrp->lfac, NULL );
-
     free ( facgrp );
 }
 
@@ -44,67 +42,20 @@ void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp ) {
 /******************************************************************************/
 void g3dfacegroup_addTextureSlot ( G3DFACEGROUP *facgrp,
                                    uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
-
     facgrp->textureSlots |= slotBit;
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots |= slotBit;
-
-        ltmpfac = ltmpfac->next;
-    }
 }
 
 /******************************************************************************/
 void g3dfacegroup_removeTextureSlot ( G3DFACEGROUP *facgrp, 
                                       uint32_t      slotBit ) {
-    LIST *ltmpfac = facgrp->lfac;
-
     facgrp->textureSlots &= (~slotBit);
-
-    while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-        fac->textureSlots &= (~slotBit);
-
-        ltmpfac = ltmpfac->next;
-    }
-}
-
-/******************************************************************************/
-void g3dfacegroup_addFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_insert ( &facgrp->lfac, fac );
-
-    fac->textureSlots |= facgrp->textureSlots;
-
-    facgrp->nbfac++;
-}
-
-/******************************************************************************/
-void g3dfacegroup_removeFace ( G3DFACEGROUP *facgrp, G3DFACE *fac ) {
-    list_remove ( &facgrp->lfac, fac );
-
-    fac->textureSlots &= (~facgrp->textureSlots);
-
-    facgrp->nbfac--;
-}
-
-/******************************************************************************/
-void g3dfacegroup_setFaceList ( G3DFACEGROUP *facgrp, LIST *lfac ) {
-    /*** Clear previous list ***/
-    list_free ( &facgrp->lfac, NULL );
-
-    facgrp->nbfac = 0x00;
-
-    list_execargdata ( lfac, g3dfacegroup_addFace, facgrp );
 }
 
 /******************************************************************************/
 G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
     uint32_t structSize = sizeof ( G3DFACEGROUP );
     G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) calloc ( 0x01, structSize );
+    LIST *ltmpfac = lfac;
 
     if ( facgrp == NULL ) {
         fprintf ( stderr, "g3dtexture_new(): calloc failed\n" );
@@ -114,7 +65,13 @@ G3DFACEGROUP *g3dfacegroup_new ( const char *name, LIST *lfac ) {
 
     facgrp->name = strdup ( name );
 
-    g3dfacegroup_setFaceList ( facgrp, lfac );
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+        g3dface_addFacegroup ( fac, facgrp );
+
+        ltmpfac = ltmpfac->next;
+    }
  
     return facgrp;
 }

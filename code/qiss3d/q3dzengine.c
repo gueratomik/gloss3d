@@ -567,6 +567,43 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
 }
 
 /******************************************************************************/
+static void q3dzengine_drawInstance ( Q3DZENGINE  *qzen, 
+                                      Q3DINSTANCE *qins,
+                                      double      *MVX,
+                                      double      *PJX,
+                                      int         *VPX,
+                                      float        frame ) {
+    Q3DOBJECT *qobj = ( Q3DOBJECT * ) qins;
+    G3DINSTANCE *ins = ( G3DINSTANCE * ) q3dobject_getObject ( qobj );
+    double SMVX[0x10];
+    /*** backup local matrix beacuse q3dzengine_drawObject_r is going to ***/
+    /*** do some maths with it, we want the matrix to have no influence ***/
+    /*** so we back it up first before restoring it ***/
+    double BKPX[0x10]; 
+
+    if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+        g3dcore_multmatrix ( ins->smatrix, MVX, SMVX );
+    } else {
+        memcpy ( SMVX, MVX, sizeof ( SMVX ) );
+    }
+
+    if (  qins->qref ) {
+        memcpy ( BKPX, qins->qref->obj->lmatrix, sizeof ( BKPX ) );
+
+        g3dcore_identityMatrix ( qins->qref->obj->lmatrix );
+
+        q3dzengine_drawObject_r ( qzen, 
+                                  qins->qref,
+                                  SMVX,
+                                  PJX,
+                                  VPX,
+                                  frame );
+
+        memcpy ( qins->qref->obj->lmatrix, BKPX, sizeof ( BKPX ) );
+    }
+}
+
+/******************************************************************************/
 void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
                                             Q3DOBJECT  *qobj,
                                             double     *MVX,
@@ -598,6 +635,17 @@ void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen,
 
             q3dzengine_drawSymmetry ( qzen, 
                                       qsym,
+                                      WMVX,
+                                      PJX,
+                                      VPX,
+                                      frame );
+        }
+
+        if ( qobj->obj->type == G3DINSTANCETYPE ) {
+            Q3DINSTANCE *qins = ( Q3DINSTANCE * ) qobj;
+
+            q3dzengine_drawInstance ( qzen, 
+                                      qins,
                                       WMVX,
                                       PJX,
                                       VPX,
