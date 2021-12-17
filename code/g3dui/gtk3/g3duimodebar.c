@@ -31,9 +31,13 @@
 
 /******************************************************************************/
 #include <xpm/objectmode.xpm>
+#include <xpm/objectmode_test.xpm>
 #include <xpm/facemode.xpm>
+#include <xpm/facemode_test.xpm>
 #include <xpm/vertexmode.xpm>
+#include <xpm/vertexmode_test.xpm>
 #include <xpm/edgemode.xpm>
+#include <xpm/edgemode_test.xpm>
 #include <xpm/skinmode.xpm>
 #include <xpm/uvwmapmode.xpm>
 #include <xpm/sculptmode.xpm>
@@ -130,10 +134,10 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_orientable_set_orientation ( GTK_ORIENTABLE(bar), GTK_ORIENTATION_VERTICAL );
 
-    grp = addModeBarButton ( bar, NULL, gui, MODE_VIEWOBJECT, objectmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );
+    grp = addModeBarButton ( bar, NULL, gui, MODE_VIEWOBJECT, objectmode_test_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_test_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_test_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWAXIS  , axismode_xpm  , g3dui_setMode );
