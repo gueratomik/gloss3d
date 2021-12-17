@@ -5,6 +5,10 @@
 
 Gloss3D is an open-source 3D modeler tool with some texturing, animation and rendering capacities for both Linux and Windows. Even better, it's free !
 
+![Image](http://velotrip.free.fr/GLOSS3D/Gloss3D_facial_anim_mini.png)
+
+![Image](http://velotrip.free.fr/GLOSS3D/Gloss3d_arachnid_mini.png)
+
 ### Download
 
 Download source code or prebuilt packages for Ubuntu, CentOS or Windows [here](https://sourceforge.net/projects/gloss3d/)
