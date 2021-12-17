@@ -1831,30 +1831,46 @@ LIST *g3dmesh_getVertexBoundariesFromSelectedFaces ( G3DMESH *mes ) {
 #endif
 
 /******************************************************************************/
-void g3dmesh_assignFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
+void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
     uint32_t i;
 
     /*** Create Edges if required ***/
     for ( i = 0x00; i < fac->nbver; i++ ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) fac->ver[i];
+
         if ( fac->edg[i] == NULL ) {
             int n = ( i + 0x01 ) % fac->nbver;
-            G3DEDGE *edg;
+            LIST *ltmpedg = ver->ledg;
 
-            if ( fac->edg[i] ) {
-                g3dedge_removeFace ( fac->edg[i], fac );
+            while ( ltmpedg ) {
+                G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
+
+                if ( ( edg->ver[0x00] == fac->ver[n] ) ||
+                     ( edg->ver[0x01] == fac->ver[n] ) ) {
+                    fac->edg[i] = edg;
+
+                    g3dedge_addFace ( edg, fac );
+                }
+
+                ltmpedg = ltmpedg->next;
             }
 
-            if ( ( edg = g3dedge_seek ( mes->ledg, fac->ver[i],
-                                                   fac->ver[n] ) ) == NULL ) {
-                edg = g3dedge_new ( fac->ver[i], fac->ver[n] );
+            /*** if the above search has failed, create the edge ***/
+            if ( fac->edg[i] == NULL ) {
+                fac->edg[i] = g3dedge_new ( fac->ver[i], fac->ver[n] );
 
-                g3dmesh_addEdge ( mes, edg );
+                g3dmesh_addEdge ( mes, fac->edg[i] );
+
+                g3dedge_addFace ( fac->edg[i], fac );
             }
 
-            fac->edg[i] = edg;
-            g3dedge_addFace ( edg, fac );
 
-            /*g3dvertex_normal  ( fac->ver[i], COMPUTEFACEPOINT | COMPUTEEDGEPOINT );*/
+        } else {
+            if ( fac->edg[i]->lfac == NULL ) {
+                g3dmesh_addEdge ( mes, fac->edg[i] );
+            }
+
+            g3dedge_addFace ( fac->edg[i], fac );
         }
     }
 }
@@ -3618,8 +3634,6 @@ void g3dmesh_removeFace ( G3DMESH *mes,
 
             g3dmesh_removeEdge ( mes, edg );
         }
-
-        fac->edg[i] = NULL;
     }
 
     mes->nbfac--;
@@ -3714,6 +3728,16 @@ void g3dmesh_renumberEdges ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
+void g3dmesh_attachFaceVertices ( G3DMESH *mes,
+                                  G3DFACE *fac ) {
+    uint32_t i;
+
+    for ( i = 0x00; i < fac->nbver; i++ ) {
+        g3dvertex_addFace ( fac->ver[i], fac );
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_addFace ( G3DMESH *mes, 
                        G3DFACE *fac ) {
     uint32_t i;
@@ -3735,7 +3759,9 @@ void g3dmesh_addFace ( G3DMESH *mes,
     }
 
     /*** Create Edges if required ***/
-    g3dmesh_assignFaceEdges  ( mes, fac );
+    g3dmesh_attachFaceEdges  ( mes, fac );
+
+    g3dmesh_attachFaceVertices  ( mes, fac );
 
     /*** Create UVSets if required ***/
     g3dmesh_assignFaceUVSets ( mes, fac );
@@ -3779,6 +3805,8 @@ void g3dmesh_addFaceWithEdges ( G3DMESH *mes,
 
         g3dedge_addFace ( edg3, fac );
     }
+
+    g3dmesh_attachFaceVertices  ( mes, fac );
 
     /*** Create UVSets if required ***/
     g3dmesh_assignFaceUVSets ( mes, fac );

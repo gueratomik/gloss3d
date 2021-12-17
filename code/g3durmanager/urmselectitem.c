@@ -338,6 +338,66 @@ static void selectVertices_redo ( URMSELECTITEM *sit,
 }
 
 /******************************************************************************/
+static void selectEdges_undo ( URMSELECTITEM *sit, 
+                               uint64_t       engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DMESH *mes = ( G3DMESH * ) obj;
+    LIST *ltmpnewedgsel = sit->lnewedgsel;
+    LIST *ltmpoldedgsel = sit->loldedgsel;
+
+    /*** unselect the new selection ***/
+    while ( ltmpnewedgsel ) {
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpnewedgsel->data;
+
+        g3dmesh_unselectEdge ( mes, edg );
+
+        ltmpnewedgsel = ltmpnewedgsel->next;
+    }
+
+    /*** select the former selection ***/
+    while ( ltmpoldedgsel ) {
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpoldedgsel->data;
+
+        g3dmesh_selectEdge ( mes, edg );
+
+        ltmpoldedgsel = ltmpoldedgsel->next;
+    }
+
+    g3dscene_updatePivot ( sit->sce, engine_flags );
+}
+
+/******************************************************************************/
+static void selectEdges_redo ( URMSELECTITEM *sit, 
+                               uint64_t engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
+    G3DMESH *mes = ( G3DMESH * ) obj;
+    LIST *ltmpnewedgsel = sit->lnewedgsel;
+    LIST *ltmpoldedgsel = sit->loldedgsel;
+
+    /*g3dmesh_unselectAllVertices ( mes );*/
+
+    /*** unselect the former selection ***/
+    while ( ltmpoldedgsel ) {
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpoldedgsel->data;
+
+        g3dmesh_unselectEdge ( mes, edg );
+
+        ltmpoldedgsel = ltmpoldedgsel->next;
+    }
+
+    /*** select the new selection ***/
+    while ( ltmpnewedgsel ) {
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpnewedgsel->data;
+
+        g3dmesh_selectEdge ( mes, edg );
+
+        ltmpnewedgsel = ltmpnewedgsel->next;
+    }
+
+    g3dscene_updatePivot ( sit->sce, engine_flags );
+}
+
+/******************************************************************************/
 static void selectFaces_undo ( URMSELECTITEM *sit, 
                                uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sit->obj;
@@ -470,11 +530,16 @@ static void selectItem_undo ( G3DURMANAGER *urm,
             selectVertices_undo ( sit, engine_flags );
         }
 
+        if ( sit->engine_flags & VIEWEDGE ) {
+            selectEdges_undo ( sit, engine_flags );
+        }
+
         if ( sit->engine_flags & VIEWFACE ) {
             selectFaces_undo ( sit, engine_flags );
         }
 
         if ( ( sit->engine_flags & VIEWVERTEX ) || 
+             ( sit->engine_flags & VIEWEDGE   ) ||
              ( sit->engine_flags & VIEWFACE   ) ) {
             if ( obj->type & MESH ) {
                 /*** Rebuild the subdivided mesh ***/
@@ -546,11 +611,16 @@ static void selectItem_redo ( G3DURMANAGER *urm,
             selectVertices_redo ( sit, engine_flags );
         }
 
+        if ( sit->engine_flags & VIEWEDGE ) {
+            selectEdges_redo ( sit, engine_flags );
+        }
+
         if ( sit->engine_flags & VIEWFACE ) {
             selectFaces_redo ( sit, engine_flags );
         }
 
         if ( ( sit->engine_flags & VIEWVERTEX ) || 
+             ( sit->engine_flags & VIEWEDGE   ) ||
              ( sit->engine_flags & VIEWFACE   ) ) {
             g3dmesh_update ( mes, NULL,
                                   NULL,
@@ -693,6 +763,31 @@ void g3durm_mesh_pickVertices ( G3DURMANAGER *urm,
                                    NULL,
                                    lnewversel,
                                    NULL,
+                                   NULL,
+                                   engine_flags );
+
+    g3durmanager_push ( urm, selectItem_undo,
+                             selectItem_redo,
+                             selectItem_free, sit, return_flags );
+}
+
+/******************************************************************************/
+void g3durm_mesh_pickEdges ( G3DURMANAGER *urm,
+                             G3DSCENE     *sce,
+                             G3DMESH      *mes,
+                             LIST         *loldedgsel,
+                             LIST         *lnewedgsel,
+                             uint64_t      engine_flags,
+                             uint32_t      return_flags ) {
+    URMSELECTITEM *sit;
+
+    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) mes, NULL,
+                                   NULL,
+                                   loldedgsel,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   lnewedgsel,
                                    NULL,
                                    engine_flags );
 

@@ -85,6 +85,7 @@ typedef struct _URMDELSELITEMS {
     LIST *loldseledg, *lnewseledg;
     LIST *loldselver, *lnewselver;
     LIST *loldselobj, *lnewselobj;
+    LIST *lorphanedEdges;
 } URMDELSELITEMS;
 
 /******************************************************************************/
@@ -520,6 +521,13 @@ void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm,
                             uint64_t      engine_flags,
                             uint32_t      return_flags );
 void g3durm_mesh_pickVertices ( G3DURMANAGER *urm, 
+                                G3DSCENE     *sce,
+                                G3DMESH      *mes,
+                                LIST         *loldversel,
+                                LIST         *lnewversel,
+                                uint64_t      engine_flags,
+                                uint32_t      return_flags );
+void g3durm_mesh_pickEdges ( G3DURMANAGER *urm, 
                                 G3DSCENE     *sce,
                                 G3DMESH      *mes,
                                 LIST         *loldversel,

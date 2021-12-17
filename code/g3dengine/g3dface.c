@@ -375,6 +375,82 @@ uint32_t g3dface_countFixedUVSets ( G3DFACE *fac ) {
 }
 
 /******************************************************************************/
+void g3dface_mark ( G3DFACE *fac ) {
+    fac->flags |= FACEMARKED;
+}
+
+/******************************************************************************/
+void g3dface_unmark ( G3DFACE *fac ) {
+    fac->flags &= (~FACEMARKED);
+}
+
+/******************************************************************************/
+/*** returns edges that are common to the list of specified faces ***/
+void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg ) {
+    LIST *ltmpfac = lfac;
+
+    list_exec ( lfac, g3dface_mark );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t i;
+
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            G3DEDGE *edg = ( G3DEDGE * ) fac->edg[i];
+
+            if ( ( edg->flags & EDGEMARKED ) == 0x00 ) {
+                LIST *ltmpedgfac = edg->lfac;
+                uint32_t isShared = 0x01;
+
+                while ( ltmpedgfac ) {
+                    G3DFACE *edgfac = ( G3DFACE * ) ltmpedgfac->data;
+
+                    if ( ( edgfac->flags & FACEMARKED ) == 0x00 ) {
+                        isShared = 0x00;
+                    }
+
+                    ltmpedgfac = ltmpedgfac->next;
+                }
+
+                if ( isShared ) {
+                    list_insert ( ledg, edg );
+
+                    g3dedge_mark ( edg );
+                }
+            }
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    /*** clear temporary flags ***/
+    list_exec ( (*ledg), g3dedge_unmark );
+    list_exec (   lfac , g3dface_unmark );
+}
+
+/******************************************************************************/
+void g3dface_getOrphanedEdgesFromList ( LIST *lfac, LIST **ledg ) {
+    LIST *ltmpfac = lfac;
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        uint32_t i;
+
+        for ( i = 0x00; i < fac->nbver; i++ ) {
+            if ( fac->edg[i] ) {
+                if ( fac->edg[i]->lfac == NULL ) {
+                    if ( list_seek ( (*ledg), fac->edg[i] ) == NULL ) {
+                        list_insert ( ledg, fac->edg[i] );
+                    }
+                }
+            }
+        }
+
+        ltmpfac = ltmpfac->next;
+    }
+}
+
+/******************************************************************************/
 uint32_t g3dface_countUVSetsFromList ( LIST    *lfac,
                                        uint32_t fixedOnly ) {
     uint32_t nbuvs = 0x00;
@@ -1675,8 +1751,6 @@ void g3dface_init ( G3DFACE    *fac,
     /*** add this face to the vertex's faces list ***/
     for ( i = 0x00; i < nbver; i++ ) {
         fac->ver[i] = ver[i];
-
-        g3dvertex_addFace ( ver[i], fac );
     }
 
     /*** update normal vector and face position ***/

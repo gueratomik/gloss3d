@@ -81,6 +81,9 @@ static void deleteSelectedItems_free ( void    *data,
         list_exec ( dsi->loldselver, (void(*)(void*)) g3dvertex_free );
         /*list_exec ( dsi->loldseledg, g3dedge_free   );*/
         list_exec ( dsi->loldselfac, (void(*)(void*)) g3dface_free   );
+
+        list_exec ( dsi->lorphanedEdges, (void(*)(void*)) g3dedge_free   );
+
     }
 
     urmdelselitems_free ( dsi );
@@ -264,10 +267,12 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     if ( engine_flags & VIEWVERTEX ) {
         g3dmesh_removeVerticesFromList ( mes, loldselver );
         g3dmesh_removeFacesFromList    ( mes, loldselfac );
+        g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
     }
 
     if ( engine_flags & VIEWFACE ) {
         g3dmesh_removeFacesFromList    ( mes, loldselfac );
+        g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
     }
 
     if ( engine_flags & VIEWEDGE ) {

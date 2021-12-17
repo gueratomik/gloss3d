@@ -29,7 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITALPHASOLID "None"
+#define EDITALPHASOLID "Uniform"
 
 /******************************************************************************/
 static void solidColorCbk       ( GtkWidget *, gpointer  );

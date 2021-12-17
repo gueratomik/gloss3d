@@ -133,7 +133,7 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
     grp = addModeBarButton ( bar, NULL, gui, MODE_VIEWOBJECT, objectmode_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_xpm  , g3dui_setMode );
-          /*addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );*/
+          addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWAXIS  , axismode_xpm  , g3dui_setMode );

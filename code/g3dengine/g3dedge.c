@@ -30,6 +30,16 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+void g3dedge_mark ( G3DEDGE *edg ) {
+    edg->flags |= EDGEMARKED;
+}
+
+/******************************************************************************/
+void g3dedge_unmark ( G3DEDGE *edg ) {
+    edg->flags &= (~EDGEMARKED);
+}
+
+/******************************************************************************/
 /*** returns the first face that is NOT cmp ***/
 G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg,
                                 G3DFACE *cmp ) {

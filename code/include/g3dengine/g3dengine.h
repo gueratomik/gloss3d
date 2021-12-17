@@ -282,6 +282,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGEINNER         (  1 << 7  )
 #define EDGEOUTER         (  1 << 8  )
 #define EDGETOPOLOGY      (  1 << 9  )
+/*** Can be used by functions to temporarily mark a face. Call g3dedge_mark ***/
+/*** Function MUST clear the flag after processing. Call g3dedge_unmark ***/
+#define EDGEMARKED        (  1 << 31 )
 
 /******************************** Face Flags **********************************/
 #define FACESELECTED          (  1       )
@@ -299,6 +302,11 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define FACEOUTER             (  1 << 12 )
 #define FACEFROMQUAD          (  1 << 13 ) /*** subface ancestor is a quad ***/
 #define FACEFROMTRIANGLE      (  1 << 14 ) /*** subface ancestor is a triangle ***/
+/*** Can be used by functions to temporarily mark a face. Call g3dface_mark ***/
+/*** Function MUST clear the flag after processing. Call g3dface_unmark ***/
+#define FACEMARKED            (  1 << 31 )
+                                         
+
 
 /********************************** UV Flags **********************************/
 #define UVSELECTED            (  1       )
@@ -1678,6 +1686,8 @@ G3DFACE *g3dsplitedge_createFace ( G3DSPLITEDGE * );
 
 /******************************************************************************/
 G3DEDGE *g3dedge_seek ( LIST *, G3DVERTEX *, G3DVERTEX * );
+void g3dedge_mark ( G3DEDGE *edg );
+void g3dedge_unmark ( G3DEDGE *edg );
 uint32_t g3dedge_hasOnlyFullyMirroredFaces ( G3DEDGE * );
 G3DEDGE *g3dedge_new ( G3DVERTEX *, G3DVERTEX * );
 G3DEDGE *g3dedge_newUnique ( uint32_t id, G3DVERTEX *, G3DVERTEX *, LIST ** );
@@ -1743,6 +1753,9 @@ void     g3dface_evalSubdivision        ( G3DFACE *,
                                           uint32_t *, 
                                           uint32_t *,
                                           uint32_t * );
+void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg );
+void g3dface_unmark ( G3DFACE *fac );
+void g3dface_mark ( G3DFACE *fac );
 void     g3dface_init                   ( G3DFACE *, 
                                           G3DVERTEX **, 
                                           uint32_t );
@@ -1920,6 +1933,7 @@ LIST    *g3dface_getVerticesFromList ( LIST * );
 void     g3dface_triangulate      ( G3DFACE *, G3DFACE *[0x02], int  );
 void     g3dface_unsetHidden      ( G3DFACE * );
 void     g3dface_setHidden        ( G3DFACE * );
+void     g3dface_getOrphanedEdgesFromList ( LIST *lfac, LIST **ledg );
 uint32_t g3dface_convert ( G3DFACE *fac, 
                            G3DFACE        *ancestor,
                            G3DRTTRIANGLE **rttriptr,
@@ -2428,6 +2442,7 @@ G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
 void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
 void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );
 void       g3dmesh_addFace              ( G3DMESH *, G3DFACE * );
+void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac );
 void       g3dmesh_addFaceWithEdges     ( G3DMESH *mes, 
                                           G3DFACE *fac,
                                           G3DEDGE *edg0,
@@ -2453,7 +2468,7 @@ G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank );
 void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DCAMERA *curcam,
                                        uint64_t   engine_flags );
-void       g3dmesh_assignFaceEdges      ( G3DMESH *, G3DFACE * );
+void       g3dmesh_attachFaceEdges      ( G3DMESH *, G3DFACE * );
 void g3dmesh_fixBones ( G3DMESH *mes, 
                         uint64_t engine_flags );
 void g3dmesh_drawModified ( G3DMESH   *mes,

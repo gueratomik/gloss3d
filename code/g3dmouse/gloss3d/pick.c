@@ -1047,21 +1047,28 @@ int pick_tool ( G3DMOUSETOOL *mou,
                             }
         		        }
 
-        		    /*********************************/
-        		    /*if ( engine_flags & VIEWEDGE ) {
+        		        /*********************************/
+        		        if ( engine_flags & VIEWEDGE ) {
                 	        G3DMESH *mes = ( G3DMESH * ) obj;
                 	        lselold = list_copy ( mes->lseledg );
 
-                	        if ( ( bev->state & G3DControlMask ) == 0x00 ) {
-                        	    g3dmesh_unselectAllEdges ( mes );
-                	        }
-
-                	        pick_Item ( pt, sce, cam, pt->coord, unselectIfSelected, engine_flags );
+                	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
                 	        lselnew = list_copy ( mes->lseledg );
-        		    }*/
 
-        		    /*********************************/
+                	        /*** remember selection ***/
+                            if ( lselold || lselnew ) {
+                	            g3durm_mesh_pickEdges  ( urm, 
+                                                         sce, 
+                                                         mes,
+                                                         lselold,
+                                                         lselnew,
+                                                         engine_flags,
+                                                         REDRAWVIEW );
+                            }
+        		        }
+
+        		        /*********************************/
         	            if ( ( engine_flags & VIEWFACE ) ) {
                 	        G3DMESH *mes = ( G3DMESH * ) obj;
                 	        lselold = list_copy ( mes->lselfac );
