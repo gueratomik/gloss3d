@@ -68,6 +68,7 @@
 #define WELDNEIGHBOURSTOOL           "Weld neighbour vertices"
 #define INVERTNORMALTOOL             "Invert Normal"
 #define ROUNDSPLINEPOINTTOOL         "Round selection"
+#define MAKEEDITABLETOOL             "Make Editable"
 
 #define PICKUVTOOL                   "Pick UV"
 #define MOVEUVTOOL                   "Move UV"
@@ -191,6 +192,7 @@ typedef struct _G3DMOUSETOOL {
   G3DMOUSETOOLREVERTSPLINE,
   G3DMOUSETOOLTRIANGULATE,
   G3DMOUSETOOLUNTRIANGULATE,
+  G3DMOUSETOOLMAKEEDITABLE,
   G3DMOUSETOOLROUNDSPLINEPOINT,
   G3DMOUSETOOLWELDVERTICES,
   G3DMOUSETOOLWELDNEIGHBOURS,

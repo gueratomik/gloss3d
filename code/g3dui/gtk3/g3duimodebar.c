@@ -39,9 +39,12 @@
 #include <xpm/edgemode.xpm>
 #include <xpm/edgemode_test.xpm>
 #include <xpm/skinmode.xpm>
+#include <xpm/skinmode_test.xpm>
 #include <xpm/uvwmapmode.xpm>
+#include <xpm/uvwmapmode_test.xpm>
 #include <xpm/sculptmode.xpm>
 #include <xpm/axismode.xpm>
+#include <xpm/axismode_test.xpm>
 #include <xpm/pathmode.xpm>
 
 /******************************************************************************/
@@ -138,9 +141,9 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
           addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_test_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_test_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_xpm  , g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_xpm, g3dui_setMode );
-          addModeBarButton ( bar, grp , gui, MODE_VIEWAXIS  , axismode_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_test_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_test_xpm, g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWAXIS  , axismode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWPATH  , pathmode_xpm  , g3dui_setMode );
           /*addModeBarButton ( bar, grp , gui, MODE_VIEWSCULPT, sculptmode_xpm, g3dui_setMode );*/
 

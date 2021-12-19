@@ -50,11 +50,18 @@ URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes,
     sms->loldver = loldver;
     sms->loldfac = loldfac;
 
+    /*** for freeing unused edges later ***/
+    g3dface_getOrphanedEdgesFromList ( loldfac, &sms->loldedg );
+
     return sms;
 }
 
 /******************************************************************************/
 void urmSplitMesh_free ( URMSPLITMESH *sms ) {
+    list_free ( &sms->loldver, NULL );
+    list_free ( &sms->loldfac, NULL );
+    list_free ( &sms->loldedg, NULL );
+
     free ( sms );
 }
 
@@ -65,10 +72,9 @@ void splitMesh_free ( void *data, uint32_t commit ) {
     if ( commit ) {
         list_exec ( sms->loldver, (void(*)(void*)) g3dvertex_free );
         list_exec ( sms->loldfac, (void(*)(void*)) g3dface_free   );
+        list_exec ( sms->loldedg, (void(*)(void*)) g3dedge_free   );
     } else {
         g3dmesh_free ( sms->splmes );
-        list_free ( &sms->loldver, NULL );
-        list_free ( &sms->loldfac, NULL );
     }
 
     urmSplitMesh_free ( sms );
@@ -86,8 +92,6 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
     /*** restore deleted faces ***/
     list_execargdata ( sms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-
-    list_exec ( sms->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** delete created mesh ***/
     g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, sms->splmes, engine_flags );

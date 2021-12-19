@@ -1011,8 +1011,8 @@ G3DVERTEX *g3dvertex_new ( float x, float y, float z ) {
 
 /******************************************************************************/
 void g3dvertex_free ( G3DVERTEX *ver ) {
-    list_free ( &ver->lfac, NULL );
-    list_free ( &ver->ledg, NULL );
+    /*list_free ( &ver->lfac, NULL );
+    list_free ( &ver->ledg, NULL );*/
 
     /*printf ( "freeing memory for vertex\n" );*/
 

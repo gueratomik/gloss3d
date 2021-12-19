@@ -886,6 +886,13 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolmakeeditable_new ( ),
+                                OBJECTMODETOOL |
+                                GLMENUTOOL );
+
+    /********************************/
+
+    common_g3dui_addMouseTool ( gui,
                                 g3dmousetoolcutmesh_new ( ),
                                 VERTEXMODETOOL | 
                                 FACEMODETOOL   | 

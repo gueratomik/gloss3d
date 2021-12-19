@@ -1312,23 +1312,23 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
 
             /*** if not already treated ***/
             if ( ver->subver == NULL ) {
-        	memset ( &wcr, 0, sizeof ( WELDCOUNTER ) );
+        	    memset ( &wcr, 0, sizeof ( WELDCOUNTER ) );
 
-        	wcr.distance = distance;
+        	    wcr.distance = distance;
 
-        	list_execdata2arg ( mes->lselver, weldifneighbour, ver, &wcr );
+        	    list_execdata2arg ( mes->lselver, weldifneighbour, ver, &wcr );
 
-        	if ( wcr.newver ) {
-                    G3DVERTEX *newver = wcr.newver;
+        	    if ( wcr.newver ) {
+                        G3DVERTEX *newver = wcr.newver;
 
-                    newver->pos.x /= wcr.count;
-                    newver->pos.y /= wcr.count;
-                    newver->pos.z /= wcr.count;
+                        newver->pos.x /= wcr.count;
+                        newver->pos.y /= wcr.count;
+                        newver->pos.z /= wcr.count;
 
-                    list_insert ( lnewver, newver );
+                        list_insert ( lnewver, newver );
 
-                    g3dmesh_addVertex ( mes, newver );
-        	}
+                        g3dmesh_addVertex ( mes, newver );
+        	    }
             }
 
             ltmpver = ltmpver->next;
@@ -1345,8 +1345,6 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
 
             ltmpver = ltmpver->next;
         }
-
-        list_execargdata ( (*loldver), g3dmesh_removeVertex, mes );
 
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -1371,9 +1369,6 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
                      ( ver[0x02] != ver[0x03] ) ) {
                     newfac = g3dface_new ( ver, fac->nbver );
 
-                    g3dmesh_removeFace ( mes, fac );
-                    g3dmesh_addFace    ( mes, newfac );
-
                     if ( loldfac ) list_insert ( loldfac, fac );
                     if ( lnewfac ) list_insert ( lnewfac, newfac );
                 }
@@ -1382,7 +1377,14 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
             ltmpfac = ltmpfac->next;
         }
 
-        list_exec ( (*lnewfac), (void (*)(void *))g3dface_position );
+        /*** all old faces MUST be removed before adding new faces in order ***/
+        /*** to keep edge autocreation/deletion consistent and undoable ***/
+        list_execargdata ( (*loldfac), (void (*)(void *)) g3dmesh_removeFace, mes );
+        list_execargdata ( (*lnewfac), (void (*)(void *)) g3dmesh_addFace, mes );
+
+        list_exec ( (*lnewfac), (void (*)(void *)) g3dface_position );
+
+        list_execargdata ( (*loldver), g3dmesh_removeVertex, mes );
 
         list_exec ( lselver, resetsubver );
         list_free ( &lfac, NULL );
@@ -1409,15 +1411,18 @@ G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *mes, uint32_t type,
             G3DFACE *nfa = g3dface_weld ( fac, mes->lselver, wel );
 
             if ( nfa ) {
-                g3dmesh_addFace ( mes, nfa );
                 list_insert ( lnewfac, nfa );
             }
 
-            g3dmesh_removeFace ( mes, fac );
             list_insert ( loldfac, fac );
 
             ltmp = ltmp->next;
         }
+
+        /*** all old faces MUST be removed before adding new faces in order ***/
+        /*** to keep edge autocreation/deletion consistent and undoable ***/
+        list_execargdata ( (*loldfac), (void (*)(void *)) g3dmesh_removeFace, mes );
+        list_execargdata ( (*lnewfac), (void (*)(void *)) g3dmesh_addFace, mes );
 
         list_free ( &lfac, NULL );
 
@@ -1705,6 +1710,7 @@ void g3dmesh_removeFacesFromSelectedVertices ( G3DMESH *mes ) {
 /******************************************************************************/
 void g3dmesh_removeVertex ( G3DMESH *mes, G3DVERTEX *ver ) {
     list_remove ( &mes->lver, ver );
+    list_remove ( &mes->lselver, ver );
 
     /*list_free ( &ver->lfac, NULL ); ver->nbfac = 0x00;
     list_free ( &ver->ledg, NULL ); ver->nbedg = 0x00;*/
@@ -1950,7 +1956,10 @@ void g3dmesh_clone ( G3DMESH   *mes,
         if ( fac->nbver == 0x04 ) ver[0x03] = vertab[fac->ver[0x03]->id];
         if ( fac->nbver == 0x04 ) edg[0x03] = edgtab[fac->edg[0x03]->id];
 
-        g3dmesh_addFace ( cpymes, g3dface_newWithEdges ( ver, edg, fac->nbver ) );
+        /*** g3dface_newWithEdges() commented out. The above while loop ***/
+        /*** supposed to add edges doesnot work apparently, so we let ***/
+        /*** g3dmesh_addFace() create the edges, which will be a bit slower ***/
+        g3dmesh_addFace ( cpymes, g3dface_new ( ver, fac->nbver ) /*g3dface_newWithEdges ( ver, edg, fac->nbver )*/ );
 
         _NEXTFACE(mes,ltmpfac);
     }
@@ -1990,7 +1999,7 @@ G3DOBJECT *g3dmesh_copy ( G3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-void g3dmesh_removeUnusedEdges ( G3DMESH *mes ) {
+/*void g3dmesh_removeUnusedEdges ( G3DMESH *mes ) {
     LIST *ltmp = list_copy ( mes->ledg );
 
     while ( ltmp ) {
@@ -2007,7 +2016,7 @@ void g3dmesh_removeUnusedEdges ( G3DMESH *mes ) {
     }
 
     list_free ( &ltmp, NULL );
-}
+}*/
 
 /******************************************************************************/
 /*** Extrude selected faces ***/
@@ -2065,8 +2074,8 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
 
         newfac = g3dface_new ( ver, fac->nbver );
 
-        g3dmesh_removeFace ( mes, fac    ); list_insert ( loldfac, fac    );
-        g3dmesh_addFace    ( mes, newfac ); list_insert ( lnewfac, newfac );
+        list_insert ( loldfac, fac    );
+        list_insert ( lnewfac, newfac );
 
         /*** Must be called after edges have been ***/
         /*** asssigned through g3dmesh_addFace    ***/
@@ -2074,6 +2083,11 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
 
         ltmpfac = ltmpfac->next;
     }
+
+    /*** all old faces MUST be removed before adding new faces in order ***/
+    /*** to keep edge autocreation/deletion consistent and undoable ***/
+    list_execargdata ( (*loldfac), (void (*)(void *)) g3dmesh_removeFace, mes );
+    list_execargdata ( (*lnewfac), (void (*)(void *)) g3dmesh_addFace, mes );
 
     /*** create the new faces ***/
     while ( ltmpedg ) {
@@ -2282,6 +2296,9 @@ void g3dmesh_cut ( G3DMESH *mes,
 
     (*loldfac) = ltmpfac = g3dedge_getFacesFromList ( loldedg );
 
+    /*** remove edges first for edge auto-removal/creation to be consistent ***/
+    list_execargdata ( (*loldfac), (void (*)(void *)) g3dmesh_removeFace, mes );
+
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DCUTEDGE *ced[0x04] = { g3dcutedge_seek ( lcutedg, fac->edg[0x00] ),
@@ -2289,32 +2306,19 @@ void g3dmesh_cut ( G3DMESH *mes,
                                   g3dcutedge_seek ( lcutedg, fac->edg[0x02] ),
                                   g3dcutedge_seek ( lcutedg, fac->edg[0x03] ) };
 
-        /*** add this face to the list of cut face if any cut happened ***/
-        if ( ced[0x00] || ced[0x01] || ced[0x02] || ced[0x03] ) {
-            G3DCUTFACE *cut = g3dcutface_new ( fac, ced );
-            G3DFACE *kid[0x03]; /*** 3 faces at most ***/
-            uint32_t nbkid, i;
+        G3DCUTFACE *cut = g3dcutface_new ( fac, ced );
+        G3DFACE *kid[0x03]; /*** 3 faces at most ***/
+        uint32_t nbkid, i;
 
-            list_insert ( &lcutfac, cut );
+        list_insert ( &lcutfac, cut );
 
-            nbkid = g3dcutface_divide ( cut, kid );
+        nbkid = g3dcutface_divide ( cut, kid );
 
-            g3dmesh_removeFace ( mes, fac );
+        for ( i = 0x00; i < nbkid; i++ ) {
+            g3dmesh_addFace ( mes, kid[i] );
 
-            for ( i = 0x00; i < nbkid; i++ ) {
-                if ( fac->flags & FACESELECTED ) {
-                    g3dmesh_addSelectedFace ( mes, kid[i] );
-                } else {
-                    g3dmesh_addFace ( mes, kid[i] );
-                }
-
-                /*** output ***/
-                list_insert ( lnewfac, kid[i] );
-            }
-
-            if ( fac->flags & FACESELECTED ) {
-                g3dmesh_unselectFace ( mes, fac );
-            }
+            /*** output ***/
+            list_insert ( lnewfac, kid[i] );
         }
 
         ltmpfac = ltmpfac->next;
@@ -3597,14 +3601,21 @@ void g3dmesh_addEdge ( G3DMESH *mes,
     list_insert ( &mes->ledg, edg );
 
     edg->id = mes->nbedg++;
+
+    g3dvertex_addEdge ( edg->ver[0x00], edg );
+    g3dvertex_addEdge ( edg->ver[0x01], edg );
 }
 
 /******************************************************************************/
 void g3dmesh_removeEdge ( G3DMESH *mes,
                           G3DEDGE *edg ) {
     list_remove ( &mes->ledg, edg );
+    list_remove ( &mes->lseledg, edg );
 
     mes->nbedg--;
+
+    g3dvertex_removeEdge ( edg->ver[0x00], edg );
+    g3dvertex_removeEdge ( edg->ver[0x01], edg );
 }
 
 /******************************************************************************/
@@ -3629,9 +3640,6 @@ void g3dmesh_removeFace ( G3DMESH *mes,
         g3dedge_removeFace   ( edg, fac );
 
         if ( edg->lfac == NULL ) {
-            g3dvertex_removeEdge ( edg->ver[0x00], edg );
-            g3dvertex_removeEdge ( edg->ver[0x01], edg );
-
             g3dmesh_removeEdge ( mes, edg );
         }
     }
@@ -3758,10 +3766,10 @@ void g3dmesh_addFace ( G3DMESH *mes,
         fac->typeID = mes->nbqua++;
     }
 
+    g3dmesh_attachFaceVertices  ( mes, fac );
+
     /*** Create Edges if required ***/
     g3dmesh_attachFaceEdges  ( mes, fac );
-
-    g3dmesh_attachFaceVertices  ( mes, fac );
 
     /*** Create UVSets if required ***/
     g3dmesh_assignFaceUVSets ( mes, fac );
@@ -3795,18 +3803,12 @@ void g3dmesh_addFaceWithEdges ( G3DMESH *mes,
     fac->edg[0x00] = edg0;
     fac->edg[0x01] = edg1;
     fac->edg[0x02] = edg2;
-
-    g3dedge_addFace ( edg0, fac );
-    g3dedge_addFace ( edg1, fac );
-    g3dedge_addFace ( edg2, fac );
-
-    if ( fac->nbver == 0x04 ) {
-        fac->edg[0x03] = edg3;
-
-        g3dedge_addFace ( edg3, fac );
-    }
+    fac->edg[0x03] = ( fac->nbver == 0x04 ) ? edg3 : NULL;
 
     g3dmesh_attachFaceVertices  ( mes, fac );
+
+    /*** Create Edges if required ***/
+    g3dmesh_attachFaceEdges  ( mes, fac );
 
     /*** Create UVSets if required ***/
     g3dmesh_assignFaceUVSets ( mes, fac );

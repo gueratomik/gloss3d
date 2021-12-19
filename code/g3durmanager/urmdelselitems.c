@@ -65,7 +65,7 @@ static URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce,
 static void urmdelselitems_free ( URMDELSELITEMS *dsi ) {
     list_free ( &dsi->loldselobj, NULL );
     list_free ( &dsi->loldselver, NULL );
-    /*list_free ( &dsi->loldseledg, NULL );*/
+    list_free ( &dsi->loldseledg, NULL );
     list_free ( &dsi->loldselfac, NULL );
 
     free ( dsi );
@@ -79,7 +79,7 @@ static void deleteSelectedItems_free ( void    *data,
     if ( commit ) {
         list_exec ( dsi->loldselobj, (void(*)(void*)) g3dobject_free );
         list_exec ( dsi->loldselver, (void(*)(void*)) g3dvertex_free );
-        /*list_exec ( dsi->loldseledg, g3dedge_free   );*/
+        /*list_exec ( dsi->loldseledg, (void(*)(void*)) g3dedge_free   );*/
         list_exec ( dsi->loldselfac, (void(*)(void*)) g3dface_free   );
 
         list_exec ( dsi->lorphanedEdges, (void(*)(void*)) g3dedge_free   );
@@ -124,12 +124,12 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
                       ( dsi->engine_flags & VIEWEDGE   ) ) ) {
             LIST *ltmpver = dsi->loldselver;
             LIST *ltmpfac = dsi->loldselfac;
+            LIST *ltmpedg = dsi->loldseledg;
 
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                g3dmesh_addSelectedVertex ( mes, ver );
-
+                g3dmesh_addVertex ( mes, ver );
 
                 ltmpver = ltmpver->next;
             }
@@ -138,14 +138,21 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                 int i;
 
-                g3dmesh_addSelectedFace ( mes, fac );
-
-                /*** Face vertices where unlinked by the  ***/
-                /*** previous call to g3dmesh_removeFace ***/
-                g3dface_linkVertices ( fac );
-
+                g3dmesh_addFace ( mes, fac );
 
                 ltmpfac = ltmpfac->next;
+            }
+
+            if ( dsi->engine_flags & VIEWVERTEX ) {
+                list_execargdata ( dsi->loldselver, (void(*)(void*,void*)) g3dmesh_selectVertex, mes );
+            }
+
+            if ( dsi->engine_flags & VIEWEDGE ) {
+                list_execargdata ( dsi->loldseledg, (void(*)(void*,void*)) g3dmesh_selectEdge, mes );
+            }
+
+            if ( dsi->engine_flags & VIEWFACE ) {
+                list_execargdata ( dsi->loldselfac, (void(*)(void*,void*)) g3dmesh_selectFace, mes );
             }
 
             /*** Rebuild the mesh with modifiers ***/
@@ -189,8 +196,7 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-                if ( fac->flags & FACESELECTED ) g3dmesh_unselectFace ( mes, fac );
-
+                /*** Note: removing unselects the item ***/
                 g3dmesh_removeFace ( mes, fac );
 
 
@@ -200,8 +206,7 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                if ( ver->flags & VERTEXSELECTED ) g3dmesh_unselectVertex ( mes, ver );
-
+                /*** Note: removing unselects the item ***/
                 g3dmesh_removeVertex ( mes, ver );
 
 
@@ -241,7 +246,6 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     }
 
     if ( engine_flags & VIEWEDGE ) {
-        loldselver = g3dmesh_getVertexListFromSelectedEdges ( mes );
         loldseledg = list_copy ( mes->lseledg );
         loldselfac = g3dmesh_getFaceListFromSelectedEdges ( mes );
     }
@@ -267,18 +271,17 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     if ( engine_flags & VIEWVERTEX ) {
         g3dmesh_removeVerticesFromList ( mes, loldselver );
         g3dmesh_removeFacesFromList    ( mes, loldselfac );
-        g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
     }
 
     if ( engine_flags & VIEWFACE ) {
         g3dmesh_removeFacesFromList    ( mes, loldselfac );
-        g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
     }
 
     if ( engine_flags & VIEWEDGE ) {
-        g3dmesh_removeVerticesFromList ( mes, loldselver );
         g3dmesh_removeFacesFromList    ( mes, loldselfac );
     }
+
+    g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
 
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, NULL,

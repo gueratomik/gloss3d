@@ -140,12 +140,12 @@ am__objects_1 = g3dmousetool.lo gloss3d/createCube.lo \
 	gloss3d/createTorus.lo gloss3d/createTube.lo \
 	gloss3d/cutMesh.lo gloss3d/createFacegroup.lo \
 	gloss3d/triangulate.lo gloss3d/untriangulate.lo \
-	gloss3d/revertSpline.lo gloss3d/removeVertexPose.lo \
-	gloss3d/roundSplinePoint.lo gloss3d/invertNormal.lo \
-	gloss3d/empty.lo gloss3d/extrudeFace.lo \
-	gloss3d/weldvertices.lo gloss3d/move.lo gloss3d/pick.lo \
-	gloss3d/rotate.lo gloss3d/sculpt.lo gloss3d/scale.lo \
-	lips3d/spray.lo
+	gloss3d/makeeditable.lo gloss3d/revertSpline.lo \
+	gloss3d/removeVertexPose.lo gloss3d/roundSplinePoint.lo \
+	gloss3d/invertNormal.lo gloss3d/empty.lo \
+	gloss3d/extrudeFace.lo gloss3d/weldvertices.lo gloss3d/move.lo \
+	gloss3d/pick.lo gloss3d/rotate.lo gloss3d/sculpt.lo \
+	gloss3d/scale.lo lips3d/spray.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -179,7 +179,8 @@ am__depfiles_remade = ./$(DEPDIR)/g3dmousetool.Plo \
 	gloss3d/$(DEPDIR)/createVertex.Plo \
 	gloss3d/$(DEPDIR)/cutMesh.Plo gloss3d/$(DEPDIR)/empty.Plo \
 	gloss3d/$(DEPDIR)/extrudeFace.Plo \
-	gloss3d/$(DEPDIR)/invertNormal.Plo gloss3d/$(DEPDIR)/move.Plo \
+	gloss3d/$(DEPDIR)/invertNormal.Plo \
+	gloss3d/$(DEPDIR)/makeeditable.Plo gloss3d/$(DEPDIR)/move.Plo \
 	gloss3d/$(DEPDIR)/pick.Plo \
 	gloss3d/$(DEPDIR)/removeVertexPose.Plo \
 	gloss3d/$(DEPDIR)/revertSpline.Plo \
@@ -378,6 +379,7 @@ LIBGLOSSG3DMOUSE_C_FILES = g3dmousetool.c             \
                            gloss3d/createFacegroup.c  \
                            gloss3d/triangulate.c      \
                            gloss3d/untriangulate.c    \
+                           gloss3d/makeeditable.c    \
                            gloss3d/revertSpline.c     \
                            gloss3d/removeVertexPose.c \
                            gloss3d/roundSplinePoint.c \
@@ -492,6 +494,8 @@ gloss3d/triangulate.lo: gloss3d/$(am__dirstamp) \
 	gloss3d/$(DEPDIR)/$(am__dirstamp)
 gloss3d/untriangulate.lo: gloss3d/$(am__dirstamp) \
 	gloss3d/$(DEPDIR)/$(am__dirstamp)
+gloss3d/makeeditable.lo: gloss3d/$(am__dirstamp) \
+	gloss3d/$(DEPDIR)/$(am__dirstamp)
 gloss3d/revertSpline.lo: gloss3d/$(am__dirstamp) \
 	gloss3d/$(DEPDIR)/$(am__dirstamp)
 gloss3d/removeVertexPose.lo: gloss3d/$(am__dirstamp) \
@@ -553,6 +557,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/empty.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/extrudeFace.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/invertNormal.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/makeeditable.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/move.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/pick.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/removeVertexPose.Plo@am__quote@ # am--include-marker
@@ -751,6 +756,7 @@ distclean: distclean-am
 	-rm -f gloss3d/$(DEPDIR)/empty.Plo
 	-rm -f gloss3d/$(DEPDIR)/extrudeFace.Plo
 	-rm -f gloss3d/$(DEPDIR)/invertNormal.Plo
+	-rm -f gloss3d/$(DEPDIR)/makeeditable.Plo
 	-rm -f gloss3d/$(DEPDIR)/move.Plo
 	-rm -f gloss3d/$(DEPDIR)/pick.Plo
 	-rm -f gloss3d/$(DEPDIR)/removeVertexPose.Plo
@@ -823,6 +829,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gloss3d/$(DEPDIR)/empty.Plo
 	-rm -f gloss3d/$(DEPDIR)/extrudeFace.Plo
 	-rm -f gloss3d/$(DEPDIR)/invertNormal.Plo
+	-rm -f gloss3d/$(DEPDIR)/makeeditable.Plo
 	-rm -f gloss3d/$(DEPDIR)/move.Plo
 	-rm -f gloss3d/$(DEPDIR)/pick.Plo
 	-rm -f gloss3d/$(DEPDIR)/removeVertexPose.Plo

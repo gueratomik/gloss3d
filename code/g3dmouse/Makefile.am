@@ -19,6 +19,7 @@ LIBGLOSSG3DMOUSE_C_FILES = g3dmousetool.c             \
                            gloss3d/createFacegroup.c  \
                            gloss3d/triangulate.c      \
                            gloss3d/untriangulate.c    \
+                           gloss3d/makeeditable.c    \
                            gloss3d/revertSpline.c     \
                            gloss3d/removeVertexPose.c \
                            gloss3d/roundSplinePoint.c \

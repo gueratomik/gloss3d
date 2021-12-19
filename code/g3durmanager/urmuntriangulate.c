@@ -48,6 +48,9 @@ static URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes,
     ums->loldfac = loldfac;
     ums->lnewfac = lnewfac;
 
+    /*** for freeing unused edges later ***/
+    g3dface_getOrphanedEdgesFromList ( loldfac, &ums->loldedg );
+    g3dface_getSharedEdgesFromList   ( lnewfac, &ums->lnewedg );
 
     return ums;
 }
@@ -56,6 +59,8 @@ static URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes,
 static void urmuntriangulate_free ( URMUNTRIANGULATE *ums ) {
     list_free ( &ums->loldfac, NULL );
     list_free ( &ums->lnewfac, NULL );
+    list_free ( &ums->loldedg, NULL );
+    list_free ( &ums->lnewedg, NULL );
 
     free ( ums );
 }
@@ -66,8 +71,10 @@ void unTriangulate_free ( void *data, uint32_t commit ) {
 
     if ( commit ) {
         list_exec ( ums->loldfac, (void(*)(void*)) g3dface_free );
+        list_exec ( ums->loldedg, (void(*)(void*)) g3dedge_free );
     } else {
         list_exec ( ums->lnewfac, (void(*)(void*)) g3dface_free );
+        list_exec ( ums->lnewedg, (void(*)(void*)) g3dedge_free );
     }
 
     urmuntriangulate_free ( ums );
@@ -86,10 +93,6 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
-
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( ums->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
@@ -118,10 +121,6 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( ums->lnewfac, (void(*)(void*)) g3dface_linkVertices );
-
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
@@ -141,8 +140,10 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
                                  uint64_t      engine_flags,
                                  uint32_t      return_flags ) {
     LIST *loldfac = NULL,
-         *lnewfac = NULL;
-    URMUNTRIANGULATE *ums;
+         *lnewfac = NULL,
+         *loldedg = NULL,
+         *lnewedg = NULL;
+    URMTRIANGULATE *ums;
 
     g3dmesh_untriangulate ( mes, &loldfac, &lnewfac );
 
@@ -172,7 +173,9 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
                                uint64_t      engine_flags,
                                uint32_t      return_flags ) {
     LIST *loldfac = NULL,
-         *lnewfac = NULL;
+         *lnewfac = NULL,
+         *loldedg = NULL,
+         *lnewedg = NULL;
     URMTRIANGULATE *ums;
 
     g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
@@ -186,7 +189,7 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
                           UPDATEVERTEXNORMAL |
                           RESETMODIFIERS, engine_flags );
 
-    /*** Triagulate and unTriagulate feature use ***/
+    /*** Triangulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/
     ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
 

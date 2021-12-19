@@ -56,6 +56,10 @@ static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes,
     ems->oldpos  = oldpos;
     ems->newpos  = newpos;
 
+    /*** for freeing unused edges later ***/
+    g3dface_getOrphanedEdgesFromList ( loldfac, &ems->loldedg );
+    g3dface_getSharedEdgesFromList   ( lnewfac, &ems->lnewedg );
+
 
     return ems;
 }
@@ -64,8 +68,10 @@ static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes,
 static void urmextrudemesh_free ( URMEXTRUDEMESH *ems ) {
     list_free ( &ems->loriver, NULL );
     list_free ( &ems->loldfac, NULL );
+    list_free ( &ems->loldedg, NULL );
     list_free ( &ems->lnewver, NULL );
     list_free ( &ems->lnewfac, NULL );
+    list_free ( &ems->lnewedg, NULL );
 
     free ( ems->oldpos );
     free ( ems->newpos );
@@ -82,9 +88,11 @@ static void extrudeMesh_free ( void    *data,
     /*** Discard changes ***/
     if ( commit ) {
         list_exec ( ems->loldfac, (void(*)(void*)) g3dface_free );
+        list_exec ( ems->loldedg, (void(*)(void*)) g3dedge_free );
     } else {
         list_exec ( ems->lnewfac, (void(*)(void*)) g3dface_free   );
         list_exec ( ems->lnewver, (void(*)(void*)) g3dvertex_free );
+        list_exec ( ems->lnewedg, (void(*)(void*)) g3dedge_free   );
     }
 
     urmextrudemesh_free ( ems );
@@ -101,10 +109,6 @@ static void extrudeMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( ems->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, mes );
 
     list_execargdata ( ems->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( ems->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** reset vertex position ***/
     g3dvertex_setPositionFromList ( ems->loriver, ems->oldpos );
@@ -132,10 +136,6 @@ static void extrudeMesh_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( ems->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, mes );
     list_execargdata ( ems->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , mes );
-
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( ems->lnewfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** reset vertex position ***/
     g3dvertex_setPositionFromList ( ems->loriver, ems->newpos );

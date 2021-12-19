@@ -93,8 +93,10 @@ typedef struct _URMWELDVERTICES {
     G3DMESH *mes;
     LIST *loldver;
     LIST *loldfac;
+    LIST *loldedg;
     LIST *lnewfac;
     LIST *lnewver;
+    LIST *lnewedg;
 } URMWELDVERTICES;
 
 /******************************************************************************/
@@ -103,6 +105,7 @@ typedef struct _URMSPLITMESH {
     G3DMESH *splmes;
     LIST    *loldver;
     LIST    *loldfac;
+    LIST    *loldedg;
 } URMSPLITMESH;
 
 /******************************************************************************/
@@ -128,8 +131,10 @@ typedef struct _URMMOVEUVS {
 typedef struct _URMCUTMESH {
     G3DMESH *mes;
     LIST *loldfac;
+    LIST *loldedg;
     LIST *lnewver;
     LIST *lnewfac;
+    LIST *lnewedg;
 } URMCUTMESH;
 
 /******************************************************************************/
@@ -145,14 +150,18 @@ typedef struct _URMUNTRIANGULATE {
     G3DMESH *mes;
     LIST *loldfac;
     LIST *lnewfac;
+    LIST *loldedg; /*** free unused old edges ***/
+    LIST *lnewedg; /*** free newly created edges ***/
 } URMUNTRIANGULATE, URMTRIANGULATE;
 
 /******************************************************************************/
 typedef struct _URMEXTRUDEMESH {
     G3DMESH *mes;
     LIST *loriver;
+    LIST *loldedg;
     LIST *loldfac;
     LIST *lnewver;
+    LIST *lnewedg;
     LIST *lnewfac;
     G3DVECTOR *oldpos;
     G3DVECTOR *newpos;
@@ -251,6 +260,7 @@ typedef struct _URMSELECTITEM {
 typedef struct _URMCREATEFACE {
     G3DMESH *mes;
     G3DFACE *fac;
+    LIST    *lnewedg;
 } URMCREATEFACE;
 
 /******************************************************************************/

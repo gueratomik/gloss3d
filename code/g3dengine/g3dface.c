@@ -1735,8 +1735,6 @@ void g3dface_initWithEdges ( G3DFACE    *fac,
 
     for ( i = 0x00; i < nbver; i++ ) {
         fac->edg[i] = edg[i];
-
-        g3dedge_addFace ( edg[i], fac );
     }
 }
 
@@ -1814,13 +1812,13 @@ G3DFACE *g3dtriangle_new ( G3DVERTEX *v0,
 }
 
 /******************************************************************************/
-void g3dface_linkVertices ( G3DFACE *fac ) {
+/*void g3dface_linkVertices ( G3DFACE *fac ) {
     uint32_t i;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         g3dvertex_addFace ( fac->ver[i], fac );
     }
-}
+}*/
 
 /******************************************************************************/
 /*** Returns the vertex that does not belong to the edge passed as parameter **/

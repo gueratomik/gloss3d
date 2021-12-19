@@ -52,12 +52,23 @@ static URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes,
     wvs->lnewfac = lnewfac;
     wvs->lnewver = lnewver;
 
+    /*** for freeing unused edges later ***/
+    g3dface_getOrphanedEdgesFromList ( loldfac, &wvs->loldedg );
+    g3dface_getSharedEdgesFromList   ( lnewfac, &wvs->lnewedg );
 
     return wvs;
 }
 
 /******************************************************************************/
 static void urmweldvertices_free ( URMWELDVERTICES *wvs ) {
+    list_free ( &wvs->loldver, NULL );
+    list_free ( &wvs->loldfac, NULL );
+    list_free ( &wvs->loldedg, NULL );
+
+    list_free ( &wvs->lnewfac, NULL );
+    list_free ( &wvs->lnewver, NULL );
+    list_free ( &wvs->lnewedg, NULL );
+
     free ( wvs );
 }
 
@@ -66,15 +77,13 @@ static void weldVertices_free ( void *data, uint32_t commit ) {
     URMWELDVERTICES *wvs = ( URMWELDVERTICES * ) data;
 
     if ( commit ) {
-        list_free ( &wvs->loldver, (void(*)(void*)) g3dvertex_free );
-        list_free ( &wvs->loldfac, (void(*)(void*)) g3dface_free   );
-        list_free ( &wvs->lnewfac, NULL );
-        list_free ( &wvs->lnewver, NULL );
+        list_exec ( wvs->loldver, (void(*)(void*)) g3dvertex_free );
+        list_exec ( wvs->loldfac, (void(*)(void*)) g3dface_free   );
+        list_exec ( wvs->loldedg, (void(*)(void*)) g3dedge_free   );
     } else {
-        list_free ( &wvs->lnewver, (void(*)(void*)) g3dvertex_free );
-        list_free ( &wvs->loldver, NULL );
-        list_free ( &wvs->loldfac, NULL );
-        list_free ( &wvs->lnewfac, (void(*)(void*)) g3dface_free );
+        list_exec ( wvs->lnewver, (void(*)(void*)) g3dvertex_free );
+        list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_free   );
+        list_exec ( wvs->lnewedg, (void(*)(void*)) g3dedge_free   );
     }
 
     urmweldvertices_free ( wvs );
@@ -100,8 +109,6 @@ static void weldVertices_undo ( G3DURMANAGER *urm,
 
     /*** restore deleted faces ***/
     list_execargdata ( wvs->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-
-    list_exec ( wvs->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
@@ -134,8 +141,6 @@ static void weldVertices_redo ( G3DURMANAGER *urm,
     /*** restore new faces ***/
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
 
-    list_exec ( wvs->lnewfac, (void(*)(void*)) g3dface_linkVertices );
-
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
                           NULL,
@@ -161,22 +166,26 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
 
     newver = g3dmesh_weldSelectedVertices ( mes, type, &loldfac, &lnewfac );
 
-    list_insert ( &lnewver, newver );
+    if ( newver ) {
+        list_insert ( &lnewver, newver );
 
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+        /*** Rebuild the mesh with modifiers ***/
+        g3dmesh_update ( mes, NULL,
+                              NULL,
+                              NULL,
+                              UPDATEFACEPOSITION |
+                              UPDATEFACENORMAL   |
+                              UPDATEVERTEXNORMAL |
+                              RESETMODIFIERS, engine_flags );
 
-    wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
+        wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
 
-    g3durmanager_push ( urm, weldVertices_undo,
-                             weldVertices_redo,
-                             weldVertices_free, wvs, return_flags );
+        g3durmanager_push ( urm, weldVertices_undo,
+                                 weldVertices_redo,
+                                 weldVertices_free, wvs, return_flags );
+    } else {
+        list_free ( &loldver, NULL );
+    }
 }
 
 /******************************************************************************/

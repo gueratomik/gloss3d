@@ -34,6 +34,7 @@
 static URMCREATEFACE *urmcreateface_new ( G3DMESH *mes, 
                                           G3DFACE *fac ) {
     uint32_t structsize = sizeof ( URMCREATEFACE );
+    LIST lnewfac = { .next = NULL, .prev = NULL, .data = fac };
 
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) calloc ( 0x01, structsize );
 
@@ -46,12 +47,16 @@ static URMCREATEFACE *urmcreateface_new ( G3DMESH *mes,
     cfs->mes = mes;
     cfs->fac = fac;
 
+    g3dface_getSharedEdgesFromList   ( &lnewfac, &cfs->lnewedg );
+
 
     return cfs;
 }
 
 /******************************************************************************/
 static void urmcreateface_free ( URMCREATEFACE *cfs ) {
+    list_free ( &cfs->lnewedg, NULL );
+
     free ( cfs );
 }
 
@@ -62,6 +67,8 @@ static void createFace_free ( void    *data,
 
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
+        list_exec ( cfs->lnewedg, (void(*)(void*)) g3dedge_free );
+
         g3dface_free ( cfs->fac );
     }
 
@@ -109,9 +116,6 @@ static void createFace_redo ( G3DURMANAGER *urm,
     uint32_t i = 0x00;
 
     g3dmesh_addFace ( mes, fac );
-    /*** Face vertices where unlinked by the  ***/
-    /*** previous call to g3dmesh_removeFace ***/
-    g3dface_linkVertices ( fac );
 
     g3dmesh_updateBbox ( mes );
 

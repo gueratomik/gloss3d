@@ -50,6 +50,9 @@ static URMCUTMESH *urmcutmesh_new ( G3DMESH *mes,
     cms->lnewver = lnewver;
     cms->lnewfac = lnewfac;
 
+    /*** for freeing unused edges later ***/
+    g3dface_getOrphanedEdgesFromList ( loldfac, &cms->loldedg );
+    g3dface_getSharedEdgesFromList   ( lnewfac, &cms->lnewedg );
 
     return cms;
 }
@@ -57,9 +60,11 @@ static URMCUTMESH *urmcutmesh_new ( G3DMESH *mes,
 /******************************************************************************/
 static void urmcutmesh_free ( URMCUTMESH *cms ) {
     list_free ( &cms->loldfac, NULL );
+    list_free ( &cms->loldedg, NULL );
     list_free ( &cms->lnewver, NULL );
     list_free ( &cms->lnewfac, NULL );
-    
+    list_free ( &cms->lnewedg, NULL );
+
     free ( cms );
 }
 
@@ -70,9 +75,11 @@ static void cutMesh_free ( void    *data,
 
     if ( commit ) {
         list_exec ( cms->loldfac, (void(*)(void*)) g3dface_free );
+        list_exec ( cms->loldedg, (void(*)(void*)) g3dedge_free );
     } else {
         list_exec ( cms->lnewver, (void(*)(void*)) g3dvertex_free );
         list_exec ( cms->lnewfac, (void(*)(void*)) g3dface_free   );
+        list_exec ( cms->lnewedg, (void(*)(void*)) g3dedge_free   );
     }
 
     urmcutmesh_free ( cms );
@@ -94,10 +101,6 @@ static void cutMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, cms->mes );
 
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
-
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( cms->loldfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,
@@ -125,10 +128,6 @@ static void cutMesh_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, cms->mes );
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
-
-    /*** this is need because the first call to g3dmesh_removeFace unlinked ***/
-    /*** the face list for each vertex belonging to the face ***/
-    list_exec ( cms->lnewfac, (void(*)(void*)) g3dface_linkVertices );
 
     /*** Rebuild the cut mesh ***/
     g3dmesh_update ( mes, NULL,

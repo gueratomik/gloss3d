@@ -415,7 +415,7 @@ G3DEDGE *g3dedge_seek ( LIST      *lis,
 
 /******************************************************************************/
 void g3dedge_free ( G3DEDGE *edg ) {
-    list_free ( &edg->lfac, NULL );
+    /*list_free ( &edg->lfac, NULL );*/
 
     /*printf ( "freeing memory for edge\n" );*/
 
