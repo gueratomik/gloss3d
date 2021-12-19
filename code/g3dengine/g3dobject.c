@@ -1436,6 +1436,26 @@ void g3dobject_setActive ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj ) {
+    uint32_t nbchildren = list_count ( obj->lchildren );
+    LIST *ltmpobj = obj->lchildren;
+
+    if ( nbchildren ) {
+        uint32_t id = rand () % nbchildren;
+
+        while ( ltmpobj ) {
+            G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
+
+            if ( id-- == 0x00 ) return child;
+
+            ltmpobj = ltmpobj->next;
+        }
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dobject_drawCenter ( G3DOBJECT *obj,
                             uint64_t engine_flags ) {
     /*** no need to draw this in picking mode ***/

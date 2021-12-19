@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3dui_addVibratorCbk ( G3DUI *gui ) {
+void common_g3dui_addVibratorTagCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -51,7 +51,7 @@ void common_g3dui_addVibratorCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void common_g3dui_addTrackerCbk ( G3DUI *gui ) {
+void common_g3dui_addTrackerTagCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -563,6 +563,31 @@ void common_g3dui_addInstanceCbk ( G3DUI *gui ) {
 
     g3dscene_unselectAllObjects ( sce, gui->engine_flags );
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) ins, gui->engine_flags );
+
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateCoords ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawTimeline ( gui );
+    g3dui_updateMenuBar ( gui );
+}
+
+/******************************************************************************/
+void common_g3dui_addEmitterCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    uint32_t oid = g3dscene_getNextObjectID ( sce );
+    G3DPARTICLEEMITTER *pem = g3dparticleemitter_new ( oid, "Emitter" );
+
+    g3durm_object_addChild ( urm, sce, gui->engine_flags, 
+                                       ( REDRAWVIEW |
+                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       ( G3DOBJECT * ) NULL,
+                                       ( G3DOBJECT * ) sce,
+                                       ( G3DOBJECT * ) pem );
+
+    g3dscene_unselectAllObjects ( sce, gui->engine_flags );
+    g3dscene_selectObject ( sce, ( G3DOBJECT * ) pem, gui->engine_flags );
 
     g3dui_redrawGLViews ( gui );
     g3dui_updateCoords ( gui );

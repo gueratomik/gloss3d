@@ -517,6 +517,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDBONE              "Add Bone"
 #define MENU_ADDSYMMETRY          "Add Symmetry"
 #define MENU_ADDINSTANCE          "Add Instance"
+#define MENU_ADDEMITTER           "Add Particle emitter"
 #define MENU_ADDWIREFRAME         "Add Wireframe"
 #define MENU_ADDSPLINEREVOLVER    "Add Spline Revolver"
 #define MENU_ADDSUBDIVIDER        "Add Subdivider"
@@ -533,9 +534,9 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_RESETBONEONLY        "This bone only"
 #define MENU_UNSELECTAREA         "Unselect area"
 
-#define MENU_ADDVIBRATOR          "Add Vibrator tag"
-#define MENU_ADDEMITTER           "Add Emitter tag"
-#define MENU_ADDTRACKER           "Add Tracker tag"
+#define MENU_ADDVIBRATORTAG       "Add Vibrator tag"
+#define MENU_ADDEMITTERTAG        "Add Emitter tag"
+#define MENU_ADDTRACKERTAG        "Add Tracker tag"
 #define MENU_REMOVESELTAG         "Remove selected tag"
 
 #define MENU_ADDUVWMAP            "Add UVW Map"
@@ -1187,6 +1188,7 @@ void      common_g3dui_assignFFDBoxCbk        ( G3DUI * );
 void      common_g3dui_addFFDBoxCbk           ( G3DUI * );
 void      common_g3dui_addSymmetryCbk         ( G3DUI * );
 void      common_g3dui_addInstanceCbk         ( G3DUI * );
+void      common_g3dui_addEmitterCbk          ( G3DUI * );
 void      common_g3dui_resetBoneTreeCbk       ( G3DUI * );
 void      common_g3dui_resetBoneCbk           ( G3DUI * );
 void      common_g3dui_fixBoneTreeCbk         ( G3DUI * );
@@ -1197,9 +1199,9 @@ void      common_g3dui_mirrorWeightGroupCbk   ( G3DUI *, const char * );
 void      common_g3dui_setMaterialCbk         ( G3DUI * );
 
 void      common_g3duimenubar_addUVMapCbk     ( G3DUI * );
-void      common_g3dui_addVibratorCbk         ( G3DUI * );
-void      common_g3dui_addTrackerCbk         ( G3DUI * );
-void common_g3dui_removeSelectedTagCbk ( G3DUI *gui );
+void      common_g3dui_addVibratorTagCbk      ( G3DUI * );
+void      common_g3dui_addTrackerTagCbk       ( G3DUI * );
+void      common_g3dui_removeSelectedTagCbk   ( G3DUI *gui );
 void      common_g3duimenubar_alignUVMapCbk   ( G3DUI *, const char * );
 void      common_g3duimenubar_fitUVMapCbk     ( G3DUI * );
 

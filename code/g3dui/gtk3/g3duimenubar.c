@@ -714,17 +714,17 @@ GtkWidget *createMaterialMenuBar ( GtkWidget *parent,
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-void g3dui_addVibratorCbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_addVibratorTagCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3dui_addVibratorCbk ( gui );
+    common_g3dui_addVibratorTagCbk ( gui );
 }
 
 /******************************************************************************/
-void g3dui_addTrackerCbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_addTrackerTagCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3dui_addTrackerCbk ( gui );
+    common_g3dui_addTrackerTagCbk ( gui );
 }
 
 
@@ -737,15 +737,15 @@ void g3dui_removeSelectedTagCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 /****************************** Tags MENU **********************************/
-static G3DUIMENU tags_menu_addVibrator     = { MENU_ADDVIBRATOR,
+static G3DUIMENU tags_menu_addVibrator     = { MENU_ADDVIBRATORTAG,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectMode_objectSelected,
-                                               g3dui_addVibratorCbk };
+                                               g3dui_addVibratorTagCbk };
 
-static G3DUIMENU tags_menu_addTracker      = { MENU_ADDTRACKER,
+static G3DUIMENU tags_menu_addTrackerTag   = { MENU_ADDTRACKERTAG,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectMode_objectSelected,
-                                               g3dui_addTrackerCbk };
+                                               g3dui_addTrackerTagCbk };
 
 static G3DUIMENU tags_menu_removeSelTag    = { MENU_REMOVESELTAG,
                                                G3DUIMENUTYPE_PUSHBUTTON,
@@ -758,7 +758,7 @@ static G3DUIMENU tags_menu = { "Tags",
                                NULL,
                                NULL,
                               .nodes = { /*&tags_menu_addVibrator,*/
-                                         &tags_menu_addTracker,
+                                         &tags_menu_addTrackerTag,
                                          &tags_menu_removeSelTag,
                                           NULL } };
 
@@ -1192,6 +1192,13 @@ void g3dui_addInstanceCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
     common_g3dui_addInstanceCbk ( gui );
+}
+
+/******************************************************************************/
+void g3dui_addEmitterCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_addEmitterCbk ( gui );
 }
 
 /******************************************************************************/
@@ -1698,6 +1705,11 @@ static G3DUIMENU functions_menu = { "Functions",
 
 /******************************************************************************/
 /***************************** Multipliers MENU *******************************/
+static G3DUIMENU multipliers_menu_addEmitter = { MENU_ADDEMITTER,
+                                                 G3DUIMENUTYPE_PUSHBUTTON,
+                                                 objectModeOnly,
+                                                 g3dui_addEmitterCbk };
+
 static G3DUIMENU multipliers_menu_addInstance = { MENU_ADDINSTANCE,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
@@ -1715,6 +1727,7 @@ static G3DUIMENU multipliers_menu = { "Multipliers",
                                       NULL,
                                      .nodes = { &multipliers_menu_addInstance,
                                                 &multipliers_menu_addSymmetry,
+                                                &multipliers_menu_addEmitter,
                                                  NULL } };
 
 /******************************************************************************/

@@ -576,6 +576,12 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #include <g3dengine/g3dpick.h>
 
 /******************************************************************************/
+typedef struct G3DSEGMENT {
+    G3DVECTOR src;
+    G3DVECTOR dst;
+} G3DSEGMENT;
+
+/******************************************************************************/
 typedef struct G3DGLOBALS {
     GLint lightID;
 } G3DGLOBALS;
@@ -2093,6 +2099,7 @@ void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                                    LIST     **laddedScaSegments );
 
 G3DOBJECT *g3dobject_findReferred_r ( G3DOBJECT *obj );
+G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj );
 uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift,

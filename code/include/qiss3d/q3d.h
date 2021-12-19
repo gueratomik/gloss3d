@@ -517,6 +517,11 @@ typedef struct _Q3DINSTANCE {
 } Q3DINSTANCE;
 
 /******************************************************************************/
+typedef struct _Q3DPARTICLEEMITTER {
+    Q3DOBJECT  qobj;
+} Q3DPARTICLEEMITTER;
+
+/******************************************************************************/
 #define Q3DOCTREE_ISROOT        ( 1 << 0 )
 #define Q3DOCTREE_HASNODES      ( 1 << 1 )
 #define Q3DOCTREE_HASTRIANGLES  ( 1 << 2 )
