@@ -148,6 +148,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define NODRAWPOLYGON      ((uint64_t)1  << 26 )
 #define NOBACKGROUNDIMAGE  ((uint64_t)1  << 27 )
 #define MODIFIERTOOKOVER   ((uint64_t)1  << 28 )
+#define ONGOINGRENDERING   ((uint64_t)1  << 29 )
 
 /******************************* UVMAp Editor flags ***************************/
 #define VIEWVERTEXUV       ((uint64_t)1  << 29 )

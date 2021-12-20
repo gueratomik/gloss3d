@@ -119,6 +119,32 @@ static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
 }
 
 /******************************************************************************/
+void q3dcore_buildLocalQRay ( Q3DRAY *qray,
+                              double *IMVX,
+                              Q3DRAY *locqray ) {
+    Q3DVECTOR3F dest, locdest;
+
+    memcpy ( locqray, qray, sizeof ( Q3DRAY ) );
+
+    q3dvector3f_matrix ( &qray->src, IMVX, &locqray->src );
+
+    /*** NOTE: We could use the transpose inverse matrix to transform the   ***/
+    /*** direction vector, BUT it would not work for non-uniform scaled     ***/
+    /*** matrices, so we compute an arbitrary destination point, we find    ***/
+    /*** its local position, we deduce the direction vector from the source ***/
+    /*** and the destination. It's as simple as that.                       ***/
+    dest.x = qray->src.x + ( qray->dir.x );
+    dest.y = qray->src.y + ( qray->dir.y ); 
+    dest.z = qray->src.z + ( qray->dir.z );
+
+    q3dvector3f_matrix ( &dest, IMVX, &locdest );
+
+    locqray->dir.x = locdest.x - locqray->src.x;
+    locqray->dir.y = locdest.y - locqray->src.y;
+    locqray->dir.z = locdest.z - locqray->src.z;
+}
+
+/******************************************************************************/
 uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
                                  Q3DRAY     *qray,
                                  Q3DSURFACE *discard,
@@ -131,33 +157,9 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
     LIST *ltmpchildren = qobj->lchildren;
     uint32_t hit = 0x00;
     Q3DRAY locqray;
-    Q3DVECTOR3F src, dir, dest, locdest;
-    float factor;
+    Q3DVECTOR3F src, dir;
 
-    memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
-
-    q3dvector3f_matrix ( &qray->src, qobj->IMVX, &locqray.src );
-
-    /*** NOTE: We could use the transpose inverse matrix to transform the   ***/
-    /*** direction vector, BUT it would not work for non-uniform scaled     ***/
-    /*** matrices, so we compute an arbitrary destination point, we find    ***/
-    /*** its local position, we deduce the direction vector from the source ***/
-    /*** and the destination. It's as simple as that.                       ***/
-    dest.x = qray->src.x + ( qray->dir.x );
-    dest.y = qray->src.y + ( qray->dir.y ); 
-    dest.z = qray->src.z + ( qray->dir.z );
-
-    q3dvector3f_matrix ( &dest, qobj->IMVX, &locdest );
-
-    locqray.dir.x = locdest.x - locqray.src.x;
-    locqray.dir.y = locdest.y - locqray.src.y;
-    locqray.dir.z = locdest.z - locqray.src.z;
-
-    /*** COMENTED OUT : DO NOT normalize the direction vector. This in itself**/
-    /*** fixes scaling issues with ZBuffer by keeping the distance iso ***/
-    /*q3dvector3f_normalize ( &locqray.dir, &factor );*/
-
-    factor = q3dvector3f_length ( &locqray.dir );
+    q3dcore_buildLocalQRay ( qray, qobj->IMVX, &locqray );
 
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
         if ( qobj->intersect ) {
@@ -328,11 +330,20 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
 
             case G3DINSTANCETYPE : {
                 G3DINSTANCE *ins = ( G3DINSTANCE * ) obj;
-                Q3DSYMMETRY *qins = q3dinstance_new ( ins, 
+                Q3DINSTANCE *qins = q3dinstance_new ( ins, 
                                                       qsce->qobjID++,
                                                       0x00 );
 
                 qobj = ( Q3DOBJECT * ) qins;
+            } break;
+
+            case G3DPARTICLEEMITTERTYPE : {
+                G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) obj;
+                Q3DPARTICLEEMITTER *qpem = q3dparticleemitter_new ( pem, 
+                                                                    qsce->qobjID++,
+                                                                    0x00 );
+
+                qobj = ( Q3DOBJECT * ) qpem;
             } break;
 
             case G3DSCENETYPE : {

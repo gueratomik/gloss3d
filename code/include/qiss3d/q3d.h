@@ -517,8 +517,16 @@ typedef struct _Q3DINSTANCE {
 } Q3DINSTANCE;
 
 /******************************************************************************/
+typedef struct _Q3DPARTICLE {
+    Q3DOBJECT *qref;
+    double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
+    double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
+} Q3DPARTICLE;
+
+/******************************************************************************/
 typedef struct _Q3DPARTICLEEMITTER {
-    Q3DOBJECT  qobj;
+    Q3DOBJECT    qobj;
+    Q3DPARTICLE *qprt;
 } Q3DPARTICLEEMITTER;
 
 /******************************************************************************/
@@ -1224,6 +1232,14 @@ void q3darea_viewport ( Q3DAREA   *qarea,
                         Q3DCAMERA *qcam );
 
 void q3darea_averageSoftShadows ( Q3DAREA *qarea );
+
+void q3dcore_buildLocalQRay ( Q3DRAY *qray,
+                              double *IMVX,
+                              Q3DRAY *locqray );
+
+Q3DPARTICLEEMITTER *q3dparticleemitter_new ( G3DPARTICLEEMITTER *pem,
+                                             uint32_t     id,
+                                             uint64_t     object_flags );
 
 #endif
  

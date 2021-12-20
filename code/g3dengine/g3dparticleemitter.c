@@ -164,6 +164,18 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
                          prt[j].lifeTime -= deltaFrame;
                     }
                 }
+
+                if ( engine_flags & ONGOINGRENDERING ) {
+                    glPushMatrix ( );
+                    glLoadIdentity ( );
+                    glTranslatef ( prt[j].pos.x, 
+                                   prt[j].pos.y, 
+                                   prt[j].pos.z );
+
+                    glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
+
+                    glPopMatrix();
+                }
             }
         }
     }

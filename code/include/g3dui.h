@@ -747,6 +747,7 @@ typedef struct _G3DUIACTION {
 typedef struct _GOTOFRAME {
     G3DUIACTION action;
     float frame;
+    uint64_t extra_engine_flags;
 } GOTOFRAME;
 
 typedef struct _DUMPSCREEN {

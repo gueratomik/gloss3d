@@ -44,6 +44,7 @@ typedef struct _G3DPARTICLE {
     G3DVECTOR  pos;
     G3DVECTOR  rot;
     G3DVECTOR  sca;
+    double     MVX[0x10];
     G3DVECTOR  speed;
     G3DVECTOR  accel;
     int32_t    startAtFrame;

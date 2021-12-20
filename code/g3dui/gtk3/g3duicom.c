@@ -37,7 +37,10 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     /*** On real time stuff ***/
     gui->engine_flags |= ONGOINGANIMATION;
 
-    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, gtf->frame, gui->engine_flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, 
+                                       gtf->frame, 
+                                       gui->engine_flags |
+                                       gtf->extra_engine_flags );
 
     g3dui_redrawGLViews  ( gui );
     g3dui_redrawTimeline ( gui );
@@ -134,6 +137,7 @@ uint32_t filtergotoframe_draw ( Q3DFILTER     *fil,
     gtf.action.type = ACTION_GOTOFRAME;
     gtf.action.gui  = gui;
     gtf.frame       = frameID;
+    gtf.extra_engine_flags = ONGOINGRENDERING;
 
     g3duicom_requestActionFromMainThread ( gui, &gtf );
 
