@@ -714,7 +714,28 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         alpha->g /= ( divAlpha );
         alpha->b /= ( divAlpha );
 
-        alpha->a = divAlpha; /*** store if alpha channel is neede or not ***/
+        alpha->a = 0xFF; /*** store if alpha channel is neede or not ***/
+    } else {
+        (*alphaOpacity) = 1.0f;
+
+     /*** needed for qray->objectTransparency below ***/
+        alpha->r = 0xFF;
+        alpha->g = 0xFF;
+        alpha->b = 0xFF;
+
+        alpha->a = 0x00;
+    }
+
+    if ( qray->objectTransparency > 0.0f ) {
+        float objectOpacity = ( 1.0f - qray->objectTransparency );
+
+        (*alphaOpacity) *= objectOpacity;
+
+        alpha->r *= objectOpacity;
+        alpha->g *= objectOpacity;
+        alpha->b *= objectOpacity;
+
+        alpha->a = 0xFF;
     }
 
     return 0x01;
@@ -749,7 +770,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     uint32_t updateZ = 0x00;
 
     if ( query_flags & RAYQUERYHIT ) {
-        if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+        if ( /*qray->flags & Q3DRAY_PRIMARY_BIT*/0 ) {
             Q3DZBUFFER zout;
 
             /*** Remove the flag for raytraced perfect spheres ***/

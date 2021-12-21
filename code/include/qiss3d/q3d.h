@@ -107,7 +107,6 @@ typedef G3DRGBA         Q3DRGBA;
 #define GEOMETRYONLY ( 1      )
 
 /********************************** ray intersection **************************/
-#define INTERSECT ( 1      )
 #define REFLECTED ( 1 << 1 )
 #define REFRACTED ( 1 << 2 )
 #define OUTLINED  ( 1 << 3 )
@@ -497,6 +496,7 @@ typedef struct _Q3DRAY {
     float           ratio[0x03];
     Q3DINTERSECTION isx; /*** in world coordinates ***/
     uint32_t        color;
+    float           objectTransparency;
 } Q3DRAY;
 
 /******************************************************************************/
@@ -519,6 +519,7 @@ typedef struct _Q3DINSTANCE {
 /******************************************************************************/
 typedef struct _Q3DPARTICLE {
     Q3DOBJECT *qref;
+    double      MVX[0x10];  /*** ModelView Matrix           ***/
     double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
     double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
 } Q3DPARTICLE;
@@ -969,8 +970,9 @@ void       q3dobject_init        ( Q3DOBJECT *qobj,
                                    uint32_t   id,
                                    uint64_t   flags,
                                    void     (*Free)      ( Q3DOBJECT * ),
-                                   uint32_t (*Intersect) ( Q3DOBJECT *obj,
-                                                           Q3DRAY    *ray,
+                                   uint32_t (*Intersect) ( Q3DOBJECT  *qobj,
+                                                           Q3DRAY     *qray,
+                                                           Q3DSURFACE *qsur,
                                                            uint32_t (*cond)(Q3DOBJECT*,void*),
                                                            void      *condData,
                                                            float      frame,

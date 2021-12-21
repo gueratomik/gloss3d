@@ -43,6 +43,102 @@ static inline void getRandomPointOnSquare ( G3DSEGMENT *s1,
 }
 
 /******************************************************************************/
+static void g3dparticle_init ( G3DPARTICLE *prt,
+                               G3DOBJECT   *ref,
+                               G3DVECTOR   *pos,
+                               G3DVECTOR   *sca,
+                               G3DVECTOR   *rot,
+                               G3DVECTOR   *accel,
+                               G3DVECTOR   *speed,
+                               int32_t      startAtFrame,
+                               float        transparency ) {
+    prt->ref = ref;
+
+    prt->pos.x = pos->x;
+    prt->pos.y = pos->y;
+    prt->pos.z = pos->z;
+
+    prt->initialScaling.x = sca->x;
+    prt->initialScaling.y = sca->y;
+    prt->initialScaling.z = sca->z;
+
+    prt->sca.x = 0.0f;
+    prt->sca.y = 0.0f;
+    prt->sca.z = 0.0f;
+
+    prt->rot.x = rot->x;
+    prt->rot.y = rot->y;
+    prt->rot.z = rot->z;
+
+    prt->accel.x = accel->x;
+    prt->accel.y = accel->y;
+    prt->accel.z = accel->z;
+
+    prt->speed.x = speed->x;
+    prt->speed.y = speed->y;
+    prt->speed.z = speed->z;
+
+    prt->startAtFrame = startAtFrame;
+    prt->lifeTime = 0;
+
+    prt->transparency = transparency;
+}
+
+/******************************************************************************/
+static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
+                                              G3DPARTICLE        *prt,
+                                              int32_t             startAtFrame ) {
+    float rd = ( float ) rand ( ) / RAND_MAX;
+
+    G3DVECTOR initialAccelVariation = { .x = ( pem->initialAccel.x * rd *
+                                               pem->initialAccelVariation.x ),
+                                        .y = ( pem->initialAccel.y * rd *
+                                               pem->initialAccelVariation.y ),
+                                        .z = ( pem->initialAccel.z * rd *
+                                               pem->initialAccelVariation.z ) };
+    G3DVECTOR initialSpeedVariation = { .x = ( pem->initialSpeed.x * rd *
+                                               pem->initialSpeedVariation.x ),
+                                        .y = ( pem->initialSpeed.y * rd *
+                                               pem->initialSpeedVariation.y ),
+                                        .z = ( pem->initialSpeed.z * rd *
+                                               pem->initialSpeedVariation.z ) };
+    G3DVECTOR initialScalingVariation = { .x = ( pem->initialScaling.x * rd *
+                                                 pem->initialScalingVariation.x ),
+                                          .y = ( pem->initialScaling.y * rd *
+                                                 pem->initialScalingVariation.y ),
+                                          .z = ( pem->initialScaling.z * rd *
+                                                 pem->initialScalingVariation.z ) };
+    G3DVECTOR accel = { .x = pem->initialAccel.x + initialAccelVariation.x,
+                        .y = pem->initialAccel.y + initialAccelVariation.y,
+                        .z = pem->initialAccel.z + initialAccelVariation.z };
+    G3DVECTOR speed = { .x = pem->initialSpeed.x + initialSpeedVariation.x,
+                        .y = pem->initialSpeed.y + initialSpeedVariation.y,
+                        .z = pem->initialSpeed.z + initialSpeedVariation.z };
+    G3DVECTOR pos,
+              sca = { .x = pem->initialScaling.x + initialScalingVariation.x, 
+                      .y = pem->initialScaling.y + initialScalingVariation.y,
+                      .z = pem->initialScaling.z + initialScalingVariation.z },
+              rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    getRandomPointOnSquare ( &pem->seg1, 
+                             &pem->seg2, 
+                              pem->radius, 
+                             &pos );
+
+    g3dparticle_init ( prt,
+                       g3dobject_getRandomChild ( pem ),
+                      &pos,
+                      &sca,
+                      &rot,
+                      &accel,
+                      &speed,
+                       startAtFrame,
+                       pem->initialTransparency );
+}
+
+
+
+/******************************************************************************/
 static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem, 
                                                      uint32_t            id, 
                                                      unsigned char      *name,
@@ -50,12 +146,11 @@ static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem,
     G3DPARTICLEEMITTER *cpypem = g3dparticleemitter_new ( ((G3DOBJECT*)pem)->id,
                                                           ((G3DOBJECT*)pem)->name );
 
-    cpypem->initialAccel        = pem->initialAccel;
+    /*cpypem->initialAccel        = pem->initialAccel;
     cpypem->initialSpeed        = pem->initialSpeed;
     cpypem->particlesPerFrame   = pem->particlesPerFrame;
-    cpypem->particleLifeTime    = pem->particleLifeTime;
-    cpypem->scaleFactor         = pem->scaleFactor;
-    cpypem->startAtFrame        = pem->startAtFrame;
+    cpypem->particleLifetime    = pem->particleLifetime;
+    cpypem->startAtFrame        = pem->startAtFrame;*/
 
     g3dparticleemitter_reset ( cpypem );
 
@@ -70,25 +165,32 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
     if ( pem->maxParticles ) {
         uint32_t i, j;
 
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
+        /*glPushAttrib( GL_ALL_ATTRIB_BITS );
         glDisable   ( GL_LIGHTING );
         glColor3ub  ( 0xFF, 0xFF, 0xFF );
-        glPointSize ( 3.0f );
+        glPointSize ( 3.0f );*/
 
-        glBegin ( GL_POINTS );
-
-        for ( i = 0x00; i < pem->particleLifeTime; i++ ) {
+        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                if ( prt[j].lifeTime != pem->particleLifeTime ) {
+                if ( prt[j].lifeTime < pem->particleLifetime ) {
                     glPushMatrix ( );
                     glTranslatef ( prt[j].pos.x, 
                                    prt[j].pos.y, 
                                    prt[j].pos.z );
 
+                    glScalef ( prt[j].sca.x, 
+                               prt[j].sca.y, 
+                               prt[j].sca.z );
+
+
                     if ( prt[j].ref ) {
-                        if ( prt[j].ref->draw ) prt[j].ref->draw ( prt[j].ref, curcam, engine_flags );
+                        if ( prt[j].ref->draw ) {
+                            prt[j].ref->draw ( prt[j].ref, 
+                                               curcam, 
+                                               engine_flags );
+                        }
                     }
 
                     glPopMatrix();
@@ -96,10 +198,7 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
             }
         }
 
-
-        glEnd ( );
-
-        glPopAttrib ( );
+        /*glPopAttrib ( );*/
     }
 
 
@@ -132,36 +231,39 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
     float deltaFrame = frame - pem->oldFrame;
 
     if ( pem->maxParticles ) {
-        G3DSEGMENT s1 = { .src = { .x =  pem->radius, .y = 0.0f, .z =  pem->radius },
-                          .dst = { .x =  pem->radius, .y = 0.0f, .z = -pem->radius } },
-                   s2 = { .src = { .x = -pem->radius, .y = 0.0f, .z =  pem->radius },
-                          .dst = { .x =  pem->radius, .y = 0.0f, .z =  pem->radius } };
+
         int32_t iFrame = ( int32_t ) ( frame - pem->startAtFrame );
-        int32_t localFrame = ( iFrame % pem->particleLifeTime );
+        int32_t localFrame = ( iFrame % pem->particleLifetime );
         int32_t i, j;
 
         if ( frame == pem->startAtFrame ) {
             g3dparticleemitter_reset ( pem );
         }
 
-        for ( i = 0x00; i < pem->particleLifeTime; i++ ) {
+        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                /*prt[j].lifeTime = ( int32_t ) i - localFrame;*/
+                if ( frame >= prt[j].startAtFrame ) {
+                    float ratio = ( float ) prt[j].lifeTime / pem->particleLifetime;
 
-                if ( prt[j].lifeTime < 0x00 ) {
-                    getRandomPointOnSquare ( &s1, &s2, pem->radius, &prt[j].pos );
+                    prt[j].pos.x += prt[j].speed.x * deltaFrame;
+                    prt[j].pos.y += prt[j].speed.y * deltaFrame;
+                    prt[j].pos.z += prt[j].speed.z * deltaFrame;
 
-                    prt[j].startAtFrame = i;
-                    prt[j].lifeTime = pem->particleLifeTime;
-                } else {
-                    if ( frame >= prt[j].startAtFrame ) {
-                         prt[j].pos.x += ( float ) prt[j].speed.x * deltaFrame;
-                         prt[j].pos.y += ( float ) prt[j].speed.y * deltaFrame;
-                         prt[j].pos.z += ( float ) prt[j].speed.z * deltaFrame;
+                    prt[j].sca.x  = prt[j].initialScaling.x + ( ( pem->finalScaling.x - prt[j].initialScaling.x ) * ratio );
+                    prt[j].sca.y  = prt[j].initialScaling.y + ( ( pem->finalScaling.y - prt[j].initialScaling.y ) * ratio );
+                    prt[j].sca.z  = prt[j].initialScaling.z + ( ( pem->finalScaling.z - prt[j].initialScaling.z ) * ratio );
 
-                         prt[j].lifeTime -= deltaFrame;
+                    prt[j].transparency = pem->initialTransparency + ( ( pem->finalTransparency - pem->initialTransparency ) * ratio );
+
+                    prt[j].lifeTime = ( frame - prt[j].startAtFrame );
+
+                    if ( prt[j].lifeTime == pem->particleLifetime ) {
+                        g3dparticleemitter_initParticle ( pem, 
+                                                         &prt[j], 
+                                                          prt[j].startAtFrame +
+                                                          pem->particleLifetime );
                     }
                 }
 
@@ -171,6 +273,10 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
                     glTranslatef ( prt[j].pos.x, 
                                    prt[j].pos.y, 
                                    prt[j].pos.z );
+
+                    glScalef ( prt[j].sca.x, 
+                               prt[j].sca.y, 
+                               prt[j].sca.z );
 
                     glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
 
@@ -185,39 +291,39 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
 
 /******************************************************************************/
 void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem ) {
+    /*** segments defining the square from which particles are emitted ***/
+    pem->seg1.src.x =  pem->radius;
+    pem->seg1.src.y =  0.0f;
+    pem->seg1.src.z =  pem->radius;
+
+    pem->seg1.dst.x =  pem->radius;
+    pem->seg1.dst.y =  0.0f;
+    pem->seg1.dst.z = -pem->radius;
+
+    pem->seg2.src.x = -pem->radius;
+    pem->seg2.src.y =  0.0f,
+    pem->seg2.src.z =  pem->radius;
+
+    pem->seg2.dst.x =  pem->radius;
+    pem->seg2.dst.y =  0.0f;
+    pem->seg2.dst.z =  pem->radius;
+
     pem->maxParticlesPerFrame = ceilf ( pem->particlesPerFrame );
-    pem->maxParticles = pem->maxParticlesPerFrame * pem->particleLifeTime;
+    pem->maxParticles = pem->maxParticlesPerFrame * pem->particleLifetime;
 
     if ( pem->particles ) free ( pem->particles );
 
     if ( pem->maxParticles ) {
-        G3DSEGMENT s1 = { .src = { .x =  pem->radius, .y = 0.0f, .z =  pem->radius },
-                          .dst = { .x =  pem->radius, .y = 0.0f, .z = -pem->radius } },
-                   s2 = { .src = { .x = -pem->radius, .y = 0.0f, .z =  pem->radius },
-                          .dst = { .x =  pem->radius, .y = 0.0f, .z =  pem->radius } };
         uint32_t i, j;
 
         pem->particles = ( G3DPARTICLE * ) calloc ( pem->maxParticles,
                                                     sizeof ( G3DPARTICLE ) );
 
-        for ( i = 0x00; i < pem->particleLifeTime; i++ ) {
+        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                getRandomPointOnSquare ( &s1, &s2, pem->radius, &prt[j].pos );
-
-                prt[j].ref = g3dobject_getRandomChild ( pem );
-
-                prt[j].accel.x = 
-                prt[j].accel.y = 
-                prt[j].accel.z = 0.0f;
-
-                prt[j].speed.x = pem->initialSpeed.x;
-                prt[j].speed.y = pem->initialSpeed.y;
-                prt[j].speed.z = pem->initialSpeed.z;
-
-                prt[j].startAtFrame = i;
-                prt[j].lifeTime = pem->particleLifeTime;
+                g3dparticleemitter_initParticle ( pem, &prt[j], i );
             }
         }
     }
@@ -252,14 +358,30 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
     ((G3DOBJECT*)pem)->anim = ANIM_CALLBACK(g3dparticleemitter_anim);
 
     /*pem->initialAcceleration = 0.0f;*/
-    pem->particlesPerFrame   = 1.0f;
-    pem->particleLifeTime    = 10;
+    pem->particlesPerFrame   = 10.0f;
+    pem->particleLifetime    = 10;
     /*pem->scaleFactor         = 1.0f;*/
     pem->startAtFrame        = 0.0f;
+
+
+    pem->initialScaling.x = 0.1f;
+    pem->initialScaling.y = 0.1f;
+    pem->initialScaling.z = 0.1f;
+
+    pem->initialScalingVariation.x = 0.5f;
+    pem->initialScalingVariation.y = 0.5f;
+    pem->initialScalingVariation.z = 0.5f;
+
+    pem->finalScaling.x = 0.5f;
+    pem->finalScaling.y = 0.5f;
+    pem->finalScaling.z = 0.5f;
 
     pem->initialSpeed.x = 0.0f;
     pem->initialSpeed.y = 0.32f;
     pem->initialSpeed.z = 0.0f;
+
+    pem->initialTransparency = 0.0f;
+    pem->finalTransparency = 1.0f;
 
     pem->radius = 1.0f;
 }

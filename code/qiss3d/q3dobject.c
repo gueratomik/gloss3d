@@ -207,6 +207,8 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         q3dvector3f_normalize ( &qray->isx.dir, NULL );
 
         qray->distance = locqray.distance;
+
+        qray->objectTransparency = locqray.objectTransparency;
     }
     
 
@@ -245,8 +247,9 @@ void q3dobject_init ( Q3DOBJECT *qobj,
                       uint32_t   id,
                       uint64_t   flags,
                       void     (*Free)      ( Q3DOBJECT * ),
-                      uint32_t (*Intersect) ( Q3DOBJECT *obj, 
-                                              Q3DRAY    *ray,
+                      uint32_t (*Intersect) ( Q3DOBJECT  *qobj, 
+                                              Q3DRAY     *qray,
+                                              Q3DSURFACE *qsur,
                                               uint32_t (*cond)(Q3DOBJECT*,void*),
                                               void      *condData,
                                               float      frame,
