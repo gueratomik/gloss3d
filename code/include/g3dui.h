@@ -455,6 +455,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define EDITINSTANCE           "Instance"
 
+#define EDITPARTICLEEMITTER    "Particle Emitter"
+
 #define MODE_VIEWOBJECT "Object mode"
 #define MODE_VIEWVERTEX "Vertex mode"
 #define MODE_VIEWEDGE   "Edge mode"
@@ -1707,5 +1709,27 @@ void common_g3duirenderedit_aaCbk        ( G3DUI *gui );
 void common_g3duirenderedit_aaFullCbk    ( G3DUI *gui );
 void common_g3duirenderedit_aaEdgeCbk    ( G3DUI *gui );
 void common_g3duirenderedit_aaSamplesCbk ( G3DUI *gui, uint32_t nbsamples );
+
+/******************************************************************************/
+void common_g3duiparticleemitteredit_displayPartCbk ( G3DUI              *gui, 
+                                                      G3DPARTICLEEMITTER *pem );
+void common_g3duiparticleemitteredit_maxPreviewsCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      uint32_t            maxPreviews );
+void common_g3duiparticleemitteredit_ppfCbk ( G3DUI              *gui,
+                                              G3DPARTICLEEMITTER *pem,
+                                              float               ppf );
+void common_g3duiparticleemitteredit_lifetimeCbk ( G3DUI              *gui,
+                                                   G3DPARTICLEEMITTER *pem,
+                                                   uint32_t            lifetime );
+void common_g3duiparticleemitteredit_radiusCbk ( G3DUI              *gui,
+                                                 G3DPARTICLEEMITTER *pem,
+                                                 float               radius );
+void common_g3duiparticleemitteredit_endAtFrameCbk ( G3DUI              *gui,
+                                                     G3DPARTICLEEMITTER *pem,
+                                                     uint32_t            endAtFrame );
+void common_g3duiparticleemitteredit_startAtFrameCbk ( G3DUI              *gui,
+                                                       G3DPARTICLEEMITTER *pem,
+                                                       uint32_t            startAtFrame );
 
 #endif

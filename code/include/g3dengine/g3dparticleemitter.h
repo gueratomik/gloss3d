@@ -73,6 +73,8 @@ typedef struct _G3DPARTICLEEMITTER {
     G3DVECTOR    initialRotationVariation;
     float        initialTransparencyVariation;
 
+    G3DVECTOR    finalAccel;
+    G3DVECTOR    finalSpeed;
     G3DVECTOR    finalRotation;
     G3DVECTOR    finalScaling;
     float        finalTransparency;
@@ -81,10 +83,11 @@ typedef struct _G3DPARTICLEEMITTER {
     uint32_t     particleLifetimeVariation;
 
     uint32_t     maxParticlesPerFrame;
+    uint32_t     maxPreviewsPerFrame;
     float        particlesPerFrame;
 
     int32_t      startAtFrame;
-
+    int32_t      endAtFrame;
 
     G3DPARTICLE *particles;
     uint32_t     maxParticles;
@@ -109,7 +112,7 @@ typedef struct _G3DPARTICLEEMITTER {
 G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t id, 
                                              char    *name );
 
-
+void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem );
 
 #ifdef __cplusplus
 }

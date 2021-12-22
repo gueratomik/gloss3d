@@ -985,6 +985,17 @@ GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
                                     void       (*cbk) ( GtkWidget *, 
                                                         gpointer ) );
 
+
+void updateParticleEmitterEdit ( GtkWidget           *w, 
+                                 G3DPARTICLEEMITTER  *pem );
+GtkWidget *createParticleEmitterEdit ( GtkWidget *parent,
+                                       G3DUI     *gui,
+                                       char      *name,
+                                       gint       x,
+                                       gint       y,
+                                       gint       width,
+                                       gint       height );
+
 /******************************************************************************/
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );

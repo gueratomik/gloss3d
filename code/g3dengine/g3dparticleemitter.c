@@ -169,45 +169,61 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
     if ( pem->maxParticles ) {
         uint32_t i, j;
 
-        /*glPushAttrib( GL_ALL_ATTRIB_BITS );
-        glDisable   ( GL_LIGHTING );
-        glColor3ub  ( 0xFF, 0xFF, 0xFF );
-        glPointSize ( 3.0f );*/
-
         glPushMatrix ( );
-        /*** cancel world transformation ***/
+
+        /** cancel world transformation, particles are in world corrdinates **/
         glMultMatrixd ( pem->obj.iwmatrix );
+
+        if ( ( pem->obj.flags & DISPLAYPARTICLES ) == 0x00 ) {
+            glPushAttrib( GL_ALL_ATTRIB_BITS );
+            glDisable   ( GL_LIGHTING );
+            glColor3ub  ( 0xFF, 0xFF, 0xFF );
+            glPointSize ( 3.0f );
+
+            glBegin ( GL_POINTS );
+        }
 
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                 if ( prt[j].lifeTime < pem->particleLifetime ) {
-                    glPushMatrix ( );
-
-                    glTranslatef ( prt[j].pos.x, 
-                                   prt[j].pos.y, 
-                                   prt[j].pos.z );
-
-                    glScalef ( prt[j].sca.x, 
-                               prt[j].sca.y, 
-                               prt[j].sca.z );
-
-
                     if ( prt[j].ref ) {
-                        if ( prt[j].ref->draw ) {
-                            prt[j].ref->draw ( prt[j].ref, 
-                                               curcam, 
-                                               engine_flags );
+                        if ( pem->obj.flags & DISPLAYPARTICLES ) {
+                            glPushMatrix ( );
+
+                            glTranslatef ( prt[j].pos.x, 
+                                           prt[j].pos.y, 
+                                           prt[j].pos.z );
+
+
+                                if ( prt[j].ref->draw ) {
+                                    glScalef ( prt[j].sca.x, 
+                                               prt[j].sca.y, 
+                                               prt[j].sca.z );
+
+                                    prt[j].ref->draw ( prt[j].ref, 
+                                                       curcam, 
+                                                       engine_flags & (~MODEMASK) );
+                                }
+
+
+                            glPopMatrix();
+                        } else {
+                            glVertex3f ( prt[j].pos.x, 
+                                         prt[j].pos.y, 
+                                         prt[j].pos.z );
                         }
                     }
-
-                    glPopMatrix();
                 }
             }
         }
 
-        /*glPopAttrib ( );*/
+        if ( ( pem->obj.flags & DISPLAYPARTICLES ) == 0x00 ) {
+            glEnd ( );
+
+            glPopAttrib ( );
+        }
 
         glPopMatrix();
     }

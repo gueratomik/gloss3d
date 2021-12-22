@@ -32,6 +32,7 @@ if HAVE_GTK3
                             common/g3duimeshposelist.c \
                             common/g3duimodebar.c \
                             common/g3duiobjectedit.c \
+                            common/g3duiparticleemitteredit.c \
                             common/g3duipatternlist.c \
                             common/g3duiplaneedit.c \
                             common/g3duiquad.c \
@@ -91,6 +92,7 @@ if HAVE_GTK3
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \
                             gtk3/g3duiobjectedit.c \
+                            gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duipatternlist.c \
                             gtk3/g3duiplaneedit.c \
                             gtk3/g3duiproceduralbrickedit.c \

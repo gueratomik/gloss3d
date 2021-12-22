@@ -413,7 +413,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 #define INSTANCEMIRRORED      (  1 << 17 )
 
-
+#define DISPLAYPARTICLES      (  1 << 17 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )

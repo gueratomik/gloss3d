@@ -144,18 +144,19 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duimaterialedit.c common/g3duimateriallist.c \
 	common/g3duimenubar.c common/g3duimeshedit.c \
 	common/g3duimeshposelist.c common/g3duimodebar.c \
-	common/g3duiobjectedit.c common/g3duipatternlist.c \
-	common/g3duiplaneedit.c common/g3duiquad.c \
-	common/g3duirenderedit.c common/g3duirenderprocess.c \
-	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
-	common/g3duisymmetryedit.c common/g3duitextedit.c \
-	common/g3duitextureedit.c common/g3duitimeboard.c \
-	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duitrackertagedit.c \
-	common/g3duitubeedit.c common/g3duiuvmapedit.c common/l3dui.c \
-	common/g3duiview.c common/g3duiviewexport.c \
-	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
+	common/g3duiobjectedit.c common/g3duiparticleemitteredit.c \
+	common/g3duipatternlist.c common/g3duiplaneedit.c \
+	common/g3duiquad.c common/g3duirenderedit.c \
+	common/g3duirenderprocess.c common/g3duirenderwindow.c \
+	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextedit.c common/g3duitextureedit.c \
+	common/g3duitimeboard.c common/g3duitimeline.c \
+	common/g3duitoolbar.c common/g3duitorusedit.c \
+	common/g3duitrackertagedit.c common/g3duitubeedit.c \
+	common/g3duiuvmapedit.c common/l3dui.c common/g3duiview.c \
+	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c \
 	common/mousetool/g3duig3dmousetooledit.c \
 	common/mousetool/g3duil3dmousetooledit.c \
 	common/mousetool/g3duicutmeshtooledit.c \
@@ -176,8 +177,9 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duimeshedit.c gtk3/g3duimorpheredit.c \
 	gtk3/g3duikeymorpheredit.c gtk3/g3duimeshposelist.c \
 	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
-	gtk3/g3duiobjectedit.c gtk3/g3duipatternlist.c \
-	gtk3/g3duiplaneedit.c gtk3/g3duiproceduralbrickedit.c \
+	gtk3/g3duiobjectedit.c gtk3/g3duiparticleemitteredit.c \
+	gtk3/g3duipatternlist.c gtk3/g3duiplaneedit.c \
+	gtk3/g3duiproceduralbrickedit.c \
 	gtk3/g3duiproceduralchessedit.c \
 	gtk3/g3duiproceduralnoiseedit.c \
 	gtk3/g3duiproceduralgradientedit.c gtk3/g3duiquad.c \
@@ -219,6 +221,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duimeshposelist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duiparticleemitteredit.lo \
 @HAVE_GTK3_TRUE@	common/g3duipatternlist.lo \
 @HAVE_GTK3_TRUE@	common/g3duiplaneedit.lo common/g3duiquad.lo \
 @HAVE_GTK3_TRUE@	common/g3duirenderedit.lo \
@@ -265,6 +268,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duimeshposelist.lo gtk3/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiparticleemitteredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duipatternlist.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiplaneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiproceduralbrickedit.lo \
@@ -340,6 +344,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duimeshposelist.Plo \
 	common/$(DEPDIR)/g3duimodebar.Plo \
 	common/$(DEPDIR)/g3duiobjectedit.Plo \
+	common/$(DEPDIR)/g3duiparticleemitteredit.Plo \
 	common/$(DEPDIR)/g3duipatternlist.Plo \
 	common/$(DEPDIR)/g3duiplaneedit.Plo \
 	common/$(DEPDIR)/g3duiquad.Plo \
@@ -397,6 +402,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duimorpheredit.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectboard.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectedit.Plo \
+	gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo \
 	gtk3/$(DEPDIR)/g3duipatternlist.Plo \
 	gtk3/$(DEPDIR)/g3duiplaneedit.Plo \
 	gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo \
@@ -633,6 +639,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            common/g3duiobjectedit.c \
+@HAVE_GTK3_TRUE@                            common/g3duiparticleemitteredit.c \
 @HAVE_GTK3_TRUE@                            common/g3duipatternlist.c \
 @HAVE_GTK3_TRUE@                            common/g3duiplaneedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiquad.c \
@@ -692,6 +699,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectboard.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiparticleemitteredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duipatternlist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiplaneedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralbrickedit.c \
@@ -852,6 +860,8 @@ common/g3duimodebar.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiobjectedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiparticleemitteredit.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duipatternlist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiplaneedit.lo: common/$(am__dirstamp) \
@@ -986,6 +996,8 @@ gtk3/g3duiobjectboard.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiobjectedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiparticleemitteredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duipatternlist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiplaneedit.lo: gtk3/$(am__dirstamp) \
@@ -1108,6 +1120,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimodebar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiparticleemitteredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duipatternlist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiplaneedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiquad.Plo@am__quote@ # am--include-marker
@@ -1167,6 +1180,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimorpheredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectboard.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duipatternlist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiplaneedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo@am__quote@ # am--include-marker
@@ -1405,6 +1419,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectedit.Plo
+	-rm -f common/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f common/$(DEPDIR)/g3duipatternlist.Plo
 	-rm -f common/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiquad.Plo
@@ -1464,6 +1479,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duimorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duipatternlist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo
@@ -1570,6 +1586,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectedit.Plo
+	-rm -f common/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f common/$(DEPDIR)/g3duipatternlist.Plo
 	-rm -f common/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiquad.Plo
@@ -1629,6 +1646,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duimorpheredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duipatternlist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo

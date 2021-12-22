@@ -38,25 +38,26 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
     if ( obj ) {
         char *wname = NULL;
 
-        if ( obj->type == G3DSPHERETYPE         ) wname = EDITSPHERE;
-        if ( obj->type == G3DCUBETYPE           ) wname = EDITCUBE;
-        if ( obj->type == G3DCYLINDERTYPE       ) wname = EDITCYLINDER;
-        if ( obj->type == G3DMESHTYPE           ) wname = EDITMESH;
-        if ( obj->type == G3DLIGHTTYPE          ) wname = EDITLIGHT;
-        if ( obj->type == G3DSYMMETRYTYPE       ) wname = EDITSYMMETRY;
-        if ( obj->type == G3DFFDTYPE            ) wname = EDITFFD;
-        if ( obj->type == G3DPLANETYPE          ) wname = EDITPLANE;
-        if ( obj->type == G3DTORUSTYPE          ) wname = EDITTORUS;
-        if ( obj->type == G3DTUBETYPE           ) wname = EDITTUBE;
-        if ( obj->type == G3DBONETYPE           ) wname = EDITBONE;
-        if ( obj->type == G3DUVMAPTYPE          ) wname = EDITUVMAP;
-        if ( obj->type == G3DSUBDIVIDERTYPE     ) wname = EDITSUBDIVIDER;
-        if ( obj->type == G3DSPLINEREVOLVERTYPE ) wname = EDITSPLINEREVOLVER;
-        if ( obj->type == G3DWIREFRAMETYPE      ) wname = EDITWIREFRAME;
-        if ( obj->type == G3DTEXTTYPE           ) wname = EDITTEXT;
-        if ( obj->type == G3DCAMERATYPE         ) wname = EDITCAMERA;
-        if ( obj->type == G3DMORPHERTYPE        ) wname = EDITMORPHER;
-        if ( obj->type == G3DINSTANCETYPE       ) wname = EDITINSTANCE;
+        if ( obj->type == G3DSPHERETYPE          ) wname = EDITSPHERE;
+        if ( obj->type == G3DCUBETYPE            ) wname = EDITCUBE;
+        if ( obj->type == G3DCYLINDERTYPE        ) wname = EDITCYLINDER;
+        if ( obj->type == G3DMESHTYPE            ) wname = EDITMESH;
+        if ( obj->type == G3DLIGHTTYPE           ) wname = EDITLIGHT;
+        if ( obj->type == G3DSYMMETRYTYPE        ) wname = EDITSYMMETRY;
+        if ( obj->type == G3DFFDTYPE             ) wname = EDITFFD;
+        if ( obj->type == G3DPLANETYPE           ) wname = EDITPLANE;
+        if ( obj->type == G3DTORUSTYPE           ) wname = EDITTORUS;
+        if ( obj->type == G3DTUBETYPE            ) wname = EDITTUBE;
+        if ( obj->type == G3DBONETYPE            ) wname = EDITBONE;
+        if ( obj->type == G3DUVMAPTYPE           ) wname = EDITUVMAP;
+        if ( obj->type == G3DSUBDIVIDERTYPE      ) wname = EDITSUBDIVIDER;
+        if ( obj->type == G3DSPLINEREVOLVERTYPE  ) wname = EDITSPLINEREVOLVER;
+        if ( obj->type == G3DWIREFRAMETYPE       ) wname = EDITWIREFRAME;
+        if ( obj->type == G3DTEXTTYPE            ) wname = EDITTEXT;
+        if ( obj->type == G3DCAMERATYPE          ) wname = EDITCAMERA;
+        if ( obj->type == G3DMORPHERTYPE         ) wname = EDITMORPHER;
+        if ( obj->type == G3DINSTANCETYPE        ) wname = EDITINSTANCE;
+        if ( obj->type == G3DPARTICLEEMITTERTYPE ) wname = EDITPARTICLEEMITTER;
 
         while ( children ) {
             GtkWidget *child = ( GtkWidget * ) children->data;
@@ -68,25 +69,26 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                 gtk_widget_show ( child );
             } else {
                 if ( wname && ( strcmp ( child_name, wname ) == 0x00 ) ) {
-                    if ( obj->type == G3DSPHERETYPE         ) updateSphereEdit         ( child, gui );
-                    if ( obj->type == G3DCUBETYPE           ) updateCubeEdit           ( child, gui );
-                    if ( obj->type == G3DCYLINDERTYPE       ) updateCylinderEdit       ( child, gui );
-                    if ( obj->type == G3DPLANETYPE          ) updatePlaneEdit          ( child, gui );
-                    if ( obj->type == G3DTORUSTYPE          ) updateTorusEdit          ( child, gui );
-                    if ( obj->type == G3DTUBETYPE           ) updateTubeEdit           ( child, gui );
-                    if ( obj->type == G3DMESHTYPE           ) updateMeshEdit           ( child, gui );
-                    if ( obj->type == G3DBONETYPE           ) updateBoneEdit           ( child, gui );
-                    if ( obj->type == G3DFFDTYPE            ) updateFFDEdit            ( child, gui );
-                    if ( obj->type == G3DSYMMETRYTYPE       ) updateSymmetryEdit       ( child, gui );
-                    if ( obj->type == G3DLIGHTTYPE          ) updateLightEdit          ( child, obj );
-                    if ( obj->type == G3DUVMAPTYPE          ) updateUVMapEdit          ( child, gui );
-                    if ( obj->type == G3DSUBDIVIDERTYPE     ) updateSubdividerEdit     ( child, gui );
-                    if ( obj->type == G3DSPLINEREVOLVERTYPE ) updateSplineRevolverEdit ( child, gui );
-                    if ( obj->type == G3DWIREFRAMETYPE      ) updateWireframeEdit      ( child, gui );
-                    if ( obj->type == G3DTEXTTYPE           ) updateTextEdit           ( child, gui );
-                    if ( obj->type == G3DCAMERATYPE         ) updateCameraEdit         ( child, gui );
-                    if ( obj->type == G3DMORPHERTYPE        ) updateMorpherEdit        ( child, gui );
-                    if ( obj->type == G3DINSTANCETYPE       ) updateInstanceEdit       ( child, obj );
+                    if ( obj->type == G3DSPHERETYPE          ) updateSphereEdit         ( child, gui );
+                    if ( obj->type == G3DCUBETYPE            ) updateCubeEdit           ( child, gui );
+                    if ( obj->type == G3DCYLINDERTYPE        ) updateCylinderEdit       ( child, gui );
+                    if ( obj->type == G3DPLANETYPE           ) updatePlaneEdit          ( child, gui );
+                    if ( obj->type == G3DTORUSTYPE           ) updateTorusEdit          ( child, gui );
+                    if ( obj->type == G3DTUBETYPE            ) updateTubeEdit           ( child, gui );
+                    if ( obj->type == G3DMESHTYPE            ) updateMeshEdit           ( child, gui );
+                    if ( obj->type == G3DBONETYPE            ) updateBoneEdit           ( child, gui );
+                    if ( obj->type == G3DFFDTYPE             ) updateFFDEdit            ( child, gui );
+                    if ( obj->type == G3DSYMMETRYTYPE        ) updateSymmetryEdit       ( child, gui );
+                    if ( obj->type == G3DLIGHTTYPE           ) updateLightEdit          ( child, obj );
+                    if ( obj->type == G3DUVMAPTYPE           ) updateUVMapEdit          ( child, gui );
+                    if ( obj->type == G3DSUBDIVIDERTYPE      ) updateSubdividerEdit     ( child, gui );
+                    if ( obj->type == G3DSPLINEREVOLVERTYPE  ) updateSplineRevolverEdit ( child, gui );
+                    if ( obj->type == G3DWIREFRAMETYPE       ) updateWireframeEdit      ( child, gui );
+                    if ( obj->type == G3DTEXTTYPE            ) updateTextEdit           ( child, gui );
+                    if ( obj->type == G3DCAMERATYPE          ) updateCameraEdit         ( child, gui );
+                    if ( obj->type == G3DMORPHERTYPE         ) updateMorpherEdit        ( child, gui );
+                    if ( obj->type == G3DINSTANCETYPE        ) updateInstanceEdit       ( child, obj );
+                    if ( obj->type == G3DPARTICLEEMITTERTYPE ) updateParticleEmitterEdit       ( child, obj );
 
                     gtk_widget_show ( child );
                 } else {
@@ -159,25 +161,26 @@ GtkWidget *createCurrentEdit ( GtkWidget *parent, G3DUI *gui,
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-    createSphereEdit         ( frm, gui, EDITSPHERE        , 0, 32, 296, 320 );
-    createCubeEdit           ( frm, gui, EDITCUBE          , 0, 32, 296, 320 );
-    createCylinderEdit       ( frm, gui, EDITCYLINDER      , 0, 32, 296, 320 );
-    createPlaneEdit          ( frm, gui, EDITPLANE         , 0, 32, 296, 320 );
-    createTorusEdit          ( frm, gui, EDITTORUS         , 0, 32, 296, 320 );
-    createTubeEdit           ( frm, gui, EDITTUBE          , 0, 32, 296, 320 );
-    createMeshEdit           ( frm, gui, EDITMESH          , 0, 32, 320, 320 );
-    createBoneEdit           ( frm, gui, EDITBONE          , 0, 32, 296, 320 );
-    createFFDEdit            ( frm, gui, EDITFFD           , 0, 32, 296, 320 );
-    createSymmetryEdit       ( frm, gui, EDITSYMMETRY      , 0, 32, 296, 320 );
-    createSubdividerEdit     ( frm, gui, EDITSUBDIVIDER    , 0, 32, 296, 320 );
-    createSplineRevolverEdit ( frm, gui, EDITSPLINEREVOLVER, 0, 32, 296, 320 );
-    createLightEdit          ( frm, gui, EDITLIGHT         , 0, 32, 296,  96 );
-    createUVMapEdit          ( frm, gui, EDITUVMAP         , 0, 32, 296,  96 );
-    createWireframeEdit      ( frm, gui, EDITWIREFRAME     , 0, 32, 296,  96 );
-    createTextEdit           ( frm, gui, EDITTEXT          , 0, 32, 296,  96 );
-    createCameraEdit         ( frm, gui, EDITCAMERA        , 0, 32, 296,  96 );
-    createMorpherEdit        ( frm, gui, EDITMORPHER       , 0, 32, 296,  96 );
-    createInstanceEdit       ( frm, gui, EDITINSTANCE      , 0, 32, 296,  96 );
+    createSphereEdit          ( frm, gui, EDITSPHERE         , 0, 32, 296, 320 );
+    createCubeEdit            ( frm, gui, EDITCUBE           , 0, 32, 296, 320 );
+    createCylinderEdit        ( frm, gui, EDITCYLINDER       , 0, 32, 296, 320 );
+    createPlaneEdit           ( frm, gui, EDITPLANE          , 0, 32, 296, 320 );
+    createTorusEdit           ( frm, gui, EDITTORUS          , 0, 32, 296, 320 );
+    createTubeEdit            ( frm, gui, EDITTUBE           , 0, 32, 296, 320 );
+    createMeshEdit            ( frm, gui, EDITMESH           , 0, 32, 320, 320 );
+    createBoneEdit            ( frm, gui, EDITBONE           , 0, 32, 296, 320 );
+    createFFDEdit             ( frm, gui, EDITFFD            , 0, 32, 296, 320 );
+    createSymmetryEdit        ( frm, gui, EDITSYMMETRY       , 0, 32, 296, 320 );
+    createSubdividerEdit      ( frm, gui, EDITSUBDIVIDER     , 0, 32, 296, 320 );
+    createSplineRevolverEdit  ( frm, gui, EDITSPLINEREVOLVER , 0, 32, 296, 320 );
+    createLightEdit           ( frm, gui, EDITLIGHT          , 0, 32, 296,  96 );
+    createUVMapEdit           ( frm, gui, EDITUVMAP          , 0, 32, 296,  96 );
+    createWireframeEdit       ( frm, gui, EDITWIREFRAME      , 0, 32, 296,  96 );
+    createTextEdit            ( frm, gui, EDITTEXT           , 0, 32, 296,  96 );
+    createCameraEdit          ( frm, gui, EDITCAMERA         , 0, 32, 296,  96 );
+    createMorpherEdit         ( frm, gui, EDITMORPHER        , 0, 32, 296,  96 );
+    createInstanceEdit        ( frm, gui, EDITINSTANCE       , 0, 32, 296,  96 );
+    createParticleEmitterEdit ( frm, gui, EDITPARTICLEEMITTER, 0, 32, 296,  96 );
 
 
     list_insert ( &gui->lcuredit, frm );
