@@ -528,6 +528,8 @@ typedef struct _Q3DPARTICLE {
 typedef struct _Q3DPARTICLEEMITTER {
     Q3DOBJECT    qobj;
     Q3DPARTICLE *qprt;
+    double       TIWMVX[0x10]; /*** Transpose Inverse World ModelView Matrix ***/
+    double       TWMVX[0x10]; /*** Transpose World ModelView Matrix ***/
 } Q3DPARTICLEEMITTER;
 
 /******************************************************************************/

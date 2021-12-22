@@ -62,6 +62,7 @@
 #include <xpm/tracker.xpm>
 #include <xpm/sknico.xpm>
 #include <xpm/insico.xpm>
+#include <xpm/pemico.xpm>
 
 /*******************************************************************************/
 static uint32_t getObjectNameWidth ( GtkStyleContext *context, G3DOBJECT *obj ) {
@@ -456,7 +457,7 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
                      *objico, *subico, *wirico, 
                      *splico, *srvico, *txtico,
                      *tubico, *mrpico, *sknico,
-                     *insico;
+                     *insico, *pemico;
 
     /*********************** Inited once and for all **************************/
     if ( bonico == NULL ) bonico = gdk_pixbuf_new_from_xpm_data ( bonico_xpm );
@@ -483,33 +484,35 @@ static void drawObjectIcon ( GtkStyleContext *context, cairo_t *cr,
     if ( mrpico == NULL ) mrpico = gdk_pixbuf_new_from_xpm_data ( morpher_xpm );
     if ( sknico == NULL ) sknico = gdk_pixbuf_new_from_xpm_data ( sknico_xpm );
     if ( insico == NULL ) insico = gdk_pixbuf_new_from_xpm_data ( insico_xpm );
+    if ( pemico == NULL ) pemico = gdk_pixbuf_new_from_xpm_data ( pemico_xpm );
    /***************************************************************************/
 
     switch ( obj->type ) {
-        case G3DLIGHTTYPE          : objico = ligico; break;
-        case G3DBONETYPE           : objico = bonico; break;
-        case G3DMESHTYPE           : objico = mesico; break;
-        case G3DSYMMETRYTYPE       : objico = symico; break;
-        case G3DSUBDIVIDERTYPE     : objico = subico; break;
-        case G3DCUBETYPE           : objico = cubico; break;
-        case G3DSPHERETYPE         : objico = sphico; break;
-        case G3DTORUSTYPE          : objico = torico; break;
-        case G3DCONETYPE           : objico = conico; break;
-        case G3DPLANETYPE          : objico = plnico; break;
-        case G3DFFDTYPE            : objico = ffdico; break;
-        case G3DCYLINDERTYPE       : objico = cylico; break;
-        case G3DCAMERATYPE         : objico = camico; break;
-        case G3DSCENETYPE          : objico = scnico; break;
-        case G3DUVMAPTYPE          : objico = mapico; break;
-        case G3DWIREFRAMETYPE      : objico = wirico; break;
-        case G3DSPLINETYPE         : objico = splico; break;
-        case G3DSPLINEREVOLVERTYPE : objico = srvico; break;
-        case G3DTEXTTYPE           : objico = txtico; break;
-        case G3DTUBETYPE           : objico = tubico; break;
-        case G3DMORPHERTYPE        : objico = mrpico; break;
-        case G3DSKINTYPE           : objico = sknico; break;
-        case G3DINSTANCETYPE       : objico = insico; break;
-        default                    : objico = defico; break;
+        case G3DLIGHTTYPE           : objico = ligico; break;
+        case G3DBONETYPE            : objico = bonico; break;
+        case G3DMESHTYPE            : objico = mesico; break;
+        case G3DSYMMETRYTYPE        : objico = symico; break;
+        case G3DSUBDIVIDERTYPE      : objico = subico; break;
+        case G3DCUBETYPE            : objico = cubico; break;
+        case G3DSPHERETYPE          : objico = sphico; break;
+        case G3DTORUSTYPE           : objico = torico; break;
+        case G3DCONETYPE            : objico = conico; break;
+        case G3DPLANETYPE           : objico = plnico; break;
+        case G3DFFDTYPE             : objico = ffdico; break;
+        case G3DCYLINDERTYPE        : objico = cylico; break;
+        case G3DCAMERATYPE          : objico = camico; break;
+        case G3DSCENETYPE           : objico = scnico; break;
+        case G3DUVMAPTYPE           : objico = mapico; break;
+        case G3DWIREFRAMETYPE       : objico = wirico; break;
+        case G3DSPLINETYPE          : objico = splico; break;
+        case G3DSPLINEREVOLVERTYPE  : objico = srvico; break;
+        case G3DTEXTTYPE            : objico = txtico; break;
+        case G3DTUBETYPE            : objico = tubico; break;
+        case G3DMORPHERTYPE         : objico = mrpico; break;
+        case G3DSKINTYPE            : objico = sknico; break;
+        case G3DINSTANCETYPE        : objico = insico; break;
+        case G3DPARTICLEEMITTERTYPE : objico = pemico; break;
+        default                     : objico = defico; break;
     }
 
     gdk_cairo_set_source_pixbuf ( cr, objico, x, y );

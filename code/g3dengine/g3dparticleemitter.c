@@ -113,8 +113,9 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                         .z = pem->initialAccel.z + initialAccelVariation.z };
     G3DVECTOR speed = { .x = pem->initialSpeed.x + initialSpeedVariation.x,
                         .y = pem->initialSpeed.y + initialSpeedVariation.y,
-                        .z = pem->initialSpeed.z + initialSpeedVariation.z };
-    G3DVECTOR pos,
+                        .z = pem->initialSpeed.z + initialSpeedVariation.z },
+              wspeed;
+    G3DVECTOR pos, wpos,
               sca = { .x = pem->initialScaling.x + initialScalingVariation.x, 
                       .y = pem->initialScaling.y + initialScalingVariation.y,
                       .z = pem->initialScaling.z + initialScalingVariation.z },
@@ -125,13 +126,16 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                               pem->radius, 
                              &pos );
 
+    g3dvector_matrix ( &pos, pem->obj.wmatrix, &wpos );
+    g3dvector_matrix ( &speed, pem->TIWMVX, &wspeed );
+
     g3dparticle_init ( prt,
                        g3dobject_getRandomChild ( pem ),
-                      &pos,
+                      &wpos,
                       &sca,
                       &rot,
                       &accel,
-                      &speed,
+                      &wspeed,
                        startAtFrame,
                        pem->initialTransparency );
 }
@@ -170,12 +174,17 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
         glColor3ub  ( 0xFF, 0xFF, 0xFF );
         glPointSize ( 3.0f );*/
 
+        glPushMatrix ( );
+        /*** cancel world transformation ***/
+        glMultMatrixd ( pem->obj.iwmatrix );
+
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                 if ( prt[j].lifeTime < pem->particleLifetime ) {
                     glPushMatrix ( );
+
                     glTranslatef ( prt[j].pos.x, 
                                    prt[j].pos.y, 
                                    prt[j].pos.z );
@@ -199,6 +208,8 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
         }
 
         /*glPopAttrib ( );*/
+
+        glPopMatrix();
     }
 
 
@@ -231,11 +242,15 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
     float deltaFrame = frame - pem->oldFrame;
 
     if ( pem->maxParticles ) {
-
         int32_t iFrame = ( int32_t ) ( frame - pem->startAtFrame );
         int32_t localFrame = ( iFrame % pem->particleLifetime );
         int32_t i, j;
+        double IWMVX[0x10];
 
+        g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );
+        g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
+
+        
         if ( frame == pem->startAtFrame ) {
             g3dparticleemitter_reset ( pem );
         }
