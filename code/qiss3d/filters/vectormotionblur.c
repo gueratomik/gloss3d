@@ -108,7 +108,8 @@ static void filtervmb_import_r    ( Q3DFILTER *qfil,
                                     Q3DOBJECT *qobj,
                                     double    *MVX,
                                     int32_t    subframeID,
-                                    float      frame );
+                                    float      frame,
+                                    uint32_t   matrixmul );
 
 /******************************************************************************/
 static VMBOBJECT *filtervmb_getObjectbyID ( Q3DFILTER *fil, 
@@ -858,7 +859,8 @@ static void filtervmb_importSymmetry ( Q3DFILTER   *qfil,
                              qchild,
                              SMVX,
                              subframeID,
-                             frame );
+                             frame,
+                             0x01 );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -870,18 +872,56 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                                  Q3DOBJECT *qobj,
                                  double    *MVX,
                                  int32_t    subframeID,
-                                 float      frame ) {
+                                 float      frame,
+                                 uint32_t   matrixmul ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     LIST *ltmpchildren = qobj->lchildren;
     Q3DMESH *qmes = NULL;
     double WMVX[0x10];
 
+
     /*** The recursive nature insures objects always have the same ID in ***/
     /*** subframes ***/
     fvmb->vobjID++;
 
-    g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+    if ( matrixmul ) {
+        g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+    } else {
+        memcpy ( WMVX, MVX, sizeof ( WMVX ) );
+    }
 
+    if ( qobj->obj->type == G3DPARTICLEEMITTERTYPE ) {
+        Q3DPARTICLEEMITTER *qpem = qobj;
+        G3DPARTICLEEMITTER *pem = qpem->qobj.obj;
+
+        if ( pem->maxParticles ) {
+           if ( pem->maxParticlesPerFrame ) {
+               G3DCAMERA *cam = q3dobject_getObject ( qcam );
+               G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+               uint32_t i, j;
+
+               for ( i = 0x00; i < pem->particleLifetime; i++ ) {
+                   G3DPARTICLE  *prt =  pem->particles + ( pem->maxParticlesPerFrame * i );
+                   Q3DPARTICLE *qprt = qpem->qprt      + ( pem->maxParticlesPerFrame * i );
+
+                   for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
+                       if ( qprt[j].qref ) {
+                           g3dcore_multmatrix ( qprt[j].MVX,
+                                                objcam->iwmatrix, WMVX );
+
+                           filtervmb_import_r ( qfil, 
+                                                qcam, 
+                                                qprt[j].qref,
+                                                WMVX,
+                                                subframeID,
+                                                frame,
+                                                0x00 );
+                       }
+                   }
+               }
+            }
+        }
+    }
 
     if ( qobj->obj->type == G3DINSTANCETYPE ) {
         Q3DINSTANCE *qins = qobj;
@@ -940,7 +980,8 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                              qchild,
                              WMVX,
                              subframeID,
-                             frame );
+                             frame,
+                             0x01 );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -962,7 +1003,8 @@ static void filtervmb_import ( Q3DFILTER *qfil,
                          qobj,
                          MVX,
                          subframeID,
-                         frame );
+                         frame,
+                         0x01 );
 }
 
 /******************************************************************************/

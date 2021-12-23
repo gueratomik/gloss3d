@@ -66,12 +66,12 @@ typedef struct _G3DPARTICLEEMITTER {
     G3DVECTOR    initialRotation;
     float        initialTransparency;
 
-    G3DVECTOR    initialAngleVariation;
-    G3DVECTOR    initialAccelVariation;
-    G3DVECTOR    initialSpeedVariation;
-    G3DVECTOR    initialScalingVariation;
-    G3DVECTOR    initialRotationVariation;
-    float        initialTransparencyVariation;
+    G3DVECTOR    initialVarAngle;
+    G3DVECTOR    initialVarAccel;
+    G3DVECTOR    initialVarSpeed;
+    G3DVECTOR    initialVarScaling;
+    G3DVECTOR    initialVarRotation;
+    float        initialVarTransparency;
 
     G3DVECTOR    finalAccel;
     G3DVECTOR    finalSpeed;

@@ -29,10 +29,16 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITPEMITTERGENERAL                "General"
-#define EDITPEMITTERINITIAL                "Initial"
-#define EDITPEMITTERFINAL                  "Final"
-#define EDITPEMITTERVARIATION              "Variation"
+
+
+#define EDITPEMITTERX "     X"
+#define EDITPEMITTERY "     Y"
+#define EDITPEMITTERZ "     Z"
+
+#define EDITPEMITTERGENERAL         "General"
+#define EDITPEMITTERINITIAL         "Initial"
+#define EDITPEMITTERFINAL           "Final"
+#define EDITPEMITTERINITIALVAR      "Variation"
 
 #define EDITPEMITTERSTARTATFRAME           "Start at frame"
 #define EDITPEMITTERENDATFRAME             "End at frame"
@@ -44,11 +50,11 @@
 #define EDITPEMITTERMAXPREVIEWS            "Max particles preview"
 #define EDITPEMITTERDISPLAYPARTICULES      "Display particles"
 
-#define EDITPEMITTERINITIALACCEL           "Initial acceleration"
-#define EDITPEMITTERINITIALSPEED           "Initial speed"
-#define EDITPEMITTERINITIALSCALING         "Initial scaling"
-#define EDITPEMITTERINITIALROTATION        "Initial rotation"
-#define EDITPEMITTERINITIALTRANSPARENCY    "Initial transparency"
+#define EDITPEMITTERACCEL           "Acceleration"
+#define EDITPEMITTERSPEED           "Speed"
+#define EDITPEMITTERSCALING         "Scaling"
+#define EDITPEMITTERROTATION        "Rotation"
+#define EDITPEMITTERTRANSPARENCY    "Transp."
 
 #define EDITPEMITTERINITIALANGLEVAR        "Initial angle variation"
 
@@ -93,22 +99,22 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
     GtkWidget          *initialRotZEntry;
     GtkWidget          *initialTranspEntry;
 
-    GtkWidget          *initialAngleVarEntry;
-    GtkWidget          *initialLifetimeVarEntry;
+    GtkWidget          *initialVarAngleEntry;
+    GtkWidget          *initialVarLifetimeEntry;
 
-    GtkWidget          *initialAccelVarXEntry;
-    GtkWidget          *initialAccelVarYEntry;
-    GtkWidget          *initialAccelVarZEntry;
-    GtkWidget          *initialSpeedVarXEntry;
-    GtkWidget          *initialSpeedVarYEntry;
-    GtkWidget          *initialSpeedVarZEntry;
-    GtkWidget          *initialScaVarXEntry;
-    GtkWidget          *initialScaVarYEntry;
-    GtkWidget          *initialScaVarZEntry;
-    GtkWidget          *initialRotVarXEntry;
-    GtkWidget          *initialRotVarYEntry;
-    GtkWidget          *initialRotVarZEntry;
-    GtkWidget          *initialTranspVarEntry;
+    GtkWidget          *initialVarAccelXEntry;
+    GtkWidget          *initialVarAccelYEntry;
+    GtkWidget          *initialVarAccelZEntry;
+    GtkWidget          *initialVarSpeedXEntry;
+    GtkWidget          *initialVarSpeedYEntry;
+    GtkWidget          *initialVarSpeedZEntry;
+    GtkWidget          *initialVarScaXEntry;
+    GtkWidget          *initialVarScaYEntry;
+    GtkWidget          *initialVarScaZEntry;
+    GtkWidget          *initialVarRotXEntry;
+    GtkWidget          *initialVarRotYEntry;
+    GtkWidget          *initialVarRotZEntry;
+    GtkWidget          *initialVarTranspEntry;
 
     GtkWidget          *finalAccelXEntry;
     GtkWidget          *finalAccelYEntry;
@@ -116,9 +122,9 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
     GtkWidget          *finalSpeedXEntry;
     GtkWidget          *finalSpeedYEntry;
     GtkWidget          *finalSpeedZEntry;
-    GtkWidget          *finalScalXEntry;
-    GtkWidget          *finalScalYEntry;
-    GtkWidget          *finalScalZEntry;
+    GtkWidget          *finalScaXEntry;
+    GtkWidget          *finalScaYEntry;
+    GtkWidget          *finalScaZEntry;
     GtkWidget          *finalRotXEntry;
     GtkWidget          *finalRotYEntry;
     GtkWidget          *finalRotZEntry;
@@ -141,323 +147,1151 @@ static G3DUIPARTICLEEMITTEREDIT *g3duiparticleemitteredit_new ( G3DUI *gui ) {
     return ped; 
 }
 
-#ifdef unused
-
 /******************************************************************************/
-static void updateShadowsPanel ( G3DUIPARTICLEEMITTEREDIT *led ) {
-    led->grp.gui->lock = 0x01;
+static void updateInitialVarPanel ( G3DUIPARTICLEEMITTEREDIT *ped ) {
+    ped->grp.gui->lock = 0x01;
 
-    if ( led->editedLight ) {
-        if ( ((G3DOBJECT*)led->editedLight)->flags & PARTICLEEMITTERCASTSHADOWS ) {
-            gtk_widget_set_sensitive ( led->softShadowsToggle, TRUE );
+    if ( ped->editedPEmitter ) {
+        gtk_widget_set_sensitive ( ped->initialVarAccelXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarAccelYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarAccelZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarScaXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarScaYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarScaZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarRotXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarRotYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarRotZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialVarTranspEntry, TRUE );
 
-            if ( ((G3DOBJECT*)led->editedLight)->flags & PARTICLEEMITTERSOFTSHADOWS ) {
-                gtk_widget_set_sensitive     ( led->shadowRadiusEntry, TRUE );
-                gtk_widget_set_sensitive     ( led->shadowSampleEntry, TRUE );
+        gtk_spin_button_set_value  ( ped->initialVarAccelXEntry, 
+                                     ped->editedPEmitter->initialVarAccel.x );
+        gtk_spin_button_set_value  ( ped->initialVarAccelYEntry, 
+                                     ped->editedPEmitter->initialVarAccel.y );
+        gtk_spin_button_set_value  ( ped->initialVarAccelZEntry, 
+                                     ped->editedPEmitter->initialVarAccel.z );
 
-                gtk_toggle_button_set_active ( led->softShadowsToggle, TRUE  );
-            } else {
-                gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
-                gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
+        gtk_spin_button_set_value  ( ped->initialVarSpeedXEntry, 
+                                     ped->editedPEmitter->initialVarSpeed.x );
+        gtk_spin_button_set_value  ( ped->initialVarSpeedYEntry, 
+                                     ped->editedPEmitter->initialVarSpeed.y );
+        gtk_spin_button_set_value  ( ped->initialVarSpeedZEntry, 
+                                     ped->editedPEmitter->initialVarSpeed.z );
 
-                gtk_toggle_button_set_active ( led->softShadowsToggle, FALSE  );
-            }
-        } else {
-            gtk_widget_set_sensitive ( led->softShadowsToggle, FALSE );
-            gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
-            gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
-        }
+        gtk_spin_button_set_value  ( ped->initialVarScaXEntry, 
+                                     ped->editedPEmitter->initialVarScaling.x );
+        gtk_spin_button_set_value  ( ped->initialVarScaYEntry, 
+                                     ped->editedPEmitter->initialVarScaling.y );
+        gtk_spin_button_set_value  ( ped->initialVarScaZEntry, 
+                                     ped->editedPEmitter->initialVarScaling.z );
 
-        gtk_spin_button_set_value  ( led->shadowRadiusEntry, 
-                                     led->editedLight->shadowRadius );
+        gtk_spin_button_set_value  ( ped->initialVarRotXEntry, 
+                                     ped->editedPEmitter->initialVarRotation.x );
+        gtk_spin_button_set_value  ( ped->initialVarRotYEntry, 
+                                     ped->editedPEmitter->initialVarRotation.y );
+        gtk_spin_button_set_value  ( ped->initialVarRotZEntry, 
+                                     ped->editedPEmitter->initialVarRotation.z );
 
-        gtk_spin_button_set_value  ( led->shadowSampleEntry, 
-                                     led->editedLight->shadowSample );
+        gtk_spin_button_set_value  ( ped->initialVarTranspEntry, 
+                                     ped->editedPEmitter->initialVarTransparency );
     } else {
-        gtk_toggle_button_set_active ( led->softShadowsToggle, FALSE  );
-
-        gtk_widget_set_sensitive ( led->softShadowsToggle, FALSE );
-        gtk_widget_set_sensitive ( led->shadowRadiusEntry, FALSE );
-        gtk_widget_set_sensitive ( led->shadowSampleEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarAccelXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarAccelYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarAccelZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarSpeedZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarScaXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarScaYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarScaZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarRotXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarRotYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarRotZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialVarTranspEntry, FALSE );
     }
 
-
-    led->grp.gui->lock = 0x00;
+    ped->grp.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void setShadowTypeCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    char *wname = gtk_widget_get_name ( widget );
+static void initialVarTranspCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarTransp = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    if ( led->editedLight ) {
-        common_g3duilightedit_setSoftShadowsCbk ( led->grp.gui,
-                                                  led->editedLight );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarTranspCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarTransp );
     }
-
-    updateShadowsPanel ( led );
 }
 
 /******************************************************************************/
-static void shadowRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    float shadowRadius = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+static void initialVarRotXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarRotX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    if ( led->editedLight ) {
-        common_g3duilightedit_shadowRadiusCbk ( led->grp.gui,
-                                                led->editedLight,
-                                                shadowRadius );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarRotXCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarRotX );
     }
-
-    g3dui_redrawGLViews ( led->grp.gui );
 }
 
 /******************************************************************************/
-static void shadowSampleCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    uint32_t shadowSample = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+static void initialVarRotYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarRotY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    if ( led->editedLight ) {
-        common_g3duilightedit_shadowSampleCbk ( led->grp.gui,
-                                                led->editedLight,
-                                                shadowSample );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarRotYCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarRotY );
     }
-
-    g3dui_redrawGLViews ( led->grp.gui );
 }
 
 /******************************************************************************/
-static GtkWidget *createShadowsPanel ( GtkWidget      *parent, 
-                                       G3DUIPARTICLEEMITTEREDIT *led,
-                                       char           *name,
-                                       gint            x,
-                                       gint            y,
-                                       gint            width,
-                                       gint            height ) {
-    GtkWidget *pan = createPanel ( parent, led, name, x, y, width, height );
+static void initialVarRotZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarRotZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    led->softShadowsToggle = createToggleLabel ( pan,
-                                                 led,
-                                                 EDITPEMITTERSOFTSHADOWS,
-                                                 0, 0, 20, 20,
-                                                 setShadowTypeCbk );
-
-    led->shadowRadiusEntry = createFloatText ( pan,
-                                               led,
-                                               EDITPEMITTERSOFTSHADOWSRADIUS,
-                                               0.0f, FLT_MAX,
-                                               0, 24, 96, 96,
-                                               shadowRadiusCbk );
-
-    led->shadowSampleEntry = createIntegerText ( pan,
-                                                led,
-                                                EDITPEMITTERSOFTSHADOWSSAMPLE,
-                                                1.0f, 32.0f,
-                                                0, 48, 96, 96,
-                                                shadowSampleCbk );
-
-    return pan;
-}
-
-/******************************************************************************/
-static void specularityChangeCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    G3DUI *gui = ( G3DUI * ) led->grp.gui;
-    GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
-    GdkRGBA color;
-
-    gtk_color_chooser_get_rgba ( ccr, &color );
-
-    if ( led->editedLight ) {
-        common_g3dui_lightSpecularityChangeCbk ( gui, 
-                                                 led->editedLight,
-                                                 color.red   * 255,
-                                                 color.green * 255,
-                                                 color.blue  * 255 );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarRotZCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarRotZ );
     }
-
-    g3dui_redrawGLViews ( led->grp.gui );
 }
 
 /******************************************************************************/
-static void updateSpecularityPanel ( G3DUIPARTICLEEMITTEREDIT *led ) {
-    led->grp.gui->lock = 0x01;
+static void initialVarScaXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarScaX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    if ( led->editedLight ) {
-        GdkRGBA rgba = { .red   = ( float ) led->editedLight->specularColor.r / 255.0f,
-                         .green = ( float ) led->editedLight->specularColor.g / 255.0f,
-                         .blue  = ( float ) led->editedLight->specularColor.b / 255.0f,
-                         .alpha = ( float ) led->editedLight->specularColor.a / 255.0f };
-
-        gtk_widget_set_sensitive ( led->specularColorButton, TRUE );
-
-        gtk_color_chooser_set_rgba ( led->specularColorButton, &rgba );
-    } else {
-        gtk_widget_set_sensitive ( led->specularColorButton, FALSE );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarScaXCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarScaX );
     }
-
-    led->grp.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static GtkWidget *createSpecularityPanel ( GtkWidget      *parent, 
-                                           G3DUIPARTICLEEMITTEREDIT *led,
-                                           char           *name,
-                                           gint            x,
-                                           gint            y,
-                                           gint            width,
-                                           gint            height ) {
-    GtkWidget *pan = createPanel ( parent, led, name, x, y, width, height );
+static void initialVarScaYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarScaY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarScaYCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarScaY );
+    }
+}
+
+/******************************************************************************/
+static void initialVarScaZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarScaZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarScaZCbk ( ped->grp.gui,
+                                                            ped->editedPEmitter,
+                                                            initialVarScaZ );
+    }
+}
+
+/******************************************************************************/
+static void initialVarSpeedXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarSpeedX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarSpeedXCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarSpeedX );
+    }
+}
+
+/******************************************************************************/
+static void initialVarSpeedYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarSpeedY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarSpeedYCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarSpeedY );
+    }
+}
+
+/******************************************************************************/
+static void initialVarSpeedZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarSpeedZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarSpeedZCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarSpeedZ );
+    }
+}
+
+/******************************************************************************/
+static void initialVarAccelXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarAccelX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarAccelXCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarAccelX );
+    }
+}
+
+/******************************************************************************/
+static void initialVarAccelYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarAccelY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarAccelYCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarAccelY );
+    }
+}
+
+/******************************************************************************/
+static void initialVarAccelZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialVarAccelZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialVarAccelZCbk ( ped->grp.gui,
+                                                              ped->editedPEmitter,
+                                                              initialVarAccelZ );
+    }
+}
+
+/******************************************************************************/
+static GtkWidget *createInitialVarPanel ( GtkWidget                *parent, 
+                                       G3DUIPARTICLEEMITTEREDIT *ped,
+                                       char                     *name,
+                                       gint                      x,
+                                       gint                      y,
+                                       gint                      width,
+                                       gint                      height ) {
+    GtkWidget *pan = createPanel ( parent, ped, name, x, y, width, height );
+
+    ped->initialVarTranspEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERTRANSPARENCY,
+                                                 0.0f, FLT_MAX,
+                                                 0, 0, 64, 32,
+                                                 initialVarTranspCbk );
 
     createSimpleLabel ( pan, 
-                        led,
-                        EDITSPECULARCOLOR,
-                        0,  0, 96, 18 );
+                        ped,
+                        EDITPEMITTERX,
+                        64, 24, 64, 20 );
 
-    led->specularColorButton = createColorButton ( pan, 
-                                                   led,
-                                                   EDITSPECULARCOLOR,
-                                                   104,  0, 96, 18,
-                                                   specularityChangeCbk );
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERY,
+                        144, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERZ,
+                        224, 24, 64, 20 );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERACCEL,
+                        0, 48, 64, 20 );
+
+    ped->initialVarAccelXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 48, 0, 32,
+                                                 initialVarAccelXCbk );
+
+    ped->initialVarAccelYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 48, 0, 32,
+                                                 initialVarAccelYCbk );
+
+    ped->initialVarAccelZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 48, 0, 32,
+                                                 initialVarAccelZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSPEED,
+                        0, 72, 64, 20 );
+
+    ped->initialVarSpeedXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 72, 0, 32,
+                                                 initialVarSpeedXCbk );
+
+    ped->initialVarSpeedYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 72, 0, 32,
+                                                 initialVarSpeedYCbk );
+
+    ped->initialVarSpeedZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 72, 0, 32,
+                                                 initialVarSpeedZCbk );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSCALING,
+                        0, 96, 64, 20 );
+
+    ped->initialVarScaXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 96, 0, 32,
+                                                 initialVarScaXCbk );
+
+    ped->initialVarScaYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 96, 0, 32,
+                                                 initialVarScaYCbk );
+
+    ped->initialVarScaZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 96, 0, 32,
+                                                 initialVarScaZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERROTATION,
+                        0, 120, 64, 20 );
+
+    ped->initialVarRotXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 120, 0, 32,
+                                                 initialVarRotXCbk );
+
+    ped->initialVarRotYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 120, 0, 32,
+                                                 initialVarRotYCbk );
+
+    ped->initialVarRotZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 120, 0, 32,
+                                                 initialVarRotZCbk );
+
+
+
+
+    return pan;
+}
+
+/******************************************************************************/
+static void updateFinalPanel ( G3DUIPARTICLEEMITTEREDIT *ped ) {
+    ped->grp.gui->lock = 0x01;
+
+    if ( ped->editedPEmitter ) {
+        gtk_widget_set_sensitive ( ped->finalAccelXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalAccelYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalAccelZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalSpeedXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalSpeedYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalSpeedZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->finalScaXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalScaYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalScaZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalRotXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalRotYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalRotZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->finalTranspEntry, TRUE );
+
+        gtk_spin_button_set_value  ( ped->finalAccelXEntry, 
+                                     ped->editedPEmitter->finalAccel.x );
+        gtk_spin_button_set_value  ( ped->finalAccelYEntry, 
+                                     ped->editedPEmitter->finalAccel.y );
+        gtk_spin_button_set_value  ( ped->finalAccelZEntry, 
+                                     ped->editedPEmitter->finalAccel.z );
+
+        gtk_spin_button_set_value  ( ped->finalSpeedXEntry, 
+                                     ped->editedPEmitter->finalSpeed.x );
+        gtk_spin_button_set_value  ( ped->finalSpeedYEntry, 
+                                     ped->editedPEmitter->finalSpeed.y );
+        gtk_spin_button_set_value  ( ped->finalSpeedZEntry, 
+                                     ped->editedPEmitter->finalSpeed.z );
+
+        gtk_spin_button_set_value  ( ped->finalScaXEntry, 
+                                     ped->editedPEmitter->finalScaling.x );
+        gtk_spin_button_set_value  ( ped->finalScaYEntry, 
+                                     ped->editedPEmitter->finalScaling.y );
+        gtk_spin_button_set_value  ( ped->finalScaZEntry, 
+                                     ped->editedPEmitter->finalScaling.z );
+
+        gtk_spin_button_set_value  ( ped->finalRotXEntry, 
+                                     ped->editedPEmitter->finalRotation.x );
+        gtk_spin_button_set_value  ( ped->finalRotYEntry, 
+                                     ped->editedPEmitter->finalRotation.y );
+        gtk_spin_button_set_value  ( ped->finalRotZEntry, 
+                                     ped->editedPEmitter->finalRotation.z );
+
+        gtk_spin_button_set_value  ( ped->finalTranspEntry, 
+                                     ped->editedPEmitter->finalTransparency );
+    } else {
+        gtk_widget_set_sensitive ( ped->finalAccelXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalAccelYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalAccelZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalSpeedXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalSpeedYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalSpeedZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->finalScaXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalScaYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalScaZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalRotXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalRotYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalRotZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->finalTranspEntry, FALSE );
+    }
+
+    ped->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void finalTranspCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalTransp = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalTranspCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalTransp );
+    }
+}
+
+/******************************************************************************/
+static void finalRotXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalRotX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalRotXCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalRotX );
+    }
+}
+
+/******************************************************************************/
+static void finalRotYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalRotY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalRotYCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalRotY );
+    }
+}
+
+/******************************************************************************/
+static void finalRotZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalRotZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalRotZCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalRotZ );
+    }
+}
+
+/******************************************************************************/
+static void finalScaXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalScaX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalScaXCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalScaX );
+    }
+}
+
+/******************************************************************************/
+static void finalScaYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalScaY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalScaYCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalScaY );
+    }
+}
+
+/******************************************************************************/
+static void finalScaZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalScaZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalScaZCbk ( ped->grp.gui,
+                                                       ped->editedPEmitter,
+                                                       finalScaZ );
+    }
+}
+
+/******************************************************************************/
+static void finalSpeedXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalSpeedX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalSpeedXCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalSpeedX );
+    }
+}
+
+/******************************************************************************/
+static void finalSpeedYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalSpeedY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalSpeedYCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalSpeedY );
+    }
+}
+
+/******************************************************************************/
+static void finalSpeedZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalSpeedZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalSpeedZCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalSpeedZ );
+    }
+}
+
+/******************************************************************************/
+static void finalAccelXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalAccelX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalAccelXCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalAccelX );
+    }
+}
+
+/******************************************************************************/
+static void finalAccelYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalAccelY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalAccelYCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalAccelY );
+    }
+}
+
+/******************************************************************************/
+static void finalAccelZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float finalAccelZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_finalAccelZCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         finalAccelZ );
+    }
+}
+
+/******************************************************************************/
+static GtkWidget *createFinalPanel ( GtkWidget                *parent, 
+                                       G3DUIPARTICLEEMITTEREDIT *ped,
+                                       char                     *name,
+                                       gint                      x,
+                                       gint                      y,
+                                       gint                      width,
+                                       gint                      height ) {
+    GtkWidget *pan = createPanel ( parent, ped, name, x, y, width, height );
+
+    ped->finalTranspEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERTRANSPARENCY,
+                                                 0.0f, FLT_MAX,
+                                                 0, 0, 64, 32,
+                                                 finalTranspCbk );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERX,
+                        64, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERY,
+                        144, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERZ,
+                        224, 24, 64, 20 );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERACCEL,
+                        0, 48, 64, 20 );
+
+    ped->finalAccelXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 48, 0, 32,
+                                                 finalAccelXCbk );
+
+    ped->finalAccelYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 48, 0, 32,
+                                                 finalAccelYCbk );
+
+    ped->finalAccelZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 48, 0, 32,
+                                                 finalAccelZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSPEED,
+                        0, 72, 64, 20 );
+
+    ped->finalSpeedXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 72, 0, 32,
+                                                 finalSpeedXCbk );
+
+    ped->finalSpeedYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 72, 0, 32,
+                                                 finalSpeedYCbk );
+
+    ped->finalSpeedZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 72, 0, 32,
+                                                 finalSpeedZCbk );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSCALING,
+                        0, 96, 64, 20 );
+
+    ped->finalScaXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 96, 0, 32,
+                                                 finalScaXCbk );
+
+    ped->finalScaYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 96, 0, 32,
+                                                 finalScaYCbk );
+
+    ped->finalScaZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 96, 0, 32,
+                                                 finalScaZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERROTATION,
+                        0, 120, 64, 20 );
+
+    ped->finalRotXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 120, 0, 32,
+                                                 finalRotXCbk );
+
+    ped->finalRotYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 120, 0, 32,
+                                                 finalRotYCbk );
+
+    ped->finalRotZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 120, 0, 32,
+                                                 finalRotZCbk );
+
+
+
 
     return pan;
 }
 
 /******************************************************************************/
-static void diffuseChangeCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    G3DUI *gui = ( G3DUI * ) led->grp.gui;
-    GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
-    GdkRGBA color;
+static void updateInitialPanel ( G3DUIPARTICLEEMITTEREDIT *ped ) {
+    ped->grp.gui->lock = 0x01;
 
-    gtk_color_chooser_get_rgba ( ccr, &color );
+    if ( ped->editedPEmitter ) {
+        gtk_widget_set_sensitive ( ped->initialAccelXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialAccelYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialAccelZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialSpeedXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialSpeedYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialSpeedZEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->initialScaXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialScaYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialScaZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialRotXEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialRotYEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialRotZEntry  , TRUE );
+        gtk_widget_set_sensitive ( ped->initialTranspEntry, TRUE );
 
-    if ( led->editedLight ) {
-        common_g3dui_lightDiffuseChangeCbk ( gui,
-                                             led->editedLight,
-                                             color.red   * 255,
-                                             color.green * 255,
-                                             color.blue  * 255 );
-    }
+        gtk_spin_button_set_value  ( ped->initialAccelXEntry, 
+                                     ped->editedPEmitter->initialAccel.x );
+        gtk_spin_button_set_value  ( ped->initialAccelYEntry, 
+                                     ped->editedPEmitter->initialAccel.y );
+        gtk_spin_button_set_value  ( ped->initialAccelZEntry, 
+                                     ped->editedPEmitter->initialAccel.z );
 
-    g3dui_redrawGLViews ( led->grp.gui );
-}
+        gtk_spin_button_set_value  ( ped->initialSpeedXEntry, 
+                                     ped->editedPEmitter->initialSpeed.x );
+        gtk_spin_button_set_value  ( ped->initialSpeedYEntry, 
+                                     ped->editedPEmitter->initialSpeed.y );
+        gtk_spin_button_set_value  ( ped->initialSpeedZEntry, 
+                                     ped->editedPEmitter->initialSpeed.z );
 
-/******************************************************************************/
-static void diffuseIntensityCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUIPARTICLEEMITTEREDIT *led = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
-    G3DUI *gui = ( G3DUI * ) led->grp.gui;
-    float intensity = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+        gtk_spin_button_set_value  ( ped->initialScaXEntry, 
+                                     ped->editedPEmitter->initialScaling.x );
+        gtk_spin_button_set_value  ( ped->initialScaYEntry, 
+                                     ped->editedPEmitter->initialScaling.y );
+        gtk_spin_button_set_value  ( ped->initialScaZEntry, 
+                                     ped->editedPEmitter->initialScaling.z );
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+        gtk_spin_button_set_value  ( ped->initialRotXEntry, 
+                                     ped->editedPEmitter->initialRotation.x );
+        gtk_spin_button_set_value  ( ped->initialRotYEntry, 
+                                     ped->editedPEmitter->initialRotation.y );
+        gtk_spin_button_set_value  ( ped->initialRotZEntry, 
+                                     ped->editedPEmitter->initialRotation.z );
 
-    if ( led->editedLight ) {
-        led->editedLight->intensity = intensity;
-    }
-
-    g3dui_redrawGLViews ( led->grp.gui );
-}
-
-/******************************************************************************/
-static void updateLightGeneralPanel ( G3DUIPARTICLEEMITTEREDIT *led ) {
-    led->grp.gui->lock = 0x01;
-
-    if ( led->editedLight ) {
-        gtk_widget_set_sensitive ( led->spotLengthEntry   , TRUE );
-        gtk_widget_set_sensitive ( led->spotAngleEntry    , TRUE );
-        gtk_widget_set_sensitive ( led->spotFadeAngleEntry, TRUE );
-        gtk_widget_set_sensitive ( led->spotToggle        , TRUE );
-        gtk_widget_set_sensitive ( led->castShadowsToggle , TRUE );
-
-        if ( ((G3DOBJECT*)led->editedLight)->flags & PARTICLEEMITTERCASTSHADOWS ) {
-            gtk_toggle_button_set_active ( led->castShadowsToggle, TRUE  );
-        } else {
-            gtk_toggle_button_set_active ( led->castShadowsToggle, FALSE );
-        }
-
-        if ( ((G3DOBJECT*)led->editedLight)->flags & SPOTPARTICLEEMITTER ) {
-            gtk_toggle_button_set_active ( led->spotToggle, TRUE  );
-        } else {
-            gtk_toggle_button_set_active ( led->spotToggle, FALSE );
-        }
-
-        gtk_spin_button_set_value ( led->spotLengthEntry   , 
-                                    led->editedLight->spotLength );
-
-        gtk_spin_button_set_value ( led->spotAngleEntry    , 
-                                    led->editedLight->spotAngle );
-
-        gtk_spin_button_set_value ( led->spotFadeAngleEntry,
-                                    led->editedLight->spotFadeAngle );
+        gtk_spin_button_set_value  ( ped->initialTranspEntry, 
+                                     ped->editedPEmitter->initialTransparency );
     } else {
-        gtk_widget_set_sensitive ( led->spotLengthEntry   , FALSE );
-        gtk_widget_set_sensitive ( led->spotAngleEntry    , FALSE );
-        gtk_widget_set_sensitive ( led->spotFadeAngleEntry, FALSE );
-        gtk_widget_set_sensitive ( led->spotToggle        , FALSE );
-        gtk_widget_set_sensitive ( led->castShadowsToggle , FALSE );
+        gtk_widget_set_sensitive ( ped->initialAccelXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialAccelYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialAccelZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialSpeedXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialSpeedYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialSpeedZEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->initialScaXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialScaYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialScaZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialRotXEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialRotYEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialRotZEntry  , FALSE );
+        gtk_widget_set_sensitive ( ped->initialTranspEntry, FALSE );
     }
 
-    led->grp.gui->lock = 0x00;
+    ped->grp.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void updateDiffuseColorPanel ( G3DUIPARTICLEEMITTEREDIT *led ) {
-    led->grp.gui->lock = 0x01;
+static void initialTranspCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialTransp = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    if ( led->editedLight ) {
-        GdkRGBA rgba = { .red   = ( float ) led->editedLight->diffuseColor.r / 255.0f,
-                         .green = ( float ) led->editedLight->diffuseColor.g / 255.0f,
-                         .blue  = ( float ) led->editedLight->diffuseColor.b / 255.0f,
-                         .alpha = ( float ) led->editedLight->diffuseColor.a / 255.0f };
-
-        gtk_widget_set_sensitive ( led->intensityEntry    , TRUE );
-        gtk_widget_set_sensitive ( led->diffuseColorButton, TRUE );
-
-        gtk_spin_button_set_value  ( led->intensityEntry    , 
-                                     led->editedLight->intensity );
-
-        gtk_color_chooser_set_rgba ( led->diffuseColorButton, &rgba );
-    } else {
-        gtk_widget_set_sensitive ( led->intensityEntry    , FALSE );
-        gtk_widget_set_sensitive ( led->diffuseColorButton, FALSE );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialTranspCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialTransp );
     }
-
-    led->grp.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static GtkWidget *createDiffuseColorPanel ( GtkWidget      *parent, 
-                                            G3DUIPARTICLEEMITTEREDIT *led,
-                                            char           *name,
-                                            gint            x,
-                                            gint            y,
-                                            gint            width,
-                                            gint            height ) {
-    GtkWidget *pan = createPanel ( parent, led, name, x, y, width, height );
+static void initialRotXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialRotX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    createSimpleLabel ( pan,
-                        led,
-                        EDITDIFFUSECOLOR,
-                        0,  0, 96, 18 );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialRotXCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         initialRotX );
+    }
+}
 
-    led->diffuseColorButton = createColorButton ( pan, 
-                                                  led,
-                                                  EDITDIFFUSECOLOR,
-                                                  104,  0, 96, 18,
-                                                  diffuseChangeCbk );
+/******************************************************************************/
+static void initialRotYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialRotY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    led->intensityEntry = createFloatText ( pan,
-                                            led,
-                                            EDITPEMITTERINTENSITY,
-                                            0.0f, FLT_MAX,
-                                            0, 48, 96, 96,
-                                            diffuseIntensityCbk );
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialRotYCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         initialRotY );
+    }
+}
+
+/******************************************************************************/
+static void initialRotZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialRotZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialRotZCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         initialRotZ );
+    }
+}
+
+/******************************************************************************/
+static void initialScaXCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialScaX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialScaXCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         initialScaX );
+    }
+}
+
+/******************************************************************************/
+static void initialScaYCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialScaY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialScaYCbk ( ped->grp.gui,
+                                                         ped->editedPEmitter,
+                                                         initialScaY );
+    }
+}
+
+/******************************************************************************/
+static void initialScaZCbk ( GtkWidget *widget, 
+                             gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialScaZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialScaZCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialScaZ );
+    }
+}
+
+/******************************************************************************/
+static void initialSpeedXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialSpeedX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialSpeedXCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialSpeedX );
+    }
+}
+
+/******************************************************************************/
+static void initialSpeedYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialSpeedY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialSpeedYCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialSpeedY );
+    }
+}
+
+/******************************************************************************/
+static void initialSpeedZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialSpeedZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialSpeedZCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialSpeedZ );
+    }
+}
+
+/******************************************************************************/
+static void initialAccelXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialAccelX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialAccelXCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialAccelX );
+    }
+}
+
+/******************************************************************************/
+static void initialAccelYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialAccelY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialAccelYCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialAccelY );
+    }
+}
+
+/******************************************************************************/
+static void initialAccelZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float initialAccelZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_initialAccelZCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           initialAccelZ );
+    }
+}
+
+/******************************************************************************/
+static GtkWidget *createInitialPanel ( GtkWidget                *parent, 
+                                       G3DUIPARTICLEEMITTEREDIT *ped,
+                                       char                     *name,
+                                       gint                      x,
+                                       gint                      y,
+                                       gint                      width,
+                                       gint                      height ) {
+    GtkWidget *pan = createPanel ( parent, ped, name, x, y, width, height );
+
+    ped->initialTranspEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERTRANSPARENCY,
+                                                 0.0f, FLT_MAX,
+                                                 0, 0, 64, 32,
+                                                 initialTranspCbk );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERX,
+                        64, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERY,
+                        144, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERZ,
+                        224, 24, 64, 20 );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERACCEL,
+                        0, 48, 64, 20 );
+
+    ped->initialAccelXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 48, 0, 32,
+                                                 initialAccelXCbk );
+
+    ped->initialAccelYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 48, 0, 32,
+                                                 initialAccelYCbk );
+
+    ped->initialAccelZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 48, 0, 32,
+                                                 initialAccelZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSPEED,
+                        0, 72, 64, 20 );
+
+    ped->initialSpeedXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 72, 0, 32,
+                                                 initialSpeedXCbk );
+
+    ped->initialSpeedYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 72, 0, 32,
+                                                 initialSpeedYCbk );
+
+    ped->initialSpeedZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 72, 0, 32,
+                                                 initialSpeedZCbk );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERSCALING,
+                        0, 96, 64, 20 );
+
+    ped->initialScaXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 96, 0, 32,
+                                                 initialScaXCbk );
+
+    ped->initialScaYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 96, 0, 32,
+                                                 initialScaYCbk );
+
+    ped->initialScaZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 96, 0, 32,
+                                                 initialScaZCbk );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERROTATION,
+                        0, 120, 64, 20 );
+
+    ped->initialRotXEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                 0.0f, FLT_MAX,
+                                                 64, 120, 0, 32,
+                                                 initialRotXCbk );
+
+    ped->initialRotYEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                 0.0f, FLT_MAX,
+                                                 144, 120, 0, 32,
+                                                 initialRotYCbk );
+
+    ped->initialRotZEntry    = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                 0.0f, FLT_MAX,
+                                                 224, 120, 0, 32,
+                                                 initialRotZCbk );
+
+
+
 
     return pan;
 }
-
-#endif
 
 /******************************************************************************/
 static void updateGeneralPanel ( G3DUIPARTICLEEMITTEREDIT *ped ) {
@@ -683,7 +1517,11 @@ void updateParticleEmitterEdit ( GtkWidget           *w,
 
     ped->editedPEmitter = pem;
 
-    updateGeneralPanel  ( ped );
+    updateGeneralPanel    ( ped );
+    updateInitialPanel    ( ped );
+    updateFinalPanel      ( ped );
+    updateInitialVarPanel ( ped );
+
     /*updateDiffuseColorPanel ( led );
     updateLightGeneralPanel ( led );
     updateShadowsPanel      ( led );*/
@@ -729,11 +1567,13 @@ GtkWidget *createParticleEmitterEdit ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), ped );
     g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), ped );
 
-    createGeneralPanel   ( tab, ped, EDITPEMITTERGENERAL, 0, 0, width, height );
+    createGeneralPanel    ( tab, ped, EDITPEMITTERGENERAL   , 0, 0, width, height );
+    createInitialPanel    ( tab, ped, EDITPEMITTERINITIAL   , 0, 0, width, height );
+    createFinalPanel      ( tab, ped, EDITPEMITTERFINAL     , 0, 0, width, height );
+    createInitialVarPanel ( tab, ped, EDITPEMITTERINITIALVAR, 0, 0, width, height );
 /*
-    createInitialPanel   ( tab, led, EDITDIFFUSE     , 0, 0, width, height );
-    createFinalPanel     ( tab, led, EDITSPECULAR    , 0, 0, width, height );
-    createVariationPanel ( tab, led, EDITPEMITTERSHADOWS, 0, 0, width, height );
+    createFinalPanel     ( tab, ped, EDITSPECULAR    , 0, 0, width, height );
+    createVariationPanel ( tab, ped, EDITPEMITTERSHADOWS, 0, 0, width, height );
 */
     /*list_insert ( &gui->lligedit, tab );*/
 

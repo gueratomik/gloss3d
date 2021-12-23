@@ -90,35 +90,35 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                                               int32_t             startAtFrame ) {
     float rd = ( float ) rand ( ) / RAND_MAX;
 
-    G3DVECTOR initialAccelVariation = { .x = ( pem->initialAccel.x * rd *
-                                               pem->initialAccelVariation.x ),
-                                        .y = ( pem->initialAccel.y * rd *
-                                               pem->initialAccelVariation.y ),
-                                        .z = ( pem->initialAccel.z * rd *
-                                               pem->initialAccelVariation.z ) };
-    G3DVECTOR initialSpeedVariation = { .x = ( pem->initialSpeed.x * rd *
-                                               pem->initialSpeedVariation.x ),
-                                        .y = ( pem->initialSpeed.y * rd *
-                                               pem->initialSpeedVariation.y ),
-                                        .z = ( pem->initialSpeed.z * rd *
-                                               pem->initialSpeedVariation.z ) };
-    G3DVECTOR initialScalingVariation = { .x = ( pem->initialScaling.x * rd *
-                                                 pem->initialScalingVariation.x ),
-                                          .y = ( pem->initialScaling.y * rd *
-                                                 pem->initialScalingVariation.y ),
-                                          .z = ( pem->initialScaling.z * rd *
-                                                 pem->initialScalingVariation.z ) };
-    G3DVECTOR accel = { .x = pem->initialAccel.x + initialAccelVariation.x,
-                        .y = pem->initialAccel.y + initialAccelVariation.y,
-                        .z = pem->initialAccel.z + initialAccelVariation.z };
-    G3DVECTOR speed = { .x = pem->initialSpeed.x + initialSpeedVariation.x,
-                        .y = pem->initialSpeed.y + initialSpeedVariation.y,
-                        .z = pem->initialSpeed.z + initialSpeedVariation.z },
+    G3DVECTOR initialVarAccel = { .x = ( pem->initialAccel.x * rd *
+                                         pem->initialVarAccel.x ),
+                                  .y = ( pem->initialAccel.y * rd *
+                                         pem->initialVarAccel.y ),
+                                  .z = ( pem->initialAccel.z * rd *
+                                         pem->initialVarAccel.z ) };
+    G3DVECTOR initialVarSpeed = { .x = ( pem->initialSpeed.x * rd *
+                                         pem->initialVarSpeed.x ),
+                                  .y = ( pem->initialSpeed.y * rd *
+                                         pem->initialVarSpeed.y ),
+                                  .z = ( pem->initialSpeed.z * rd *
+                                         pem->initialVarSpeed.z ) };
+    G3DVECTOR initialVarScaling = { .x = ( pem->initialScaling.x * rd *
+                                           pem->initialVarScaling.x ),
+                                    .y = ( pem->initialScaling.y * rd *
+                                           pem->initialVarScaling.y ),
+                                    .z = ( pem->initialScaling.z * rd *
+                                           pem->initialVarScaling.z ) };
+    G3DVECTOR accel = { .x = pem->initialAccel.x + initialVarAccel.x,
+                        .y = pem->initialAccel.y + initialVarAccel.y,
+                        .z = pem->initialAccel.z + initialVarAccel.z };
+    G3DVECTOR speed = { .x = pem->initialSpeed.x + initialVarSpeed.x,
+                        .y = pem->initialSpeed.y + initialVarSpeed.y,
+                        .z = pem->initialSpeed.z + initialVarSpeed.z },
               wspeed;
     G3DVECTOR pos, wpos,
-              sca = { .x = pem->initialScaling.x + initialScalingVariation.x, 
-                      .y = pem->initialScaling.y + initialScalingVariation.y,
-                      .z = pem->initialScaling.z + initialScalingVariation.z },
+              sca = { .x = pem->initialScaling.x + initialVarScaling.x, 
+                      .y = pem->initialScaling.y + initialVarScaling.y,
+                      .z = pem->initialScaling.z + initialVarScaling.z },
               rot = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     getRandomPointOnSquare ( &pem->seg1, 
@@ -389,32 +389,27 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
     ((G3DOBJECT*)pem)->anim = ANIM_CALLBACK(g3dparticleemitter_anim);
 
     /*pem->initialAcceleration = 0.0f;*/
-    pem->particlesPerFrame   = 10.0f;
-    pem->particleLifetime    = 10;
+
+    pem->particlesPerFrame = 10.0f;
+    pem->particleLifetime  = 10;
+
     /*pem->scaleFactor         = 1.0f;*/
-    pem->startAtFrame        = 0.0f;
 
+    pem->startAtFrame      = 0x00;
+    pem->endAtFrame        = 100;
 
-    pem->initialScaling.x = 0.1f;
-    pem->initialScaling.y = 0.1f;
-    pem->initialScaling.z = 0.1f;
+    pem->initialScaling.x  = 1.0f;
+    pem->initialScaling.y  = 1.0f;
+    pem->initialScaling.z  = 1.0f;
 
-    pem->initialScalingVariation.x = 0.5f;
-    pem->initialScalingVariation.y = 0.5f;
-    pem->initialScalingVariation.z = 0.5f;
+    pem->finalScaling.x    = 1.0f;
+    pem->finalScaling.y    = 1.0f;
+    pem->finalScaling.z    = 1.0f;
 
-    pem->finalScaling.x = 0.5f;
-    pem->finalScaling.y = 0.5f;
-    pem->finalScaling.z = 0.5f;
+    pem->initialSpeed.y    = 1.0f;
+    pem->initialVarSpeed.y = 0.1f;
 
-    pem->initialSpeed.x = 0.0f;
-    pem->initialSpeed.y = 0.32f;
-    pem->initialSpeed.z = 0.0f;
-
-    pem->initialTransparency = 0.0f;
-    pem->finalTransparency = 1.0f;
-
-    pem->radius = 1.0f;
+    pem->radius = 0.5f;
 }
 
 /******************************************************************************/

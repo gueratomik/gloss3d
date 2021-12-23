@@ -1732,4 +1732,124 @@ void common_g3duiparticleemitteredit_startAtFrameCbk ( G3DUI              *gui,
                                                        G3DPARTICLEEMITTER *pem,
                                                        uint32_t            startAtFrame );
 
+/******************************************************************************/
+void common_g3duiparticleemitteredit_initialTranspCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialTransp );
+void common_g3duiparticleemitteredit_initialRotXCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialRotX );
+void common_g3duiparticleemitteredit_initialRotYCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialRotY );
+void common_g3duiparticleemitteredit_initialRotZCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialRotZ );
+void common_g3duiparticleemitteredit_initialScaXCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialScaX );
+void common_g3duiparticleemitteredit_initialScaYCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialScaY );
+void common_g3duiparticleemitteredit_initialScaZCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               initialScaZ );
+void common_g3duiparticleemitteredit_initialSpeedXCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialSpeedX );
+void common_g3duiparticleemitteredit_initialSpeedYCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialSpeedY );
+void common_g3duiparticleemitteredit_initialSpeedZCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialSpeedZ );
+void common_g3duiparticleemitteredit_initialAccelXCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialAccelX );
+void common_g3duiparticleemitteredit_initialAccelYCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialAccelY );
+void common_g3duiparticleemitteredit_initialAccelZCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               initialAccelZ );
+void common_g3duiparticleemitteredit_finalTranspCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalTransp );
+void common_g3duiparticleemitteredit_finalRotXCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalRotX );
+void common_g3duiparticleemitteredit_finalRotYCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalRotY );
+void common_g3duiparticleemitteredit_finalRotZCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalRotZ );
+void common_g3duiparticleemitteredit_finalScaXCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalScaX );
+void common_g3duiparticleemitteredit_finalScaYCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalScaY );
+void common_g3duiparticleemitteredit_finalScaZCbk ( G3DUI              *gui,
+                                                    G3DPARTICLEEMITTER *pem,
+                                                    float               finalScaZ );
+void common_g3duiparticleemitteredit_finalSpeedXCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalSpeedX );
+void common_g3duiparticleemitteredit_finalSpeedYCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalSpeedY );
+void common_g3duiparticleemitteredit_finalSpeedZCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalSpeedZ );
+void common_g3duiparticleemitteredit_finalAccelXCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalAccelX );
+void common_g3duiparticleemitteredit_finalAccelYCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalAccelY );
+void common_g3duiparticleemitteredit_finalAccelZCbk ( G3DUI              *gui,
+                                                      G3DPARTICLEEMITTER *pem,
+                                                      float               finalAccelZ );
+void common_g3duiparticleemitteredit_initialVarTranspCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarTransp );
+void common_g3duiparticleemitteredit_initialVarRotXCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarRotX );
+void common_g3duiparticleemitteredit_initialVarRotYCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarRotY );
+void common_g3duiparticleemitteredit_initialVarRotZCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarRotZ );
+void common_g3duiparticleemitteredit_initialVarScaXCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarScaX );
+void common_g3duiparticleemitteredit_initialVarScaYCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarScaY );
+void common_g3duiparticleemitteredit_initialVarScaZCbk ( G3DUI              *gui,
+                                                         G3DPARTICLEEMITTER *pem,
+                                                         float               initialVarScaZ );
+void common_g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarSpeedX );
+void common_g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarSpeedY );
+void common_g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarSpeedZ );
+void common_g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarAccelX );
+void common_g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarAccelY );
+void common_g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUI              *gui,
+                                                           G3DPARTICLEEMITTER *pem,
+                                                           float               initialVarAccelZ );
+
+
 #endif
