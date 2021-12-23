@@ -59,7 +59,7 @@ gloss3d-gtk3
 
 ### Special thanks
 
-Gloss3D is written with Nedit, the Nirvana Editor. Get it [here](https://sourceforge.net/projects/nedit/) !
+Gloss3D is written with Nedit, the Nirvana Editor version 5.7. Get it [here](https://sourceforge.net/projects/nedit/) !
 
 ### Contact
 
