@@ -57,6 +57,10 @@ make install
 gloss3d-gtk3
 ```
 
+### Special thanks
+
+Gloss3D is written with Nedit, the Nirvana Editor. Get it [here]](https://sourceforge.net/projects/nedit/) !
+
 ### Contact
 
 Feel free to [contact us](mailto:contact@gloss3d.net)
