@@ -108,7 +108,8 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
             case SIG_OBJECT_DECLARE_BONE :
             case SIG_OBJECT_DECLARE_LIGHT :
             case SIG_OBJECT_DECLARE_MORPHER :
-            case SIG_OBJECT_DECLARE_INSTANCE : {
+            case SIG_OBJECT_DECLARE_INSTANCE :
+            case SIG_OBJECT_DECLARE_PARTICLEEMITTER : {
                 G3DOBJECT *obj = NULL;
 
                 /*** Potential buffer overflow here ***/
@@ -240,6 +241,12 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
                                                 gid->currentObjectName,
                                                 gid->currentScene );
                     } break;
+
+                    case SIG_OBJECT_DECLARE_PARTICLEEMITTER : {
+                        obj = g3dparticleemitter_new ( gid->currentObjectID++ ,
+                                                       gid->currentObjectName );
+                    } break;
+
 
                     default :
                         obj = g3dobject_new ( gid->currentObjectID++, 

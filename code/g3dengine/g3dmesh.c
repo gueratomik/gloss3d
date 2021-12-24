@@ -1872,7 +1872,15 @@ void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
 
 
         } else {
-            if ( fac->edg[i]->lfac == NULL ) {
+            /*** I used to compare fac->edg[i]->lfac, but this is faulty ***/
+            /*** Indeed, sometimes we want to call g3dmesh_addEdge()     ***/
+            /*** independently, and in that case, edg->lfac will be NULL ***/
+            /*** even if the edge already belongs to the mesh. The only  ***/
+            /*** way to get sure the edge was added to the mesh, is to   ***/
+            /*** check the topology related to the vertices, because     ***/ 
+            /***  g3dmesh_addEdge() is reponsible for it.                ***/
+
+            if ( fac->edg[i]->ver[0x00]->ledg == NULL ) {
                 g3dmesh_addEdge ( mes, fac->edg[i] );
             }
 

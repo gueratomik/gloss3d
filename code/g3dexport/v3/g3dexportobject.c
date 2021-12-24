@@ -476,6 +476,15 @@ static uint32_t g3dexportv3object_identityType ( G3DEXPORTV3DATA *ged,
                                          fdst );
     }
 
+    if ( obj->type == G3DPARTICLEEMITTERTYPE ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER,
+                                         g3dexportv3particleemitter,
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
+
     /*if ( obj->type  & MODIFIER ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_MODIFIER,
                                        g3dexportv3modifier,

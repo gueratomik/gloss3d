@@ -48,7 +48,7 @@ typedef struct _G3DPARTICLE {
     G3DVECTOR  speed;
     G3DVECTOR  accel;
     int32_t    startAtFrame;
-    int32_t    lifeTime; /*** warning ; must be SIGNED int32_t ***/
+    float    lifeTime; /*** warning ; must be SIGNED int32_t ***/
     float      transparency;
     G3DVECTOR  initialScaling;
 } G3DPARTICLE;
@@ -59,6 +59,8 @@ typedef struct _G3DPARTICLE {
  */
 typedef struct _G3DPARTICLEEMITTER {
     G3DOBJECT    obj;
+
+    G3DVECTOR    gravity;
 
     G3DVECTOR    initialAccel;
     G3DVECTOR    initialSpeed;
@@ -81,6 +83,7 @@ typedef struct _G3DPARTICLEEMITTER {
 
     uint32_t     particleLifetime; /* in frames */
     uint32_t     particleLifetimeVariation;
+    float        particleMass;
 
     uint32_t     maxParticlesPerFrame;
     uint32_t     maxPreviewsPerFrame;
@@ -97,7 +100,7 @@ typedef struct _G3DPARTICLEEMITTER {
     G3DSEGMENT   seg2;
     float        radius;
 
-    uint32_t     orientation;
+    uint32_t     type;
 
     double       TIWMVX[0x10];
 } G3DPARTICLEEMITTER;

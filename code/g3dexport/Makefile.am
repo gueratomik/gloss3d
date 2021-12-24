@@ -41,6 +41,7 @@ LIBGLOSSG3DEXPORT_C_FILES = v2/g3dexportextension.c \
                             v3/g3dexportmesh.c \
                             v3/g3dexportmodifiers.c \
                             v3/g3dexportobject.c \
+                            v3/g3dexportparticleemitter.c \
                             v3/g3dexportprimitive.c \
                             v3/g3dexportuvmap.c \
                             v3/g3dexportscene.c \

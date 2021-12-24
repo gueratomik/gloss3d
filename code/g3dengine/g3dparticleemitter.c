@@ -140,7 +140,52 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                        pem->initialTransparency );
 }
 
+/******************************************************************************/
+static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
+                                              G3DPARTICLE        *prt,
+                                              float               deltaFrame,
+                                              float               deltaSeconds ) {
+    float ratio = ( float ) prt->lifeTime / pem->particleLifetime;
 
+    if ( pem->particleMass ) {
+        prt->accel.x = ( pem->gravity.x ) / pem->particleMass;
+        prt->accel.y = ( pem->gravity.y ) / pem->particleMass;
+        prt->accel.z = ( pem->gravity.z ) / pem->particleMass;
+    }
+
+    prt->speed.x += prt->accel.x;
+    prt->speed.y += prt->accel.y;
+    prt->speed.z += prt->accel.z;
+
+    prt->pos.x += ( prt->speed.x * deltaSeconds );
+    prt->pos.y += ( prt->speed.y * deltaSeconds );
+    prt->pos.z += ( prt->speed.z * deltaSeconds );
+
+    prt->sca.x  = prt->initialScaling.x +
+              ( ( pem->finalScaling.x - 
+                  prt->initialScaling.x ) * ratio );
+
+    prt->sca.y  = prt->initialScaling.y +
+              ( ( pem->finalScaling.y - 
+                  prt->initialScaling.y ) * ratio );
+
+    prt->sca.z  = prt->initialScaling.z +
+              ( ( pem->finalScaling.z - 
+                  prt->initialScaling.z ) * ratio );
+
+    prt->transparency = pem->initialTransparency + 
+                    ( ( pem->finalTransparency -
+                        pem->initialTransparency ) * ratio );
+
+    prt->lifeTime += ( deltaFrame );
+
+    if ( prt->lifeTime == pem->particleLifetime ) {
+        g3dparticleemitter_initParticle ( pem, 
+                                          prt, 
+                                          prt->startAtFrame +
+                                          pem->particleLifetime );
+    }
+}
 
 /******************************************************************************/
 static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem, 
@@ -188,31 +233,33 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                 if ( prt[j].lifeTime < pem->particleLifetime ) {
-                    if ( prt[j].ref ) {
-                        if ( pem->obj.flags & DISPLAYPARTICLES ) {
-                            glPushMatrix ( );
+                    if ( prt[j].startAtFrame < pem->endAtFrame ) {
+                        if ( prt[j].ref ) {
+                            if ( pem->obj.flags & DISPLAYPARTICLES ) {
+                                glPushMatrix ( );
 
-                            glTranslatef ( prt[j].pos.x, 
-                                           prt[j].pos.y, 
-                                           prt[j].pos.z );
-
-
-                                if ( prt[j].ref->draw ) {
-                                    glScalef ( prt[j].sca.x, 
-                                               prt[j].sca.y, 
-                                               prt[j].sca.z );
-
-                                    prt[j].ref->draw ( prt[j].ref, 
-                                                       curcam, 
-                                                       engine_flags & (~MODEMASK) );
-                                }
+                                glTranslatef ( prt[j].pos.x, 
+                                               prt[j].pos.y, 
+                                               prt[j].pos.z );
 
 
-                            glPopMatrix();
-                        } else {
-                            glVertex3f ( prt[j].pos.x, 
-                                         prt[j].pos.y, 
-                                         prt[j].pos.z );
+                                    if ( prt[j].ref->draw ) {
+                                        glScalef ( prt[j].sca.x, 
+                                                   prt[j].sca.y, 
+                                                   prt[j].sca.z );
+
+                                        prt[j].ref->draw ( prt[j].ref, 
+                                                           curcam, 
+                                                           engine_flags & (~MODEMASK) );
+                                    }
+
+
+                                glPopMatrix();
+                            } else {
+                                glVertex3f ( prt[j].pos.x, 
+                                             prt[j].pos.y, 
+                                             prt[j].pos.z );
+                            }
                         }
                     }
                 }
@@ -234,7 +281,9 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
 
 /******************************************************************************/
 static void g3dparticleemitter_free ( G3DPARTICLEEMITTER *pem ) {
-
+    if ( pem->particles ) {
+        free ( pem->particles );
+   }
 }
 
 /******************************************************************************/
@@ -259,7 +308,7 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
 
     if ( pem->maxParticles ) {
         int32_t iFrame = ( int32_t ) ( frame - pem->startAtFrame );
-        int32_t localFrame = ( iFrame % pem->particleLifetime );
+        int32_t localFrame = ( iFrame % ( int32_t ) pem->particleLifetime );
         int32_t i, j;
         double IWMVX[0x10];
 
@@ -267,54 +316,47 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
         g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
 
         
-        if ( frame == pem->startAtFrame ) {
+        /*if ( frame == pem->startAtFrame ) {
             g3dparticleemitter_reset ( pem );
-        }
+        }*/
 
-        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
-            G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
-            for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                if ( frame >= prt[j].startAtFrame ) {
-                    float ratio = ( float ) prt[j].lifeTime / pem->particleLifetime;
+            for ( i = 0x00; i < pem->particleLifetime; i++ ) {
+                G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
-                    prt[j].pos.x += prt[j].speed.x * deltaFrame;
-                    prt[j].pos.y += prt[j].speed.y * deltaFrame;
-                    prt[j].pos.z += prt[j].speed.z * deltaFrame;
-
-                    prt[j].sca.x  = prt[j].initialScaling.x + ( ( pem->finalScaling.x - prt[j].initialScaling.x ) * ratio );
-                    prt[j].sca.y  = prt[j].initialScaling.y + ( ( pem->finalScaling.y - prt[j].initialScaling.y ) * ratio );
-                    prt[j].sca.z  = prt[j].initialScaling.z + ( ( pem->finalScaling.z - prt[j].initialScaling.z ) * ratio );
-
-                    prt[j].transparency = pem->initialTransparency + ( ( pem->finalTransparency - pem->initialTransparency ) * ratio );
-
-                    prt[j].lifeTime = ( frame - prt[j].startAtFrame );
-
-                    if ( prt[j].lifeTime == pem->particleLifetime ) {
+                for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
+                    if ( frame == pem->startAtFrame ) {
                         g3dparticleemitter_initParticle ( pem, 
                                                          &prt[j], 
-                                                          prt[j].startAtFrame +
-                                                          pem->particleLifetime );
+                                                          pem->startAtFrame + i );
+                    }
+
+                    if ( ( frame > prt[j].startAtFrame ) &&
+                         ( prt[j].startAtFrame < pem->endAtFrame ) ) {
+                        g3dparticleemitter_animParticle ( pem,
+                                                         &prt[j],
+                                                          deltaFrame,
+                                                          deltaFrame / 24 );
+
+                        if ( engine_flags & ONGOINGRENDERING ) {
+                            glPushMatrix ( );
+                            glLoadIdentity ( );
+                            glTranslatef ( prt[j].pos.x, 
+                                           prt[j].pos.y, 
+                                           prt[j].pos.z );
+
+                            glScalef ( prt[j].sca.x, 
+                                       prt[j].sca.y, 
+                                       prt[j].sca.z );
+
+                            glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
+
+                            glPopMatrix();
+                        }
                     }
                 }
-
-                if ( engine_flags & ONGOINGRENDERING ) {
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    glTranslatef ( prt[j].pos.x, 
-                                   prt[j].pos.y, 
-                                   prt[j].pos.z );
-
-                    glScalef ( prt[j].sca.x, 
-                               prt[j].sca.y, 
-                               prt[j].sca.z );
-
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
-
-                    glPopMatrix();
-                }
             }
-        }
+ 
     }
 
     pem->oldFrame = frame;
@@ -344,17 +386,21 @@ void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem ) {
 
     if ( pem->particles ) free ( pem->particles );
 
+    pem->particles = NULL;
+
     if ( pem->maxParticles ) {
+        uint32_t memarea = ( pem->maxParticles * sizeof ( G3DPARTICLE ) );
         uint32_t i, j;
 
-        pem->particles = ( G3DPARTICLE * ) calloc ( pem->maxParticles,
-                                                    sizeof ( G3DPARTICLE ) );
+        pem->particles = ( G3DPARTICLE * ) realloc ( pem->particles, memarea );
+
+        memset ( pem->particles, 0x00, memarea );
 
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                g3dparticleemitter_initParticle ( pem, &prt[j], i );
+                g3dparticleemitter_initParticle ( pem, &prt[j], INT_MAX );
             }
         }
     }
@@ -392,6 +438,12 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
 
     pem->particlesPerFrame = 10.0f;
     pem->particleLifetime  = 10;
+
+    pem->gravity.x =  0.0f;
+    pem->gravity.y = -9.87f;
+    pem->gravity.z =  0.0f;
+
+    pem->particleMass = 1.0f;
 
     /*pem->scaleFactor         = 1.0f;*/
 

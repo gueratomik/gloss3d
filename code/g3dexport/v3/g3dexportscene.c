@@ -244,6 +244,15 @@ static uint32_t g3dexportv3objects_declareEntry ( G3DEXPORTV3DATA *ged,
                                              fdst );
         break;
 
+        case G3DPARTICLEEMITTERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_PARTICLEEMITTER,
+                                             g3dexportv3objects_declareObject,
+                                             ged,
+                                             obj,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
         default :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_DECLARE_NULL,
                                              g3dexportv3objects_declareObject,

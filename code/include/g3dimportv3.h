@@ -134,6 +134,7 @@ void g3dimportv3skin ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportv3tag ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportv3instance ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 void g3dimportv3path ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc );
+void g3dimportv3particleemitter ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc );
 
 G3DIMPORTV3EXTENSION *g3dimportv3extension_new ( uint32_t signature,
                                              void (*read)( G3DIMPORTV3DATA *gid,

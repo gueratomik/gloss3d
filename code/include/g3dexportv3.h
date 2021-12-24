@@ -177,6 +177,11 @@ uint32_t g3dexportv3morpher ( G3DEXPORTV3DATA *ged,
                             uint32_t       flags, 
                             FILE          *fdst );
 
+uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged, 
+                                      G3DPARTICLEEMITTER *pem, 
+                                      uint32_t            flags, 
+                                      FILE               *fdst );
+
 uint32_t g3dexportv3skin ( G3DEXPORTV3DATA *ged, 
                          G3DSKIN       *skn, 
                          uint32_t       flags, 

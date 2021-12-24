@@ -63,6 +63,8 @@ SIG_ROOT=0x44335347
 -------------------- Name ( char[] )
 ---------------- SIG_OBJECT_DECLARE_INSTANCE
 -------------------- Name ( char[] )
+---------------- SIG_OBJECT_DECLARE_PARTICLEEMITTER
+-------------------- Name ( char[] )
 
 -------- SIG_OBJECTS_DEFINE
 ------------ SIG_OBJECT_ENTRY
@@ -381,6 +383,53 @@ SIG_ROOT=0x44335347
 --------------------------- SIG_OBJECT_MORPHER_RESETPOSITIONS
 ------------------------------- Number of saved Positions  ( uint32_t )
 ------------------------------- Array( uint32_t(verID)-float(orix)-float(oriy)-float(oriz))
+
+----------------------- SIG_OBJECT_PARTICLEEMITTER
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_STARTAT
+------------------------------- frame (int32_t)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_ENDAT
+------------------------------- frame (int32_t)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_TYPE
+------------------------------- type (uint32_t)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_PERFRAME
+------------------------------- ppf (float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_LIFETIME
+------------------------------- lifetime (uint32_t)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_RADIUS
+------------------------------- radius (float)
+
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_ACCELERATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_SPEED
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_SCALING
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_ROTATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_TRANSPARENCY
+------------------------------- transparency (float)
+
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_FINAL_ACCELERATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_FINAL_SPEED
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_FINAL_SCALING
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_FINAL_ROTATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_FINAL_TRANSPARENCY
+------------------------------- transparency (float)
+
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_ACCELERATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_SPEED
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_SCALING
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_ROTATION
+------------------------------- X-Y-Z (float-float-float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_TRANSPARENCY
+------------------------------- transparency (float)
 
 ----------------------- SIG_OBJECT_UVMAPS
 --------------------------- SIG_OBJECT_UVMAP_ENTRY

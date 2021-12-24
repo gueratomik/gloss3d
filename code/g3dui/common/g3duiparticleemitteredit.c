@@ -456,6 +456,8 @@ void common_g3duiparticleemitteredit_radiusCbk ( G3DUI              *gui,
     if ( gui->lock ) return;;
 
     pem->radius = radius;
+
+    g3dparticleemitter_reset ( pem );
 }
 
 /******************************************************************************/
