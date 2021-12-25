@@ -80,12 +80,6 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
         /*** start thread son all CPUs ***/
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
 
-        /* reset object position at the first frame */
-        /* Note: does not seem to work very well */
-        if ( gui->curframe != resetFrame ) {
-            g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
-        }
-
         qjob = q3djob_new ( rsg, 
                             sce,
                             cam,
@@ -144,13 +138,6 @@ G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
 
         /*** start thread son all CPUs ***/
         pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
-
-
-        /* reset object position at the first frame */
-        /* Note: does not seem to work very well */
-        if ( gui->curframe != resetFrame ) {
-            g3dobject_anim_r ( sce, resetFrame, gui->engine_flags );
-        }
 
         qjob = q3djob_new ( rsg, 
                             sce, 

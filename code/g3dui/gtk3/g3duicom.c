@@ -36,7 +36,7 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     /*** updates and that;s gonna be really slow. We prefer to rely ***/
     /*** On real time stuff ***/
     gui->engine_flags |= ONGOINGANIMATION;
-
+/*printf("g3dgotoframe %s %f\n", __func__, gtf->frame );*/
     g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, 
                                        gtf->frame, 
                                        gui->engine_flags |

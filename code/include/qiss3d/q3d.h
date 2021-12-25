@@ -1042,7 +1042,8 @@ void       q3djob_goToFrame          ( Q3DJOB *qjob,
 void q3djob_clear ( Q3DJOB *qjob );
 void q3djob_prepare ( Q3DJOB      *qjob,
                       G3DSCENE    *sce,
-                      G3DCAMERA   *cam );
+                      G3DCAMERA   *cam,
+                      float        frame );
 
 /******************************************************************************/
 void       q3dfilter_enable    ( Q3DFILTER *fil );

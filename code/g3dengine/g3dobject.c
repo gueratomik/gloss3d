@@ -841,6 +841,9 @@ void g3dobject_anim_position ( G3DOBJECT *obj,
             g3dcubicsegment_getPoint ( csg, ratio, &obj->pos );
         }
     }
+
+/*printf("%s %f\n", __func__, frame );
+printf("g3dcoords:");g3dvector_print ( &obj->pos );*/
 }
 
 /******************************************************************************/

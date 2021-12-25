@@ -1,17 +1,10 @@
 drag'n'drop image when moving objects in g3duilist
-save views
-save rendering settings
 fix the grid
 test open custom format
 implement 3ds export
 all undo-redo
-render preview
-frame number
-window shell names
-logo
+
 hide face
-disable symmetry
-reset anim to zero when starting rendering
 
 what to do with mutex :
 uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {

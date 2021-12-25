@@ -487,9 +487,10 @@ void q3djob_clear ( Q3DJOB *qjob ) {
 /******************************************************************************/
 void q3djob_prepare ( Q3DJOB      *qjob,
                       G3DSCENE    *sce,
-                      G3DCAMERA   *cam ) {
+                      G3DCAMERA   *cam,
+                      float        frame ) {
 
-    qjob->qsce = q3dscene_import ( sce, qjob->curframe, 0x00 );
+    qjob->qsce = q3dscene_import ( sce, frame, 0x00 );
 
     qjob->qcam = q3dcamera_new ( cam, 0x00, 0x00,
                                       qjob->qrsg->output.width, 
@@ -505,7 +506,7 @@ void q3djob_prepare ( Q3DJOB      *qjob,
                     qjob->qrsg->output.width,
                     qjob->qrsg->output.height,
                     0x18,
-                    qjob->curframe );
+                    frame );
 }
 
 /******************************************************************************/
@@ -565,7 +566,7 @@ void q3djob_render_sequence ( Q3DJOB *qjob ) {
 
     q3djob_goToFrame ( qjob, qjob->qrsg->output.startframe );
 
-    q3djob_prepare ( qjob, sce, cam );
+    q3djob_prepare ( qjob, sce, cam, qjob->qrsg->output.startframe );
 
     /*** Render the first frame ***/
     q3djob_render ( qjob );
@@ -576,7 +577,7 @@ void q3djob_render_sequence ( Q3DJOB *qjob ) {
                 q3djob_goToFrame ( qjob, i );
 
                 q3djob_clear   ( qjob );
-                q3djob_prepare ( qjob, sce, cam );
+                q3djob_prepare ( qjob, sce, cam, i );
 
                 /*** Render the current frame ***/
                 q3djob_render ( qjob );
@@ -599,7 +600,7 @@ void q3djob_render_frame ( Q3DJOB *qjob ) {
 
     q3djob_goToFrame ( qjob, qjob->qrsg->output.startframe );
 
-    q3djob_prepare ( qjob, sce, cam );
+    q3djob_prepare ( qjob, sce, cam, qjob->qrsg->output.startframe );
 
     /*** RENDER ! ***/
     q3djob_render ( qjob );

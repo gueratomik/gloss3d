@@ -54,15 +54,15 @@ static void filtersmb_merge ( Q3DFILTER     *qfil,
                     uint32_t offset = ( i * fsmb->width ) + j;
                     unsigned char (*srcimg)[0x03] = img;
 
-                    if ( fsmb->abuffer[offset][0x03] ) {
-                        unsigned char a0 = ( float ) fsmb->abuffer[offset][0x00] / fsmb->abuffer[offset][0x03],
-                                      a1 = ( float ) fsmb->abuffer[offset][0x01] / fsmb->abuffer[offset][0x03],
-                                      a2 = ( float ) fsmb->abuffer[offset][0x02] / fsmb->abuffer[offset][0x03];
+                    /*if ( fsmb->abuffer[offset][0x03] ) {*/
+                        unsigned char a0 = ( float ) fsmb->abuffer[offset][0x00]/* / fsmb->abuffer[offset][0x03]*/,
+                                      a1 = ( float ) fsmb->abuffer[offset][0x01]/* / fsmb->abuffer[offset][0x03]*/,
+                                      a2 = ( float ) fsmb->abuffer[offset][0x02]/* / fsmb->abuffer[offset][0x03]*/;
 
                         srcimg[offset][0x00] = a0;
                         srcimg[offset][0x01] = a1;
                         srcimg[offset][0x02] = a2;
-                    }
+                    /*}*/
                 } break;
 
                 default :
@@ -122,17 +122,24 @@ static FILTERSMB *filtersmb_new ( uint32_t width,
 
 /******************************************************************************/
 static void filtersmb_addFrame ( Q3DFILTER     *qfil,
-                                 unsigned char *img ) {
+                                 unsigned char *img,
+                                 float          opacity ) {
     FILTERSMB *fsmb = ( FILTERSMB * ) qfil->data;
+    float transparency = 1.0f - opacity;
     uint32_t i;
 
     for ( i = 0x00; i < fsmb->width * fsmb->height; i++ ) {
         unsigned char (*srcimg)[0x03] = img;
 
-        fsmb->abuffer[i][0x00] += srcimg[i][0x00];
-        fsmb->abuffer[i][0x01] += srcimg[i][0x01];
-        fsmb->abuffer[i][0x02] += srcimg[i][0x02];
-        fsmb->abuffer[i][0x03]++;
+/*
+        srcimg[i][0x00] += ( srcimg[i][0x00] * opacity );
+        srcimg[i][0x01] += ( srcimg[i][0x01] * opacity );
+        srcimg[i][0x02] += ( srcimg[i][0x02] * opacity );
+*/
+
+        fsmb->abuffer[i][0x00] = ( srcimg[i][0x00] * opacity ) + ( fsmb->abuffer[i][0x00] * transparency );
+        fsmb->abuffer[i][0x01] = ( srcimg[i][0x01] * opacity ) + ( fsmb->abuffer[i][0x01] * transparency );
+        fsmb->abuffer[i][0x02] = ( srcimg[i][0x02] * opacity ) + ( fsmb->abuffer[i][0x02] * transparency );
     }
 }
 
@@ -153,23 +160,17 @@ static uint32_t filtersmb_draw ( Q3DFILTER     *qfil,
     FILTERSMB *fsmb = ( FILTERSMB * ) qfil->data;
     int32_t i, j;
     Q3DFILTERSET orifilters;
-    float middleFrame = frameID;
-    float step = ( ( 0.5f ) * fsmb->strength ) / fsmb->nbSamples;
-    float fromFrame = middleFrame - step;
-    float toFrame   = middleFrame + step;
+    float amplitude = ( 0.5f * fsmb->strength );
+    float middleFrame = frameID + amplitude;
+    float step = amplitude / fsmb->nbSamples;
+    float fromFrame = middleFrame - amplitude;
+    float toFrame = frameID + 1.0f;
 
     fsmb->bpp = bpp;
     fsmb->img = img;
 
     /*** to substract 1.0f ***/
     if ( qjob->filters.toframe ) {
-        q3djob_goToFrame ( qjob, middleFrame );
-
-        q3djob_clear   ( qjob );
-        q3djob_prepare ( qjob, 
-                         qjob->qrsg->input.sce, 
-                         qjob->qrsg->input.cam );
-
         memcpy ( &orifilters   , &qjob->filters, sizeof ( Q3DFILTERSET ) );
         memset ( &qjob->filters, 0x00          , sizeof ( Q3DFILTERSET ) );
 
@@ -177,34 +178,26 @@ static uint32_t filtersmb_draw ( Q3DFILTER     *qfil,
         qjob->filters.towindow = orifilters.towindow;
         qjob->filters.edgeaa = orifilters.edgeaa;
 
-        q3djob_render ( qjob );
+        /*** Note: last object memory freeing is called in q3djob_free() ***/
 
-        filtersmb_addFrame ( qfil, qjob->img ) ;
-
-        for ( i = 0x01; i <= fsmb->nbSamples; i++ ) {
+        /*** renders previous + middle frame ***/
+        for ( i  = - ( int32_t ) fsmb->nbSamples;
+              i <=   ( int32_t ) fsmb->nbSamples; i++ ) {
+            float transparency = fabs ( fromFrame - middleFrame ) / amplitude;
+            float opacity = ( i == 0x00 ) ? 1.0f : 1.0f - transparency;
 
             q3djob_goToFrame ( qjob, fromFrame );
             q3djob_clear   ( qjob );
             q3djob_prepare ( qjob, 
                              qjob->qrsg->input.sce, 
-                             qjob->qrsg->input.cam );
+                             qjob->qrsg->input.cam,
+                             fromFrame );
 
             q3djob_render ( qjob );
 
-            filtersmb_addFrame ( qfil, qjob->img ) ;
+            filtersmb_addFrame ( qfil, qjob->img, opacity ) ;
 
-            q3djob_goToFrame ( qjob, toFrame );
-            q3djob_clear   ( qjob );
-            q3djob_prepare ( qjob, 
-                             qjob->qrsg->input.sce, 
-                             qjob->qrsg->input.cam );
-
-            q3djob_render ( qjob );
-
-            filtersmb_addFrame ( qfil, qjob->img ) ;
-
-            fromFrame -= step;
-            toFrame   += step;
+            fromFrame += step;
         }
 
         /*** restore original filters ****/

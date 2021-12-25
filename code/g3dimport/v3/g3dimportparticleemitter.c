@@ -68,12 +68,16 @@ void g3dimportv3particleemitter ( G3DIMPORTV3DATA *gid,
                 G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) gid->currentObject;
 
                 g3dimportv3_freadf ( &pem->particlesPerFrame, fsrc );
+
+                g3dparticleemitter_reset ( pem );
             } break;
 
             case SIG_OBJECT_PARTICLEEMITTER_LIFETIME : {
                 G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) gid->currentObject;
 
                 g3dimportv3_freadl ( &pem->particleLifetime, fsrc );
+
+                g3dparticleemitter_reset ( pem );
             } break;
 
             case SIG_OBJECT_PARTICLEEMITTER_RADIUS : {
