@@ -419,6 +419,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
     }
 }
 
+
 /******************************************************************************/
 static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
                                      uint32_t     vobjID,
@@ -544,32 +545,11 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
         uint32_t vtriID = i;
         int32_t nbSamples =  fvmb->nbSamples;
 
-printf("src:%d %d %f\n", srcTri->pnt[0x00].x, 
-                         srcTri->pnt[0x00].y,
-                         srcTri->pnt[0x00].z );
-
-printf("src:%d %d %f\n", srcTri->pnt[0x01].x, 
-                         srcTri->pnt[0x01].y,
-                         srcTri->pnt[0x01].z );
-
-printf("src:%d %d %f\n", srcTri->pnt[0x02].x, 
-                         srcTri->pnt[0x02].y,
-                         srcTri->pnt[0x02].z );
-
-        for ( p = - nbSamples; p <= nbSamples; p++ ) {
+        /** Note: the condition is "p < nbSamples" and not "p <= nbSamples"  **/
+        /** because dont forget dstTri is the next tri, so if there are, e.g **/
+        /** 1 sample, there are 3 frames, but only 2 interpolations. ***/
+        for ( p = - nbSamples; p < nbSamples; p++ ) {
             VMBTRIANGLE *dstTri = srcTri + nbtris;
-
-printf("src:%d %d %f\n", dstTri->pnt[0x00].x, 
-                         dstTri->pnt[0x00].y,
-                         dstTri->pnt[0x00].z );
-
-printf("src:%d %d %f\n", dstTri->pnt[0x01].x, 
-                         dstTri->pnt[0x01].y,
-                         dstTri->pnt[0x01].z );
-
-printf("src:%d %d %f\n", dstTri->pnt[0x02].x, 
-                         dstTri->pnt[0x02].y,
-                         dstTri->pnt[0x02].z );
 
             /** check if source triangle is outside screen space ***/
             if ( ( srcTri->pnt[0x00].z != INFINITY ) &&
@@ -604,7 +584,7 @@ printf("src:%d %d %f\n", dstTri->pnt[0x02].x,
 
                 if ( maxLen ) {
                     uint32_t j;
-printf("%d\n", maxLen );
+
                     for ( j = 0x00; j < iter; j++ ) {
                         float pos = ( float ) j / iter;
                         VMBTRIANGLE itrTri = { .pnt[0x00].x = srcTri->pnt[0].x + ( mvec[0].x * pos ),
@@ -723,18 +703,6 @@ static void vmbtriangle_init ( VMBTRIANGLE *vtri,
         vtri->pnt[0x01].z = INFINITY;
         vtri->pnt[0x02].z = INFINITY;
     }
-/*
-printf("src:%d %d %f\n", vtri->pnt[0x00].x, 
-                         vtri->pnt[0x00].y,
-                         vtri->pnt[0x00].z );
-
-printf("src:%d %d %f\n", vtri->pnt[0x01].x, 
-                         vtri->pnt[0x01].y,
-                         vtri->pnt[0x01].z );
-
-printf("src:%d %d %f\n", vtri->pnt[0x02].x, 
-                         vtri->pnt[0x02].y,
-                         vtri->pnt[0x02].z );*/
 }
 
 /******************************************************************************/
@@ -829,11 +797,11 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
                                                         ( qmes->nbqtri * nbSamples ) , triSize );
 
             }
+
+            vmes->vobj.id = id;
+            vmes->vobj.qobj = qmes;
         }
     }
-
-    vmes->vobj.id = id;
-    vmes->vobj.qobj = qmes;
 
     return vmes;
 }
@@ -906,20 +874,18 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                    Q3DPARTICLE *qprt = qpem->qprt      + ( pem->maxParticlesPerFrame * i );
 
                    for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                       if ( prt[j].lifeTime < pem->particleLifetime ) {
-                           if ( prt[j].startAtFrame < pem->endAtFrame ) {
-                               if ( qprt[j].qref ) {
-                                   g3dcore_multmatrix ( qprt[j].MVX,
-                                                        objcam->iwmatrix, WMVX );
+                       if ( prt[j].flags & PARTICLE_ISALIVE ) {
+                           if ( qprt[j].qref ) {
+                               g3dcore_multmatrix ( qprt[j].MVX,
+                                                    objcam->iwmatrix, WMVX );
 
-                                   filtervmb_import_r ( qfil, 
-                                                        qcam, 
-                                                        qprt[j].qref,
-                                                        WMVX,
-                                                        subframeID,
-                                                        frame,
-                                                        0x00 );
-                               }
+                               filtervmb_import_r ( qfil, 
+                                                    qcam, 
+                                                    qprt[j].qref,
+                                                    WMVX,
+                                                    subframeID,
+                                                    frame,
+                                                    0x00 );
                            }
                        }
                    }
@@ -1082,6 +1048,13 @@ static FILTERVMB *filtervmb_new ( uint32_t width,
 }
 
 /******************************************************************************/
+static float nextFrame ( float frame, float step, float max ) {
+    frame += step;
+
+    return ( frame < max ) ? frame : max;
+}
+
+/******************************************************************************/
 static uint32_t filtervmb_draw ( Q3DFILTER     *qfil, 
                                  Q3DJOB        *qjob,
                                  uint32_t       cpuID, 
@@ -1099,25 +1072,16 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
     int32_t i, j;
     Q3DFILTERSET orifilters;
     float amplitude = ( 0.5f * fvmb->strength );
-    float middleFrame = frameID + amplitude;
+    float middleFrame = frameID + 0.5f;
     float step = amplitude / fvmb->nbSamples;
     float fromFrame = middleFrame - amplitude;
-    float toFrame = frameID + 1.0f;
+    float maxFrame = frameID + 0.99f;
     uint32_t rank = 0x00;
 
     fvmb->bpp = bpp;
     fvmb->img = img;
 
     if ( qjob->filters.toframe ) {
-        for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
-            unsigned char (*srcimg)[0x03] = img;
-
-            fvmb->abuffer[i][0x00] = srcimg[i][0x00];
-            fvmb->abuffer[i][0x01] = srcimg[i][0x01];
-            fvmb->abuffer[i][0x02] = srcimg[i][0x02];
-            fvmb->abuffer[i][0x03] = 0xFF;
-        }
-
         /*** Note: Frame must be called in chronological order ***/
         /*** or else particles will not get blurred correctly. ***/
 
@@ -1138,7 +1102,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
             q3dobject_free_r ( ( Q3DOBJECT * ) befqsce );
 
-            fromFrame += step;
+            fromFrame = nextFrame ( fromFrame, step, maxFrame );
         }
 
         /*** q3djob_goToFrame() needed just for particles to move correctly ***/
@@ -1158,6 +1122,15 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         q3djob_render ( qjob );
 
+        for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
+            unsigned char (*srcimg)[0x03] = img;
+
+            fvmb->abuffer[i][0x00] = srcimg[i][0x00];
+            fvmb->abuffer[i][0x01] = srcimg[i][0x01];
+            fvmb->abuffer[i][0x02] = srcimg[i][0x02];
+            fvmb->abuffer[i][0x03] = 0xFF;
+        }
+
         memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
 
         filtervmb_import ( qfil, 
@@ -1167,7 +1140,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
                            rank++,
                            fromFrame );
 
-        fromFrame += step;
+        fromFrame = nextFrame ( fromFrame, step, maxFrame );
 
         for ( i = 0x00; i < fvmb->nbSamples; i++ ) {
             q3djob_goToFrame ( qjob, fromFrame );
@@ -1186,7 +1159,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
             q3dobject_free_r ( ( Q3DOBJECT * ) aftqsce );
 
-            fromFrame += step;
+            fromFrame = nextFrame ( fromFrame, step, maxFrame );
         }
 
         /*** Z-Buffer ***/

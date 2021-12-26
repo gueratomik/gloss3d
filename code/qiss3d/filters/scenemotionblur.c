@@ -161,7 +161,7 @@ static uint32_t filtersmb_draw ( Q3DFILTER     *qfil,
     int32_t i, j;
     Q3DFILTERSET orifilters;
     float amplitude = ( 0.5f * fsmb->strength );
-    float middleFrame = frameID + amplitude;
+    float middleFrame = frameID + 0.5f;
     float step = amplitude / fsmb->nbSamples;
     float fromFrame = middleFrame - amplitude;
     float toFrame = frameID + 1.0f;

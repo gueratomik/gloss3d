@@ -82,6 +82,8 @@ static void g3dparticle_init ( G3DPARTICLE *prt,
     prt->lifeTime = 0.0f;
 
     prt->transparency = transparency;
+
+    prt->flags &= (~PARTICLE_ISALIVE);
 }
 
 /******************************************************************************/
@@ -181,12 +183,7 @@ static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
 
         prt->lifeTime += ( deltaFrame );
 
-        if ( prt->lifeTime == pem->particleLifetime ) {
-            g3dparticleemitter_initParticle ( pem, 
-                                              prt, 
-                                              prt->startAtFrame +
-                                              pem->particleLifetime );
-        }
+        prt->flags |= PARTICLE_ISALIVE;
     }
 }
 
@@ -235,34 +232,32 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
             for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                if ( prt[j].lifeTime < pem->particleLifetime ) {
-                    if ( prt[j].startAtFrame < pem->endAtFrame ) {
-                        if ( prt[j].ref ) {
-                            if ( pem->obj.flags & DISPLAYPARTICLES ) {
-                                glPushMatrix ( );
+                if ( prt[j].flags & PARTICLE_ISALIVE ) {
+                    if ( prt[j].ref ) {
+                        if ( pem->obj.flags & DISPLAYPARTICLES ) {
+                            glPushMatrix ( );
 
-                                glTranslatef ( prt[j].pos.x, 
-                                               prt[j].pos.y, 
-                                               prt[j].pos.z );
-
-
-                                    if ( prt[j].ref->draw ) {
-                                        glScalef ( prt[j].sca.x, 
-                                                   prt[j].sca.y, 
-                                                   prt[j].sca.z );
-
-                                        prt[j].ref->draw ( prt[j].ref, 
-                                                           curcam, 
-                                                           engine_flags & (~MODEMASK) );
-                                    }
+                            glTranslatef ( prt[j].pos.x, 
+                                           prt[j].pos.y, 
+                                           prt[j].pos.z );
 
 
-                                glPopMatrix();
-                            } else {
-                                glVertex3f ( prt[j].pos.x, 
-                                             prt[j].pos.y, 
-                                             prt[j].pos.z );
-                            }
+                                if ( prt[j].ref->draw ) {
+                                    glScalef ( prt[j].sca.x, 
+                                               prt[j].sca.y, 
+                                               prt[j].sca.z );
+
+                                    prt[j].ref->draw ( prt[j].ref, 
+                                                       curcam, 
+                                                       engine_flags & (~MODEMASK) );
+                                }
+
+
+                            glPopMatrix();
+                        } else {
+                            glVertex3f ( prt[j].pos.x, 
+                                         prt[j].pos.y, 
+                                         prt[j].pos.z );
                         }
                     }
                 }
@@ -321,47 +316,47 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
         g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
 
         
-        /*if ( frame == pem->startAtFrame ) {
+        if ( frame == pem->startAtFrame ) {
             g3dparticleemitter_reset ( pem );
-        }*/
+        }
 
-            for ( i = 0x00; i < pem->particleLifetime; i++ ) {
-                G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
+        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
+            G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
 
-                for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                    if ( frame <= pem->startAtFrame ) {
-                        g3dparticleemitter_initParticle ( pem, 
-                                                         &prt[j], 
-                                                          pem->startAtFrame + i );
-                    }
+            for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
+                if ( frame == pem->startAtFrame ) {
+                    g3dparticleemitter_initParticle ( pem, 
+                                                     &prt[j], 
+                                                      pem->startAtFrame + i );
+                }
 
 
-                    if ( ( frame > prt[j].startAtFrame ) &&
-                         ( prt[j].startAtFrame < pem->endAtFrame ) ) {
+                if ( ( frame > prt[j].startAtFrame ) &&
+                     ( prt[j].startAtFrame < pem->endAtFrame ) ) {
 
-                        g3dparticleemitter_animParticle ( pem,
-                                                         &prt[j],
-                                                          deltaFrame,
-                                                          deltaFrame / 24 );
+                    g3dparticleemitter_animParticle ( pem,
+                                                     &prt[j],
+                                                      deltaFrame,
+                                                      deltaFrame / 24 );
 
-                        if ( engine_flags & ONGOINGRENDERING ) {
-                            glPushMatrix ( );
-                            glLoadIdentity ( );
-                            glTranslatef ( prt[j].pos.x, 
-                                           prt[j].pos.y, 
-                                           prt[j].pos.z );
+                    if ( engine_flags & ONGOINGRENDERING ) {
+                        glPushMatrix ( );
+                        glLoadIdentity ( );
+                        glTranslatef ( prt[j].pos.x, 
+                                       prt[j].pos.y, 
+                                       prt[j].pos.z );
 
-                            glScalef ( prt[j].sca.x, 
-                                       prt[j].sca.y, 
-                                       prt[j].sca.z );
+                        glScalef ( prt[j].sca.x, 
+                                   prt[j].sca.y, 
+                                   prt[j].sca.z );
 
-                            glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
+                        glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
 
-                            glPopMatrix();
-                        }
+                        glPopMatrix();
                     }
                 }
             }
+        }
 
     }
 

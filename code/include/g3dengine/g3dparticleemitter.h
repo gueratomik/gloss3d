@@ -39,7 +39,10 @@
 extern "C" {
 #endif
 
+#define PARTICLE_ISALIVE ( 1 << 0 )
+
 typedef struct _G3DPARTICLE {
+    uint32_t   flags;
     G3DOBJECT *ref;
     G3DVECTOR  pos;
     G3DVECTOR  rot;

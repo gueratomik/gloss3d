@@ -83,10 +83,13 @@ static uint32_t q3dparticleemitter_intersect ( Q3DPARTICLEEMITTER *qpem,
     uint32_t i, j;
     Q3DRAY locqray, hitqray, wqray;
     
+/*
     memcpy ( &wqray, qray, sizeof ( Q3DRAY ) );
 
     q3dvector3f_matrix ( &qray->src, qpem->qobj.obj->wmatrix, &wqray.src );
     q3dvector3f_matrix ( &qray->dir, qpem->TIWMVX, &wqray.dir );
+*/
+    q3dcore_buildLocalQRay ( qray, qpem->qobj.obj->wmatrix, &wqray );
 
     if ( pem->maxParticles ) {
         if ( pem->maxParticlesPerFrame ) {
@@ -95,37 +98,35 @@ static uint32_t q3dparticleemitter_intersect ( Q3DPARTICLEEMITTER *qpem,
                 Q3DPARTICLE *qprt = qpem->qprt      + ( pem->maxParticlesPerFrame * i );
 
                 for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
-                    if ( prt[j].lifeTime < pem->particleLifetime ) {
-                        if ( prt[j].startAtFrame < pem->endAtFrame ) {
-                            q3dcore_buildLocalQRay ( &wqray, qprt[j].IMVX, &locqray );
+                    if ( prt[j].flags & PARTICLE_ISALIVE ) {
+                        q3dcore_buildLocalQRay ( &wqray, qprt[j].IMVX, &locqray );
 
-                            if ( qprt[j].qref ) {
-                                if ( qprt[j].qref->intersect ) {
-                                    hit = qprt[j].qref->intersect ( qprt[j].qref, 
-                                                                   &locqray,
-                                                                    discard,
-                                                                    cond,
-                                                                    condData,
-                                                                    frame,
-                                                                    query_flags,
-                                                                    render_flags );
+                        if ( qprt[j].qref ) {
+                            if ( qprt[j].qref->intersect ) {
+                                hit = qprt[j].qref->intersect ( qprt[j].qref, 
+                                                               &locqray,
+                                                                discard,
+                                                                cond,
+                                                                condData,
+                                                                frame,
+                                                                query_flags,
+                                                                render_flags );
 
-                                    if ( hit ) { 
-                                        hitqprt = &qprt[j];
+                                if ( hit ) { 
+                                    hitqprt = &qprt[j];
 
-                                        /*** we copy locqray to another      ***/
-                                        /*** structure because locqray is    ***/
-                                        /*** resetted for each particle test ***/
-                                        memcpy ( &hitqray, 
-                                                 &locqray, sizeof ( Q3DRAY ) );
+                                    /*** we copy locqray to another      ***/
+                                    /*** structure because locqray is    ***/
+                                    /*** resetted for each particle test ***/
+                                    memcpy ( &hitqray, 
+                                             &locqray, sizeof ( Q3DRAY ) );
 
-                                        hitqray.objectTransparency = prt[j].transparency;
+                                    hitqray.objectTransparency = prt[j].transparency;
 
-                                        /*** this is need here because locqray is built
-                                        from qray ***/
-                                        wqray.flags   |= hitqray.flags;
-                                        wqray.distance = hitqray.distance;
-                                    }
+                                    /*** this is need here because locqray is built
+                                    from qray ***/
+                                    wqray.flags   |= hitqray.flags;
+                                    wqray.distance = hitqray.distance;
                                 }
                             }
                         }
