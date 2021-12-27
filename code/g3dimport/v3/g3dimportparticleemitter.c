@@ -86,6 +86,15 @@ void g3dimportv3particleemitter ( G3DIMPORTV3DATA *gid,
                 g3dimportv3_freadf ( &pem->radius, fsrc );
             } break;
 
+            case SIG_OBJECT_PARTICLEEMITTER_DISPLAYPARTICLES : {
+                G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) gid->currentObject;
+                uint32_t displayPart;
+
+                g3dimportv3_freadl ( &displayPart, fsrc );
+
+                if ( displayPart ) pem->obj.flags |= DISPLAYPARTICLES;
+            } break;
+
             /*******************************************************/
 
             case SIG_OBJECT_PARTICLEEMITTER_INITIAL_ACCELERATION : {

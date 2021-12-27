@@ -397,6 +397,8 @@ SIG_ROOT=0x44335347
 ------------------------------- lifetime (uint32_t)
 --------------------------- SIG_OBJECT_PARTICLEEMITTER_RADIUS
 ------------------------------- radius (float)
+--------------------------- SIG_OBJECT_PARTICLEEMITTER_DISPLAYPARTICLES
+------------------------------- display (uint32_t)
 
 --------------------------- SIG_OBJECT_PARTICLEEMITTER_INITIAL_ACCELERATION
 ------------------------------- X-Y-Z (float-float-float)

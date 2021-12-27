@@ -237,6 +237,16 @@ static uint32_t g3dexportv3particleemitter_initialAcceleration ( G3DEXPORTV3DATA
 
 /******************************************************************************/
 /******************************************************************************/
+static uint32_t g3dexportv3particleemitter_displayParticles ( G3DEXPORTV3DATA    *ged, 
+                                                              G3DPARTICLEEMITTER *pem, 
+                                                              uint32_t            flags, 
+                                                              FILE               *fdst ) {
+    uint32_t displayPart = ( pem->obj.flags & DISPLAYPARTICLES ) ? 0x01 : 0x00;
+
+    return g3dexportv3_fwritel ( &displayPart, fdst );
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3particleemitter_radius ( G3DEXPORTV3DATA    *ged, 
                                                     G3DPARTICLEEMITTER *pem, 
                                                     uint32_t            flags, 
@@ -329,6 +339,13 @@ uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged,
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_RADIUS,
                                      g3dexportv3particleemitter_radius,
+                                     ged,
+                                     pem,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_DISPLAYPARTICLES,
+                                     g3dexportv3particleemitter_displayParticles,
                                      ged,
                                      pem,
                                      0xFFFFFFFF,

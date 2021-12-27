@@ -604,6 +604,49 @@ static void q3dzengine_drawInstance ( Q3DZENGINE  *qzen,
 }
 
 /******************************************************************************/
+static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen, 
+                                             Q3DPARTICLEEMITTER *qpem,
+                                             double             *MVX,
+                                             double             *PJX,
+                                             int                *VPX,
+                                             float               frame ) {
+    Q3DOBJECT *qobj = ( Q3DOBJECT * ) qpem;
+    G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) q3dobject_getObject ( qobj );
+
+    /*** backup local matrix beacuse q3dzengine_drawObject_r is going to ***/
+    /*** do some maths with it, we want the matrix to have no influence ***/
+    /*** so we back it up first before restoring it ***/
+    double CAMX[0x10], WMVX[0x10]; 
+    uint32_t i, j;
+
+    g3dcore_multmatrix ( pem->obj.iwmatrix, MVX, CAMX );
+
+    if (  pem->maxParticles ) {
+        for ( i = 0x00; i < pem->particleLifetime; i++ ) {
+            G3DPARTICLE  *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
+            Q3DPARTICLE *qprt = qpem->qprt     + ( pem->maxParticlesPerFrame * i );
+
+            for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
+                if ( prt[j].flags & PARTICLE_ISALIVE ) {
+                    if ( prt[j].ref ) {
+                       if ( prt[j].ref->type & MESH ) {
+                           g3dcore_multmatrix (  qprt[j].MVX, CAMX, WMVX );
+
+                           q3dzengine_drawMesh ( qzen, 
+                                                 qprt[j].qref,
+                                                 WMVX,
+                                                 PJX,
+                                                 VPX,
+                                                 frame );
+                        }
+                    }
+                }
+            } 
+        }
+    }
+}
+
+/******************************************************************************/
 void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
                                             Q3DOBJECT  *qobj,
                                             double     *MVX,
@@ -650,6 +693,17 @@ void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen,
                                       PJX,
                                       VPX,
                                       frame );
+        }
+
+        if ( qobj->obj->type == G3DPARTICLEEMITTERTYPE ) {
+            Q3DPARTICLEEMITTER *qpem = ( Q3DPARTICLEEMITTER * ) qobj;
+
+            q3dzengine_drawParticleEmitter ( qzen, 
+                                             qpem,
+                                             WMVX,
+                                             PJX,
+                                             VPX,
+                                             frame );
         }
     }
 
