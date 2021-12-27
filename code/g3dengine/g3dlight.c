@@ -162,8 +162,7 @@ static uint32_t g3dlight_drawIntensity ( G3DLIGHT  *lig,
     glLightfv ( lig->lid, GL_SPECULAR, ( const float * ) &specularColor );
     glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos      );
 
-    /*** Commented out: Object appear with a ambient shading sometimes ***/
-    /*** I dont know why **/
+
     if ( obj->flags & SPOTLIGHT ) {
         float direction[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
@@ -302,14 +301,27 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
                          G3DCAMERA *cam, 
                          uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+    uint32_t ret = 0x00;
+
+    if ( engine_flags & NOLIGHTING ) {
+        glDisable ( lig->lid );
+    } else {
+        if ( g3dobject_isActive ( lig ) ) {
+            glEnable ( lig->lid );
+
+            ret = DRAW_LIGHTON;
+        } else {
+            glDisable ( lig->lid );
+        }
+    }
 
     if ( obj->flags & SPOTLIGHT ) {
         g3dlight_drawSpot ( lig, cam, engine_flags );
     } else {
-        return g3dlight_drawOmni ( lig, cam, engine_flags );
+        g3dlight_drawOmni ( lig, cam, engine_flags );
     }
 
-    return 0x00;
+    return ret;
 }
 
 /******************************************************************************/
@@ -317,10 +329,6 @@ void g3dlight_free ( G3DLIGHT *lig ) {
     g3dlight_reset ( lig );
 }
 
-/******************************************************************************/
-void g3dlight_turnOff ( G3DLIGHT *lig ) {
-    glDisable ( lig->lid );
-}
 
 /******************************************************************************/
 void g3dlight_reset ( G3DLIGHT *lig ) {
@@ -350,18 +358,6 @@ void g3dlight_reset ( G3DLIGHT *lig ) {
 }
 
 /******************************************************************************/
-void g3dlight_turnOn ( G3DLIGHT *lig ) {
-    float pos[0x04] = { 0.0f, 0.0f, 1.0f, 0.0f };
-
-    glEnable ( lig->lid );
-
-    /*glLightfv ( lig->lid, GL_POSITION, ( const float * ) pos );
-    glLightiv ( lig->lid, GL_DIFFUSE , ( const GLint * ) &lig->diffuseColor );
-    glLightiv ( lig->lid, GL_SPECULAR, ( const GLint * ) &lig->specularColor );
-    glLightiv ( lig->lid, GL_AMBIENT , ( const GLint * ) &lig->ambientColor );*/
-}
-
-/******************************************************************************/
 void g3dlight_unsetSpot ( G3DLIGHT *lig ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
@@ -384,14 +380,12 @@ void g3dlight_setSpot ( G3DLIGHT *lig,
 
 /******************************************************************************/
 void g3dlight_activate ( G3DLIGHT *lig, uint64_t engine_flags ) {
-    if ( ( engine_flags & NOLIGHTING ) == 0x00 ) {
-        g3dlight_turnOn ( lig );
-    }
+
 }
 
 /******************************************************************************/
 void g3dlight_deactivate ( G3DLIGHT *lig, uint64_t engine_flags ) {
-    g3dlight_turnOff ( lig );
+
 }
 
 /******************************************************************************/
@@ -490,14 +484,6 @@ static void g3dlight_setParent ( G3DLIGHT  *lig,
                                  G3DOBJECT *oldParent, 
                                  uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-
-    if ( parent == NULL ) {
-        g3dlight_turnOff ( lig );
-    } else {
-        if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
-            g3dlight_turnOn ( lig );
-        }
-    }
 }
 
 /******************************************************************************/

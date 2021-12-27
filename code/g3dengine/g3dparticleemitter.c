@@ -30,6 +30,46 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+typedef struct _PARTICLEEMITTERKEYDATA {
+    G3DPARTICLEEMITTER keypem;
+} PARTICLEEMITTERKEYDATA;
+
+/******************************************************************************/
+static void g3dparticleemitterkey_free ( G3DKEY *key ) {
+    PARTICLEEMITTERKEYDATA *pkd = ( PARTICLEEMITTERKEYDATA * ) key->data.ptr;
+
+    free ( pkd );
+}
+
+/******************************************************************************/
+PARTICLEEMITTERKEYDATA *particleemitterkeydata_new ( ) {
+    PARTICLEEMITTERKEYDATA *pkd = calloc ( 0x01, sizeof ( PARTICLEEMITTERKEYDATA ) );
+    uint32_t i;
+
+    if ( pkd == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    return pkd;
+}
+
+/******************************************************************************/
+static void g3dparticleemitter_pose ( G3DPARTICLEEMITTER *pem,
+                                      G3DKEY             *key ) {
+    if ( key->data.ptr == NULL ) {
+        PARTICLEEMITTERKEYDATA *pkd = particleemitterkeydata_new ( );
+
+        key->free = g3dparticleemitterkey_free; /*** callback for freeing memory ***/
+
+        key->data.ptr = pkd;
+
+        memcpy ( &pkd->keypem, pem, sizeof ( G3DPARTICLEEMITTER ) );
+
+        pkd->keypem.obj.flags |= KEYPARTICLEEMITTER;
+    }
+}
+
+/******************************************************************************/
 static inline void getRandomPointOnSquare ( G3DSEGMENT *s1, 
                                             G3DSEGMENT *s2,
                                             float radius,
@@ -188,6 +228,48 @@ static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
 }
 
 /******************************************************************************/
+static void g3dparticleemitter_copySettings ( G3DPARTICLEEMITTER *dstpem, 
+                                              G3DPARTICLEEMITTER *srcpem ) {
+    dstpem->gravity.x = srcpem->gravity.x;
+    dstpem->gravity.y = srcpem->gravity.y;
+    dstpem->gravity.z = srcpem->gravity.z;
+
+    dstpem->initialAccel        = srcpem->initialAccel;
+    dstpem->initialSpeed        = srcpem->initialSpeed;
+    dstpem->initialScaling      = srcpem->initialScaling;
+    dstpem->initialRotation     = srcpem->initialRotation;
+    dstpem->initialTransparency = srcpem->initialTransparency;
+
+    dstpem->initialVarAngle        = srcpem->initialVarAngle;
+    dstpem->initialVarAccel        = srcpem->initialVarAccel;
+    dstpem->initialVarSpeed        = srcpem->initialVarSpeed;
+    dstpem->initialVarScaling      = srcpem->initialVarScaling;
+    dstpem->initialVarRotation     = srcpem->initialVarRotation;
+    dstpem->initialVarTransparency = srcpem->initialVarTransparency;
+
+    dstpem->finalAccel        = srcpem->finalAccel;
+    dstpem->finalSpeed        = srcpem->finalSpeed;
+    dstpem->finalRotation     = srcpem->finalRotation;
+    dstpem->finalScaling      = srcpem->finalScaling;
+    dstpem->finalTransparency = srcpem->finalTransparency;
+
+    dstpem->particleLifetime          = srcpem->particleLifetime;
+    dstpem->particleLifetimeVariation = srcpem->particleLifetimeVariation;
+    dstpem->particleMass              = srcpem->particleMass;
+
+    dstpem->maxPreviewsPerFrame  = srcpem->maxPreviewsPerFrame; 
+    dstpem->particlesPerFrame    = srcpem->particlesPerFrame;
+
+    dstpem->startAtFrame = srcpem->startAtFrame;
+    dstpem->endAtFrame   = srcpem->endAtFrame;
+
+    dstpem->radius = srcpem->radius;
+    dstpem->type   = srcpem->type;
+
+    g3dparticleemitter_reset ( dstpem );
+}
+
+/******************************************************************************/
 static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem, 
                                                      uint32_t            id, 
                                                      unsigned char      *name,
@@ -195,13 +277,8 @@ static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem,
     G3DPARTICLEEMITTER *cpypem = g3dparticleemitter_new ( ((G3DOBJECT*)pem)->id,
                                                           ((G3DOBJECT*)pem)->name );
 
-    /*cpypem->initialAccel        = pem->initialAccel;
-    cpypem->initialSpeed        = pem->initialSpeed;
-    cpypem->particlesPerFrame   = pem->particlesPerFrame;
-    cpypem->particleLifetime    = pem->particleLifetime;
-    cpypem->startAtFrame        = pem->startAtFrame;*/
 
-    g3dparticleemitter_reset ( cpypem );
+    g3dparticleemitter_copySettings ( cpypem, pem );
 
 
     return cpypem;
@@ -302,9 +379,31 @@ static void g3dparticleemitter_transform ( G3DPARTICLEEMITTER *pem,
 static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem, 
                                       float               frame, 
                                       uint64_t            engine_flags ) {
-    float deltaFrame = frame - pem->oldFrame;
 
-    printf("%s : %f %f %f\n", __func__, frame, pem->oldFrame, deltaFrame );
+    G3DKEY *prevKey = NULL,
+           *nextKey = NULL,
+           *currKey = NULL;
+    float deltaFrame;
+
+    if ( g3dobject_isActive ( pem ) == 0x00 ) return;
+
+    frame = g3dobject_getKeys ( &pem->obj, 
+                                frame, 
+                               &currKey,
+                               &prevKey, 
+                               &nextKey, 
+                                KEYDATA,
+                                0x00 );
+
+    if ( currKey ) {
+        PARTICLEEMITTERKEYDATA *pkd = currKey->data.ptr;
+
+        g3dparticleemitter_copySettings ( pem, &pkd->keypem );
+    }
+
+    deltaFrame = frame - pem->oldFrame;
+
+    /*printf("%s : %f %f %f\n", __func__, frame, pem->oldFrame, deltaFrame );*/
 
     if ( pem->maxParticles ) {
         int32_t iFrame = ( int32_t ) ( frame - pem->startAtFrame );
@@ -416,7 +515,7 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
        DRAW_CALLBACK(g3dparticleemitter_draw),
        FREE_CALLBACK(g3dparticleemitter_free),
        PICK_CALLBACK(g3dparticleemitter_pick),
-                     NULL,
+       POSE_CALLBACK(g3dparticleemitter_pose),
        COPY_CALLBACK(g3dparticleemitter_copy),
                      NULL,
                      NULL,

@@ -35,9 +35,6 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI    *gui,
                                               uint32_t  red,
                                               uint32_t  green,
                                               uint32_t  blue ) {
-    /*** prevent a loop when updating widget ***/
-    if ( gui->lock ) return;
-
     lig->specularColor.r = red;
     lig->specularColor.g = green;
     lig->specularColor.b = blue;
@@ -46,9 +43,6 @@ void common_g3dui_lightSpecularityChangeCbk ( G3DUI    *gui,
 /******************************************************************************/
 void common_g3duilightedit_unsetSpotCbk ( G3DUI    *gui,
                                           G3DLIGHT *lig ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
     g3dlight_unsetSpot ( lig );
 }
 
@@ -58,17 +52,12 @@ void common_g3duilightedit_setSpotCbk ( G3DUI    *gui,
                                         float     spotLength,
                                         float     spotAngle,
                                         float     spotFadeAngle ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
     g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
 }
 
 /******************************************************************************/
 void common_g3duilightedit_castShadowsCbk ( G3DUI    *gui,
                                             G3DLIGHT *lig ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
         lig->obj.flags &= (~LIGHTCASTSHADOWS);
@@ -80,9 +69,6 @@ void common_g3duilightedit_castShadowsCbk ( G3DUI    *gui,
 /******************************************************************************/
 void common_g3duilightedit_setSoftShadowsCbk ( G3DUI    *gui,
                                                G3DLIGHT *lig ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
     if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
         lig->obj.flags &= (~LIGHTHARDSHADOWS);
 
@@ -98,9 +84,6 @@ void common_g3duilightedit_setSoftShadowsCbk ( G3DUI    *gui,
 void common_g3duilightedit_shadowRadiusCbk ( G3DUI    *gui,
                                              G3DLIGHT *lig,
                                              float     shadowRadius ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
     lig->shadowRadius = shadowRadius;
 }
 
@@ -108,9 +91,6 @@ void common_g3duilightedit_shadowRadiusCbk ( G3DUI    *gui,
 void common_g3duilightedit_shadowSampleCbk ( G3DUI    *gui,
                                              G3DLIGHT *lig,
                                              uint32_t  shadowSample ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
     lig->shadowSample = shadowSample;
 }
 
@@ -120,9 +100,6 @@ void common_g3dui_lightDiffuseChangeCbk ( G3DUI    *gui,
                                           uint32_t  red,
                                           uint32_t  green,
                                           uint32_t  blue ) {
-    /*** prevent a loop when updating widget ***/
-    if ( gui->lock ) return;
-
     lig->diffuseColor.r = red;
     lig->diffuseColor.g = green;
     lig->diffuseColor.b = blue;

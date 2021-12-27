@@ -194,6 +194,14 @@ static uint32_t g3dexportv3key_dataMorpher ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3key_dataPEmitter ( G3DEXPORTV3DATA *ged, 
+                                              G3DKEY        *key, 
+                                              uint32_t       flags, 
+                                              FILE          *fdst ) {
+    return g3dexportv3particleemitter ( ged, key->data.ptr, flags, fdst );
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3key_dataLight ( G3DEXPORTV3DATA *ged, 
                                          G3DKEY        *key, 
                                          uint32_t       flags, 
@@ -211,20 +219,29 @@ static uint32_t g3dexportv3key_data ( G3DEXPORTV3DATA *ged,
     switch ( ged->currentObject->type ) {
         case G3DMORPHERTYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER,
-                                           g3dexportv3key_dataMorpher,
-                                           ged,
-                                           key,
-                                           0xFFFFFFFF,
-                                           fdst );
+                                             g3dexportv3key_dataMorpher,
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         case G3DLIGHTTYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_DATA_LIGHT,
-                                           g3dexportv3key_dataLight,
-                                           ged,
-                                           key,
-                                           0xFFFFFFFF,
-                                           fdst );
+                                             g3dexportv3key_dataLight,
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DPARTICLEEMITTERTYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_DATA_PARTICLEEMITTER,
+                                             g3dexportv3key_dataPEmitter,
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         default :

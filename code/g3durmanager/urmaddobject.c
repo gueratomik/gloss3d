@@ -107,9 +107,6 @@ static void addObject_undo ( G3DURMANAGER *urm,
     }
 
     g3dscene_checkReferredObjects ( sce );
-
-    /*** enable/disable GL_LIGHT0 if needed ***/
-    g3dscene_checkLights ( sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -140,9 +137,6 @@ static void addObject_redo ( G3DURMANAGER *urm,
 
         ltmpobj = ltmpobj->next;
     }
-
-    /*** enable/disable GL_LIGHT0 if needed ***/
-    g3dscene_checkLights ( sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -196,9 +190,6 @@ void g3durm_object_addChildren ( G3DURMANAGER *urm,
     }
 
     g3dscene_checkReferredObjects ( sce );
-
-    /*** enable/disable GL_LIGHT0 if needed ***/
-    g3dscene_checkLights ( sce, engine_flags );
 
     /*** Select the newly added objects ***/
     g3dscene_unselectAllObjects ( sce, engine_flags );

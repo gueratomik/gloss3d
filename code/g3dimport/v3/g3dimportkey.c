@@ -87,6 +87,18 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 gid->currentObject = backup;
             } break;
 
+            case SIG_OBJECT_KEY_DATA_PARTICLEEMITTER : {
+                G3DOBJECT *backup = gid->currentObject;
+
+                gid->currentObject = key->data.ptr;
+
+                if ( chunkSize ) {
+                    g3dimportv3particleemitter ( gid, ftell ( fsrc ) + chunkSize, fsrc );
+                }
+
+                gid->currentObject = backup;
+            } break;
+
             case SIG_OBJECT_KEY_DATA_MORPHER : {
             } break;
 

@@ -171,8 +171,8 @@ void g3dui_recordFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( timeline ) {
         common_g3dui_recordFrameCbk ( gui, KEYPOSITION | 
                                            KEYROTATION | 
-                                           KEYSCALING  |
-                                           KEYDATA );
+                                           KEYSCALING  /*|
+                                           KEYDATA*/ );
     }
 }
 

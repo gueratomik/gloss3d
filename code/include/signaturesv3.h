@@ -104,6 +104,7 @@
 #define  SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS            0xDE59024D
 #define  SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS_RATE       0x8A5ABB23
 #define  SIG_OBJECT_KEY_DATA_MORPHER_SLOTS                   0x603888CC
+#define  SIG_OBJECT_KEY_DATA_PARTICLEEMITTER                 0xBFA6FAA5
 #define  SIG_OBJECT_KEY_ENTRY                                0xAA0C1CF8
 #define  SIG_OBJECT_KEY_FLAGS                                0xFD76921E
 #define  SIG_OBJECT_KEY_FLAGS_DATA                           0xC88F404E

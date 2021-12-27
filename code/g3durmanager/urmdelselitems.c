@@ -116,8 +116,6 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
         }
 
         g3dscene_checkReferredObjects ( sce );
-
-        g3dscene_checkLights ( sce, engine_flags );
     } else {
         if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
                       ( dsi->engine_flags & VIEWVERTEX ) ||
@@ -184,8 +182,6 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
         g3dscene_deleteSelectedObjects ( sce, NULL, engine_flags );
 
         g3dscene_checkReferredObjects ( sce );
-
-        g3dscene_checkLights ( sce, engine_flags );
     } else {
         if ( mes && ( ( dsi->engine_flags & VIEWFACE   ) ||
                       ( dsi->engine_flags & VIEWVERTEX ) ||
@@ -306,8 +302,6 @@ uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
     ret = g3dscene_deleteSelectedObjects ( sce, &lremovedObjects, engine_flags );
 
     g3dscene_checkReferredObjects ( sce );
-
-    g3dscene_checkLights ( sce, engine_flags );
 
     /*** save state ***/
     dsi = urmdelselitems_new ( sce,

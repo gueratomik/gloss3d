@@ -124,6 +124,9 @@ static void setShadowTypeCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     char *wname = gtk_widget_get_name ( widget );
 
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
+
     if ( led->editedLight ) {
         common_g3duilightedit_setSoftShadowsCbk ( led->grp.gui,
                                                   led->editedLight );
@@ -136,6 +139,9 @@ static void setShadowTypeCbk ( GtkWidget *widget, gpointer user_data ) {
 static void shadowRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     float shadowRadius = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
 
     if ( led->editedLight ) {
         common_g3duilightedit_shadowRadiusCbk ( led->grp.gui,
@@ -150,6 +156,9 @@ static void shadowRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
 static void shadowSampleCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     uint32_t shadowSample = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
 
     if ( led->editedLight ) {
         common_g3duilightedit_shadowSampleCbk ( led->grp.gui,
@@ -199,6 +208,9 @@ static void specularityChangeCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) led->grp.gui;
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
     GdkRGBA color;
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
 
     gtk_color_chooser_get_rgba ( ccr, &color );
 
@@ -264,6 +276,9 @@ static void diffuseChangeCbk ( GtkWidget *widget, gpointer user_data ) {
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
     GdkRGBA color;
 
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
+
     gtk_color_chooser_get_rgba ( ccr, &color );
 
     if ( led->editedLight ) {
@@ -284,7 +299,7 @@ static void diffuseIntensityCbk ( GtkWidget *widget, gpointer user_data ) {
     float intensity = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
     /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    if ( led->grp.gui->lock ) return;
 
     if ( led->editedLight ) {
         led->editedLight->intensity = intensity;
@@ -395,6 +410,9 @@ static GtkWidget *createDiffuseColorPanel ( GtkWidget      *parent,
 static void castShadowsCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
 
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
+
     if ( led->editedLight ) {
         common_g3duilightedit_castShadowsCbk ( led->grp.gui, 
                                                led->editedLight );
@@ -409,6 +427,9 @@ static void castShadowsCbk  ( GtkWidget *widget, gpointer user_data ) {
 static void spotLengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     float spotLength = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
 
     if ( led->editedLight ) {
         common_g3duilightedit_setSpotCbk ( led->grp.gui,
@@ -426,6 +447,9 @@ static void spotFadeAngleCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     float spotFadeAngle = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
+
     if ( led->editedLight ) {
         common_g3duilightedit_setSpotCbk ( led->grp.gui,
                                            led->editedLight,
@@ -442,6 +466,9 @@ static void spotAngleCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
     float spotAngle = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
+
     if ( led->editedLight ) {
         common_g3duilightedit_setSpotCbk ( led->grp.gui,
                                            led->editedLight,
@@ -456,6 +483,9 @@ static void spotAngleCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void spotToggleCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUILIGHTEDIT *led = ( G3DUILIGHTEDIT * ) user_data;
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( led->grp.gui->lock ) return;
 
     if ( led->editedLight ) {
         if ( led->editedLight->obj.flags & SPOTLIGHT ) {
@@ -515,6 +545,8 @@ static GtkWidget *createLightGeneralPanel ( GtkWidget      *parent,
                                                 0.0f, FLT_MAX,
                                                 0, 96, 96, 96,
                                                 spotFadeAngleCbk );
+
+
 
     return pan;
 }

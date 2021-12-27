@@ -150,6 +150,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MODIFIERTOOKOVER   ((uint64_t)1  << 28 )
 #define ONGOINGRENDERING   ((uint64_t)1  << 29 )
 
+/************************ G3DOBJECT's draw callback return flags **************/
+#define DRAW_LIGHTON          ( 1 << 0 )
+
 /******************************* UVMAp Editor flags ***************************/
 #define VIEWVERTEXUV       ((uint64_t)1  << 29 )
 #define VIEWFACEUV         ((uint64_t)1  << 30 )
@@ -413,7 +416,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 #define INSTANCEMIRRORED      (  1 << 17 )
 
+/**** Particle Emitter flags ***/
 #define DISPLAYPARTICLES      (  1 << 17 )
+#define KEYPARTICLEEMITTER    (  1 << 18 )
 
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )

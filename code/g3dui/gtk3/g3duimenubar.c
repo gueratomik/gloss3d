@@ -398,15 +398,17 @@ void g3duiview_toggleLightingCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gui->sce ) {
         if ( view->engine_flags & NOLIGHTING ) {
             view->engine_flags &= (~NOLIGHTING);
-
-            g3dscene_turnLightsOn  ( gui->sce );
         } else {
             view->engine_flags |= NOLIGHTING;
-
-            g3dscene_turnLightsOff ( gui->sce );
         }
     }
 
+    gtk_widget_queue_draw ( ggt->curogl );
+    /*** we call it twice because the lighting status is returned by ***/
+    /*** g3dobject_draw(), which means it must at least be called once ***/
+    /*** and then called again to tell the engine to turn on the default ***/
+    /*** light or not. EDIT: does not work very well but I leave it here ***/
+    /*** just so that we  dont forget about what has just been described ***/
     gtk_widget_queue_draw ( ggt->curogl );
 
     gtk_view_updateMenu ( gvw );

@@ -109,86 +109,6 @@ void g3dscene_updateMeshes ( G3DSCENE *sce,
 }
 
 /******************************************************************************/
-/*** Returns 0x01 if there is no light that is glEnabled. Do not ***/
-/*** confuse with LIGHTON flags which is GL context independent. ***/
-uint32_t g3dscene_noLightOn ( G3DSCENE *sce, uint64_t engine_flags ) {
-    LIST *llig = NULL;
-
-    g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, G3DLIGHTTYPE, &llig );
-
-    if ( llig ) {
-        LIST *ltmplig = llig;
-
-        while ( ltmplig ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) ltmplig->data;
-
-            if ( glIsEnabled ( lig->lid ) ) {
-                list_free ( &llig, NULL );
-
-                return 0x00;
-            }
-
-            ltmplig = ltmplig->next;
-        }
-    }
-
-    list_free ( &llig, NULL );
-
-    return 0x01;
-}
-
-/******************************************************************************/
-void g3dscene_turnLightsOn ( G3DSCENE *sce ) {
-    LIST *llig = NULL;
-
-    g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, G3DLIGHTTYPE, &llig );
-
-    if ( llig ) {
-        LIST *ltmplig = llig;
-
-        glDisable ( GL_LIGHT0 );
-
-        while ( ltmplig ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) ltmplig->data;
-
-            if ( ( ((G3DOBJECT*)lig)->flags & OBJECTINACTIVE ) == 0x00 ) {
-                g3dlight_turnOn ( lig );
-            }
-
-            ltmplig = ltmplig->next;
-        }
-    }
-
-    list_free ( &llig, NULL );
-}
-
-/******************************************************************************/
-/******************************************************************************/
-void g3dscene_turnLightsOff ( G3DSCENE *sce ) {
-    LIST *llig = NULL;
-
-    g3dobject_getObjectsByType_r ( ( G3DOBJECT * ) sce, G3DLIGHTTYPE, &llig );
-
-    if ( llig ) {
-        LIST *ltmplig = llig;
-
-        glEnable ( GL_LIGHT0 );
-
-        while ( ltmplig ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) ltmplig->data;
-
-            if ( ((G3DOBJECT*)lig)->flags & OBJECTINACTIVE ) {
-                g3dlight_turnOff ( lig );
-            }
-
-            ltmplig = ltmplig->next;
-        }
-    }
-
-    list_free ( &llig, NULL );
-}
-
-/******************************************************************************/
 static uint32_t g3dscene_getPositionFromSelectedObjects ( G3DSCENE  *sce, 
                                                           G3DVECTOR *vout ) {
     LIST *ltmpobj = sce->lsel;
@@ -361,24 +281,6 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
 void g3dscene_updatePivot ( G3DSCENE  *sce,
                             uint64_t   engine_flags ) {
     g3dscene_getPivotFromSelection ( sce, engine_flags );
-}
-
-/******************************************************************************/
-/*** disable/enable GL_LIGHT0 when there's at least 1 light in the scene.   ***/
-void g3dscene_checkLights ( G3DSCENE *sce, uint64_t engine_flags ) {
-    if ( engine_flags & NOLIGHTING ) {
-        g3dscene_turnLightsOff ( sce );
-
-        glEnable  ( GL_LIGHT0 );
-    } else {
-        glDisable ( GL_LIGHT0 );
-
-        if ( g3dscene_noLightOn ( sce, engine_flags ) ) {
-            glEnable  ( GL_LIGHT0 );
-        } else {
-            glDisable ( GL_LIGHT0 );
-        }
-    }
 }
 
 /******************************************************************************/

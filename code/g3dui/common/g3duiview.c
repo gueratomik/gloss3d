@@ -336,6 +336,7 @@ void common_g3duiview_showGL ( G3DUIVIEW    *view,
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     Q3DSETTINGS *rsg = gui->currsg;
     G3DRGBA backgroundRGBA;
+    uint32_t ret;
 
     sysinfo->sce = sce; /* for debugging purpose */
 
@@ -435,7 +436,13 @@ void common_g3duiview_showGL ( G3DUIVIEW    *view,
         }
     }
 
-    g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
+    ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
+
+    if ( ret & DRAW_LIGHTON ) {
+        glDisable ( GL_LIGHT0 );
+    } else {
+        glEnable ( GL_LIGHT0 );
+    }
 
     g3dscene_draw ( ( G3DOBJECT * ) sce, cam, engine_flags );
 

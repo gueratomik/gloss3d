@@ -1806,6 +1806,8 @@ uint32_t g3dobject_pick_r ( G3DOBJECT *obj,
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags ) {
+    uint32_t ret = 0x00;
+
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
@@ -1824,7 +1826,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
     else                               glFrontFace(  GL_CCW );
 
     if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-        if ( obj->draw ) obj->draw ( obj, curcam, engine_flags );
+        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine_flags );
     }
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
@@ -1838,7 +1840,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
         glDisable ( GL_RESCALE_NORMAL );
     /*}*/
 
-    return 0x00;
+    return ret;
 }
 
 /******************************************************************************/
@@ -1846,8 +1848,9 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
                             G3DCAMERA *curcam, 
                             uint64_t   engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
+    uint32_t ret = 0x00;
 
-    g3dobject_draw ( obj, curcam, engine_flags );
+    ret = g3dobject_draw ( obj, curcam, engine_flags );
 
     glPushMatrix ( );
 
@@ -1861,10 +1864,10 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
             /*** Do not draw objects that are not     ***/
             /*** concerned by symmetry, e.g modifiers ***/
             if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
-                g3dobject_draw_r ( sub, curcam, engine_flags );
+                ret |= g3dobject_draw_r ( sub, curcam, engine_flags );
             }
         } else {
-            g3dobject_draw_r ( sub, curcam, engine_flags );
+            ret |= g3dobject_draw_r ( sub, curcam, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -1872,7 +1875,7 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
 
     glPopMatrix ( );
 
-    return 0x00;
+    return ret;
 }
 
 /******************************************************************************/

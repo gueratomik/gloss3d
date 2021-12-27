@@ -79,6 +79,33 @@ static void editKeyDataCbk ( GtkWidget *widget, gpointer user_data ) {
                 updateLightEdit ( w, keylig );
             }
         }
+
+        if ( obj->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+                GtkWidget *fix = gtk_fixed_new ( );
+
+                gtk_widget_show ( fix );
+
+                gtk_container_add ( GTK_CONTAINER(dial), fix );
+
+
+                G3DKEY *key = obj->lselkey->data;
+                G3DPARTICLEEMITTER *keypem = key->data.ptr;
+
+                GtkWidget *w =  createParticleEmitterEdit ( fix,
+                                                            gui, 
+                                                            "Particle Emitter Key", 
+                                                            0, 0, 416, 192 );
+
+
+                gtk_widget_show ( dial );
+
+                updateParticleEmitterEdit ( w, keypem );
+            }
+        }
     }
 }
 

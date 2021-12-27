@@ -506,6 +506,10 @@ SIG_ROOT=0x44335347
 ------------------------------- SIG_OBJECT_LIGHT
 ----------------------------------- ( ... )
 
+--------------------------- SIG_OBJECT_KEY_DATA_PARTICLEEMITTER
+------------------------------- SIG_OBJECT_PARTICLEEMITTER
+----------------------------------- ( ... )
+
 --------------- SIG_OBJECT_TAGS
 ------------------- SIG_OBJECT_TAG_ENTRY
 --------------------------- SIG_OBJECT_TAG_TRACKER

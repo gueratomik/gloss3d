@@ -46,7 +46,7 @@ static gboolean gtk_view_expose        ( GtkWidget *, cairo_t * );
 static gboolean gtk_view_configure     ( GtkWidget *, GdkEvent *, gpointer );
 static void     gtk_view_size_allocate ( GtkWidget *, GtkAllocation * );
 static gboolean gtk_view_event         ( GtkWidget *, GdkEvent *, gpointer );
-static void updateOptionMenu ( GtkWidget *widget, uint64_t viewFlags );
+static void updateOptionMenu ( GtkWidget *widget, G3DUIVIEW *view );
 
 /******************************************************************************/
 static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
@@ -97,7 +97,7 @@ GtkWidget *createViewMenu ( GtkWidget *widget, G3DUI *gui, char *menuname ) {
 }
 
 /******************************************************************************/
-static void updateOptionMenu ( GtkWidget *widget, uint64_t viewFlags  ) {
+static void updateOptionMenu ( GtkWidget *widget, G3DUIVIEW *view ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
 
     while ( children ) {
@@ -108,28 +108,36 @@ static void updateOptionMenu ( GtkWidget *widget, uint64_t viewFlags  ) {
             GtkCheckMenuItem *item = ( GtkCheckMenuItem * ) child;
             gboolean active = FALSE;
 
+            if ( strcmp ( child_name, VIEWMENU_DEFAULTCAMERA  ) == 0x00 ) {
+                active = ( view->defcam == view->cam ) ? TRUE : FALSE;
+            }
+
+            if ( strcmp ( child_name, VIEWMENU_SELECTEDCAMERA  ) == 0x00 ) {
+                active = ( view->defcam == view->cam ) ? FALSE : TRUE;
+            }
+
             if ( strcmp ( child_name, VIEWMENU_LIGHTING  ) == 0x00 ) {
-                active = ( viewFlags & NOLIGHTING ) ? FALSE : TRUE;
+                active = ( view->engine_flags & NOLIGHTING ) ? FALSE : TRUE;
             }
 
             if ( strcmp ( child_name, VIEWMENU_BACKGROUND  ) == 0x00 ) {
-                active = ( viewFlags & NOBACKGROUNDIMAGE ) ? FALSE : TRUE;
+                active = ( view->engine_flags & NOBACKGROUNDIMAGE ) ? FALSE : TRUE;
             }
 
             if ( strcmp ( child_name, VIEWMENU_TEXTURES  ) == 0x00 ) {
-                active = ( viewFlags & NOTEXTURE ) ? FALSE : TRUE;
+                active = ( view->engine_flags & NOTEXTURE ) ? FALSE : TRUE;
             }
 
             if ( strcmp ( child_name, VIEWMENU_GRID  ) == 0x00 ) {
-                active = ( viewFlags & HIDEGRID ) ? FALSE : TRUE;
+                active = ( view->engine_flags & HIDEGRID ) ? FALSE : TRUE;
             }
 
             if ( strcmp ( child_name, VIEWMENU_BONES  ) == 0x00 ) {
-                active = ( viewFlags & HIDEBONES ) ? FALSE : TRUE;
+                active = ( view->engine_flags & HIDEBONES ) ? FALSE : TRUE;
             }
 
             if ( strcmp ( child_name, VIEWMENU_NORMALS  ) == 0x00 ) {
-                active = ( viewFlags & VIEWNORMALS ) ? TRUE : FALSE;
+                active = ( view->engine_flags & VIEWNORMALS ) ? TRUE : FALSE;
             }
 
             gtk_check_menu_item_set_active ( item, active  );
@@ -149,7 +157,7 @@ static void updateOptionMenuBar ( GtkWidget *widget ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
 
         if ( GTK_IS_MENU_ITEM ( child ) ) {
-            updateOptionMenu ( gtk_menu_item_get_submenu ( child ), viewFlags );
+            updateOptionMenu ( gtk_menu_item_get_submenu ( child ), &gvw->view );
         }
 
         children =  g_list_next ( children );
