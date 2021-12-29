@@ -77,7 +77,7 @@ typedef struct _VMBMESH {
 } VMBMESH;
 
 /******************************************************************************/
-#define NBCOMPONENT 0x04
+#define NBCOMPONENT 0x05
 typedef struct _FILTERVMB {
     LIST          *lvobj;
     uint32_t       vobjID;
@@ -90,7 +90,7 @@ typedef struct _FILTERVMB {
     uint32_t       bpp;
     unsigned char *img;
     VMBZHLINE     *hlines;
-    uint32_t     (*abuffer)[NBCOMPONENT]; /**** accumulation buffer ***/
+    uint16_t     (*abuffer)[NBCOMPONENT]; /**** accumulation buffer ***/
 } FILTERVMB;
 
 /******************************************************************************/
@@ -143,11 +143,18 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
                     if ( fvmb->abuffer[offset][0x03] ) {
                         float a0 = ( float ) fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03],
                               a1 = ( float ) fvmb->abuffer[offset][0x01] / fvmb->abuffer[offset][0x03], 
-                              a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03];
+                              a2 = ( float ) fvmb->abuffer[offset][0x02] / fvmb->abuffer[offset][0x03],
+                              /*** get the average opacity ***/
+                              op = ( float ) fvmb->abuffer[offset][0x03] / ( fvmb->abuffer[offset][0x04] * 0xFF ),
+                              invop = 1.0f - op;
 
-                            srcimg[offset][0x00] = 0xFF * a0;
-                            srcimg[offset][0x01] = 0xFF * a1;
-                            srcimg[offset][0x02] = 0xFF * a2;
+                            srcimg[offset][0x00] = ( 0xFF * a0 * op ) + ( srcimg[offset][0x00] * invop );
+                            srcimg[offset][0x01] = ( 0xFF * a1 * op ) + ( srcimg[offset][0x01] * invop );
+                            srcimg[offset][0x02] = ( 0xFF * a2 * op ) + ( srcimg[offset][0x02] * invop );
+
+                            /*srcimg[offset][0x00] = fvmb->abuffer[offset][0x00];
+                            srcimg[offset][0x01] = fvmb->abuffer[offset][0x01];
+                            srcimg[offset][0x02] = fvmb->abuffer[offset][0x02];*/
                     }
                 } break;
 
@@ -385,27 +392,30 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                                 R = srcimg[zoffset][0x00];
                                 G = srcimg[zoffset][0x01];
                                 B = srcimg[zoffset][0x02];
-
+/*
                                 AR = srcimg[aoffset][0x00];
                                 AG = srcimg[aoffset][0x01];
                                 AB = srcimg[aoffset][0x02];
+*/
+                                AR = fvmb->abuffer[aoffset][0x00];
+                                AG = fvmb->abuffer[aoffset][0x01];
+                                AB = fvmb->abuffer[aoffset][0x02];
                             } break;
 
                             default :
                             break;
                         }
 /*
-                        fvmb->abuffer[aoffset][0x00] += ( ( R    * opacity ) + ( AR * invopac ) );
-                        fvmb->abuffer[aoffset][0x01] += ( ( G    * opacity ) + ( AG * invopac ) );
-                        fvmb->abuffer[aoffset][0x02] += ( ( B    * opacity ) + ( AB * invopac ) );
-                        fvmb->abuffer[aoffset][0x03] ++;
+                        fvmb->abuffer[aoffset][0x00] += ( ( R * opacity ) + ( AR * invopac ) );
+                        fvmb->abuffer[aoffset][0x01] += ( ( G * opacity ) + ( AG * invopac ) );
+                        fvmb->abuffer[aoffset][0x02] += ( ( B * opacity ) + ( AB * invopac ) );
+                        fvmb->abuffer[aoffset][0x03] = 0x01;
 */
-
                         fvmb->abuffer[aoffset][0x00] += ( R    * opacity );
                         fvmb->abuffer[aoffset][0x01] += ( G    * opacity );
                         fvmb->abuffer[aoffset][0x02] += ( B    * opacity );
                         fvmb->abuffer[aoffset][0x03] += ( 0xFF * opacity );
-
+                        fvmb->abuffer[aoffset][0x04] ++;
                     }
                 /*}*/
             }
@@ -500,6 +510,8 @@ static void filtervmb_drawMesh ( Q3DFILTER *qfil,
     VMBTRIANGLE *vtri = vmes->vtri + ( fvmb->nbSamples * qmes->nbqtri );
     uint32_t i, j;
 
+    printf ("%s %s\n", __func__, vmes->vobj.qobj->obj->name );
+
     for ( i = 0x00; i < qmes->nbqtri; i++ ) {
         uint32_t vtriID = i;
 
@@ -530,25 +542,46 @@ static void filtervmb_drawObjects ( Q3DFILTER *qfil ) {
 }
 
 /******************************************************************************/
+static void vmbtriangle_print ( VMBTRIANGLE *vtri, 
+                                uint32_t     vtriID, 
+                                uint32_t     subframeID ) {
+    uint32_t i;
+
+    printf ( "triangle: %d - subframeD: %d\n", vtriID, subframeID );
+
+    for ( i = 0x00; i < 0x03; i++ ) {
+        printf ( "vertex %d -- %d %d %f\n", i, vtri->pnt[i].x,
+                                               vtri->pnt[i].y,
+                                               vtri->pnt[i].z );
+    }
+}
+
+/******************************************************************************/
 static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
                                                   uint32_t     vobjID,
                                                   VMBTRIANGLE *srcTris,
                                                   VMBTRIANGLE *refTris,
                                                   uint32_t     nbtris ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
-
+    int32_t nbSamples =  fvmb->nbSamples;
+    uint32_t totSamples = ( nbSamples * 0x02 ) + 0x01;
     int32_t i, p;
 
-    for ( i = 0x00; i < nbtris; i++ ) {
-        VMBTRIANGLE *refTri = &refTris[i];
-        VMBTRIANGLE *srcTri = &srcTris[i];
-        uint32_t vtriID = i;
-        int32_t nbSamples =  fvmb->nbSamples;
+    /** Note: the condition is "p < nbSamples" and not "p <= nbSamples"  **/
+    /** because dont forget dstTri is the next tri, so if there are, e.g **/
+    /** 1 sample, there are 3 frames, but only 2 interpolations. ***/
+    for ( p = - nbSamples; p < nbSamples; p++ ) {
+        float step = 1.0f / nbSamples;
+        float srcOpacity = 1.0f - ( fabs ( p ) / nbSamples );
+        float dstOpacity = ( p < 0x00 ) ? srcOpacity + step :
+                                          srcOpacity - step;
+        float deltaOpacity = dstOpacity - srcOpacity;
 
-        /** Note: the condition is "p < nbSamples" and not "p <= nbSamples"  **/
-        /** because dont forget dstTri is the next tri, so if there are, e.g **/
-        /** 1 sample, there are 3 frames, but only 2 interpolations. ***/
-        for ( p = - nbSamples; p < nbSamples; p++ ) {
+        for ( i = 0x00; i < nbtris; i++ ) {
+            VMBTRIANGLE *refTri = &refTris[i];
+            VMBTRIANGLE *srcTri = &srcTris[i];
+            uint32_t vtriID = i;
+
             VMBTRIANGLE *dstTri = srcTri + nbtris;
 
             /** check if source triangle is outside screen space ***/
@@ -582,9 +615,17 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
                                 ( ( len[1] > len[2] ) ? len[1] : len[2] );
                 uint32_t iter = maxLen * fvmb->subSamplingRate;
 
-                if ( maxLen ) {
-                    uint32_t j;
+/*
+printf("src tri\n");
+vmbtriangle_print ( srcTri, i, p );
+printf("dst tri\n");
+vmbtriangle_print ( dstTri, i, p );
 
+*/
+                if ( iter ) {
+                    uint32_t j;
+                    float stepOpacity = ( deltaOpacity ) / iter;
+/*printf("max:%d iter:%d\n", maxLen, iter );*/
                     for ( j = 0x00; j < iter; j++ ) {
                         float pos = ( float ) j / iter;
                         VMBTRIANGLE itrTri = { .pnt[0x00].x = srcTri->pnt[0].x + ( mvec[0].x * pos ),
@@ -593,9 +634,8 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
                                                .pnt[0x01].y = srcTri->pnt[1].y + ( mvec[1].y * pos ),
                                                .pnt[0x02].x = srcTri->pnt[2].x + ( mvec[2].x * pos ),
                                                .pnt[0x02].y = srcTri->pnt[2].y + ( mvec[2].y * pos ) };
-                        float opacity = 1.0f - pos;
-
-
+                        float opacity = srcOpacity + ( stepOpacity  * j );
+/*printf("%f\n", opacity);*/
                         filtervmb_drawTriangle ( qfil,
                                                  vobjID,
                                                  vtriID,
@@ -605,10 +645,10 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
                                                  0x00 );
                     }
                 }
-
-                srcTri = dstTri;
             }
         }
+
+        srcTris += nbtris;
     }
 }
 
@@ -731,6 +771,8 @@ static void vmbmesh_import ( VMBMESH   *vmes,
                             qver,
                             MVX,
                             qcam );
+
+        /*vmbtriangle_print ( &vtri[i], i, subframeID );*/
     }
 }
 
@@ -876,8 +918,8 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                    for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                        if ( prt[j].flags & PARTICLE_ISALIVE ) {
                            if ( qprt[j].qref ) {
-                               g3dcore_multmatrix ( qprt[j].MVX,
-                                                    objcam->iwmatrix, WMVX );
+                               g3dcore_multmatrix ( objcam->iwmatrix, 
+                                                    qprt[j].MVX, WMVX );
 
                                filtervmb_import_r ( qfil, 
                                                     qcam, 
@@ -990,9 +1032,8 @@ static void filtervmb_empty ( FILTERVMB *fvmb ) {
                                               fvmb->width * 
                                               fvmb->height * sizeof ( VMBZPIXEL ) );
 
-
     memset ( fvmb->abuffer, 0x00, fvmb->width  * 
-                                  fvmb->height * sizeof ( uint32_t ) * NBCOMPONENT );
+                                  fvmb->height * sizeof ( uint16_t ) * NBCOMPONENT );
 
     memset ( fvmb->zbuffer, 0x00, fvmb->width  * 
                                   fvmb->height * sizeof ( VMBZPIXEL ) );
@@ -1122,14 +1163,16 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         q3djob_render ( qjob );
 
-        for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
+        /*** commeted out : zeroed on creation ***/
+        /*for ( i = 0x00; i < fvmb->width * fvmb->height; i++ ) {
             unsigned char (*srcimg)[0x03] = img;
 
-            fvmb->abuffer[i][0x00] = srcimg[i][0x00];
-            fvmb->abuffer[i][0x01] = srcimg[i][0x01];
-            fvmb->abuffer[i][0x02] = srcimg[i][0x02];
-            fvmb->abuffer[i][0x03] = 0xFF;
-        }
+            fvmb->abuffer[i][0x00] = 0x00;
+            fvmb->abuffer[i][0x01] = 0x00;
+            fvmb->abuffer[i][0x02] = 0x00;
+            fvmb->abuffer[i][0x03] = 0x00;
+            fvmb->abuffer[i][0x04] = 0x00;
+        }*/
 
         memcpy ( &qjob->filters, &orifilters   , sizeof ( Q3DFILTERSET ) );
 
