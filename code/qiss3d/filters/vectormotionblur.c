@@ -380,8 +380,6 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                 uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
                 unsigned char R, G, B, AR, AG, AB;
 
-                /*** NOTE: Comment this out for a better bluring but without **/
-                /*** Z testing ***/
                /* if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
                      ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
                     if ( z < fvmb->zbuffer[zoffset].z ) {

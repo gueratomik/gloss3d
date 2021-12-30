@@ -1435,6 +1435,7 @@ typedef struct _G3DSCENE {
     uint32_t childid; /*** Children object IDs counter ***/
     G3DCURSOR csr;
     LIST *lref;
+    uint32_t fps;
 } G3DSCENE;
 
 /********************* a "portable" version of XRectangle *********************/

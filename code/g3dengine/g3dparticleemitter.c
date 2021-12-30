@@ -186,10 +186,10 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
 /******************************************************************************/
 static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
                                               G3DPARTICLE        *prt,
-                                              float               deltaFrame,
-                                              float               deltaSeconds ) {
-    if ( pem->particleLifetime ) {
+                                              float               deltaFrame ) {
+    if ( pem->particleLifetime && pem->sce->fps ) {
         float ratio = ( float ) prt->lifeTime / pem->particleLifetime;
+        float deltaSeconds = deltaFrame / pem->sce->fps;
 
         if ( pem->particleMass ) {
             prt->accel.x = ( pem->gravity.x ) / pem->particleMass;
@@ -274,8 +274,12 @@ static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem,
                                                      uint32_t            id, 
                                                      unsigned char      *name,
                                                      uint64_t            engine_flags ) {
-    G3DPARTICLEEMITTER *cpypem = g3dparticleemitter_new ( ((G3DOBJECT*)pem)->id,
-                                                          ((G3DOBJECT*)pem)->name );
+    uint32_t cpyID = ((G3DOBJECT*)pem)->id; /*** Does not need to be unique ***/
+    char *cpyname = ((G3DOBJECT*)pem)->name;
+
+    G3DPARTICLEEMITTER *cpypem = g3dparticleemitter_new ( cpyID,
+                                                          cpyname,
+                                                          pem->sce );
 
 
     g3dparticleemitter_copySettings ( cpypem, pem );
@@ -435,8 +439,7 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
 
                     g3dparticleemitter_animParticle ( pem,
                                                      &prt[j],
-                                                      deltaFrame,
-                                                      deltaFrame / 24 );
+                                                      deltaFrame );
 
                     if ( engine_flags & ONGOINGRENDERING ) {
                         glPushMatrix ( );
@@ -506,7 +509,8 @@ void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem ) {
 /******************************************************************************/
 void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem, 
                                uint32_t            id, 
-                               char               *name ) {
+                               char               *name,
+                               G3DSCENE           *sce ) {
     g3dobject_init ( pem, 
                      G3DPARTICLEEMITTERTYPE,
                      id, 
@@ -559,11 +563,15 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
     pem->initialVarSpeed.y = 0.1f;
 
     pem->radius = 0.5f;
+
+    pem->sce = sce;
 }
 
 /******************************************************************************/
-G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t id, 
-                                             char    *name ) {
+/*** Note: particle emitter needs the G3DSCENE as arg to retrieve the FPS ***/
+G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t  id, 
+                                             char     *name,
+                                             G3DSCENE *sce ) {
     G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) calloc ( 0x01, sizeof ( G3DPARTICLEEMITTER ) );
 
     if ( pem == NULL ) {
@@ -572,10 +580,9 @@ G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t id,
         return NULL;
     }
 
-    g3dparticleemitter_init ( pem, id, name );
+    g3dparticleemitter_init ( pem, id, name, sce );
 
     g3dparticleemitter_reset ( pem );
-
 
     return pem;
 }

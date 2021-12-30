@@ -43,6 +43,10 @@ void g3dimportv3scene ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_SCENE_FPS : {
+                g3dimportv3_freadl ( &gid->currentScene->fps, fsrc );
+            } break;
+
             case SIG_MATERIALS : {
 
             } break;
@@ -244,7 +248,8 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_PARTICLEEMITTER : {
                         obj = g3dparticleemitter_new ( gid->currentObjectID++ ,
-                                                       gid->currentObjectName );
+                                                       gid->currentObjectName,
+                                                       gid->currentScene );
                     } break;
 
 

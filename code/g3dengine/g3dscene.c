@@ -799,5 +799,7 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
 
     ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
+    sce->fps = 24;
+
     return sce;
 }

@@ -577,7 +577,7 @@ void common_g3dui_addEmitterCbk ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
-    G3DPARTICLEEMITTER *pem = g3dparticleemitter_new ( oid, "Emitter" );
+    G3DPARTICLEEMITTER *pem = g3dparticleemitter_new ( oid, "Emitter", sce );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |

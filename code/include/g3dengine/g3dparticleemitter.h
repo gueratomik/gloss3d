@@ -104,6 +104,7 @@ typedef struct _G3DPARTICLEEMITTER {
     float        radius;
 
     uint32_t     type;
+    G3DSCENE    *sce;
 
     double       TIWMVX[0x10];
 } G3DPARTICLEEMITTER;
@@ -115,8 +116,9 @@ typedef struct _G3DPARTICLEEMITTER {
  * @param name the object's name.
  * @return the allocated G3DPARTICLEEMITTER.
  */
-G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t id, 
-                                             char    *name );
+G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t  id, 
+                                             char     *name,
+                                             G3DSCENE *sce );
 
 void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem );
 

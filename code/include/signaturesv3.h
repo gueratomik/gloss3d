@@ -252,5 +252,6 @@
 #define  SIG_ROOT_VERSION                                    0x475DDCE9
 #define  SIG_ROOT_VERSION_APP                                0xC5BF91AC
 #define  SIG_ROOT_VERSION_FILE                               0x7A68906E
+#define  SIG_SCENE_FPS                                       0xD8E3C3BF
 
 #endif

@@ -417,11 +417,30 @@ static uint32_t g3dexportv3scene_materials ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3scene_fps ( G3DEXPORTV3DATA *ged, 
+                                       G3DSCENE        *sce, 
+                                       uint32_t         flags, 
+                                       FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &sce->fps, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 uint32_t g3dexportv3scene ( G3DEXPORTV3DATA *ged, 
                           G3DSCENE      *sce, 
                           uint32_t       flags, 
                           FILE          *fdst ) {
     uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_SCENE_FPS,
+                                     g3dexportv3scene_fps,
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_MATERIALS,
                                      g3dexportv3scene_materials,
