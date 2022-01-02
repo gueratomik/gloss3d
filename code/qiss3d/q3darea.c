@@ -172,6 +172,7 @@ void q3darea_init ( Q3DAREA   *qarea,
                                             excludePerfectSpheres,
                                             NULL,
                                             frame );
+
 }
 
 /******************************************************************************/

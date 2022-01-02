@@ -270,6 +270,12 @@ typedef struct _Q3DVECTOR3D {
 } Q3DVECTOR3D;
 
 /******************************************************************************/
+typedef struct _Q3DVECTOR2I {
+    int32_t x;
+    int32_t y;
+} Q3DVECTOR2I;
+
+/******************************************************************************/
 typedef struct _Q3DPLANE {
     float x; 
     float y;
@@ -475,15 +481,18 @@ typedef struct _Q3DOBJECT {
 
 /******************************************************************************/
 typedef struct _Q3DINTERSECTION {
-    Q3DVECTOR3F src;
+    Q3DVECTOR3F locsrc; /*** local coords ****/
+    Q3DVECTOR3F src; /*** world coords ***/
     Q3DVECTOR3F dir;
     Q3DOBJECT  *qobj;
     Q3DSURFACE *qsur;
+    uint32_t    qsurID;
 } Q3DINTERSECTION;
 
 /******************************************************************************/
-#define Q3DRAY_PRIMARY_BIT  ( 1 << 0 )
-#define Q3DRAY_HAS_HIT_BIT  ( 1 << 1 )
+#define Q3DRAY_PRIMARY_BIT   ( 1 << 0 )
+#define Q3DRAY_HAS_HIT_BIT   ( 1 << 1 )
+#define Q3DRAY_OUTLINED_BIT  ( 1 << 2 )
 
 typedef struct _Q3DRAY {
     uint32_t        flags;
@@ -629,6 +638,13 @@ typedef struct _Q3DFILTER {
 } Q3DFILTER;
 
 /******************************************************************************/
+typedef struct _Q3DSOFTSHADOW {
+    float    shadow;
+    float    average;
+    uint32_t count;
+} Q3DSOFTSHADOW;
+
+/******************************************************************************/
 typedef struct _Q3DZPOINT {
     int32_t x;
     int32_t y;
@@ -643,22 +659,15 @@ typedef struct _Q3DZHLINE {
 } Q3DZHLINE, Q3DSHLINE;
 
 /******************************************************************************/
-typedef struct _Q3DSOFTSHADOW {
-    float    shadow;
-    float    average;
-    uint32_t count;
-} Q3DSOFTSHADOW;
-
-/******************************************************************************/
 typedef struct _Q3DZBUFFER {
     float    z;
     uint32_t qobjID;
     uint32_t qtriID;
+    uint32_t wmvxID;
 } Q3DZBUFFER;
 
 /******************************************************************************/
-#define CLIPPINGPLANES 0x05
-
+#define CLIPPINGPLANES    0x05
 #define FROMCLIPPINGPLANE 0x00
 #define TOCLIPPINGPLANE   0x01
 
@@ -668,6 +677,9 @@ typedef struct _Q3DZENGINE {
     Q3DZHLINE  *hlines;
     uint32_t    height;
     uint32_t    width;
+    double    (*WMVX)[0x10]; /*** array of world matrices, used ***/
+                       /*** by the wireframe renderer e.g ***/
+    uint32_t    wmvxID;
 } Q3DZENGINE;
 
 /******************************************************************************/

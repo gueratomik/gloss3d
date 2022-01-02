@@ -201,6 +201,9 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         qray->isx.qobj    = locqray.isx.qobj;
         qray->isx.qsur    = locqray.isx.qsur;
 
+        memcpy ( &qray->isx.locsrc, 
+                 &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
+
         q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
         q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
 

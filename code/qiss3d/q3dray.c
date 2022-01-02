@@ -753,6 +753,129 @@ static uint32_t onlyPerfectSpheres ( Q3DOBJECT *qobj, void *data ) {
 }
 
 /******************************************************************************/
+/*************** https://gamedev.stackexchange.com/questions/72528 ************/
+void q3dray_outline ( Q3DRAY *qray,
+                      Q3DJOB *qjob,
+                      double  *WMVX,
+                      double  *PJX,
+                      int     *VPX,
+                      float    zNear,
+                      uint32_t wireframeThickness,
+                      float    frame  ) {
+    if ( ( qray->flags & Q3DRAY_HAS_HIT_BIT ) &&
+         ( qray->flags & Q3DRAY_PRIMARY_BIT ) ) {
+        Q3DOBJECT *qobj = qray->isx.qobj;
+
+        if ( qobj->obj->type & MESH ) {
+            Q3DMESH *qmes = ( Q3DMESH * ) qobj;
+            Q3DTRIANGLE *qtri = qray->isx.qsur;
+            uint32_t j;
+
+            for ( j = 0x00; j < 0x03; j++ ) {
+                uint32_t n = ( j + 0x01 ) % 0x03;
+                uint32_t vaID = qtri->qverID[j],
+                         vbID = qtri->qverID[n];
+                Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
+                Q3DVECTOR3F *vaf = &qverset->qver[vaID].pos,
+                            *vbf = &qverset->qver[vbID].pos;
+                Q3DVECTOR3D vad, vbd;
+
+                gluProject ( vaf->x, 
+                             vaf->y, 
+                             vaf->z,
+                             WMVX,
+                             PJX,
+                             VPX,
+                            &vad.x,
+                            &vad.y,
+                            &vad.z );
+
+                gluProject ( vbf->x, 
+                             vbf->y, 
+                             vbf->z,
+                             WMVX,
+                             PJX,
+                             VPX,
+                            &vbd.x,
+                            &vbd.y,
+                            &vbd.z );
+
+                vad.y = ( qjob->qarea.height - ( int32_t ) vad.y );
+                vbd.y = ( qjob->qarea.height - ( int32_t ) vbd.y );
+
+                int32_t x1 = vad.x,
+                        y1 = vad.y,
+                        x2 = vbd.x,
+                        y2 = vbd.y;
+                float dist;
+
+                /* skip the central edge for former quads */
+                /*if ( ( rfc->flags & RFACEFROMQUAD ) && 
+                     ( ( i == 0x02 ) && ( n == 0x00 ) ) ) {
+                    continue;
+                }*/
+
+            /*https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line */
+                dist = abs ( ( ( y2 - y1 ) * qray->x ) - 
+                             ( ( x2 - x1 ) * qray->y ) + ( x2 * y1 ) - 
+                                                         ( y2 * x1 ) ) /
+                       sqrt ( (( y2 - y1 ) * ( y2 - y1 )) + 
+                              (( x2 - x1 ) * ( x2 - x1 )) );
+
+                if ( dist <= /*wireframeThickness*/4.0f ) {
+                    qray->flags |= Q3DRAY_OUTLINED_BIT;
+                }
+            }
+        }
+
+/*
+                Q3DVECTOR3F vAB = { .x = qverset->qver[vbID].pos.x - qverset->qver[vaID].pos.x,
+                                    .y = qverset->qver[vbID].pos.y - qverset->qver[vaID].pos.y,
+                                    .z = qverset->qver[vbID].pos.z - qverset->qver[vaID].pos.z },
+                            vAC = { .x = qray->isx.locsrc.x - qverset->qver[vaID].pos.x,
+                                    .y = qray->isx.locsrc.y - qverset->qver[vaID].pos.y,
+                                    .z = qray->isx.locsrc.z - qverset->qver[vaID].pos.z };
+                double scalABAC    = q3dvector3f_scalar ( &vAC, &vAB );
+                double scalABAB    = q3dvector3f_scalar ( &vAB, &vAB );
+
+                if ( scalABAB ) {
+                    double t = scalABAC / scalABAB;
+
+                    if ( ( t >= 0.0f ) && ( t <= 1.0f ) ) {
+                        Q3DVECTOR3F orthoC = { .x = qverset->qver[vaID].pos.x + ( vAB.x * t ),
+                                               .y = qverset->qver[vaID].pos.y + ( vAB.y * t ),
+                                               .z = qverset->qver[vaID].pos.z + ( vAB.z * t ) };
+                        double xscr, yscr, zscr;
+                        int32_t ox, oy;
+                        int32_t  dist;
+
+                        gluProject ( orthoC.x, 
+                                     orthoC.y, 
+                                     orthoC.z,
+                                     WMVX,
+                                     PJX,
+                                     VPX,
+                                    &xscr,
+                                    &yscr,
+                                    &zscr );
+
+    yscr = ( qjob->qarea.height - ( int32_t ) yscr );
+*/
+
+                        /*if ( zscr > zNear ) {
+                            ox = ( (int32_t ) xscr - (int32_t ) qray->x );
+                            oy = ( (int32_t ) yscr - (int32_t ) qray->y );
+
+                            dist = sqrt ( ( ox * ox ) + ( oy * oy ) );
+
+                            if ( dist <= wireframeThickness ) {
+                                qray->flags |= Q3DRAY_OUTLINED_BIT;
+                            }
+                        }*/
+    }
+}
+
+/******************************************************************************/
 uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
                           Q3DJOB     *qjob,
                           Q3DSURFACE *sdiscard,
@@ -774,7 +897,6 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             Q3DZBUFFER zout;
 
             /*** Remove the flag for raytraced perfect spheres ***/
-            /*** We don't need this flag anymore anyways       ***/
             qray->flags &= (~Q3DRAY_PRIMARY_BIT);
 
             /*** raytrace perfect spheres as they are not rasterized ***/
@@ -786,6 +908,9 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                              frame,
                              nbhop,
                              RAYQUERYHIT );
+
+            /*** add it back ***/
+            qray->flags |= Q3DRAY_PRIMARY_BIT;
 
             if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {
                 qobj = qray->isx.qobj;
@@ -833,9 +958,11 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         qray->isx.qobj  = qobj;
                         qray->isx.qsur  = qtri;
 
+                        memcpy ( &qray->isx.locsrc, 
+                                 &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
+
                         q3dvector3f_matrix ( &locqray.isx.src, qhit->obj->wmatrix, &qray->isx.src );
                         q3dvector3f_matrix ( &locqray.isx.dir, qhit->TIMVX       , &qray->isx.dir );
-
 
                         qray->ratio[0x00] = locqray.ratio[0x00];
                         qray->ratio[0x01] = locqray.ratio[0x01];
@@ -993,6 +1120,33 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                     }
                 }
             }
+
+            /*if ( query_flags & RAYQUERYSURFACECOLOR ) {*/
+
+                if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                    Q3DZBUFFER zout;
+
+                    q3darea_getZBuffer ( &qjob->qarea, 
+                                          qray->x, 
+                                          qray->y,
+                                         &zout );
+
+                    q3dray_outline ( qray,
+                                     qjob,
+                                     qjob->qarea.qzen.WMVX[zout.wmvxID], 
+                                     qjob->qcam->PJX,
+                                     qjob->qcam->VPX,
+                                     0.01f,
+                                     2.0f,
+                                     frame  );
+
+                    if ( qray->flags & Q3DRAY_OUTLINED_BIT ) {
+                        return 0x00;
+                    }
+                }
+
+            /*}*/
+
 
             if ( ( query_flags & RAYQUERYLIGHTING ) &&
                  ( qobj->obj->flags & OBJECTNOSHADING ) == 0x00 ) {

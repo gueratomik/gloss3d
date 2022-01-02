@@ -180,6 +180,9 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
 
                     qray->isx.qsur = qtri;
 
+                    memcpy ( &qray->isx.locsrc, 
+                             &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
+
                     /*** save Interpolation ratios for UVs ***/
                     qray->ratio[0x00] = RAT0;
                     qray->ratio[0x01] = RAT1;

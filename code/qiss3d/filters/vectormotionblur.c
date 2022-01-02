@@ -629,6 +629,15 @@ vmbtriangle_print ( dstTri, i, p );
                                                .pnt[0x02].y = srcTri->pnt[2].y + ( mvec[2].y * pos ) };
                         float opacity = srcOpacity + ( stepOpacity  * j );
 /*printf("%f\n", opacity);*/
+
+                        if ( opacity > 0.5f ) {
+                            opacity = sin ( opacity * M_PI * 0.5 );
+                            opacity = sin ( opacity * M_PI * 0.5 );
+                            opacity = sin ( opacity * M_PI * 0.5 );
+                            opacity = sin ( opacity * M_PI * 0.5 );
+                            opacity = sin ( opacity * M_PI * 0.5 );
+                        }
+
                         filtervmb_drawTriangle ( qfil,
                                                  vobjID,
                                                  vtriID,

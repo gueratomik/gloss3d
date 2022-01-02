@@ -69,6 +69,17 @@ uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
 }
 
 /******************************************************************************/
+static void q3dzengine_recordWMAtrix ( Q3DZENGINE *qzen,
+                                       double     *WMVX ) {
+    uint32_t matrixSize = sizeof ( double ) * 0x10;
+    uint32_t wmvxID = qzen->wmvxID;
+
+    qzen->WMVX = realloc ( qzen->WMVX, ++qzen->wmvxID * matrixSize );
+
+    memcpy ( qzen->WMVX[wmvxID], WMVX, matrixSize );
+}
+
+/******************************************************************************/
 static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
                                        float       znear,
                                        double     *MVX,
@@ -293,6 +304,7 @@ static void q3dzengine_line ( Q3DZENGINE *qzen,
 static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
                                    uint32_t    qobjID,
                                    uint32_t    qtriID,
+                                   uint32_t    wmvxID,
                                    int         VPX[0x04],
                                    int32_t     y ) {
     Q3DZHLINE *hline = &qzen->hlines[y];
@@ -317,6 +329,7 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
                 qzen->buffer[offset+x].z      = z;
                 qzen->buffer[offset+x].qobjID = qobjID;
                 qzen->buffer[offset+x].qtriID = qtriID;
+                qzen->buffer[offset+x].wmvxID = wmvxID;
             }
         }
 
@@ -326,14 +339,15 @@ static void q3dzengine_fillHLine ( Q3DZENGINE *qzen,
 }
 
 /******************************************************************************/
-static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
-                                      uint32_t     qobjID,
-                                      uint32_t     qtriID,
-                                      Q3DTRIANGLE *qtri,
-                                      Q3DVERTEX   *qver,
-                                      double      *MVX,
-                                      double      *PJX,
-                                      int         *VPX ) {
+static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
+                                          uint32_t     qobjID,
+                                          uint32_t     qtriID,
+                                          Q3DTRIANGLE *qtri,
+                                          Q3DVERTEX   *qver,
+                                          uint32_t     wmvxID,
+                                          double      *MVX,
+                                          double      *PJX,
+                                          int         *VPX ) {
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
              qverID2 = qtri->qverID[0x02];
@@ -459,7 +473,8 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
          ( xmax < VPX[0x00] ) ||
          ( ymin > VPX[0x03] ) ||
          ( ymax < VPX[0x01] ) ) {
-        return;
+
+        return 0x00;
     }
 
     bymin = ( ymin < 0x00       ) ?             0x00 : ymin;
@@ -501,16 +516,15 @@ static void q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
         /*** Much faster if we restrict to useful Y-axis boundaries ***/
         for ( i = bymin; i <= bymax; i++ ) {
             if ( qzen->hlines[i].inited == 0x02 ){
-
-
-
-                q3dzengine_fillHLine ( qzen, qobjID, qtriID, VPX, i );
+                q3dzengine_fillHLine ( qzen, qobjID, qtriID, wmvxID, VPX, i );
             }
 
             qzen->hlines[i].inited = 0x00;
 
         }
     }
+
+    return 0x01;
 }
 
 /******************************************************************************/
@@ -551,17 +565,23 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
     Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
 
     if ( qver ) {
-        uint32_t i;
+        uint32_t i, ret = 0x00;
 
         for ( i = 0x00; i < qmes->nbqtri; i++ ) {
-            q3dzengine_drawTriangle ( qzen,
-                                      q3dobject_getID ( ( Q3DOBJECT * ) qmes ),
-                                      i,
-                                     &qmes->qtri[i],
-                                      qver,
-                                      MVX,
-                                      PJX,
-                                      VPX );
+            ret += q3dzengine_drawTriangle ( qzen,
+                                             q3dobject_getID ( ( Q3DOBJECT * ) qmes ),
+                                             i,
+                                            &qmes->qtri[i],
+                                             qver,
+                                             qzen->wmvxID,
+                                             MVX,
+                                             PJX,
+                                             VPX );
+        }
+
+        if ( ret ) {
+            q3dzengine_recordWMAtrix ( qzen,
+                                       MVX );
         }
     }
 }
@@ -744,6 +764,10 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
 void q3dzengine_reset ( Q3DZENGINE *qzen ) {
     free ( qzen->buffer );
     free ( qzen->hlines );
+
+    if ( qzen->WMVX ) free ( qzen->WMVX );
+
+    qzen->wmvxID = 0x00;
 }
 
 /******************************************************************************/
