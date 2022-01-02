@@ -104,6 +104,8 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duirenderprocess_free ( rps );
 
+    /*** this is needed for memory release ***/
+    pthread_exit ( NULL );
 
     return NULL;
 }
@@ -118,6 +120,8 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 
     g3duirenderprocess_free ( rps );
 
+    /*** this is needed for memory release ***/
+    pthread_exit ( NULL );
 
     return NULL;
 }

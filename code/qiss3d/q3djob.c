@@ -78,6 +78,8 @@ void q3djob_free ( Q3DJOB *qjob ) {
 
     q3dobject_free   ( ( Q3DOBJECT * ) qjob->qcam );
 
+    free ( qjob );
+
     printf ("Q3DJOB Freed\n" );
 }
 
@@ -293,8 +295,8 @@ void *q3djob_raytrace_t ( void *ptr ) {
                                           RAYQUERYLIGHTING       |
                                           RAYQUERYREFLECTION     |
                                           RAYQUERYREFRACTION     |
-                                          RAYQUERYIGNOREBACKFACE/* |
-                                          outlineFlag*/ );
+                                          RAYQUERYIGNOREBACKFACE |
+                                          outlineFlag );
             } else {
                 color = q3dray_shoot_r ( &qray,
                                           qjob,
@@ -311,8 +313,8 @@ void *q3djob_raytrace_t ( void *ptr ) {
                                           RAYQUERYLIGHTING       |
                                           RAYQUERYREFLECTION     |
                                           RAYQUERYREFRACTION     |
-                                          RAYQUERYIGNOREBACKFACE/* |
-                                          outlineFlag*/ );
+                                          RAYQUERYIGNOREBACKFACE |
+                                          outlineFlag );
 
                 imgptr[0x00] = ( color & 0x00FF0000 ) >> 0x10;
                 imgptr[0x01] = ( color & 0x0000FF00 ) >> 0x08;
@@ -609,6 +611,7 @@ void q3djob_render_frame ( Q3DJOB *qjob ) {
     qjob->threaded = 0x00;
 
     q3djob_free ( qjob );
+
 }
 
 /******************************************************************************/

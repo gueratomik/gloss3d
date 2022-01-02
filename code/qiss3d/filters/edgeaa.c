@@ -72,7 +72,7 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                                     uint32_t       width ) {
     FILTEREDGEAA *feaa = ( FILTEREDGEAA * ) qfil->data;
     uint32_t nbsamples = qjob->qrsg->aa.nbsamples;
-
+    uint32_t outlineFlag = ( qjob->qrsg->flags & RENDERWIREFRAME ) ? RAYQUERYOUTLINE : 0x00;
     int y, j, k, x;
 
     for ( y = from; y < to; y++ ) {
@@ -139,6 +139,7 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                     /*** This value will be compared to the depth value of the hit  ***/
                     /*** point. This allows us to pick the closest hit to the eye.  ***/
                     qray.distance = INFINITY;
+                    qray.flags    = Q3DRAY_PRIMARY_BIT;
 
                     /*** but don't forget to normalize the latter **/
                     q3dvector3f_normalize ( &qray.dir, NULL );
@@ -158,8 +159,8 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                                               RAYQUERYLIGHTING         |
                                               RAYQUERYREFLECTION       |
                                               RAYQUERYREFRACTION       |
-                                              RAYQUERYIGNOREBACKFACE/* |
-                                              outlineFlag*/ );
+                                              RAYQUERYIGNOREBACKFACE |
+                                              outlineFlag );
 
                     R += ( ( color & 0x00FF0000 ) >> 0x10 );
                     G += ( ( color & 0x0000FF00 ) >> 0x08 );

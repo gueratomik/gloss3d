@@ -1174,7 +1174,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
     uint32_t i, j;
     uint32_t topo_flags = 0x00;
-    uint32_t init_flags = 0x00;
+    uint32_t init_flags = SUBDIVISIONCLEANVERTICES;
     uint32_t loopID = 0x00;
     uint32_t backupEdgeID[0x04];
     uint32_t backupFaceID;

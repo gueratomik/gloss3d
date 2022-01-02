@@ -761,6 +761,8 @@ void q3dray_outline ( Q3DRAY *qray,
                       int     *VPX,
                       float    zNear,
                       uint32_t wireframeThickness,
+                      Q3DRGBA *diffuse,
+                      uint32_t wireframeColor,
                       float    frame  ) {
     if ( ( qray->flags & Q3DRAY_HAS_HIT_BIT ) &&
          ( qray->flags & Q3DRAY_PRIMARY_BIT ) ) {
@@ -768,16 +770,60 @@ void q3dray_outline ( Q3DRAY *qray,
 
         if ( qobj->obj->type & MESH ) {
             Q3DMESH *qmes = ( Q3DMESH * ) qobj;
+            Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
             Q3DTRIANGLE *qtri = qray->isx.qsur;
-            uint32_t j;
+            Q3DVECTOR3F p[0x04];
+            uint32_t j, nbver = 0x00;
+            float avgdist = 0.0f;
+            uint32_t nbdist = 0x00;
 
-            for ( j = 0x00; j < 0x03; j++ ) {
-                uint32_t n = ( j + 0x01 ) % 0x03;
-                uint32_t vaID = qtri->qverID[j],
-                         vbID = qtri->qverID[n];
-                Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
-                Q3DVECTOR3F *vaf = &qverset->qver[vaID].pos,
-                            *vbf = &qverset->qver[vbID].pos;
+            /*** we need to rebuild the quads otherwise there are some artefacts ***/
+            if ( qtri->flags & TRIANGLEFROMQUAD ) {
+                Q3DTRIANGLE *qtrione = qtri;
+                /*** in case rfc is created from a quad that was splitted in ***/
+                /*** 2 triangles, the next triangle is the second part of ***/
+                /*** the split ***/
+                Q3DTRIANGLE *qtritwo = ( qtri->flags & TRIANGLEFROMQUADONE ) ? qtri + 0x01 :
+                                                                               qtri - 0x01;
+
+                p[0x00].x = qverset->qver[qtrione->qverID[0x00]].pos.x;
+                p[0x00].y = qverset->qver[qtrione->qverID[0x00]].pos.y;
+                p[0x00].z = qverset->qver[qtrione->qverID[0x00]].pos.z;
+
+                p[0x01].x = qverset->qver[qtrione->qverID[0x01]].pos.x;
+                p[0x01].y = qverset->qver[qtrione->qverID[0x01]].pos.y;
+                p[0x01].z = qverset->qver[qtrione->qverID[0x01]].pos.z;
+
+                p[0x02].x = qverset->qver[qtritwo->qverID[0x00]].pos.x;
+                p[0x02].y = qverset->qver[qtritwo->qverID[0x00]].pos.y;
+                p[0x02].z = qverset->qver[qtritwo->qverID[0x00]].pos.z;
+
+                p[0x03].x = qverset->qver[qtritwo->qverID[0x01]].pos.x;
+                p[0x03].y = qverset->qver[qtritwo->qverID[0x01]].pos.y;
+                p[0x03].z = qverset->qver[qtritwo->qverID[0x01]].pos.z;
+
+                nbver = 0x04;
+            } else {
+                p[0x00].x = qverset->qver[qtri->qverID[0x00]].pos.x;
+                p[0x00].y = qverset->qver[qtri->qverID[0x00]].pos.y;
+                p[0x00].z = qverset->qver[qtri->qverID[0x00]].pos.z;
+
+                p[0x01].x = qverset->qver[qtri->qverID[0x01]].pos.x;
+                p[0x01].y = qverset->qver[qtri->qverID[0x01]].pos.y;
+                p[0x01].z = qverset->qver[qtri->qverID[0x01]].pos.z;
+
+                p[0x02].x = qverset->qver[qtri->qverID[0x02]].pos.x;
+                p[0x02].y = qverset->qver[qtri->qverID[0x02]].pos.y;
+                p[0x02].z = qverset->qver[qtri->qverID[0x02]].pos.z;
+
+                nbver = 0x03;
+            }
+
+
+            for ( j = 0x00; j < nbver; j++ ) {
+                uint32_t n = ( j + 0x01 ) % nbver;
+                Q3DVECTOR3F *vaf = &p[j],
+                            *vbf = &p[n];
                 Q3DVECTOR3D vad, vbd;
 
                 gluProject ( vaf->x, 
@@ -822,7 +868,26 @@ void q3dray_outline ( Q3DRAY *qray,
                        sqrt ( (( y2 - y1 ) * ( y2 - y1 )) + 
                               (( x2 - x1 ) * ( x2 - x1 )) );
 
-                if ( dist <= /*wireframeThickness*/4.0f ) {
+                if ( dist <= wireframeThickness ) {
+                    unsigned char R = ( wireframeColor & 0x00FF0000 ) >> 0x10,
+                                  G = ( wireframeColor & 0x0000FF00 ) >> 0x08,
+                                  B = ( wireframeColor & 0x000000FF ) >> 0x00,
+                                  A = 0x00;
+
+                    /* if lighting if enabled for outlining, we can render    */
+                    /* the outlines with some sort of antialiasing effect     */
+                    /* by combining with the object material color. It does   */
+                    /* not work when outline lighting is disabled because     */
+                    /* the diffuse color we use is from BEFORE the lighting   */
+                    /* and thus the antialised pixel will look different from */
+                    /* the final material aspect with the lighting. */
+                    float mix = dist / wireframeThickness;
+
+                    diffuse->r = (float) diffuse->r * mix + (float) ( 1.0f - mix ) * R;
+                    diffuse->g = (float) diffuse->g * mix + (float) ( 1.0f - mix ) * G;
+                    diffuse->b = (float) diffuse->b * mix + (float) ( 1.0f - mix ) * B;
+                    diffuse->a = (float) diffuse->a * mix + (float) ( 1.0f - mix ) * A;
+
                     qray->flags |= Q3DRAY_OUTLINED_BIT;
                 }
             }
@@ -1121,32 +1186,31 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                 }
             }
 
-            /*if ( query_flags & RAYQUERYSURFACECOLOR ) {*/
-
+            /*** if outline lighting is enabled, we draw the outline before ***/
+            /*** lighting computation ***/
+            if ( query_flags & RAYQUERYOUTLINE ) {
                 if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
-                    Q3DZBUFFER zout;
+                    if ( qjob->qrsg->flags & WIREFRAMELIGHTING ) {
+                        Q3DZBUFFER zout;
 
-                    q3darea_getZBuffer ( &qjob->qarea, 
-                                          qray->x, 
-                                          qray->y,
-                                         &zout );
+                        q3darea_getZBuffer ( &qjob->qarea, 
+                                              qray->x, 
+                                              qray->y,
+                                             &zout );
 
-                    q3dray_outline ( qray,
-                                     qjob,
-                                     qjob->qarea.qzen.WMVX[zout.wmvxID], 
-                                     qjob->qcam->PJX,
-                                     qjob->qcam->VPX,
-                                     0.01f,
-                                     2.0f,
-                                     frame  );
-
-                    if ( qray->flags & Q3DRAY_OUTLINED_BIT ) {
-                        return 0x00;
+                        q3dray_outline ( qray,
+                                         qjob,
+                                         qjob->qarea.qzen.WMVX[zout.wmvxID], 
+                                         qjob->qcam->PJX,
+                                         qjob->qcam->VPX,
+                                         0.01f,
+                                         qjob->qrsg->wireframe.thickness,
+                                        &materialDiffuse,
+                                         qjob->qrsg->wireframe.color,
+                                         frame  );
                     }
                 }
-
-            /*}*/
-
+            }
 
             if ( ( query_flags & RAYQUERYLIGHTING ) &&
                  ( qobj->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
@@ -1166,6 +1230,32 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) + lightSpecular.r;
             diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) + lightSpecular.g;
             diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) + lightSpecular.b;
+
+            /*** if outline lighting is disabled, we draw the outline after ***/
+            /*** lighting computation ***/
+            if ( query_flags & RAYQUERYOUTLINE ) {
+                if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
+                    if ( ( qjob->qrsg->flags & WIREFRAMELIGHTING ) == 0x00 ) {
+                        Q3DZBUFFER zout;
+
+                        q3darea_getZBuffer ( &qjob->qarea, 
+                                              qray->x, 
+                                              qray->y,
+                                             &zout );
+
+                        q3dray_outline ( qray,
+                                         qjob,
+                                         qjob->qarea.qzen.WMVX[zout.wmvxID], 
+                                         qjob->qcam->PJX,
+                                         qjob->qcam->VPX,
+                                         0.01f,
+                                         qjob->qrsg->wireframe.thickness,
+                                        &diffuse,
+                                         qjob->qrsg->wireframe.color,
+                                         frame  );
+                    }
+                }
+            }
 
             if ( diffuse.r > 0xFF ) diffuse.r = 0xFF;
             if ( diffuse.g > 0xFF ) diffuse.g = 0xFF;
