@@ -297,6 +297,10 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
              height = gtk_widget_get_allocated_height ( ggt->curogl );
     GtkView *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
+    /*** We recreate the XImage for each rendering because the viewing window ***/
+    /*** size could change in between. So, clear() and init() ***/
+    g3duirenderbuffer_clear ( &gvw->view.rbuf );
+
     g3duirenderbuffer_init ( &gvw->view.rbuf, 
                               ggt->curogl );
 #ifdef __linux__
@@ -345,6 +349,7 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
     viewRsg.output.startframe = gui->curframe;
 
     viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME |
+                                           DISABLETEXTURING |
                                            WIREFRAMELIGHTING |
                                            ENABLEAA        |
                                            RENDERDOF       |

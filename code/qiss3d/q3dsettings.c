@@ -472,6 +472,36 @@ static uint32_t q3dsettings_fog ( G3DEXPORTV3DATA  *ged,
 }
 
 /******************************************************************************/
+static uint32_t q3dsettings_texturingColor ( G3DEXPORTV3DATA *ged,
+                                             Q3DSETTINGS     *rsg,
+                                             uint32_t         flags, 
+                                             FILE            *fdst ) {
+    uint32_t size = 0x00;
+    uint32_t color = g3drgba_toLong ( &rsg->defaultColor );
+
+    size += g3dexportv3_fwritel ( &color, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t q3dsettings_texturing ( G3DEXPORTV3DATA *ged,
+                                        Q3DSETTINGS     *rsg,
+                                        uint32_t         flags, 
+                                        FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_TEXTURING_COLOR,
+                                     EXPORT_CALLBACK(q3dsettings_texturingColor),
+                                     ged,
+                                     rsg,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t q3dsettings_aaSamples ( G3DEXPORTV3DATA *ged,
                                         Q3DAASETTINGS   *aas,
                                         uint32_t         flags, 
@@ -589,6 +619,13 @@ static uint32_t q3dsettings_entry ( G3DEXPORTV3DATA *ged,
                                        0xFFFFFFFF,
                                        fdst );
     }
+
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_TEXTURING,
+                                     EXPORT_CALLBACK(q3dsettings_texturing),
+                                     ged,
+                                     rsg,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( rsg->flags & ENABLEAA ) {
         size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_AA,
@@ -746,6 +783,18 @@ void q3dsettings_read ( G3DIMPORTV3DATA *gid,
                 g3dimportv3_freadf ( &rsg->motionBlur.vMotionBlurSubSamplingRate, fsrc );
             } break;
 
+            case SIG_RENDERSETTINGS_TEXTURING : {
+                printf ( "render fog settings found\n" );
+            } break;
+
+            case SIG_RENDERSETTINGS_TEXTURING_COLOR : {
+                uint32_t color;
+
+                g3dimportv3_freadl ( &color, fsrc );
+
+                g3drgba_fromLong ( &rsg->defaultColor, color );
+            } break;
+
             case SIG_RENDERSETTINGS_FOG : {
                 printf ( "render fog settings found\n" );
             } break;
@@ -851,6 +900,10 @@ Q3DSETTINGS *q3dsettings_new ( ) {
 
     rsg->aa.mode      = AAEDGEMODE;
     rsg->aa.nbsamples = 0x05;
+
+    rsg->defaultColor.r = 0x80;
+    rsg->defaultColor.g = 0x80;
+    rsg->defaultColor.b = 0x80;
 
     rsg->lfilter     = NULL;
 

@@ -82,6 +82,10 @@
 #define EDITRENDERFOGCOLOR             "Color"
 #define EDITRENDERFOGSTRENGTH          "Strength"
 
+#define EDITRENDERTEXTURINGFRAME       "Texturing"
+#define EDITRENDERTEXTURINGCOLOR       "Mesh default color"
+#define EDITRENDERTEXTURING            "Disable texturing"
+
 /******************************************************************************/
 typedef struct _G3DUIRENDEREDIT {
     G3DUIWIDGETGROUP grp;
@@ -127,6 +131,9 @@ typedef struct _G3DUIRENDEREDIT {
     GtkWidget       *fogFarEntry;
     GtkWidget       *fogColorButton;
     GtkWidget       *fogStrengthEntry;
+
+    GtkWidget       *texturingDisabledToggle;
+    GtkWidget       *texturingColorButton;
 
     GtkWidget       *aliasingEnabledToggle;
     GtkWidget       *aliasingEdgeRadio;
@@ -964,6 +971,89 @@ static GtkWidget *createWireframeForm ( GtkWidget       *parent,
 }
 
 /******************************************************************************/
+static void updateTexturingFrame ( G3DUIRENDEREDIT *red ) {
+    G3DUI *gui = red->grp.gui;
+    Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
+    GdkRGBA rgba = { .red   = ( float ) rsg->defaultColor.r / 255,
+                     .green = ( float ) rsg->defaultColor.g / 255,
+                     .blue  = ( float ) rsg->defaultColor.b / 255,
+                     .alpha = 1.0f };
+
+
+    gui->lock = 0x01;
+
+    if ( rsg->flags & DISABLETEXTURING ) {
+        gtk_toggle_button_set_active ( red->texturingDisabledToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( red->texturingDisabledToggle, FALSE );
+    }
+
+    gtk_color_chooser_set_rgba ( red->texturingColorButton, &rgba );
+
+
+    gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void texturingColorCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+    GdkRGBA color;
+
+    gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
+
+    common_g3duirenderedit_texturingColorCbk ( gui, ( color.red   * 255 ), 
+                                                    ( color.green * 255 ),
+                                                    ( color.blue  * 255 ) );
+}
+
+/******************************************************************************/
+static void setTexturingCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUIRENDEREDIT *red = ( G3DUIRENDEREDIT * ) user_data;
+    G3DUI *gui = red->grp.gui;
+
+    common_g3duirenderedit_setTexturingCbk ( gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createTexturingForm ( GtkWidget       *parent, 
+                                        G3DUIRENDEREDIT *red,
+                                        char            *name,
+                                        gint             x,
+                                        gint             y,
+                                        gint             width,
+                                        gint             height ) {
+    G3DUI *gui = red->grp.gui;
+    GtkWidget *frm;
+
+    frm = createFrame ( parent, red, name, x, y, width, height );
+
+    gui->lock = 0x01;
+
+    red->texturingDisabledToggle = createToggleLabel ( frm,
+                                                       red,
+                                                       EDITRENDERTEXTURING,
+                                                       0,  0, 96, 18,
+                                                       setTexturingCbk );
+
+          createSimpleLabel ( frm,
+                              red,
+                              EDITRENDERTEXTURINGCOLOR,
+                              0, 24, 96, 20 );
+
+    red->texturingColorButton = createColorButton ( frm, 
+                                                    red,
+                                                    EDITRENDERTEXTURINGCOLOR,
+                                                    96, 24, 96, 18, 
+                                                    texturingColorCbk );
+
+    gui->lock = 0x00;
+
+    return frm;
+}
+
+
+/******************************************************************************/
 static void updateFogFrame ( G3DUIRENDEREDIT *red ) {
     G3DUI *gui = red->grp.gui;
     Q3DSETTINGS *rsg = ( red->editedRsg ) ? red->editedRsg : gui->currsg;
@@ -1390,6 +1480,7 @@ void updateEffectsPanel ( G3DUIRENDEREDIT *red ) {
     updateMotionBlurFrame ( red );
     updateWireframeFrame  ( red );
     updateFogFrame        ( red );
+    updateTexturingFrame  ( red );
 }
 
 /******************************************************************************/
@@ -1418,12 +1509,17 @@ void createEffectsPanel ( GtkWidget       *parent,
     createWireframeForm ( pan, 
                           red,
                           EDITRENDERWIREFRAMEFRAME,
-                          0, 128, 256,  96 );
+                          0, 108, 256,  96 );
 
     createFogForm ( pan,
                     red,
                     EDITRENDERFOGFRAME,
-                    0, 256, 256,  96 );
+                    0, 220, 256,  96 );
+
+    createTexturingForm ( pan,
+                          red,
+                          EDITRENDERTEXTURINGFRAME,
+                          0, 376, 256,  96 );
 }
 
 /******************************************************************************/

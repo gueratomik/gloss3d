@@ -1710,6 +1710,13 @@ void common_g3duirenderedit_aaFullCbk    ( G3DUI *gui );
 void common_g3duirenderedit_aaEdgeCbk    ( G3DUI *gui );
 void common_g3duirenderedit_aaSamplesCbk ( G3DUI *gui, uint32_t nbsamples );
 
+void common_g3duirenderedit_texturingColorCbk ( G3DUI        *gui, 
+                                                unsigned char R, 
+                                                unsigned char G, 
+                                                unsigned char B );
+
+void common_g3duirenderedit_setTexturingCbk ( G3DUI *gui );
+
 /******************************************************************************/
 void common_g3duiparticleemitteredit_displayPartCbk ( G3DUI              *gui, 
                                                       G3DPARTICLEEMITTER *pem );

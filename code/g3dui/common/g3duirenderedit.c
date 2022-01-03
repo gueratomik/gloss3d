@@ -124,6 +124,33 @@ void common_g3duirenderedit_setMotionBlurCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void common_g3duirenderedit_setTexturingCbk ( G3DUI *gui ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    if ( rsg->flags & DISABLETEXTURING ) {
+        rsg->flags = (rsg->flags & ~DISABLETEXTURING);
+    } else {
+        rsg->flags = (rsg->flags | DISABLETEXTURING);
+    }
+}
+
+/******************************************************************************/
+void common_g3duirenderedit_texturingColorCbk ( G3DUI        *gui, 
+                                                unsigned char R, 
+                                                unsigned char G, 
+                                                unsigned char B ) {
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->lock ) return; /*** prevent a loop ***/
+
+    rsg->defaultColor.r = R;
+    rsg->defaultColor.g = G;
+    rsg->defaultColor.b = B;
+}
+
+/******************************************************************************/
 void common_g3duirenderedit_setWireframeCbk ( G3DUI *gui ) {
     Q3DSETTINGS *rsg = gui->currsg;
 

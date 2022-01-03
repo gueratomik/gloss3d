@@ -996,6 +996,8 @@ GtkWidget *createParticleEmitterEdit ( GtkWidget *parent,
                                        gint       width,
                                        gint       height );
 
+void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
+
 /******************************************************************************/
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );

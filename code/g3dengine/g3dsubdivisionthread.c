@@ -192,6 +192,11 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                      sdt->engine_flags );
     }
 
+    if ( sdt->engine_flags & G3DMULTITHREADING ) {
+        /*** this is needed for memory release ***/
+        pthread_exit ( NULL );
+    }
+
     /** COMMENTED OUT - now done by the caller ***/
     /*g3dsubdivisionthread_free ( sdt );*/
     return NULL;

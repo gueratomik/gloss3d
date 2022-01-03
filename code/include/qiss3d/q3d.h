@@ -179,6 +179,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define RENDERFOG         ( 1 <<  8 )
 #define RENDERDOF         ( 1 <<  9 )
 #define ENABLEAA          ( 1 << 10 )
+#define DISABLETEXTURING  ( 1 << 11 )
 
 /******************************************************************************/
 #define RENDERTOIMAGE 0x00
@@ -216,6 +217,8 @@ typedef G3DRGBA         Q3DRGBA;
 #define SIG_RENDERSETTINGS_AA                                   0x18000000
 #define SIG_RENDERSETTINGS_AA_MODE                                 0x18100000 /* uint32_t */
 #define SIG_RENDERSETTINGS_AA_SAMPLES                              0x18200000 /* uint32_t */
+#define SIG_RENDERSETTINGS_TEXTURING                            0x19000000
+#define SIG_RENDERSETTINGS_TEXTURING_COLOR                          0x19100000
 
 /******************************************************************************/
 #define Q3DFREE_CALLBACK(f)      ((void(*)(Q3DOBJECT*))f)
@@ -381,6 +384,7 @@ typedef struct _Q3DSETTINGS {
     Q3DDOFSETTINGS        dof;
     Q3DAASETTINGS         aa;
     LIST                 *lfilter;
+    Q3DRGBA               defaultColor; /*** default color ***/
 #ifdef __MINGW32__
     COMPVARS              cvars;
 #endif
@@ -1225,6 +1229,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DTRIANGLE *qtri,
                                   Q3DAREA     *qarea,
                                   float        backgroundImageWidthRatio,
+                                  Q3DRGBA     *defaultColor,
                                   Q3DRGBA     *diffuse,
                                   Q3DRGBA     *specular,
                                   Q3DRGBA     *reflection,

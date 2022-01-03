@@ -762,12 +762,16 @@ void q3dzengine_drawObject_r ( Q3DZENGINE *qzen,
 
 /******************************************************************************/
 void q3dzengine_reset ( Q3DZENGINE *qzen ) {
-    free ( qzen->buffer );
-    free ( qzen->hlines );
+    if ( qzen->buffer ) free ( qzen->buffer );
+    if ( qzen->hlines ) free ( qzen->hlines );
 
     if ( qzen->WMVX ) free ( qzen->WMVX );
 
     qzen->wmvxID = 0x00;
+
+    qzen->buffer = NULL;
+    qzen->hlines = NULL;
+    qzen->WMVX = NULL;
 }
 
 /******************************************************************************/
@@ -779,6 +783,8 @@ void q3dzengine_init ( Q3DZENGINE *qzen,
                        uint32_t    width,
                        uint32_t    height ) {
     uint32_t i;
+
+    q3dzengine_reset ( qzen );
 
     if ( width && height ) {
         qzen->buffer = ( Q3DZBUFFER * ) calloc ( height *

@@ -157,6 +157,16 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
 
     ReleaseDC ( rbuf->hWnd, dc );
 }
+
+/******************************************************************************/
+void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf) {
+    if ( rbuf->wimg ) {
+        DeleteObject ( ( HGDIOBJ ) rbuf->wimg->hBmp );
+        free ( rbuf->wimg );
+
+        rbuf->wimg = NULL;
+    }
+}
 #endif
 
 /******************************************************************************/
@@ -232,6 +242,18 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                                rbuf->win, 
                                rbuf->gc, 
                               &rbuf->ssi );
+}
+
+/******************************************************************************/
+void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf ) {
+    if ( rbuf->ximg ) {
+        XFreeGC ( rbuf->dis, rbuf->gc );
+        XShmDetach ( rbuf->dis, &rbuf->ssi );
+        XDestroyImage ( rbuf->ximg );
+        shmdt ( rbuf->ssi.shmaddr );
+
+        rbuf->ximg = NULL;
+    }
 }
 #endif
 
@@ -818,6 +840,10 @@ static gboolean wDestroy ( GtkWidget *widget,
 #ifdef __linux__
     XSync  ( grw->rbuf.dis, 0 );
     XFlush ( grw->rbuf.dis );
+#endif
+#ifdef __MINGW32__
+    /*** nothing here ***/
+#endif
 
     if ( filtertostatusbar_getStatus ( grw->tostatus ) == 0x00 ) {
         /*** noe: grw->rps can be NULL e.g if FFMpeg is ***/
@@ -827,15 +853,7 @@ static gboolean wDestroy ( GtkWidget *widget,
         }
     }
 
-    XFreeGC ( grw->rbuf.dis, grw->rbuf.gc );
-    XShmDetach ( grw->rbuf.dis, &grw->rbuf.ssi );
-    XDestroyImage ( grw->rbuf.ximg );
-    shmdt ( grw->rbuf.ssi.shmaddr );
-#endif
-#ifdef __MINGW32__
-    DeleteObject ( ( HGDIOBJ ) grw->rbuf.wimg->hBmp );
-    free ( grw->rbuf.wimg );
-#endif
+    g3duirenderbuffer_clear ( &grw->rbuf );
 
     q3dfilter_free ( grw->tostatus );
 

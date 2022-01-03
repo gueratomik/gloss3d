@@ -540,6 +540,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DTRIANGLE *qtri,
                                   Q3DAREA     *qarea,
                                   float        backgroundImageWidthRatio,
+                                  Q3DRGBA     *defaultColor,
                                   Q3DRGBA     *diffuse,
                                   Q3DRGBA     *specular,
                                   Q3DRGBA     *reflection,
@@ -683,7 +684,9 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
         diffuse->b /= divDiffuse;
         diffuse->a /= divDiffuse;
     } else {
-        diffuse->r = diffuse->g = diffuse->b = MESHCOLORUB;
+        diffuse->r = defaultColor->r;
+        diffuse->g = defaultColor->g; 
+        diffuse->b = defaultColor->b;
     }
 
     if ( divSpecular ) {
@@ -1067,36 +1070,42 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
         }
 
         if ( qray->flags & Q3DRAY_HAS_HIT_BIT ) {
-            Q3DRGBA materialDiffuse    = { 0x80, 0x80, 0x80, 0x80 }, 
-                    materialSpecular   = { 0x80, 0x80, 0x80, 0x80 },
-                    materialReflection = { 0x80, 0x80, 0x80, 0x80 },
-                    materialRefraction = { 0x80, 0x80, 0x80, 0x80 },
-                    materialAlpha      = { 0x80, 0x80, 0x80, 0x80 };
-            Q3DRGBA lightDiffuse       = { 0x80, 0x80, 0x80, 0x80 },
+            Q3DRGBA materialDiffuse    = { qjob->qrsg->defaultColor.r, 
+                                           qjob->qrsg->defaultColor.g, 
+                                           qjob->qrsg->defaultColor.b, 0x00 }, 
+                    materialSpecular   = { 0x00, 0x00, 0x00, 0x00 },
+                    materialReflection = { 0x00, 0x00, 0x00, 0x00 },
+                    materialRefraction = { 0x00, 0x00, 0x00, 0x00 },
+                    materialAlpha      = { 0xFF, 0xFF, 0xFF, 0xFF };
+            Q3DRGBA lightDiffuse       = { 0x00, 0x00, 0x00, 0x00 },
                     lightSpecular      = { 0x00, 0x00, 0x00, 0x00 };
-            Q3DRGBA diffuse            = { 0x80, 0x80, 0x80, 0x80 };
+            Q3DRGBA diffuse            = { 0x00, 0x00, 0x00, 0x00 };
 
             if ( query_flags & RAYQUERYSURFACECOLOR ) {
                 G3DMESH *mes  = ( G3DMESH * ) q3dobject_getObject ( qobj );
-                float alphaOpacity;
+                float alphaOpacity = 1.0f;
 
-                q3dray_getSurfaceColor ( qray, 
-                                         qobj,
-                                         qtri,
-                                        &qjob->qarea,
-                                         qjob->qrsg->background.widthRatio,
-                                        &materialDiffuse,
-                                        &materialSpecular,
-                                        &materialReflection,
-                                        &materialRefraction,
-                                        &materialAlpha,
-                                        &alphaOpacity,
-                                         mes->ltex, 
-                                         query_flags );
+                if ( ( qjob->qrsg->flags & DISABLETEXTURING ) == 0x00 ) {
+                    q3dray_getSurfaceColor ( qray, 
+                                             qobj,
+                                             qtri,
+                                            &qjob->qarea,
+                                             qjob->qrsg->background.widthRatio,
+                                            &qjob->qrsg->defaultColor,
+                                            &materialDiffuse,
+                                            &materialSpecular,
+                                            &materialReflection,
+                                            &materialRefraction,
+                                            &materialAlpha,
+                                            &alphaOpacity,
+                                             mes->ltex, 
+                                             query_flags );
 
-                q3dray_bump ( qray,
-                              frame,
-                              mes->ltex );
+
+                    q3dray_bump ( qray,
+                                  frame,
+                                  mes->ltex );
+                }
 
                 if ( ( query_flags & RAYQUERYREFLECTION ) && nbhop ) {
                     if ( ( materialReflection.r > 0x00 ) &&
