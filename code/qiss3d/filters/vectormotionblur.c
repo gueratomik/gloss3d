@@ -380,9 +380,15 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                 uint32_t zoffset = ( ysrc * fvmb->width ) + xsrc;
                 unsigned char R, G, B, AR, AG, AB;
 
-               /* if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
+                /*** Note: those 2 lines insure that the reference triangle ***/
+                /*** is precisely the original triangle, even though this   ***/
+                /*** should not be needed because the calculation should be ***/
+                /*** precise enough to match the original triangle. However ***/
+                /*** when this is commented, there are more artefacts than  ***/
+                /*** with it. But the result is not as good as with.        ***/
+                /*if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
                      ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
-                    if ( z < fvmb->zbuffer[zoffset].z ) {
+                    if ( z < fvmb->zbuffer[aoffset].z ) {
                         switch ( fvmb->bpp ) {
                             case 0x18 : {
                                 unsigned char (*srcimg)[0x03] = fvmb->img;
@@ -443,6 +449,7 @@ static void filtervmb_drawTriangle ( Q3DFILTER   *qfil,
 
     for ( i = 0x00; i < 0x03; i++ ) {
         uint32_t n = ( i + 0x01 ) % 0x03;
+
         VMBZPOINT pt1 = { .x = vtri->pnt[i].x,
                           .y = vtri->pnt[i].y,
                           .z = vtri->pnt[i].z,
@@ -623,13 +630,18 @@ vmbtriangle_print ( dstTri, i, p );
                         float pos = ( float ) j / iter;
                         VMBTRIANGLE itrTri = { .pnt[0x00].x = srcTri->pnt[0].x + ( mvec[0].x * pos ),
                                                .pnt[0x00].y = srcTri->pnt[0].y + ( mvec[0].y * pos ),
+                                               .pnt[0x00].z = 0.0f,
                                                .pnt[0x01].x = srcTri->pnt[1].x + ( mvec[1].x * pos ),
                                                .pnt[0x01].y = srcTri->pnt[1].y + ( mvec[1].y * pos ),
+                                               .pnt[0x01].z = 0.0f,
                                                .pnt[0x02].x = srcTri->pnt[2].x + ( mvec[2].x * pos ),
-                                               .pnt[0x02].y = srcTri->pnt[2].y + ( mvec[2].y * pos ) };
+                                               .pnt[0x02].y = srcTri->pnt[2].y + ( mvec[2].y * pos ),
+                                               .pnt[0x02].z = 0.0f };
                         float opacity = srcOpacity + ( stepOpacity  * j );
 /*printf("%f\n", opacity);*/
 
+                        /*** small trick to increase blending on  ***/
+                        /*** frames close to the middle frame ***/
                         if ( opacity > 0.5f ) {
                             opacity = sin ( opacity * M_PI * 0.5 );
                             opacity = sin ( opacity * M_PI * 0.5 );

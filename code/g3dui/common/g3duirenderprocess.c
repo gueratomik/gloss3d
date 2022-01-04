@@ -30,22 +30,20 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
-#ifdef unusedQISS3D
-    Q3DFILTER *fil = q3djob_getFilter ( rps->qjob, TOBUFFERFILTERNAME );
-
-    if ( fil ) {
-
-        FILTERTOBUFFER *ftb = ( FILTERTOBUFFER * ) fil->data;
-
-        r3draw_to_jpg ( ftb->rawimg, ftb->width,
-                                     ftb->height,
-                                     ftb->depth,
-                                     filename );
-
-    } else {
-        fprintf ( stderr, "No buffer filter found !\n" );
-    }
+void g3duirenderbuffer_savejpg ( G3DUIRENDERBUFFER *rps, char *filename ) {
+#ifdef __linux__
+    r3draw_to_jpg ( ftb->rawimg, 
+                    rbuf->ximg->width,
+                    rbuf->ximg->height,
+                    ftb->depth,
+                    filename );
+#endif
+#ifdef __MINGW32__
+    r3draw_to_jpg ( ftb->rawimg, 
+                    ftb->width,
+                    ftb->height,
+                    ftb->depth,
+                    filename );
 #endif
 }
 

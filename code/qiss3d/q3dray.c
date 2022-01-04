@@ -477,13 +477,15 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                         qray->x;
 
                     if ( qjob->qarea.qssh[offset].count ) {
-                        shadow = qjob->qarea.qssh[offset].average;
+                        shadow += qjob->qarea.qssh[offset].average;
                     } else {
-                        shadow = 0.0f;
+                        shadow += 0.0f;
                     }
                 }
             }
         }
+
+        if ( shadow > 1.0f ) shadow = 1.0f;
 
         if ( query_flags & RAYQUERYSHADING ) {
             if ( lig->obj.flags & SPOTLIGHT ) {
