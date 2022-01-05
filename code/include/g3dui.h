@@ -581,6 +581,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_BGFILL               "Fill with background color"
 #define MENU_RESIZEIMAGE          "Resize image"
 
+#define RWMENU_SAVEJPG           "Save as JPEG"
+#define RWMENU_SAVEPNG           "Save as PNG"
+#define RWMENU_CLOSE             "Close window"
+
 #define VIEWMENU_LIGHTING        "Lights on"
 #define VIEWMENU_BACKGROUND      "Show background"
 #define VIEWMENU_TEXTURES        "Show textures"
@@ -1546,7 +1550,8 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,
-                                              uint32_t     sequence );
+                                              uint32_t     sequence,
+                                              uint64_t     job_flags );
 
 /******************************************************************************/
 uint32_t g3dui_write ( G3DEXPORTV3DATA *ged, 

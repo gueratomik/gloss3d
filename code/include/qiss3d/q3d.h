@@ -149,8 +149,9 @@ typedef G3DRGBA         Q3DRGBA;
 
 /******************************** Job Flags ***********************************/
 #define JOBRENDERSOFTSHADOWS ( 1 << 1 )
+#define JOBFREEONCOMPLETION  ( 1 << 2  )
 #define NOFREEFILTERS        ( 1 << 15 )
-
+#define JOBISRENDERING       ( 1 << 4  )
 
 /******************************************************************************/
 #define VECTORMOTIONBLURFILTERNAME "Vector Motion Blur"

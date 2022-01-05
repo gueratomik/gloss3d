@@ -178,6 +178,10 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                                       ( qver[qverID[1]].nor.z * RAT1 ) +
                                       ( qver[qverID[2]].nor.z * RAT2 );
 
+                    qray->isx.dir.x *= invert;
+                    qray->isx.dir.y *= invert;
+                    qray->isx.dir.z *= invert;
+
                     qray->isx.qsur = qtri;
 
                     memcpy ( &qray->isx.locsrc, 

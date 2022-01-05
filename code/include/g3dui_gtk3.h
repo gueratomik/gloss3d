@@ -121,6 +121,20 @@ typedef struct _G3DUIWIDGETGROUP {
 } G3DUIWIDGETGROUP;
 
 /******************************************************************************/
+typedef struct _G3DUIRENDERWINDOW {
+    G3DUIWIDGETGROUP    grp;
+    GtkWidget          *menuBar;
+    GtkWidget          *fileMenu;
+    GtkWidget          *drawingArea;
+    GtkWidget          *scrolledWindow;
+    GtkWidget          *statusBar;
+    GtkWidget          *topLevel;
+    Q3DFILTER          *tostatus;
+    G3DUIRENDERPROCESS *rps;
+    G3DUIRENDERBUFFER   rbuf;
+} G3DUIRENDERWINDOW;
+
+/******************************************************************************/
 typedef struct _G3DUITIMELINE {
     G3DUIWIDGETGROUP grp;
     TIMELINEDATA    *tdata;
@@ -797,6 +811,14 @@ void l3dui_undoCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
 void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
+
+GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
+                                       G3DUIRENDERWINDOW *rwn,
+                                       char              *name,
+                                       gint               x,
+                                       gint               y,
+                                       gint               width,
+                                       gint               height );
 
 GtkWidget *createOptionMenu ( GtkWidget *parent, 
                               GtkWidget *gvw,

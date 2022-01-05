@@ -62,7 +62,8 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                                               G3DCAMERA   *cam,
                                               float        resetFrame,
                                               uint64_t     id,
-                                              uint32_t     sequence ) {
+                                              uint32_t     sequence,
+                                              uint64_t     job_flags ) {
     G3DSCENE *sce = gui->sce;
 
     /*** Don't start a new render before the current one has finished ***/
@@ -87,7 +88,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                             toframe, 
                             tostatus, 
                             makepreview, 
-                            0x00 );
+                            job_flags );
 
         /*** Remember the thread id for cancelling on mouse input e.g ***/
         /*** We use the widget as an ID ***/

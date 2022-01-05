@@ -236,6 +236,109 @@ static void updateMenu_r ( G3DUIMENU *node,
 }
 
 /******************************************************************************/
+static void g3duirenderwindow_saveJPGCbk ( GtkWidget *widget, 
+                                           gpointer   user_data ) {
+    G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
+    G3DUIGTK3 *ggt = grw->grp.gui->toolkit_data;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Save image ...",
+                                           GTK_WINDOW(ggt->top),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
+                                                     TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        G3DUIRENDERPROCESS *rps = grw->rps;
+
+        if ( rps ) {
+            g3duirenderprocess_savejpg ( rps, filename );
+        }
+
+        g_free    ( filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+static void g3duirenderwindow_closeCbk ( GtkWidget *widget, 
+                                         gpointer   user_data ) {
+    G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
+
+    gtk_widget_destroy ( grw->topLevel );
+}
+
+/******************************************************************************/
+static G3DUIMENU rw_menu_close   = { RWMENU_CLOSE,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     g3duirenderwindow_closeCbk };
+
+/*static G3DUIMENU rw_menu_savepng = { RWMENU_SAVEPNG,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     g3duirenderwindow_savePNGCbk };*/
+
+static G3DUIMENU rw_menu_savejpg = { RWMENU_SAVEJPG,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     g3duirenderwindow_saveJPGCbk };
+
+/******************************************************************************/
+static G3DUIMENU rw_file_menu = { "_File",
+                                  G3DUIMENUTYPE_SUBMENU,
+                                  NULL,
+                                  NULL,
+                                 .nodes = { /*&rw_menu_savepng,*/
+                                            &rw_menu_savejpg,
+                                            &rw_menu_close,
+                                             NULL } };
+
+/******************************************************************************/
+/******************************************************************************/
+static G3DUIMENU renderwindowrootnode = { "Bar",
+                                          G3DUIMENUTYPE_MENUBAR,
+                                          NULL,
+                                          NULL,
+                                         .nodes = { &rw_file_menu,
+                                                     NULL } };
+
+/******************************************************************************/
+/******************************************************************************/
+GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
+                                       G3DUIRENDERWINDOW *rwn,
+                                       char              *name,
+                                       gint               x,
+                                       gint               y,
+                                       gint               width,
+                                       gint               height ) {
+    GdkRectangle gdkrec = { x, y, width, height };
+
+    parseMenu_r ( &renderwindowrootnode, NULL, rwn );
+
+    gtk_widget_size_allocate ( renderwindowrootnode.menu, &gdkrec );
+    gtk_fixed_put ( GTK_FIXED(parent), renderwindowrootnode.menu, x, y );
+
+    gtk_widget_show ( renderwindowrootnode.menu );
+
+
+    return renderwindowrootnode.menu;
+}
+
+/******************************************************************************/
 void g3duitimeline_deleteKeysCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
 

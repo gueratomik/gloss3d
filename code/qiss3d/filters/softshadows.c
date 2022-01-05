@@ -99,11 +99,11 @@ static void sss ( Q3DSOFTSHADOW *qssh,
                      ( ty > 0x00 ) && ( ty < height ) ) {
                     uint32_t toffset = ( ty * width ) + tx;
 
-                    /*if ( qssh[toffset].qobjID == qssh[offset].qobjID ) {
+                    /*if ( qssh[toffset].qobjID == qssh[offset].qobjID ) {*/
                         shadow +=  qssh[toffset].shadow;
 
                         nbs++;
-                    }*/
+                    /*}*/
                 }
             }
 

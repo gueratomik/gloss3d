@@ -519,7 +519,7 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
                      Q3DFILTER   *toframe,
                      Q3DFILTER   *tostatus,
                      Q3DFILTER   *makepreview,
-                     uint64_t     flags ) {
+                     uint64_t     job_flags ) {
     uint32_t structsize = sizeof ( Q3DJOB );
     uint32_t bytesperline = ( qrsg->output.width * 0x03 );
     Q3DJOB *qjob;
@@ -539,6 +539,8 @@ Q3DJOB *q3djob_new ( Q3DSETTINGS *qrsg,
 
         return NULL;
     }
+
+    qjob->flags = job_flags;
 
     qjob->qrsg  = qrsg;
     qjob->nbcpu = g3dcore_getNumberOfCPUs ( );
@@ -582,7 +584,9 @@ void q3djob_render_sequence ( Q3DJOB *qjob ) {
                 q3djob_prepare ( qjob, sce, cam, i );
 
                 /*** Render the current frame ***/
+
                 q3djob_render ( qjob );
+
             }
         }
     }
@@ -590,7 +594,9 @@ void q3djob_render_sequence ( Q3DJOB *qjob ) {
     qjob->running  = 0x00;
     qjob->threaded = 0x00;
 
-    q3djob_free ( qjob );
+    if ( qjob->flags & JOBFREEONCOMPLETION ) {
+        q3djob_free ( qjob );
+    }
 }
 
 /******************************************************************************/
@@ -610,8 +616,9 @@ void q3djob_render_frame ( Q3DJOB *qjob ) {
     qjob->running  = 0x00;
     qjob->threaded = 0x00;
 
-    q3djob_free ( qjob );
-
+    if ( qjob->flags & JOBFREEONCOMPLETION ) {
+        q3djob_free ( qjob );
+    }
 }
 
 /******************************************************************************/
@@ -628,6 +635,8 @@ void q3djob_render ( Q3DJOB *qjob ) {
 
         return;
     }
+
+    qjob->flags |= JOBISRENDERING;
 
     doRender = q3djob_filterbefore ( qjob, 
                                      0x00, 
@@ -682,4 +691,6 @@ void q3djob_render ( Q3DJOB *qjob ) {
     t = clock() - t;
 
     printf ("Render took %f seconds.\n", ( float ) t / ( CLOCKS_PER_SEC * qjob->nbcpu ) );
+
+    qjob->flags &= (~JOBISRENDERING);
 }

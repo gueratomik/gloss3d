@@ -366,7 +366,8 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
                                     cam,
                                     gui->curframe,
                        ( uint64_t ) ggt->curogl,
-                                    0x00 );
+                                    0x00,
+                                    JOBFREEONCOMPLETION );
 
     g3dui_unsetHourGlass ( gui );
 }

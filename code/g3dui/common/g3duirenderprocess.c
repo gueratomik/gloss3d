@@ -30,21 +30,12 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void g3duirenderbuffer_savejpg ( G3DUIRENDERBUFFER *rps, char *filename ) {
-#ifdef __linux__
-    r3draw_to_jpg ( ftb->rawimg, 
-                    rbuf->ximg->width,
-                    rbuf->ximg->height,
-                    ftb->depth,
-                    filename );
-#endif
-#ifdef __MINGW32__
-    r3draw_to_jpg ( ftb->rawimg, 
-                    ftb->width,
-                    ftb->height,
-                    ftb->depth,
-                    filename );
-#endif
+void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
+    g3dcore_writeJpeg ( filename,
+                        rps->qjob->qarea.width,
+                        rps->qjob->qarea.height,
+                        rps->qjob->qarea.depth,
+                        rps->qjob->img );
 }
 
 /******************************************************************************/
@@ -94,13 +85,17 @@ void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
 
 /******************************************************************************/
 void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
+    uint32_t qjob_flags = rps->qjob->flags;
+
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
     q3djob_render_frame ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
-    g3duirenderprocess_free ( rps );
+    if ( qjob_flags & JOBFREEONCOMPLETION ) {
+        g3duirenderprocess_free ( rps );
+    }
 
     /*** this is needed for memory release ***/
     pthread_exit ( NULL );
@@ -110,13 +105,17 @@ void *g3duirenderprocess_render_frame_t ( G3DUIRENDERPROCESS *rps ) {
 
 /******************************************************************************/
 void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
+    uint32_t qjob_flags = rps->qjob->flags;
+
     rps->gui->engine_flags |= LOADFULLRESIMAGES;
 
     q3djob_render_sequence ( rps->qjob );
 
     rps->gui->engine_flags &= (~LOADFULLRESIMAGES);
 
-    g3duirenderprocess_free ( rps );
+    if ( qjob_flags & JOBFREEONCOMPLETION ) {
+        g3duirenderprocess_free ( rps );
+    }
 
     /*** this is needed for memory release ***/
     pthread_exit ( NULL );
