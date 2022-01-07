@@ -1862,6 +1862,14 @@ void common_g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUI              *g
 void common_g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUI              *gui,
                                                            G3DPARTICLEEMITTER *pem,
                                                            float               initialVarAccelZ );
-
+void common_g3duiparticleemitteredit_gravityForceXCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g );
+void common_g3duiparticleemitteredit_gravityForceYCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g );
+void common_g3duiparticleemitteredit_gravityForceZCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g );
 
 #endif

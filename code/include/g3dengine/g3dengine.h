@@ -2876,6 +2876,8 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj,
                         uint64_t   engine_flags );
 G3DRIG *g3dbone_addRig ( G3DBONE *bon,
                          G3DSKIN *skn );
+void g3dbone_removeRig ( G3DBONE *bon,
+                         G3DSKIN *skn );
 void       g3dcamera_free     ( G3DOBJECT * );
 uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
                           G3DCAMERA *curcam, 

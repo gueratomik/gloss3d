@@ -961,6 +961,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
     G3DMESH     *mes  = NULL;
     uint32_t raytrace = 0x00;
     uint32_t updateZ = 0x00;
+    Q3DRGBA  bkgd;
 
     if ( query_flags & RAYQUERYHIT ) {
         if ( qray->flags & Q3DRAY_PRIMARY_BIT ) {
@@ -1003,13 +1004,25 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                 if ( qhit->obj->type & MESH ) {
                     Q3DRAY locqray;
+                    double  *CWMVX = qjob->qarea.qzen.WMVX[zout.wmvxID];
+                    double   WMVX[0x10];
+                    double  IWMVX[0x10];
+                    double TIWMVX[0x10];
+
+                    /*** this is inefficient a MUST be put ***/
+                    /*** into the ZEngine matrix buffer ***/
+                    /*** NOTE: we divide with the world matrix and not the ***/
+                    /*** invert because actually the invert MUST be viewed ***/
+                    /*** as the world matrix when it comes to cameras. And ***/
+                    /*** as the matrix is NOT inverted, the multiplication ***/
+                    /*** is the other way around. ***/
+                    g3dcore_multmatrix      ( CWMVX, qjob->qcam->qobj.obj->wmatrix, WMVX );
+                    g3dcore_invertMatrix    (  WMVX,  IWMVX );
+                    g3dcore_transposeMatrix ( IWMVX, TIWMVX );
 
                     qmes = ( Q3DMESH * ) qhit;
 
-                    memcpy ( &locqray, qray, sizeof ( Q3DRAY ) );
-
-                    q3dvector3f_matrix ( &qray->src, qhit->IMVX, &locqray.src );
-                    q3dvector3f_matrix ( &qray->dir, qhit->TMVX, &locqray.dir );
+                    q3dcore_buildLocalQRay ( qray, IWMVX, &locqray );
 
                     /*** me must launch a ray to get surface color & UV coords ***/
                     if ( q3dtriangle_intersect ( &qmes->qtri[zout.qtriID],
@@ -1031,12 +1044,19 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         memcpy ( &qray->isx.locsrc, 
                                  &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
 
-                        q3dvector3f_matrix ( &locqray.isx.src, qhit->obj->wmatrix, &qray->isx.src );
-                        q3dvector3f_matrix ( &locqray.isx.dir, qhit->TIMVX       , &qray->isx.dir );
+                        q3dvector3f_matrix ( &locqray.isx.src,   WMVX, &qray->isx.src );
+                        q3dvector3f_matrix ( &locqray.isx.dir, TIWMVX, &qray->isx.dir );
+
+                        q3dvector3f_normalize ( &qray->isx.dir, NULL );
 
                         qray->ratio[0x00] = locqray.ratio[0x00];
                         qray->ratio[0x01] = locqray.ratio[0x01];
                         qray->ratio[0x02] = locqray.ratio[0x02];
+
+                        qray->objectTransparency = locqray.objectTransparency;
+
+                        /**** Uncomment to visualize the zengine buffer ***/
+                        /* return 0xFF; */
                     } else {
                         /*** because of rasterization imprecision, there are ***/
                         /*** cases, especially around the edges, were the buffer **/
@@ -1157,7 +1177,6 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                     if ( materialAlpha.a ) {
                         G3DCOLOR opac;
-                        Q3DRGBA  bkgd;
                         uint32_t retcol;
                         Q3DRAY frcray;
 
@@ -1188,10 +1207,12 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                             g3drgba_fromLong ( &bkgd, retcol );
 
-
                             materialDiffuse.r = ( materialDiffuse.r * opac.r ) + ( bkgd.r * ( 1.0f - opac.r ) );
                             materialDiffuse.g = ( materialDiffuse.g * opac.g ) + ( bkgd.g * ( 1.0f - opac.g ) );
                             materialDiffuse.b = ( materialDiffuse.b * opac.b ) + ( bkgd.b * ( 1.0f - opac.b ) );
+
+                            /*** for blending light shading ***/
+                            materialDiffuse.a = materialAlpha.a;
                         }
                     }
                 }
@@ -1241,6 +1262,15 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
             diffuse.r = ( uint32_t ) ( ( lightDiffuse.r * materialDiffuse.r ) >> 0x08 ) + lightSpecular.r;
             diffuse.g = ( uint32_t ) ( ( lightDiffuse.g * materialDiffuse.g ) >> 0x08 ) + lightSpecular.g;
             diffuse.b = ( uint32_t ) ( ( lightDiffuse.b * materialDiffuse.b ) >> 0x08 ) + lightSpecular.b;
+
+            /*if ( materialDiffuse.a != 0xFF ) {
+                float fac = ( float ) materialDiffuse.a / 255.0f,
+                      invfac = 1.0f - fac;
+
+                diffuse.r = ( diffuse.r * fac ) + ( bkgd.r * invfac );
+                diffuse.g = ( diffuse.g * fac ) + ( bkgd.g * invfac );
+                diffuse.b = ( diffuse.b * fac ) + ( bkgd.b * invfac );
+            }*/
 
             /*** if outline lighting is disabled, we draw the outline after ***/
             /*** lighting computation ***/

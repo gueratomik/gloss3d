@@ -773,6 +773,20 @@ void g3dscene_deactivate ( G3DSCENE *sce, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
+void g3dscene_resetAllLights ( G3DSCENE *sce ) {
+    G3DGLOBALS *globals = g3dcore_getGlobals ( );
+    uint32_t i;
+
+    for ( i = 0x00; i < globals->lightID; i++ ) {
+        glDisable ( GL_LIGHT0 + i );
+    }
+
+    globals->lightID = GL_LIGHT0;
+
+    glEnable ( globals->lightID );
+}
+
+/******************************************************************************/
 G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     G3DSCENE *sce = ( G3DSCENE * ) calloc ( 0x01, sizeof ( G3DSCENE ) );
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
@@ -800,6 +814,9 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
     sce->fps = 24;
+
+    g3dscene_resetAllLights ( sce );
+
 
     return sce;
 }

@@ -1215,6 +1215,24 @@ void       q3dcamera_init ( Q3DCAMERA *qcam,
                             uint32_t   height );
 
 /******************************************************************************/
+void q3dzengine_drawObject ( Q3DZENGINE *qzen, 
+                             Q3DOBJECT  *qobj,
+                             double     *MVX,
+                             double     *PJX,
+                             int        *VPX,
+                             float       frame );
+
+void q3dzengine_drawObjectWithCondition ( Q3DZENGINE *qzen, 
+                                          Q3DOBJECT  *qobj,
+                                          double     *MVX,
+                                          double     *PJX,
+                                          int        *VPX,
+                                          uint32_t  (*cond)(Q3DOBJECT*,
+                                                            void *),
+                                          void       *condData,
+                                          float       frame );
+
+/******************************************************************************/
 uint32_t q3dray_shoot_r ( Q3DRAY     *qray, 
                           Q3DJOB     *qjob,
                           Q3DSURFACE *sdiscard,

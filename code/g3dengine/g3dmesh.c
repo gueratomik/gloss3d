@@ -2275,8 +2275,18 @@ void g3dmesh_cut ( G3DMESH *mes,
     LIST *ltmpfac;
     LIST *ltmpnewver;
 
-    if ( ( restricted ) && ( engine_flags & VIEWFACE ) ) {
-        lseledg = ltmpedg = g3dface_getEdgesFromList ( mes->lselfac );
+    if ( restricted ) {
+        if ( engine_flags & VIEWFACE ) {
+            lseledg = ltmpedg = g3dface_getEdgesFromList ( mes->lselfac );
+        }
+
+        if ( engine_flags & VIEWEDGE ) {
+            lseledg = ltmpedg = mes->lseledg;
+        }
+
+        if ( engine_flags & VIEWVERTEX ) {
+            lseledg = ltmpedg = mes->ledg;
+        }
     } else {
         lseledg = ltmpedg = mes->ledg;
     }
@@ -2346,8 +2356,10 @@ void g3dmesh_cut ( G3DMESH *mes,
         ltmpnewver = ltmpnewver->next;
     }
 
-    if ( ( restricted ) && ( engine_flags & VIEWFACE ) ) {
-        list_free ( &lseledg, NULL );
+    if ( restricted ) {
+        if ( engine_flags & VIEWFACE ) {
+            list_free ( &lseledg, NULL );
+        }
     }
 
     list_free ( &lcutfac, (void(*)(void*))g3dcutface_free );

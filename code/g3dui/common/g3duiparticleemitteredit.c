@@ -30,6 +30,36 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3duiparticleemitteredit_gravityForceXCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
+
+    pem->gravity.x = g;
+}
+
+/******************************************************************************/
+void common_g3duiparticleemitteredit_gravityForceYCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
+
+    pem->gravity.y = g;
+}
+
+/******************************************************************************/
+void common_g3duiparticleemitteredit_gravityForceZCbk ( G3DUI              *gui,
+                                                        G3DPARTICLEEMITTER *pem,
+                                                        float               g ) {
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;;
+
+    pem->gravity.z = g;
+}
+
+/******************************************************************************/
 void common_g3duiparticleemitteredit_initialVarTranspCbk ( G3DUI              *gui,
                                                            G3DPARTICLEEMITTER *pem,
                                                            float               initialVarTransp ) {

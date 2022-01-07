@@ -64,8 +64,6 @@ void g3dimportv3bone ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 skn = g3dobject_getChildByID ( gid->currentScene, 
                                                sknID );
-
-                gid->currentRig = g3dbone_addRig ( bon, skn );
             } break;
 
             case SIG_OBJECT_BONE_RIG_WEIGHTGROUPS : {
@@ -92,7 +90,7 @@ void g3dimportv3bone ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         grp = g3dmesh_getWeightGroupByID ( mes, grpID );
 
                         if ( grp ) {
-                            g3dbone_addWeightGroup ( bon, skn, grp );
+                            gid->currentRig = g3dbone_addWeightGroup ( bon, skn, grp );
                         }
                     }
                 }

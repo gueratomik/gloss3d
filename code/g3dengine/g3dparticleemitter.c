@@ -414,6 +414,7 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
         int32_t localFrame = ( iFrame % ( int32_t ) pem->particleLifetime );
         int32_t i, j;
         double IWMVX[0x10];
+        float accu = 0.0f;
 
         g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );
         g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
@@ -423,16 +424,23 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
             g3dparticleemitter_reset ( pem );
         }
 
+
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
+            int32_t accuint;
 
-            for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
+            accuint = ( i + frame - pem->startAtFrame ) * pem->particlesPerFrame;
+            accu = ( i + frame - pem->startAtFrame ) * pem->particlesPerFrame +
+                                                       pem->particlesPerFrame;
+
+            accu = accu - accuint;
+
+            for ( j = 0x00; j < (uint32_t) accu /*pem->maxParticlesPerFrame*/; j++ ) {
                 if ( frame == pem->startAtFrame ) {
                     g3dparticleemitter_initParticle ( pem, 
                                                      &prt[j], 
                                                       pem->startAtFrame + i );
                 }
-
 
                 if ( ( frame > prt[j].startAtFrame ) &&
                      ( prt[j].startAtFrame < pem->endAtFrame ) ) {

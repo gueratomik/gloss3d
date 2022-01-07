@@ -331,16 +331,6 @@ LIST *g3dbone_seekMeshHierarchy ( G3DBONE *bon ) {
 }
 
 /******************************************************************************/
-G3DRIG *g3dbone_addRig ( G3DBONE *bon,
-                         G3DSKIN *skn ) {
-    G3DRIG *rig = g3drig_new ( skn );
-
-    list_insert ( &bon->lrig, rig );
-
-    return rig;
-}
-
-/******************************************************************************/
 G3DRIG *g3dbone_getRigBySkin ( G3DBONE *bon,
                                G3DSKIN *skn ) {
     LIST *ltmprig = bon->lrig;
@@ -354,6 +344,26 @@ G3DRIG *g3dbone_getRigBySkin ( G3DBONE *bon,
     }
 
     return NULL;
+}
+
+/******************************************************************************/
+void g3dbone_removeRig ( G3DBONE *bon,
+                         G3DSKIN *skn ) {
+    G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
+
+    if ( rig ) {
+        list_remove ( &bon->lrig, rig );
+    }
+}
+
+/******************************************************************************/
+G3DRIG *g3dbone_addRig ( G3DBONE *bon,
+                         G3DSKIN *skn ) {
+    G3DRIG *rig = g3drig_new ( skn );
+
+    list_insert ( &bon->lrig, rig );
+
+    return rig;
 }
 
 /******************************************************************************/
@@ -376,6 +386,10 @@ void g3dbone_removeWeightGroup ( G3DBONE        *bon,
     G3DRIG *rig = g3dbone_getRigBySkin ( bon, skn );
 
     list_remove ( &rig->lweightgroup, grp );
+
+    if ( rig->lweightgroup == NULL ) {
+        g3dbone_removeRig ( bon, skn );
+    }
 }
 
 /******************************************************************************/

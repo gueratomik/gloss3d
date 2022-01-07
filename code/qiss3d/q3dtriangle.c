@@ -168,16 +168,23 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->isx.src.y = qpnt.y;
                     qray->isx.src.z = qpnt.z;
 
-                    qray->isx.dir.x = ( qver[qverID[0]].nor.x * RAT0 ) +
-                                      ( qver[qverID[1]].nor.x * RAT1 ) +
-                                      ( qver[qverID[2]].nor.x * RAT2 );
-                    qray->isx.dir.y = ( qver[qverID[0]].nor.y * RAT0 ) +
-                                      ( qver[qverID[1]].nor.y * RAT1 ) +
-                                      ( qver[qverID[2]].nor.y * RAT2 );
-                    qray->isx.dir.z = ( qver[qverID[0]].nor.z * RAT0 ) +
-                                      ( qver[qverID[1]].nor.z * RAT1 ) +
-                                      ( qver[qverID[2]].nor.z * RAT2 );
+                    if ( qtri->flags & TRIANGLEFLAT ) {
+                        qray->isx.dir.x = qtri->nor.x;
+                        qray->isx.dir.y = qtri->nor.y;
+                        qray->isx.dir.z = qtri->nor.z;
+                    } else {
+                        qray->isx.dir.x = ( qver[qverID[0]].nor.x * RAT0 ) +
+                                          ( qver[qverID[1]].nor.x * RAT1 ) +
+                                          ( qver[qverID[2]].nor.x * RAT2 );
+                        qray->isx.dir.y = ( qver[qverID[0]].nor.y * RAT0 ) +
+                                          ( qver[qverID[1]].nor.y * RAT1 ) +
+                                          ( qver[qverID[2]].nor.y * RAT2 );
+                        qray->isx.dir.z = ( qver[qverID[0]].nor.z * RAT0 ) +
+                                          ( qver[qverID[1]].nor.z * RAT1 ) +
+                                          ( qver[qverID[2]].nor.z * RAT2 );
+                    }
 
+                    /*** backface ***/
                     qray->isx.dir.x *= invert;
                     qray->isx.dir.y *= invert;
                     qray->isx.dir.z *= invert;

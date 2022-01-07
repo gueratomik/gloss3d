@@ -39,6 +39,7 @@
 #define EDITPEMITTERINITIAL         "Initial"
 #define EDITPEMITTERFINAL           "Final"
 #define EDITPEMITTERINITIALVAR      "Variation"
+#define EDITPEMITTERFORCES          "Forces"
 
 #define EDITPEMITTERSTARTATFRAME           "Start at frame"
 #define EDITPEMITTERENDATFRAME             "End at frame"
@@ -55,6 +56,7 @@
 #define EDITPEMITTERSCALING         "Scaling"
 #define EDITPEMITTERROTATION        "Rotation"
 #define EDITPEMITTERTRANSPARENCY    "Transp."
+#define EDITPEMITTERGRAVITY         "Gravity"
 
 #define EDITPEMITTERINITIALANGLEVAR        "Initial angle variation"
 
@@ -130,6 +132,10 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
     GtkWidget          *finalRotZEntry;
     GtkWidget          *finalTranspEntry;
 
+    GtkWidget          *gravityForceXEntry;
+    GtkWidget          *gravityForceYEntry;
+    GtkWidget          *gravityForceZEntry;
+
     G3DPARTICLEEMITTER *editedPEmitter;
 } G3DUIPARTICLEEMITTEREDIT;
 
@@ -145,6 +151,126 @@ static G3DUIPARTICLEEMITTEREDIT *g3duiparticleemitteredit_new ( G3DUI *gui ) {
 
 
     return ped; 
+}
+
+/******************************************************************************/
+static void updateForcesPanel ( G3DUIPARTICLEEMITTEREDIT *ped ) {
+    ped->grp.gui->lock = 0x01;
+
+    if ( ped->editedPEmitter ) {
+        gtk_widget_set_sensitive ( ped->gravityForceXEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->gravityForceYEntry, TRUE );
+        gtk_widget_set_sensitive ( ped->gravityForceZEntry, TRUE );
+
+        gtk_spin_button_set_value  ( ped->gravityForceXEntry, 
+                                     ped->editedPEmitter->gravity.x );
+        gtk_spin_button_set_value  ( ped->gravityForceYEntry, 
+                                     ped->editedPEmitter->gravity.y );
+        gtk_spin_button_set_value  ( ped->gravityForceZEntry, 
+                                     ped->editedPEmitter->gravity.z );
+
+    } else {
+        gtk_widget_set_sensitive ( ped->gravityForceXEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->gravityForceYEntry, FALSE );
+        gtk_widget_set_sensitive ( ped->gravityForceZEntry, FALSE );
+    }
+
+    ped->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void gravityForceXCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float gravityForceX = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_gravityForceXCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           gravityForceX );
+    }
+}
+
+/******************************************************************************/
+static void gravityForceYCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float gravityForceY = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_gravityForceYCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           gravityForceY );
+    }
+}
+
+/******************************************************************************/
+static void gravityForceZCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUIPARTICLEEMITTEREDIT *ped = ( G3DUIPARTICLEEMITTEREDIT * ) user_data;
+    float gravityForceZ = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    if ( ped->editedPEmitter ) {
+        common_g3duiparticleemitteredit_gravityForceZCbk ( ped->grp.gui,
+                                                           ped->editedPEmitter,
+                                                           gravityForceZ );
+    }
+}
+
+/******************************************************************************/
+static GtkWidget *createForcesPanel ( GtkWidget                *parent, 
+                                      G3DUIPARTICLEEMITTEREDIT *ped,
+                                      char                     *name,
+                                      gint                      x,
+                                      gint                      y,
+                                      gint                      width,
+                                      gint                      height ) {
+    GtkWidget *pan = createPanel ( parent, ped, name, x, y, width, height );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERX,
+                        64, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERY,
+                        144, 24, 64, 20 );
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERZ,
+                        224, 24, 64, 20 );
+
+
+    createSimpleLabel ( pan, 
+                        ped,
+                        EDITPEMITTERGRAVITY,
+                        0, 48, 64, 20 );
+
+    ped->gravityForceXEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERX,
+                                                -FLT_MAX, FLT_MAX,
+                                                 64, 48, 0, 32,
+                                                 gravityForceXCbk );
+
+    ped->gravityForceYEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERY,
+                                                -FLT_MAX, FLT_MAX,
+                                                 144, 48, 0, 32,
+                                                 gravityForceYCbk );
+
+    ped->gravityForceZEntry  = createFloatText ( pan,
+                                                 ped,
+                                                 EDITPEMITTERZ,
+                                                -FLT_MAX, FLT_MAX,
+                                                 224, 48, 0, 32,
+                                                 gravityForceZCbk );
+
+    return pan;
 }
 
 /******************************************************************************/
@@ -1521,6 +1647,7 @@ void updateParticleEmitterEdit ( GtkWidget           *w,
     updateInitialPanel    ( ped );
     updateFinalPanel      ( ped );
     updateInitialVarPanel ( ped );
+    updateForcesPanel     ( ped );
 
     /*updateDiffuseColorPanel ( led );
     updateLightGeneralPanel ( led );
@@ -1571,6 +1698,8 @@ GtkWidget *createParticleEmitterEdit ( GtkWidget *parent,
     createInitialPanel    ( tab, ped, EDITPEMITTERINITIAL   , 0, 0, width, height );
     createFinalPanel      ( tab, ped, EDITPEMITTERFINAL     , 0, 0, width, height );
     createInitialVarPanel ( tab, ped, EDITPEMITTERINITIALVAR, 0, 0, width, height );
+    createForcesPanel     ( tab, ped, EDITPEMITTERFORCES    , 0, 0, width, height );
+
 /*
     createFinalPanel     ( tab, ped, EDITSPECULAR    , 0, 0, width, height );
     createVariationPanel ( tab, ped, EDITPEMITTERSHADOWS, 0, 0, width, height );

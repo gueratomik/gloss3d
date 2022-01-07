@@ -143,7 +143,7 @@ Q3DVERTEX *q3dmesh_getVertices ( Q3DMESH *qmes,
                                  float    frame ) {
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
 
-    return qverset->qver;
+    return ( qverset ) ? qverset->qver : NULL;
 }
 
 /******************************************************************************/
@@ -258,6 +258,7 @@ static void Dump ( G3DFACE   *fac,
                                   &qverset->qver[qverID[0x01]],
                                   &qverset->qver[qverID[0x02]] };
         float length;
+        uint32_t flat = 0x00;
 
         for ( j = 0x00; j < 0x03; j++ ) {
             G3DVERTEX *ver = fac->ver[idx[i][j]];
@@ -265,9 +266,13 @@ static void Dump ( G3DFACE   *fac,
                                                      &fac->nor ) );
             float gouraudScalarLimit = mes->gouraudScalarLimit;
             G3DVECTOR *pos = g3dvertex_getModifiedPosition ( ver, stkpos ),
-                      *nor = ( scalar < gouraudScalarLimit ) ? &fac->nor :
-                                                               g3dvertex_getModifiedNormal ( ver, stknor );
-            Q3DVERTEX *curqver = &qverset->qver[qverID[j]];
+                      *nor = g3dvertex_getModifiedNormal ( ver, stknor );
+
+            Q3DVERTEX *curqver = qver[j];
+
+            if ( scalar < gouraudScalarLimit ) {
+                flat = 0x01;
+            }
 
             curqver->pos.x = pos->x;
             curqver->pos.y = pos->y;
@@ -293,6 +298,10 @@ static void Dump ( G3DFACE   *fac,
                            qverID[0x02] );
 
         qmes->curtri->lfacgrp = fac->lfacgrp;
+
+        if ( flat ) {
+            qmes->curtri->flags |= TRIANGLEFLAT;
+        }
 
         qmes->curtri->flags |= ( polyCount == 0x01 ) ? TRIANGLEFROMTRIANGLE : 
                                                        TRIANGLEFROMQUAD;
