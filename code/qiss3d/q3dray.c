@@ -114,6 +114,7 @@ static uint32_t q3dray_reflect ( Q3DRAY          *qray,
 
 /******************************************************************************/
 void q3dray_bump ( Q3DRAY      *qray,
+                   Q3DTRIANGLE *qtri,
                    float        frame,
                    LIST        *ltex ) {
     LIST *ltmptex = ltex;
@@ -124,6 +125,14 @@ void q3dray_bump ( Q3DRAY      *qray,
         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
         G3DMATERIAL *mat = tex->mat;
         uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
+
+        if ( tex->flags & TEXTURERESTRICTED ) {
+            if ( q3dtriangle_hasTextureSlot ( qtri, tex->slotBit  ) == 0x00 ) {
+                ltmptex = ltmptex->next;
+
+                continue;
+            }
+        }
 
         if ( tex->map ) {
             uint32_t mapID = tex->map->mapID;
@@ -234,6 +243,7 @@ void q3dray_bump ( Q3DRAY      *qray,
 
 /******************************************************************************/
 void q3dray_specular ( Q3DRAY      *qray,
+                       Q3DTRIANGLE *qtri,
                        Q3DLIGHT    *qlig,
                        Q3DCAMERA   *qcam,
                        Q3DRGBA     *specular ) {
@@ -248,6 +258,14 @@ void q3dray_specular ( Q3DRAY      *qray,
             uint32_t repeat = ( tex->flags & TEXTUREREPEATED ) ? 0x01 : 0x00;
             Q3DRGBA retval;
             Q3DRAY spcqray, refqray;
+
+            if ( tex->flags & TEXTURERESTRICTED ) {
+                if ( q3dtriangle_hasTextureSlot ( qtri, tex->slotBit  ) == 0x00 ) {
+                    ltmptex = ltmptex->next;
+
+                    continue;
+                }
+            }
 
             if ( tex->map ) {
                 uint32_t mapID = tex->map->mapID;
@@ -520,7 +538,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
             if ( dot > 0.0f ) {
                 float rate = dot * lig->intensity;
 
-                q3dray_specular ( qray, qlig, qjob->qcam, specular );
+                q3dray_specular ( qray, sdiscard, qlig, qjob->qcam, specular );
 
                 diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
                 diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
@@ -1125,6 +1143,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
 
                     q3dray_bump ( qray,
+                                  qtri,
                                   frame,
                                   mes->ltex );
                 }

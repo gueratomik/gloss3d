@@ -130,57 +130,64 @@ static void g3dparticle_init ( G3DPARTICLE *prt,
 static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                                               G3DPARTICLE        *prt,
                                               int32_t             startAtFrame ) {
-    float rd = ( float ) rand ( ) / RAND_MAX;
+    int32_t prevFrame = startAtFrame - 0x01;
+    float accu      = ( startAtFrame - pem->startAtFrame + 1 ) * pem->particlesPerFrame;
+    float prevaccu  = ( prevFrame    - pem->startAtFrame + 1 ) * pem->particlesPerFrame;
 
-    G3DVECTOR initialVarAccel = { .x = ( pem->initialAccel.x * rd *
-                                         pem->initialVarAccel.x ),
-                                  .y = ( pem->initialAccel.y * rd *
-                                         pem->initialVarAccel.y ),
-                                  .z = ( pem->initialAccel.z * rd *
-                                         pem->initialVarAccel.z ) };
-    G3DVECTOR initialVarSpeed = { .x = ( pem->initialSpeed.x * rd *
-                                         pem->initialVarSpeed.x ),
-                                  .y = ( pem->initialSpeed.y * rd *
-                                         pem->initialVarSpeed.y ),
-                                  .z = ( pem->initialSpeed.z * rd *
-                                         pem->initialVarSpeed.z ) };
-    G3DVECTOR initialVarScaling = { .x = ( pem->initialScaling.x * rd *
-                                           pem->initialVarScaling.x ),
-                                    .y = ( pem->initialScaling.y * rd *
-                                           pem->initialVarScaling.y ),
-                                    .z = ( pem->initialScaling.z * rd *
-                                           pem->initialVarScaling.z ) };
-    G3DVECTOR accel = { .x = pem->initialAccel.x + initialVarAccel.x,
-                        .y = pem->initialAccel.y + initialVarAccel.y,
-                        .z = pem->initialAccel.z + initialVarAccel.z };
-    G3DVECTOR speed = { .x = pem->initialSpeed.x + initialVarSpeed.x,
-                        .y = pem->initialSpeed.y + initialVarSpeed.y,
-                        .z = pem->initialSpeed.z + initialVarSpeed.z },
-              wspeed;
-    G3DVECTOR pos, wpos,
-              sca = { .x = pem->initialScaling.x + initialVarScaling.x, 
-                      .y = pem->initialScaling.y + initialVarScaling.y,
-                      .z = pem->initialScaling.z + initialVarScaling.z },
-              rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+/*printf("%d %f %f\n", startAtFrame, accu, prevaccu );*/
 
-    getRandomPointOnSquare ( &pem->seg1, 
-                             &pem->seg2, 
-                              pem->radius, 
-                             &pos );
+    if ( ( int32_t ) accu - ( int32_t ) prevaccu ) {
+        float rd = ( float ) rand ( ) / RAND_MAX;
 
-    g3dvector_matrix ( &pos, pem->obj.wmatrix, &wpos );
-    g3dvector_matrix ( &speed, pem->TIWMVX, &wspeed );
+        G3DVECTOR initialVarAccel = { .x = ( pem->initialAccel.x * rd *
+                                             pem->initialVarAccel.x ),
+                                      .y = ( pem->initialAccel.y * rd *
+                                             pem->initialVarAccel.y ),
+                                      .z = ( pem->initialAccel.z * rd *
+                                             pem->initialVarAccel.z ) };
+        G3DVECTOR initialVarSpeed = { .x = ( pem->initialSpeed.x * rd *
+                                             pem->initialVarSpeed.x ),
+                                      .y = ( pem->initialSpeed.y * rd *
+                                             pem->initialVarSpeed.y ),
+                                      .z = ( pem->initialSpeed.z * rd *
+                                             pem->initialVarSpeed.z ) };
+        G3DVECTOR initialVarScaling = { .x = ( pem->initialScaling.x * rd *
+                                               pem->initialVarScaling.x ),
+                                        .y = ( pem->initialScaling.y * rd *
+                                               pem->initialVarScaling.y ),
+                                        .z = ( pem->initialScaling.z * rd *
+                                               pem->initialVarScaling.z ) };
+        G3DVECTOR accel = { .x = pem->initialAccel.x + initialVarAccel.x,
+                            .y = pem->initialAccel.y + initialVarAccel.y,
+                            .z = pem->initialAccel.z + initialVarAccel.z };
+        G3DVECTOR speed = { .x = pem->initialSpeed.x + initialVarSpeed.x,
+                            .y = pem->initialSpeed.y + initialVarSpeed.y,
+                            .z = pem->initialSpeed.z + initialVarSpeed.z },
+                  wspeed;
+        G3DVECTOR pos, wpos,
+                  sca = { .x = pem->initialScaling.x + initialVarScaling.x, 
+                          .y = pem->initialScaling.y + initialVarScaling.y,
+                          .z = pem->initialScaling.z + initialVarScaling.z },
+                  rot = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-    g3dparticle_init ( prt,
-                       g3dobject_getRandomChild ( pem ),
-                      &wpos,
-                      &sca,
-                      &rot,
-                      &accel,
-                      &wspeed,
-                       startAtFrame,
-                       pem->initialTransparency );
+        getRandomPointOnSquare ( &pem->seg1, 
+                                 &pem->seg2, 
+                                  pem->radius, 
+                                 &pos );
 
+        g3dvector_matrix ( &pos, pem->obj.wmatrix, &wpos );
+        g3dvector_matrix ( &speed, pem->TIWMVX, &wspeed );
+
+        g3dparticle_init ( prt,
+                           g3dobject_getRandomChild ( pem ),
+                          &wpos,
+                          &sca,
+                          &rot,
+                          &accel,
+                          &wspeed,
+                           startAtFrame,
+                           pem->initialTransparency );
+    }
 }
 
 /******************************************************************************/
@@ -224,6 +231,12 @@ static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
         prt->lifeTime += ( deltaFrame );
 
         prt->flags |= PARTICLE_ISALIVE;
+
+        if ( prt->lifeTime > pem->particleLifetime ) {
+            g3dparticleemitter_initParticle ( pem,
+                                              prt,
+                                              prt->startAtFrame + prt->lifeTime );
+        }
     }
 }
 
@@ -414,7 +427,6 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
         int32_t localFrame = ( iFrame % ( int32_t ) pem->particleLifetime );
         int32_t i, j;
         double IWMVX[0x10];
-        float accu = 0.0f;
 
         g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );
         g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
@@ -424,18 +436,10 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
             g3dparticleemitter_reset ( pem );
         }
 
-
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
-            int32_t accuint;
 
-            accuint = ( i + frame - pem->startAtFrame ) * pem->particlesPerFrame;
-            accu = ( i + frame - pem->startAtFrame ) * pem->particlesPerFrame +
-                                                       pem->particlesPerFrame;
-
-            accu = accu - accuint;
-
-            for ( j = 0x00; j < (uint32_t) accu /*pem->maxParticlesPerFrame*/; j++ ) {
+            for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                 if ( frame == pem->startAtFrame ) {
                     g3dparticleemitter_initParticle ( pem, 
                                                      &prt[j], 
