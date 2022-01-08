@@ -783,6 +783,30 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
         case GDK_MOTION_NOTIFY : {
             GdkEventMotion *mev = ( GdkEventMotion * ) gdkev;
+            GtkWidget *scr = gtk_widget_get_parent ( gtk_widget_get_parent ( widget ) );
+
+            /*** autoscroll. Not perfect but that'll be just fine ***/
+            if ( scr && obj ) {
+                GtkAdjustment *adj = gtk_scrolled_window_get_vadjustment ( scr );
+                int width, height, scrwidth, scrheight;
+                float mscrx, mscry;
+
+                gtk_widget_get_size_request ( widget, &width   , &height    );
+                gtk_widget_get_size_request ( scr   , &scrwidth, &scrheight );
+
+                gdouble vadj = gtk_adjustment_get_value ( adj );
+
+                /*** convert mouse position to scrolledWindow coords ***/
+                mscry = mev->y - vadj;
+
+                if ( mscry > ( scrheight - 10 ) ) {
+                    gtk_adjustment_set_value ( adj, vadj + 0x03 );
+                }
+
+                if ( mscry <  10 ) {
+                    gtk_adjustment_set_value ( adj, vadj - 0x03 );
+                }
+            }
 
             if ( obj ) {
                 /*** Retrieve separator's position ***/

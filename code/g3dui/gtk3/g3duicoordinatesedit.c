@@ -292,3 +292,44 @@ GtkWidget* createCoordinatesEdit ( GtkWidget *parent, G3DUI *gui,
 
     return frm;
 }
+
+
+#ifdef unused 
+
+/******************************************************************************/
+GtkWidget *g3duiwidget_parse_r ( G3DUIWIDGET *wid, 
+                                 GtkWidget   *parent ) {
+    GtkWidget *widget = NULL;
+
+
+
+    switch ( wid->type ) {
+        case G3DUIWIDGET_CONTAINER :
+            widget = gtk_fixed_new ( );
+        break;
+
+        case G3DUIWIDGET_FLOATENTRY :
+            widget = createFloatText ( parent, G3DUI  *gui, 
+                                          char   *name,
+                                          gdouble min, 
+                                          gdouble max,
+                                          gint    x, 
+                                          gint    y,
+                                          gint    labwidth,
+                                          gint    txtwidth,
+                                          void  (*cbk)( GtkWidget *, 
+                                                        gpointer ) ) {
+        break;
+
+        default :
+        break;
+    }
+
+    if ( widget ) {
+        gtk_widget_set_size_request ( widget, wid->width, wid->height );
+
+        gtk_widget_show ( widget );
+    }
+}
+
+#endif

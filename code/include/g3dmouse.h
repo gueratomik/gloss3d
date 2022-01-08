@@ -362,6 +362,7 @@ G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( );
 G3DMOUSETOOLCREATETUBE *g3dmousetoolcreatetube_new ( );
 G3DMOUSETOOLCREATETORUS *g3dmousetoolcreatetorus_new ( );
 G3DMOUSETOOLCREATEBONE *g3dmousetoolcreatebone_new ( );
+G3DMOUSETOOLMAKEEDITABLE *g3dmousetoolmakeeditable_new ( );
 G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( );
 G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( );
 G3DMOUSETOOLREVERTSPLINE *g3dmousetoolrevertspline_new ( );

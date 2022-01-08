@@ -226,6 +226,14 @@ EXTRA_DIST   = include/g3dexport.h \
                        xpm/zoom_view.xpm \
                        xpm/scale_keys.xpm \
                        xpm/pick_keys.xpm \
+                       xpm/vertexmode_test.xpm \
+                       xpm/objectmode_test.xpm \
+                       xpm/edgemode_test.xpm \
+                       xpm/facemode_test.xpm \
+                       xpm/skinmode_test.xpm \
+                       xpm/uvwmapmode_test.xpm \
+                       xpm/axismode_test.xpm \
+                       xpm/pemico.xpm \
                        xpm/brush_0.c \
                        xpm/brush_1.c \
                        xpm/brush_2.c \

@@ -2003,3 +2003,5 @@ GtkWidget *gtk_glossui_new ( const char *filename ) {
 
     return widget;
 }
+
+/******************************************************************************/

@@ -731,6 +731,57 @@ typedef struct _G3DUI {
     Q3DFILTER *toframe;
 } GuiPart, G3DUI;
 
+/******************************************************************************/
+#define G3DUIWIDGET_TAB          0x02
+#define G3DUIWIDGET_CONTAINER    0x03
+#define G3DUIWIDGET_FRAME        0x04
+#define G3DUIWIDGET_PUSHBUTTON   0x05
+#define G3DUIWIDGET_TOGGLEBUTTON 0x06
+#define G3DUIWIDGET_RADIOBUTTON  0x07
+#define G3DUIWIDGET_LABEL        0x08
+#define G3DUIWIDGET_FLOATENTRY   0x09
+#define G3DUIWIDGET_INTENTRY     0x0A
+#define G3DUIWIDGET_CHARENTRY    0x0B
+
+/******************************************************************************/
+typedef union {
+    float      f;
+    uint32_t u32;
+    uint64_t u64;
+    int32_t  i32;
+    int64_t  i64;
+} G3DUIWIDGETARG;
+
+/******************************************************************************/
+typedef struct _G3DUIWIDGET {
+    G3DUI       *gui;
+    uint32_t     type;
+    char        *label;
+    uint32_t     x;
+    uint32_t     y;
+    uint32_t     width;
+    uint32_t     height;
+    struct _G3DUIWIDGET *children[];
+} G3DUIWIDGET;
+
+/******************************************************************************/
+typedef struct _G3DUIENTRYWIDGET { 
+    G3DUIWIDGET  wid;
+    uint64_t   (*get)( G3DUIWIDGET *wid, G3DUIWIDGETARG *arg );
+    uint64_t   (*set)( G3DUIWIDGET *wid, G3DUIWIDGETARG *arg );
+    uint32_t     labx, laby,
+                 labw, labh;
+} G3DUIENTRYWIDGET;
+
+/******************************************************************************/
+typedef struct _G3DUINUMERICENTRYWIDGET { 
+    G3DUIENTRYWIDGET  ent;
+    union min { float f;
+                int32_t i};
+    union max { float f;
+                int32_t i};
+} G3DUINUMERICENTRYWIDGET;
+
 /********************************* g3dui.c ************************************/
 void          common_g3dui_createDefaultCameras ( G3DUI * );
 void          common_g3dui_initDefaultMouseTools ( G3DUI     *gui, 

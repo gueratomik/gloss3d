@@ -232,10 +232,10 @@ static void g3dparticleemitter_animParticle ( G3DPARTICLEEMITTER *pem,
 
         prt->flags |= PARTICLE_ISALIVE;
 
-        if ( prt->lifeTime > pem->particleLifetime ) {
+        if ( ( int32_t ) prt->lifeTime > pem->particleLifetime ) {
             g3dparticleemitter_initParticle ( pem,
                                               prt,
-                                              prt->startAtFrame + prt->lifeTime );
+                                              prt->startAtFrame + ( int32_t ) prt->lifeTime );
         }
     }
 }
