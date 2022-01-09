@@ -2152,18 +2152,7 @@ void g3dmesh_triangulate ( G3DMESH *mes, LIST   **loldfac,
 
     g3dmesh_unselectAllFaces ( mes );
 
-    if ( (*lnewfac) ) {
-        ltmp = (*lnewfac);
-
-        while ( ltmp ) {
-            G3DFACE *qua = ltmp->data;
-
-            g3dmesh_addSelectedFace ( mes, qua );
-
-            ltmp = ltmp->next;
-        }
-    }
-
+    /*** we must remove faces before adding new for topology consistency ***/
     if ( (*loldfac) ) {
         ltmp = (*loldfac);
 
@@ -2171,6 +2160,18 @@ void g3dmesh_triangulate ( G3DMESH *mes, LIST   **loldfac,
             G3DFACE *tri = ltmp->data;
 
             g3dmesh_removeFace ( mes, tri );
+
+            ltmp = ltmp->next;
+        }
+    }
+
+    if ( (*lnewfac) ) {
+        ltmp = (*lnewfac);
+
+        while ( ltmp ) {
+            G3DFACE *qua = ltmp->data;
+
+            g3dmesh_addSelectedFace ( mes, qua );
 
             ltmp = ltmp->next;
         }
@@ -2224,6 +2225,19 @@ void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
 
     g3dmesh_unselectAllFaces ( mes );
 
+    /*** we must remove faces before adding new for topology consistency ***/
+    if ( (*loldfac) ) {
+        ltmp = (*loldfac);
+
+        while ( ltmp ) {
+            G3DFACE *tri = ltmp->data;
+
+            g3dmesh_removeFace ( mes, tri );
+
+            ltmp = ltmp->next;
+        }
+    }
+
     if ( (*lnewfac) ) {
         ltmp = (*lnewfac);
 
@@ -2236,18 +2250,6 @@ void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
             if ( g3dface_checkOrientation ( qua ) == 0x00 ) {
                 g3dface_invertNormal ( qua );
             }
-
-            ltmp = ltmp->next;
-        }
-    }
-
-    if ( (*loldfac) ) {
-        ltmp = (*loldfac);
-
-        while ( ltmp ) {
-            G3DFACE *tri = ltmp->data;
-
-            g3dmesh_removeFace ( mes, tri );
 
             ltmp = ltmp->next;
         }

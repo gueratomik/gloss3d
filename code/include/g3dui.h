@@ -774,13 +774,13 @@ typedef struct _G3DUIENTRYWIDGET {
 } G3DUIENTRYWIDGET;
 
 /******************************************************************************/
-typedef struct _G3DUINUMERICENTRYWIDGET { 
+/*typedef struct _G3DUINUMERICENTRYWIDGET { 
     G3DUIENTRYWIDGET  ent;
     union min { float f;
                 int32_t i};
     union max { float f;
                 int32_t i};
-} G3DUINUMERICENTRYWIDGET;
+} G3DUINUMERICENTRYWIDGET;*/
 
 /********************************* g3dui.c ************************************/
 void          common_g3dui_createDefaultCameras ( G3DUI * );
