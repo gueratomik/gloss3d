@@ -9,7 +9,7 @@ Gloss3D is an open-source 3D modeler tool with some texturing, animation and ren
 
 ### History
 
-Gloss3D had its first line of code written in October 2012 and is originally inspired by Maxon Cinema4D.
+Gloss3D had its first line of code written in October 2012 and is originally inspired by Maxon Cinema4D. The current version is 0.5.1, released in January 2022.
 
 ### Download
 
