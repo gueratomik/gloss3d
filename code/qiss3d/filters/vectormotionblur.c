@@ -388,39 +388,39 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                 /*** with it. But the result is not as good as with.        ***/
                 /*if ( ( fvmb->zbuffer[zoffset].vobjID == vobjID ) &&
                      ( fvmb->zbuffer[zoffset].vtriID == vtriID ) ) {*/
-                    if ( z < fvmb->zbuffer[aoffset].z ) {
-                        switch ( fvmb->bpp ) {
-                            case 0x18 : {
-                                unsigned char (*srcimg)[0x03] = fvmb->img;
+                    if ( z <= fvmb->zbuffer[aoffset].z ) {
+                            switch ( fvmb->bpp ) {
+                                case 0x18 : {
+                                    unsigned char (*srcimg)[0x03] = fvmb->img;
 
-                                R = srcimg[zoffset][0x00];
-                                G = srcimg[zoffset][0x01];
-                                B = srcimg[zoffset][0x02];
-/*
-                                AR = srcimg[aoffset][0x00];
-                                AG = srcimg[aoffset][0x01];
-                                AB = srcimg[aoffset][0x02];
-*/
-                                AR = fvmb->abuffer[aoffset][0x00];
-                                AG = fvmb->abuffer[aoffset][0x01];
-                                AB = fvmb->abuffer[aoffset][0x02];
-                            } break;
+                                    R = srcimg[zoffset][0x00];
+                                    G = srcimg[zoffset][0x01];
+                                    B = srcimg[zoffset][0x02];
+    /*
+                                    AR = srcimg[aoffset][0x00];
+                                    AG = srcimg[aoffset][0x01];
+                                    AB = srcimg[aoffset][0x02];
+    */
+                                    AR = fvmb->abuffer[aoffset][0x00];
+                                    AG = fvmb->abuffer[aoffset][0x01];
+                                    AB = fvmb->abuffer[aoffset][0x02];
+                                } break;
 
-                            default :
-                            break;
+                                default :
+                                break;
+                            }
+    /*
+                            fvmb->abuffer[aoffset][0x00] += ( ( R * opacity ) + ( AR * invopac ) );
+                            fvmb->abuffer[aoffset][0x01] += ( ( G * opacity ) + ( AG * invopac ) );
+                            fvmb->abuffer[aoffset][0x02] += ( ( B * opacity ) + ( AB * invopac ) );
+                            fvmb->abuffer[aoffset][0x03] = 0x01;
+    */
+                            fvmb->abuffer[aoffset][0x00] += ( R    * opacity );
+                            fvmb->abuffer[aoffset][0x01] += ( G    * opacity );
+                            fvmb->abuffer[aoffset][0x02] += ( B    * opacity );
+                            fvmb->abuffer[aoffset][0x03] += ( 0xFF * opacity );
+                            fvmb->abuffer[aoffset][0x04] ++;
                         }
-/*
-                        fvmb->abuffer[aoffset][0x00] += ( ( R * opacity ) + ( AR * invopac ) );
-                        fvmb->abuffer[aoffset][0x01] += ( ( G * opacity ) + ( AG * invopac ) );
-                        fvmb->abuffer[aoffset][0x02] += ( ( B * opacity ) + ( AB * invopac ) );
-                        fvmb->abuffer[aoffset][0x03] = 0x01;
-*/
-                        fvmb->abuffer[aoffset][0x00] += ( R    * opacity );
-                        fvmb->abuffer[aoffset][0x01] += ( G    * opacity );
-                        fvmb->abuffer[aoffset][0x02] += ( B    * opacity );
-                        fvmb->abuffer[aoffset][0x03] += ( 0xFF * opacity );
-                        fvmb->abuffer[aoffset][0x04] ++;
-                    }
                 /*}*/
             }
         }
@@ -584,7 +584,7 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
 
             VMBTRIANGLE *dstTri = srcTri + nbtris;
 
-            /** check if source triangle is outside screen space ***/
+            /** check if triangle is outside screen space ***/
             if ( ( srcTri->pnt[0x00].z != INFINITY ) &&
                  ( srcTri->pnt[0x01].z != INFINITY ) &&
                  ( srcTri->pnt[0x02].z != INFINITY ) &&
@@ -613,18 +613,19 @@ static void filtervmb_drawInterpolatedTriangles ( Q3DFILTER   *qfil,
                 uint32_t maxLen = ( len[0] > len[1] ) ? 
                                 ( ( len[0] > len[2] ) ? len[0] : len[2] ) :
                                 ( ( len[1] > len[2] ) ? len[1] : len[2] );
-                uint32_t iter = maxLen * fvmb->subSamplingRate;
 
-/*
-printf("src tri\n");
-vmbtriangle_print ( srcTri, i, p );
-printf("dst tri\n");
-vmbtriangle_print ( dstTri, i, p );
+/*** IMPORTANT NOTE: there are artefacts when the maxLen at its maximum value**/
+/*** so the quick fix here is to multiply the sampling rate by 0.25 until I **/
+/*** find the issue ***/
 
-*/
+                uint32_t iter = maxLen * fvmb->subSamplingRate * 0.25;
+
                 if ( iter ) {
                     uint32_t j;
                     float stepOpacity = ( deltaOpacity ) / iter;
+
+
+
 /*printf("max:%d iter:%d\n", maxLen, iter );*/
                     for ( j = 0x00; j < iter; j++ ) {
                         float pos = ( float ) j / iter;
@@ -639,6 +640,8 @@ vmbtriangle_print ( dstTri, i, p );
                                                .pnt[0x02].z = 0.0f };
                         float opacity = srcOpacity + ( stepOpacity  * j );
 /*printf("%f\n", opacity);*/
+
+
 
                         /*** small trick to increase blending on  ***/
                         /*** frames close to the middle frame ***/

@@ -534,24 +534,26 @@ static void q3dzengine_drawSymmetry ( Q3DZENGINE  *qzen,
                                       double      *PJX,
                                       int         *VPX,
                                       float        frame ) {
-    Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
-    LIST *ltmpchildren = qobj->lchildren;
-    G3DSYMMETRY *sym  = ( G3DSYMMETRY * ) q3dobject_getObject ( qobj );
-    double SMVX[0x10];
+    if ( ( qsym->qobj.obj->flags & OBJECTINACTIVE ) == 0x00 ) {
+        Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
+        LIST *ltmpchildren = qobj->lchildren;
+        G3DSYMMETRY *sym  = ( G3DSYMMETRY * ) q3dobject_getObject ( qobj );
+        double SMVX[0x10];
 
-    g3dcore_multmatrix ( sym->smatrix, MVX, SMVX );
+        g3dcore_multmatrix ( sym->smatrix, MVX, SMVX );
 
-    while ( ltmpchildren ) {
-        Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
+        while ( ltmpchildren ) {
+            Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
 
-        q3dzengine_drawObject_r ( qzen, 
-                                  qchild,
-                                  SMVX,
-                                  PJX,
-                                  VPX,
-                                  frame );
+            q3dzengine_drawObject_r ( qzen, 
+                                      qchild,
+                                      SMVX,
+                                      PJX,
+                                      VPX,
+                                      frame );
 
-        ltmpchildren = ltmpchildren->next;
+            ltmpchildren = ltmpchildren->next;
+        }
     }
 }
 
