@@ -1638,7 +1638,7 @@ void g3dface_computeModifiedNormal ( G3DFACE   *fac,
                        ( p2->y - p0->y ),
                        ( p2->z - p0->z ), 1.0f };
 
-    g3dvector_cross ( &p0p1, &p0p2, &fac->nor );
+    g3dvector_cross ( &p0p1, &p0p2, facnor );
 
     if ( fac->nbver == 0x04 ) {
         G3DVERTEX *v3 = fac->ver[0x03];
@@ -1660,7 +1660,7 @@ void g3dface_computeModifiedNormal ( G3DFACE   *fac,
         facnor->z = ( facnor->z + nor.z ) * 0.5f;
     }
 
-    g3dvector_normalize ( &fac->nor, &fac->surface );
+    g3dvector_normalize ( facnor, &fac->surface );
 }
 
 /******************************************************************************/

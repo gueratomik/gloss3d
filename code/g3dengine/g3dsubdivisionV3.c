@@ -1603,7 +1603,10 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
             for ( i = 0x00; i < nbParentOuterFaces; i++ ) {
                 G3DSUBVERTEX *subver = outerVertices++; nbOuterVertices++;
 
-                if ( curOuterFaces[i].fac.nbuvs ) {
+                /* don't subdivide uvsets for the first level (they are */
+                /* already subdivided at level 0 and this way we dont need */
+                /* to protect the access with mutex */
+                if ( loopID != 0x00 && curOuterFaces[i].fac.nbuvs ) {
                     g3dface_subdivideUVSets ( &curOuterFaces[i].fac );
                 }
                                                  /* todo: topology is needed for both elevation and displacement */

@@ -123,4 +123,7 @@ void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
     subfac->fac.luvs->data = uvs;
 
     subfac->fac.nbuvs++;
+
+    /**** prepare the next step ***/
+    /*g3duvset_subdivide ( uvs, subfac );*/
 }
